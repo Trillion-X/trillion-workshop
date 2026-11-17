@@ -84,17 +84,6 @@ impl Dialect {
     }
 }
 
-/// How to reach a Postgres database. The password is the credential the engine attached, read by the caller.
-pub struct PostgresAddress<'a> {
-    pub host: &'a str,
-    pub port: u16,
-    pub database: &'a str,
-    pub user: &'a str,
-    pub password: &'a str,
-    /// Whether the connection is encrypted. Only a database on this computer's own loopback may be reached without it.
-    pub encrypted: bool,
-}
-
 enum Inner {
     Sqlite(rusqlite::Connection),
     Postgres(Box<postgres::Client>),
@@ -122,6 +111,13 @@ impl Link {
         Self::sqlite_over(connection, path.display().to_string())
     }
 
+    /// A SQLite file that is only read: opened read-only, with no pragma, no permission change and no journal of its own, so a file in use
+    /// by another program (the account owner's archive) is left exactly as it is.
+    pub fn archive(path: &Path) -> Result<Self, Error> {
+        let connection = rusqlite::Connection::open_with_flags(path, rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY | rusqlite::OpenFlags::SQLITE_OPEN_NO_MUTEX).map_err(unavailable)?;
+        Ok(Self { inner: Inner::Sqlite(connection), place: path.display().to_string() })
+    }
+
     /// A SQLite database that lives only as long as the link (tests).
     pub fn memory() -> Result<Self, Error> {
         Self::sqlite_over(rusqlite::Connection::open_in_memory().map_err(unavailable)?, ":memory:".to_owned())
@@ -134,11 +130,21 @@ impl Link {
         Ok(Self { inner: Inner::Sqlite(connection), place })
     }
 
-    /// The person's Postgres database.
-    pub fn postgres(address: &PostgresAddress<'_>) -> Result<Self, Error> {
-        let mut config = postgres::Config::new();
-        config.host(address.host).port(address.port).dbname(address.database).user(address.user).password(address.password);
-        let client = if address.encrypted {
+    /// The person's Postgres database, from the connection string the engine attached to the run (`postgresql://user:password@host:port/database`).
+    /// Only a database on this computer's own loopback may be reached without encryption.
+    pub fn postgres(connection: &str) -> Result<Self, Error> {
+        let mut config: postgres::Config = connection.parse().map_err(|_| Error::Invalid("the database connection is not a Postgres connection string", crate::cause!()))?;
+        // The server's own error text can carry the connection string's parts; none of it is kept.
+        config.application_name("live-namespace");
+        let loopback = !config.get_hosts().is_empty()
+            && config.get_hosts().iter().all(|host| matches!(host, postgres::config::Host::Tcp(name) if matches!(name.as_str(), "127.0.0.1" | "localhost" | "::1")));
+        let place = match (config.get_hosts().first(), config.get_ports().first(), config.get_dbname()) {
+            (Some(postgres::config::Host::Tcp(host)), Some(port), Some(database)) => format!("postgres://{host}:{port}/{database}"),
+            _ => "postgres".to_owned(),
+        };
+        let client = if loopback {
+            config.connect(postgres::NoTls).map_err(unavailable)?
+        } else {
             let roots = rustls_native_certs::load_native_certs();
             let mut store = rustls::RootCertStore::empty();
             for certificate in roots.certs {
@@ -150,13 +156,8 @@ impl Link {
                 .with_root_certificates(store)
                 .with_no_client_auth();
             config.connect(tokio_postgres_rustls::MakeRustlsConnect::new(tls)).map_err(unavailable)?
-        } else {
-            if !matches!(address.host, "127.0.0.1" | "localhost" | "::1") {
-                return Err(Error::Invalid("a database off this computer is reached encrypted only", crate::cause!()));
-            }
-            config.connect(postgres::NoTls).map_err(unavailable)?
         };
-        Ok(Self { inner: Inner::Postgres(Box::new(client)), place: format!("postgres://{}:{}/{}", address.host, address.port, address.database) })
+        Ok(Self { inner: Inner::Postgres(Box::new(client)), place })
     }
 
     pub fn dialect(&self) -> Dialect {
@@ -321,9 +322,8 @@ mod tests {
     }
 
     #[test]
-    fn a_database_off_this_computer_is_refused_unencrypted_before_any_connection() {
-        let address = PostgresAddress { host: "db.example.test", port: 5432, database: "d", user: "u", password: "p", encrypted: false };
-        assert!(matches!(Link::postgres(&address), Err(Error::Invalid(..))));
+    fn a_text_that_is_no_connection_string_is_refused_before_any_connection() {
+        assert!(matches!(Link::postgres("not a connection"), Err(Error::Invalid(..))));
     }
 
     #[test]

@@ -11,7 +11,8 @@ implementation, over SQLite (a file of the person's own) or Postgres (the person
 | `mod.rs` | `Rows` (the trait), `SqlStore` (its implementation), `Record`, `Mutation`, `Change`, `Page`, `Total`, `Error`, and the tests |
 | `link.rs` | `Link`: one connection to SQLite or Postgres behind `query`, `execute`, `batch` and the transaction brackets; `Cell`, `Dialect` |
 | `tables.json` | DATA: which table keeps which scope, each table's columns, and the declared totals |
-| `copy-from-archive.sql` | The `INSERT ... SELECT` a table that copies the account owner's archive tables in |
+| `copy.rs` | `SqlStore::copy_from_archive`: reads each archive table (read-only) and writes its rows here a batch at a time, resumably, in SQLite or Postgres |
+| `copy-from-archive.sql` | The mapping: the `INSERT` column list and `SELECT` a table that makes this store's rows from the archive's |
 
 ## Key Types / Functions
 
@@ -41,9 +42,12 @@ implementation, over SQLite (a file of the person's own) or Postgres (the person
 ## Copying the account owner's rows in
 
 The archive's `ns_name`, `ns_folder`, `ns_file`, `ns_chunk`, `ns_alias` and `ns_spans` are the same columns as here, so each copies in with one
-`INSERT ... SELECT` (`copy-from-archive.sql`): `scope` is made from the row's own id, `version` is 1 and an empty archive `extra` is no extra. The
-test `the_archive_tables_copy_in_with_one_insert_select_each_and_read_back_as_the_files_expect` runs that file over archive-shaped tables and reads
-the copy through `Rows`. The archive has 912,272 names, 128,859 folders, 670,627 files, 767,895 chunks, 63,700 aliases and 165,674 span rows.
+`INSERT ... SELECT` (`copy-from-archive.sql`): `scope` is made from the row's own id, `version` is 1 and an empty archive `extra` is no extra.
+`copy.rs` runs each SELECT against the archive opened read-only (`Link::archive`), a batch of 400 rows by id order, and writes the rows with
+`ON CONFLICT DO NOTHING`, so it works for Postgres (which cannot attach a SQLite file) and a copy that stopped is run again (`live-namespace
+copy-archive --from FILE`; the whole archive, 2.7 million rows, copied into a Postgres on this computer in 39 seconds with every table's count
+equal). The test `the_archive_tables_copy_in_with_one_insert_select_each_and_read_back_as_the_files_expect` runs it over archive-shaped tables
+and reads the copy through `Rows`; the store's tests run on Postgres too when `NAMESPACE_POSTGRES_TEST_CONNECTION` names a throwaway database. The archive has 912,272 names, 128,859 folders, 670,627 files, 767,895 chunks, 63,700 aliases and 165,674 span rows.
 
 ## Dependencies
 

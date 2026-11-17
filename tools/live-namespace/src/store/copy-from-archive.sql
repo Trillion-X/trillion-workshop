@@ -1,8 +1,8 @@
--- The account owner's names index, from the archive tables of the same names (schema `archive`: ns_name, ns_folder, ns_file, ns_chunk,
--- ns_alias, ns_spans) into the tables of src/store/tables.json, one statement a table. Run each once, in this order, on an empty database
--- the tool has opened (it made the tables). It is a plain INSERT ... SELECT: every archive column is a column here, `scope` is made from the
--- row's own id (a name's or folder's scope is its tree and its parent folder: `rtrim(id, replace(id, '/', ''))` is the id up to and
--- including its last slash), `version` is 1, and an archive `extra` of '' is no extra. The same text runs in SQLite and in Postgres.
+-- The account owner's names index, from the archive tables of the same names (ns_name, ns_folder, ns_file, ns_chunk, ns_alias, ns_spans)
+-- into the tables of src/store/tables.json, one statement a table. src/store/copy.rs reads this file: each INSERT names the table and its
+-- columns, and its SELECT runs against the archive (read-only) to make the rows. Every archive column is a column here, `scope` is made from
+-- the row's own id (a name's or folder's scope is its tree and its parent folder: `rtrim(id, replace(id, '/', ''))` is the id up to and
+-- including its last slash), `version` is 1, and an archive `extra` of '' is no extra. The SELECTs are plain SQLite, which the archive is.
 INSERT INTO ns_chunk (scope, id, version, byte_length, "key", kind, origin, stored_at, extra)
 SELECT '@namespace/chunks', id, 1, CAST(byte_length AS BIGINT), "key", kind, origin, stored_at, NULLIF(extra, '')
 FROM archive.ns_chunk;

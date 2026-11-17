@@ -18,11 +18,7 @@ use super::{objects::ObjectError, AccountFiles, AccountFilesError};
 use crate::store::Store;
 use serde::Deserialize;
 use serde_json::Value;
-use std::{
-    path::Path,
-    sync::{Arc, OnceLock},
-    time::Instant,
-};
+use std::{path::Path, sync::OnceLock};
 
 /// What lets a call's bytes in (`source_reads`).
 pub type LetIn = super::source_reads::Admission;
@@ -260,67 +256,11 @@ impl AccountFilesDoor {
         std::time::Duration::from_secs(self.settings.usage.flush_seconds.max(1))
     }
 
-    /// What lets in the bytes of a call here: one name, every byte also the account's own usage count (`call_with_control`
+    /// What lets in the bytes of a call here: one name, every byte also the account's own usage count (`call_with_control_inner`
     /// adds the account's tally).
     pub fn bytes_let_in(&self) -> LetIn {
         static COUNTED: OnceLock<LetIn> = OnceLock::new();
         COUNTED.get_or_init(|| super::source_reads::Unmetered::new("person's calls").into()).clone()
-    }
-
-    /// Answer one call: run the account files' tool `operation` over `store`, with a transient current/cancellation check at
-    /// every account files commit and byte boundary. A paged operation takes no step after `until` and answers where to
-    /// resume. Partial earlier steps and an already transmitted PUT retain their existing unknown-effect semantics.
-    /// `state_root` is the folder this run keeps its own working files in (the usage counts' pending file).
-    #[allow(clippy::too_many_arguments)]
-    pub fn call_while(
-        &self,
-        state_root: &Path,
-        store: &Store,
-        account: &str,
-        operation: &str,
-        input: &Value,
-        until: Instant,
-        current: Arc<dyn Fn() -> bool + Send + Sync>,
-    ) -> Result<Value, Failure> {
-        self.call_with_control(state_root, store, account, operation, input, super::CallControl::new(until, current, self.bytes_let_in()))
-    }
-
-    /// The same call with a caller-owned bound on the complete answer envelope. Bounded transports use this so a read
-    /// selects a smaller raw byte range before it asks the account's source for bytes.
-    #[allow(clippy::too_many_arguments)]
-    pub fn call_while_fitting(
-        &self,
-        state_root: &Path,
-        store: &Store,
-        account: &str,
-        operation: &str,
-        input: &Value,
-        until: Instant,
-        current: Arc<dyn Fn() -> bool + Send + Sync>,
-        fits: &dyn Fn(&Value) -> bool,
-    ) -> Result<Value, Failure> {
-        self.call_with_control_fitting(
-            state_root,
-            store,
-            account,
-            operation,
-            input,
-            super::CallControl::new(until, current, self.bytes_let_in()),
-            fits,
-        )
-    }
-
-    /// One admitted caller's complete control: its byte admission and its share delivery owner.
-    pub fn call_with_control(
-        &self,
-        state_root: &Path,
-        store: &Store,
-        account: &str,
-        operation: &str,
-        input: &Value,
-        control: super::CallControl,
-    ) -> Result<Value, Failure> {
-        self.call_with_control_inner(state_root, store, account, operation, input, control, None)
     }
 
     /// One admitted call whose read answer must fit the caller's complete response envelope.

@@ -65,6 +65,7 @@ mod release;
 mod results;
 mod secrets;
 pub mod settings;
+pub mod share_anything;
 pub mod share_delivery;
 pub mod source_reads;
 pub mod usage;
@@ -96,7 +97,7 @@ pub struct CallControl {
     until: Option<Instant>,
     current: Arc<dyn Fn() -> bool + Send + Sync>,
     admission: source_reads::Admission,
-    share_delivery: Option<Arc<dyn share_delivery::ShareDelivery>>,
+    share_authority: Option<Arc<dyn share_delivery::ShareAuthority>>,
     idle: Option<Duration>,
 }
 impl Default for CallControl {
@@ -105,7 +106,7 @@ impl Default for CallControl {
             until: None,
             current: Arc::new(|| true),
             admission: source_reads::Admission::none(),
-            share_delivery: None,
+            share_authority: None,
             idle: None,
         }
     }
@@ -123,7 +124,7 @@ impl CallControl {
             until: Some(until),
             current,
             admission,
-            share_delivery: None,
+            share_authority: None,
             idle: None,
         }
     }
@@ -151,10 +152,10 @@ impl CallControl {
         self
     }
 
-    /// The grant-aware delivery owner for share links. Without it a share is
+    /// The share authority (share-anything): who authorizes a share link. Without it a share is
     /// refused: no unobserved provider URL is ever minted.
-    pub fn with_share_delivery(mut self, delivery: Arc<dyn share_delivery::ShareDelivery>) -> Self {
-        self.share_delivery = Some(delivery);
+    pub fn with_share_authority(mut self, authority: Arc<dyn share_delivery::ShareAuthority>) -> Self {
+        self.share_authority = Some(authority);
         self
     }
     fn check(&self) -> Result<(), Error> {
@@ -501,10 +502,9 @@ impl AccountFiles {
         self
     }
 
-    /// Reuse the caller's current grant-aware share delivery owner. Chunked
-    /// files can use that owner because it reads through this account files.
-    pub fn with_share_delivery(mut self, delivery: Arc<dyn share_delivery::ShareDelivery>) -> Self {
-        self.control.share_delivery = Some(delivery);
+    /// Reuse the caller's share authority (share-anything).
+    pub fn with_share_authority(mut self, authority: Arc<dyn share_delivery::ShareAuthority>) -> Self {
+        self.control.share_authority = Some(authority);
         self.objects.set_control(self.control.clone());
         self
     }
@@ -1079,11 +1079,11 @@ impl AccountFiles {
         Ok(shown)
     }
 
-    /// `share_file`: ask the supplied grant-aware delivery owner for a share of
-    /// one immutable identity, including a chunked file. Without that owner the
-    /// share is refused: this byte port never mints a provider URL, whose reads
-    /// would bypass the byte check. The audit keeps identity, expiry and
-    /// grant id, never the URL; its id is the URL's BLAKE3 digest.
+    /// `share_file`: share one immutable file through share-anything. The byte link (a GET of the file's one object, signed for
+    /// `seconds`) is minted here and handed to the share authority, which keeps it in a record only the share's holders can read and
+    /// answers the share's address. Without an authority the share is refused: this byte port never hands out a provider URL on its
+    /// own, whose reads would be no one's to stop. The audit keeps identity, expiry and grant id, never the URL; its id is the URL's
+    /// BLAKE3 digest.
     pub fn share_file(&mut self, name_or_identity: &str, seconds: u64) -> Answer<Value> {
         if !(1..=MOST_SHARE_SECONDS).contains(&seconds) {
             return Err(AccountFilesError::Invalid(
@@ -1092,8 +1092,8 @@ impl AccountFiles {
         }
         let found = self.resolve(name_or_identity)?;
         let file = &found.file;
-        let delivery = self.control.share_delivery.clone()
-            .ok_or(AccountFilesError::Invalid("an account's files share needs its grant-aware delivery owner; a raw provider URL would bypass the byte admission", crate::cause!()))?;
+        let authority = self.control.share_authority.clone()
+            .ok_or(AccountFilesError::Invalid("a share needs its authority (share-anything): a raw provider URL would bypass it", crate::cause!()))?;
         let size = file
             .value
             .get("byte_length")
@@ -1101,14 +1101,17 @@ impl AccountFiles {
             .ok_or(crate::cause!(Error::Unavailable))?;
         let signed_at = chrono::Utc::now();
         self.check_current()?;
-        let minted = delivery.mint(
+        let download = share_delivery::presigned_link(self.objects.as_ref(), file, seconds)?;
+        let minted = authority.authorize(
             &share_delivery::ShareFile {
                 identity: file.id.clone(),
+                name: found.name.clone().unwrap_or_else(|| file.id.clone()),
                 byte_length: size,
                 media_type: text(&file.value, "media_type")
                     .unwrap_or("application/octet-stream")
                     .to_owned(),
             },
+            &download,
             seconds,
         )?;
         if minted.grant_id.is_empty()
@@ -1124,7 +1127,7 @@ impl AccountFiles {
             })
         {
             return Err(AccountFilesError::Invalid(
-                "the share delivery owner returned no valid grant-bound URL",
+                "the share authority returned no valid share address",
              crate::cause!()));
         }
         let (url, grant_id) = (minted.url, minted.grant_id);

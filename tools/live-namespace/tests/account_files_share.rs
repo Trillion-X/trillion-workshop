@@ -430,19 +430,47 @@ fn incomplete_response_head_is_unknown_not_zero_and_whole_object_response_is_ref
 }
 
 #[test]
-fn a_share_with_no_delivery_owner_is_refused_rather_than_minting_a_provider_url() {
+fn a_share_with_no_share_authority_is_refused_rather_than_minting_a_provider_url() {
     let (endpoint, kept) = stand_in();
     let (mut account_files, origins) = account_files(&endpoint);
     account_files.write_file("/a.txt", b"data", "text/plain", &origins).unwrap();
     let before = kept.requests.lock().unwrap().len();
     let answer = account_files.call("share_file", &json!({ "name_or_identity": "/a.txt", "seconds": 600 })).unwrap();
-    assert!(matches!(&answer, Err(AccountFilesError::Invalid(why, _)) if why.contains("delivery owner")), "{answer:?}");
+    assert!(matches!(&answer, Err(AccountFilesError::Invalid(why, _)) if why.contains("authority")), "{answer:?}");
     assert_eq!(kept.requests.lock().unwrap().len(), before, "nothing reached the store");
     assert!(account_files.store.list_page(SHARES, "", 100).unwrap().items.is_empty(), "nothing audited");
 }
 
 #[test]
-fn a_mediated_chunked_share_audits_only_its_grant() {
+fn a_share_hands_its_signed_byte_link_to_the_authority_and_audits_only_the_grant() {
+    let (endpoint, kept) = stand_in();
+    let (mut account_files, origins) = account_files(&endpoint);
+    let written = account_files.write_file("/a.txt", b"data", "text/plain", &origins).unwrap();
+    let identity = written["identity"].as_str().unwrap().to_owned();
+    let before = kept.requests.lock().unwrap().len();
+    let minted = Arc::new(Mutex::new(Vec::new()));
+    account_files = account_files.with_share_authority(Arc::new(GrantAuthority { minted: minted.clone(), current: None }));
+    let shared = account_files.share_file("/a.txt", 60).unwrap();
+    assert_eq!(kept.requests.lock().unwrap().len(), before, "a signed link is made without asking the store");
+    let calls = minted.lock().unwrap();
+    assert_eq!(calls.len(), 1);
+    let (file, download, seconds) = &calls[0];
+    assert_eq!((file.identity.as_str(), file.name.as_str(), file.byte_length, file.media_type.as_str(), *seconds), (identity.as_str(), "/a.txt", 4, "text/plain", 60));
+    assert!(download.starts_with(&format!("{endpoint}/bucket/")), "{download}");
+    assert!(download.contains("X-Amz-Expires=60&") && download.contains("X-Amz-SignedHeaders=host&X-Amz-Signature="), "{download}");
+    let audit = account_files.store.list_page(SHARES, "", 100).unwrap();
+    assert_eq!(audit.items.len(), 1);
+    assert_eq!(audit.items[0].value["grant_id"], "sharing:synthetic");
+    assert_eq!(audit.items[0].value["delivery"], "grant-bound");
+    assert_eq!(audit.items[0].value["identity"], identity);
+    let text = audit.items[0].value.to_string();
+    assert!(!text.contains("synthetic-bearer") && !text.contains("X-Amz"), "the audit never keeps a URL");
+    assert!(shared["url"].as_str().unwrap().contains("synthetic-bearer"));
+    assert!(!shared.to_string().contains("X-Amz"), "the byte link is only in the share's own record");
+}
+
+#[test]
+fn a_file_kept_in_chunks_is_not_shared_because_it_has_no_one_object_to_link() {
     use live_namespace::account_files::{FILES, FILE_KIND};
     let (endpoint, _) = stand_in();
     let (mut account_files, _) = account_files(&endpoint);
@@ -451,21 +479,10 @@ fn a_mediated_chunked_share_audits_only_its_grant() {
         request_key: "synthetic-chunk-share".into(), deleted: false,
         value: json!({"kind":FILE_KIND,"byte_length":9,"media_type":"text/plain","spans":2,"names":[]}) }).unwrap();
     let minted = Arc::new(Mutex::new(Vec::new()));
-    account_files = account_files.with_share_delivery(Arc::new(GrantDelivery { minted: minted.clone(), current: None }));
-    let shared = account_files.share_file(&identity, 60).unwrap();
-    let calls = minted.lock().unwrap();
-    assert_eq!(calls.len(), 1);
-    assert_eq!(calls[0].0.identity, identity);
-    assert_eq!(calls[0].0.byte_length, 9);
-    assert_eq!(calls[0].1, 60);
-    let audit = account_files.store.list_page(SHARES, "", 100).unwrap();
-    assert_eq!(audit.items.len(), 1);
-    assert_eq!(audit.items[0].value["grant_id"], "sharing:synthetic");
-    assert_eq!(audit.items[0].value["delivery"], "grant-bound");
-    assert_eq!(audit.items[0].value["identity"], identity);
-    assert!(audit.items[0].value.get("origin").is_none());
-    assert!(!audit.items[0].value.to_string().contains("synthetic-bearer"));
-    assert!(shared["url"].as_str().unwrap().contains("synthetic-bearer"));
+    account_files = account_files.with_share_authority(Arc::new(GrantAuthority { minted: minted.clone(), current: None }));
+    assert!(matches!(account_files.share_file(&identity, 60), Err(AccountFilesError::Objects(ObjectError::Unavailable(why, _), _)) if why.contains("chunks")));
+    assert!(minted.lock().unwrap().is_empty(), "the authority was never asked");
+    assert!(account_files.store.list_page(SHARES, "", 100).unwrap().items.is_empty());
 }
 
 /// One deliberately malformed or partial response, with no real supplier.
@@ -492,7 +509,7 @@ fn response_once(response: Vec<u8>, withdraw: Option<Arc<std::sync::atomic::Atom
 }
 
 #[test]
-fn mediated_share_withdrawal_during_mint_never_returns_or_audits_url() {
+fn share_withdrawal_during_authorization_never_returns_or_audits_url() {
     let (endpoint, _) = stand_in();
     let (mut account_files, origins) = account_files(&endpoint);
     account_files.write_file("/a.txt", b"data", "text/plain", &origins).unwrap();
@@ -500,7 +517,7 @@ fn mediated_share_withdrawal_during_mint_never_returns_or_audits_url() {
     let witness = current.clone();
     account_files = account_files.until(Instant::now() + Duration::from_secs(5))
         .while_current(Arc::new(move || witness.load(Ordering::Acquire)))
-        .with_share_delivery(Arc::new(GrantDelivery { minted: Arc::default(), current: Some(current) }));
+        .with_share_authority(Arc::new(GrantAuthority { minted: Arc::default(), current: Some(current) }));
     assert!(account_files.share_file("/a.txt", 60).is_err());
     assert!(account_files.store.list_page(SHARES, "", 100).unwrap().items.is_empty());
 }
@@ -710,16 +727,15 @@ fn account_files(endpoint: &str) -> (AccountFiles, Vec<(String, Origin)>) {
     (AccountFiles::with_objects(record_store(), ACCOUNT, Box::new(objects)), origins)
 }
 
-/// A configured bridge receives immutable identity and metadata only. Provider
-/// origin/key and the bearer URL never become an independent share policy here.
-struct GrantDelivery {
-    minted: Arc<Mutex<Vec<(live_namespace::account_files::share_delivery::ShareFile, u64)>>>,
+/// A stand-in share authority: it is told the file's immutable facts and the signed byte link, and answers a share address.
+struct GrantAuthority {
+    minted: Arc<Mutex<Vec<(live_namespace::account_files::share_delivery::ShareFile, String, u64)>>>,
     current: Option<Arc<std::sync::atomic::AtomicBool>>,
 }
-impl live_namespace::account_files::share_delivery::ShareDelivery for GrantDelivery {
-    fn mint(&self, file: &live_namespace::account_files::share_delivery::ShareFile, seconds: u64)
+impl live_namespace::account_files::share_delivery::ShareAuthority for GrantAuthority {
+    fn authorize(&self, file: &live_namespace::account_files::share_delivery::ShareFile, download: &str, seconds: u64)
         -> Result<live_namespace::account_files::share_delivery::SharedDelivery, ObjectError> {
-        self.minted.lock().unwrap().push((file.clone(), seconds));
+        self.minted.lock().unwrap().push((file.clone(), download.to_owned(), seconds));
         if let Some(current) = &self.current { current.store(false, std::sync::atomic::Ordering::Release); }
         Ok(live_namespace::account_files::share_delivery::SharedDelivery {
             url: "https://files.example.invalid/share/synthetic-bearer".into(), grant_id: "sharing:synthetic".into(),

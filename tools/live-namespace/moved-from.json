@@ -103,15 +103,6 @@
     },
     {
       "source": "Trillion-X/trillion-rust",
-      "from": "src/account_files/families.json",
-      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
-      "to": "tools/live-namespace/src/account_files/families.json",
-      "source_identity": "1f:48d97e5ca9bde98b3c62a9f34c55c6f362ec4ffbd1a41433dde3af760b12aebd",
-      "identity": "1f:48d97e5ca9bde98b3c62a9f34c55c6f362ec4ffbd1a41433dde3af760b12aebd",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-rust",
       "from": "src/account_files/mod.rs",
       "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
       "to": "tools/live-namespace/src/account_files/mod.rs",
@@ -158,11 +149,11 @@
       "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
       "to": "tools/live-namespace/src/account_files/objects.rs",
       "source_identity": "1f:9e05c735558280f2043597134de78b5aa0778bf82c0a0bc3cdc325879c7b12ff",
-      "identity": "1f:c12cbd6544cb7ae9eeeb7aaea33610b33ed3387ded07eea38073246ffbcd087f",
-      "found_by": "byte copy",
+      "identity": "1f:20df44c315d56e067361b6867537f29ae90be9f3e08920a9eaeb36a058c7ec3a",
       "calls": [
         "person-name"
-      ]
+      ],
+      "adapted": "Adds presign_get: a GET of one object signed into the URL query for the share's seconds (SigV4, host the only signed header), proved against the AWS documented example."
     },
     {
       "source": "Trillion-X/trillion-rust",
@@ -233,8 +224,8 @@
       "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
       "to": "tools/live-namespace/src/account_files/share_delivery.rs",
       "source_identity": "1f:804242710e946fe9bf43940e73e74a2d1f984ed7c38073d5b053dfd936a5a200",
-      "identity": "1f:804242710e946fe9bf43940e73e74a2d1f984ed7c38073d5b053dfd936a5a200",
-      "found_by": "byte copy"
+      "identity": "1f:9f0ddfac70d7b7c97888fa844cd8a949de9ae0d5ef13c9f0351795a9c1eb42df",
+      "adapted": "Rewritten: the grant-aware delivery owner seam becomes the share authority seam (share-anything), plus the signed byte link of a whole-object file."
     },
     {
       "source": "Trillion-X/trillion-rust",
@@ -243,15 +234,6 @@
       "to": "tools/live-namespace/src/account_files/source_reads.rs",
       "source_identity": "1f:0cc49b40f4da783679f735968b5f10e48a458253eb6940e4d11454a8b5cf7d62",
       "identity": "1f:0cc49b40f4da783679f735968b5f10e48a458253eb6940e4d11454a8b5cf7d62",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-rust",
-      "from": "src/account_files/take.json",
-      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
-      "to": "tools/live-namespace/src/account_files/take.json",
-      "source_identity": "1f:ea6ca82c4ef8326957896bf4ed6918dd6c03d0d0c4cc48019eb7a7df442eaacf",
-      "identity": "1f:ea6ca82c4ef8326957896bf4ed6918dd6c03d0d0c4cc48019eb7a7df442eaacf",
       "found_by": "byte copy"
     },
     {
@@ -460,6 +442,78 @@
       "source_identity": "1f:9ea3d7380f1f149421e41ffada3103dac960f4173bc767f59142cfae87b3f716",
       "identity": "1f:9ea3d7380f1f149421e41ffada3103dac960f4173bc767f59142cfae87b3f716",
       "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/content-crypto/Cargo.toml",
+      "commit": "26c296c134bf29f46cf3ba0790eb64cc0ed5a9a1",
+      "to": "tools/live-namespace/content-crypto/Cargo.toml",
+      "source_identity": "1f:4e03351eb708368cac0bc2cf2ce2eca3e21b070119c08ab48390760357b4f036",
+      "identity": "1f:eae54ea75a26e4c1a19473150675a4e3e779567f883f26dbd4f1839e854610d1",
+      "adapted": "Literal dependency versions replace the workspace ones, the package is its own crate under this tool, and the clippy lint levels match this tool."
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/content-crypto/README.md",
+      "commit": "26c296c134bf29f46cf3ba0790eb64cc0ed5a9a1",
+      "to": "tools/live-namespace/content-crypto/README.md",
+      "source_identity": "1f:f94d311a11c0d7393bbff9fac85a602fb154e9dcbf53d3122a3d1c9f6f34f8d3",
+      "identity": "1f:f94d311a11c0d7393bbff9fac85a602fb154e9dcbf53d3122a3d1c9f6f34f8d3",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/content-crypto/src/lib.rs",
+      "commit": "26c296c134bf29f46cf3ba0790eb64cc0ed5a9a1",
+      "to": "tools/live-namespace/content-crypto/src/lib.rs",
+      "source_identity": "1f:7ed8e28b2eb581bda428dbdf6f1fc316b4057e7e3eed21ed6681a8167c490f39",
+      "identity": "1f:7ed8e28b2eb581bda428dbdf6f1fc316b4057e7e3eed21ed6681a8167c490f39",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/content-crypto/src/multihash.rs",
+      "commit": "26c296c134bf29f46cf3ba0790eb64cc0ed5a9a1",
+      "to": "tools/live-namespace/content-crypto/src/multihash.rs",
+      "source_identity": "1f:d44a49c9e9bd868dae4992b9bb928242f5e95c4bb5b7521f31d2ebd8f3df7392",
+      "identity": "1f:d44a49c9e9bd868dae4992b9bb928242f5e95c4bb5b7521f31d2ebd8f3df7392",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/content-crypto/src/signature.rs",
+      "commit": "26c296c134bf29f46cf3ba0790eb64cc0ed5a9a1",
+      "to": "tools/live-namespace/content-crypto/src/signature.rs",
+      "source_identity": "1f:0b4e34301a9b5e2175081a5ec2ad3d41171c91ad7902221bea3e1fa67ee193cf",
+      "identity": "1f:0b4e34301a9b5e2175081a5ec2ad3d41171c91ad7902221bea3e1fa67ee193cf",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/content-crypto/src/subtree.rs",
+      "commit": "26c296c134bf29f46cf3ba0790eb64cc0ed5a9a1",
+      "to": "tools/live-namespace/content-crypto/src/subtree.rs",
+      "source_identity": "1f:fc3df91d42eef1758c4353b331b9de840ee62373c9fb8e8046325b09551ef699",
+      "identity": "1f:fc3df91d42eef1758c4353b331b9de840ee62373c9fb8e8046325b09551ef699",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/content-crypto/src/varint.rs",
+      "commit": "26c296c134bf29f46cf3ba0790eb64cc0ed5a9a1",
+      "to": "tools/live-namespace/content-crypto/src/varint.rs",
+      "source_identity": "1f:1c1916ccf8a2c487020829f233b3fe0f8327940bbb5ef255afface25172c5fa1",
+      "identity": "1f:1c1916ccf8a2c487020829f233b3fe0f8327940bbb5ef255afface25172c5fa1",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "crates/content-crypto/src/verify.rs",
+      "commit": "26c296c134bf29f46cf3ba0790eb64cc0ed5a9a1",
+      "to": "tools/live-namespace/content-crypto/src/verify.rs",
+      "source_identity": "1f:3dfba8303844b37fed19c25de75c88f7c49864bea61e534029c002908ec0ca8c",
+      "identity": "1f:3dfba8303844b37fed19c25de75c88f7c49864bea61e534029c002908ec0ca8c",
+      "found_by": "byte copy"
     }
   ],
   "left_out": [
@@ -588,6 +642,20 @@
       "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
       "source_identity": "1f:05a4c29e7c7dac6c399e0c27e9b292f9355e2f5aeef058a05755088b56b372b0",
       "why": "Nov 16 2026: fixtures of the engine's byte budget test, deleted with it."
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "src/account_files/families.json",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "source_identity": "1f:48d97e5ca9bde98b3c62a9f34c55c6f362ec4ffbd1a41433dde3af760b12aebd",
+      "why": "Nov 16 2026: the engine record store's page-path and take DATA; this tool keeps its rows in the person's own SQL database (src/store) and links no record store."
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "src/account_files/take.json",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "source_identity": "1f:ea6ca82c4ef8326957896bf4ed6918dd6c03d0d0c4cc48019eb7a7df442eaacf",
+      "why": "Nov 16 2026: the engine record store's page-path and take DATA; this tool keeps its rows in the person's own SQL database (src/store) and links no record store."
     }
   ]
 }

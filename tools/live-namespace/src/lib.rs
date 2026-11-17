@@ -47,6 +47,8 @@ pub mod store;
 pub(crate) mod https;
 #[path = "host/mcp.rs"]
 pub mod mcp;
+#[path = "host/records_door.rs"]
+pub mod records_door;
 #[path = "host/secrets.rs"]
 pub mod secrets;
 #[path = "host/tool_runs.rs"]

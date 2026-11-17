@@ -29,6 +29,7 @@
 // The extensive documentation in this codebase is a critical design feature.
 // You are forbidden from simplifying or removing it. Maintain and extend this detail.
 
+mod copy;
 pub mod link;
 
 use link::{Cell, Dialect, Link};
@@ -600,7 +601,7 @@ impl Rows for SqlStore {
         for declared in &declared().totals {
             match (&declared.table, &declared.scope) {
                 (Some(table), _) => {
-                    let sum = declared.sum.as_deref().map_or("0".to_owned(), |column| format!("CAST(COALESCE(SUM(\"{column}\"), 0) AS BIGINT)"));
+                    let sum = declared.sum.as_deref().map_or("CAST(0 AS BIGINT)".to_owned(), |column| format!("CAST(COALESCE(SUM(\"{column}\"), 0) AS BIGINT)"));
                     let (select, group) = match declared.group.as_deref() {
                         Some(group) => (format!("\"{group}\", COUNT(*), {sum}"), format!(" GROUP BY \"{group}\" ORDER BY \"{group}\"")),
                         None => (format!("NULL, COUNT(*), {sum}"), String::new()),
@@ -655,6 +656,19 @@ mod tests {
     use super::*;
     use serde_json::json;
 
+    /// The store the tests run on: SQLite in memory, or, when `NAMESPACE_POSTGRES_TEST_CONNECTION` holds the connection string of a throwaway
+    /// Postgres database, a schema of its own in that database, so every statement is also proved on Postgres.
+    fn under_test() -> SqlStore {
+        static NEXT: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
+        let Ok(connection) = std::env::var("NAMESPACE_POSTGRES_TEST_CONNECTION") else {
+            return SqlStore::memory().unwrap();
+        };
+        let schema = format!("t{}_{}", std::process::id(), NEXT.fetch_add(1, std::sync::atomic::Ordering::Relaxed));
+        Link::postgres(&connection).unwrap().batch(&format!("CREATE SCHEMA {schema}")).unwrap();
+        let joiner = if connection.contains('?') { '&' } else { '?' };
+        SqlStore::open(Link::postgres(&format!("{connection}{joiner}options=-c%20search_path%3D{schema}")).unwrap()).unwrap()
+    }
+
     fn put(store: &SqlStore, scope: &str, id: &str, expected: i64, key: &str, value: Value) -> Result<Change, Error> {
         store.mutate(scope, Mutation { id: id.into(), expected_version: expected, request_key: key.into(), deleted: false, value })
     }
@@ -667,7 +681,7 @@ mod tests {
 
     #[test]
     fn a_row_is_made_changed_and_deleted_only_at_the_version_the_caller_read() {
-        let store = SqlStore::memory().unwrap();
+        let store = under_test();
         let scope = "@namespace/chunks";
         assert_eq!(store.held_record_with_version(scope, "c").unwrap(), (0, None));
         let made = put(&store, scope, "c", 0, "make", chunk(5, "b2")).unwrap();
@@ -689,7 +703,7 @@ mod tests {
 
     #[test]
     fn the_retry_of_a_rows_last_change_answers_that_change_and_another_change_under_its_key_is_refused() {
-        let store = SqlStore::memory().unwrap();
+        let store = under_test();
         let scope = "@namespace/chunks";
         let first = put(&store, scope, "c", 0, "key-1", chunk(5, "b2")).unwrap();
         let replay = put(&store, scope, "c", 0, "key-1", chunk(5, "b2")).unwrap();
@@ -704,7 +718,7 @@ mod tests {
 
     #[test]
     fn a_change_that_leaves_the_row_as_it_is_writes_nothing() {
-        let store = SqlStore::memory().unwrap();
+        let store = under_test();
         let scope = "@namespace/chunks";
         put(&store, scope, "c", 0, "a", chunk(5, "b2")).unwrap();
         let stamp = store.stamp(scope).unwrap();
@@ -716,7 +730,7 @@ mod tests {
 
     #[test]
     fn every_field_of_a_record_comes_back_whether_it_has_a_column_or_not() {
-        let store = SqlStore::memory().unwrap();
+        let store = under_test();
         let value = json!({
             "kind": "namespace-file", "byte_length": 12, "media_type": "text/plain", "origin": "b2", "key": "k", "spans": 0,
             "aliases": [{"alias": "12:aa", "grade": "checked"}], "names": ["/a.txt"],
@@ -733,7 +747,7 @@ mod tests {
 
     #[test]
     fn a_scope_lists_in_byte_order_a_page_at_a_time_and_only_its_own_rows() {
-        let store = SqlStore::memory().unwrap();
+        let store = under_test();
         let names = "@namespace/names/Notes";
         for (at, id) in ["/Notes/b", "/Notes/B", "/Notes/a", "/Notes/é", "/Notes/10", "/Notes/9"].iter().enumerate() {
             put(&store, names, id, 0, &format!("n{at}"), json!({"kind": "namespace-name", "name": id})).unwrap();
@@ -760,7 +774,7 @@ mod tests {
 
     #[test]
     fn a_scopes_stamp_moves_with_each_change_in_it_and_no_other() {
-        let store = SqlStore::memory().unwrap();
+        let store = under_test();
         let (a, b) = ("@namespace/names/A", "@namespace/names/B");
         assert_eq!(store.stamp(a).unwrap(), 0);
         put(&store, a, "/A/1", 0, "1", json!({"kind": "namespace-name"})).unwrap();
@@ -772,7 +786,7 @@ mod tests {
 
     #[test]
     fn the_declared_totals_count_files_by_store_names_chunks_and_uploads() {
-        let store = SqlStore::memory().unwrap();
+        let store = under_test();
         let file = |origin: &str, bytes: i64| json!({"kind": "namespace-file", "origin": origin, "byte_length": bytes});
         put(&store, "@namespace/files", "1f:1", 0, "a", file("b2", 100)).unwrap();
         put(&store, "@namespace/files", "1f:2", 0, "b", file("b2", 1)).unwrap();
@@ -792,7 +806,7 @@ mod tests {
 
     #[test]
     fn a_word_search_finds_the_files_whose_names_hold_every_word() {
-        let store = SqlStore::memory().unwrap();
+        let store = under_test();
         let file = |names: Value| json!({"kind": "namespace-file", "origin": "b2", "byte_length": 1, "names": names});
         put(&store, "@namespace/files", "1f:1", 0, "a", file(json!(["/Reports/Annual Report 2026.pdf"]))).unwrap();
         put(&store, "@namespace/files", "1f:2", 0, "b", file(json!(["/Reports/annual-budget.xlsx", "/Old/Report.txt"]))).unwrap();
@@ -808,7 +822,7 @@ mod tests {
 
     #[test]
     fn two_handles_on_one_database_see_each_others_changes() {
-        let first = SqlStore::memory().unwrap();
+        let first = under_test();
         let second = first.same_database();
         put(&first, "@namespace/chunks", "c", 0, "k", chunk(1, "b2")).unwrap();
         assert_eq!(second.get("@namespace/chunks", "c").unwrap().record.unwrap().version, 1);
@@ -847,15 +861,15 @@ mod tests {
 
     #[test]
     fn the_archive_tables_copy_in_with_one_insert_select_each_and_read_back_as_the_files_expect() {
-        let store = SqlStore::memory().unwrap();
-        {
-            let mut link = store.link.lock().unwrap();
-            link.batch("ATTACH DATABASE ':memory:' AS archive").unwrap();
-            link.batch(ARCHIVE).unwrap();
-            for statement in include_str!("copy-from-archive.sql").split(";\n").filter(|text| text.lines().any(|line| !line.starts_with("--") && !line.trim().is_empty())) {
-                link.batch(statement).unwrap();
-            }
-        }
+        let folder = tempfile::tempdir().unwrap();
+        let path = folder.path().join("archive.sqlite");
+        Link::sqlite(&path).unwrap().batch(&ARCHIVE.replace("archive.", "")).unwrap();
+        let store = under_test();
+        let mut progress = Vec::new();
+        let counts = store.copy_from_archive(&mut Link::archive(&path).unwrap(), &mut |table, rows| progress.push((table.to_owned(), rows))).unwrap();
+        assert_eq!(counts.iter().map(|(table, rows)| (table.as_str(), *rows)).collect::<Vec<_>>(), [("ns_chunk", 1), ("ns_alias", 1), ("ns_spans", 1), ("ns_file", 2), ("ns_name", 3), ("ns_folder", 2)]);
+        assert_eq!(progress.len(), 6);
+        assert_eq!(store.copy_from_archive(&mut Link::archive(&path).unwrap(), &mut |_, _| {}).unwrap().len(), 6, "a copy run again changes nothing");
         let names = store.list_page("@namespace/names/AI chat exports", "", 10).unwrap();
         assert_eq!(names.items.len(), 1);
         assert_eq!(names.items[0].value, json!({"kind": "namespace-name", "name": "/AI chat exports/a.zip", "file": "1f:aa", "identity": "1f:aa",

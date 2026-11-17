@@ -24,7 +24,7 @@ ring = "=0.17.14"
 hmac = "=0.12.1"
 sha2 = "=0.10.9"
 zeroize = "=1.8.2"
-content-crypto = { path = "../../../trillion-rust/crates/content-crypto" }
+content-crypto = { path = "content-crypto" }
 libc = "=0.2.178"
 rusqlite = { version = "=0.32.1", features = ["bundled"] }
 tokio = { version = "=1.48.0", features = ["macros", "rt-multi-thread", "net", "signal", "time", "sync", "io-util"] }

@@ -3,7 +3,7 @@
 // Purpose: One run of the Namespace tool: the person's files (the account files of this crate) served two ways from one
 // state folder. `mcp` answers each operation of the account files' routes DATA as an MCP tool over stdio (`mcp.rs`); `dav`
 // is the WebDAV folder on a loopback port (`dav.rs`) that Finder, a file browser or an editor mounts and opens files in by range.
-// Both go through the same door (`AccountFilesDoor::call_while_fitting`), so a file written one way is the file read the other.
+// Both go through the same door (`AccountFilesDoor::call_with_control_fitting`), so a file written one way is the file read the other.
 //
 // Non-Negotiable Invariants:
 // - The store credential reaches the run only on the file descriptors the engine attached, is read once into `secrets::Held`,
@@ -27,13 +27,17 @@ pub mod settings;
 use live_namespace::{
     account_files::{
         account_routes::{AccountFilesDoor, Failure},
+        share_anything::ShareAnything,
+        share_delivery::ShareAuthority,
+        CallControl,
         bind::{self, NewAccountFiles},
         settings::call_deadline,
         usage,
     },
+    records_door::RecordsDoor,
     secrets::{self, Held},
     store::{
-        link::{Link, PostgresAddress},
+        link::Link,
         SqlStore, Store,
     },
 };
@@ -59,6 +63,8 @@ pub struct Namespace {
     store: Store,
     account: String,
     call_limit: Duration,
+    /// Who authorizes a share of a file (share-anything through the door the run was handed); none when the run was handed no door.
+    share: Option<Arc<dyn ShareAuthority>>,
 }
 
 impl Namespace {
@@ -69,12 +75,27 @@ impl Namespace {
         let (state, held, store) = open_rows(settings, state)?;
         ensure_files(&store, settings, &held)?;
         usage::flush_rows_every(door.usage_flush_period(), |line| live_namespace::quiet_eprintln!("{line}"));
-        Ok(Self { door, state, store, account: settings.account.clone(), call_limit: Duration::from_secs(settings.call_seconds) })
+        let share = match &settings.share {
+            Some(share) => {
+                let descriptor = held.plain(&share.descriptor).map_err(|_| "the records door descriptor is not attached: attach it to start the run")?;
+                let door = RecordsDoor::from_descriptor(descriptor.as_str()).map_err(|error| error.to_string())?;
+                Some(Arc::new(ShareAnything::new(Box::new(door), &share.origin)) as Arc<dyn ShareAuthority>)
+            }
+            None => None,
+        };
+        Ok(Self { door, state, store, account: settings.account.clone(), call_limit: Duration::from_secs(settings.call_seconds), share })
     }
 
     /// The person's rows, opened as a run opens them, for a command that only reads or binds them.
     pub fn rows(settings: &Settings, state: &Path) -> Result<Store, Refusal> {
         Ok(open_rows(settings, state)?.2)
+    }
+
+    /// Copy the account owner's names index from the archive SQLite file `archive` (opened read-only, never written) into the person's
+    /// rows, as the run's settings name them. `copied` is told each table and its rows so far. Answers each table and its row count.
+    pub fn copy_archive(settings: &Settings, state: &Path, archive: &Path, copied: &mut dyn FnMut(&str, u64)) -> Result<Vec<(String, u64)>, Refusal> {
+        let (_, _, store) = open_sql(settings, state)?;
+        Ok(store.copy_from_archive(&mut Link::archive(archive)?, copied)?)
     }
 
     /// The operations this run answers, as the routes DATA lists them.
@@ -97,7 +118,11 @@ impl Namespace {
             let current = current.clone();
             Arc::new(move || Instant::now() < limit && current()) as Arc<dyn Fn() -> bool + Send + Sync>
         };
-        self.door.call_while_fitting(&self.state, &self.store, &self.account, operation, input, until, live, fits)
+        let mut control = CallControl::new(until, live, self.door.bytes_let_in());
+        if let Some(authority) = &self.share {
+            control = control.with_share_authority(authority.clone());
+        }
+        self.door.call_with_control_fitting(&self.state, &self.store, &self.account, operation, input, control, fits)
     }
 
 }
@@ -105,18 +130,24 @@ impl Namespace {
 /// The state folder (made when it is not there, readable by its owner only), what the run holds of its attached connections, and the
 /// person's rows opened as `settings` says.
 fn open_rows(settings: &Settings, state: &Path) -> Result<(PathBuf, Arc<Held>, Store), Refusal> {
+    let (state, held, store) = open_sql(settings, state)?;
+    Ok((state, held, store))
+}
+
+/// The same, as the SQL store itself.
+fn open_sql(settings: &Settings, state: &Path) -> Result<(PathBuf, Arc<Held>, Arc<SqlStore>), Refusal> {
     make_private_folder(state)?;
     let state = std::fs::canonicalize(state)?;
     let fields: Vec<(&str, &str, i32)> = settings.attached.iter().map(|attached| (attached.service.as_str(), attached.field.as_str(), attached.fd)).collect();
     let held = secrets::keep(Held::from_descriptors(&fields)?);
     let link = match &settings.store {
         Rows::Sqlite { file } => Link::sqlite(&state.join(file))?,
-        Rows::Postgres { host, port, database, user, encrypted, password } => {
-            let password = held.plain(password).map_err(|_| "the database password is not attached: attach it to start the run")?;
-            Link::postgres(&PostgresAddress { host, port: *port, database, user, password: password.as_str(), encrypted: *encrypted })?
+        Rows::Postgres { connection } => {
+            let connection = held.plain(connection).map_err(|_| "the database connection is not attached: attach it to start the run")?;
+            Link::postgres(connection.as_str())?
         }
     };
-    let store: Store = Arc::new(SqlStore::open(link)?);
+    let store = Arc::new(SqlStore::open(link)?);
     Ok((state, held, store))
 }
 

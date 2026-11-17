@@ -4,12 +4,14 @@
   "no_lists_because": "It names no list of yours: it serves your files from your own store and keeps its names in a state folder, not in a list.",
   "workflows": [],
   "tools": [
-    "tool:run-the-namespace-files-server"
+    "tool:run-the-namespace-files-server",
+    "tool:share-anything"
   ],
   "instructions": [
-    "1. Make sure your files-store connection (your S3-compatible store: secret, key id, bucket, endpoint, region) is saved in your vault, and pick an empty folder in your home for the state, for example /home/example/namespace-state. Your names are kept as rows in a SQLite file there unless settings.json `store` names your Postgres database.",
+    "1. Make sure your files-store connection (your S3-compatible store: secret, key id, bucket, endpoint, region) is saved in your vault, and pick an empty folder in your home for the state, for example /home/example/namespace-state. Your names are kept as rows in a SQLite file there unless settings.json `store` names your Postgres database (its connection string, own-rows-postgres-connection, attached as a field).",
     "2. Say to your AI: \"Run the Namespace files server in dav mode\", with {\"mode\":\"dav\",\"state_folder\":\"/home/example/namespace-state\"}. The AI runs tool:run-the-namespace-files-server at @workshop-tools with method tools:run; the first run builds the program and makes the names file from your connection.",
-    "3. In Finder choose Go, Connect to Server and enter http://127.0.0.1:38481/ . To give an AI the same files as tools, run the same tool with {\"mode\":\"mcp\",\"state_folder\":\"/home/example/namespace-state\"} as its stdio MCP server."
+    "3. In Finder choose Go, Connect to Server and enter http://127.0.0.1:38481/ . To give an AI the same files as tools, run the same tool with {\"mode\":\"mcp\",\"state_folder\":\"/home/example/namespace-state\"} as its stdio MCP server.",
+    "4. To share a file, give the run your records door (settings.json `share`) and say to your AI: \"Share /Notes/a.txt for a day\". The run's share_file signs one link for the file's object, keeps it in a namespace-shared-file record of yours and runs tool:share-anything to share that record with a link; stop the share with tool:share-anything (op stop) and the next reader is refused."
   ],
   "worked_examples": [
     {

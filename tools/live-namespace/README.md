@@ -24,11 +24,12 @@ The names index is rows in the person's own SQL database, behind one small trait
 list a scope in id order a page at a time, change one row only if it is still at the version the caller read, a scope's change stamp,
 the declared totals, and a word search of the file names. `SqlStore` is the one implementation, over SQLite or Postgres with the
 same statements. Which one is the run's `settings.json` `store`: `{"sqlite": {"file": NAME}}` is a SQLite file of that name in the
-state folder (the shipped setting, for a person's own computer and for tests) and `{"postgres": {host, port, database, user,
-encrypted, password}}` is the person's own Postgres database, `password` the held name of the attached field that holds its
-password. The credential is an attached descriptor like the byte store's, never an argument and never in a file. A database off this
-computer is reached only encrypted. The Postgres side shares every statement with the SQLite side and its connection is built but
-has not been run against a live Postgres server here.
+state folder (the shipped setting, for a person's own computer and for tests) and `{"postgres": {"connection": NAME}}` is the person's own
+Postgres database, `NAME` the held name of the attached field that holds its connection string (`own-rows-postgres-connection`, the
+credential the person's run-sql tool uses for the same database, reached on the loopback port the computer reports as `own-rows-postgres`).
+The credential is an attached descriptor like the byte store's, never an argument and never in a file. A database off this computer is
+reached only encrypted. The Postgres side shares every statement with the SQLite side: the store's tests run on it too, when
+`NAMESPACE_POSTGRES_TEST_CONNECTION` holds the connection string of a throwaway database (each test gets a schema of its own).
 
 The tables mirror the archive's `ns_name`, `ns_folder`, `ns_file`, `ns_chunk`, `ns_alias` and `ns_spans` column for column, with
 `scope`, `version` and two request columns added (`src/store/tables.json`). Copying the account owner's rows in is one
@@ -45,9 +46,14 @@ The WebDAV listener answers `127.0.0.1` and `localhost` only (a Host check), ref
 sent it), and reads at most one PUT's bound of body (`settings.json` `dav.put_most_bytes`, 16 MiB; a larger file is sent with
 `write_file_start`, `write_file_piece` and `write_file_finish`).
 
-`share_file` refuses until the grant owner that mints a grant-bound share link is attached. `tools/share-anything` shares the
-person's records, not file bytes in a byte store, so it cannot deliver a file; a delivery owner that serves a shared file's bytes by
-range from the person's store is the missing piece, and `share_delivery.rs` is the seam it plugs into.
+`share_file` shares a file that is one object in the store through `tools/share-anything`: it signs a link that reads that one object for
+the share's seconds (`src/account_files/share_delivery.rs`, SigV4 in the URL's query), keeps it in a record of the person's own,
+`namespace-shared-file:<id>`, and runs `tool:share-anything` to share that record with a link anyone holding it can open, ending when
+the byte link does (`src/account_files/share_anything.rs`). Stopping the share in share-anything is what stops the next reader. It
+needs the records door the run is handed (`settings.json` `share`: the held name of the door's descriptor field and the https address
+the share opens at; the row grants the right to write `namespace-shared-file` records and to run `tool:share-anything`) and is refused
+without it. A file kept in chunks has no single object to link and is refused. share-anything's own reader that serves a share's
+record (the engine's reach reader) is not built yet, so a share made now opens nothing until it is.
 
 ## Build and test
 
@@ -70,18 +76,19 @@ results and shares).
 | `moved-from.json` | Each moved file's source path, commit and identities, and what was left behind. |
 | `part.json` | The files the app imports from this folder. |
 | `do-work/blake3.mjs`, `do-work/content-chunks-browser.mjs`, `do-work/send-a-file-to-namespace-browser.mjs` | The chunked sender the browser and folder uploaders share (moved from trillion-apps). |
-| `src/main.rs` | The program: modes `mcp`, `dav`, `serve`, `account-files-bind`. |
+| `src/main.rs` | The program: modes `mcp`, `dav`, `serve`, `account-files-bind`, `copy-archive --from FILE` (copies an archive's ns_* tables, read-only, into the rows). |
 | `src/serve/mod.rs` | One run: reads the attached connections, opens the rows, makes the files on a first run, `Namespace::call`. |
 | `src/serve/mcp.rs` | MCP over stdio. |
 | `src/serve/dav.rs` | The WebDAV listener. |
 | `src/serve/settings.rs` | Reads and checks `settings.json`. |
 | `src/lib.rs` | The library. |
-| `src/store/` | The rows (see its README): `Rows`, `SqlStore`, `Link`, `tables.json`, `copy-from-archive.sql`. |
+| `src/store/` | The rows (see its README): `Rows`, `SqlStore`, `Link`, `tables.json`, `copy-from-archive.sql`, `copy.rs`. |
 | `src/account_files/` | The account files, moved from trillion-rust `src/account_files` (see its README). |
 | `src/cause_book/` | The engine's refusal causes, which every error here carries. |
 | `src/host/https.rs`, `src/host/https/settings.json` | The one HTTP client the byte store's requests go through. |
 | `src/host/mcp.rs` | The MCP message bounds, `tool_answer_fits`, `InputFault`. |
 | `src/host/os.rs`, `src/host/os/*.rs` | The computer under the program: owner-only files, locks, the process table. |
+| `src/host/records_door.rs` | `RecordsDoor`: one `run_resource_operation` at the person's records and Workshop tools, over the door the run was handed. |
 | `src/host/secrets.rs` | `Held`: the attached connections, the SigV4 day key, vault names. |
 | `src/host/tool_runs.rs` | The computer under the program, for the usage counts' pending file. |
 | `tests/account_files_common/mod.rs` | The account files over rows and a byte port in memory. |
@@ -92,7 +99,7 @@ results and shares).
 | Type | Signature / Shape | Role |
 |------|-------------------|------|
 | `Namespace` | `Namespace::open(&Settings, &Path)`; `call(operation, &Value, current, fits) -> Result<Value, Failure>` | One run's door: the one call both the MCP tools and the WebDAV folder make. |
-| `AccountFilesDoor` | `shipped()`, `call_while_fitting(state, store, account, ...)`, `operations()` | The account files' routes DATA and the call that checks the caller and answers. |
+| `AccountFilesDoor` | `shipped()`, `call_with_control_fitting(state, store, account, ...)`, `operations()` | The account files' routes DATA and the call that checks the caller and answers. |
 | `AccountFiles` | `list_files`, `read_file`, `write_file`, `share_file`, `move_names`, `dav`, `dav_write` ... | The tool contract over rows and a byte port (`src/account_files/mod.rs`). |
 | `Rows` | `get`, `get_many`, `held_record_with_version`, `list_page`, `ids`, `mutate`, `stamp`, `totals`, `search`, `place` | What the files ask of the database (`src/store/mod.rs`). |
 | `SqlStore` | `open(Link)`, `memory()` | The rows in SQLite or Postgres. |
@@ -102,6 +109,6 @@ results and shares).
 
 ## Dependencies
 
-**Depends on:** `trillion-rust/crates/content-crypto` (BLAKE3 identities, a path dependency beside this checkout as `tools/http-client` has), rusqlite (bundled SQLite), postgres and tokio-postgres-rustls (the person's Postgres), axum, tokio, reqwest and rustls (the HTTP client), serde, ring, hmac and sha2.
+**Depends on:** `content-crypto/` (BLAKE3 identities, vendored here from trillion-rust `crates/content-crypto` at 26c296c134bf, receipted in `moved-from.json`), rusqlite (bundled SQLite), postgres and tokio-postgres-rustls (the person's Postgres), axum, tokio, reqwest and rustls (the HTTP client), serde, ring, hmac and sha2.
 
 **Depended on by:** `tools/live-namespace/do-work` files are imported by Trillion-X/trillion-apps (`part.json`); `tool:run-the-namespace-files-server` runs the program.

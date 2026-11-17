@@ -24,6 +24,16 @@ fn held_name(service: &str, field: &str) -> Option<String> {
 /// The most bytes a settings file may hold.
 const MOST_BYTES: u64 = 64 * 1024;
 
+/// The door a share is made through and the address a share opens at.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct Share {
+    /// The held name (`<service>-<field>`) of the attached field that holds the door's descriptor line `{ url, resource, capability }`.
+    pub descriptor: String,
+    /// The https address the person's pages are served from; a share opens at `<origin>/share/<key>`.
+    pub origin: String,
+}
+
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Settings {
@@ -38,6 +48,9 @@ pub struct Settings {
     pub key_prefix: String,
     /// How long one call may take before it answers where it stopped.
     pub call_seconds: u64,
+    /// How a file is shared: through share-anything, over the records door the run is handed. Without it `share_file` is refused.
+    #[serde(default)]
+    pub share: Option<Share>,
     /// The fields of the connections (`files-store`: the byte store; the database's own) and the descriptor each is attached on.
     pub attached: Vec<Attached>,
 }
@@ -48,8 +61,9 @@ pub struct Settings {
 pub enum Rows {
     /// A SQLite file of this name in the state folder (the first run makes it).
     Sqlite { file: String },
-    /// The person's Postgres database. `password` is the held name of the attached field that holds its password.
-    Postgres { host: String, port: u16, database: String, user: String, encrypted: bool, password: String },
+    /// The person's Postgres database. `connection` is the held name of the attached field that holds its connection string
+    /// (`own-rows-postgres-connection`, the credential the person's other tools reach the same database with).
+    Postgres { connection: String },
 }
 
 /// The WebDAV folder.
@@ -120,16 +134,24 @@ impl Settings {
                     return Err(Refused("the rows file is a short name with no slash"));
                 }
             }
-            Rows::Postgres { host, database, user, password, .. } => {
-                if ![host, database, user, password].into_iter().all(|text| plain(text)) {
-                    return Err(Refused("the database host, name, user and password field are short names with no slash"));
+            Rows::Postgres { connection } => {
+                if !plain(connection) {
+                    return Err(Refused("the database connection is a short held name with no slash"));
                 }
                 let held = self.attached.iter().any(|attached| {
-                    held_name(&attached.service, &attached.field).as_deref() == Some(password.as_str())
+                    held_name(&attached.service, &attached.field).as_deref() == Some(connection.as_str())
                 });
                 if !held {
-                    return Err(Refused("the database password is a field the run is attached"));
+                    return Err(Refused("the database connection is a field the run is attached"));
                 }
+            }
+        }
+        if let Some(share) = &self.share {
+            if !self.attached.iter().any(|attached| held_name(&attached.service, &attached.field).as_deref() == Some(share.descriptor.as_str())) {
+                return Err(Refused("the share's door descriptor is a field the run is attached"));
+            }
+            if !(share.origin.starts_with("https://") && url::Url::parse(&share.origin).is_ok_and(|url| url.host().is_some() && url.username().is_empty() && url.query().is_none() && url.fragment().is_none())) {
+                return Err(Refused("the share's origin is an https address"));
             }
         }
         let mut descriptors = std::collections::BTreeSet::new();

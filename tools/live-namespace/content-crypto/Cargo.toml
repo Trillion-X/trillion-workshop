@@ -1,0 +1,24 @@
+[package]
+name = "content-crypto"
+version = "0.1.0"
+edition = "2021"
+authors = ["Sam Rivera"]
+license = "UNLICENSED"
+description = "Shared Blake3 hashing primitives — leaf crate, zero platform dependencies"
+
+[dependencies]
+blake3 = { version = "=1.8.7", features = ["zeroize"] }
+ed25519-dalek = "=2.2.0"
+hex = "=0.4.3"
+sha2 = "=0.10.9"
+thiserror = "=1.0.69"
+serde = { version = "=1.0.228", features = ["derive"] }
+
+[dev-dependencies]
+serde_json = "=1.0.149"
+
+[lints.clippy]
+# Moved byte for byte from the engine; clippy reads it for what is wrong and leaves how it is written to the source it came from.
+style = { level = "allow", priority = -1 }
+complexity = { level = "allow", priority = -1 }
+perf = { level = "allow", priority = -1 }

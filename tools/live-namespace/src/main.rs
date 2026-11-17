@@ -6,6 +6,7 @@
 //   live-namespace dav   --state FOLDER [--settings FILE]   the WebDAV folder on 127.0.0.1:<settings dav.port>, until stopped
 //   live-namespace serve --state FOLDER [--settings FILE]   both (the WebDAV folder runs while the stdio session lasts)
 //   live-namespace account-files-bind [show] --state FOLDER [--settings FILE]   bind the origins of the person's files to them
+//   live-namespace copy-archive --from FILE --state FOLDER [--settings FILE]   copy an archive's ns_* tables (read-only) into the rows
 //
 // A credential is never an argument: the engine attaches the person's `files-store` connection (and the database's own) to the run on
 // the file descriptors `settings.json` `attached` names (src/serve/mod.rs).
@@ -28,7 +29,7 @@ use std::{
     sync::Arc,
 };
 
-const USAGE: &str = "usage: live-namespace (mcp | dav | serve) --state FOLDER [--settings FILE] | account-files-bind [show] --state FOLDER [--settings FILE]";
+const USAGE: &str = "usage: live-namespace (mcp | dav | serve) --state FOLDER [--settings FILE] | account-files-bind [show] --state FOLDER [--settings FILE] | copy-archive --from FILE --state FOLDER [--settings FILE]";
 
 /// The settings file next to the tool's own folder when none is named: the one the tool ships.
 const SHIPPED_SETTINGS: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/settings.json");
@@ -36,6 +37,7 @@ const SHIPPED_SETTINGS: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/settings.js
 enum Command {
     Serve { mcp: bool, dav: bool, state: PathBuf, settings: PathBuf },
     Bind { show: bool, state: PathBuf, settings: PathBuf },
+    CopyArchive { from: PathBuf, state: PathBuf, settings: PathBuf },
 }
 
 /// The `--state` and `--settings` flags of a command.
@@ -64,6 +66,14 @@ fn parse(args: &[String]) -> Result<Command, String> {
             let (state, settings) = flags(&args[1 + usize::from(show)..])?;
             Ok(Command::Bind { show, state, settings })
         }
+        "copy-archive" => {
+            let (from, rest) = match (args.get(1).map(String::as_str), args.get(2)) {
+                (Some("--from"), Some(file)) => (PathBuf::from(file), &args[3..]),
+                _ => return Err(USAGE.into()),
+            };
+            let (state, settings) = flags(rest)?;
+            Ok(Command::CopyArchive { from, state, settings })
+        }
         _ => Err(USAGE.into()),
     }
 }
@@ -74,6 +84,21 @@ fn run(command: Command) -> Result<(), String> {
             let settings = Settings::read(&settings).map_err(|error| error.to_string())?;
             let store = Namespace::rows(&settings, &state).map_err(|error| error.to_string())?;
             live_namespace::account_files::bind::run(&store, &settings.account, show, &mut io::stdout()).map_err(|error| error.to_string())
+        }
+        Command::CopyArchive { from, state, settings } => {
+            let settings = Settings::read(&settings).map_err(|error| error.to_string())?;
+            let mut last = (String::new(), 0u64);
+            let counts = Namespace::copy_archive(&settings, &state, &from, &mut |table, rows| {
+                if table != last.0 || rows >= last.1 + 50_000 {
+                    last = (table.to_owned(), rows);
+                    live_namespace::quiet_eprintln!("{table}: {rows}");
+                }
+            })
+            .map_err(|error| error.to_string())?;
+            for (table, rows) in counts {
+                live_namespace::quiet_println!("{table}\t{rows}");
+            }
+            Ok(())
         }
         Command::Serve { mcp, dav, state, settings } => {
             let settings = Settings::read(&settings).map_err(|error| error.to_string())?;

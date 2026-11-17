@@ -49,7 +49,7 @@ The person's files (every file they keep), served by the Namespace tool. The fil
 | `find_file` by name | 1 get (name) + 1 get (file), +1 get when the name points at an alias | 0 |
 | `files_summary` | 1 range scan | 0 |
 | `read_file` (at most 256 KiB) | as `find_file`, + 1 get (spans) + 1 batch get (the crossed chunks) for a chunked file | 1 ranged GET per crossed chunk (1 for a whole-file object) |
-| `share_file` | as `find_file` + 1 share record | 0 (the caller's grant-aware delivery owner mints the URL; without one the share is refused) |
+| `share_file` | as `find_file` + 1 share record | 0 (the byte link is signed here, no request; share-anything makes the share; without its authority the share is refused) |
 | `write_file` new content | 2 gets (file, name) + 1 get per missing folder level | 1 PUT (refused stores pass to the next rank) |
 | `write_file` new content: records written | file record (1 version row + 1 totals row), name record (1 version row + 1 totals row), 1 record per new folder | — |
 | `write_file_start` | existing token: 1 get; new token: upload lookup + held upload and target-name versions | 0 |
@@ -62,7 +62,7 @@ The person's files (every file they keep), served by the Namespace tool. The fil
 
 ## Usage
 
-The door answers each operation as an MCP tool and as the WebDAV folder (`src/serve`); both make the same call (`AccountFilesDoor::call_while_fitting`).
+The door answers each operation as an MCP tool and as the WebDAV folder (`src/serve`); both make the same call (`AccountFilesDoor::call_with_control_fitting`).
 
 Large files use `write_file_start`, `write_file_piece`, `write_file_finish` and `write_file_cancel`. Start binds a caller-generated 32-character lowercase hexadecimal token to the absolute target name, media type and optional `app` attribution. A known-length call supplies `byte_length` and is cut into `chunks-v1` chunks: each piece is one chunk of any length up to `settings.json` `chunks.bytes` (chunks are cut by content, so their lengths vary). The server checkpoint takes whole 32 KiB subtrees: the bytes after the last whole subtree wait in the upload's `tail` with the cursor, and the file's last piece pushes them. A chunk is kept as one object keyed by its BLAKE3, so 1 GiB is about 32 objects at 32 MiB, not 32,768. A repeated accepted offset is answered only for the same bytes; a piece past the declared length or larger than a chunk is refused before anything is kept. An open-length stream supplies `length_known: false` and omits `byte_length`; each piece may then be any 1–32768 bytes at the exact next `offset`. The server hashes each piece before deduplication, writes it through the existing content-addressed CHUNKS owner, then records a bounded append span page before advancing the accepted offset. Repeating an accepted offset succeeds only for the same saved bytes; a crash after the span page but before the upload cursor is repaired by that same retry. Open-length finish verifies contiguous span metadata first, then reads chunks in bounded order, checks each actual chunk hash and computes the whole-file BLAKE3 identity from stored bytes before creating or reusing a file record and binding the name. Known-length uploads retain their existing checked span and server checkpoint finish path. The identity is never supplied or trusted from the caller. Cancel retires only that upload token; retained bytes are not deleted.
 
@@ -91,14 +91,14 @@ An account's files that is not the account's own never writes into the account's
 - An upload keeps its bytes before any record names them; nothing here deletes bytes in a store.
 
 - Every physical read and write of file bytes passes the caller's one byte admission before any request is sent (`source_reads.rs`): no admission refuses every read and write; a metered allowance refuses what it cannot cover and otherwise takes exactly the requested bytes with one atomic subtraction; refill and settlement run on the allowance's own thread. A finished Workshop run's outputs are kept under the one named unmetered admission `AccountFilesDoor::run_outputs_control`. The counters (`counters.rs`, RAM only) leave the process as one host stderr line per five minutes, only when a count changed (`flush_changes_every`). Each byte a door's call admits is also its account's own usage count (`usage.rs`): one more atomic add on that path, and the account's day row is written later by the usage flush thread, never by the request.
-- A share is minted only by the caller's grant-aware delivery owner, at most seven days; this byte port never signs a provider URL. Its `@namespace/shares` record keeps what, when and the grant, never the URL.
+- A share is made only through the caller's share authority (share-anything, `share_anything.rs`), at most seven days. This byte port signs one link, for one whole object, and hands it to that authority, which keeps it in a record only the share's holders read; the link is never returned or audited. Its `@namespace/shares` record keeps what, when and the grant, never a URL.
 - New bytes land only in stores whose origin record takes new bytes; a move first marks its `from` store as taking none.
 - Every run has a hard budget (110% of its plan per counter: requests per origin and method, bytes read and written); a request that would pass its cap is refused before it is sent and the run stops; each key gets at most 5 retries, which count toward the budget.
 - A move rewrites a chunk or file record only after its key is proved at the destination and the proof record is written. A copy has one proof (`upload-sha256`): the BLAKE3 computed while the bytes stream from the source (equal to the record's identity before any byte is sent), the SHA-256 signed into the PUT so the destination refuses any other body, and one HEAD of the length. A copy is never read back (B2 bills every byte it serves).
 - Credentials never enter a record or a log: origin records hold vault names; the secret stays in the vault, which answers SigV4 day keys.
 
 Remote door calls pass their original absolute deadline and a transient current/cancellation checker through
-`AccountFilesDoor::call_while`. Every account files record change is made only while the caller is still current: the check is made just before the change. The S3 byte owner checks the same control before requests and between socket reads/writes,
+`AccountFilesDoor::call_with_control_fitting`. Every account files record change is made only while the caller is still current: the check is made just before the change. The S3 byte owner checks the same control before requests and between socket reads/writes,
 and limits connect, TLS socket and I/O waits to the remaining deadline. The control adds no credential or
 capability of its own; its callback retains the caller's existing witness.
 This stops later atomic steps; it does not undo an accepted PUT or earlier name/file steps. A refused call may
