@@ -123,6 +123,14 @@ pub struct Contract {
     pub absent_version: i64,
     /// The sentence a person reads for each problem, by its name.
     pub problem_words: BTreeMap<String, String>,
+    pub tail: Tail,
+}
+
+/// The end of a file read with its first bytes, for the media types named (contract.json `tail`).
+#[derive(Deserialize, Debug)]
+pub struct Tail {
+    pub bytes: u64,
+    pub media_types: Vec<String>,
 }
 
 impl Contract {

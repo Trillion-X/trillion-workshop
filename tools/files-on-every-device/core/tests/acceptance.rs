@@ -68,14 +68,16 @@ fn a_33_gb_file_plays_with_only_touched_bytes_moved() {
     // two of the player's reads (link.rs `ahead_bytes`), rounded up to a whole read (core.rs `handed`), plus the OS's 4 KiB alignment at both ends of each of the
     // three runs of reads.
     let link = world.core.link();
-    let window = link.bytes_per_round_trip().unwrap() + 3 * piece + 2 * 4096 * 3;
+    // A video's end is read with its first bytes (contract.json `tail`): beyond the index the player reads itself.
+    let tail = files_core::Contract::shipped().tail.bytes - index;
+    let window = link.bytes_per_round_trip().unwrap() + 3 * piece + 2 * 4096 * 3 + tail;
     assert!(fetched - touched <= window, "{} beyond the touched bytes, window {window}", fetched - touched);
     // Every byte handed over is the file's.
     assert_eq!(world.held("/clip.mp4", size - index, index).unwrap(), Content::Made { seed: 33, size }.range(size - index, index));
 }
 
-/// A 40.54 GB video opens in place (commit 2e78646015): its first frame needs only its first bytes, and no byte of
-/// the rest moves.
+/// A 40.54 GB video opens in place (commit 2e78646015): its first frame needs only its first bytes and its end (the
+/// index a player reads next, contract.json `tail`), and no byte of the rest moves.
 #[test]
 fn a_40_gb_video_opens_in_place() {
     let size: u64 = 40_540_000_000;
@@ -84,7 +86,7 @@ fn a_40_gb_video_opens_in_place() {
     world.list(1, "trillion");
     let (answer, _) = world.fetch(2, "/long.mov", 0, 1 << 20, 4096);
     assert!(matches!(answer, Command::Fetched { .. }));
-    assert_eq!(world.span_bytes_asked, 1 << 20);
+    assert_eq!(world.span_bytes_asked, (1 << 20) + files_core::Contract::shipped().tail.bytes);
 }
 
 /// Sequential reads never stall (f2 failure 1: a 2.8 GB file read straight through timed out at high latency).
@@ -172,5 +174,30 @@ fn a_file_of_small_objects_on_a_slow_store_still_plays() {
     // two reads (link.rs `ahead_bytes`, rounded up to a whole read).
     let link = world.core.link();
     let window = consumes as f64 * (link.read_wait_ms().unwrap() as f64 + piece as f64 / link.file_rate().unwrap());
-    assert!(world.span_bytes_asked - reads * piece <= window as u64 + 2 * piece, "{}", world.span_bytes_asked);
+    let tail = files_core::Contract::shipped().tail.bytes;
+    assert!(world.span_bytes_asked - reads * piece <= window as u64 + 2 * piece + tail, "{}", world.span_bytes_asked);
+}
+
+/// A video's index at its end is on its way with its first bytes (old Trillion's edge cache did the same,
+/// src/namespace-chunk-cache.json `tail_bytes`): the player's next read, the index, asks nothing new of the door.
+#[test]
+fn a_videos_index_comes_with_its_first_bytes() {
+    let size: u64 = 2_800_000_000;
+    let mut world = World::new(Linked::files(300, 12_500.0));
+    world.store.put_file("/clip.mp4", Content::Made { seed: 5, size }, Some(1));
+    world.list(1, "trillion");
+    let (first, _) = world.fetch(2, "/clip.mp4", 0, 1 << 20, 4096);
+    assert!(matches!(first, Command::Fetched { .. }));
+    world.settle();
+    let asked = world.sends.len();
+    let (index, waited) = world.fetch(3, "/clip.mp4", size - (1 << 20), 1 << 20, 4096);
+    assert!(matches!(index, Command::Fetched { .. }));
+    assert_eq!(world.sends.len(), asked, "the index was asked with the first bytes");
+    assert_eq!(waited, 0);
+    // A file that is not a video reads only what is asked.
+    world.store.put_file("/data.bin", Content::Made { seed: 6, size }, Some(1));
+    world.list(4, "trillion");
+    let before = world.span_bytes_asked;
+    world.fetch(5, "/data.bin", 0, 1 << 20, 4096);
+    assert_eq!(world.span_bytes_asked - before, 1 << 20);
 }

@@ -837,10 +837,18 @@ impl Core {
             self.fail(demand, Problem::Missing);
             return;
         };
+        let tail = &self.contract.tail;
+        let ends_with_its_index = item.media_type.as_deref().is_some_and(|media| tail.media_types.iter().any(|named| media.starts_with(named.as_str())));
         let span = if self.link.take_whole(size) { Span::new(0, size) } else { asked.aligned(alignment, size) };
         let key = (item_id.to_owned(), version.to_owned());
         self.fetches.insert(demand, FetchDemand { key: key.clone(), span, asked_ms: self.now_ms, fetched: false });
         self.ask_for(&key, span, size, None);
+        // A player reading a video's first bytes asks for its index at the end next: it is asked now, after them, in
+        // pieces the size of this read, so its waits measure what a read waits (read-ahead is sized from them).
+        if span.start == 0 && ends_with_its_index && span.end < size {
+            let end = Span::new(size.saturating_sub(tail.bytes).max(span.end), size);
+            self.ask_for(&key, end, size, Some(span.len()));
+        }
         self.settle(&key);
     }
 
