@@ -503,7 +503,7 @@ export async function credentialFor({ env = process.env, store = keyStore(), gra
   }
   if (grant.ended === true) throw new TrillionError(rules.words.sign_in_ended, { status: 3 });
   if (endsSoon(grant, rules, now)) grant = await renewedGrant(grant, { grants, fetchImpl, rules, now, home });
-  return { kind: 'sign-in', bearer: grant.access_token, where: grants.where, origin: grant.origin };
+  return { kind: 'sign-in', bearer: grant.access_token, where: grants.where, origin: grant.origin, resource: grant.resource };
 }
 
 // ── The door ─────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -517,46 +517,29 @@ export function findLocalDoor({ rules = settings } = {}) {
 /** The door this run talks to: `asked` (--origin or TRILLION_ORIGIN); else, for the account's key, the Mac app's local door
  *  when this computer has one; else the origin a sign-in was made at, else the declared address (`declared`, TRILLION_ORIGIN); with none the run is
  *  refused. { mcp, origin, name, local, public (the declared address), localMcp }: `localMcp` is this computer's local door, named when another door refuses the key. */
-export function findDeclaredOrigin({ rules = settings } = {}) { return localDoorOrigin({ runtime: join(rules.mac_app, 'Contents', 'MacOS', 'node') }); }
-
-/** Where a sign-in is made when `trillion login` names no address: the one asked (--origin, TRILLION_ORIGIN); else the origin
- *  of the sign-in this computer keeps; else the sign-in server this computer's engine names in its protected-resource
- *  document; else the public origin the app declares. With none the run is refused. */
-export async function issuerFor({ asked = null, kept = null, localMcp = findLocalDoor(), declared = findDeclaredOrigin(), fetchImpl = fetch, rules = settings } = {}) {
-  if (asked) return asked;
-  if (kept) return kept;
-  const server = (await engineServersOf(localMcp, { fetchImpl, rules }))[0];
-  if (server) return server;
-  if (declared) return declared;
-  throw new TrillionError(rules.words.no_origin, { status: 2 });
-}
-
-/** The sign-in servers (origins) this computer's engine names in its protected-resource document; none when it has no engine
- *  or does not answer. */
-async function engineServersOf(localMcp, { fetchImpl, rules }) {
-  if (!localMcp) return [];
-  const document = await fetchImpl(new URL(rules.protected_resource_path, localMcp)).then(answer => (answer.ok ? answer.json() : null)).catch(() => null);
+/** The sign-in servers (origins) a door names in its protected-resource document (RFC 9728); none when it does not answer. */
+async function engineServersOf(door, { fetchImpl, rules }) {
+  if (!door) return [];
+  const document = await fetchImpl(new URL(rules.protected_resource_path, door)).then(answer => (answer.ok ? answer.json() : null)).catch(() => null);
   return (Array.isArray(document?.authorization_servers) ? document.authorization_servers : []).filter(name => typeof name === 'string' && URL.canParse(name)).map(name => new URL(name).origin);
 }
 
-/** The door whose protected-resource document a sign-in at `origin` reads: this computer's engine when it names `origin` as its
- *  sign-in server, else `origin`'s own /mcp. */
-export async function resourceDoorFor(origin, { localMcp = findLocalDoor(), fetchImpl = fetch, rules = settings } = {}) {
-  return (await engineServersOf(localMcp, { fetchImpl, rules })).includes(origin) ? localMcp : `${origin}/mcp`;
-}
+/** The public origin the Mac app declares (the sign-in site's own, which its engine serves), or null on a computer with no app. */
+export function findDeclaredOrigin({ rules = settings } = {}) { return localDoorOrigin({ runtime: join(rules.mac_app, 'Contents', 'MacOS', 'node') }); }
 
-export function doorFor({ asked = null, credential = null, declared = null, rules = settings, localMcp = findLocalDoor({ rules }), localIssuers = [] } = {}) {
-  const at = mcp => ({ mcp, origin: new URL(mcp).origin, localMcp });
-  // A key goes to this computer's local door; a sign-in goes there when this computer's engine names the pass's issuer as its own
-  // (`localIssuers`, the authorization_servers of its protected-resource document), else to the address it was made at.
-  const own = credential?.kind === 'key' || (credential?.kind === 'sign-in' && localIssuers.includes(credential.origin));
-  if (!asked && own && localMcp) return { ...at(localMcp), name: rules.words.local_door, local: true, public: false };
-  const named = asked ?? credential?.origin ?? declared;
-  if (!named) throw new TrillionError(rules.words.no_origin, { status: 2 });
-  const origin = named.replace(/\/$/, '');
+export function doorFor({ asked = null, credential = null, declared = null, rules = settings, localMcp = findLocalDoor({ rules }) } = {}) {
+  // The engine a run talks to: the one asked for (--origin, TRILLION_ORIGIN); else, for a kept key, this computer's own; else, for a sign-in,
+  // the one its pass was made for (`resource`: the pass names it, so no host is compared and no other engine is tried); else the declared
+  // address, else the sign-in site's own engine (the public origin the Mac app declares), else none: the run is refused.
+  const mcp = asked ? `${asked}/mcp`
+    : credential?.kind === 'key' && localMcp ? localMcp
+    : credential?.kind === 'sign-in' ? credential.resource ?? `${credential.origin}/mcp`
+    : declared ? `${declared}/mcp` : null;
+  if (mcp === null) throw new TrillionError(rules.words.no_origin, { status: 2 });
+  const origin = new URL(mcp).origin;
+  if (mcp === localMcp) return { mcp, origin, localMcp, name: rules.words.local_door, local: true, public: false };
   const isPublic = origin === declared;
-  const mcp = `${origin}/mcp`;
-  return { ...at(mcp), name: isPublic ? rules.words.public_door : rules.words.named_door, local: false, public: isPublic };
+  return { mcp, origin, localMcp, name: isPublic ? rules.words.public_door : rules.words.named_door, local: false, public: isPublic };
 }
 
 /** The unix socket this computer's engine answers `POST /persons/add` on, read from its computer config (trillion.json
@@ -1437,17 +1420,10 @@ const timeoutOf = value => {
   return number;
 };
 
-/** The door a credential is presented at: doorFor, told which issuers this computer's engine names as its own. */
-async function doorOf(context, credential) {
-  const localMcp = context.localMcp();
-  const localIssuers = credential?.kind === 'sign-in' ? await engineServersOf(localMcp, { fetchImpl: context.fetchImpl, rules: settings }) : [];
-  return doorFor({ asked: context.asked, declared: context.declared, credential, localMcp, localIssuers });
-}
-
 async function signedInClient(context) {
   const credential = await credentialFor({ env: context.env, store: context.store, grants: context.grants, fetchImpl: context.fetchImpl });
   if (!credential) throw new TrillionError(settings.words.no_credential, { status: 3 });
-  const door = await doorOf(context, credential);
+  const door = doorFor({ asked: context.asked, declared: context.declared ?? context.declaredOrigin(), credential, localMcp: context.localMcp() });
   // The key this computer keeps goes only to this computer's local door or the address declared in TRILLION_ORIGIN; any other door gets a key the person gives for it (TRILLION_KEY).
   if (credential.kind === 'key' && credential.where !== 'TRILLION_KEY' && !door.local && !door.public) throw new TrillionError(settings.words.kept_key_elsewhere, { status: 3 });
   const timeoutSeconds = context.flags.timeout === undefined ? undefined : timeoutOf(context.flags.timeout);
@@ -1523,14 +1499,12 @@ export function emailOf(credential) {
 }
 const signedInWords = (credential, rules = settings) => { const email = emailOf(credential); return email ? fill(rules.words.signed_in, { email }) : rules.words.signed_in_no_email; };
 
-/** Holds the person at this computer's engine (`addPersonHere`), then asks who they are: a main-built engine serves no one it has
- *  not been told to hold, so asking first is refused. Answers { account }; a refusal is thrown (status 3, or `notTaken` from the add, with
- *  the engine's `why` when it gave one). An engine that is not running is said only when the door in use is that engine, since a
- *  sign-in also works at the public address. */
+/** Holds the person at this computer's engine (`addPersonHere`) when that engine is the door in use, then asks who they are: a main-built
+ *  engine serves no one it has not been told to hold, so asking first is refused. Another engine is not reached by this socket (it admits
+ *  people by its own rule). Answers { account }; a refusal is thrown (status 3, or `notTaken` from the add, with the engine's `why` when
+ *  it gave one). */
 async function knownAs(context, client) {
-  await addPersonHere({ socket: context.agentSocket(), bearer: client.credential.bearer }).catch(error => {
-    if (!(error instanceof TrillionError) || error.status === 3 || error.notTaken || client.door.local) throw error;
-  });
+  if (client.door.local) await addPersonHere({ socket: context.agentSocket(), bearer: client.credential.bearer });
   return client.whoami();
 }
 
@@ -1547,6 +1521,8 @@ async function login(context, { again = false } = {}) {
   if (!again) {
     let client = null;
     try { client = await signedInClient(context); } catch (error) { if (!refusedBy(error)) throw error; }
+    // A sign-in made for another engine than the one named is not this one's: the named engine gets its own walk.
+    if (client?.credential.kind === 'sign-in' && context.asked && client.door.mcp !== client.credential.resource) client = null;
     if (client) {
       try {
         const known = await knownAs(context, client);
@@ -1565,14 +1541,17 @@ async function login(context, { again = false } = {}) {
     if (bearerOf(key, settings) === null) throw new TrillionError(fill(settings.bearers.refused, { kinds: settings.bearers.shapes.map(row => row.kind).join(', ') }), { status: 2 });
     context.store.write(key);
   } else {
-    const localMcp = context.localMcp();
-    // With no address named, the sign-in is for this computer's own engine: one that does not answer is said, never replaced by another
-    // Trillion's door (a sign-in made for the wrong door is refused by this computer's engine). --origin names another one.
-    const own = !context.asked && localMcp ? await engineServersOf(localMcp, { fetchImpl: context.fetchImpl, rules: settings }) : null;
-    if (own?.length === 0) throw new TrillionError(settings.words.not_running, { status: 4, detail: fill(settings.words.details.not_running, { mcp: localMcp, why: 'no protected-resource document' }) });
-    const kept = context.grants.read()?.origin ?? null;
-    const origin = own ? (own.includes(kept) ? kept : own[0]) : await issuerFor({ asked: context.asked, kept, localMcp, declared: context.declaredOrigin(), fetchImpl: context.fetchImpl });
-    const grant = await signInWithBrowser({ origin, resourceDoor: own ? localMcp : await resourceDoorFor(origin, { localMcp, fetchImpl: context.fetchImpl }), fetchImpl: context.fetchImpl, ...(context.open ? { open: context.open } : {}) });
+    // The engine signed in to is the one named (--origin, TRILLION_ORIGIN); else the one a kept sign-in was made for; else the sign-in site's
+    // own, the public origin the Mac app declares (no address of Trillion's is kept in this shared tool), where every website sign-up lives. Its protected-resource document names the sign-in server and the
+    // resource; one that does not answer is said, and no other engine is used in its place.
+    const site = context.declaredOrigin();
+    if (!context.asked && !context.grants.read()?.resource && !site) throw new TrillionError(settings.words.no_origin, { status: 2 });
+    const door = context.asked ? `${context.asked}/mcp` : context.grants.read()?.resource ?? `${site}/mcp`;
+    const issuer = (await engineServersOf(door, { fetchImpl: context.fetchImpl, rules: settings }))[0];
+    if (!issuer) throw door === context.localMcp()
+      ? new TrillionError(settings.words.not_running, { status: 4, detail: fill(settings.words.details.not_running, { mcp: door, why: 'no protected-resource document' }) })
+      : new TrillionError(settings.words.not_answering, { status: 4, detail: fill(settings.words.details.not_running, { mcp: door, why: 'no protected-resource document' }) });
+    const grant = await signInWithBrowser({ origin: issuer, resourceDoor: door, fetchImpl: context.fetchImpl, ...(context.open ? { open: context.open } : {}) });
     // A sign-in this program made before is ended when a new one replaces it; the Mac app's key is never touched.
     if (context.state.madeKey()?.where === context.grants.where) await endSignIn(context.grants.read(), { fetchImpl: context.fetchImpl });
     context.grants.write(grant);
@@ -1737,7 +1716,7 @@ export async function main(argv, seams = {}) {
   if (command === 'logout') return logout(context);
   if (command === 'connection') {
     const credential = await credentialFor({ env, store: context.store, grants: context.grants, fetchImpl: context.fetchImpl }).catch(() => null);
-    const kept = context.state.connection() ?? connectionOf({ origin: (await doorOf(context, credential)).origin, store: context.store });
+    const kept = context.state.connection() ?? connectionOf({ origin: (doorFor({ asked: context.asked, declared: context.declared, credential, localMcp: context.localMcp() })).origin, store: context.store });
     if (flags.write === true) context.state.keepConnection(kept);
     return flags.json ? JSON.stringify(kept, null, 2) : [`${kept.mcp_url}  (key: ${kept.key_source.where})`, ...kept.recipes.map(row => `${row.label}: ${row.command}`)].join('\n');
   }
@@ -1811,7 +1790,7 @@ export async function main(argv, seams = {}) {
     const { account } = known;
     const { agent_id, ai_id, held_as, app, model, provider, computer, harness } = context.me;
     return flags.json ? JSON.stringify({ account_id: account, agent_id, ai_id, held_as, app, model, provider, computer, harness, door: client.door.mcp, local: client.door.local }, null, 2)
-      : [signedInWords(client.credential), fill(settings.words.whoami_ai, { ai: ai_id }), fill(settings.words.whoami_facts, { facts: [app, model, provider, computer].filter(Boolean).join(', ') }),
+      : [signedInWords(client.credential), fill(settings.words.whoami_where, { where: client.door.local ? settings.words.this_mac : new URL(client.door.mcp).host }), fill(settings.words.whoami_ai, { ai: ai_id }), fill(settings.words.whoami_facts, { facts: [app, model, provider, computer].filter(Boolean).join(', ') }),
         ...(flags.verbose === true ? [`account ${account}`, ...(held_as.length ? [`jobs taken before this session had its own id are finished as ${held_as.join(', ')}`] : []), `door ${client.door.mcp}`] : [])].join('\n');
   }
   if (command === 'schedule') {

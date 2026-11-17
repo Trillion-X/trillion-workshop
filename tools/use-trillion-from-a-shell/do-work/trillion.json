@@ -448,6 +448,9 @@
     "sign_in_late": "No sign-in arrived within {seconds} seconds. Run trillion login again.",
     "browser_not_opened": "Trillion could not open your browser. Open this link to sign in: {link}",
     "sign_in_step_failed": "Sign-in did not finish. Run trillion login again.",
+    "whoami_where": "Trillion at: {where}",
+    "this_mac": "this Mac",
+    "not_answering": "That Trillion did not answer. Check its address, then try again.",
     "whoami_ai": "AI: {ai}",
     "whoami_facts": "Running on: {facts}",
     "codes": {
