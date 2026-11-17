@@ -1092,7 +1092,8 @@ export function speakFor(brand, rules = settings) {
   const filled = value => (typeof value === 'string' ? fill(value, values)
     : Array.isArray(value) ? value.map(filled)
     : value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).map(([name, child]) => [name, filled(child)])) : value);
-  for (const part of ['words', 'send_note', 'keep', 'who', 'ag_ui', 'state_folder', 'install', 'env']) rules[part] = filled(rules[part]);
+  for (const part of ['words', 'send_note', 'keep', 'who', 'ag_ui', 'state_folder', 'install', 'env', 'keychain_item', 'keychain_account', 'key_file',
+    'client_name', 'skill_name', 'skills', 'mac_app', 'computer_config_files', 'grant']) rules[part] = filled(rules[part]);
   rules.brand = brand;
 }
 
@@ -1870,8 +1871,11 @@ export function workshopProgram({ rules = settings, home = homedir(), here = HER
 }
 
 /** The node inside the Mac app (trillion.json `mac_app`) when this program is not already running under it, else null. */
-export function appNodeToRunUnder({ rules = settings, execPath = process.execPath } = {}) {
-  const real = path => { try { return realpathSync(path); } catch { return null; } };
+export function appNodeToRunUnder({ rules = settings, execPath = process.execPath, env = process.env } = {}) {
+  // Run again at most once: a run that is already the re-run never starts another, whatever the paths say.
+  if (env[rules.env.rerun]) return null;
+  // The file system's own spelling of each path (a case-blind disk answers /Applications/x.app for /Applications/X.app).
+  const real = path => { try { return realpathSync.native(path); } catch { return null; } };
   const appNode = real(join(rules.mac_app, 'Contents', 'MacOS', 'node'));
   return appNode !== null && appNode !== real(execPath) ? appNode : null;
 }
@@ -1879,15 +1883,15 @@ export function appNodeToRunUnder({ rules = settings, execPath = process.execPat
 // Run when started as a program (directly, or through the link setup puts on PATH).
 const startedAsProgram = (() => { try { return realpathSync(process.argv[1] ?? '') === realpathSync(fileURLToPath(import.meta.url)); } catch { return false; } })();
 if (startedAsProgram) {
+  // The brand this command speaks for, first: its folders, its app and what it follows are the brand's.
+  const brand = brandOf();
+  speakFor(brand);
   // The engine on this computer admits only code the Mac app signed, so a shell's own node runs this program again under the app's.
   const appNode = appNodeToRunUnder();
   if (appNode !== null) {
-    const again = spawnSync(appNode, process.argv.slice(1), { stdio: 'inherit' });
+    const again = spawnSync(appNode, process.argv.slice(1), { stdio: 'inherit', env: { ...process.env, [settings.env.rerun]: '1' } });
     process.exit(again.status ?? 1);
   }
-  // The brand this command speaks for, first: its folders (where it is installed, what it follows) are the brand's.
-  const brand = brandOf();
-  speakFor(brand);
   // The installed copy runs the Workshop's copy when there is one; a copy that cannot be loaded leaves this one to run.
   let run = { main, TrillionError };
   const followed = workshopProgram();

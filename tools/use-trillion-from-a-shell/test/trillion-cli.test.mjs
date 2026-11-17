@@ -1035,7 +1035,12 @@ test('the program runs under the Mac app\'s own node when the app is installed, 
   mkdirSync(join(folder, 'Contents', 'MacOS'), { recursive: true });
   symlinkSync(process.execPath, join(folder, 'Contents', 'MacOS', 'node'));
   assert.equal(appNodeToRunUnder({ rules: { ...settings, mac_app: folder } }), null, 'already running under it');
-  assert.equal(appNodeToRunUnder({ rules: { ...settings, mac_app: folder }, execPath: '/bin/sh' }) !== null, true);
+  assert.equal(appNodeToRunUnder({ rules: { ...settings, mac_app: folder }, execPath: '/bin/sh', env: {} }) !== null, true);
+  assert.equal(appNodeToRunUnder({ rules: { ...settings, mac_app: folder }, execPath: '/bin/sh', env: { [settings.env.rerun]: '1' } }), null, 'a re-run never starts another');
+  const upper = join(home(), 'Upper.app');
+  mkdirSync(join(upper, 'Contents', 'MacOS'), { recursive: true });
+  symlinkSync(process.execPath, join(upper, 'Contents', 'MacOS', 'node'));
+  assert.equal(appNodeToRunUnder({ rules: { ...settings, mac_app: upper.replace('Upper.app', 'upper.app') }, execPath: process.execPath, env: {} }), null, 'the same node spelled in another case is the same node');
 });
 
 test('a callback with another sign-in\'s state is told it is old and ignored; the run keeps waiting for its own', async () => {
