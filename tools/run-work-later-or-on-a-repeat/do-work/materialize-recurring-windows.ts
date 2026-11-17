@@ -1,4 +1,4 @@
-// parts/timed-action/do-work/materialize-recurring-windows.ts (ported from bitfield-packages packages/timed-action/do-work;
+// tools/run-work-later-or-on-a-repeat/do-work/materialize-recurring-windows.ts (ported from bitfield-packages packages/timed-action/do-work;
 // its wall-time reading, zone check and clock-change rule are the shared ./wall-time.ts)
 // timed-action's recurrence materializer is deliberately a pure DATA reduction.
 // It owns recurring window identity and progression, never clocks or effects: a

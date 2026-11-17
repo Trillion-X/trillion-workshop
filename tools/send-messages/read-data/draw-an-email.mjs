@@ -12,7 +12,7 @@
 //      sent before the account has published a look is drawn in its `shipped_palette`; a look that cannot be read is not
 //      drawn in other colours: the email is not sent, in BRAND_UNREAD's words.
 //
-// Moved from the older owner: its markdown reader and email part (parts/ui/show/document-page/document-page-html.mjs)
+// Moved from the older owner: its markdown reader and email part (tools/ui/show/document-page/document-page-html.mjs)
 // and its mail sender's palette (src/mail-sender.mjs hex, rgba, toHex, solidColour, emailPalette, currentPalette,
 // drawEmail).
 import { readFileSync } from 'node:fs';

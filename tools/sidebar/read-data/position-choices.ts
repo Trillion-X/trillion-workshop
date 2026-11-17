@@ -1,4 +1,3 @@
-// parts/sidebar/read-data/position-choices.ts
 //
 // PURPOSE
 //   Where a sidebar frame may sit, as the person's show rules leave it. A rule of the frame's own subject (its controls

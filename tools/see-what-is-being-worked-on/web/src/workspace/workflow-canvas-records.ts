@@ -3,7 +3,7 @@
 // NO PRIOR: searched src/workspace and parts for "workflow-canvas-triggers", "slot::workflow", "execute_definition",
 //   "workflow-canvas-run-receipt" and answerTarget; the only seam answers were the arrangement's and the group graph's
 //   (src/workspace/targets.ts). This is the records seam for the workflow canvas brought over verbatim from
-//   bitfield-packages packages/workflow-canvas (parts/workflow-canvas).
+//   bitfield-packages packages/workflow-canvas (tools/workflow-canvas).
 //
 // PURPOSE
 //   The workflow canvas reads three records by name and sends its work to two targets, exactly as it did on the record
@@ -32,7 +32,7 @@
 import { answerTarget, readInputValue, showRecords, writeInputValue } from './records';
 import { readJson } from './api';
 
-import { errorWords } from '../../parts/ui/show/safe-error-card/sanitize-error-text';
+import { errorWords } from '../../../../ui/show/safe-error-card/sanitize-error-text';
 type Step = Record<string, unknown>;
 type Automation = { id: string; kind: string; name: string; topic: string | null; enabled: boolean; then: { workflow_id?: string; tool_id?: string; input?: unknown } };
 type Workflow = { id: string; label: string; job: string; made_by: string; yours: boolean; input_schema: Record<string, unknown>; steps: Step[]; edges: unknown[] };

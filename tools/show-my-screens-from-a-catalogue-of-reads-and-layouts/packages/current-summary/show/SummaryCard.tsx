@@ -2,7 +2,7 @@
 //
 // Browser-local compact card wrapper for current-summary replies.
 
-import { Card } from '@/packages/ui';
+import { Card } from '../../../../ui';
 import type { ReactNode } from 'react';
 
 export function SummaryCard({ children }: { children: ReactNode }) {

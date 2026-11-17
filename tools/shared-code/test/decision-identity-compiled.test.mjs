@@ -1,7 +1,7 @@
 // Ported from old trillion test/decision-identity-compiled.test.mjs (tag old-trillion-before-worker-retire, b6ae0ebf81),
 // deleted by Trillion-X/trillion #243. identityOf moved from src/decision-store.mjs into this tool's
 // src/record-identity.mjs (decision-store still re-exports it), and its compiled byte identity is this tool's
-// parts/live-namespace/do-work/byte-identity.mjs. The compiled build is tools/browse-and-upload-my-files loadChunking's
+// tools/live-namespace/do-work/byte-identity.mjs. The compiled build is tools/browse-and-upload-my-files loadChunking's
 // `Identity` (the same crates/content-chunks build), loaded without the retired restartable wrapper
 // (src/restartable-engine.mjs, scripts/compiled-modules.mjs). Every assertion is the old one.
 // identityOf (src/decision-store.mjs) answers the same `1f:` identity from the JavaScript BLAKE3 before a host installs

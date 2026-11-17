@@ -50,7 +50,7 @@ import {
   Spinner,
   Text,
   useNarrowViewport,
-} from '@/packages/ui';
+} from '../../../../ui';
 import { Inbox } from 'lucide-react';
 import type { WorkDescriptor } from '../read-data/record-work-graph';
 import type { CustomerSupportWorkspace } from '../read-data/read-customer-support-workspace';

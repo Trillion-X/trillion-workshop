@@ -89,7 +89,7 @@
        {
         "package": "keep-and-wake-ai-sessions-on-this-computer",
         "paths": [
-         "parts/live-namespace/do-work/shared-file-reference.mjs",
+         "tools/keep-and-wake-ai-sessions-on-this-computer/parts/live-namespace/do-work/shared-file-reference.mjs",
          "src/connecting-without-the-store.json",
          "src/connecting-without-the-store.mjs",
          "src/execution-context.mjs",

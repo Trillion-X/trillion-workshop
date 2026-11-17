@@ -2,7 +2,7 @@
 //
 // Purpose: the icons a browser bundle carries are the icons Trillion's own DATA and code name, found when the bundle is
 // built. An icon travels as a name ("Trash2", "trash-2", or `icon: "folder"`) in records, screen rows, field
-// descriptors and components, and the shared resolver (parts/ui/show/icon/NamedIcon.tsx) turns it into a Lucide
+// descriptors and components, and the shared resolver (tools/ui/show/icon/NamedIcon.tsx) turns it into a Lucide
 // component through `./named-icons`. On disk that module is all of Lucide, so any caller that has not been built
 // (a node test, a script) still resolves every name; a browser bundle replaces it with only the names found here.
 //

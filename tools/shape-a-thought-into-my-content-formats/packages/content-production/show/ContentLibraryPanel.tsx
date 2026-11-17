@@ -11,12 +11,12 @@
  *
  * NON-NEGOTIABLE INVARIANTS:
  * 1. Zero imports from slot::workflow or slot::eeaf — reads only via useBitfieldData
- * 2. Components only from @/packages/ui; zero inline style objects
+ * 2. Components only from tools/ui; zero inline style objects
  * 3. Source truth is the contentMediaEvidence feed — component state holds only
  *    search text and the currently-previewed item id/url
  * 4. Source packages come from run-profile DATA (read-content-library) — never enumerated here
  * 5. Playback resolves bytes via the generic self-describing chunk-ref reader
- *    in @/packages/ui — zero producer-package imports (L090)
+ *    in tools/ui — zero producer-package imports (L090)
  * 6. Observability: logs `[ui:content-library] mounted input=<n> records` on mount
  */
 
@@ -44,7 +44,7 @@ import {
   emitPlaceableSurfaceIntent,
   isSelfDescribingChunkRef,
   readSelfDescribingChunkBlob,
-} from '@/packages/ui';
+} from '../../../../ui';
 
 import {
   durationLabel,
@@ -54,7 +54,7 @@ import {
   readContentLibraryOutputs,
   sourcePackageLabel,
   type ContentLibraryItem,
-} from '@/packages/content-production/read-data/read-content-library';
+} from '../../../../content-production/packages/content-production/read-data/read-content-library';
 
 /**
  * Place the Make-content surface with this source pre-selected. The intent

@@ -1,7 +1,6 @@
-// parts/workflow-canvas/show/StepGraph.tsx
 //
 // PURPOSE
-//   A job done in steps, drawn on the one shared canvas (parts/ui/show/node-graph NodeGraph): every step a section
+//   A job done in steps, drawn on the one shared canvas (tools/ui/show/node-graph NodeGraph): every step a section
 //   card (Sim's workflow block anatomy: its who-does-it icon on a tile in its state's tone, its title, how long it took
 //   or has been going, the checks run on it as rows), the lines between steps right-angled with rounded bends and
 //   colouring as the run passes along them, a line into a step being done now flowing with a dot travelling along it,

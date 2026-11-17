@@ -65,7 +65,7 @@ export function deliveryHolds(secretHex, header, body, nowSeconds = Math.floor(D
   return equal(parts.v1, mac(secretHex, t, body));
 }
 
-// A delivery address is a public https address (parts/http-client/do-work/public-address.mjs): never this service's own network or a private one.
+// A delivery address is a public https address (tools/refuse-requests-to-private-addresses/public-address.mjs): never this service's own network or a private one.
 export const deliveryAddress = value => publicAddressOrNull(value);
 
 export const eventId = (type, key, to_agent) => `ev_${bytesToHex(blake3(encoder.encode(JSON.stringify([type, key, to_agent])))).slice(0, 24)}`;

@@ -9,7 +9,7 @@
  *
  * NON-NEGOTIABLE INVARIANTS:
  * 1. Zero imports from slot::workflow or slot::eeaf — reads only via useBitfieldData
- * 2. Components only from @/packages/ui; zero inline style objects, zero raw HTML
+ * 2. Components only from tools/ui; zero inline style objects, zero raw HTML
  *    (the one anchor wrapper is the platform's only native link affordance)
  * 3. Platforms are destination RECORDS and statuses are domain OPTIONS — this
  *    panel never names a platform or a status (L090); it renders resolved cells
@@ -42,7 +42,7 @@ import {
   TableRow,
   Text,
   sanitizeErrorText,
-} from '@/packages/ui';
+} from '../../../../ui';
 
 import {
   destinationDisplayLabel,

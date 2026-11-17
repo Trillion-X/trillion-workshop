@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button, Container, Text, Textarea } from '../../parts/ui';
-import { DocumentEditor, documentFromMarkdown, documentToMarkdown, emptyDocument, mintBlockId, DEFAULT_EDITING_RULES, type DocumentValue } from '../../parts/documents';
+import { Button, Container, Text, Textarea } from '../../../../ui';
+import { DocumentEditor, documentFromMarkdown, documentToMarkdown, emptyDocument, mintBlockId, DEFAULT_EDITING_RULES, type DocumentValue } from '../../../../documents';
 import { files, readFileLookup } from './api';
 import { saveTextVersion } from './upload';
 import { documentOperationsAddress, documentOperationsTransport } from './document-operations-transport';

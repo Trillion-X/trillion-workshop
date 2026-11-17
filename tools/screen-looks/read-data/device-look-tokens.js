@@ -1,4 +1,4 @@
-// parts/screen-look/read-data/device-look-tokens.js
+// tools/screen-look/read-data/device-look-tokens.js
 //
 // PURPOSE
 //   A resolved look (the CSS variable to value palette resolveScreenLookPalette writes) split into what a device that

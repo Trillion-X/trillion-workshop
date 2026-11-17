@@ -11,7 +11,7 @@
 // logic. Copy is user-language only: "Lists" — never group/membership/fold
 // vocabulary (L114/L118).
 //
-// The picker floats on the shared popover (parts/ui coss popover: the menu
+// The picker floats on the shared popover (tools/ui coss popover: the menu
 // layer of layer-order.ts, the floating-menus.css surface), so it paints over
 // the sidebar and the Layouts cards like every other menu. A list's own actions
 // (Rename, When it shows, Delete) are one "…" through the shared ActionMenu, the

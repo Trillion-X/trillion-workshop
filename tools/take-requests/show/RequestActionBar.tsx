@@ -27,8 +27,8 @@ import {
   Text,
   Textarea,
   Tooltip,
-} from '@/packages/ui';
-import type { RequestIntakeScreenAction } from '@/packages/request-intake/show/request-intake-screen-model';
+} from '../../ui';
+import type { RequestIntakeScreenAction } from './request-intake-screen-model';
 
 // Which record / shape an action runs against. Generic UI terms only — the mount
 // translates these ids into the runtime's ref vocabulary.

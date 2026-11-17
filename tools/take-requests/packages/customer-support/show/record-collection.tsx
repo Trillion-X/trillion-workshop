@@ -28,7 +28,7 @@
 // =============================================================================
 
 import React from 'react';
-import { Card, Container, Text } from '@/packages/ui';
+import { Card, Container, Text } from '../../../../ui';
 import type { WorkDescriptor } from '../read-data/record-work-graph';
 import type { SupportRecord } from './workspace-types';
 import { RecordFieldList } from './record-field-list';

@@ -1,10 +1,10 @@
-import type { AtomicOperationWorkStore } from '@/packages/operation-records/read-data/operation-work-store';
-import { operationWorkAddresses as addresses } from '@/packages/operation-records/read-data/operation-work-store';
+import type { AtomicOperationWorkStore } from '../../../../operation-records/read-data/operation-work-store';
+import { operationWorkAddresses as addresses } from '../../../../operation-records/read-data/operation-work-store';
 import { buildObservationRecord } from './observe';
 import { selectWinner } from '../read-data/select';
 import { validateCandidateSet, type SelectionSurface } from '../../../../funnels-screen/read-data/candidate-set-schema';
 import { validateDecider, type DeciderProgram } from '../read-data/decider-schema';
-import { measureCustomerLoop, type CustomerLoopEvent } from '@/packages/content-analytics/read-data/customer-loop-measurement.ts';
+import { measureCustomerLoop, type CustomerLoopEvent } from '../../../../social-posts/packages/content-analytics/read-data/customer-loop-measurement.ts';
 import { makeMultihashEncodedBytesFromCodeHex } from '@bitfield/slot-protocol';
 import { makeHashCodeHexFromBytes } from '@bitfield/runtime-kit/protocol';
 

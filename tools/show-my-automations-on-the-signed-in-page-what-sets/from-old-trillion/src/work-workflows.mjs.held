@@ -5,12 +5,12 @@
 //   triggers (rules), schedules, workflows and runs through this page's own session: the same person-side routes an AI
 //   uses (src/automations.mjs and src/workflows.mjs through the person's store). They say in plain words what sets each
 //   automation off and what it does, and turn one workflow, or one run of it, into the records the board draws
-//   (src/graph-board-source.mjs, parts/group/do-work/board-source.ts): every engine step with who answers it, where it
+//   (src/graph-board-source.mjs, tools/organize-the-sidebar/do-work/board-source.ts): every engine step with who answers it, where it
 //   stands and what it handed back.
 //
 //   GET  /work/api/workflows                     every trigger, schedule and workflow, and every run
 //   GET  /work/api/workflows/graph/<id>          one workflow (its id) or one run (a run id) as a graph
-//   GET  /work/api/workflows/board/<id>          one workflow or run as records the board draws (parts/group
+//   GET  /work/api/workflows/board/<id>          one workflow or run as records the board draws (tools/make-screen-layouts-and-controls
 //                                                do-work/board-source.ts): a card per step with its words and, once
 //                                                it runs, its live state; a line per edge saying what flows along it
 //   POST /work/api/workflows/board-act?run=<run>  a step's action pressed on its card (Ask my AI, Try again)
@@ -282,7 +282,7 @@ export function workflowGraph(workflow, run = null, starts = []) {
 }
 
 // One workflow, or one run of it, or one trigger or schedule (`automation:<id>`), as the records the board draws
-// (parts/group/do-work/board-source.ts). A workflow's source key is the workflow's id, so a workflow and every run of it
+// (tools/organize-the-sidebar/do-work/board-source.ts). A workflow's source key is the workflow's id, so a workflow and every run of it
 // share one board, and a run only adds each step's live state and what can be done to a step.
 async function boardSource(person, id) {
   if (id.startsWith(AUTOMATION_TAB)) {

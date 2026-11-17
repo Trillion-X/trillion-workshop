@@ -14,8 +14,8 @@
 
 import { openFile } from '../open-screen';
 import React from 'react';
-import { Button, Container, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue, Text, downloadBlob } from '../../../parts/ui';
-import { LazyDropzone as Dropzone, LazyDropzoneEmptyState as DropzoneEmptyState } from '../../../parts/ui/show/kibo/LazyDropzone';
+import { Button, Container, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue, Text, downloadBlob } from '../../../../../ui';
+import { LazyDropzone as Dropzone, LazyDropzoneEmptyState as DropzoneEmptyState } from '../../../../../ui/show/kibo/LazyDropzone';
 import handoff from '../../editor-handoff.json';
 import { postJson, readFileBytes, readJson } from '../api';
 import { uploadFiles } from '../upload';

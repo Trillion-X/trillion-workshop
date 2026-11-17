@@ -2,19 +2,19 @@
 //
 // The editor's Colour panel: looks, colour adjustments, framing and colour matching for the selected clip, plus
 // timed colour changes over the whole video. Every choice is a row in
-// parts/media-composition/read-data/looks.json; parts/media-composition/read-data/looks.mjs is the one mapping from
+// tools/media-composition/read-data/looks.json; tools/media-composition/read-data/looks.mjs is the one mapping from
 // those choices to the render fields, shared with the grade-a-video tool.
 //
 // Invariants
 //   1. Choices belong to the source clip (its file), so every part of a split clip keeps the same colour.
 //   2. What is saved is ids and bounded numbers; the render fields are derived from them at save and render time.
 //   3. A clip whose older edit named a look directly keeps it until the person changes that clip's looks here.
-//   4. Composed only from shared parts (parts/ui); no markup of its own.
+//   4. Composed only from shared parts (tools/ui); no markup of its own.
 
 import React from 'react';
-import { Button, Container, Input, Slider, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue, Text } from '../../../parts/ui';
-import { FrameWindow } from '../../../parts/ui/show/frame-window';
-import { LOOKS, adjustmentPreviewFilter, clipColourFields, lookCanBeTimed, timedLayers } from '../../../parts/media-composition/read-data/looks.mjs';
+import { Button, Container, Input, Slider, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue, Text } from '../../../../../ui';
+import { FrameWindow } from '../../../../../ui/show/frame-window';
+import { LOOKS, adjustmentPreviewFilter, clipColourFields, lookCanBeTimed, timedLayers } from '../../../../../media-composition/read-data/looks.mjs';
 import { definePanel, type MediaEditClip, type MediaEditPanelProps } from './panel-types';
 
 type Flip = 'h' | 'v' | 'hv';

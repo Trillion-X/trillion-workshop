@@ -7,7 +7,7 @@
 //   moment its own file chooser opens.
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. Built from the shared parts (parts/ui): the licensed kibo Dropzone takes the files; no control is hand-made.
+//   1. Built from the shared parts (tools/ui): the licensed kibo Dropzone takes the files; no control is hand-made.
 //   2. Every word is DATA (extension/words.json `attach`, extension/page-tools.json `files`).
 //   3. A file is in the tray only once it is kept (its identity known), so Send never sends a file still on its way.
 //   4. Done opens the popup again with the files in Sending and closes this window.

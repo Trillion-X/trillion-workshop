@@ -85,7 +85,7 @@ export type MediaEditPanel<State = unknown> = {
   edl?: (state: State | undefined, context: MediaEditPanelContext, edit: Record<string, unknown>) => Record<string, unknown> | undefined;
   /** This panel's choices read from a saved edit that has none for it yet (an edit saved before the panel existed). */
   fromSavedEdit?: (edl: Record<string, unknown>) => State | undefined;
-  /** What this panel adds to the player's composition (parts/ui LiveCompositionPreview), such as captions drawn in
+  /** What this panel adds to the player's composition (tools/ui LiveCompositionPreview), such as captions drawn in
    *  their style, so the preview shows the panel's choices the moment they change. */
   preview?: (state: State | undefined, context: MediaEditPanelContext) => Record<string, unknown> | undefined;
   /** The sounds and pictures this panel lays over the cut, for the preview and the timeline. */

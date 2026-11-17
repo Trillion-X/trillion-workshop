@@ -65,7 +65,7 @@ function Reply() {
   }, []);
   const action = notice?.actions?.find(candidate => candidate.id === asked.get('action')) ?? null;
 
-  // The press's promise is the button's own pending, done or try-again state (parts/ui Button press work): a refusal
+  // The press's promise is the button's own pending, done or try-again state (tools/ui Button press work): a refusal
   // rejects it, so the button never says Done for words the account did not take.
   async function send() {
     if (!notice || !action || !text.trim()) return;
@@ -127,7 +127,7 @@ function Reply() {
 paintWithWornLook();
 const host = document.body.appendChild(document.createElement('main'));
 fitWindowTo(host);
-// What happens here feels the way it does in Trillion: the same rows and players (parts/feel), sound and motion in
+// What happens here feels the way it does in Trillion: the same rows and players (tools/feel), sound and motion in
 // this window (a Chrome window has no touch to play).
 const stopFeel=mountFeel({props:currentExtensionFeel()});
 window.addEventListener('pagehide',stopFeel,{once:true});

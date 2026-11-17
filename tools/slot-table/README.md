@@ -1,4 +1,4 @@
-# parts/slot-table
+# tools/slot-table
 
 A current view where a key (a record id, a file name, anything with text) becomes a small integer slot once, when it is admitted, and every later read or write is an index into flat typed arrays: no text hashed again, no key built, no object walked to learn a kind, a version or a size.
 

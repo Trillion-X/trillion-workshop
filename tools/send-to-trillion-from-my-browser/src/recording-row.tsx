@@ -3,11 +3,11 @@
 // PURPOSE
 //   What a running recording looks like wherever it shows (the popup's Add to it section, the microphone page): its
 //   words, the time it has run, Stop and keep, and, for a row that shows a waveform (the person's voice), the shared
-//   live waveform (parts/ui LiveWaveform, the bars that fade out at both ends) drawn from the microphone while this
+//   live waveform (tools/ui LiveWaveform, the bars that fade out at both ends) drawn from the microphone while this
 //   view is open. The recording itself runs in the offscreen page (src/recorder-offscreen.mjs); this only shows it.
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. Built from the shared parts (parts/ui); words from extension/page-tools.json.
+//   1. Built from the shared parts (tools/ui); words from extension/page-tools.json.
 //   2. The waveform's own microphone stream is this view's, released when the view closes or the recording stops;
 //      it never records anything.
 

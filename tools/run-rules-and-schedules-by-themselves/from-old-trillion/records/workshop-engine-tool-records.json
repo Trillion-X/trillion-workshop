@@ -362,7 +362,7 @@
           "export": "whenToWake"
         },
         "provenance": {
-          "source": "parts/timed-action (ported from bitfield-packages packages/timed-action)"
+          "source": "tools/run-work-later-or-on-a-repeat (ported from bitfield-packages packages/timed-action)"
         },
         "verify": [
           {
@@ -650,7 +650,7 @@
           "export": "filterRowsByRules"
         },
         "provenance": {
-          "source": "crates/evaluate-over-rows over crates/composition-ast (ported from bitfield-packages), parts/formula-engine"
+          "source": "crates/evaluate-over-rows over crates/composition-ast (ported from bitfield-packages), tools/formula-engine"
         },
         "verify": [
           {
@@ -765,7 +765,7 @@
           "export": "evaluateBinding"
         },
         "provenance": {
-          "source": "parts/formula-engine/rules/evaluate-over-rows.mjs"
+          "source": "tools/formula-engine/rules/evaluate-over-rows.mjs"
         },
         "verify": [
           {
@@ -1197,7 +1197,7 @@
           "export": "buildDocsSite"
         },
         "provenance": {
-          "source": "parts/docs-site (ported from Trillion-X/trillion-docs scripts/generate-docs.mjs, itself adapted from dev/bitfield-docs)"
+          "source": "tools/build-a-docs-site/parts/docs-site (ported from Trillion-X/trillion-docs scripts/generate-docs.mjs, itself adapted from dev/bitfield-docs)"
         },
         "verify": [
           {
@@ -1391,7 +1391,7 @@
           "export": "checkCopy"
         },
         "provenance": {
-          "source": "parts/judge-words over records/copy-rules.json (the copywriting laws and no-ai-slop rules that records/copy-rules.json holds)"
+          "source": "tools/judge-words over records/copy-rules.json (the copywriting laws and no-ai-slop rules that records/copy-rules.json holds)"
         },
         "verify": [
           {
@@ -1679,7 +1679,7 @@
           "export": "planRecurringWindows"
         },
         "provenance": {
-          "source": "parts/timed-action (pure future enumeration using the recurrence materializer DST and identity rules)"
+          "source": "tools/run-work-later-or-on-a-repeat (pure future enumeration using the recurrence materializer DST and identity rules)"
         },
         "verify": [
           {

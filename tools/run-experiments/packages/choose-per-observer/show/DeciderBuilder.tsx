@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button, Card, Container, Input, Text } from '@/packages/ui';
-import type { ScoreExpr } from '@/packages/choose-per-observer/read-data/decider-schema';
+import { Button, Card, Container, Input, Text } from '../../../../ui';
+import type { ScoreExpr } from '../read-data/decider-schema';
 
 export interface DeciderBuilderOp {
   id: string;

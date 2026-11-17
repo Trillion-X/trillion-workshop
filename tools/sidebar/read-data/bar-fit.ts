@@ -1,4 +1,3 @@
-// parts/sidebar/read-data/bar-fit.ts
 //
 // PURPOSE
 // How many icons a thin bar shows, and which. Every row sits on the bar, which scrolls along its length when they do

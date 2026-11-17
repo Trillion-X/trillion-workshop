@@ -3,12 +3,12 @@
 // PURPOSE
 //   Mark up the picture of the page before it is sent: the popup's picture opens here, in its own window, with the
 //   pen, line, rectangle, ellipse and eraser and the colours every drawing in Trillion starts with
-//   (parts/addressed-marks/starting-marks.json). Done draws the marks into the picture itself and puts it back in
+//   (tools/addressed-marks/starting-marks.json). Done draws the marks into the picture itself and puts it back in
 //   the popup's draft for that tab (session `draft:<tab>`), so the next Send carries the marked picture; the popup
 //   opens again showing it.
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. The ink is the shared ink (parts/addressed-marks AddressedMarkLayer): the same tools, colours and shapes as a
+//   1. The ink is the shared ink (tools/addressed-marks AddressedMarkLayer): the same tools, colours and shapes as a
 //      board or a pane in the workspace; nothing here draws a stroke of its own.
 //   2. The marks are drawn into the picture at the picture's own size, in the colours the person saw.
 //   3. Nothing leaves this browser here: the marked picture is kept only when the person sends.

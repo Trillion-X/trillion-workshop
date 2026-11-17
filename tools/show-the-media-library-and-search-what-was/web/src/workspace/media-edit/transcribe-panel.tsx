@@ -16,12 +16,12 @@
 //   3. Every control is a shared part (Container, Button, Text, ScreenState, TranscriptReaderSurface).
 
 import React from 'react';
-import { Button, Container } from '../../../parts/ui';
-import { Text } from '../../../parts/ui/show/text';
-import { ScreenState } from '../../../parts/ui/show/screen-state';
+import { Button, Container } from '../../../../../ui';
+import { Text } from '../../../../../ui/show/text';
+import { ScreenState } from '../../../../../ui/show/screen-state';
 import { failedState, reasonOf } from '../failure';
-import { TranscriptReaderSurface } from '../../../parts/transcript-reader/show/TranscriptReaderSurface';
-import type { TranscriptSegment } from '../../../parts/transcript-reader/read-data/read-transcript-records';
+import { TranscriptReaderSurface } from '../../../../../transcript-reader/show/TranscriptReaderSurface';
+import type { TranscriptSegment } from '../../../../../transcript-reader/read-data/read-transcript-records';
 import { transcribeFile, wordsOfRecording, type RecordingWords, type Transcript } from '../media-transcribe';
 import { definePanel, type MediaEditClip, type MediaEditPanelProps } from './panel-types';
 import { insertRange, removeRange } from './cut-list';

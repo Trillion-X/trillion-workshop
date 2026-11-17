@@ -14,7 +14,7 @@
 //   4. Browser access is by CORS headers for the allowed origin only; the preflight answers the same list.
 //   5. Everything that varies is computer/loopback-executor.json. TLS verification and the TLS floor are per request (never a process-wide
 //      default); the restriction on addresses is opt-in and judged on the resolved numbers at connect time.
-//   6. The request it sends is resolved by parts/http-client/do-work/request-scopes.mjs, so variables and host-bound secrets behave
+//   6. The request it sends is resolved by tools/http-client/do-work/request-scopes.mjs, so variables and host-bound secrets behave
 //      the same as everywhere else, and secret values are masked in anything it returns about the run.
 //
 import http from 'node:http';
@@ -27,8 +27,8 @@ import { fileURLToPath } from 'node:url';
 import { timingSafeEqual, randomBytes } from 'node:crypto';
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex, hexToBytes } from '@noble/hashes/utils.js';
-import { checkedLookup } from '../parts/http-client/do-work/resolved-address.mjs';
-import { resolveRequest, scrubValues } from '../parts/http-client/do-work/request-scopes.mjs';
+import { checkedLookup } from '../../../http-client/do-work/resolved-address.mjs';
+import { resolveRequest, scrubValues } from '../../../http-client/do-work/request-scopes.mjs';
 import { makeSecretResolver } from './secret-references.mjs';
 import { makeHostCalls, runScript, sandboxSettings } from './script-sandbox.mjs';
 

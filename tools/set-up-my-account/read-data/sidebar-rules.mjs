@@ -5,7 +5,7 @@
 //
 // PURPOSE
 //   A list in surfaces.json `sidebar_collections` may hold rows by a rule tree in the formula engine's shape
-//   (`holds: { rules }`, parts/formula-engine/rules/compile-rules.mjs) and may itself show only while a rule holds
+//   (`holds: { rules }`, tools/formula-engine/rules/compile-rules.mjs) and may itself show only while a rule holds
 //   (`shown_when`). The rules name the row facts surfaces.json `sidebar_row_facts` declares: a fact reads a path of
 //   the row, or of one of the person's records kept by row id (`from`, an inputs.json name such as the notes their AI
 //   left), and may be measured against now (`time`: days since or days until that moment). The formula engine decides
@@ -93,7 +93,7 @@ export function nextTurn(thing, tree, facts, readRecord, now) {
  * Which rows each rule-holding list holds, which lists are hidden by their own rule, and which rows of a list are hidden
  * by theirs.
  * data:       surfaces.json ({ sidebar_collections, sidebar_row_facts })
- * lists:      the lists to decide, when not data's own (the person's lists, parts/sidebar/read-data/apply-list-rules.ts)
+ * lists:      the lists to decide, when not data's own (the person's lists, tools/organize-the-sidebar/read-data/apply-list-rules.ts)
  * rows:       the rows the sidebar can hold
  * readRecord: name -> the person's record kept by row id, or null
  * filterRows: the formula engine's row filter

@@ -1,6 +1,6 @@
 import React from 'react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
-import { EventGroupPanel } from '@/packages/event-group/show/EventGroupPanel';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
+import { EventGroupPanel } from './EventGroupPanel';
 
 type MountArgs = { el: HTMLElement; props?: Record<string, unknown> };
 

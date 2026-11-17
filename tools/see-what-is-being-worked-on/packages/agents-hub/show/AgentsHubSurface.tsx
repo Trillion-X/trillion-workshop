@@ -31,7 +31,7 @@ import {
   SegmentedControl,
   Spinner,
   Text,
-} from '@/packages/ui';
+} from '../../../../ui';
 import { useBitfieldData } from '@/packages/agents-hub/.bitfield-entry-scope/agents-hub/runtime-kit-react';
 import {
   decodeConversationSessions,
@@ -52,10 +52,10 @@ import {
   type AgentCardViewModel,
   type AgentProfileRecord,
   type PublishedRecordRow,
-} from '@/packages/agents-hub/read-data/resolve-agent-cards';
-import { AgentManagerView } from '@/packages/agents-hub/show/AgentManagerView';
-import { EntityCard, type EntityCardProps } from '@/packages/agents-hub/show/EntityCard';
-import { EntityDetailView, type EntityDetailModel } from '@/packages/agents-hub/show/EntityDetailView';
+} from '../../../../agents-hub/packages/agents-hub/read-data/resolve-agent-cards';
+import { AgentManagerView } from './AgentManagerView';
+import { EntityCard, type EntityCardProps } from './EntityCard';
+import { EntityDetailView, type EntityDetailModel } from './EntityDetailView';
 import {
   archivedCopy,
   blankAgentProfile,
@@ -63,13 +63,13 @@ import {
   softDeletePublishedRecords,
   writeAgentProfiles,
   writeHiddenEntity,
-} from '@/packages/agents-hub/do-work/agent-record-writes';
+} from '../../../../agents-hub/packages/agents-hub/do-work/agent-record-writes';
 import {
   dispatchAgentMessage,
   readMessageDispatchConfig,
-} from '@/packages/agents-hub/do-work/dispatch-agent-message';
-import { AgentCard } from '@/packages/agents-hub/show/AgentCard';
-import { AgentEditView } from '@/packages/agents-hub/show/AgentEditView';
+} from '../../../../agents-hub/packages/agents-hub/do-work/dispatch-agent-message';
+import { AgentCard } from './AgentCard';
+import { AgentEditView } from './AgentEditView';
 
 
 /** Max entity cards rendered at once (Runs can hold thousands of sessions).

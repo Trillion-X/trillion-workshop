@@ -5,5 +5,5 @@ Files of old trillion whose job is this tool's (show a visitor who is not signed
 | Old path | Here | Status |
 |---|---|---|
 | `src/visitor-mark.mjs` | `src/visitor-mark.mjs` | loads here |
-| `src/visitor-offers.mjs` | `src/visitor-offers.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/payment.mjs (at the tag, not moved here yet), src/plan-comparison.mjs (at the tag, not moved here yet), parts/http-client/do-work/same-origin.mjs (already gone at the tag) |
+| `src/visitor-offers.mjs` | `src/visitor-offers.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/payment.mjs (at the tag, not moved here yet), src/plan-comparison.mjs (at the tag, not moved here yet), tools/http-client/do-work/same-origin.mjs (already gone at the tag) |
 | `test/visitor-offers.test.mjs` | `test/visitor-offers.test.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/payment.mjs (at the tag, not moved here yet), records/service-price-experiments.json (at the tag, not moved here yet) |

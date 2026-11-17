@@ -25,8 +25,8 @@
 // =============================================================================
 
 import React from 'react';
-import { Badge, Button, Card, Container, NamedIcon, Text } from '@/packages/ui';
-import type { EntityCardProps } from '@/packages/agents-hub/show/EntityCard';
+import { Badge, Button, Card, Container, NamedIcon, Text } from '../../../../ui';
+import type { EntityCardProps } from './EntityCard';
 
 export interface EntityDetailField {
   label: string;

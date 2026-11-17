@@ -1,13 +1,13 @@
 import React from 'react';
 import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { Container, ErrorBoundary, FloatingMaterialFrame, Text, mountReactSurface } from '@/packages/ui';
-import { RecordSurfaceActions } from '@/packages/ui/show/placeable-surface-intent/RecordSurfaceActions';
-import { VisualDatabaseSurface } from '@/packages/visual-database/show/VisualDatabaseSurface';
+import { Container, ErrorBoundary, FloatingMaterialFrame, Text, mountReactSurface } from '../../../../ui';
+import { RecordSurfaceActions } from '../../../../ui/show/placeable-surface-intent/RecordSurfaceActions';
+import { VisualDatabaseSurface } from '../../../../keep-lists-of-rows/show/VisualDatabaseSurface';
 import {
   buildFounderGrowthVisualDatabaseProjection,
   readFounderGrowthFeedInputName,
-} from '@/packages/founder-growth-engine-screens/read-data/visual-database-projection';
+} from '../../../../founder-growth-engine-screens/read-data/visual-database-projection';
 
 type MountArgs = { el: HTMLElement; props?: Record<string, unknown> };
 

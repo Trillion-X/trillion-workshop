@@ -1,9 +1,8 @@
-// parts/sidebar/read-data/without-folders.ts
 //
 // PURPOSE
 //   The sidebar's sections as they read with no folders drawn: every row of every list, every list inside a list and
 //   every row's own child list, in the order the folders held them, as plain rows. Drawn when a show rule hides the
-//   control `sidebar.folders` (parts/sidebar/controls.json): the person reaches every screen they reached before, with
+//   control `sidebar.folders` (tools/sidebar/controls.json): the person reaches every screen they reached before, with
 //   no folder headings to open, close or manage.
 //
 // NON-NEGOTIABLE INVARIANTS

@@ -22,7 +22,7 @@
 // winner, L117), mobile (table -> stacked cards via useNarrowViewport), desktop
 // (table).
 //
-// fey-grade via @/packages/ui + @/packages/visual-database only. Zero raw HTML,
+// fey-grade via tools/ui + tools/keep-lists-of-rows only. Zero raw HTML,
 // zero inline styles, zero className hacking (L065/L066).
 //
 // =============================================================================
@@ -52,23 +52,23 @@ import {
   Text,
   WorkSkeletonRows,
   useNarrowViewport,
-} from '@/packages/ui';
+} from '../../../../ui';
 import {
   decodeVisualDatabaseModel,
   extractFieldValue,
   type VisualDatabaseFieldDescriptor,
   type VisualDatabaseModel,
   type VisualDatabaseRecord,
-} from '@/packages/visual-database/read-data/visual-database';
-import { displayTitle, statusTone } from '@/packages/visual-database/show/field-editors';
-import { RecordMetricRow } from '@/packages/visual-database/show/RecordMetricRow';
+} from '../../../../keep-lists-of-rows/read-data/visual-database';
+import { displayTitle, statusTone } from '../../../../keep-lists-of-rows/show/field-editors';
+import { RecordMetricRow } from '../../../../keep-lists-of-rows/show/RecordMetricRow';
 import {
   SCOREBOARD_COPY,
   SCOREBOARD_STATUS_FIELD_ID,
   type ScoreboardCopy,
-} from '@/packages/choose-per-observer/data/scoreboard-descriptors';
-import { formatMetric } from '@/packages/choose-per-observer/show/metric-format';
-import type { ScoreboardViewModel } from '@/packages/choose-per-observer/show/scoreboard-view-model';
+} from '../data/scoreboard-descriptors';
+import { formatMetric } from './metric-format';
+import type { ScoreboardViewModel } from './scoreboard-view-model';
 
 export interface ScoreboardSurfaceProps {
   /** The decoded view-model (read-data owns I/O; this surface is blind). */

@@ -21,8 +21,8 @@
 import * as React from 'react';
 import { ShieldAlert } from 'lucide-react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { SelectablePillBar } from '@/packages/ui/show/selectable-pill-bar';
-import { Badge, Card, Text, Icon } from '@/packages/ui';
+import { SelectablePillBar } from '../../../../ui/show/selectable-pill-bar';
+import { Badge, Card, Text, Icon } from '../../../../ui';
 import {
   decodeProjectComplianceFeed,
 } from '@/packages/project-gate-compliance/read-data/read-project-compliance';

@@ -68,7 +68,7 @@ export async function signWebhook(secret, id, timestamp, body) {
   return `v1,${base64(new Uint8Array(await crypto.subtle.sign('HMAC', key, encoder.encode(`${id}.${timestamp}.${body}`))))}`;
 }
 
-/** The callback address when it is https, carries no credentials and names a public host (parts/http-client/do-work/public-address.mjs), else null. */
+/** The callback address when it is https, carries no credentials and names a public host (tools/refuse-requests-to-private-addresses/public-address.mjs), else null. */
 export const callbackAddress = value => publicAddressOrNull(value);
 
 // The arguments a subscription gives, checked against the event's inputSchema (objects of string and boolean fields).

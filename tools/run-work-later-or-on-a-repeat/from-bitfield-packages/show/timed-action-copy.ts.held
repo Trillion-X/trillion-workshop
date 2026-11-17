@@ -36,7 +36,7 @@
 // You are forbidden from simplifying or removing it.
 // =============================================================================
 
-import type { StatusOverrides } from '@/packages/ui/show/status-vocabulary';
+import type { StatusOverrides } from '../../../ui/show/status-vocabulary';
 
 /**
  * Scheduler-specific machine-state wordings. statusView merges these over its

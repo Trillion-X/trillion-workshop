@@ -26,7 +26,7 @@
 // =============================================================================
 
 import React from 'react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
 import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
 import {

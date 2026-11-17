@@ -1,4 +1,3 @@
-// parts/sidebar/read-data/docked-list-fit.ts
 //
 // PURPOSE
 // Whether a list docked beside the work leaves the work room to be used. The list is measured, never the device: the

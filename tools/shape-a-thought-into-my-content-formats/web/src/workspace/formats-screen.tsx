@@ -14,7 +14,7 @@
 //   1. The formats and their parts come from the account; this screen never names one.
 //   2. Every card follows the typing; nothing is sent until the person records or asks their AI.
 //   3. The read runs through the shared screen-state part: loading, failed with Try again, empty (no formats), drawn.
-//   4. Every control is a shared part (parts/ui ListingGrid, ExpandableTabs, Input, Select, Text); this file writes no
+//   4. Every control is a shared part (tools/ui ListingGrid, ExpandableTabs, Input, Select, Text); this file writes no
 //      markup of its own.
 //
 // PROVENANCE
@@ -24,10 +24,10 @@
 //   visual-hierarchy sheets (agent-junk/2026-10-02/visual-hierarchy): show the thing, never label: value rows.
 
 import * as React from 'react';
-import { Container, ExpandableTabs, Input, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue, Text } from '../../parts/ui';
-import { ListingGrid, type Listing } from '../../parts/ui/show/listing-card';
-import { ScreenState, useScreenLoad } from '../../parts/ui/show/screen-state';
-import { mountReactSurface } from '../../parts/ui/show/react-surface-mount';
+import { Container, ExpandableTabs, Input, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue, Text } from '../../../../ui';
+import { ListingGrid, type Listing } from '../../../../ui/show/listing-card';
+import { ScreenState, useScreenLoad } from '../../../../ui/show/screen-state';
+import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
 import { postJson, readJson } from './api';
 import { refusal } from './failure';
 import { openRecordWith } from './open-record-video';

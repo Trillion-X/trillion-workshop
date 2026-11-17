@@ -8,11 +8,11 @@ const setSelectedAgentMock = vi.fn();
 vi.mock('@bitfield/runtime-kit/react', () => ({
   useBitfieldData: (...args: unknown[]) => useBitfieldDataMock(...args),
 }));
-vi.mock('@/packages/selected-agent/do-work/set-selected-agent', () => ({
+vi.mock('tools/selected-agent/do-work/set-selected-agent', () => ({
   SELECTED_AGENT_ACTION: 'action:update-selected-agent',
   setSelectedAgent: (...args: unknown[]) => setSelectedAgentMock(...args),
 }));
-vi.mock('@/packages/chat/show/input/unified-agent-picker', () => ({
+vi.mock('tools/chat/show/input/unified-agent-picker', () => ({
   UnifiedAgentPicker: ({ onSelect, disabled }: {
     onSelect: (participantRef: string, modelId: string | null) => void;
     disabled: boolean;
@@ -22,8 +22,8 @@ vi.mock('@/packages/chat/show/input/unified-agent-picker', () => ({
     </button>
   ),
 }));
-vi.mock('@/packages/ui', async () => {
-  const actual = await vi.importActual<typeof import('@/packages/ui')>('@/packages/ui');
+vi.mock('tools/ui', async () => {
+  const actual = await vi.importActual<typeof import('../../../../ui')>('tools/ui');
   return {
     ...actual,
     OpenSurfaceAction: ({ label, payload }: { label: string; payload: unknown }) => (

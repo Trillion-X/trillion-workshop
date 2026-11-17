@@ -1,4 +1,4 @@
-// parts/work-map/show/work-map-screen.tsx
+// tools/work-map/show/work-map-screen.tsx
 //
 // PURPOSE
 //   The work map: everything being worked on, by every AI and every person, as one tree, the way an org chart shows
@@ -14,9 +14,9 @@
 //      names the reads), joined by read-data/join-records.mjs; nothing is copied or kept, and it is read again when the
 //      person's store changes (/work/live).
 //   2. States are DATA: each state's words, tone, motion and whether it counts as done come from the one shared
-//      work-state looks (parts/screen-look/show/work-state-looks.json); a new state is one row there.
+//      work-state looks (tools/screen-look/show/work-state-looks.json); a new state is one row there.
 //   3. Progress is never guessed: a card's done count is the settled states under it, worked out by the shared roll-up
-//      (parts/ui/show/node-graph/roll-up.ts, read by the Draw design's records-on-a-board.ts); a card with no stated work
+//      (tools/ui/show/node-graph/roll-up.ts, read by the Draw design's records-on-a-board.ts); a card with no stated work
 //      under it shows none.
 //   4. Every element is a shared component (record views, status overview, person tags, provider marks, screen
 //      states); this file writes no markup.

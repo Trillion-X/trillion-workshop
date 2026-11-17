@@ -1,7 +1,7 @@
 // src/workspace/media-edit/cut-timeline.tsx
 //
 // The editor's timeline: its actions (undo, split at the playhead, take out a marked stretch, move, remove) over the
-// shared track lanes (parts/media-composition EditTrackLanes): the picture track, the captions and text track and the
+// shared track lanes (tools/media-composition EditTrackLanes): the picture track, the captions and text track and the
 // music track, one ruler and one playhead. Clicking the ruler moves the playhead; dragging a clip moves it; dragging
 // the edges of the selected clip trims it.
 //
@@ -13,9 +13,9 @@
 //   3. Composed only from shared parts (Container, Text, Button, EditTrackLanes).
 
 import React from 'react';
-import { Button, Container, NamedIcon, Text } from '../../../parts/ui';
-import { EditTrackLanes } from '../../../parts/media-composition/show/components/EditTrackLanes';
-import type { MaterializedComposition } from '../../../parts/media-composition/read-data/compose-timeline';
+import { Button, Container, NamedIcon, Text } from '../../../../../ui';
+import { EditTrackLanes } from '../../../../../media-composition/show/components/EditTrackLanes';
+import type { MaterializedComposition } from '../../../../../media-composition/read-data/compose-timeline';
 
 export type TimelineAction = { id: string; label: string; icon: string; group: string; run: () => void; disabled?: boolean; emphasis?: boolean };
 

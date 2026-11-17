@@ -15,7 +15,7 @@
 //      linked to it (the message-to-work graph, src/message-task-canvas.mjs messageTaskGraph).
 //   4. The person's view and grouping choices are kept under this list's preference key; until they choose, it opens on
 //      the Checklist grouped by pursuit, then feature.
-//   5. Only shared parts draw (parts/ui); no colour, font or control is authored here.
+//   5. Only shared parts draw (tools/ui); no colour, font or control is authored here.
 //
 // REFERENCES (anatomy taken from, nothing copied)
 //   - Airtable grouped grid, a summary on each group heading: https://mobbin.com/screens/7612f4c4-4104-4dbc-8e5f-579dde687f2b
@@ -29,12 +29,12 @@
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { Button, Inline, ProgressBar, Text } from '../../parts/ui';
-import { Composer, type ComposerDraft } from '../../parts/ui/show/composer';
-import { RecordChipProvider } from '../../parts/ui/show/record-chip';
-import { DisclosureSection } from '../../parts/ui/show/disclosure-section/DisclosureSection';
-import { mountRecordViews, type FieldDescriptor } from '../../parts/ui/show/record-views/record-views';
-import { loadScreen } from '../../parts/ui/show/screen-state';
+import { Button, Inline, ProgressBar, Text } from '../../../../ui';
+import { Composer, type ComposerDraft } from '../../../../ui/show/composer';
+import { RecordChipProvider } from '../../../../ui/show/record-chip';
+import { DisclosureSection } from '../../../../ui/show/disclosure-section/DisclosureSection';
+import { mountRecordViews, type FieldDescriptor } from '../../../../ui/show/record-views/record-views';
+import { loadScreen } from '../../../../ui/show/screen-state';
 import { postJson, readJson } from './api';
 import { NOT_BROKEN, NO_PURSUIT, doneOfAsked, messageTaskGraph, messageTasks, mergeMessagePage } from '../../../message-task-canvas.mjs';
 import { refusal } from './failure';

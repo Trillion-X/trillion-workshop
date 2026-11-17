@@ -1,9 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Card, Container, PlaceableSurfaceHost, Text } from '@/packages/ui';
-import { readItemRecordFeed, ITEM_RECORD_FEED_REFRESH_EVENT } from '@/packages/item-record/do-work/read-item-record-feed';
-import type { FeedItem } from '@/packages/item-record/read-data/read-item-records';
+import { Card, Container, PlaceableSurfaceHost, Text } from '../../../../ui';
+import { readItemRecordFeed, ITEM_RECORD_FEED_REFRESH_EVENT } from '../../../../item-record/do-work/read-item-record-feed';
+import type { FeedItem } from '../../../../item-record/read-data/read-item-records';
 
 export interface ItemFeedProps {
   itemKindRef?: string | null;

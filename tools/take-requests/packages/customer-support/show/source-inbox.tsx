@@ -34,7 +34,7 @@ import {
   Text,
   type CollectionSidebarGroup,
   type CollectionSidebarPanelState,
-} from '@/packages/ui';
+} from '../../../../ui';
 import { Inbox } from 'lucide-react';
 import type { SupportRecord } from './workspace-types';
 import { humanizeOrigin, humanizeToken } from './humanize';

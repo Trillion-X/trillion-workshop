@@ -261,7 +261,7 @@
 
   // Nested corners. A rounded thing sitting `gap` in from a rounded holder's edge takes the holder's corner less the
   // gap, never below zero, so the two curves run parallel; a holder whose corner follows what it holds takes the held
-  // corner plus the gap. parts/screen-look/show/nested-corners.css is the same rule as CSS variables (--corner-in,
+  // corner plus the gap. tools/screen-look/show/nested-corners.css is the same rule as CSS variables (--corner-in,
   // --corner-out), scripts/make-device-looks.mjs writes it into every compiled device palette, and
   // scripts/check-narrow-widths.mjs measures every screen against it (corners-not-concentric).
   function nestedCorner(outer, gap) {
@@ -444,7 +444,7 @@
   }
 
   // Motion. Five durations and the curves things move on (Claude's 60-450ms ladder; ChatGPT's enter, exit and move
-  // curves; a snap and an overshoot), the same numbers the browser reads as CSS variables and parts/ui/motion reads as
+  // curves; a snap and an overshoot), the same numbers the browser reads as CSS variables and tools/ui/motion reads as
   // JavaScript. Every CSS duration is multiplied by --motion-scale, which screen-look/show/surfaces.css sets to almost
   // nothing when the person asks for reduced motion (never 0: a 0s transition fires no transitionend, which would leave
   // a part waiting). The spring is a damped spring sampled into a linear() curve over its own settle time.

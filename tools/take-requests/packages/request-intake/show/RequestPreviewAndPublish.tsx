@@ -17,14 +17,14 @@ import {
   Container,
   EmptyPlaceholder,
   Text,
-} from '@/packages/ui';
+} from '../../../../ui';
 import { Eye } from 'lucide-react';
-import type { RequestIntakeScreenPreview } from '@/packages/request-intake/show/request-intake-screen-model';
-import { RequestQuestionList } from '@/packages/request-intake/show/RequestQuestionList';
+import type { RequestIntakeScreenPreview } from './request-intake-screen-model';
+import { RequestQuestionList } from './RequestQuestionList';
 import {
   RequestActionBar,
   type RequestIntakeActionHandler,
-} from '@/packages/request-intake/show/RequestActionBar';
+} from './RequestActionBar';
 
 interface RequestPreviewAndPublishProps {
   preview: RequestIntakeScreenPreview;

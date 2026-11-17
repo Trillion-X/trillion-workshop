@@ -15,7 +15,7 @@
 // Generic: signal keys + conversion are DATA; no source/medium/campaign literal.
 // Pure: no React, no I/O, no clock (caller supplies `at`).
 
-import type { AddressedFact } from '@/packages/choose-per-observer/read-data/aggregate-by-dimension';
+import type { AddressedFact } from './aggregate-by-dimension';
 
 /** One observer's first-touch signals + conversion state. */
 export interface TrafficSignalRow {

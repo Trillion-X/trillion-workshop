@@ -24,11 +24,11 @@
 //      approved and set again, only while its time is still ahead.
 
 import React from 'react';
-import { mountRecordViews, type FieldDescriptor, type RecordView } from '../../parts/ui/show/record-views/record-views';
-import { loadScreen } from '../../parts/ui/show/screen-state';
-import { notify } from '../../parts/ui/show/coss/notifications';
-import { Badge, Button, Container, ScheduleCalendar, Text, dayKey, visibleRange, type ScheduleItem, type ScheduleView } from '../../parts/ui';
-import { DateTimePicker } from '../../parts/ui/show/date-picker/DateTimePicker';
+import { mountRecordViews, type FieldDescriptor, type RecordView } from '../../../../ui/show/record-views/record-views';
+import { loadScreen } from '../../../../ui/show/screen-state';
+import { notify } from '../../../../ui/show/coss/notifications';
+import { Badge, Button, Container, ScheduleCalendar, Text, dayKey, visibleRange, type ScheduleItem, type ScheduleView } from '../../../../ui';
+import { DateTimePicker } from '../../../../ui/show/date-picker/DateTimePicker';
 import calendar from './calendar.json';
 import { postJson, readJson } from './api';
 import { refusal } from './failure';

@@ -8,7 +8,7 @@
  *
  * NON-NEGOTIABLE INVARIANTS:
  * 1. Zero imports from slot::workflow or slot::eeaf — reads only via useBitfieldData
- * 2. Components only from @/packages/ui; zero inline style objects
+ * 2. Components only from tools/ui; zero inline style objects
  * 3. Styles are DATA (run-profile records) — this panel never names a style
  * 4. Observability: logs `[ui:content-style] mounted input=<n> records` on mount
  */
@@ -27,13 +27,13 @@ import {
   ScrollableSurface,
   Text,
   emitPlaceableSurfaceIntent,
-} from '@/packages/ui';
+} from '../../../../ui';
 
 import {
   outputRoleLabel,
   readContentStyleOptions,
   type ContentStyleOption,
-} from '@/packages/content-production/read-data/read-content-styles';
+} from '../../../../content-production/packages/content-production/read-data/read-content-styles';
 
 /** Place the Make-content surface with this style's run-profile selected. */
 function makeContentWithStyle(style: ContentStyleOption): boolean {

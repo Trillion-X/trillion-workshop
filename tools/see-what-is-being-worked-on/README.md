@@ -1,6 +1,6 @@
 # tools/see-what-is-being-worked-on
 
-The screens that show everything being worked on, by every AI and every person, as one live tree: old trillion's `parts/work-map/` (`show/work-map-screen.tsx` and its join in `read-data/`), `parts/workflow-canvas/` and the message task canvas (`message-task-canvas.mjs`), whose own READMEs are in `work-map/` and `workflow-canvas/`. The screens need the workspace and a browser; the row runs the part that needs neither, the join that turns the answers already read into the tree.
+The screens that show everything being worked on, by every AI and every person, as one live tree: old trillion's `tools/work-map/` (`show/work-map-screen.tsx` and its join in `read-data/`), `tools/workflow-canvas/` and the message task canvas (`message-task-canvas.mjs`), whose own READMEs are in `work-map/` and `workflow-canvas/`. The screens need the workspace and a browser; the row runs the part that needs neither, the join that turns the answers already read into the tree.
 
 ## Files
 

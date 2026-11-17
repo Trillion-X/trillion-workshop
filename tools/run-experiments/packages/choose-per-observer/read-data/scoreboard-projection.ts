@@ -14,16 +14,16 @@
 // facts — it is never stored, so there is no second source of truth to drift.
 // Pure: the caller (mount) does the I/O and passes the records in.
 
-import type { SelectionSurface } from '@/packages/choose-per-observer/read-data/candidate-set-schema';
-import { attributeOutcomes, type AttributionJoin } from '@/packages/choose-per-observer/read-data/attribute-outcomes';
-import { aggregateOutcomes } from '@/packages/choose-per-observer/read-data/scoreboard';
-import type { ObserverFact } from '@/packages/choose-per-observer/read-data/score-candidates';
+import type { SelectionSurface } from '../../../../funnels-screen/read-data/candidate-set-schema';
+import { attributeOutcomes, type AttributionJoin } from './attribute-outcomes';
+import { aggregateOutcomes } from './scoreboard';
+import type { ObserverFact } from './score-candidates';
 import {
   buildScoreboardViewModel,
   type ScoreboardViewModel,
   type SignificanceSignal,
   type OutcomeMetricsByCandidate,
-} from '@/packages/choose-per-observer/show/scoreboard-view-model';
+} from '../show/scoreboard-view-model';
 
 export interface ScoreboardProjectionInput {
   surface: SelectionSurface;

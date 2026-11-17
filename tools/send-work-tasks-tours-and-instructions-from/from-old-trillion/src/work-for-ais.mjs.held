@@ -21,7 +21,7 @@
 //
 import settings from './work-for-ais.json' with { type: 'json' };
 import setupSettings from './setup-steps.json' with { type: 'json' };
-import { observerBucket } from '../parts/choose-per-observer/read-data/score-candidates.ts';
+import { observerBucket } from '../../../funnels-screen/read-data/score-candidates.ts';
 import { hostOf } from './resource-host.mjs';
 import { limitSaid } from './limits.mjs';
 

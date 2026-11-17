@@ -4,9 +4,9 @@
 // screen. The shell is an overlay: it closes with Escape or its button, and steps to the pages either side of this one.
 // Input `page` opens on that page; with `alone` that page is drawn by itself, without the shell.
 import * as React from 'react';
-import { SectionedPanels, type PanelNavigationItem } from '../../parts/ui/show/sectioned-panels/SectionedPanels';
-import { closeOwnScreen } from '../../parts/ui/show/placeable-surface-intent/open-choices';
-import { mountReactSurface } from '../../parts/ui/show/react-surface-mount';
+import { SectionedPanels, type PanelNavigationItem } from '../../../../ui/show/sectioned-panels/SectionedPanels';
+import { closeOwnScreen } from '../../../../ui/show/placeable-surface-intent/open-choices';
+import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
 import { PlaceInPlace, ScreenInPlace } from './screen-in-place';
 import { PAGES } from './settings-pages';
 import { answerSettingsPageRequests } from './settings-page-request';

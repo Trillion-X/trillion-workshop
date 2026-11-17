@@ -1,4 +1,3 @@
-// parts/work-map/read-data/join-records.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';

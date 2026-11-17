@@ -23,7 +23,7 @@
 // =============================================================================
 
 import React from 'react';
-import { Container, Text } from '@/packages/ui';
+import { Container, Text } from '../../../../ui';
 import type { RecordMap } from '../read-data/record-work-graph';
 import { FieldValueView } from './field-value-view';
 

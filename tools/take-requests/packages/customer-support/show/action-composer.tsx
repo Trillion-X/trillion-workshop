@@ -28,7 +28,7 @@
 // =============================================================================
 
 import React from 'react';
-import { ActionControl, Card, Container, Textarea } from '@/packages/ui';
+import { ActionControl, Card, Container, Textarea } from '../../../../ui';
 import type { WorkDescriptor } from '../read-data/record-work-graph';
 import { humanizeToken } from './humanize';
 

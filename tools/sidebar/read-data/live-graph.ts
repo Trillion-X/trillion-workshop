@@ -1,4 +1,3 @@
-// parts/sidebar/read-data/live-graph.ts
 //
 // NO PRIOR: Trillion's own (lists a rule fills change while the page is open).
 //

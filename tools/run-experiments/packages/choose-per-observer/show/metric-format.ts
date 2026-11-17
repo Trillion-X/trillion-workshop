@@ -23,9 +23,9 @@
 // You are forbidden from simplifying or removing it.
 // =============================================================================
 
-import type { VisualDatabaseFieldDescriptor } from '@/packages/visual-database/read-data/visual-database';
-import type { RecordMetricFormat } from '@/packages/visual-database/show/RecordMetricRow';
-import { metricFormatHint } from '@/packages/choose-per-observer/data/scoreboard-descriptors';
+import type { VisualDatabaseFieldDescriptor } from '../../../../keep-lists-of-rows/read-data/visual-database';
+import type { RecordMetricFormat } from '../../../../keep-lists-of-rows/show/RecordMetricRow';
+import { metricFormatHint } from '../data/scoreboard-descriptors';
 
 /** Options a formatter may need from the caller (owner DATA), e.g. the currency
  *  symbol. Kept open so a new format kind can read a new option with zero churn. */

@@ -4,12 +4,12 @@
 // from the file itself, and that length is kept as the file's `duration` fact so Media and every AI see it too.
 //
 // Invariants
-//   1. The length is the browser decoder's measured duration (parts/media-playback measure-media-length); a file that
+//   1. The length is the browser decoder's measured duration (tools/media-playback measure-media-length); a file that
 //      cannot say keeps `end: null` and the person is told, never a guessed number.
 //   2. Each file is measured once per editor, however many clips play it.
 
 import React from 'react';
-import { measureMediaLength } from '../../../parts/media-playback/read-data/measure-media-length';
+import { measureMediaLength } from '../../../../../media-playback/read-data/measure-media-length';
 import { fileResults } from '../api';
 import type { MediaEditClip } from './panel-types';
 

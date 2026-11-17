@@ -26,7 +26,7 @@
  */
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Container, Icon, Text } from '@/packages/ui';
+import { Container, Icon, Text } from '../../../../ui';
 
 // The workflow + trigger DATA path is deterministic and has NO wall-clock (verified
 // 2026-07-26: no dt_now / ambient time in the workflow engine). A producer therefore

@@ -10,7 +10,7 @@
 
 import words from './note-list-menu.json';
 import { fileResults } from './api';
-import { notify } from '../../parts/ui/show/coss/notifications';
+import { notify } from '../../../../ui/show/coss/notifications';
 import { errorWords } from '../../../../ui/show/safe-error-card/sanitize-error-text.ts';
 import { saveNotePdf } from './note-actions';
 

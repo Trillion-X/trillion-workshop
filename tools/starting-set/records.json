@@ -2413,7 +2413,7 @@
    "id": "tool:critique-a-public-page",
    "version": "1f:0613570784ccd94b6070cbb7b6f1ba7aa25366a8ead5b698b7a5de1a0e356b9f",
    "title": "Critique a public page",
-   "description": "Opens the page (url), or every page a sitemap lists (pages_from, less the paths skip names), at 390 and 1280 pixels (the widths are DATA in parts/page-critic/read-data/page-craft-rules.json) and checks it against the craft rules: headings…",
+   "description": "Opens the page (url), or every page a sitemap lists (pages_from, less the paths skip names), at 390 and 1280 pixels (the widths are DATA in tools/page-critic/read-data/page-craft-rules.json) and checks it against the craft rules: headings…",
    "source": "browse",
    "configuration": "trillion-work"
   },

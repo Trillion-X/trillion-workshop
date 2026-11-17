@@ -29,18 +29,18 @@ Files of the bitfield-packages package `timed-action` at commit d926b7adb8ca2415
 | `do-work/runtime-recurrence-wiring.test.mjs` | `do-work/runtime-recurrence-wiring.test.mjs.held` | held: test (vitest or the retired loader) |
 | `entry-to-package-data-map.json` | `entry-to-package-data-map.json` | data |
 | `read-data/README.md` | `read-data/README.md` | data |
-| `read-data/read-routine-records.ts` | `read-data/read-routine-records.ts.held` | held: imports @/packages/ui |
+| `read-data/read-routine-records.ts` | `read-data/read-routine-records.ts.held` | held: imports tools/ui |
 | `read-data/read-scheduled-action-graph.ts` | `read-data/read-scheduled-action-graph.ts` | loads (imports only node:) |
 | `show-ios-jscore/README.md` | `show-ios-jscore/README.md` | data |
 | `show-ios-jscore/mount-timed-action-jscore.js` | `show-ios-jscore/mount-timed-action-jscore.js` | loads (imports only node:) |
 | `show/README.md` | `show/README.md` | data |
-| `show/RoutinesSurface.tsx` | `show/RoutinesSurface.tsx.held` | held: imports react, lucide-react, @/packages/ui, ../read-data/read-routine-records |
+| `show/RoutinesSurface.tsx` | `show/RoutinesSurface.tsx.held` | held: imports react, lucide-react, tools/ui, ../read-data/read-routine-records |
 | `show/TimedActionSurface.tsx` | `show/TimedActionSurface.tsx.held` | held: imports react, lucide-react, ./timed-action-view-model, ./timed-action-translate, ... |
-| `show/mount-timed-action.tsx` | `show/mount-timed-action.tsx.held` | held: imports react, @bitfield/runtime-kit/react, @bitfield/runtime-kit, @/packages/ui/show/react-surface-mount, ... |
+| `show/mount-timed-action.tsx` | `show/mount-timed-action.tsx.held` | held: imports react, @bitfield/runtime-kit/react, @bitfield/runtime-kit, tools/ui/show/react-surface-mount, ... |
 | `show/timed-action-actions.ts` | `show/timed-action-actions.ts.held` | held: imports ./timed-action-view-model |
-| `show/timed-action-copy.ts` | `show/timed-action-copy.ts.held` | held: imports @/packages/ui/show/status-vocabulary |
+| `show/timed-action-copy.ts` | `show/timed-action-copy.ts.held` | held: imports tools/ui/show/status-vocabulary |
 | `show/timed-action-fixtures.ts` | `show/timed-action-fixtures.ts.held` | held: imports ./timed-action-translate |
 | `show/timed-action-format.ts` | `show/timed-action-format.ts.held` | held: imports ./timed-action-view-model |
-| `show/timed-action-translate.ts` | `show/timed-action-translate.ts.held` | held: imports @/packages/ui/show/status-vocabulary |
+| `show/timed-action-translate.ts` | `show/timed-action-translate.ts.held` | held: imports tools/ui/show/status-vocabulary |
 | `show/timed-action-view-model.ts` | `show/timed-action-view-model.ts.held` | held: imports ./timed-action-translate, ./timed-action-copy |
 | `things-to-store-and-run.json` | `things-to-store-and-run.json` | data |

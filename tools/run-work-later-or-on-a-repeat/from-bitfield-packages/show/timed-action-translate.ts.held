@@ -46,8 +46,8 @@
 // Re-export the machine-state half of the spine so a caller imports both halves
 // from one module. statusView is bound to schedulerStatusOverrides by callers
 // (see timed-action-copy.ts for the override DATA map).
-export { statusView } from '@/packages/ui/show/status-vocabulary';
-export type { StatusView, StatusTone, StatusOverrides } from '@/packages/ui/show/status-vocabulary';
+export { statusView } from '../../../ui/show/status-vocabulary';
+export type { StatusView, StatusTone, StatusOverrides } from '../../../ui/show/status-vocabulary';
 
 /**
  * The owner-supplied label map. Keys are opaque owner ids (kept internal); the

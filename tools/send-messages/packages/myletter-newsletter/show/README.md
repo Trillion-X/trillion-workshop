@@ -14,5 +14,5 @@ None yet.
 
 ## Dependencies
 
-**Depends on:** `@/packages/ui` only (leaf package, cross-package source import allowed per CLAUDE.md).
+**Depends on:** `tools/ui` only (leaf package, cross-package source import allowed per CLAUDE.md).
 **Depended on by:** none yet.

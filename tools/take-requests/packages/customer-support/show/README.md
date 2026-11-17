@@ -39,7 +39,7 @@ The React render + mount layer for the Support Workbench: blind, data-driven ren
 ## Dependencies
 
 **Depends on:**
-- `@/packages/ui` — shared UI atoms/molecules (`Container`, `Text`, `Badge`, `SegmentedControl`, `FloatingMaterialFrame`, `ErrorBoundary`, `SafeErrorCard`, `SeverityRow`, `mountReactSurface`). No raw HTML or `className` (L065).
+- `tools/ui` — shared UI atoms/molecules (`Container`, `Text`, `Badge`, `SegmentedControl`, `FloatingMaterialFrame`, `ErrorBoundary`, `SafeErrorCard`, `SeverityRow`, `mountReactSurface`). No raw HTML or `className` (L065).
 - `@bitfield/runtime-kit` (`sendRequestToBitfieldTarget`) and `@bitfield/runtime-kit/react` (`useBitfieldData`) — transport + live-value read, used ONLY in `mount-customer-support.tsx`.
 - `../read-data/read-customer-support-workspace` (`readCustomerSupportWorkspace`, `CustomerSupportWorkspace`) — the projection that decorates records.
 - `../read-data/record-work-graph` (`RecordWorkGraphInput`, `WorkDescriptor`) — the generic decoder types.

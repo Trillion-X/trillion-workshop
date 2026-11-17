@@ -246,7 +246,7 @@
         },
         "result_selector": "$.result",
         "provenance": {
-          "source": "Trillion-X/trillion parts/slot-table/do-work/slot-table.mjs, moved in a9ee258 (#76); old capability row capabilities.json:1156 at 4ffa1dc4a2^ (owner of keep each person's records in their own store)"
+          "source": "Trillion-X/trillion tools/slot-table/do-work/slot-table.mjs, moved in a9ee258 (#76); old capability row capabilities.json:1156 at 4ffa1dc4a2^ (owner of keep each person's records in their own store)"
         },
         "verify": [
           {

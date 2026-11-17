@@ -4,7 +4,7 @@ import React from 'react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
 import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../ui/index.ts';
 import { decodeIdeasWorkGraph } from '../read-data/read-ideas.ts';
-import { VisualDatabaseSurface } from '@/packages/visual-database/show/VisualDatabaseSurface';
+import { VisualDatabaseSurface } from '../../keep-lists-of-rows/show/VisualDatabaseSurface';
 
 type MountArgs = {
   el: HTMLElement;

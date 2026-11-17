@@ -178,7 +178,7 @@
         },
         "result_selector": "$.result",
         "provenance": {
-          "source": "Trillion-X/trillion parts/file-content-renderer/show/classify-file-content.ts at 5cd0dc3103e4f54b30b1784f0d77a67de0147064, moved byte for byte in a9ee258 (#76) to show/; old capability row capabilities.json:187 at 4ffa1dc4a2^ (show any file as itself); do-work/classify-files.mjs written here"
+          "source": "Trillion-X/trillion tools/file-content-renderer/show/classify-file-content.ts at 5cd0dc3103e4f54b30b1784f0d77a67de0147064, moved byte for byte in a9ee258 (#76) to show/; old capability row capabilities.json:187 at 4ffa1dc4a2^ (show any file as itself); do-work/classify-files.mjs written here"
         },
         "verify": [
           {

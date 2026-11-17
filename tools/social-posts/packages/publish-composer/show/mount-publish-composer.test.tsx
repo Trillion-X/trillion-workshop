@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import {
   publishComposerDestinationSelector,
   readComposerDestinationsSourceAddress,
-} from '@/packages/publish-composer/show/mount-publish-composer';
+} from './mount-publish-composer';
 
 describe('publish-composer destination source selection', () => {
   it('uses the caller-bounded address through the canonical input', () => {

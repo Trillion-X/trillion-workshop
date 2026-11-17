@@ -1,5 +1,5 @@
 import { readTrustedRuntimeClockMs, type BitfieldRuntimeContext } from '@bitfield/runtime-kit';
-import { createEngineAtomicOperationWorkStore } from '@/packages/operation-records/read-data/operation-work-store';
+import { createEngineAtomicOperationWorkStore } from '../../../../operation-records/read-data/operation-work-store';
 import { observeSavedWorkResult } from './observe-saved-work-result';
 
 export async function observeSavedWorkResultTarget(input: unknown, context?: BitfieldRuntimeContext) {

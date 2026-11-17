@@ -1,7 +1,7 @@
 // src/work-examples.mjs
 //
 // PURPOSE
-//   The examples every workspace screen shows at its top (parts/ui/show/examples-strip), read from one DATA file
+//   The examples every workspace screen shows at its top (tools/ui/show/examples-strip), read from one DATA file
 //   (src/workspace/examples.json) keyed by screen, plus the newest real stories people published at /stories for a
 //   screen that asks for them. "Do this for me" hands an example's request to the person's own AIs as a job: the same
 //   handoff hand_off makes (src/agents.mjs), with no agent named, so the next AI of theirs that takes work takes it.

@@ -1,4 +1,4 @@
-// parts/timed-action/do-work/write-scheduled-action-record.ts (ported unchanged from bitfield-packages packages/timed-action/do-work)
+// tools/run-work-later-or-on-a-repeat/do-work/write-scheduled-action-record.ts (ported unchanged from bitfield-packages packages/timed-action/do-work)
 function write(address, path, payload) {
   return { address, path, payload };
 }

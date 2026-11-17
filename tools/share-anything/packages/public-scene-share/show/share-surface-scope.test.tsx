@@ -21,7 +21,7 @@ vi.mock('@/packages/public-scene-share/do-work/create-capsule-target', () => ({
   sdkEngineIo: { readCurrent: vi.fn(), writeBytes: vi.fn() },
 }));
 
-const { ShareSurface } = await import('@/packages/public-scene-share/show/share-surface');
+const { ShareSurface } = await import('./share-surface');
 
 const SCENE = {
   id: 'scene',

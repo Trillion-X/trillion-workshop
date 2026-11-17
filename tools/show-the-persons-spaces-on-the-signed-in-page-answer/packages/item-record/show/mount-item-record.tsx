@@ -5,8 +5,8 @@
 // `targetRef` so callers (e.g. group-page) can scope the feed to a group.
 
 import React from 'react';
-import { mountReactMaterial, type ReactMaterialMountArgs } from '@/packages/ui';
-import { ItemFeed } from '@/packages/item-record/show/ItemFeed';
+import { mountReactMaterial, type ReactMaterialMountArgs } from '../../../../ui';
+import { ItemFeed } from './ItemFeed';
 
 export default function mount({ el, props = {} }: ReactMaterialMountArgs) {
   return mountReactMaterial(el, <ItemFeed {...props} />, props, 'item-record material');

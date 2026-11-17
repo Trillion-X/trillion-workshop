@@ -28,8 +28,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { Bell, ChevronUp, ChevronDown, X } from 'lucide-react';
-import { Card, Text, Badge, Button, Icon } from '@/packages/ui';
-import type { AwaySummaryTaskReceipt } from '@/packages/away-summary/read-data/read-away-summary';
+import { Card, Text, Badge, Button, Icon } from '../../../../ui';
+import type { AwaySummaryTaskReceipt } from '../../../../away-summary/packages/away-summary/read-data/read-away-summary';
 
 // ---------------------------------------------------------------------------
 // CONSTANTS

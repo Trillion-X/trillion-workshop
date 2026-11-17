@@ -1,4 +1,3 @@
-// parts/timed-action/do-work/when-to-wake.ts
 //
 // Purpose: one call a Durable Object alarm makes on each wake. It reads the person's schedule DATA (recurring
 // schedules with their occurrence state, and one-off scheduled actions with their time windows and receipts), and

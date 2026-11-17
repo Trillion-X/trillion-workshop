@@ -1,5 +1,5 @@
-import type { DisplayMarkSpec } from '@/packages/ui/show/display-mark';
-import { statusView, type StatusOverrides, type StatusView } from '@/packages/ui/show/status-vocabulary';
+import type { DisplayMarkSpec } from '../../ui/show/display-mark';
+import { statusView, type StatusOverrides, type StatusView } from '../../ui/show/status-vocabulary';
 import type { EvidenceProjection, ExecutionReceipt } from './capability-records';
 import { STRIPE_STATUS_OVERRIDES } from './stripe-status-overrides';
 

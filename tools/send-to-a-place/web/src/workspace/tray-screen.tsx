@@ -32,7 +32,7 @@
 //   2. Nothing leaves the page until the person presses Send; a refused send keeps the tray, the note and everything
 //      attached, and says what the Worker said (the shared Composer keeps its draft until onSend resolves).
 //   3. A picture or file is kept in the person's own Files first (upload.ts) and travels by its identity.
-//   4. Every control is a shared part (parts/ui: listing rows, the screen states, the Composer, the action menu); this
+//   4. Every control is a shared part (tools/ui: listing rows, the screen states, the Composer, the action menu); this
 //      file writes no markup of its own.
 //   6. A default send names no place (`to` is left out); a share the account could not be reached for clears the tray
 //      and says it is kept, never that it failed.
@@ -40,15 +40,15 @@
 //      it could not load with Try again.
 
 import * as React from 'react';
-import { Button, Container, NamedIcon, Text } from '../../parts/ui';
-import { mountReactSurface } from '../../parts/ui/show/react-surface-mount';
-import { notify } from '../../parts/ui/show/coss/notifications';
-import { useTray, hasSelectedRecordDragData, readSelectedRecordDragData, type TrayThing } from '../../parts/ui/show/selection';
-import { ListingGrid, type Listing } from '../../parts/ui/show/listing-card';
-import { ScreenState, useScreenLoad } from '../../parts/ui/show/screen-state';
-import { Composer, type ComposerDraft, type ComposerPicker, type ComposerProps } from '../../parts/ui/show/composer';
-import { ActionMenu } from '../../parts/ui/show/action-menu';
-import { relativeWhen } from '../../parts/ui/show/relative-time/relative-time';
+import { Button, Container, NamedIcon, Text } from '../../../../ui';
+import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
+import { notify } from '../../../../ui/show/coss/notifications';
+import { useTray, hasSelectedRecordDragData, readSelectedRecordDragData, type TrayThing } from '../../../../ui/show/selection';
+import { ListingGrid, type Listing } from '../../../../ui/show/listing-card';
+import { ScreenState, useScreenLoad } from '../../../../ui/show/screen-state';
+import { Composer, type ComposerDraft, type ComposerPicker, type ComposerProps } from '../../../../ui/show/composer';
+import { ActionMenu } from '../../../../ui/show/action-menu';
+import { relativeWhen } from '../../../../ui/show/relative-time/relative-time';
 import { readJson } from './api';
 import type { Delivered as OutboxResult } from './share-outbox';
 import { routedWords } from './send-routed';

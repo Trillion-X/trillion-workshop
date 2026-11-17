@@ -1,16 +1,16 @@
 import * as React from 'react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
 import { Layers3, Play, Shuffle, Sparkles } from 'lucide-react';
-import { Badge } from '@/packages/ui/show/badge';
-import { Button } from '@/packages/ui/show/button';
-import { Card } from '@/packages/ui/show/card';
-import { Container } from '@/packages/ui/show/container';
-import { Dropdown } from '@/packages/ui/show/dropdown';
-import { Icon } from '@/packages/ui/show/icon';
-import { Textarea } from '@/packages/ui/show/input';
-import { sanitizeErrorText } from '@/packages/ui/show/safe-error-card';
-import { ScrollableSurface } from '@/packages/ui/show/scrollable-surface';
-import { Text } from '@/packages/ui/show/text';
+import { Badge } from '../../../../ui/show/badge';
+import { Button } from '../../../../ui/show/button';
+import { Card } from '../../../../ui/show/card';
+import { Container } from '../../../../ui/show/container';
+import { Dropdown } from '../../../../ui/show/dropdown';
+import { Icon } from '../../../../ui/show/icon';
+import { Textarea } from '../../../../ui/show/input';
+import { sanitizeErrorText } from '../../../../ui/show/safe-error-card';
+import { ScrollableSurface } from '../../../../ui/show/scrollable-surface';
+import { Text } from '../../../../ui/show/text';
 import {
   deriveContentProductionStep,
   contentProductionCompositionCatalog,
@@ -21,8 +21,8 @@ import {
   readSelectionOptions,
   readSourceOptions,
   sourceInputs,
-} from '@/packages/content-production/read-data/read-content-production';
-import { submitContentProductionRun } from '@/packages/content-production/do-work/submit-content-production-run';
+} from '../../../../content-production/packages/content-production/read-data/read-content-production';
+import { submitContentProductionRun } from '../../../../content-production/packages/content-production/do-work/submit-content-production-run';
 
 export function ContentProduction() {
   const evidenceRows = useBitfieldData('content-production:contentMediaEvidence');

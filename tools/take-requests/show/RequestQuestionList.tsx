@@ -19,9 +19,9 @@ import {
   Container,
   EmptyPlaceholder,
   Text,
-} from '@/packages/ui';
+} from '../../ui';
 import { ListChecks } from 'lucide-react';
-import type { RequestIntakeScreenQuestion } from '@/packages/request-intake/show/request-intake-screen-model';
+import type { RequestIntakeScreenQuestion } from './request-intake-screen-model';
 
 interface RequestQuestionListProps {
   questions: RequestIntakeScreenQuestion[];

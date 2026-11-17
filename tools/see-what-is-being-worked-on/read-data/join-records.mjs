@@ -1,4 +1,3 @@
-// parts/work-map/read-data/join-records.mjs
 //
 // Purpose
 //   Joins records read from several places into one tree of nodes and lines, the way an org chart joins teams, people

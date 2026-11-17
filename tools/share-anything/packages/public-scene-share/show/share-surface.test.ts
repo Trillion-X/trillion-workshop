@@ -12,8 +12,8 @@ vi.mock('@/packages/public-scene-share/do-work/create-capsule-target', () => ({
   createCapsuleTarget: (...args: unknown[]) => createCapsuleTarget(...args),
 }));
 
-const { buildShareMint, resolveShareOrigin } = await import('@/packages/public-scene-share/show/share-surface');
-const { isPubliclyReachableOrigin } = await import('@/packages/public-scene-share/show/share-scene-presenter');
+const { buildShareMint, resolveShareOrigin } = await import('./share-surface');
+const { isPubliclyReachableOrigin } = await import('./share-scene-presenter');
 
 beforeEach(() => createCapsuleTarget.mockReset());
 

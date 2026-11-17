@@ -8,7 +8,7 @@
 //   Sending list (a working row, then the kept file with its size) and goes with the next Send.
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. Built from the shared parts (parts/ui): the tiles are the shared Add to it grid Your tray also shows; no control
+//   1. Built from the shared parts (tools/ui): the tiles are the shared Add to it grid Your tray also shows; no control
 //      is hand-made here.
 //   2. The rows and their words are DATA; nothing here names a tool, a site or a source. What a recording needs from
 //      the person before it can start is its row's `grant`, and each grant is one entry of `grants` below.
@@ -86,7 +86,7 @@ export function AddToIt({ tab, page, recording, working, onProblem }: {
   return (
     <Container layout="vertical" gap="sm" width="full">
       {running && runningRow ? <RecordingRow recording={running} row={runningRow} /> : null}
-      {/* The shared Add to it grid (parts/ui/show/add-to-it), the same one Your tray shows. */}
+      {/* The shared Add to it grid (tools/ui/show/add-to-it), the same one Your tray shows. */}
       <AddWays
         label={words.sections.add_to_it}
         ways={[

@@ -23,7 +23,7 @@
 //         sort and group by kind, who put it there, where it came from, and when). A shared file opens in place.
 //       People: who is in it by the name each shows there and their type (a menu for whoever may give people their
 //         type); your own row changes your name.
-//       Who can do what: the space's rules, each a sentence built in the shared rule builder (parts/ui/show/
+//       Who can do what: the space's rules, each a sentence built in the shared rule builder (tools/ui/show/
 //         rule-builder) from what the store lists; read-only for anyone the rules do not let change them.
 //       Agents & work: the agents at work there and the work handed to them; hand a job to one, or to whoever takes
 //         it first.
@@ -56,35 +56,35 @@
 import { quietHold } from './quiet-send-check';
 import * as React from 'react';
 import { readSpaceListPage, readSpaceTargetPage, reconcileLoadedSpaceItems, spacePageKey } from './space-target-page.mjs';
-import type { ThreadAction, ThreadPost } from '../../parts/ui/show/coss/thread';
-import { Composer, type ComposerDraft } from '../../parts/ui/show/composer';
-import type { Ref as Mention } from '../../parts/ui/show/mention-field';
-import { RecordChipProvider, keptMentions } from '../../parts/ui/show/record-chip';
+import type { ThreadAction, ThreadPost } from '../../../../ui/show/coss/thread';
+import { Composer, type ComposerDraft } from '../../../../ui/show/composer';
+import type { Ref as Mention } from '../../../../ui/show/mention-field';
+import { RecordChipProvider, keptMentions } from '../../../../ui/show/record-chip';
 import { useMentionChips, useMentions } from './mentions';
-import { CommandPalette, type CommandPaletteItem } from '../../parts/ui/show/command-palette';
-import { CollectionHeader } from '../../parts/ui/show/collection-header';
-import { relativeWhen } from '../../parts/ui/show/relative-time/relative-time';
-import type { GuideAction, GuideDescription, GuideReveal, GuideRow } from '../../parts/ui/show/coss/guide';
-import { FloatingPanel } from '../../parts/screen-arrangement/show/FloatingPanel';
-import { mountRecordViews, RecordViews, type BulkAction, type FieldDescriptor, type RecordView, type RecordViewsOptions } from '../../parts/ui/show/record-views/record-views';
-import { viewsOfferedToEveryList } from '../../parts/ui/show/record-views/every-list-views';
-import { notify } from '../../parts/ui/show/coss/notifications';
-import { loadScreen, mountScreenState, ScreenState } from '../../parts/ui/show/screen-state';
-import { mountReactSurface } from '../../parts/ui/show/react-surface-mount';
+import { CommandPalette, type CommandPaletteItem } from '../../../../ui/show/command-palette';
+import { CollectionHeader } from '../../../../ui/show/collection-header';
+import { relativeWhen } from '../../../../ui/show/relative-time/relative-time';
+import type { GuideAction, GuideDescription, GuideReveal, GuideRow } from '../../../../ui/show/coss/guide';
+import { FloatingPanel } from '../../../../screen-arrangement/show/FloatingPanel';
+import { mountRecordViews, RecordViews, type BulkAction, type FieldDescriptor, type RecordView, type RecordViewsOptions } from '../../../../ui/show/record-views/record-views';
+import { viewsOfferedToEveryList } from '../../../../ui/show/record-views/every-list-views';
+import { notify } from '../../../../ui/show/coss/notifications';
+import { loadScreen, mountScreenState, ScreenState } from '../../../../ui/show/screen-state';
+import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
 import { copyTextToClipboard } from '../../../../ui/show/clipboard/copy-text.ts';
-import type { MediaPreviewProps } from '../../parts/ui/show/media-preview';
-import { ActionMenu, type ActionMenuItem } from '../../parts/ui/show/action-menu';
-import { ColorDot } from '../../parts/ui/show/color-dot/ColorDot';
-import { Button, Container, NamedIcon, PersonTag, Text } from '../../parts/ui';
-import { ListingGrid, type Listing } from '../../parts/ui/show/listing-card';
-import { PLACEABLE_SURFACE_MIME } from '../../parts/ui/show/placeable-surface-intent/placeable-surface-intent';
+import type { MediaPreviewProps } from '../../../../ui/show/media-preview';
+import { ActionMenu, type ActionMenuItem } from '../../../../ui/show/action-menu';
+import { ColorDot } from '../../../../ui/show/color-dot/ColorDot';
+import { Button, Container, NamedIcon, PersonTag, Text } from '../../../../ui';
+import { ListingGrid, type Listing } from '../../../../ui/show/listing-card';
+import { PLACEABLE_SURFACE_MIME } from '../../../../ui/show/placeable-surface-intent/placeable-surface-intent';
 import { addMember, emptyGraph, ensureGroup } from '../../../../turn-frames-into-slides/read-data/group-graph.ts';
-import timelineLevels from '../../parts/ui/show/record-views/timeline-zoom-levels.json';
+import timelineLevels from '../../../../ui/show/record-views/timeline-zoom-levels.json';
 import ruleOperators from '../../../../formula-engine/rules/rule-operators.json';
-import type { RuleBuilderFact, RuleBuilderOption, RuleBuilderProblem, RuleBuilderRule, RuleBuilderWhoKind } from '../../parts/ui/show/rule-builder';
-import { later, lazyPart } from '../../parts/ui/show/load-later/later';
+import type { RuleBuilderFact, RuleBuilderOption, RuleBuilderProblem, RuleBuilderRule, RuleBuilderWhoKind } from '../../../../ui/show/rule-builder';
+import { later, lazyPart } from '../../../../ui/show/load-later/later';
 import { contentTypeOf, familyOf, filePicture, previewFor } from './file-picture';
-import { mediaPreviewContent } from '../../parts/ui/show/media-preview';
+import { mediaPreviewContent } from '../../../../ui/show/media-preview';
 import spaceKinds from './space-kinds.json';
 import spaceActions from './space-actions.json';
 import surfaces from './screens.mjs';
@@ -94,7 +94,7 @@ import { sharedRecordReferencePage } from '../shared-record-references.mjs';
 import { SharedRecordPreview } from './shared-record-preview';
 import spaceSettings from '../space-settings.json';
 import reactionChoices from '../reactions.json';
-import type { Reaction } from '../../parts/ui/show/reactions/ReactionRow';
+import type { Reaction } from '../../../../ui/show/reactions/ReactionRow';
 import { recordFilter } from './record-filter';
 import { focusOn } from './scope-focus';
 import { PlanNeeded, postJson, postJsonByKey, putJson, readAnswer, readJson, readListing } from './api';
@@ -108,17 +108,17 @@ import { partPlacesOf, type CommunityView, type TurnedOn } from './community-pla
 import { rememberParts } from './pursuit-parts';
 import { errorWords } from '../../../../ui/show/safe-error-card/sanitize-error-text.ts';
 import { parseSpaceInviteEmails } from './space-create-recipients.mjs';
-import { offerWalkthroughDefinitions } from '../../parts/guided-overlay/show/walkthrough-events';
-import { registerShowSpaceMembership } from '../../parts/ui/show/show-rules/show-of';
+import { offerWalkthroughDefinitions } from '../../../../guided-overlay/show/walkthrough-events';
+import { registerShowSpaceMembership } from '../../../../ui/show/show-rules/show-of';
 import { listRecords, type StoredRecord } from './records-door';
 import homeRecords from './home-records.json';
 
 // The rules editor opens only on the rules tab, so it loads then.
-const RuleBuilder = later(() => import('../../parts/ui/show/rule-builder'), module => module.RuleBuilder);
+const RuleBuilder = later(() => import('../../../../ui/show/rule-builder'), module => module.RuleBuilder);
 // The player for an opened file is fetched when a file is first opened here, so the screen opens without it.
 const OpenedSharedRecord = lazyPart(() => import('./opened-shared-record'), module => module.OpenedSharedRecord);
 // The shared guide draws only the panel an action that asks for fields opens, so it loads when that panel first opens.
-const Guide = lazyPart(() => import('../../parts/ui/show/coss/guide'), module => module.Guide);
+const Guide = lazyPart(() => import('../../../../ui/show/coss/guide'), module => module.Guide);
 // The turned-on places (community-screen.tsx) load when a space first draws one: the sidebar reads community-places.ts
 // at once, and a space opened only for its conversation never carries the places screen (scripts/workspace-budgets.json).
 type PlaceOptions = Parameters<typeof import('./community-screen').mountCommunityPlace>[1];
@@ -1321,7 +1321,7 @@ function SpaceView({ id, first, place, item, lesson }: { id: string; first: Snap
 
   const composer = actions.composing ?? (() => { const write = offeredAt('composer', base)[0]; return write ? { action: write, context: base } : null; })();
   const chip = composer?.action.box?.chip ? words(composer.action.box.chip, composer.context) : null;
-  // The shared composer's message (parts/ui/show/composer): its files are kept in the person's Files, each shared
+  // The shared composer's message (tools/ui/show/composer): its files are kept in the person's Files, each shared
   // into this space, then the words go by the composer action's own road with those files in its about.
   const send = async (draft: ComposerDraft, parent?: string) => {
     if (!composer) return;
@@ -1391,7 +1391,7 @@ function SpaceView({ id, first, place, item, lesson }: { id: string; first: Snap
 
   // The space's things are one list (one item id each), and every way of reading them is a view of it: the feed with
   // the box on top, the chat with the box under it, the table, cards and board, and every view a list is offered
-  // (parts/ui/show/record-views/designs). A place naming `views` is that list, narrowed to its `kinds` when it names
+  // (tools/ui/show/record-views/designs). A place naming `views` is that list, narrowed to its `kinds` when it names
   // some (Files is the space's files); which views lead, in which order, is space-kinds.json `places` DATA.
   const offeredHere = viewsOfferedToEveryList(THING_FIELDS);
   const viewsOf = (row: ListPlace): RecordView[] => (row.views ?? []).flatMap(view => {

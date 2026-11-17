@@ -14,7 +14,7 @@
  *
  * NON-NEGOTIABLE INVARIANTS:
  * 1. Zero imports from slot::workflow or slot::eeaf — reads only via useBitfieldData
- * 2. Components imported only from @/packages/ui (the firewall); zero inline style objects
+ * 2. Components imported only from tools/ui (the firewall); zero inline style objects
  * 3. Surfaces hosted via EmbeddedScreenArrangement — the shell never renders a surface itself
  * 4. The shell never names surface internals — tabs resolve placeable-surface records by id
  * 5. Observability: logs `[ui:content-workspace] mounted input=<n> records` on mount
@@ -25,8 +25,8 @@ import * as React from 'react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
 import { Clapperboard } from 'lucide-react';
 
-import { Container, Icon, Text } from '@/packages/ui';
-import { EmbeddedScreenArrangement } from '@/packages/screen-arrangement/show/EmbeddedScreenArrangement';
+import { Container, Icon, Text } from '../../../../ui';
+import { EmbeddedScreenArrangement } from '../../../../screen-arrangement/show/EmbeddedScreenArrangement';
 
 import {
   acceptsContentWorkspaceLayoutState,
@@ -34,7 +34,7 @@ import {
   CONTENT_WORKSPACE_LAYOUT_STATE_ADDRESS_LABEL,
   CONTENT_WORKSPACE_LAYOUT_STATE_INPUT,
   discoverPlaceableSurfaces,
-} from '@/packages/content-production/read-data/read-content-workspace-state';
+} from '../../../../content-production/packages/content-production/read-data/read-content-workspace-state';
 
 function ContentWorkspaceHeader() {
   return (

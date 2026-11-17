@@ -1,7 +1,7 @@
 import {
   readPlaceableSurfaces,
   type PlaceableSurfaceRecord,
-} from '@/packages/ui';
+} from '../../../ui';
 
 export type RoutineRecordRow = { address?: string; payload?: unknown } | Record<string, unknown>;
 

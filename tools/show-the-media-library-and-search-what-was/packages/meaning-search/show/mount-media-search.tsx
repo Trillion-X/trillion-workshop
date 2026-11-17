@@ -11,7 +11,7 @@ import {
   BulkSelectBar,
   NamedIcon,
   mountReactSurface,
-} from '@/packages/ui';
+} from '../../../../ui';
 import { Search, Film } from 'lucide-react';
 
 /**

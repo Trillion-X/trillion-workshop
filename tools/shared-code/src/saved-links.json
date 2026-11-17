@@ -1,5 +1,5 @@
 {
-  "_what": "Links a person saved somewhere else, kept in their Trillion files, read by src/saved-links.mjs. Each place they come from is one row: `browser_files` are a browser's own saved-items file the person (or their AI, or Trillion on their computer) hands in, decoded by the shape its row describes; `service_lists` are lists a connected service keeps, read through that service's Workshop tools page by page. Every place's links land in `folder`, one file per group (`file_name`), as JSON: { saved_from, group, updated_at, links: [{ title, url, folder?, saved_at?, key?, ... }] }. Adding a browser or a service is one row here and, for a service, its tools in parts/service-connections/records.json; nothing in the code names one.",
+  "_what": "Links a person saved somewhere else, kept in their Trillion files, read by src/saved-links.mjs. Each place they come from is one row: `browser_files` are a browser's own saved-items file the person (or their AI, or Trillion on their computer) hands in, decoded by the shape its row describes; `service_lists` are lists a connected service keeps, read through that service's Workshop tools page by page. Every place's links land in `folder`, one file per group (`file_name`), as JSON: { saved_from, group, updated_at, links: [{ title, url, folder?, saved_at?, key?, ... }] }. Adding a browser or a service is one row here and, for a service, its tools in tools/connect-a-service-and-seal-its-key/records.json; nothing in the code names one.",
   "folder": "/Saved links",
   "file_name": "{saved_from} - {group}.json",
   "media_type": "application/json",
@@ -81,7 +81,7 @@
     }
   },
   "url_providers": {
-    "_what": "Which place a pasted address belongs to: one row per provider, found by the address's host (the host itself or any name under it). `connection` is the vendor of its service-connection record in parts/service-connections/records.json, which is the one home of how it signs in: the token exchange happens on the server with the sealed client values, and only the NAMES of those values are ever read here. `lists` are the `service_lists` ids that provider can be read through. A provider with no row is not read yet; adding one is a row, once its connection and tools exist.",
+    "_what": "Which place a pasted address belongs to: one row per provider, found by the address's host (the host itself or any name under it). `connection` is the vendor of its service-connection record in tools/connect-a-service-and-seal-its-key/records.json, which is the one home of how it signs in: the token exchange happens on the server with the sealed client values, and only the NAMES of those values are ever read here. `lists` are the `service_lists` ids that provider can be read through. A provider with no row is not read yet; adding one is a row, once its connection and tools exist.",
     "x": {
       "label": "X",
       "hosts": ["x.com", "twitter.com"],

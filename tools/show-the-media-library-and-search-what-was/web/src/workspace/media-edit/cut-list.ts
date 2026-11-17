@@ -12,8 +12,8 @@
 //   3. Taking a stretch out keeps exactly what is left of each clip (range complement), and inserting a stretch of a
 //      file refuses one that is already used, with the reason in plain words (read-data/range-complement.mjs).
 
-import { insertSourceRange, moveSequenceItem, rangeComplement } from '../../../parts/media-composition/read-data/range-complement.mjs';
-import type { MaterializedClip, MaterializedComposition, MaterializedLane } from '../../../parts/media-composition/read-data/compose-timeline';
+import { insertSourceRange, moveSequenceItem, rangeComplement } from '../../../../../media-composition/read-data/range-complement.mjs';
+import type { MaterializedClip, MaterializedComposition, MaterializedLane } from '../../../../../media-composition/read-data/compose-timeline';
 import type { MediaEditCaption, MediaEditClip, MediaEditLayer } from './panel-types';
 import tracks from './track-lanes.json' with { type: 'json' };
 

@@ -1,6 +1,6 @@
 # tools/selected-agent
 
-Which AI answers a person: `do-work/set-selected-agent.ts` sends the request that keeps their choice (or, with an empty id, sends them back to automatic routing) to the workflow slot, through the workspace's `#workspace-records`. Moved from old trillion's `parts/selected-agent/`; trillion-apps keeps its own byte-identical copy at `web/parts/selected-agent/`, which is what the app's chat screen imports.
+Which AI answers a person: `do-work/set-selected-agent.ts` sends the request that keeps their choice (or, with an empty id, sends them back to automatic routing) to the workflow slot, through the workspace's `#workspace-records`. Moved from old trillion's `tools/selected-agent/`; trillion-apps keeps its own byte-identical copy at `tools/selected-agent/`, which is what the app's chat screen imports.
 
 ## Files
 

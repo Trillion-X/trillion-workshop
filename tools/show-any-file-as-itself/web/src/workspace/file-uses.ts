@@ -17,7 +17,7 @@
 import settings from '../recent-files.json';
 import { postJson } from './api';
 import { afterPlaying } from './played-time';
-import { keptAccount } from '../../parts/ui/show/page-storage/page-storage';
+import { keptAccount } from '../../../../ui/show/page-storage/page-storage';
 
 // Successfully recorded uses: kept for the tab's life, so a restored tab is not a new use.
 const SENT_KEY = 'trillion-file-uses-sent';

@@ -193,13 +193,13 @@ The report keeps nothing. Exact fractional carry and a cumulative applied-source
 
 ## Files moved from bitfield-packages (packages/payment-adapter)
 
-Each file below is the package's own, byte for byte; `from-bitfield-packages/moved-from.json` names each source path and commit, the identity of its source bytes and of its bytes here, and the `calls` that made a real name or id made up. After the first commit only import paths changed. A file named `.held` is the same bytes with its test name taken off so the repository test does not run it; the reason is under `held` in the receipt. Most files import `@/packages/ui` and the retired package runtime (`@bitfield/runtime-kit`); the shared ui parts live in apps `parts/ui`, so the screens and targets here are prepared, not wired to a tool row.
+Each file below is the package's own, byte for byte; `from-bitfield-packages/moved-from.json` names each source path and commit, the identity of its source bytes and of its bytes here, and the `calls` that made a real name or id made up. After the first commit only import paths changed. A file named `.held` is the same bytes with its test name taken off so the repository test does not run it; the reason is under `held` in the receipt. Most files import `@/packages/ui` and the retired package runtime (`@bitfield/runtime-kit`); the shared ui parts live in apps `tools/ui`, so the screens and targets here are prepared, not wired to a tool row.
 
 | File | What it is |
 |---|---|
 | `do-work/materialize-operation-session-intent.ts` | exposes the package target |
 | `read-data/operation-routes.ts` | decodes generic route records and maps them to |
-| `test/payment-adapter-backend.test.ts.held` | proves payment-labeled and PDF routes (held: imports react or shared ui parts (@/packages/ui) that live in apps parts/ui, not in the Workshop) |
+| `test/payment-adapter-backend.test.ts.held` | proves payment-labeled and PDF routes (held: imports react or shared ui parts (tools/ui) that live in apps tools/ui, not in the Workshop) |
 
 ### Not carried
 

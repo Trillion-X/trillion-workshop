@@ -7,9 +7,9 @@
 // (a screen-arrangement "Share this view" action), never importing the package.
 
 import React from 'react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../ui';
 import { bitfieldGeneratedLiveReadScopeDescriptor } from '@/packages/public-scene-share/.bitfield-entry-scope/share/runtime-kit-react';
-import { ShareSurface } from '@/packages/public-scene-share/show/share-surface';
+import { ShareSurface } from '../packages/public-scene-share/show/share-surface';
 
 type MountArgs = { el: HTMLElement; props?: Record<string, unknown> };
 

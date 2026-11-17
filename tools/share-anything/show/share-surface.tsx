@@ -17,13 +17,13 @@
 //   verifies with a mocked engine I/O.
 
 import React from 'react';
-import { Container, SegmentedControl } from '@/packages/ui';
-import { ShareAffordance } from '@/packages/public-scene-share/show/ShareAffordance';
+import { Container, SegmentedControl } from '../../ui';
+import { ShareAffordance } from '../packages/public-scene-share/show/ShareAffordance';
 import {
   isPubliclyReachableOrigin,
   type CapsuleReply,
   type ShareConfig,
-} from '@/packages/public-scene-share/show/share-scene-presenter';
+} from '../packages/public-scene-share/show/share-scene-presenter';
 import {
   createCapsuleTarget,
   sdkEngineIo,

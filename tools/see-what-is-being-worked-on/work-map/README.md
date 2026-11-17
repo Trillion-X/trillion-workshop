@@ -1,4 +1,4 @@
-# parts/work-map/
+# tools/work-map/
 
 Everything being worked on, by every AI and every person, as one live tree: goals, the goals under them, the decisions made for them, the jobs those decisions started, who is doing each, and the people in each space. A view over records the person's store already answers; nothing here keeps anything.
 
@@ -23,6 +23,6 @@ Everything being worked on, by every AI and every person, as one live tree: goal
 
 ## Dependencies
 
-**Depends on:** `parts/ui` (record views and their Draw design, `roll-up.ts` through `records-on-a-board.ts`, status overview, person tag, provider marks, screen states), `parts/screen-look/show/work-state-looks.json` (each state's words, tone, motion and `settled`), the workspace's `api.ts`, `open-screen.ts`, `record-filter.ts`, `store-changes.ts`, `failure.ts` and `activity-providers.json`.
+**Depends on:** `tools/ui` (record views and their Draw design, `roll-up.ts` through `records-on-a-board.ts`, status overview, person tag, provider marks, screen states), `tools/screen-look/show/work-state-looks.json` (each state's words, tone, motion and `settled`), the workspace's `api.ts`, `open-screen.ts`, `record-filter.ts`, `store-changes.ts`, `failure.ts` and `activity-providers.json`.
 
 **Depended on by:** `tool:screen-work-map` (records/workshop-screen-tool-records.json), built as a screen module by `scripts/screen-modules.mjs`.

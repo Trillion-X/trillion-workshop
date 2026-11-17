@@ -1,8 +1,7 @@
-// parts/sealed-records/do-work/sealed-records.mjs
 //
 // PURPOSE
 //   A record only the person's own devices can read. A device seals it with a key only its devices hold, and the copy
-//   it settles with (the person's store, parts/record-log record-sync.mjs) keeps and passes on
+//   it settles with (the person's store, tools/record-log record-sync.mjs) keeps and passes on
 //   { sealed: { v, key_id, nonce, ciphertext } } without ever being able to open it: zero-knowledge sync. The store
 //   checks only the shape (isSealedValue), orders versions and keeps both sides of a conflict like any record; the
 //   device opens it.

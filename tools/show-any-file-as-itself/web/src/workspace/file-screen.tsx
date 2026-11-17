@@ -1,7 +1,7 @@
 // src/workspace/file-screen.tsx
 //
 // PURPOSE
-//   One file in its own tab, shown by the one file preview (parts/ui/show/file-preview): a video or sound plays in the
+//   One file in its own tab, shown by the one file preview (tools/ui/show/file-preview): a video or sound plays in the
 //   shared player, and a picture, PDF, text or code file, or Office document shows; anything else is its card with
 //   Download. The path above it (Files, its folders, its name) goes back to any of those folders in the Files tab;
 //   Share beside the path opens the one sharing sheet (sharing-sheet.tsx) for the stored file.
@@ -30,34 +30,34 @@
 //      Every file opened anywhere (Media, Files, search, a message) opens here, so every one has it.
 
 import React from 'react';
-import { Button, Container, NamedIcon, Text } from '../../parts/ui';
-import { MeetingReviewTabs } from '../../parts/ui/show/meeting-review/MeetingReviewTabs';
-import type { MeetingReviewTab } from '../../parts/ui/show/meeting-review/MeetingReviewTabs';
-import { mountFilePreview } from '../../parts/ui/show/file-preview/mount-file-preview';
-import { releaseNode } from '../../parts/ui/show/one-owner-per-node';
+import { Button, Container, NamedIcon, Text } from '../../../../ui';
+import { MeetingReviewTabs } from '../../../../ui/show/meeting-review/MeetingReviewTabs';
+import type { MeetingReviewTab } from '../../../../ui/show/meeting-review/MeetingReviewTabs';
+import { mountFilePreview } from '../../../../ui/show/file-preview/mount-file-preview';
+import { releaseNode } from '../../../../ui/show/one-owner-per-node';
 // A PDF opened here draws its pages through the reader this page serves.
 import './pdf-reader-served';
-import { mountSharedContent } from '../../parts/ui/show/coss/shared-content';
-import { MediaCarousel } from '../../parts/ui';
-import { FilePreview } from '../../parts/ui/show/file-preview/FilePreview';
-import { FileCardFor } from '../../parts/ui/show/file-card';
-import { mountBreadcrumb } from '../../parts/ui/show/breadcrumb/mount-breadcrumb';
-import { loadScreen, mountScreenState } from '../../parts/ui/show/screen-state';
-import { notify } from '../../parts/ui/show/coss/notifications';
-import { PLACEABLE_SURFACE_MIME } from '../../parts/ui/show/placeable-surface-intent/placeable-surface-intent';
-import { readPlaceableSurfaceSubject } from '../../parts/ui/show/placeable-surface-intent/placeable-surface-subject';
+import { mountSharedContent } from '../../../../ui/show/coss/shared-content';
+import { MediaCarousel } from '../../../../ui';
+import { FilePreview } from '../../../../ui/show/file-preview/FilePreview';
+import { FileCardFor } from '../../../../ui/show/file-card';
+import { mountBreadcrumb } from '../../../../ui/show/breadcrumb/mount-breadcrumb';
+import { loadScreen, mountScreenState } from '../../../../ui/show/screen-state';
+import { notify } from '../../../../ui/show/coss/notifications';
+import { PLACEABLE_SURFACE_MIME } from '../../../../ui/show/placeable-surface-intent/placeable-surface-intent';
+import { readPlaceableSurfaceSubject } from '../../../../ui/show/placeable-surface-intent/placeable-surface-subject';
 import { readFileLookup, readJson, fileResults } from './api';
 import { sendQueuedJob } from './queue-job';
 import { previewStore } from './made-previews';
 import { reasonOf, refusal } from './failure';
 import { goTo, fileTab, openScreenOn } from './open-screen';
 import { readRecordingOwnerForFileFromOwner, readRecordingMeetingAssociation, readRecordingMeetingAssociationFromOwner, replaceRecordingTranscript } from './recordings';
-import { clearRecordingMeetingContext, setRecordingMeetingContext } from '../../parts/record-audio/do-work/record-audio-requests';
+import { clearRecordingMeetingContext, setRecordingMeetingContext } from '../../../../record-audio/do-work/record-audio-requests';
 import { meetingContextOfCalendarItem, type MeetingCalendarContext } from '../../../../record-voice-and-meetings/do-work/meeting-join-recording.ts';
-import { MeetingAssociationPanel } from '../../parts/record-audio/show/MeetingAssociationPanel';
-import { momentInWords, stretchInWords } from '../../parts/ui/show/relative-time/relative-time';
-import { MeetingNoteMetadata } from '../../parts/record-audio/show/MeetingNoteMetadata';
-import { ArrangedContents } from '../../parts/screen-arrangement/show/ArrangedContents';
+import { MeetingAssociationPanel } from '../../../../record-audio/show/MeetingAssociationPanel';
+import { momentInWords, stretchInWords } from '../../../../ui/show/relative-time/relative-time';
+import { MeetingNoteMetadata } from '../../../../record-audio/show/MeetingNoteMetadata';
+import { ArrangedContents } from '../../../../screen-arrangement/show/ArrangedContents';
 import { subscribeRecordChanges } from './records';
 import { uploadFiles } from './upload';
 import { keepFileUse, whenWatched } from './file-uses';
@@ -66,12 +66,12 @@ import { DockedComposer } from './global-composer';
 import { SayAboutThis, isRecording, type PlayClock } from './say-about-this';
 import { NoteTranscript } from './note-transcript';
 import { canEditTextDocument, EditableTextDocument } from './editable-text-document';
-import type { FilePreviewProps } from '../../parts/ui/show/file-preview/FilePreview';
-import { timedTextOf } from '../../parts/media-playback/read-data/kept-timed-text';
+import type { FilePreviewProps } from '../../../../ui/show/file-preview/FilePreview';
+import { timedTextOf } from '../../../../media-playback/read-data/kept-timed-text';
 import { wordsOfRecording, type TimedPassage } from './media-transcribe';
-import { ProcessingStepsPill } from '../../parts/record-audio/show/ProcessingStepsPill';
-import { processingSteps, recordingFacts, type WordsState } from '../../parts/record-audio/read-data/processing-steps';
-import widgets from '../../parts/record-audio/read-data/recording-widgets.json';
+import { ProcessingStepsPill } from '../../../../record-audio/show/ProcessingStepsPill';
+import { processingSteps, recordingFacts, type WordsState } from '../../../../record-audio/read-data/processing-steps';
+import widgets from '../../../../record-audio/read-data/recording-widgets.json';
 import { AI_WORK, onStoreChange } from './store-changes';
 import meetingReview from './meeting-review.json' with { type: 'json' };
 import { ActionItemsPanel, SummaryChoices, SummaryTools, useOwnTemplates, type SummaryChoice } from './note-review-tools';
@@ -623,7 +623,7 @@ export function mountFileScreen(element: HTMLElement, props: { surfaceInput?: Re
   const reviewHost = document.createElement('section');
   reviewHost.className = 'trillion-file-review';
   element.classList.add('trillion-file');
-  // The file's card under it (parts/ui/show/file-card): what it is, what can be done with it, who is in it, what was said.
+  // The file's card under it (tools/ui/show/file-card): what it is, what can be done with it, who is in it, what was said.
   const card = document.createElement('div');
   card.className = 'trillion-file-card';
   const main = document.createElement('div');

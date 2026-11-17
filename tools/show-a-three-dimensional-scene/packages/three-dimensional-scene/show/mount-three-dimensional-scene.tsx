@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { ErrorBoundary, mountReactSurface } from '@/packages/ui';
-import { buildSurfaceOutputDispatcher } from '@/packages/ui/show/surface-output';
+import { ErrorBoundary, mountReactSurface } from '../../../../ui';
+import { buildSurfaceOutputDispatcher } from '../../../../ui/show/surface-output';
 import type { AddressRef } from '../read-data/scene-descriptor';
 import { ThreeDimensionalSceneSurface } from './ThreeDimensionalSceneSurface';
 

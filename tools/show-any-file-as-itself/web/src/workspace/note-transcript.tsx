@@ -1,7 +1,7 @@
 // src/workspace/note-transcript.tsx
 //
 // PURPOSE
-//   A recording's transcript on its note: the shared transcript reader (parts/transcript-reader) over the recording's
+//   A recording's transcript on its note: the shared transcript reader (tools/transcript-reader) over the recording's
 //   kept words, following the player, with the note's tools: click a speaker to rename them or take the name back,
 //   copy a link that opens the recording at a passage, hear the recording again in another language, Copy transcript,
 //   Export PDF, and split a passage before a chosen word. A recording whose words are not kept as timed passages shows
@@ -12,19 +12,19 @@
 //      the file); an edit writes that same result again, and only after reading it once more and finding it as this
 //      screen showed it. A transcript changed meanwhile is refused with words, never overwritten.
 //   2. A rename or split changes labels and passage boundaries only: no word and no second is added, lost or moved.
-//   3. Every outcome is said in words (parts/transcript-reader/show/transcript-tools.json); a copy says "copied" only
+//   3. Every outcome is said in words (tools/transcript-reader/show/transcript-tools.json); a copy says "copied" only
 //      when the clipboard write happened (note-actions.ts).
 //   4. Hearing it again in a language is the account's transcription tool asked with that language; the old words stay
 //      until the new ones are kept.
 
 import React from 'react';
-import { TranscriptReaderSurface } from '../../parts/transcript-reader/show/TranscriptReaderSurface';
-import type { TranscriptSegment } from '../../parts/transcript-reader/read-data/read-transcript-records';
-import { nameSpeaker, namedSpeakers, splitPassage, takeNameBack, transcriptAsText, type EditPassage } from '../../parts/transcript-reader/read-data/edit-transcript';
-import words from '../../parts/transcript-reader/show/transcript-tools.json' with { type: 'json' };
-import { linkTo } from '../../parts/ui/show/clipboard/answer-copy.mjs';
+import { TranscriptReaderSurface } from '../../../../transcript-reader/show/TranscriptReaderSurface';
+import type { TranscriptSegment } from '../../../../transcript-reader/read-data/read-transcript-records';
+import { nameSpeaker, namedSpeakers, splitPassage, takeNameBack, transcriptAsText, type EditPassage } from '../../../../transcript-reader/read-data/edit-transcript';
+import words from '../../../../transcript-reader/show/transcript-tools.json' with { type: 'json' };
+import { linkTo } from '../../../../ui/show/clipboard/answer-copy.mjs';
 import { copyTextToClipboard } from '../../../../ui/show/clipboard/copy-text.ts';
-import { notify } from '../../parts/ui/show/coss/notifications';
+import { notify } from '../../../../ui/show/coss/notifications';
 import { errorWords } from '../../../../ui/show/safe-error-card/sanitize-error-text.ts';
 import { fileResults } from './api';
 import { transcribeFile } from './media-transcribe';

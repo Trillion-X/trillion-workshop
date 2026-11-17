@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
 import { useBitfieldData } from '@/packages/record-board-progress-feed/.bitfield-entry-scope/work-flow-map/runtime-kit-react';
-import { ErrorBoundary } from '@/packages/ui/show/error-boundary';
-import { mountReactSurface } from '@/packages/ui/show/react-surface-mount';
+import { ErrorBoundary } from '../../../../ui/show/error-boundary';
+import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
 import { observedContentFeedRows, observedMessageWorkRefs, projectObservedContentFlow, type MessageWorkReadback } from '../read-data/observed-content-flow';
 import { WorkFlowMap } from './WorkFlowMap';
 

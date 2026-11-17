@@ -3,9 +3,9 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import operators from '../parts/formula-engine/rules/rule-operators.json' with { type: 'json' };
-import { makeRowFilter } from '../parts/formula-engine/rules/filter-rows-by-rules.mjs';
-import { observerBucket } from '../parts/choose-per-observer/read-data/score-candidates.ts';
+import operators from '../../../formula-engine/rules/rule-operators.json' with { type: 'json' };
+import { makeRowFilter } from '../../../formula-engine/rules/filter-rows-by-rules.mjs';
+import { observerBucket } from '../../../funnels-screen/read-data/score-candidates.ts';
 import settings from '../src/work-for-ais.json' with { type: 'json' };
 import setupSettings from '../src/setup-steps.json' with { type: 'json' };
 import instructions from '../../../shared-code/src/server-instruction-paragraphs.mjs';
@@ -15,12 +15,12 @@ import { triggersFor, accountFacts, deliveryFacts, answerWorkRequest, checkedRow
 import { recordBooks } from './record-book-for-tests.mjs';
 import { memoryKv } from './kv-for-tests.mjs';
 import { serviceWorkRows } from '../../../run-the-services-own-price-experiments-each-kept-in-its-own-book/from-old-trillion/src/service-price-experiments.mjs.held';
-import { findingsInWords, makeJudge, wordsIn } from '../parts/judge-words/do-work/judge-words.mjs';
+import { findingsInWords, makeJudge, wordsIn } from '../../../judge-words/do-work/judge-words.mjs';
 
 // The service as the Worker sees it: one record book per row (env.RECORD_BOOK) and the edge store they publish to.
 const service = () => { const env = { APP_KV: memoryKv() }; env.RECORD_BOOK = recordBooks(env); return { env, rows: serviceWorkRows(env) }; };
 
-const filter = makeRowFilter({ operators, wasm: () => readFileSync(new URL('../parts/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url)) });
+const filter = makeRowFilter({ operators, wasm: () => readFileSync(new URL('tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url)) });
 await filter.load();
 const matches = async (tree, fields, row) => filter.filterRowsByRulesNow({ tree, fields, rows: [row] }).matches.length === 1;
 

@@ -1,4 +1,3 @@
-// parts/stdio-mcp-gateway/do-work/gateway.mjs
 //
 // Serves stdio Model Context Protocol servers as streamable-HTTP ones (MCP 2025-06-18 transport), with no
 // dependency but Node. Each app is DATA: `{ cli, args }`, the command that runs its stdio server. A request to

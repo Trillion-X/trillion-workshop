@@ -16,7 +16,7 @@
 //   (src/outbox.mjs) and sent again by the background worker.
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. Built from the shared parts (parts/ui); no control is hand-made here.
+//   1. Built from the shared parts (tools/ui); no control is hand-made here.
 //   2. Every page is read the same way; nothing here knows a site or a list by name. The lists are the person's own
 //      records.
 //   3. "Sent" is shown only after the account answered the write; a refusal is said as it was said. "Kept" is shown
@@ -29,7 +29,7 @@
 //      (session `known`), so reopening the popup shows it at once, exactly as they left it; the account is asked
 //      again quietly behind it. The page is read again only when the tab now shows a different address.
 //   6. While the popup is still reading (longer than `COVER_AFTER_MS`), the Trillion opening cover covers it
-//      (parts/ui/show/thread-cover), lifted the moment it has something to show.
+//      (tools/ui/show/thread-cover), lifted the moment it has something to show.
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
@@ -549,7 +549,7 @@ paintWithWornLook();
 document.body.classList.add('coss-ui');
 if (inItsOwnWindow) document.body.classList.add('send-to-trillion-window');
 const host = document.body.appendChild(document.createElement('main'));
-// What happens here feels the way it does in Trillion: the same rows and players (parts/feel), sound and motion in
+// What happens here feels the way it does in Trillion: the same rows and players (tools/feel), sound and motion in
 // this window (a Chrome window has no touch to play).
 const stopFeel=mountFeel({props:currentExtensionFeel()});
 window.addEventListener('pagehide',stopFeel,{once:true});

@@ -9,8 +9,8 @@
 import React from 'react';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react';
-import { ShareAffordance } from '@/packages/public-scene-share/show/ShareAffordance';
-import type { CapsuleReply } from '@/packages/public-scene-share/show/share-scene-presenter';
+import { ShareAffordance } from './ShareAffordance';
+import type { CapsuleReply } from './share-scene-presenter';
 
 const config = { publicShareOrigin: 'http://localhost:4599' };
 afterEach(() => cleanup());

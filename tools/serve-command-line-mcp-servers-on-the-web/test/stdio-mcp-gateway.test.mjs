@@ -1,4 +1,4 @@
-// The stdio→streamable-HTTP gateway (parts/stdio-mcp-gateway), against a fake stdio server and Trillion's own client.
+// The stdio→streamable-HTTP gateway (tools/serve-command-line-mcp-servers-on-the-web), against a fake stdio server and Trillion's own client.
 import assert from 'node:assert/strict';
 import { mkdtempSync, readdirSync, rmSync } from 'node:fs';
 import { createServer } from 'node:http';

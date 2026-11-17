@@ -47,13 +47,13 @@
 
 import * as React from 'react';
 import { FolderOpen, FolderPlus, RefreshCcw, Search } from 'lucide-react';
-import { ProjectCard } from '@/packages/projects/show/ProjectCard';
+import { ProjectCard } from './ProjectCard';
 import type {
   ProjectCardData,
   ProjectCardMode,
 } from '@/packages/projects/read-data/project-card-types';
-import { Card, ExpandableTabs, Input, Textarea, Button, Text, Icon } from '@/packages/ui';
-import { FloatingPanel } from '@/packages/screen-arrangement/show/FloatingPanel';
+import { Card, ExpandableTabs, Input, Textarea, Button, Text, Icon } from '../../../../ui';
+import { FloatingPanel } from '../../../../screen-arrangement/show/FloatingPanel';
 
 // ============================================================================
 // TYPES

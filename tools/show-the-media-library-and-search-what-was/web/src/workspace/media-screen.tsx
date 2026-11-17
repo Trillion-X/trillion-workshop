@@ -25,17 +25,17 @@
 //   5. Every control is a shared component (record views, NextStepCard, notifications, loading and failed states).
 
 import { fileTab as openingFile } from './open-screen';
-import { mountRecordViews, type FieldDescriptor } from '../../parts/ui/show/record-views/record-views';
-import { Button } from '../../parts/ui';
-import { mountReactSurface } from '../../parts/ui/show/react-surface-mount';
-import { loadScreen, ScreenState } from '../../parts/ui/show/screen-state';
-import { notify } from '../../parts/ui/show/coss/notifications';
+import { mountRecordViews, type FieldDescriptor } from '../../../../ui/show/record-views/record-views';
+import { Button } from '../../../../ui';
+import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
+import { loadScreen, ScreenState } from '../../../../ui/show/screen-state';
+import { notify } from '../../../../ui/show/coss/notifications';
 import { copyTextToClipboard } from '../../../../ui/show/clipboard/copy-text.ts';
-import { mountNextStepCard } from '../../parts/ui/show/next-step-card';
-import type { NextStepMedia } from '../../parts/ui/show/next-step-card';
-import { primeSavedPreview, readOrMakePreview, settledPreview, type MadePreview } from '../../parts/ui/show/media-preview';
-import { PLACEABLE_SURFACE_MIME, setPlaceableSurfaceDragData } from '../../parts/ui/show/placeable-surface-intent/placeable-surface-intent';
-import timelineLevels from '../../parts/ui/show/record-views/timeline-zoom-levels.json';
+import { mountNextStepCard } from '../../../../ui/show/next-step-card';
+import type { NextStepMedia } from '../../../../ui/show/next-step-card';
+import { primeSavedPreview, readOrMakePreview, settledPreview, type MadePreview } from '../../../../ui/show/media-preview';
+import { PLACEABLE_SURFACE_MIME, setPlaceableSurfaceDragData } from '../../../../ui/show/placeable-surface-intent/placeable-surface-intent';
+import timelineLevels from '../../../../ui/show/record-views/timeline-zoom-levels.json';
 import { recordFilter } from './record-filter';
 import noteList from './note-list-menu.json' with { type: 'json' };
 import { downloadTranscriptPdf } from './note-list';
@@ -43,8 +43,8 @@ import { recencyGroup, recencyValues } from './recency-group.mjs';
 import { previewStore } from './made-previews';
 import { contentTypeOf, filePicture } from './file-picture';
 import { readJson, fileResults } from './api';
-import { mountSharedContent } from '../../parts/ui/show/coss/shared-content';
-import { releaseNode } from '../../parts/ui/show/one-owner-per-node';
+import { mountSharedContent } from '../../../../ui/show/coss/shared-content';
+import { releaseNode } from '../../../../ui/show/one-owner-per-node';
 import { DockedComposer } from './global-composer';
 import { refusal } from './failure';
 import { askSearch, type SearchAnswer } from './search-results';

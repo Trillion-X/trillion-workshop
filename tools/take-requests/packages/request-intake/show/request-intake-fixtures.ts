@@ -34,7 +34,7 @@
 //
 // =============================================================================
 
-import type { RequestIntakeProjectionInput } from '@/packages/request-intake/read-data/request-intake-projection';
+import type { RequestIntakeProjectionInput } from '../../../read-data/request-intake-projection';
 
 // ---------------------------------------------------------------------------
 // Shared descriptor building blocks (DATA — reused across fixtures)

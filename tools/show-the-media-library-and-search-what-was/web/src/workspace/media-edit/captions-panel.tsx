@@ -3,7 +3,7 @@
 // PURPOSE
 //   The media editor's Captions panel: make captions from the words said in the clips, edit each caption's words,
 //   times and place, pick the caption style the video is rendered in (each style shown as a sample of itself), then
-//   change any detail of it in the shared inspector (parts/ui TuningPanel): font, size, colours, outline, shadow, place,
+//   change any detail of it in the shared inspector (tools/ui TuningPanel): font, size, colours, outline, shadow, place,
 //   how words light up and how many go in each caption. The player shows the captions in the style as it changes.
 //   What it adds to the rendered video is the burned-in subtitle in that style.
 //
@@ -11,20 +11,20 @@
 //   1. The editor's caption list is the one list of captions (`captions` / `setCaptions`); this panel keeps only the
 //      chosen style (`panelState.style`: a style id, or the style's own row naming the style it started from as `id`
 //      with the details changed), saved with the edit.
-//   2. Styles are the catalog's rows (parts/media-composition/read-data/caption-styles.json) and the subtitle comes
+//   2. Styles are the catalog's rows (tools/media-composition/read-data/caption-styles.json) and the subtitle comes
 //      from the one style builder (caption-styles.mjs); nothing here names a style or builds subtitle text.
 //   3. Captions made from words come from each clip's own kept transcript (kind `transcript` beside the file); a clip
 //      with no transcript adds no captions and is named, never guessed at.
-//   4. Timed text is edited with the shared timed text editor (parts/ui/show/selection/timed-text-editor.mjs).
+//   4. Timed text is edited with the shared timed text editor (tools/ui/show/selection/timed-text-editor.mjs).
 //   5. The inspector's rows are the catalog's `settings`; each row's `path` is the style field it changes, so a new
 //      detail to change is one DATA row and no code here.
 
 import React from 'react';
-import { Button, CaptionSample, Container, Text, TuningPanel, captionShadowCss, type CaptionLook, type TuningSection, type TuningValue } from '../../../parts/ui';
-import { StyleChoices, type SampleRun, type StyleChoice } from '../../../parts/ui/show/style-choices';
-import { mountTimedTextEditor } from '../../../parts/ui/show/selection/timed-text-editor.mjs';
+import { Button, CaptionSample, Container, Text, TuningPanel, captionShadowCss, type CaptionLook, type TuningSection, type TuningValue } from '../../../../../ui';
+import { StyleChoices, type SampleRun, type StyleChoice } from '../../../../../ui/show/style-choices';
+import { mountTimedTextEditor } from '../../../../../ui/show/selection/timed-text-editor.mjs';
 import { CAPTION_MEASURED_AT, CAPTION_STYLES, CAPTION_STYLE_SETTINGS, DEFAULT_CAPTION_STYLE, captionAss, resolveCaptionStyle } from '../../../../../media-composition/read-data/caption-styles.mjs';
-import { captionLinesForEdit, groupWordsIntoCaptionLines, wordsOf } from '../../../parts/media-composition/read-data/caption-lines';
+import { captionLinesForEdit, groupWordsIntoCaptionLines, wordsOf } from '../../../../../media-composition/read-data/caption-lines';
 import { fileResults } from '../api';
 import { definePanel, type MediaEditCaption, type MediaEditPanelProps } from './panel-types';
 

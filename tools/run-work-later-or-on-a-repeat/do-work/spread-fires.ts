@@ -1,4 +1,3 @@
-// parts/timed-action/do-work/spread-fires.ts
 //
 // Purpose: spread scheduled fires so many stores do not all run at :00, without ever making a time a person pinned late.
 // A recurring occurrence slips later by a share of its own interval (capped); a one-off fire that lands on a round

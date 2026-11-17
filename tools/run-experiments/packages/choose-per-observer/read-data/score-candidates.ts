@@ -35,8 +35,8 @@ import type {
   OpNode,
   ScoreExpr,
   SplitNode,
-} from '@/packages/choose-per-observer/read-data/decider-schema';
-import type { Candidate, SelectionSurface } from '@/packages/choose-per-observer/read-data/candidate-set-schema';
+} from './decider-schema';
+import type { Candidate, SelectionSurface } from '../../../../funnels-screen/read-data/candidate-set-schema';
 
 // ---------------------------------------------------------------------------
 // Observer facts (input)

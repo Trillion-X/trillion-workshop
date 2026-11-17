@@ -19,7 +19,7 @@ import {
   type AddressedFact,
   type GroupMetric,
   type EntityDimension,
-} from '@/packages/choose-per-observer/read-data/aggregate-by-dimension';
+} from './aggregate-by-dimension';
 
 export type AttributionFieldFormat = {
   style: 'decimal' | 'currency' | 'percent';

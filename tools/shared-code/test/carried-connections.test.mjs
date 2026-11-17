@@ -1,7 +1,7 @@
 // Ported from old trillion test/carried-connections.test.mjs (tag old-trillion-before-worker-retire, b6ae0ebf81),
 // deleted by Trillion-X/trillion #243. The hosted owner is src/carried-connections.mjs here, the computer's helper
 // tools/run-on-a-persons-computer/carry-connections.mjs, and the shipped service descriptors (old
-// parts/service-connections/records.json) tools/connect-a-service-and-seal-its-key/records.json. Its last test drew the
+// tools/connect-a-service-and-seal-its-key/records.json) tools/connect-a-service-and-seal-its-key/records.json. Its last test drew the
 // Connections screen through old src/account-screens.mjs connectionsFacts with src/workshop.mjs and scripts/workshop-rows.mjs;
 // no running code exports connectionsFacts (searched trillion-workshop tools/, trillion-apps web/, trillion-rust src/), so it
 // is left out.

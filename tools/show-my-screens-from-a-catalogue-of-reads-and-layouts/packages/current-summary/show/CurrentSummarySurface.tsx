@@ -14,8 +14,8 @@ import {
   findDiscoveredAddresses,
   readPublishedRecords,
 } from '@/packages/current-summary/read-data/read-published-records';
-import { SummaryCard } from '@/packages/current-summary/show/SummaryCard';
-import { SummaryGrid } from '@/packages/current-summary/show/SummaryGrid';
+import { SummaryCard } from './SummaryCard';
+import { SummaryGrid } from './SummaryGrid';
 
 export type ReplyActionHandler = (event: React.SyntheticEvent<HTMLElement>) => void;
 export type ReplyActionHandlers = Record<string, ReplyActionHandler | undefined>;

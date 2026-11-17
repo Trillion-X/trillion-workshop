@@ -1,5 +1,5 @@
 // test/slot-table.test.mjs
-// The interned-slot current view (parts/slot-table) and how the record store reads through it: a key is hashed once,
+// The interned-slot current view (tools/slot-table) and how the record store reads through it: a key is hashed once,
 // handles go stale instead of naming another key, memory stays inside its bytes, declared columns follow their field,
 // and the record store's pages (prefix-compressed keys, values parsed one at a time, the value kept at the id key) read
 // exactly what was written, including pages and records written in the layout before this one.

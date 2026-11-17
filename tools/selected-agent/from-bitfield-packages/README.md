@@ -14,6 +14,6 @@ Files of the bitfield-packages package `selected-agent` at commit d926b7adb8ca24
 | `read-data/read-selected-agent.test.ts` | `read-data/read-selected-agent.test.ts.held` | held: test (vitest or the retired loader) |
 | `read-data/read-selected-agent.ts` | `read-data/read-selected-agent.ts` | loads (imports only node:) |
 | `show/AgentSelectionSurface.test.tsx` | `show/AgentSelectionSurface.test.tsx.held` | held: test (vitest or the retired loader) |
-| `show/AgentSelectionSurface.tsx` | `show/AgentSelectionSurface.tsx.held` | held: imports react, @bitfield/runtime-kit/react, @/packages/ui, @/packages/selected-agent/do-work/set-selected-agent, ... |
-| `show/mount-selection-surface.tsx` | `show/mount-selection-surface.tsx.held` | held: imports react, @/packages/ui/show/error-boundary, @/packages/ui/show/floating-material-frame, @/packages/ui/show/react-surface-mount, ... |
+| `show/AgentSelectionSurface.tsx` | `show/AgentSelectionSurface.tsx.held` | held: imports react, @bitfield/runtime-kit/react, tools/ui, tools/selected-agent/do-work/set-selected-agent, ... |
+| `show/mount-selection-surface.tsx` | `show/mount-selection-surface.tsx.held` | held: imports react, tools/ui/show/error-boundary, tools/ui/show/floating-material-frame, tools/ui/show/react-surface-mount, ... |
 | `things-to-store-and-run.json` | `things-to-store-and-run.json` | data |

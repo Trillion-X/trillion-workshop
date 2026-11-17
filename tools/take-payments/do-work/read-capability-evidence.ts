@@ -3,7 +3,7 @@ import {
   buildExecutionReceipt,
   readRedactionPolicies,
   type ReceiptInput,
-} from '@/packages/stripe-payment-provider/read-data/capability-records';
+} from '../read-data/capability-records';
 
 function record(value: unknown): Record<string, unknown> {
   return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {};

@@ -2,7 +2,7 @@ import React from 'react';
 import { act, cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/packages/ui', async () => {
+vi.mock('tools/ui', async () => {
   const ReactModule = await import('react');
   const passthrough = ({ children, ...props }: React.PropsWithChildren<Record<string, unknown>>) => ReactModule.createElement('div', props, children);
   return {
@@ -15,12 +15,12 @@ vi.mock('@/packages/ui', async () => {
   };
 });
 
-vi.mock('@/packages/item-record/do-work/read-item-record-feed', () => ({
+vi.mock('tools/item-record/do-work/read-item-record-feed', () => ({
   ITEM_RECORD_FEED_REFRESH_EVENT: 'item-record:changed',
   readItemRecordFeed: vi.fn(),
 }));
 
-import { readItemRecordFeed } from '@/packages/item-record/do-work/read-item-record-feed';
+import { readItemRecordFeed } from '../../../../item-record/do-work/read-item-record-feed';
 import { ItemFeed } from './ItemFeed';
 
 afterEach(() => {

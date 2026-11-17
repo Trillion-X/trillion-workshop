@@ -7,7 +7,7 @@
 //   tools, ready to drop in. What kinds of layer can be added is DATA (layer-presets.json).
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. A layer becomes the rendered video through parts/media-composition/read-data/layers-to-edit.mjs, the same
+//   1. A layer becomes the rendered video through tools/media-composition/read-data/layers-to-edit.mjs, the same
 //      translation the Workshop tools `tool:mix-sound-layers` and `tool:layer-pictures-over-video` use.
 //   2. The panel's choices are saved under `edit.panels.layers`; an edit saved before layers existed opens with its
 //      single music bed as the first sound layer (`fromSavedEdit`).
@@ -18,10 +18,10 @@
 //      ScreenState); this file authors no markup of its own.
 
 import React from 'react';
-import { Button, Card, Container, Input, PositionGrid, Slider, Toggle } from '../../../parts/ui';
-import { Text } from '../../../parts/ui/show/text';
-import { ScreenState } from '../../../parts/ui/show/screen-state';
-import { MediaPreview } from '../../../parts/ui/show/media-preview';
+import { Button, Card, Container, Input, PositionGrid, Slider, Toggle } from '../../../../../ui';
+import { Text } from '../../../../../ui/show/text';
+import { ScreenState } from '../../../../../ui/show/screen-state';
+import { MediaPreview } from '../../../../../ui/show/media-preview';
 import { layerProblems, layersToEdit, soundFromMusicBed } from '../../../../../media-composition/read-data/layers-to-edit.mjs';
 import { readJson } from '../api';
 import { askSearch, type SearchAnswer } from '../search-results';

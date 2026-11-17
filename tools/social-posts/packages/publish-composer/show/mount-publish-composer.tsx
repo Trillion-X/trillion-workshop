@@ -1,7 +1,7 @@
 import React from 'react';
-import { Container, ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
+import { Container, ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { PublishComposer } from '@/packages/publish-composer/show/PublishComposer';
+import { PublishComposer } from './PublishComposer';
 import {
   readPublishComposerSurfaceView,
   type PublishComposerSurfaceView,

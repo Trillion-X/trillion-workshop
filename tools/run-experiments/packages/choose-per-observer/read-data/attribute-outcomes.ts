@@ -4,7 +4,7 @@
 // per-candidate observation facts, configured entirely by an attribution-join
 // record. No I/O. Skipped records are reported in findings.
 
-import type { ObserveOptions } from '@/packages/choose-per-observer/write-data/observe';
+import type { ObserveOptions } from '../write-data/observe';
 
 /** Keep a record only when the value at `path` strictly equals `equals`. */
 export interface AttributionWhere {

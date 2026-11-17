@@ -23,9 +23,9 @@ import {
   SelectableAvatar,
   Text,
   Tooltip,
-} from '@/packages/ui';
-import type { AgentCardViewModel } from '@/packages/agents-hub/read-data/resolve-agent-cards';
-import { formatCost, formatUnits } from '@/packages/agents-hub/read-data/resolve-agent-cards';
+} from '../../../../ui';
+import type { AgentCardViewModel } from '../../../../agents-hub/packages/agents-hub/read-data/resolve-agent-cards';
+import { formatCost, formatUnits } from '../../../../agents-hub/packages/agents-hub/read-data/resolve-agent-cards';
 
 export interface AgentCardProps {
   agent: AgentCardViewModel;

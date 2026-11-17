@@ -18,7 +18,7 @@
 import clients from './ai-clients.json' with { type: 'json' };
 import { logoOf } from './site-icon-url.mjs';
 
-/** The name the person's chosen AI app is remembered under (parts/ui/show/ai-picker remembered choice), and the cookie
+/** The name the person's chosen AI app is remembered under (tools/ui/show/ai-picker remembered choice), and the cookie
  *  a server page reads it from. */
 export const CHOSEN_AI = 'ai';
 export const CHOSEN_AI_COOKIE = 'trillion_choice_ai';

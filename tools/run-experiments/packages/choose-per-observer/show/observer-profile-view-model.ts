@@ -26,12 +26,12 @@
 // You are forbidden from simplifying or removing it.
 // =============================================================================
 
-import type { DecodeVisualDatabaseInput } from '@/packages/visual-database/read-data/visual-database';
-import type { ObserverFact } from '@/packages/choose-per-observer/read-data/score-candidates';
+import type { DecodeVisualDatabaseInput } from '../../../../keep-lists-of-rows/read-data/visual-database';
+import type { ObserverFact } from '../read-data/score-candidates';
 import {
   PROFILE_ACTIVITY_STATUS_DESCRIPTOR,
   PROFILE_ROLLUP_DESCRIPTORS,
-} from '@/packages/choose-per-observer/data/profile-descriptors';
+} from '../data/profile-descriptors';
 
 /** One label/value attribute for the left rail (emergent from a fact). */
 export interface ProfileAttribute {

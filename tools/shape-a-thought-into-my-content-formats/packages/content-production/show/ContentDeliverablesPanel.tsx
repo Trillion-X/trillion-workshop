@@ -8,7 +8,7 @@
  *
  * NON-NEGOTIABLE INVARIANTS:
  * 1. Zero imports from slot::workflow or slot::eeaf — reads only via useBitfieldData
- * 2. Components only from @/packages/ui; zero inline style objects
+ * 2. Components only from tools/ui; zero inline style objects
  * 3. Output kinds are DATA from each record — never enumerated here
  * 4. Observability: logs `[ui:content-deliverables] mounted input=<n> records` on mount
  */
@@ -26,15 +26,15 @@ import {
   ScrollableSurface,
   Text,
   statusView,
-} from '@/packages/ui';
+} from '../../../../ui';
 
-import { friendlyDate } from '@/packages/content-production/read-data/read-content-library';
+import { friendlyDate } from '../../../../content-production/packages/content-production/read-data/read-content-library';
 import {
   deliverableDisplayFields,
   deliverableTitle,
   readContentDeliverableRuns,
   type ContentDeliverableRun,
-} from '@/packages/content-production/read-data/read-content-deliverables';
+} from '../../../../content-production/packages/content-production/read-data/read-content-deliverables';
 
 const TONE_TO_BADGE = {
   neutral: 'neutral',

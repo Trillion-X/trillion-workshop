@@ -1,7 +1,6 @@
-// parts/sealed-records/do-work/sealed-copy.mjs
 //
 // PURPOSE
-//   Sealed records on one device's copy of the person's records (parts/device-copy): unlock the person's one sealing
+//   Sealed records on one device's copy of the person's records (tools/device-copy): unlock the person's one sealing
 //   key from their passphrase, seal a record, open it to read, open it back for good, and search inside sealed records
 //   once they are open. The browser's worker and the Mac's copy both use this, so a record sealed on one device opens
 //   on the other with the same passphrase.

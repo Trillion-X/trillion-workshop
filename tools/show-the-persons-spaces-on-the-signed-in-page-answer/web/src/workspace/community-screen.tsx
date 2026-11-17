@@ -4,7 +4,7 @@
 //   The places any space turns on (the space tools of records/workshop-space-tool-records.json), drawn inside that space's own screen
 //   (spaces-screen.tsx hosts each one with mountCommunityPlace, beside its conversation, people and rules). A community
 //   is a space like any other, so there is no separate Community screen: every place below is something a project, a
-//   group or a community shows once it is turned on. Each is drawn by the shared guide (parts/ui/show/coss/guide.tsx)
+//   group or a community shows once it is turned on. Each is drawn by the shared guide (tools/ui/show/coss/guide.tsx)
 //   through guide-screen.ts when it is chosen:
 //   - Home: the posts as a feed with a box to write one, and beside them where the reader stands (their level, the
 //     bar toward the next one, their streak and what they wrote, their place, their tribe title), their match this
@@ -46,19 +46,19 @@
 //   4. Choosing a place, opening a course or going back draws again from the last read; the community is read again
 //      only after an action, on Try again, and when the page is shown again (guide-screen.ts).
 
-import type { GuideAction, GuideDescription, GuideRow, GuideSection } from '../../parts/ui/show/coss/guide';
-import type { ThreadPost } from '../../parts/ui/show/coss/thread';
-import { notify } from '../../parts/ui/show/coss/notifications';
-import { PLACEABLE_SURFACE_MIME } from '../../parts/ui/show/placeable-surface-intent/placeable-surface-intent';
+import type { GuideAction, GuideDescription, GuideRow, GuideSection } from '../../../../ui/show/coss/guide';
+import type { ThreadPost } from '../../../../ui/show/coss/thread';
+import { notify } from '../../../../ui/show/coss/notifications';
+import { PLACEABLE_SURFACE_MIME } from '../../../../ui/show/placeable-surface-intent/placeable-surface-intent';
 import { postJson, readAnswer, readJson } from './api';
-import { IsolatedModuleSurface } from '../../parts/ui/show/isolated-module-surface/IsolatedModuleSurface';
-import { lessonPracticeLabel, moduleSurfaceRequest, moduleSurfaceRequestCanRetry, moduleSurfaceScopeKey, validateModuleSurfaceRequests } from '../../parts/ui/show/isolated-module-surface/module-surface-requests.mjs';
+import { IsolatedModuleSurface } from '../../../../ui/show/isolated-module-surface/IsolatedModuleSurface';
+import { lessonPracticeLabel, moduleSurfaceRequest, moduleSurfaceRequestCanRetry, moduleSurfaceScopeKey, validateModuleSurfaceRequests } from '../../../../ui/show/isolated-module-surface/module-surface-requests.mjs';
 import { runAddressedResourceAction } from './resource-target';
 import { guideScreen, LOCAL, type Act } from './guide-screen';
 import { communityPlacesOf, toolPlace, type Post, type Event, type TribeMember, type Tribe, type FoundTool, type CommunityView } from './community-places';
 import { goTo, openScreen } from './open-screen';
 import { replaceWorkspaceAddress } from './addresses.mjs';
-import { ScreenState, type EmptyScreenState } from '../../parts/ui/show/screen-state';
+import { ScreenState, type EmptyScreenState } from '../../../../ui/show/screen-state';
 
 /** Where the reader is among the places: the chosen place, the course open in Classroom, and the last search for a
  *  tool to add (Tools). */

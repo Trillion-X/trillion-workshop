@@ -31,7 +31,7 @@
 // =============================================================================
 
 import React from 'react';
-import { ActionControl, Badge, Card, Container, Text } from '@/packages/ui';
+import { ActionControl, Badge, Card, Container, Text } from '../../../../ui';
 import type { OwnerEvidence, WorkDescriptor } from '../read-data/record-work-graph';
 import type { SupportRecord } from './workspace-types';
 import { RecordFieldList } from './record-field-list';

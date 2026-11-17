@@ -15,13 +15,13 @@
 //   leader_metric     — emitted metric that decides the front-runner (default 'conversions').
 
 import React from 'react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
 import { useBitfieldData } from '@/packages/choose-per-observer/.bitfield-entry-scope/scoreboard/runtime-kit-react';
-import { ScoreboardSurface } from '@/packages/choose-per-observer/show/ScoreboardSurface';
-import { projectScoreboard } from '@/packages/choose-per-observer/read-data/scoreboard-projection';
-import { buildScoreboardViewModel } from '@/packages/choose-per-observer/show/scoreboard-view-model';
-import type { SelectionSurface } from '@/packages/choose-per-observer/read-data/candidate-set-schema';
-import type { AttributionJoin } from '@/packages/choose-per-observer/read-data/attribute-outcomes';
+import { ScoreboardSurface } from './ScoreboardSurface';
+import { projectScoreboard } from '../read-data/scoreboard-projection';
+import { buildScoreboardViewModel } from './scoreboard-view-model';
+import type { SelectionSurface } from '../../../../funnels-screen/read-data/candidate-set-schema';
+import type { AttributionJoin } from '../read-data/attribute-outcomes';
 
 /** A valid, empty view-model so the surface can decode its board even in the
  *  loading / error / not-configured states (it decodes boardInput up front). */

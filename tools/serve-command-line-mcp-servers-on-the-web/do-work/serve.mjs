@@ -1,4 +1,3 @@
-// parts/stdio-mcp-gateway/do-work/serve.mjs
 //
 // Runs the gateway (./gateway.mjs) as a web server: `node serve.mjs <config.json>`. The config is DATA:
 //   { "port": 8080, "apps": { "<name>": { "cli": "/usr/local/bin/<name>-cli", "args": ["mcp"] } },

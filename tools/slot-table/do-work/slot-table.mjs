@@ -1,4 +1,3 @@
-// parts/slot-table/do-work/slot-table.mjs
 //
 // A CURRENT VIEW WHERE A KEY BECOMES A SMALL INTEGER ONCE, AND EVERYTHING AFTER IS A TYPED-ARRAY READ.
 //

@@ -11,7 +11,7 @@
 //
 // Non-negotiable invariants
 //   1. Nothing here names a source, a field, an operator or a word shown: they are the DATA (src/done-when-facts.json
-//      and parts/formula-engine/rules/rule-operators.json). A new source is one row there and one reader in the owner.
+//      and tools/formula-engine/rules/rule-operators.json). A new source is one row there and one reader in the owner.
 //   2. Every source is a real current read, asked each time a row is checked and shared only inside one pass over the
 //      rows (`memo`), never kept here between passes. (The owner, src/person-store.mjs checkWaiting, may reuse a pass's
 //      answers for a read made while the store's revision and change count are the same; a changed store asks again.)

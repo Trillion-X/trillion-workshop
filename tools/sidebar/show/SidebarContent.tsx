@@ -349,7 +349,7 @@ const ROW_LOOKS: Record<string, (props: NavItemProps) => React.ReactElement> = {
 function TabRow({ item, isActive, onClick, onItemAction, rowEvents }: NavItemProps) {
   // A tab that is not the one showing previews what it holds on its name (never on its close), the same card a
   // sidebar row shows; the active tab is already on screen, so it shows none. The card is the control
-  // arrangement.header.tabs.row-preview and the hover card cards.hover.tabs (parts/sidebar/controls.json); a show rule
+  // arrangement.header.tabs.row-preview and the hover card cards.hover.tabs (tools/sidebar/controls.json); a show rule
   // hiding either hides it.
   useShowChange();
   const previewed = !isActive && !item.disabled && (item.glance || item.preview || item.description || item.surfaceActions?.length)

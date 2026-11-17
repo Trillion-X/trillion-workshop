@@ -1,4 +1,4 @@
-// parts/timed-action/do-work/evaluate-due-scheduled-actions.ts (ported unchanged from bitfield-packages packages/timed-action/do-work)
+// tools/run-work-later-or-on-a-repeat/do-work/evaluate-due-scheduled-actions.ts (ported unchanged from bitfield-packages packages/timed-action/do-work)
 // timed-action — the generic due-and-unfired evaluator for the scheduled-action
 // graph. Blind and universal: it knows nothing about customers, feedback, or any feature
 // domain. It consumes timed-action's OWN graph shape (the same separate arrays the

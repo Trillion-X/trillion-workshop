@@ -29,16 +29,16 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { AlertTriangle, FileSearch, Plus, ChevronRight } from 'lucide-react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { BugReportModal } from '@/packages/bug-reports/show/BugReportModal';
-import { Card, Badge, Button, Text, Icon } from '@/packages/ui';
+import { BugReportModal } from './BugReportModal';
+import { Card, Badge, Button, Text, Icon } from '../../../../ui';
 import {
   decodeBugReportInvestigationsFeed,
   type BugReportInvestigationEntry,
-} from '@/packages/bug-reports/read-data/read-investigations';
+} from '../../../../bug-reports/packages/bug-reports/read-data/read-investigations';
 import {
   decodeBugReportsFeed,
   type BugReportEntry,
-} from '@/packages/bug-reports/read-data/read-bug-reports';
+} from '../../../../bug-reports/packages/bug-reports/read-data/read-bug-reports';
 
 // ============================================================================
 // PURE FUNCTIONS

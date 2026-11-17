@@ -1,7 +1,7 @@
 // src/workspace/show-rules.mjs
 //
 // NO PRIOR: what decides whether anything Trillion would show shows, shared by the page (show-rules-live.ts, the seam
-// every surface asks through parts/ui/show/show-rules) and the person store (src/show-rules-store.mjs: the routes and
+// every surface asks through tools/ui/show/show-rules) and the person store (src/show-rules-store.mjs: the routes and
 // MCP tools that read and set rules, and tell()'s check before each device channel).
 //
 // PURPOSE

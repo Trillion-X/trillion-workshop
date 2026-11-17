@@ -1,7 +1,7 @@
 // package-set://bitfield-studio/packages/event-group/show/EventGroupPanel.tsx
 
 import React from 'react';
-import { Badge, Card, Container, Icon, ScrollableSurface, Text } from '@/packages/ui';
+import { Badge, Card, Container, Icon, ScrollableSurface, Text } from '../../../../ui';
 import { Clock3, Layers3, ListChecks } from 'lucide-react';
 import { eventGroupSurface } from '@/packages/event-group/read-data/event-group-surface';
 

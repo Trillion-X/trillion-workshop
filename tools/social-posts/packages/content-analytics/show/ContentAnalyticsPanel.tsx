@@ -6,19 +6,19 @@ import {
   readContentAnalyticsModel,
   type ContentAnalyticsModel,
   type ReadContentAnalyticsModelInput,
-} from '@/packages/content-analytics/read-data/content-analytics-model';
+} from '../read-data/content-analytics-model';
 import {
   invokeContentAnalyticsAction,
   type ContentAnalyticsTargetSender,
-} from '@/packages/content-analytics/do-work/content-analytics-actions';
+} from '../do-work/content-analytics-actions';
 import {
   OneStepAtATimeSurface,
   type OneStepAtATimeItem,
-} from '@/packages/ui/show/one-step-at-a-time-surface';
-import { Button } from '@/packages/ui/show/button';
-import { Container } from '@/packages/ui/show/container';
-import { Text } from '@/packages/ui/show/text';
-import { WorkSkeletonRows, WorkStartState } from '@/packages/ui/show/work-start-state';
+} from '../../../../ui/show/one-step-at-a-time-surface';
+import { Button } from '../../../../ui/show/button';
+import { Container } from '../../../../ui/show/container';
+import { Text } from '../../../../ui/show/text';
+import { WorkSkeletonRows, WorkStartState } from '../../../../ui/show/work-start-state';
 
 export type ContentAnalyticsPanelProps = {
   modelInput?: ReadContentAnalyticsModelInput;

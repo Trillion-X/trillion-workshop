@@ -129,7 +129,7 @@ test('each connected account brings one rule per event its source declares, and 
 });
 
 test('a connected Gmail account and a connected Notion account each bring their starting rules, and Trillion starts reading both', async () => {
-  // The rows as the Worker admits them (parts/ai-tool-catalog), not only as written.
+  // The rows as the Worker admits them (tools/ai-tool-catalog), not only as written.
   const admitted = readToolData((await sharedWorkshopPayloads()).payloads.map(payload => ({ payload }))).event_sources;
   const byVendor = vendor => admitted.find(source => source.connects_with?.vendor === vendor);
   const gmail = byVendor('google-account');

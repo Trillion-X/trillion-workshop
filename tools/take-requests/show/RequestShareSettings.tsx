@@ -16,13 +16,13 @@ import {
   Container,
   EmptyPlaceholder,
   Text,
-} from '@/packages/ui';
+} from '../../ui';
 import { Share2 } from 'lucide-react';
-import type { RequestIntakeScreenShare } from '@/packages/request-intake/show/request-intake-screen-model';
+import type { RequestIntakeScreenShare } from './request-intake-screen-model';
 import {
   RequestActionBar,
   type RequestIntakeActionHandler,
-} from '@/packages/request-intake/show/RequestActionBar';
+} from './RequestActionBar';
 
 interface RequestShareSettingsProps {
   share: RequestIntakeScreenShare;

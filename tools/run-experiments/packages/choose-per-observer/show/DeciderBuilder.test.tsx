@@ -3,7 +3,7 @@ import React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { DeciderBuilder } from './DeciderBuilder';
-import type { ScoreExpr } from '@/packages/choose-per-observer/read-data/decider-schema';
+import type { ScoreExpr } from '../read-data/decider-schema';
 
 // Test isolation: RTL appends to document.body; without cleanup the DOM
 // accumulates across `it` blocks and role queries find stale buttons.

@@ -22,7 +22,7 @@
 // =============================================================================
 
 import React from 'react';
-import { Button, Card, Container, Text, Icon } from '@/packages/ui';
+import { Button, Card, Container, Text, Icon } from '../../../../ui';
 import { Share2, Copy, Check, Loader2 } from 'lucide-react';
 import {
   idleShareView,
@@ -32,7 +32,7 @@ import {
   type CapsuleReply,
   type ShareConfig,
   type ShareView,
-} from '@/packages/public-scene-share/show/share-scene-presenter';
+} from './share-scene-presenter';
 
 export interface ShareAffordanceProps {
   /** DATA — the public origin the minted link points at (local for preview). */

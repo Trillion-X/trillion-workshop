@@ -1,4 +1,4 @@
-import type { StatusOverrides } from '@/packages/ui/show/status-vocabulary';
+import type { StatusOverrides } from '../../ui/show/status-vocabulary';
 
 export const STRIPE_STATUS_OVERRIDES: StatusOverrides = {
   ready: { label: 'Ready', tone: 'success', isTerminal: true, isError: false },

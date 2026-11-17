@@ -16,13 +16,13 @@
 //
 // Dependencies: appendObservation (injected), pure buildSignals helpers.
 
-import type { WriteBatchEntry } from '@/packages/choose-per-observer/write-data/observe';
+import type { WriteBatchEntry } from './observe';
 import {
   appendObservation,
   buildObservationRecord,
   buildWriteBatchEntry,
   type ObserveOptions,
-} from '@/packages/choose-per-observer/write-data/observe';
+} from './observe';
 
 // ---------------------------------------------------------------------------
 // ObserverID derivation — DATA-driven source precedence

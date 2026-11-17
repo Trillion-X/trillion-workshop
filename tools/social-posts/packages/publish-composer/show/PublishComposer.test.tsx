@@ -10,11 +10,11 @@ vi.mock('@/packages/publish-composer/do-work/submit-publication', () => ({
 }));
 
 import { submitPublication } from '@/packages/publish-composer/do-work/submit-publication';
-import { PublishComposer } from '@/packages/publish-composer/show/PublishComposer';
+import { PublishComposer } from './PublishComposer';
 import {
   PUBLISH_COMPOSER_LOADING,
   publishComposerFixtures,
-} from '@/packages/publish-composer/show/publish-composer-fixtures';
+} from './publish-composer-fixtures';
 
 // Vocabulary that must NEVER reach the customer's eyes. Internal execution,
 // transport, and storage terms, plus the source product names the composer

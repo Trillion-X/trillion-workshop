@@ -171,7 +171,7 @@
         },
         "result_selector": "$.result",
         "provenance": {
-          "source": "Trillion-X/trillion parts/selected-agent/do-work/set-selected-agent.ts at 7fd88384^ (its header: ported from bitfield-packages packages/selected-agent at e99ac5976), moved byte for byte in a9ee258 (#76); old capability row capabilities.json:1164 at 4ffa1dc4a2^ (run AI tools and serve local MCP servers; owner parts/selected-agent/** among others, no moves_to); run/ written here"
+          "source": "Trillion-X/trillion tools/selected-agent/do-work/set-selected-agent.ts at 7fd88384^ (its header: ported from bitfield-packages packages/selected-agent at e99ac5976), moved byte for byte in a9ee258 (#76); old capability row capabilities.json:1164 at 4ffa1dc4a2^ (run AI tools and serve local MCP servers; owner tools/selected-agent/** among others, no moves_to); run/ written here"
         },
         "verify": [
           {

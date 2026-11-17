@@ -4,7 +4,7 @@ import React from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 import { AgentEditView } from '../AgentEditView';
 
-import { readRequestedAgentId } from '@/packages/agents-hub/show/AgentsHubSurface';
+import { readRequestedAgentId } from '../AgentsHubSurface';
 
 describe('Agents Hub addressed surface input', () => {
   it('keeps a contextual assistant name without modifying the stored profile', () => {

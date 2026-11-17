@@ -4,7 +4,7 @@
 //   When the person's free account asks for something only a paid plan does (saving a chat, a page tool, keeping a
 //   file), the popup shows this instead of an error: what a paid plan unlocks (the same title the web app shows,
 //   src/plan-needs.mjs needsPlanTitle), and the free and paid plans as two small cards side by side, the same
-//   cards and DATA the web app's plan gate shows (parts/ui PlanCards over src/plan-cards.mjs). Choosing the paid plan
+//   cards and DATA the web app's plan gate shows (tools/ui PlanCards over src/plan-cards.mjs). Choosing the paid plan
 //   opens that offer's Buy on Trillion with from=extension and the page they were on (src/trillion.mjs buyAddress);
 //   after paying, Trillion's welcome takes them back. Buy pays for the account signed in on Trillion in this browser,
 //   so when nobody is signed in there the card says to sign in first and Choose opens the sign-in instead. Only the

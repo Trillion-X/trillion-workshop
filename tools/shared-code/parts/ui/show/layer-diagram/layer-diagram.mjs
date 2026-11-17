@@ -1,4 +1,4 @@
-// parts/ui/show/layer-diagram/layer-diagram.mjs
+// tools/ui/show/layer-diagram/layer-diagram.mjs
 //
 // A PICTURE OF WHO CONNECTS TO WHAT, FROM DATA.
 //
@@ -372,7 +372,7 @@ export function layerDiagramHtml(diagram) {
 }
 
 export const LAYER_DIAGRAM_CSS = `
-/* Every surface and the words on it take a declared pair from the look (parts/screen-look/paired-surfaces.json):
+/* Every surface and the words on it take a declared pair from the look (tools/screen-look/paired-surfaces.json):
    a --ld-ground-* variable is only ever a background, a --ld-words-* variable is only ever a text colour and a
    --ld-mark-* variable is only ever a line. A colour-adapting extension (Dark Reader) decides from how a variable is
    used whether it is a background or a text colour, so one variable never plays both parts. */

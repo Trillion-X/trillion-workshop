@@ -1,24 +1,24 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { ActionControl, Container, OpenSurfaceAction, Text } from '@/packages/ui';
-import { setSelectedAgent, SELECTED_AGENT_ACTION } from '@/packages/selected-agent/do-work/set-selected-agent';
+import { ActionControl, Container, OpenSurfaceAction, Text } from '../../../ui';
+import { setSelectedAgent, SELECTED_AGENT_ACTION } from '../../do-work/set-selected-agent';
 import {
   readSelectedAgentAction,
   readSelectedAgentId,
-} from '@/packages/selected-agent/read-data/read-selected-agent';
-import { UnifiedAgentPicker } from '@/packages/chat/show/input/unified-agent-picker';
-import { decodeCliRegistryParticipants } from '@/packages/chat/read-data/read-cli-registry-participants';
+} from '../read-data/read-selected-agent';
+import { UnifiedAgentPicker } from '../../../chat/show/input/unified-agent-picker';
+import { decodeCliRegistryParticipants } from '../../../chat/read-data/read-cli-registry-participants';
 import {
   chooseAgentPresentationParticipants,
   decodeAgentProfileParticipants,
-} from '@/packages/chat/read-data/read-agent-profile-participants';
-import { decodeAddressedParticipantsFeed } from '@/packages/chat/read-data/read-addressed-exchange-participants';
-import { mergeAgentSelectionParticipants } from '@/packages/chat/read-data/merge-agent-selection-participants';
+} from '../../../chat/read-data/read-agent-profile-participants';
+import { decodeAddressedParticipantsFeed } from '../../../chat/read-data/read-addressed-exchange-participants';
+import { mergeAgentSelectionParticipants } from '../../../chat/read-data/merge-agent-selection-participants';
 import {
   filterRunnableAiModelDescriptors,
   readRunnableAiProviderRefs,
-} from '@/packages/selected-agent/read-data/read-runnable-ai-providers';
-import type { ChatSessionConfig } from '@/packages/chat/read-data/read-chat-sessions';
+} from '../read-data/read-runnable-ai-providers';
+import type { ChatSessionConfig } from '../../../chat/read-data/read-chat-sessions';
 
 export interface AgentSelectionSurfaceProps {
   surfaceInput?: Record<string, unknown>;

@@ -2,7 +2,7 @@
 //
 // The editor's one player: the whole cut played straight from its original files (with the sounds and pictures panels
 // lay over it, a picture dragged or resized in place, and what the panels add, such as captions in their style), or only
-// the selected clip. Nothing is rendered to preview; the shared live player (parts/ui LiveCompositionPreview) plays
+// the selected clip. Nothing is rendered to preview; the shared live player (tools/ui LiveCompositionPreview) plays
 // each clip's stretch in order.
 //
 // Invariants
@@ -11,8 +11,8 @@
 //   3. Composed only from shared parts (Container, Text, SegmentedControl, LiveCompositionPreview).
 
 import React from 'react';
-import { Container, SegmentedControl, Text } from '../../../parts/ui';
-import { LiveCompositionPreview } from '../../../parts/ui/show/selection/LiveCompositionPreview';
+import { Container, SegmentedControl, Text } from '../../../../../ui';
+import { LiveCompositionPreview } from '../../../../../ui/show/selection/LiveCompositionPreview';
 import type { MediaEditClip, MediaEditLayerChange } from './panel-types';
 import type { CutLayer } from './cut-list';
 

@@ -22,7 +22,7 @@
 // Render states: loading (skeleton), error, empty (no activity), dense (long
 // timeline), mobile (3 panes -> tabs via useNarrowViewport), desktop (3-pane).
 //
-// fey-grade via @/packages/ui + @/packages/visual-database only. Zero raw HTML,
+// fey-grade via tools/ui + tools/keep-lists-of-rows only. Zero raw HTML,
 // zero inline styles, zero className hacking (L065/L066).
 //
 // =============================================================================
@@ -48,22 +48,22 @@ import {
   Text,
   WorkSkeletonRows,
   useNarrowViewport,
-} from '@/packages/ui';
+} from '../../../../ui';
 import {
   decodeVisualDatabaseModel,
   recordsForView,
   type VisualDatabaseModel,
-} from '@/packages/visual-database/read-data/visual-database';
-import { displayTitle, statusTone } from '@/packages/visual-database/show/field-editors';
-import { timelineDayGroups } from '@/packages/visual-database/show/timeline-grouping';
-import { RecordMetricRow } from '@/packages/visual-database/show/RecordMetricRow';
+} from '../../../../keep-lists-of-rows/read-data/visual-database';
+import { displayTitle, statusTone } from '../../../../keep-lists-of-rows/show/field-editors';
+import { timelineDayGroups } from '../../../../keep-lists-of-rows/show/timeline-grouping';
+import { RecordMetricRow } from '../../../../keep-lists-of-rows/show/RecordMetricRow';
 import {
   PROFILE_ACTIVITY_STATUS_FIELD_ID,
   PROFILE_COPY,
   type ProfileCopy,
-} from '@/packages/choose-per-observer/data/profile-descriptors';
-import { formatMetric } from '@/packages/choose-per-observer/show/metric-format';
-import type { ObserverProfileViewModel } from '@/packages/choose-per-observer/show/observer-profile-view-model';
+} from '../data/profile-descriptors';
+import { formatMetric } from './metric-format';
+import type { ObserverProfileViewModel } from './observer-profile-view-model';
 
 export interface ObserverProfileSurfaceProps {
   /** The decoded view-model (read-data owns I/O; this surface is blind). */

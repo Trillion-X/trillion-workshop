@@ -9,7 +9,7 @@
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. Nothing is read or sent until the person presses the button, and only the conversation open in this tab.
-//   2. Built from the shared parts (parts/ui); words from extension/words.json (save_chat) and the site's row (hint).
+//   2. Built from the shared parts (tools/ui); words from extension/words.json (save_chat) and the site's row (hint).
 //   3. "Saved" is shown only after the account answered; its refusal is said as it was said.
 //   4. While the page is being read (older messages included, where the site's row says to read them), how many
 //      messages have been read so far is shown, read from the tab under read-conversation.mjs's progressKey.

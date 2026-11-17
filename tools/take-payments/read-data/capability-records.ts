@@ -1,4 +1,4 @@
-import packageData from '@/packages/stripe-payment-provider/things-to-store-and-run.json';
+import packageData from '../things-to-store-and-run.json';
 
 type JsonObject = Record<string, unknown>;
 

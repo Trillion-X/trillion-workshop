@@ -1,4 +1,3 @@
-// parts/workflow-canvas/read-data/layered-layout.ts
 //
 // PURPOSE
 //   A deterministic layered layout for any directed graph, ported from the workflow canvas's computeFrames

@@ -1,4 +1,3 @@
-// parts/timed-action/do-work/zone-drift.ts
 //
 // Purpose
 //   Whether the zone a device now shows differs from the zone a person plans in, and whether to ask about it. Pure.

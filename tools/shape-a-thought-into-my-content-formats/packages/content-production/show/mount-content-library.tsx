@@ -1,7 +1,7 @@
 import * as React from 'react';
 
-import { ContentLibraryPanel } from '@/packages/content-production/show/ContentLibraryPanel';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
+import { ContentLibraryPanel } from './ContentLibraryPanel';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
 
 type MountArgs = {
   el: HTMLElement;

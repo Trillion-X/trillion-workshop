@@ -210,7 +210,7 @@
         },
         "result_selector": "$.result",
         "provenance": {
-          "source": "Trillion-X/trillion parts/stdio-mcp-gateway/do-work/gateway.mjs and serve.mjs, moved in a9ee258 (#76); old capability row capabilities.json:519 at 4ffa1dc4a2^ (serve command-line MCP servers as web MCP endpoints, with a session each, a working folder per session and idle sessions closed). do-work/ask-a-stdio-server-once.mjs (the one-off run) and test/echo-mcp-server.mjs (a made-up server for the sample) are new."
+          "source": "Trillion-X/trillion tools/serve-command-line-mcp-servers-on-the-web/do-work/gateway.mjs and serve.mjs, moved in a9ee258 (#76); old capability row capabilities.json:519 at 4ffa1dc4a2^ (serve command-line MCP servers as web MCP endpoints, with a session each, a working folder per session and idle sessions closed). do-work/ask-a-stdio-server-once.mjs (the one-off run) and test/echo-mcp-server.mjs (a made-up server for the sample) are new."
         },
         "verify": [
           {

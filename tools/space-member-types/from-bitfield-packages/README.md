@@ -5,5 +5,5 @@ Files of the bitfield-packages package `workspace-members` at commit d926b7adb8c
 | Package path | Here | Status |
 |---|---|---|
 | `read-data/read-workspace-members.ts` | `read-data/read-workspace-members.ts` | loads (imports only node:) |
-| `show/WorkspaceMembersPanel.tsx` | `show/WorkspaceMembersPanel.tsx.held` | held: imports react, @/packages/ui, @bitfield/runtime-kit/react, @/packages/workspace-members/read-data/read-workspace-members, ... |
+| `show/WorkspaceMembersPanel.tsx` | `show/WorkspaceMembersPanel.tsx.held` | held: imports react, tools/ui, @bitfield/runtime-kit/react, tools/space-member-types/from-bitfield-packages/read-data/read-workspace-members.ts, ... |
 | `things-to-store-and-run.json` | `things-to-store-and-run.json` | data |

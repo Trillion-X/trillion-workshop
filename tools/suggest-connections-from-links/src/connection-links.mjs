@@ -3,7 +3,7 @@
 // PURPOSE
 //   Which connections the links in some words point at. A link to a service the person has not connected is a reason to
 //   offer connecting it right there (src/connection-recommendations.mjs): the web address names the service by the
-//   `domain` its connection descriptor declares (parts/service-connections/records.json, carried on each tool row as
+//   `domain` its connection descriptor declares (tools/connect-a-service-and-seal-its-key/records.json, carried on each tool row as
 //   invoke.connects.domain). It only proposes: connecting stays the person's own step.
 //
 // NON-NEGOTIABLE INVARIANTS

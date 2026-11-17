@@ -211,7 +211,7 @@
         },
         "result_selector": "$.result",
         "provenance": {
-          "source": "Trillion-X/trillion parts/work-map/read-data/join-records.mjs and parts/work-map/read-data/work-map-sources.json at 5cd0dc3103e4f54b30b1784f0d77a67de0147064, moved byte for byte in a9ee258 (#76) to read-data/; old capability row capabilities.json:117 at 4ffa1dc4a2^ (see every job my AIs handed each other and the tree of goals, decisions, jobs and people behind it); do-work/join-work-map.mjs written here"
+          "source": "Trillion-X/trillion tools/see-what-is-being-worked-on/read-data/join-records.mjs and tools/work-map/read-data/work-map-sources.json at 5cd0dc3103e4f54b30b1784f0d77a67de0147064, moved byte for byte in a9ee258 (#76) to read-data/; old capability row capabilities.json:117 at 4ffa1dc4a2^ (see every job my AIs handed each other and the tree of goals, decisions, jobs and people behind it); do-work/join-work-map.mjs written here"
         },
         "verify": [
           {

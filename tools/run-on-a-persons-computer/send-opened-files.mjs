@@ -4,7 +4,7 @@
 //   Keeps files the person opened with Trillion on this Mac (Finder's Open With > Trillion, a file dropped on the Dock
 //   icon) in their Trillion files, when a file is too big to go into the message box (macos/App/MenuBarPanel.swift
 //   hand, menu-bar-panel.json `opened`). Each goes through the shared chunked sender
-//   (parts/live-namespace/do-work/send-a-file-to-a-namespace.mjs) under `<folder>/<its name>`, so it can be opened
+//   (tools/browse-and-upload-my-files/do-work/send-a-file-to-a-namespace.mjs) under `<folder>/<its name>`, so it can be opened
 //   while it is still going up and nothing the service already holds is sent again.
 //
 //     node computer/send-opened-files.mjs --folder "/Opened on this Mac" <file> [file...]   (account key on stdin)

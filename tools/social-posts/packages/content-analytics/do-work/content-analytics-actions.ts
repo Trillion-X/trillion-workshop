@@ -8,7 +8,7 @@ import type {
   ContentAnalyticsActionDescriptor,
   ContentAnalyticsModelAction,
   ContentAnalyticsModelItem,
-} from '@/packages/content-analytics/read-data/content-analytics-model';
+} from '../read-data/content-analytics-model';
 
 export interface ContentAnalyticsActionContext {
   selected?: ContentAnalyticsModelItem | null;

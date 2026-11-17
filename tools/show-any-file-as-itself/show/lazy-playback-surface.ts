@@ -1,4 +1,4 @@
-// parts/media-playback/show/lazy-playback-surface.ts
+// tools/media-playback/show/lazy-playback-surface.ts
 //
 // Purpose: the shared player as a file preview, a media frame or a recorder's review draws it. Its body
 // (./MediaPlaybackSurface.tsx with its controls, timed text and range reader, about 60 kB) arrives the first time a
@@ -6,7 +6,7 @@
 //
 // Non-negotiable invariants:
 // - It is ./MediaPlaybackSurface.tsx's MediaPlaybackSurface with the same props; until the body arrives it draws
-//   nothing (parts/ui/show/load-later).
+//   nothing (tools/ui/show/load-later).
 // - A caller that needs the player's other exports (BrowserMediaPlayer, types) imports ./MediaPlaybackSurface.tsx.
 import { later } from '../../ui/show/load-later/later';
 

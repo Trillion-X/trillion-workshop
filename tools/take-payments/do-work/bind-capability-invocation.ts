@@ -1,7 +1,7 @@
 import {
   bindCapabilityInvocation,
   type BindCapabilityInvocationInput,
-} from '@/packages/stripe-payment-provider/read-data/capability-invocations';
+} from '../read-data/capability-invocations';
 
 function record(value: unknown): Record<string, unknown> {
   return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {};

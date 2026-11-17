@@ -1,7 +1,7 @@
 // The facts of the person's decisions as workspace screens: each decision's own screen (decisionFacts: its notes,
 // results and history; records/marketplace-screens.json tool:decision draws them) and Progress's facts (progressFacts:
 // what is waiting for their answer, what they are working toward, what helped; tool:progress draws them). The generic
-// screen host draws each as a guide description for the workspace's shared guide (parts/ui/show/coss/guide.tsx); this
+// screen host draws each as a guide description for the workspace's shared guide (tools/ui/show/coss/guide.tsx); this
 // file supplies only the person's data and the words other owners keep.
 // Dense list anatomy from Tana's To-Do list and Perplexity's History (title left, quiet status label, one line per
 // row); the status label follows Tremor's status badge (21st.dev component 521): a pill with a small dot.
@@ -31,7 +31,7 @@ const pursuitChange = value => {
   return match ? { title: match[1], now: match[2], after: match[3] } : null;
 };
 
-// A page section as the workspace's shared guide draws it (parts/ui/show/coss/guide.tsx): each item one row, its
+// A page section as the workspace's shared guide draws it (tools/ui/show/coss/guide.tsx): each item one row, its
 // heading the title, its body and details one detail line under it, its label the row's status. Only actions that are
 // real addresses carry over; everything a page did through in-page links is reached by opening the row's own page.
 const realActions = actions => (actions ?? []).filter(action => typeof action.href === 'string' && !action.href.startsWith('#')).map(({ label, href }) => ({ label, href }));

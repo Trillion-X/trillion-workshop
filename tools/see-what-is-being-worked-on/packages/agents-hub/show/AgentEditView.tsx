@@ -25,7 +25,7 @@ import {
   SelectablePillBar,
   Text,
   Textarea,
-} from '@/packages/ui';
+} from '../../../../ui';
 import {
   resolvePlacement,
   type AgentProfileRecord,
@@ -35,8 +35,8 @@ import {
   type ModelRuntimeRecord,
   type ProviderOptionRecord,
   type ToolDescriptorRecord,
-} from '@/packages/agents-hub/read-data/resolve-agent-cards';
-import { FloatingPanel } from '@/packages/screen-arrangement/show/FloatingPanel';
+} from '../../../../agents-hub/packages/agents-hub/read-data/resolve-agent-cards';
+import { FloatingPanel } from '../../../../screen-arrangement/show/FloatingPanel';
 
 export interface AgentEditViewProps {
   /** Existing record, or null for the create flow */

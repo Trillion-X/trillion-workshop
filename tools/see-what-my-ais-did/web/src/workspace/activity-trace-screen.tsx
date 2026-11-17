@@ -19,9 +19,9 @@
 //   desktop and phone widths. Release records retain separate evidence of the serving build and live account reads.
 
 import * as React from 'react';
-import { mountRecordViews, type FieldDescriptor } from '../../parts/ui/show/record-views/record-views';
-import { canRetainAfterReadFailure, loadScreen } from '../../parts/ui/show/screen-state';
-import { Button } from '../../parts/ui/show/button';
+import { mountRecordViews, type FieldDescriptor } from '../../../../ui/show/record-views/record-views';
+import { canRetainAfterReadFailure, loadScreen } from '../../../../ui/show/screen-state';
+import { Button } from '../../../../ui/show/button';
 import { readJson } from './api';
 import { refusal } from './failure';
 import { recordFilter } from './record-filter';

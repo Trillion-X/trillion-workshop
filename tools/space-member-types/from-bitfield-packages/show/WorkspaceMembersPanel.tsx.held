@@ -11,12 +11,12 @@
 
 import React from 'react';
 import { useMemo } from "react";
-import { Card } from "@/packages/ui";
-import { Container } from "@/packages/ui";
-import { Text } from "@/packages/ui";
-import { Badge } from "@/packages/ui";
+import { Card } from "../../../ui";
+import { Container } from "../../../ui";
+import { Text } from "../../../ui";
+import { Badge } from "../../../ui";
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { decodeWorkspaceMembersFeed } from '@/packages/workspace-members/read-data/read-workspace-members';
+import { decodeWorkspaceMembersFeed } from '../read-data/read-workspace-members';
 
 export function WorkspaceMembersPanel() {
   const membersEntry = useBitfieldData();

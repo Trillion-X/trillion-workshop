@@ -1,6 +1,6 @@
 import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
 import { encodeStripeForm } from '@/packages/stripe-payment-provider/process/stripe-form-encode.mjs';
-import { STRIPE_DOCS_CURRENT_API_VERSION } from '@/packages/stripe-payment-provider/read-data/capability-records';
+import { STRIPE_DOCS_CURRENT_API_VERSION } from '../read-data/capability-records';
 import { paymentScheduleFromTheWire } from '@/packages/payment-adapter/read-data/when-money-is-taken';
 import {
   howStripeTakesASchedule,

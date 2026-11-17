@@ -26,22 +26,22 @@
 import type {
   Candidate,
   SelectionSurface,
-} from '@/packages/choose-per-observer/read-data/candidate-set-schema';
-import type { DeciderProgram } from '@/packages/choose-per-observer/read-data/decider-schema';
-import type { ObserverFact } from '@/packages/choose-per-observer/read-data/score-candidates';
+} from '../../../../funnels-screen/read-data/candidate-set-schema';
+import type { DeciderProgram } from './decider-schema';
+import type { ObserverFact } from './score-candidates';
 import {
   scoreCandidates,
   type OpRegistry,
   builtinOps,
-} from '@/packages/choose-per-observer/read-data/score-candidates';
-import type { WriteBatchEntry } from '@/packages/choose-per-observer/write-data/observe';
+} from './score-candidates';
+import type { WriteBatchEntry } from '../write-data/observe';
 import {
   appendObservation,
   buildObservationRecord,
   buildWriteBatchEntry,
   observationAddress,
   type ObserveOptions,
-} from '@/packages/choose-per-observer/write-data/observe';
+} from '../write-data/observe';
 
 // ---------------------------------------------------------------------------
 // Decision transcript — the memoization record

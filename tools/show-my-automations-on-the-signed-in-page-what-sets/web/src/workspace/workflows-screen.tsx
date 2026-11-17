@@ -4,7 +4,7 @@
 //   Automations: every trigger (a rule), schedule and workflow this person has, and every workflow run, in one list on
 //   the shared record views: what kind it is, what sets it off and what it does in plain words, when it last ran and
 //   runs next, and an on/off switch (the one shared Switch) for each trigger and schedule. Run now and Delete sit on
-//   each row's menu. Opening a workflow or a run shows it in its own tab on the board (parts/group board-screen, its
+//   each row's menu. Opening a workflow or a run shows it in its own tab on the board (tools/make-screen-layouts-and-controls board-screen, its
 //   `source` input: the workflow's steps are cards, its lines connectors saying what flows, a run's state a badge on
 //   each card, with the board's drawing, shapes, notes, pictures, frames, collapse and tidy around them); opening a
 //   trigger or schedule shows it in its own tab, its when and then on the board the same way, with its switch, its
@@ -30,7 +30,7 @@
 //      with no press. Run starts the workflow and opens the run; a step's card hands a waiting step to the person's AI
 //      or runs a failed one again.
 //   5. A switch shows the new state at once and goes back, with the Worker's words, when the change is refused.
-//   6. Resting on a row's name shows its graph in the shared hover card (parts/ui/show/automation-preview, source in
+//   6. Resting on a row's name shows its graph in the shared hover card (tools/ui/show/automation-preview, source in
 //      automation-preview-source.tsx); the editor shows the same graph, edits through fields drawn from what it runs'
 //      input schema (the raw text only behind the field editor's own "Edit as text"), and "Edit with your AI" hands the change in words to the
 //      person's AI (hand_off); the AI's answer comes back as a proposal the person reviews and saves, never saved alone.
@@ -42,13 +42,13 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { mountRecordViews, RecordViews, type FieldDescriptor, type RecordView } from '../../parts/ui/show/record-views/record-views';
-import { loadScreen, mountScreenState, ScreenState, useScreenLoad } from '../../parts/ui/show/screen-state';
-import { AutomationPreview, forgetAutomationPreview } from '../../parts/ui/show/automation-preview';
-import { mountExpandableTabs } from '../../parts/ui/show/expandable-tabs';
-import { Button, Container, DisclosureSection, Input, StatusDot, StructuredValueEditor, Switch, Text, Textarea } from '../../parts/ui';
-import { NameAndCreate } from '../../parts/ui/show/name-and-create';
-import { notify } from '../../parts/ui/show/coss/notifications';
+import { mountRecordViews, RecordViews, type FieldDescriptor, type RecordView } from '../../../../ui/show/record-views/record-views';
+import { loadScreen, mountScreenState, ScreenState, useScreenLoad } from '../../../../ui/show/screen-state';
+import { AutomationPreview, forgetAutomationPreview } from '../../../../ui/show/automation-preview';
+import { mountExpandableTabs } from '../../../../ui/show/expandable-tabs';
+import { Button, Container, DisclosureSection, Input, StatusDot, StructuredValueEditor, Switch, Text, Textarea } from '../../../../ui';
+import { NameAndCreate } from '../../../../ui/show/name-and-create';
+import { notify } from '../../../../ui/show/coss/notifications';
 import { recordFilter } from './record-filter';
 import { readJson } from './api';
 import { onStoreChange } from './store-changes';
@@ -61,7 +61,7 @@ import { dateText, lastRunWords } from './last-run-words.mjs';
 import workflowLooks from '../workflow-looks.json';
 import { shareAction } from './sharing-sheet';
 import { addSelectedToTrayAction } from './tray';
-import { controlShown, useShowChange } from '../../parts/ui/show/show-rules/show-of';
+import { controlShown, useShowChange } from '../../../../ui/show/show-rules/show-of';
 
 type Look = { label: string; tone: string };
 type Run = { run_id: string; workflow_id: string; label: string; state: string; started_at: string; step_now?: string | null; finished_at?: string; error?: string };
@@ -105,7 +105,7 @@ const fieldsFor = (listing: Listing, toggle: (row: Row, enabled: boolean) => voi
   { id: 'name', label: 'Name', icon: 'Zap', ruleKind: 'text', filterable: true, sortable: true, width: 260,
     render: (row: Row) => (row.kind === 'run' ? row.name : <AutomationPreview automationId={tabId(row)} title={row.name} side="right">{row.name}</AutomationPreview>) },
   { id: 'enabled', label: 'On', icon: 'Power', width: 72, read: (row: Row) => (row.enabled === null ? '' : row.enabled ? 'On' : 'Off'),
-    // The switch is the control `automations.switch` (parts/ui part.json); hidden, the column still says On or Off.
+    // The switch is the control `automations.switch` (tools/ui part.json); hidden, the column still says On or Off.
     render: (row: Row) => (row.enabled === null ? null : !controlShown('automations.switch') ? (row.enabled ? 'On' : 'Off') : <Switch checked={row.enabled} label={`${row.name} ${row.enabled ? 'on' : 'off'}`} onCheckedChange={next => toggle(row, next)} />) },
   { id: 'kind', label: 'Kind', icon: 'Shapes', kind: 'tag', ruleKind: 'choice', filterable: true, groupable: true, sortable: true, width: 120, values: listing.kinds },
   { id: 'made_by', label: 'Made by', icon: 'UserRound', kind: 'tag', ruleKind: 'choice', filterable: true, groupable: true, sortable: true, width: 130, values: listing.makers },
@@ -338,7 +338,7 @@ function useAiEdits(id: string) {
 // One trigger or schedule: its graph, its switch, fields for what sets it off and what it runs, Save / Run now /
 // Delete, and "Edit with your AI".
 function AutomationDetail({ id }: { id: string }) {
-  // Each control here is a show-rules control (parts/ui part.json `automations.*`, `ai.automation-edit`).
+  // Each control here is a show-rules control (tools/ui part.json `automations.*`, `ai.automation-edit`).
   useShowChange();
   const loaded = useScreenLoad(`automation:${id}`, {
     loading: { label: 'Loading this automation', layout: 'editor' },

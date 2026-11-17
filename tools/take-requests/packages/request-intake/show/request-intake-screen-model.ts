@@ -9,7 +9,7 @@ import {
   type RequestIntakeSelectedRecord,
   type RequestIntakeShape,
   type RequestIntakeSurfaceData,
-} from '@/packages/request-intake/read-data/request-intake-projection';
+} from '../../../read-data/request-intake-projection';
 
 // ---------------------------------------------------------------------------
 // Translation layer (Society -> human). This is the ONLY place that turns

@@ -14,21 +14,21 @@
 //      having none is said plainly.
 //   2. Show older reaches every job still open, then older finished work, in bounded pages without duplicates.
 //   3. Fields are DATA (workFields, aiFields, CAN_TAKE below) and the words, tone and overview section of each place a
-//      job can be come from the one shared work-state looks (parts/screen-look/show/work-state-looks.json); a new
+//      job can be come from the one shared work-state looks (tools/screen-look/show/work-state-looks.json); a new
 //      column or state is one row, never drawing code. No app, AI or job is named here.
 //   4. Every element is a shared component (record views, tabs, provider marks, person tags, screen states); this
 //      file writes no markup.
 
 import React, { useMemo, useState } from 'react';
-import { RecordViews, type FieldDescriptor, type FieldMark, type RecordView } from '../../parts/ui/show/record-views/record-views';
-import type { GroupLevel } from '../../parts/ui/show/record-views/group-sections';
-import { ExpandableTabs } from '../../parts/ui/show/expandable-tabs';
-import { Button, Container, ProviderMark, providerIconRegistry } from '../../parts/ui';
-import { PersonTag } from '../../parts/ui/show/person-tag/PersonTag';
-import { StatusOverview, type StatusLooks } from '../../parts/ui/show/status-overview/StatusOverview';
-import workLooks from '../../parts/screen-look/show/work-state-looks.json';
-import { mountSharedContent } from '../../parts/ui/show/coss/shared-content';
-import { loadScreen } from '../../parts/ui/show/screen-state';
+import { RecordViews, type FieldDescriptor, type FieldMark, type RecordView } from '../../../../ui/show/record-views/record-views';
+import type { GroupLevel } from '../../../../ui/show/record-views/group-sections';
+import { ExpandableTabs } from '../../../../ui/show/expandable-tabs';
+import { Button, Container, ProviderMark, providerIconRegistry } from '../../../../ui';
+import { PersonTag } from '../../../../ui/show/person-tag/PersonTag';
+import { StatusOverview, type StatusLooks } from '../../../../ui/show/status-overview/StatusOverview';
+import workLooks from '../../../../screen-look/show/work-state-looks.json';
+import { mountSharedContent } from '../../../../ui/show/coss/shared-content';
+import { loadScreen } from '../../../../ui/show/screen-state';
 import providerNames from './activity-providers.json';
 import type { AppMarks } from '../../../../see-what-my-ais-did/web/src/workspace/activity-screen';
 import { recordFilter } from './record-filter';

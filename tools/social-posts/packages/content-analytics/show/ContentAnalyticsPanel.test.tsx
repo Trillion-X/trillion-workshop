@@ -2,8 +2,8 @@ import React from 'react';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { ContentAnalyticsPanel } from '@/packages/content-analytics/show/ContentAnalyticsPanel';
-import type { ContentAnalyticsModel } from '@/packages/content-analytics/read-data/content-analytics-model';
+import { ContentAnalyticsPanel } from './ContentAnalyticsPanel';
+import type { ContentAnalyticsModel } from '../read-data/content-analytics-model';
 
 vi.mock('@/packages/content-analytics/.bitfield-entry-scope/content-analytics/runtime-kit-react', () => ({
   useBitfieldData: () => [],

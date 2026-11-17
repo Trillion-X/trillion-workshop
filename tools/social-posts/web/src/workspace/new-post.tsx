@@ -15,9 +15,9 @@
 //   3. The store answers whether a draft is kept; its refusal is shown in its own words.
 
 import * as React from 'react';
-import { Button, Container, Switch, Text, Textarea } from '../../parts/ui';
-import { DateTimePicker } from '../../parts/ui/show/date-picker/DateTimePicker';
-import { notify } from '../../parts/ui/show/coss/notifications';
+import { Button, Container, Switch, Text, Textarea } from '../../../../ui';
+import { DateTimePicker } from '../../../../ui/show/date-picker/DateTimePicker';
+import { notify } from '../../../../ui/show/coss/notifications';
 import { postJson, readJson } from './api';
 import { openScreen } from './open-screen';
 import looks from './post-looks.json';

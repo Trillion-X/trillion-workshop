@@ -1,4 +1,4 @@
-# parts/timed-action/
+# tools/run-work-later-or-on-a-repeat/
 
 Scheduled work as DATA: recurring schedules in any IANA time zone (daylight-saving gaps and folds decided by the schedule), one-off actions with their time windows, and the one call a Durable Object alarm makes on each wake to learn what is due and when to wake next.
 

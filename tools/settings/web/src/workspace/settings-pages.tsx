@@ -9,14 +9,14 @@
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. A page is chosen by its rail item's `panel` key (settings-panels.json); this file names no rail item.
-//   2. Every word and limit is DATA (settings-pages.json). Every control is a shared part (parts/ui); this file writes no
+//   2. Every word and limit is DATA (settings-pages.json). Every control is a shared part (tools/ui); this file writes no
 //      markup of its own, and a post shows its words and picture, never an id.
 //   3. A read that is still going, a read that failed and an empty list are three different pages; a failed read can be
 //      tried again and is never drawn as nothing posted. At most `most_rows` posts are drawn.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import * as React from 'react';
-import { Badge, Button, Card, Container, ImageBlock, Text } from '../../parts/ui';
+import { Badge, Button, Card, Container, ImageBlock, Text } from '../../../../ui';
 import pages from './settings-pages.json';
 import { ColourNamesPage } from './colour-names-page';
 import { EmailSettingsPage } from './mail-settings';
@@ -27,8 +27,8 @@ import { hostChannel, tellHost } from './host-channel';
 import { PanelShortcut } from './panel-shortcut';
 import { PanelSettings } from './panel-settings';
 import { PanelSetup } from './panel-setup';
-import { ChooseScreenLook } from '../../parts/screen-look/show/ChooseScreenLook';
-import { PaneSizeSettings } from '../../parts/screen-arrangement/show/PaneSizeSettings';
+import { ChooseScreenLook } from '../../../../screen-look/show/ChooseScreenLook';
+import { PaneSizeSettings } from '../../../../screen-arrangement/show/PaneSizeSettings';
 import { CurrentFeelSettings } from './feel-settings';
 
 type Post = { id: string; date: string; title: string; summary: string; points: string[]; picture: { src: string; alt: string } | null; open: string };

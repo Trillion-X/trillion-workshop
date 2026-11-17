@@ -28,7 +28,7 @@
 // =============================================================================
 
 import React from 'react';
-import { Container, SafeErrorCard, SeverityRow } from '@/packages/ui';
+import { Container, SafeErrorCard, SeverityRow } from '../../../../ui';
 
 /** Generic, calm fallback when a category has no authored copy yet. */
 const DEFAULT_ISSUE_MESSAGE = 'Some details are still being gathered.';

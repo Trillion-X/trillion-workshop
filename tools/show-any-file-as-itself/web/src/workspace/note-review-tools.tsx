@@ -15,9 +15,9 @@
 //   4. Every word is DATA; nothing here shows an id.
 
 import React from 'react';
-import { Button, Container, Input, Select, SelectGroup, SelectGroupLabel, SelectItem, SelectPopup, SelectTrigger, SelectValue, Text, Textarea } from '../../parts/ui';
-import { Checkbox } from '../../parts/ui/show/coss/ui/checkbox';
-import { notify } from '../../parts/ui/show/coss/notifications';
+import { Button, Container, Input, Select, SelectGroup, SelectGroupLabel, SelectItem, SelectPopup, SelectTrigger, SelectValue, Text, Textarea } from '../../../../ui';
+import { Checkbox } from '../../../../ui/show/coss/ui/checkbox';
+import { notify } from '../../../../ui/show/coss/notifications';
 import { errorWords } from '../../../../ui/show/safe-error-card/sanitize-error-text.ts';
 import { postJson, readJson, fileResults } from './api';
 import { copyNoteText, saveNotePdf } from './note-actions';

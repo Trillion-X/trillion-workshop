@@ -7,7 +7,7 @@ import { assignArms, benefitWords, notePricesShown, offersShownTo, readPaymentCo
 import { freePriceWords, isComparedPlan, planFeatures, recommendedPlanId } from './plan-comparison.mjs';
 import sales from '../../../sales/src/sales.json' with { type: 'json' };
 import { VISITOR_COOKIE, newVisitor, visitorOf } from './visitor-mark.mjs';
-import { hostWithin } from '../parts/http-client/do-work/same-origin.mjs';
+import { hostWithin } from '../../../http-client/do-work/same-origin.mjs';
 
 const YEAR_SECONDS = 60 * 60 * 24 * 365;
 

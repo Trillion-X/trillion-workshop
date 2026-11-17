@@ -157,7 +157,7 @@ function formatsFrom(list, STARTERS) {
     const icon = optionalText(item.icon, 40);
     const logo = optionalText(item.logo, 60);
     const tags = Array.isArray(item.tags) ? item.tags.map(tag => optionalText(tag, 60)).filter(Boolean).slice(0, 20) : [];
-    // The caption style its videos are captioned in: a row of the caption styles (parts/media-composition), so a video
+    // The caption style its videos are captioned in: a row of the caption styles (tools/media-composition), so a video
     // drafted in this format with captions in any other style is refused (src/social-posts.mjs).
     const captionStyle = optionalText(item.caption_style, 60);
     // The workflow this person runs to finish a piece in this format: any workflow_id find_workflow answers.

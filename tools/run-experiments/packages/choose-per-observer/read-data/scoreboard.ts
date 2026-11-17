@@ -13,7 +13,7 @@
 //   4. Absent metric → undefined (caller interprets as 0/cold-start).
 //   5. No side effects — pure projection.
 
-import type { ObserverFact } from '@/packages/choose-per-observer/read-data/score-candidates';
+import type { ObserverFact } from './score-candidates';
 
 // ---------------------------------------------------------------------------
 // Scoreboard data structures

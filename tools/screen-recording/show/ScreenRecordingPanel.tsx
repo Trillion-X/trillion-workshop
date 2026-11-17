@@ -17,7 +17,7 @@
 //    playback object URLs.
 // 2. Every mutation (save, rename, remove) goes through an owner workflow
 //    action; the action republishes the recordings feed.
-// 3. All styling through @/packages/ui + screen-look tokens.
+// 3. All styling through tools/ui + screen-look tokens.
 // 4. Diagnostics are captured always (console) but rendered only in the
 //    error state — internal vocabulary never sits on the default screen.
 // 5. Screen capture availability is strictly binary. If getDisplayMedia

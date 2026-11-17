@@ -5,7 +5,7 @@
 //   Keeps every file on one plugged-in drive in the person's Trillion files, by itself: the computer reader
 //   (read-this-computer.mjs) starts one keeper per drive its `keep` row allows (computer-sources.json, the drives row),
 //   and the keeper sends each new or changed file through the shared chunked sender
-//   (parts/live-namespace/do-work/send-a-file-to-a-namespace.mjs) under `<folder>/<path on the drive>`, where folder is
+//   (tools/browse-and-upload-my-files/do-work/send-a-file-to-a-namespace.mjs) under `<folder>/<path on the drive>`, where folder is
 //   the row's `keep.folder` with {drive} filled (/Recordings/<drive name>). Each recording (an audio or video file, by
 //   src/file-type.mjs) is heard on this computer by the first `hearing` row whose program is here, beside its upload:
 //   the hearing starts the moment the file's identity is measured (at disk speed, while its chunks are still going up),

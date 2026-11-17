@@ -20,7 +20,7 @@
 //   3. Which control the walkthrough points at is DATA on the Waiting on you row (`points_at`, a selector filled with
 //      the item's id); a row without one points at the thing's own opened pane (`fallback_points_at` here).
 //   4. Whether the open page lets it take the screen now is the person's own show rules, decided on the page where
-//      the ask lands (parts/ui/show/asked-now: subject `layout` and `tour`): a held ask waits there, and the notice
+//      the ask lands (tools/ui/show/asked-now: subject `layout` and `tour`): a held ask waits there, and the notice
 //      still reaches them, so nothing is lost and nothing interrupts against their rules.
 //   5. Nothing here names a screen, a source, a kind of work or a person; the link words, the notice kind, the default
 //      category, the pane sizes and every word said are DATA (src/take-me-there.json).

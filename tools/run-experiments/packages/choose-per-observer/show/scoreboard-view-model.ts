@@ -31,16 +31,16 @@
 // You are forbidden from simplifying or removing it.
 // =============================================================================
 
-import type { DecodeVisualDatabaseInput } from '@/packages/visual-database/read-data/visual-database';
+import type { DecodeVisualDatabaseInput } from '../../../../keep-lists-of-rows/read-data/visual-database';
 import type {
   Candidate,
   SelectionSurface,
-} from '@/packages/choose-per-observer/read-data/candidate-set-schema';
-import type { ScoreCandidatesResult } from '@/packages/choose-per-observer/read-data/score-candidates';
+} from '../../../../funnels-screen/read-data/candidate-set-schema';
+import type { ScoreCandidatesResult } from '../read-data/score-candidates';
 import {
   SCOREBOARD_METRIC_DESCRIPTORS,
   SCOREBOARD_STATUS_DESCRIPTOR,
-} from '@/packages/choose-per-observer/data/scoreboard-descriptors';
+} from '../data/scoreboard-descriptors';
 
 /** The per-candidate outcome metrics the aggregation read (T11) produces, keyed
  *  by candidate_id. Keys match the metric descriptors' value keys (weight,

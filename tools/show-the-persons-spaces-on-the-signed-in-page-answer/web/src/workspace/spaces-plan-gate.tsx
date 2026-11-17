@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { PricingOverlay, type PricingOverlayOffer } from '../../parts/ui/show/pricing-overlay/PricingOverlay';
-import { mountReactSurface } from '../../parts/ui/show/react-surface-mount';
+import { PricingOverlay, type PricingOverlayOffer } from '../../../../ui/show/pricing-overlay/PricingOverlay';
+import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
 import { planNeededTitle } from './failure';
 import { PlanNeeded, postJson } from './api';
 import { rememberSpaceInviteForCheckout } from './pending-space-invite.mjs';

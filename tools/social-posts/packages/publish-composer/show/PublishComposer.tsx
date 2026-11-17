@@ -58,7 +58,7 @@ import {
   type OutputField,
   type StatusOverrides,
   type StatusTone,
-} from '@/packages/ui';
+} from '../../../../ui';
 import {
   type PublishComposerSurfaceView,
   type PublishDestinationOption,

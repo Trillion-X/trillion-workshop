@@ -1,6 +1,6 @@
 import React from 'react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
-import { CurrentSummarySurface } from '@/packages/current-summary/show/CurrentSummarySurface';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
+import { CurrentSummarySurface } from './CurrentSummarySurface';
 
 type MountArgs = {
   el: HTMLElement;

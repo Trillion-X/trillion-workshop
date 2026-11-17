@@ -47,7 +47,7 @@
 // =============================================================================
 
 import React, { useMemo } from 'react';
-import { Card, Badge, Text, Container } from '@/packages/ui';
+import { Card, Badge, Text, Container } from '../../ui';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
 import {
   decodeSyncStatusFeed,

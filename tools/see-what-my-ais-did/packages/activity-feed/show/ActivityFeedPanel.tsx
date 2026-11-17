@@ -5,7 +5,7 @@
 // Renders live actor activity badges with fade-out after 60s window.
 
 import React, { useMemo } from 'react';
-import { Container, Icon, ScrollableSurface, Text } from '@/packages/ui';
+import { Container, Icon, ScrollableSurface, Text } from '../../../../ui';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
 import { Activity } from 'lucide-react';
 

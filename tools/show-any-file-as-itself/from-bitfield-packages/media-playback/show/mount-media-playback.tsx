@@ -1,6 +1,6 @@
 import React from 'react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
+import { FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
 import { MediaPlaybackSurface, type TimedTextSegment } from '../../../show/MediaPlaybackSurface';
 import { readMediaTranscriptSegments } from '../read-data/read-media-transcript';
 import { readSurfaceMedia } from '../read-data/read-surface-media';

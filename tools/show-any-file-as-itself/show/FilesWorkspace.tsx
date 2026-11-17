@@ -11,7 +11,7 @@ import {
   readPlaceableSurfaceSubject,
   type PlaceableSurfaceSubjectRef,
   type PlaceableSurfaceSubjectSnapshot,
-} from '@/packages/ui/show/placeable-surface-intent/placeable-surface-subject';
+} from '../../ui/show/placeable-surface-intent/placeable-surface-subject';
 
 export interface FilesWorkspaceProps {
   surfaceInput?: Record<string, unknown>;

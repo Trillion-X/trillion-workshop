@@ -31,13 +31,13 @@
 
 import { openFile } from './open-screen';
 import * as React from 'react';
-import { Badge, Button, Container, QueueJobButton, SchemaValueView, Text, Textarea, type BadgeProps } from '../../parts/ui';
-import { RecordViews, type BulkAction, type FieldDescriptor } from '../../parts/ui/show/record-views/record-views';
-import { ScreenState, useScreenLoad, type EmptyScreenState } from '../../parts/ui/show/screen-state';
-import { mountReactSurface } from '../../parts/ui/show/react-surface-mount';
-import { notify } from '../../parts/ui/show/coss/notifications';
-import { FilePreview } from '../../parts/ui/show/file-preview/FilePreview';
-import { MarkdownWords } from '../../parts/ui/show/markdown-block/MarkdownWords';
+import { Badge, Button, Container, QueueJobButton, SchemaValueView, Text, Textarea, type BadgeProps } from '../../../../ui';
+import { RecordViews, type BulkAction, type FieldDescriptor } from '../../../../ui/show/record-views/record-views';
+import { ScreenState, useScreenLoad, type EmptyScreenState } from '../../../../ui/show/screen-state';
+import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
+import { notify } from '../../../../ui/show/coss/notifications';
+import { FilePreview } from '../../../../ui/show/file-preview/FilePreview';
+import { MarkdownWords } from '../../../../ui/show/markdown-block/MarkdownWords';
 import { bytesAddress, contentTypeOf, filePicture } from './file-picture';
 import { postJson } from './api';
 import { listRecords, readRecord } from './records-door';

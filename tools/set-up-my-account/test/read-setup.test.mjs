@@ -8,7 +8,7 @@
 //   - the drawn screen is compared with a golden (fixtures/get-started-descriptions.json) recorded from the moved
 //     setupStepsWithRules and getStartedFacts (byte copies of trillion's, see ../ports/) over the same made-up facts.
 //     The tag's own src/setup-steps.mjs does not load at the tag (it imports computer/computer-sources.json and
-//     parts/choose-per-observer/read-data/score-candidates.ts, which the tag no longer has), so the golden is the moved
+//     tools/run-experiments/packages/choose-per-observer/read-data/score-candidates.ts, which the tag no longer has), so the golden is the moved
 //     code's answer, and the old assertions below are checked against it.
 import test from 'node:test';
 import assert from 'node:assert/strict';

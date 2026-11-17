@@ -21,8 +21,8 @@
 // Identity is server-only; the component supplies no actor.
 
 import React from 'react';
-import { Button, Container, Text, Textarea, mountReactMaterial, type ReactMaterialMountArgs } from '@/packages/ui';
-import { createItemRecord } from '@/packages/item-record/do-work/create-item-record';
+import { Button, Container, Text, Textarea, mountReactMaterial, type ReactMaterialMountArgs } from '../../../../ui';
+import { createItemRecord } from '../../../../item-record/do-work/create-item-record';
 import { resolveComposerConfig, composerEventRef } from '@/packages/item-record/read-data/composer-config';
 
 function ItemComposer(props: Record<string, unknown>) {

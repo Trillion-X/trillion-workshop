@@ -8,7 +8,7 @@
 //   this panel runs the same tool through the one run owner (../workshop-tool-api.ts) and shows the files it kept.
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. The styles are DATA: parts/media-composition/do-work/make-pictures-and-sounds.json, the same rows the tools are
+//   1. The styles are DATA: tools/media-composition/do-work/make-pictures-and-sounds.json, the same rows the tools are
 //      listed from. What a style needs (a frame of the recording, words) is read from its input_schema; nothing here
 //      names a style.
 //   2. The recording is never changed. Every result is a new file kept in the person's files under Made by tools,
@@ -17,17 +17,17 @@
 //   4. Every control is a shared part (Container, Card, Button, Input, Text, ScreenState, MediaPreview, FilePreview).
 
 import React from 'react';
-import { Button, Card, Container, Input, NamedIcon } from '../../../parts/ui';
-import { FilePreview } from '../../../parts/ui/show/file-preview/FilePreview';
-import { Text } from '../../../parts/ui/show/text';
-import { ScreenState } from '../../../parts/ui/show/screen-state';
-import { MediaPreview } from '../../../parts/ui/show/media-preview';
-import makeRows from '../../../parts/media-composition/do-work/make-pictures-and-sounds.json';
+import { Button, Card, Container, Input, NamedIcon } from '../../../../../ui';
+import { FilePreview } from '../../../../../ui/show/file-preview/FilePreview';
+import { Text } from '../../../../../ui/show/text';
+import { ScreenState } from '../../../../../ui/show/screen-state';
+import { MediaPreview } from '../../../../../ui/show/media-preview';
+import makeRows from '../../../../../media-composition/do-work/make-pictures-and-sounds.json';
 import { runWorkshopTool } from '../workshop-tool-api';
 import { failedState } from '../failure';
 import { baseName, bytesAddress } from '../file-picture';
 import { definePanel, type MediaEditPanelProps } from './panel-types';
-import { PLACEABLE_SURFACE_MIME } from '../../../parts/ui/show/placeable-surface-intent/placeable-surface-intent';
+import { PLACEABLE_SURFACE_MIME } from '../../../../../ui/show/placeable-surface-intent/placeable-surface-intent';
 
 // Opens Connections in its own tab, where the person connects the account a style uses.
 const openConnections = () => { window.dispatchEvent(new CustomEvent(PLACEABLE_SURFACE_MIME, { cancelable: true, detail: { id: 'trillion.connections', title: 'Connections' } })); };

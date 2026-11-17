@@ -1,4 +1,3 @@
-// parts/timed-action/do-work/quiet-hours.ts
 //
 // Purpose
 //   Whether a moment is inside a person's working hours, and what a sender should be told when it is not: the

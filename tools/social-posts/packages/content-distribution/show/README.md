@@ -23,7 +23,7 @@ The blind, descriptor-driven Distribution surface: it paints owner-produced copy
 ## Dependencies
 
 **Depends on:**
-- `@/packages/ui` (barrel only) — `Badge`, `Card`, `Container`, `Icon`, `OutputFieldList`, `ResponsiveSwitch`, `SafeErrorCard`, `ScrollableSurface`, `StatStrip`, `StatusDot`, `Table*`, `Text`, `sanitizeErrorText`.
+- `tools/ui` (barrel only) — `Badge`, `Card`, `Container`, `Icon`, `OutputFieldList`, `ResponsiveSwitch`, `SafeErrorCard`, `ScrollableSurface`, `StatStrip`, `StatusDot`, `Table*`, `Text`, `sanitizeErrorText`.
 - `@/packages/content-distribution/read-data/read-content-distribution` — `readDistributionView`, `destinationDisplayLabel`, and the view types.
 - `@bitfield/runtime-kit/react` — `useBitfieldData` (the only data source).
 - `lucide-react` — `ExternalLink` icon.
@@ -34,7 +34,7 @@ The blind, descriptor-driven Distribution surface: it paints owner-produced copy
 ## Invariants
 
 1. Zero imports from `slot::workflow` / `slot::eeaf` — data arrives only through `useBitfieldData`.
-2. Components only from the `@/packages/ui` barrel; zero inline `className`, zero raw `<div>/<span>/<p>`. The lone `<a>` wrapper is the platform's only native link affordance.
+2. Components only from the `tools/ui` barrel; zero inline `className`, zero raw `<div>/<span>/<p>`. The lone `<a>` wrapper is the platform's only native link affordance.
 3. Platforms are destination **records** and statuses are domain **options** — the panel never names a platform or a status (L090). It renders resolved cells.
 4. No copy/column/stat literal in code: every visible string comes from `view.copy`, `view.queueColumns`, or `view.statBand`.
 5. The panel logs `[ui:content-distribution] mounted input=<n> records` on mount (observability).

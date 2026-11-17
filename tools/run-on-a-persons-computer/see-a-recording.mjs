@@ -3,7 +3,7 @@
 // Purpose
 //   Makes a recording's small pictures on the computer that captured it, at capture, so no other place has to: a still
 //   (the poster), a strip of frames to scrub, a waveform (peaks, 0..1) and its length, in the same shape the browser's
-//   preview maker keeps (parts/ui/show/media-preview/made-preview.tsx, MadePreview) under the file's content identity
+//   preview maker keeps (tools/ui/show/media-preview/made-preview.tsx, MadePreview) under the file's content identity
 //   as its `preview` result. A file that arrives with that result is never decoded again: the service's cover run
 //   (src/namespace-preview.mjs) and every browser's preview maker read it and stop.
 //

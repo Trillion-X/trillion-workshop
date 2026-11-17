@@ -94,4 +94,4 @@ Trillion's own files in this part:
 
 The package's vitest files (`*.test.ts(x)` and the golden snapshot) are kept as they are; Trillion's own runner checks the port in a real browser (`test/automation-map.test.mjs`) and the removal tool in `test/remove-workflow.test.mjs`.
 
-**In Trillion, depends on:** `parts/graph-canvas`, `parts/ui`, `#workspace-records`. **Depended on by:** `src/workspace/workflows-screen.tsx` (Map, a workflow's tab), `src/workspace/automation-preview-source.tsx`, `parts/funnel-offer-graph` (`WorkflowEdge`).
+**In Trillion, depends on:** `tools/graph-canvas`, `tools/ui`, `#workspace-records`. **Depended on by:** `src/workspace/workflows-screen.tsx` (Map, a workflow's tab), `src/workspace/automation-preview-source.tsx`, `tools/funnel-offer-graph` (`WorkflowEdge`).

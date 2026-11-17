@@ -1,5 +1,5 @@
 // The arm an observer is shown is the one the old sticky_hash split chose for them, every time: these pins were read from
-// the old scorer (parts/choose-per-observer) over the live experiments. Shown offers keep an arm only for who is shown it.
+// the old scorer (tools/run-experiments/packages/choose-per-observer/index.ts) over the live experiments. Shown offers keep an arm only for who is shown it.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import live from '../read-data/live-experiments.json' with { type: 'json' };

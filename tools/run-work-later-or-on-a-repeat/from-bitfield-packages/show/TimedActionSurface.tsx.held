@@ -25,7 +25,7 @@
 // NON-NEGOTIABLE INVARIANTS
 // =============================================================================
 //
-// 1. ZERO raw DOM + ZERO styling. Every node is a named `@/packages/ui/show/*`
+// 1. ZERO raw DOM + ZERO styling. Every node is a named `tools/ui/show/*`
 //    primitive. No <div>/<span>/<section>, no className, no style prop. (L065/L066)
 // 2. ZERO `status ===` / `state ===` VALUE BRANCHING. The honest render mode
 //    (loading/ready/error) is dispatched by a LOOKUP keyed by `model.status`;
@@ -70,25 +70,25 @@ import {
   type SchedulerActionRequest,
 } from './timed-action-actions';
 
-import { Container } from '@/packages/ui/show/container';
-import { Text } from '@/packages/ui/show/text';
-import { Card } from '@/packages/ui/show/card';
-import { Button } from '@/packages/ui/show/button';
-import { Badge } from '@/packages/ui/show/badge';
-import { StatusDot } from '@/packages/ui/show/status-dot';
-import { SeverityRow } from '@/packages/ui/show/severity-row';
-import { StatStrip } from '@/packages/ui/show/stat-strip';
-import { SegmentedControl } from '@/packages/ui/show/segmented-control';
-import { SelectablePillBar } from '@/packages/ui/show/selectable-pill-bar';
-import { CalendarGrid } from '@/packages/ui/show/calendar-grid';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/packages/ui/show/tabs';
-import { EmptyPlaceholder } from '@/packages/ui/show/empty-placeholder';
-import { SafeErrorCard } from '@/packages/ui/show/safe-error-card';
-import { Spinner } from '@/packages/ui/show/spinner';
-import { ScrollableSurface } from '@/packages/ui/show/scrollable-surface';
-import { Divider } from '@/packages/ui/show/divider/Divider';
-import { useNarrowViewport } from '@/packages/ui/show/use-narrow-viewport/useNarrowViewport';
-import { FloatingPanel } from '@/packages/screen-arrangement/show/FloatingPanel';
+import { Container } from '../../../ui/show/container';
+import { Text } from '../../../ui/show/text';
+import { Card } from '../../../ui/show/card';
+import { Button } from '../../../ui/show/button';
+import { Badge } from '../../../ui/show/badge';
+import { StatusDot } from '../../../ui/show/status-dot';
+import { SeverityRow } from '../../../ui/show/severity-row';
+import { StatStrip } from '../../../ui/show/stat-strip';
+import { SegmentedControl } from '../../../ui/show/segmented-control';
+import { SelectablePillBar } from '../../../ui/show/selectable-pill-bar';
+import { CalendarGrid } from '../../../ui/show/calendar-grid';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../../ui/show/tabs';
+import { EmptyPlaceholder } from '../../../ui/show/empty-placeholder';
+import { SafeErrorCard } from '../../../ui/show/safe-error-card';
+import { Spinner } from '../../../ui/show/spinner';
+import { ScrollableSurface } from '../../../ui/show/scrollable-surface';
+import { Divider } from '../../../ui/show/divider/Divider';
+import { useNarrowViewport } from '../../../ui/show/use-narrow-viewport/useNarrowViewport';
+import { FloatingPanel } from '../../../screen-arrangement/show/FloatingPanel';
 
 // -----------------------------------------------------------------------------
 // DATA MAPS: tone -> primitive variant. These replace every `status === …`

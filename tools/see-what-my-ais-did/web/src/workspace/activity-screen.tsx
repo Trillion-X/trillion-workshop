@@ -18,10 +18,10 @@
 //   4. Which rows a mode lists and how it is worded is DATA (MODES below), read from the tab's own input.
 
 import * as React from 'react';
-import { mountRecordViews, type FieldDescriptor } from '../../parts/ui/show/record-views/record-views';
-import { loadScreen } from '../../parts/ui/show/screen-state';
-import { PersonTag } from '../../parts/ui/show/person-tag/PersonTag';
-import { ProviderMark, providerIconRegistry } from '../../parts/ui';
+import { mountRecordViews, type FieldDescriptor } from '../../../../ui/show/record-views/record-views';
+import { loadScreen } from '../../../../ui/show/screen-state';
+import { PersonTag } from '../../../../ui/show/person-tag/PersonTag';
+import { ProviderMark, providerIconRegistry } from '../../../../ui';
 import providerNames from './activity-providers.json';
 import { recordFilter } from './record-filter';
 import { readJson } from './api';

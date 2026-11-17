@@ -8,8 +8,8 @@
 
 import React from 'react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
-import { ActivityIndicator, type ActivityFactRecord } from '@/packages/activity-feed/show/ActivityIndicator';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
+import { ActivityIndicator, type ActivityFactRecord } from './ActivityIndicator';
 
 type MountArgs = { el: HTMLElement; props?: Record<string, unknown> };
 
