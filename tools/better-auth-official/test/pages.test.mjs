@@ -224,3 +224,18 @@ test('/approve is one page for every person-only call: a line, Allow and Deny, a
   const client = readFileSync(new URL('sign-in-client.mjs', dir), 'utf8');
   assert.match(client, /id.startsWith\(found\.row_prefix\) && value\.approve\.method === method/, 'only a call the DATA names, for a row kind it names');
 });
+
+test('/sign-in/done says the person is signed in and can go back to the terminal, in the brand look, with no sign-in form', () => {
+  const answer = pageAnswer('/sign-in/done');
+  assert.equal(answer.status, 200);
+  const html = String(answer.body);
+  assert.match(html, /You're signed in\.[\s\S]*You can go back to the terminal\./);
+  assert.match(html, /src="\/sign-in\/assets\/mark\.svg"/);
+  assert.doesNotMatch(html, /<form|<input/);
+});
+
+test('/sign-in/done also says an old sign-in is old and one that did not finish did not (the terminal program sends result=done, old or failed)', () => {
+  assert.match(String(pageAnswer('/sign-in/done?result=old').body), /This sign-in is old\.[\s\S]*Close this tab\./);
+  assert.match(String(pageAnswer('/sign-in/done?result=failed').body), /That sign-in did not finish\.[\s\S]*try again/);
+  assert.match(String(pageAnswer('/sign-in/done?result=done').body), /You're signed in\./);
+});

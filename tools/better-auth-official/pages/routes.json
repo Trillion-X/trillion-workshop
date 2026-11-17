@@ -17,6 +17,36 @@
       "description": "Sign in to Trillion or create your account with an email code or a passkey."
     },
     {
+      "path": "/sign-in/done",
+      "query": {
+        "result": "old"
+      },
+      "title": "Old sign-in",
+      "description": "This sign-in is old.",
+      "sections": [
+        "sign-in-old"
+      ]
+    },
+    {
+      "path": "/sign-in/done",
+      "query": {
+        "result": "failed"
+      },
+      "title": "Sign-in not finished",
+      "description": "That sign-in did not finish.",
+      "sections": [
+        "sign-in-failed"
+      ]
+    },
+    {
+      "path": "/sign-in/done",
+      "title": "Signed in",
+      "description": "You are signed in.",
+      "sections": [
+        "sign-in-done"
+      ]
+    },
+    {
       "path": "/sign-in/other-ways",
       "sections": [
         "other-ways"

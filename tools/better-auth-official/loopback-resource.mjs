@@ -3,8 +3,6 @@
 // hosts (settings.mcp.loopback_resources.hosts) over http at a port, with the settings' path and nothing else: no user name, no query, no
 // other spelling of the address. The token's audience is that engine, which checks the token against this issuer's keys. A row for it is
 // kept in the store (Better Auth looks resources up there) the first time it is asked for. Every other host is refused as before.
-import { randomUUID } from 'node:crypto';
-
 /** The canonical identifier when `identifier` is a loopback engine's resource under `rule` ({hosts, path}), else null. */
 export function loopbackResource(identifier, rule) {
   if (typeof identifier !== 'string' || !rule?.hosts?.length) return null;
@@ -25,7 +23,7 @@ export async function holdLoopbackResources(adapter, rule, scopes, requested) {
     if (await adapter.findOne({ model: 'oauthResource', where })) continue;
     const now = new Date();
     try {
-      await adapter.create({ model: 'oauthResource', data: { id: randomUUID(), identifier: canonical, name: rule.name, allowedScopes: scopes, createdAt: now, updatedAt: now } });
+      await adapter.create({ model: 'oauthResource', data: { identifier: canonical, name: rule.name, allowedScopes: scopes, createdAt: now, updatedAt: now } });
     } catch (error) {
       // Another request made it first.
       if (!await adapter.findOne({ model: 'oauthResource', where }).catch(() => null)) throw error;
