@@ -10,7 +10,6 @@
         "produces": "A chosen cover and headline for the piece, the mockups it was chosen from, the cited references, and after publishing its click and outlier result tallied by inspiration source.",
         "made_from": [
           "workflow:make-one-piece-of-content-from-audience-to-publish",
-          "workflow:ask-for-ten-and-keep-the-winner",
           "workflow:source-a-screen-from-design-libraries"
         ],
         "input_schema": {
@@ -179,7 +178,7 @@
             "id": "mock-it-up",
             "title": "Mock it up several ways",
             "when": "After find-the-idea-outside.",
-            "do": "Make at least four mockups at the surface's size and safe area, each recreating a reference's idea with the piece's own subject and one of the headlines, using tool:compose-thumbnails-from-layout-templates or the person's image tools; vary the subject's crop, the headline and the reference. Judge them against each other and the outliers, as workflow:ask-for-ten-and-keep-the-winner does, and keep the best two with why.",
+            "do": "Make at least four mockups at the surface's size and safe area, each recreating a reference's idea with the piece's own subject and one of the headlines, using tool:compose-thumbnails-from-layout-templates or the person's image tools; vary the subject's crop, the headline and the reference. Judge them side by side against each other and the outliers, and keep the best two with why.",
             "submit": {
               "type": "object",
               "required": [

@@ -1,0 +1,46 @@
+{
+ "start_here": "Say to your AI: \"Run workflow:source-a-screen-from-design-libraries for a settings page with a row of notification toggles, on the web.\"",
+ "lists": [],
+ "no_lists_because": "Its steps name no list and write no row: each step answers in the run itself.",
+ "workflows": [
+  "workflow:source-a-screen-from-design-libraries"
+ ],
+ "tools": [
+  "tool:start-a-recipe-run"
+ ],
+ "instructions": [
+  "1. Say to your AI: \"Run workflow:source-a-screen-from-design-libraries\", with need (The screen, flow or component wanted, in the person's words (for example a sign-up flow, a feedback form, a nested popover).); it starts it with tool:start-a-recipe-run (row workflow:source-a-screen-from-design-libraries).",
+  "2. Look for the whole thing ready-made: done when fit is true with at least one component id read with get_component, or fit is false with the queries run and the near misses named.",
+  "3. See how real products do it: done when At least three cited examples and one anatomy list whose parts the next step can search for one by one.",
+  "4. Take each part from the component library: done when Every anatomy part has a component id or its queries and the shared component used instead.",
+  "5. Build it in the person's own look: done when The built thing is named by its path or address, and an after screenshot of the real result exists.",
+  "6. Judge it against the references: done when A passes verdict on the final screenshot, with the branch taken recorded.",
+  "7. Read what it gives back: A screen, flow or component built from cited library parts, with the component ids and product screen links it came from, and a judged before and after."
+ ],
+ "worked_examples": [
+  {
+   "title": "A whole ready-made fit is looked for first",
+   "ask": "Design my notification settings page.",
+   "mcp": {
+    "server": "trillion",
+    "tool": "run_resource_operation",
+    "input": {
+     "address": "@tools",
+     "method": "tools:run",
+     "input": {
+      "tool": "tool:start-a-recipe-run",
+      "input": {
+       "row": "workflow:source-a-screen-from-design-libraries",
+       "need": "a settings page with a row of notification toggles",
+       "platform": "web"
+      }
+     }
+    }
+   },
+   "workflow": "workflow:source-a-screen-from-design-libraries",
+   "step": "find-a-whole-fit",
+   "given": "Three searches of the component library: \"settings page\", \"notification settings\", \"toggle list\".",
+   "hands_back": "fit true; queries [\"settings page\", \"notification settings\", \"toggle list\"]; components [\"example/notification-settings-panel\"]."
+  }
+ ]
+}

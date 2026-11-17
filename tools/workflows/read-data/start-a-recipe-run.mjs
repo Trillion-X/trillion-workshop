@@ -20,11 +20,18 @@
 // The job's id is `ai-job:<recipe id>:<request key>`. A wake's request key is its cause key, one per firing, and a
 // call brings its own retry key, so a firing or a call that comes again finds its job and changes nothing: the insert
 // does nothing when the id is there (`on conflict do nothing`), however many firings race.
+//
+// Every job carries its recipe's kit (L082: the lists with example rows, the tools, numbered instructions and a worked
+// example), so no run starts without one: the kit the Workshop ships beside the recipe (kits/<slug>.json), else the kit on
+// the person's own recipe row (its `kit` field), else the kit drafted from the recipe's own steps at this moment
+// (draft-a-kit.mjs), marked `draft: true` with what it still lacks in `owes`. A recipe is never refused for lacking a kit:
+// the person's older workflows (written before kits) keep running, each with the kit its own rows make.
 
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { recipeFromRows } from './recipe-rows.mjs';
 import { readJob, runId } from './step-agents.mjs';
 import { publicRecipe } from './public-recipes.mjs';
+import { draftKit } from './draft-a-kit.mjs';
 import { identifier } from './sql.mjs';
 import { filterRecords } from '../../formulas/do-work/requests.mjs';
 
@@ -73,6 +80,17 @@ async function arrivedSeeds(sourceId, cause, sql) {
     .filter(item => typeof item.words === 'string' && item.words.trim());
 }
 
+const KITS = new URL('../kits/', import.meta.url);
+
+/** The kit this run carries: the shipped kit file, the kit on the person's own row, or one drafted from the recipe's own steps. */
+export function kitFor(recipe) {
+  const file = new URL(`${recipe.id.slice(recipe.id.indexOf(':') + 1)}.json`, KITS);
+  if (existsSync(file)) return { from: 'shipped', kit: JSON.parse(readFileSync(file, 'utf8')) };
+  if (recipe.kit && typeof recipe.kit === 'object') return { from: 'own-row', kit: recipe.kit };
+  const { kit, problems } = draftKit({ recipe });
+  return { from: 'drafted', kit: { ...kit, draft: true, owes: problems } };
+}
+
 export async function startARecipeRun({ input = {}, task = {} } = {}, { sql }) {
   const { row, ...given } = input;
   if (typeof row !== 'string' || !row) throw new Error('input.row must name the recipe to start.');
@@ -94,6 +112,7 @@ export async function startARecipeRun({ input = {}, task = {} } = {}, { sql }) {
     // reads `outcome` before `job`, and `job` here is the step list, so without it no run could ever be finished).
     outcome: recipe.job ?? recipe.label,
     job: recipe.steps,
+    kit: kitFor(recipe),
     input: given,
     cause: task.cause ?? null,
   };

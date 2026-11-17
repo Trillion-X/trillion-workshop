@@ -1,0 +1,49 @@
+{
+ "start_here": "Say to your AI: \"Run workflow:storyboard-a-launch-video for my product https://example.com/app, launching its new auto-reply feature.\"",
+ "lists": [],
+ "no_lists_because": "Its steps name no list and write no row: each step answers in the run itself.",
+ "workflows": [
+  "workflow:storyboard-a-launch-video",
+  "workflow:source-a-screen-from-design-libraries"
+ ],
+ "tools": [
+  "tool:start-a-recipe-run"
+ ],
+ "instructions": [
+  "1. Say to your AI: \"Run workflow:storyboard-a-launch-video\", with product (The product being launched: a row id, its address or its name in the person's words.); it starts it with tool:start-a-recipe-run (row workflow:storyboard-a-launch-video).",
+  "2. Know the product and its buyer: done when The buyer, why it helps and a main flow of at least three walked-through steps are written from the product, not guessed.",
+  "3. Pick the hook: done when One hook type is chosen with its opening line and the proof the video will show for it.",
+  "4. Draft the flow like a wireframe: done when A goal, a call to action and at least five sections in order, each with what it says and how it contrasts with the one before.",
+  "5. Choose the storyboard type: done when A type is chosen with one sentence on why it suits the claim.",
+  "6. Map, cut and colorize the UI: done when Every section has at least one UI piece with its motion, and the references are cited.",
+  "7. Make the frames: done when Four to six 1920x1080 frame files exist, each tied to a section.",
+  "8. Judge it and record how it did: done when A passes verdict on the frames; after release, views and retention are recorded with the hook and storyboard type.",
+  "9. Read what it gives back: A storyboard of four to six 1920x1080 frames with the flow, hook type and storyboard type it was built on, the UI pieces and references it used, and after release its views and retention tallied by hook type."
+ ],
+ "worked_examples": [
+  {
+   "title": "The hook is chosen with the proof it needs",
+   "ask": "Storyboard the launch video for our auto-reply feature.",
+   "mcp": {
+    "server": "trillion",
+    "tool": "run_resource_operation",
+    "input": {
+     "address": "@tools",
+     "method": "tools:run",
+     "input": {
+      "tool": "tool:start-a-recipe-run",
+      "input": {
+       "row": "workflow:storyboard-a-launch-video",
+       "product": "https://example.com/app",
+       "launch": "the new auto-reply feature"
+      }
+     }
+    }
+   },
+   "workflow": "workflow:storyboard-a-launch-video",
+   "step": "pick-the-hook",
+   "given": "The buyer is a small shop owner who answers customer messages by hand at night; the product replies in under 2 minutes.",
+   "hands_back": "hook_type \"bold-promise\"; opening_line \"Every customer gets an answer in 2 minutes, even at 3 AM.\"; proof \"a live message answered on screen in 1:48\"."
+  }
+ ]
+}

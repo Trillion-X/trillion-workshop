@@ -1,0 +1,53 @@
+{
+ "start_here": "Say to your AI: \"Run workflow:keep-who-appeared-in-a-recording on file 1f:example-recording-identity, the recording named kitchen-tour.mp4, looking for voices and faces.\"",
+ "lists": [],
+ "no_lists_because": "Its steps name no list and write no row: each step answers in the run itself.",
+ "workflows": [
+  "workflow:keep-who-appeared-in-a-recording"
+ ],
+ "tools": [
+  "tool:start-a-recipe-run",
+  "tool:find-faces",
+  "tool:keep-who-appeared",
+  "tool:where-someone-appeared",
+  "tool:who-is-in-this"
+ ],
+ "instructions": [
+  "1. Say to your AI: \"Run workflow:keep-who-appeared-in-a-recording\", with file (The recording in this account by its content identity); it starts it with tool:start-a-recipe-run (row workflow:keep-who-appeared-in-a-recording).",
+  "2. Hear who spoke.",
+  "3. See who is on screen.",
+  "4. Keep each stretch as a row linked to the person.",
+  "5. Read the rows back by recording.",
+  "6. Read what it gives back: what step read-back hands back"
+ ],
+ "worked_examples": [
+  {
+   "title": "Who spoke is heard first",
+   "ask": "Keep who appeared in my kitchen-tour.mp4 recording.",
+   "mcp": {
+    "server": "trillion",
+    "tool": "run_resource_operation",
+    "input": {
+     "address": "@tools",
+     "method": "tools:run",
+     "input": {
+      "tool": "tool:start-a-recipe-run",
+      "input": {
+       "row": "workflow:keep-who-appeared-in-a-recording",
+       "file": "1f:example-recording-identity",
+       "recording_name": "kitchen-tour.mp4",
+       "look_for": [
+        "voice",
+        "face"
+       ]
+      }
+     }
+    }
+   },
+   "workflow": "workflow:keep-who-appeared-in-a-recording",
+   "step": "hear",
+   "given": "kitchen-tour.mp4 has no earlier transcript; two people talk in it.",
+   "hands_back": "tool \"tool:who-is-in-this\"; speakers [{speaker: \"S1\", from: 0.0, to: 41.5}, {speaker: \"S2\", from: 41.5, to: 63.2}]; voices_heard 2."
+  }
+ ]
+}

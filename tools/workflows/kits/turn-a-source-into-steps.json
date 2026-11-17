@@ -1,0 +1,52 @@
+{
+ "start_here": "Say to your AI: \"Run workflow:turn-a-source-into-steps with the reader tool:read-a-web-page on https://example.com/guide.\"",
+ "lists": [],
+ "workflows": [
+  "workflow:turn-a-source-into-steps"
+ ],
+ "tools": [
+  "tool:start-a-recipe-run",
+  "tool:measure-source-coverage"
+ ],
+ "instructions": [
+  "1. Say to your AI: \"Run workflow:turn-a-source-into-steps\", with reader; it starts it with tool:start-a-recipe-run (row workflow:turn-a-source-into-steps).",
+  "2. Read source: done when The submitted manifest contains all source pieces and the reader completeness readback.",
+  "3. Derive steps: done when Each piece has candidate canonical steps or an explicit source-pinned no_check reason.",
+  "4. Place steps: done when Every candidate step names an existing or explicitly proposed branch and an order.",
+  "5. Judge derivation: done when Every piece has a justified verdict and every derived step passes structural and semantic review.",
+  "6. Write and read back: done when Every submitted row exists at its exact target and its readback matches the checked content.",
+  "7. Measure coverage: done when coverage.ok is true and its source-piece counts match the complete source inventory; no unresolved gaps remain.",
+  "8. Read what it gives back: what step measure-coverage hands back"
+ ],
+ "worked_examples": [
+  {
+   "title": "The whole source is read before any step is written",
+   "ask": "Turn this guide at https://example.com/guide into steps.",
+   "mcp": {
+    "server": "trillion",
+    "tool": "run_resource_operation",
+    "input": {
+     "address": "@tools",
+     "method": "tools:run",
+     "input": {
+      "tool": "tool:start-a-recipe-run",
+      "input": {
+       "row": "workflow:turn-a-source-into-steps",
+       "reader": {
+        "tool_id": "tool:read-a-web-page",
+        "input": {
+         "url": "https://example.com/guide"
+        }
+       }
+      }
+     }
+    }
+   },
+   "workflow": "workflow:turn-a-source-into-steps",
+   "step": "read-source",
+   "given": "The reader returned one source with 12 pieces and its completeness readback.",
+   "hands_back": "manifest {sources: 1, pieces: 12}; completeness {whole: true}."
+  }
+ ],
+ "no_lists_because": "Its steps answer in the run and keep their manifest in the run itself; it writes no list rows."
+}

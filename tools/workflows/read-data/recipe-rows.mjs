@@ -21,6 +21,9 @@ const JSON_FIELDS = {
 };
 // A workflow says when it fires on its own row (branches/fires-when.json), kept as JSON text like the fields above.
 JSON_FIELDS.recipe.push('fires_when');
+// A workflow the person keeps carries its kit (L082) on its own row, as JSON text like the fields above; a started run
+// carries it (start-a-recipe-run.mjs kitFor).
+JSON_FIELDS.recipe.push('kit');
 
 const valuesOf = row => row?.values ?? row?.value ?? {};
 

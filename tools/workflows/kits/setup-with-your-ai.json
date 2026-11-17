@@ -1,0 +1,49 @@
+{
+ "start_here": "Say to your AI: \"Run workflow:setup-with-your-ai with the goal of running my bakery's orders from my AI, needing email and calendar connected.\"",
+ "lists": [],
+ "no_lists_because": "Its steps name no list and write no row: each step answers in the run itself.",
+ "workflows": [
+  "workflow:setup-with-your-ai"
+ ],
+ "tools": [
+  "tool:start-a-recipe-run",
+  "tool:who-does-each-step"
+ ],
+ "instructions": [
+  "1. Say to your AI: \"Run workflow:setup-with-your-ai\", with goal; required_components; it starts it with tool:start-a-recipe-run (row workflow:setup-with-your-ai).",
+  "2. Read what already works and what is actually needed.",
+  "3. Let the shared engine assign every action.",
+  "4. Do the setup and keep every unfinished action owned.",
+  "5. Prove a real result and continuity.",
+  "6. Read what it gives back: what step verify-outcome hands back"
+ ],
+ "worked_examples": [
+  {
+   "title": "What is already set up is found before anything is asked",
+   "ask": "Set me up so my AI can run my bakery's orders.",
+   "mcp": {
+    "server": "trillion",
+    "tool": "run_resource_operation",
+    "input": {
+     "address": "@tools",
+     "method": "tools:run",
+     "input": {
+      "tool": "tool:start-a-recipe-run",
+      "input": {
+       "row": "workflow:setup-with-your-ai",
+       "goal": "run my bakery's orders from my AI",
+       "required_components": [
+        "email",
+        "calendar"
+       ]
+      }
+     }
+    }
+   },
+   "workflow": "workflow:setup-with-your-ai",
+   "step": "discover",
+   "given": "The account already has an email connection; no calendar is connected.",
+   "hands_back": "requirements [\"email\", \"calendar\"]; actions [\"connect a calendar\"]; removed []."
+  }
+ ]
+}

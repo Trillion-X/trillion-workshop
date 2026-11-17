@@ -1,0 +1,169 @@
+{
+ "start_here": "Say to your AI: \"Run workflow:make-a-cover-from-outside-inspiration for my video record:content-pieces:example-ai-study as a YouTube thumbnail.\"",
+ "lists": [
+  {
+   "list": "list:image-inspiration-sources",
+   "label": "Image inspiration sources",
+   "row_type": "record:image-inspiration-sources",
+   "holds": "One place outside a platform to take visual ideas from (a curated thumbnail gallery, a Pinterest board, a poster archive), with what it is good for and how often its ideas won.",
+   "fields": [
+    {
+     "id": "name",
+     "kind": "text",
+     "label": "Name",
+     "alike": [
+      "source",
+      "title"
+     ]
+    },
+    {
+     "id": "address",
+     "kind": "url",
+     "label": "Address",
+     "alike": [
+      "link",
+      "url"
+     ]
+    },
+    {
+     "id": "good_for",
+     "kind": "tags",
+     "label": "Good for",
+     "alike": [
+      "use",
+      "surfaces"
+     ]
+    },
+    {
+     "id": "watching",
+     "kind": "choice",
+     "label": "Watching",
+     "alike": [
+      "active",
+      "status"
+     ]
+    },
+    {
+     "id": "wins",
+     "kind": "number",
+     "label": "Covers that won from it",
+     "alike": [
+      "hits",
+      "score"
+     ]
+    }
+   ],
+   "example_rows": [
+    {
+     "id": "example-thumbnail-gallery",
+     "values": {
+      "name": "A curated thumbnail gallery",
+      "address": "https://example.com/gallery",
+      "good_for": [
+       "youtube thumbnail",
+       "newsletter header"
+      ],
+      "watching": "Yes",
+      "wins": 2
+     }
+    },
+    {
+     "id": "example-poster-board",
+     "values": {
+      "name": "A poster board",
+      "address": "https://example.com/boards/posters",
+      "good_for": [
+       "carousel cover",
+       "postcard"
+      ],
+      "watching": "Yes",
+      "wins": 0
+     }
+    }
+   ],
+   "alike": [
+    "a Pinterest board",
+    "an Are.na channel",
+    "a moodboard folder"
+   ]
+  }
+ ],
+ "workflows": [
+  "workflow:make-a-cover-from-outside-inspiration"
+ ],
+ "tools": [
+  "tool:start-a-recipe-run",
+  "tool:compose-thumbnails-from-layout-templates",
+  "tool:find-outlier-videos-against-their-channel-median"
+ ],
+ "instructions": [
+  "1. Pour the example rows of list:image-inspiration-sources into the list you already keep for the same job (see pour), or make list:image-inspiration-sources from them.",
+  "2. Say to your AI: \"Run workflow:make-a-cover-from-outside-inspiration\", with piece (The piece the cover is for: a row id of the person's content, or its words.); surface (Where the cover appears, for example a YouTube thumbnail, an Instagram reel cover, the first slide of a carousel, a TikTok cover, a newsletter header, an article hero image or a printed postcard.); it starts it with tool:start-a-recipe-run (row workflow:make-a-cover-from-outside-inspiration).",
+  "3. Study what outperformed on this surface: done when At least five outliers, each with a link or row id and the move named.",
+  "4. Pair a credible source with what culture is talking about: done when Every pair names where in the piece it is backed, and five or more headlines are drafted from the pairs.",
+  "5. Find the visual idea outside the platform: done when Three or more cited references, each with what is taken and how it is recreated.",
+  "6. Mock it up several ways: done when Four or more mockup files exist at the surface size, and two are kept with reasons.",
+  "7. Pick one and record how it did: done when The chosen cover is named; after publishing, its result and inspiration source are recorded on the piece.",
+  "8. Read what it gives back: A chosen cover and headline for the piece, the mockups it was chosen from, the cited references, and after publishing its click and outlier result tallied by inspiration source."
+ ],
+ "worked_examples": [
+  {
+   "title": "A credible source is paired with what people are talking about",
+   "ask": "Make the thumbnail for my video about the new study on AI at work.",
+   "mcp": {
+    "server": "trillion",
+    "tool": "run_resource_operation",
+    "input": {
+     "address": "@tools",
+     "method": "tools:run",
+     "input": {
+      "tool": "tool:start-a-recipe-run",
+      "input": {
+       "row": "workflow:make-a-cover-from-outside-inspiration",
+       "piece": "record:content-pieces:example-ai-study",
+       "surface": "YouTube thumbnail"
+      }
+     }
+    }
+   },
+   "workflow": "workflow:make-a-cover-from-outside-inspiration",
+   "step": "pair-credibility-with-attention",
+   "given": "The piece cites a university study on AI and workplace productivity; the watched sources this week are full of a well-known chip maker's CEO talking about AI jobs.",
+   "hands_back": "pairs [{credible: \"the university study\", attention: \"the CEO's AI jobs remarks\", backed_by: \"minute 3:10 quotes the study's finding\"}]; headlines [\"The study says AI isn't working yet\", \"What the AI study found that CEOs won't say\"]; rejected []."
+  }
+ ],
+ "pour": {
+  "tool": "tool:pour-example-rows-into-my-list",
+  "least_coverage": 0.8,
+  "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+  "example": {
+   "kit_list": "list:image-inspiration-sources",
+   "into": {
+    "list": "list:my-moodboards",
+    "row_type": "record:moodboard",
+    "fields": [
+     {
+      "id": "title",
+      "label": "Title"
+     },
+     {
+      "id": "url",
+      "label": "URL"
+     },
+     {
+      "id": "use",
+      "label": "Use"
+     },
+     {
+      "id": "status",
+      "label": "Status"
+     },
+     {
+      "id": "score",
+      "label": "Score"
+     }
+    ]
+   }
+  }
+ }
+}

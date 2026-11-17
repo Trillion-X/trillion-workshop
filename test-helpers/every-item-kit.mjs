@@ -18,9 +18,9 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { root, rows, rowsOf, folders, tools as TOOLS } from './tool-rows.mjs';
 import { KIT_TEMPLATE, answerDraftProblems, kitProblems } from '../tools/workflows/read-data/kit-problems.mjs';
+import { publicRecipes } from '../tools/workflows/read-data/public-recipes.mjs';
 
 export const OWED_FILE = resolve(root, 'test/items-without-a-kit.json');
-const RECIPES = resolve(root, 'tools/workflows/recipes/workflows.json');
 
 const slugOf = id => id.slice(id.indexOf(':') + 1);
 export const kitFileOf = (folder, id) => resolve(root, 'tools', folder, 'kits', `${slugOf(id)}.json`);
@@ -38,7 +38,9 @@ const readKit = file => (existsSync(file) ? JSON.parse(readFileSync(file, 'utf8'
 
 /** Every item: workflow recipes and tool rows, each with its id, kind, kit file and kit problems (null when it has no kit file). */
 export function items() {
-  const recipes = JSON.parse(readFileSync(RECIPES, 'utf8')).records.map(record => record.payload);
+  // Every recipe the Workshop ships (every recipes/*.json, read as tool:start-a-recipe-run reads them), not only the generated
+  // workflows.json: a recipe in a file of its own is offered to every person and owes its kit the same.
+  const recipes = publicRecipes();
   const offered = offeringFolders();
   const tools = rows().filter(({ payload }) => payload.kind === 'ai-tool-descriptor').map(({ folder, payload }) => ({ folder: offered.get(payload.id) ?? folder, payload }));
   const make = (kind, item, file, problemsOf) => {
@@ -64,7 +66,7 @@ export function touchedIds({ changed = [], beforeRecipes = null } = {}) {
   }
   if (beforeRecipes) {
     const was = new Map(beforeRecipes.records.map(record => [record.payload.id, JSON.stringify(record.payload)]));
-    const now = JSON.parse(readFileSync(RECIPES, 'utf8')).records.map(record => record.payload);
+    const now = JSON.parse(readFileSync(resolve(root, 'tools/workflows/recipes/workflows.json'), 'utf8')).records.map(record => record.payload);
     for (const recipe of now) if (was.get(recipe.id) !== JSON.stringify(recipe)) touched.add(recipe.id);
   }
   return touched;
@@ -74,10 +76,9 @@ const idsOf = owed => new Set([...(owed.workflows ?? []), ...(owed.tools ?? [])]
 
 /** Every problem across the Workshop, as plain lines; none when every item ships its kit or is owed one from before.
  *  `before` is the allowance list as it stood at the commit or push this is compared with (none: no comparison). */
-export function kitGateProblems({ owed = JSON.parse(readFileSync(OWED_FILE, 'utf8')), before = null, touched = new Set(), rules = KIT_TEMPLATE.rules } = {}) {
+export function kitGateProblems({ owed = JSON.parse(readFileSync(OWED_FILE, 'utf8')), before = null, touched = new Set(), rules = KIT_TEMPLATE.rules, all = items() } = {}) {
   const problems = [];
   const owedIds = idsOf(owed);
-  const all = items();
   const byId = new Map(all.map(item => [item.id, item]));
   for (const item of all) {
     if (item.problems === null && !owedIds.has(item.id)) problems.push(`${item.id} ships with no kit: add ${item.file.slice(root.length + 1)} (tools/workflows/kit-template.json shows every part).`);

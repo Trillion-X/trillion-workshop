@@ -1,0 +1,203 @@
+{
+ "start_here": "Say to your AI: \"Run workflow:serve-content-ideas-each-morning.\" It every night, read every source the person draws ideas from (their watched sources, their own recent conversations and notes, the news and places they follow), turn what is new into post ideas tuned to their pursuits, audience and what has won before, and serve them as rows they pick from in the morning; each picked idea is made through the content pipeline, and what each piece did is kept so the next batch leans on what won.",
+ "lists": [
+  {
+   "list": "list:content-ideas",
+   "label": "Content ideas",
+   "row_type": "record:content-ideas",
+   "holds": "One post idea served for the morning: its angle, the source it came from, what it serves, the platforms and format it fits, its state and what it became.",
+   "fields": [
+    {
+     "id": "angle",
+     "kind": "text",
+     "label": "Angle",
+     "alike": [
+      "idea",
+      "hook",
+      "title"
+     ]
+    },
+    {
+     "id": "source_ref",
+     "kind": "url",
+     "label": "Source",
+     "alike": [
+      "link",
+      "inspiration"
+     ]
+    },
+    {
+     "id": "serves",
+     "kind": "tags",
+     "label": "Serves",
+     "alike": [
+      "pillar",
+      "pursuit"
+     ]
+    },
+    {
+     "id": "platforms",
+     "kind": "tags",
+     "label": "Platforms",
+     "alike": [
+      "channel",
+      "network"
+     ]
+    },
+    {
+     "id": "format",
+     "kind": "text",
+     "label": "Format",
+     "alike": [
+      "type"
+     ]
+    },
+    {
+     "id": "state",
+     "kind": "choice",
+     "label": "State",
+     "alike": [
+      "status"
+     ]
+    },
+    {
+     "id": "result",
+     "kind": "text",
+     "label": "Result",
+     "alike": [
+      "stats",
+      "performance"
+     ]
+    }
+   ],
+   "example_rows": [
+    {
+     "id": "idea-2026-11-18-1",
+     "values": {
+      "angle": "Most small shops lose orders to slow replies, not to price",
+      "source_ref": "https://example.com/post/42",
+      "serves": [
+       "pursuit:example-content"
+      ],
+      "platforms": [
+       "linkedin"
+      ],
+      "format": "record:content-formats:example-numbered-tips",
+      "state": "Picked",
+      "result": "12,400 impressions, 31 comments"
+     }
+    },
+    {
+     "id": "idea-2026-11-18-2",
+     "values": {
+      "angle": "What a 3 AM order taught me about answering fast",
+      "source_ref": "https://example.com/newsletter/7",
+      "serves": [
+       "pursuit:example-content"
+      ],
+      "platforms": [
+       "x",
+       "threads"
+      ],
+      "format": "record:content-formats:example-story",
+      "state": "Served"
+     }
+    }
+   ],
+   "alike": [
+    "a content calendar",
+    "a Notion ideas board",
+    "a spreadsheet of post ideas"
+   ]
+  }
+ ],
+ "workflows": [
+  "workflow:serve-content-ideas-each-morning",
+  "workflow:make-one-piece-of-content-from-audience-to-publish"
+ ],
+ "tools": [
+  "tool:start-a-recipe-run",
+  "tool:watch-my-sources"
+ ],
+ "instructions": [
+  "1. Pour the example rows of list:content-ideas into the list you already keep for the same job (see pour), or make list:content-ideas from them.",
+  "2. Say to your AI: \"Run workflow:serve-content-ideas-each-morning\"; it starts it with tool:start-a-recipe-run (row workflow:serve-content-ideas-each-morning).",
+  "3. Read every idea source: done when Every watched source and the person's own recent records were read, or named in unread with the reason.",
+  "4. Turn what is new into ideas that fit: done when Every kept idea has an angle, a source, what it serves and a format row.",
+  "5. Serve them for the morning: done when Every served idea is a row read back, and the person was told once.",
+  "6. Make the picked ideas: done when Every picked row has a run id and state Made; expired rows are Passed.",
+  "7. Keep what each idea became: done when Every idea Made 7 or more days ago carries its result and its source's tally.",
+  "8. Read what it gives back: Rows of list content-ideas (one per idea, with its source, its angle, the platforms it fits and its state: Served, Picked, Made, Passed), and for each picked idea a run of the content pipeline."
+ ],
+ "worked_examples": [
+  {
+   "title": "Every idea source is read overnight",
+   "ask": "Serve me 20 post ideas for LinkedIn and X tomorrow morning.",
+   "mcp": {
+    "server": "trillion",
+    "tool": "run_resource_operation",
+    "input": {
+     "address": "@tools",
+     "method": "tools:run",
+     "input": {
+      "tool": "tool:start-a-recipe-run",
+      "input": {
+       "row": "workflow:serve-content-ideas-each-morning",
+       "how_many": 20,
+       "platforms": [
+        "linkedin",
+        "x"
+       ]
+      }
+     }
+    }
+   },
+   "workflow": "workflow:serve-content-ideas-each-morning",
+   "step": "read-the-sources",
+   "given": "The person watches two sources (https://example.com/feed.xml and https://example.com/newsletter) and left one voice note yesterday.",
+   "hands_back": "items [{source: \"https://example.com/feed.xml\", ref: \"https://example.com/post/42\", at: \"2026-11-17T22:10:00-06:00\"}, {source: \"voice note\", ref: \"record:notes:example-1\", at: \"2026-11-17T18:02:00-06:00\"}]; unread []."
+  }
+ ],
+ "pour": {
+  "tool": "tool:pour-example-rows-into-my-list",
+  "least_coverage": 0.8,
+  "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+  "example": {
+   "kit_list": "list:content-ideas",
+   "into": {
+    "list": "list:my-post-ideas",
+    "row_type": "record:post-idea",
+    "fields": [
+     {
+      "id": "idea",
+      "label": "Idea"
+     },
+     {
+      "id": "link",
+      "label": "Link"
+     },
+     {
+      "id": "pillar",
+      "label": "Pillar"
+     },
+     {
+      "id": "channel",
+      "label": "Channel"
+     },
+     {
+      "id": "type",
+      "label": "Type"
+     },
+     {
+      "id": "status",
+      "label": "Status"
+     },
+     {
+      "id": "stats",
+      "label": "Stats"
+     }
+    ]
+   }
+  }
+ }
+}

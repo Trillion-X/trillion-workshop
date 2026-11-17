@@ -3,26 +3,21 @@
 // and a run that ends well (exit 0, a JSON line, no error) gives the answer its result_selector picks. So a drafted
 // worked example hands back a real answer, not a description of one. A sample whose input names a folder or server only
 // this runner makes ({grant:...}) is no input a person could give, and an answer that still holds a home folder is never
-// shown. Lengths and words are DATA (observe.json); nothing here names a tool.
+// shown. Lengths and words are DATA (tools/workflows/kit-observe.json); nothing here names a tool.
 //
 //   observe(row) -> [{ sample, answer, kept }]       kept: the ids of the rows the run wrote that the sample did not seed
 //   observeAll(rows) -> Map(id -> [{ sample, answer, kept }])
 //   givenOf(sample), handsBackOf(seen), compact(value, most): the plain words a kit shows them in
 
-import { readFileSync, realpathSync } from 'node:fs';
+import { realpathSync } from 'node:fs';
 import { homedir, tmpdir, userInfo } from 'node:os';
 import { runRow, select } from '../run-a-row.mjs';
 
-export const OBSERVE = JSON.parse(readFileSync(new URL('./observe.json', import.meta.url), 'utf8'));
+import { OBSERVE, compact, givenOf, handsBackOf } from '../../tools/workflows/read-data/kit-words.mjs';
+
+export { OBSERVE, compact, givenOf, handsBackOf };
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 
-// Words cut at `most` characters on a word boundary, marked when cut.
-export function compact(value, most) {
-  const flat = (typeof value === 'string' ? value : JSON.stringify(value)).replace(/\s+/g, ' ').trim();
-  if (flat.length <= most) return flat;
-  const head = flat.slice(0, most);
-  return `${head.slice(0, Math.max(head.lastIndexOf(' '), head.lastIndexOf(','), most / 2))} ...`;
-}
 
 // The run's own folder stands for `/`: put back as `/`. Null when the answer still names this computer's home folder,
 // its user or its temporary folder, so no example carries a path from the computer that drafted it.
@@ -63,12 +58,4 @@ export async function observeAll(rows) {
   return answers;
 }
 
-// What a sample run starts from, in plain words: its input, the rows it finds kept, the recorded web replies it reads.
-export function givenOf(sample) {
-  const kinds = (sample.records ?? []).map(record => record.type ?? record.id?.split(':')[0]).filter(Boolean);
-  const replies = [sample.replies ?? []].flat().length;
-  return `The input ${compact(sample.input, OBSERVE.input_chars)}${kinds.length ? `, with ${kinds.length} example row${kinds.length === 1 ? '' : 's'} (${[...new Set(kinds)].join(', ')}) already kept` : ''}${replies ? `, the web answering from ${replies} recorded repl${replies === 1 ? 'y' : 'ies'}` : ''}.`;
-}
 
-export const handsBackOf = ({ answer, kept }) =>
-  `It answered ${compact(answer, OBSERVE.answer_chars)}${kept.length ? `, and kept ${compact(kept.join(', '), OBSERVE.input_chars)}` : ''}.`;

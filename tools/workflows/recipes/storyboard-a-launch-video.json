@@ -1,0 +1,335 @@
+{
+  "about": "workflow:storyboard-a-launch-video: a product launch video storyboarded the way a web designer builds a website: know the product and its buyer, pick the hook, draft the flow like a wireframe, choose the storyboard type, then map, cut and colorize the product's UI into a handful of frames.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:storyboard-a-launch-video",
+        "label": "Storyboard a launch video",
+        "job": "Storyboard a product's launch video from the product itself: learn why it helps and who it is for, pick a hook that makes the right viewer stay, draft the flow from hook to payoff like a website wireframe, choose a 2D storyboard or a founder-led explainer, cut the product's UI into bite-sized pieces and colorize them into four to six frames, then judge them and record how the video did.",
+        "produces": "A storyboard of four to six 1920x1080 frames with the flow, hook type and storyboard type it was built on, the UI pieces and references it used, and after release its views and retention tallied by hook type.",
+        "made_from": [
+          "workflow:make-one-piece-of-content-from-audience-to-publish",
+          "workflow:source-a-screen-from-design-libraries"
+        ],
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "product": {
+              "type": "string",
+              "description": "The product being launched: a row id, its address or its name in the person's words."
+            },
+            "launch": {
+              "type": "string",
+              "description": "Optional. What is being launched (the product, a feature, a model) when it is narrower than the whole product."
+            }
+          },
+          "required": [
+            "product"
+          ]
+        },
+        "source": {
+          "from": "Shared by the person 2026-11-17: an article by a launch-video storyboarder (x.com/dchernyshuk/status/2122681113579782150, \"How to make launch videos if you are a web designer (try storyboarding)\"). His method: storytelling (research and ICP, product knowledge, narration) and visual design (poster, UI and web design) joined by creative direction; a storyboard is made like a website (wireframe the flow, detail the most important section, find references, set type, colour and layout, keep contrast between sections); hooks are controversy (\"Piss everyone off but your client's ICP\"), a bold promise, or an inspirational story; retention comes from explaining in detail (hook, problem, solution, payoff, security); two storyboard types need no film crew (2D without footage, founder-led explainer with footage); the making process is Map, Cut, Colorize; start with 4 to 6 \"artsy\" 1920x1080 sections.",
+          "note": "His figures (700k views in 24 hours for his first storyboard) are his and not checked here. His stance: his studio never used an AI model to storyboard and will not; this workflow keeps the creative choices with the person and uses tools only to find references and cut UI."
+        },
+        "steps": [
+          {
+            "id": "know-the-product-and-buyer",
+            "title": "Know the product and its buyer",
+            "when": "Every run starts here.",
+            "do": "Read input.product from the person's own records and its site, and write who it is for (the ideal customer: role, pain, what they use now), why it helps them in one sentence, and the one main flow of the product to show, as a walkthrough of its steps. When the product's owner is another person, ask them these three in one message and wait for the answer. Refuse to go on while the main flow cannot be walked through.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "buyer",
+                "why_it_helps",
+                "main_flow"
+              ],
+              "properties": {
+                "buyer": {
+                  "type": "string"
+                },
+                "why_it_helps": {
+                  "type": "string"
+                },
+                "main_flow": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "done_when": "The buyer, why it helps and a main flow of at least three walked-through steps are written from the product, not guessed.",
+            "if_missing": "If the main flow cannot be walked through (no access, no answer from the owner), stop here and record what is missing.",
+            "why": "A launch video only lands with the buyer it was made for; a product that is not understood cannot be storyboarded.",
+            "good_answer": "Passes: a named buyer with their pain, and a flow taken from the product itself. Fails: a generic audience, or a flow invented from the product's tagline.",
+            "came_from": [
+              "x.com/dchernyshuk/status/2122681113579782150: Research and ICP knowledge (your launch's cornerstone); Product knowledge (don't even try if you don't know anything about the product); ask them why it helps, who it's for, and ask for a walkthrough"
+            ],
+            "part_of": [
+              "storyboard-a-launch-video"
+            ],
+            "position": 0
+          },
+          {
+            "id": "pick-the-hook",
+            "title": "Pick the hook",
+            "when": "After know-the-product-and-buyer.",
+            "do": "Pick one hook type and write the opening line for it: controversy (say what the buyer already feels about the tools they use, in words that put off everyone but that buyer, then prove it in the video), a bold promise about the product (what it does that others do not, with the numbers to back it; never name an established competitor when that would hurt the brand), or an inspirational story. Write why this hook fits this buyer and how the video will prove it.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "hook_type",
+                "opening_line",
+                "proof"
+              ],
+              "properties": {
+                "hook_type": {
+                  "type": "string",
+                  "enum": [
+                    "controversy",
+                    "bold-promise",
+                    "inspirational-story"
+                  ]
+                },
+                "opening_line": {
+                  "type": "string"
+                },
+                "proof": {
+                  "type": "string"
+                }
+              }
+            },
+            "done_when": "One hook type is chosen with its opening line and the proof the video will show for it.",
+            "if_missing": "If the product has no claim it can prove, use the inspirational story and say why.",
+            "why": "The first seconds decide whether a viewer stays; a hook with no proof loses them right after.",
+            "good_answer": "Passes: a hook the buyer would recognise, with proof the product can show. Fails: a claim the video never proves, or an attack that hurts the brand.",
+            "came_from": [
+              "x.com/dchernyshuk/status/2122681113579782150: Create controversy; Make a bold promise about the product; Tell an inspirational story; \"Piss everyone off but your client's ICP!\""
+            ],
+            "part_of": [
+              "storyboard-a-launch-video"
+            ],
+            "position": 1
+          },
+          {
+            "id": "draft-the-flow",
+            "title": "Draft the flow like a wireframe",
+            "when": "After pick-the-hook.",
+            "do": "Draft the video as a website wireframe: its main goal and its call to action, and its sections in order: the hook, the problem, the solution, the payoff (the strongest thing the product does), and trust (security, proof or who uses it). Write the most important section in detail. Make each section contrast with the one before it (pace, colour, scale), so attention resets.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "goal",
+                "call_to_action",
+                "sections"
+              ],
+              "properties": {
+                "goal": {
+                  "type": "string"
+                },
+                "call_to_action": {
+                  "type": "string"
+                },
+                "sections": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "says": {
+                        "type": "string"
+                      },
+                      "contrast": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "done_when": "A goal, a call to action and at least five sections in order, each with what it says and how it contrasts with the one before.",
+            "if_missing": "If no payoff stands out, return to know-the-product-and-buyer and ask for the feature buyers mention most.",
+            "why": "Retention comes from explaining in detail in an order that builds; a website's wireframe is the same skill.",
+            "good_answer": "Passes: hook, problem, solution, payoff and trust in order, each with a contrast. Fails: a feature list with no payoff.",
+            "came_from": [
+              "x.com/dchernyshuk/status/2122681113579782150: Draft the wireframe (flow, main goal, CTA, sections); Controversial hook, Problem, Solution, Payoff, Security; Keep contrast between the sections for engagement"
+            ],
+            "part_of": [
+              "storyboard-a-launch-video"
+            ],
+            "position": 2
+          },
+          {
+            "id": "choose-the-type",
+            "title": "Choose the storyboard type",
+            "when": "After draft-the-flow.",
+            "do": "Choose a 2D storyboard with no footage (the product's UI and graphics carry it) or a founder-led explainer with footage (the founder explains, UI pieces support them). Choose founder-led when the claim needs a person's authority (a new model, a new category); otherwise 2D. Both need no film crew.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "type",
+                "because"
+              ],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "2d-no-footage",
+                    "founder-led-with-footage"
+                  ]
+                },
+                "because": {
+                  "type": "string"
+                }
+              }
+            },
+            "done_when": "A type is chosen with one sentence on why it suits the claim.",
+            "if_missing": "If no founder can be filmed, choose 2D.",
+            "why": "The type decides what has to be made; these two are the ones a designer can make without a crew.",
+            "good_answer": "Passes: the type tied to the claim. Fails: footage planned with no one to film.",
+            "came_from": [
+              "x.com/dchernyshuk/status/2122681113579782150: 2D storyboard without the footage; Founder-led explainer with the footage; the only two you can make without the film crew's intervention"
+            ],
+            "part_of": [
+              "storyboard-a-launch-video"
+            ],
+            "position": 3
+          },
+          {
+            "id": "map-cut-colorize",
+            "title": "Map, cut and colorize the UI",
+            "when": "After choose-the-type.",
+            "do": "Map: follow know-the-product-and-buyer.main_flow screen by screen. Cut: from the product's UI library or screenshots, cut each screen into bite-sized pieces that show the most interesting parts (a single control, a result, a number), never a whole dashboard on one screen. Colorize: plan gradients, zooms and transitions for each piece, taking references from award-winning websites through workflow:source-a-screen-from-design-libraries and the person's rows of list image-inspiration-sources, each cited.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "pieces",
+                "references"
+              ],
+              "properties": {
+                "pieces": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "section": {
+                        "type": "string"
+                      },
+                      "shows": {
+                        "type": "string"
+                      },
+                      "motion": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "references": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "done_when": "Every section has at least one UI piece with its motion, and the references are cited.",
+            "if_missing": "If no UI library exists, ask for one or take screenshots of the main flow; with neither, stop and say so.",
+            "why": "Bite-sized UI is understandable on screen; a whole dashboard is not.",
+            "good_answer": "Passes: pieces each showing one thing, with motion and cited references. Fails: full-screen dashboards, or uncited style.",
+            "came_from": [
+              "x.com/dchernyshuk/status/2122681113579782150: Map. Cut. Colorize.; Please, never put one whole dashboard on one screen; take inspo from award-winning websites"
+            ],
+            "part_of": [
+              "storyboard-a-launch-video"
+            ],
+            "position": 4
+          },
+          {
+            "id": "frames",
+            "title": "Make the frames",
+            "when": "After map-cut-colorize.",
+            "do": "Make four to six frames at 1920x1080, one per section or pair of sections, each a bold poster-like layout: type, colour and basic composition placed, using the UI pieces from map-cut-colorize. Keep the contrast between frames planned in draft-the-flow. Animate them when the person asks.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "frames"
+              ],
+              "properties": {
+                "frames": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "file": {
+                        "type": "string"
+                      },
+                      "section": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "done_when": "Four to six 1920x1080 frame files exist, each tied to a section.",
+            "if_missing": "If frames cannot be made, keep each frame's brief and say which tool is missing.",
+            "why": "A handful of strong frames is the storyboard; it is the cheapest way to agree on the video before animating it.",
+            "good_answer": "Passes: four to six real files at 1920x1080, each on a section. Fails: one long frame, or frames with no section.",
+            "came_from": [
+              "x.com/dchernyshuk/status/2122681113579782150: Make 4 to 6 artsy 1920x1080 website sections. And that's your storyboard; Poster design (to make unconventional colorful layouts)"
+            ],
+            "part_of": [
+              "storyboard-a-launch-video"
+            ],
+            "position": 5
+          },
+          {
+            "id": "judge-and-measure",
+            "title": "Judge it and record how it did",
+            "when": "After frames; the measure part after the video is released.",
+            "do": "Judge the frames against the references and the flow with the person's judge models: does each frame read in a second, does the hook show its proof, does contrast hold between frames. Fix what fails. After release, record views, how many viewers stayed past the first seconds, and the hook type and storyboard type, so the weekly read and the daily learn-and-prune can tell which hooks and types win.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "verdict"
+              ],
+              "properties": {
+                "verdict": {
+                  "type": "string",
+                  "enum": [
+                    "passes",
+                    "fails"
+                  ]
+                },
+                "views": {
+                  "type": "number"
+                },
+                "stayed_past_opening": {
+                  "type": "number"
+                },
+                "hook_type": {
+                  "type": "string"
+                }
+              }
+            },
+            "done_when": "A passes verdict on the frames; after release, views and retention are recorded with the hook and storyboard type.",
+            "if_missing": "If results are not readable yet, leave the measure for the next weekly read.",
+            "why": "Recording which hook and type each video used is what lets the next launch lean on what kept viewers.",
+            "good_answer": "Passes: a judged verdict and, after release, results with the hook type. Fails: a pass by self-review only.",
+            "came_from": [
+              "x.com/dchernyshuk/status/2122681113579782150: By engagement, I mean a viewer watching past the first few seconds and not dropping off"
+            ],
+            "part_of": [
+              "storyboard-a-launch-video"
+            ],
+            "position": 6
+          }
+        ]
+      }
+    }
+  ]
+}

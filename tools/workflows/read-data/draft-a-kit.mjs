@@ -18,7 +18,7 @@
 // No item is named here; the shape of the draft is the template's.
 
 import { itemNames, kitProblems } from './kit-problems.mjs';
-import { compact, givenOf, handsBackOf, OBSERVE } from '../../../test-helpers/kit-drafter/observe.mjs';
+import { compact, givenOf, handsBackOf, OBSERVE } from './kit-words.mjs';
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const words = text => String(text ?? '').replace(/\s+/g, ' ').trim();

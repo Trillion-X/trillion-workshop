@@ -24,9 +24,17 @@ test('the allowance list is dated', () => {
 });
 
 test('an item that is not named as owing a kit and has none is refused, and told where its kit goes', () => {
-  const [first] = owed.workflows;
-  const problems = kitGateProblems({ owed: { ...owed, workflows: owed.workflows.filter(id => id !== first) } });
-  assert.deepEqual(problems, [`${first} ships with no kit: add ${kitFileOf('workflows', first).replace(/^.*\/tools\//, 'tools/')} (tools/workflows/kit-template.json shows every part).`]);
+  // No shipped item lacks a kit any more, so a made-up recipe with no kit file stands in for one.
+  const made = 'workflow:made-up-without-a-kit';
+  const all = [...items(), { id: made, kind: 'workflow', file: kitFileOf('workflows', made), item: { id: made }, problems: null }];
+  const problems = kitGateProblems({ owed, all });
+  assert.deepEqual(problems, [`${made} ships with no kit: add ${kitFileOf('workflows', made).replace(/^.*\/tools\//, 'tools/')} (tools/workflows/kit-template.json shows every part).`]);
+});
+
+test('a recipe the Workshop ships in a file of its own owes its kit like one in workflows.json', () => {
+  const standalone = items().filter(item => item.kind === 'workflow' && item.id === 'workflow:storyboard-a-launch-video');
+  assert.equal(standalone.length, 1, 'recipes/storyboard-a-launch-video.json is an item');
+  assert.deepEqual(standalone[0].problems, [], 'and its kit passes');
 });
 
 test('the list of items owing a kit only shrinks: an id with a kit, or gone, must come out', () => {
