@@ -96,8 +96,9 @@ export async function serveConnection(c, credential, { spawnImpl = spawn, agentO
   }
   } finally { agent.close(); }
 }
-// This file's path inside a Workshop copy (tools/<tool>/do-work/<file>), so the launch agent finds it in whichever copy is current.
-export const workshopPath = fileURLToPath(import.meta.url).split('/').slice(-4).join('/');
+// The public entry's path inside a Workshop copy (tools/<tool>/do-work/<file>), so the launch agent finds it in whichever copy is
+// current. It is the facade, not this file: only the facade runs the command line when it is the program.
+export const workshopPath = fileURLToPath(new URL('./keep-a-door-tunnel-open.mjs', import.meta.url)).split('/').slice(-4).join('/');
 // The launch agent's own command: at each start it runs this file from the engine's current installed Workshop copy
 // (`installs`, the folder whose state.json names the current commit; the engine keeps only the current and previous
 // copies, so a path to one commit's copy is soon gone), reads the held key with the vault command (which writes a value

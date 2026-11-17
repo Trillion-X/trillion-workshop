@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, rmSync, readFileSync, writeFileSync, chmodSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { basename, dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { EventEmitter } from 'node:events';
 import { PassThrough } from 'node:stream';
@@ -72,6 +73,15 @@ test('retained supervision names the source and credential home without copying 
   for (const bad of [{ nodeExecutable: 'node' }, { installs: 'installs' }, { credentialCommand: [] }, { credentialCommand: ['vault'] }]) assert.throws(() => connectionLaunchArguments({ nodeExecutable: '/bin/node', installs: '/i', configFile: '/c.json', credentialCommand: ['/bin/vault'], ...bad }), /refused/);
   assert.throws(() => connectionLaunchAgent({ label: 'Bad Label', programArguments, logFile: '/l' }), /refused/);
   assert.throws(() => connectionLaunchAgent({ label: 'example.door-tunnel', programArguments, environment: { 'bad-name': 'x' }, logFile: '/l' }), /refused/);
+});
+
+test('the file the launch command runs is the public entry, the one that runs the command line when it is the program', () => {
+  const entry = fileURLToPath(new URL('../do-work/keep-a-door-tunnel-open.mjs', import.meta.url));
+  assert.ok(entry.endsWith(`/${workshopPath}`), 'the launch path is the entry\'s own path in a Workshop copy');
+  assert.equal(basename(workshopPath), 'keep-a-door-tunnel-open.mjs');
+  const run = spawnSync(process.execPath, [entry, 'serve', 'extra'], { encoding: 'utf8' });
+  assert.notEqual(run.status, 0, 'the entry reads its command line: a wrong one is refused, not ignored');
+  assert.match(run.stderr, /usage: keep-a-door-tunnel-open\.mjs/);
 });
 
 test('the launch command runs the current installed copy, the configuration on standard input and the held value on the key descriptor, never in argv', t => {
