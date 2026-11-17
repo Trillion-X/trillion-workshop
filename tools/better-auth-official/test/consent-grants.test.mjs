@@ -13,7 +13,7 @@ import { createHash, randomBytes } from 'node:crypto';
 import { startStore } from '../test-fixtures/embedded-store.mjs';
 
 const dir = mkdtempSync(join(tmpdir(), 'consent-grants-'));
-const settings = { ...JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8')), email_password: { require_verification: false }, disabled_paths: [] };
+const settings = { ...JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8')), mcp: { ...JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8')).mcp, first_party_clients: ['https://first-party.example.test/client.json'] }, email_password: { require_verification: false }, disabled_paths: [] };
 writeFileSync(join(dir, 'settings.json'), JSON.stringify(settings));
 process.env.BETTER_AUTH_SETTINGS = join(dir, 'settings.json');
 const store = await startStore();
@@ -113,4 +113,12 @@ test('a consent answered from another site is refused, and nothing is allowed', 
   const cookieHeader = up.headers.getSetCookie().find(c => c.startsWith('__Host-trillion_session'));
   assert.match(cookieHeader, /SameSite=Lax/i, 'the session cookie is not sent on another site\'s POST');
   assert.equal((await call('/oauth2/consent', { cookie, body })).status, 200, 'from this site it is answered');
+});
+
+test('Trillion\'s own programs are named in settings by their client document address, and the page can ask whether one is', async () => {
+  const asked = async id => (await (await call(`/first-party?client_id=${encodeURIComponent(id)}`)).json()).first_party;
+  assert.equal(await asked('https://first-party.example.test/client.json'), true);
+  assert.equal(await asked('https://other.example.test/client.json'), false);
+  assert.equal(await asked(''), false);
+  assert.deepEqual(JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8')).mcp.first_party_clients, [], 'the shared tool names no product: the computer that runs it does');
 });

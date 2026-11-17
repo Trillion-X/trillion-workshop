@@ -44,6 +44,7 @@
     "consent_page": "/consent",
     "resource": "http://localhost:8792/mcp",
     "always_offline_access": true,
+    "first_party_clients": [],
     "scopes": [
       "openid",
       "profile",

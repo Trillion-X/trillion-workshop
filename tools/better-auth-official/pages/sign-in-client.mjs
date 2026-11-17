@@ -222,10 +222,12 @@ async function consentPage() {
   const named = await json(`${authBase}/oauth2/public-client?client_id=${encodeURIComponent(id)}`);
   const clientHost = id.startsWith('https://') ? hostOf(id) : '';
   const returnHost = hostOf(query.get('redirect_uri') ?? '');
-  fillAll({ client: named.data?.client_name ?? words.asker_unknown, clientHost: clientHost || words.computer_unknown, computer: computerOf(), email: session.data.user.email, redirect: redirectHost() });
+  fillAll({ client: named.data?.client_name ?? words.asker_unknown, email: session.data.user.email, redirect: redirectHost() });
   const asked = (query.get('scope') ?? '').split(' ').filter(Boolean);
   listOf('scopes', scopeLines(query.get('scope')));
   const known = Boolean(clientHost) && (related(returnHost, clientHost) || isLoopback(returnHost));
+  // Our own program: the connect goes straight back to it, with no screen.
+  if (known && (await json(`${authBase}/first-party?client_id=${encodeURIComponent(id)}`)).data?.first_party) return void consent(document.querySelector('[data-step="review"] [data-consent="allow"]')).then(done => done || show('review'));
   const before = ((await json(`${authBase}/oauth2/get-consents`)).data ?? []).find(row => row.clientId === id);
   const again = before && known ? rememberedAs(before.scopes ?? [], asked) : null;
   if (again) {
@@ -247,7 +249,9 @@ async function consentPage() {
 let undone = false;
 async function consent(button) {
   const answer = await post(`${authBase}/oauth2/consent`, { accept: button.dataset.consent === 'allow', oauth_query: carried, read_only: readOnly });
-  return answer.ok && answer.data?.url ? location.assign(answer.data.url) : status(words.failed);
+  if (answer.ok && answer.data?.url) { location.assign(answer.data.url); return true; }
+  status(words.failed);
+  return false;
 }
 // Undo on a remembered AI: it is disconnected (its tokens and consent end) and told no.
 async function undo() {
@@ -317,7 +321,7 @@ async function device(button) {
 }
 
 document.addEventListener('click', event => {
-  const button = event.target.closest('button[data-key], button[data-passkey-link], button[data-undo], button[data-read-only], button[data-disconnect], button[data-consent], button[data-device], button[data-passkey]');
+  const button = event.target.closest('button[data-key], button[data-passkey-link], button[data-undo], button[data-read-only], button[data-options], button[data-disconnect], button[data-consent], button[data-device], button[data-passkey]');
   if (!button) return;
   event.preventDefault();
   const failed = () => status(button.dataset.failed ?? words.failed);
@@ -325,6 +329,7 @@ document.addEventListener('click', event => {
   else if (button.matches('[data-passkey-link]')) emailTheLink(button).catch(failed);
   else if (button.matches('[data-undo]')) undo().catch(failed);
   else if (button.matches('[data-disconnect]')) disconnect(button).catch(failed);
+  else if (button.matches('[data-options]')) { const panel = document.querySelector('[data-options-panel]'); panel.hidden = !panel.hidden; button.setAttribute('aria-expanded', String(!panel.hidden)); }
   else if (button.matches('[data-read-only]')) { readOnly = !readOnly; button.setAttribute('aria-pressed', String(readOnly)); button.textContent = readOnly ? words.read_only_on : words.read_only_off; }
   else if (button.matches('[data-consent]')) consent(button).catch(failed);
   else if (button.matches('[data-device]')) device(button).catch(failed);

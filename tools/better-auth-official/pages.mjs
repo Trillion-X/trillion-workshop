@@ -27,7 +27,7 @@ export function assetOf(url) {
   const { pathname } = new URL(url, 'http://page');
   if (!pathname.startsWith(table.assets_path)) return null;
   const name = pathname.slice(table.assets_path.length);
-  if (!/^[a-z0-9-]+\.js$/.test(name)) return null;
+  if (!/^[a-z0-9-]+\.(js|svg)$/.test(name)) return null;
   try { return readFileSync(new URL(`${table.assets}/${name}`, pages)); } catch { return null; }
 }
 
@@ -36,7 +36,7 @@ export function pageAnswer(url) {
   const sent = table.routes.find(({ path, redirect }) => redirect && path === new URL(url, 'http://page').pathname);
   if (sent) return { status: 301, headers: { location: sent.redirect, 'cache-control': 'no-store' }, body: '' };
   const asset = assetOf(url);
-  if (asset) return { status: 200, headers: { 'content-type': 'text/javascript; charset=utf-8', 'cache-control': 'no-cache' }, body: asset };
+  if (asset) return { status: 200, headers: { 'content-type': url.split('?')[0].endsWith('.svg') ? 'image/svg+xml' : 'text/javascript; charset=utf-8', 'cache-control': 'no-cache' }, body: asset };
   const page = pageOf(url);
   if (page) return { status: 200, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', ...table.headers }, body: page };
   return null;

@@ -117,14 +117,13 @@ test('no page offers a way that never works: no text code, no address that answe
   }
 });
 
-test('/consent shows who asks, where, what it may do, and Allow and Deny with the line to approve only what the person started', () => {
+test('/consent is short: the AI\'s name in one title, what it may do, and Allow and Deny, with none of the lines that repeat the host or say what to approve', () => {
   const consent = page('/consent');
   assert.match(consent, /data-fill-list="scopes"/);
   assert.match(consent, /data-consent="allow"[^>]*>Allow</);
   assert.match(consent, /data-consent="deny"[^>]*>Deny</);
-  assert.match(consent, /Only approve what you started\./);
+  assert.doesNotMatch(consent, /Only approve what you started|From \{clientHost\}|On \{computer\}|After you choose, you go back/);
   assert.match(consent, /\{client\} wants to use your Trillion/);
-  assert.match(consent, /On \{computer\}/);
 });
 
 test('/device takes the code a device shows and asks to allow or deny it, for a device the person holds', () => {
@@ -164,10 +163,10 @@ test('pages/assets/sign-in.js is the build of the client as it is now (npm run b
   assert.equal(built.outputFiles[0].text, readFileSync(new URL('assets/sign-in.js', dir), 'utf8'));
 });
 
-test('the consent page says who is signed in and where the AI goes back to, and the device review shows a named device and a hyphenated code', () => {
+test('the consent page says who is signed in in small text at the bottom, and the device review shows a named device and a hyphenated code', () => {
   const consent = page('/consent');
   assert.match(consent, /Signed in as \{email\}\. <a[^>]*data-switch-account[^>]*>Not you\?<\/a>/);
-  assert.match(consent, /go back to \{redirect\}/);
+  assert.match(consent, /page-section--fine[^>]*data-step="review"[^>]*>[\s\S]*Signed in as/);
   const client = readFileSync(new URL('sign-in-client.mjs', dir), 'utf8');
   assert.match(client, /const humane = /);
   assert.match(client, /const hyphenated = /);
@@ -179,13 +178,23 @@ test('the password page links "Forgot password?" where the client binds it', () 
 
 test('the consent page: Read only is a switch, an unknown return address needs its host typed, a remembered AI shows Connecting with an Undo, and /connected lists with Disconnect', () => {
   const consent = page('/consent');
-  assert.match(consent, /data-read-only aria-pressed="false">Read only: off</);
+  assert.match(consent, /data-options aria-expanded="false">Options</);
+  assert.match(consent, /data-options-panel hidden><button[^>]*data-read-only aria-pressed="false">Read only: off</);
   assert.match(consent, /data-unknown hidden[\s\S]*name="typed_host"/);
   assert.match(consent, /data-step="remembered"[\s\S]*data-undo>Undo</);
-  assert.match(consent, /From \{clientHost\}\./);
+  assert.match(consent, /type \{redirect\}/);
   assert.doesNotMatch(readFileSync(new URL('sections/consent.html', dir), 'utf8'), /matching code|expires|ends on/i, 'no matching-code step and no end date');
   assert.match(page('/connected'), /data-fill-list="connected"/);
   const client = readFileSync(new URL('sign-in-client.mjs', dir), 'utf8');
   assert.match(client, /allow\.disabled = true/);
   assert.match(client, /button\.dataset\.disconnect|data-disconnect/);
+});
+
+test('the logo is served by the tool itself, and every page names that address', async () => {
+  const { pageAnswer } = await import('../pages.mjs');
+  const served = pageAnswer('/sign-in/assets/mark.svg');
+  assert.equal(served.status, 200);
+  assert.equal(served.headers['content-type'], 'image/svg+xml');
+  assert.match(String(served.body), /<svg/);
+  for (const name of readdirSync(new URL('sections/', dir))) assert.doesNotMatch(readFileSync(new URL(`sections/${name}`, dir), 'utf8'), /\/brand\/current\//, name);
 });

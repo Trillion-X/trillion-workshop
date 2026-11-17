@@ -136,6 +136,15 @@ const connected = () => ({
   },
 });
 
+// Whether a client document address is one of Trillion's own programs (settings.mcp.first_party_clients, set where the tool is run): the
+// consent page answers for those itself, so a person's own program goes from sign-in straight back with no screen.
+const firstParty = () => ({
+  id: 'first-party',
+  endpoints: {
+    isFirstParty: createAuthEndpoint('/first-party', { method: 'GET' }, async ctx => ctx.json({ first_party: (settings.mcp.first_party_clients ?? []).includes(ctx.query?.client_id) })),
+  },
+});
+
 export const auth = betterAuth({
   baseURL: settings.base_url,
   basePath: settings.base_path,
@@ -197,6 +206,7 @@ export const auth = betterAuth({
       sendMagicLink: async ({ email, token, url }) => { await sendEmail({ kind: 'magic-link', to: email, url, token }); },
     }),
     connected(),
+    firstParty(),
     multiSession(),
     apiKey({
       defaultPrefix: settings.api_key?.prefix, enableMetadata: true, rateLimit: settings.api_key?.rate_limit,
