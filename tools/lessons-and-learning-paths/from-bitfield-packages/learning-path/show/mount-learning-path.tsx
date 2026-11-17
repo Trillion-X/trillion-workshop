@@ -3,7 +3,7 @@
 // builds the screen model, renders the winding path.
 
 import React from 'react';
-import { emitPlaceableSurfaceIntent, ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
+import { emitPlaceableSurfaceIntent, ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
 import { useBitfieldData } from '@/packages/learning-path/.bitfield-entry-scope/learning-path/runtime-kit-react';
 import { sendRequestToBitfieldTarget } from '@/packages/learning-path/.bitfield-entry-scope/learning-path/runtime-kit';
 import { buildLearningPathSurfaceModelFromSources, LearningPathSurface } from './LearningPathSurface';

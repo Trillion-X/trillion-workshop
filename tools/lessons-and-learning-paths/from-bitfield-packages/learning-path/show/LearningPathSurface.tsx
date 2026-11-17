@@ -5,11 +5,11 @@
 import * as React from 'react';
 import { Award, BookOpen, Dumbbell, Gift, Headphones, Mic, Star, Trophy, Video } from 'lucide-react';
 
-import { Card } from '@/packages/ui/show/card';
-import { Container } from '@/packages/ui/show/container';
-import { Text } from '@/packages/ui/show/text';
-import { PathRail, type PathNodeView } from '@/packages/ui/show/path-rail';
-import { ScrollableSurface } from '@/packages/ui/show/scrollable-surface';
+import { Card } from '../../../../ui/show/card';
+import { Container } from '../../../../ui/show/container';
+import { Text } from '../../../../ui/show/text';
+import { PathRail, type PathNodeView } from '../../../../ui/show/path-rail';
+import { ScrollableSurface } from '../../../../ui/show/scrollable-surface';
 import {
   buildLearningPathScreenModel,
   type LearningPathScreenModel,

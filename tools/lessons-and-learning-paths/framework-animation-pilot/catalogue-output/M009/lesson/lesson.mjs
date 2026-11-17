@@ -23,8 +23,8 @@ SOFTWARE.
 */
 import React, { useMemo, useState } from 'react';
 import { AnatomyFigure, Button, Container, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue, Text, Textarea, TuningSliderField, mountReactSurface } from '@trillion/ui';
-import { useLessonPractice } from '../../../../parts/ui/show/isolated-module-surface/use-lesson-practice.mjs';
-import { RACKET_MATERIAL_CSS } from '../../../../parts/screen-look/show/anatomy/racket-materials.mjs';
+import { useLessonPractice } from '../../../../../ui/show/isolated-module-surface/use-lesson-practice.mjs';
+import { RACKET_MATERIAL_CSS } from '../../../../../screen-look/show/anatomy/racket-materials.mjs';
 import { CLAIMS, DURATIONS, FACETS, OBSERVATIONS, VIEWPOINTS, awarenessScene } from './lesson-model.mjs';
 import content from './lesson-content.json';
 

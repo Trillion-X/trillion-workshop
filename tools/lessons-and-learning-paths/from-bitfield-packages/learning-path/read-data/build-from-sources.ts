@@ -10,7 +10,7 @@ import {
   buildLearningPathScreenModel,
   type LearningPathScreenModel,
 } from './learning-path-screen-model.ts';
-import type { PathNodeView } from '@/packages/ui/show/path-rail';
+import type { PathNodeView } from '../../../../ui/show/path-rail';
 
 export interface LearningPathSources {
   surfaceState?: unknown;

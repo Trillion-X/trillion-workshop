@@ -8,8 +8,8 @@ import {
   PlaceableSurfaceHost,
   Text,
   mountReactSurface,
-} from '@/packages/ui';
-import { ToastProvider } from '@/packages/ui/show/toast';
+} from '../../ui';
+import { ToastProvider } from '../../ui/show/toast';
 
 type MountArgs = {
   el: HTMLElement;

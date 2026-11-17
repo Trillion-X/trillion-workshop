@@ -23,9 +23,9 @@ SOFTWARE.
 */
 import React, { useMemo, useState } from 'react';
 import { AnatomyFigure, Button, Container, Text, Textarea, mountReactSurface } from '@trillion/ui';
-import { useLessonPractice } from '../../../../parts/ui/show/isolated-module-surface/use-lesson-practice.mjs';
-import { BOOK_MATERIAL_CSS } from '../../../../parts/screen-look/show/anatomy/book-materials.mjs';
-import { INSTRUCTION_CASE_CSS } from '../../../../parts/screen-look/show/anatomy/instruction-case-materials.mjs';
+import { useLessonPractice } from '../../../../../ui/show/isolated-module-surface/use-lesson-practice.mjs';
+import { BOOK_MATERIAL_CSS } from '../../../../../screen-look/show/anatomy/book-materials.mjs';
+import { INSTRUCTION_CASE_CSS } from '../../../../../screen-look/show/anatomy/instruction-case-materials.mjs';
 import { caseScene, INITIAL_NEED, INITIAL_STAGE, NEED_IDS, STAGE_IDS } from './lesson-model.mjs';
 import content from './lesson-content.json';
 

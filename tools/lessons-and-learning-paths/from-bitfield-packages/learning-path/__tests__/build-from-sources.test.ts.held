@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildLearningPathFromSources } from '@/packages/learning-path/read-data/build-from-sources';
+import { buildLearningPathFromSources } from '../read-data/build-from-sources';
 
 // Curriculum fallback (the package surface-state default).
 const CURRICULUM = {

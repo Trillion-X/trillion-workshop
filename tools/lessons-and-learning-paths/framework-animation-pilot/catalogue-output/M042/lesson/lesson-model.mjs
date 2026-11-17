@@ -1,8 +1,8 @@
 // A still Anatomy figure for the source's attention/return distinction.
 // Geometry is illustrative; the shared Anatomy kit owns projection and painting.
-import * as K from '../../../../parts/ui/show/anatomy/iso-kit.mjs';
-import * as G from '../../../../parts/ui/show/anatomy/lathe.mjs';
-import { anatomyMaterialStyle } from '../../../../parts/screen-look/show/anatomy/iso-style.mjs';
+import * as K from '../../../../../ui/show/anatomy/iso-kit.mjs';
+import * as G from '../../../../../ui/show/anatomy/lathe.mjs';
+import { anatomyMaterialStyle } from '../../../../../screen-look/show/anatomy/iso-style.mjs';
 
 export const WIDTH = 800;
 export const HEIGHT = 1000;

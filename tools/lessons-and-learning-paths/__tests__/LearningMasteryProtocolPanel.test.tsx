@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, vi } from '../../../test-helpers/vites
 const { send } = vi.hoisted(() => ({ send: vi.fn(async () => ({ ok: true })) }));
 vi.mock('@bitfield/runtime-kit', () => ({ sendRequestToBitfieldTarget: send }));
 vi.mock('@bitfield/runtime-kit/react', () => ({ useBitfieldData: vi.fn(() => null) }));
-vi.mock('@/packages/ui/show/placeable-surface-host', () => ({
+vi.mock('tools/ui/show/placeable-surface-host', () => ({
   PlaceableSurfaceHost: ({ packageName, entryName }: { packageName: string; entryName: string }) => (
     <div data-testid="embedded-owner">{packageName}/{entryName}</div>
   ),

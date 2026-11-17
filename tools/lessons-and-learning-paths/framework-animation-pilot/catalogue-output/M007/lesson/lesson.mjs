@@ -25,11 +25,11 @@ SOFTWARE.
 import React, { useMemo, useState } from 'react';
 import { AnatomyFigure, Button, Container, Input, Text, Textarea, TuningSliderField, mountReactSurface } from '@trillion/ui';
 import content from './lesson-content.json';
-import { useLessonPractice } from '../../../../parts/ui/show/isolated-module-surface/use-lesson-practice.mjs';
+import { useLessonPractice } from '../../../../../ui/show/isolated-module-surface/use-lesson-practice.mjs';
 import { renderContext } from '../../../anatomy-contact-replacement/context-model.mjs';
 import { courtSequence } from '../film/court-sequence.mjs';
 import voice from '../voice/timeline.json' with { type: 'json' };
-import { RACKET_MATERIAL_CSS } from '../../../../parts/screen-look/show/anatomy/racket-materials.mjs';
+import { RACKET_MATERIAL_CSS } from '../../../../../screen-look/show/anatomy/racket-materials.mjs';
 
 const h = React.createElement;
 const fields = ['prediction','observation','revision'];

@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { AnatomyFigure, Button, Container, Input, Text, Textarea, mountReactSurface } from '@trillion/ui';
-import { useLessonPractice } from '../../../../parts/ui/show/isolated-module-surface/use-lesson-practice.mjs';
+import { useLessonPractice } from '../../../../../ui/show/isolated-module-surface/use-lesson-practice.mjs';
 import { renderDeskComputer } from '../../../anatomy-contact-replacement/desk-computer-model.mjs';
-import { DESK_COMPUTER_CSS } from '../../../../parts/screen-look/show/anatomy/desk-computer.mjs';
+import { DESK_COMPUTER_CSS } from 'tools/screen-look/show/anatomy/desk-computer.mjs';
 import content from './lesson-content.json' with { type: 'json' };
 
 const h = React.createElement;

@@ -23,7 +23,7 @@ SOFTWARE.
 */
 import React, { useMemo, useState } from 'react';
 import { AnatomyFigure, Button, Container, Text, Textarea, mountReactSurface } from '@trillion/ui';
-import { useLessonPractice } from '../../../../parts/ui/show/isolated-module-surface/use-lesson-practice.mjs';
+import { useLessonPractice } from '../../../../../ui/show/isolated-module-surface/use-lesson-practice.mjs';
 import { DECISIONS_BY_MODE, MODES, coinScene } from './lesson-model.mjs';
 import content from './lesson-content.json';
 

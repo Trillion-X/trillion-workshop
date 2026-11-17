@@ -1,6 +1,6 @@
 import React from 'react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
-import { LearningMasteryProtocolPanel } from '@/packages/learning-mastery-protocol/show/LearningMasteryProtocolPanel';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
+import { LearningMasteryProtocolPanel } from './LearningMasteryProtocolPanel';
 
 type MountArgs = {
   el: HTMLElement;

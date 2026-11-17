@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { AnatomyFigure, Button, Container, NamedIcon, Text, Textarea, mountReactSurface } from '@trillion/ui';
-import { useLessonPractice } from '../../../../parts/ui/show/isolated-module-surface/use-lesson-practice.mjs';
-import { RACKET_MATERIAL_CSS } from '../../../../parts/screen-look/show/anatomy/racket-materials.mjs';
+import { useLessonPractice } from '../../../../../ui/show/isolated-module-surface/use-lesson-practice.mjs';
+import { RACKET_MATERIAL_CSS } from '../../../../../screen-look/show/anatomy/racket-materials.mjs';
 import { readerScene } from './lesson-model.mjs';
 import content from './lesson-content.json';
 

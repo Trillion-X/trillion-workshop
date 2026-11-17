@@ -2,7 +2,7 @@ import React from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { LearningPathSurface, buildLearningPathSurfaceModel } from '@/packages/learning-path/show/LearningPathSurface';
+import { LearningPathSurface, buildLearningPathSurfaceModel } from './LearningPathSurface';
 
 const FEED = {
   title: 'Forehand mastery',

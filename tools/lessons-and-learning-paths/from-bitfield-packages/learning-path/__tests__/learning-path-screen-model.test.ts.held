@@ -3,7 +3,7 @@ import { Star } from 'lucide-react';
 import {
   buildLearningPathScreenModel,
   DEFAULT_STATUS_OVERRIDES,
-} from '@/packages/learning-path/read-data/learning-path-screen-model';
+} from '../read-data/learning-path-screen-model';
 
 const FEED = {
   title: 'Forehand mastery',

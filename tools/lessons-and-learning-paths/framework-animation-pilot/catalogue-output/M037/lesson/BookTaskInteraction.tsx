@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { AnatomyFigure, Button, Container, Text } from '@trillion/ui';
-import { useEased } from '../../../../parts/ui/show/anatomy/use-eased.ts';
+import { useEased } from 'tools/ui/show/anatomy/use-eased.ts';
 import { createBookTask } from './book-task-model.mjs';
 import { renderBookTaskFigure } from './book-task-figure.mjs';
 

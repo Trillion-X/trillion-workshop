@@ -61,7 +61,7 @@ The descriptor panel the table above says "stays a screen" is here, byte for byt
 | `read-data/learning-mastery-protocol-boundary.json` | The package's boundary file (its capability, record contracts and input descriptors) kept as data. |
 | `__tests__/protocol-descriptor-required.test.ts` | Three cases, run by `npm test`. `__tests__/protocol-fixture.ts` is its fixture; `LearningMasteryProtocolPanel.test.tsx` is not in `npm test`'s glob; `run-protocol-action.test.ts.held` is held (the retired runtime). |
 
-The data layer and `@/packages/ui` are not in this tree, so the panel does not load here and no tool row opens it yet.
+The data layer and `tools/ui` are not in this tree, so the panel does not load here and no tool row opens it yet.
 
 ## The learning page
 

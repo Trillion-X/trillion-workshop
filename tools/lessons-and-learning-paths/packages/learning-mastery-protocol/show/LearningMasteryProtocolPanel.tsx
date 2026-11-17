@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { Badge, Button, Card, Container, Text, Textarea } from '@/packages/ui';
-import { PlaceableSurfaceHost } from '@/packages/ui/show/placeable-surface-host';
+import { Badge, Button, Card, Container, Text, Textarea } from '../../../../ui';
+import { PlaceableSurfaceHost } from '../../../../ui/show/placeable-surface-host';
 import { runProtocolAction } from '../do-work/run-protocol-action';
 import {
   projectProtocolValues,

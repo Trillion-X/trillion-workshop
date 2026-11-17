@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button, Container, Text, Textarea, mountReactSurface } from '@trillion/ui';
-import { useLessonPractice } from '../../../../parts/ui/show/isolated-module-surface/use-lesson-practice.mjs';
+import { useLessonPractice } from '../../../../../ui/show/isolated-module-surface/use-lesson-practice.mjs';
 import content from './lesson-content.json' with { type: 'json' };
 const h=React.createElement,fields=content.fields.map(row=>row.id),emptyDraft=()=>Object.fromEntries(fields.map(key=>[key,'']));
 function restoreDraft(value){try{const parsed=JSON.parse(value);if(!parsed||typeof parsed!=='object'||Array.isArray(parsed))return null;return Object.fromEntries(fields.map(key=>[key,typeof parsed[key]==='string'?parsed[key]:'']));}catch{return null;}}

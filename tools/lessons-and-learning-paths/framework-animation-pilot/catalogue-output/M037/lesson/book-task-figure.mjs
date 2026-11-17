@@ -1,4 +1,4 @@
-import { BOOK_MATERIAL_CSS, bookCoverClass } from '../../../../parts/screen-look/show/anatomy/book-materials.mjs';
+import { BOOK_MATERIAL_CSS, bookCoverClass } from '../../../../../screen-look/show/anatomy/book-materials.mjs';
 import { renderBook } from '../../../anatomy-contact-replacement/book-model.mjs';
 
 /** Build one inspectable book from the shared hinged-book anatomy renderer. */

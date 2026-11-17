@@ -26,7 +26,7 @@ import {
   AnatomyFigure, Button, Container, Select, SelectItem, SelectPopup,
   SelectTrigger, SelectValue, Text, Textarea, mountReactSurface,
 } from '@trillion/ui';
-import { useLessonPractice } from '../../../../parts/ui/show/isolated-module-surface/use-lesson-practice.mjs';
+import { useLessonPractice } from '../../../../../ui/show/isolated-module-surface/use-lesson-practice.mjs';
 import { CAPABILITIES, GOALS, MODES, bodyScene } from './lesson-model.mjs';
 import content from './lesson-content.json';
 

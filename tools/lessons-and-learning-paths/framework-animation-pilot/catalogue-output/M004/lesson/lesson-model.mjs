@@ -1,6 +1,6 @@
 // One source-backed scene per activity. Each view asks whether movement fits
 // the primary task; none scores the person or turns movement into a target.
-import * as K from '../../../../parts/ui/show/anatomy/iso-kit.mjs';
+import * as K from '../../../../../ui/show/anatomy/iso-kit.mjs';
 import { renderPersonContext } from '../../../anatomy-contact-replacement/context-model.mjs';
 
 export const MODES = Object.freeze(['routine-call', 'difficult-review', 'between-heavy-sets']);

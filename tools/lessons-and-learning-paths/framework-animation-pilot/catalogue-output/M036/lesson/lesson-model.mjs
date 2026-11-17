@@ -1,5 +1,5 @@
 import { contextScene } from '../../M024/lesson/lesson-model.mjs';
-import * as K from '../../../../parts/ui/show/anatomy/iso-kit.mjs';
+import * as K from '../../../../../ui/show/anatomy/iso-kit.mjs';
 
 const NOTEBOOK_PAPER = [[-18, 58, 73.8], [18, 58, 73.8], [18, 83, 73.8], [-18, 83, 73.8]];
 

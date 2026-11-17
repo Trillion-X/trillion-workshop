@@ -1,7 +1,7 @@
 // The M003 scene reuses the actual Anatomy people and extensor-chain art. It
 // visualizes the framework's physical subject without predicting a person's
 // response or inferring health from appearance.
-import * as K from '../../../../parts/ui/show/anatomy/iso-kit.mjs';
+import * as K from '../../../../../ui/show/anatomy/iso-kit.mjs';
 import { renderContext, renderPersonContext } from '../../../anatomy-contact-replacement/context-model.mjs';
 
 export const MODES = Object.freeze(['capability-contrast', 'control-map', 'forecast-review']);

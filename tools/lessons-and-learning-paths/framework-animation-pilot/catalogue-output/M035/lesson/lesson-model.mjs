@@ -1,4 +1,4 @@
-import * as Anatomy from '../../../../parts/ui/show/anatomy/iso-kit.mjs';
+import * as Anatomy from '../../../../../ui/show/anatomy/iso-kit.mjs';
 
 export const initialState = Object.freeze({
   sequenceIndex: 0,

@@ -8,7 +8,7 @@ import {
   decodePathNodes,
   type PathNodeView,
   type PathStatusOverrides,
-} from '@/packages/ui/show/path-rail';
+} from '../../../../ui/show/path-rail';
 
 export interface LearningPathScreenModel {
   title: string;

@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Button, Chart, Container, Input, Text, Textarea, Timeline, mountReactSurface } from '@trillion/ui';
-import { useLessonPractice } from '../../../../parts/ui/show/isolated-module-surface/use-lesson-practice.mjs';
+import { useLessonPractice } from '../../../../../ui/show/isolated-module-surface/use-lesson-practice.mjs';
 import content from './lesson-content.json' with { type: 'json' };
 
 const h = React.createElement;

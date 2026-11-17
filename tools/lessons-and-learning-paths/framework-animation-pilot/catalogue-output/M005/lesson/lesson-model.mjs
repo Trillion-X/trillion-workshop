@@ -1,9 +1,9 @@
 // Anatomy geometry for interpreting the two different meanings of "3" in a
 // training log. The body is the same illustrative rep in each view; the load
 // settings show the counted unit described by the selected record.
-import * as K from '../../../../parts/ui/show/anatomy/iso-kit.mjs';
-import * as G from '../../../../parts/ui/show/anatomy/lathe.mjs';
-import { anatomyMaterialStyle } from '../../../../parts/screen-look/show/anatomy/iso-style.mjs';
+import * as K from '../../../../../ui/show/anatomy/iso-kit.mjs';
+import * as G from '../../../../../ui/show/anatomy/lathe.mjs';
+import { anatomyMaterialStyle } from '../../../../../screen-look/show/anatomy/iso-style.mjs';
 import { renderContext } from '../../../anatomy-contact-replacement/context-model.mjs';
 
 export const MODES = Object.freeze(['ordinary-sets', 'descending-pyramids']);

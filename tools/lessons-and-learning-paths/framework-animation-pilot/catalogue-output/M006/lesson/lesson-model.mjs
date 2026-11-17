@@ -1,8 +1,8 @@
 // M006 places one imagined attention cue in the real M004 activity contexts.
 // The cue can be noticed, taken on a routine call, or left; it is never tallied.
-import * as K from '../../../../parts/ui/show/anatomy/iso-kit.mjs';
-import * as G from '../../../../parts/ui/show/anatomy/lathe.mjs';
-import { anatomyMaterialStyle } from '../../../../parts/screen-look/show/anatomy/iso-style.mjs';
+import * as K from '../../../../../ui/show/anatomy/iso-kit.mjs';
+import * as G from '../../../../../ui/show/anatomy/lathe.mjs';
+import { anatomyMaterialStyle } from '../../../../../screen-look/show/anatomy/iso-style.mjs';
 import { renderPersonContext } from '../../../anatomy-contact-replacement/context-model.mjs';
 
 export const MODES = Object.freeze(['routine-call', 'difficult-review', 'between-heavy-sets']);

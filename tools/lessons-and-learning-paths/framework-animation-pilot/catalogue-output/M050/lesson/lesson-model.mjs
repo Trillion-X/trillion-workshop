@@ -1,6 +1,6 @@
-import * as K from '../../../../parts/ui/show/anatomy/iso-kit.mjs';
-import * as G from '../../../../parts/ui/show/anatomy/lathe.mjs';
-import { anatomyMaterialStyle } from '../../../../parts/screen-look/show/anatomy/iso-style.mjs';
+import * as K from '../../../../../ui/show/anatomy/iso-kit.mjs';
+import * as G from '../../../../../ui/show/anatomy/lathe.mjs';
+import { anatomyMaterialStyle } from '../../../../../screen-look/show/anatomy/iso-style.mjs';
 
 const WIDTH = 920;
 const HEIGHT = 500;

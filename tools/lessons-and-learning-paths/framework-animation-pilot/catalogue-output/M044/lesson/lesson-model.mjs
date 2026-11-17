@@ -1,5 +1,5 @@
 import { renderPersonContext } from '../../../anatomy-contact-replacement/context-model.mjs';
-import * as K from '../../../../parts/ui/show/anatomy/iso-kit.mjs';
+import * as K from '../../../../../ui/show/anatomy/iso-kit.mjs';
 
 const W = 1920;
 const H = 1080;

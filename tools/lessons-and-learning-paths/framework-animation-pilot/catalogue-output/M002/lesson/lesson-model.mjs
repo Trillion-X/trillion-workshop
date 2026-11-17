@@ -1,6 +1,6 @@
 // M002's school and reusable-lesson contrast is illustrative. The scenario
 // shows work moving through each arrangement; it does not score a winner.
-import * as K from '../../../../parts/ui/show/anatomy/iso-kit.mjs';
+import * as K from '../../../../../ui/show/anatomy/iso-kit.mjs';
 import { renderPersonContext } from '../../../anatomy-contact-replacement/context-model.mjs';
 
 export const ARRANGEMENTS = Object.freeze(['founder-queue', 'shared-lesson']);

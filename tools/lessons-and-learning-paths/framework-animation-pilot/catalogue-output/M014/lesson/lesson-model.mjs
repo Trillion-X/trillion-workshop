@@ -1,4 +1,4 @@
-import * as K from '../../../../parts/ui/show/anatomy/iso-kit.mjs';
+import * as K from '../../../../../ui/show/anatomy/iso-kit.mjs';
 import { renderPersonContext } from '../../../anatomy-contact-replacement/context-model.mjs';
 
 export const SIDE_IDS = Object.freeze(['payer', 'user']);
