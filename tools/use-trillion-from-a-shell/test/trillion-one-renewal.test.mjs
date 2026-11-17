@@ -95,3 +95,23 @@ test('a busy sign-in server is said to be busy, never called an ended sign-in', 
     await assert.rejects(credentialFor({ env: {}, store: { read: () => null }, grants, rules: { ...settings, state_folder: home }, home }), error => error.status === 4 && error.message === settings.words.sign_in_busy && /429/.test(error.detail));
   } finally { busy.close(); }
 });
+
+test('after one refused renewal every later run says ended without asking the server, until a new sign-in replaces it', async () => {
+  const calls = { count: 0 };
+  const dead = createServer((request, response) => { calls.count += 1; response.writeHead(400, { 'content-type': 'application/json' }).end('{"error":"invalid_grant","error_description":"session not found"}'); });
+  await new Promise(resolve => dead.listen(0, '127.0.0.1', resolve));
+  try {
+    const origin = `http://127.0.0.1:${dead.address().port}`;
+    const home = mkdtempSync(join(tmpdir(), 'one-renewal-'));
+    const file = join(home, 'grant.json');
+    writeFileSync(file, JSON.stringify(endingGrant(origin)));
+    const grants = { where: file, read: () => JSON.parse(readFileSync(file, 'utf8')), write: grant => writeFileSync(file, JSON.stringify(grant)), forget() {} };
+    const once = () => credentialFor({ env: {}, store: { read: () => null }, grants, rules: { ...settings, state_folder: home }, home });
+    await assert.rejects(once(), error => error.status === 3 && error.message === settings.words.sign_in_ended);
+    assert.equal(calls.count, 1);
+    for (let run = 0; run < 50; run += 1) await assert.rejects(once(), error => error.status === 3 && error.message === settings.words.sign_in_ended);
+    assert.equal(calls.count, 1, 'fifty more runs made no token call');
+    writeFileSync(file, JSON.stringify({ ...endingGrant(origin), access_token: 'fresh', expires_at_ms: Date.now() + 3600_000, refresh_token: 'fresh-refresh' }));
+    assert.equal((await once()).bearer, 'fresh', 'a new sign-in replaces the ended one');
+  } finally { dead.close(); }
+});

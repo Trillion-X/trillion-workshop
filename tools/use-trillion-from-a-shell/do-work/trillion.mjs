@@ -478,6 +478,8 @@ async function renewedGrant(grant, { grants, fetchImpl, rules, now, home }) {
     } catch (error) {
       const again = grants.read();
       if (again && again.refresh_token !== stored.refresh_token && !endsSoon(again, rules, now)) return again;
+      // The server said the sign-in is over (400 or 401, not busy): keep that in the store, so no later run asks it again; a new login replaces it.
+      if (error.status === 3) grants.write({ ...stored, ended: true });
       throw error;
     }
   }, { rules, home });
@@ -499,6 +501,7 @@ export async function credentialFor({ env = process.env, store = keyStore(), gra
     const key = store.read();
     return key ? { kind: 'key', bearer: key, where: store.where } : null;
   }
+  if (grant.ended === true) throw new TrillionError(rules.words.sign_in_ended, { status: 3 });
   if (endsSoon(grant, rules, now)) grant = await renewedGrant(grant, { grants, fetchImpl, rules, now, home });
   return { kind: 'sign-in', bearer: grant.access_token, where: grants.where, origin: grant.origin };
 }
