@@ -213,25 +213,30 @@ test('a carrier the meeting point gives a port and a certificate asks first, the
   const state = folder(t);
   const answer = { port: 31337, seconds: 120, certificate: 'CERTIFICATE port-31337' };
   const config = { way: way('ssh-certificate'), relay_host: relayHost, computer_id: 'mac-1', local_port: 9000, values: { public_key: 'ssh-ed25519 AAAAPUB carrier' },
-    announce: { argv: ['/bin/announce', '{"computer_id": "{computer_id}", "public_key": "{public_key}"}'], every_seconds: 60, gives: { remote_port: 'port', certificate: 'certificate' } } };
+    announce: { argv: ['/bin/announce', '{"computer_id": "{computer_id}", "public_key": "{public_key}", "salt": "{salt}", "carried": {carried}}'], every_seconds: 0.05, settle_seconds: 0.03, gives: { remote_port: 'port', certificate: 'certificate' } } };
   const asked = [], dialed = [], written = [];
   const controller = new AbortController();
-  let answers = [null, answer];
+  let answers = [null, answer, answer, null];
   const spawnImpl = (exe, argv, options) => {
     const child = new EventEmitter(); child.stderr = new PassThrough(); child.stdout = new PassThrough(); child.kill = () => {};
     if (exe === '/bin/announce') {
       asked.push(argv);
-      if (options.stdio[1] === 'pipe') { const given = answers.shift(); setTimeout(() => { if (given) child.stdout.end(JSON.stringify(given)); else child.stdout.end(); child.emit('exit', given ? 0 : 1); }, 5); }
+      const given = answers.shift();
+      setTimeout(() => { if (given) child.stdout.end(JSON.stringify(given)); else child.stdout.end(); child.emit('exit', given ? 0 : 1); }, 5);
       return child;
     }
     dialed.push(argv);
     const dir = argv[argv.indexOf('-i') + 1].replace(/\/identity$/, '');
     written.push(readFileSync(join(dir, 'identity-cert.pub'), 'utf8'));
-    setTimeout(() => { child.emit('exit', 0); controller.abort(); }, 20);
+    child.kill = () => { killed += 1; setTimeout(() => { child.emit('exit', 143); controller.abort(); }, 1); };
     return child;
   };
+  let killed = 0;
   await serveCarrier(config, { credential: async () => 'PRIVATE', state, spawnImpl, wait: async () => {}, signal: controller.signal });
-  assert.deepEqual(asked[0], ['{"computer_id": "mac-1", "public_key": "ssh-ed25519 AAAAPUB carrier"}']);
+  assert.deepEqual(asked[0], ['{"computer_id": "mac-1", "public_key": "ssh-ed25519 AAAAPUB carrier", "salt": "", "carried": false}']);
+  assert.deepEqual(asked[1], ['{"computer_id": "mac-1", "public_key": "ssh-ed25519 AAAAPUB carrier", "salt": "1", "carried": false}'], 'a refused try moves to another salt');
+  assert.ok(asked[2][0].endsWith('"carried": true}'), 'carried is said only once the client held its port');
+  assert.ok(killed >= 1, 'a refused renewal ends the client (nothing else stops it here)');
   assert.equal(dialed.length, 1, 'no dialing until the meeting point answered');
   assert.ok(dialed[0].includes('127.0.0.1:31337:127.0.0.1:9000'), 'the given port, not a local hash');
   assert.ok(dialed[0].includes(`carry@${relayHost.hostname}`));

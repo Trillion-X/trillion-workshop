@@ -98,14 +98,20 @@ function answerOf(spawnImpl, argv) {
 export async function serveCarrier(config, { credential, state, have = here(), spawnImpl = spawn, fetchBytes, run, wait = ms => new Promise(resolveWait => setTimeout(resolveWait, ms)), signal, report = () => {} }) {
   const { way } = config;
   const exe = await ensureProgram(way.client.program, { have, state, fetchBytes, run });
+  const gives = config.announce?.gives;
+  // A try that failed (the meeting point refused the port, or the client ended before it was carried) moves to another salt,
+  // so a port that collides with another person's is left for the next one the meeting point derives.
+  let failed = 0;
   while (!signal?.aborted) {
-    let values = valuesFor(config);
+    let values = valuesFor({ ...config, salt: failed ? `${config.salt ?? ''}${failed}` : config.salt });
+    const announceArgv = carried => config.announce.argv.map(part => fill(part, { ...values, carried }, 'announce'));
     // An announcement whose answer the client needs (`announce.gives`: a value name for each answer field, such as the port the
     // meeting point gives this computer and a certificate that may listen on it alone) is asked before the client starts.
-    if (config.announce?.gives) {
-      const answer = await answerOf(spawnImpl, config.announce.argv.map(part => fill(part, values, 'announce')));
-      const given = answer && Object.entries(config.announce.gives).map(([name, field]) => [name, answer[field]]);
+    if (gives) {
+      const answer = await answerOf(spawnImpl, announceArgv(false));
+      const given = answer && Object.entries(gives).map(([name, field]) => [name, answer[field]]);
       if (!given || given.some(([, value]) => value === undefined || value === null)) {
+        failed += 1;
         report({ way: way.id, ended: true, exit_code: null, said: 'the meeting point did not answer the announcement' });
         if (!signal?.aborted) await wait(2000);
         continue;
@@ -119,18 +125,29 @@ export async function serveCarrier(config, { credential, state, have = here(), s
       const { files, argv } = renderClient(way, values, { secret, dir });
       for (const file of files) writeFileSync(join(dir, file.name), file.text, { mode: file.mode });
       const child = spawnImpl(exe, argv, { stdio: ['ignore', 'ignore', 'pipe'] });
-      // While the carrier runs, the meeting point is told whose computer is at this port (`announce`: a command the person's own
-      // sign-in runs, with {remote_port} filled), at once and every `every_seconds`, so the announcement lasts only while carried.
-      const announce = () => { if (config.announce) spawnImpl(config.announce.argv[0], config.announce.argv.slice(1).map(part => fill(part, values, 'announce')), { stdio: 'ignore' }).on?.('error', () => {}); };
-      const announcing = config.announce ? setInterval(announce, config.announce.every_seconds * 1000) : null;
-      announce();
-      child.once('exit', () => clearInterval(announcing));
+      // While the carrier runs, the meeting point is told whose computer is at this port (`announce`, with {remote_port} and
+      // {carried} filled) every `every_seconds`, so the announcement lasts only while carried. One the meeting point answers
+      // (`gives`) is first told once the client has held its port for `settle_seconds`, and a refused one ends the client: a
+      // computer is never announced at a port it does not hold.
+      let carried = false;
+      const announce = () => {
+        if (!gives) { spawnImpl(config.announce.argv[0], announceArgv(true).slice(1), { stdio: 'ignore' }).on?.('error', () => {}); return; }
+        answerOf(spawnImpl, announceArgv(true)).then(answer => { if (answer) carried = true; else child.kill('SIGTERM'); });
+      };
+      const timers = [];
+      if (config.announce) {
+        const every = () => timers.push(setInterval(announce, config.announce.every_seconds * 1000));
+        if (gives) timers.push(setTimeout(() => { announce(); every(); }, (config.announce.settle_seconds ?? 3) * 1000));
+        else { announce(); every(); }
+      }
+      child.once('exit', () => timers.forEach(timer => clearInterval(timer)));
       const abort = () => child.kill('SIGTERM');
       signal?.addEventListener('abort', abort, { once: true });
       let said = '';
       child.stderr.on('data', bytes => { if (said.length < 4096) said += bytes.toString().slice(0, 4096 - said.length); });
       const code = await new Promise(resolveExit => { child.once('error', () => resolveExit(null)); child.once('exit', resolveExit); });
       signal?.removeEventListener('abort', abort);
+      if (gives && !carried) failed += 1;
       report({ way: way.id, ended: true, exit_code: code, said: said.trim().split('\n').at(-1) ?? '' });
     } finally { rmSync(dir, { recursive: true, force: true }); }
     if (!signal?.aborted) await wait(2000);
