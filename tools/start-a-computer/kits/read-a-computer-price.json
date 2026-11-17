@@ -1,8 +1,8 @@
 {
-  "drafted_from": "tool row in tools/start-a-computer/tool-rows.json, read-data/providers.json, do-work/start-a-computer.mjs (priceOfAPlace) and tools/start-a-computer/test/start-a-computer.test.mjs",
-  "start_here": "Say to your AI: \"What would a cax11 machine at Hetzner cost me each month before I rent it?\"",
+  "drafted_from": "tool row in tools/start-a-computer/tool-rows.json, the provider description the request names, do-work/start-a-computer.mjs (priceOfAPlace) and tools/start-a-computer/test/start-a-computer.test.mjs",
+  "start_here": "Say to your AI: \"What would a cax11 machine from my provider cost me each month before I rent it?\"",
   "lists": [],
-  "no_lists_because": "It keeps no list: it reads a request file and the provider row's price request, and rents nothing.",
+  "no_lists_because": "It keeps no list: it reads a request file and the provider description's price request, and rents nothing.",
   "workflows": [],
   "tools": [
     "tool:read-a-computer-price",
@@ -10,9 +10,9 @@
     "tool:rent-a-machine"
   ],
   "instructions": [
-    "1. Write request.json with machine {provider: \"hetzner\", placement: {size: \"cax11\"}} (location, image and the rest come from the provider row).",
-    "2. Say the line in start_here. Your AI reads the row with tools:list {tool: \"tool:read-a-computer-price\"} and runs node tools/start-a-computer/do-work/start-a-computer.mjs price request.json with the vault credential hetzner-api-token handed on descriptor 3.",
-    "3. Read the JSON line: provider, placement and price {cents, currency}. A null price means the row reads none (a machine you already run with no price given)."
+    "1. Write request.json with machine {provider: \"providers/rented.json\", placement: {size: \"cax11\"}} (provider is the path of your provider description; location, image and the rest come from it).",
+    "2. Say the line in start_here. Your AI reads the row with tools:list {tool: \"tool:read-a-computer-price\"} and runs node tools/start-a-computer/do-work/start-a-computer.mjs price request.json with the vault credential its description names (vault_key) handed on descriptor 3.",
+    "3. Read the JSON line: provider, placement and price {cents, currency}. A null price means the description reads none (a machine you already run with no price given)."
   ],
   "worked_examples": [
     {
@@ -29,8 +29,8 @@
           }
         }
       },
-      "given": "From tools/start-a-computer/test/start-a-computer.test.mjs ('the price is the size\\'s monthly price at the lease\\'s location, in cents'): the provider answers GET /server_types?name=cax11 with prices fsn1 7.9900 and hel1 6.9900 (gross, EUR). request.json = {\"machine\":{\"provider\":\"hetzner\",\"placement\":{\"size\":\"cax11\"}}}; hel1 is the row's default location. Run: node tools/start-a-computer/do-work/start-a-computer.mjs price request.json",
-      "hands_back": "{\"provider\":\"hetzner\",\"placement\":{\"size\":\"cax11\",\"location\":\"hel1\",\"image\":\"ubuntu-24.04\"},\"price\":{\"cents\":699,\"currency\":\"EUR\"}}: 6.99 EUR at hel1. With \"location\":\"ash\" the price is refused (\"no monthly price\") because the row lists none there."
+      "given": "From tools/start-a-computer/test/start-a-computer.test.mjs ('the price is the size\\'s monthly price at the lease\\'s location, in cents'): the provider answers GET /server_types?name=cax11 with prices fsn1 7.9900 and hel1 6.9900 (example.test, a made-up provider) (gross, EUR). request.json = {\"machine\":{\"provider\":\"providers/rented-machine.json\",\"placement\":{\"size\":\"cax11\"}}}; hel1 is the description's default location. Run: node tools/start-a-computer/do-work/start-a-computer.mjs price request.json",
+      "hands_back": "{\"provider\":\"rented-machine\",\"placement\":{\"size\":\"cax11\",\"location\":\"hel1\",\"image\":\"ubuntu-24.04\"},\"price\":{\"cents\":699,\"currency\":\"EUR\"}}: 6.99 EUR at hel1. With \"location\":\"ash\" the price is refused (\"no monthly price\") because the description lists none there."
     }
   ]
 }

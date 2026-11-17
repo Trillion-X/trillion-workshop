@@ -1,8 +1,9 @@
 // tools/start-a-computer/do-work/start-a-computer.mjs
 //
 // `tool:start-a-computer` and its siblings (tool-rows.json): make a machine into a computer that keeps people's accounts.
-// The machine comes from a `machines` row in ../read-data/providers.json (rented, or one the person already runs over
-// SSH); its public name from a `names` row. Then set-up-the-machine.sh prepares it over SSH, the engine release is
+// The machine comes from the provider description the request names in machine.provider (a file the person keeps, rented
+// or one they already run over SSH); its public name from the one in name.provider. Then set-up-the-machine.sh prepares it over SSH, the
+// engine release is
 // installed, the computer config is written, the engine starts serving, and the answer is what was read back: the computer
 // id the engine reports, the sign-up page's HTTP status at the public name, and the provider's monthly price.
 //
@@ -27,7 +28,7 @@ import { fileURLToPath } from 'node:url';
 import { makeHashCodeHexFromBytes } from 'trillion-workshop/tools/content-identity/read-data/identity.mjs';
 import { verifyEntry } from 'trillion-workshop/tools/publish-an-engine-release/do-work/release-feed.mjs';
 import {
-  machineProvider, nameProvider, providerClient, rentMachine, readMachine, releaseMachine, readPrice, pointName,
+  readProvider, providerClient, rentMachine, readMachine, releaseMachine, readPrice, pointName,
   forgetName, readLease,
 } from './rent-a-machine.mjs';
 
@@ -605,7 +606,7 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 /** Rent (or adopt) the request's machine, point its name and wait for SSH: the machine any other tool may then set up. */
 export async function rentAMachine(request, { machineToken, nameToken, fetchImpl = fetch, wait = pause, run = onMachine } = {}) {
-  const machines = machineProvider(request.machine.provider), names = request.name.provider ? nameProvider(request.name.provider) : null;
+  const machines = readProvider(request.machine.provider), names = request.name.provider ? readProvider(request.name.provider) : null;
   const machineRequest = machines.base ? providerClient(machines, machineToken, { fetchImpl }) : null;
   const file = absolute(request.lease_file, 'lease_file'), m = request.machine;
   const publicKey = m.public_key ?? (m.public_key_file && readFileSync(absolute(m.public_key_file, 'machine.public_key_file'), 'utf8'));
@@ -790,12 +791,12 @@ export async function rollBackAComputer(leaseFile, request, backup, { run = onMa
 
 /** The monthly price the request's machine would cost, read before anything is rented. */
 export async function priceOfAPlace(request, { machineToken, fetchImpl = fetch } = {}) {
-  const row = machineProvider(request.machine.provider);
+  const row = readProvider(request.machine.provider);
   return { provider: row.id, placement: { ...row.placement, ...request.machine.placement }, price: await readPrice({ request: row.base ? providerClient(row, machineToken, { fetchImpl }) : null, provider: row, placement: request.machine.placement }) };
 }
 
 export async function placeStatus(leaseFile, { machineToken, fetchImpl = fetch } = {}) {
-  const file = absolute(leaseFile, 'LEASE_FILE'), lease = readLease(file), row = machineProvider(lease.provider);
+  const file = absolute(leaseFile, 'LEASE_FILE'), lease = readLease(file), row = readProvider(lease.providerFile);
   const machine = await readMachine({ request: row.base ? providerClient(row, machineToken, { fetchImpl }) : null, file, provider: row });
   const health = healthOf({});
   if (health.where !== 'public') throw refused('A status reads the public health row only: the place is not asked on its machine.');
@@ -805,8 +806,8 @@ export async function placeStatus(leaseFile, { machineToken, fetchImpl = fetch }
 
 /** Forget the public name, then give the machine back (an adopted machine is only forgotten). */
 export async function removeAPlace(leaseFile, { machineToken, nameToken, fetchImpl = fetch } = {}) {
-  const file = absolute(leaseFile, 'LEASE_FILE'), lease = readLease(file), row = machineProvider(lease.provider);
-  if (lease.recordId) await forgetName({ request: providerClient(nameProvider(lease.names), nameToken, { fetchImpl }), file });
+  const file = absolute(leaseFile, 'LEASE_FILE'), lease = readLease(file), row = readProvider(lease.providerFile);
+  if (lease.recordId) await forgetName({ request: providerClient(readProvider(lease.namesFile), nameToken, { fetchImpl }), file });
   const done = await releaseMachine({ request: row.base ? providerClient(row, machineToken, { fetchImpl }) : null, file, provider: row });
   return { name: done.name, provider: done.provider, state: done.state, adopted: Boolean(done.adopted) };
 }
@@ -863,6 +864,8 @@ export function readRequest(file) {
     request.host_layout = JSON.parse(readFileSync(resolvePath(here, request.host_layout_file), 'utf8'));
     delete request.host_layout_file;
   }
+  resolveIn(request.machine, 'provider');
+  resolveIn(request.name, 'provider');
   resolveIn(request.machine, 'public_key_file');
   resolveIn(request.ssh, 'known_hosts');
   resolveIn(request.ssh, 'identity_file');
@@ -903,7 +906,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     if (!first || !['price', 'rent', 'start', 'status', 'unit', 'install', 'update', 'rollback', 'remove'].includes(operation) || overMachine.includes(operation) !== Boolean(second) || (operation === 'rollback') !== Boolean(third)) throw Object.assign(new Error(usage), { exit: 2 });
     const asked = ['price', 'rent', 'start'].includes(operation), lease = asked ? null : readLease(resolvePath(first));
     const needsName = ['rent', 'start'].includes(operation) ? Boolean(json(first).name?.provider) : operation === 'remove' && Boolean(lease.recordId);
-    const needsMachine = !overMachine.includes(operation) && Boolean(machineProvider(asked ? json(first).machine.provider : lease.provider).base);
+    const needsMachine = !overMachine.includes(operation) && Boolean(readProvider(asked ? json(first).machine.provider : lease.providerFile).base);
     const startLayout = operation === 'start' ? hostLayoutOf(json(first)) : null;
     const needsHeld = (startLayout?.units ?? []).some(unit => unit.secret_vault_key);
     const tokens = { machineToken: needsMachine ? await pipe(3) : '', nameToken: needsName ? await pipe(4) : '', held: needsHeld ? heldValues(await pipe(5)) : {} };

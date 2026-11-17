@@ -1,0 +1,11 @@
+{
+  "what_this_is": "A made-up provider description for the start-a-computer tests (example.test answers nothing).",
+  "id": "adopted-machine",
+  "name": "A Linux machine you already run, over SSH",
+  "notes": "Set placement.address to the machine's public IPv4 and placement.monthly_price_cents to what it costs you, if anything. Starting adopts that address; removing forgets it and never touches the machine.",
+  "base": null,
+  "placement": {
+    "address": null,
+    "monthly_price_cents": null
+  }
+}

@@ -1,6 +1,6 @@
 # Start a computer
 
-Rent a Linux machine through a provider row or adopt an existing machine over SSH, install a caller-supplied engine release, write its config, start it and read back its sign-up page and monthly price. Provider credentials arrive on private pipes, never in argv, a lease or an answer.
+Rent a Linux machine through a provider description the person supplies, or adopt a machine they already run over SSH, install a caller-supplied engine release, write its config, start it and read back its sign-up page and monthly price. Provider credentials arrive on private pipes, never in argv, a lease or an answer.
 
 The request must provide `product_settings`: a JSON object or an absolute JSON file path. `readRequest(file)` resolves a relative settings path against the request file. The settings must include `new_accounts.sign_in`, `sign_in_ways`, `sign_in_words`, `copies` and `copies_rules`. The tool supplies no product identity, engine program name, starting account fixture or release-feed default.
 
@@ -13,6 +13,8 @@ A request's `release_feed` selects its signed feed. An omitted or null feed sele
 ## Requests and commands
 
 Run `node tools/start-a-computer/do-work/start-a-computer.mjs OPERATION ...`. Operations are `price REQUEST`, `rent REQUEST`, `start REQUEST`, `status LEASE`, `install LEASE REQUEST`, `update LEASE REQUEST`, `rollback LEASE REQUEST BACKUP` and `remove LEASE`.
+
+A provider is a description file the person keeps outside this folder; the tool names none. `machine.provider` (and `name.provider` for a DNS record) in a request is the path of that file, relative to the request file, and the lease keeps the path (`providerFile`, `namesFile`) so a status or removal needs only the lease. The description holds the provider's `base` URL, its `auth` header, the credential's vault handle (`vault_key`, never the value), its `requests`, and which request finds, creates, reads and removes a machine and its SSH key, reads a size's price, or points a name (`host`, `access_key`, `price`, `zone`, `record`); a description with no `base` is a machine already run, adopted at `placement.address`. Only the calls a description declares are sent. A new provider is a new file and no code change.
 
 A start request names `lease_file`, `machine`, `name`, `ssh`, `port`, `engine` and `product_settings`. Engine inputs include its file, data environment name, data folder and release. Optional inputs include `place_config`, `config_from_release`, `default_places`, `copies`, `public_origin` and `release_feed`. Local file paths are relative to the request file. An update also accepts `layout` overrides; otherwise the running service's own config, current link, state folder, owner and release folder are discovered.
 

@@ -1,7 +1,7 @@
 {
   "kind": "package-set-records",
   "record_set": "start-a-computer-tool-rows",
-  "what_this_is": "The Workshop rows for the start-a-computer folder: make a machine into a computer that keeps people's accounts, read its price, its state, check that it takes a new account end to end, give it a new release, and give it back. The provider is a row in read-data/providers.json; the provider's credential reaches the one process on a private pipe (descriptor 3, the name provider's on descriptor 4).",
+  "what_this_is": "The Workshop rows for the start-a-computer folder: make a machine into a computer that keeps people's accounts, read its price, its state, check that it takes a new account end to end, give it a new release, and give it back. The provider is a description file the person keeps outside this folder, named by machine.provider (and name.provider) in the request; the provider's credential reaches the one process on a private pipe (descriptor 3, the name provider's on descriptor 4).",
   "records": [
     {
       "payload": {
@@ -9,7 +9,7 @@
         "id": "tool:start-a-computer",
         "label": "Start a computer",
         "job": "Make a machine into a computer that keeps people's accounts: rent one or use one I already run, set it up, start the engine serving and read back its sign-up page",
-        "description": "Rents a machine from a provider row (or adopts a Linux machine the person runs, at its address), points a public name at it through a names row, prepares it over SSH (a system user, Caddy with its own certificate, a firewall, a service), installs the engine release, writes the computer config with the machine's address and price, starts it, and answers the computer id, the machine's architecture, the monthly price and the sign-up page's HTTP status. Running it again resumes from the saved lease.",
+        "description": "Rents a machine from the provider description the request names (or adopts a Linux machine the person runs, at its address), points a public name at it through the name provider description, prepares it over SSH (a system user, Caddy with its own certificate, a firewall, a service), installs the engine release, writes the computer config with the machine's address and price, starts it, and answers the computer id, the machine's architecture, the monthly price and the sign-up page's HTTP status. Running it again resumes from the saved lease.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -77,7 +77,7 @@
             "node",
             "ssh"
           ],
-          "say": "This runs on the person's computer from the root of the Workshop checkout. Hand the machine provider row's vault_key credential on descriptor 3 and the names row's on descriptor 4, read from the person's vault, never in argv or a file. When a host_layout unit names a secret_vault_key, hand descriptor 5 one JSON object of each such vault name to the value the vault holds under it; the computer seals it with systemd-creds at the unit's secret_file. Tell the person the computer's public name, its price and whether the sign-up page answered 200. If it stops part way, run the same command again: the saved lease resumes it."
+          "say": "This runs on the person's computer from the root of the Workshop checkout. Hand the machine provider description's vault_key credential on descriptor 3 and the name provider description's on descriptor 4, read from the person's vault, never in argv or a file. When a host_layout unit names a secret_vault_key, hand descriptor 5 one JSON object of each such vault name to the value the vault holds under it; the computer seals it with systemd-creds at the unit's secret_file. Tell the person the computer's public name, its price and whether the sign-up page answered 200. If it stops part way, run the same command again: the saved lease resumes it."
         },
         "needs": {
           "expected_seconds": 240,
@@ -96,7 +96,7 @@
         "id": "tool:rent-a-machine",
         "label": "Rent a machine",
         "job": "Rent a machine (or take one I already run) with a public name pointed at it, for another tool to set up",
-        "description": "Rents a machine from a provider row (or adopts a Linux machine the person runs, at its address), points a public name at it through a names row, waits until it answers SSH, and answers the lease, the public name, the machine's architecture and the monthly price. It sets nothing up on the machine: another tool (an engine builder, a computer) does that. tool:give-back-a-computer gives it back from the same lease file. Running it again resumes from the saved lease.",
+        "description": "Rents a machine from the provider description the request names (or adopts a Linux machine the person runs, at its address), points a public name at it through the name provider description, waits until it answers SSH, and answers the lease, the public name, the machine's architecture and the monthly price. It sets nothing up on the machine: another tool (an engine builder, a computer) does that. tool:give-back-a-computer gives it back from the same lease file. Running it again resumes from the saved lease.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -146,7 +146,7 @@
             "node",
             "ssh"
           ],
-          "say": "This runs on the person's computer from the root of the Workshop checkout. Hand the machine provider row's vault_key credential on descriptor 3 and the names row's on descriptor 4, read from the person's vault, never in argv or a file. Tell the person the machine's public name, address and monthly price."
+          "say": "This runs on the person's computer from the root of the Workshop checkout. Hand the machine provider description's vault_key credential on descriptor 3 and the name provider description's on descriptor 4, read from the person's vault, never in argv or a file. Tell the person the machine's public name, address and monthly price."
         },
         "maker": "maker:start-a-computer",
         "licence_class": "licence:maker-own",
@@ -161,7 +161,7 @@
         "id": "tool:read-a-computer-price",
         "label": "Read a computer's price",
         "job": "See what a machine for a computer would cost each month before renting it",
-        "description": "Reads the monthly price of the request's machine size at its location from the provider row's price request. Rents nothing.",
+        "description": "Reads the monthly price of the request's machine size at its location from the provider description's price request. Rents nothing.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -206,7 +206,7 @@
           "needs": [
             "node"
           ],
-          "say": "Hand the machine provider row's vault_key credential on descriptor 3. A null price means the row reads none (a machine the person already runs and gave no price for)."
+          "say": "Hand the machine provider description's vault_key credential on descriptor 3. A null price means the description reads none (a machine the person already runs and gave no price for)."
         },
         "needs": {
           "expected_seconds": 5,
@@ -283,7 +283,7 @@
           "needs": [
             "node"
           ],
-          "say": "Hand the machine provider row's vault_key credential on descriptor 3 (none for a machine the person already runs)."
+          "say": "Hand the machine provider description's vault_key credential on descriptor 3 (none for a machine the person already runs)."
         },
         "needs": {
           "expected_seconds": 15,
@@ -586,7 +586,7 @@
           "needs": [
             "node"
           ],
-          "say": "Hand the machine provider row's vault_key credential on descriptor 3 and the names row's on descriptor 4. Confirm with the person that the computer holds no account that has not moved."
+          "say": "Hand the machine provider description's vault_key credential on descriptor 3 and the name provider description's on descriptor 4. Confirm with the person that the computer holds no account that has not moved."
         },
         "needs": {
           "expected_seconds": 15,

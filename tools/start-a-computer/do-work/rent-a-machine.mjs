@@ -1,28 +1,27 @@
 // tools/start-a-computer/do-work/rent-a-machine.mjs
 //
-// One machine lease, driven by a provider row in ../read-data/providers.json. A `machines` row's `host` and
-// `access_key` name which of its own `requests` find, create, read and remove a machine and its SSH key; its `price`
-// names the request that reads the size's monthly price. A `names` row's `zone` and `record` do the same for one DNS
-// name. A row with no `base` is a machine the person already runs: it is adopted at its address, and removing it
-// forgets it without touching it.
+// One machine lease, driven by a provider description the person supplies as a file (`readProvider`); the tool holds
+// none. A machine description's `host` and `access_key` name which of its own `requests` find, create, read and remove
+// a machine and its SSH key; its `price` names the request that reads the size's monthly price. A name description's
+// `zone` and `record` do the same for one DNS name. A description with no `base` is a machine the person already runs:
+// it is adopted at its address, and removing it forgets it without touching it.
 //
 // Provider credentials arrive only as an in-memory argument. The lease file names the provider rows, their IDs, the
 // address, size, start and cleanup deadline, never a credential. Creating, observing and removing use the same exact
 // owned IDs, and nothing is deleted that does not carry this lease's own label. A provider that stores each public key
 // once has the person's key found by its fingerprint and used as it is; the lease then never removes it.
 import { readFileSync, writeFileSync, mkdirSync, renameSync } from 'node:fs';
-import { dirname } from 'node:path';
+import { dirname, isAbsolute } from 'node:path';
 import { isIP } from 'node:net';
 import { createHash } from 'node:crypto';
 
-const rows = JSON.parse(readFileSync(new URL('../read-data/providers.json', import.meta.url), 'utf8'));
-function one(list, id, what) {
-  const row = list.find(r => r.id === id);
-  if (!row) throw new Error(`No ${what} row is named ${JSON.stringify(id)}; the rows are ${list.map(r => r.id).join(', ')}.`);
-  return row;
+/** A provider description read from the file the person keeps it in; the lease keeps that path to read it again. */
+export function readProvider(file) {
+  if (typeof file !== 'string' || !isAbsolute(file)) throw new Error('A provider is the absolute path of its description file.');
+  const row = JSON.parse(readFileSync(file, 'utf8'));
+  if (typeof row?.id !== 'string' || typeof row.name !== 'string') throw new Error(`The provider description ${file} needs an id and a name.`);
+  return { ...row, file };
 }
-export const machineProvider = id => one(rows.machines, id, 'machine provider');
-export const nameProvider = id => one(rows.names, id, 'name provider');
 
 /** The value at a dotted path ('' is the value itself; a number segment indexes an array). */
 export const at = (value, path) => (path ? path.split('.').reduce((v, key) => v?.[key], value) : value);
@@ -107,7 +106,7 @@ export async function rentMachine({ request, file, name, publicKey, placement = 
     if (lease.name !== name || lease.provider !== row.id || lease.serverType !== (spec.size ?? null) || lease.location !== (spec.location ?? null)) throw new Error('The saved lease names another placement.');
     return { ...lease, reused: true };
   }
-  lease = { schema: 'place-lease/1', provider: row.id, name, serverType: spec.size ?? null, location: spec.location ?? null, image: spec.image ?? null, lifetime, startedAt, expiresAt: expiresAt ?? null, state: 'creating', serverId: null, sshKeyId: null, address: null };
+  lease = { schema: 'place-lease/1', provider: row.id, providerFile: row.file, name, serverType: spec.size ?? null, location: spec.location ?? null, image: spec.image ?? null, lifetime, startedAt, expiresAt: expiresAt ?? null, state: 'creating', serverId: null, sshKeyId: null, address: null };
   // A machine the person already runs is adopted at its address; there is nothing to rent and nothing to delete later.
   if (!row.base) { Object.assign(lease, { state: 'running', address: spec.address, adopted: true }); save(file, lease); return lease; }
   const base = { ...spec, name, public_key: publicKey.trim(), fingerprint: fingerprintOf(publicKey) }, ctx = { ...base, ...fill(row.fill ?? {}, base) }, s = row.host, k = row.access_key;
@@ -148,7 +147,7 @@ export async function rentMachine({ request, file, name, publicKey, placement = 
 
 /** The machine as the provider sees it now: { state, address }, or { state: 'absent' }; an adopted one is as saved. */
 export async function readMachine({ request, file, provider }) {
-  const lease = readLease(file), row = provider ?? machineProvider(lease.provider);
+  const lease = readLease(file), row = provider ?? readProvider(lease.providerFile);
   if (!row.base || lease.serverId == null) return { state: lease.state, address: lease.address };
   const answer = await ask(request, row, row.host, 'read', { ...row.placement, name: lease.name }, lease.serverId);
   if (answer.absent) return { state: 'absent', address: null };
@@ -160,7 +159,7 @@ export async function readMachine({ request, file, provider }) {
 export async function releaseMachine({ request, file, provider }) {
   const lease = readLease(file);
   if (lease.state === 'removed') return lease;
-  const row = provider ?? machineProvider(lease.provider), ctx = { ...row.placement, name: lease.name };
+  const row = provider ?? readProvider(lease.providerFile), ctx = { ...row.placement, name: lease.name };
   for (const [part, id, what] of [[row.host, lease.serverId, 'machine'], [row.access_key, lease.sshKeyId, 'SSH key']]) {
     if (!part || id == null) continue;
     const answer = await ask(request, row, part, 'read', ctx, id);
@@ -197,7 +196,7 @@ export async function pointName({ request, file, provider, zone, hostName }) {
   if (existing.length) throw new Error(`${hostName} already points somewhere; it was left untouched.`);
   const created = at(await ask(request, row, r, 'create', inZone), r.created_at);
   if (!ownedId(r, idAt(created, r)) || at(created, r.address_at) !== lease.address) throw new Error(`${row.name} did not return the new record.`);
-  Object.assign(lease, { names: row.id, zone, zoneId, hostName, recordId: idAt(created, r) });
+  Object.assign(lease, { names: row.id, namesFile: row.file, zone, zoneId, hostName, recordId: idAt(created, r) });
   save(file, lease);
   return lease;
 }
@@ -205,7 +204,7 @@ export async function pointName({ request, file, provider, zone, hostName }) {
 export async function forgetName({ request, file, provider }) {
   const lease = readLease(file);
   if (!lease.recordId) return lease;
-  const row = provider ?? nameProvider(lease.names), r = row.record;
+  const row = provider ?? readProvider(lease.namesFile), r = row.record;
   const ctx = { name: lease.name, zone: lease.zone, host_name: lease.hostName, [row.zone.id_is]: lease.zoneId };
   const answer = await ask(request, row, r, 'read', ctx, lease.recordId);
   if (!answer.absent) {

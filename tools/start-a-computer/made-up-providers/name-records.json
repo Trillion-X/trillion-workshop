@@ -1,0 +1,69 @@
+{
+  "what_this_is": "A made-up provider description for the start-a-computer tests (example.test answers nothing).",
+  "id": "name-records",
+  "name": "Example Test DNS",
+  "base": "https://dns.example.test/v4",
+  "auth": {
+    "header": "authorization",
+    "prefix": "Bearer "
+  },
+  "vault_key": "example-test-names-token",
+  "error_code_at": "errors.0.code",
+  "requests": {
+    "find_zone": {
+      "notes": "The zone with one exact name. Reads only.",
+      "url": "https://dns.example.test/v4/zones?name={zone}",
+      "method": "GET"
+    },
+    "find_record": {
+      "notes": "The A records with one exact name. Reads only.",
+      "url": "https://dns.example.test/v4/zones/{zone_id}/dns_records?type=A&name={host_name}",
+      "method": "GET"
+    },
+    "create_record": {
+      "notes": "Point one name at the machine, unproxied, so the machine answers its own certificate.",
+      "url": "https://dns.example.test/v4/zones/{zone_id}/dns_records",
+      "method": "POST",
+      "body_template": {
+        "type": "A",
+        "name": "{host_name}",
+        "content": "{address}",
+        "ttl": 60,
+        "proxied": false,
+        "comment": "place-lease {name}"
+      }
+    },
+    "read_record": {
+      "notes": "One record. Read it before removing it.",
+      "url": "https://dns.example.test/v4/zones/{zone_id}/dns_records/{record_id}",
+      "method": "GET"
+    },
+    "delete_record": {
+      "notes": "Remove one record.",
+      "url": "https://dns.example.test/v4/zones/{zone_id}/dns_records/{record_id}",
+      "method": "DELETE"
+    }
+  },
+  "zone": {
+    "find": "find_zone",
+    "list_at": "result",
+    "id_is": "zone_id",
+    "id_pattern": "^[0-9a-f]{32}$",
+    "id_at": "id"
+  },
+  "record": {
+    "find": "find_record",
+    "list_at": "result",
+    "create": "create_record",
+    "created_at": "result",
+    "read": "read_record",
+    "found_at": "result",
+    "remove": "delete_record",
+    "id_is": "record_id",
+    "id_pattern": "^[0-9a-f]{32}$",
+    "id_at": "id",
+    "owner_at": "comment",
+    "owner_is": "place-lease {name}",
+    "address_at": "content"
+  }
+}
