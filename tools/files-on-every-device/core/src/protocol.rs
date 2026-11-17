@@ -136,7 +136,9 @@ pub enum Command {
     Done { demand: u64, item: Option<ItemView>, kept_beside: bool },
     /// The thumbnail's bytes are the command's bytes.
     Thumbnail { demand: u64, bytes: usize },
-    Failed { demand: u64, problem: Problem, retry_after_ms: Option<u64> },
+    /// A demand failed: the OS-neutral problem the shell maps to its own error, and `words`, the sentence the person
+    /// reads (contract.json `problem_words`), set as that error's description.
+    Failed { demand: u64, problem: Problem, retry_after_ms: Option<u64>, words: String },
     /// Something changed: the OS should ask for the working set's changes.
     Signal,
     /// The problem that stopped work is over (Apple's signalErrorResolved).

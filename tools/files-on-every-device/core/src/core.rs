@@ -331,7 +331,8 @@ impl Core {
     }
 
     fn fail(&mut self, demand: u64, problem: Problem) {
-        self.emit(Command::Failed { demand, problem, retry_after_ms: None });
+        let words = self.contract.words(problem);
+        self.emit(Command::Failed { demand, problem, retry_after_ms: None, words });
     }
 
     // ---- items and rules -------------------------------------------------------------------------------------------

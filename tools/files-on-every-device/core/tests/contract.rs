@@ -128,3 +128,27 @@ fn with_no_computer_named_a_pin_and_a_conflict_copy_are_not_offered() {
     assert_eq!(world.failed_with(from, 3), Some(Problem::StaleVersion), "the store's newer version is never written over");
     assert_eq!(world.store.names["/report.txt"].content.range(0, 6), b"theirs");
 }
+
+/// Every problem, by an exhaustive match: a new problem stops this test from compiling until it is listed.
+fn every_problem() -> Vec<Problem> {
+    let all = [Problem::Unauthorised, Problem::Forbidden, Problem::Missing, Problem::StaleVersion, Problem::Unreachable, Problem::Invalid, Problem::RefusedCopy, Problem::NotOffered, Problem::Cancelled];
+    for problem in all {
+        match problem {
+            Problem::Unauthorised | Problem::Forbidden | Problem::Missing | Problem::StaleVersion | Problem::Unreachable | Problem::Invalid | Problem::RefusedCopy | Problem::NotOffered | Problem::Cancelled => {}
+        }
+    }
+    all.to_vec()
+}
+
+#[test]
+fn every_problem_has_words_and_a_failure_carries_them() {
+    let contract = files_core::Contract::shipped();
+    for problem in every_problem() {
+        assert!(!contract.words(problem).is_empty(), "{problem:?}");
+    }
+    assert_eq!(contract.problem_words.len(), every_problem().len(), "no words for a problem that is not one");
+    let mut world = World::fast();
+    world.link.down = true;
+    let failed = world.list(1, "trillion");
+    assert!(matches!(&failed, Command::Failed { problem: Problem::Unreachable, words, .. } if words == "Your files can't be reached right now."), "{failed:?}");
+}

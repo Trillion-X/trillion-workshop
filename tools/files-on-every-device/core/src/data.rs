@@ -121,6 +121,8 @@ pub struct Contract {
     pub conflict_name_again: String,
     pub conflict_first_again: u64,
     pub absent_version: i64,
+    /// The sentence a person reads for each problem, by its name.
+    pub problem_words: BTreeMap<String, String>,
 }
 
 impl Contract {
@@ -134,6 +136,12 @@ impl Contract {
     /// core itself, found by the tests that walk every job.
     pub fn field(&self, job: &str) -> &str {
         self.fields.get(job).map(String::as_str).unwrap_or_else(|| panic!("contract.json has no field for {job}"))
+    }
+
+    /// The sentence a person reads for a problem. Every problem has one: tests/contract.rs holds them to the set.
+    pub fn words(&self, problem: Problem) -> String {
+        let name = serde_json::to_value(problem).ok().and_then(|name| name.as_str().map(str::to_owned)).unwrap_or_default();
+        self.problem_words.get(&name).cloned().unwrap_or_else(|| panic!("contract.json has no words for {name}"))
     }
 
     /// The contract operation that does a job, or None when the contract does not offer it yet.
