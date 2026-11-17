@@ -54203,7 +54203,7 @@
           {
             "id": "find-the-check-tools",
             "title": "Find the check tools",
-            "do": "For each of these ids, call run_resource_operation with address @tools, method tools:list and input {\"tool\":\"<the id>\"}: tool:check-against-a-persons-rules-and-verdicts (judges words against rule rows and the person's own verdicts) and tool:judge-against-rules (judges words against rule rows only). An answer with that id and an input_schema means the tool is there. If one is missing and this Trillion runs on the person's own computer, call tools:run with input {\"tool\":\"tool:keep-the-workshop-current\",\"input\":{}} once, then ask tools:list again. Report each id and whether it was found.",
+            "do": "For each of these ids, call run_resource_operation with address @tools, method tools:list and input {\"tool\":\"<the id>\"}: tool:check-against-a-persons-rules-and-verdicts (judges words against rule rows and the person's own verdicts) and tool:judge-against-rules (judges words against rule rows only). An answer with that id and an input_schema means the tool is there. If one is missing, stop and tell the person which one is missing: the check cannot run without it. Report each id and whether it was found.",
             "submit": {
               "type": "object",
               "required": [

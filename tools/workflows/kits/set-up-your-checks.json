@@ -91,7 +91,6 @@
   "tools": [
     "tool:check-against-a-persons-rules-and-verdicts",
     "tool:judge-against-rules",
-    "tool:keep-the-workshop-current",
     "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
