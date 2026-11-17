@@ -5,9 +5,9 @@ import { hostingProvider } from '../read-data/public-door-rows.mjs';
 import { keptReceipts } from '../read-data/door-receipts.mjs';
 import { connectionValues } from './door-world.mjs';
 
-// The Hetzner row of the person's list and a fake provider answering its requests; the lease is a receipt held in the run.
+// The Example Cloud row of the person's list and a fake provider answering its requests; the lease is a receipt held in the run.
 function world({ ambiguous = false } = {}) {
-  const provider = hostingProvider('hetzner', connectionValues()), receipts = keptReceipts(), lease = 'lease-mcp-test', calls = [];
+  const provider = hostingProvider('example-cloud', connectionValues()), receipts = keptReceipts(), lease = 'lease-mcp-test', calls = [];
   let server, key;
   const request = async (method, path, body) => {
     calls.push({ method, path });

@@ -1,6 +1,6 @@
 {
   "drafted_from": "tool:release-a-host-of-the-public-door's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Remove the server and SSH key one of my public door's host leases rented, and only those\", with {\"lease\":{\"schema\":\"portable-host-lease/1\",\"provider\":\"hetzner\",\"name\":\"door-two\",\"serverType\":\"cpx21\",\"location\":\"ash\",\"image\":\"ubuntu-24.04\",\"lifetime\":\"service\",\"startedAt\":1793786400000,\"expiresAt\":null,\"state\":\"running\",\"serverId\":4711,\"sshKeyId\":2323,\"address\":\"198.51.100.24\"},\"connections\":[{\"kind\":\"how-to-ask-something-else-to-do-things\",\"name\":\"Hetzner Cloud\",\"connection_id\":\"service_connection:hetzner\",\"credential_injections\":[{\"placement\":{\"name\":\"Authorization\",\"prefix\":\"Bearer \"}}],\"instrument_requests\":{\"find_servers_by_name\":{\"url\":\"https://api.hetzner.cloud/v1/servers?name={name}\",\"method\":\"GET\"},\"create_server\":{\"url\":\"https://api.hetzner.cloud/v1/servers\",\"method\":\"POST\",\"body_template\":{\"name\":\"{name}\",\"server_type\":\"{server_type}\",\"location\":\"{location}\",\"image\":\"{image}\",\"ssh_keys\":[\"{ssh_key_id}\"],\"labels\":\"{labels}\",\"public_net\":{\"enable_ipv4\":true,\"enable_ipv6\":true}}},\"read_server\":{\"url\":\"https://api.hetzner.cloud/v1/servers/{server_id}\",\"method\":\"GET\"},\"delete_server\":{\"url\":\"https://api.hetzner.cloud/v1/servers/{server_id}\",\"method\":\"DELETE\"},\"add_ssh_key\":{\"url\":\"https://api.hetzner.cloud/v1/ssh_keys\",\"method\":\"POST\",\"body_template\":{\"name\":\"{key_name}\",\"public_key\":\"{public_key}\",\"labels\":\"{labels}\"}},\"read_ssh_key\":{\"url\":\"https://api.hetzner.cloud/v1/ssh_keys/{ssh_key_id}\",\"method\":\"GET\"},\"delete_ssh_key\":{\"url\":\"https://api.hetzner.cloud/v1/ssh_keys/{ssh_key_id}\",\"method\":\"DELETE\"}},\"rents_a_host\":{\"base\":\"https://api.hetzner.cloud/v1\",\"vault_key\":\"hetzner-api-token\",\"error_code_at\":\"error.code\",\"move_ready\":true,\"placement\":{\"size\":\"cpx21\",\"location\":\"ash\",\"image\":\"ubuntu-24.04\"},\"fill\":{\"server_type\":\"{size}\",\"key_name\":\"{name}-access\",\"labels\":{\"door-lease\":\"{name}\"}},\"host\":{\"find\":\"find_servers_by_name\",\"list_at\":\"servers\",\"create\":\"create_server\",\"created_at\":\"server\",\"read\":\"read_server\",\"found_at\":\"server\",\"remove\":\"delete_server\",\"id_is\":\"server_id\",\"id_pattern\":\"^[0-9]+$\",\"owner_at\":\"labels.door-lease\",\"address_at\":\"public_net.ipv4.ip\"},\"access_key\":{\"create\":\"add_ssh_key\",\"read\":\"read_ssh_key\",\"found_at\":\"ssh_key\",\"remove\":\"delete_ssh_key\",\"id_is\":\"ssh_key_id\",\"id_at\":\"ssh_key.id\"}}}]}. It runs tool:release-a-host-of-the-public-door and answers {\"schema\":\"portable-host-lease/1\",\"provider\":\"hetzner\",\"name\":\"door-two\",\"serverType\":\"cpx21\",\"location\":\"ash\",\"image\":\"ubuntu-24.04\",\"lifetime\":\"service\",\"startedAt\":1793786400000,\"expiresAt\":null,\"state\":\"removed\",\"serverId\":4711,\"sshKeyId\":2323,\"address\":\"198.51.100.24\",\"removedAt\":1794858299646}",
+  "start_here": "Say to your AI: \"Remove the server and SSH key one of my public door's host leases rented, and only those\", with {\"lease\":{\"schema\":\"portable-host-lease/1\",\"provider\":\"example-cloud\",\"name\":\"door-two\",\"serverType\":\"cpx21\",\"location\":\"ash\",\"image\":\"ubuntu-24.04\",\"lifetime\":\"service\",\"startedAt\":1793786400000,\"expiresAt\":null,\"state\":\"running\",\"serverId\":4711,\"sshKeyId\":2323,\"address\":\"198.51.100.24\"},\"connections\":[{\"kind\":\"how-to-ask-something-else-to-do-things\",\"name\":\"Example Cloud\",\"connection_id\":\"service_connection:example-cloud\",\"credential_injections\":[{\"placement\":{\"name\":\"Authorization\",\"prefix\":\"Bearer \"}}],\"instrument_requests\":{\"find_servers_by_name\":{\"url\":\"https://api.example.test/v1/servers?name={name}\",\"method\":\"GET\"},\"create_server\":{\"url\":\"https://api.example.test/v1/servers\",\"method\":\"POST\",\"body_template\":{\"name\":\"{name}\",\"server_type\":\"{server_type}\",\"location\":\"{location}\",\"image\":\"{image}\",\"ssh_keys\":[\"{ssh_key_id}\"],\"labels\":\"{labels}\",\"public_net\":{\"enable_ipv4\":true,\"enable_ipv6\":true}}},\"read_server\":{\"url\":\"https://api.example.test/v1/servers/{server_id}\",\"method\":\"GET\"},\"delete_server\":{\"url\":\"https://api.example.test/v1/servers/{server_id}\",\"method\":\"DELETE\"},\"add_ssh_key\":{\"url\":\"https://api.example.test/v1/ssh_keys\",\"method\":\"POST\",\"body_template\":{\"name\":\"{key_name}\",\"public_key\":\"{public_key}\",\"labels\":\"{labels}\"}},\"read_ssh_key\":{\"url\":\"https://api.example.test/v1/ssh_keys/{ssh_key_id}\",\"method\":\"GET\"},\"delete_ssh_key\":{\"url\":\"https://api.example.test/v1/ssh_keys/{ssh_key_id}\",\"method\":\"DELETE\"}},\"rents_a_host\":{\"base\":\"https://api.example.test/v1\",\"vault_key\":\"example-cloud-token\",\"error_code_at\":\"error.code\",\"move_ready\":true,\"placement\":{\"size\":\"cpx21\",\"location\":\"ash\",\"image\":\"ubuntu-24.04\"},\"fill\":{\"server_type\":\"{size}\",\"key_name\":\"{name}-access\",\"labels\":{\"door-lease\":\"{name}\"}},\"host\":{\"find\":\"find_servers_by_name\",\"list_at\":\"servers\",\"create\":\"create_server\",\"created_at\":\"server\",\"read\":\"read_server\",\"found_at\":\"server\",\"remove\":\"delete_server\",\"id_is\":\"server_id\",\"id_pattern\":\"^[0-9]+$\",\"owner_at\":\"labels.door-lease\",\"address_at\":\"public_net.ipv4.ip\"},\"access_key\":{\"create\":\"add_ssh_key\",\"read\":\"read_ssh_key\",\"found_at\":\"ssh_key\",\"remove\":\"delete_ssh_key\",\"id_is\":\"ssh_key_id\",\"id_at\":\"ssh_key.id\"}}}]}. It runs tool:release-a-host-of-the-public-door and answers {\"schema\":\"portable-host-lease/1\",\"provider\":\"example-cloud\",\"name\":\"door-two\",\"serverType\":\"cpx21\",\"location\":\"ash\",\"image\":\"ubuntu-24.04\",\"lifetime\":\"service\",\"startedAt\":1793786400000,\"expiresAt\":null,\"state\":\"removed\",\"serverId\":4711,\"sshKeyId\":2323,\"address\":\"198.51.100.24\",\"removedAt\":1794858299646}",
   "lists": [],
   "no_lists_because": "It names no list of yours: it takes the Service connections rows (and any lease or receipt an earlier answer gave) as input and keeps nothing.",
   "workflows": [],
@@ -28,7 +28,7 @@
             "input": {
               "lease": {
                 "schema": "portable-host-lease/1",
-                "provider": "hetzner",
+                "provider": "example-cloud",
                 "name": "door-two",
                 "serverType": "cpx21",
                 "location": "ash",
@@ -44,8 +44,8 @@
               "connections": [
                 {
                   "kind": "how-to-ask-something-else-to-do-things",
-                  "name": "Hetzner Cloud",
-                  "connection_id": "service_connection:hetzner",
+                  "name": "Example Cloud",
+                  "connection_id": "service_connection:example-cloud",
                   "credential_injections": [
                     {
                       "placement": {
@@ -56,11 +56,11 @@
                   ],
                   "instrument_requests": {
                     "find_servers_by_name": {
-                      "url": "https://api.hetzner.cloud/v1/servers?name={name}",
+                      "url": "https://api.example.test/v1/servers?name={name}",
                       "method": "GET"
                     },
                     "create_server": {
-                      "url": "https://api.hetzner.cloud/v1/servers",
+                      "url": "https://api.example.test/v1/servers",
                       "method": "POST",
                       "body_template": {
                         "name": "{name}",
@@ -78,15 +78,15 @@
                       }
                     },
                     "read_server": {
-                      "url": "https://api.hetzner.cloud/v1/servers/{server_id}",
+                      "url": "https://api.example.test/v1/servers/{server_id}",
                       "method": "GET"
                     },
                     "delete_server": {
-                      "url": "https://api.hetzner.cloud/v1/servers/{server_id}",
+                      "url": "https://api.example.test/v1/servers/{server_id}",
                       "method": "DELETE"
                     },
                     "add_ssh_key": {
-                      "url": "https://api.hetzner.cloud/v1/ssh_keys",
+                      "url": "https://api.example.test/v1/ssh_keys",
                       "method": "POST",
                       "body_template": {
                         "name": "{key_name}",
@@ -95,17 +95,17 @@
                       }
                     },
                     "read_ssh_key": {
-                      "url": "https://api.hetzner.cloud/v1/ssh_keys/{ssh_key_id}",
+                      "url": "https://api.example.test/v1/ssh_keys/{ssh_key_id}",
                       "method": "GET"
                     },
                     "delete_ssh_key": {
-                      "url": "https://api.hetzner.cloud/v1/ssh_keys/{ssh_key_id}",
+                      "url": "https://api.example.test/v1/ssh_keys/{ssh_key_id}",
                       "method": "DELETE"
                     }
                   },
                   "rents_a_host": {
-                    "base": "https://api.hetzner.cloud/v1",
-                    "vault_key": "hetzner-api-token",
+                    "base": "https://api.example.test/v1",
+                    "vault_key": "example-cloud-token",
                     "error_code_at": "error.code",
                     "move_ready": true,
                     "placement": {
@@ -148,8 +148,8 @@
           }
         }
       },
-      "given": "The input {\"lease\":{\"schema\":\"portable-host-lease/1\",\"provider\":\"hetzner\",\"name\":\"door-two\",\"serverType\":\"cpx21\",\"location\":\"ash\",\"image\":\"ubuntu-24.04\",\"lifetime\":\"service\",\"startedAt\":1793786400000,\"expiresAt\":null,\"state\":\"running\",\"serverId\":4711,\"sshKeyId\":2323,\"address\":\"198.51.100.24\"},\"connections\":[{\"kind\":\"how-to-ask-something-else-to-do-things\",\"name\":\"Hetzner Cloud\",\"connection_id\":\"service_connection:hetzner\",\"credential_injections\":[{\"placement\":{\"name\":\"Authorization\",\"prefix\":\"Bearer \"}}],\"instrument_requests\":{\"find_servers_by_name\":{\"url\":\"https://api.hetzner.cloud/v1/servers?name={name}\",\"method\":\"GET\"},\"create_server\":{\"url\":\"https://api.hetzner.cloud/v1/servers\",\"method\":\"POST\",\"body_template\":{\"name\":\"{name}\",\"server_type\":\"{server_type}\",\"location\":\"{location}\",\"image\":\"{image}\",\"ssh_keys\":[\"{ssh_key_id}\"],\"labels\":\"{labels}\",\"public_net\":{\"enable_ipv4\":true,\"enable_ipv6\":true}}},\"read_server\":{\"url\":\"https://api.hetzner.cloud/v1/servers/{server_id}\",\"method\":\"GET\"},\"delete_server\":{\"url\":\"https://api.hetzner.cloud/v1/servers/{server_id}\",\"method\":\"DELETE\"},\"add_ssh_key\":{\"url\":\"https://api.hetzner.cloud/v1/ssh_keys\",\"method\":\"POST\",\"body_template\":{\"name\":\"{key_name}\",\"public_key\":\"{public_key}\",\"labels\":\"{labels}\"}},\"read_ssh_key\":{\"url\":\"https://api.hetzner.cloud/v1/ssh_keys/{ssh_key_id}\",\"method\":\"GET\"},\"delete_ssh_key\":{\"url\":\"https://api.hetzner.cloud/v1/ssh_keys/{ssh_key_id}\",\"method\":\"DELETE\"}},\"rents_a_host\":{\"base\":\"https://api.hetzner.cloud/v1\",\"vault_key\":\"hetzner-api-token\",\"error_code_at\":\"error.code\",\"move_ready\":true,\"placement\":{\"size\":\"cpx21\",\"location\":\"ash\",\"image\":\"ubuntu-24.04\"},\"fill\":{\"server_type\":\"{size}\",\"key_name\":\"{name}-access\",\"labels\":{\"door-lease\":\"{name}\"}},\"host\":{\"find\":\"find_servers_by_name\",\"list_at\":\"servers\",\"create\":\"create_server\",\"created_at\":\"server\",\"read\":\"read_server\",\"found_at\":\"server\",\"remove\":\"delete_server\",\"id_is\":\"server_id\",\"id_pattern\":\"^[0-9]+$\",\"owner_at\":\"labels.door-lease\",\"address_at\":\"public_net.ipv4.ip\"},\"access_key\":{\"create\":\"add_ssh_key\",\"read\":\"read_ssh_key\",\"found_at\":\"ssh_key\",\"remove\":\"delete_ssh_key\",\"id_is\":\"ssh_key_id\",\"id_at\":\"ssh_key.id\"}}}]}, the web answering from 4 recorded replies.",
-      "hands_back": "It answered {\"schema\":\"portable-host-lease/1\",\"provider\":\"hetzner\",\"name\":\"door-two\",\"serverType\":\"cpx21\",\"location\":\"ash\",\"image\":\"ubuntu-24.04\",\"lifetime\":\"service\",\"startedAt\":1793786400000,\"expiresAt\":null,\"state\":\"removed\",\"serverId\":4711,\"sshKeyId\":2323,\"address\":\"198.51.100.24\",\"removedAt\":1794858299646}."
+      "given": "The input {\"lease\":{\"schema\":\"portable-host-lease/1\",\"provider\":\"example-cloud\",\"name\":\"door-two\",\"serverType\":\"cpx21\",\"location\":\"ash\",\"image\":\"ubuntu-24.04\",\"lifetime\":\"service\",\"startedAt\":1793786400000,\"expiresAt\":null,\"state\":\"running\",\"serverId\":4711,\"sshKeyId\":2323,\"address\":\"198.51.100.24\"},\"connections\":[{\"kind\":\"how-to-ask-something-else-to-do-things\",\"name\":\"Example Cloud\",\"connection_id\":\"service_connection:example-cloud\",\"credential_injections\":[{\"placement\":{\"name\":\"Authorization\",\"prefix\":\"Bearer \"}}],\"instrument_requests\":{\"find_servers_by_name\":{\"url\":\"https://api.example.test/v1/servers?name={name}\",\"method\":\"GET\"},\"create_server\":{\"url\":\"https://api.example.test/v1/servers\",\"method\":\"POST\",\"body_template\":{\"name\":\"{name}\",\"server_type\":\"{server_type}\",\"location\":\"{location}\",\"image\":\"{image}\",\"ssh_keys\":[\"{ssh_key_id}\"],\"labels\":\"{labels}\",\"public_net\":{\"enable_ipv4\":true,\"enable_ipv6\":true}}},\"read_server\":{\"url\":\"https://api.example.test/v1/servers/{server_id}\",\"method\":\"GET\"},\"delete_server\":{\"url\":\"https://api.example.test/v1/servers/{server_id}\",\"method\":\"DELETE\"},\"add_ssh_key\":{\"url\":\"https://api.example.test/v1/ssh_keys\",\"method\":\"POST\",\"body_template\":{\"name\":\"{key_name}\",\"public_key\":\"{public_key}\",\"labels\":\"{labels}\"}},\"read_ssh_key\":{\"url\":\"https://api.example.test/v1/ssh_keys/{ssh_key_id}\",\"method\":\"GET\"},\"delete_ssh_key\":{\"url\":\"https://api.example.test/v1/ssh_keys/{ssh_key_id}\",\"method\":\"DELETE\"}},\"rents_a_host\":{\"base\":\"https://api.example.test/v1\",\"vault_key\":\"example-cloud-token\",\"error_code_at\":\"error.code\",\"move_ready\":true,\"placement\":{\"size\":\"cpx21\",\"location\":\"ash\",\"image\":\"ubuntu-24.04\"},\"fill\":{\"server_type\":\"{size}\",\"key_name\":\"{name}-access\",\"labels\":{\"door-lease\":\"{name}\"}},\"host\":{\"find\":\"find_servers_by_name\",\"list_at\":\"servers\",\"create\":\"create_server\",\"created_at\":\"server\",\"read\":\"read_server\",\"found_at\":\"server\",\"remove\":\"delete_server\",\"id_is\":\"server_id\",\"id_pattern\":\"^[0-9]+$\",\"owner_at\":\"labels.door-lease\",\"address_at\":\"public_net.ipv4.ip\"},\"access_key\":{\"create\":\"add_ssh_key\",\"read\":\"read_ssh_key\",\"found_at\":\"ssh_key\",\"remove\":\"delete_ssh_key\",\"id_is\":\"ssh_key_id\",\"id_at\":\"ssh_key.id\"}}}]}, the web answering from 4 recorded replies.",
+      "hands_back": "It answered {\"schema\":\"portable-host-lease/1\",\"provider\":\"example-cloud\",\"name\":\"door-two\",\"serverType\":\"cpx21\",\"location\":\"ash\",\"image\":\"ubuntu-24.04\",\"lifetime\":\"service\",\"startedAt\":1793786400000,\"expiresAt\":null,\"state\":\"removed\",\"serverId\":4711,\"sshKeyId\":2323,\"address\":\"198.51.100.24\",\"removedAt\":1794858299646}."
     }
   ]
 }

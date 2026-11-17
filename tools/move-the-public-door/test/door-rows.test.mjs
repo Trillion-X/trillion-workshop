@@ -14,8 +14,8 @@ const records = Object.entries(ROWS).map(([name, value]) => ({ id: `record:servi
 test('where the door runs is read from the Service connections rows the row may list, and nothing is written', async () => {
   const ran = await answerOf(rowOf(rows, 'tool:see-where-the-public-door-runs'), {}, { records });
   assert.equal(ran.status, 0);
-  assert.deepEqual([ran.result.current.hosting_provider, ran.result.current.dns_provider], ['hetzner', 'cloudflare']);
-  assert.deepEqual(ran.result.hosting_providers.map(r => r.id), ['fly', 'hetzner', 'own-box']);
+  assert.deepEqual([ran.result.current.hosting_provider, ran.result.current.dns_provider], ['example-cloud', 'cloudflare']);
+  assert.deepEqual(ran.result.hosting_providers.map(r => r.id), ['example-cloud', 'fly', 'own-box']);
   assert.ok(ran.calls.every(call => call.method === 'records:list'));
 });
 
@@ -39,7 +39,7 @@ test('rent answers the lease it makes and keeps nothing; the answered lease reus
   const row = rowOf(rows, 'tool:rent-a-host-for-the-public-door'), { input, replies } = sample('tool:rent-a-host-for-the-public-door');
   const ran = await answerOf(row, input, { replies });
   assert.equal(ran.status, 0);
-  assert.deepEqual([ran.result.state, ran.result.provider, ran.result.address, ran.result.serverId, ran.result.sshKeyId], ['running', 'hetzner', '198.51.100.24', 4711, 2323]);
+  assert.deepEqual([ran.result.state, ran.result.provider, ran.result.address, ran.result.serverId, ran.result.sshKeyId], ['running', 'example-cloud', '198.51.100.24', 4711, 2323]);
   assert.deepEqual([ran.kept, ran.calls], [[], []]);
   const again = await answerOf(row, { ...input, lease: ran.result }, { replies: [] });
   assert.equal(again.status, 0);

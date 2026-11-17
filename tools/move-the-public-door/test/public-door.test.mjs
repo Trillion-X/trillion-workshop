@@ -13,7 +13,7 @@ const flyApp = r => { if (r.connection_id === 'service_connection:fly') r.rents_
 
 test('the service-connections rows handed in are the lists: each step names a request of its own row, credentials only by vault name', async t => {
   const connections = connectionValues();
-  assert.deepEqual(hostingProviders(connections).map(r => r.id), ['fly', 'hetzner', 'own-box']);
+  assert.deepEqual(hostingProviders(connections).map(r => r.id), ['example-cloud', 'fly', 'own-box']);
   assert.deepEqual(dnsProviders(connections).map(r => r.id), ['cloudflare']);
   for (const row of [...hostingProviders(connections), ...dnsProviders(connections)]) {
     if (row.base) assert.match(row.vault_key, /^[a-z0-9-]+$/);
@@ -21,16 +21,16 @@ test('the service-connections rows handed in are the lists: each step names a re
     assert.ok(!JSON.stringify(row).match(/"(token|secret|password)"\s*:/i), `${row.id} holds no credential value`);
   }
   const placement = currentDoor(connections);
-  assert.deepEqual([placement.hosting_provider, placement.dns_provider], ['hetzner', 'cloudflare']);
+  assert.deepEqual([placement.hosting_provider, placement.dns_provider], ['example-cloud', 'cloudflare']);
   const seen = await seeWhereTheDoorRuns({}, { door: await listDoor(t) });
-  assert.deepEqual(seen.hosting_providers.map(r => [r.id, r.move_ready]), [['fly', false], ['hetzner', true], ['own-box', true]]);
+  assert.deepEqual(seen.hosting_providers.map(r => [r.id, r.move_ready]), [['example-cloud', true], ['fly', false], ['own-box', true]]);
   assert.deepEqual(seen.dns_providers, [{ id: 'cloudflare', name: 'Cloudflare', vault_key: 'cloudflare-api-token' }]);
 });
 
 test('a held value comes only from the mount its vault name names', () => {
-  assert.equal(heldVariable('hetzner-api-token'), 'HETZNER_API_TOKEN');
-  assert.equal(heldFrom('hetzner-api-token', { HETZNER_API_TOKEN: ` ${TOKEN}\n` }), TOKEN);
-  assert.throws(() => heldFrom('cloudflare-api-token', { HETZNER_API_TOKEN: TOKEN }), /no held value named cloudflare-api-token.*CLOUDFLARE_API_TOKEN/);
+  assert.equal(heldVariable('example-cloud-token'), 'EXAMPLE_CLOUD_TOKEN');
+  assert.equal(heldFrom('example-cloud-token', { EXAMPLE_CLOUD_TOKEN: ` ${TOKEN}\n` }), TOKEN);
+  assert.throws(() => heldFrom('cloudflare-api-token', { EXAMPLE_CLOUD_TOKEN: TOKEN }), /no held value named cloudflare-api-token.*CLOUDFLARE_API_TOKEN/);
 });
 
 test('the Fly row drives the same lease through its own requests: rent, reuse, refuse foreign paths, release; a lost create removes only its machine', async () => {
@@ -67,13 +67,13 @@ test('the Fly row drives the same lease through its own requests: rent, reuse, r
   }
 });
 
-// One fake world for a move: the Hetzner rows' API with a door already rented there, Cloudflare DNS, public DNS and HTTPS proof.
-async function hetznerDoor({ proofFails = false } = {}) {
+// One fake world for a move: the example-cloud rows' API with a door already rented there, Cloudflare DNS, public DNS and HTTPS proof.
+async function rentedDoor({ proofFails = false } = {}) {
   const calls = [], record = 'b'.repeat(32), dnsRows = [{ id: record, type: 'A', name: 'door.example.com', content: '192.0.2.34', ttl: 300, proxied: false }];
   let server = null, key = null;
   const fetchImpl = async (url, { method, body }) => {
     const u = new URL(url), path = u.pathname + u.search; calls.push(`${method} ${u.host}${path}`);
-    if (u.host === 'api.hetzner.cloud') {
+    if (u.host === 'api.example.test') {
       if (method === 'GET' && u.pathname === '/v1/servers') return json({ servers: server ? [server] : [] });
       if (method === 'POST' && path === '/v1/ssh_keys') { key = { id: 12, labels: JSON.parse(body).labels }; return json({ ssh_key: key }); }
       if (method === 'POST' && path === '/v1/servers') { const b = JSON.parse(body); server = { id: 34, name: b.name, labels: b.labels, public_net: { ipv4: { ip: '192.0.2.34' } } }; return json({ server }); }
@@ -89,40 +89,40 @@ async function hetznerDoor({ proofFails = false } = {}) {
     }
     throw new Error(`unexpected ${method} ${url}`);
   };
-  const w = { calls, dnsRows, fetchImpl, vaultAsked: [], proved: [], hetzner: () => ({ server, key }), resolve4: async () => [dnsRows[0].content], wait: async () => {} };
+  const w = { calls, dnsRows, fetchImpl, vaultAsked: [], proved: [], rented: () => ({ server, key }), resolve4: async () => [dnsRows[0].content], wait: async () => {} };
   w.credential = async name => { w.vaultAsked.push(name); return TOKEN; };
   w.prove = async (...args) => { w.proved.push(args); if (proofFails) throw new Error('download answered 404'); };
-  w.oldLease = 'lease-hetzner-door-one';
+  w.oldLease = 'lease-rented-door-one';
   w.connections = connectionValues(r => {
     if (r.id === 'own-box') r.rents_a_host.placement.address = '198.51.100.7';
     if (r.kind === 'public-door-placement') Object.assign(r, { hostname: 'door.example.com', server_id: 34, address: "192.0.2.34", lease_file: w.oldLease });
   });
   w.kept = keptReceipts();
-  const hetzner = hostingProvider('hetzner', w.connections);
-  await provisionHostLease({ request: leaseClient(hetzner, TOKEN, { fetchImpl }), receipts: w.kept, file: w.oldLease, name: 'door-one', publicKey: KEY, provider: hetzner, lifetime: 'service', expiresAt: null });
+  const rentedProvider = hostingProvider('example-cloud', w.connections);
+  await provisionHostLease({ request: leaseClient(rentedProvider, TOKEN, { fetchImpl }), receipts: w.kept, file: w.oldLease, name: 'door-one', publicKey: KEY, provider: rentedProvider, lifetime: 'service', expiresAt: null });
   calls.length = 0;
   return w;
 }
 // Move the door the way a caller does: the rows and the old lease's receipt handed in, the answer holding what the move made.
 const moveFrom = (w, options) => movePublicDoor({ ...options, ...w, receipts: w.kept.all() });
 
-test('move the door from Hetzner to an own box: every step in order, proof pinned to the new address, then the old lease goes', async () => {
-  const w = await hetznerDoor(), order = [];
+test('move the door from the rented host to an own box: every step in order, proof pinned to the new address, then the old lease goes', async () => {
+  const w = await rentedDoor(), order = [];
   const steps = { setupHost: async lease => order.push(`setup ${lease.address}`), publishDownload: async (lease, placement) => order.push(`publish ${placement.address}`) };
   const { door, receipt, receipts } = await moveFrom(w, { to: 'own-box', name: 'door-two', steps });
   assert.deepEqual(receipt.done.map(s => s.id), ['rented', 'set-up', 'download-published', 'dns-cut', 'proven', 'old-released', 'door-row-made']);
   assert.deepEqual(order, ['setup 198.51.100.7', 'publish 198.51.100.7']);
   assert.equal(w.dnsRows[0].content, '198.51.100.7');
   assert.deepEqual(w.proved, [['https://door.example.com/healthz', 'door.example.com', '198.51.100.7'], ['https://door.example.com/download/App.dmg', 'door.example.com', '198.51.100.7']]);
-  assert.deepEqual([w.hetzner(), receipts[w.oldLease].state], [{ server: null, key: null }, 'removed']);
-  assert.deepEqual(w.vaultAsked, ['cloudflare-api-token', 'hetzner-api-token']);
+  assert.deepEqual([w.rented(), receipts[w.oldLease].state], [{ server: null, key: null }, 'removed']);
+  assert.deepEqual(w.vaultAsked, ['cloudflare-api-token', 'example-cloud-token']);
   assert.deepEqual([door.kind, door.id, door.hosting_provider, door.address, door.dns_record, door.unknown_because, door.lease_file, door.hostname], ['public-door-placement', 'current', 'own-box', '198.51.100.7', 'b'.repeat(32), undefined, 'lease-own-box-door-two', 'door.example.com']);
   assert.deepEqual(receipts['door-move'].done.map(s => s.id), receipt.done.map(s => s.id));
   assert.deepEqual(Object.keys(receipts).sort(), ['dns-cutover-own-box-door-two', 'door-move', w.oldLease, 'lease-own-box-door-two'].sort());
 });
 
 test('a failed proof rolls DNS back and keeps the old host', async () => {
-  const w = await hetznerDoor({ proofFails: true }), steps = { setupHost: async () => {}, publishDownload: async () => {} };
+  const w = await rentedDoor({ proofFails: true }), steps = { setupHost: async () => {}, publishDownload: async () => {} };
   const failed = await moveFrom(w, { to: 'own-box', name: 'door-two', steps, attempts: 3 }).then(() => null, error => error);
   assert.match(failed.message, /not proven \(download answered 404\); DNS was rolled back/);
   assert.deepEqual([w.dnsRows[0].content, failed.receipts[w.oldLease].state, failed.receipts['lease-own-box-door-two'].state], ['192.0.2.34', 'running', 'running']);
@@ -131,7 +131,7 @@ test('a failed proof rolls DNS back and keeps the old host', async () => {
 });
 
 test('a row that is not move-ready is refused by its own reason before any network or vault call', async () => {
-  const w = await hetznerDoor();
+  const w = await rentedDoor();
   await assert.rejects(moveFrom(w, { to: 'fly', name: 'door-two', steps: {} }), /cannot move to Fly.io: A Fly Machine has no public IPv4/);
   await assert.rejects(moveFrom(w, { to: 'vercel', name: 'door-two', steps: {} }), /No hosting provider row is named "vercel"/);
   assert.deepEqual([w.calls.length, w.vaultAsked.length], [0, 0]);

@@ -107,7 +107,7 @@
   "proof": {
     "minimum_meaningful_line_retention": 0.6,
     "test_refs": [
-      "tools/move-the-public-door/test/public-door.test.mjs move the door from Hetzner to an own box: every step in order, proof pinned to the new address, then the old lease goes",
+      "tools/move-the-public-door/test/public-door.test.mjs move the door from the rented host to an own box: every step in order, proof pinned to the new address, then the old lease goes",
       "tools/move-the-public-door/test/public-door.test.mjs a failed proof rolls DNS back and keeps the old host",
       "tools/move-the-public-door/test/public-door.test.mjs a row that is not move-ready is refused by its own reason before any network or vault call",
       "tools/move-the-public-door/test/public-door.test.mjs the service-connections rows handed in are the lists: each step names a request of its own row, credentials only by vault name"

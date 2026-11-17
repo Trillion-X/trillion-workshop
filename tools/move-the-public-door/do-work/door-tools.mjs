@@ -12,7 +12,7 @@ import { keptReceipts } from '../read-data/door-receipts.mjs';
 import { leaseClient, provisionHostLease, removeHostLease, readHostLease } from './portable-host-lease.mjs';
 import { dnsClient, prepareCutover, changeCutover, readCutover } from './portable-dns-cutover.mjs';
 
-/** The environment variable a row's credential mount names for a vault key: hetzner-api-token -> HETZNER_API_TOKEN. */
+/** The environment variable a row's credential mount names for a vault key: example-cloud-token -> EXAMPLE_CLOUD_TOKEN. */
 export const heldVariable = vaultKey => String(vaultKey).toUpperCase().replace(/[^A-Z0-9]+/g, '_');
 /** The held value the row mounted for `vaultKey`, or a refusal naming the mount the row lacks. */
 export function heldFrom(vaultKey, env = process.env) {
