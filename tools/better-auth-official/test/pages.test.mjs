@@ -176,3 +176,16 @@ test('the consent page says who is signed in and where the AI goes back to, and 
 test('the password page links "Forgot password?" where the client binds it', () => {
   assert.match(page('/sign-in/way?way=password'), /<a class="page-field-link" href="\/sign-in\/forgot-password">Forgot password\?<\/a>/);
 });
+
+test('the consent page: Read only is a switch, an unknown return address needs its host typed, a remembered AI shows Connecting with an Undo, and /connected lists with Disconnect', () => {
+  const consent = page('/consent');
+  assert.match(consent, /data-read-only aria-pressed="false">Read only: off</);
+  assert.match(consent, /data-unknown hidden[\s\S]*name="typed_host"/);
+  assert.match(consent, /data-step="remembered"[\s\S]*data-undo>Undo</);
+  assert.match(consent, /From \{clientHost\}\./);
+  assert.doesNotMatch(readFileSync(new URL('sections/consent.html', dir), 'utf8'), /matching code|expires|ends on/i, 'no matching-code step and no end date');
+  assert.match(page('/connected'), /data-fill-list="connected"/);
+  const client = readFileSync(new URL('sign-in-client.mjs', dir), 'utf8');
+  assert.match(client, /allow\.disabled = true/);
+  assert.match(client, /button\.dataset\.disconnect|data-disconnect/);
+});

@@ -5,7 +5,7 @@
 
 import { resolve } from 'node:path';
 import { betterAuth } from 'better-auth';
-import { APIError, createAuthMiddleware } from 'better-auth/api';
+import { APIError, createAuthEndpoint, createAuthMiddleware, sessionMiddleware } from 'better-auth/api';
 import {
   admin, bearer, deviceAuthorization, emailOTP, jwt, magicLink, multiSession, twoFactor,
 } from 'better-auth/plugins';
@@ -17,6 +17,7 @@ import { emailHook } from './send-email.mjs';
 import { cookieOptions } from './cookie-options.mjs';
 import { trustedOriginsFor } from './attached-origins.mjs';
 import { readSettings } from './settings.mjs';
+import rules from './pages/sign-in-rules.json' with { type: 'json' };
 import { storePool } from './store.mjs';
 
 const read = readSettings();
@@ -54,14 +55,68 @@ async function clearWhatWasNotProven(ctx) {
   await ctx.context.internalAdapter.deleteAccounts(found.user.id);
 }
 
-// A refresh token needs the offline_access scope, which an AI product may not ask for (the protected-resource document leaves it out by
-// design), and without one the person is signed out of their AI every hour. With settings.mcp.always_offline_access an AI's request
-// gets the scope added before anything else reads it, so the consent page says so ("Stay connected until you take it away").
-function stayConnected(ctx) {
+// An AI's authorize request is changed before anything reads it:
+// - A refresh token needs the offline_access scope, which an AI product may not ask for (the protected-resource document leaves it
+//   out by design), and without one the person is signed out of their AI every hour. With settings.mcp.always_offline_access the
+//   scope is added, so the consent page says so ("Stay connected until you take it away").
+// - Every connect goes to /consent (prompt=consent), even for an AI the person already allowed: that page is where a remembered AI is
+//   shown "Connecting..." with an Undo, and where an address the AI is not known by needs the person to type it. Better Auth takes
+//   the prompt out again when consent is answered.
+function shapeAuthorize(ctx) {
   const scope = ctx.query?.scope;
-  if (typeof scope !== 'string' || !scope.trim() || scope.split(' ').includes('offline_access')) return;
-  ctx.query.scope = `${scope} offline_access`;
+  if (typeof scope === 'string' && scope.trim() && settings.mcp.always_offline_access && !scope.split(' ').includes('offline_access')) ctx.query.scope = `${scope} offline_access`;
+  // Only the AI's own request (a GET): Better Auth runs authorize again inside its consent and sign-in answers, and that run must not ask again.
+  const prompt = (ctx.query?.prompt ?? '').split(' ').filter(Boolean);
+  if (ctx.request?.method === 'GET' && !prompt.includes('consent')) ctx.query.prompt = [...prompt, 'consent'].join(' ');
 }
+
+// Read only is a switch on the consent screen, off for the person's own AI. Switched on, what is granted is what was asked for less the
+// scopes pages/sign-in-rules.json read_only_drops names (the rules the page lists the same way), so an AI that gets less is the engine's
+// to run with what it has. The signed query is checked by Better Auth itself afterwards, and only a subset of it is accepted.
+function narrowConsent(ctx) {
+  if (!ctx.body?.read_only || typeof ctx.body.oauth_query !== 'string') return;
+  const asked = (new URLSearchParams(ctx.body.oauth_query).get('scope') ?? '').split(' ').filter(Boolean);
+  ctx.body.scope = asked.filter(scope => !rules.read_only_drops.includes(scope)).join(' ');
+}
+
+// The person's connected AIs (GET /connected) and the one write that ends one (POST /connected/revoke {clientId}): its refresh tokens
+// are revoked, its access tokens deleted and its consent deleted together, so a pass it holds stops standing at once (credential
+// standing reads these rows) and it must ask again.
+const connected = () => ({
+  id: 'connected',
+  endpoints: {
+    listConnected: createAuthEndpoint('/connected', { method: 'GET', use: [sessionMiddleware] }, async ctx => {
+      const userId = ctx.context.session.user.id;
+      const adapter = ctx.context.adapter;
+      const consents = await adapter.findMany({ model: 'oauthConsent', where: [{ field: 'userId', value: userId }] });
+      const ais = [];
+      for (const consent of consents) {
+        const client = await adapter.findOne({ model: 'oauthClient', where: [{ field: 'clientId', value: consent.clientId }] });
+        const where = [{ field: 'userId', value: userId }, { field: 'clientId', value: consent.clientId }];
+        const tokens = [...await adapter.findMany({ model: 'oauthRefreshToken', where }), ...await adapter.findMany({ model: 'oauthAccessToken', where })];
+        const lastUsed = tokens.map(token => new Date(token.createdAt).getTime()).reduce((latest, at) => Math.max(latest, at), 0);
+        const scopes = Array.isArray(consent.scopes) ? consent.scopes : JSON.parse(consent.scopes ?? '[]');
+        ais.push({
+          client_id: consent.clientId, name: client?.name ?? null, scopes, connected_at: new Date(consent.createdAt).toISOString(),
+          last_used_at: lastUsed ? new Date(lastUsed).toISOString() : null, read_only: !scopes.some(scope => rules.read_only_drops.includes(scope)),
+        });
+      }
+      return ctx.json({ ais });
+    }),
+    revokeConnected: createAuthEndpoint('/connected/revoke', { method: 'POST', use: [sessionMiddleware] }, async ctx => {
+      const userId = ctx.context.session.user.id;
+      const clientId = typeof ctx.body?.clientId === 'string' ? ctx.body.clientId : '';
+      if (!clientId) throw new APIError('BAD_REQUEST', { message: 'clientId is needed' });
+      const where = [{ field: 'userId', value: userId }, { field: 'clientId', value: clientId }];
+      await ctx.context.adapter.transaction(async trx => {
+        await trx.updateMany({ model: 'oauthRefreshToken', where, update: { revoked: new Date() } });
+        await trx.deleteMany({ model: 'oauthAccessToken', where });
+        await trx.deleteMany({ model: 'oauthConsent', where });
+      });
+      return ctx.json({ revoked: true });
+    }),
+  },
+});
 
 export const auth = betterAuth({
   baseURL: settings.base_url,
@@ -100,7 +155,8 @@ export const auth = betterAuth({
     // is changed in place: a hook's returned context is merged over the request (defu), which never takes a key away.
     before: createAuthMiddleware(async ctx => {
       if (ctx.path === '/sign-in/email-otp') return clearWhatWasNotProven(ctx);
-      if (ctx.path === '/oauth2/authorize' && settings.mcp.always_offline_access) return stayConnected(ctx);
+      if (ctx.path === '/oauth2/authorize') return shapeAuthorize(ctx);
+      if (ctx.path === '/oauth2/consent') return narrowConsent(ctx);
       if (ctx.path === '/api-key/create' && ctx.body) delete ctx.body.prefix;
     }),
   },
@@ -122,6 +178,7 @@ export const auth = betterAuth({
       expiresIn: settings.add_passkey_link.expires_in_seconds,
       sendMagicLink: async ({ email, token, url }) => { await sendEmail({ kind: 'magic-link', to: email, url, token }); },
     }),
+    connected(),
     multiSession(),
     apiKey({
       defaultPrefix: settings.api_key?.prefix, enableMetadata: true, rateLimit: settings.api_key?.rate_limit,

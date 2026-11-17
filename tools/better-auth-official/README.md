@@ -115,7 +115,18 @@ no page) and `/sign-out` (Better Auth's sign-out, then `/sign-in`), and the conn
 
 - `/consent` (`mcp.consent_page`): the AI that asked (its `client_name`, from its Client ID Metadata Document), the computer it
   asked for (the host of `resource`), what it may do in plain words (`words.json` `scopes`), "Only approve what you started.",
-  Allow and Deny through `POST /api/auth/oauth2/consent`.
+  Allow and Deny through `POST /api/auth/oauth2/consent`. The owner's AI is given everything by default; "Read only" is a switch
+  that sends `read_only` with the answer, and the `narrowConsent` hook then drops the scopes named in `pages/sign-in-rules.json`
+  `read_only_drops` (the engine's scopes have no read variants yet, so a read variant is added there, not in code). A client
+  known by its own https document, returning to a host that belongs to that document's domain (or to loopback), gets Allow as the
+  primary button; any other host gets Deny as primary and Allow stays disabled until the person types the host. No code is
+  matched and no end date is asked. `prompt=consent` is added to an external authorize GET, so an AI that is already connected
+  shows "Connecting ..." with an Undo for `remembered_seconds` and then continues; Undo revokes it and denies. The consent POST
+  needs the sign-in cookie (SameSite=Lax) and a trusted Origin (`test/consent-grants.test.mjs` refuses evil, null and missing
+  Origin).
+- `/connected`: the AIs the person has connected (name, what it can do, connected since, last token issued) with one-tap
+  Disconnect, through `GET /api/auth/connected` and `POST /api/auth/connected/revoke {clientId}`, which ends its refresh tokens,
+  access tokens and consent in one transaction.
 - `/device` (`device.verification_uri`): the code a device shows (RFC 8628), then its client and scopes, "Only approve a device
   you are holding.", Allow and Deny through `/api/auth/device/approve` and `/deny`. The person who opens a code claims it.
 

@@ -133,6 +133,14 @@
       "description": "Approve or deny the AI that asked to use your Trillion."
     },
     {
+      "path": "/connected",
+      "sections": [
+        "connected"
+      ],
+      "title": "AIs connected to your Trillion",
+      "description": "See which AIs can use your Trillion, when they last did, and disconnect one."
+    },
+    {
       "path": "/device",
       "sections": [
         "device"

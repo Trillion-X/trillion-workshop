@@ -201,18 +201,89 @@ async function nameTheAsker() {
   for (const node of document.querySelectorAll('[data-fill="asker"]')) node.hidden = false;
 }
 
-// /consent: the AI that asked, the computer and what it may do, then Allow or Deny through Better Auth's consent endpoint.
+// /consent: the AI that asked, where it is from, the computer and what it may do, then Allow or Deny through Better Auth's consent endpoint.
+// - The owner's own AI gets everything; Read only is a switch, off by default.
+// - An AI whose return address is not its own (not its document's host, not a loopback address) has Deny as the main button, and Allow
+//   opens only when the address is typed.
+// - An AI the person already allowed is shown "Connecting" with an Undo, and goes on by itself after rules.remembered_seconds.
+const isLoopback = host => host === 'localhost' || host === '[::1]' || /^127\./.test(host);
+const hostOf = address => { try { return new URL(address).hostname.toLowerCase(); } catch { return ''; } };
+const related = (a, b) => a === b || a.endsWith(`.${b}`) || b.endsWith(`.${a}`);
+let readOnly = false;
+const rememberedAs = (granted, asked) => {
+  const drops = rules.read_only_drops;
+  const narrowed = !granted.some(scope => drops.includes(scope));
+  return asked.every(scope => granted.includes(scope) || (drops.includes(scope) && narrowed)) ? { readOnly: narrowed && asked.some(scope => drops.includes(scope)) } : null;
+};
 async function consentPage() {
   const session = await client.getSession();
   if (!session.data) return go('/sign-in');
-  const named = await json(`${authBase}/oauth2/public-client?client_id=${encodeURIComponent(query.get('client_id') ?? '')}`);
-  fillAll({ client: named.data?.client_name ?? words.asker_unknown, computer: computerOf(), email: session.data.user.email, redirect: redirectHost() });
+  const id = query.get('client_id') ?? '';
+  const named = await json(`${authBase}/oauth2/public-client?client_id=${encodeURIComponent(id)}`);
+  const clientHost = id.startsWith('https://') ? hostOf(id) : '';
+  const returnHost = hostOf(query.get('redirect_uri') ?? '');
+  fillAll({ client: named.data?.client_name ?? words.asker_unknown, clientHost: clientHost || words.computer_unknown, computer: computerOf(), email: session.data.user.email, redirect: redirectHost() });
+  const asked = (query.get('scope') ?? '').split(' ').filter(Boolean);
   listOf('scopes', scopeLines(query.get('scope')));
+  const known = Boolean(clientHost) && (related(returnHost, clientHost) || isLoopback(returnHost));
+  const before = ((await json(`${authBase}/oauth2/get-consents`)).data ?? []).find(row => row.clientId === id);
+  const again = before && known ? rememberedAs(before.scopes ?? [], asked) : null;
+  if (again) {
+    readOnly = again.readOnly;
+    show('remembered');
+    return void setTimeout(() => { if (!undone) consent(document.querySelector('[data-step="remembered"] [data-consent]')).catch(() => status(words.failed)); }, rules.remembered_seconds * 1000);
+  }
+  if (!known) {
+    // Deny is the main button; Allow waits for the address, typed.
+    const allow = document.querySelector('[data-step="review"] [data-consent="allow"]'), deny = document.querySelector('[data-step="review"] [data-consent="deny"]');
+    const box = document.querySelector('[name="typed_host"]');
+    document.querySelector('[data-unknown]').hidden = false;
+    allow.className = 'page-action page-action--quiet'; deny.className = 'page-action';
+    allow.disabled = true;
+    box.addEventListener('input', () => { allow.disabled = box.value.trim().toLowerCase() !== redirectHost().toLowerCase(); });
+  }
   show('review');
 }
+let undone = false;
 async function consent(button) {
-  const answer = await post(`${authBase}/oauth2/consent`, { accept: button.dataset.consent === 'allow', oauth_query: carried });
+  const answer = await post(`${authBase}/oauth2/consent`, { accept: button.dataset.consent === 'allow', oauth_query: carried, read_only: readOnly });
   return answer.ok && answer.data?.url ? location.assign(answer.data.url) : status(words.failed);
+}
+// Undo on a remembered AI: it is disconnected (its tokens and consent end) and told no.
+async function undo() {
+  undone = true;
+  await post(`${authBase}/connected/revoke`, { clientId: query.get('client_id') });
+  const answer = await post(`${authBase}/oauth2/consent`, { accept: false, oauth_query: carried });
+  return answer.ok && answer.data?.url ? location.assign(answer.data.url) : status(words.failed);
+}
+
+// /connected: the AIs the person allowed, what each can do, when it connected and last used, and one tap to disconnect.
+const when = iso => new Date(iso).toLocaleString();
+async function connectedPage() {
+  if (!(await client.getSession()).data) return toSignIn();
+  const listed = await json(`${authBase}/connected`);
+  const ais = listed.data?.ais ?? [];
+  document.querySelector('[data-fill="none"]').hidden = ais.length > 0;
+  const list = document.querySelector('[data-fill-list="connected"]');
+  list.replaceChildren(...ais.map(ai => {
+    const item = document.createElement('li'); item.className = 'page-item';
+    const add = (tag, className, text) => { const node = document.createElement(tag); node.className = className; node.textContent = text; item.append(node); return node; };
+    add('h2', 'page-item-heading', ai.name ?? words.asker_unknown);
+    add('p', 'page-item-detail', ai.read_only ? words.connected_can_read : words.connected_can_all);
+    add('p', 'page-item-detail', ai.last_used_at ? words.connected_last_used.replace('{when}', when(ai.last_used_at)) : words.connected_never);
+    add('p', 'page-item-detail', words.connected_since.replace('{when}', when(ai.connected_at)));
+    const actions = document.createElement('div'); actions.className = 'page-item-actions';
+    const button = document.createElement('button'); button.className = 'page-action'; button.type = 'button'; button.dataset.disconnect = ai.client_id; button.textContent = words.disconnect;
+    actions.append(button); item.append(actions);
+    return item;
+  }));
+}
+async function disconnect(button) {
+  const done = await post(`${authBase}/connected/revoke`, { clientId: button.dataset.disconnect });
+  if (!done.ok) return status(words.failed);
+  button.closest('li').remove();
+  if (!document.querySelector('[data-fill-list="connected"] li')) document.querySelector('[data-fill="none"]').hidden = false;
+  status(words.disconnected);
 }
 
 // /device: the code a device showed (RFC 8628 user code), the app that asked and what it may do, then Allow or Deny.
@@ -243,12 +314,15 @@ async function device(button) {
 }
 
 document.addEventListener('click', event => {
-  const button = event.target.closest('button[data-key], button[data-passkey-link], button[data-consent], button[data-device], button[data-passkey]');
+  const button = event.target.closest('button[data-key], button[data-passkey-link], button[data-undo], button[data-read-only], button[data-disconnect], button[data-consent], button[data-device], button[data-passkey]');
   if (!button) return;
   event.preventDefault();
   const failed = () => status(button.dataset.failed ?? words.failed);
   if (button.matches('[data-key]')) makeKey(button).catch(failed);
   else if (button.matches('[data-passkey-link]')) emailTheLink(button).catch(failed);
+  else if (button.matches('[data-undo]')) undo().catch(failed);
+  else if (button.matches('[data-disconnect]')) disconnect(button).catch(failed);
+  else if (button.matches('[data-read-only]')) { readOnly = !readOnly; button.setAttribute('aria-pressed', String(readOnly)); button.textContent = readOnly ? words.read_only_on : words.read_only_off; }
   else if (button.matches('[data-consent]')) consent(button).catch(failed);
   else if (button.matches('[data-device]')) device(button).catch(failed);
   else passkey(button).catch(failed);
@@ -289,5 +363,5 @@ offerPasskeysInTheEmailBox();
 nameTheAsker().catch(() => {});
 // The pages that are for a signed-in person send one who is not to sign in and come back.
 const needsSession = async () => { if (!(await client.getSession()).data) toSignIn(); };
-const connectPage = { '/consent': consentPage, '/device': devicePage, '/sign-in/add-passkey': needsSession, '/sign-in/change-email': needsSession }[location.pathname];
+const connectPage = { '/consent': consentPage, '/connected': connectedPage, '/device': devicePage, '/sign-in/add-passkey': needsSession, '/sign-in/change-email': needsSession }[location.pathname];
 connectPage?.().catch(() => status(words.unavailable));

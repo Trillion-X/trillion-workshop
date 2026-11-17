@@ -132,10 +132,10 @@ test('a session read is answered from the signed cookie for cookie_cache_seconds
   assert.equal(await (await call(a, '/get-session?disableCookieCache=true', { cookie: held })).json(), null, 'the store says it ended');
 });
 
-test('a client that does not ask for offline_access gets no refresh token', async () => {
+test('a client that does not ask for offline_access still gets a refresh token (settings.mcp.always_offline_access adds the scope)', async () => {
   const { client, code } = await authorized('openid records');
   const issued = await (await tokens(a, client, { grant_type: 'authorization_code', code, code_verifier: verifier })).json();
   assert.ok(issued.access_token);
-  assert.equal(issued.refresh_token, undefined);
-  assert.equal((await sql.query('select count(*)::int as n from "oauthRefreshToken" where "clientId" = $1', [client.client_id])).rows[0].n, 0);
+  assert.ok(issued.refresh_token);
+  assert.equal((await sql.query('select count(*)::int as n from "oauthRefreshToken" where "clientId" = $1', [client.client_id])).rows[0].n, 1);
 });

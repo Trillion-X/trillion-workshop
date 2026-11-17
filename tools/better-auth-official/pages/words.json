@@ -83,5 +83,15 @@
         "kind": "error"
       }
     }
-  }
+  },
+  "read_only_off": "Read only: off",
+  "read_only_on": "Read only: on",
+  "unknown_deny_first": "This app is not known by that address.",
+  "connected_last_used": "Last used {when}",
+  "connected_never": "Not used yet",
+  "connected_since": "Connected {when}",
+  "connected_can_read": "Can read only",
+  "connected_can_all": "Can read and change",
+  "disconnect": "Disconnect",
+  "disconnected": "Disconnected."
 }

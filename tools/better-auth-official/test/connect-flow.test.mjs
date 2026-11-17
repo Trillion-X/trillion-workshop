@@ -63,7 +63,7 @@ test('the request authorize gets back is the AI\'s own, without the signature pa
   assert.equal(back.get('scope'), `${sent.get('scope')} offline_access`, 'the scope is the AI\'s own, with the offline_access that keeps the person connected');
   assert.equal(back.get('prompt'), 'consent');
   for (const key of ['sig', 'exp', 'ba_iat', 'ba_param', 'ba_pl']) assert.ok(!back.has(key), `${key} is left out`);
-  assert.ok(!new URLSearchParams(authorizeQuery(searchOf(await goTo(`${settings.base_path}/oauth2/authorize?${request({ prompt: 'login' })}`)))).has('prompt'));
+  assert.equal(new URLSearchParams(authorizeQuery(searchOf(await goTo(`${settings.base_path}/oauth2/authorize?${request({ prompt: 'login' })}`)))).get('prompt'), 'consent', 'login is taken out, and consent, which every connect goes through, stays');
 });
 
 test('the sign-in page names the AI before sign-in, from the signed query only', async () => {
