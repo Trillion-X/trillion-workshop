@@ -277,3 +277,18 @@ fn make_folder_makes_one_folder_in_a_folder_that_exists_only_when_nothing_is_at_
         assert_ne!(again["item"], made["item"], "{database}");
     }
 }
+
+#[test]
+fn bounds_answers_the_numbers_a_caller_sizes_its_calls_by() {
+    for (database, mut files, _) in both() {
+        let bounds = call(&mut files, "bounds", json!({})).unwrap();
+        for field in ["list_default", "list_most", "read_most", "span_most", "chunk_bytes", "write_most", "piece_most"] {
+            assert!(bounds[field].as_u64().is_some_and(|number| number > 0), "{database}: {field} in {bounds}");
+        }
+        assert!(bounds["list_default"].as_u64() <= bounds["list_most"].as_u64() && bounds["read_most"].as_u64() <= bounds["span_most"].as_u64(), "{database}");
+        // The span bound is what a read of a span is held to.
+        let too_long = bounds["span_most"].as_u64().unwrap() + 1;
+        call(&mut files, "write_file", json!({ "name": "/a.txt", "text": "a" })).unwrap();
+        assert!(call(&mut files, "read_file_span", json!({ "name_or_identity": "/a.txt", "offset": 0, "length": too_long })).is_err(), "{database}");
+    }
+}

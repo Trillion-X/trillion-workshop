@@ -11,7 +11,7 @@ shared sender.
 | Mode | What it serves |
 |------|----------------|
 | `mcp` | MCP over stdio. Each operation of `src/account_files/account-files-routes.json` is a tool of the same name, listed by `tools/list` from `mcp-tools.json`: `list_files`, `find_file`, `read_file`, `read_file_span`, `write_file`, `write_file_start` / `_piece` / `_finish`, `find_names`, `move_names`, `copy_names`, `set_aside`, `put_back`, `queue_release`, `release_gone_bytes`, `search`, `recent_files` and the rest. |
-| `dav` | The WebDAV folder on `127.0.0.1:<settings.json dav.port>` (38481 as shipped), until stopped. Finder: Go, Connect to Server, `http://127.0.0.1:38481/`. A mounted file is read by byte range, never whole; a GET with no range of a large file is sent ranged. The same port answers every account files operation at `POST /work/api/files/<operation>` (routes DATA `folder.call_path`), its JSON body the input: 200 with the answer, or the refusal `{code, outcome}` with its status (409 for `namespace_conflict`), for a device's files core. |
+| `dav` | The WebDAV folder on `127.0.0.1:<settings.json dav.port>` (38481 as shipped), until stopped. Finder: Go, Connect to Server, `http://127.0.0.1:38481/`. A mounted file is read by byte range, never whole; a GET with no range of a large file is sent ranged. |
 | `serve` | Both. |
 | `account-files-bind [show] --state FOLDER` | Bind the origins of the person's files to them on purpose (`src/account_files/bind.rs`). |
 
@@ -79,7 +79,7 @@ results and shares).
 | `src/main.rs` | The program: modes `mcp`, `dav`, `serve`, `account-files-bind`, `counts` (how many rows each names-index table holds, only reads), `copy-archive --from FILE` (copies an archive's ns_* tables, read-only, into the rows). |
 | `src/serve/mod.rs` | One run: reads the attached connections, opens the rows, makes the files on a first run, `Namespace::call`. |
 | `src/serve/mcp.rs` | MCP over stdio. |
-| `src/serve/dav.rs` | The WebDAV listener, and the account files operations over HTTP on the same port (`POST <call_path><operation>`). |
+| `src/serve/dav.rs` | The WebDAV listener. |
 | `src/serve/settings.rs` | Reads and checks `settings.json`. |
 | `src/lib.rs` | The library. |
 | `src/store/` | The rows (see its README): `Rows`, `SqlStore`, `Link`, `tables.json`, `copy-from-archive.sql`, `copy.rs`. |
@@ -92,7 +92,7 @@ results and shares).
 | `src/host/secrets.rs` | `Held`: the attached connections, the SigV4 day key, vault names. |
 | `src/host/tool_runs.rs` | The computer under the program, for the usage counts' pending file. |
 | `tests/account_files_common/mod.rs` | The account files over rows and a byte port in memory. |
-| `tests/account_files_folder.rs`, `store_changes.rs`, `rows_in_both/` | What a native folder asks (changes, items, compare-and-set, pins, make_folder, thumbnails) and the store's change order, each in SQLite and in a real Postgres the tests start. |
+| `tests/account_files_folder.rs`, `store_changes.rs`, `rows_in_both/` | What a native folder asks (changes, items, compare-and-set, pins, make_folder, bounds, thumbnails) and the store's change order, each in SQLite and in a real Postgres the tests start. |
 | `tests/account_files_dav.rs`, `account_files_dav_write.rs`, `account_files_move.rs`, `account_files_release.rs`, `account_files_results.rs`, `account_files_route.rs`, `account_files_share.rs` | The moved tests of the WebDAV folder, moves, release, results, the tool contract and shares. |
 
 ## Key Types / Functions

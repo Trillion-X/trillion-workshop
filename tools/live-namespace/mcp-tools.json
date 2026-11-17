@@ -1159,6 +1159,16 @@
         ],
         "additionalProperties": false
       }
+    },
+    {
+      "name": "bounds",
+      "description": "The numbers a caller sizes its calls by: page sizes, the most bytes a read, a span, a write and a piece carry, and the stored chunk size.",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      }
     }
   ]
 }

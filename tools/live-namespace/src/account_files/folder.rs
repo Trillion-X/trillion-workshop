@@ -46,10 +46,6 @@ use std::{
 pub struct FolderSettings {
     pin_rules: PinRules,
     thumbnails: Thumbnails,
-    /// The HTTP path every operation is answered at, the operation's name appended (src/serve/dav.rs).
-    call_path: String,
-    /// The HTTP status of each refusal code (`account_routes::Failure::code`).
-    statuses: BTreeMap<String, u16>,
 }
 
 #[derive(Deserialize)]
@@ -84,19 +80,8 @@ struct Maker {
 }
 
 impl FolderSettings {
-    /// The HTTP path an operation is answered at: `call_path` and the operation's name.
-    pub fn call_path(&self) -> &str {
-        &self.call_path
-    }
-    /// The HTTP status a refusal code is answered with; none for a code the DATA does not name.
-    pub fn status_of(&self, code: &str) -> Option<u16> {
-        self.statuses.get(code).copied()
-    }
     pub fn valid(&self) -> bool {
-        self.call_path.starts_with('/')
-            && self.call_path.ends_with('/')
-            && self.statuses.values().all(|status| (400..600).contains(status))
-            && !self.pin_rules.scope.is_empty()
+        !self.pin_rules.scope.is_empty()
             && !self.pin_rules.kind.is_empty()
             && super::results::is_kind(&self.thumbnails.result_kind)
             && !self.thumbnails.media_type.is_empty()
@@ -343,6 +328,16 @@ impl AccountFiles {
         Ok(folder_row(&made))
     }
 
+    /// `bounds`: the numbers a caller sizes its calls by, each read from the one place it is kept.
+    pub fn bounds(&self) -> Answer<Value> {
+        let read = super::settings::settings();
+        Ok(json!({
+            "list_default": DEFAULT_LIST_LIMIT, "list_most": MAX_PAGE_ITEMS, "read_most": READ_MAX_BYTES,
+            "span_most": super::objects::MAX_RANGE_BYTES, "chunk_bytes": read.chunks.bytes, "write_most": super::WRITE_MAX_BYTES,
+            "piece_most": read.chunks.bytes,
+        }))
+    }
+
     /// `thumbnail`: a picture of the file at most `size` pixels on its longer edge, made once and kept under its content identity.
     pub fn thumbnail(&mut self, name_or_identity: &str, size: u64) -> Answer<Value> {
         let settings = &folder()?.thumbnails;
@@ -497,12 +492,7 @@ mod tests {
     }
 
     #[test]
-    fn every_refusal_code_has_an_http_status_and_a_conflict_is_409() {
-        let settings = folder().unwrap();
-        for code in ["namespace_conflict", "namespace_not_found", "original_input_refused", "namespace_identity_mismatch", "namespace_origin_not_bound", "namespace_unavailable", "namespace_source_unavailable"] {
-            assert!(settings.status_of(code).is_some(), "{code}");
-        }
-        assert_eq!(settings.status_of("namespace_conflict"), Some(409));
+    fn a_compare_and_set_refusal_is_a_conflict_that_changed_nothing() {
         let conflict = super::super::account_routes::Failure::AccountFiles(AccountFilesError::Records(crate::cause!(Error::Conflict), crate::cause!()), crate::cause!());
         assert_eq!(conflict.code(), ("namespace_conflict", false), "a compare-and-set refusal is not an outage");
     }

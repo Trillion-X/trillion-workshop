@@ -1873,6 +1873,7 @@ impl AccountFiles {
                 _ => Err(AccountFilesError::Invalid("id and expected_version are required", crate::cause!())),
             },
             "list_pin_rules" => self.list_pin_rules(field("device"), field("after"), number("limit").map(|limit| limit as usize)),
+            "bounds" => self.bounds(),
             "make_folder" => match (field("name"), input.get("expected_version").and_then(Value::as_i64)) {
                 (Some(name), Some(expected)) => self.make_folder(name, expected),
                 _ => Err(AccountFilesError::Invalid("name and expected_version are required", crate::cause!())),

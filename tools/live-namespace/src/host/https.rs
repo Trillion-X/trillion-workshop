@@ -7,7 +7,9 @@
 // Non-Negotiable Invariants:
 // - https to any host, verified by rustls (on ring) against the platform's roots (plus `SSL_CERT_FILE` when it names a
 //   file), TLS 1.2 or newer. Plain http only to a loopback host, so nothing leaves the computer unencrypted.
-// - No redirect is followed and no proxy is read from the environment: a caller that follows redirects reads the answer.
+// - No redirect is followed: a caller that follows redirects reads the answer. The one proxy read from the environment is the
+//   engine's own for a run it keeps in its sandbox (`HTTPS_PROXY` naming a loopback http address, the only way out of that sandbox);
+//   any other proxy setting is not used.
 // - Every request is bounded in time (the caller's wait) and every body in bytes (the caller's limit); a body past its
 //   limit is refused, never cut short.
 //
@@ -287,16 +289,27 @@ fn one_wait(wait: Duration) -> impl FnMut() -> Option<Duration> {
     move || (!std::mem::replace(&mut waited, true)).then_some(wait)
 }
 
-/// How every client is made: the TLS settings `config`, no redirect followed, no proxy from the environment, HTTP/1.1,
+/// How every client is made: the TLS settings `config`, no redirect followed, the engine's loopback proxy for https when the run
+/// was handed one (`engine_proxy`) and no other, HTTP/1.1,
 /// and a connection kept for the next request only while it has sat unused at most `kept_idle_ms` (a store closes an
 /// idle connection on its own clock; one kept past that is dropped, never sent a request).
 fn builder(config: &rustls::ClientConfig) -> reqwest::ClientBuilder {
-    reqwest::Client::builder()
-        .use_preconfigured_tls(config.clone())
-        .redirect(reqwest::redirect::Policy::none())
-        .no_proxy()
+    let builder = reqwest::Client::builder().use_preconfigured_tls(config.clone()).redirect(reqwest::redirect::Policy::none()).no_proxy();
+    let builder = match engine_proxy(std::env::var("HTTPS_PROXY").ok().as_deref()).and_then(|proxy| reqwest::Proxy::https(proxy).ok()) {
+        Some(proxy) => builder.proxy(proxy),
+        None => builder,
+    };
+    builder
         .http1_only()
         .pool_idle_timeout(Duration::from_millis(settings().kept_idle_ms))
+}
+
+/// The engine's proxy for a run in its sandbox: `HTTPS_PROXY` when it is plain http to this computer's loopback address, else none
+/// (a proxy anywhere else is not the engine's, and requests never go through it).
+fn engine_proxy(named: Option<&str>) -> Option<&str> {
+    let url = url::Url::parse(named?).ok()?;
+    let loopback = matches!(url.host(), Some(url::Host::Ipv4(address)) if address.is_loopback()) || url.host_str() == Some("localhost");
+    (url.scheme() == "http" && loopback && url.port().is_some()).then_some(named?)
 }
 
 /// The TLS settings and the client made on them, for the root file `SSL_CERT_FILE` names now. One pair is made per root
@@ -505,4 +518,19 @@ fn not_http(error: &reqwest::Error) -> bool {
         source = under.source();
     }
     false
+}
+
+#[cfg(test)]
+mod proxy_tests {
+    use super::engine_proxy;
+
+    #[test]
+    fn only_the_engines_loopback_proxy_is_used() {
+        assert_eq!(engine_proxy(Some("http://127.0.0.1:50123")), Some("http://127.0.0.1:50123"));
+        assert_eq!(engine_proxy(Some("http://localhost:50123")), Some("http://localhost:50123"));
+        assert_eq!(engine_proxy(Some("http://proxy.example.com:3128")), None, "a proxy off this computer is not the engine's");
+        assert_eq!(engine_proxy(Some("https://127.0.0.1:50123")), None);
+        assert_eq!(engine_proxy(Some("http://127.0.0.1")), None);
+        assert_eq!(engine_proxy(None), None);
+    }
 }

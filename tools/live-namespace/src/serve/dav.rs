@@ -9,10 +9,6 @@
 // - It listens on 127.0.0.1 only. A request names that address or `localhost` as its Host, and a request a browser page sent
 //   (it carries an Origin) is refused, so no web page can read or change the files through this port.
 // - A body is read to at most the folder's own PUT bound (settings.json `dav.put_most_bytes`), never into an unbounded buffer.
-// - The same port answers every operation of the account files' routes (but the folder's own `dav` and `dav_write`) at POST
-//   `folder.call_path`<operation> (account-files-routes.json), its JSON body the input, under the same Host and Origin guards: 200 with
-//   the answer, or the refusal with the status `folder.statuses` gives its code, so a device's files core tells a conflict (409) from
-//   an outage (503). A body is read to at most the largest piece one call takes, base64, and the answer's own reserve.
 // - A GET of a file larger than one answer carries is the file's bytes in order: the listener asks the folder for each range
 //   in turn and sends it on, so a client that does not ask by range still gets the whole file, and no more than one range is
 //   held at a time.
@@ -30,7 +26,7 @@ use axum::{
     Router,
 };
 use base64::{engine::general_purpose::STANDARD as BASE64, Engine as _};
-use live_namespace::account_files::{account_routes::AccountFilesDoor, settings::settings, READ_MAX_BYTES, WRITE_MAX_BYTES};
+use live_namespace::account_files::{settings::settings, READ_MAX_BYTES};
 use serde_json::{json, Value};
 use std::sync::Arc;
 
@@ -81,11 +77,6 @@ async fn handle(State(app): State<Arc<App>>, request: Request) -> Response {
     if !host_ok {
         return plain(StatusCode::MISDIRECTED_REQUEST, "These files answer at 127.0.0.1 only.");
     }
-    if let Some(door) = AccountFilesDoor::shipped() {
-        if let (true, Some(operation)) = (parts.method == axum::http::Method::POST, parts.uri.path().strip_prefix(door.folder().call_path())) {
-            return contract_call(app, door, operation.to_owned(), body).await;
-        }
-    }
     let Some(below) = parts.uri.path().strip_prefix(app.prefix.as_str()).filter(|below| below.is_empty() || below.starts_with('/')) else {
         return plain(StatusCode::NOT_FOUND, "No such folder.");
     };
@@ -128,42 +119,6 @@ async fn handle(State(app): State<Arc<App>>, request: Request) -> Response {
     }
 }
 
-/// One operation of the account files over HTTP: the JSON body is its input; the answer is 200 with the answer, or the refusal with
-/// the status its code is given in DATA.
-async fn contract_call(app: Arc<App>, door: &'static AccountFilesDoor, operation: String, body: Body) -> Response {
-    if !door.operations().iter().any(|known| *known == operation) || operation == "dav" || operation == "dav_write" {
-        return plain(StatusCode::NOT_FOUND, "No such operation.");
-    }
-    let piece = settings().chunks.bytes.max(WRITE_MAX_BYTES as u64) as usize;
-    let most = piece.div_ceil(3) * 4 + settings().read.response_metadata_reserve_bytes;
-    let Ok(body) = axum::body::to_bytes(body, most).await else {
-        return plain(StatusCode::PAYLOAD_TOO_LARGE, "The body is larger than one call takes.");
-    };
-    let Ok(input) = serde_json::from_slice::<Value>(&body).map(|input| if input.is_null() { json!({}) } else { input }) else {
-        return plain(StatusCode::BAD_REQUEST, "The body is the operation's input as JSON.");
-    };
-    if !input.is_object() {
-        return plain(StatusCode::BAD_REQUEST, "The body is the operation's input as JSON.");
-    }
-    let namespace = app.namespace.clone();
-    let ran = tokio::task::spawn_blocking(move || namespace.call(&operation, &input, Arc::new(|| true), &|_| true)).await;
-    let json = |status: StatusCode, value: Value| (status, [(header::CONTENT_TYPE, "application/json"), (header::CACHE_CONTROL, "no-store")], value.to_string()).into_response();
-    match ran {
-        Ok(Ok(answer)) => json(StatusCode::OK, answer),
-        Ok(Err(failure)) => {
-            let (code, unknown) = failure.code();
-            live_namespace::quiet_eprintln!("namespace-refusal code={code} cause={}", failure.cause());
-            let status = door.folder().status_of(code).and_then(|status| StatusCode::from_u16(status).ok()).unwrap_or(StatusCode::SERVICE_UNAVAILABLE);
-            let mut refusal = json!({"code": code, "outcome": if unknown { "unknown" } else { "not_started" }});
-            if let Some(detail) = failure.detail() {
-                refusal["detail"] = detail;
-            }
-            json(status, refusal)
-        }
-        Err(_) => json(StatusCode::SERVICE_UNAVAILABLE, json!({"code": "namespace_unavailable", "outcome": "unknown"})),
-    }
-}
-
 /// One call of the door on a blocking thread: the folder's reads and writes wait on stores and the record file.
 async fn door(app: &Arc<App>, operation: &'static str, input: Value) -> Result<Value, Response> {
     let namespace = app.namespace.clone();
@@ -176,11 +131,7 @@ async fn door(app: &Arc<App>, operation: &'static str, input: Value) -> Result<V
         Ok(Err(failure)) => {
             let (code, _) = failure.code();
             live_namespace::quiet_eprintln!("namespace-refusal code={code} cause={}", failure.cause());
-            let status = AccountFilesDoor::shipped()
-                .and_then(|door| door.folder().status_of(code))
-                .and_then(|status| StatusCode::from_u16(status).ok())
-                .unwrap_or(StatusCode::SERVICE_UNAVAILABLE);
-            Err((status, [(header::CONTENT_TYPE, "application/json")], json!({"error": code}).to_string()).into_response())
+            Err((StatusCode::SERVICE_UNAVAILABLE, [(header::CONTENT_TYPE, "application/json")], json!({"error": code}).to_string()).into_response())
         }
         Err(_) => Err(plain(StatusCode::SERVICE_UNAVAILABLE, "The call did not finish.")),
     }
