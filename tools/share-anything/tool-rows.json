@@ -117,7 +117,7 @@
             },
             "until": {
               "type": "string",
-              "description": "When the share ends: a future ISO time. A view share is read against it by the engine of the share; a run share keeps it as your own condition row that tool:end-shares-whose-condition-failed acts on."
+              "description": "When the share ends: a future ISO time. A view share is read against it by the engine of the share; a run share keeps it as the fixed end of your own condition row that tool:end-shares-whose-condition-failed acts on. Every run share also ends after 90 days with no use, whether or not you give until."
             },
             "origin": {
               "type": "string",
@@ -403,6 +403,13 @@
                   "records:read",
                   "records:write"
                 ]
+              },
+              {
+                "kind": "grant-ended",
+                "prefix": "grant-ended:",
+                "operations": [
+                  "records:write"
+                ]
               }
             ]
           }
@@ -463,7 +470,7 @@
         "label": "End shares whose condition failed",
         "status": "active",
         "job": "End the shares I let people run my tools by, once the end I gave each has passed, so none stays open past its time",
-        "description": "Reads each condition row of kind grant-end that tool:share-anything kept for a run share given until, and for each whose time has passed by this run's clock (or now, an ISO time to decide at) withdraws that share at your door and removes its row. The engine keeps no end and reads none: it admits a person while their share is kept, so a share ends when this withdraws it. A row that names no readable time is left alone and counted as waiting. Switch its wake on (wake:switch) and it runs every five minutes; run it once by hand and it does the same.",
+        "description": "Reads each condition row of kind grant-end that tool:share-anything kept for a run share: every run share is given one that ends it after 90 days with no use (each use starts the days again), and your own until is its fixed end. For each row whose end has passed by this run's clock (or now, an ISO time to decide at) it withdraws that share at your door, removes the row and keeps a grant-ended record saying why, for the Connections page. The engine keeps no end and reads none: it admits a person while their share is kept, so a share ends when this withdraws it. A row with no readable end is left alone and counted as waiting; a share the engine lists with no last use is judged by its fixed end alone and counted as unjudged. Edit or remove a grant-end row and it stays so. Switch its wake on (wake:switch) and it runs about every 22 hours (a hundredth of the 90 days); run it once by hand and it does the same.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -579,6 +586,13 @@
                 ]
               },
               {
+                "kind": "grant-ended",
+                "prefix": "grant-ended:",
+                "operations": [
+                  "records:write"
+                ]
+              },
+              {
                 "grant": "sharing:*",
                 "operations": [
                   "sharing.withdraw",
@@ -612,10 +626,10 @@
         ],
         "wakes": [
           {
-            "id": "every-five-minutes",
+            "id": "check-unused-grants",
             "on": {
               "time": {
-                "every_ms": 300000
+                "every_ms": 77760000
               }
             },
             "budget": {

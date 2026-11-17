@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Share a run with an end: say \"Share it until 2026-12-01T00:00:00Z\" to tool:share-anything; it keeps a grant-end row for that share and gives the engine no end.",
-    "2. Switch on this tool's wake (wake:switch, every-five-minutes), or run tool:end-shares-whose-condition-failed by hand with {} or {\"now\": an ISO time}.",
+    "2. Switch on this tool's wake (wake:switch, check-unused-grants), or run tool:end-shares-whose-condition-failed by hand with {} or {\"now\": an ISO time}.",
     "3. Read what comes back: ended names each share withdrawn at your door (its grant-end row is removed), waiting counts rows whose time has not passed or names no readable time, and said states it in words."
   ],
   "worked_examples": [

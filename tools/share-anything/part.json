@@ -1,5 +1,7 @@
 {
   "public": [
-    "read-data/share-label.mjs"
+    "read-data/share-label.mjs",
+    "read-data/access-ends-when-unused.mjs",
+    "read-data/access-ends-when-unused.json"
   ]
 }

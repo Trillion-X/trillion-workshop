@@ -13,6 +13,8 @@ import { shareAnything } from '../do-work/share-anything.mjs';
 import { grantOf, labelOf } from '../read-data/share-label.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 
+// The time the share was made, as the condition row it wrote names it.
+const answerAt = door => door.kept.get('grant-end:sharing:team-tools').value.since;
 const digest = key => makeHashCodeHexFromBytes(new TextEncoder().encode(key)).slice(3);
 const list = { label: 'Sample list', row_type: 'sample-row', fields: [{ id: 'title', label: 'Title' }] };
 
@@ -171,7 +173,7 @@ test('the run is granted exactly one workspace label, and never a record it shar
 test('the row declares the rights this tool needs and nothing wider', () => {
   const [row] = rows.records;
   const rights = row.payload.invoke.records.rights;
-  assert.deepEqual(rights.map(right => right.kind), ['@own-records', 'list', 'shared-text', undefined, 'grant-end']);
+  assert.deepEqual(rights.map(right => right.kind), ['@own-records', 'list', 'shared-text', undefined, 'grant-end', 'grant-ended']);
   assert.deepEqual(rights[0].operations, ['workspace:read', 'workspace:write']);
   assert.deepEqual(rights[0].id, { fill: { from: 'input', field: 'grant' } });
   assert.deepEqual(rights[1], { kind: 'list', prefix: 'list:', operations: ['records:read'] });
@@ -180,6 +182,8 @@ test('the row declares the rights this tool needs and nothing wider', () => {
   assert.deepEqual(rights[3], { grant: { fill: { from: 'input', field: 'grant' } }, operations: ['sharing.keep', 'sharing.list'] });
   // The end a run share is given is the sharer's own condition row, which the engine never reads.
   assert.deepEqual(rights[4], { kind: 'grant-end', prefix: 'grant-end:', operations: ['records:read', 'records:write'] });
+  // A new grant clears the record of an earlier end at its label, and never reads or lists one.
+  assert.deepEqual(rights[5], { kind: 'grant-ended', prefix: 'grant-ended:', operations: ['records:write'] });
 });
 
 test('tools are shared to run at the sharer door: each person a key of its own, kept by the engine keep as a digest, with an end', async () => {
@@ -194,7 +198,7 @@ test('tools are shared to run at the sharer door: each person a key of its own, 
     assert.deepEqual(kept.grant, { tools: ['tool:sample-a', 'tool:sample-b'], identity: 'none', journal: 'input' });
     assert.deepEqual(kept.people, [{ principal: 'member-a', key_blake3: digest(keys[0]) }, { principal: 'member-b', key_blake3: digest(keys[1]) }]);
     assert.equal(Object.hasOwn(kept, 'expires_at'), false, 'the engine keeps no end');
-    assert.deepEqual(door.kept.get(`grant-end:${grant}`).value, { grant, ends_at: '2999-01-01T00:00:00.000Z' }, 'the end is the sharer\'s own condition row');
+    assert.deepEqual(door.kept.get(`grant-end:${grant}`).value, { grant, unused_days: 90, since: answerAt(door), ends_at: '2999-01-01T00:00:00.000Z' }, 'the end is the sharer\'s own condition row, with the default 90 days unused');
     assert.equal(answer.expires_at, '2999-01-01T00:00:00.000Z');
     assert.equal(JSON.stringify(kept).includes('shr_'), false, 'no key is kept');
     const keep = door.calls.find(call => call.method === 'sharing.keep');

@@ -9,9 +9,10 @@
 //   shareAnything(input, { door })   input { op: "share" | "stop" | "access", grant, thing?, with?, link?, can?, until?, origin?,
 //                                     principal?, now? }; the one export the row runs.
 //
-// A run share holds no end in the engine, which reads none: `until` is the sharer's own condition, a row of kind data.run.end_kind
-// at data.run.end_prefix + the grant, `{ grant, ends_at }`, and the sweep (end-shares-whose-condition-failed.mjs), which a wake
-// the sharer switched on runs, withdraws the grant when the end has passed. Decision case
+// A run share holds no end in the engine, which reads none: its end is the sharer's own condition, a row of kind data.run.end_kind
+// at data.run.end_prefix + the grant, `{ grant, unused_days, since, ends_at? }`, written before the grant is kept with the default
+// of read-data/access-ends-when-unused.json (unused for 90 days) and `until` as `ends_at`; the sweep (end-shares-whose-condition-
+// failed.mjs), which a wake the sharer switched on runs, withdraws the grant when the end has passed. Decision case
 // source:bm8tZ3JhbnQtY29uZGl0aW9uLWluLWVuZ2luZS1jb2RlOndoZXJlLWNvbmRpdGlvbnMtbGl2ZS0yMDI2LTExLTE2.
 //
 // A share is the sharer's own workspace record at `grant` (record_prefix + the thing's label, read-data/share-label.mjs):
@@ -45,6 +46,7 @@
 // You are forbidden from simplifying or removing it. Maintain and extend this detail.
 import { randomBytes, randomUUID } from 'node:crypto';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
+import { conditionOf, ended as endedRecords } from '../read-data/access-ends-when-unused.mjs';
 import data from '../read-data/share-anything.json' with { type: 'json' };
 import { grantOf, labelOf, listRecordId, reachOf, shapeOf } from '../read-data/share-label.mjs';
 
@@ -292,8 +294,20 @@ async function shareRun(input, door) {
   }
   if (held.length + principals.length > data.most.people) throw new Error(fill(words.too_many, { most: data.most.people }));
   const keys = new Map(principals.map(principal => [principal, newKey()]));
+  // The condition row is written before the grant is kept, so a grant never stands without its row: a new grant gets the default
+  // (read-data/access-ends-when-unused.mjs) and the earlier ended record at its label is removed; a grant that stands keeps the
+  // row its person holds (edited or removed), and `until` only sets its fixed end.
+  const at = new Date(now).toISOString();
+  if (!earlier) {
+    await door.write([
+      { id: endIdOf(grant), type: runs.end_kind, value: conditionOf({ grant, at, endsAt: ends }) },
+      { id: `${endedRecords.prefix}${grant}`, type: endedRecords.kind, value: null },
+    ], { key: `${run}:end` });
+  } else if (ends !== undefined) {
+    const row = await door.read(runs.end_kind, endIdOf(grant));
+    await door.write([{ id: endIdOf(grant), type: runs.end_kind, value: { ...(object(row) ? row : { grant }), ends_at: ends } }], { key: `${run}:end` });
+  }
   await keepRun(door, grant, { grant: asked, people: [...held, ...[...keys].map(([principal, key]) => ({ principal, key_blake3: hex(key) }))] }, run);
-  if (ends !== undefined) await door.write([{ id: endIdOf(grant), type: runs.end_kind, value: { grant, ends_at: ends } }], { key: `${run}:end` });
   const expires_at = ends ?? await endHeld(door, grant);
   const said = [
     ...principals.map(principal => fill(words.added_runner, { principal, tools: asked.tools.join(', ') })),
