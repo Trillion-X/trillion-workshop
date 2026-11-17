@@ -68,8 +68,8 @@
     "/token"
   ],
   "email": {
-    "outbox": "data/outbox.jsonl",
-    "command": null
+    "sender": null,
+    "from": null
   },
   "device": {
     "verification_uri": "/device"

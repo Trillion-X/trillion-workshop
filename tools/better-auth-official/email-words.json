@@ -1,0 +1,37 @@
+{
+  "_what": "The words of each email the sign-in sends, by the kind auth.mjs gives (otp-<type> for an email code, by Better Auth's emailOTP types; the link kinds by their callback). Each {field} is the message's own value: otp, url, newEmail, and minutes (settings.json email_code, the same minutes the pages say). send-email.mjs fills them; the provider gets them as subject and text.",
+  "kinds": {
+    "otp-sign-in": {
+      "subject": "Your Trillion sign-in code: {otp}",
+      "text": ["Your code to sign in to Trillion is {otp}", "", "It works for {minutes} minutes. If you did not ask to sign in, you can ignore this email."]
+    },
+    "otp-email-verification": {
+      "subject": "Your Trillion code: {otp}",
+      "text": ["Your code to prove this address for Trillion is {otp}", "", "It works for {minutes} minutes. If you did not ask for it, you can ignore this email."]
+    },
+    "otp-forget-password": {
+      "subject": "Your Trillion password code: {otp}",
+      "text": ["Your code to set a new Trillion password is {otp}", "", "It works for {minutes} minutes. If you did not ask for it, your password stays as it is."]
+    },
+    "otp-change-email": {
+      "subject": "Your Trillion code: {otp}",
+      "text": ["Your code to change your Trillion address is {otp}", "", "It works for {minutes} minutes. If you did not ask for it, you can ignore this email."]
+    },
+    "magic-link": {
+      "subject": "Sign in to Trillion",
+      "text": ["Open this link to sign in to Trillion:", "", "{url}", "", "If you did not ask to sign in, you can ignore this email."]
+    },
+    "reset-password": {
+      "subject": "Set a new Trillion password",
+      "text": ["Open this link to set a new Trillion password:", "", "{url}", "", "If you did not ask for it, your password stays as it is."]
+    },
+    "verify-email": {
+      "subject": "Prove your address for Trillion",
+      "text": ["Open this link to prove this address for Trillion:", "", "{url}", "", "If you did not ask for it, you can ignore this email."]
+    },
+    "change-email": {
+      "subject": "Change your Trillion address",
+      "text": ["Open this link to change your Trillion address to {newEmail}:", "", "{url}", "", "If you did not ask for it, your address stays as it is."]
+    }
+  }
+}

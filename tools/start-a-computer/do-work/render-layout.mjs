@@ -128,6 +128,22 @@ const unitSettings = (unit, productSettings, where) => {
   return { path: unit.config, text: `${JSON.stringify(config, null, 2)}\n` };
 };
 
+/** A unit's `credentials` ({ vault_key, name, file, env? }) as its template's fields: `credential_lines`, one
+ * LoadCredentialEncrypted line each, and `credential_env`, each one that names an `env` read into that variable before the
+ * program starts. A credential with no `env` is read by the program itself from its credentials folder, by its name. */
+const NAME = /^[A-Za-z0-9._-]+$/, ENV = /^[A-Z][A-Z0-9_]*$/;
+const withCredentials = (unit, where) => {
+  const credentials = unit.credentials ?? [];
+  for (const { name, file, env } of credentials) {
+    if (!NAME.test(name ?? '') || !String(file ?? '').startsWith('/') || (env !== undefined && !ENV.test(env))) throw new Error(`${where} credentials need a name, an absolute file and, when given, an env of capitals`);
+  }
+  return {
+    ...unit,
+    credential_lines: credentials.map(({ name, file }) => `LoadCredentialEncrypted=${name}:${file}`).join('\n'),
+    credential_env: credentials.filter(({ env }) => env).map(({ name, env }) => `${env}="$(cat "$CREDENTIALS_DIRECTORY/${name}")" && export ${env} && `).join(''),
+  };
+};
+
 /** Every file a layout declares: { path, text }. A unit's drop-ins are the names it lists in `drop_ins`. With the product
  * settings' text (the verified product data), each unit that names a `product_settings` file declares that file too. */
 export function renderLayout(layout, siteBlock, productSettings, pages) {
@@ -139,7 +155,7 @@ export function renderLayout(layout, siteBlock, productSettings, pages) {
     const where = `unit ${unit.unit}`;
     const template = UNITS[unit.template];
     if (!template) throw new Error(`${where} names an unknown template ${unit.template}`);
-    files.push({ path: `${SYSTEMD}/${unit.unit}`, text: fill(template, unit, where) });
+    files.push({ path: `${SYSTEMD}/${unit.unit}`, text: fill(template, withCredentials(unit, where), where) });
     if (productSettings !== undefined && unit.product_settings) files.push({ path: unit.product_settings, text: productSettings });
     if (unit.settings !== undefined || unit.settings_lines !== undefined) files.push(unitSettings(unit, productSettings, where));
     if (unit.script !== undefined) files.push({ path: fill('{script_file}', unit, where), text: SCRIPT(unit.script) });

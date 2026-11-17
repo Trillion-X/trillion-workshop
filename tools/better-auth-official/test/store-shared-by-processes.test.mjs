@@ -70,7 +70,7 @@ test('a passkey challenge is used once: finishing the same ceremony again, on ei
 test('an email code is used once: asked on A, used on B and on A at the same moment, exactly one is let in; a later use fails', async () => {
   const sent = await call(a, '/email-otp/send-verification-otp', { body: { email: 'shared@example.test', type: 'sign-in' } });
   assert.equal(sent.status, 200);
-  const otp = mail(a).filter(row => row.otp).at(-1).otp;
+  const otp = mail().filter(row => row.otp).at(-1).otp;
   const answers = await Promise.all([a, b, a, b].map(process => call(process, '/sign-in/email-otp', { body: { email: 'shared@example.test', otp } })));
   assert.equal(answers.filter(answer => answer.status === 200).length, 1, answers.map(answer => answer.status).join());
   assert.notEqual((await call(b, '/sign-in/email-otp', { body: { email: 'shared@example.test', otp } })).status, 200);

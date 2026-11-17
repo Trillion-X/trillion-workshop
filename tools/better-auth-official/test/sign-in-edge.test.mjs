@@ -6,24 +6,29 @@
 // lives a day, and a person changes their address.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pageAnswer } from '../pages.mjs';
 import { startStore } from '../test-fixtures/embedded-store.mjs';
+import { startStandInSender } from '../test-fixtures/stand-in-sender.mjs';
+import emailWords from '../email-words.json' with { type: 'json' };
 
 const shipped = JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8'));
 process.env.BETTER_AUTH_SECRET = 'a-scratch-secret-for-this-test-only-0123456789';
 const { getMigrations } = await import('better-auth/db/migration');
 const store = await startStore();
-test.after(() => store.stop());
+const sender = await startStandInSender();
+const refusing = await startStandInSender({ refuse: true });
+process.env.CREDENTIALS_DIRECTORY = sender.credentials;
+test.after(() => { store.stop(); sender.stop(); refusing.stop(); });
 let made = 0;
 let caller = 0; // each request comes from its own address, because the rate limit is kept per address for the whole process
 
-// A scratch Better Auth on the shipped settings and what a test changes, with its mail in an outbox file.
+// A scratch Better Auth on the shipped settings and what a test changes, sending its mail to the stand-in sender.
 async function scratch(overrides = {}) {
   const dir = mkdtempSync(join(tmpdir(), 'sign-in-edge-'));
-  const settings = { ...shipped, disabled_paths: [], email: { outbox: 'outbox.jsonl', command: null }, ...overrides };
+  const settings = { ...shipped, disabled_paths: [], email: sender.email, ...overrides };
   writeFileSync(join(dir, 'settings.json'), JSON.stringify(settings));
   process.env.BETTER_AUTH_SETTINGS = join(dir, 'settings.json');
   process.env.BETTER_AUTH_STORE_CONNECTION = await store.database();
@@ -34,9 +39,9 @@ async function scratch(overrides = {}) {
   const call = (path, { body, cookie, from = `198.51.100.${(caller++ % 250) + 1}` } = {}) => auth.handler(new Request(`${origin}${settings.base_path}${path}`, {
     method: body ? 'POST' : 'GET', headers: { origin, 'content-type': 'application/json', 'x-forwarded-for': from, ...(cookie ? { cookie } : {}) }, body: body && JSON.stringify(body),
   }));
-  const mail = () => (existsSync(join(dir, 'outbox.jsonl')) ? readFileSync(join(dir, 'outbox.jsonl'), 'utf8').trim().split('\n').filter(Boolean).map(line => JSON.parse(line)) : []);
+  const mail = sender.mail;
   const cookieOf = response => response.headers.getSetCookie().map(c => c.split(';')[0]).join('; ');
-  // Sign in by email code: asks for the code, reads it from the outbox, and answers with it.
+  // Sign in by email code: asks for the code, reads it from the mail the sender accepted, and answers with it.
   const signInByCode = async (email, from) => {
     const sent = await call('/email-otp/send-verification-otp', { body: { email, type: 'sign-in' }, from });
     if (sent.status !== 200) throw new Error(`send ${sent.status} ${await sent.text()}`);
@@ -47,11 +52,17 @@ async function scratch(overrides = {}) {
 }
 
 test('a code that could not be sent is an error, never "on its way"; one that was sent is an answer 200', async () => {
-  const broken = await scratch({ email: { command: ['/usr/bin/false'], outbox: 'outbox.jsonl' } });
+  const broken = await scratch({ email: refusing.email });
   const failed = await broken.call('/email-otp/send-verification-otp', { body: { email: 'nobody@example.test', type: 'sign-in' } });
   assert.notEqual(failed.status, 200);
+  assert.equal((await failed.json()).code, 'EMAIL_NOT_SENT', 'the page says the code was not sent');
   const working = await scratch();
   assert.equal((await working.call('/email-otp/send-verification-otp', { body: { email: 'somebody@example.test', type: 'sign-in' } })).status, 200);
+  const sent = working.mail().at(-1);
+  assert.deepEqual([sent.from, sent.to], [sender.email.from, 'somebody@example.test'], 'the sender gets the from address and the person');
+  assert.equal(sent.otp.length, working.settings.email_code.digits);
+  assert.match(sent.subject, new RegExp(sent.otp));
+  assert.match(sent.text, new RegExp(`for ${working.settings.email_code.expires_in_seconds / 60} minutes`), 'the email says the same minutes as the page');
 });
 
 test('a code lives as long as the pages say, has the tries settings give, and sends are capped per window', async () => {
@@ -95,8 +106,8 @@ test('the add-a-passkey link goes by email, is one-time, and lives a day', async
   const email = 'other-device@example.test';
   assert.equal((await call('/sign-in/magic-link', { body: { email, callbackURL: '/sign-in/add-passkey' } })).status, 200);
   const sent = mail().at(-1);
-  assert.equal(sent.kind, 'magic-link');
-  assert.match(sent.url, /add-passkey/);
+  assert.equal(sent.subject, emailWords.kinds['magic-link'].subject);
+  assert.match(sent.text, /add-passkey/);
   const stored = (await (await auth.$context).adapter.findMany({ model: 'verification' })).find(row => row.value.includes(email));
   const life = (new Date(stored.expiresAt) - Date.now()) / 1000;
   assert.ok(life > settings.add_passkey_link.expires_in_seconds - 5 && life <= settings.add_passkey_link.expires_in_seconds);
@@ -108,7 +119,7 @@ test('a signed-in person starts a change of email, and a session is fresh for th
   const cookie = cookieOf(await signInByCode('before@example.test'));
   const changed = await call('/change-email', { body: { newEmail: 'after@example.test', callbackURL: '/' }, cookie });
   assert.equal(changed.status, 200, await changed.clone().text());
-  assert.ok(mail().some(row => ['change-email', 'verify-email'].includes(row.kind)), 'a link goes out');
+  assert.ok(mail().some(row => ['change-email', 'verify-email'].map(kind => emailWords.kinds[kind].subject).includes(row.subject)), 'a link goes out');
   assert.equal((await auth.$context).sessionConfig.freshAge, settings.session.fresh_age_seconds);
 });
 

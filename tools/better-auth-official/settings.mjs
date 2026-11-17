@@ -1,8 +1,8 @@
-// The settings every part of this tool reads: settings.json, or the file BETTER_AUTH_SETTINGS names, and the folder it sits in.
+// The settings every part of this tool reads: settings.json, or the file BETTER_AUTH_SETTINGS names.
 import { readFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { resolve } from 'node:path';
 
 export function readSettings() {
   const path = resolve(process.env.BETTER_AUTH_SETTINGS ?? new URL('./settings.json', import.meta.url).pathname);
-  return { settings: JSON.parse(readFileSync(path, 'utf8')), here: dirname(path) };
+  return { settings: JSON.parse(readFileSync(path, 'utf8')) };
 }

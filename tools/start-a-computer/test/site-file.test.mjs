@@ -88,7 +88,7 @@ test('a computer whose row names no site host asks its restarted unit\'s health 
     unit: 'example-sign-in.service', template: 'serve-better-auth', description: 'Example sign-in', user: 'example-sign-in',
     state: '/var/lib/example-sign-in', workshop: '/opt/example-workshop', repository: 'https://example.test/workshop.git',
     tool_folder: 'tools/better-auth-official', node_bin: '/opt/node/bin', settings_file: '/etc/example/settings.json', settings: { port: 8792 },
-    secret_vault_key: 'example-secret', secret_name: 'example-secret', secret_file: '/etc/credstore.encrypted/example-secret', store_secret_vault_key: 'example-store', store_secret_name: 'sign-in-store', store_secret_file: '/etc/credstore.encrypted/sign-in-store', writable: '/var/lib/example-sign-in',
+    secret_vault_key: 'example-secret', secret_name: 'example-secret', secret_file: '/etc/credstore.encrypted/example-secret', credentials: [{ vault_key: 'example-store', name: 'sign-in-store', file: '/etc/credstore.encrypted/sign-in-store', env: 'BETTER_AUTH_STORE_CONNECTION' }], writable: '/var/lib/example-sign-in',
   };
   const layout = { caddy, units: [unit], unmanaged: [], health: { path: '/api/auth/ok', status: 200, where: 'machine' }, health_listen: '127.0.0.1:8792' };
   const answer = await applyHostLayout({ address: '192.0.2.9', ssh: { known_hosts: '/dev/null' } }, layout, run, undefined, { 'example-secret': 'made-up', 'example-store': 'made-up-store' }, { pages: PAGES });

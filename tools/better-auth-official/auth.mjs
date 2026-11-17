@@ -3,7 +3,6 @@
 // with Client ID Metadata Documents), device authorization, bearer (which the device docs require to use its session token) and admin (removeUser and the rest, for the users settings.json names as admins). Everything that differs per place is DATA in settings.json,
 // read from BETTER_AUTH_SETTINGS (default ./settings.json); the secret comes from BETTER_AUTH_SECRET.
 
-import { resolve } from 'node:path';
 import { betterAuth } from 'better-auth';
 import { APIError, createAuthEndpoint, createAuthMiddleware, sessionMiddleware } from 'better-auth/api';
 import {
@@ -26,9 +25,8 @@ const read = readSettings();
 // How an AI product's client metadata document is fetched: Better Auth's own https transport unless the layout names another module.
 const { fetchClientMetadataResource } = await import(read.settings.cimd.fetch_module);
 export const settings = read.settings;
-const here = read.here;
 export const pool = storePool(settings);
-const deliver = emailHook({ ...settings.email, outbox: resolve(here, settings.email.outbox) });
+const deliver = emailHook(settings.email, { minutes: String(settings.email_code.expires_in_seconds / 60) });
 
 // Better Auth waits for a send but only logs its failure ("Failed to run background task"), so the answer would still say the
 // message is on its way. A send that failed is remembered by its address for a moment, and the after hook below turns the answer
@@ -36,7 +34,14 @@ const deliver = emailHook({ ...settings.email, outbox: resolve(here, settings.em
 const failedTo = new Map();
 const mailPaths = new Set(['/email-otp/send-verification-otp', '/forget-password/email-otp', '/email-otp/request-password-reset', '/sign-in/magic-link', '/request-password-reset', '/send-verification-email', '/change-email']);
 async function sendEmail(message) {
-  try { await deliver(message); } catch (error) { failedTo.set(message.to, Date.now()); throw error; }
+  try {
+    const { id } = await deliver(message);
+    console.log(`email ${message.kind} accepted by the sender as ${id}`);
+  } catch (error) {
+    failedTo.set(message.to, Date.now());
+    console.error(`email ${message.kind} not sent: ${error.message}`);
+    throw error;
+  }
 }
 async function refuseWhenNotSent(ctx) {
   if (!mailPaths.has(ctx.path)) return;

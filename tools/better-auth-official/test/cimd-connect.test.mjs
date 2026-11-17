@@ -14,7 +14,7 @@ import { startStore } from '../test-fixtures/embedded-store.mjs';
 
 const standIn = new URL('../test-fixtures/cimd-stand-in.mjs', import.meta.url);
 const dir = mkdtempSync(join(tmpdir(), 'cimd-connect-'));
-const settings = { ...JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8')), email_password: { require_verification: false }, disabled_paths: [], email: { outbox: 'outbox.jsonl', command: null }, cimd: { fetch_module: standIn.href } };
+const settings = { ...JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8')), email_password: { require_verification: false }, disabled_paths: [], cimd: { fetch_module: standIn.href } };
 writeFileSync(join(dir, 'settings.json'), JSON.stringify(settings));
 process.env.BETTER_AUTH_SETTINGS = join(dir, 'settings.json');
 const store = await startStore();

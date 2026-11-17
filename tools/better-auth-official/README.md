@@ -38,7 +38,14 @@ test-fixtures/embedded-store.mjs), with no install and no sudo.
 
 `port`, `base_url`, `base_path`, `issuer`, `audience`, `store` (`credential`, `env`, `pool_size`, `migrate_from`: an old SQLite file whose rows are not yet moved, null otherwise; while set and holding users, the server refuses to listen on a store with none), `session_cookie_name`, `api_key` (`prefix`, `rate_limit` in the plugin's own `rateLimit` shape, `default_permissions`: the scope names a new key reaches, `{"trillion": [names]}`, none by default), `internal` (`host`, `port`, `verify_path`), `passkey` (`rp_id`, `rp_name`),
 `trusted_origins`, `attached_origins` (`ask_url`, `cache_ms`, `related_url`), `two_factor_issuer`, `mcp` (`login_page`, `consent_page`, `resource`, `scopes`: what a client may ask for, `resource_scopes`: what the MCP resource allows), `disabled_paths`, `device` (`verification_uri`), `admin` (`user_ids`: the users the admin plugin treats as admins, its `adminUserIds`; none by default), `delete_user` (`enabled`: Better Auth's `user.deleteUser`, so a signed-in person may delete their own user; false by default) and
-`email` (`command`, an argv that gets each message as JSON on stdin, or `outbox`, a file each message is appended to).
+`email` (`from`: the address mail comes from; `sender`: the person's description of their email provider's request, kept as their
+DATA and named in their computer's layout row: `name`, `vault_key` (the name of the credential its auth header carries, read at each
+send from the unit's credentials folder, `CREDENTIALS_DIRECTORY`, never a value in settings), `request` (`url`, `method`, `headers`,
+`auth` {`header`, `prefix`}, `body`: the JSON body with `{from}`, `{to}`, `{subject}` and `{text}` filled in, `timeout_ms`),
+`message_id_at` (where the accepted answer holds the message's id) and `error_at` (where a refusal holds its reason)). The words of
+each message are `email-words.json`, by kind. No sender, or an answer that is not accepted with an id, is an error: the page says the
+code could not be sent, and no message is kept anywhere else. test-fixtures/stand-in-sender.mjs is a provider on a loopback port the
+tests send to.
 
 `email_code` (`digits`, `expires_in_seconds`, `attempts`, `sends_per_window`, `window_seconds`: the email code the pages tell people about), `email_password` (`require_verification`: a password signs in only after its address is proven), `add_passkey_link` (`expires_in_seconds`: the one-time link that adds a passkey on another device), `session` (`fresh_age_seconds`: how recent a sign-in adding a passkey or changing an email needs; `cookie_cache_seconds`: how long a signed session cookie answers without a store read) and `rate_limit` (`enabled`).
 

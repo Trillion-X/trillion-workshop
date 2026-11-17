@@ -67,7 +67,10 @@ const withSignIn = {
     tool_folder: 'tools/better-auth-official', node_bin: '/opt/node/bin', settings_file: '/var/lib/example-sign-in/settings.json',
     settings: { port: 7201, base_url: 'https://place.example.test', issuer: 'https://place.example.test', store: { credential: 'sign-in-store', env: 'BETTER_AUTH_STORE_CONNECTION' } },
     secret_vault_key: 'example-better-auth-secret', secret_name: 'better-auth-secret', secret_file: '/etc/example-sign-in/better-auth-secret',
-    store_secret_vault_key: 'example-store', store_secret_name: 'sign-in-store', store_secret_file: '/etc/credstore.encrypted/sign-in-store',
+    credentials: [
+      { vault_key: 'example-store', name: 'sign-in-store', file: '/etc/credstore.encrypted/sign-in-store', env: 'BETTER_AUTH_STORE_CONNECTION' },
+      { vault_key: 'example-sender-key', name: 'example-sender-key', file: '/etc/credstore.encrypted/example-sender-key' },
+    ],
     writable: '/var/lib/example-sign-in',
   }],
 };
@@ -81,6 +84,10 @@ test('a layout that names the better-auth unit renders it, its settings file and
   assert.match(unit, /^Environment=BETTER_AUTH_SETTINGS=\/var\/lib\/example-sign-in\/settings\.json$/m);
   assert.match(unit, /^ExecStartPre=\/bin\/sh -c 'cd \/var\/lib\/example-sign-in\/trillion-workshop\/tools\/better-auth-official && npm ci --omit=dev --no-audit --no-fund'$/m);
   assert.match(unit, /exec node server\.mjs'$/m);
+  assert.match(unit, /^LoadCredentialEncrypted=sign-in-store:\/etc\/credstore\.encrypted\/sign-in-store$/m);
+  assert.match(unit, /^LoadCredentialEncrypted=example-sender-key:\/etc\/credstore\.encrypted\/example-sender-key$/m);
+  assert.match(unit, / BETTER_AUTH_STORE_CONNECTION="\$\(cat "\$CREDENTIALS_DIRECTORY\/sign-in-store"\)" && export BETTER_AUTH_STORE_CONNECTION && exec node/, 'a credential that names an env is handed in it');
+  assert.doesNotMatch(unit, /example-sender-key"\)/, 'a credential with no env is read by the server from its credentials folder');
   const settings = files.find(file => file.path === '/var/lib/example-sign-in/settings.json');
   assert.deepEqual(JSON.parse(settings.text), withSignIn.units[1].settings);
   const [caddy] = files;

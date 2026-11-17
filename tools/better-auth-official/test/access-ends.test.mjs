@@ -13,7 +13,7 @@ import { createHash, randomBytes } from 'node:crypto';
 import { startStore } from '../test-fixtures/embedded-store.mjs';
 
 const dir = mkdtempSync(join(tmpdir(), 'access-ends-'));
-const settings = { ...JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8')), email_password: { require_verification: false }, disabled_paths: [], email: { outbox: 'outbox.jsonl', command: null } };
+const settings = { ...JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8')), email_password: { require_verification: false }, disabled_paths: [] };
 writeFileSync(join(dir, 'settings.json'), JSON.stringify(settings));
 process.env.BETTER_AUTH_SETTINGS = join(dir, 'settings.json');
 const store = await startStore();

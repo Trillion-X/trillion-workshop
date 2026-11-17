@@ -35,7 +35,7 @@ async function environment(migrateFrom) {
   const port = await freePort();
   const home = `http://localhost:${port}`;
   const settings = { ...shipped, port, base_url: home, issuer: home, audience: home, trusted_origins: [home], internal: { ...shipped.internal, port: await freePort() },
-    email: { outbox: 'outbox.jsonl', command: null }, store: { ...shipped.store, migrate_from: migrateFrom } };
+    store: { ...shipped.store, migrate_from: migrateFrom } };
   const file = join(dir, `settings-${port}.json`);
   writeFileSync(file, JSON.stringify(settings));
   return { ...process.env, BETTER_AUTH_SETTINGS: file, BETTER_AUTH_SECRET: 'a-scratch-secret-for-this-test-only-0123456789', [shipped.store.env]: connection };

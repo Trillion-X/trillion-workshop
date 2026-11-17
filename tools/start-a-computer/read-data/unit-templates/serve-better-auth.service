@@ -5,10 +5,10 @@ Wants=network-online.target
 
 [Service]
 # BETTER_AUTH_SECRET is the value held under the vault name {secret_vault_key}: start-a-computer seals it for this computer
-# (systemd-creds) at {secret_file}; this unit names only where. The sign-in store's connection is the credential
-# {store_secret_name} at {store_secret_file}, handed to the server as BETTER_AUTH_STORE_CONNECTION; the server makes its own tables.
+# (systemd-creds) at {secret_file}; this unit names only where. The row's other credentials (the sign-in store's connection, the
+# email sender's key) are sealed the same way and loaded below; one that names an env is handed to the server in that variable.
 LoadCredentialEncrypted={secret_name}:{secret_file}
-LoadCredentialEncrypted={store_secret_name}:{store_secret_file}
+{credential_lines}
 Environment=BETTER_AUTH_SETTINGS={settings_file}
 Environment=PATH={node_bin}:/usr/bin:/bin
 Environment=npm_config_cache={workshop}/.npm-cache
@@ -17,7 +17,7 @@ User={user}
 Group={user}
 ExecStartPre=/bin/sh -c 'test -d {workshop}/.git || git clone --depth 1 {repository} {workshop}'
 ExecStartPre=/bin/sh -c 'cd {workshop}/{tool_folder} && npm ci --omit=dev --no-audit --no-fund'
-ExecStart=/bin/sh -c 'cd {workshop}/{tool_folder} && BETTER_AUTH_SECRET="$(cat "$CREDENTIALS_DIRECTORY/{secret_name}")" && BETTER_AUTH_STORE_CONNECTION="$(cat "$CREDENTIALS_DIRECTORY/{store_secret_name}")" && export BETTER_AUTH_SECRET BETTER_AUTH_STORE_CONNECTION && exec node server.mjs'
+ExecStart=/bin/sh -c 'cd {workshop}/{tool_folder} && BETTER_AUTH_SECRET="$(cat "$CREDENTIALS_DIRECTORY/{secret_name}")" && export BETTER_AUTH_SECRET && {credential_env}exec node server.mjs'
 Restart=on-failure
 RestartSec=3
 KillSignal=SIGTERM

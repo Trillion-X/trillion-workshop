@@ -1,12 +1,14 @@
 // Two Better Auth processes on one store, the way two computers behind the sign-in name run: the same base URL, issuer and secret,
-// each on its own loopback port with its own outbox file, both reading and writing the one Postgres database `store.database()` made.
+// each on its own loopback port, both sending mail to one stand-in sender and both reading and writing the one Postgres database
+// `store.database()` made.
 // `a` and `b` answer by `call(process, path under the base path, { body, form, cookie })`; the origin header is the shared base URL, as a browser's is.
 
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
-import { mkdtempSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { startStandInSender } from './stand-in-sender.mjs';
 
 const freePort = () => new Promise(done => { const s = createServer().listen(0, '127.0.0.1', () => { const { port } = s.address(); s.close(() => done(port)); }); });
 const tool = new URL('..', import.meta.url).pathname;
@@ -20,14 +22,15 @@ export async function startTwoProcesses(connection, overrides = {}) {
     trusted_origins: [`http://localhost:${home}`], email_password: { require_verification: false }, disabled_paths: [], rate_limit: { enabled: false },
     ...overrides,
   };
+  const sender = await startStandInSender();
   const dir = mkdtempSync(join(tmpdir(), 'two-processes-'));
   const processes = [];
   for (const name of ['a', 'b']) {
     const [port, internal] = [await freePort(), await freePort()];
-    const settings = { ...base, port, email: { outbox: `${name}-outbox.jsonl`, command: null }, internal: { ...base.internal, port: internal } };
+    const settings = { ...base, port, email: sender.email, internal: { ...base.internal, port: internal } };
     const file = join(dir, `${name}-settings.json`);
     writeFileSync(file, JSON.stringify(settings));
-    const env = { ...process.env, BETTER_AUTH_SETTINGS: file, BETTER_AUTH_SECRET: SECRET, [settings.store.env]: connection };
+    const env = { ...process.env, BETTER_AUTH_SETTINGS: file, BETTER_AUTH_SECRET: SECRET, CREDENTIALS_DIRECTORY: sender.credentials, [settings.store.env]: connection };
     const child = spawn(process.execPath, [join(tool, 'server.mjs')], { env, stdio: ['ignore', 'pipe', 'inherit'] });
     processes.push({ name, port, settings, child, dir });
   }
@@ -45,8 +48,8 @@ export async function startTwoProcesses(connection, overrides = {}) {
     body: body ? JSON.stringify(body) : form ? new URLSearchParams(form).toString() : undefined,
     redirect: 'manual',
   });
-  const mail = p => (existsSync(join(p.dir, p.settings.email.outbox)) ? readFileSync(join(p.dir, p.settings.email.outbox), 'utf8').trim().split('\n').filter(Boolean).map(line => JSON.parse(line)) : []);
-  return { a, b, call, mail, settings: base, origin, stop: () => processes.forEach(p => p.child.kill()) };
+  const mail = sender.mail;
+  return { a, b, call, mail, settings: base, origin, stop: () => { processes.forEach(p => p.child.kill()); sender.stop(); } };
 }
 
 export const cookieOf = response => response.headers.getSetCookie().map(c => c.split(';')[0]).join('; ');

@@ -249,11 +249,11 @@ async function readIfPresent(machine, run, path, binary) {
  * nothing written, no set-up run and nothing restarted. A file that is replaced keeps its previous bytes beside it as
  * `NAME.bak-STAMP`. `held` maps a unit's `secret_vault_key` to the value the person's vault holds under that name; the value
  * reaches the computer only on the SSH channel's standard input, sealed there by systemd-creds at the unit's `secret_file`. */
-/** The sealed credentials a unit loads: its own (`secret_*`) and, for a unit that keeps its state in a database, the connection
- * to it (`store_secret_*`); each as { unit, secret_vault_key, secret_name, secret_file }. */
+/** The sealed credentials a unit loads: its own (`secret_*`) and each of its `credentials` ({ vault_key, name, file, env? });
+ * each as { unit, secret_vault_key, secret_name, secret_file }. */
 export const secretsOf = unit => [
   unit.secret_file && { unit: unit.unit, secret_vault_key: unit.secret_vault_key, secret_name: unit.secret_name, secret_file: unit.secret_file },
-  unit.store_secret_file && { unit: unit.unit, secret_vault_key: unit.store_secret_vault_key, secret_name: unit.store_secret_name, secret_file: unit.store_secret_file },
+  ...(unit.credentials ?? []).map(credential => ({ unit: unit.unit, secret_vault_key: credential.vault_key, secret_name: credential.name, secret_file: credential.file })),
 ].filter(Boolean);
 
 export async function applyHostLayout(machine, layout, run = onMachine, product, held = {}, deps = {}) {
@@ -891,9 +891,23 @@ export function readRequest(file) {
   resolveIn(request, 'product_data');
   resolveIn(request, 'pages_folder');
   // The computer's layout row may be its own file (`host_layout_file`): the row is that file's JSON, read here.
+  let layoutHere = here;
   if (typeof request.host_layout_file === 'string') {
-    request.host_layout = JSON.parse(readFileSync(resolvePath(here, request.host_layout_file), 'utf8'));
+    const layoutFile = resolvePath(here, request.host_layout_file);
+    request.host_layout = JSON.parse(readFileSync(layoutFile, 'utf8'));
+    layoutHere = dirname(layoutFile);
     delete request.host_layout_file;
+  }
+  // A unit's `settings_parts` names files the person keeps (a provider description) that go into its settings: each key is a
+  // dotted place in `settings`, each value a path relative to the layout row's file, whose JSON is put at that place.
+  for (const unit of request.host_layout?.units ?? []) {
+    for (const [place, path] of Object.entries(unit.settings_parts ?? {})) {
+      const keys = place.split('.'), last = keys.pop();
+      const holder = keys.reduce((held, key) => held?.[key], unit.settings);
+      if (!holder || typeof holder !== 'object') throw refused(`${unit.unit} settings_parts names ${place}, and its settings hold no ${keys.join('.') || 'settings'} object to put it in.`);
+      holder[last] = JSON.parse(readFileSync(resolvePath(layoutHere, path), 'utf8'));
+    }
+    delete unit.settings_parts;
   }
   resolveIn(request.machine, 'provider');
   resolveIn(request.name, 'provider');

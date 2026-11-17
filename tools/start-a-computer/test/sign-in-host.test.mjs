@@ -10,7 +10,7 @@ import { createHash } from 'node:crypto';
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { applyHostLayout, SITE_BLOCK } from '../do-work/start-a-computer.mjs';
+import { applyHostLayout, readRequest, SITE_BLOCK } from '../do-work/start-a-computer.mjs';
 import { renderLayout } from '../do-work/render-layout.mjs';
 
 const SETTINGS = JSON.parse(readFileSync(new URL('../read-data/settings.json', import.meta.url), 'utf8'));
@@ -24,18 +24,13 @@ const signInUnit = (root, extra = {}) => ({
   node_bin: `${root}/opt/node/bin`, settings_file: `${root}/var/lib/example-sign-in/settings.json`, settings: { port: 7201 },
   secret_vault_key: 'example-better-auth-secret', secret_name: 'better-auth-secret',
   secret_file: `${root}/etc/credstore.encrypted/better-auth-secret`,
-  store_secret_vault_key: 'example-store', store_secret_name: 'sign-in-store', store_secret_file: `${root}/etc/credstore.encrypted/sign-in-store`, writable: `${root}/var/lib/example-sign-in`, ...extra,
+  credentials: [{ vault_key: 'example-store', name: 'sign-in-store', file: `${root}/etc/credstore.encrypted/sign-in-store`, env: 'BETTER_AUTH_STORE_CONNECTION' }], writable: `${root}/var/lib/example-sign-in`, ...extra,
 });
 
-test('the set-up data names git, curl and a node release of 22.13 or newer for each machine kind, by address and sha256', () => {
+test('the set-up data names git and curl, and no node release: a computer row gives its own (apply-layout tests it)', () => {
   const { packages, node } = SETTINGS.machine;
   for (const name of ['caddy', 'jq', 'ufw', 'git', 'curl']) assert.ok(packages.includes(name), `machine.packages names ${name}`);
-  const [major, minor] = node.version.replace(/^v/, '').split('.').map(Number);
-  assert.ok(major > 22 || (major === 22 && minor >= 13), `node ${node.version} is 22.13 or newer`);
-  for (const arch of ['x86_64', 'aarch64']) {
-    assert.match(node.files[arch].url, /^https:\/\//);
-    assert.match(node.files[arch].sha256, /^[0-9a-f]{64}$/);
-  }
+  assert.equal(node, undefined);
   const script = readFileSync(SCRIPT, 'utf8');
   assert.doesNotMatch(script, /nodejs\.org|apt-get install -y -qq caddy/, 'the script names no package and no download address of its own');
 });
@@ -160,7 +155,7 @@ test('a computer that already holds the sealed secret is sent nothing; one witho
   const live = Object.fromEntries(renderLayout(layout, SITE_BLOCK).map(({ path, text }) => [path, text]));
   live[`${unit.node_bin}/node`] = 'node';
   live[unit.secret_file] = 'sealed';
-  live[unit.store_secret_file] = 'sealed';
+  live[unit.credentials[0].file] = 'sealed';
   const held = computer({ ...live });
   assert.deepEqual(await applyHostLayout(machine, layout, held.run, undefined, {}), { written: [], restarted: [] });
   assert.ok(held.commands.every(({ command }) => !command.includes('systemd-creds')));
@@ -175,7 +170,7 @@ test('a computer whose sign-in unit\'s node is missing is set up again even when
   const layout = layoutFor(unit);
   const live = Object.fromEntries(renderLayout(layout, SITE_BLOCK).map(({ path, text }) => [path, text]));
   live[unit.secret_file] = 'sealed';
-  live[unit.store_secret_file] = 'sealed';
+  live[unit.credentials[0].file] = 'sealed';
   const { run, commands } = computer(live);
   await applyHostLayout(machine, layout, run, undefined, {});
   const setUp = commands.find(({ command }) => command.startsWith('sh -s -- '));
@@ -228,4 +223,19 @@ if [ -n "$make" ]; then mkdir -p "$@"; elif [ "$1" = /dev/stdin ]; then cat > "$
   const wrong = setUp(machine, { units: [] }, { ...data, files: [], downloads: [], apt_sources: [{ ...data.apt_sources[0], key_sha256: '0'.repeat(64) }] });
   assert.notEqual(wrong.status, 0);
   assert.match(wrong.stderr, /is not the pinned one/);
+});
+
+test('a unit\'s settings_parts puts a file the person keeps into its settings, read relative to the layout row\'s file', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'settings-parts-'));
+  mkdirSync(join(dir, 'rows', 'providers'), { recursive: true });
+  const sender = { name: 'Example sender', vault_key: 'example-sender-key', request: { url: 'https://mail.example.test/send', method: 'POST' } };
+  writeFileSync(join(dir, 'rows', 'providers', 'example-sender.json'), JSON.stringify(sender));
+  const unit = signInUnit('', { settings: { port: 7201, email: { from: 'Example <sign-in@example.test>' } }, settings_parts: { 'email.sender': 'providers/example-sender.json' } });
+  writeFileSync(join(dir, 'rows', 'layout.json'), JSON.stringify(layoutFor(unit)));
+  writeFileSync(join(dir, 'request.json'), JSON.stringify({ host_layout_file: 'rows/layout.json' }));
+  const [read] = readRequest(join(dir, 'request.json')).host_layout.units;
+  assert.deepEqual(read.settings.email, { from: 'Example <sign-in@example.test>', sender });
+  assert.equal(read.settings_parts, undefined, 'the rendered settings carry the file, not its name');
+  writeFileSync(join(dir, 'rows', 'layout.json'), JSON.stringify(layoutFor({ ...unit, settings: { port: 7201 } })));
+  assert.throws(() => readRequest(join(dir, 'request.json')), /settings_parts names email\.sender/);
 });
