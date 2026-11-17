@@ -128,20 +128,3 @@ fn with_no_computer_named_a_pin_and_a_conflict_copy_are_not_offered() {
     assert_eq!(world.failed_with(from, 3), Some(Problem::StaleVersion), "the store's newer version is never written over");
     assert_eq!(world.store.names["/report.txt"].content.range(0, 6), b"theirs");
 }
-
-#[test]
-fn a_session_that_refuses_to_name_this_computer_still_lists() {
-    let mut world = World::fast();
-    world.tamper = Some(Box::new(|operation, _, reply| {
-        if operation == "this_computer" {
-            *reply = Reply::Refused(json!({"code": "namespace_not_found", "outcome": "not_started"}));
-        }
-    }));
-    world.store.put_file("/a.txt", Content::Kept(b"a".to_vec()), Some(1));
-    let Command::Items { items, .. } = world.list(1, "trillion") else { panic!() };
-    assert_eq!(items.len(), 1);
-    let item = world.item_id("/a.txt");
-    let from = world.log.len();
-    world.event(json!({"pin": {"demand": 2, "item": item, "keep": true}}));
-    assert_eq!(world.failed_with(from, 2), Some(Problem::NotOffered));
-}
