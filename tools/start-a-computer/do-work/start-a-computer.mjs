@@ -38,8 +38,21 @@ const absolute = (path, what) => {
   return path;
 };
 
+// sshd answers only so many half-open connections at once (MaxStartups) and resets the rest, so a layout with many units
+// must not open every check at the same moment: at most this many commands run on a machine at a time.
+const AT_ONCE = 4;
+let running = 0;
+const waiting = [];
+const release = () => { if (waiting.length) waiting.shift()(); else running--; };
+const turn = async () => { if (running < AT_ONCE) running++; else await new Promise(resolve => waiting.push(resolve)); };
+
 /** Run one command on the machine as root; `input` is a string, a Buffer or a readable stream. Answers stdout. */
-export function onMachine({ ssh, address }, command, input, spawnImpl = spawn) {
+export async function onMachine(machine, command, input, spawnImpl = spawn) {
+  await turn();
+  try { return await sshOnce(machine, command, input, spawnImpl); } finally { release(); }
+}
+
+function sshOnce({ ssh, address }, command, input, spawnImpl) {
   const identity = ssh.identity_file ? ['-i', absolute(ssh.identity_file, 'ssh.identity_file'), '-o', 'IdentitiesOnly=yes'] : [];
   const args = ['-T', ...identity, '-o', 'BatchMode=yes', '-o', 'ConnectTimeout=10', '-o', 'ServerAliveInterval=30',
     '-o', 'StrictHostKeyChecking=accept-new', '-o', `UserKnownHostsFile=${absolute(ssh.known_hosts, 'ssh.known_hosts')}`, `root@${address}`, command];
