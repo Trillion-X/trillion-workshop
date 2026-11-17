@@ -43,7 +43,7 @@ test('a try that gets no answer is asked again with the same request key until t
   const silent = silentDoor();
   const waits = [];
   const client = trillionClient({ door, credential, rules, fetchImpl: silent.fetchImpl, wait: async ms => { waits.push(ms); }, random: () => 0 });
-  await assert.rejects(client.op('@notes', 'records:write', { records: [] }, { requestKey: 'one-key' }), error => {
+  await assert.rejects(client.op('@own-records', 'records:write', { records: [] }, { requestKey: 'one-key' }), error => {
     assert.ok(error instanceof TrillionError);
     assert.match(error.message, /did not answer after 4 tries with the same request key.* It may have happened/);
     return true;
@@ -64,7 +64,7 @@ test('a slow first try does not lose the call: the next try carries the same key
     else resolve(answer(JSON.parse(init.body).id, { written: 1 }));
   });
   const client = trillionClient({ door, credential, rules, fetchImpl, wait: async () => {} });
-  assert.deepEqual(await client.op('@notes', 'records:write', { records: [] }, { requestKey: 'slow-key' }), { written: 1 });
+  assert.deepEqual(await client.op('@own-records', 'records:write', { records: [] }, { requestKey: 'slow-key' }), { written: 1 });
   assert.deepEqual(keys, ['slow-key', 'slow-key']);
 });
 
@@ -92,12 +92,12 @@ test('a run the engine says is still going is asked again under its key instead 
 test('--timeout SECONDS is how long one try waits: any whole number from 1, no upper bound', async () => {
   const run = (argv, fetchImpl) => main([...argv, '--origin', 'http://127.0.0.1:8788'], {
     env: { TRILLION_KEY: KEY }, store: { read: () => KEY, where: 'test key' }, grants: noGrants, state: stateOf({ home: home() }),
-    fetchImpl, wait: async () => {}, localDoor: () => null, ownRecordsFile: () => join(tmpdir(), 'no-rows-file-here', 'x.sqlite'), computerName: 'Mac', model: null, place: () => ({}),
+    fetchImpl, wait: async () => {}, localDoor: () => null, computerName: 'Mac', model: null, place: () => ({}),
   });
   for (const value of ['0', '-3', '1.5', 'soon']) {
     await assert.rejects(run(['call', 'tool:any', '{}', '--timeout', value], silentDoor().fetchImpl), error => { assert.equal(error.status, 2); assert.match(error.message, /whole number of seconds, at least 1/); return true; }, `--timeout ${value}`);
   }
   const silent = silentDoor();
-  await assert.rejects(run(['op', '@notes', 'records:read', '{"id":"x"}', '--timeout', '1'], silent.fetchImpl), /did not answer after 11 tries/);
+  await assert.rejects(run(['op', '@own-records', 'records:read', '{"id":"x"}', '--timeout', '1'], silent.fetchImpl), /did not answer after 11 tries/);
   assert.equal(silent.bodies.length, settings.retry.count + 1);
 });

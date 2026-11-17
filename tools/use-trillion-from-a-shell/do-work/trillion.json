@@ -89,7 +89,6 @@
       "ag-ui-agent.mjs",
       "ag-ui-wire.mjs",
       "local-door.mjs",
-      "own-records-store.mjs",
       "keep-result.mjs",
       "replay-recorded-writes.mjs",
       "replay-recorded-writes.json"
@@ -274,31 +273,6 @@
       "not_offered": "{tool} is not a tool offered here. Use only the tools you were given.",
       "tool_failed": "{tool} did not work: {error}",
       "too_many_turns": "The AG-UI agent called tools for {turns} runs without answering, so the job was given back."
-    }
-  },
-  "own_records_store": {
-    "_what": "What `trillion op @own-records records:read | records:list | records:write` does (own-records-store.mjs): no door is asked; the call is answered by the person's own SQLite file (the one `suffix` file in `folder`), which answers with the door's shapes. `record_prefix` and `bare_table_prefix` say which table a type is (record:<kind> is <kind>, a bare <kind> is w_<kind>), `extra_column` holds every field that has no column of its own, `list` is where a list's name (lessons-learned) is turned into its row type, `methods` are the three operations, `list_default` and `list_most` the rows of one list page, `write_most` the rows of one write, `busy_timeout_ms` how long a locked file is waited for. `words` are every refusal of the store.",
-    "folder": "~/.trillion/my-data",
-    "suffix": ".sqlite",
-    "record_prefix": "record:",
-    "bare_table_prefix": "w_",
-    "extra_column": "extra",
-    "list": { "table": "w_list", "id_prefix": "list:", "type_field": "row_type" },
-    "methods": { "read": "records:read", "list": "records:list", "write": "records:write" },
-    "list_default": 100,
-    "list_most": 1000,
-    "write_most": 256,
-    "busy_timeout_ms": 30000,
-    "words": {
-      "needs_id": "records:read takes {\"id\": \"...\"}.",
-      "needs_type": "records:list takes {\"type\": \"...\"}.",
-      "write_count": "records:write takes 1 to {most} records.",
-      "write_shape": "A record to write is {id, type, value} with value an object, or null to remove it.",
-      "write_value": "The value of {id} is an object, or null to remove it.",
-      "expected_changed": "{id} is not what `expected` says it was, so nothing was written.",
-      "store_unavailable": "The person's own file {file} could not be opened either ({why}).",
-      "no_one_file": "The person's own rows are the one {suffix} file in {folder}; it holds {count}.",
-      "method": "{method} is not answered from the file; it answers records:read, records:list and records:write."
     }
   },
   "engine": {

@@ -92,7 +92,7 @@ test('a job row too large for one reply is read whole, so a move names the claim
 test('trillion op pages any operation the same way, with nothing particular to one tool', async () => {
   const whole = Buffer.from(JSON.stringify({ value: 'x'.repeat(9000) }));
   const door = fakeDoor({ whole, pageBytes: 4000 });
-  const printed = await run(['op', '@notes', 'records:read', '{"id":"note:big"}'], door);
+  const printed = await run(['op', '@own-records', 'records:read', '{"id":"note:big"}'], door);
   assert.deepEqual(JSON.parse(printed), { value: 'x'.repeat(9000) });
   assert.equal(new Set(door.seen.map(row => row.args.request_key)).size, 1, 'every page is asked under one key');
   assert.deepEqual(door.seen.map(row => [row.args.input.after_byte, row.args.input.id]),

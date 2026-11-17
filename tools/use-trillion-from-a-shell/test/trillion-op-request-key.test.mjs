@@ -14,7 +14,7 @@ const ORIGIN = 'http://127.0.0.1:8788';
 const KEY = `nm_${'ab'.repeat(16)}`;
 const home = () => mkdtempSync(join(tmpdir(), 'trillion-op-key-'));
 const noGrants = { where: 'test sign-in', read: () => null, write: () => {}, forget: () => {} };
-const WRITE = ['op', '@notes', 'records:write', '{"records":[{"id":"note:one","type":"note","value":{"words":"kept"}}]}'];
+const WRITE = ['op', '@own-records', 'records:write', '{"records":[{"id":"note:one","type":"note","value":{"words":"kept"}}]}'];
 const committed = { structuredContent: { committed: true, write_count: 1 }, content: [] };
 
 /** A fake door whose first `timeouts` asks fail as a timed-out request (more than retry.count + 1 fail the whole call); every ask is kept with its request key. */
@@ -31,7 +31,7 @@ function fakeDoor(timeouts) {
 
 const run = (argv, door) => main([...argv, '--origin', ORIGIN], {
   env: { TRILLION_KEY: KEY }, store: { read: () => KEY, where: 'test key' }, grants: noGrants, state: stateOf({ home: home() }),
-  fetchImpl: door.fetchImpl, wait: async () => {}, localDoor: () => null, ownRecordsFile: () => join(tmpdir(), 'no-rows-file-here', 'x.sqlite'), computerName: 'Mac', model: null, place: () => ({}),
+  fetchImpl: door.fetchImpl, wait: async () => {}, localDoor: () => null, computerName: 'Mac', model: null, place: () => ({}),
 });
 
 test('a timed-out op names the request key it sent, and --request-key sends that same key again', async () => {

@@ -14,8 +14,8 @@ import { main, stateOf, TrillionError } from '../do-work/trillion.mjs';
 
 const KEY = `nm_${'ab'.repeat(16)}`;
 const noGrants = { where: 'test sign-in', read: () => null, write: () => {}, forget: () => {} };
-const WRITE = ['op', '@notes', 'records:write', '{"records":[{"id":"note:one","type":"note","value":null}]}'];
-const READ = ['op', '@notes', 'records:read', '{"id":"note:one"}'];
+const WRITE = ['op', '@own-records', 'records:write', '{"records":[{"id":"note:one","type":"note","value":null}]}'];
+const READ = ['op', '@own-records', 'records:read', '{"id":"note:one"}'];
 
 /** A fake door holding `rows` (id -> value): records:read answers from it, records:write changes it, every call is kept. `engine` is what
  *  the door's initialize says and does: 'plain' (no check_only: an engine that would commit it), 'checks' (check_only runs and commits
@@ -80,7 +80,7 @@ test('op --dry-run on a null write prints the removal, drops and the current val
 test('op --dry-run on a replacing write prints the field diff and what it drops, and changes nothing', async () => {
   const rows = { 'note:one': { words: 'kept', price: 9900 } };
   const input = '{"records":[{"id":"note:one","type":"note","value":{"words":"new","extra":true}}]}';
-  const { asked, result } = run(['op', '@notes', 'records:write', input, '--dry-run'], rows);
+  const { asked, result } = run(['op', '@own-records', 'records:write', input, '--dry-run'], rows);
   const row = JSON.parse(await result).rows[0];
   assert.equal(row.action, 'replaces this row');
   assert.deepEqual(row.diff.map(entry => [entry.field, entry.change]), [['extra', 'added'], ['price', 'dropped'], ['words', 'changed']]);
@@ -91,7 +91,7 @@ test('op --dry-run on a replacing write prints the field diff and what it drops,
 
 test('op --dry-run on a write to an absent row says it creates it, and writes nothing', async () => {
   const input = '{"records":[{"id":"note:new","type":"note","value":{"a":1}}]}';
-  const { asked, result, rows } = run(['op', '@notes', 'records:write', input, '--dry-run']);
+  const { asked, result, rows } = run(['op', '@own-records', 'records:write', input, '--dry-run']);
   assert.equal(JSON.parse(await result).rows[0].action, 'creates this row');
   assert.equal(wrote(asked), false);
   assert.deepEqual(rows, {});
@@ -100,7 +100,7 @@ test('op --dry-run on a write to an absent row says it creates it, and writes no
 test('op --dry-run on a read prints the request and sends nothing', async () => {
   const { asked, result } = run([...READ, '--dry-run', '--request-key', 'k-2']);
   const shown = JSON.parse(await result);
-  assert.deepEqual(shown, { address: '@notes', method: 'records:read', request_key: 'k-2', input: { id: 'note:one' } });
+  assert.deepEqual(shown, { address: '@own-records', method: 'records:read', request_key: 'k-2', input: { id: 'note:one' } });
   assert.equal(asked.length, 0);
 });
 
@@ -110,7 +110,7 @@ test('the flags op and call know still work', async () => {
   assert.ok(asked.length > 0);
 });
 
-const NULL_WRITE = ['op', '@notes', 'records:write', '{"records":[{"id":"note:one","type":"note","value":null}]}', '--dry-run'];
+const NULL_WRITE = ['op', '@own-records', 'records:write', '{"records":[{"id":"note:one","type":"note","value":null}]}', '--dry-run'];
 
 test('op --dry-run asks an engine that can check a write, once, under a fresh key, and commits nothing', async () => {
   const rows = { 'note:one': { words: 'kept' } };

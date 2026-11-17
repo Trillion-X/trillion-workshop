@@ -15,7 +15,7 @@ const ORIGIN = 'http://127.0.0.1:8788';
 const KEY = `nm_${'ab'.repeat(16)}`;
 const home = () => mkdtempSync(join(tmpdir(), 'trillion-op-settle-'));
 const noGrants = { where: 'test sign-in', read: () => null, write: () => {}, forget: () => {} };
-const WRITE = ['op', '@notes', 'records:write', '{"records":[{"id":"note:one","type":"note","value":{"words":"kept"}}]}'];
+const WRITE = ['op', '@own-records', 'records:write', '{"records":[{"id":"note:one","type":"note","value":{"words":"kept"}}]}'];
 
 /** A fake door: each records:write answer is the next of `answers`; every call is kept in `seen` with its request key. */
 function fakeDoor(answers) {
