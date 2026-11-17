@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-// tools/keep-a-held-value-by-name/do-work/keep-a-held-value.mjs
+// tools/keep-a-secret-by-name/do-work/keep-a-secret.mjs
 //
 // Purpose
-//   Keeps one held value under a name in the person's own vault, through the engine's one door operation `secrets:put`
+//   Keeps one secret under a name in the person's own vault, through the engine's one door operation `secrets:put`
 //   (src/secrets.rs SECRETS_PUT), or with `--remove` removes the value held under a name through `secrets:remove`
 //   (src/secrets.rs SECRETS_REMOVE). The name is the first argument; the value is read from stdin and sent in the request body
 //   only, and a removal reads no stdin. The person's own key (the Mac app's key, or the one `trillion login` keeps) is the credential, so the door admits the
@@ -13,7 +13,7 @@
 //   2. The answer is {name, accepted}: accepted means written at the writer, or queued sealed for the writer at a computer that is not the
 //      writer (the engine settles it there). A removal answers {name, removed, issuer_status} (removed true when a value was held, false when none was) or,
 //      at a computer that is not the writer, {name, queued: true, issuer_status}; it needs `--issuer-status revoked|unknown`, because
-//      removing a held value does not revoke it at its issuer. The engine never returns the value.
+//      removing a secret does not revoke it at its issuer. The engine never returns the value.
 //   3. Connection names (`service-connection-…`) are refused by the engine; this tool does not second-guess that.
 //   4. One trailing newline that an `echo` or a pipe adds is removed; every other byte is the value, unchanged.
 //
@@ -35,11 +35,11 @@ export async function readStdin(stream = process.stdin) {
 export const valueOf = text => (text.endsWith('\r\n') ? text.slice(0, -2) : text.endsWith('\n') ? text.slice(0, -1) : text);
 
 /** Keeps `value` under `name` through the door. Answers { name, accepted: true }. */
-export async function keepHeldValue({ name, value, client }) {
-  if (typeof name !== 'string' || !name) throw say('Name the held value: keep-a-held-value-by-name NAME, then the value on stdin.', 2);
+export async function keepSecret({ name, value, client }) {
+  if (typeof name !== 'string' || !name) throw say('Name the secret: keep-a-secret-by-name NAME, then the value on stdin.', 2);
   if (!value) throw say('Pipe the value on stdin; it is empty.', 2);
   const answer = await client.op('@secrets', 'secrets:put', { name, value }, { requestKey: randomUUID() });
-  if (answer?.accepted !== true) throw say('The door did not accept the held value.', 3);
+  if (answer?.accepted !== true) throw say('The door did not accept the secret.', 3);
   return { name, accepted: true };
 }
 
@@ -48,12 +48,12 @@ export const ISSUER_STATUSES = ['revoked', 'unknown'];
 
 /**
  * Removes the value held under `name` through the door. `issuerStatus` is recorded in the answer, never sent to the door: removing
- * a held value does not revoke it at its issuer, so the caller says whether that was done. One stable request key per removal
+ * a secret does not revoke it at its issuer, so the caller says whether that was done. One stable request key per removal
  * (`requestKey`), so a retry after a timeout is the same call. Answers { name, removed, issuer_status } or, away from the writer,
  * { name, queued: true, issuer_status }.
  */
-export async function removeHeldValue({ name, issuerStatus, client, requestKey = `held-values-remove:${name}` }) {
-  if (typeof name !== 'string' || !name) throw say('Name the held value: keep-a-held-value-by-name --remove NAME --issuer-status revoked|unknown.', 2);
+export async function removeSecret({ name, issuerStatus, client, requestKey = `secrets-remove:${name}` }) {
+  if (typeof name !== 'string' || !name) throw say('Name the secret: keep-a-secret-by-name --remove NAME --issuer-status revoked|unknown.', 2);
   if (!ISSUER_STATUSES.includes(issuerStatus)) throw say(`Say what is known at the issuer: --issuer-status ${ISSUER_STATUSES.join(' or ')}.`, 2);
   const answer = await client.op('@secrets', 'secrets:remove', { name }, { requestKey });
   if (answer?.queued === true) return { name, queued: true, issuer_status: issuerStatus };
@@ -67,9 +67,9 @@ async function main(argv, { stdin = process.stdin, print = line => process.stdou
   const issuerStatus = removing && argv[2] === '--issuer-status' ? argv[3] : undefined;
   const credential = await credentialFor();
   const client = trillionClient({ door: doorFor({ credential }), credential });
-  if (removing) return print(JSON.stringify(await removeHeldValue({ name, issuerStatus, client })));
+  if (removing) return print(JSON.stringify(await removeSecret({ name, issuerStatus, client })));
   const value = valueOf(await readStdin(stdin));
-  print(JSON.stringify(await keepHeldValue({ name, value, client })));
+  print(JSON.stringify(await keepSecret({ name, value, client })));
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {

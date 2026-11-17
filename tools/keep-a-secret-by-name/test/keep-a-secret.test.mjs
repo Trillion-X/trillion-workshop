@@ -1,10 +1,10 @@
-// tools/keep-a-held-value-by-name/test/keep-a-held-value.test.mjs
+// tools/keep-a-secret-by-name/test/keep-a-secret.test.mjs
 //
 // Made-up door answers only. The stub door records each request body, so the test can show that the value travels in the
 // body and never in an argument, a log line or the answer.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { keepHeldValue, readStdin, removeHeldValue, valueOf } from '../do-work/keep-a-held-value.mjs';
+import { keepSecret, readStdin, removeSecret, valueOf } from '../do-work/keep-a-secret.mjs';
 import { trillionClient } from '../../use-trillion-from-a-shell/do-work/trillion.mjs';
 
 // A door that answers each JSON-RPC call with the structured content it is given, and keeps every request body it was sent.
@@ -19,9 +19,9 @@ function stubDoor(answer) {
   return { client, bodies };
 }
 
-test('a held value goes to secrets:put in the request body, under its name, and the answer carries neither the value nor a copy of it', async () => {
+test('a secret goes to secrets:put in the request body, under its name, and the answer carries neither the value nor a copy of it', async () => {
   const { client, bodies } = stubDoor({ accepted: true });
-  const answer = await keepHeldValue({ name: 'synthetic-push-secret', value: 'synthetic-value-7f3a', client });
+  const answer = await keepSecret({ name: 'synthetic-push-secret', value: 'synthetic-value-7f3a', client });
   assert.deepEqual(answer, { name: 'synthetic-push-secret', accepted: true });
   const [sent] = bodies;
   const call = sent.params.arguments;
@@ -34,13 +34,13 @@ test('a held value goes to secrets:put in the request body, under its name, and 
 
 test('a door that does not accept the value is an error, never a silent success', async () => {
   const { client } = stubDoor({ accepted: false });
-  await assert.rejects(keepHeldValue({ name: 'synthetic-push-secret', value: 'x', client }), /did not accept/);
+  await assert.rejects(keepSecret({ name: 'synthetic-push-secret', value: 'x', client }), /did not accept/);
 });
 
 test('an empty value and a missing name are refused before any call is sent', async () => {
   const { client, bodies } = stubDoor({ accepted: true });
-  await assert.rejects(keepHeldValue({ name: 'synthetic-push-secret', value: '', client }), /empty/);
-  await assert.rejects(keepHeldValue({ name: '', value: 'x', client }), /Name the held value/);
+  await assert.rejects(keepSecret({ name: 'synthetic-push-secret', value: '', client }), /empty/);
+  await assert.rejects(keepSecret({ name: '', value: 'x', client }), /Name the secret/);
   assert.equal(bodies.length, 0);
 });
 
@@ -54,37 +54,37 @@ test('stdin keeps every byte of the value except one trailing newline', async ()
 
 test('a removal goes to secrets:remove with the name alone, and the answer says whether a value was held and what is known at the issuer', async () => {
   const held = stubDoor({ name: 'synthetic-old-key', removed: true });
-  assert.deepEqual(await removeHeldValue({ name: 'synthetic-old-key', issuerStatus: 'revoked', client: held.client }),
+  assert.deepEqual(await removeSecret({ name: 'synthetic-old-key', issuerStatus: 'revoked', client: held.client }),
     { name: 'synthetic-old-key', removed: true, issuer_status: 'revoked' });
   const call = held.bodies[0].params.arguments;
   assert.equal(call.address, '@secrets');
   assert.equal(call.method, 'secrets:remove');
   assert.deepEqual(call.input, { name: 'synthetic-old-key' });
   const absent = stubDoor({ name: 'synthetic-old-key', removed: false });
-  assert.deepEqual(await removeHeldValue({ name: 'synthetic-old-key', issuerStatus: 'unknown', client: absent.client }),
+  assert.deepEqual(await removeSecret({ name: 'synthetic-old-key', issuerStatus: 'unknown', client: absent.client }),
     { name: 'synthetic-old-key', removed: false, issuer_status: 'unknown' });
 });
 
 test('a removal away from the writer says it was queued, and an answer that says neither is an error', async () => {
   const queued = stubDoor({ name: 'synthetic-old-key', queued: true });
-  assert.deepEqual(await removeHeldValue({ name: 'synthetic-old-key', issuerStatus: 'unknown', client: queued.client }),
+  assert.deepEqual(await removeSecret({ name: 'synthetic-old-key', issuerStatus: 'unknown', client: queued.client }),
     { name: 'synthetic-old-key', queued: true, issuer_status: 'unknown' });
   const unclear = stubDoor({});
-  await assert.rejects(removeHeldValue({ name: 'synthetic-old-key', issuerStatus: 'unknown', client: unclear.client }), /did not answer the removal/);
+  await assert.rejects(removeSecret({ name: 'synthetic-old-key', issuerStatus: 'unknown', client: unclear.client }), /did not answer the removal/);
 });
 
 test('a removal is refused before any call is sent when it has no name or says nothing about the issuer', async () => {
   const { client, bodies } = stubDoor({ removed: true });
-  await assert.rejects(removeHeldValue({ name: '', issuerStatus: 'revoked', client }), /Name the held value/);
-  await assert.rejects(removeHeldValue({ name: 'synthetic-old-key', client }), /--issuer-status revoked or unknown/);
-  await assert.rejects(removeHeldValue({ name: 'synthetic-old-key', issuerStatus: 'maybe', client }), /--issuer-status revoked or unknown/);
+  await assert.rejects(removeSecret({ name: '', issuerStatus: 'revoked', client }), /Name the secret/);
+  await assert.rejects(removeSecret({ name: 'synthetic-old-key', client }), /--issuer-status revoked or unknown/);
+  await assert.rejects(removeSecret({ name: 'synthetic-old-key', issuerStatus: 'maybe', client }), /--issuer-status revoked or unknown/);
   assert.equal(bodies.length, 0);
 });
 
 test('a removal sends the same request key each time it is made, so a retry after a timeout is the same call', async () => {
   const first = stubDoor({ name: 'synthetic-old-key', removed: true });
   const second = stubDoor({ name: 'synthetic-old-key', removed: true });
-  await removeHeldValue({ name: 'synthetic-old-key', issuerStatus: 'revoked', client: first.client });
-  await removeHeldValue({ name: 'synthetic-old-key', issuerStatus: 'revoked', client: second.client });
+  await removeSecret({ name: 'synthetic-old-key', issuerStatus: 'revoked', client: first.client });
+  await removeSecret({ name: 'synthetic-old-key', issuerStatus: 'revoked', client: second.client });
   assert.equal(first.bodies[0].params.arguments.request_key, second.bodies[0].params.arguments.request_key);
 });
