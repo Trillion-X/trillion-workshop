@@ -2,9 +2,9 @@
 // tools/keep-a-held-value-by-name/do-work/keep-a-held-value.mjs
 //
 // Purpose
-//   Keeps one held value under a name in the person's own vault, through the engine's one door operation `held-values:put`
-//   (src/secrets.rs HELD_VALUES_PUT), or with `--remove` removes the value held under a name through `held-values:remove`
-//   (src/secrets.rs HELD_VALUES_REMOVE). The name is the first argument; the value is read from stdin and sent in the request body
+//   Keeps one held value under a name in the person's own vault, through the engine's one door operation `secrets:put`
+//   (src/secrets.rs SECRETS_PUT), or with `--remove` removes the value held under a name through `secrets:remove`
+//   (src/secrets.rs SECRETS_REMOVE). The name is the first argument; the value is read from stdin and sent in the request body
 //   only, and a removal reads no stdin. The person's own key (the Mac app's key, or the one `trillion login` keeps) is the credential, so the door admits the
 //   call as the account's own signed-in principal (src/account/sign_in/reach.json: the account's full key reaches it).
 //
@@ -38,7 +38,7 @@ export const valueOf = text => (text.endsWith('\r\n') ? text.slice(0, -2) : text
 export async function keepHeldValue({ name, value, client }) {
   if (typeof name !== 'string' || !name) throw say('Name the held value: keep-a-held-value-by-name NAME, then the value on stdin.', 2);
   if (!value) throw say('Pipe the value on stdin; it is empty.', 2);
-  const answer = await client.op('@held-values', 'held-values:put', { name, value }, { requestKey: randomUUID() });
+  const answer = await client.op('@secrets', 'secrets:put', { name, value }, { requestKey: randomUUID() });
   if (answer?.accepted !== true) throw say('The door did not accept the held value.', 3);
   return { name, accepted: true };
 }
@@ -55,7 +55,7 @@ export const ISSUER_STATUSES = ['revoked', 'unknown'];
 export async function removeHeldValue({ name, issuerStatus, client, requestKey = `held-values-remove:${name}` }) {
   if (typeof name !== 'string' || !name) throw say('Name the held value: keep-a-held-value-by-name --remove NAME --issuer-status revoked|unknown.', 2);
   if (!ISSUER_STATUSES.includes(issuerStatus)) throw say(`Say what is known at the issuer: --issuer-status ${ISSUER_STATUSES.join(' or ')}.`, 2);
-  const answer = await client.op('@held-values', 'held-values:remove', { name }, { requestKey });
+  const answer = await client.op('@secrets', 'secrets:remove', { name }, { requestKey });
   if (answer?.queued === true) return { name, queued: true, issuer_status: issuerStatus };
   if (typeof answer?.removed !== 'boolean') throw say('The door did not answer the removal.', 3);
   return { name, removed: answer.removed, issuer_status: issuerStatus };

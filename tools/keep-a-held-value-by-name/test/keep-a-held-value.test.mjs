@@ -19,15 +19,15 @@ function stubDoor(answer) {
   return { client, bodies };
 }
 
-test('a held value goes to held-values:put in the request body, under its name, and the answer carries neither the value nor a copy of it', async () => {
+test('a held value goes to secrets:put in the request body, under its name, and the answer carries neither the value nor a copy of it', async () => {
   const { client, bodies } = stubDoor({ accepted: true });
   const answer = await keepHeldValue({ name: 'synthetic-push-secret', value: 'synthetic-value-7f3a', client });
   assert.deepEqual(answer, { name: 'synthetic-push-secret', accepted: true });
   const [sent] = bodies;
   const call = sent.params.arguments;
   assert.equal(sent.params.name, 'run_resource_operation');
-  assert.equal(call.address, '@held-values');
-  assert.equal(call.method, 'held-values:put');
+  assert.equal(call.address, '@secrets');
+  assert.equal(call.method, 'secrets:put');
   assert.deepEqual(call.input, { name: 'synthetic-push-secret', value: 'synthetic-value-7f3a' });
   assert.ok(!JSON.stringify(answer).includes('synthetic-value-7f3a'));
 });
@@ -52,13 +52,13 @@ test('stdin keeps every byte of the value except one trailing newline', async ()
   assert.equal(valueOf(await readStdin(stream)), 'secret');
 });
 
-test('a removal goes to held-values:remove with the name alone, and the answer says whether a value was held and what is known at the issuer', async () => {
+test('a removal goes to secrets:remove with the name alone, and the answer says whether a value was held and what is known at the issuer', async () => {
   const held = stubDoor({ name: 'synthetic-old-key', removed: true });
   assert.deepEqual(await removeHeldValue({ name: 'synthetic-old-key', issuerStatus: 'revoked', client: held.client }),
     { name: 'synthetic-old-key', removed: true, issuer_status: 'revoked' });
   const call = held.bodies[0].params.arguments;
-  assert.equal(call.address, '@held-values');
-  assert.equal(call.method, 'held-values:remove');
+  assert.equal(call.address, '@secrets');
+  assert.equal(call.method, 'secrets:remove');
   assert.deepEqual(call.input, { name: 'synthetic-old-key' });
   const absent = stubDoor({ name: 'synthetic-old-key', removed: false });
   assert.deepEqual(await removeHeldValue({ name: 'synthetic-old-key', issuerStatus: 'unknown', client: absent.client }),

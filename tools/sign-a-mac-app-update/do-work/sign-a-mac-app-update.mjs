@@ -3,7 +3,7 @@
 //
 // Purpose
 //   Signs the Mac app's update record text with the release key the person's vault holds under `mac-app-update-signing-key`,
-//   through the engine's one signing operation `held-values:sign` on @held-values (src/secrets.rs). The key never leaves the
+//   through the engine's one signing operation `secrets:sign` on @secrets (src/secrets.rs). The key never leaves the
 //   vault: the engine answers only the signature. The credential is this run's own capability, handed on fd 3 by the Rust run
 //   (invoke.records.rights names that one key and that one operation); the engine refuses the call from anyone without a run.
 //
@@ -21,7 +21,7 @@ import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 
 export const KEY_NAME = 'mac-app-update-signing-key';
-export const OPERATION = 'held-values:sign';
+export const OPERATION = 'secrets:sign';
 const MOST_PAYLOAD_BYTES = 64 * 1024;
 const DESCRIPTOR_FD = 3;
 
@@ -64,7 +64,7 @@ export async function signRecordText({ payload, door, fetchImpl = fetch }) {
     jsonrpc: '2.0',
     id: 1,
     method: 'tools/call',
-    params: { name: 'run_resource_operation', arguments: { address: '@held-values', method: OPERATION, request_key: `sign:${randomUUID()}`, input: { name: KEY_NAME, payload } } },
+    params: { name: 'run_resource_operation', arguments: { address: '@secrets', method: OPERATION, request_key: `sign:${randomUUID()}`, input: { name: KEY_NAME, payload } } },
   });
   const response = await fetchImpl(door.url, {
     method: 'POST',

@@ -1,7 +1,7 @@
 // tools/sign-a-mac-app-update/test/sign-a-mac-app-update.test.mjs
 //
 // A synthetic Ed25519 key stands in for the vault's held key, on a synthetic account. A stub door signs with that key the way
-// the engine's held-values:sign does, and answers the signature in hex. Proved here: the signature verifies over the payload,
+// the engine's secrets:sign does, and answers the signature in hex. Proved here: the signature verifies over the payload,
 // the one call carries this run's capability and the fixed key name and operation, and a refused input never reaches the door.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -40,7 +40,7 @@ test('the one call carries this run capability and the fixed key name and operat
   assert.equal(calls[0].url, door.url);
   assert.equal(calls[0].init.headers.authorization, `Bearer ${door.capability}`);
   const call = calls[0].body.params.arguments;
-  assert.equal(call.address, '@held-values');
+  assert.equal(call.address, '@secrets');
   assert.equal(call.method, OPERATION);
   assert.equal(call.input.name, KEY_NAME);
   assert.match(call.request_key, /^sign:/);

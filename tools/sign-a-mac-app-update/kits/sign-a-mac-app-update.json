@@ -31,7 +31,7 @@
           }
         }
       },
-      "given": "From tools/sign-a-mac-app-update/test/sign-a-mac-app-update.test.mjs, which signs this payload with a synthetic Ed25519 key standing in for the vault's key and checks that the signature verifies over the payload bytes. Read from do-work/sign-a-mac-app-update.mjs: the tool sends one held-values:sign call at @held-values for the key mac-app-update-signing-key and converts the engine's 128-digit hex signature to base64. The signature value itself depends on your key, so it is not shown here.",
+      "given": "From tools/sign-a-mac-app-update/test/sign-a-mac-app-update.test.mjs, which signs this payload with a synthetic Ed25519 key standing in for the vault's key and checks that the signature verifies over the payload bytes. Read from do-work/sign-a-mac-app-update.mjs: the tool sends one secrets:sign call at @secrets for the key mac-app-update-signing-key and converts the engine's 128-digit hex signature to base64. The signature value itself depends on your key, so it is not shown here.",
       "hands_back": "{name: \"mac-app-update-signing-key\", signature_base64: \"<88 base64 characters, the 64 byte Ed25519 signature of the payload's UTF-8 bytes>\"}, which verifies with the key's public half. A payload of \"\" answers \"Give the text to sign: the record's signed lines, joined by newlines.\" and nothing reaches the vault."
     }
   ]
