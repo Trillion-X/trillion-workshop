@@ -2,7 +2,7 @@
  "kind": "package-set-records",
  "package_set": "trillion",
  "record_set": "workshop-ambience-tool-records",
- "what_this_is": "Ambience as Workshop tools: the web rows that read what is playing (Spotify, Last.fm) and set connected lights (LIFX, Govee) on the person's own connections. The Ambience screen itself (parts/ambience) is a screen row in workshop-screen-tool-records.json. Rows marked runs_quietly are sent by a light following the sound through POST /work/api/workshop/send-quietly/<id>, which keeps no run for each send.",
+ "what_this_is": "Ambience as Workshop tools: the web rows that read what is playing (Spotify, Last.fm) and set connected lights (LIFX, Govee) on the person's own connections. The Ambience screen itself (tools/ambience) is a screen row in workshop-screen-tool-records.json. Rows marked runs_quietly are sent by a light following the sound through POST /work/api/workshop/send-quietly/<id>, which keeps no run for each send.",
  "records": [
   {
    "id": "package::trillion::tool::lifx-set-lights",

@@ -2,7 +2,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect } from 'vitest';
 import { boardToOpml } from './board-opml';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
+import type { BoardItem } from '../../../read-data/group-board-model';
 
 // Cards carry a position (mindMapOutline orders siblings by y then x) + text (first line is the outline row).
 const card = (memberId: string, text: string, x = 0, y = 0): BoardItem =>

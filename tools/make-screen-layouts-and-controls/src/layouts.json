@@ -1,5 +1,5 @@
 {
-  "what_this_is": "Settings for the layouts a person's AIs make (src/layouts.mjs): where they are kept, the record the page opens one from, the record the page publishes the arrangement on screen to (parts/screen-arrangement/show/publish-shown-arrangement.tsx), and their limits.",
+  "what_this_is": "Settings for the layouts a person's AIs make (src/layouts.mjs): where they are kept, the record the page opens one from, the record the page publishes the arrangement on screen to (tools/screen-arrangement/show/publish-shown-arrangement.tsx), and their limits.",
   "layouts_label": "screen-arrangement-own-layouts",
   "open_label": "screen-arrangement-open-asked",
   "shown_label": "screen-arrangement-shown",

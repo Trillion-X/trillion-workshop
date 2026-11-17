@@ -1,4 +1,3 @@
-// parts/sidebar/do-work/surface-collection-ops.ts
 //
 // PURPOSE
 //   Every change to a person's sidebar lists as the group ops it is: make a list, name it, place it, delete it, and

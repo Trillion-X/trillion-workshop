@@ -3,7 +3,7 @@
 // Purpose
 //   Guided tours any of the person's AIs writes for the moment it is in, kept in the person's own store and organised
 //   with the group part: each tour is a walkthrough-definition (the same DATA Trillion's own tours are, run by the one
-//   tour host, parts/guided-overlay), each sits in a category (a group), and the newest are Recent. A tour can ask to
+//   tour host, tools/guided-overlay), each sits in a category (a group), and the newest are Recent. A tour can ask to
 //   be shown at once on the person's open page.
 //
 //   GET  /tours        { tours, categories, recent, card_kinds, step_fields, said }
@@ -12,27 +12,27 @@
 //   POST /tours/show   { tour_id }                            { shown, said }
 //
 // Non-negotiable invariants
-//   1. A tour is DATA the existing tour host runs (parts/guided-overlay WalkthroughHost reads the record
+//   1. A tour is DATA the existing tour host runs (tools/guided-overlay WalkthroughHost reads the record
 //      `guided-overlay::own-walkthroughs` beside the app's own tours). Nothing here draws a tour or names a step kind:
 //      a definition the part's own fold refuses is refused here, with why.
-//   2. Categories are group records (parts/group): one index group lists the categories in order, and each category
+//   2. Categories are group records (tools/make-screen-layouts-and-controls): one index group lists the categories in order, and each category
 //      group holds its tours as members. Moving a tour or emptying a category is the group's own ops, the same records
 //      the Tours screen reads back with group.load-graph.
 //   3. Every tour carries the trigger that starts it by name (walkthrough-requested with its id), so Tours, a link and
 //      show_now start it through the same road; the AI's own triggers are kept beside it.
 //   4. Showing now writes `guided-overlay::show-asked` ({ tour_id, asked_at }); the open page follows the store and
 //      starts that tour through the host. Skip, end and escape stay the host's own behaviour.
-//   5. Every word a tour shows is held to records/copy-rules.json (parts/judge-words, the same judge every commit
+//   5. Every word a tour shows is held to records/copy-rules.json (tools/judge-words, the same judge every commit
 //      runs): a tour with a stock heading, a word from how Trillion is built, an AI tell or a broken sentence is refused
 //      with where, why and what to say instead, so the AI rewrites it before the person ever reads it.
 //
 
 import settings from '../../../tours-screen/read-data/tours.json' with { type: 'json' };
-import { foldWalkthroughProgress, foldWalkthroughRecords } from '../parts/guided-overlay/read-data/walkthrough-eeaf.ts';
-import { TOUR_LIBRARY } from '../parts/guided-overlay/read-data/tour-library.ts';
-import overlayDefaults from '../parts/guided-overlay/guided-overlay-defaults.json' with { type: 'json' };
+import { foldWalkthroughProgress, foldWalkthroughRecords } from '../../../guided-overlay/read-data/walkthrough-eeaf.ts';
+import { TOUR_LIBRARY } from '../../../guided-overlay/read-data/tour-library.ts';
+import overlayDefaults from '../../../guided-overlay/guided-overlay-defaults.json' with { type: 'json' };
 import { GROUP_RECORD, keptLibrary } from '../../../make-screen-layouts-and-controls/src/kept-libraries.mjs';
-import { findingsInWords, makeJudge, wordsIn } from '../parts/judge-words/do-work/judge-words.mjs';
+import { findingsInWords, makeJudge, wordsIn } from '../../../judge-words/do-work/judge-words.mjs';
 import { failureOf } from '../../../tweak-live-controls/failure.mjs';
 import {currentCopyRules,currentTourSettings,currentPresentationContent} from './presentation-content.mjs';
 

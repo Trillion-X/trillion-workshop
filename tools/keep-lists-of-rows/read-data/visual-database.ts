@@ -673,7 +673,7 @@ export interface VisualDatabaseListPresentation {
 
 /** One adjustable grid-element aspect, expressed entirely as self-describing
  *  DATA (address `visual-database.grid-properties`). Extends the shared
- *  `TuningSetting` (widget + control DATA, parts/ui tuning-panel) with the grid-specific
+ *  `TuningSetting` (widget + control DATA, tools/ui tuning-panel) with the grid-specific
  *  `scope`, the `apply` capability id, and — for style applies — the real CSS
  *  property + unit. Adding an aspect is ONE row; the surface is blind to it. */
 export interface VisualDatabaseGridPropertyDescriptor {

@@ -1,10 +1,10 @@
 import React from 'react';
 import { Captions, Film } from 'lucide-react';
 
-import { Card } from '@/packages/ui/show/card';
-import { FilePreview } from '@/packages/ui/show/file-preview/FilePreview';
-import { Container } from '@/packages/ui/show/container';
-import { Text } from '@/packages/ui/show/text';
+import { Card } from '../../../../ui/show/card';
+import { FilePreview } from '../../../../ui/show/file-preview/FilePreview';
+import { Container } from '../../../../ui/show/container';
+import { Text } from '../../../../ui/show/text';
 import type { CaptionTimingPreview } from '@/packages/caption-renderer/read-data/caption-renderer-types';
 
 export function CaptionPreview({

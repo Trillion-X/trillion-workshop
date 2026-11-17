@@ -274,7 +274,7 @@
                   "handoff_id"
                 ]
               ],
-              "_read_by": "parts/record-log record-log-store erase (a job erased takes the notices that quote its words with it: src/record-model.json erase_with)"
+              "_read_by": "tools/record-log record-log-store erase (a job erased takes the notices that quote its words with it: src/record-model.json erase_with)"
             }
           ]
         }

@@ -49,19 +49,19 @@ import {
   decodeRoiTimeseriesDataFeed,
   selectRoiTimeseriesPayload,
 } from '@/packages/roi/read-data/read-roi-timeseries-data';
-import { MetricCard } from '@/packages/roi/show/MetricCard';
-import { TaskReceipt } from '@/packages/roi/show/TaskReceipt';
-import { Card, Container, Text } from '@/packages/ui';
-import { WorkStartState, WorkSkeletonRows } from '@/packages/ui/show/work-start-state';
-import { InteractiveTimeseriesChart } from '@/packages/ui/show/timeseries-chart/InteractiveTimeseriesChart';
-import { SelectablePillBar } from '@/packages/ui/show/selectable-pill-bar';
-import { ComplianceDashboard } from '@/packages/roi/show/ComplianceDashboard';
-import { EfficiencySuggestions } from '@/packages/roi/show/EfficiencySuggestions';
-import { RevenueCard } from '@/packages/roi/show/RevenueCard';
-import { BusinessOutcomeCard } from '@/packages/roi/show/BusinessOutcomeCard';
-import { LeadFunnelChart } from '@/packages/roi/show/LeadFunnelChart';
-import { ContentBreakdownChart } from '@/packages/roi/show/ContentBreakdownChart';
-import { SocietyMetricsBreakdown } from '@/packages/roi/show/SocietyMetricsBreakdown';
+import { MetricCard } from './MetricCard';
+import { TaskReceipt } from './TaskReceipt';
+import { Card, Container, Text } from '../../../../ui';
+import { WorkStartState, WorkSkeletonRows } from '../../../../ui/show/work-start-state';
+import { InteractiveTimeseriesChart } from '../../../../ui/show/timeseries-chart/InteractiveTimeseriesChart';
+import { SelectablePillBar } from '../../../../ui/show/selectable-pill-bar';
+import { ComplianceDashboard } from './ComplianceDashboard';
+import { EfficiencySuggestions } from './EfficiencySuggestions';
+import { RevenueCard } from './RevenueCard';
+import { BusinessOutcomeCard } from './BusinessOutcomeCard';
+import { LeadFunnelChart } from './LeadFunnelChart';
+import { ContentBreakdownChart } from './ContentBreakdownChart';
+import { SocietyMetricsBreakdown } from './SocietyMetricsBreakdown';
 
 // ---------------------------------------------------------------------------
 // TYPES

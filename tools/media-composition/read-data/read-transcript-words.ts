@@ -34,8 +34,8 @@
 // You are forbidden from simplifying or removing it.
 // =============================================================================
 
-import type { MediaWorkspaceView } from '@/packages/media-composition/read-data/read-media-workspace';
-import type { EditModalitySource } from '@/packages/media-composition/read-data/edit-capabilities';
+import type { MediaWorkspaceView } from './read-media-workspace';
+import type { EditModalitySource } from './edit-capabilities';
 
 /** One editable transcript word, in seconds, ready for the pane + `remove-span`. */
 export interface TranscriptWord {

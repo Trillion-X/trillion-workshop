@@ -6,8 +6,8 @@
 
 import { describe, expect, it } from 'vitest';
 import { boardToSvg, escapeXml, exportFillOf, type BoardSvgStyle } from './board-svg';
-import { shapeSvgPathById, shapeOutlineById } from '@/packages/group/show/board-shapes';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
+import { shapeSvgPathById, shapeOutlineById } from '../../../show/board-shapes';
+import type { BoardItem } from '../../../read-data/group-board-model';
 
 function item(partial: Partial<BoardItem> & { memberId: string }): BoardItem {
   return {
@@ -332,7 +332,7 @@ describe('exportFillOf — the default frame→style resolver', () => {
 // BLIND: the shape path arrives via the injected `shapePathById` resolver (same
 // DI as `fillOf`), so board-svg never imports the shape catalog.
 // ---------------------------------------------------------------------------
-import { shapeSvgPathById } from '@/packages/group/show/board-shapes';
+import { shapeSvgPathById } from '../../../show/board-shapes';
 
 describe('#213 board-svg — shaped items export as a filling path, not a <rect>', () => {
   it('an ellipse item emits a scaled <path> (full-box arc) when the resolver is injected', () => {

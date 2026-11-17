@@ -1,7 +1,7 @@
 import {
   recordAddress,
   type VisualDatabaseModel,
-} from '@/packages/visual-database/read-data/visual-database';
+} from '../read-data/visual-database';
 
 export interface VisualDatabaseRecordScope {
   readonly addresses: readonly string[];

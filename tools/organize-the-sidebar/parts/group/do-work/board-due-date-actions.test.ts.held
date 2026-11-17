@@ -1,12 +1,12 @@
 // Proof for the due-date GRAPH bridge: due dates co-locate on the item as extra.dueDate, set/clear via
 // patchItem preserving other extra, connectors + furniture never targets, dueRows sorted with labels.
 import { describe, expect, it } from 'vitest';
-import { emptyGraph } from '@/packages/ui/show/group/group-graph';
-import type { AddressRef } from '@/packages/ui/show/group/group-graph';
-import { placeItem, readItems } from '@/packages/group/read-data/group-board-model';
-import { AXIS_TICK_PREFIX, arrangeSelectionOnAxis, itemIsAxisTick } from '@/packages/group/do-work/batch-actions';
-import { dueMsToDateLabel } from '@/packages/group/read-data/board-due-date';
-import { checklistFromRaw, checklistProgress } from '@/packages/group/read-data/board-checklist';
+import { emptyGraph } from '../../../../ui/show/group/group-graph';
+import type { AddressRef } from '../../../../ui/show/group/group-graph';
+import { placeItem, readItems } from '../../../read-data/group-board-model';
+import { AXIS_TICK_PREFIX, arrangeSelectionOnAxis, itemIsAxisTick } from '../../../do-work/batch-actions';
+import { dueMsToDateLabel } from '../../../read-data/board-due-date';
+import { checklistFromRaw, checklistProgress } from '../../../read-data/board-checklist';
 import {
   boardDueItems,
   dueDateOf,

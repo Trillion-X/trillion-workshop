@@ -1,12 +1,12 @@
 // packages/group/do-work/board-critical-path-actions.test.ts
 import { describe, it, expect } from 'vitest';
-import { emptyGraph } from '@/packages/ui/show/group/group-graph';
-import type { AddressRef, GroupGraph } from '@/packages/ui/show/group/group-graph';
-import { placeItem, readItems } from '@/packages/group/read-data/group-board-model';
-import { setItemMetric } from '@/packages/group/do-work/board-metric-actions';
-import { logMinutes } from '@/packages/group/do-work/board-time-log-actions';
-import type { RollupSpec } from '@/packages/group/do-work/board-rollup-actions';
-import { criticalPathOfGoal, criticalRoots, labelForGoal } from '@/packages/group/do-work/board-critical-path-actions';
+import { emptyGraph } from '../../../../ui/show/group/group-graph';
+import type { AddressRef, GroupGraph } from '../../../../ui/show/group/group-graph';
+import { placeItem, readItems } from '../../../read-data/group-board-model';
+import { setItemMetric } from '../../../do-work/board-metric-actions';
+import { logMinutes } from '../../../do-work/board-time-log-actions';
+import type { RollupSpec } from '../../../do-work/board-rollup-actions';
+import { criticalPathOfGoal, criticalRoots, labelForGoal } from '../../../do-work/board-critical-path-actions';
 
 const REF: AddressRef = { family: 'test.board', parts: { board: 'b1' } };
 const NOW = 1_800_000_000_000;

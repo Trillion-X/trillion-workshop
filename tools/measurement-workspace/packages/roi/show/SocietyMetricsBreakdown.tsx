@@ -13,13 +13,13 @@
 //
 // 1. Displays metrics in table format: Society, Revenue, Tasks, Items, Leads, Avg Cost
 // 2. Sortable by any column (click header)
-// 3. All styling through @/packages/ui (L065/L066 compliant)
+// 3. All styling through tools/ui (L065/L066 compliant)
 // 4. No inline styles, no raw HTML tables
 //
 // =============================================================================
 
 import * as React from 'react';
-import { Container, Text, Card } from '@/packages/ui';
+import { Container, Text, Card } from '../../../../ui';
 
 // ---------------------------------------------------------------------------
 // TYPES

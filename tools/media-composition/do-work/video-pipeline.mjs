@@ -1,5 +1,5 @@
 /**
- * file: parts/media-composition/do-work/video-pipeline.mjs
+ * file: tools/media-composition/do-work/video-pipeline.mjs
  *
  * PURPOSE: Runs long video work as named stages that can be stopped and started again. Every run is one file (its REPORT) that
  * says which stage is done, running, failed or waiting, what each stage produced, how many tries it took, and what was proposed,

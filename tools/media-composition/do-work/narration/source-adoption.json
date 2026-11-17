@@ -1,6 +1,6 @@
 {
   "schema": "licensed-source-adoption/v1",
-  "owner": "parts/media-composition",
+  "owner": "tools/media-composition",
   "adopted_on": "2026-10-27",
   "upstream": "Showtime 0.4.5",
   "copyright": "2026 Favio Vazquez",

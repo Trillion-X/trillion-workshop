@@ -1,4 +1,4 @@
-// parts/feel/read-data/choose-feel.mjs
+// tools/feel/read-data/choose-feel.mjs
 //
 // Purpose
 //   Decides how one thing that happened feels: which moment row answers the event, and for each output (touch, sound,
@@ -7,7 +7,7 @@
 //
 // Non-negotiable invariants
 //   1. Nothing here names an event, a moment, a feel or an output: rows answer events the way delight moments do
-//      (parts/delight-moments rowAnswers), the outputs and feels are the DATA's (records/feel-moments.json).
+//      (tools/delight-moments rowAnswers), the outputs and feels are the DATA's (records/feel-moments.json).
 //   2. Each output is its own thing to the rules: { moment, event_kind, feel, output }. A rule that changes things
 //      (show rules `set`) may give it another feel, and a hidden or silenced output plays nothing; so the person can
 //      keep the touch of a moment and quiet its sound, or give one moment another feel on one device only.

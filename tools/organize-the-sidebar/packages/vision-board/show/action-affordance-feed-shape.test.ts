@@ -21,9 +21,9 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { readActionAffordances } from '@/packages/ui/show/action-affordance';
-import { readPublishedRecords } from '@/packages/ui/show/placeable-surface-intent';
-import { affordanceShelfTools } from '@/packages/group/show/board-action-affordances';
+import { readActionAffordances } from '../../../../ui/show/action-affordance';
+import { readPublishedRecords } from '../../../../ui/show/placeable-surface-intent';
+import { affordanceShelfTools } from '../../../show/board-action-affordances';
 
 const manifest = JSON.parse(
   readFileSync(join(__dirname, '..', 'things-to-store-and-run.json'), 'utf8'),

@@ -166,12 +166,12 @@ test('ignores node-platform target entries even if shaped like React UI', () => 
 // source, so the source is what gets judged.
 const BARE_COMPONENT_SOURCE =
   "import React from 'react';\n"
-  + "import { Container } from '@/packages/ui';\n"
+  + "import { Container } from '../../ui';\n"
   + 'export function AgentWalletPanel() { const ref = React.useRef(null); return <Container ref={ref} />; }\n';
 
 const SELF_MOUNTING_SOURCE =
   "import React from 'react';\n"
-  + "import { mountReactSurface } from '@/packages/ui/show/react-surface-mount';\n"
+  + "import { mountReactSurface } from '../../ui/show/react-surface-mount';\n"
   + "import { AgentWalletPanel } from './AgentWalletPanel';\n"
   + 'export default function mount({ el }) { return mountReactSurface(el, <AgentWalletPanel />); }\n';
 

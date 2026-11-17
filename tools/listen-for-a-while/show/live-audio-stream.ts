@@ -1,4 +1,4 @@
-// tools/listen-for-a-while/show/live-audio-stream.ts (moved from Trillion-X/trillion parts/record-audio/show/live-audio-stream.ts)
+// tools/listen-for-a-while/show/live-audio-stream.ts (moved from Trillion-X/trillion tools/record-audio/show/live-audio-stream.ts)
 //
 // Purpose
 //   The live-words stream of record-in-the-browser.ts, made to survive a dropped connection and to say which codec it speaks.

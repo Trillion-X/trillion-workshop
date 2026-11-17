@@ -1,4 +1,3 @@
-// parts/visual-database/show/list-as-visual-database.tsx
 //
 // PURPOSE
 //   One visual-database view (timeline, swimlanes, outline, tree, summary) of any Trillion list: the list's records

@@ -5612,7 +5612,7 @@
     ],
     "maker": "maker:media-composition",
     "provenance": {
-     "source": "trillion parts/media-composition/do-work/grade-a-video.mjs with read-data/looks.json, ported from the Mac editor's colour presets"
+     "source": "trillion tools/media-composition/do-work/grade-a-video.mjs with read-data/looks.json, ported from the Mac editor's colour presets"
     },
     "screen": {
      "group": "content-make",
@@ -5927,7 +5927,7 @@
     ],
     "maker": "maker:media-composition",
     "provenance": {
-     "source": "trillion parts/media-composition/do-work/grade-a-video.mjs with read-data/looks.json, ported from the Mac editor's colour presets"
+     "source": "trillion tools/media-composition/do-work/grade-a-video.mjs with read-data/looks.json, ported from the Mac editor's colour presets"
     },
     "verify": [
      {
@@ -6065,7 +6065,7 @@
     ],
     "maker": "maker:media-composition",
     "provenance": {
-     "source": "moved from Trillion-X/trillion parts/media-composition/read-data/auto-edit.mjs, suggestion-stream.mjs and auto-cleanup.ts, with their tests"
+     "source": "moved from Trillion-X/trillion tools/media-composition/read-data/auto-edit.mjs, suggestion-stream.mjs and auto-cleanup.ts, with their tests"
     },
     "verify": [
      {

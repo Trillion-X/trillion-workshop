@@ -1,4 +1,3 @@
-// parts/visual-database/read-data/schedule-bars.ts
 //
 // PURPOSE
 //   The geometry of the Gantt view (show/views/ScheduleView.tsx): which days a record's bar covers, the time axis the

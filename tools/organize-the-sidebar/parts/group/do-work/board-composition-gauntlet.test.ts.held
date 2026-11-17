@@ -19,7 +19,7 @@ import {
   scaleRectsAroundAnchor,
 } from './group-resize';
 import { createFrameFromSelection } from './board-frames';
-import { emptyGraph } from '@/packages/ui/show/group/group-graph';
+import { emptyGraph } from '../../../../ui/show/group/group-graph';
 import {
   placeItem,
   readItems,
@@ -27,7 +27,7 @@ import {
   itemRef,
   itemIsConnector,
   type BoardItem,
-} from '@/packages/group/read-data/group-board-model';
+} from '../../../read-data/group-board-model';
 
 function item(partial: Partial<BoardItem> & { memberId: string }): BoardItem {
   return {

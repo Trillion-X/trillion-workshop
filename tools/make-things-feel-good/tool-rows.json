@@ -235,7 +235,7 @@
         },
         "result_selector": "$.result",
         "provenance": {
-          "source": "Trillion-X/trillion parts/delight-moments/read-data/choose-moment.mjs (the same bytes as at 4ffa1dc4a2^, b6ae0ebf815f2f5271eed34e6e023c7e1767ec04), moved byte for byte in a9ee258 (#76) to read-data/; old capability row capabilities.json:365 at 4ffa1dc4a2^ (play a small good moment when something good happens, and give every happening a feel); do-work/pick-a-moment.mjs written here"
+          "source": "Trillion-X/trillion tools/delight-moments/read-data/choose-moment.mjs (the same bytes as at 4ffa1dc4a2^, b6ae0ebf815f2f5271eed34e6e023c7e1767ec04), moved byte for byte in a9ee258 (#76) to read-data/; old capability row capabilities.json:365 at 4ffa1dc4a2^ (play a small good moment when something good happens, and give every happening a feel); do-work/pick-a-moment.mjs written here"
         },
         "verify": [
           {

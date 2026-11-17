@@ -1,6 +1,6 @@
 import React from 'react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
-import { MarketDataFeedPanel } from '@/packages/market-data-feed/show/MarketDataFeedPanel';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
+import { MarketDataFeedPanel } from './MarketDataFeedPanel';
 
 type MountArgs = {
   el: HTMLElement;

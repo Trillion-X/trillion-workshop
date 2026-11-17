@@ -1,4 +1,4 @@
-// parts/device-copy/do-work/frame-compression.mjs
+// tools/device-copy/do-work/frame-compression.mjs
 //
 // A SETTLE UPLOAD COMPRESSED AGAINST A SAMPLE OF THE JSON IT CARRIES, THE SAMPLE NAMED BY ITS BLAKE3 HASH, EXPANDED ONLY
 // TO THE SIZE THE SENDER DECLARED.

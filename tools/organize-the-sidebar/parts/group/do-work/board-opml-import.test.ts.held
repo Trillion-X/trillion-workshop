@@ -5,7 +5,7 @@
 // XML-entity un-escape, malformed tolerated); (3) opmlToBoardItems shapes cards + parent→child connectors.
 
 import { describe, it, expect } from 'vitest';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
+import type { BoardItem } from '../../../read-data/group-board-model';
 import { parseOpml, looksLikeOpml, opmlToBoardItems } from './board-opml-import';
 import { boardToOpml } from './board-opml';
 

@@ -1,4 +1,3 @@
-// parts/media-composition/read-data/preview-grade.mjs
 //
 // PURPOSE
 //   The fast preview path for a video's colour adjustments: the same render fields grade-a-video sends to ffmpeg

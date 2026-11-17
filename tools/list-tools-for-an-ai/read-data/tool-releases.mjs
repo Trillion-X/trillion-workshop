@@ -14,7 +14,7 @@
 //      one per minimum (the newest), at most `keep_earlier` (src/tool-releases.json). A row with no minimum keeps none.
 //   4. Only the same maker's earlier rows are kept: another account's row of the same id is never folded in.
 //   5. Nothing here reads or writes the Marketplace; the Workshop (src/workshop.mjs) calls it on what it read. A malformed
-//      minimum is refused by the one catalog decoder (parts/ai-tool-catalog/read-data, MINIMUM_HOST_VERSION) when saved.
+//      minimum is refused by the one catalog decoder (tools/ai-tool-catalog/read-data, MINIMUM_HOST_VERSION) when saved.
 import settings from './tool-releases.json' with { type: 'json' };
 
 /** Negative, zero or positive as version `a` is older than, the same as, or newer than `b` (missing parts are 0). */

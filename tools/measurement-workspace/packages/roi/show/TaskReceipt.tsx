@@ -29,11 +29,11 @@
 import * as React from 'react';
 import { ChevronDown } from 'lucide-react';
 import type { TaskReceipt as TaskReceiptType } from '@/packages/roi/read-data/roi-types';
-import { Card } from '@/packages/ui/show/card/Card';
-import { Badge } from '@/packages/ui/show/badge/Badge';
-import { StatusDot } from '@/packages/ui/show/status-dot/StatusDot';
-import { Text } from '@/packages/ui/show/text/Text';
-import { Icon } from '@/packages/ui/show/icon/Icon';
+import { Card } from '../../../../ui/show/card/Card';
+import { Badge } from '../../../../ui/show/badge/Badge';
+import { StatusDot } from '../../../../ui/show/status-dot/StatusDot';
+import { Text } from '../../../../ui/show/text/Text';
+import { Icon } from '../../../../ui/show/icon/Icon';
 
 // ---------------------------------------------------------------------------
 // TYPES

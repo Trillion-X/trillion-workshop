@@ -1,7 +1,7 @@
 // packages/group/do-work/board-mermaid.test.ts
 import { describe, it, expect } from 'vitest';
 import { boardToMermaid } from './board-mermaid';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
+import type { BoardItem } from '../../../read-data/group-board-model';
 
 const card = (memberId: string, text: string): BoardItem =>
   ({ memberId, nodeRef: { id: memberId } as never, kind: 'note', x: 0, y: 0, w: 40, h: 30, isSection: false, childCount: 0, text, extra: {} } as BoardItem);

@@ -4,7 +4,7 @@
 import type {
   VisualDatabaseFieldDescriptor,
   VisualDatabaseValueExpression,
-} from '@/packages/visual-database/read-data/visual-database';
+} from '../read-data/visual-database';
 
 export interface FieldDerivationMigrationEvent {
   event: 'visual_database.derive_migrated';

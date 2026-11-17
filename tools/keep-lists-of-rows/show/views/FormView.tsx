@@ -1,4 +1,3 @@
-// parts/visual-database/show/views/FormView.tsx
 //
 // PURPOSE
 //   The `form` view kind: any list's records filled in one at a time, the way a sign-up, intake or questions page

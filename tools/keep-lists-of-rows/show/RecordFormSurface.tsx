@@ -39,13 +39,13 @@
 // =============================================================================
 
 import React from 'react';
-import { Button, Container, Text } from '@/packages/ui';
-import { applyFieldWrites, buildRecordWrite, type AddressedWrite, type FieldWrite, type RecordWriter } from '@/packages/visual-database/do-work/record-writes';
+import { Button, Container, Text } from '../../ui';
+import { applyFieldWrites, buildRecordWrite, type AddressedWrite, type FieldWrite, type RecordWriter } from '../do-work/record-writes';
 import {
   editorForShape,
   reportFailure,
   reportSuccess,
-} from '@/packages/visual-database/show/field-editors';
+} from './field-editors';
 import {
   effectiveDomain,
   extractFieldValue,
@@ -53,7 +53,7 @@ import {
   type VisualDatabaseFieldDescriptor,
   type VisualDatabaseModel,
   type VisualDatabaseRecord,
-} from '@/packages/visual-database/read-data/visual-database';
+} from '../read-data/visual-database';
 
 // ---------------------------------------------------------------------------
 // Form-field selection + the synthetic draft record

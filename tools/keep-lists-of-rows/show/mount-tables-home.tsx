@@ -4,12 +4,12 @@
 // creating a table goes through the SAME record writer (one write door, L069).
 
 import React from 'react';
-import { ErrorBoundary, FloatingMaterialFrame, ToastProvider, mountReactSurface } from '@/packages/ui';
+import { ErrorBoundary, FloatingMaterialFrame, ToastProvider, mountReactSurface } from '../../ui';
 import { bitfieldGeneratedPackageEntryScopeBinding, useBitfieldData,
   bitfieldGeneratedLiveReadScopeDescriptor,
 } from '@/packages/visual-database/.bitfield-entry-scope/tables-home/runtime-kit-react';
-import { createRecordWriter } from '@/packages/visual-database/do-work/record-writes';
-import { TablesHomeSurface } from '@/packages/visual-database/show/TablesHomeSurface';
+import { createRecordWriter } from '../do-work/record-writes';
+import { TablesHomeSurface } from './TablesHomeSurface';
 
 const recordWriter = createRecordWriter(bitfieldGeneratedLiveReadScopeDescriptor.partitionLabel);
 

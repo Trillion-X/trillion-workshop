@@ -38,8 +38,8 @@
 // =============================================================================
 
 import React from 'react';
-import { Container, Text } from '@/packages/ui';
-import { editorForShape } from '@/packages/visual-database/show/field-editors';
+import { Container, Text } from '../../ui';
+import { editorForShape } from './field-editors';
 import {
   effectiveDomain,
   syntheticFieldDescriptor,
@@ -47,7 +47,7 @@ import {
   type VisualDatabaseFieldDomainValue,
   type VisualDatabaseModel,
   type VisualDatabaseRecord,
-} from '@/packages/visual-database/read-data/visual-database';
+} from '../read-data/visual-database';
 
 /** Gate a compose field on another field's value (DATA-defined visibility). */
 export interface ComposeVisibleWhen {

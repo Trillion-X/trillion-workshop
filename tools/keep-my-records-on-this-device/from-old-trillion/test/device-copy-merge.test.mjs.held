@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { sqliteHost } from '../src/local-store.mjs';
-import { deviceCopy } from '../parts/device-copy/do-work/device-copy.mjs';
+import { deviceCopy } from '../../../device-copy/do-work/device-copy.mjs';
 import { mergeTicker } from '../computer/device-copy.mjs';
 
 const rules = JSON.parse(readFileSync(new URL('../computer/device-copy.json', import.meta.url), 'utf8')).merge;

@@ -1,6 +1,6 @@
 import React from 'react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
-import Projects from '@/packages/projects/index';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../ui';
+import Projects from '..';
 
 type MountArgs = {
   el: HTMLElement;

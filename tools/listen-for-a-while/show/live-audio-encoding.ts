@@ -1,4 +1,4 @@
-// tools/listen-for-a-while/show/live-audio-encoding.ts (moved from Trillion-X/trillion parts/record-audio/show/live-audio-encoding.ts)
+// tools/listen-for-a-while/show/live-audio-encoding.ts (moved from Trillion-X/trillion tools/record-audio/show/live-audio-encoding.ts)
 //
 // Purpose
 //   How the microphone is turned into the packets the live-words route takes: samples are cut into fixed-size chunks

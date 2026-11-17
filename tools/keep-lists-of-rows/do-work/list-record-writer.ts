@@ -1,4 +1,3 @@
-// parts/visual-database/do-work/list-record-writer.ts
 //
 // PURPOSE
 //   The write half of the records seam for a Trillion list that keeps changes (read-data/visual-database-input-from-

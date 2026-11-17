@@ -35,7 +35,7 @@ import {
   Text,
   type CollectionSidebarGroup,
   type CollectionSidebarPanelState,
-} from '@/packages/ui';
+} from '../../../../ui';
 import { Inbox } from 'lucide-react';
 import type { CoordinationInboxEntry } from '../read-data/coordination-metrics';
 import { humanizeOrigin, humanizeToken } from './humanize';

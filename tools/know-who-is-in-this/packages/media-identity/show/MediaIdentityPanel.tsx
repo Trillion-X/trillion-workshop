@@ -1,15 +1,15 @@
 import * as React from 'react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
 
-import { evidenceBlockerText } from '@/packages/content-media-evidence/read-data/content-media-evidence';
+import { evidenceBlockerText } from '../../../../record-voice-and-meetings/read-data/content-media-evidence';
 import {
   chooseContentMediaFiles,
   CONTENT_MEDIA_AUDIO_EXTENSIONS,
   CONTENT_MEDIA_IMAGE_EXTENSIONS,
   CONTENT_MEDIA_VIDEO_EXTENSIONS,
   stageContentMediaFile,
-} from '@/packages/content-media-evidence/do-work/content-media-work-loop';
-import { submitMediaIdentityRequest } from '@/packages/media-identity/do-work/submit-media-identity';
+} from '../../../../content-media-evidence/do-work/content-media-work-loop';
+import { submitMediaIdentityRequest } from '../../../../media-identity/do-work/submit-media-identity';
 import {
   readMediaIdentityEvidence,
   type MediaIdentityCluster,
@@ -18,14 +18,14 @@ import {
   type MediaIdentityProfileBinding,
   type MediaIdentityRequest,
   type MediaIdentitySignature,
-} from '@/packages/media-identity/read-data/read-media-identity';
+} from '../../../../media-identity/read-data/read-media-identity';
 import {
   OneStepAtATimeSurface,
   type OneStepAtATimeItem,
-} from '@/packages/ui/show/one-step-at-a-time-surface';
-import { FileWorkAction } from '@/packages/ui/show/file-work-action';
-import { Container } from '@/packages/ui/show/container';
-import { Text } from '@/packages/ui/show/text';
+} from '../../../../ui/show/one-step-at-a-time-surface';
+import { FileWorkAction } from '../../../../ui/show/file-work-action';
+import { Container } from '../../../../ui/show/container';
+import { Text } from '../../../../ui/show/text';
 
 export type MediaIdentityPanelProps = {
   profiles?: MediaIdentityProfile[];

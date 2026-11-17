@@ -19,7 +19,7 @@ Market surface for the trading cockpit — a fey.com stock-detail clone: symbol 
 ## Anatomy (reference: fey stock detail)
 
 1. **Symbol header** — ticker + eyebrow, large mono price, signed green/red delta (latest close vs the window's first open). Derived only from real bars.
-2. **Price chart** — `@/packages/ui` `LineChart` hero tier: one thin line + soft tone gradient, minimal axis, plain-text timeframe row. NEVER a barcode/candlestick.
+2. **Price chart** — `tools/ui` `LineChart` hero tier: one thin line + soft tone gradient, minimal axis, plain-text timeframe row. NEVER a barcode/candlestick.
 3. **Agent scan** — `MetricRow` (symbols evaluated / cleared the gate / buy gate) over quiet hairline-divided per-symbol rows; the human hold reason when the agent held.
 
 ## Invariants
@@ -30,5 +30,5 @@ Market surface for the trading cockpit — a fey.com stock-detail clone: symbol 
 
 ## Dependencies
 
-**Depends on:** `@/packages/ui` (`LineChart`, `MetricRow`, `Card`, `Container`, `Text`, `Badge`, `Icon`, `Divider`, `ScrollableSurface`), `@bitfield/runtime-kit/react` (`useBitfieldData`), `../read-data/market-data-feed-surface`, `../read-data/agent-cycle-surface`, `lucide-react`.
+**Depends on:** `tools/ui` (`LineChart`, `MetricRow`, `Card`, `Container`, `Text`, `Badge`, `Icon`, `Divider`, `ScrollableSurface`), `@bitfield/runtime-kit/react` (`useBitfieldData`), `../read-data/market-data-feed-surface`, `../read-data/agent-cycle-surface`, `lucide-react`.
 **Depended on by:** the `market-data-feed` package entry (`entry-to-package-data-map.json` → `mount-market-data-feed.tsx`).

@@ -1,4 +1,3 @@
-// parts/visual-database/do-work/run-record-action.ts
 //
 // PURPOSE
 //   Run one DATA action (visual-database's own action descriptor: a target, an operation or definition ids, input,

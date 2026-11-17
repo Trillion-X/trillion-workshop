@@ -27,7 +27,7 @@
 // =============================================================================
 
 import React from 'react';
-import { mountReactMaterial } from '@/packages/ui';
+import { mountReactMaterial } from '../../../../ui';
 import {
   readCoordinationRecords,
   type CoordinationInput,

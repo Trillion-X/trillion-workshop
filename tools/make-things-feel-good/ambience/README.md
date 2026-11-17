@@ -1,6 +1,6 @@
-# parts/ambience
+# tools/ambience
 
-Ambience: the screen, the space behind the panes and the person's lights moving with the music or the sound around them, and what fills the shared follower list (`parts/ui/show/sound-signal`) with the person's own lights and music services.
+Ambience: the screen, the space behind the panes and the person's lights moving with the music or the sound around them, and what fills the shared follower list (`tools/ui/show/sound-signal`) with the person's own lights and music services.
 
 ## Files
 
@@ -26,6 +26,6 @@ Ambience: the screen, the space behind the panes and the person's lights moving 
 
 ## Dependencies
 
-**Depends on:** `parts/ui/show/sound-signal` (the one sound reading, painters, looks, controls, follower list), `parts/ui` (Button, Container, NamedIcon, Text, DisclosureSection, Dropdown, SpeedControl, `mountSharedContent`), `src/voices.mjs` through tool:voice-for and the lists road, `src/workspace/api.ts` (`postJson`), the Workshop rows in `records/workshop-ambience-tool-records.json` (runs_quietly), `src/work-workshop.mjs` + `src/workshop.mjs` `sendQuietly`.
+**Depends on:** `tools/ui/show/sound-signal` (the one sound reading, painters, looks, controls, follower list), `tools/ui` (Button, Container, NamedIcon, Text, DisclosureSection, Dropdown, SpeedControl, `mountSharedContent`), `src/voices.mjs` through tool:voice-for and the lists road, `src/workspace/api.ts` (`postJson`), the Workshop rows in `records/workshop-ambience-tool-records.json` (runs_quietly), `src/work-workshop.mjs` + `src/workshop.mjs` `sendQuietly`.
 
 **Depended on by:** `src/workspace/main.tsx` (registers `followLights`), the screen row `tool:screen-ambience` in `records/workshop-screen-tool-records.json`.

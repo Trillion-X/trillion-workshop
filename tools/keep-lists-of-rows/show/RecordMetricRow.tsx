@@ -29,8 +29,8 @@
 // =============================================================================
 
 import React from 'react';
-import { MetricRow, type MetricCell } from '@/packages/ui';
-import { extractFieldValue, type VisualDatabaseFieldDescriptor, type VisualDatabaseRecord } from '@/packages/visual-database/read-data/visual-database';
+import { MetricRow, type MetricCell } from '../../ui';
+import { extractFieldValue, type VisualDatabaseFieldDescriptor, type VisualDatabaseRecord } from '../read-data/visual-database';
 
 /** The display result for one metric: the formatted string + optional tone. The
  *  caller returns this from the raw value it read for a descriptor. */

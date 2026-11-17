@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { mountReactMaterial, type ReactMaterialMountArgs } from '@/packages/ui/show/react-surface-mount';
+import { mountReactMaterial, type ReactMaterialMountArgs } from '../../ui/show/react-surface-mount';
 import { MatchPicksSurface } from './MatchPicksSurface.tsx';
 
 type MountProps = {

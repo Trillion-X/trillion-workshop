@@ -2,10 +2,10 @@
 // {key,label,ext,mime,serialize}, and exportBoardAs dispatches to the right serializer (markdown vs ics)
 // by DATA key — the generic dispatch never names a format.
 import { describe, expect, it } from 'vitest';
-import { emptyGraph } from '@/packages/ui/show/group/group-graph';
-import type { AddressRef } from '@/packages/ui/show/group/group-graph';
-import { placeItem, readItems } from '@/packages/group/read-data/group-board-model';
-import { setItemDueDate } from '@/packages/group/do-work/board-due-date-actions';
+import { emptyGraph } from '../../../../ui/show/group/group-graph';
+import type { AddressRef } from '../../../../ui/show/group/group-graph';
+import { placeItem, readItems } from '../../../read-data/group-board-model';
+import { setItemDueDate } from '../../../do-work/board-due-date-actions';
 import { DOCUMENT_EXPORTS, documentExport, exportBoardAs, exportFilename } from './board-document-exports';
 
 const NOW = 1_760_000_000_000;

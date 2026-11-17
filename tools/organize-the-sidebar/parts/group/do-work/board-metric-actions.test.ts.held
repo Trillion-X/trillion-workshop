@@ -2,10 +2,10 @@
 // through patchItem preserving other extra, clearing removes the field, bump is a no-op with no metric,
 // connectors + furniture are never targets, metricRows rank by completion with labels.
 import { describe, expect, it } from 'vitest';
-import { emptyGraph } from '@/packages/ui/show/group/group-graph';
-import type { AddressRef } from '@/packages/ui/show/group/group-graph';
-import { placeItem, readItems } from '@/packages/group/read-data/group-board-model';
-import { AXIS_TICK_PREFIX } from '@/packages/group/do-work/batch-actions';
+import { emptyGraph } from '../../../../ui/show/group/group-graph';
+import type { AddressRef } from '../../../../ui/show/group/group-graph';
+import { placeItem, readItems } from '../../../read-data/group-board-model';
+import { AXIS_TICK_PREFIX } from '../../../do-work/batch-actions';
 import {
   boardMetricSummary,
   boardMetrics,

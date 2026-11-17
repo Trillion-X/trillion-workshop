@@ -1,13 +1,13 @@
-// parts/feel/show/mount-feel.ts
+// tools/feel/show/mount-feel.ts
 //
 // NO PRIOR: searched bitfield-packages/packages/*/show for "haptic", "feel", "earcon" and "sound effect" (none);
 // delight-moments answers the same happened channel with words, this answers it with touch, sound and motion.
 //
 // PURPOSE
 //   The part's entry: started once on a page (the workspace shell, the Chrome extension's own pages), it hears every
-//   thing that happened (parts/ui/show/happened), picks the feel its row names (read-data/choose-feel.mjs over
+//   thing that happened (tools/ui/show/happened), picks the feel its row names (read-data/choose-feel.mjs over
 //   records/feel-moments.json), asks the person's show rules for each output, and hands what plays to the device's
-//   players (parts/ui/show/feel/play-feel.ts). It also starts the one listener that says what the person's hands did
+//   players (tools/ui/show/feel/play-feel.ts). It also starts the one listener that says what the person's hands did
 //   (chosen, lifted, dropped) and wakes sound on the first tap.
 //
 // NON-NEGOTIABLE INVARIANTS

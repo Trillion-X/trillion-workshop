@@ -2,7 +2,7 @@
 import { describe, it, expect } from 'vitest';
 import { looksLikeMermaid, parseMermaid, mermaidToBoardItems } from './board-mermaid-import';
 import { boardToMermaid } from './board-mermaid';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
+import type { BoardItem } from '../../../read-data/group-board-model';
 
 const isConn = (i: BoardItem) => Boolean((i.extra as Record<string, unknown>)?.fromMemberId);
 

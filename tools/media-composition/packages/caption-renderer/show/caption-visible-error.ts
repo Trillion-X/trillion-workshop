@@ -1,4 +1,4 @@
-import { sanitizeErrorText } from '@/packages/ui/show/safe-error-card';
+import { sanitizeErrorText } from '../../../../ui/show/safe-error-card';
 
 export function visibleCaptionError(message: string | null): string | null {
   if (!message) return null;

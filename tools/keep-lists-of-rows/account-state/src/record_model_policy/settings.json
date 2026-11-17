@@ -154,7 +154,7 @@
           "new_type": "text",
           "changed_at": "text"
         },
-        "_read_by": "parts/record-log/do-work/record-log-store.mjs: one dated change to a table kind's schema (kind_added, table_rebuilt, field_added, field_type_changed, field_removed, field_restored, index_added, index_removed), written in the transaction that made it"
+        "_read_by": "tools/record-log/do-work/record-log-store.mjs: one dated change to a table kind's schema (kind_added, table_rebuilt, field_added, field_type_changed, field_removed, field_restored, index_added, index_removed), written in the transaction that made it"
       }
     ],
     "indexes": [

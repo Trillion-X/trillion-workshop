@@ -1,6 +1,6 @@
 {
   "id": "move:trillion-tools-a-l-round-2",
-  "about": "Round 2 of the src/ a\u2013l port backlog slice (round 1: move-rows/trillion-tools-a-l.json, PR #124): the groups round 1 held on parts/eeaf and parts/record-log, now that those stores are in the Workshop (tools/keep-and-wake-ai-sessions-on-this-computer/parts/), and the browser copy group, now that tools/keep-my-records-on-this-device holds frame-compression.mjs. Rows found by content on main since round 1 are not moved.",
+  "about": "Round 2 of the src/ a\u2013l port backlog slice (round 1: move-rows/trillion-tools-a-l.json, PR #124): the groups round 1 held on tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf and tools/record-log, now that those stores are in the Workshop (tools/keep-and-wake-ai-sessions-on-this-computer/parts/), and the browser copy group, now that tools/keep-my-records-on-this-device holds frame-compression.mjs. Rows found by content on main since round 1 are not moved.",
   "source": {
     "name": "Trillion-X/trillion",
     "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",

@@ -1,7 +1,7 @@
 // packages/group/do-work/board-card-split.test.ts
 import { describe, it, expect } from 'vitest';
 import { splitSegments, planCardSplit, applyCardSplit } from './board-card-split';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
+import type { BoardItem } from '../../../read-data/group-board-model';
 
 const card = (memberId: string, text: string, x = 10, y = 20, w = 100, h = 40): BoardItem =>
   ({ memberId, nodeRef: { id: memberId } as never, kind: 'note', x, y, w, h, isSection: false, childCount: 0, text, extra: {} } as BoardItem);

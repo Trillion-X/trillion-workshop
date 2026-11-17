@@ -1,4 +1,4 @@
-// parts/delight-moments/read-data/choose-moment.mjs
+// tools/delight-moments/read-data/choose-moment.mjs
 //
 // Purpose
 //   Picks the moment to play for one thing that happened, from moment rows a caller hands in, and says what to
@@ -21,7 +21,7 @@ const emptyMemory = () => ({ counts: {}, played: {} });
 
 const fieldsMatch = (wanted, event, test) => Object.entries(wanted ?? {}).every(([key, value]) => typeof event[key] === 'string' && test(event[key], String(value)));
 
-/** Whether one row answers one event (invariant 1); parts/feel answers events with its own rows the same way. */
+/** Whether one row answers one event (invariant 1); tools/feel answers events with its own rows the same way. */
 export function rowAnswers(row, event) {
   const on = row.on ?? {};
   if (typeof on.typed === 'string' || on.event_kind !== event.event_kind) return false;

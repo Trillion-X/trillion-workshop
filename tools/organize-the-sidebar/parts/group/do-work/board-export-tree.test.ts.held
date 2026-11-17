@@ -4,12 +4,12 @@
 // (BoardExportPanel now receives flattenBoardTree(graph, currentRef), matching the SVG export path) — so
 // Markdown / CSV / iCalendar / Status no longer silently drop section contents.
 import { describe, expect, it } from 'vitest';
-import { emptyGraph } from '@/packages/ui/show/group/group-graph';
-import type { AddressRef } from '@/packages/ui/show/group/group-graph';
-import { placeItem, placeSection, readItems } from '@/packages/group/read-data/group-board-model';
-import { flattenBoardTree } from '@/packages/group/read-data/board-tree';
-import { boardToMarkdown } from '@/packages/group/do-work/board-markdown';
-import { boardToCsv } from '@/packages/group/do-work/board-csv';
+import { emptyGraph } from '../../../../ui/show/group/group-graph';
+import type { AddressRef } from '../../../../ui/show/group/group-graph';
+import { placeItem, placeSection, readItems } from '../../../read-data/group-board-model';
+import { flattenBoardTree } from '../../../read-data/board-tree';
+import { boardToMarkdown } from '../../../do-work/board-markdown';
+import { boardToCsv } from '../../../do-work/board-csv';
 
 const NOW = 1_760_000_000_000;
 const ROOT: AddressRef = { family: 'test.board', parts: { board: 'b1' } };

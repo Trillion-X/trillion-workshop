@@ -53,9 +53,9 @@
 // You are forbidden from simplifying or removing it.
 // =============================================================================
 
-import { authorEditDecision, type EditDecisionContext } from '@/packages/media-composition/do-work/build-edit-decisions';
-import type { MediaCompositionRecord } from '@/packages/media-composition/do-work/write-media-composition-record';
-import { DEFAULT_EDIT_OP_SCHEMAS, type EditOpSchemaMap } from '@/packages/media-composition/do-work/edit-op-schemas';
+import { authorEditDecision, type EditDecisionContext } from './build-edit-decisions';
+import type { MediaCompositionRecord } from './write-media-composition-record';
+import { DEFAULT_EDIT_OP_SCHEMAS, type EditOpSchemaMap } from './edit-op-schemas';
 
 // ---------------------------------------------------------------------------
 // RULESET DATA SHAPES (mirror of `media-composition.edit-ruleset` records)

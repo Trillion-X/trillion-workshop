@@ -1,7 +1,7 @@
 // packages/group/do-work/board-graphml.test.ts
 import { describe, it, expect } from 'vitest';
 import { boardToGraphml } from './board-graphml';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
+import type { BoardItem } from '../../../read-data/group-board-model';
 
 const card = (memberId: string, text: string): BoardItem =>
   ({ kind: 'note', memberId, x: 0, y: 0, w: 100, h: 40, text, extra: {} } as unknown as BoardItem);

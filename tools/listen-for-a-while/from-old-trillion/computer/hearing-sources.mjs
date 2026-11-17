@@ -62,7 +62,7 @@ export const hearingSourceTools = {
   /** { sources: [{ source, path }], at?, flags? } -> { words, session } */
   async hear(input) {
     const settings = sourcesSettings();
-    const { hearingHere } = await import('../parts/computer-programs/read-data/program-here.mjs');
+    const { hearingHere } = await import('../../../computer-programs/read-data/program-here.mjs');
     const { hearWith } = await import('./keep-drive-files.mjs');
     const rows = JSON.parse(readFileSync(path.join(HERE, 'computer-sources.json'), 'utf8'));
     const program = hearingHere(rows.hearing ?? []);

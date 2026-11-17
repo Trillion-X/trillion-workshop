@@ -1,6 +1,6 @@
 {
  "id": "move:trillion-workshop-tools-m-z-scripts-parts",
- "about": "The backlog rows (docs/worker-retirement-port-backlog.json) of class workshop-tool whose path is under src/ with a file name starting m to z or a digit, or under scripts/ or parts/ (not parts/record-log or parts/eeaf), that had no home on trillion-workshop, trillion-rust or trillion-apps main by content, moved byte for byte from the tag old-trillion-before-worker-retire. One group per capabilities.json row at the tag that owns the files (named after the capability; owner globs narrowed to this slice's paths, so other slices' files move with their own lanes or as import closure), and for files no capability row owns, one group per source subfolder or per file stem. src/chat-import.mjs, src/chat-archives.mjs and src/ai-conversations-list.json stay for the conversations job. The opinion content stays read_as_rows as in move-rows/trillion-to-workshop.json, and keep holds what that row keeps, the EEAF and record-log parts, and the files retired for having no running consumer (the operator one-time imports, raw export and census, the old-store cutover and retirement, proof account names). No call is swapped: a group with a provider call is held for the engine port.",
+ "about": "The backlog rows (docs/worker-retirement-port-backlog.json) of class workshop-tool whose path is under src/ with a file name starting m to z or a digit, or under scripts/ or parts/ (not tools/record-log or tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf), that had no home on trillion-workshop, trillion-rust or trillion-apps main by content, moved byte for byte from the tag old-trillion-before-worker-retire. One group per capabilities.json row at the tag that owns the files (named after the capability; owner globs narrowed to this slice's paths, so other slices' files move with their own lanes or as import closure), and for files no capability row owns, one group per source subfolder or per file stem. src/chat-import.mjs, src/chat-archives.mjs and src/ai-conversations-list.json stay for the conversations job. The opinion content stays read_as_rows as in move-rows/trillion-to-workshop.json, and keep holds what that row keeps, the EEAF and record-log parts, and the files retired for having no running consumer (the operator one-time imports, raw export and census, the old-store cutover and retirement, proof account names). No call is swapped: a group with a provider call is held for the engine port.",
  "source": {
   "name": "Trillion-X/trillion",
   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
@@ -23,8 +23,8 @@
   "macos/",
   "methods/",
   "native-apps/",
-  "parts/eeaf/",
-  "parts/record-log/",
+  "tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/",
+  "tools/record-log/",
   "records/action-completeness.json",
   "records/commercial-offer-records.json",
   "records/content-format-starters.json",
@@ -3235,7 +3235,7 @@
  ],
  "not_provider_calls": [
   {
-   "file": "parts/process-session/do-work/place-cache-folder.mjs",
+   "file": "tools/process-session/do-work/place-cache-folder.mjs",
    "id": "env-binding",
    "found": "env.XDG_CACHE_HOME",
    "why": "placeCacheFolder(env = process.env) reads the cache folder a computer names in its process environment; it is no Worker binding."

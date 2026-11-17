@@ -13,16 +13,16 @@
 // board only forwards opaque input.
 
 import React from 'react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface, Container } from '@/packages/ui';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface, Container } from '../../../ui';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
 import { bitfieldGeneratedLiveReadScopeDescriptor } from '@/packages/vision-board/.bitfield-entry-scope/vision-board/runtime-kit-react';
-import { readPublishedRecords } from '@/packages/ui/show/placeable-surface-intent';
-import { readActionAffordances } from '@/packages/ui/show/action-affordance';
-import { GroupBoardPanel } from '@/packages/group/show/GroupBoardPanel';
-import { affordanceShelfTools } from '@/packages/group/show/board-action-affordances';
-import type { ProducerSubmitDescriptor } from '@/packages/group/do-work/submit-producer-request';
-import { VISION_BOARD_BYTES_NAMESPACE } from '@/packages/vision-board/do-work/vision-board-bytes-namespace';
-import { ActivityIndicator } from '@/packages/activity-feed/show/ActivityIndicator';
+import { readPublishedRecords } from '../../../ui/show/placeable-surface-intent';
+import { readActionAffordances } from '../../../ui/show/action-affordance';
+import { GroupBoardPanel } from '../../show/GroupBoardPanel';
+import { affordanceShelfTools } from '../../show/board-action-affordances';
+import type { ProducerSubmitDescriptor } from '../../do-work/submit-producer-request';
+import { VISION_BOARD_BYTES_NAMESPACE } from '../do-work/vision-board-bytes-namespace.ts.held';
+import { ActivityIndicator } from '../../../see-what-my-ais-did/packages/activity-feed/show/ActivityIndicator';
 
 type MountArgs = { el: HTMLElement; props?: Record<string, unknown> };
 

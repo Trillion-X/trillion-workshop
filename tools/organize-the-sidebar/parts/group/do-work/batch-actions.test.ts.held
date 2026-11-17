@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { emptyGraph, groupKey } from '@/packages/ui/show/group/group-graph';
-import type { AddressRef } from '@/packages/ui/show/group/group-graph';
-import { placeItem, readItems, patchItem, patchItems } from '@/packages/group/read-data/group-board-model';
+import { emptyGraph, groupKey } from '../../../../ui/show/group/group-graph';
+import type { AddressRef } from '../../../../ui/show/group/group-graph';
+import { placeItem, readItems, patchItem, patchItems } from '../../../read-data/group-board-model';
 import {
   membersOfRefs,
   unlockedOf,
@@ -72,15 +72,15 @@ import {
   maxOf,
 } from './batch-actions';
 import type { BoardBatchContext } from './batch-actions';
-import { itemTags } from '@/packages/group/show/item-tags';
-import { seededFillStack, itemFillColor } from '@/packages/group/show/item-fill';
-import { arrangeColumns } from '@/packages/group/show/arrange-by-field';
-import { importanceRanks, importanceValue } from '@/packages/group/read-data/board-importance';
-import { BOARD_PALETTES, cycleAssign, nearestHueAssign } from '@/packages/group/show/board-palettes';
-import { BOARD_HARMONY_SCHEMES, harmonize } from '@/packages/group/show/color-harmony';
-import { MARKER_FACET_LABELS } from '@/packages/group/show/board-marker-catalog';
-import { SHAPE_FACET_LABELS } from '@/packages/group/show/board-shapes';
-import type { BatchActionCapability, NodeRef } from '@/packages/ui';
+import { itemTags } from '../../../show/item-tags';
+import { seededFillStack, itemFillColor } from '../../../show/item-fill';
+import { arrangeColumns } from '../../../show/arrange-by-field';
+import { importanceRanks, importanceValue } from '../../../read-data/board-importance';
+import { BOARD_PALETTES, cycleAssign, nearestHueAssign } from '../../../show/board-palettes';
+import { BOARD_HARMONY_SCHEMES, harmonize } from '../../../show/color-harmony';
+import { MARKER_FACET_LABELS } from '../../../show/board-marker-catalog';
+import { SHAPE_FACET_LABELS } from '../../../show/board-shapes';
+import type { BatchActionCapability, NodeRef } from '../../../../ui';
 import type { VisualLayerStackRecord } from '@/packages/ui/show/visual-layer-stack/visual-layer-types';
 
 const PARENT: AddressRef = { family: 'test.board', parts: { board: 'b1' } };

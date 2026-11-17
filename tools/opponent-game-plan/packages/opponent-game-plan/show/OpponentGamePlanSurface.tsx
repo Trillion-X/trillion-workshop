@@ -1,32 +1,32 @@
 import * as React from 'react';
 import { ClipboardList, Search } from 'lucide-react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { Badge } from '@/packages/ui/show/badge';
-import { Button } from '@/packages/ui/show/button';
-import { Card } from '@/packages/ui/show/card';
-import { Container } from '@/packages/ui/show/container';
-import { Input, Textarea } from '@/packages/ui/show/input';
-import { Text } from '@/packages/ui/show/text';
-import { WorkSkeletonRows, WorkStartState } from '@/packages/ui/show/work-start-state';
+import { Badge } from '../../../../ui/show/badge';
+import { Button } from '../../../../ui/show/button';
+import { Card } from '../../../../ui/show/card';
+import { Container } from '../../../../ui/show/container';
+import { Input, Textarea } from '../../../../ui/show/input';
+import { Text } from '../../../../ui/show/text';
+import { WorkSkeletonRows, WorkStartState } from '../../../../ui/show/work-start-state';
 import {
   addPlayerReport,
   buildAddPlayerReportInput,
-} from '@/packages/opponent-game-plan/do-work/add-player-report';
+} from '../../../do-work/add-player-report';
 import {
   buildRecordTacticResultInput,
   recordTacticResult,
-} from '@/packages/opponent-game-plan/do-work/record-tactic-result';
+} from '../../../do-work/record-tactic-result';
 import {
   buildRequestMatchPlanInput,
   requestMatchPlan,
-} from '@/packages/opponent-game-plan/do-work/request-match-plan';
+} from '../../../do-work/request-match-plan';
 import {
   profileForPlayer,
   latestPlanForMatch,
   opponentSearchRows,
   readOpponentGamePlanState,
-} from '@/packages/opponent-game-plan/read-data/read-opponent-game-plan';
-import type { MatchPlanTactic, TacticResultOutcome } from '@/packages/opponent-game-plan/read-data/opponent-game-plan-types';
+} from '../../../read-data/read-opponent-game-plan';
+import type { MatchPlanTactic, TacticResultOutcome } from '../../../read-data/opponent-game-plan-types';
 
 type OpponentGamePlanSurfaceProps = {
   userId?: string;

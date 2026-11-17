@@ -1,8 +1,7 @@
-// parts/visual-database/show/offer-views-to-every-list.tsx
 //
 // PURPOSE
 //   Offer visual-database's views to every Trillion list: each row of source-data/views-offered-to-every-list.json
-//   becomes one view in every list's view switch (parts/ui/show/record-views/every-list-views.ts), offered to a list
+//   becomes one view in every list's view switch (tools/ui/show/record-views/every-list-views.ts), offered to a list
 //   whose fields can draw it. Imported once when the page starts.
 //
 // NON-NEGOTIABLE INVARIANTS

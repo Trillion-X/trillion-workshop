@@ -45,7 +45,7 @@
     {"name": "runtime.json", "kind": "file", "job": "How the engine finds its state, its port and its receipt.", "writer": "app", "source": "trillion-apps macos/computer-reader.json:462", "moved_from": "~/Library/Application Support/Trillion/local-runtime.json"},
     {"name": "app", "kind": "folder", "job": "The app's own records of what it checked on this computer.", "writer": "app", "source": "trillion-apps macos/computer-reader.json:380", "moved_from": "~/Library/Application Support/Trillion"},
     {"name": "contacts", "kind": "folder", "job": "The Contacts sync and its state.", "writer": "app", "source": "trillion computer/sync-contacts.js:1 and its launchd job", "moved_from": "~/Library/Application Support/Trillion"},
-    {"name": "camera-receiver", "kind": "folder", "job": "Files and streams received from cameras, and the receiver's switch.", "writer": "app", "source": "trillion parts/receive-files-over-ftp/receive-settings.json:37 and parts/receive-a-camera-stream/stream-settings.json:61", "moved_from": "~/Library/Application Support/Trillion"},
+    {"name": "camera-receiver", "kind": "folder", "job": "Files and streams received from cameras, and the receiver's switch.", "writer": "app", "source": "trillion tools/receive-files-over-ftp/receive-settings.json:37 and parts/receive-a-camera-stream/stream-settings.json:61", "moved_from": "~/Library/Application Support/Trillion"},
     {"name": "namespace", "kind": "folder", "job": "Where the account files folder is shown on this computer.", "writer": "app", "source": "trillion macos/App/NamespaceMountLifecycle.swift:369", "moved_from": "~/Library/Application Support/Trillion"}
   ],
   "moves": [
@@ -55,8 +55,8 @@
     {"from": "carried-code-checked.json", "to": "app/carried-code-checked.json", "reader_change": "trillion-apps macos/computer-reader.json:380"},
     {"from": "resources", "to": "accounts", "reader_change": "owner to confirm: no reader literal found; do not move before the reader is found"},
     {"from": "sync-contacts.*, sync-contacts-*.json, sync-contacts.log", "to": "contacts", "reader_change": "trillion computer/sync-contacts.js:1 and the launchd job ai.gettrillion.sync-contacts"},
-    {"from": "Camera receiver told the account.json, Turn on the camera receiver, Received from a camera stream", "to": "camera-receiver", "reader_change": "trillion parts/receive-files-over-ftp/receive-settings.json:82,93; parts/receive-a-camera-stream/stream-settings.json:61"},
-    {"from": "Received over FTP", "to": "camera-receiver/ftp", "reader_change": "trillion parts/receive-files-over-ftp/receive-settings.json:37,52"},
+    {"from": "Camera receiver told the account.json, Turn on the camera receiver, Received from a camera stream", "to": "camera-receiver", "reader_change": "trillion tools/receive-files-over-ftp/receive-settings.json:82,93; parts/receive-a-camera-stream/stream-settings.json:61"},
+    {"from": "Received over FTP", "to": "camera-receiver/ftp", "reader_change": "trillion tools/receive-files-over-ftp/receive-settings.json:37,52"},
     {"from": "Camera streams", "to": "camera-receiver/streams", "reader_change": "trillion parts/receive-a-camera-stream/stream-settings.json:199; macos/computer-reader.json:2"},
     {"from": "Camera receiver proof ftp2 told the account.json, Received over FTP proof ftp1, Received over FTP proof ftp2", "to": "delete", "reader_change": "none: proof leftovers"},
     {"from": "Namespace source", "to": "namespace", "reader_change": "trillion macos/App/NamespaceMountLifecycle.swift:369"},

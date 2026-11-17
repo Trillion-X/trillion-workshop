@@ -1,10 +1,9 @@
-// parts/group/read-data/kept-library.ts
 //
 // PURPOSE
 //   A kept library: things a person keeps (tours, layouts, anything) filed in named categories and found again by
 //   Recent, kept as group records. One index group lists the categories in order; each category is a group whose
 //   members are the kept things. Which families and ids a library uses is one DATA row (KeptLibrary) its owner keeps
-//   beside its own DATA (parts/guided-overlay/tour-library.json, parts/screen-arrangement/layout-library.json), so a
+//   beside its own DATA (tools/guided-overlay/tour-library.json, tools/screen-arrangement/layout-library.json), so a
 //   new kind of kept thing gets categories and Recent by adding a row, with no code here.
 //
 // NON-NEGOTIABLE INVARIANTS

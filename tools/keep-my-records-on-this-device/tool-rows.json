@@ -200,12 +200,12 @@
               {
                 "package": "keep-and-wake-ai-sessions-on-this-computer",
                 "paths": [
-                  "parts/live-namespace/do-work/blake3.mjs",
-                  "parts/record-log/do-work/erasable.mjs",
-                  "parts/record-log/do-work/json-members.mjs",
-                  "parts/record-log/do-work/kept-runs.mjs",
-                  "parts/record-log/do-work/record-log-store.mjs",
-                  "parts/record-log/do-work/record-tables.mjs"
+                  "tools/live-namespace/do-work/blake3.mjs",
+                  "tools/record-log/do-work/erasable.mjs",
+                  "tools/record-log/do-work/json-members.mjs",
+                  "tools/record-log/do-work/kept-runs.mjs",
+                  "tools/record-log/do-work/record-log-store.mjs",
+                  "tools/record-log/do-work/record-tables.mjs"
                 ],
                 "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
               },
@@ -237,7 +237,7 @@
         },
         "result_selector": "$.result",
         "provenance": {
-          "source": "Trillion-X/trillion parts/device-copy/do-work/account-copy.mjs and frame-compression.mjs (frame-compression.mjs brought in byte for byte from 4ffa1dc4a2^, see moved-from.json; the folder moved in a9ee258 (#76)); old capability row capabilities.json:134 at 4ffa1dc4a2^ (keep a working copy of my records on this device ... settles with the account later)"
+          "source": "Trillion-X/trillion tools/device-copy/do-work/account-copy.mjs and frame-compression.mjs (frame-compression.mjs brought in byte for byte from 4ffa1dc4a2^, see moved-from.json; the folder moved in a9ee258 (#76)); old capability row capabilities.json:134 at 4ffa1dc4a2^ (keep a working copy of my records on this device ... settles with the account later)"
         },
         "verify": [
           {

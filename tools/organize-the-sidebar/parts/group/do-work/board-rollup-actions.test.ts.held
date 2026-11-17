@@ -2,10 +2,10 @@
 // metrics and rolls a vision up from its sub-goals, direction chosen by the DATA spec. Branch-normalized,
 // coverage-honest, spec fail-closed.
 import { describe, expect, it } from 'vitest';
-import { emptyGraph } from '@/packages/ui/show/group/group-graph';
-import type { AddressRef } from '@/packages/ui/show/group/group-graph';
-import { placeItem, readItems } from '@/packages/group/read-data/group-board-model';
-import { setItemMetric } from '@/packages/group/do-work/board-metric-actions';
+import { emptyGraph } from '../../../../ui/show/group/group-graph';
+import type { AddressRef } from '../../../../ui/show/group/group-graph';
+import { placeItem, readItems } from '../../../read-data/group-board-model';
+import { setItemMetric } from '../../../do-work/board-metric-actions';
 import {
   itemIsRollupParent,
   rollupChildren,

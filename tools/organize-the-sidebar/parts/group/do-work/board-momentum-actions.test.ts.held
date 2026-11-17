@@ -2,16 +2,16 @@
 // other primitives' leaves, an idle card scores 0, connectors + furniture are excluded, momentumRows
 // rank by score with reason labels — all through the SAME blind engine the attention lens uses.
 import { describe, expect, it } from 'vitest';
-import { emptyGraph } from '@/packages/ui/show/group/group-graph';
-import type { AddressRef } from '@/packages/ui/show/group/group-graph';
-import { placeItem, readItems } from '@/packages/group/read-data/group-board-model';
-import { AXIS_TICK_PREFIX } from '@/packages/group/do-work/batch-actions';
-import { setItemMetric } from '@/packages/group/do-work/board-metric-actions';
-import { addStepToItem, toggleStepOnItem } from '@/packages/group/do-work/board-checklist-actions';
-import { logMinutes } from '@/packages/group/do-work/board-time-log-actions';
-import { toggleHabitToday } from '@/packages/group/do-work/board-habit-actions';
-import { periodStartOf, prevPeriodStart } from '@/packages/group/read-data/board-habit-cadence';
-import { attentionRows } from '@/packages/group/do-work/board-attention-actions';
+import { emptyGraph } from '../../../../ui/show/group/group-graph';
+import type { AddressRef } from '../../../../ui/show/group/group-graph';
+import { placeItem, readItems } from '../../../read-data/group-board-model';
+import { AXIS_TICK_PREFIX } from '../../../do-work/batch-actions';
+import { setItemMetric } from '../../../do-work/board-metric-actions';
+import { addStepToItem, toggleStepOnItem } from '../../../do-work/board-checklist-actions';
+import { logMinutes } from '../../../do-work/board-time-log-actions';
+import { toggleHabitToday } from '../../../do-work/board-habit-actions';
+import { periodStartOf, prevPeriodStart } from '../../../read-data/board-habit-cadence';
+import { attentionRows } from '../../../do-work/board-attention-actions';
 import { itemIsMomentumTarget, momentumOf, momentumRows } from './board-momentum-actions';
 
 const DAY = 86_400_000;

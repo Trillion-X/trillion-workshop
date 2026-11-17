@@ -2,7 +2,7 @@
 import { describe, it, expect } from 'vitest';
 import { looksLikeICalendar, parseICalendar, icalendarToDrafts } from './board-icalendar-import';
 import { boardToICalendar } from './board-icalendar';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
+import type { BoardItem } from '../../../read-data/group-board-model';
 
 const card = (id: string, text: string, dueDate?: number): BoardItem =>
   ({ memberId: id, nodeRef: { id }, kind: 'note', x: 0, y: 0, w: 1, h: 1, isSection: false, childCount: 0, text, extra: dueDate ? { dueDate } : {} } as unknown as BoardItem);

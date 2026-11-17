@@ -1,4 +1,4 @@
-import type { LayoutState, SplitTreeNode } from '@/packages/screen-arrangement/read-data/layout-types';
+import type { LayoutState, SplitTreeNode } from '../../arrange-screens-in-panes/read-data/layout-types';
 
 export type DescriptorLabel = {
   key: string;

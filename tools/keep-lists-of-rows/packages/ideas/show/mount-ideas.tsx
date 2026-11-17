@@ -2,9 +2,9 @@
 
 import React from 'react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
-import { decodeIdeasWorkGraph } from '@/packages/ideas/read-data/read-ideas';
-import { VisualDatabaseSurface } from '@/packages/visual-database/show/VisualDatabaseSurface';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
+import { decodeIdeasWorkGraph } from '../../../../show-ideas-as-records/read-data/read-ideas';
+import { VisualDatabaseSurface } from '../../../show/VisualDatabaseSurface';
 
 type MountArgs = {
   el: HTMLElement;

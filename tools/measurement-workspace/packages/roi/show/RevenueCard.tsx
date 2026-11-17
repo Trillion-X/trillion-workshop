@@ -13,14 +13,14 @@
 //
 // 1. Revenue displayed prominently in large font
 // 2. Shows total and this-month trend comparison
-// 3. All styling through @/packages/ui (L065/L066 compliant)
+// 3. All styling through tools/ui (L065/L066 compliant)
 // 4. No inline styles or raw HTML elements
 //
 // =============================================================================
 
 import * as React from 'react';
 import { DollarSign } from 'lucide-react';
-import { Card, Container, Text } from '@/packages/ui';
+import { Card, Container, Text } from '../../../../ui';
 
 // ---------------------------------------------------------------------------
 // TYPES

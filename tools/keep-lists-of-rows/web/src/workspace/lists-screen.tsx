@@ -16,38 +16,38 @@
 //      carried `derive` is a column the formula engine works out from the row's values, a carried `action` is a button
 //      on every row running the Workshop tool it names with that row's values. Neither is ever edited in a cell.
 //   5. A link field that links a list to itself holds the rows under each row, in order: the list's nesting, handed to
-//      the views as one group graph (parts/ui/show/group). Every change a view makes (a row added under another, a
+//      the views as one group graph (tools/ui/show/group). Every change a view makes (a row added under another, a
 //      title or status set, a row moved to any depth) is one write of the rows, and the list is read back after.
 //   6. A list draws its first page of rows as soon as that page is read (list-records.ts invariant 5) and reads each
 //      next page when the shared views ask for it (onReadMore); a reload reads again as many rows as are drawn.
 
 import React from 'react';
-import { mediaPreviewContent } from '../../parts/ui/show/media-preview';
-import { chooseFileViewer } from '../../parts/ui/show/file-preview/choose-file-viewer';
+import { mediaPreviewContent } from '../../../../ui/show/media-preview';
+import { chooseFileViewer } from '../../../../ui/show/file-preview/choose-file-viewer';
 import { previewStore } from './made-previews';
 import { bytesAddress, baseName, contentTypeOf, familyOf, previewFor } from './file-picture';
 import { openFile } from './open-screen';
-import { ScreenState } from '../../parts/ui/show/screen-state';
-import { mountRecordViews, type FieldDescriptor, type RecordChange, type RecordNesting } from '../../parts/ui/show/record-views/record-views';
-import { loadingLayoutFor } from '../../parts/ui/show/record-views/loading-layout';
+import { ScreenState } from '../../../../ui/show/screen-state';
+import { mountRecordViews, type FieldDescriptor, type RecordChange, type RecordNesting } from '../../../../ui/show/record-views/record-views';
+import { loadingLayoutFor } from '../../../../ui/show/record-views/loading-layout';
 import { addMember, emptyGraph, ensureGroup, type GroupGraph } from '../../../../turn-frames-into-slides/read-data/group-graph.ts';
-import { deriveValues, fieldsFromRows, type RecordSetField } from '../../parts/ui/show/record-views/record-set';
+import { deriveValues, fieldsFromRows, type RecordSetField } from '../../../../ui/show/record-views/record-set';
 import { recordActionsFromRows, runRecordAction } from '../../../do-work/run-record-action.ts';
-import { loadScreen, mountScreenState } from '../../parts/ui/show/screen-state';
-import { notify } from '../../parts/ui/show/coss/notifications';
+import { loadScreen, mountScreenState } from '../../../../ui/show/screen-state';
+import { notify } from '../../../../ui/show/coss/notifications';
 import { readFileLookup } from './api';
 import {recordConfigurationSource} from './record-configurations';
 import {makeConfigurationController} from '../../../read-data/configuration-controller.mjs';
-import type {SavedRecordView} from '../../parts/ui/show/record-views/record-views';
+import type {SavedRecordView} from '../../../../ui/show/record-views/record-views';
 import { refusal } from './failure';
 import { recordFilter } from './record-filter';
-import type { RuleGroup } from '../../parts/ui/show/rule-filter/rule-tree';
+import type { RuleGroup } from '../../../../ui/show/rule-filter/rule-tree';
 import { goTo, openScreenOn, openAddress } from './open-screen';
 import { recordSource } from './record-source';
 import type { RecordFrom, RecordNew } from '../../../../ui/show/record-picker/record-value.ts';
 import { addSelectedToTrayAction } from './tray';
 import { onRecordsChange, onStoreChange, whileWriting, type ReadDepends } from './store-changes';
-import { followHighlights, wordsToFind } from '../../parts/ui/show/text-highlights';
+import { followHighlights, wordsToFind } from '../../../../ui/show/text-highlights';
 import { clipboardWords, copyRows, pastePlan, readPastedRows, type PastePlan, type PastedRows } from './row-clipboard';
 
 import { errorWords } from '../../../../ui/show/safe-error-card/sanitize-error-text.ts';

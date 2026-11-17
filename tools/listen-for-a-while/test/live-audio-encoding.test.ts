@@ -1,4 +1,4 @@
-// Moved from Trillion-X/trillion parts/record-audio/show/live-audio-encoding.test.ts with its assertions unchanged; vitest is the shared shim.
+// Moved from Trillion-X/trillion tools/record-audio/show/live-audio-encoding.test.ts with its assertions unchanged; vitest is the shared shim.
 import { describe, expect, it } from '../../../test-helpers/vitest-shim.mjs';
 import { chooseEncoding, createChunker, createChunkSender, loadChunkWorklet, pcm16Of, workletSource } from '../show/live-audio-encoding.ts';
 

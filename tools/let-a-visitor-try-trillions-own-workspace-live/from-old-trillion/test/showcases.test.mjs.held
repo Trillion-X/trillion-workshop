@@ -364,7 +364,7 @@ test('every step of the workspace tour points at a real screen and a selector th
   const records = JSON.parse(readFileSync(new URL('../../../keep-and-wake-ai-sessions-on-this-computer/records/workshop-screen-tool-records.json', import.meta.url), 'utf8')).records;
   const surfaces = new Set(records.map(record => record.payload?.screen?.surface?.id).filter(Boolean));
   const read = file => readFileSync(new URL(`../${file}`, import.meta.url), 'utf8');
-  const sources = { composer: read('parts/ui/show/composer/Composer.tsx'), mediaEdit: read('src/workspace/media-edit-screen.tsx'), captions: read('src/workspace/media-edit/captions-panel.tsx') };
+  const sources = { composer: read('tools/ui/show/composer/Composer.tsx'), mediaEdit: read('src/workspace/media-edit-screen.tsx'), captions: read('src/workspace/media-edit/captions-panel.tsx') };
   const held = Object.fromEntries(['call_file', 'space', 'account'].map(name => [name, `${name}-value`]));
   for (const row of workspaceShowcases()) {
     assert.ok(row.tour.steps.length >= 9 && row.tour.steps.length <= 12, `${row.id}: a tour of nine to twelve steps`);

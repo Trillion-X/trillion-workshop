@@ -52,7 +52,7 @@ Composed as a 3-pane desktop / stacked + full-screen-push mobile layout by
 
 ## Dependencies
 
-**Depends on:** `@/packages/ui` (the shared UI barrel — only import surface for atoms: `Container`, `Text`, `Badge`, `PersonTag`, `SafeErrorCard`, `SeverityRow`, `SegmentedControl`, `Table`, `statusView`, …), `../read-data` (`CoordinationSurfaceModel`, descriptor types, `groupRecords`, `inboxEntries`), `@bitfield/runtime-kit/react` (live data binding), `react`.
+**Depends on:** `tools/ui` (the shared UI barrel — only import surface for atoms: `Container`, `Text`, `Badge`, `PersonTag`, `SafeErrorCard`, `SeverityRow`, `SegmentedControl`, `Table`, `statusView`, …), `../read-data` (`CoordinationSurfaceModel`, descriptor types, `groupRecords`, `inboxEntries`), `@bitfield/runtime-kit/react` (live data binding), `react`.
 
 **Depended on by:** the package entry (`../.bitfield-entry-scope`) and the live studio package set; `../show-ios-jscore` mirrors this surface for JSCore.
 

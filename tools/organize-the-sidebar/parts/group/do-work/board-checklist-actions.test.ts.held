@@ -1,11 +1,11 @@
 // Proof for the checklist GRAPH bridge: checklists co-locate on the item as extra.checklist, mutations
 // go through patchItem preserving other extra, connectors + furniture are never targets, rollup sums.
 import { describe, expect, it } from 'vitest';
-import { emptyGraph } from '@/packages/ui/show/group/group-graph';
-import type { AddressRef } from '@/packages/ui/show/group/group-graph';
-import { placeItem, readItems } from '@/packages/group/read-data/group-board-model';
-import { AXIS_TICK_PREFIX } from '@/packages/group/do-work/batch-actions';
-import { checklistProgress } from '@/packages/group/read-data/board-checklist';
+import { emptyGraph } from '../../../../ui/show/group/group-graph';
+import type { AddressRef } from '../../../../ui/show/group/group-graph';
+import { placeItem, readItems } from '../../../read-data/group-board-model';
+import { AXIS_TICK_PREFIX } from '../../../do-work/batch-actions';
+import { checklistProgress } from '../../../read-data/board-checklist';
 import {
   addStepToItem,
   boardChecklists,

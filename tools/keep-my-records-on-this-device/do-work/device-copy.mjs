@@ -1,8 +1,8 @@
-// parts/device-copy/do-work/device-copy.mjs
+// tools/device-copy/do-work/device-copy.mjs
 //
 // PURPOSE
 //   One copy of a person's records kept on one of their devices, over whatever SQL host that device has (a browser's
-//   SQLite compiled to WebAssembly, the Mac's node:sqlite): the record store (parts/record-log) plus the copy's own id
+//   SQLite compiled to WebAssembly, the Mac's node:sqlite): the record store (tools/record-log) plus the copy's own id
 //   and positions, settled with the copy it follows through `send(request) -> answer` (record-sync.mjs settleWith).
 //   The browser's worker opens its copy here, so there is one way a device keeps records.
 //
@@ -30,7 +30,7 @@ function stateTable(sql) {
 
 /**
  * host: { sql, transaction, kept? } over the device's database. send: (request) -> answer, to the copy it follows.
- * erasable: { type: [field] }, the fields the copy keeps sealed (parts/record-log erasable.mjs), as the store's DATA.
+ * erasable: { type: [field] }, the fields the copy keeps sealed (tools/record-log erasable.mjs), as the store's DATA.
  * Answers { store, describe(), settle() }; settle answers settleWith's report plus `ms`.
  */
 export function deviceCopy(host, { send, indexes = [], erasable = {}, prefix = 'device', now = () => new Date(), max_upload_rows = 200, max_upload_chars = 4_000_000 }) {

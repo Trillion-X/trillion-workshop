@@ -24,7 +24,7 @@
 // order submit path is gated on user L2 credentials (Scope-5 backend, separate).
 //
 // L117: NO fake data. Honest empty/loading/error states only.
-// L065: All styling via @/packages/ui barrel — zero raw HTML/className.
+// L065: All styling via tools/ui barrel — zero raw HTML/className.
 // =============================================================================
 
 import React, { useState } from 'react';
@@ -43,7 +43,7 @@ import {
   TableHeader,
   TableRow,
   Text,
-} from '@/packages/ui';
+} from '../../../../ui';
 import { AlertCircle, ArrowLeft, BarChart2, BookOpen, RefreshCw, TrendingUp } from 'lucide-react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
 import {
@@ -52,8 +52,8 @@ import {
   type VisualDatabaseFieldDescriptor,
   type VisualDatabaseModel,
   type VisualDatabaseRecord,
-} from '@/packages/visual-database/read-data/visual-database';
-import { FieldControl, displayTitle, toneVariant } from '@/packages/visual-database/show/field-editors';
+} from '../../../../keep-lists-of-rows/read-data/visual-database';
+import { FieldControl, displayTitle, toneVariant } from '../../../../keep-lists-of-rows/show/field-editors';
 import {
   polymarketMarketsInput,
   polymarketBookInput,

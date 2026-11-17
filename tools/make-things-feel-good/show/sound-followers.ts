@@ -1,10 +1,10 @@
-// parts/ambience/show/sound-followers.ts
+// tools/ambience/show/sound-followers.ts
 //
-// NO PRIOR: searched bitfield-packages show for light sync, hue entertainment, now playing, and parts/ui sound-targets
+// NO PRIOR: searched bitfield-packages show for light sync, hue entertainment, now playing, and tools/ui sound-targets
 //   (the shared follower list it fills)
 //
 // PURPOSE
-//   The person's own lights as things that follow the sound (parts/ui/show/sound-signal/sound-targets.ts), and what is
+//   The person's own lights as things that follow the sound (tools/ui/show/sound-signal/sound-targets.ts), and what is
 //   playing on their music service, both read from read-data/sound-followers.json: each service is a row naming the
 //   quiet Workshop rows to ask (POST /work/api/workshop/send-quietly/<tool>), sent through the person's own connection
 //   and kept nowhere. `followLights()` is handed to the shared follower list once by the page.

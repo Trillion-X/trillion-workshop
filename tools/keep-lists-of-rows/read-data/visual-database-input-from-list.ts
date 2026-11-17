@@ -1,4 +1,3 @@
-// parts/visual-database/read-data/visual-database-input-from-list.ts
 //
 // PURPOSE
 //   Any Trillion list (the shared record views' fields and the records they read) as the visual-database model's
@@ -13,7 +12,7 @@
 //      the field is not marked uneditable (nor a date, which these views draw as an instant), and every edit reaches
 //      the list through do-work/list-record-writer.ts.
 //   3. One role assignment (`listFieldRoles`) decides both which views a list is offered and how each draws it.
-//   4. Nesting has one model: a list that nests its records hands its group graph (parts/ui/show/group/group-graph:
+//   4. Nesting has one model: a list that nests its records hands its group graph (tools/ui/show/group/group-graph:
 //      groups with ordered members), and a record sits under each record whose group holds it, in that group's
 //      memberOrder; records are handed over in that order (depth first), which is the order the views draw siblings
 //      in. Any link field (a field the list says holds the ids of other records) is a line of the graph as well, in
@@ -25,7 +24,7 @@ import type { DecodeVisualDatabaseInput } from './visual-database';
 import { nestedByIdentity, type GroupGraph } from '../../turn-frames-into-slides/read-data/group-graph.ts';
 import type { AddressRef } from '../../turn-frames-into-slides/read-data/visual-layer-types.ts';
 
-/** The shape of a list's field this reads (parts/ui/show/record-views FieldDescriptor). */
+/** The shape of a list's field this reads (tools/ui/show/record-views FieldDescriptor). */
 export interface ListField {
   id: string;
   label: string;
@@ -55,7 +54,7 @@ export interface ListField {
   linksTo?: string;
 }
 
-/** One change the list keeps (parts/ui/show/record-views RecordChange): values set on a record (a new one when
+/** One change the list keeps (tools/ui/show/record-views RecordChange): values set on a record (a new one when
  * `create`), `members` the records nested under it, in order, or the record taken away (`remove`). */
 export interface ListRecordChange {
   id: string;
@@ -79,10 +78,10 @@ export interface ListContext {
   /** Reads the list again from where it is kept (its records and nesting), so a change is checked against the list
    * itself and not against what the page last drew. */
   reread?: () => Promise<Pick<ListContext, 'records' | 'nesting'>>;
-  /** The list's zoom step (parts/ui/show/record-views detail-levels.json): how many facts each record shows beside its
+  /** The list's zoom step (tools/ui/show/record-views detail-levels.json): how many facts each record shows beside its
    * name, 0 the name alone and null every one. */
   detail?: { fields: number | null };
-  /** The list's own Group by, outermost first (parts/ui/show/record-views GroupLevel): a list view sits its records
+  /** The list's own Group by, outermost first (tools/ui/show/record-views GroupLevel): a list view sits its records
    * under these fields' values. */
   groupLevels?: readonly { field: string }[];
   /** The link fields the graph draws, by field id: the view's own setting. Every link field when it names none. */

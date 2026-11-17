@@ -1,11 +1,11 @@
 // Proof for the comment GRAPH bridge: comments co-locate on the anchored item as extra.commentThread,
 // add/resolve go through patchItem preserving other extra, connectors + furniture are never anchors.
 import { describe, expect, it } from 'vitest';
-import { emptyGraph } from '@/packages/ui/show/group/group-graph';
-import type { AddressRef } from '@/packages/ui/show/group/group-graph';
-import { placeItem, readItems, patchItem } from '@/packages/group/read-data/group-board-model';
-import { AXIS_TICK_PREFIX } from '@/packages/group/do-work/batch-actions';
-import type { CommentEntry } from '@/packages/group/read-data/board-comments';
+import { emptyGraph } from '../../../../ui/show/group/group-graph';
+import type { AddressRef } from '../../../../ui/show/group/group-graph';
+import { placeItem, readItems, patchItem } from '../../../read-data/group-board-model';
+import { AXIS_TICK_PREFIX } from '../../../do-work/batch-actions';
+import type { CommentEntry } from '../../../read-data/board-comments';
 import {
   addCommentToItem,
   boardCommentThreads,

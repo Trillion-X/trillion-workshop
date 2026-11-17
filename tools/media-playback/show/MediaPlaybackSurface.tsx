@@ -15,7 +15,7 @@ import { MediaFrame } from './MediaFrame';
 import { controlShown } from '../../ui/show/show-rules/show-of';
 
 // The browser's own picture in picture for a playing video or an embedded player is the same control a pane floating
-// over the screen is (parts/screen-arrangement/controls.json): a show rule hiding it turns both off.
+// over the screen is (tools/screen-arrangement/controls.json): a show rule hiding it turns both off.
 const PICTURE_IN_PICTURE_CONTROL = 'open.picture-in-picture';
 const EMBED_ALLOWS = ['accelerometer', 'autoplay', 'clipboard-write', 'encrypted-media', 'fullscreen', 'gyroscope', 'picture-in-picture', 'web-share'];
 const embedAllows = () => EMBED_ALLOWS.filter(allow => allow !== 'picture-in-picture' || controlShown(PICTURE_IN_PICTURE_CONTROL)).join('; ');

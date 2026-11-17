@@ -24,18 +24,18 @@
 
 import React, { useCallback } from 'react'
 import { useBitfieldData } from '@bitfield/runtime-kit/react'
-import { ProjectsPanel } from '@/packages/projects/show/ProjectsPanel'
+import { ProjectsPanel } from '../see-what-is-being-worked-on/packages/projects/show/ProjectsPanel'
 import {
   decodeProjectsFeed,
-} from '@/packages/projects/read-data/read-known-projects'
+} from './read-data/read-known-projects'
 import {
   decodeCurrentProjectFeed,
-} from '@/packages/projects/read-data/read-current-project'
-import { addKnownProject } from '@/packages/projects/do-work/add-known-project'
-import { hideKnownProject } from '@/packages/projects/do-work/hide-known-project'
-import { pinKnownProject } from '@/packages/projects/do-work/pin-known-project'
-import { refreshKnownProjects } from '@/packages/projects/do-work/refresh-known-projects'
-import { selectCurrentProject } from '@/packages/projects/do-work/select-current-project'
+} from './read-data/read-current-project'
+import { addKnownProject } from './do-work/add-known-project'
+import { hideKnownProject } from './do-work/hide-known-project'
+import { pinKnownProject } from './do-work/pin-known-project'
+import { refreshKnownProjects } from './do-work/refresh-known-projects'
+import { selectCurrentProject } from './do-work/select-current-project'
 
 export default function Projects() {
   const projectsEntry = useBitfieldData('projects')

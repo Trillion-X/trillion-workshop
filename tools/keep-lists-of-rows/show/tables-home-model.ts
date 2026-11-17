@@ -11,7 +11,7 @@
 import {
   readPlaceableSurfaces,
   type PlaceableSurfaceRecord,
-} from '@/packages/ui';
+} from '../../ui';
 
 export interface TableCatalogEntry {
   surface: PlaceableSurfaceRecord;

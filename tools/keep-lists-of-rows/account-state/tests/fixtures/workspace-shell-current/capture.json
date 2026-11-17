@@ -15,11 +15,11 @@
       "bytes": 3060,
       "blake3": "7a145d491c69b42bdb7a5f0b0b4fbcf57f63a6ddadc68069d1777ad6b983acd6"
     },
-    "parts/ui/show/server-rendered-page/page-sections-html.mjs": {
+    "tools/ui/show/server-rendered-page/page-sections-html.mjs": {
       "bytes": 97237,
       "blake3": "ecdd89f9a4a766b90b79615a2e0a65bfc1ff767fcb5bc7f911472444d3c7b75e"
     },
-    "parts/ui/show/thread-cover/thread-cover.mjs": {
+    "tools/ui/show/thread-cover/thread-cover.mjs": {
       "bytes": 21580,
       "blake3": "d7fdcece2e1a8aafc12ff8c734a9e89658edfbf77b0017d21929ddf048cd6547"
     },
@@ -49,11 +49,11 @@
       "bytes": 3060,
       "blake3": "7a145d491c69b42bdb7a5f0b0b4fbcf57f63a6ddadc68069d1777ad6b983acd6"
     },
-    "parts/ui/show/server-rendered-page/page-sections-html.mjs": {
+    "tools/ui/show/server-rendered-page/page-sections-html.mjs": {
       "bytes": 97237,
       "blake3": "ecdd89f9a4a766b90b79615a2e0a65bfc1ff767fcb5bc7f911472444d3c7b75e"
     },
-    "parts/ui/show/thread-cover/thread-cover.mjs": {
+    "tools/ui/show/thread-cover/thread-cover.mjs": {
       "bytes": 21580,
       "blake3": "d7fdcece2e1a8aafc12ff8c734a9e89658edfbf77b0017d21929ddf048cd6547"
     },

@@ -15,17 +15,17 @@
 // field, no kind, no domain.
 
 import React from 'react';
-import { ErrorBoundary, FloatingMaterialFrame, ToastProvider, Container, Text, mountReactSurface, useToastContext } from '@/packages/ui';
+import { ErrorBoundary, FloatingMaterialFrame, ToastProvider, Container, Text, mountReactSurface, useToastContext } from '../../ui';
 import { bitfieldGeneratedPackageEntryScopeBinding, useBitfieldData,
   bitfieldGeneratedLiveReadScopeDescriptor,
 } from '@/packages/visual-database/.bitfield-entry-scope/visual-database/runtime-kit-react';
-import { invokeVisualDatabaseAction } from '@/packages/visual-database/do-work/visual-database-actions';
-import { registerMutationNotifier } from '@/packages/visual-database/show/field-editors';
-import { createRecordWriter } from '@/packages/visual-database/do-work/record-writes';
-import { decodeVisualDatabaseModel } from '@/packages/visual-database/read-data/visual-database';
-import { selectVisualDatabaseInput } from '@/packages/visual-database/show/select-visual-database-input';
-import { RecordFormSurface } from '@/packages/visual-database/show/RecordFormSurface';
-import { isEditTargetMissing, selectFormRecord, readFormSubmitLabel } from '@/packages/visual-database/show/select-form-record';
+import { invokeVisualDatabaseAction } from '../do-work/visual-database-actions';
+import { registerMutationNotifier } from './field-editors';
+import { createRecordWriter } from '../do-work/record-writes';
+import { decodeVisualDatabaseModel } from '../read-data/visual-database';
+import { selectVisualDatabaseInput } from './select-visual-database-input';
+import { RecordFormSurface } from './RecordFormSurface';
+import { isEditTargetMissing, selectFormRecord, readFormSubmitLabel } from './select-form-record';
 
 const recordWriter = createRecordWriter(bitfieldGeneratedLiveReadScopeDescriptor.partitionLabel);
 

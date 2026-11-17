@@ -1,4 +1,4 @@
-# parts/sealed-records
+# tools/sealed-records
 
 Records only the person's own devices can open: a device seals a record with a key only its devices hold, and the person's store keeps and syncs the ciphertext without being able to read it (zero-knowledge sync). It also seals names deterministically (so a store can match and compare-and-set names it cannot read), shares a sealed record by a link whose key rides only in the URL fragment, and seals a file with a key of its own that only the sealed record naming the file carries.
 
@@ -9,7 +9,7 @@ Records only the person's own devices can open: a device seals a record with a k
 | `part.json` | The part's public files |
 | `do-work/sealed-records.mjs` | Derive or make a sealing key, seal and open a record, check that a value is a sealed value and nothing more; seal names deterministically; seal a record for a link; seal and open a file's bytes |
 | `do-work/sealed-records.json` | DATA: the BLAKE3 derive-key context of each derived key (`contexts`), the longest sealed name, the fragment parameter a link key rides in, the sealed file reference kind and id prefix, the largest sealed link copy |
-| `do-work/sealed-copy.mjs` | Sealed records on one device's copy (parts/device-copy): unlock the person's one sealing key from their passphrase, seal, open, open back for good, and search inside sealed records after opening |
+| `do-work/sealed-copy.mjs` | Sealed records on one device's copy (tools/device-copy): unlock the person's one sealing key from their passphrase, seal, open, open back for good, and search inside sealed records after opening |
 | `moved-from.json` | Where `do-work/sealed-records.mjs` came from (Trillion-X/trillion at 4ffa1dc4a2^) and the identity of its bytes |
 
 ## Key Types / Functions
@@ -42,7 +42,7 @@ Records only the person's own devices can open: a device seals a record with a k
 
 **Depends on:** `@noble/hashes` (argon2id, BLAKE3 for key_id, identities and derived keys), `@noble/ciphers` (AES-SIV for sealed names), the platform's WebCrypto (AES-GCM).
 
-**Depended on by:** `src/record-copies.mjs` (a device copy's sealed records are taken only whole, as a sealed value or a removal; `src/record-copies.json` lists `sealed` as changeable). Device copies seal and open on the device through `sealed-copy.mjs`: the browser's worker (`parts/device-copy/do-work/device-copy-worker.mjs`, reached from `src/workspace/device-copy.ts` and the sharing sheet's lock row). `src/record-sharing.mjs` offers the switch (`sealed`) on `src/record-copies.json` `sealable_types`, and makes and serves sealed links (`checkedLinkCopy`; roles in `src/record-sharing.json` `sealed.link_roles`; the public sealed page was src/record-share-pages.mjs, now the Workshop tool tools/write-public-share-files). The browser worker answers `share_sealed`, `open_link`, `seal_file`, `open_file`.
+**Depended on by:** `src/record-copies.mjs` (a device copy's sealed records are taken only whole, as a sealed value or a removal; `src/record-copies.json` lists `sealed` as changeable). Device copies seal and open on the device through `sealed-copy.mjs`: the browser's worker (`tools/device-copy/do-work/device-copy-worker.mjs`, reached from `src/workspace/device-copy.ts` and the sharing sheet's lock row). `src/record-sharing.mjs` offers the switch (`sealed`) on `src/record-copies.json` `sealable_types`, and makes and serves sealed links (`checkedLinkCopy`; roles in `src/record-sharing.json` `sealed.link_roles`; the public sealed page was src/record-share-pages.mjs, now the Workshop tool tools/write-public-share-files). The browser worker answers `share_sealed`, `open_link`, `seal_file`, `open_file`.
 
 ## Invariants
 

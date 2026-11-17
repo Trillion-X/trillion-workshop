@@ -37,7 +37,7 @@
 // 2. NO BARCODE. The chart is the shared LineChart (line + gradient).
 // 3. NO DOMAIN VOCABULARY. Zero hardcoded column sets, zero instrument-type
 //    branches. Columns/cells/metrics/series/ranges all come from the board DATA.
-// 4. ALL styling via @/packages/ui primitives (L065/L066) — zero raw HTML,
+// 4. ALL styling via tools/ui primitives (L065/L066) — zero raw HTML,
 //    zero className in this feature file.
 //
 // =============================================================================
@@ -60,8 +60,8 @@ import {
   MetricRow,
   ScrollableSurface,
   Text,
-} from '@/packages/ui';
-import type { LineChartTone, MetricCell } from '@/packages/ui';
+} from '../../../../ui';
+import type { LineChartTone, MetricCell } from '../../../../ui';
 import {
   decodeMarketDataFeedBars,
   marketDataFeedSurface,

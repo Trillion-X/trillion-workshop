@@ -1,4 +1,3 @@
-// parts/visual-database/show/views/ScheduleView.tsx
 //
 // PURPOSE
 //   kind:'schedule' — the Gantt view: every record a bar on a time axis from its earliest to its latest date, its rows in

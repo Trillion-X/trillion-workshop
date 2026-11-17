@@ -28,10 +28,10 @@
 // =============================================================================
 
 import { describe, expect, it, beforeEach } from 'vitest';
-import { emptyGraph } from '@/packages/ui/show/group/group-graph';
-import type { AddressRef } from '@/packages/ui/show/group/group-graph';
-import { placeItem, readItems, removeItem } from '@/packages/group/read-data/group-board-model';
-import { unlockedOf, setLocked } from '@/packages/group/do-work/batch-actions';
+import { emptyGraph } from '../../../../ui/show/group/group-graph';
+import type { AddressRef } from '../../../../ui/show/group/group-graph';
+import { placeItem, readItems, removeItem } from '../../../read-data/group-board-model';
+import { unlockedOf, setLocked } from '../../../do-work/batch-actions';
 import {
   copyItemsToClipboard,
   setBoardClipboard,

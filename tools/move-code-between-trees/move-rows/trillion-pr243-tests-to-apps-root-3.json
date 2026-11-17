@@ -31,37 +31,37 @@
   ],
   "homes_in_packages": [
     {
-      "from": "parts/screen-look/read-data/resolve-screen-look-palette.js",
+      "from": "tools/screen-look/read-data/resolve-screen-look-palette.js",
       "home": "trillion-workshop/tools/screen-look/read-data/resolve-screen-look-palette.js",
       "source_identity": "1f:336d9505bd831f9776f0aae102758b2be39b508a342bff944a418c1d7b9dddb5"
     },
     {
-      "from": "parts/screen-look/embedded-shell-css.mjs",
+      "from": "tools/screen-look/embedded-shell-css.mjs",
       "home": "trillion-workshop/tools/screen-look/embedded-shell-css.mjs",
       "source_identity": "1f:6850c5c1cb40c1b2f9408d3f45f36a1cf7c0c705ab88c7fe89f821f30d2d70d3"
     },
     {
-      "from": "parts/screen-look/show/screen-state.css",
+      "from": "tools/screen-look/show/screen-state.css",
       "home": "trillion-workshop/tools/screen-look/show/screen-state.css",
       "source_identity": "1f:912171b933edfd49dda820ec4f43007e109eb05a21d7bea018822525cb5aee12"
     },
     {
-      "from": "parts/screen-look/show/embedded-shell.css",
+      "from": "tools/screen-look/show/embedded-shell.css",
       "home": "trillion-workshop/tools/screen-look/show/embedded-shell.css",
       "source_identity": "1f:c300f7f3d34ac0c9d3d30ca885875776b2d01465a0b1bbc571eb953c2d9113e7"
     },
     {
-      "from": "parts/screen-look/read-data/look-document-css.js",
+      "from": "tools/screen-look/read-data/look-document-css.js",
       "home": "trillion-workshop/tools/screen-look/read-data/look-document-css.js",
       "source_identity": "1f:4f18872fdf1d795aaec587e9f62df7e7b02c9ec4cb6101953c043fd7678e8281"
     },
     {
-      "from": "parts/screen-look/show/fonts/licences.json",
+      "from": "tools/screen-look/show/fonts/licences.json",
       "home": "trillion-workshop/tools/screen-look/show/fonts/licences.json",
       "source_identity": "1f:e6693b81b4a69716051972ce236a0ca49350d7751da55f5417ba75b10f1e1727"
     },
     {
-      "from": "parts/screen-look/embedded-faces.json",
+      "from": "tools/screen-look/embedded-faces.json",
       "home": "trillion-workshop/tools/screen-look/embedded-faces.json",
       "source_identity": "1f:d3d839281eeddb3cb1f81db70a8730e5511320d8337f76ba404227ddfb7cb6ab"
     },

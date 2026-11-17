@@ -1,4 +1,3 @@
-// parts/group/do-work/group-op-transitions.ts
 //
 // PURPOSE
 // The pure half of the group mutation door: the self-describing op payload, the

@@ -1,11 +1,11 @@
-// parts/delight-moments/show/mount-delight-moments.tsx
+// tools/delight-moments/show/mount-delight-moments.tsx
 //
 // NO PRIOR: searched bitfield-packages/packages/*/show for "confetti", "celebrat" and "delight", and the
 // 21st.dev MCP for a celebration moment; this is the one player for the moment rows.
 //
 // PURPOSE
 //   The part's entry: mounts once at the app shell and plays the moment a row in records/delight-moments.json picks for
-//   each good thing that happens (parts/ui/show/happened: a tour finished, work done) and for a phrase typed anywhere.
+//   each good thing that happens (tools/ui/show/happened: a tour finished, work done) and for a phrase typed anywhere.
 //   It draws nothing until a moment plays, one at a time; a moment that arrives while another plays waits its turn.
 //
 // NON-NEGOTIABLE INVARIANTS

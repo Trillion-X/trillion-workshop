@@ -1,7 +1,7 @@
 import {
   submitWorkflowAction,
   type ContentMediaSourceRef,
-} from '@/packages/content-media-evidence/do-work/content-media-work-loop';
+} from '../../content-media-evidence/do-work/content-media-work-loop';
 
 export const WRITE_MEDIA_COMPOSITION_RECORD_ACTION_ID = 'action:write-media-composition-record';
 

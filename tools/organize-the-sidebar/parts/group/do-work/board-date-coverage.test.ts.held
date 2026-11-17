@@ -1,7 +1,7 @@
 // packages/group/do-work/board-date-coverage.test.ts
 import { describe, it, expect } from 'vitest';
 import { datedCardIds, undatedCardIds, boardHasDateGaps, dateSpan, dateCoverageText } from './board-date-coverage';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
+import type { BoardItem } from '../../../read-data/group-board-model';
 
 const D = (y: number, m: number, d: number) => Date.UTC(y, m - 1, d);
 const card = (memberId: string, dueMs?: number): BoardItem =>

@@ -1,5 +1,5 @@
 /**
- * file: parts/media-composition/do-work/use-an-app-here.mjs
+ * file: tools/media-composition/do-work/use-an-app-here.mjs
  *
  * PURPOSE: On the person's own computer, do one operation in a desktop app through that app's own tool server, the
  * way an AI app talks to it: the server is started on this computer (its `start` command in apps-here.json), spoken to

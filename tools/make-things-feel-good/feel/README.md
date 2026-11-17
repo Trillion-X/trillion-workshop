@@ -1,6 +1,6 @@
 # feel
 
-How each thing that happens feels, on every device: when a screen says something happened (parts/ui `happened`: a button's work done or failed, a message sent, a notice arriving, a row chosen, something picked up or dropped, a tour finished, the needle mover found), the matching row in `records/feel-moments.json` names a feel, and each output of that feel (touch, sound, motion, any later one) plays through the device's own player unless the person's show rules (subject `feel`) quiet it or give the moment another feel.
+How each thing that happens feels, on every device: when a screen says something happened (tools/ui `happened`: a button's work done or failed, a message sent, a notice arriving, a row chosen, something picked up or dropped, a tour finished, the needle mover found), the matching row in `records/feel-moments.json` names a feel, and each output of that feel (touch, sound, motion, any later one) plays through the device's own player unless the person's show rules (subject `feel`) quiet it or give the moment another feel.
 
 | File | Purpose |
 |---|---|
@@ -25,7 +25,7 @@ How each thing that happens feels, on every device: when a screen says something
 
 - A moment: one row in `records/feel-moments.json` `moments` (`on.event_kind`, optional `on.match` / `on.starts_with`, `feel`).
 - A feel: one entry in `feels`, with any outputs it plays.
-- An output: one row in `outputs` and one player in parts/ui `show/feel/play-feel.ts` `FEEL_OUTPUT_PLAYERS`.
+- An output: one row in `outputs` and one player in tools/ui `show/feel/play-feel.ts` `FEEL_OUTPUT_PLAYERS`.
 - A device: an app hosting the page listens on `window.webkit.messageHandlers.trillionFeel` (iPhone app: Core Haptics; Mac app and menu bar panel: the trackpad), or a new entry in `TOUCH_ROUTES`.
 
 ## Dependencies

@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { mountReactMaterial, type ReactMaterialMountArgs } from '@/packages/ui/show/react-surface-mount';
-import { LiveMatchScoreSurface } from '@/packages/live-match-score/show/LiveMatchScoreSurface';
+import { mountReactMaterial, type ReactMaterialMountArgs } from '../../../../ui/show/react-surface-mount';
+import { LiveMatchScoreSurface } from './LiveMatchScoreSurface';
 
 type MountProps = {
   user_id?: string;

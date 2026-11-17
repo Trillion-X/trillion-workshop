@@ -2,7 +2,7 @@
 //
 // Purpose
 //   Screen layouts any of the person's AIs makes, or the one on screen rearranged, as DATA: the same short shape
-//   Trillion's starter layouts are (parts/screen-arrangement/read-data/starter-layouts.ts: panes of screens, split
+//   Trillion's starter layouts are (tools/arrange-screens-in-panes/read-data/starter-layouts.ts: panes of screens, split
 //   side by side or stacked). They sit in the person's Layouts menu beside the starters, and one can ask to be opened
 //   at once on the person's open page.
 //
@@ -22,13 +22,13 @@
 //   2. Opening goes through the arrangement's one switch on the page (use-layout-choices open), which keeps the layout
 //      it replaces as Previous layout first; nothing here writes the arrangement itself.
 //   3. `current` is the arrangement on screen as the same short shape, as the page last published it
-//      (parts/screen-arrangement/show/publish-shown-arrangement.tsx, starterArrangementOf), with when it was shown, so
+//      (tools/screen-arrangement/show/publish-shown-arrangement.tsx, starterArrangementOf), with when it was shown, so
 //      an AI rearranges it by changing that DATA. null until a page has shown one.
 //   4. A pane may hold one thing (one list, one decision): { id, input, title? } names a screen that opens one thing
 //      (its catalog row has route_input) and the input it opens on. `opens_one_thing` lists those screens and the input
 //      key each takes, read from the catalog, so the AI that made a list can open that list, not only Lists.
 //      Any screen the person has may carry an input holding only `kept` (what that placement keeps: its rules, grouping,
-//      view and depth, parts/ui/show/placement-kept), so an AI places a list already drilled to where it is wanted, and
+//      view and depth, tools/ui/show/placement-kept), so an AI places a list already drilled to where it is wanted, and
 //      the inputs its address's query opens it with (its catalog row's route_query: Record video on a run of takes) and, for a guide
 //      screen, what narrows it (surfaces.json `narrowing`: Connections on `show_row`), so a pane opens on what that
 //      screen's own address opens.
@@ -322,7 +322,7 @@ export function makeLayouts({ records, rows, now = () => new Date(), commit = ch
     const takes = (id, key) => key === 'kept' || Boolean(queried.get(id)?.has(key)) || (narrowable.has(id) && surfaces.narrowing.fields.includes(key));
     return surfacesIn(arrangement)
       // An entry with an input is a screen that opens one thing on it, or any screen carrying only what it kept in that
-      // placement (`kept`, parts/ui/show/placement-kept) and what its address's query opens it with (route_query).
+      // placement (`kept`, tools/ui/show/placement-kept) and what its address's query opens it with (route_query).
       .filter(entry => (typeof entry === 'string' ? !known.has(entry) : !((oneThing.has(entry.id) && entry.input[oneThing.get(entry.id)] !== undefined) || (known.has(entry.id) && Object.keys(entry.input).every(key => takes(entry.id, key)) && Object.keys(entry.input).length > 0))))
       .map(entry => (typeof entry === 'string' ? entry : `${entry.id} on ${JSON.stringify(entry.input)}`));
   }

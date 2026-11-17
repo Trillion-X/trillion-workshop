@@ -7,9 +7,9 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { readActionAffordances, affordancesForChannel } from '@/packages/ui/show/action-affordance';
-import type { PublishedRecord } from '@/packages/ui/show/placeable-surface-intent/placeable-surface-record';
-import { affordanceShelfTools, producerDescriptorOf } from '@/packages/group/show/board-action-affordances';
+import { readActionAffordances, affordancesForChannel } from '../../../../ui/show/action-affordance';
+import type { PublishedRecord } from '../../../../ui/show/placeable-surface-intent/placeable-surface-record';
+import { affordanceShelfTools, producerDescriptorOf } from '../../../show/board-action-affordances';
 
 const manifest = JSON.parse(
   readFileSync(join(__dirname, '..', 'things-to-store-and-run.json'), 'utf8'),

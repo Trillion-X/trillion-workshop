@@ -767,11 +767,11 @@
   "leave_tests": [
     {
       "path": "test/tray-screen-browser.test.mjs",
-      "why": "a browser test of the app's tray, tray-screen and sharing-sheet screens (src/workspace/*, parts/ui/show/*, parts/headless-browser): it runs with the app screens, not with copy-records-into-this-browser"
+      "why": "a browser test of the app's tray, tray-screen and sharing-sheet screens (src/workspace/*, tools/ui/show/*, tools/headless-browser): it runs with the app screens, not with copy-records-into-this-browser"
     },
     {
       "path": "test/automations-date-format-kept.test.mjs",
-      "why": "its second test reads src/automations.mjs as text for the import line '../parts/timed-action/do-work/wall-time.ts', the source tree's own path, so no move that sets import paths can keep it passing"
+      "why": "its second test reads src/automations.mjs as text for the import line 'tools/run-work-later-or-on-a-repeat/do-work/wall-time.ts', the source tree's own path, so no move that sets import paths can keep it passing"
     },
     {
       "path": "test/local-choice-retention.test.mjs",

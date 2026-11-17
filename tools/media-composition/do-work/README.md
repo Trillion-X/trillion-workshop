@@ -4,7 +4,7 @@ The video.compose EDL compositor (the package's ONE render authority, run by `ac
 
 The source CLI also accepts a numbered image pattern as a clip's `source`, with explicit positive `source_frame_rate` and `in`/`out`. This permits raw frames from the existing record-a-web-page owner to enter the same compositor without a second encoder. Stage reuse uses the shared BLAKE3 identity owner and binds the bytes of every regular input or numbered frame, so changed frames invalidate a prior output even when their size and mtime match. This is local source behavior; hosted registration and deployment remain separate states.
 
-The identity owner is the pure `parts/content-identity` part; the existing workspace import path re-exports it. File inputs and final movies are read in bounded chunks. Existing compositor container bundle declarations carry this owner and `@noble/hashes`, including its license, so source adoption does not leave a new unresolved root-relative import. Output `video_multihash` now uses the same `1f:` BLAKE3 identity. The byte and streaming forms are checked for equivalence; old source receipts are retained as their original epochs.
+The identity owner is the pure `tools/content-identity` part; the existing workspace import path re-exports it. File inputs and final movies are read in bounded chunks. Existing compositor container bundle declarations carry this owner and `@noble/hashes`, including its license, so source adoption does not leave a new unresolved root-relative import. Output `video_multihash` now uses the same `1f:` BLAKE3 identity. The byte and streaming forms are checked for equivalence; old source receipts are retained as their original epochs.
 
 ## Files
 

@@ -140,7 +140,7 @@
       "why": "the same bytes under another name: receipt trillion-workshop:tools/person-profile/moved-from.json"
     },
     {
-      "from": "parts/service-connections/records.json",
+      "from": "tools/connect-a-service-and-seal-its-key/records.json",
       "home": "tools/connect-a-service-and-seal-its-key/records.json",
       "why": "the same bytes under another name: receipt trillion-workshop:tools/connect-a-service-and-seal-its-key/moved-from.json"
     },

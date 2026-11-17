@@ -1,5 +1,5 @@
 /**
- * file: parts/media-composition/do-work/cut-by-events.mjs
+ * file: tools/media-composition/do-work/cut-by-events.mjs
  *
  * PURPOSE: Turns detected events (a stroke, a serve, the end of a point: { kind, time, confidence? }) into the parts of a
  * recording that are KEPT, and into the render EDL that cuts to them. The kept parts are src/range-edits.mjs ranges over the

@@ -1,4 +1,4 @@
-// tools/listen-for-a-while/show/adaptation-ladder.ts (moved from Trillion-X/trillion parts/record-audio/show/adaptation-ladder.ts)
+// tools/listen-for-a-while/show/adaptation-ladder.ts (moved from Trillion-X/trillion tools/record-audio/show/adaptation-ladder.ts)
 //
 // Purpose
 //   Gives the live-words stream (live-audio-stream.ts) its adaptation: readings of how the connection is doing step it down

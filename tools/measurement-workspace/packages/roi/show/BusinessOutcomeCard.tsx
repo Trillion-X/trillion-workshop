@@ -13,14 +13,14 @@
 //
 // 1. Displays outcome label, value with unit, and trend (up/down/flat)
 // 2. Color coded: green for positive, neutral for flat, uses ui/ components
-// 3. All styling through @/packages/ui (L065/L066 compliant)
+// 3. All styling through tools/ui (L065/L066 compliant)
 // 4. No inline styles or raw HTML elements
 //
 // =============================================================================
 
 import * as React from 'react';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
-import { Card, Container, Text } from '@/packages/ui';
+import { Card, Container, Text } from '../../../../ui';
 
 // ---------------------------------------------------------------------------
 // TYPES

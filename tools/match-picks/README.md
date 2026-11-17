@@ -41,7 +41,7 @@ Shows how a community picked the winner of each match, the result, and how one p
 
 ## Files moved from bitfield-packages (packages/match-picks)
 
-Each file below is the package's own, byte for byte; `from-bitfield-packages/moved-from.json` names each source path and commit, the identity of its source bytes and of its bytes here, and the `calls` that made a real name or id made up. After the first commit only import paths changed. A file named `.held` is the same bytes with its test name taken off so the repository test does not run it; the reason is under `held` in the receipt. Most files import `@/packages/ui` and the retired package runtime (`@bitfield/runtime-kit`); the shared ui parts live in apps `parts/ui`, so the screens and targets here are prepared, not wired to a tool row.
+Each file below is the package's own, byte for byte; `from-bitfield-packages/moved-from.json` names each source path and commit, the identity of its source bytes and of its bytes here, and the `calls` that made a real name or id made up. After the first commit only import paths changed. A file named `.held` is the same bytes with its test name taken off so the repository test does not run it; the reason is under `held` in the receipt. Most files import `@/packages/ui` and the retired package runtime (`@bitfield/runtime-kit`); the shared ui parts live in apps `tools/ui`, so the screens and targets here are prepared, not wired to a tool row.
 
 | File | What it is |
 |---|---|
@@ -54,7 +54,7 @@ Each file below is the package's own, byte for byte; `from-bitfield-packages/mov
 | `show/MatchPicksSurface.tsx` | renders match selection, choice controls, community pick split, result, and personal history. |
 | `show/match-picks-scoped-feed.test.ts.held` | A test of the package, held: reads the package boundary file things-to-store-and-run.json (or the package's own data path), which is not carried |
 | `show/mount-match-picks.tsx` | A file of the package. |
-| `test/match-picks.test.ts.held` | proves prompt creation, split math, result resolution, action wiring, history, and the copy guard. (held: imports react or shared ui parts (@/packages/ui) that live in apps parts/ui, not in the Workshop) |
+| `test/match-picks.test.ts.held` | proves prompt creation, split math, result resolution, action wiring, history, and the copy guard. (held: imports react or shared ui parts (tools/ui) that live in apps tools/ui, not in the Workshop) |
 
 ### Not carried
 

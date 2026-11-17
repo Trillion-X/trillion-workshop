@@ -7,7 +7,7 @@
 // so a producer fill becomes real persistence with zero new write path.
 
 import { describe, expect, it } from 'vitest';
-import { emptyGraph, memberById, membersOf, type AddressRef } from '@/packages/ui/show/group/group-graph';
+import { emptyGraph, memberById, membersOf, type AddressRef } from '../../../../ui/show/group/group-graph';
 import { applyProducerOutput } from './apply-producer-output';
 import { buildGroupWriteBatch } from './group-mutation-writes';
 import type { ProducerOutput } from '../read-data/producer-output';

@@ -22,7 +22,7 @@
 //
 // 1. ZERO raw HTML elements — ALL content through ui/ components
 // 2. ZERO raw className or inline styles
-// 3. ONLY imports from @/packages/ui barrel
+// 3. ONLY imports from tools/ui barrel
 // 4. Read efficiency suggestions via `useBitfieldData('efficiency-suggestions')`
 // 5. Handle loading, error, and empty states gracefully
 // 6. Display category badges with appropriate color variants

@@ -26,7 +26,7 @@
     "_from": "trillion-apps web/src/workspace/lists-screen.tsx: the list a /lists/<list> address names, opened on ?view=<id> when named, else the open saved view's display.as."
   },
   "views": [
-    { "step": "grid", "as": "table", "label": "Table", "shows": "[data-testid=\"visual-database-table\"], table", "_from": "lists-screen.tsx drawnAs 'table'; parts/keep-lists-of-rows/show/VisualDatabaseSurface.tsx data-testid visual-database-table" },
+    { "step": "grid", "as": "table", "label": "Table", "shows": "[data-testid=\"visual-database-table\"], table", "_from": "lists-screen.tsx drawnAs 'table'; tools/keep-lists-of-rows/show/VisualDatabaseSurface.tsx data-testid visual-database-table" },
     { "step": "board", "as": "board", "label": "Board", "shows": "[data-board-of]", "_from": "web/test/every-view-nxn-browser.test.mjs boardCard: [data-board-of]" },
     { "step": "timeline", "as": "timeline", "label": "Timeline", "shows": "[role=\"tab\"][aria-selected=\"true\"]:has-text(\"Timeline\"), button[aria-pressed=\"true\"]:has-text(\"Timeline\")", "_from": "trillion-workshop tools/keep-lists-of-rows/source-data/views-offered-to-every-list.json id timeline (kind timeline); the shell's switcher marks the drawn view" },
     { "step": "schedule", "as": "gantt", "label": "Gantt", "shows": "[role=\"tab\"][aria-selected=\"true\"]:has-text(\"Gantt\"), button[aria-pressed=\"true\"]:has-text(\"Gantt\")", "_from": "views-offered-to-every-list.json id gantt (kind schedule), drawn by show/views/ScheduleView.tsx" },

@@ -1,4 +1,4 @@
-// file: parts/ui/show/ai-app-bridge/ai-app-view-document.mjs
+// file: tools/ui/show/ai-app-bridge/ai-app-view-document.mjs
 //
 // THE PAGE AN AI APP LOADS TO DRAW A TOOL'S VIEW.
 //

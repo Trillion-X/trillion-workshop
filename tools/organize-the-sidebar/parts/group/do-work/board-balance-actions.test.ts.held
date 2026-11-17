@@ -1,8 +1,8 @@
 // packages/group/do-work/board-balance-actions.test.ts
 import { describe, it, expect } from 'vitest';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
-import type { FacetExtract } from '@/packages/group/read-data/board-facet-census';
-import { balanceRows, type BalanceFacet } from '@/packages/group/do-work/board-balance-actions';
+import type { BoardItem } from '../../../read-data/group-board-model';
+import type { FacetExtract } from '../../../read-data/board-facet-census';
+import { balanceRows, type BalanceFacet } from '../../../do-work/board-balance-actions';
 
 const card = (memberId: string, tags: string[], kind: string): BoardItem =>
   ({ memberId, kind, x: 0, y: 0, w: 100, h: 40, text: '', extra: { tags }, isSection: false } as unknown as BoardItem);

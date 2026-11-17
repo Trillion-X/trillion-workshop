@@ -22,7 +22,7 @@
 // =============================================================================
 
 import React from 'react';
-import { Container, Text } from '@/packages/ui';
+import { Container, Text } from '../../../../ui';
 import type {
   CoordinationFieldDescriptor,
   CoordinationRecord,

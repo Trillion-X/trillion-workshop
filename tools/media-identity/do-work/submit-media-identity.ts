@@ -2,7 +2,7 @@ import {
   createContentMediaWorkId,
   submitWorkflowAction,
   type ContentMediaSourceRef,
-} from '@/packages/content-media-evidence/do-work/content-media-work-loop';
+} from '../../content-media-evidence/do-work/content-media-work-loop';
 import { inlineProcessSourceFromText } from '@bitfield/runtime-kit/protocol';
 
 const MEDIA_IDENTITY_ACTION_ID = 'action:submit-media-identity-request';

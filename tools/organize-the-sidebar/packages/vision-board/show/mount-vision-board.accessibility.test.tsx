@@ -6,20 +6,20 @@ import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 vi.mock('@bitfield/runtime-kit/react', () => ({
   useBitfieldData: () => [],
 }));
-vi.mock('@/packages/ui/show/placeable-surface-intent', () => ({
+vi.mock('tools/ui/show/placeable-surface-intent', () => ({
   readPublishedRecords: () => [],
 }));
-vi.mock('@/packages/ui/show/action-affordance', () => ({
+vi.mock('tools/ui/show/action-affordance', () => ({
   readActionAffordances: () => [],
 }));
-vi.mock('@/packages/group/show/board-action-affordances', () => ({
+vi.mock('tools/organize-the-sidebar/show/board-action-affordances.ts', () => ({
   affordanceShelfTools: () => [],
 }));
-vi.mock('@/packages/activity-feed/show/ActivityIndicator', () => ({
+vi.mock('tools/see-what-my-ais-did/packages/activity-feed/show/ActivityIndicator', () => ({
   ActivityIndicator: () => null,
 }));
-vi.mock('@/packages/group/show/GroupBoardPanel', async () => {
-  const { CanvasViewport } = await import('@/packages/ui/show/canvas-viewport/CanvasViewport');
+vi.mock('tools/organize-the-sidebar/show/GroupBoardPanel.tsx', async () => {
+  const { CanvasViewport } = await import('../../../../ui/show/canvas-viewport/CanvasViewport');
   return {
     GroupBoardPanel: ({ title }: { title: string }) => (
       <CanvasViewport aria-label={`${title} canvas`}>

@@ -1,4 +1,4 @@
-// parts/ui/show/document-page/document-page-html.mjs
+// tools/ui/show/document-page/document-page-html.mjs
 //
 // A READABLE DOCUMENT, AN EMAIL AND A SHARE CARD, FROM DATA.
 //

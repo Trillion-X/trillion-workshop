@@ -1,17 +1,17 @@
 // packages/group/do-work/board-forecast-actions.test.ts
 import { describe, it, expect } from 'vitest';
-import { emptyGraph } from '@/packages/ui/show/group/group-graph';
-import type { AddressRef, GroupGraph } from '@/packages/ui/show/group/group-graph';
-import { placeItem, readItems } from '@/packages/group/read-data/group-board-model';
-import { setItemMetric } from '@/packages/group/do-work/board-metric-actions';
-import { logMinutes } from '@/packages/group/do-work/board-time-log-actions';
-import { setItemDueDate } from '@/packages/group/do-work/board-due-date-actions';
+import { emptyGraph } from '../../../../ui/show/group/group-graph';
+import type { AddressRef, GroupGraph } from '../../../../ui/show/group/group-graph';
+import { placeItem, readItems } from '../../../read-data/group-board-model';
+import { setItemMetric } from '../../../do-work/board-metric-actions';
+import { logMinutes } from '../../../do-work/board-time-log-actions';
+import { setItemDueDate } from '../../../do-work/board-due-date-actions';
 import {
   forecastOfItem,
   forecastRows,
   itemIsForecastTarget,
   boardForecastSummary,
-} from '@/packages/group/do-work/board-forecast-actions';
+} from '../../../do-work/board-forecast-actions';
 
 const REF: AddressRef = { family: 'test.board', parts: { board: 'b1' } };
 const NOW = 1_800_000_000_000;

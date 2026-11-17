@@ -5,4 +5,4 @@ Files of old trillion whose job is this tool's (let an AI write a guided tour fo
 | Old path | Here | Status |
 |---|---|---|
 | `src/tours-tools.mjs` | `src/tours-tools.mjs` | loads here |
-| `src/tours.mjs` | `src/tours.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports parts/guided-overlay/read-data/walkthrough-eeaf.ts (already gone at the tag), parts/guided-overlay/read-data/tour-library.ts (already gone at the tag), parts/guided-overlay/guided-overlay-defaults.json (already gone at the tag), parts/judge-words/do-work/judge-words.mjs (at the tag, not moved here yet) and 1 more |
+| `src/tours.mjs` | `src/tours.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports tools/guided-overlay/read-data/walkthrough-eeaf.ts (already gone at the tag), tools/guided-overlay/read-data/tour-library.ts (already gone at the tag), tools/guided-overlay/guided-overlay-defaults.json (already gone at the tag), tools/judge-words/do-work/judge-words.mjs (at the tag, not moved here yet) and 1 more |

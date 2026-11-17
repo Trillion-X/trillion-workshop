@@ -77,5 +77,5 @@ mounted root into a blank screen.
 
 ## Dependencies
 
-**Depends on:** `@/packages/ui`, `@/packages/file-content-renderer`, `lucide-react` icons, `read-data/visual-database.ts`, `do-work/record-writes.ts`, `do-work/fractional-order.ts`.
+**Depends on:** `tools/ui`, `tools/file-content-renderer`, `lucide-react` icons, `read-data/visual-database.ts`, `do-work/record-writes.ts`, `do-work/fractional-order.ts`.
 **Depended on by:** `mount-visual-database.tsx` (browser entry), package tests.

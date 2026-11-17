@@ -1,6 +1,6 @@
 {
  "id": "move:trillion-calendar-tasks-schedule-planner",
- "about": "What the Workshop's tools/plan-tasks-and-todo-lists/calendar-tasks.mjs imports and no lane had moved: the schedule planner's day override (parts/ui/show/schedule-calendar), moved byte for byte from old-trillion-before-worker-retire so calendar tasks load and task proposals (REA finding F-0091), which changes calendar tasks, runs with its test. keep, read_as_rows and provider_calls are those of move-rows/trillion-tools-m-z-scripts-parts.json.",
+ "about": "What the Workshop's tools/plan-tasks-and-todo-lists/calendar-tasks.mjs imports and no lane had moved: the schedule planner's day override (tools/ui/show/schedule-calendar), moved byte for byte from old-trillion-before-worker-retire so calendar tasks load and task proposals (REA finding F-0091), which changes calendar tasks, runs with its test. keep, read_as_rows and provider_calls are those of move-rows/trillion-tools-m-z-scripts-parts.json.",
  "source": {
   "name": "Trillion-X/trillion",
   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
@@ -23,8 +23,8 @@
   "macos/",
   "methods/",
   "native-apps/",
-  "parts/eeaf/",
-  "parts/record-log/",
+  "tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/",
+  "tools/record-log/",
   "records/action-completeness.json",
   "records/commercial-offer-records.json",
   "records/content-format-starters.json",
@@ -98,7 +98,7 @@
   {
    "id": "plan-tasks-and-todo-lists::schedule-planner",
    "owner": [
-    "parts/ui/show/schedule-calendar/schedule-planner.mjs"
+    "tools/ui/show/schedule-calendar/schedule-planner.mjs"
    ],
    "to": "tools/plan-tasks-and-todo-lists",
    "joins_tool": "the day override (dayOverrideOf) and placement that calendar-tasks.mjs imports to change one day's working hours; the tool had no copy of them",
@@ -127,7 +127,7 @@
  ],
  "not_provider_calls": [
   {
-   "file": "parts/process-session/do-work/place-cache-folder.mjs",
+   "file": "tools/process-session/do-work/place-cache-folder.mjs",
    "id": "env-binding",
    "found": "env.XDG_CACHE_HOME",
    "why": "placeCacheFolder(env = process.env) reads the cache folder a computer names in its process environment; it is no Worker binding."

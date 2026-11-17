@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { mountReactMaterial, type ReactMaterialMountArgs } from '@/packages/ui/show/react-surface-mount';
-import { MatchPicksSurface } from '@/packages/match-picks/show/MatchPicksSurface';
+import { mountReactMaterial, type ReactMaterialMountArgs } from '../../../../ui/show/react-surface-mount';
+import { MatchPicksSurface } from './MatchPicksSurface';
 
 type MountProps = {
   picker_id?: string;

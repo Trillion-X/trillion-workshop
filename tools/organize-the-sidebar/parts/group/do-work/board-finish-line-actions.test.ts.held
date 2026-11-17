@@ -4,14 +4,14 @@
 // the CROSS-LENS RANK INVERSION: two cards rank in OPPOSITE order under momentum vs finish-line — proving
 // the lens is genuinely distinct (proximity-pure), not a slice of momentum.
 import { describe, expect, it } from 'vitest';
-import { emptyGraph } from '@/packages/ui/show/group/group-graph';
-import type { AddressRef } from '@/packages/ui/show/group/group-graph';
-import { placeItem, readItems } from '@/packages/group/read-data/group-board-model';
-import { AXIS_TICK_PREFIX } from '@/packages/group/do-work/batch-actions';
-import { setItemMetric } from '@/packages/group/do-work/board-metric-actions';
-import { addStepToItem, toggleStepOnItem } from '@/packages/group/do-work/board-checklist-actions';
-import { logMinutes } from '@/packages/group/do-work/board-time-log-actions';
-import { momentumRows } from '@/packages/group/do-work/board-momentum-actions';
+import { emptyGraph } from '../../../../ui/show/group/group-graph';
+import type { AddressRef } from '../../../../ui/show/group/group-graph';
+import { placeItem, readItems } from '../../../read-data/group-board-model';
+import { AXIS_TICK_PREFIX } from '../../../do-work/batch-actions';
+import { setItemMetric } from '../../../do-work/board-metric-actions';
+import { addStepToItem, toggleStepOnItem } from '../../../do-work/board-checklist-actions';
+import { logMinutes } from '../../../do-work/board-time-log-actions';
+import { momentumRows } from '../../../do-work/board-momentum-actions';
 import { itemIsFinishLineTarget, finishLineOf, finishLineRows } from './board-finish-line-actions';
 
 const DAY = 86_400_000;

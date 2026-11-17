@@ -14,11 +14,11 @@
     "shared_folder": "tools/shared-code"
   },
   "keep": [
-    "parts/eeaf/do-work/eeaf-sqlite-store.mjs",
-    "parts/record-log/do-work/erasable.mjs",
-    "parts/record-log/do-work/json-members.mjs",
-    "parts/record-log/do-work/kept-runs.mjs",
-    "parts/record-log/do-work/record-log-store.mjs",
+    "tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/do-work/eeaf-sqlite-store.mjs",
+    "tools/record-log/do-work/erasable.mjs",
+    "tools/record-log/do-work/json-members.mjs",
+    "tools/record-log/do-work/kept-runs.mjs",
+    "tools/record-log/do-work/record-log-store.mjs",
     "src/chat-import.mjs",
     "src/chat-archives.mjs",
     "src/ai-conversations-list.json"
@@ -196,7 +196,7 @@
         "src/kept-answers.mjs"
       ],
       "to": "tools/copy-records-into-this-browser",
-      "held_until": "tools/keep-my-records-on-this-device/do-work/account-copy.mjs (the old parts/device-copy, already here) imports ./frame-compression.mjs, which is not beside it: the group's tests fail on that until the device-copy lane lands frame-compression.mjs there"
+      "held_until": "tools/keep-my-records-on-this-device/do-work/account-copy.mjs (the old tools/device-copy, already here) imports ./frame-compression.mjs, which is not beside it: the group's tests fail on that until the device-copy lane lands frame-compression.mjs there"
     },
     {
       "id": "set-up-my-devices-and-cameras",
@@ -535,8 +535,8 @@
     "src/error-page-lines.json"
   ],
   "keep_reasons": {
-    "parts/eeaf/": "The EEAF job (trillion-workshop PR #121) owns parts/eeaf/** and parts/record-log/**; this move leaves them alone.",
-    "parts/record-log/": "The EEAF job (trillion-workshop PR #121) owns parts/eeaf/** and parts/record-log/**; this move leaves them alone.",
+    "tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/": "The EEAF job (trillion-workshop PR #121) owns tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/** and tools/record-log/**; this move leaves them alone.",
+    "tools/record-log/": "The EEAF job (trillion-workshop PR #121) owns tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/** and tools/record-log/**; this move leaves them alone.",
     "src/chat-import.mjs": "The conversations job owns it.",
     "src/chat-archives.mjs": "The conversations job owns it.",
     "src/ai-conversations-list.json": "The conversations job owns it."

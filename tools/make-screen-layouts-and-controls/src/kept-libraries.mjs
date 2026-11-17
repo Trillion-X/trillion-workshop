@@ -1,7 +1,7 @@
 // src/kept-libraries.mjs
 //
 // Purpose
-//   The person store's side of a kept library (parts/group/read-data/kept-library.ts): reads a library's categories,
+//   The person store's side of a kept library (tools/make-screen-layouts-and-controls/parts/group/read-data/kept-library.ts): reads a library's categories,
 //   Recent and one thing's category straight from the person's workspace records, and turns filing or unfiling one
 //   kept thing into the group part's own record writes. Tours (src/tours.mjs) and layouts (src/layouts.mjs) each hold
 //   one of these over their own DATA row; a new kind of kept thing is one more row, with no code here.

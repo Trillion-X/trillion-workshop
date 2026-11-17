@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { RadioTower, Trophy } from 'lucide-react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { Badge } from '@/packages/ui/show/badge';
-import { Button } from '@/packages/ui/show/button';
-import { Card } from '@/packages/ui/show/card';
-import { Container } from '@/packages/ui/show/container';
-import { Input } from '@/packages/ui/show/input';
-import { Text } from '@/packages/ui/show/text';
-import { WorkSkeletonRows, WorkStartState } from '@/packages/ui/show/work-start-state';
+import { Badge } from '../../../../ui/show/badge';
+import { Button } from '../../../../ui/show/button';
+import { Card } from '../../../../ui/show/card';
+import { Container } from '../../../../ui/show/container';
+import { Input } from '../../../../ui/show/input';
+import { Text } from '../../../../ui/show/text';
+import { WorkSkeletonRows, WorkStartState } from '../../../../ui/show/work-start-state';
 import {
   buildAdvanceScoreEventInput,
   buildRecordScoreEventInput,

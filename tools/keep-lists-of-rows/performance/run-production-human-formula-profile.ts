@@ -4,28 +4,28 @@ import {
   foldAddressedCellExpressions,
   type AddressedCellExpressionInputs,
   type AddressedCellValueRecord,
-} from '@/packages/visual-database/do-work/cell-expression';
+} from '../do-work/cell-expression';
 import {
   resolveAddressedCells,
   type AddressedCellInput,
-} from '@/packages/visual-database/do-work/resolve-derived-fields';
+} from '../do-work/resolve-derived-fields';
 import {
   decodeVisualDatabaseEvaluatorDescriptors,
   type VisualDatabaseEvaluatorDescriptor,
   type VisualDatabaseFieldDescriptor,
   type VisualDatabaseModel,
   type VisualDatabaseRecord,
-} from '@/packages/visual-database/read-data/visual-database';
+} from '../read-data/visual-database';
 import {
   acceptExpressionOwnerReply,
   composeExpressionOwnerRequest,
   decodeExpressionOwnerReply,
   withExpressionOwnerTimeout,
-} from '@/packages/visual-database/do-work/expression-owner-protocol';
+} from '../do-work/expression-owner-protocol';
 import {
   buildExpressionReferenceCatalog,
   indexExpressionReferences,
-} from '@/packages/visual-database/show/reference-catalog';
+} from '../show/reference-catalog';
 import type { HumanFormulaPerformanceProfile } from './run-human-formula-profile';
 
 export interface ProductionPerformanceFixture {

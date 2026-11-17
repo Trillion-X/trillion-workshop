@@ -1,4 +1,4 @@
-// Moved from Trillion-X/trillion parts/record-audio/show/live-audio-stream.test.ts with its assertions unchanged; vitest is the shared shim.
+// Moved from Trillion-X/trillion tools/record-audio/show/live-audio-stream.test.ts with its assertions unchanged; vitest is the shared shim.
 import { describe, expect, it } from '../../../test-helpers/vitest-shim.mjs';
 import data from '../show/live-audio-stream.json' with { type: 'json' };
 import { chooseCodec, codecLine, createDuplicateDrop, createLiveStream, layerState, type CodecConditions, type SocketLike } from '../show/live-audio-stream.ts';

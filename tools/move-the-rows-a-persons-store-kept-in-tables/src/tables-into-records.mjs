@@ -1,6 +1,6 @@
 // src/tables-into-records.mjs
 //
-// Purpose: moves rows a person's store kept in tables of their own into records of the record store (parts/record-log),
+// Purpose: moves rows a person's store kept in tables of their own into records of the record store (tools/record-log),
 // once the store is on the log engine: the rows a caller needs at once on its first call, then the rest a batch at a
 // time from the store's scheduler, then the table is dropped (a dropped table writes no row). A row whose record a
 // newer write already made is left as that write made it.

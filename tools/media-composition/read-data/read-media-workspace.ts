@@ -4,7 +4,7 @@ import {
   type EvidenceBlocker,
   type EvidenceProjection,
   type EvidenceProjectionRow,
-} from '@/packages/content-media-evidence/read-data/content-media-evidence';
+} from '../../record-voice-and-meetings/read-data/content-media-evidence';
 import {
   KIND_ITEM_LABEL_DESCRIPTORS,
   KIND_LABEL_DESCRIPTORS,

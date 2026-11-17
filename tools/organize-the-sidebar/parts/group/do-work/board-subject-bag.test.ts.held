@@ -20,7 +20,7 @@ import {
 import { reconcileOutputFromItems, producerItemsToReconcileItems } from './reconcile-output-from-items';
 import { reconcileBoardGraphAuthoritative } from './reconcile-board-producer';
 import { applyProducerOutput } from './apply-producer-output';
-import { emptyGraph, membersOf, memberById, type AddressRef } from '@/packages/ui/show/group/group-graph';
+import { emptyGraph, membersOf, memberById, type AddressRef } from '../../../../ui/show/group/group-graph';
 
 const m = (memberId: string, text?: string, extra?: SubjectMember['extra'], html?: string): SubjectMember =>
   ({ memberId, text, html, extra });

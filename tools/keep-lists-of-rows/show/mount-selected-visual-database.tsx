@@ -1,13 +1,13 @@
 // Self-contained, read-only entry used by Visual Database selection projections.
 // It deliberately has no live package reads: the projection supplies all data.
 import React from 'react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../ui';
 import {
   invokeVisualDatabaseAction,
   type VisualDatabaseTargetSender,
-} from '@/packages/visual-database/do-work/visual-database-actions';
-import { decodeVisualDatabaseEvaluatorDescriptors, decodeVisualDatabaseModel } from '@/packages/visual-database/read-data/visual-database';
-import { VisualDatabaseSurface } from '@/packages/visual-database/show/VisualDatabaseSurface';
+} from '../do-work/visual-database-actions';
+import { decodeVisualDatabaseEvaluatorDescriptors, decodeVisualDatabaseModel } from '../read-data/visual-database';
+import { VisualDatabaseSurface } from './VisualDatabaseSurface';
 
 type MountArgs = { el: HTMLElement; props?: Record<string, unknown> };
 

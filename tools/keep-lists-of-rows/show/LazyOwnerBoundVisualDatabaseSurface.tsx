@@ -1,4 +1,3 @@
-// parts/visual-database/show/LazyOwnerBoundVisualDatabaseSurface.tsx
 //
 // PURPOSE
 //   The owner-bound table (OwnerBoundVisualDatabaseSurface.tsx) for a screen whose table is not the first thing it draws:

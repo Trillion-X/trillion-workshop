@@ -1,6 +1,6 @@
 {
  "id": "move:trillion-amie-to-apps",
- "about": "The Amie rebuild (mail pane, shared calendar, task pane and task views, month cards, visual database views; Sep 27 to Nov 3 2026) left files in Trillion-X/trillion that no new tree held: every file at the tag old-trillion-before-worker-retire touched by a commit whose message names amie, shared calendar, mail pane, visual database, task pane or month card, that is not a row of trillion-workshop docs/worker-retirement-port-backlog.json and has no same-bytes, receipt or same-name home on trillion-apps, trillion-workshop or trillion-rust main. The screen side (the screens' tests, the Amie reference and its pixel index, the client's dev scripts and their data) moves byte for byte into trillion-apps web/ under its source paths; the two account features go to the Workshop (move-rows/trillion-amie-to-workshop.json). keep: the old Worker's stores (parts/eeaf, parts/record-log: storage is trillion-rust's) and every file a port backlog slice still owns (src/contract-*.mjs, src/native-workspace-record-reader.mjs, src/engine-tools.mjs, src/getting-there.*, src/who-does-it.*, src/work-marketplace.mjs, scripts/workshop-rows.mjs, ...): a test that imports one is held until that slice lands. read_as_rows: a file trillion-apps main already holds at the same place with newer bytes (web/package.json, web/scripts/compiled-modules.mjs, web/scripts/screen-modules.mjs, show-of.ts, placeable-surface-record.ts) is not copied: the moved file reads that copy. A file whose home is in the Workshop (wall-time.ts, ask-your-ai.mjs, configurations.mjs, open-choices.json, json-expansion.mjs, loading-mark) is not copied: the moved file imports it from the trillion-workshop package (import paths only). test/engine-tools-for-tests.mjs is not followed: the engines are trillion-rust's, and the stand-in reaches them only when a test runs one. wrangler.jsonc moves as data: test/workers-stand-in-for-tests.mjs reads its Durable Object binding names.",
+ "about": "The Amie rebuild (mail pane, shared calendar, task pane and task views, month cards, visual database views; Sep 27 to Nov 3 2026) left files in Trillion-X/trillion that no new tree held: every file at the tag old-trillion-before-worker-retire touched by a commit whose message names amie, shared calendar, mail pane, visual database, task pane or month card, that is not a row of trillion-workshop docs/worker-retirement-port-backlog.json and has no same-bytes, receipt or same-name home on trillion-apps, trillion-workshop or trillion-rust main. The screen side (the screens' tests, the Amie reference and its pixel index, the client's dev scripts and their data) moves byte for byte into trillion-apps web/ under its source paths; the two account features go to the Workshop (move-rows/trillion-amie-to-workshop.json). keep: the old Worker's stores (tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf, tools/record-log: storage is trillion-rust's) and every file a port backlog slice still owns (src/contract-*.mjs, src/native-workspace-record-reader.mjs, src/engine-tools.mjs, src/getting-there.*, src/who-does-it.*, src/work-marketplace.mjs, scripts/workshop-rows.mjs, ...): a test that imports one is held until that slice lands. read_as_rows: a file trillion-apps main already holds at the same place with newer bytes (web/package.json, web/scripts/compiled-modules.mjs, web/scripts/screen-modules.mjs, show-of.ts, placeable-surface-record.ts) is not copied: the moved file reads that copy. A file whose home is in the Workshop (wall-time.ts, ask-your-ai.mjs, configurations.mjs, open-choices.json, json-expansion.mjs, loading-mark) is not copied: the moved file imports it from the trillion-workshop package (import paths only). test/engine-tools-for-tests.mjs is not followed: the engines are trillion-rust's, and the stand-in reaches them only when a test runs one. wrangler.jsonc moves as data: test/workers-stand-in-for-tests.mjs reads its Durable Object binding names.",
  "source": {
   "name": "Trillion-X/trillion",
   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
@@ -17,12 +17,12 @@
   "src/chat-import.mjs",
   "src/chat-archives.mjs",
   "src/ai-conversations-list.json",
-  "parts/record-log/**",
-  "parts/eeaf/**",
+  "tools/record-log/**",
+  "tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/**",
   "src/contract-checkout.mjs",
   "src/contract-entitlements.mjs",
   "src/native-workspace-record-reader.mjs",
-  "parts/ui/show/coss/ui/toast.tsx",
+  "tools/ui/show/coss/ui/toast.tsx",
   "scripts/tool-bundles.mjs",
   "scripts/workshop-rows.mjs",
   "src/automation-health-looks.json",
@@ -67,28 +67,28 @@
   {
    "id": "parts-group-do-work-layout-producer-drafts-test-ts",
    "owner": [
-    "parts/group/do-work/layout-producer-drafts.test.ts"
+    "tools/organize-the-sidebar/parts/group/do-work/layout-producer-drafts.test.ts"
    ],
    "to": "web"
   },
   {
    "id": "parts-record-audio-do-work-meeting-join-recording-test-ts",
    "owner": [
-    "parts/record-audio/do-work/meeting-join-recording.test.ts"
+    "tools/record-voice-and-meetings/parts/record-audio/do-work/meeting-join-recording.test.ts"
    ],
    "to": "web"
   },
   {
    "id": "parts-record-audio-tests-record-audio-backend-proof-mjs",
    "owner": [
-    "parts/record-audio/tests/record-audio-backend-proof.mjs"
+    "tools/record-audio/tests/record-audio-backend-proof.mjs"
    ],
    "to": "web"
   },
   {
    "id": "parts-record-audio-tests-recording-condition-formula-test-mjs",
    "owner": [
-    "parts/record-audio/tests/recording-condition-formula.test.mjs"
+    "tools/record-audio/tests/recording-condition-formula.test.mjs"
    ],
    "to": "web"
   },
@@ -1030,16 +1030,16 @@
   "package.json",
   "scripts/compiled-modules.mjs",
   "scripts/screen-modules.mjs",
-  "parts/ui/show/show-rules/show-of.ts",
-  "parts/ui/show/placeable-surface-intent/placeable-surface-record.ts",
-  "parts/timed-action/do-work/wall-time.ts",
+  "tools/ui/show/show-rules/show-of.ts",
+  "tools/ui/show/placeable-surface-intent/placeable-surface-record.ts",
+  "tools/run-work-later-or-on-a-repeat/do-work/wall-time.ts",
   "src/ask-your-ai.mjs",
   "src/configurations.mjs",
-  "parts/ui/show/placeable-surface-intent/open-choices.json",
-  "parts/json-expansion.mjs",
-  "parts/ui/show/clipboard/copy-text.ts",
-  "parts/ui/show/loading-mark/index.ts",
-  "parts/ui/show/loading-mark/LoadingMark.tsx",
+  "tools/ui/show/placeable-surface-intent/open-choices.json",
+  "tools/json-expansion.mjs",
+  "tools/ui/show/clipboard/copy-text.ts",
+  "tools/ui/show/loading-mark/index.ts",
+  "tools/ui/show/loading-mark/LoadingMark.tsx",
   "test/engine-tools-for-tests.mjs"
  ]
 }

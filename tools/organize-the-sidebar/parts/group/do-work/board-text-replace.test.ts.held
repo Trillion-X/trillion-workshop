@@ -4,9 +4,9 @@
 // `text` as the html plain projection, count correctly, and no-op cleanly.
 
 import { describe, expect, it } from 'vitest';
-import { emptyGraph } from '@/packages/ui/show/group/group-graph';
-import type { AddressRef } from '@/packages/ui/show/group/group-graph';
-import { placeItem, patchItem, readItems } from '@/packages/group/read-data/group-board-model';
+import { emptyGraph } from '../../../../ui/show/group/group-graph';
+import type { AddressRef } from '../../../../ui/show/group/group-graph';
+import { placeItem, patchItem, readItems } from '../../../read-data/group-board-model';
 import { applyTextReplace, countBoardMatches, replaceInHtml } from './board-text-replace';
 
 const PARENT: AddressRef = { family: 'test.board', parts: { board: 'b1' } };

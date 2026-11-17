@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 import { AlertTriangle, Check, FileAudio, UploadCloud } from 'lucide-react';
 
-import { Button } from '@/packages/ui/show/button';
-import { Card } from '@/packages/ui/show/card';
-import { Container } from '@/packages/ui/show/container';
-import { Text } from '@/packages/ui/show/text';
+import { Button } from '../../../../ui/show/button';
+import { Card } from '../../../../ui/show/card';
+import { Container } from '../../../../ui/show/container';
+import { Text } from '../../../../ui/show/text';
 
 export type CaptionDropStepItem = {
   id: string;

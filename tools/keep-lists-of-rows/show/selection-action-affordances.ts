@@ -8,18 +8,18 @@ import type {
   ActionAffordanceTrigger,
   AffordanceInvokeContext,
   AskField,
-} from '@/packages/ui/show/action-affordance';
+} from '../../ui/show/action-affordance';
 import {
   affordancesForChannel,
   buildDispatchPayload,
   readActionAffordances,
   triggerForChannel,
-} from '@/packages/ui/show/action-affordance';
-import { readPublishedRecords } from '@/packages/ui/show/placeable-surface-intent';
+} from '../../ui/show/action-affordance';
+import { readPublishedRecords } from '../../ui/show/placeable-surface-intent';
 import {
   visualDatabaseSelectedRecordRefs,
-} from '@/packages/visual-database/do-work/visual-database-actions';
-import type { VisualDatabaseRecord } from '@/packages/visual-database/read-data/visual-database';
+} from '../do-work/visual-database-actions';
+import type { VisualDatabaseRecord } from '../read-data/visual-database';
 
 export const VISUAL_DATABASE_SELECTION_CHANNEL = 'visual-database.selection-actions';
 

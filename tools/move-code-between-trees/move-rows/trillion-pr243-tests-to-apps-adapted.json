@@ -25,37 +25,37 @@
   ],
   "homes_in_packages": [
     {
-      "from": "parts/ai-tool-catalog/do-work/talk-to-a-tool-server.mjs",
+      "from": "tools/ai-tool-catalog/do-work/talk-to-a-tool-server.mjs",
       "home": "trillion-workshop/tools/ai-tool-catalog/do-work/talk-to-a-tool-server.mjs",
       "source_identity": "1f:7b625a9a8ba000e3025a5370d41c8061ed7b7362bf1e1d9b60dd9fd7e8d6dbc4"
     },
     {
-      "from": "parts/headless-browser/launch.mjs",
+      "from": "tools/headless-browser/launch.mjs",
       "home": "trillion-workshop/tools/headless-browser/launch.mjs",
       "source_identity": "1f:53bf2afcd25a2ba48a9366566e690187c1d0592c3fab79b793c28a01e6fc540e"
     },
     {
-      "from": "parts/http-client/do-work/public-address.mjs",
+      "from": "tools/refuse-requests-to-private-addresses/public-address.mjs",
       "home": "trillion-workshop/tools/refuse-requests-to-private-addresses/public-address.mjs",
       "source_identity": "1f:0ca1798c69be9260d16d7d6328e0051d593c2fa36427a6bd81df328d864dc9e3"
     },
     {
-      "from": "parts/screen-look/do-work/workspace-utility-source.mjs",
+      "from": "tools/screen-look/do-work/workspace-utility-source.mjs",
       "home": "trillion-workshop/tools/screen-look/do-work/workspace-utility-source.mjs",
       "source_identity": "1f:8e0399ff0dbacbdc61999b3be696ec9260ca0a51671ef262d8a6594c7444d99a"
     },
     {
-      "from": "parts/screen-look/show/coss-workspace.css",
+      "from": "tools/screen-look/show/coss-workspace.css",
       "home": "trillion-workshop/tools/screen-look/show/coss-workspace.css",
       "source_identity": "1f:5eba3348dfdcbec2c141a80823bfe79f77565646938911f58fae264b2cae5625"
     },
     {
-      "from": "parts/ui/show/placeable-surface-intent/open-choices.json",
+      "from": "tools/ui/show/placeable-surface-intent/open-choices.json",
       "home": "trillion-workshop/tools/decide-when-things-show/read-data/open-choices.json",
       "source_identity": "1f:0a9b6f21761d52f67a53544cc48a4efc4337aaa597748c4c134f059ff2cd1cd9"
     },
     {
-      "from": "parts/ui/show/server-rendered-page/page-sections-html.mjs",
+      "from": "tools/ui/show/server-rendered-page/page-sections-html.mjs",
       "home": "trillion-workshop/tools/organize-my-files/parts/ui/show/server-rendered-page/page-sections-html.mjs",
       "source_identity": "1f:96f3a44bbfbce604301db538e1b6676b6b008742efda4fe0e000cdd5b4c24283"
     },

@@ -1,4 +1,3 @@
-// parts/media-composition/read-data/media-versions.mjs
 //
 // EDITS ARE VERSIONS BESIDE AN UNTOUCHED ORIGINAL; THE PERSON CHOOSES WHICH ONE IS SEEN BY DEFAULT.
 //

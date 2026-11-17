@@ -23,8 +23,8 @@
   "macos/",
   "methods/",
   "native-apps/",
-  "parts/eeaf/",
-  "parts/record-log/",
+  "tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/",
+  "tools/record-log/",
   "records/action-completeness.json",
   "records/commercial-offer-records.json",
   "records/content-format-starters.json",
@@ -116,7 +116,7 @@
  ],
  "not_provider_calls": [
   {
-   "file": "parts/process-session/do-work/place-cache-folder.mjs",
+   "file": "tools/process-session/do-work/place-cache-folder.mjs",
    "id": "env-binding",
    "found": "env.XDG_CACHE_HOME",
    "why": "placeCacheFolder(env = process.env) reads the cache folder a computer names in its process environment; it is no Worker binding."
@@ -206,7 +206,7 @@
     "src/account-action-domain.mjs"
    ],
    "to": "tools/held-account-action-domain",
-   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
   },
   {
    "id": "held-account-plan-usage",
@@ -222,7 +222,7 @@
     "src/account-routes.mjs"
    ],
    "to": "tools/held-account-routes",
-   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
   },
   {
    "id": "held-account-screens",
@@ -230,7 +230,7 @@
     "src/account-screens.mjs"
    ],
    "to": "tools/held-account-screens",
-   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
   },
   {
    "id": "held-allowance",
@@ -238,7 +238,7 @@
     "src/allowance.mjs"
    ],
    "to": "tools/held-allowance",
-   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
   },
   {
    "id": "held-connect-with-a-key",
@@ -246,7 +246,7 @@
     "src/connect-with-a-key.mjs"
    ],
    "to": "tools/held-connect-with-a-key",
-   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
   },
   {
    "id": "held-customer-database-catalogue",
@@ -254,7 +254,7 @@
     "src/customer-database-catalogue.mjs"
    ],
    "to": "tools/held-customer-database-catalogue",
-   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/record-model-tools.mjs, which stays in the source (keep row src/record-model-tools.mjs); it imports parts/record-log/do-work/record-model.mjs, which stays in the source (keep row parts/record-log/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/record-model-tools.mjs, which stays in the source (keep row src/record-model-tools.mjs); it imports tools/record-log/do-work/record-model.mjs, which stays in the source (keep row tools/record-log/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
   },
   {
    "id": "held-customer-database-resource",
@@ -262,7 +262,7 @@
     "src/customer-database-resource.mjs"
    ],
    "to": "tools/held-customer-database-resource",
-   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
   },
   {
    "id": "held-direct-resource-routing",
@@ -270,7 +270,7 @@
     "src/direct-resource-routing.mjs"
    ],
    "to": "tools/held-direct-resource-routing",
-   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
   },
   {
    "id": "held-execution-mode-tools",
@@ -294,7 +294,7 @@
     "src/execution-tools.mjs"
    ],
    "to": "tools/held-execution-tools",
-   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/record-model-tools.mjs, which stays in the source (keep row src/record-model-tools.mjs); it imports parts/record-log/do-work/record-model.mjs, which stays in the source (keep row parts/record-log/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/record-model-tools.mjs, which stays in the source (keep row src/record-model-tools.mjs); it imports tools/record-log/do-work/record-model.mjs, which stays in the source (keep row tools/record-log/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
   },
   {
    "id": "held-invite-routes",
@@ -302,7 +302,7 @@
     "src/invite-routes.mjs"
    ],
    "to": "tools/held-invite-routes",
-   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
   },
   {
    "id": "held-marketplace-configuration-routes",
@@ -310,7 +310,7 @@
     "src/marketplace-configuration-routes.mjs"
    ],
    "to": "tools/held-marketplace-configuration-routes",
-   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
   },
   {
    "id": "held-model-routes",
@@ -318,7 +318,7 @@
     "src/model-routes.mjs"
    ],
    "to": "tools/held-model-routes",
-   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
   },
   {
    "id": "held-native-account-action-mount",
@@ -326,7 +326,7 @@
     "src/native-account-action-mount.mjs"
    ],
    "to": "tools/held-native-account-action-mount",
-   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
   },
   {
    "id": "held-native-account-shared-network",
@@ -350,7 +350,7 @@
     "src/native-resource-profile.mjs"
    ],
    "to": "tools/held-native-resource-profile",
-   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
   },
   {
    "id": "held-native-resource-screen-behavior",
@@ -358,7 +358,7 @@
     "src/native-resource-screen-behavior.mjs"
    ],
    "to": "tools/held-native-resource-screen-behavior",
-   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
   },
   {
    "id": "held-native-resource-source",
@@ -382,7 +382,7 @@
     "src/native-resource-tell.mjs"
    ],
    "to": "tools/held-native-resource-tell",
-   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
   },
   {
    "id": "held-native-resource-tool-billing-intents",
@@ -390,7 +390,7 @@
     "src/native-resource-tool-billing-intents.mjs"
    ],
    "to": "tools/held-native-resource-tool-billing-intents",
-   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
   },
   {
    "id": "held-record-scope",
@@ -398,7 +398,7 @@
     "src/record-scope.mjs"
    ],
    "to": "tools/held-record-scope",
-   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/record-model-tools.mjs, which stays in the source (keep row src/record-model-tools.mjs); it imports parts/record-log/do-work/record-model.mjs, which stays in the source (keep row parts/record-log/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/record-model-tools.mjs, which stays in the source (keep row src/record-model-tools.mjs); it imports tools/record-log/do-work/record-model.mjs, which stays in the source (keep row tools/record-log/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
   },
   {
    "id": "held-resource-inbound",
@@ -406,7 +406,7 @@
     "src/resource-inbound.mjs"
    ],
    "to": "tools/held-resource-inbound",
-   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
   },
   {
    "id": "held-resource-input-capture",
@@ -414,7 +414,7 @@
     "src/resource-input-capture.mjs"
    ],
    "to": "tools/held-resource-input-capture",
-   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
   },
   {
    "id": "held-resource-model-road",
@@ -430,7 +430,7 @@
     "src/shared-resource-compatibility.mjs"
    ],
    "to": "tools/held-shared-resource-compatibility",
-   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
+   "held_until": "its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte"
   }
  ],
  "retired": [

@@ -27,10 +27,10 @@
 // =============================================================================
 
 import * as React from 'react';
-import { Card } from '@/packages/ui/show/card/Card';
-import { StatusDot } from '@/packages/ui/show/status-dot/StatusDot';
-import { Text } from '@/packages/ui/show/text/Text';
-import { Icon } from '@/packages/ui/show/icon/Icon';
+import { Card } from '../../../../ui/show/card/Card';
+import { StatusDot } from '../../../../ui/show/status-dot/StatusDot';
+import { Text } from '../../../../ui/show/text/Text';
+import { Icon } from '../../../../ui/show/icon/Icon';
 
 // ---------------------------------------------------------------------------
 // TYPES

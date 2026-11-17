@@ -1,4 +1,4 @@
-// file: parts/ui/show/file-view-document/file-view-document.mjs
+// file: tools/ui/show/file-view-document/file-view-document.mjs
 //
 // A PERSON'S FILE, SHOWN INSIDE THE CHAT THAT MADE IT.
 //

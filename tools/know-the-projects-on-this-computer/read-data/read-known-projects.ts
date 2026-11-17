@@ -7,7 +7,7 @@ import {
   readBooleanPayload,
   readJsonPayload,
   readStringPayload,
-} from '@/packages/projects/read-data/read-json-payload';
+} from './read-json-payload';
 
 export interface ProjectOption {
   value: string;

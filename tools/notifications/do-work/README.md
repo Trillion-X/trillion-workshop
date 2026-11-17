@@ -25,7 +25,7 @@ source that decides the route; this file only assembles the envelope and sends.
 
 **Depends on:**
 - `@bitfield/runtime-kit` — `sendRequestToBitfieldTarget` (the canonical target invoke; notifications never owns a sender).
-- `@/packages/notifications/read-data/read-notifications-policy` — `SettingActionRouteView` (type only).
+- `tools/notifications/read-data/read-notifications-policy` — `SettingActionRouteView` (type only).
 
 **Depended on by:** `show/notification-setting-screen.tsx` (web envelope `onSave`); mirrored in ES5 by `show-ios-jscore/mount-notifications-jscore.js` (`buildActionPayload` + `runtime.target.invoke`).
 

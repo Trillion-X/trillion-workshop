@@ -1,7 +1,7 @@
 // packages/group/do-work/board-importance-actions.test.ts
 import { describe, it, expect } from 'vitest';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
-import { importanceRows, importanceSummary } from '@/packages/group/do-work/board-importance-actions';
+import type { BoardItem } from '../../../read-data/group-board-model';
+import { importanceRows, importanceSummary } from '../../../do-work/board-importance-actions';
 
 // card + connector factories. A connector carries fromMemberId/toMemberId in extra (a directed endorsement).
 const card = (memberId: string, text: string): BoardItem =>

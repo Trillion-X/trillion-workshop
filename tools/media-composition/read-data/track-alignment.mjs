@@ -1,4 +1,3 @@
-// parts/media-composition/read-data/track-alignment.mjs
 //
 // SEPARATE TRACKS OF ONE RECORDING ARE CHECKED TO BE IN STEP, FROM WHEN EACH WAS CAPTURED AND WHERE EACH FILE STARTS.
 //

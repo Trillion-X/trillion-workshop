@@ -6,7 +6,7 @@
 // Public custody/lineage record: test/host-browser-provenance.json (cover cohort).
 // test/thread-cover.test.mjs
 //
-// The opening cover (parts/ui/show/thread-cover) is in a page's first bytes and stands alone there:
+// The opening cover (tools/ui/show/thread-cover) is in a page's first bytes and stands alone there:
 //   - a workspace page opens under it, before its script file, and a page without `opening_cover` carries none;
 //   - its inline script reads nothing from outside itself (it runs with nothing else on the page);
 //   - a host app that draws the cover itself gets no second cover, and the page's lift tells the host;

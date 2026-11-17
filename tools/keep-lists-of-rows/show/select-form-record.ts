@@ -16,7 +16,7 @@
 //
 // Pure + unit-testable. No React, no I/O.
 
-import type { VisualDatabaseModel, VisualDatabaseRecord } from '@/packages/visual-database/read-data/visual-database';
+import type { VisualDatabaseModel, VisualDatabaseRecord } from '../read-data/visual-database';
 
 /** Read the DATA `record_id` a form surface may declare in its `surfaceInput`. */
 export function readFormRecordId(surfaceInput: unknown): string | null {

@@ -2,7 +2,7 @@
 //
 // Pure package-feed decoder for the currently selected project.
 
-import { readJsonPayload, readStringPayload } from '@/packages/projects/read-data/read-json-payload';
+import { readJsonPayload, readStringPayload } from './read-json-payload';
 
 export interface CurrentProjectFeed {
   activeProject: string | null;

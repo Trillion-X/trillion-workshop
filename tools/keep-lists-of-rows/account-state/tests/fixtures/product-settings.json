@@ -32,7 +32,7 @@
     "volume-unmounted": {"payload": ["volume_name", "volume_path"]}
   },
   "page_look": {
-    "_what": "The look every page the engine draws wears (src/account/sign_in/shell.rs in trillion-rust): old trillion's page shell at 4ffa1dc4a2^ as DATA. `palette` is PAGE_LOOK (src/page-look.mjs, the workspace's starting look resolved by screen-look), `theme_color` the browser bar colour browserChromeColour gave it, `stylesheets` its font faces; `base_css`, `sections_css`, `browse_css`, `work_css`, `reveal_script`, `code_script` and `reveal_icons` are parts/ui/show/server-rendered-page/page-sections-html.mjs (now web/parts/ui/show/server-rendered-page/ here); `icons`, `share` and `language` are src/html-page.mjs's app defaults, `mark_alt` src/pages.mjs LOGO. test/page-look-product-data.test.mjs keeps it equal to web/.",
+    "_what": "The look every page the engine draws wears (src/account/sign_in/shell.rs in trillion-rust): old trillion's page shell at 4ffa1dc4a2^ as DATA. `palette` is PAGE_LOOK (src/page-look.mjs, the workspace's starting look resolved by screen-look), `theme_color` the browser bar colour browserChromeColour gave it, `stylesheets` its font faces; `base_css`, `sections_css`, `browse_css`, `work_css`, `reveal_script`, `code_script` and `reveal_icons` are tools/ui/show/server-rendered-page/page-sections-html.mjs (now tools/ui/show/server-rendered-page/ here); `icons`, `share` and `language` are src/html-page.mjs's app defaults, `mark_alt` src/pages.mjs LOGO. test/page-look-product-data.test.mjs keeps it equal to web/.",
     "language": "en",
     "theme": "paper",
     "scheme": "light",

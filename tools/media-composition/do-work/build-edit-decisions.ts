@@ -46,13 +46,13 @@
 import {
   buildMediaCompositionEditDecisionRecord,
   type MediaCompositionRecord,
-} from '@/packages/media-composition/do-work/write-media-composition-record';
-import type { ContentMediaSourceRef } from '@/packages/content-media-evidence/do-work/content-media-work-loop';
+} from './write-media-composition-record';
+import type { ContentMediaSourceRef } from '../../content-media-evidence/do-work/content-media-work-loop';
 import {
   DEFAULT_EDIT_OP_SCHEMAS,
   validateEditOp,
   type EditOpSchemaMap,
-} from '@/packages/media-composition/do-work/edit-op-schemas';
+} from './edit-op-schemas';
 
 /**
  * Visual transform applied to a clip (crop, picture-in-picture sizing, ...).

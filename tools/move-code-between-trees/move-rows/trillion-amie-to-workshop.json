@@ -14,8 +14,8 @@
   "shared_folder": "tools/shared-code"
  },
  "keep": [
-  "parts/eeaf/**",
-  "parts/record-log/**",
+  "tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/**",
+  "tools/record-log/**",
   "src/worker.mjs",
   "test/meeting-settings.test.mjs"
  ],

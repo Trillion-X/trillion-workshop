@@ -1,4 +1,4 @@
-// parts/ui/show/thread-cover/thread-cover.mjs
+// tools/ui/show/thread-cover/thread-cover.mjs
 //
 // Purpose: what covers Trillion while it opens, the same everywhere (the web page, the iPhone app, the Mac app, the
 // Chrome extension): the landing page's red thread, pulled by the logo's needle. The thread lies strewn about; the

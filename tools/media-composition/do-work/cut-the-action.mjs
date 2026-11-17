@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * file: parts/media-composition/do-work/cut-the-action.mjs
+ * file: tools/media-composition/do-work/cut-the-action.mjs
  *
  * PURPOSE: Cut a recording down to the moments where something happens and render the result. It only ASSEMBLES existing owners:
  * a detector row of cut-by-events.json finds the events (detect-events.mjs; the program row is find-action-moments.mjs), the rules of

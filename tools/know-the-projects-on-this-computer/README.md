@@ -23,6 +23,6 @@ Moved here byte for byte from bitfield-packages `packages/projects` by hand, wit
 
 ## Dependencies
 
-**Depends on:** the retired Bitfield runtime kit (the feeds and request sender), `@/packages/ui` components (not in this repository).
+**Depends on:** the retired Bitfield runtime kit (the feeds and request sender), `tools/ui` components (not in this repository).
 
 **Depended on by:** nothing yet.

@@ -1,4 +1,3 @@
-// parts/media-playback/read-data/measure-media-length.ts
 //
 // How long a sound or video file plays, read from the file itself by the browser's own media decoder: only its
 // metadata is fetched (a range request for the header), nothing plays and nothing is shown.

@@ -25,7 +25,7 @@
 // =============================================================================
 
 import React from 'react';
-import { Container, SafeErrorCard, SeverityRow } from '@/packages/ui';
+import { Container, SafeErrorCard, SeverityRow } from '../../../../ui';
 import type {
   CoordinationActionDescriptor,
   CoordinationRecoverableIssue,

@@ -21,7 +21,7 @@
 //
 // 1. ZERO raw HTML elements — ALL content through ui/ components
 // 2. ZERO raw className or inline styles
-// 3. ONLY imports from @/packages/ui barrel
+// 3. ONLY imports from tools/ui barrel
 // 4. Read only the package-local aggregate project-compliance input
 // 5. Handle loading, error, and empty states gracefully
 // 6. Preserve canonical severity / counts from the feed payload
@@ -42,7 +42,7 @@ import {
   Text,
   Badge,
   EmptyPlaceholder,
-} from '@/packages/ui';
+} from '../../../../ui';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
 import {
   decodeProjectComplianceFeed,

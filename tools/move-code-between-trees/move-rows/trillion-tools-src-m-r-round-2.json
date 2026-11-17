@@ -1,6 +1,6 @@
 {
  "id": "move:trillion-workshop-tools-src-m-r-round-2",
- "about": "Round 2 of the src/ m-r workshop-tool rows of docs/worker-retirement-port-backlog.json that still had no home on main. The groups are those of move-rows/trillion-tools-m-z-scripts-parts.json that own one of those files; a group that was held as a whole is split into one group per owner file (id <group>--<file stem>, same folder), so a file whose own closure holds nothing moves. keep is that row's keep without the files main already holds with the same bytes once import paths are set aside (src/decision-store.mjs, src/record-model-tools.mjs, src/namespace-store.mjs, records/starting-rules.json, harness/setup.json and the reached parts/record-log and parts/eeaf files): a moved file imports main's copy, and none of them is copied or changed. Only groups that hold nothing are listed, each applied in a plan with only the groups of its lane, so every shared file they need lands too. Imports at the tag that named parts/ or src/ files an earlier move had already carried here (so they were missing at the tag) were set to those files' places here; nothing else in a moved file changed.",
+ "about": "Round 2 of the src/ m-r workshop-tool rows of docs/worker-retirement-port-backlog.json that still had no home on main. The groups are those of move-rows/trillion-tools-m-z-scripts-parts.json that own one of those files; a group that was held as a whole is split into one group per owner file (id <group>--<file stem>, same folder), so a file whose own closure holds nothing moves. keep is that row's keep without the files main already holds with the same bytes once import paths are set aside (src/decision-store.mjs, src/record-model-tools.mjs, src/namespace-store.mjs, records/starting-rules.json, harness/setup.json and the reached tools/record-log and tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf files): a moved file imports main's copy, and none of them is copied or changed. Only groups that hold nothing are listed, each applied in a plan with only the groups of its lane, so every shared file they need lands too. Imports at the tag that named parts/ or src/ files an earlier move had already carried here (so they were missing at the tag) were set to those files' places here; nothing else in a moved file changed.",
  "source": {
   "name": "Trillion-X/trillion",
   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
@@ -489,7 +489,7 @@
  ],
  "not_provider_calls": [
   {
-   "file": "parts/process-session/do-work/place-cache-folder.mjs",
+   "file": "tools/process-session/do-work/place-cache-folder.mjs",
    "id": "env-binding",
    "found": "env.XDG_CACHE_HOME",
    "why": "placeCacheFolder(env = process.env) reads the cache folder a computer names in its process environment; it is no Worker binding."

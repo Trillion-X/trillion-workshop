@@ -1,4 +1,4 @@
-# parts/media-composition/read-data/luts
+# tools/media-composition/read-data/luts
 
 The colour grade files (3D LUTs in `.cube` form) that the looks in `../looks.json` apply.
 

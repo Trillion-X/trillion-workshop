@@ -120,7 +120,7 @@
     {
       "id": "placed-capability-runtime",
       "owner": [
-        "web/parts/ui/show/public-app-editor/placed-capability-runtime.mjs"
+        "tools/ui/show/public-app-editor/placed-capability-runtime.mjs"
       ],
       "to": "tools/place-a-sign-up-form-or-a-published-recipe-on-a-site",
       "joins_tool": "tools/place-a-sign-up-form-or-a-published-recipe-on-a-site shows visitors a safe view of a capability placed on a site page; this brings the runtime that draws the placed capability's form and result",

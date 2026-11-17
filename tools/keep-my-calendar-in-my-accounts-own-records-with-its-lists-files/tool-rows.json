@@ -102,7 +102,7 @@
               {
                 "package": "keep-and-wake-ai-sessions-on-this-computer",
                 "paths": [
-                  "parts/live-namespace/do-work/blake3.mjs",
+                  "tools/live-namespace/do-work/blake3.mjs",
                   "src/entity-mentions.json",
                   "src/entity-mentions.mjs",
                   "src/lists.json",
@@ -154,9 +154,9 @@
                   "calendar-task-messages.mjs",
                   "calendar-tasks.json",
                   "calendar-tasks.mjs",
-                  "parts/ui/show/schedule-calendar/schedule-placement.mjs",
-                  "parts/ui/show/schedule-calendar/schedule-planner.json",
-                  "parts/ui/show/schedule-calendar/schedule-planner.mjs"
+                  "tools/ui/show/schedule-calendar/schedule-placement.mjs",
+                  "tools/ui/show/schedule-calendar/schedule-planner.json",
+                  "tools/ui/show/schedule-calendar/schedule-planner.mjs"
                 ],
                 "at": "/opt/plan-tasks-and-todo-lists"
               },

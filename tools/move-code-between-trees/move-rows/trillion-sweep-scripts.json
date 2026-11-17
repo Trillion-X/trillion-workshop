@@ -1640,7 +1640,7 @@
   }
  ],
  "keep": [
-  "parts/judge-words/",
+  "tools/judge-words/",
   "records/marketplace-screens.json",
   "records/workshop-tool-records.json"
  ],
@@ -1650,12 +1650,12 @@
  ],
  "homes_in_packages": [
   {
-   "from": "parts/delight-moments/read-data/choose-moment.mjs",
+   "from": "tools/delight-moments/read-data/choose-moment.mjs",
    "home": "trillion-workshop/tools/make-things-feel-good/read-data/choose-moment.mjs",
    "source_identity": "1f:8df8e48fe8e0a569b957dcc884f8a0623541d3cf90712e5569b9706a1df32b25"
   },
   {
-   "from": "parts/feel/read-data/choose-feel.mjs",
+   "from": "tools/feel/read-data/choose-feel.mjs",
    "home": "trillion-workshop/tools/make-things-feel-good/read-data/choose-feel.mjs",
    "source_identity": "1f:1cdd10b6174773e8f35dd562fdea5c789ecda4196d04dd60a25a895d432f381a"
   },

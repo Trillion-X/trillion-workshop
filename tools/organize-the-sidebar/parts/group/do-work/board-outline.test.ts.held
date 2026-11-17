@@ -1,7 +1,7 @@
 // packages/group/do-work/board-outline.test.ts
 import { describe, it, expect } from 'vitest';
 import { boardOutline, outlineCardTotal } from './board-outline';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
+import type { BoardItem } from '../../../read-data/group-board-model';
 
 const card = (memberId: string, x: number, y: number, w = 40, h = 30): BoardItem =>
   ({ memberId, nodeRef: { id: memberId } as never, kind: 'note', x, y, w, h, isSection: false, childCount: 0, extra: {} } as BoardItem);

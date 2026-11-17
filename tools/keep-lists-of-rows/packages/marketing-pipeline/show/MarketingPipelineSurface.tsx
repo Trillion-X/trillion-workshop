@@ -48,7 +48,7 @@ import {
   Spinner,
   Text,
   useNarrowViewport,
-} from '@/packages/ui';
+} from '../../../../ui';
 import { Inbox } from 'lucide-react';
 import type {
   CoordinationActionDescriptor,

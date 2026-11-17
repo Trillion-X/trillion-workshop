@@ -2,12 +2,12 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
 import { Download, ExternalLink, FolderOpen, Play, Settings2, SlidersHorizontal } from 'lucide-react';
 
-import { Button } from '@/packages/ui/show/button';
-import { Card } from '@/packages/ui/show/card';
-import { Container } from '@/packages/ui/show/container';
-import { Input } from '@/packages/ui/show/input';
-import { Text } from '@/packages/ui/show/text';
-import { chooseLocalFiles, readLocalFile, type LocalChosenFile } from '@/packages/local-files/do-work/choose-local-files';
+import { Button } from '../../../../ui/show/button';
+import { Card } from '../../../../ui/show/card';
+import { Container } from '../../../../ui/show/container';
+import { Input } from '../../../../ui/show/input';
+import { Text } from '../../../../ui/show/text';
+import { chooseLocalFiles, readLocalFile, type LocalChosenFile } from '../../../../local-files/do-work/choose-local-files';
 import { chooseLocalFolder } from '@/packages/local-files/do-work/choose-local-folder';
 import { revealLocalPath } from '@/packages/local-files/do-work/reveal-local-path';
 import {
@@ -43,9 +43,9 @@ import {
   requestCaptionAudioTranscription,
   submitPreparedCaptionAudioTranscriptionRequest,
 } from '@/packages/caption-renderer/do-work/request-caption-transcription';
-import { CaptionDropStep, type CaptionDiagnosticEntry, type CaptionDropStepItem } from '@/packages/caption-renderer/show/CaptionDropStep';
-import { CaptionPreview } from '@/packages/caption-renderer/show/CaptionPreview';
-import { visibleCaptionError } from '@/packages/caption-renderer/show/caption-visible-error';
+import { CaptionDropStep, type CaptionDiagnosticEntry, type CaptionDropStepItem } from './CaptionDropStep';
+import { CaptionPreview } from './CaptionPreview';
+import { visibleCaptionError } from './caption-visible-error';
 
 const DEFAULT_SETTINGS: CaptionRenderSettings = {
   presetId: DEFAULT_CAPTION_PRESET_ID,

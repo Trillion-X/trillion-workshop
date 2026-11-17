@@ -23,7 +23,7 @@
 // =============================================================================
 
 import React from 'react';
-import { Badge, PersonTag, Text, statusView } from '@/packages/ui';
+import { Badge, PersonTag, Text, statusView } from '../../../../ui';
 
 /** Generic scalar → display string. Arrays/objects collapse to a count/marker. */
 export function valueToText(value: unknown): string {

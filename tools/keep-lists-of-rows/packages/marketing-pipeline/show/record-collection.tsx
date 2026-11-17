@@ -42,7 +42,7 @@ import {
   Text,
   statusView,
   type MetricCell,
-} from '@/packages/ui';
+} from '../../../../ui';
 import type {
   CoordinationFieldDescriptor,
   CoordinationSurfaceModel,

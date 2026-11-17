@@ -6,28 +6,28 @@ import {
   ToastProvider,
   mountReactSurface,
   useToastContext,
-} from '@/packages/ui';
+} from '../../ui';
 import {
   ActionForm,
   materializeActionFormFile,
-} from '@/packages/ui/show/action-affordance';
+} from '../../ui/show/action-affordance';
 import { bitfieldGeneratedPackageEntryScopeBinding, useBitfieldData,
   bitfieldGeneratedLiveReadScopeDescriptor,
 } from '@/packages/visual-database/.bitfield-entry-scope/visual-database/runtime-kit-react';
 import { sendRequestToBitfieldTarget } from '@/packages/visual-database/.bitfield-entry-scope/visual-database/runtime-kit';
-import { invokeVisualDatabaseAction } from '@/packages/visual-database/do-work/visual-database-actions';
+import { invokeVisualDatabaseAction } from '../do-work/visual-database-actions';
 import {
   FieldEditorOwnerCapabilitiesProvider,
   registerMutationNotifier,
-} from '@/packages/visual-database/show/field-editors';
+} from './field-editors';
 import type {
   AttachmentReadRequest,
   AttachmentReadResult,
   AttachmentRevealRequest,
   FieldEditorOwnerCapabilities,
   FieldEditorOwnerTarget,
-} from '@/packages/visual-database/show/field-editor-kit';
-import { createRecordWriter } from '@/packages/visual-database/do-work/record-writes';
+} from './field-editor-kit';
+import { createRecordWriter } from '../do-work/record-writes';
 import {
   decodeVisualDatabaseEvaluatorDescriptors,
   decodeVisualDatabaseModel,
@@ -36,33 +36,33 @@ import {
   visualDatabaseViewsWithSelection,
   recordsForVisualDatabaseDataset,
   selectVisualDatabaseViewWorkspace,
-} from '@/packages/visual-database/read-data/visual-database';
-import { selectVisualDatabaseInput } from '@/packages/visual-database/show/select-visual-database-input';
-import { hasVisualDatabaseBoardInputOverride } from '@/packages/visual-database/show/board-input-precedence';
-import { VisualDatabaseSurface } from '@/packages/visual-database/show/VisualDatabaseSurface';
+} from '../read-data/visual-database';
+import { selectVisualDatabaseInput } from './select-visual-database-input';
+import { hasVisualDatabaseBoardInputOverride } from './board-input-precedence';
+import { VisualDatabaseSurface } from './VisualDatabaseSurface';
 import {
   initialViewIdFromSurfaceInput,
   latestRecordRefsFromSurfaceInput,
   scopedVisualDatabaseModel,
   visualDatabaseRecordScopeFromSurfaceInput,
   visualDatabaseInstanceIsWritable,
-} from '@/packages/visual-database/show/surface-input-record-scope';
-import { setSelectedAgent } from '@/packages/selected-agent/do-work/set-selected-agent';
-import { addressedCellInputsFromPublishedRecords } from '@/packages/visual-database/do-work/cell-expression';
+} from './surface-input-record-scope';
+import { setSelectedAgent } from '../../selected-agent/do-work/set-selected-agent';
+import { addressedCellInputsFromPublishedRecords } from '../do-work/cell-expression';
 import {
   foldAddressedDescriptorFactsFromPublishedFeed,
   type DescriptorOwnerTarget,
-} from '@/packages/visual-database/read-data/addressed-descriptors';
-import { visualDatabaseInputsFromAddressedDescriptors } from '@/packages/visual-database/read-data/descriptor-projection';
-import { selectDescriptorAuthority } from '@/packages/visual-database/do-work/migrate-descriptor-aggregates';
-import descriptorReferenceRules from '@/packages/visual-database/source-data/descriptor-reference-rules.json';
+} from '../read-data/addressed-descriptors';
+import { visualDatabaseInputsFromAddressedDescriptors } from '../read-data/descriptor-projection';
+import { selectDescriptorAuthority } from '../do-work/migrate-descriptor-aggregates';
+import descriptorReferenceRules from '../source-data/descriptor-reference-rules.json';
 import {
   dispatchVisualDatabaseSelectionAffordance,
   visualDatabaseSelectionActionApplies,
   visualDatabaseSelectionAffordances,
   visualDatabaseSelectionAskFields,
   type VisualDatabaseSelectionAffordance,
-} from '@/packages/visual-database/show/selection-action-affordances';
+} from './selection-action-affordances';
 
 const recordWriter = createRecordWriter(bitfieldGeneratedLiveReadScopeDescriptor.partitionLabel);
 const RECORD_BOARD_DESCRIPTOR_OWNER: DescriptorOwnerTarget = {
@@ -247,12 +247,12 @@ export function VisualDatabaseDataSurface({
   );
   const [pendingAffordance, setPendingAffordance] = React.useState<{
     action: VisualDatabaseSelectionAffordance;
-    selectedRecords: readonly import('@/packages/visual-database/read-data/visual-database').VisualDatabaseRecord[];
+    selectedRecords: readonly import('../read-data/visual-database').VisualDatabaseRecord[];
   } | null>(null);
 
   const runSelectionAffordance = React.useCallback(async (
     action: VisualDatabaseSelectionAffordance,
-    selectedRecords: readonly import('@/packages/visual-database/read-data/visual-database').VisualDatabaseRecord[],
+    selectedRecords: readonly import('../read-data/visual-database').VisualDatabaseRecord[],
     answers: Record<string, unknown> = {},
   ) => {
     try {

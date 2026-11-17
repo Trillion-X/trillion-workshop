@@ -19,13 +19,13 @@ import {
   Text,
   emitPlaceableSurfaceIntent,
   useToastContext,
-} from '@/packages/ui';
+} from '../../ui';
 import {
   buildNewTableWrite,
   openTablePayload,
   readTableCatalog,
   type TableCatalogEntry,
-} from '@/packages/visual-database/show/tables-home-model';
+} from './tables-home-model';
 
 export interface TablesHomeSurfaceProps {
   records: unknown;

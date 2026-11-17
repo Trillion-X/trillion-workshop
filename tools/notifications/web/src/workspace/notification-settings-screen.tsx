@@ -12,18 +12,18 @@
 //   2. "On this computer" is this browser's own permission and subscription: switching it on asks the browser, keeps
 //      the subscription in the person's store, and switching it off removes this browser only.
 //   3. A way that cannot send yet says why in the store's words, and offers Connect when a connection would turn it on.
-//   4. Every control is a shared part (parts/ui); this file writes no markup and no appearance.
+//   4. Every control is a shared part (tools/ui); this file writes no markup and no appearance.
 //
 // References (anatomy; original code): Mobbin fal Notification Settings (delivery channels as rows with their state,
 // then a per-kind table of channels), Mobbin AirOps Notification Preferences (switch matrix of kinds by channels),
 // 21st.dev #22226 Notification Channel Matrix and #26523 Notification Settings Field. The kinds-by-ways table is the
-// shared SwitchMatrix (parts/ui/show/switch-matrix): fixed label column, aligned switches, a fade while columns scroll.
+// shared SwitchMatrix (tools/ui/show/switch-matrix): fixed label column, aligned switches, a fade while columns scroll.
 
 import * as React from 'react';
-import { Button, Card, Container, InlineEditText, Switch, SwitchMatrix, Text } from '../../parts/ui';
-import { loadScreen } from '../../parts/ui/show/screen-state';
-import { mountReactSurface } from '../../parts/ui/show/react-surface-mount';
-import { notify } from '../../parts/ui/show/coss/notifications';
+import { Button, Card, Container, InlineEditText, Switch, SwitchMatrix, Text } from '../../../../ui';
+import { loadScreen } from '../../../../ui/show/screen-state';
+import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
+import { notify } from '../../../../ui/show/coss/notifications';
 import { postJson, readJson } from './api';
 import { refusal } from './failure';
 import { ShowRulesSettings } from './show-rules-settings';

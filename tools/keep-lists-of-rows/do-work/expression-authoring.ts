@@ -12,12 +12,12 @@ import type {
   VisualDatabaseEvaluatorDescriptor,
   VisualDatabaseExpressionAuthoringDescriptor,
   VisualDatabaseValueExpression,
-} from '@/packages/visual-database/read-data/visual-database';
+} from '../read-data/visual-database';
 import {
   buildDurableExpressionOwnerRequest,
   canonicalExpressionOwnerJson,
   type ExpressionOwnerReplyAcceptance,
-} from '@/packages/visual-database/do-work/expression-owner-protocol';
+} from './expression-owner-protocol';
 import {
   ExpressionOwnerReplyRejectedError,
   ExpressionOwnerSession,

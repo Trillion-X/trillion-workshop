@@ -1,4 +1,3 @@
-// parts/group/do-work/board-source-picture.ts
 //
 // PURPOSE
 //   A source's records (board-source.ts) as a still picture of the board they would be drawn on: planned onto an empty

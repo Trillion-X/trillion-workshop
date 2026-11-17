@@ -1,4 +1,3 @@
-// parts/group/do-work/board-source.ts
 //
 // PURPOSE
 //   Any set of records drawn on the board, kept in step with where they come from. A source says what its records

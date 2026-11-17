@@ -5,22 +5,22 @@ import {
   evidenceBlockerText,
   evidencePayloads,
   readEvidenceProjection,
-} from '@/packages/content-media-evidence/read-data/content-media-evidence';
+} from '../../../../record-voice-and-meetings/read-data/content-media-evidence';
 import {
   chooseContentMediaFiles,
   CONTENT_MEDIA_AUDIO_EXTENSIONS,
   CONTENT_MEDIA_IMAGE_EXTENSIONS,
   CONTENT_MEDIA_VIDEO_EXTENSIONS,
   stageContentMediaFile,
-} from '@/packages/content-media-evidence/do-work/content-media-work-loop';
+} from '../../../../content-media-evidence/do-work/content-media-work-loop';
 import { submitMediaAnalysisRequest } from '@/packages/media-analysis/do-work/submit-media-analysis';
 import {
   OneStepAtATimeSurface,
   type OneStepAtATimeItem,
-} from '@/packages/ui/show/one-step-at-a-time-surface';
-import { FileWorkAction } from '@/packages/ui/show/file-work-action';
-import { Container } from '@/packages/ui/show/container';
-import { Text } from '@/packages/ui/show/text';
+} from '../../../../ui/show/one-step-at-a-time-surface';
+import { FileWorkAction } from '../../../../ui/show/file-work-action';
+import { Container } from '../../../../ui/show/container';
+import { Text } from '../../../../ui/show/text';
 
 type MediaRequest = {
   kind?: string;

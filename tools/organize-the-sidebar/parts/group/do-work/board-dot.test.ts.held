@@ -4,7 +4,7 @@
 // export↔import ROUND-TRIP (boardToDot → parseDot), and dotToBoardItems (via the shared graph builder).
 
 import { describe, it, expect } from 'vitest';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
+import type { BoardItem } from '../../../read-data/group-board-model';
 import { looksLikeDot, parseDot, dotToBoardItems, boardToDot } from './board-dot';
 
 function note(memberId: string, text: string): BoardItem {

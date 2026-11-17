@@ -44,8 +44,8 @@ import {
   DEFAULT_EDIT_OP_SCHEMAS,
   type EditOpDescriptor,
   type EditOpSchemaMap,
-} from '@/packages/media-composition/do-work/edit-op-schemas';
-import type { EditRuleset } from '@/packages/media-composition/do-work/author-decisions-from-records';
+} from '../do-work/edit-op-schemas';
+import type { EditRuleset } from '../do-work/author-decisions-from-records';
 
 export { DEFAULT_EDIT_OP_SCHEMAS };
 export type { EditOpDescriptor, EditOpSchemaMap };

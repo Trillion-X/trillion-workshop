@@ -6,7 +6,7 @@
 // connectors like the mermaid importer.
 
 import { describe, it, expect } from 'vitest';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
+import type { BoardItem } from '../../../read-data/group-board-model';
 import { parseGraphml, looksLikeGraphml, graphmlToBoardItems } from './board-graphml-import';
 import { boardToGraphml } from './board-graphml';
 

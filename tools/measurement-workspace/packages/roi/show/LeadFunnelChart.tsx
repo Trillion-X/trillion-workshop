@@ -12,13 +12,13 @@
 //
 // 1. Shows 3 stages: New Leads → Qualified → Converted
 // 2. Displays count at each stage and conversion % between stages
-// 3. All styling through @/packages/ui (L065/L066 compliant)
+// 3. All styling through tools/ui (L065/L066 compliant)
 // 4. No raw HTML or inline styles
 //
 // =============================================================================
 
 import * as React from 'react';
-import { Container, Text, Card } from '@/packages/ui';
+import { Container, Text, Card } from '../../../../ui';
 
 // ---------------------------------------------------------------------------
 // TYPES

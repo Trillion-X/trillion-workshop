@@ -1,6 +1,6 @@
 {
   "schema": "licensed-source-revision/v1",
-  "owner": "parts/media-composition",
+  "owner": "tools/media-composition",
   "revision_date": "2026-10-27",
   "predecessor": {
     "path": "source-adoption.json",
@@ -15,15 +15,15 @@
   ],
   "files": [
     {
-      "path": "parts/media-composition/do-work/narration/produce.py",
+      "path": "tools/media-composition/do-work/narration/produce.py",
       "blake3": "1f:619ff09f2cd01231354218ca47cf92e54b016f9e26ec093489686949e5158e1f"
     },
     {
-      "path": "parts/media-composition/do-work/narration/tests/test_asr_entry.py",
+      "path": "tools/media-composition/do-work/narration/tests/test_asr_entry.py",
       "blake3": "1f:9f492b74c3c0e2e4717761e44e741bdee84c5a020fc4e8915023a1c02b8875ab"
     },
     {
-      "path": "parts/media-composition/do-work/narration/README.md",
+      "path": "tools/media-composition/do-work/narration/README.md",
       "blake3": "1f:5ac1fe4bb7a09b3eafac45c624aba21233b86c5a2b2757bb11d7a662b68654eb"
     }
   ],

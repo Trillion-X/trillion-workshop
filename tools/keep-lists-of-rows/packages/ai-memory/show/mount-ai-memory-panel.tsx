@@ -1,7 +1,7 @@
 import React from 'react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
-import { readPublishedRecords } from '@/packages/ui/show/placeable-surface-intent/placeable-surface-record';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
+import { readPublishedRecords } from '../../../../ui/show/placeable-surface-intent/placeable-surface-record';
 import { readMemoryContext } from '../read-data/read-memory-context';
 import { AiMemoryPanel } from './AiMemoryPanel';
 

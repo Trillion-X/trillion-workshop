@@ -14,7 +14,7 @@
 //      pasted is ever run.
 
 import settings from './row-clipboard.json' with { type: 'json' };
-import { tableRows } from '../../parts/documents/read-data/paste-sources';
+import { tableRows } from '../../../../documents/read-data/paste-sources';
 
 export type ClipField = { id: string; label: string; kind: string; links_to?: string };
 export type ClipRow = { id: string; title: string | null; values: Record<string, unknown> };

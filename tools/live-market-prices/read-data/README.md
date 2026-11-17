@@ -24,7 +24,7 @@ Pure decoding and data-to-human translation for the Market Data surface inputs.
 
 ## Dependencies
 
-**Depends on:** `@/packages/permission-lease/read-data/hold-reason` (canonical `holdReasonSentence`). Otherwise pure TS — zero React, zero I/O.
+**Depends on:** `tools/permission-lease/read-data/hold-reason` (canonical `holdReasonSentence`). Otherwise pure TS — zero React, zero I/O.
 **Depended on by:** `../show/MarketDataFeedPanel.tsx`.
 
 ## Rules

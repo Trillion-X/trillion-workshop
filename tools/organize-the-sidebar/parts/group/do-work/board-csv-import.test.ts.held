@@ -2,12 +2,12 @@
 // Progress %→extra.metric, Tags→extra.tags), match columns by header name, quote-aware RFC-4180 parsing,
 // conservative detection, and a ROUND-TRIP with the b71 CSV export.
 import { describe, expect, it } from 'vitest';
-import { emptyGraph } from '@/packages/ui/show/group/group-graph';
-import type { AddressRef } from '@/packages/ui/show/group/group-graph';
-import { placeItem, readItems } from '@/packages/group/read-data/group-board-model';
-import { setItemDueDate } from '@/packages/group/do-work/board-due-date-actions';
-import { setItemMetric } from '@/packages/group/do-work/board-metric-actions';
-import { boardToCsv } from '@/packages/group/do-work/board-csv';
+import { emptyGraph } from '../../../../ui/show/group/group-graph';
+import type { AddressRef } from '../../../../ui/show/group/group-graph';
+import { placeItem, readItems } from '../../../read-data/group-board-model';
+import { setItemDueDate } from '../../../do-work/board-due-date-actions';
+import { setItemMetric } from '../../../do-work/board-metric-actions';
+import { boardToCsv } from '../../../do-work/board-csv';
 import { csvToDrafts, looksLikeCsv, parseCsvRows, MAX_CSV_ROWS } from './board-csv-import';
 
 const PARENT: AddressRef = { family: 'test.board', parts: { board: 'b1' } };

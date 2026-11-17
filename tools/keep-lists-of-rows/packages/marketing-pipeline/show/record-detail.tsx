@@ -32,7 +32,7 @@ import {
   RunCard,
   Text,
   statusView,
-} from '@/packages/ui';
+} from '../../../../ui';
 import { FileText } from 'lucide-react';
 import type {
   CoordinationActionDescriptor,

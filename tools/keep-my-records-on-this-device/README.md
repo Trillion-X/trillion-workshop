@@ -1,6 +1,6 @@
-# parts/device-copy
+# tools/device-copy
 
-A person's records kept on their own device: the same record store (`parts/record-log`) over SQLite compiled to WebAssembly, so a browser or an iPhone web view holds a working copy that survives reloads, reads in microseconds and keeps working offline, settling with the hosted copy through `parts/record-log/do-work/record-sync.mjs`.
+A person's records kept on their own device: the same record store (`tools/record-log`) over SQLite compiled to WebAssembly, so a browser or an iPhone web view holds a working copy that survives reloads, reads in microseconds and keeps working offline, settling with the hosted copy through `tools/record-log/do-work/record-sync.mjs`.
 
 ## Files
 
@@ -13,7 +13,7 @@ A person's records kept on their own device: the same record store (`parts/recor
 | `do-work/frame-compression.mjs` + `do-work/frame-dictionaries.json` | A settle upload compressed (deflate) against a sample of settle JSON in DATA, the sample named by its BLAKE3 hash in the frame headers; `compressFrame(text)` → `{ body, headers }` or null (send plain), `expandFrame(body, headers, { max_expanded_bytes })` expands only to the size the frame declared and refuses a frame with no size, an unknown dictionary, a wrong size or too many bytes. `account-copy.mjs` sends large batches this way and `src/browser-record-copy.mjs` `browserRecordCopyBody` reads them for `/work/records/settle`; a plain post is still read |
 | `do-work/pack-a-settle-upload.mjs` | `packSettleUpload({ account, request })`: where one account's copy is kept and the exact upload one settle batch would be (frame or plain, headers, sizes, body), with nothing opened or sent (what `tool-rows.json` runs) |
 | `tool-rows.json` | The row `tool:pack-my-device-copys-settle-upload`, with a sample run whose twelve-note batch goes as a compressed frame |
-| `moved-from.json` | Where `do-work/frame-compression.mjs` came from (old trillion `parts/device-copy/`, byte for byte) |
+| `moved-from.json` | Where `do-work/frame-compression.mjs` came from (old trillion `tools/device-copy/`, byte for byte) |
 | `README.md` | This file |
 
 ## Key Types / Functions
@@ -26,7 +26,7 @@ A person's records kept on their own device: the same record store (`parts/recor
 
 ## Dependencies
 
-**Depends on:** `@sqlite.org/sqlite-wasm` (Apache-2.0), `parts/record-log` (the store and `record-sync.mjs`), `parts/sealed-records` (`sealed-copy.mjs`, the worker's sealed-record calls).
+**Depends on:** `@sqlite.org/sqlite-wasm` (Apache-2.0), `tools/record-log` (the store and `record-sync.mjs`), `tools/sealed-records` (`sealed-copy.mjs`, the worker's sealed-record calls).
 
 **Depended on by:** `scripts/build-workspace.mjs` (builds the worker as `device-copy-worker.js` with its `sqlite3.wasm`), `src/workspace/device-copy.ts` (the page's handle on its copy), `test/wasm-sqlite-host.test.mjs`, `test/record-sync.test.mjs`.
 

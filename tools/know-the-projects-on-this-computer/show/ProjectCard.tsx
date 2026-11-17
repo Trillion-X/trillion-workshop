@@ -44,7 +44,7 @@
 
 import * as React from 'react';
 import { CheckCircle2, EyeOff, Folder, GitBranch, Star, Users, Brain, Send } from 'lucide-react';
-import { Card, Badge, Button, Text, Icon } from '@/packages/ui';
+import { Card, Badge, Button, Text, Icon } from '../../ui';
 import type {
   ProjectCardData,
   ProjectCardMode,

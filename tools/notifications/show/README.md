@@ -29,11 +29,11 @@ it consumes only a `HumanSettingView` (human strings + opaque option ids).
 ## Dependencies
 
 **Depends on:**
-- `@/packages/ui` — `Card`, `Container`, `Text`, `Badge`, `NamedIcon`, `Button`, `StatusDot`, `mountReactSurface` (all visual structure composes shared primitives — no raw `div/span/p`, no inline styling per L065).
-- `@/packages/notifications/read-data/project-setting-view` — `HumanSettingView`, `WritePhase`, `projectSettingView`.
-- `@/packages/notifications/read-data/read-notifications-policy` — `readNotificationsPolicy`, `PublishedRecordRow`.
-- `@/packages/notifications/read-data/setting-live-source` — `buildCurrentValueSelector`, `currentRecordsFromEntry`.
-- `@/packages/notifications/do-work/save-setting` — `saveSetting`.
+- `tools/ui` — `Card`, `Container`, `Text`, `Badge`, `NamedIcon`, `Button`, `StatusDot`, `mountReactSurface` (all visual structure composes shared primitives — no raw `div/span/p`, no inline styling per L065).
+- `tools/notifications/read-data/project-setting-view` — `HumanSettingView`, `WritePhase`, `projectSettingView`.
+- `tools/notifications/read-data/read-notifications-policy` — `readNotificationsPolicy`, `PublishedRecordRow`.
+- `tools/notifications/read-data/setting-live-source` — `buildCurrentValueSelector`, `currentRecordsFromEntry`.
+- `tools/notifications/do-work/save-setting` — `saveSetting`.
 - `@bitfield/runtime-kit/react` — `useBitfieldData`.
 
 **Depended on by:** the package runtime surface mount; `proof/harness/mount.tsx` (renders `BlindSettingRenderer` for visual proof); `show-ios-jscore/` mirrors this contract for the JSCore surface.

@@ -32,7 +32,7 @@
 // The documentation in this file is a design feature. Do not remove it.
 // =============================================================================
 
-import { holdReasonSentence } from '@/packages/permission-lease/read-data/hold-reason';
+import { holdReasonSentence } from '../../permission-lease/read-data/hold-reason';
 
 /** One evaluated symbol from the agent's last cycle. */
 export interface AgentSignal {

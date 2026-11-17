@@ -5,7 +5,7 @@
 //   { kind: 'part', layout: <layout_id>, version?: <its version number>, overrides?: { <key>: { <field>: value, hidden?: true } } }
 //   stands for that layout's arrangement: at the version it is pinned to, or the layout as it is now when unpinned.
 //   Any node may carry `key`, the inner id an override names. Expanding a written arrangement gives the plain
-//   arrangement the page draws (parts/screen-arrangement/read-data/starter-layouts.ts) plus the parts it used.
+//   arrangement the page draws (tools/arrange-screens-in-panes/read-data/starter-layouts.ts) plus the parts it used.
 //
 // Non-negotiable invariants
 //   1. Pure: the layouts owner resolves a part ({ layout, version } → { arrangement, fell_back? } | null); this file

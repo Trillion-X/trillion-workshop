@@ -2,12 +2,12 @@
 // beats attention beats momentum beats untracked beats steady), the counts reduce the real lenses, and a
 // headline is ALWAYS produced (the catch-all). The digest is a pure composition of the shipped readings.
 import { describe, expect, it } from 'vitest';
-import { emptyGraph } from '@/packages/ui/show/group/group-graph';
-import type { AddressRef } from '@/packages/ui/show/group/group-graph';
-import { placeItem, readItems } from '@/packages/group/read-data/group-board-model';
-import { setItemMetric } from '@/packages/group/do-work/board-metric-actions';
-import { setItemDueDate } from '@/packages/group/do-work/board-due-date-actions';
-import { logMinutes } from '@/packages/group/do-work/board-time-log-actions';
+import { emptyGraph } from '../../../../ui/show/group/group-graph';
+import type { AddressRef } from '../../../../ui/show/group/group-graph';
+import { placeItem, readItems } from '../../../read-data/group-board-model';
+import { setItemMetric } from '../../../do-work/board-metric-actions';
+import { setItemDueDate } from '../../../do-work/board-due-date-actions';
+import { logMinutes } from '../../../do-work/board-time-log-actions';
 import { boardDigest, digestHeadline, digestText, DIGEST_HEADLINES } from './board-digest-actions';
 
 const DAY = 86_400_000;

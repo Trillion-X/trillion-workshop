@@ -1,5 +1,5 @@
 {
- "_what": "Old trillion's sign-in pages at 4ffa1dc4a2^ (src/pages.mjs, drawn by src/html-page.mjs through parts/ui/show/server-rendered-page/page-sections-html.mjs): each page's description as src/pages.mjs handed it to htmlPage, and the HTML the old shell wrote for it. The look's pieces, the same on every page, are written once as {{name}} in `html` and pinned by the SHA-256 of the old bytes in `pieces`. src/account/sign_in/shell_tests.rs draws every description through shell.rs in the product's look and checks it byte for byte.",
+ "_what": "Old trillion's sign-in pages at 4ffa1dc4a2^ (src/pages.mjs, drawn by src/html-page.mjs through tools/ui/show/server-rendered-page/page-sections-html.mjs): each page's description as src/pages.mjs handed it to htmlPage, and the HTML the old shell wrote for it. The look's pieces, the same on every page, are written once as {{name}} in `html` and pinned by the SHA-256 of the old bytes in `pieces`. src/account/sign_in/shell_tests.rs draws every description through shell.rs in the product's look and checks it byte for byte.",
  "pieces": {
   "palette": "4e20645f6b09d30e40ca56e7a44e4fd4a88a79831b97990061fe3d768441fe0b",
   "sections_css": "87a60772b574b760ac495d748721d482e5e438292c249410dc435a9f035426ad",

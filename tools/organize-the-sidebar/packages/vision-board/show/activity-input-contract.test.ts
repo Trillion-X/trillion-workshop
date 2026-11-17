@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { observeOrBehavior } from '@/packages/visual-database/proof/or-behavior-observation';
+import { observeOrBehavior } from '../../../../keep-lists-of-rows/proof/or-behavior-observation';
 
 const PACKAGE_ROOT = resolve(import.meta.dirname, '..');
 const THINGS_PATH = resolve(PACKAGE_ROOT, 'things-to-store-and-run.json');

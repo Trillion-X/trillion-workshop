@@ -1,6 +1,6 @@
 # delight-moments
 
-Small good moments: when something good happens (a tour finished, work done) or a phrase is typed, the matching row in `records/delight-moments.json` plays one line of words with a motion, never a sound. What covers the workspace while it opens is the thread cover (`parts/ui/show/thread-cover`), drawn by the page's first bytes.
+Small good moments: when something good happens (a tour finished, work done) or a phrase is typed, the matching row in `records/delight-moments.json` plays one line of words with a motion, never a sound. What covers the workspace while it opens is the thread cover (`tools/ui/show/thread-cover`), drawn by the page's first bytes.
 
 | File | Purpose |
 |---|---|

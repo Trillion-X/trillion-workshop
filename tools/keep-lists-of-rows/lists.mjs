@@ -598,7 +598,7 @@ export function makeLists({ eeaf, newId = () => crypto.randomUUID(), progressOfR
   }
 
   // Saved views: slices of the same rows (Customers, Leads, Opened the email) as a name, a search and filter rules
-  // (parts/ui/show/rule-filter rule trees), so a slice is never a second list.
+  // (tools/ui/show/rule-filter rule trees), so a slice is never a second list.
   function checkViews(views, fields, ownerSlug, rowSources = null) {
     // A value a row source names itself (note.status of a folder of documents) is a field of its views (src/list-paths.mjs).
     const namespaces = sourceNamespacesOf(rowSources);

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * file: parts/media-composition/do-work/make-pictures-and-sounds.mjs
+ * file: tools/media-composition/do-work/make-pictures-and-sounds.mjs
  *
  * PURPOSE: The one runner behind every "make" tool (tool:make-<style>): it reads one style row from
  * make-pictures-and-sounds.json and turns it into new files: a thumbnail about the video, a striking picture of the

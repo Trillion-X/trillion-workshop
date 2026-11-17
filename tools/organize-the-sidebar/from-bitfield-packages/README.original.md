@@ -20,7 +20,7 @@ This package exists so the generic `group` primitive stays independently inventa
 
 ## Dependencies
 
-**Depends on:** `@/packages/group/show/GroupBoardPanel` (the generic board primitive), `@/packages/group/do-work/submit-producer-request` (`ProducerSubmitDescriptor` type), `@/packages/image-generation/do-work/local-image-provider-command` (`buildLocalImageProviderCommand`), `@/packages/ui` (`ErrorBoundary`, `FloatingMaterialFrame`, `mountReactSurface`).
+**Depends on:** `tools/organize-the-sidebar/show/GroupBoardPanel.tsx` (the generic board primitive), `tools/organize-the-sidebar/do-work/submit-producer-request.ts` (`ProducerSubmitDescriptor` type), `@/packages/image-generation/do-work/local-image-provider-command` (`buildLocalImageProviderCommand`), `tools/ui` (`ErrorBoundary`, `FloatingMaterialFrame`, `mountReactSurface`).
 
 **Depended on by:** the studio dock (via the `placeable-surface::vision-board` record).
 

@@ -1,4 +1,4 @@
-// file: parts/ui/show/file-view-document/file-view-bridge.mjs
+// file: tools/ui/show/file-view-document/file-view-bridge.mjs
 //
 // HOW A VIEW AN AI APP DRAWS HEARS WHICH FILE TO SHOW.
 //

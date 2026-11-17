@@ -16,9 +16,9 @@
 //   4. Nothing here checks grounding or staleness: applying asks the Worker, which refuses what changed since and says
 //      why in its own words.
 
-import { mountRecordViews, type FieldDescriptor } from '../../parts/ui/show/record-views/record-views';
-import { loadScreen } from '../../parts/ui/show/screen-state';
-import { notify } from '../../parts/ui/show/coss/notifications';
+import { mountRecordViews, type FieldDescriptor } from '../../../../ui/show/record-views/record-views';
+import { loadScreen } from '../../../../ui/show/screen-state';
+import { notify } from '../../../../ui/show/coss/notifications';
 import settings from '../file-tidy.json';
 import { postJson, readJson } from './api';
 import { refusal } from './failure';

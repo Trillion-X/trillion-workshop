@@ -1,6 +1,6 @@
 import React from 'react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
-import { PolymarketPanel } from '@/packages/polymarket/show/PolymarketPanel';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
+import { PolymarketPanel } from './PolymarketPanel';
 
 type MountArgs = { el: HTMLElement; props?: Record<string, unknown> };
 
