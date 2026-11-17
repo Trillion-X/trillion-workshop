@@ -533,8 +533,7 @@ export function findAgentSocket({ rules = settings, home = homedir() } = {}) {
 
 /** Asks this computer's engine to hold the person the pass or key names: `POST /persons/add` on the engine's own unix socket,
  *  which it serves only to the same user on this computer, as this login is. Answers { person, added }; null when this computer
- *  has no engine socket, or its engine has no such route (404: it is not asked to hold anyone, and the question of who the person
- *  is, asked next, is its answer); a TrillionError saying why when the engine refused or does not answer. */
+ *  has no engine socket; a TrillionError saying why when the engine refused or does not answer. */
 export async function addPersonHere({ socket, bearer, rules = settings }) {
   if (!socket) return null;
   const reply = await new Promise((resolve, reject) => {
@@ -546,7 +545,6 @@ export async function addPersonHere({ socket, bearer, rules = settings }) {
     request.on('error', reject);
     request.end();
   }).catch(error => { throw new TrillionError(rules.words.not_running, { status: 4, detail: fill(rules.words.details.not_running_engine, { url: socket, why: error.code ?? error.message }) }); });
-  if (reply.status === 404) return null;
   let answer = {};
   try { answer = JSON.parse(reply.text); } catch { /* no JSON body */ }
   if (reply.status < 200 || reply.status > 299) throw Object.assign(new TrillionError(reply.status === 401 ? rules.words.refused : rules.words.not_taken_in, { status: reply.status === 401 ? 3 : 4, detail: fill(rules.words.details.not_taken_in, { url: socket, status: reply.status, why: answer.error ?? 'refused' }) }), { notTaken: true });
@@ -592,13 +590,13 @@ export function trillionClient({ door, credential, fetchImpl = fetch, rules = se
   const gap = (attempt, asked = null) => retryGap(rules.retry, attempt, asked, random);
   const refused = () => new TrillionError(credential.kind === 'key' && !door.local && door.localMcp !== door.mcp && (door.public || door.localMcp)
     ? rules.words.refused_key_at_door : rules.words.refused, { status: 3, detail: fill(rules.words.details.refused, { mcp: door.mcp, kind: credential.kind, where: credential.where }) });
-  async function send(body, { idempotent }) {
+  async function send(body, { idempotent, once = false }) {
     for (let attempt = 0; ; attempt += 1) {
       let response = null, failure = null;
       try { response = await fetchImpl(door.mcp, { method: 'POST', headers, body, signal: signal() }); } catch (error) { failure = error; }
       const passing = failure || response.status === 429 || response.status >= 500;
       // Every try carries the same request_key, so a try after a lost or slow answer is answered as the first was.
-      if (passing && attempt < rules.retry.count) { await wait(gap(attempt) * 1000); continue; }
+      if (passing && !once && attempt < rules.retry.count) { await wait(gap(attempt) * 1000); continue; }
       const maybe = idempotent ? '' : ' It may have happened; read it back before trying again.';
       if (failure?.name === 'TimeoutError') throw new TrillionError(fill(rules.words.no_answer, { trillion: door.name, tries: attempt + 1 }) + maybe, { status: 4, detail: fill(rules.words.details.no_answer, { mcp: door.mcp, seconds: timeoutSeconds, tries: attempt + 1 }) });
       if (failure) {
@@ -612,9 +610,9 @@ export function trillionClient({ door, credential, fetchImpl = fetch, rules = se
       return response;
     }
   }
-  async function rpc(method, params, { idempotent = true } = {}) {
+  async function rpc(method, params, { idempotent = true, once = false } = {}) {
     const id = (next += 1);
-    const response = await send(JSON.stringify({ jsonrpc: '2.0', id, method, params }), { idempotent });
+    const response = await send(JSON.stringify({ jsonrpc: '2.0', id, method, params }), { idempotent, once });
     const text = await response.text();
     let reply;
     try { reply = repliesOf(text).find(item => item?.id === id); } catch { reply = null; }
@@ -642,7 +640,7 @@ export function trillionClient({ door, credential, fetchImpl = fetch, rules = se
   const op = (address, method, input = {}, { idempotent = false, requestKey = randomUUID() } = {}) =>
     tool(rules.engine.tool, { address, method, request_key: requestKeyForEngine(requestKey), input }, { idempotent });
   async function whoami() {
-    const result = await rpc('initialize', { protocolVersion: rules.engine.protocol_version, capabilities: {}, clientInfo: { name: rules.client_name, version: rules.client_version } });
+    const result = await rpc('initialize', { protocolVersion: rules.engine.protocol_version, capabilities: {}, clientInfo: { name: rules.client_name, version: rules.client_version } }, { once: true });
     const account = result?._meta?.[rules.engine.account_meta]?.account_id;
     if (typeof account !== 'string' || !account) throw new TrillionError(rules.words.no_account, { status: 4, detail: fill(rules.words.details.no_account, { mcp: door.mcp }) });
     return { account, server: result.serverInfo ?? null, capabilities: result.capabilities ?? {} };
@@ -1734,8 +1732,10 @@ export async function main(argv, seams = {}) {
   }
   if (command === 'whoami') {
     // An engine started again holds no one until told: a pass it has not held is added again here, as login adds it.
-    const known = await knownAs(context, client);
-    if (!known) throw new TrillionError(settings.words.refused, { status: 3 });
+    const kept = client.credential.kind === 'key' && client.credential.where !== 'TRILLION_KEY';
+    // A key the Mac app kept long ago that the engine will not read is no sign-in: say so at once, never after retries.
+    const known = await knownAs(context, client).catch(error => { if (kept && error instanceof TrillionError && error.message !== settings.words.not_running) throw new TrillionError(settings.words.no_credential, { status: 3, detail: error.detail }); throw error; });
+    if (!known) throw new TrillionError(kept ? settings.words.no_credential : settings.words.refused, { status: 3 });
     const { account } = known;
     const { agent_id, ai_id, held_as, app, model, provider, computer, harness } = context.me;
     return flags.json ? JSON.stringify({ account_id: account, agent_id, ai_id, held_as, app, model, provider, computer, harness, door: client.door.mcp, local: client.door.local }, null, 2)

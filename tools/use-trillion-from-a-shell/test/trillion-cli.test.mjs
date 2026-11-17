@@ -898,7 +898,7 @@ test('a local door is the app\'s loopback address, a sign-in of the origin it se
   const withoutSocket = join(mkdtempSync(join(tmpdir(), 'td-')), 's');
   await new Promise(resolve => without.listen(withoutSocket, resolve));
   try {
-    assert.equal(await addPersonHere({ socket: withoutSocket, bearer: KEY }), null, 'an engine with no route to add a person is not asked again; who the person is comes from its answer to whoami');
+    await assert.rejects(addPersonHere({ socket: withoutSocket, bearer: KEY }), error => error.message === settings.words.not_taken_in && error.notTaken === true, 'an engine with no add route has not taken the person in: there is no skip');
   } finally { without.close(); }
 });
 
@@ -996,4 +996,22 @@ test('login with a kept key the engine will not hold signs in at the browser ins
     assert.equal(said, "You're signed in to Trillion as person@example.com.");
     assert.equal(opened.length, 1);
   } finally { refusing.close(); await fake.close(); }
+});
+
+test('whoami with no sign-in and a kept key the engine will not read says not signed in at once, with no retries', async () => {
+  let asked = 0;
+  const server = createServer((request, response) => { asked += 1; response.writeHead(503, { 'content-type': 'application/json' }).end('{"error":"keys_unavailable"}'); });
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  const socket = join(mkdtempSync(join(tmpdir(), 'td-')), 's');
+  const engine = createServer((request, response) => response.writeHead(503, { 'content-type': 'application/json' }).end('{"error":"sign_in_unavailable"}'));
+  await new Promise(resolve => engine.listen(socket, resolve));
+  try {
+    const started = Date.now();
+    await assert.rejects(main(['whoami'], seamsFor(home(), { localDoor: () => `http://127.0.0.1:${server.address().port}/mcp`, agentSocket: () => socket, wait: async () => { throw new Error('waited for a retry'); } })),
+      error => error.status === 3 && error.message === settings.words.no_credential);
+    assert.ok(Date.now() - started < 2000);
+    const client = trillionClient({ door: doorAt(`http://127.0.0.1:${server.address().port}/mcp`), credential: keyCredential, wait: async () => { throw new Error('waited for a retry'); } });
+    await assert.rejects(client.whoami(), error => error.status === 4);
+    assert.equal(asked, 1, 'a question of who the person is is asked once, never retried');
+  } finally { server.close(); engine.close(); }
 });
