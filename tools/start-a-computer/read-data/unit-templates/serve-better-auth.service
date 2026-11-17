@@ -15,8 +15,12 @@ Environment=npm_config_cache={workshop}/.npm-cache
 Type=simple
 User={user}
 Group={user}
-ExecStartPre=/bin/sh -c 'test -d {workshop}/.git || git clone --depth 1 {repository} {workshop}'
-ExecStartPre=/bin/sh -c 'cd {workshop}/{tool_folder} && npm ci --omit=dev --no-audit --no-fund'
+# The Workshop copy at {workshop} stays between starts: the row's pinned commit {workshop_commit} is fetched into it (only what
+# the copy lacks) and checked out. npm ci runs only when that commit's package-lock.json is not the one installed last time,
+# whose git id is kept in the copy's .git/npm-lock-id.
+ExecStartPre=/bin/sh -c 'test -d {workshop}/.git || git init -q {workshop}'
+ExecStartPre=/bin/sh -c 'git -C {workshop} fetch -q --depth 1 {repository} {workshop_commit} && git -C {workshop} checkout -q --detach {workshop_commit}'
+ExecStartPre=/bin/sh -c 'lock=$$(git -C {workshop} rev-parse {workshop_commit}:{tool_folder}/package-lock.json) && if [ "$$(cat {workshop}/.git/npm-lock-id 2>/dev/null)" != "$$lock" ]; then cd {workshop}/{tool_folder} && npm ci --omit=dev --no-audit --no-fund && echo "$$lock" > {workshop}/.git/npm-lock-id; fi'
 ExecStart=/bin/sh -c 'cd {workshop}/{tool_folder} && BETTER_AUTH_SECRET="$(cat "$CREDENTIALS_DIRECTORY/{secret_name}")" && export BETTER_AUTH_SECRET && {credential_env}exec node server.mjs'
 Restart=on-failure
 RestartSec=3

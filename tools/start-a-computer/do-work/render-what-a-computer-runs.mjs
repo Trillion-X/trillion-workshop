@@ -192,6 +192,7 @@ export function renderWhatItRuns(runs, siteBlock, pages) {
     const where = `unit ${unit.unit}`;
     const template = UNITS[unit.template];
     if (!template) throw new Error(`${where} names an unknown template ${unit.template}`);
+    if (unit.workshop_commit !== undefined && !/^[0-9a-f]{40}$/.test(unit.workshop_commit)) throw new Error(`${where} workshop_commit must be a full commit id`);
     files.push({ path: `${SYSTEMD}/${unit.unit}`, text: fill(template, withCredentials(unit, where), where) });
     if (unit.settings !== undefined || unit.settings_lines !== undefined) files.push(unitSettings(unit, where));
     if (unit.script !== undefined) files.push({ path: fill('{script_file}', unit, where), text: SCRIPT(unit.script) });

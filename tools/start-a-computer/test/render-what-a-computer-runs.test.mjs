@@ -65,7 +65,7 @@ const withSignIn = {
   units: [...runs.units, {
     unit: 'example-sign-in.service', template: 'serve-better-auth', description: 'Example sign-in', user: 'example-sign-in',
     workshop: '/var/lib/example-sign-in/trillion-workshop', repository: 'https://github.com/Trillion-X/trillion-workshop.git',
-    tool_folder: 'tools/better-auth-official', node_bin: '/opt/node/bin', settings_file: '/var/lib/example-sign-in/settings.json',
+    tool_folder: 'tools/better-auth-official', workshop_commit: '7777777777777777777777777777777777777777', node_bin: '/opt/node/bin', settings_file: '/var/lib/example-sign-in/settings.json',
     settings: { port: 7201, base_url: 'https://place.example.test', issuer: 'https://place.example.test', store: { credential: 'sign-in-store', env: 'BETTER_AUTH_STORE_CONNECTION' } },
     secret_vault_key: 'example-better-auth-secret', secret_name: 'better-auth-secret', secret_file: '/etc/example-sign-in/better-auth-secret',
     credentials: [
@@ -83,7 +83,11 @@ test('a row that names the better-auth unit renders it, its settings file and th
   assert.match(unit, /^LoadCredentialEncrypted=better-auth-secret:\/etc\/example-sign-in\/better-auth-secret$/m);
   assert.match(unit, /^# BETTER_AUTH_SECRET is the value held under the vault name example-better-auth-secret:/m);
   assert.match(unit, /^Environment=BETTER_AUTH_SETTINGS=\/var\/lib\/example-sign-in\/settings\.json$/m);
-  assert.match(unit, /^ExecStartPre=\/bin\/sh -c 'cd \/var\/lib\/example-sign-in\/trillion-workshop\/tools\/better-auth-official && npm ci --omit=dev --no-audit --no-fund'$/m);
+  const W = '/var/lib/example-sign-in/trillion-workshop', PIN = '7'.repeat(40);
+  assert.ok(unit.includes(`ExecStartPre=/bin/sh -c 'git -C ${W} fetch -q --depth 1 https://github.com/Trillion-X/trillion-workshop.git ${PIN} && git -C ${W} checkout -q --detach ${PIN}'`), 'the pinned commit is fetched into the copy that stays');
+  assert.ok(unit.includes(`lock=$$(git -C ${W} rev-parse ${PIN}:tools/better-auth-official/package-lock.json)`), 'npm runs only when the pinned lock file is not the one installed');
+  assert.ok(unit.includes(`echo "$$lock" > ${W}/.git/npm-lock-id`));
+  assert.doesNotMatch(unit, /git clone/);
   assert.match(unit, /exec node server\.mjs'$/m);
   assert.match(unit, /^LoadCredentialEncrypted=sign-in-store:\/etc\/credstore\.encrypted\/sign-in-store$/m);
   assert.match(unit, /^LoadCredentialEncrypted=example-sender-key:\/etc\/credstore\.encrypted\/example-sender-key$/m);

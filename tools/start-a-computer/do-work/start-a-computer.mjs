@@ -101,14 +101,6 @@ export async function runsState(machine, given, run = onMachine, { pages } = {})
     if (await run(machine, `getent passwd ${q(user)} >/dev/null || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; })) usersPresent.push(user);
   }
   found.push(...usersPresent.map(user => ({ path: `user ${user}`, reason: 'present; the computer row says absent' })));
-  // A unit run from a Workshop clone is behind when the clone is not at the commit its row pins.
-  const moves = [];
-  for (const unit of units.filter(row => row.workshop && row.workshop_commit)) {
-    const wanted = workshopCommitOf(unit);
-    const head = (await run(machine, `${asUser(unit)} git -C ${q(unit.workshop)} rev-parse HEAD`)).trim();
-    if (head !== wanted) moves.push({ unit, from: head, to: wanted });
-  }
-  found.push(...moves.map(({ unit, from, to }) => ({ path: unit.workshop, reason: `runs Workshop ${from}; its row follows ${to}` })));
   // A unit whose program is built from source (`source`) is behind when its `current` is not the commit its row names; the
   // apply builds that commit on the computer and moves `current` to it.
   const builds = [];
@@ -118,15 +110,7 @@ export async function runsState(machine, given, run = onMachine, { pages } = {})
     if (from !== commit) builds.push({ unit, from });
   }
   found.push(...builds.map(({ unit, from }) => ({ path: `${unit.builds}/current`, reason: `runs ${from || 'no program'}; its row builds ${unit.source.commit}` })));
-  return { runs, rendered, live, found, present, usersPresent, moves, builds };
-}
-
-const asUser = unit => `runuser -u ${q(unit.user)} --`;
-
-/** The Workshop commit a unit's row pins (`workshop_commit`). */
-export function workshopCommitOf(unit) {
-  if (!/^[0-9a-f]{40}$/.test(unit.workshop_commit)) throw refused(`${unit.unit} workshop_commit must be a full commit id.`);
-  return unit.workshop_commit;
+  return { runs, rendered, live, found, present, usersPresent, builds };
 }
 
 /** A unit's `source` with its fields filled from the unit: the `repository` the request's `sources` maps to a checkout on
@@ -178,7 +162,7 @@ export const secretsOf = unit => [
 ].filter(Boolean);
 
 export async function applyWhatItRuns(machine, given, run = onMachine, held = {}, deps = {}) {
-  const { runs, rendered, live, present, usersPresent, moves, builds } = await runsState(machine, given, run, deps);
+  const { runs, rendered, live, present, usersPresent, builds } = await runsState(machine, given, run, deps);
   const writes = rendered.filter(({ path, text }) => live[path] !== text);
   const absent = (path, input) => run(machine, `${path} || exit 3`, input).then(() => false, error => { if (error.code === 3) return true; throw error; });
   const nodes = [...new Set(runs.units.map(unit => unit.node_bin).filter(Boolean))];
@@ -210,15 +194,6 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
   if (present.some(path => path.startsWith('/etc/ssh/sshd_config.d/'))) await run(machine, 'sshd -t && systemctl reload ssh');
   for (const user of usersPresent) await run(machine, `userdel -r ${q(user)}`);
   const removed = present.length || usersPresent.length ? { removed: [...present, ...usersPresent.map(user => `user ${user}`)] } : {};
-  // A clone the row's pin has moved past goes to that commit as its unit's user; its unit restarts only when the
-  // tool folder it runs from changed.
-  const toolChanged = [];
-  for (const { unit, from, to } of moves) {
-    const tree = commit => run(machine, `${asUser(unit)} git -C ${q(unit.workshop)} rev-parse ${q(`${commit}:${unit.tool_folder}`)}`).then(text => text.trim());
-    await run(machine, `${asUser(unit)} git -C ${q(unit.workshop)} fetch -q --depth 1 origin ${q(to)} && ${asUser(unit)} git -C ${q(unit.workshop)} checkout -q --detach ${q(to)}`);
-    if (!unit.tool_folder || await tree(from).catch(() => null) !== await tree(to)) toolChanged.push(unit.unit);
-  }
-  const moved = moves.length ? { moved: moves.map(({ unit, from, to }) => ({ path: unit.workshop, from, to })) } : {};
   // A timer the row names runs only while it is active: one that is not, whether it was just written or stopped, is started.
   const timersOff = [];
   for (const unit of runs.units.filter(row => row.unit.endsWith('.timer'))) if (await absent(`systemctl is-active --quiet ${q(unit.unit)}`)) timersOff.push(unit.unit);
@@ -228,7 +203,7 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
     ...(machineData.packages ?? []).map(name => absent(`dpkg -s ${q(name)} >/dev/null 2>&1`)),
     ...(machineData.downloads ?? []).map(({ path }) => absent(`test -x ${q(path)}`)),
   ])).includes(true);
-  if (!writes.length && !missing.length && !nodeMissing && !foldersMissing && !programsMissing && !timersOff.length && !toolChanged.length && !builds.length && !usersPresent.length) return { written: [], restarted: [], ...removed, ...moved };
+  if (!writes.length && !missing.length && !nodeMissing && !foldersMissing && !programsMissing && !timersOff.length && !builds.length && !usersPresent.length) return { written: [], restarted: [], ...removed };
   // Set-up makes what is missing (packages, node, accounts, folders); a computer whose accounts and node all exist needs
   // none, and running it would refresh the package lists on every apply.
   const accounts = await Promise.all(runs.units.map(unit => run(machine, `getent passwd ${q(unit.user)} >/dev/null || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; })));
@@ -268,9 +243,9 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
     return readers.length ? readers : [path.match(/\/([^/]+\.(?:service|timer))(?:\.d\/[^/]+)?$/)?.[1]];
   };
   const builtUnits = builds.map(({ unit }) => unit.unit);
-  const units = [...new Set([...writes.flatMap(({ path }) => unitsOf(path)), ...missing.map(unit => unit.unit), ...timersOff, ...toolChanged, ...builtUnits].filter(Boolean))];
+  const units = [...new Set([...writes.flatMap(({ path }) => unitsOf(path)), ...missing.map(unit => unit.unit), ...timersOff, ...builtUnits].filter(Boolean))];
   const running = new Set([...writes.filter(({ path }) => live[path] !== undefined).flatMap(({ path }) => unitsOf(path)),
-    ...[...missing.map(unit => unit.unit), ...toolChanged, ...builtUnits].filter(name => live[`/etc/systemd/system/${name}`] !== undefined)]);
+    ...[...missing.map(unit => unit.unit), ...builtUnits].filter(name => live[`/etc/systemd/system/${name}`] !== undefined)]);
   if (units.length) await run(machine, 'systemctl daemon-reload');
   // Caddy is restarted, never only enabled, when its front-door drop-in changes: the drop-in swaps the program itself.
   for (const unit of units) {
@@ -295,7 +270,7 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
     if (status !== health.status) throw Object.assign(new Error(`${unit} answered ${status ?? 'nothing'} on ${health.path}, not ${health.status}, after its restart.`), { unit, status });
     booted.push(unit);
   }
-  return { written: writes.map(({ path }) => path), restarted: units, booted, ...(missing.length ? { sealed: missing.map(unit => unit.secret_name) } : {}), ...(built.length ? { built } : {}), ...removed, ...moved };
+  return { written: writes.map(({ path }) => path), restarted: units, booted, ...(missing.length ? { sealed: missing.map(unit => unit.secret_name) } : {}), ...(built.length ? { built } : {}), ...removed };
 }
 
 const CADDYFILE = '/etc/caddy/Caddyfile';

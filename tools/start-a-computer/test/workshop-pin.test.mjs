@@ -1,8 +1,8 @@
 // tools/start-a-computer/test/workshop-pin.test.mjs
 //
-// A unit that runs from a Workshop clone runs the commit its row pins (`workshop_commit`): the computer's clone is behind
-// when it is at another commit, and applying moves it there (restarting the unit only when its own tool folder changed). A
-// file, folder or unit the row says is absent is reported while it is there and taken away by applying.
+// A unit that runs from a Workshop copy runs the commit its row pins (`workshop_commit`): the pin is in the unit file, so a new
+// pin is a changed unit, and the unit fetches that commit into its copy when it starts. A file, folder or unit the row says
+// is absent is reported while it is there and taken away by applying.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { applyWhatItRuns, runsDifferences, SITE_BLOCK } from '../do-work/start-a-computer.mjs';
@@ -21,12 +21,11 @@ const unit = (extra = {}) => ({
 });
 const runsWith = (u, extra = {}) => ({ caddy: { site_hosts: ['place.example.test'], port: 7199 }, units: [u], unmanaged: [], ...extra });
 
-// A computer that runs its row as rendered, whose clone is at `head` and whose tool folder tree is `trees[commit]`.
-const computer = (runs, { head, trees = {}, files = {} }) => {
+// A computer that runs its row as rendered, with `files` beside it.
+const computer = (runs, { files = {} }) => {
   const live = Object.fromEntries(renderWhatItRuns(runs, SITE_BLOCK).map(({ path, text }) => [path, text]));
   Object.assign(live, files, { [`${runs.units[0].node_bin}/node`]: 'node', [runs.units[0].secret_file]: 'sealed', [runs.units[0].credentials[0].file]: 'sealed' });
   const commands = [];
-  const state = { head };
   const run = async (_machine, command) => {
     commands.push(command);
     if (command.startsWith('if [ -f ')) {
@@ -36,48 +35,33 @@ const computer = (runs, { head, trees = {}, files = {} }) => {
     }
     const tested = command.match(/^test -[sxe] '([^']+)'/);
     if (tested) { if (live[tested[1]] === undefined) throw Object.assign(new Error('absent'), { code: 3 }); return ''; }
-    if (command.includes('rev-parse HEAD')) return `${state.head}\n`;
-    const tree = command.match(/rev-parse '([0-9a-f]{40}):([^']+)'/);
-    if (tree) return `${trees[tree[1]] ?? 'tree-same'}\n`;
-    const moved = command.match(/checkout -q --detach '([0-9a-f]{40})'/);
-    if (moved) state.head = moved[1];
     const removed = command.match(/^rm -rf -- '([^']+)'$/);
     if (removed) delete live[removed[1]];
     if (command.includes('curl')) return '200';
     return '';
   };
-  return { run, commands, state };
+  return { run, commands };
 };
 const machine = { address: '192.0.2.9', ssh: { known_hosts: '/dev/null' } };
 
-test('a clone at another commit than its row pins is a difference, and one at the pin is not', async () => {
+test('a new pin is a difference in the sign-in unit, and applying it restarts the unit, which fetches the pinned commit itself', async () => {
   const runs = runsWith(unit());
-  const { run } = computer(runs, { head: OLD });
+  const pinnedBefore = runsWith(unit({ workshop_commit: OLD }));
+  const { run, commands } = computer(pinnedBefore, {});
   assert.deepEqual(await runsDifferences(machine, runs, run), [
-    { path: '/opt/example-workshop', reason: `runs Workshop ${OLD}; its row follows ${NEW}` },
+    { path: '/etc/systemd/system/example-sign-in.service', reason: 'differs from the computer row' },
   ]);
-  const current = computer(runs, { head: NEW });
-  assert.deepEqual(await runsDifferences(machine, runs, current.run), []);
-  await assert.rejects(runsDifferences(machine, runsWith(unit({ workshop_commit: 'main' })), run), /workshop_commit must be a full commit id/);
-});
-
-test('applying moves the clone to the pinned commit as the unit\'s user and restarts the unit only when its tool folder changed', async () => {
-  const runs = runsWith(unit());
-  const changed = computer(runs, { head: OLD, trees: { [OLD]: 'tree-1', [NEW]: 'tree-2' } });
-  const answer = await applyWhatItRuns(machine, runs, changed.run);
-  assert.equal(changed.state.head, NEW);
-  assert.ok(changed.commands.includes(`runuser -u 'example-sign-in' -- git -C '/opt/example-workshop' fetch -q --depth 1 origin '${NEW}' && runuser -u 'example-sign-in' -- git -C '/opt/example-workshop' checkout -q --detach '${NEW}'`));
-  assert.deepEqual(answer.moved, [{ path: '/opt/example-workshop', from: OLD, to: NEW }]);
+  const answer = await applyWhatItRuns(machine, runs, run);
+  assert.deepEqual(answer.written, ['/etc/systemd/system/example-sign-in.service']);
   assert.deepEqual(answer.restarted, ['example-sign-in.service']);
-  const same = computer(runs, { head: OLD, trees: { [OLD]: 'tree-1', [NEW]: 'tree-1' } });
-  const quiet = await applyWhatItRuns(machine, runs, same.run);
-  assert.equal(same.state.head, NEW);
-  assert.deepEqual(quiet.restarted, [], 'a move that leaves the tool folder as it was restarts nothing');
+  assert.ok(!commands.some(command => /git -C .* (fetch|checkout)/.test(command)), 'the apply moves no clone: the unit fetches its pin at start');
+  assert.deepEqual(await runsDifferences(machine, runs, computer(runs, {}).run), []);
+  assert.throws(() => renderWhatItRuns(runsWith(unit({ workshop_commit: 'main' })), SITE_BLOCK), /workshop_commit must be a full commit id/);
 });
 
 test('a file the row says is absent is a difference while it is there, and applying takes it away', async () => {
   const runs = runsWith(unit(), { absent: ['/etc/example/plain-secret'] });
-  const { run, commands } = computer(runs, { head: NEW, files: { '/etc/example/plain-secret': 'x' } });
+  const { run, commands } = computer(runs, { files: { '/etc/example/plain-secret': 'x' } });
   assert.deepEqual(await runsDifferences(machine, runs, run), [
     { path: '/etc/example/plain-secret', reason: 'present; the computer row says absent' },
   ]);
@@ -90,7 +74,7 @@ test('a file the row says is absent is a difference while it is there, and apply
 test('a unit file the row says is absent is stopped and disabled, and its drop-ins go with it', async () => {
   const retired = '/etc/systemd/system/example-old-door.service';
   const runs = runsWith(unit(), { absent: [retired] });
-  const { run, commands } = computer(runs, { head: NEW, files: { [retired]: '[Unit]\n' } });
+  const { run, commands } = computer(runs, { files: { [retired]: '[Unit]\n' } });
   assert.deepEqual(await runsDifferences(machine, runs, run), [
     { path: retired, reason: 'present; the computer row says absent' },
   ]);

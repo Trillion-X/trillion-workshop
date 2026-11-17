@@ -20,7 +20,7 @@ const SECRET = 'made-up-secret-value-for-this-test-only';
 const signInUnit = (root, extra = {}) => ({
   unit: 'example-sign-in.service', template: 'serve-better-auth', description: 'Example sign-in', user: 'example-sign-in',
   state: `${root}/var/lib/example-sign-in`, workshop: `${root}/var/lib/example-sign-in/trillion-workshop`,
-  repository: 'https://github.com/Trillion-X/trillion-workshop.git', tool_folder: 'tools/better-auth-official',
+  repository: 'https://github.com/Trillion-X/trillion-workshop.git', tool_folder: 'tools/better-auth-official', workshop_commit: '7777777777777777777777777777777777777777',
   node_bin: `${root}/opt/node/bin`, settings_file: `${root}/var/lib/example-sign-in/settings.json`, settings: { port: 7201 },
   secret_vault_key: 'example-better-auth-secret', secret_name: 'better-auth-secret',
   secret_file: `${root}/etc/credstore.encrypted/better-auth-secret`,
