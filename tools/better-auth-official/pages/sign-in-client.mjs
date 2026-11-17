@@ -130,6 +130,8 @@ async function afterSignIn() {
   signedIn = true;
   const session = (await client.getSession()).data;
   if (!session) return finish();
+  // First and last name, once, on every way an account is made (email code, passkey, password): an account with no name is asked first.
+  if (!session.user?.name?.trim() || session.user.name.trim() === session.user.email) return go('/sign-in/your-name');
   const asked = carried || next.startsWith('/device');
   const canHold = await window.PublicKeyCredential?.isUserVerifyingPlatformAuthenticatorAvailable?.();
   if (asked || !canHold || skipped('passkey') || hasPasskeyHere() || await madeQuietly()) return finish();
@@ -198,6 +200,11 @@ async function submit(form) {
   if (action === '/sign-in/way' && way === 'backup-codes') {
     const { error } = await client.twoFactor.verifyBackupCode({ code: field(form, 'code') });
     return error ? refusal(error) : afterSignIn();
+  }
+  if (action === '/sign-in/your-name') {
+    const name = [field(form, 'first_name'), field(form, 'last_name')].join(' ').trim();
+    const { error } = await client.updateUser({ name });
+    return error ? (signedOut(error) ? toSignIn() : refusal(error)) : afterSignIn();
   }
   if (action === '/sign-in/change-email') {
     const { error } = await client.changeEmail({ newEmail: field(form, 'new_email'), callbackURL: '/' });
@@ -522,5 +529,5 @@ offerPasskeysInTheEmailBox();
 nameTheAsker().catch(() => {});
 // The pages that are for a signed-in person send one who is not to sign in and come back.
 const needsSession = async () => { await signedInPerson(); };
-const connectPage = { '/consent': consentPage, '/connected': connectedPage, '/approve': approvePage, '/device': devicePage, '/sign-in/add-passkey': needsSession, '/sign-in/change-email': needsSession }[location.pathname];
+const connectPage = { '/consent': consentPage, '/connected': connectedPage, '/approve': approvePage, '/device': devicePage, '/sign-in/add-passkey': needsSession, '/sign-in/change-email': needsSession, '/sign-in/your-name': needsSession }[location.pathname];
 connectPage?.().catch(() => fail(words.unavailable, 'try-again'));
