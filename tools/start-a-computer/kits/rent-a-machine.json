@@ -11,7 +11,7 @@
     "tool:read-a-computer-price"
   ],
   "instructions": [
-    "1. Write request.json: lease_file, machine {provider (the path of your provider description file), name, placement, lifetime}, name {host_name} (and name.provider, the path of your name provider's description, and zone to make a DNS record), ssh {known_hosts}. A machine you already run uses a description with no base and placement.address.",
+    "1. Write request.json: lease_file, machine {provider (the path of your provider description file), name, placement }, name {host_name} (and name.provider, the path of your name provider's description, and zone to make a DNS record), ssh {known_hosts}. A machine you already run uses a description with no base and placement.address.",
     "2. Say the line in start_here. Your AI reads the row with tools:list {tool: \"tool:rent-a-machine\"} and runs node tools/start-a-computer/do-work/start-a-computer.mjs rent request.json, with provider credentials on descriptors 3 and 4 when the provider rents.",
     "3. Read the JSON line: lease, host_name, arch and price. Nothing is set up on the machine; hand the lease to the tool that builds on it. Run again to resume from the saved lease.",
     "4. Give it back later with tool:give-back-a-computer and the same lease file."
@@ -31,7 +31,7 @@
           }
         }
       },
-      "given": "From tools/start-a-computer/test/start-a-computer.test.mjs ('renting a machine leases it and waits for SSH, and sets nothing up on it'). request.json = {\"lease_file\":\"lease.json\",\"machine\":{\"provider\":\"providers/adopted-machine.json\",\"name\":\"a-builder\",\"placement\":{\"address\":\"192.0.2.41\"},\"lifetime\":\"service\"},\"name\":{\"host_name\":\"releases.example.com\"},\"ssh\":{\"known_hosts\":\"known_hosts\"}}. The only command run on the machine is uname -m, which says x86_64. Run: node tools/start-a-computer/do-work/start-a-computer.mjs rent request.json",
+      "given": "From tools/start-a-computer/test/start-a-computer.test.mjs ('renting a machine leases it and waits for SSH, and sets nothing up on it'). request.json = {\"lease_file\":\"lease.json\",\"machine\":{\"provider\":\"providers/adopted-machine.json\",\"name\":\"a-builder\",\"placement\":{\"address\":\"192.0.2.41\"}},\"name\":{\"host_name\":\"releases.example.com\"},\"ssh\":{\"known_hosts\":\"known_hosts\"}}. The only command run on the machine is uname -m, which says x86_64. Run: node tools/start-a-computer/do-work/start-a-computer.mjs rent request.json",
       "hands_back": "{\"lease\":{\"provider\":\"adopted-machine\",\"name\":\"a-builder\",\"address\":\"192.0.2.41\",\"state\":\"running\"},\"host_name\":\"releases.example.com\",\"arch\":\"x86_64\",\"price\":null}: lease.json now holds address 192.0.2.41, so tool:give-back-a-computer can forget it."
     }
   ]

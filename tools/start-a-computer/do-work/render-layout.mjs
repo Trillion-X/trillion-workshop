@@ -7,7 +7,7 @@
 // from the layout's caddy fields, and a unit's settings object is written as JSON to its settings_file. A layout whose caddy
 // row has `front_door` is a public front door (read-data/caddy-front-door): its certificates live in the shared storage
 // every front door reaches, a name no site block names gets one on demand only when the door's ask path says yes, and
-// each such name and each of `door_hosts` is carried to `door_upstream`; Caddy itself is settings.json caddy_front_door.
+// each such name and each of `door_hosts` is carried to `door_upstream`; the Caddy it runs is the row's `binary` (its path) and `binary_files`.
 import { existsSync, readFileSync } from 'node:fs';
 import { fill } from './fill-fields.mjs';
 
@@ -29,7 +29,6 @@ const ROUTE = name => {
 const DROP_INS = { nofile: TEMPLATE('nofile.conf'), 'product-settings': TEMPLATE('product-settings.conf') };
 const SYSTEMD = '/etc/systemd/system';
 const FRONT_DOOR = name => readFileSync(new URL(`../read-data/caddy-front-door/${name}.caddy`, import.meta.url), 'utf8').trimEnd();
-const FRONT_DOOR_CADDY = JSON.parse(readFileSync(new URL('../read-data/settings.json', import.meta.url), 'utf8')).caddy_front_door;
 
 /** Each {{field}} in `text` is the caddy row's own value (a list is joined with spaces); `special` answers a field first (routes). */
 const fillFields = (text, caddy, where, special = () => undefined) => text.replace(/\{\{([a-z_]+)\}\}/g, (_, key) => {
@@ -124,7 +123,7 @@ export function renderLayout(layout, siteBlock, productSettings, pages) {
   const files = [{ path: '/etc/caddy/Caddyfile', text: renderCaddy(siteBlock, layout.caddy) }];
   if (layout.caddy?.pages_root) files.push(...pageFiles(layout.caddy, pages));
   const door = layout.caddy?.front_door;
-  if (door) files.push({ path: `${SYSTEMD}/caddy.service.d/front-door.conf`, text: fill(TEMPLATE('caddy-front-door.conf'), { ...door, binary: FRONT_DOOR_CADDY.binary }, 'caddy.front_door') });
+  if (door) files.push({ path: `${SYSTEMD}/caddy.service.d/front-door.conf`, text: fill(TEMPLATE('caddy-front-door.conf'), door, 'caddy.front_door') });
   for (const unit of layout.units ?? []) {
     const where = `unit ${unit.unit}`;
     const template = UNITS[unit.template];

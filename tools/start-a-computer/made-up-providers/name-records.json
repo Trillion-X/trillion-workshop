@@ -30,7 +30,7 @@
         "content": "{address}",
         "ttl": 60,
         "proxied": false,
-        "comment": "place-lease {name}"
+        "comment": "{lease_label_key} {name}"
       }
     },
     "read_record": {
@@ -63,7 +63,8 @@
     "id_pattern": "^[0-9a-f]{32}$",
     "id_at": "id",
     "owner_at": "comment",
-    "owner_is": "place-lease {name}",
+    "owner_is": "{lease_label_key} {name}",
     "address_at": "content"
-  }
+  },
+  "lease_label_key": "example-lease"
 }

@@ -4,7 +4,15 @@
 // none. A machine description's `host` and `access_key` name which of its own `requests` find, create, read and remove
 // a machine and its SSH key; its `price` names the request that reads the size's monthly price. A name description's
 // `zone` and `record` do the same for one DNS name. A description with no `base` is a machine the person already runs:
-// it is adopted at its address, and removing it forgets it without touching it.
+// it is adopted at its address, and removing it forgets it without touching it. A description with a `pull` row is a
+// machine nobody can reach from outside: renting it makes a one-time line (`pull.line`, with {token}) the person runs on
+// that machine, which then dials out and registers (`registerMachine`); the lease waits until it does.
+//
+// Optional description fields: `lease_label_key` (the label every owned resource carries, required when there is a
+// `base`), `async` (create answers before the machine runs: read it every `every_ms` until `state_at` is `ready_when`),
+// `first_boot` ({format}: the first-boot text format the provider takes, given by the request as {format, text} and
+// spliced into a body template as {first_boot}), `fingerprint` ({hash, encoding, prefix}: how the provider lists a stored
+// public key), and `terms_url` (what the person is billed; shown with the price).
 //
 // Provider credentials arrive only as an in-memory argument. The lease file names the provider rows, their IDs, the
 // address, size, start and cleanup deadline, never a credential. Creating, observing and removing use the same exact
@@ -13,13 +21,15 @@
 import { readFileSync, writeFileSync, mkdirSync, renameSync } from 'node:fs';
 import { dirname, isAbsolute } from 'node:path';
 import { isIP } from 'node:net';
-import { createHash } from 'node:crypto';
+import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
+import { makeHashCodeHexFromBytes } from 'trillion-workshop/tools/content-identity/read-data/identity.mjs';
 
 /** A provider description read from the file the person keeps it in; the lease keeps that path to read it again. */
 export function readProvider(file) {
   if (typeof file !== 'string' || !isAbsolute(file)) throw new Error('A provider is the absolute path of its description file.');
   const row = JSON.parse(readFileSync(file, 'utf8'));
   if (typeof row?.id !== 'string' || typeof row.name !== 'string') throw new Error(`The provider description ${file} needs an id and a name.`);
+  if (row.base && typeof row.lease_label_key !== 'string') throw new Error(`The provider description ${file} needs a lease_label_key: the label every resource this lease owns carries.`);
   return { ...row, file };
 }
 
@@ -28,7 +38,7 @@ export const at = (value, path) => (path ? path.split('.').reduce((v, key) => v?
 /** A row template filled from ctx: "{x}" alone keeps x's type; inside text it is spliced in (by `splice`). */
 export function fill(template, ctx, splice = String) {
   if (Array.isArray(template)) return template.map(item => fill(item, ctx, splice));
-  if (template && typeof template === 'object') return Object.fromEntries(Object.entries(template).map(([k, v]) => [k, fill(v, ctx, splice)]));
+  if (template && typeof template === 'object') return Object.fromEntries(Object.entries(template).map(([k, v]) => [k.replace(/\{([a-z_]+)\}/gi, (_, key) => splice(String(ctx[key]))), fill(v, ctx, splice)]));
   if (typeof template !== 'string') return template;
   const whole = /^\{([a-z_]+)\}$/i.exec(template);
   return whole && splice === String ? ctx[whole[1]] : template.replace(/\{([a-z_]+)\}/gi, (_, key) => splice(String(ctx[key])));
@@ -81,11 +91,18 @@ function save(file, lease) {
 
 export function readLease(file) { return JSON.parse(readFileSync(file, 'utf8')); }
 
-/** The OpenSSH MD5 fingerprint (aa:bb:...) of a public key line, the form providers list stored keys by. */
-export const fingerprintOf = line => createHash('md5').update(Buffer.from(String(line).trim().split(/\s+/)[1] ?? '', 'base64')).digest('hex').match(/../g).join(':');
+const ENCODINGS = { 'colon-hex': digest => digest.toString('hex').match(/../g).join(':'), hex: digest => digest.toString('hex'), base64: digest => digest.toString('base64').replace(/=+$/, '') };
+/** The fingerprint of a public key line in the form the provider lists stored keys by (its `fingerprint`: hash, encoding, optional prefix). */
+export function fingerprintOf(line, { hash, encoding, prefix = '' }) {
+  if (!ENCODINGS[encoding]) throw new Error(`The fingerprint encoding ${JSON.stringify(encoding)} is not one of ${Object.keys(ENCODINGS).join(', ')}.`);
+  return prefix + ENCODINGS[encoding](createHash(hash).update(Buffer.from(String(line).trim().split(/\s+/)[1] ?? '', 'base64')).digest());
+}
 const ownedId = (part, id) => id != null && new RegExp(part.id_pattern).test(String(id));
 const idAt = (value, part) => at(value, part.id_at ?? 'id');
-const owns = (value, part, ctx) => at(value, part.owner_at) === fill(part.owner_is ?? '{name}', ctx);
+const owns = (value, part, ctx) => at(value, fill(part.owner_at, ctx)) === fill(part.owner_is ?? '{name}', ctx);
+const ownCtx = (row, extra) => ({ ...row.placement, lease_label_key: row.lease_label_key, ...extra });
+const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
+const tokenHash = token => makeHashCodeHexFromBytes(Buffer.from(token));
 /** Send one of the row's steps, its path and body filled from ctx (the id under the part's own placeholder). */
 function ask(request, row, part, name, ctx, id) {
   const r = step(row, part, name), filled = id === undefined ? ctx : { ...ctx, [part.id_is]: id };
@@ -93,23 +110,23 @@ function ask(request, row, part, name, ctx, id) {
 }
 const named = (row, part, listed, key, value) => (Array.isArray(listed) ? listed : []).filter(item => at(item, part.name_at ?? key) === value);
 
-export async function rentMachine({ request, file, name, publicKey, placement = {}, lifetime = 'test', expiresAt, now = Date.now, provider }) {
+export async function rentMachine({ request, file, name, publicKey, placement = {}, firstBoot, expiresAt, now = Date.now, wait = pause, provider }) {
   const row = provider, spec = { ...row.placement, ...placement };
-  if (!/^[a-z][a-z0-9-]{1,60}$/.test(name) || (row.base ? !publicKey?.startsWith('ssh-ed25519 ') || !spec.size || !spec.location || !spec.image : isIP(spec.address ?? '') !== 4)) throw new Error('The machine lease configuration was refused.');
+  if (!/^[a-z][a-z0-9-]{1,60}$/.test(name) || (row.base ? !publicKey?.startsWith('ssh-ed25519 ') || !spec.size || !spec.location || !spec.image : !row.pull && isIP(spec.address ?? '') !== 4)) throw new Error('The machine lease configuration was refused.');
   const startedAt = now();
-  if (!['test', 'service'].includes(lifetime)) throw new Error('The lease lifetime was refused.');
-  if (lifetime === 'test' && (!Number.isSafeInteger(expiresAt) || expiresAt <= startedAt || expiresAt - startedAt > 24 * 60 * 60 * 1000)) throw new Error('A test machine needs a cleanup deadline within one day.');
-  if (lifetime === 'service' && expiresAt != null) throw new Error('A retained machine must not have an automatic deletion deadline.');
+  if (expiresAt != null && (!Number.isSafeInteger(expiresAt) || expiresAt <= startedAt)) throw new Error('A cleanup deadline is a time in the future, in milliseconds.');
+  if (firstBoot && (!row.base || row.first_boot?.format !== firstBoot.format || typeof firstBoot.text !== 'string')) throw new Error('The provider takes no first-boot text in that format.');
   let lease;
   try { lease = readLease(file); } catch (error) { if (error.code !== 'ENOENT') throw error; }
   if (lease && lease.state !== 'removed') {
     if (lease.name !== name || lease.provider !== row.id || lease.serverType !== (spec.size ?? null) || lease.location !== (spec.location ?? null)) throw new Error('The saved lease names another placement.');
-    return { ...lease, reused: true };
+    return lease.state === 'waiting' ? waitForMachine(file, lease, row) : { ...lease, reused: true };
   }
-  lease = { schema: 'place-lease/1', provider: row.id, providerFile: row.file, name, serverType: spec.size ?? null, location: spec.location ?? null, image: spec.image ?? null, lifetime, startedAt, expiresAt: expiresAt ?? null, state: 'creating', serverId: null, sshKeyId: null, address: null };
+  lease = { schema: 'machine-lease/1', provider: row.id, providerFile: row.file, name, serverType: spec.size ?? null, location: spec.location ?? null, image: spec.image ?? null, startedAt, expiresAt: expiresAt ?? null, state: 'creating', serverId: null, sshKeyId: null, address: null };
   // A machine the person already runs is adopted at its address; there is nothing to rent and nothing to delete later.
+  if (row.pull) return waitForMachine(file, Object.assign(lease, { state: 'waiting', adopted: true }), row);
   if (!row.base) { Object.assign(lease, { state: 'running', address: spec.address, adopted: true }); save(file, lease); return lease; }
-  const base = { ...spec, name, public_key: publicKey.trim(), fingerprint: fingerprintOf(publicKey) }, ctx = { ...base, ...fill(row.fill ?? {}, base) }, s = row.host, k = row.access_key;
+  const base = ownCtx(row, { ...spec, name, public_key: publicKey.trim(), ...(row.fingerprint && { fingerprint: fingerprintOf(publicKey, row.fingerprint) }), ...(firstBoot && { first_boot: firstBoot.text }) }), ctx = { ...base, ...fill(row.fill ?? {}, base) }, s = row.host, k = row.access_key;
   const listed = async () => named(row, s, at(await ask(request, row, s, 'find', ctx), s.list_at), 'name', name);
   if ((await listed()).length) throw new Error('A machine with this name already exists without this lease; it was left untouched.');
   save(file, lease);
@@ -124,7 +141,16 @@ export async function rentMachine({ request, file, name, publicKey, placement = 
     const created = at(await ask(request, row, s, 'create', k ? { ...ctx, [k.id_is]: lease.sshKeyId ?? lease.sharedSshKeyId } : ctx), s.created_at);
     lease.serverId = idAt(created, s);
     lease.address = at(created, s.address_at);
-    if (!ownedId(s, lease.serverId) || !lease.address) throw new Error(`${row.name} did not return the new machine's identity and address.`);
+    if (!ownedId(s, lease.serverId)) throw new Error(`${row.name} did not return the new machine's identity.`);
+    if (row.async) {
+      save(file, lease);
+      for (let tries = 0; !(at(at(await ask(request, row, s, 'read', ctx, lease.serverId), s.found_at), s.state_at) === row.async.ready_when); tries += 1) {
+        if (tries >= (row.async.tries ?? 60)) throw new Error(`${row.name} did not report the machine ready.`);
+        await wait(row.async.every_ms ?? 5000);
+      }
+      lease.address = at(at(await ask(request, row, s, 'read', ctx, lease.serverId), s.found_at), s.address_at);
+    }
+    if (!lease.address) throw new Error(`${row.name} did not return the new machine's address.`);
     lease.state = 'running';
     save(file, lease);
     return lease;
@@ -145,21 +171,42 @@ export async function rentMachine({ request, file, name, publicKey, placement = 
   }
 }
 
+/** A machine nobody can reach from outside: the lease waits with the hash of a one-time token, and the person runs the line
+ * the description gives (`pull.line`, with {token} and {name}) on that machine, which dials out and registers. The line is
+ * given once and never kept; renting again while the lease waits makes a new one. */
+function waitForMachine(file, lease, row) {
+  const token = randomBytes(24).toString('hex');
+  lease.tokenHash = tokenHash(token);
+  save(file, lease);
+  return { ...lease, line: fill(row.pull.line, { token, name: lease.name }) };
+}
+
+/** The machine that ran the line registers: the token matches, and the lease now names its address. */
+export function registerMachine({ file, token, address }) {
+  const lease = readLease(file);
+  if (lease.state !== 'waiting' || !lease.tokenHash) throw new Error('This lease is not waiting for a machine.');
+  const given = Buffer.from(tokenHash(String(token))), kept = Buffer.from(lease.tokenHash);
+  if (given.length !== kept.length || !timingSafeEqual(given, kept) || isIP(address ?? '') === 0) throw new Error('The registration was refused.');
+  Object.assign(lease, { state: 'running', address, tokenHash: null, registeredAt: Date.now() });
+  save(file, lease);
+  return lease;
+}
+
 /** The machine as the provider sees it now: { state, address }, or { state: 'absent' }; an adopted one is as saved. */
 export async function readMachine({ request, file, provider }) {
   const lease = readLease(file), row = provider ?? readProvider(lease.providerFile);
   if (!row.base || lease.serverId == null) return { state: lease.state, address: lease.address };
-  const answer = await ask(request, row, row.host, 'read', { ...row.placement, name: lease.name }, lease.serverId);
+  const answer = await ask(request, row, row.host, 'read', ownCtx(row, { name: lease.name }), lease.serverId);
   if (answer.absent) return { state: 'absent', address: null };
   const found = at(answer, row.host.found_at);
-  if (!owns(found, row.host, { name: lease.name })) throw new Error('The machine is no longer owned by this lease.');
+  if (!owns(found, row.host, ownCtx(row, { name: lease.name }))) throw new Error('The machine is no longer owned by this lease.');
   return { state: at(found, row.host.state_at ?? 'status') ?? 'unknown', address: at(found, row.host.address_at) ?? null };
 }
 
 export async function releaseMachine({ request, file, provider }) {
   const lease = readLease(file);
   if (lease.state === 'removed') return lease;
-  const row = provider ?? readProvider(lease.providerFile), ctx = { ...row.placement, name: lease.name };
+  const row = provider ?? readProvider(lease.providerFile), ctx = ownCtx(row, { name: lease.name });
   for (const [part, id, what] of [[row.host, lease.serverId, 'machine'], [row.access_key, lease.sshKeyId, 'SSH key']]) {
     if (!part || id == null) continue;
     const answer = await ask(request, row, part, 'read', ctx, id);
@@ -187,7 +234,7 @@ export async function readPrice({ request, provider, placement = {} }) {
 /** Point host_name at the lease's address through a names row, keeping the record's identity on the lease. */
 export async function pointName({ request, file, provider, zone, hostName }) {
   const lease = readLease(file), row = provider, z = row.zone, r = row.record;
-  const ctx = { name: lease.name, zone, host_name: hostName, address: lease.address };
+  const ctx = ownCtx(row, { name: lease.name, zone, host_name: hostName, address: lease.address });
   if (lease.recordId && lease.hostName === hostName) return lease;
   const zones = named(row, z, at(await ask(request, row, z, 'find', ctx), z.list_at), 'name', zone);
   if (zones.length !== 1 || !ownedId(z, idAt(zones[0], z))) throw new Error(`${row.name} has no one zone named ${zone}.`);
@@ -205,7 +252,7 @@ export async function forgetName({ request, file, provider }) {
   const lease = readLease(file);
   if (!lease.recordId) return lease;
   const row = provider ?? readProvider(lease.namesFile), r = row.record;
-  const ctx = { name: lease.name, zone: lease.zone, host_name: lease.hostName, [row.zone.id_is]: lease.zoneId };
+  const ctx = ownCtx(row, { name: lease.name, zone: lease.zone, host_name: lease.hostName, [row.zone.id_is]: lease.zoneId });
   const answer = await ask(request, row, r, 'read', ctx, lease.recordId);
   if (!answer.absent) {
     if (!owns(at(answer, r.found_at), r, ctx)) throw new Error(`The record for ${lease.hostName} is no longer owned by this lease; it was left untouched.`);
@@ -220,7 +267,7 @@ export async function watchLease({ request, file, provider, now = Date.now, wait
   for (;;) {
     const lease = readLease(file);
     if (lease.state === 'removed') return lease;
-    if (lease.lifetime === 'service') return lease;
+    if (lease.expiresAt == null) return lease;
     if (now() >= lease.expiresAt) {
       try { return await releaseMachine({ request, file, provider }); }
       catch (error) { report(error.message); await wait(30000); continue; }

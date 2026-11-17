@@ -107,7 +107,7 @@ test('a layout without the route renders no auth routes; an unknown route or a r
 test('a front door renders its storage, its ask, its own sites, its door hosts and the on-demand catch-all', () => {
   const door = { storage_server_cert: '/etc/caddy/storage-server.crt', storage_env: '/etc/caddy/storage.env', ask_port: 9444,
     ask_path: '/origins/certificate', door_upstream: 'https://192.0.2.10:443', door_host: 'app.example.test',
-    door_server_name: '{http.request.host}', door_hosts: ['app.example.test'] };
+    door_server_name: '{http.request.host}', door_hosts: ['app.example.test'], binary: '/opt/example/caddy' };
   const files = renderLayout({ ...layout, caddy: { ...layout.caddy, front_door: door } }, SITE_BLOCK);
   const caddy = files[0].text;
   assert.match(caddy, /^\{\n\tadmin localhost:2019\n\tstorage redis \{/);
@@ -121,7 +121,7 @@ test('a front door renders its storage, its ask, its own sites, its door hosts a
   assert.doesNotMatch(caddy, /\{[a-z_]+\}/, 'every field is filled');
   const dropIn = files.find(file => file.path === '/etc/systemd/system/caddy.service.d/front-door.conf').text;
   assert.match(dropIn, /^EnvironmentFile=\/etc\/caddy\/storage\.env$/m);
-  assert.match(dropIn, /^ExecStart=\/opt\/caddy\/2\.11\.9-redis\/caddy run --config \/etc\/caddy\/Caddyfile$/m);
+  assert.match(dropIn, /^ExecStart=\/opt\/example\/caddy run --config \/etc\/caddy\/Caddyfile$/m);
   const { door_upstream, ...missing } = door;
   assert.throws(() => renderLayout({ ...layout, caddy: { ...layout.caddy, front_door: missing } }, SITE_BLOCK), /caddy\.front_door needs door_upstream/);
 });

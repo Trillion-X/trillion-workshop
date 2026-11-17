@@ -29,7 +29,7 @@
           }
         }
       },
-      "given": "From tools/start-a-computer/test/start-a-computer.test.mjs ('an existing machine is adopted at its address and only forgotten on release'). lease.json = {\"schema\":\"place-lease/1\",\"provider\":\"adopted-machine\",\"providerFile\":\"/path/to/adopted-machine.json\",\"name\":\"a-pi\",\"state\":\"running\",\"address\":\"192.0.2.40\",\"adopted\":true} with no DNS record, so no credential is read. Run: node tools/start-a-computer/do-work/start-a-computer.mjs remove lease.json",
+      "given": "From tools/start-a-computer/test/start-a-computer.test.mjs ('an existing machine is adopted at its address and only forgotten on release'). lease.json = {\"schema\":\"machine-lease/1\",\"provider\":\"adopted-machine\",\"providerFile\":\"/path/to/adopted-machine.json\",\"name\":\"a-pi\",\"state\":\"running\",\"address\":\"192.0.2.40\",\"adopted\":true} with no DNS record, so no credential is read. Run: node tools/start-a-computer/do-work/start-a-computer.mjs remove lease.json",
       "hands_back": "{\"name\":\"a-pi\",\"provider\":\"adopted-machine\",\"state\":\"removed\",\"adopted\":true}: nothing was sent to the machine. For a rented machine the name record is removed first, then the server and the SSH key, each only after reading it back and finding this lease's own label, and adopted is false."
     }
   ]

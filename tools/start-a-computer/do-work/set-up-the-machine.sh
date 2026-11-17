@@ -16,7 +16,7 @@
 #
 # LAYOUT is the computer's layout row as JSON (request.host_layout, read at run time); SET_UP is settings.json `machine` with the layout row's own `machine` fields over it.
 # FRONT_DOOR_CADDY, given when the layout's caddy row has `front_door`, is "PATH URL SHA256" of this machine's architecture
-# (settings.json caddy_front_door): that Caddy is fetched and installed at PATH only when its SHA-256 is SHA256.
+# (the layout row's caddy.front_door binary_files): that Caddy is fetched and installed at PATH only when its SHA-256 is SHA256.
 set -eu
 LAYOUT=$1
 SET_UP=$2

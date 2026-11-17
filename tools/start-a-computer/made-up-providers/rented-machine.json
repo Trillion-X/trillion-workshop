@@ -18,7 +18,7 @@
     "server_type": "{size}",
     "key_name": "{name}-access",
     "labels": {
-      "place-lease": "{name}"
+      "{lease_label_key}": "{name}"
     }
   },
   "requests": {
@@ -43,7 +43,8 @@
         "public_net": {
           "enable_ipv4": true,
           "enable_ipv6": true
-        }
+        },
+        "user_data": "{first_boot}"
       }
     },
     "read_server": {
@@ -97,7 +98,7 @@
     "remove": "delete_server",
     "id_is": "server_id",
     "id_pattern": "^[0-9]+$",
-    "owner_at": "labels.place-lease",
+    "owner_at": "labels.{lease_label_key}",
     "address_at": "public_net.ipv4.ip",
     "state_at": "status"
   },
@@ -111,7 +112,7 @@
     "id_is": "ssh_key_id",
     "id_pattern": "^[0-9]+$",
     "id_at": "ssh_key.id",
-    "owner_at": "labels.place-lease"
+    "owner_at": "labels.{lease_label_key}"
   },
   "price": {
     "read": "read_size_price",
@@ -119,5 +120,14 @@
     "location_at": "location",
     "monthly_at": "price_monthly.gross",
     "currency": "EUR"
-  }
+  },
+  "lease_label_key": "example-lease",
+  "fingerprint": {
+    "hash": "md5",
+    "encoding": "colon-hex"
+  },
+  "first_boot": {
+    "format": "example-init"
+  },
+  "terms_url": "https://terms.example.test/rent"
 }

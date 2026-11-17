@@ -1,29 +1,56 @@
 {
-  "_what": "Generic machine layout and engine protocol limits. product_settings.most_bytes is the engine's own bound on that file (trillion-rust src/account_files/identity.json max_bytes, 131072 on Nov 14 2026), checked here before the machine is contacted; the engine itself refuses a larger file at start, so the boot check fails the apply. No test reads another repository for it. Product identity, starting account rows, engine file names and signed feed addresses are caller inputs. `caddy_front_door` is the Caddy a front-door computer runs (a layout whose caddy row has `front_door`): release v2.11.9 built with only github.com/pberkel/caddy-storage-redis v1.9.0 (both Apache-2.0; `xcaddy build v2.11.9 --with github.com/pberkel/caddy-storage-redis@v1.9.0`, CGO off, the same bytes on every build), one file per `uname -m`, fetched from `url` and refused unless its SHA-256 is `sha256`, installed at `binary`.",
-  "product_settings": { "launch_setting": "PRODUCT_SETTINGS", "file": "/var/lib/place/product-settings.json", "most_bytes": 131072 },
-  "journal": { "system_max_use": "500M" },
-  "health": { "path": "/readyz", "status": 200, "where": "public" },
-  "update": { "backups": "backups", "settle_seconds": 5 },
-  "unit_restarts": { "budget": 5 },
-  "layout": { "releases": "/opt/place/releases" },
-  "copies": { "most_admitted_computers": 1024 },
-  "caddy_routes": ["engine-releases"],
-  "caddy_front_door": {
-    "binary": "/opt/caddy/2.11.9-redis/caddy",
-    "files": {
-      "x86_64": { "sha256": "eca5f1582fe35e8758a6f03df305427cc1848d908a810341ad1425ef87b2062f" },
-      "aarch64": { "sha256": "0f15ce80ba4b0538b0603a2f243ea560f24efece8cd22b37cb54408b460cf8ad" }
-    }
+  "_what": "Generic machine layout and engine protocol limits. product_settings.most_bytes is the engine's own bound on that file (trillion-rust src/account_files/identity.json max_bytes, 131072 on Nov 14 2026), checked here before the machine is contacted; the engine itself refuses a larger file at start, so the boot check fails the apply. No test reads another repository for it. Product identity, starting account rows, engine file names, the product settings file path (`product_settings_file`), the releases folder (`engine.releases`), a front door's Caddy (`binary`, `binary_files`) and signed feed addresses are caller inputs.",
+  "product_settings": {
+    "launch_setting": "PRODUCT_SETTINGS",
+    "most_bytes": 131072
   },
+  "journal": {
+    "system_max_use": "500M"
+  },
+  "health": {
+    "path": "/readyz",
+    "status": 200,
+    "where": "public"
+  },
+  "update": {
+    "backups": "backups",
+    "settle_seconds": 5
+  },
+  "unit_restarts": {
+    "budget": 5
+  },
+  "copies": {
+    "most_admitted_computers": 1024
+  },
+  "caddy_routes": [
+    "engine-releases"
+  ],
   "machine": {
     "_what": "What set-up-the-machine.sh installs: the apt packages (b3sum checks a first engine release against its signed BLAKE3 content identity), the node release each unit node_bin folder gets when it has none (from nodejs.org's SHASUMS256.txt for that release, read 2026-11-13), and the ports the firewall admits (firewall_allow). A layout row's own `machine` object replaces any of these fields for that computer: a computer whose firewall another program keeps names firewall_allow null.",
-    "firewall_allow": ["22/tcp", "80/tcp", "443/tcp"],
-    "packages": ["caddy", "jq", "ufw", "git", "curl", "b3sum"],
+    "firewall_allow": [
+      "22/tcp",
+      "80/tcp",
+      "443/tcp"
+    ],
+    "packages": [
+      "caddy",
+      "jq",
+      "ufw",
+      "git",
+      "curl",
+      "b3sum"
+    ],
     "node": {
       "version": "v24.22.3",
       "files": {
-        "x86_64": { "url": "https://nodejs.org/dist/v24.22.3/node-v24.22.3-linux-x64.tar.gz", "sha256": "061ec3e3062115705b56b51fa9cc330ab50d34b6969387d4e4b1a50c6809acc2" },
-        "aarch64": { "url": "https://nodejs.org/dist/v24.22.3/node-v24.22.3-linux-arm64.tar.gz", "sha256": "261af2af250dfd7e9f25cf151d1b2713a0adf8f10a9ad116c4947f68627affe8" }
+        "x86_64": {
+          "url": "https://nodejs.org/dist/v24.22.3/node-v24.22.3-linux-x64.tar.gz",
+          "sha256": "061ec3e3062115705b56b51fa9cc330ab50d34b6969387d4e4b1a50c6809acc2"
+        },
+        "aarch64": {
+          "url": "https://nodejs.org/dist/v24.22.3/node-v24.22.3-linux-arm64.tar.gz",
+          "sha256": "261af2af250dfd7e9f25cf151d1b2713a0adf8f10a9ad116c4947f68627affe8"
+        }
       }
     }
   }

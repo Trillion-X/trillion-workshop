@@ -29,7 +29,7 @@
           }
         }
       },
-      "given": "Read from do-work/start-a-computer.mjs (placeStatus) with the lease from tools/start-a-computer/test/start-a-computer.test.mjs (first test) plus \"state\":\"running\": lease.json = {\"schema\":\"place-lease/1\",\"provider\":\"adopted-machine\",\"providerFile\":\"/path/to/adopted-machine.json\",\"name\":\"arm1\",\"state\":\"running\",\"address\":\"192.0.2.9\",\"adopted\":true,\"hostName\":\"place.example.com\"}; https://place.example.com/readyz answers 200. Run: node tools/start-a-computer/do-work/start-a-computer.mjs status lease.json",
+      "given": "Read from do-work/start-a-computer.mjs (placeStatus) with the lease from tools/start-a-computer/test/start-a-computer.test.mjs (first test) plus \"state\":\"running\": lease.json = {\"schema\":\"machine-lease/1\",\"provider\":\"adopted-machine\",\"providerFile\":\"/path/to/adopted-machine.json\",\"name\":\"arm1\",\"state\":\"running\",\"address\":\"192.0.2.9\",\"adopted\":true,\"hostName\":\"place.example.com\"}; https://place.example.com/readyz answers 200. Run: node tools/start-a-computer/do-work/start-a-computer.mjs status lease.json",
       "hands_back": "{\"name\":\"arm1\",\"provider\":\"adopted-machine\",\"lease_state\":\"running\",\"machine\":{\"state\":\"running\",\"address\":\"192.0.2.9\"},\"host_name\":\"place.example.com\",\"sign_up_status\":200}: for an adopted machine the state is the lease's own, no provider is asked, and the page is asked once."
     }
   ]

@@ -10,11 +10,11 @@ import { accessSync, constants, realpathSync } from 'node:fs';
 import { delimiter, isAbsolute } from 'node:path';
 import { makeHashCodeHexFromBytes } from 'trillion-workshop/tools/content-identity/read-data/identity.mjs';
 import {
-  readProvider, providerClient, rentMachine, releaseMachine, readMachine, readPrice, pointName,
+  readProvider, providerClient, registerMachine, rentMachine, releaseMachine, readMachine, readPrice, pointName,
   forgetName, fingerprintOf,
 } from '../do-work/rent-a-machine.mjs';
 import {
-  rentAMachine, startAComputer as startAComputerRaw, computerConfig as computerConfigRaw, readRequest, updateAComputer as updateAComputerRaw, rollBackAComputer, productSettings, productSettingsOf, readProductData, startingRows,
+  rentAMachine, startAComputer as startAComputerRaw, computerConfig as computerConfigRaw, readRequest, updateAComputer as updateAComputerRaw, rollBackAComputer, productSettingsOf, readProductData, startingRows,
   parseUnit, readLayout, copiesFor as copiesForRaw, copiesPolicy,
 } from '../do-work/start-a-computer.mjs';
 
@@ -68,9 +68,10 @@ function writeProductData(here, settings, statics = []) {
 }
 const PRODUCT_DATA = writeProductData(mkdtempSync(join(tmpdir(), 'start-a-computer-product-')), PRODUCT);
 /** The bytes a computer's settings file gets from PRODUCT_DATA (the tool's own derivation, pinned here). */
-const PRODUCT_BYTES = productSettingsOf(readProductData({ product_data: PRODUCT_DATA })).bytes;
+const SETTINGS_FILE = '/var/lib/place/product-settings.json';
+const PRODUCT_BYTES = productSettingsOf(readProductData({ product_data: PRODUCT_DATA }), SETTINGS_FILE).bytes;
 const FEED = { urls: ['https://releases.example.test/feed.json'], public_keys: ['a'.repeat(64)], releases: '/opt/place/releases' };
-const withProfile = request => ({ product_data: PRODUCT_DATA, release_feed: FEED, ...request });
+const withProfile = request => ({ product_data: PRODUCT_DATA, release_feed: FEED, product_settings_file: SETTINGS_FILE, ...request, ...(request.engine && { engine: { releases: '/opt/place/releases', ...request.engine } }) });
 const startAComputer = (request, ...deps) => startAComputerRaw(withProfile(request), ...deps);
 const computerConfig = (machine, request, ...deps) => computerConfigRaw(machine, withProfile(request), ...deps);
 const updateAComputer = (lease, request, ...deps) => updateAComputerRaw(lease, withProfile(request), ...deps);
@@ -116,14 +117,14 @@ test('an install on a running place is judged by its health row, read from its o
   const { installOnPlace, placeStatus } = await import('../do-work/start-a-computer.mjs');
   const dir = mkdtempSync(join(tmpdir(), 'install-on-place-'));
   const leaseFile = join(dir, 'lease.json');
-  writeFileSync(leaseFile, JSON.stringify({ schema: 'place-lease/1', provider: 'adopted-machine', providerFile: ADOPTED, name: 'arm1', address: '192.0.2.9', adopted: true, hostName: 'place.example.com' }));
+  writeFileSync(leaseFile, JSON.stringify({ schema: 'machine-lease/1', provider: 'adopted-machine', providerFile: ADOPTED, name: 'arm1', address: '192.0.2.9', adopted: true, hostName: 'place.example.com' }));
   const asked = [];
   const run = async (machine, command) => {
     if (command === 'cat /var/lib/place/place.json') return JSON.stringify({ listen: '127.0.0.1:7199' });
     return '';
   };
   const fetchImpl = async address => { asked.push(address); return { status: address === 'https://place.example.com/readyz' ? 200 : 404 }; };
-  const engine = { file: 'trillion-local', release_name: 'r2', release: { on_machine: '/opt/build/release' } };
+  const engine = { file: 'trillion-local', releases: '/opt/place/releases', release_name: 'r2', release: { on_machine: '/opt/build/release' } };
   const answer = await installOnPlace(leaseFile, { ssh: {}, engine, name: { host_name: 'place.example.com' } }, { fetchImpl, wait: async () => {}, tries: 1, run });
   assert.equal(answer.sign_up_status, 200);
   assert.deepEqual(asked, ['https://place.example.com/readyz']);
@@ -143,7 +144,7 @@ test('a unit is an alert when it is not active or has restarted past the budget,
   assert.throws(() => unitVerdict({ Id: 'place.service', ActiveState: 'active', NRestarts: 'many' }, 5), /restart count/);
   const dir = mkdtempSync(join(tmpdir(), 'unit-status-'));
   const leaseFile = join(dir, 'lease.json');
-  writeFileSync(leaseFile, JSON.stringify({ schema: 'place-lease/1', provider: 'adopted-machine', providerFile: ADOPTED, name: 'arm1', address: '192.0.2.9', adopted: true, hostName: 'place.example.com' }));
+  writeFileSync(leaseFile, JSON.stringify({ schema: 'machine-lease/1', provider: 'adopted-machine', providerFile: ADOPTED, name: 'arm1', address: '192.0.2.9', adopted: true, hostName: 'place.example.com' }));
   const commands = [];
   const run = async (machine, command) => {
     commands.push(command);
@@ -176,19 +177,19 @@ test('renting stores the key, makes the machine with this lease\'s label, and re
   const file = join(folder(), 'lease.json'), calls = [];
   const fetchImpl = provider(rented.base, {
     'GET /servers?name=a-computer': { servers: [] },
-    [`GET /ssh_keys?fingerprint=${encodeURIComponent(fingerprintOf(publicKey))}`]: { ssh_keys: [] },
+    [`GET /ssh_keys?fingerprint=${encodeURIComponent(fingerprintOf(publicKey, rented.fingerprint))}`]: { ssh_keys: [] },
     'POST /ssh_keys': body => ({ ssh_key: { id: 11, labels: body.labels } }),
     'POST /servers': body => ({ server: { id: 22, labels: body.labels, public_net: { ipv4: { ip: '192.0.2.10' } } } }),
-    'GET /servers/22': { server: { id: 22, status: 'running', labels: { 'place-lease': 'a-computer' }, public_net: { ipv4: { ip: '192.0.2.10' } } } },
+    'GET /servers/22': { server: { id: 22, status: 'running', labels: { 'example-lease': 'a-computer' }, public_net: { ipv4: { ip: '192.0.2.10' } } } },
     'DELETE /servers/22': {},
-    'GET /ssh_keys/11': { ssh_key: { id: 11, labels: { 'place-lease': 'a-computer' } } },
+    'GET /ssh_keys/11': { ssh_key: { id: 11, labels: { 'example-lease': 'a-computer' } } },
     'DELETE /ssh_keys/11': {},
   }, calls);
   const request = providerClient(rented, canary, { fetchImpl });
-  const lease = await rentMachine({ request, file, provider: rented, name: 'a-computer', publicKey, placement: { size: 'cax11' }, lifetime: 'service' });
+  const lease = await rentMachine({ request, file, provider: rented, name: 'a-computer', publicKey, placement: { size: 'cax11' } });
   assert.deepEqual([lease.state, lease.serverId, lease.sshKeyId, lease.address, lease.serverType, lease.location], ['running', 22, 11, '192.0.2.10', 'cax11', 'hel1']);
   const made = calls.find(([key]) => key === 'POST /servers')[1];
-  assert.deepEqual([made.server_type, made.ssh_keys, made.labels], ['cax11', [11], { 'place-lease': 'a-computer' }]);
+  assert.deepEqual([made.server_type, made.ssh_keys, made.labels], ['cax11', [11], { 'example-lease': 'a-computer' }]);
   assert.deepEqual(await readMachine({ request, file, provider: rented }), { state: 'running', address: '192.0.2.10' });
   assert.equal((await releaseMachine({ request, file, provider: rented })).state, 'removed');
   assert.ok(calls.some(([key]) => key === 'DELETE /servers/22') && calls.some(([key]) => key === 'DELETE /ssh_keys/11'));
@@ -199,13 +200,13 @@ test('a public key the provider already holds is used as it is and never removed
   const file = join(folder(), 'lease.json'), calls = [];
   const fetchImpl = provider(rented.base, {
     'GET /servers?name=a-computer': { servers: [] },
-    [`GET /ssh_keys?fingerprint=${encodeURIComponent(fingerprintOf(publicKey))}`]: { ssh_keys: [{ id: 5, labels: {} }] },
+    [`GET /ssh_keys?fingerprint=${encodeURIComponent(fingerprintOf(publicKey, rented.fingerprint))}`]: { ssh_keys: [{ id: 5, labels: {} }] },
     'POST /servers': body => ({ server: { id: 23, labels: body.labels, public_net: { ipv4: { ip: '192.0.2.11' } } } }),
-    'GET /servers/23': { server: { id: 23, labels: { 'place-lease': 'a-computer' } } },
+    'GET /servers/23': { server: { id: 23, labels: { 'example-lease': 'a-computer' } } },
     'DELETE /servers/23': {},
   }, calls);
   const request = providerClient(rented, canary, { fetchImpl });
-  const lease = await rentMachine({ request, file, provider: rented, name: 'a-computer', publicKey, lifetime: 'service' });
+  const lease = await rentMachine({ request, file, provider: rented, name: 'a-computer', publicKey });
   assert.deepEqual([lease.sshKeyId, lease.sharedSshKeyId], [null, 5]);
   assert.deepEqual(calls.find(([key]) => key === 'POST /servers')[1].ssh_keys, [5]);
   await releaseMachine({ request, file, provider: rented });
@@ -214,19 +215,19 @@ test('a public key the provider already holds is used as it is and never removed
 
 test('a machine someone else labelled is left untouched', async () => {
   const file = join(folder(), 'lease.json');
-  writeFileSync(file, JSON.stringify({ schema: 'place-lease/1', provider: 'rented-machine', name: 'a-computer', state: 'running', serverId: 30, sshKeyId: null }));
-  const request = providerClient(rented, canary, { fetchImpl: provider(rented.base, { 'GET /servers/30': { server: { id: 30, labels: { 'place-lease': 'another' } } } }) });
+  writeFileSync(file, JSON.stringify({ schema: 'machine-lease/1', provider: 'rented-machine', name: 'a-computer', state: 'running', serverId: 30, sshKeyId: null }));
+  const request = providerClient(rented, canary, { fetchImpl: provider(rented.base, { 'GET /servers/30': { server: { id: 30, labels: { 'example-lease': 'another' } } } }) });
   await assert.rejects(releaseMachine({ request, file, provider: rented }), /no longer owned by this lease/);
 });
 
 test('a machine already run is adopted at its address and only forgotten on release', async () => {
   const file = join(folder(), 'lease.json');
-  const lease = await rentMachine({ request: null, file, provider: adopted, name: 'a-pi', placement: { address: '192.0.2.40' }, lifetime: 'service' });
+  const lease = await rentMachine({ request: null, file, provider: adopted, name: 'a-pi', placement: { address: '192.0.2.40' } });
   assert.deepEqual([lease.state, lease.adopted, lease.address], ['running', true, '192.0.2.40']);
   assert.equal(await readPrice({ request: null, provider: adopted, placement: {} }), null);
   assert.deepEqual(await readPrice({ request: null, provider: adopted, placement: { monthly_price_cents: 300 } }), { cents: 300, currency: null });
   assert.equal((await releaseMachine({ request: null, file, provider: adopted })).state, 'removed');
-  await assert.rejects(rentMachine({ request: null, file: join(folder(), 'l.json'), provider: adopted, name: 'a-pi', placement: { address: 'not-an-address' }, lifetime: 'service' }), /configuration was refused/);
+  await assert.rejects(rentMachine({ request: null, file: join(folder(), 'l.json'), provider: adopted, name: 'a-pi', placement: { address: 'not-an-address' } }), /configuration was refused/);
 });
 
 test('the price is the size\'s monthly price at the lease\'s location, in cents', async () => {
@@ -239,18 +240,18 @@ test('the price is the size\'s monthly price at the lease\'s location, in cents'
 
 test('the public name points at the machine with this lease\'s mark, and only that record is removed', async () => {
   const file = join(folder(), 'lease.json'), zone = 'a'.repeat(32), record = 'b'.repeat(32), calls = [];
-  writeFileSync(file, JSON.stringify({ schema: 'place-lease/1', provider: 'rented-machine', name: 'a-computer', state: 'running', address: '192.0.2.10' }));
+  writeFileSync(file, JSON.stringify({ schema: 'machine-lease/1', provider: 'rented-machine', name: 'a-computer', state: 'running', address: '192.0.2.10' }));
   const fetchImpl = provider(records.base, {
     'GET /zones?name=example.com': { result: [{ id: zone, name: 'example.com' }] },
     [`GET /zones/${zone}/dns_records?type=A&name=computer.example.com`]: { result: [] },
     [`POST /zones/${zone}/dns_records`]: body => ({ result: { id: record, ...body } }),
-    [`GET /zones/${zone}/dns_records/${record}`]: { result: { id: record, comment: 'place-lease a-computer' } },
+    [`GET /zones/${zone}/dns_records/${record}`]: { result: { id: record, comment: 'example-lease a-computer' } },
     [`DELETE /zones/${zone}/dns_records/${record}`]: { result: { id: record } },
   }, calls);
   const request = providerClient(records, canary, { fetchImpl });
   const lease = await pointName({ request, file, provider: records, zone: 'example.com', hostName: 'computer.example.com' });
   assert.deepEqual([lease.recordId, lease.hostName], [record, 'computer.example.com']);
-  assert.deepEqual(calls.find(([key]) => key.startsWith('POST'))[1], { type: 'A', name: 'computer.example.com', content: '192.0.2.10', ttl: 60, proxied: false, comment: 'place-lease a-computer' });
+  assert.deepEqual(calls.find(([key]) => key.startsWith('POST'))[1], { type: 'A', name: 'computer.example.com', content: '192.0.2.10', ttl: 60, proxied: false, comment: 'example-lease a-computer' });
   assert.equal((await forgetName({ request, file, provider: records })).recordId, null);
   assert.ok(calls.some(([key]) => key.startsWith('DELETE')));
 });
@@ -303,7 +304,7 @@ test('starting a computer on an adopted machine sets it up, installs the release
     return '';
   };
   const answer = await startAComputer({
-    lease_file: join(here, 'lease.json'), machine: { provider: ADOPTED, name: 'a-pi', placement: { address: '192.0.2.40' }, lifetime: 'service' },
+    lease_file: join(here, 'lease.json'), machine: { provider: ADOPTED, name: 'a-pi', placement: { address: '192.0.2.40' } },
     name: { host_name: 'computer.example.com' }, ssh: { known_hosts: join(here, 'known_hosts') }, port: 7199, host_layout: HOST_LAYOUT,
     engine: { file: 'engine', data_env: 'ENGINE_DATA', data_dir: 'data', id_argv: ['computer', 'id'], release_name: 'r1', release: { on_machine: '/opt/build/release' } },
     config_from_release: [{ at: ['new_accounts', 'sign_in_ways'], file: 'data/new-accounts.json', key: 'sign_in_ways' }],
@@ -319,7 +320,7 @@ test('renting a machine leases it and waits for SSH, and sets nothing up on it',
   const here = folder(), commands = [];
   const run = async (_machine, command) => { commands.push(command); return command === 'uname -m' ? 'x86_64\n' : ''; };
   const answer = await rentAMachine({
-    lease_file: join(here, 'lease.json'), machine: { provider: ADOPTED, name: 'a-builder', placement: { address: '192.0.2.41' }, lifetime: 'service' },
+    lease_file: join(here, 'lease.json'), machine: { provider: ADOPTED, name: 'a-builder', placement: { address: '192.0.2.41' } },
     name: { host_name: 'releases.example.com' }, ssh: { known_hosts: join(here, 'known_hosts') },
   }, { run, wait: async () => {} });
   assert.deepEqual([answer.arch, answer.host_name, answer.lease.address, answer.price], ['x86_64', 'releases.example.com', '192.0.2.41', null]);
@@ -374,14 +375,14 @@ test('a start writes both fields into the computer config it installs, and a bad
     if (command.includes('curl')) return '200';
     if (command.startsWith('getent passwd')) throw Object.assign(new Error('no such account'), { code: 3 });
     if (command === 'install -o place -g place -m 0600 /dev/stdin /var/lib/place/place.json') written.push(JSON.parse(input));
-    if (command === `install -o place -g place -m 0600 /dev/stdin '${productSettings.file}'`) written.push(Buffer.from(input));
+    if (command === `install -o place -g place -m 0600 /dev/stdin '${SETTINGS_FILE}'`) written.push(Buffer.from(input));
     return '';
   };
   const release_feed = { urls: ['https://releases.example.com/engine-releases/feed.json'], public_keys: ['a'.repeat(64)], releases: '/opt/place/releases' };
   const default_places = { holders: ['this-place'], answering: ['this-place'] };
   const request = {
     host_layout: HOST_LAYOUT,
-    lease_file: join(here, 'lease.json'), machine: { provider: ADOPTED, name: 'a-pi', placement: { address: '192.0.2.41' }, lifetime: 'service' },
+    lease_file: join(here, 'lease.json'), machine: { provider: ADOPTED, name: 'a-pi', placement: { address: '192.0.2.41' } },
     name: { host_name: 'computer.example.com' }, ssh: { known_hosts: join(here, 'known_hosts') }, port: 7199,
     engine: { file: 'engine', data_env: 'ENGINE_DATA', data_dir: 'data', release_name: 'r1', release: { on_machine: '/opt/build/release' } },
     release_feed, default_places,
@@ -484,7 +485,7 @@ function madeUpComputer(l, { units = [] } = {}) {
   writeFileSync(join(bin, 'journalctl'), '#!/bin/sh\necho "$*" >> "$ROOT/journal.calls"\nexit 0\n');
   chmodSync(join(bin, 'journalctl'), 0o755);
   const lease = join(root, 'lease.json');
-  writeFileSync(lease, JSON.stringify({ schema: 'place-lease/1', provider: 'adopted-machine', providerFile: ADOPTED, name: 'a-computer', address: '192.0.2.50', adopted: true, hostName: 'computer.example.com' }));
+  writeFileSync(lease, JSON.stringify({ schema: 'machine-lease/1', provider: 'adopted-machine', providerFile: ADOPTED, name: 'a-computer', address: '192.0.2.50', adopted: true, hostName: 'computer.example.com' }));
   return { root, lease, file: path => join(root, path) };
 }
 
@@ -504,7 +505,7 @@ const runHere = (root, env = {}) => async (_machine, command, input) => {
   });
 };
 
-const updateRequest = { product_data: PRODUCT_DATA, release_feed: { ...FEED, releases: { keep: 3 } }, ssh: { known_hosts: '/dev/null' }, name: { host_name: 'computer.example.com' }, engine: { file: 'trillion-local', release_name: 'new', release: { on_machine: '/opt/build/new' } } };
+const updateRequest = { product_data: PRODUCT_DATA, product_settings_file: SETTINGS_FILE, release_feed: { ...FEED, releases: { keep: 3 } }, ssh: { known_hosts: '/dev/null' }, name: { host_name: 'computer.example.com' }, engine: { file: 'trillion-local', release_name: 'new', release: { on_machine: '/opt/build/new' } } };
 const FEED_TARGET = 'x86_64-unknown-linux-gnu';
 const feedBody = releases => ({ status: 200, json: async () => ({ releases: releases.map(target => ({ target })) }) });
 const asHere = (root, extra = {}) => ({ root, settle: 0, wait: async () => {}, tries: 1, target: FEED_TARGET, fetchImpl: async () => feedBody([FEED_TARGET]), ...extra });
@@ -690,17 +691,17 @@ test('a start uses one exact file snapshot for remote settings and starting rows
   const data = writeProductData(here, PRODUCT);
   let settingsWritten, configWritten;
   const request = {
-    product_data: data, release_feed: null,
+    product_data: data, release_feed: null, product_settings_file: SETTINGS_FILE,
     host_layout: HOST_LAYOUT,
-    lease_file: join(here, 'lease.json'), machine: { provider: ADOPTED, name: 'sample', placement: { address: '192.0.2.44' }, lifetime: 'service' },
+    lease_file: join(here, 'lease.json'), machine: { provider: ADOPTED, name: 'sample', placement: { address: '192.0.2.44' } },
     name: { host_name: 'sample.example.test' }, ssh: { known_hosts: '/dev/null' }, port: 7199,
-    engine: { file: 'engine', data_env: 'ENGINE_DATA', data_dir: 'data', release_name: 'r1', release: { on_machine: '/opt/build/release' } },
+    engine: { file: 'engine', releases: '/opt/place/releases', data_env: 'ENGINE_DATA', data_dir: 'data', release_name: 'r1', release: { on_machine: '/opt/build/release' } },
   };
   await startAComputerRaw(request, { wait: async () => {}, fetchImpl: async () => ({ status: 200 }), run: async (_machine, command, input) => {
     if (command === 'uname -m') { writeFileSync(join(here, 'product-settings.json'), '{}'); return 'aarch64'; }
     if (command.includes('curl')) return '200';
     if (command.startsWith('install -o place') && command.includes("'product-settings.json'")) settingsWritten = Buffer.from(input);
-    if (command === `install -o place -g place -m 0600 /dev/stdin '${productSettings.file}'`) settingsWritten = Buffer.from(input);
+    if (command === `install -o place -g place -m 0600 /dev/stdin '${SETTINGS_FILE}'`) settingsWritten = Buffer.from(input);
     if (command === 'install -o place -g place -m 0600 /dev/stdin /var/lib/place/place.json') configWritten = JSON.parse(input);
     return '';
   } });
@@ -756,8 +757,8 @@ test('a second provider the tool has never seen rents, prices and gives back a m
   const file = join(folder(), 'lease.json'), described = join(folder(), 'another-cloud.json'), calls = [];
   writeFileSync(described, JSON.stringify({
     id: 'another-cloud', name: 'Another Cloud', base: 'https://compute.another.test/api', auth: { header: 'x-api-key', prefix: '' },
-    vault_key: 'another-cloud-key', error_code_at: 'problem.kind',
-    placement: { size: 's1', location: 'north', image: 'debian' }, fill: { plan: '{size}', tags: { owner: '{name}' } },
+    vault_key: 'another-cloud-key', error_code_at: 'problem.kind', lease_label_key: 'cloud-owner',
+    placement: { size: 's1', location: 'north', image: 'debian' }, fill: { plan: '{size}', tags: { '{lease_label_key}': '{name}' } },
     requests: {
       list: { url: 'https://compute.another.test/api/vms?label={name}', method: 'GET' },
       make: { url: 'https://compute.another.test/api/vms', method: 'POST', body_template: { label: '{name}', plan: '{plan}', zone: '{location}', os: '{image}', key: '{ssh_key_id}', tags: '{tags}' } },
@@ -768,8 +769,8 @@ test('a second provider the tool has never seen rents, prices and gives back a m
       key_drop: { url: 'https://compute.another.test/api/keys/{ssh_key_id}', method: 'DELETE' },
       cost: { url: 'https://compute.another.test/api/plans/{size}', method: 'GET' },
     },
-    host: { find: 'list', list_at: 'items', create: 'make', created_at: 'vm', read: 'one', found_at: 'vm', remove: 'drop', id_is: 'vm_id', id_pattern: '^vm-[a-z0-9]+$', owner_at: 'tags.owner', address_at: 'net.v4', state_at: 'phase' },
-    access_key: { create: 'keys', read: 'key_one', found_at: 'key', remove: 'key_drop', id_is: 'ssh_key_id', id_pattern: '^key-[a-z0-9]+$', id_at: 'key.id', owner_at: 'tags.owner' },
+    host: { find: 'list', list_at: 'items', create: 'make', created_at: 'vm', read: 'one', found_at: 'vm', remove: 'drop', id_is: 'vm_id', id_pattern: '^vm-[a-z0-9]+$', owner_at: 'tags.{lease_label_key}', address_at: 'net.v4', state_at: 'phase' },
+    access_key: { create: 'keys', read: 'key_one', found_at: 'key', remove: 'key_drop', id_is: 'ssh_key_id', id_pattern: '^key-[a-z0-9]+$', id_at: 'key.id', owner_at: 'tags.{lease_label_key}' },
     price: { read: 'cost', list_at: 'plan.rates', location_at: 'zone', monthly_at: 'per_month', currency: 'USD' },
   }));
   const row = readProvider(described), headers = [];
@@ -777,15 +778,15 @@ test('a second provider the tool has never seen rents, prices and gives back a m
     'GET /vms?label=a-computer': { items: [] },
     'POST /keys': body => ({ key: { id: 'key-1a', tags: body.tags } }),
     'POST /vms': body => ({ vm: { id: 'vm-9z', tags: body.tags, net: { v4: '192.0.2.77' } } }),
-    'GET /vms/vm-9z': { vm: { id: 'vm-9z', phase: 'up', tags: { owner: 'a-computer' }, net: { v4: '192.0.2.77' } } },
-    'DELETE /vms/vm-9z': {}, 'GET /keys/key-1a': { key: { id: 'key-1a', tags: { owner: 'a-computer' } } }, 'DELETE /keys/key-1a': {},
+    'GET /vms/vm-9z': { vm: { id: 'vm-9z', phase: 'up', tags: { 'cloud-owner': 'a-computer' }, net: { v4: '192.0.2.77' } } },
+    'DELETE /vms/vm-9z': {}, 'GET /keys/key-1a': { key: { id: 'key-1a', tags: { 'cloud-owner': 'a-computer' } } }, 'DELETE /keys/key-1a': {},
     'GET /plans/s1': { plan: { rates: [{ zone: 'north', per_month: '12.5' }] } },
   }, calls);
   const fetchImpl = async (address, init) => { headers.push(init.headers['x-api-key']); return answer(address, { ...init, headers: { authorization: `Bearer ${canary}` } }); };
   const request = providerClient(row, canary, { fetchImpl });
-  const lease = await rentMachine({ request, file, provider: row, name: 'a-computer', publicKey, lifetime: 'service' });
+  const lease = await rentMachine({ request, file, provider: row, name: 'a-computer', publicKey });
   assert.deepEqual([lease.provider, lease.providerFile, lease.state, lease.serverId, lease.sshKeyId, lease.address], ['another-cloud', described, 'running', 'vm-9z', 'key-1a', '192.0.2.77']);
-  assert.deepEqual(calls.find(([key]) => key === 'POST /vms')[1], { label: 'a-computer', plan: 's1', zone: 'north', os: 'debian', key: 'key-1a', tags: { owner: 'a-computer' } });
+  assert.deepEqual(calls.find(([key]) => key === 'POST /vms')[1], { label: 'a-computer', plan: 's1', zone: 'north', os: 'debian', key: 'key-1a', tags: { 'cloud-owner': 'a-computer' } });
   assert.deepEqual(await readPrice({ request, provider: row, placement: {} }), { cents: 1250, currency: 'USD' });
   assert.deepEqual(await readMachine({ request, file }), { state: 'up', address: '192.0.2.77' });
   assert.equal((await releaseMachine({ request, file })).state, 'removed');
@@ -802,6 +803,89 @@ test('a provider is the absolute path of a description with an id and a name', (
 
 test('the tool\'s own files name no provider', () => {
   const read = path => readFileSync(new URL(path, import.meta.url), 'utf8');
-  for (const path of ['../do-work/rent-a-machine.mjs', '../do-work/start-a-computer.mjs', '../tool-rows.json', '../README.md']) assert.doesNotMatch(read(path), /hetzner|cloudflare/i, path);
+  for (const path of ['../do-work/rent-a-machine.mjs', '../do-work/start-a-computer.mjs', '../do-work/render-layout.mjs', '../tool-rows.json', '../README.md']) assert.doesNotMatch(read(path), /hetzner|cloudflare|gettrillion/i, path);
+  assert.doesNotMatch(read('../read-data/settings.json'), /gettrillion|\bplace\b|caddy_front_door|https:\/\/[^"]*caddy/i, 'settings hold no host, product word or pinned download');
   assert.equal(existsSync(new URL('../read-data/providers.json', import.meta.url)), false);
 });
+
+const syntheticCloud = (extra = {}) => ({
+  id: 'slow-cloud', name: 'Slow Cloud', base: 'https://slow.example.test/api', auth: { header: 'x-api-key', prefix: '' }, vault_key: 'slow-cloud-key', error_code_at: 'e',
+  lease_label_key: 'owned-by', fingerprint: { hash: 'sha256', encoding: 'base64', prefix: 'SHA256:' }, async: { ready_when: 'up', every_ms: 7, tries: 3 },
+  first_boot: { format: 'example-init' }, terms_url: 'https://terms.example.test/slow',
+  placement: { size: 's', location: 'l', image: 'i' }, fill: { tags: { '{lease_label_key}': '{name}' } },
+  requests: {
+    list: { url: 'https://slow.example.test/api/vms?n={name}', method: 'GET' },
+    make: { url: 'https://slow.example.test/api/vms', method: 'POST', body_template: { n: '{name}', key: '{fingerprint}', boot: '{first_boot}', tags: '{tags}' } },
+    one: { url: 'https://slow.example.test/api/vms/{vm_id}', method: 'GET' },
+    drop: { url: 'https://slow.example.test/api/vms/{vm_id}', method: 'DELETE' },
+  },
+  host: { find: 'list', list_at: 'items', create: 'make', created_at: 'vm', read: 'one', found_at: 'vm', remove: 'drop', id_is: 'vm_id', id_pattern: '^[0-9]+$', owner_at: 'tags.{lease_label_key}', address_at: 'ip', state_at: 'phase' },
+  ...extra,
+});
+const describe = value => { const file = join(folder(), 'provider.json'); writeFileSync(file, JSON.stringify(value)); return readProvider(file); };
+
+test('a provider that creates asynchronously is polled until its machine runs, takes first-boot text it names, and keys by its own fingerprint format', async () => {
+  const row = describe(syntheticCloud()), file = join(folder(), 'lease.json'), calls = [], waits = [];
+  let reads = 0;
+  const answer = provider(row.base, {
+    'GET /vms?n=a-computer': { items: [] },
+    'POST /vms': body => ({ vm: { id: 5, tags: body.tags } }),
+    'GET /vms/5': () => (++reads < 3 ? { vm: { id: 5, phase: 'building', tags: { 'owned-by': 'a-computer' } } } : { vm: { id: 5, phase: 'up', ip: '192.0.2.31', tags: { 'owned-by': 'a-computer' } } }),
+  }, calls);
+  const request = providerClient(row, canary, { fetchImpl: (address, init) => answer(address, { ...init, headers: { authorization: `Bearer ${canary}` } }) });
+  const lease = await rentMachine({ request, file, provider: row, name: 'a-computer', publicKey, firstBoot: { format: 'example-init', text: '#boot' }, wait: async ms => { waits.push(ms); } });
+  assert.deepEqual([lease.state, lease.address, waits], ['running', '192.0.2.31', [7, 7]]);
+  const made = calls.find(([key]) => key === 'POST /vms')[1];
+  assert.deepEqual([made.boot, made.tags, made.key], ['#boot', { 'owned-by': 'a-computer' }, fingerprintOf(publicKey, row.fingerprint)]);
+  assert.match(made.key, /^SHA256:[A-Za-z0-9+/]{43}$/);
+  await assert.rejects(rentMachine({ request, file: join(folder(), 'x.json'), provider: row, name: 'b-computer', publicKey, firstBoot: { format: 'another-format', text: 'x' } }), /first-boot text in that format/);
+});
+
+test('a machine that never reports ready is given back, and its deadline is any time in the future', async () => {
+  const row = describe(syntheticCloud()), file = join(folder(), 'lease.json'), calls = [];
+  const answer = provider(row.base, {
+    'GET /vms?n=a-computer': { items: [] }, 'POST /vms': body => ({ vm: { id: 6, tags: body.tags } }),
+    'GET /vms/6': { vm: { id: 6, phase: 'building', tags: { 'owned-by': 'a-computer' } } }, 'DELETE /vms/6': {},
+  }, calls);
+  const request = providerClient(row, canary, { fetchImpl: (address, init) => answer(address, { ...init, headers: { authorization: `Bearer ${canary}` } }) });
+  await assert.rejects(rentMachine({ request, file, provider: row, name: 'a-computer', publicKey, wait: async () => {} }), /did not report the machine ready/);
+  assert.ok(calls.some(([key]) => key === 'DELETE /vms/6'));
+  assert.equal(JSON.parse(readFileSync(file, 'utf8')).state, 'removed');
+  await assert.rejects(rentMachine({ request: null, file: join(folder(), 'y.json'), provider: adopted, name: 'a-pi', placement: { address: '192.0.2.40' }, expiresAt: 5, now: () => 10 }), /deadline is a time in the future/);
+  assert.equal((await rentMachine({ request: null, file: join(folder(), 'z.json'), provider: adopted, name: 'a-pi', placement: { address: '192.0.2.40' }, expiresAt: 20, now: () => 10 })).expiresAt, 20);
+});
+
+test('a machine nobody can reach gets a one-time line, waits, and is registered only by that token', async () => {
+  const row = describe({ id: 'dial-out', name: 'A machine that dials out', pull: { line: 'run-the-registrar --lease {name} --token {token}' }, placement: { monthly_price_cents: 0 } });
+  const file = join(folder(), 'lease.json');
+  const first = await rentMachine({ request: null, file, provider: row, name: 'a-phone', placement: {} });
+  assert.deepEqual([first.state, first.address, first.adopted], ['waiting', null, true]);
+  const token = /--token ([0-9a-f]{48})$/.exec(first.line)?.[1];
+  assert.ok(token, 'the line carries the one-time token');
+  assert.ok(!readFileSync(file, 'utf8').includes(token), 'the lease keeps only the token\'s hash');
+  const again = await rentMachine({ request: null, file, provider: row, name: 'a-phone', placement: {} });
+  assert.notEqual(again.line, first.line, 'renting again while it waits makes a new line');
+  assert.throws(() => registerMachine({ file, token, address: '192.0.2.60' }), /refused/);
+  assert.throws(() => registerMachine({ file, token: 'x', address: '192.0.2.60' }), /refused/);
+  const registered = registerMachine({ file, token: /--token ([0-9a-f]{48})$/.exec(again.line)[1], address: '192.0.2.60' });
+  assert.deepEqual([registered.state, registered.address, registered.tokenHash], ['running', '192.0.2.60', null]);
+  assert.throws(() => registerMachine({ file, token, address: '192.0.2.60' }), /not waiting/);
+  assert.equal((await releaseMachine({ request: null, file, provider: row })).state, 'removed');
+});
+
+test('renting a machine nobody can reach answers its line and waits, with no SSH and no name pointed', async () => {
+  const here = folder(), described = join(here, 'dial-out.json'), commands = [];
+  writeFileSync(described, JSON.stringify({ id: 'dial-out', name: 'A machine that dials out', pull: { line: 'register {name} {token}' } }));
+  const answer = await rentAMachine({ lease_file: join(here, 'lease.json'), machine: { provider: described, name: 'a-phone' }, name: { host_name: 'phone.example.com' }, ssh: { known_hosts: join(here, 'known_hosts') } },
+    { run: async (_m, command) => { commands.push(command); return ''; }, wait: async () => {} });
+  assert.deepEqual([answer.lease.state, answer.arch, answer.machine], ['waiting', null, null]);
+  assert.match(answer.line, /^register a-phone [0-9a-f]{48}$/);
+  assert.deepEqual(commands, []);
+});
+
+test('a provider description with a base needs a lease_label_key', () => {
+  const file = join(folder(), 'provider.json');
+  writeFileSync(file, JSON.stringify({ id: 'p', name: 'P', base: 'https://p.example.test' }));
+  assert.throws(() => readProvider(file), /needs a lease_label_key/);
+});
+

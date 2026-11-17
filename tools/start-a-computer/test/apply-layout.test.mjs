@@ -110,7 +110,8 @@ test('a front door gets its pinned Caddy, is validated by it and restarts Caddy 
     storage_server_cert: '/etc/caddy/storage-server.crt', storage_env: '/etc/caddy/storage.env', ask_port: 9444,
     ask_path: '/origins/certificate', door_upstream: 'https://192.0.2.10:443', door_host: 'app.example.test',
     door_server_name: '{http.request.host}', door_hosts: ['app.example.test'],
-    binary_urls: { x86_64: 'https://downloads.example.test/caddy-linux-amd64', aarch64: 'https://downloads.example.test/caddy-linux-arm64' } } } };
+    binary: '/opt/example/caddy',
+    binary_files: { x86_64: { url: 'https://downloads.example.test/caddy-linux-amd64', sha256: 'e'.repeat(64) }, aarch64: { url: 'https://downloads.example.test/caddy-linux-arm64', sha256: 'f'.repeat(64) } } } } };
   const rendered = renderLayout(door, SITE_BLOCK);
   const live = Object.fromEntries(rendered.filter(({ path }) => !path.includes('caddy')).map(({ path, text }) => [path, text]));
   const base = computer(live);
@@ -123,8 +124,8 @@ test('a front door gets its pinned Caddy, is validated by it and restarts Caddy 
   assert.deepEqual(written, ['/etc/caddy/Caddyfile', '/etc/systemd/system/caddy.service.d/front-door.conf']);
   assert.deepEqual(restarted, ['caddy.service']);
   const setUp = base.commands.find(({ command }) => command.startsWith('sh -s'));
-  assert.match(setUp.command, / '\/opt\/caddy\/2\.11\.9-redis\/caddy https:\/\/downloads\.example\.test\/caddy-linux-amd64 eca5f1582fe35e8758a6f03df305427cc1848d908a810341ad1425ef87b2062f'$/);
-  assert.ok(base.commands.some(({ command }) => command.startsWith("set -a && . '/etc/caddy/storage.env' && set +a && '/opt/caddy/2.11.9-redis/caddy' validate")));
+  assert.match(setUp.command, / '\/opt\/example\/caddy https:\/\/downloads\.example\.test\/caddy-linux-amd64 e{64}'$/);
+  assert.ok(base.commands.some(({ command }) => command.startsWith("set -a && . '/etc/caddy/storage.env' && set +a && '/opt/example/caddy' validate")));
   assert.ok(base.commands.some(({ command }) => command === "systemctl restart 'caddy.service'"));
   assert.ok(!base.commands.some(({ command }) => command === 'systemctl reload caddy'), 'a restart already loads the new site file');
 });
@@ -133,10 +134,10 @@ test('a front door whose row gives no address for the pinned Caddy is refused be
   const door = { ...layout, caddy: { ...layout.caddy, front_door: {
     storage_server_cert: '/etc/caddy/storage-server.crt', storage_env: '/etc/caddy/storage.env', ask_port: 9444,
     ask_path: '/origins/certificate', door_upstream: 'https://192.0.2.10:443', door_host: 'app.example.test',
-    door_server_name: '{http.request.host}', door_hosts: ['app.example.test'] } } };
+    door_server_name: '{http.request.host}', door_hosts: ['app.example.test'], binary: '/opt/example/caddy' } } };
   const base = computer({});
   const run = async (machine_, command, input) => (command === 'uname -m' ? 'x86_64\n' : base.run(machine_, command, input));
-  await assert.rejects(applyHostLayout(machine, door, run), /gives no binary_urls for x86_64/);
+  await assert.rejects(applyHostLayout(machine, door, run), /gives no binary_files for x86_64/);
 });
 
 test('a unit\'s health row may name the Host its boot check asks for', async () => {

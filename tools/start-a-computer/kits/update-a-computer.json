@@ -10,7 +10,7 @@
     "tool:read-a-computer"
   ],
   "instructions": [
-    "1. Write request.json: ssh {known_hosts}, engine {file, release_name, release}, product_data (your settings manifest), release_feed {urls, public_keys, releases} (required), name {host_name}.",
+    "1. Write request.json: ssh {known_hosts}, engine {file, release_name, release}, product_settings_file, product_data (your settings manifest), release_feed {urls, public_keys, releases} (required), name {host_name}.",
     "2. Say the line in start_here. Your AI reads the row with tools:list {tool: \"tool:update-a-computer\"} and runs node tools/start-a-computer/do-work/start-a-computer.mjs update lease.json request.json. No credential is needed; update one computer at a time.",
     "3. Read the answer: layout, release, backup, product_settings, release_feed, copies and sign_up_status. Keep the backup folder it names.",
     "4. To go back run node tools/start-a-computer/do-work/start-a-computer.mjs rollback lease.json request.json <backup>. A failed service or sign-up health restores the backup by itself."

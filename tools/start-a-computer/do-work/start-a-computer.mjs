@@ -29,7 +29,7 @@ import { makeHashCodeHexFromBytes } from 'trillion-workshop/tools/content-identi
 import { verifyEntry } from 'trillion-workshop/tools/publish-an-engine-release/do-work/release-feed.mjs';
 import {
   readProvider, providerClient, rentMachine, readMachine, releaseMachine, readPrice, pointName,
-  forgetName, readLease,
+  forgetName, readLease, registerMachine,
 } from './rent-a-machine.mjs';
 
 const SETUP = fileURLToPath(new URL('./set-up-the-machine.sh', import.meta.url));
@@ -39,8 +39,13 @@ const SETTINGS = JSON.parse(readFileSync(new URL('../read-data/settings.json', i
 // Each name's Caddy site block: the wrapper with every route block the settings name, in order, each its own file.
 export const SITE_BLOCK = readFileSync(new URL('../read-data/caddy-site-block.caddy', import.meta.url), 'utf8').trimEnd()
   .replace('{ROUTES}', () => SETTINGS.caddy_routes.map(name => readFileSync(new URL(`../read-data/caddy-routes/${name}.caddy`, import.meta.url), 'utf8').trimEnd()).join('\n'));
-/** The launch setting that names the product settings file, and where that file is on the machine. */
-export const productSettings = { launch_setting: SETTINGS.product_settings.launch_setting, file: SETTINGS.product_settings.file };
+/** The launch setting that names the product settings file. */
+export const productSettings = { launch_setting: SETTINGS.product_settings.launch_setting };
+/** Where the product settings file is on the machine: the request's own `product_settings_file`, an absolute path. */
+export const settingsFileOf = request => {
+  if (typeof request.product_settings_file !== 'string' || !isAbsolute(request.product_settings_file)) throw refused('product_settings_file is the absolute path the product settings file gets on the computer.');
+  return request.product_settings_file;
+};
 const q = text => `'${String(text).replace(/'/g, `'\\''`)}'`;
 const absolute = (path, what) => {
   if (typeof path !== 'string' || !isAbsolute(path)) throw Object.assign(new Error(`${what} must be an absolute path.`), { exit: 2 });
@@ -363,22 +368,20 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
 
 const CADDYFILE = '/etc/caddy/Caddyfile';
 
-/** The pinned front-door Caddy for this machine's architecture: { binary, url, sha256 }. The pin (path and SHA-256) is
- * settings.json caddy_front_door; the address it is fetched from is the caller's, the layout row's `front_door.binary_urls`
- * (architecture to address), so this tool names no host. */
+/** The pinned front-door Caddy for this machine's architecture: { binary, url, sha256 }, all from the layout row's
+ * `front_door` (`binary`, and `binary_files`: architecture to { url, sha256 }), so this tool names no host. */
 async function frontDoorCaddy(machine, run, door) {
   const arch = (await run(machine, 'uname -m')).trim();
-  const file = SETTINGS.caddy_front_door.files[arch];
-  if (!file) throw new Error(`No front-door Caddy is pinned for ${arch} (settings.json caddy_front_door.files).`);
-  const url = door.binary_urls?.[arch];
-  if (!url) throw refused(`The layout's caddy.front_door gives no binary_urls for ${arch}: the address the pinned Caddy is fetched from.`);
-  return { binary: SETTINGS.caddy_front_door.binary, url, ...file };
+  const file = door.binary_files?.[arch];
+  if (!file?.url || !file.sha256) throw refused(`The layout's caddy.front_door gives no binary_files for ${arch}: the address and SHA-256 of the pinned Caddy.`);
+  return { binary: door.binary, ...file };
 }
 
 /** Copy the release onto the machine as /opt/place/releases/NAME (under `root`, empty on a machine), pointing nothing
  * at it. */
 export async function copyRelease(machine, engine, run = onMachine, root = '') {
-  const name = engine.release_name, dir = `${engine.releases ?? SETTINGS.layout.releases}/${name}`, at = q(`${root}${dir}`);
+  if (typeof engine.releases !== 'string' || !engine.releases.startsWith('/')) throw refused('engine.releases is the absolute folder releases are copied into on the computer.');
+  const name = engine.release_name, dir = `${engine.releases}/${name}`, at = q(`${root}${dir}`);
   if (!/^[A-Za-z0-9._-]{1,80}$/.test(name ?? '')) throw new Error('The release needs a release_name of letters, digits, dot, dash or underscore.');
   if (engine.release?.tarball) await run(machine, `install -d -m 0755 ${at} && tar -C ${at} -xzf -`, createReadStream(absolute(engine.release.tarball, 'engine.release.tarball')));
   else if (engine.release?.on_machine) await run(machine, `rm -rf ${at} && cp -a ${q(`${root}${engine.release.on_machine}`)} ${at}`);
@@ -432,7 +435,7 @@ export function readProductData(request) {
 
 /** The bytes a computer's product settings file gets from a snapshot (`readProductData`): the settings the engine reads, checked
  * for their sections and bounded in size. The page look names the static folder beside `settingsFile` on this computer. */
-export function productSettingsOf(snapshot, settingsFile = productSettings.file) {
+export function productSettingsOf(snapshot, settingsFile) {
   if (snapshot.source.length > SETTINGS.product_settings.most_bytes) throw refused('product_settings exceeds the engine settings file byte limit.');
   const data = JSON.parse(snapshot.source);
   const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -441,7 +444,10 @@ export function productSettingsOf(snapshot, settingsFile = productSettings.file)
     if (!object(data.new_accounts[key])) throw refused(`product_settings.new_accounts.${key} must be an object.`);
   }
   copiesPolicy(data.new_accounts.copies);
-  if (object(data.page_look)) data.page_look.static_root = staticFolderOf(settingsFile);
+  if (object(data.page_look)) {
+    if (!settingsFile) throw refused('product_settings has a page_look, so its static folder needs the product settings file path (product_settings_file).');
+    data.page_look.static_root = staticFolderOf(settingsFile);
+  }
   return { bytes: Buffer.from(`${JSON.stringify(data, null, 2)}\n`), data, statics: snapshot.statics };
 }
 
@@ -488,7 +494,7 @@ export function copiesFor(config, most) {
 }
 
 /** Preserve configured rows and fill missing ones from the same caller settings written to the computer. */
-export function startingRows(config, request, product = productSettingsOf(readProductData(request))) {
+export function startingRows(config, request, product = productSettingsOf(readProductData(request), request.product_settings_file)) {
   const rows = { ...structuredClone(product.data.new_accounts), ...structuredClone(config.new_accounts ?? {}) };
   rows.copies = request.copies === undefined ? copiesFor(config, product.data.new_accounts.copies) : copiesPolicy(request.copies);
   return rows;
@@ -507,7 +513,7 @@ export function defaultComputers(computers) {
 /** The computer config with the machine's own fields set, the request's release feed and default computers, plus values read
  * from files in the release. The machine is reached at its own name (`report.reach`); people reach its accounts at
  * `public_origin` when the request names one (a forwarder in front of several machines), else at that same name. */
-export async function computerConfig(machine, request, price, run = onMachine, product = productSettingsOf(readProductData(request))) {
+export async function computerConfig(machine, request, price, run = onMachine, product = productSettingsOf(readProductData(request), request.product_settings_file)) {
   const reach = `https://${request.name.host_name}`, config = structuredClone(request.place_config ?? {});
   // The router is the product settings' `app_host` row, never a request's own value: a stale name (a staging router) once
   // came back through place_config and made every computer's messages fail, so a request that names one is refused.
@@ -518,7 +524,7 @@ export async function computerConfig(machine, request, price, run = onMachine, p
   const feed = feedOf(request);
   if (feed) config.release_feed = feed;
   // The unit the layout row names for this computer's product settings: the service whose state the place reports (`unit`).
-  const unit = request.host_layout?.units?.find(row => row.product_settings === productSettings.file)?.unit;
+  const unit = request.host_layout?.units?.find(row => row.product_settings === request.product_settings_file)?.unit;
   if (unit) config.unit = unit;
   if (request.default_places !== undefined) config.default_places = defaultComputers(request.default_places);
   for (const from of request.config_from_release ?? []) {
@@ -571,7 +577,7 @@ async function healthStatus(machine, config, host, health, { fetchImpl, wait, tr
   return status;
 }
 
-const asEngine = (engine, argv) => `runuser -u place -- env ${productSettings.launch_setting}=${q(productSettings.file)} ${engine.data_env}=/opt/place/current/${q(engine.data_dir)} /opt/place/current/${q(engine.file)} ${argv.map(q).join(' ')}`;
+const asEngine = (engine, settingsFile, argv) => `runuser -u place -- env ${productSettings.launch_setting}=${q(settingsFile)} ${engine.data_env}=/opt/place/current/${q(engine.data_dir)} /opt/place/current/${q(engine.file)} ${argv.map(q).join(' ')}`;
 
 /** The folder the engine adopts feed releases into, when the request's release_feed names one by absolute path: the
  * `place` service runs with ProtectSystem=strict, so set-up makes this folder writable for it. */
@@ -593,10 +599,11 @@ async function serve(machine, request, price, { run, product, held, ...deps }) {
   await capTheJournal(machine, run);
   const release = await installRelease(machine, engine, run);
   const config = await computerConfig(machine, request, price, run, product);
-  await installStatics(machine, staticFolderOf(productSettings.file), product.statics, 'place', run);
-  await run(machine, `install -o place -g place -m 0600 /dev/stdin ${q(productSettings.file)}`, product.bytes);
+  const settingsFile = settingsFileOf(request);
+  await installStatics(machine, staticFolderOf(settingsFile), product.statics, 'place', run);
+  await run(machine, `install -o place -g place -m 0600 /dev/stdin ${q(settingsFile)}`, product.bytes);
   await run(machine, 'install -o place -g place -m 0600 /dev/stdin /var/lib/place/place.json', `${JSON.stringify(config, null, 1)}\n`);
-  const computerId = engine.id_argv ? (await run(machine, `cd /var/lib/place && ${asEngine(engine, [...engine.id_argv, '/var/lib/place/place.json'])}`)).trim() : null;
+  const computerId = engine.id_argv ? (await run(machine, `cd /var/lib/place && ${asEngine(engine, settingsFileOf(request), [...engine.id_argv, '/var/lib/place/place.json'])}`)).trim() : null;
   await run(machine, 'systemctl enable place.service >/dev/null 2>&1; systemctl restart place.service && sleep 3 && systemctl is-active place.service');
   const host = request.name.host_name, health = healthOf(config, request);
   return { release, computerId, signUp: await healthStatus(machine, config, host, health, { ...deps, run }) };
@@ -610,20 +617,25 @@ export async function rentAMachine(request, { machineToken, nameToken, fetchImpl
   const machineRequest = machines.base ? providerClient(machines, machineToken, { fetchImpl }) : null;
   const file = absolute(request.lease_file, 'lease_file'), m = request.machine;
   const publicKey = m.public_key ?? (m.public_key_file && readFileSync(absolute(m.public_key_file, 'machine.public_key_file'), 'utf8'));
-  const lease = await rentMachine({ request: machineRequest, file, provider: machines, name: m.name, placement: m.placement, lifetime: m.lifetime, expiresAt: m.expires_at, publicKey });
+  const lease = await rentMachine({ request: machineRequest, file, provider: machines, name: m.name, placement: m.placement, expiresAt: m.expires_at, firstBoot: m.first_boot, publicKey, wait });
   const price = await readPrice({ request: machineRequest, provider: machines, placement: m.placement });
+  const terms_url = machines.terms_url ?? null;
+  // A machine nobody can reach waits for the line to be run on it; its name and set-up follow once it has registered.
+  if (lease.state === 'waiting') return { machine: null, price, arch: null, lease: { provider: lease.provider, name: lease.name, serverId: null, address: null, state: lease.state }, host_name: request.name.host_name, line: lease.line, terms_url };
   if (names) await pointName({ request: providerClient(names, nameToken, { fetchImpl }), file, provider: names, zone: request.name.zone, hostName: request.name.host_name });
   const machine = { ssh: request.ssh, address: lease.address };
   const arch = (await untilSsh(machine, { wait, run })).trim();
-  return { machine, price, arch, lease: { provider: lease.provider, name: lease.name, serverId: lease.serverId, address: lease.address, state: lease.state }, host_name: request.name.host_name };
+  return { machine, price, arch, lease: { provider: lease.provider, name: lease.name, serverId: lease.serverId, address: lease.address, state: lease.state }, host_name: request.name.host_name, terms_url };
 }
 
 export async function startAComputer(request, { machineToken, nameToken, held = {}, fetchImpl = fetch, wait = pause, tries = 48, run = onMachine } = {}) {
-  const product = productSettingsOf(readProductData(request));
+  const product = productSettingsOf(readProductData(request), request.product_settings_file);
   if (request.copies !== undefined) copiesPolicy(request.copies);
   feedOf(request);
   if (request.default_places !== undefined) defaultComputers(request.default_places);
-  const { machine, price, arch, lease, host_name } = await rentAMachine(request, { machineToken, nameToken, fetchImpl, wait, run });
+  const rented = await rentAMachine(request, { machineToken, nameToken, fetchImpl, wait, run });
+  if (rented.lease.state === 'waiting') return rented;
+  const { machine, price, arch, lease, host_name } = rented;
   const served = await serve(machine, request, price, { run, product, held, fetchImpl, wait, tries });
   return { lease, host_name, arch, price, place_id: served.computerId, release: served.release, sign_up_status: served.signUp };
 }
@@ -755,7 +767,7 @@ export async function updateAComputer(leaseFile, request, { fetchImpl = fetch, w
   config.unit = layout.unit;
   if (request.health !== undefined) config.health = healthOf(config, request);
   const health = healthOf(config);
-  const settingsFile = `${layout.state}/${basename(productSettings.file)}`;
+  const settingsFile = `${layout.state}/${basename(settingsFileOf(request))}`;
   const product = productSettingsOf(snapshot, settingsFile);
   config.new_accounts = startingRows(config, request, product);
   await installStatics(machine, staticFolderOf(settingsFile), product.statics, layout.owner, run, root);
@@ -792,7 +804,7 @@ export async function rollBackAComputer(leaseFile, request, backup, { run = onMa
 /** The monthly price the request's machine would cost, read before anything is rented. */
 export async function priceOfAPlace(request, { machineToken, fetchImpl = fetch } = {}) {
   const row = readProvider(request.machine.provider);
-  return { provider: row.id, placement: { ...row.placement, ...request.machine.placement }, price: await readPrice({ request: row.base ? providerClient(row, machineToken, { fetchImpl }) : null, provider: row, placement: request.machine.placement }) };
+  return { provider: row.id, terms_url: row.terms_url ?? null, placement: { ...row.placement, ...request.machine.placement }, price: await readPrice({ request: row.base ? providerClient(row, machineToken, { fetchImpl }) : null, provider: row, placement: request.machine.placement }) };
 }
 
 export async function placeStatus(leaseFile, { machineToken, fetchImpl = fetch } = {}) {
@@ -891,10 +903,16 @@ async function pipe(fd) {
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const [operation, first, second, third] = process.argv.slice(2);
-  const usage = 'usage: start-a-computer.mjs price REQUEST_FILE | rent REQUEST_FILE | start REQUEST_FILE | layout REQUEST_FILE | differences REQUEST_FILE | status LEASE_FILE | unit LEASE_FILE REQUEST_FILE | install LEASE_FILE REQUEST_FILE | update LEASE_FILE REQUEST_FILE | rollback LEASE_FILE REQUEST_FILE BACKUP | remove LEASE_FILE (machine credential on fd 3, name credential on fd 4, the values a layout names by vault name on fd 5)';
+  const usage = 'usage: start-a-computer.mjs price REQUEST_FILE | rent REQUEST_FILE | start REQUEST_FILE | layout REQUEST_FILE | differences REQUEST_FILE | status LEASE_FILE | unit LEASE_FILE REQUEST_FILE | install LEASE_FILE REQUEST_FILE | update LEASE_FILE REQUEST_FILE | rollback LEASE_FILE REQUEST_FILE BACKUP | remove LEASE_FILE | register LEASE_FILE ADDRESS (the one-time token from the rent line on fd 3) (machine credential on fd 3, name credential on fd 4, the values a layout names by vault name on fd 5)';
   const overMachine = ['install', 'update', 'rollback', 'unit'];
   const json = path => readRequest(resolvePath(path));
   try {
+    if (operation === 'register') {
+      if (!first || !second || third) throw Object.assign(new Error(usage), { exit: 2 });
+      const lease = registerMachine({ file: resolvePath(first), token: await pipe(3), address: second });
+      process.stdout.write(`${JSON.stringify({ name: lease.name, provider: lease.provider, state: lease.state, address: lease.address })}\n`);
+      process.exit(0);
+    }
     if (operation === 'layout' || operation === 'differences') {
       if (!first || second) throw Object.assign(new Error(usage), { exit: 2 });
       const request = json(first), layout = hostLayoutOf(request);
@@ -911,7 +929,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const needsHeld = (startLayout?.units ?? []).some(unit => unit.secret_vault_key);
     const tokens = { machineToken: needsMachine ? await pipe(3) : '', nameToken: needsName ? await pipe(4) : '', held: needsHeld ? heldValues(await pipe(5)) : {} };
     const answer = operation === 'price' ? await priceOfAPlace(json(first), tokens)
-      : operation === 'rent' ? await rentAMachine(json(first), tokens).then(({ lease, host_name, arch, price }) => ({ lease, host_name, arch, price }))
+      : operation === 'rent' ? await rentAMachine(json(first), tokens).then(({ lease, host_name, arch, price, line, terms_url }) => ({ lease, host_name, arch, price, terms_url, ...(line && { line }) }))
       : operation === 'start' ? await startAComputer(json(first), tokens)
       : operation === 'status' ? await placeStatus(resolvePath(first), tokens)
         : operation === 'unit' ? await unitStatus(resolvePath(first), json(second))
