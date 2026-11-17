@@ -261,12 +261,18 @@ export const secretsOf = unit => [
 export async function applyWhatItRuns(machine, given, run = onMachine, product, held = {}, deps = {}) {
   const { runs, rendered, live, present, usersPresent, moves, firsts, programs, tarballs } = await runsState(machine, given, run, product, deps);
   const writes = rendered.filter(({ path, text }) => live[path] !== text);
-  const absent = path => run(machine, `${path} || exit 3`).then(() => false, error => { if (error.code === 3) return true; throw error; });
+  const absent = (path, input) => run(machine, `${path} || exit 3`, input).then(() => false, error => { if (error.code === 3) return true; throw error; });
   const nodes = [...new Set(runs.units.map(unit => unit.node_bin).filter(Boolean))];
   const nodeMissing = (await Promise.all(nodes.map(bin => absent(`test -x ${q(`${bin}/node`)}`)))).includes(true);
   const foldersMissing = (await Promise.all(runs.units.flatMap(unit => (unit.folders ?? []).map(folder => absent(`test -d ${q(folder)}`))))).includes(true);
   const missing = [];
-  for (const secret of runs.units.flatMap(secretsOf)) if (await absent(`test -s ${q(secret.secret_file)}`)) missing.push(secret);
+  // A credential the computer does not hold is sealed from the value handed under its vault name; one it holds that differs from the
+  // value now handed (the vault is the original, so a changed value is the one to run) is sealed again, and its unit restarts to load it.
+  for (const secret of runs.units.flatMap(secretsOf)) {
+    const handed = typeof held[secret.secret_vault_key] === 'string' && held[secret.secret_vault_key] !== '';
+    if (await absent(`test -s ${q(secret.secret_file)}`)
+      || (handed && await absent(`test "$(systemd-creds decrypt --name=${q(secret.secret_name)} ${q(secret.secret_file)} -)" = "$(cat)"`, held[secret.secret_vault_key]))) missing.push(secret);
+  }
   for (const unit of missing) {
     if (typeof held[unit.secret_vault_key] !== 'string' || !held[unit.secret_vault_key]) {
       throw refused(`${unit.unit} needs the value held under the vault name ${unit.secret_vault_key}: hand it on descriptor 5 as {"${unit.secret_vault_key}": value}, read from the person's vault.`);

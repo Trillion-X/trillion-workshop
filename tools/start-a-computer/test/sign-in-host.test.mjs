@@ -239,3 +239,32 @@ test('a unit\'s settings_parts puts a file the person keeps into its settings, r
   writeFileSync(join(dir, 'rows', 'computer.json'), JSON.stringify({ name: 'example-computer', runs: runsFor({ ...unit, settings: { port: 7201 } }) }));
   assert.throws(() => readRequest(join(dir, 'request.json')), /settings_parts names email\.sender/);
 });
+
+// The vault is the original: a credential the computer holds that differs from the value now handed is sealed again and its unit
+// restarts, and one that matches is left alone.
+test('a held credential whose handed value differs from the sealed one is sealed again, and a matching one is left', async () => {
+  const unit = signInUnit('');
+  const runs = runsFor(unit);
+  const live = Object.fromEntries(renderWhatItRuns(runs, SITE_BLOCK).map(({ path, text }) => [path, text]));
+  live[`${unit.node_bin}/node`] = 'node';
+  live[unit.secret_file] = 'sealed';
+  live[unit.credentials[0].file] = 'sealed';
+  const base = computer({ ...live });
+  const asked = [];
+  const run = async (m, command, input) => {
+    if (command.startsWith('test "$(systemd-creds decrypt')) {
+      asked.push({ command, input });
+      if (command.includes("--name='sign-in-store'")) throw Object.assign(new Error('differs'), { code: 3 });
+      return '';
+    }
+    return base.run(m, command, input);
+  };
+  const answer = await applyWhatItRuns(machine, runs, run, undefined, { 'example-better-auth-secret': SECRET, 'example-store': 'rotated-store-connection' });
+  assert.equal(asked.length, 2, 'each handed credential the computer holds is compared');
+  assert.ok(asked.every(({ command }) => !command.includes(SECRET) && !command.includes('rotated-store-connection')), 'no command line carries a value');
+  assert.deepEqual(answer.sealed, ['sign-in-store']);
+  const sealed = base.commands.filter(({ command }) => command.includes('systemd-creds encrypt'));
+  assert.equal(sealed.length, 1);
+  assert.equal(sealed[0].input, 'rotated-store-connection');
+  assert.ok(answer.restarted.includes('example-sign-in.service'), 'the unit that loads it restarts');
+});
