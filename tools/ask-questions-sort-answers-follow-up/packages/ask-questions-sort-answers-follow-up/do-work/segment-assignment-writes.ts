@@ -10,8 +10,8 @@ import {
   ENGINE_WRITE_BATCH_OPERATION,
   PUBLISHED_RECORD_PATH,
   type WriteEntry,
-} from '@/packages/ask-questions-sort-answers-follow-up/do-work/answer-fact-writes';
-import type { DecideResult } from '@/packages/ask-questions-sort-answers-follow-up/read-data/score-and-segment';
+} from './answer-fact-writes';
+import type { DecideResult } from '../read-data/score-and-segment';
 
 const PKG = 'ask-questions-sort-answers-follow-up';
 export const SEGMENT_ASSIGNMENT_KIND = 'segment-assignment';

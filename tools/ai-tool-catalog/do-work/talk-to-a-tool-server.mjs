@@ -47,7 +47,7 @@ export function messagesIn(text) {
   return messages;
 }
 
-/** `fetch` in the shape `post` takes: only to a public address, every redirect judged again (parts/http-client/do-work/public-address.mjs). */
+/** `fetch` in the shape `post` takes: only to a public address, every redirect judged again (tools/refuse-requests-to-private-addresses/public-address.mjs). */
 export const postWithFetch = (request = fetch, timeoutMs = 60000) => async ({ url, method, headers, body }) => {
   const response = await fetchPublic(url, { method, headers, ...(body !== undefined ? { body } : {}), signal: AbortSignal.timeout(timeoutMs) }, { fetchImpl: request });
   return { status: response.status, headers: Object.fromEntries(response.headers.entries()), text: await response.text() };

@@ -1,5 +1,5 @@
 import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
-import aiGuidedWorkContract from '@/packages/ai-guided-work/things-to-store-and-run.json';
+import aiGuidedWorkContract from '../things-to-store-and-run.json';
 
 export const START_AI_GUIDED_WORK_ACTION = 'action:ai-guided-work:start-session';
 const AI_GUIDED_WORK_PACKAGE = 'ai-guided-work';

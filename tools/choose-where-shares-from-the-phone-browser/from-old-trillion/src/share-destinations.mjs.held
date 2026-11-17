@@ -100,7 +100,7 @@ import { buildInvocation, schemaProblems } from '../../../keep-and-wake-ai-sessi
 import { readBoundedJson } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/read-bounded-json.mjs';
 import { routingAction, startingAction } from './share-starting-action.mjs';
 import { MAX_SHARED_ITEMS } from '../../../keep-anything-sent-to-trillion-a-link-file/from-old-trillion/src/share-input-limits.mjs';
-import { instructionsFor } from '../parts/record-audio/read-data/meeting-settings.mjs';
+import { instructionsFor } from '../../../record-voice-and-meetings/read-data/meeting-settings.mjs';
 
 export class ShareDestinationsError extends Error {}
 

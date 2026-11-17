@@ -11,7 +11,7 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, it, expect, vi } from 'vitest';
 
 const resolveRespondentIdNow = vi.fn(async (explicit?: string) => explicit ?? 'student-1');
-vi.mock('@/packages/ask-questions-sort-answers-follow-up/read-data/current-respondent', () => ({
+vi.mock('tools/ask-questions-sort-answers-follow-up/packages/ask-questions-sort-answers-follow-up/read-data/current-respondent', () => ({
   resolveRespondentIdNow: (explicit?: string) => resolveRespondentIdNow(explicit),
 }));
 
@@ -20,7 +20,7 @@ const FEED = [
   { payload: { kind: 'answer-fact', formId: 'f', respondentId: 'someone-else', questionId: 'focus_rating', value: 2, answered_at: '2026-06-21T18:00:00Z', submissionId: 'sub-x' } },
 ];
 vi.mock(
-  '@/packages/ask-questions-sort-answers-follow-up/.bitfield-entry-scope/ask-questions-sort-answers-follow-up/runtime-kit-react',
+  'tools/ask-questions-sort-answers-follow-up/.bitfield-entry-scope/ask-questions-sort-answers-follow-up/runtime-kit-react',
   () => ({ useBitfieldData: () => FEED }),
 );
 

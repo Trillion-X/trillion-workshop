@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
-import { AvailabilitySetupForm } from '@/packages/calendar-booker/show/AvailabilitySetupForm';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
+import { AvailabilitySetupForm } from './AvailabilitySetupForm';
 
 type MountArgs = {
   el: HTMLElement;

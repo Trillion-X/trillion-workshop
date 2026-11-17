@@ -1,6 +1,6 @@
 import React from 'react';
-import { ErrorBoundary } from '@/packages/ui/show/error-boundary';
-import { mountReactSurface } from '@/packages/ui/show/react-surface-mount';
+import { ErrorBoundary } from '../../../../ui/show/error-boundary';
+import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
 import { AccountSessionSurfaceClient as AccountSessionSurface } from './AccountSessionSurfaceClient';
 
 type MountArgs = {

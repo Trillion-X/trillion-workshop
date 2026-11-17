@@ -18,20 +18,20 @@
 import React from 'react';
 import { useBitfieldData } from '@/packages/ask-questions-sort-answers-follow-up/.bitfield-entry-scope/ask-questions-sort-answers-follow-up/runtime-kit-react';
 import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
-import { Container } from '@/packages/ui/show/container/container';
-import { Text } from '@/packages/ui/show/text/Text';
-import { Card } from '@/packages/ui/show/card/Card';
-import { Button } from '@/packages/ui/show/button/Button';
-import { StatementHeader } from '@/packages/ui/show/statement-header';
-import { WorkStartState } from '@/packages/ui/show/work-start-state/WorkStartState';
-import { answerLinesForSequence } from '@/packages/ask-questions-sort-answers-follow-up/read-data/synthesis-answer-lines';
-import { readProducerMessage } from '@/packages/ask-questions-sort-answers-follow-up/read-data/read-producer-message';
+import { Container } from '../../../../ui/show/container/container';
+import { Text } from '../../../../ui/show/text/Text';
+import { Card } from '../../../../ui/show/card/Card';
+import { Button } from '../../../../ui/show/button/Button';
+import { StatementHeader } from '../../../../ui/show/statement-header';
+import { WorkStartState } from '../../../../ui/show/work-start-state/WorkStartState';
+import { answerLinesForSequence } from '../../../read-data/synthesis-answer-lines';
+import { readProducerMessage } from '../read-data/read-producer-message';
 import {
   SYNTHESIS_RESULT_KIND,
   latestSynthesisResult,
   resultKeyFor,
   synthesisResultAddress,
-} from '@/packages/ask-questions-sort-answers-follow-up/read-data/synthesis-result';
+} from '../../../read-data/synthesis-result';
 
 export interface SynthesisConfig {
   sequenceId?: string;

@@ -1,11 +1,11 @@
 import React from 'react';
-import { AnchoredOverlay } from '@/packages/ui';
-import { cssEscape } from '@/packages/ui/show/anchor-resolver/anchor-resolver';
-import { Button } from '@/packages/ui/show/button';
-import { Container } from '@/packages/ui/show/container';
-import { emitPlaceableSurfaceIntent } from '@/packages/ui/show/placeable-surface-intent';
-import { Spinner } from '@/packages/ui/show/spinner';
-import { Text } from '@/packages/ui/show/text';
+import { AnchoredOverlay } from '../../../../ui';
+import { cssEscape } from '../../../../ui/show/anchor-resolver/anchor-resolver';
+import { Button } from '../../../../ui/show/button';
+import { Container } from '../../../../ui/show/container';
+import { emitPlaceableSurfaceIntent } from '../../../../ui/show/placeable-surface-intent';
+import { Spinner } from '../../../../ui/show/spinner';
+import { Text } from '../../../../ui/show/text';
 import { runCalendarOwnerAction } from '../do-work/run-calendar-owner-action';
 import { CalendarAccountRail } from './CalendarAccountRail';
 import { CalendarAgenda } from './CalendarAgenda';

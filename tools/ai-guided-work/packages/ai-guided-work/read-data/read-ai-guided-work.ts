@@ -5,7 +5,7 @@ import {
   record,
   type OperationClaim,
   type OperationRecord,
-} from '@/packages/operation-records/read-data/operation-records';
+} from '../../../../operation-records/read-data/operation-records';
 
 export interface AIGuidedWorkSession {
   createdAt: string;

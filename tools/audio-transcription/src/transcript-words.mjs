@@ -4,8 +4,8 @@
 //   The one shape a transcript is kept in: { text, segments: [{ start, end, text, words: [{ word, start, end }] }],
 //   language }. tool:transcribe-file (src/person-store.mjs accountActions) keeps what the speech model heard in it, and
 //   every reader already reads it: the Media words count (src/media-library.json `$.text`), search moments
-//   (src/search.json `$.segments` start/text), captions (parts/media-composition/read-data/caption-lines.ts wordsOf,
-//   `segments[].words`) and the transcript reader (parts/transcript-reader, words as { word, start, end }).
+//   (src/search.json `$.segments` start/text), captions (tools/media-composition/read-data/caption-lines.ts wordsOf,
+//   `segments[].words`) and the transcript reader (tools/transcript-reader, words as { word, start, end }).
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. Only what the model said is kept: a segment or word without finite times is dropped, never given guessed ones,

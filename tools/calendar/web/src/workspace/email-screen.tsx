@@ -2,17 +2,17 @@
 // provider each account is on. This screen owns only its temporary search and selection state; the provider remains the
 // source of truth for every message, and the screen reads only the provider-neutral message row (mail-message.ts).
 import * as React from 'react';
-import { AnchoredOverlay, Button, Container, Input, Textarea, Text, InboxThreePane, NamedIcon, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue } from '../../parts/ui';
-import { EmailThread, EmailView, type EmailThreadEntry } from '../../parts/ui/show/email-view';
-import { SearchField } from '../../parts/ui/show/search-field/SearchField';
-import { DisplayMark } from '../../parts/ui/show/display-mark';
-import { mountReactSurface } from '../../parts/ui/show/react-surface-mount';
-import { ArrangedContents } from '../../parts/screen-arrangement/show/ArrangedContents';
+import { AnchoredOverlay, Button, Container, Input, Textarea, Text, InboxThreePane, NamedIcon, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue } from '../../../../ui';
+import { EmailThread, EmailView, type EmailThreadEntry } from '../../../../ui/show/email-view';
+import { SearchField } from '../../../../ui/show/search-field/SearchField';
+import { DisplayMark } from '../../../../ui/show/display-mark';
+import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
+import { ArrangedContents } from '../../../../screen-arrangement/show/ArrangedContents';
 import emailScreenData from './email-screen.json';
 import { errorWords } from '../../../../ui/show/safe-error-card/sanitize-error-text.ts';
 import { postJson, readJson } from './api';
 import { refusal } from './failure';
-import { ScreenState, useScreenLoad } from '../../parts/ui/show/screen-state';
+import { ScreenState, useScreenLoad } from '../../../../ui/show/screen-state';
 import type { Ran } from './workshop-tool-api';
 import { forwardBody, mailAddress, mailParticipants, mailRecipients, mailThreadView, mailWebLink, replyAllRecipients, splitEmailAddresses, type MailMessage, type MailThreadView } from './mail-message';
 import { fill, MailActionBar, MailCardActions, type MailBarProps, type MailPanel, type MailPlan } from './mail-action-bar';
@@ -21,7 +21,7 @@ import { connectionTrouble, mailAccountKey, providerOf, readMailAccounts, runAsA
 import { openScreenOn } from './open-screen';
 import { useMailKeyOf, useMailKeys } from './mail-keys';
 import { changeMailTask, completeMailTask, duplicateMailTask, ensureMailTask, findMailTask, mailSourceId, readTaskLists, scheduleMailTask, unscheduleMailTask, type MailTask } from './mail-task';
-import type { CommandTable } from '../../parts/ui/show/command-table/command-table';
+import type { CommandTable } from '../../../../ui/show/command-table/command-table';
 import commandData from './mail-commands.json';
 import actionData from './mail-actions.json';
 

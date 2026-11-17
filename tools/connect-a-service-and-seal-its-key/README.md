@@ -63,7 +63,7 @@ A launcher can select its qualified native command with `CREDENTIAL_HOME_COMMAND
 
 ## Dependencies
 
-**Depends on:** `src/held-values.mjs` (the seams Trillion passes), `parts/ui` (the dialog's components).
+**Depends on:** `src/held-values.mjs` (the seams Trillion passes), `tools/ui` (the dialog's components).
 **Depended on by:** `scripts/workshop-rows.mjs` and `records/workshop-tool-records.json` (connect rows), `src/account-screens.mjs` (Connections), `src/connect-with-a-key.mjs`, `src/carried-connections.mjs` (services a computer carries).
 
 ## Reported access for an operation

@@ -8,8 +8,8 @@
 import type {
   AnswerValidationRules,
   CoerceKind,
-} from '@/packages/ask-questions-sort-answers-follow-up/read-data/validate-answer';
-import type { QuestionOption } from '@/packages/ask-questions-sort-answers-follow-up/read-data/question-input-contract';
+} from './validate-answer';
+import type { QuestionOption } from '../../../read-data/question-input-contract';
 
 /** Owner action requested only after this question's answer is durably saved. */
 export interface AfterSavedActionDescriptor {

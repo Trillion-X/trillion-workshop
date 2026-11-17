@@ -6,13 +6,13 @@
 
 import React, { useMemo, useState } from 'react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { Badge, Button, Card, Container, EmptyPlaceholder, Icon, Input, Text } from '@/packages/ui';
+import { Badge, Button, Card, Container, EmptyPlaceholder, Icon, Input, Text } from '../../../../ui';
 import {
   decodeConnectableServicesFeed,
   extractDomain,
   matchConnectableServices,
   type ProjectedActionIntent,
-} from '@/packages/connectable-services/read-data/read-connectable-services';
+} from '../read-data/read-connectable-services';
 import { Link } from 'lucide-react';
 
 export interface ConnectableServicesPanelProps {

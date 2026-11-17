@@ -36,7 +36,7 @@ import {
   renderProcessSessionLaunchDescriptor,
   type ProcessInputMount,
   type ProcessSessionSettings,
-} from '@/packages/process-session/read-data/read-process-session-launch';
+} from '../../process-session/read-data/read-process-session-launch';
 
 export interface SessionAcquireStart {
   sessionId: string;

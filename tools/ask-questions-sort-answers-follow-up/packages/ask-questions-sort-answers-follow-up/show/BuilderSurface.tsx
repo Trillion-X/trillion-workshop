@@ -9,15 +9,15 @@
 
 import React from 'react';
 import { ListChecks } from 'lucide-react';
-import { ExpandableTabs } from '@/packages/ui/show/expandable-tabs';
-import { Card } from '@/packages/ui/show/card/Card';
-import { Container } from '@/packages/ui/show/container/container';
-import { Text } from '@/packages/ui/show/text/Text';
-import { Button } from '@/packages/ui/show/button/Button';
-import { Input } from '@/packages/ui/show/input/Input';
-import { SegmentedControl } from '@/packages/ui/show/segmented-control/SegmentedControl';
-import { WorkStartState } from '@/packages/ui/show/work-start-state/WorkStartState';
-import { FillSurface } from '@/packages/ask-questions-sort-answers-follow-up/show/FillSurface';
+import { ExpandableTabs } from '../../../../ui/show/expandable-tabs';
+import { Card } from '../../../../ui/show/card/Card';
+import { Container } from '../../../../ui/show/container/container';
+import { Text } from '../../../../ui/show/text/Text';
+import { Button } from '../../../../ui/show/button/Button';
+import { Input } from '../../../../ui/show/input/Input';
+import { SegmentedControl } from '../../../../ui/show/segmented-control/SegmentedControl';
+import { WorkStartState } from '../../../../ui/show/work-start-state/WorkStartState';
+import { FillSurface } from './FillSurface';
 import {
   newQuestion,
   newQuestionSequence,
@@ -26,12 +26,12 @@ import {
   updateQuestion,
   moveQuestion,
   setTitle,
-} from '@/packages/ask-questions-sort-answers-follow-up/read-data/builder-model';
-import { saveQuestionSequence } from '@/packages/ask-questions-sort-answers-follow-up/do-work/save-question-sequence';
+} from '../../../read-data/builder-model';
+import { saveQuestionSequence } from '../do-work/save-question-sequence';
 import type {
   QuestionSequence,
   QuestionTypeCapability,
-} from '@/packages/ask-questions-sort-answers-follow-up/read-data/question-descriptor';
+} from '../read-data/question-descriptor';
 
 type Registry =
   | Map<string, QuestionTypeCapability>

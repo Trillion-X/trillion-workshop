@@ -277,7 +277,7 @@ test('deliver_share hands a share to their own Trillion with the action its site
 });
 
 test('deliver_share hands their AI chat instructions with the share, and nothing when that scope is off', async () => {
-  const { withMeetingSettings } = await import('../parts/record-audio/read-data/meeting-settings.mjs');
+  const { withMeetingSettings } = await import('../../../record-voice-and-meetings/read-data/meeting-settings.mjs');
   const on = person(undefined, null, undefined, { standing: () => withMeetingSettings({}, { instructionText: 'Answer in French.' }) });
   await on.deliver({ to: ['private'], items: shared, request_key: 'k-on' });
   assert.equal(on.sent.find(call => call.path === '/handoffs').body.input.standing_instructions, 'Answer in French.');

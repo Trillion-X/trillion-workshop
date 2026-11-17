@@ -18,7 +18,7 @@
 // Pure leaf, zero I/O — safe for any Envelope-decoupled caller (chat's tool round,
 // visual-database's owner probes, the hosted-app accessibility proof).
 
-import { selectDeclaredValue } from '@/packages/ui/read-data/declared-selector';
+import { selectDeclaredValue } from '../../../../ui/read-data/declared-selector';
 
 /** Shared result precedence: direct Workflow reply, addressed result, then status. */
 export const selectDeclaredToolOutput = selectDeclaredValue;

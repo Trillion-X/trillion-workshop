@@ -14,19 +14,19 @@
 //      being typed.
 //   2. A change is saved as it is made (a switch, a name or words edited in place); what comes back is drawn.
 //   3. Their own Trillion can be switched off at the start, never hidden: its Show switch is not offered.
-//   4. Every control is a shared part (parts/ui); this file writes no markup and no appearance.
+//   4. Every control is a shared part (tools/ui); this file writes no markup and no appearance.
 //   5. Reads run through the shared screen-state part, so loading and failing look like every other screen.
 
 import * as React from 'react';
-import { Button, Card, Container, Dropdown, HoverRevealGroup, HoverRevealItem, InlineEditText, NamedIcon, Switch, Text } from '../../parts/ui';
-import { loadScreen, ScreenState } from '../../parts/ui/show/screen-state';
-import { mountReactSurface } from '../../parts/ui/show/react-surface-mount';
-import { notify } from '../../parts/ui/show/coss/notifications';
+import { Button, Card, Container, Dropdown, HoverRevealGroup, HoverRevealItem, InlineEditText, NamedIcon, Switch, Text } from '../../../../ui';
+import { loadScreen, ScreenState } from '../../../../ui/show/screen-state';
+import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
+import { notify } from '../../../../ui/show/coss/notifications';
 import { postJson, readJson } from './api';
 import { refusal } from './failure';
 import { SharedBefore, SHARES_ROUTE, type SharesPage } from './shared-before';
 import { listShares, stopSharing, type ShareRow } from './share-anything';
-import { ProjectTree } from '../../parts/ui/show/coss/project-tree';
+import { ProjectTree } from '../../../../ui/show/coss/project-tree';
 import { actionsTreeOptions, type SendAction, type SendFolder } from './send-actions-tree';
 
 import { errorWords } from '../../../../ui/show/safe-error-card/sanitize-error-text.ts';

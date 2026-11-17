@@ -22,7 +22,7 @@
 // =============================================================================
 
 import React from 'react';
-import { Badge, Button, Card, Container, Dropdown, NamedIcon, Text } from '@/packages/ui';
+import { Badge, Button, Card, Container, Dropdown, NamedIcon, Text } from '../../../../ui';
 
 /** One overflow-menu action — same shape as AgentCard's menu items. */
 export interface EntityCardAction {

@@ -1,4 +1,4 @@
-// Looks are measured against the contrast floors in parts/screen-look/look-readability.json when saved and published (src/looks.mjs).
+// Looks are measured against the contrast floors in tools/screen-look/look-readability.json when saved and published (src/looks.mjs).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { makeLooks } from '../src/looks.mjs';

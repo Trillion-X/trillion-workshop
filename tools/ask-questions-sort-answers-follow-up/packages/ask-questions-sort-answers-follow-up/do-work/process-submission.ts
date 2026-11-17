@@ -13,17 +13,17 @@ import {
   ENGINE_OPERATION_LABEL_TARGET,
   ENGINE_WRITE_BATCH_OPERATION,
   type WriteEntry,
-} from '@/packages/ask-questions-sort-answers-follow-up/do-work/answer-fact-writes';
-import { buildSegmentAssignmentWrite } from '@/packages/ask-questions-sort-answers-follow-up/do-work/segment-assignment-writes';
+} from './answer-fact-writes';
+import { buildSegmentAssignmentWrite } from './segment-assignment-writes';
 import {
   decide,
   type DecideResult,
-} from '@/packages/ask-questions-sort-answers-follow-up/read-data/score-and-segment';
+} from '../read-data/score-and-segment';
 import {
   selectFollowUpSequence,
   type FollowUpSequence,
-} from '@/packages/ask-questions-sort-answers-follow-up/read-data/follow-up-sequences';
-import type { DecideConfig } from '@/packages/ask-questions-sort-answers-follow-up/read-data/read-decide-config';
+} from '../../../read-data/follow-up-sequences';
+import type { DecideConfig } from '../../../read-data/read-decide-config';
 
 export type { DecideConfig };
 

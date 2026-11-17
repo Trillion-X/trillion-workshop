@@ -2,7 +2,7 @@ import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
 import {
   localActorAdmittedWrapper,
   type AdmissionRecipe,
-} from '@/packages/ui/show/action-affordance/local-actor-admission';
+} from '../../../../ui/show/action-affordance/local-actor-admission';
 
 type Dispatch = (request: { target: string; payload: Record<string, unknown> }) => Promise<unknown>;
 

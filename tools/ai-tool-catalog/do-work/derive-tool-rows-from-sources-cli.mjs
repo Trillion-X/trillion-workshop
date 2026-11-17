@@ -1,5 +1,5 @@
 // Explicit command entry; reusable consumers import the sibling library only.
-// node parts/ai-tool-catalog/do-work/derive-tool-rows-from-sources-cli.mjs <records file or folder> ...
+// node tools/ai-tool-catalog/do-work/derive-tool-rows-from-sources-cli.mjs <records file or folder> ...
 import { payloadsIn, toolRowsFromSources } from './derive-tool-rows-from-sources.mjs';
 
 void (async () => {

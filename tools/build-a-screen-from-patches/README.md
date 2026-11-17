@@ -8,9 +8,9 @@ A screen sees changes as JSON patches, not whole answers. Two kinds of patch are
 |------|---------|
 | `read-data/view-patch.mjs` | `identityOf`, `diff`, `applyPatch`, `makeAnswerCache`, `patchedAnswer`, `textAfter`. Moved byte for byte from Trillion-X/trillion `src/view-patch.mjs`. |
 | `read-data/view-patch.json` | The cache size, the smallest and largest answer patched (2000 and 400000 characters), the share a patch must stay under (0.6), and the words. Moved byte for byte. |
-| `read-data/screen-spec.mjs` (`conditionHolds` is decided by the formula engine: the host gives it with `setConditionEngine(holdsNow)`; the spec's `$state`/`eq`/`not` spelling is read into a rule tree; the page's copy and the Mac harness's copy are gone, one copy) | `specStream`, `specFromText`, `checkElement`, `checkSpec`, `pointerGet`, `pointerSet`, `resolveValue`, `conditionHolds`, `boundPath`, `readsState`, `partsGuide`, `screenOnly`. Moved from Trillion-X/trillion `src/screen-spec.mjs`. The only change is one import path: `../parts/ui/declared-props.json` is now `./declared-props.json`. |
+| `read-data/screen-spec.mjs` (`conditionHolds` is decided by the formula engine: the host gives it with `setConditionEngine(holdsNow)`; the spec's `$state`/`eq`/`not` spelling is read into a rule tree; the page's copy and the Mac harness's copy are gone, one copy) | `specStream`, `specFromText`, `checkElement`, `checkSpec`, `pointerGet`, `pointerSet`, `resolveValue`, `conditionHolds`, `boundPath`, `readsState`, `partsGuide`, `screenOnly`. Moved from Trillion-X/trillion `src/screen-spec.mjs`. The only change is one import path: `tools/ui/declared-props.json` is now `./declared-props.json`. |
 | `read-data/screen-spec.json` | The limits on one screen, one line and one stream, every word said, and the words an AI reads about making a parts screen. Moved byte for byte. |
-| `read-data/declared-props.json` | The props, events and children each shared part declares. Copied byte for byte from Trillion-X/trillion `parts/ui/declared-props.json`. |
+| `read-data/declared-props.json` | The props, events and children each shared part declares. Copied byte for byte from Trillion-X/trillion `tools/ui/declared-props.json`. |
 | `read-data/screen-patch-tools.mjs` | The three rows' functions over the moved code. |
 | `tool-rows.json` | `tool:make-a-view-patch`, `tool:apply-a-view-patch`, `tool:build-a-screen-spec-from-a-patch-stream`. These are container rows run by `tools/records-door`'s `run-an-export.mjs`, with no records door. `@noble/hashes` is packed for BLAKE3. |
 | `part.json` | `read-data/screen-spec.mjs`, `read-data/view-patch.mjs` and `read-data/declared-props.json` are public: Trillion-X/trillion imports them from this package, the one copy. |
@@ -31,14 +31,14 @@ A screen sees changes as JSON patches, not whole answers. Two kinds of patch are
 
 ## Moved from Trillion
 
-These came from Trillion-X/trillion `src/view-patch.mjs`, `src/view-patch.json`, `src/screen-spec.mjs`, `src/screen-spec.json` and `parts/ui/declared-props.json`, together with their tests. Some old tests stay in trillion because they run code that has not moved:
+These came from Trillion-X/trillion `src/view-patch.mjs`, `src/view-patch.json`, `src/screen-spec.mjs`, `src/screen-spec.json` and `tools/ui/declared-props.json`, together with their tests. Some old tests stay in trillion because they run code that has not moved:
 
 - `test/view-patch.test.mjs`: "screen_read carries the screen's identity to the Worker" runs `src/screen-view.mjs`.
 - `test/screen-spec.test.mjs`, four tests:
   - "every declared part has its component" reads `src/workspace/declared-parts.ts`.
-  - "every row names only props its part takes" reads the part sources under `parts/ui/`.
+  - "every row names only props its part takes" reads the part sources under `tools/ui/`.
   - "make_screen keeps the finished lines" runs `src/screen-view.mjs`.
-  - "the AI app bridge hands the growing arguments" runs `parts/ui/show/ai-app-bridge/ai-app-bridge.mjs`.
+  - "the AI app bridge hands the growing arguments" runs `tools/ui/show/ai-app-bridge/ai-app-bridge.mjs`.
 
 Two other files of the same job were not moved. `src/screen-view.mjs` imports workspace screens and page looks, and `src/worker.mjs` holds the per-isolate answer cache and `screenRead`. Both are tied to the Cloudflare Worker.
 

@@ -1,4 +1,3 @@
-// parts/live-namespace/do-work/send-window.mjs
 //
 // Purpose: how many chunks one sender keeps in flight to one person's namespace, decided by how the service answers.
 // It starts at `start`, opens by one after every `start`-sized round of chunks the service took, up to `most`, and

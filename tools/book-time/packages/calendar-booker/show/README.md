@@ -31,7 +31,7 @@ records, generate sample times, mutate booking state, or call provider APIs.
 
 ## Dependencies
 
-**Depends on:** `@/packages/ui` (Container, Text, StatusDot, Button, Input, EmptyPlaceholder, `statusView`, …), `react`. The capability map binds these; no other file in this folder imports ui directly.
+**Depends on:** `tools/ui` (Container, Text, StatusDot, Button, Input, EmptyPlaceholder, `statusView`, …), `react`. The capability map binds these; no other file in this folder imports ui directly.
 
 **Depended on by:** `do-work/scheduling-offer-feed.ts` (emits `ViewDescriptor[]` consumed here), the mount entries, and the package mount/show bindings. The blind renderer is the only consumer of `RENDER_CAPABILITIES`.
 

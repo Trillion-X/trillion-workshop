@@ -17,11 +17,11 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import {
   ServiceConnectionDialog,
-} from '@/packages/service-connections/show/ServiceConnectionDialog';
+} from '../ServiceConnectionDialog';
 import type {
   ServiceAuthConfig,
-} from '@/packages/service-connections/read-data/read-service-connection-options';
-import type { ServiceAcquireOutcome } from '@/packages/service-connections/show/ServiceConnectionDialog';
+} from '../../../../read-data/read-service-connection-options';
+import type { ServiceAcquireOutcome } from '../ServiceConnectionDialog';
 
 afterEach(cleanup);
 

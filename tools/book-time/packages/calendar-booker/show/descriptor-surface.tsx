@@ -26,9 +26,9 @@
 
 import * as React from 'react';
 import { HelpCircle } from 'lucide-react';
-import { Container, EmptyPlaceholder, Text } from '@/packages/ui';
-import type { ViewDescriptor } from '@/packages/calendar-booker/show/view-descriptor';
-import type { RenderProps } from '@/packages/calendar-booker/show/render-capability-map';
+import { Container, EmptyPlaceholder, Text } from '../../../../ui';
+import type { ViewDescriptor } from './view-descriptor';
+import type { RenderProps } from './render-capability-map';
 
 /**
  * Honest fallback for a `render_kind` with no bound capability. Renders the

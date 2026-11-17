@@ -1,4 +1,4 @@
-# parts/screen-matrix/
+# tools/check-every-screen-at-every-width/
 
 One headless check both Trillion deploys run before going live: every screen, in every width and every way a person may have their device set, is opened and every piece of text a person can see is read. `scripts/deploy-worker.mjs` runs it on the app's own Worker; trillion-site's `scripts/check-screens.mjs` (deployed through `source-build-lock.json`, which carries this part) runs the same engine on its built pages.
 
@@ -47,7 +47,7 @@ A deploy's `scripts/screen-matrix-screens.json` holds `{ defaults: { fonts, read
 
 ## Dependencies
 
-**Depends on:** `parts/headless-browser/launch.mjs` (the quiet launches), `playwright`.
+**Depends on:** `tools/headless-browser/launch.mjs` (the quiet launches), `playwright`.
 **Depended on by:** `scripts/deploy-worker.mjs`, `test/screen-matrix.test.mjs`, and trillion-site's `scripts/check-screens.mjs`.
 
 ## The app's deploy set and the full set
@@ -59,7 +59,7 @@ is one command:
     node scripts/check-app-screens.mjs --all [--out dist/deploy] [--report FILE] [--shots DIR]
 
 `scripts/deploy-worker.mjs` also reads the full set when the diff from the live commit touches a path in the file's `all_when_changed`
-(`parts/ui/`, `parts/screen-look/`, `src/workspace/looks.json`: the shared components, the look resolver and the look data move every
+(`tools/ui/`, `tools/screen-look/`, `src/workspace/looks.json`: the shared components, the look resolver and the look data move every
 screen). With no live commit to compare with (a local run, a first deploy) only the marked screens are read. Run `--all` by hand
 before landing a change to a screen outside the marked set.
 

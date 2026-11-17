@@ -15,12 +15,12 @@
 //   4. Never a machine word: the person sees names, counts and the table's titles.
 
 import * as React from 'react';
-import { ActionMenu, AnchoredOverlay, AvatarGroup, Button, Container, Kbd, NamedIcon, Text, type ActionMenuItem } from '../../parts/ui';
-import { PersonTag } from '../../parts/ui/show/person-tag';
-import { DatePicker } from '../../parts/ui/show/date-picker/DatePicker';
-import { DateTimePicker } from '../../parts/ui/show/date-picker/DateTimePicker';
-import { TaskRecurrence, type TaskRecurrenceValue } from '../../parts/ui/show/task-recurrence/TaskRecurrence';
-import { rowById, type CommandTable } from '../../parts/ui/show/command-table/command-table';
+import { ActionMenu, AnchoredOverlay, AvatarGroup, Button, Container, Kbd, NamedIcon, Text, type ActionMenuItem } from '../../../../ui';
+import { PersonTag } from '../../../../ui/show/person-tag';
+import { DatePicker } from '../../../../ui/show/date-picker/DatePicker';
+import { DateTimePicker } from '../../../../ui/show/date-picker/DateTimePicker';
+import { TaskRecurrence, type TaskRecurrenceValue } from '../../../../ui/show/task-recurrence/TaskRecurrence';
+import { rowById, type CommandTable } from '../../../../ui/show/command-table/command-table';
 import type { MailKey } from './mail-keys';
 import type { MailAttachment, MailParticipant } from './mail-message';
 import type { MailTask } from './mail-task';

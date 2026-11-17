@@ -1,4 +1,3 @@
-// parts/ai-tool-catalog/do-work/read-openapi.mjs
 //
 // Purpose
 //   An API's own description (OpenAPI 3.x, or Swagger 2.0, as JSON) as list entries a `tool-row-source` pours into tool

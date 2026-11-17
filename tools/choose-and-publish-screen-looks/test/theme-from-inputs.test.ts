@@ -1,4 +1,4 @@
-// parts/screen-look/read-data/theme-from-inputs.ts (DATA: parts/screen-look/theme-inputs.json): a whole look from three picks
+// tools/screen-look/read-data/theme-from-inputs.ts (DATA: tools/screen-look/theme-inputs.json): a whole look from three picks
 // (base, accent, contrast), derived in OKLCH and held to contrast floors.
 import test from 'node:test';
 import assert from 'node:assert/strict';

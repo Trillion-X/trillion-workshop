@@ -1439,7 +1439,7 @@
     ],
     "maker": "maker:check-against-a-persons-rules-and-verdicts",
     "provenance": {
-     "source": "the copy judge tool:check-copy (parts/judge-words over a rules file), made to take pages, decks and picture readings and to check the whole set; the person's rules, stands and locked lines are input, never kept here"
+     "source": "the copy judge tool:check-copy (tools/judge-words over a rules file), made to take pages, decks and picture readings and to check the whole set; the person's rules, stands and locked lines are input, never kept here"
     },
     "verify": [
      {

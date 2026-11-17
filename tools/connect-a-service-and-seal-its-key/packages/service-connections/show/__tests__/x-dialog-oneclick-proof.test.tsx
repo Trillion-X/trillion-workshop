@@ -6,8 +6,8 @@ import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/react';
 import React from 'react';
 import { writeFileSync } from 'node:fs';
-import { ServiceConnectionDialog } from '@/packages/service-connections/show/ServiceConnectionDialog';
-import { readServiceConnectionOptions } from '@/packages/service-connections/read-data/read-service-connection-options';
+import { ServiceConnectionDialog } from '../ServiceConnectionDialog';
+import { readServiceConnectionOptions } from '../../../../read-data/read-service-connection-options';
 
 // The LIVE X descriptor exactly as served by studio :3012 (read from the aggregate 2026-07-22).
 const LIVE_X_DESCRIPTOR = {

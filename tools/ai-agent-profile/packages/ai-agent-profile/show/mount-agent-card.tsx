@@ -30,10 +30,10 @@
 
 import * as React from 'react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { ErrorBoundary, mountReactSurface } from '@/packages/ui';
-import { Card } from '@/packages/ui/show/card';
-import { Container } from '@/packages/ui/show/container';
-import { Text } from '@/packages/ui/show/text';
+import { ErrorBoundary, mountReactSurface } from '../../../../ui';
+import { Card } from '../../../../ui/show/card';
+import { Container } from '../../../../ui/show/container';
+import { Text } from '../../../../ui/show/text';
 import { readAgentProfiles, type PublishedRecord } from '../read-data/read-ai-agent-profiles';
 import {
   foldAgentCard,

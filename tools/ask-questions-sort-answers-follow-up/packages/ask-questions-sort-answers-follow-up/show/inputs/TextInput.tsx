@@ -9,8 +9,8 @@
 // component (MultilineTextInput, rows=4). Zero inline styling.
 
 import React from 'react';
-import { Textarea } from '@/packages/ui/show/input/Textarea';
-import type { QuestionInputProps } from '@/packages/ask-questions-sort-answers-follow-up/read-data/question-input-contract';
+import { Textarea } from '../../../../../ui/show/input/Textarea';
+import type { QuestionInputProps } from '../../../../read-data/question-input-contract';
 
 export function TextInput({
   questionId,

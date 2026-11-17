@@ -1,7 +1,7 @@
 import React from 'react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
-import { ProjectPreviewsPanel } from '@/packages/project-preview/show/ProjectPreviewsPanel';
+import { FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
+import { ProjectPreviewsPanel } from './ProjectPreviewsPanel';
 import {
   decodeProjectPreviewDescriptorsFeed,
 } from '@/packages/project-preview/read-data/read-project-preview-descriptors';

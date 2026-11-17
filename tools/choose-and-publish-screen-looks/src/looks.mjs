@@ -5,7 +5,7 @@
 //   src/workspace/looks.json, and their own), which one they wear, wearing one, making a new look or changing one's
 //   colours, sizes and fonts, a look as a record to download or hand to another app, and publishing one of their own on
 //   the shared shelf (src/pool.mjs publishRow, shelf `look`) or withdrawing it. A look someone else published can be
-//   worn by anyone: wearing it keeps it among their own looks. The Screen look screen (parts/screen-look) reads and
+//   worn by anyone: wearing it keeps it among their own looks. The Screen look screen (tools/screen-look) reads and
 //   writes the same two records, so a look an AI wears repaints the open workspace (src/workspace/records.ts follows
 //   the store's changes).
 //
@@ -35,11 +35,11 @@
 //       blends); `ahead` is the look worn at each moment it changes over the next twelve hours, so a surface that draws without
 //       reading (the Share sheet) wears the look of that moment, never a blend kept from its last read.
 //
-//   A look that changes over the day is a plan in the person's records (parts/screen-look/read-data/look-over-time.ts):
+//   A look that changes over the day is a plan in the person's records (tools/screen-look/read-data/look-over-time.ts):
 //   points in the day, each the look worn then; every screen they open blends between the points itself, so nothing is
 //   written while the screen changes. Wearing a look while the plan is on holds that look until the plan's next point.
 //
-//   Where a look applies is the person's look rules (parts/screen-look/read-data/where-looks-apply.ts, record
+//   Where a look applies is the person's look rules (tools/screen-look/read-data/where-looks-apply.ts, record
 //   where-looks-apply): an ordered list, each a formula-engine condition over the app a screen is drawn in, the kind of
 //   device, the screen, the hour and weekday, and the look worn where it holds. The first rule that holds wins; when none
 //   does, the worn look (what wear_look sets) is worn, so with no rules every screen wears the one worn look as before.
@@ -48,7 +48,7 @@
 //   side calls lookForFacts (the same pure function the page runs) or `which`.
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. One format: a look is the record parts/screen-look/read-data/screen-look-record.ts defines, decoded and changed
+//   1. One format: a look is the record tools/screen-look/read-data/screen-look-record.ts defines, decoded and changed
 //      only through it, so a look from a file, a tool or the shelf can never carry a value its token cannot take.
 //   2. The records are the workspace's own (src/workspace/inputs.json names their labels): the worn look and the
 //      person's own looks. The app's looks are never copied into a person's records, except as the edit they saved.

@@ -35,7 +35,7 @@
 //      `trillion-work-day` budget; with neither, the run fails with words saying it waits, and the rule that asked
 //      tries again (the tool rows' `retry` reaches about a day).
 //   8. What the person said about their meetings is used when Whisper here hears: the one language they chose and
-//      their custom words as its vocabulary (parts/record-audio/read-data/meeting-settings.mjs hearingOptions). With
+//      their custom words as its vocabulary (tools/record-voice-and-meetings/read-data/meeting-settings.mjs hearingOptions). With
 //      none set, Whisper detects the language and hears no vocabulary, exactly as before.
 //   9. A language chosen by the person ("Reprocess in", input `language`) is heard again by Whisper here even when words
 //      are kept, unless the kept words were already heard in that language, and it replaces the language of invariant 8.

@@ -7,8 +7,8 @@ import {
   MultilineTextInput,
   ChoiceInput,
   RatingInput,
-} from '@/packages/ask-questions-sort-answers-follow-up/show/inputs';
-import { buildScaleItems } from '@/packages/ask-questions-sort-answers-follow-up/show/inputs/RatingInput';
+} from './index';
+import { buildScaleItems } from './RatingInput';
 
 describe('input dispatch map (L090 — no switch on questionTypeId)', () => {
   it('binds the declared input keys', () => {

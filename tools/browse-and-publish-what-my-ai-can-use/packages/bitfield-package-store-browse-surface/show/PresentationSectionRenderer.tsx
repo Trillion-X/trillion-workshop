@@ -1,11 +1,11 @@
 import React from 'react';
-import { Badge } from '@/packages/ui/show/badge';
-import { Button } from '@/packages/ui/show/button';
-import { Card } from '@/packages/ui/show/card';
-import { Container } from '@/packages/ui/show/container';
-import { MediaCarousel } from '@/packages/ui/show/media-carousel';
-import { MetricRow, type MetricCell } from '@/packages/ui/show/metric-row';
-import { Text } from '@/packages/ui/show/text';
+import { Badge } from '../../../../ui/show/badge';
+import { Button } from '../../../../ui/show/button';
+import { Card } from '../../../../ui/show/card';
+import { Container } from '../../../../ui/show/container';
+import { MediaCarousel } from '../../../../ui/show/media-carousel';
+import { MetricRow, type MetricCell } from '../../../../ui/show/metric-row';
+import { Text } from '../../../../ui/show/text';
 import type { PresentationSection, MediaItem } from '../read-data/read-catalog-view';
 
 /**

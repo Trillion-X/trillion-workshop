@@ -9,10 +9,10 @@
 
 import React from 'react';
 import { useBitfieldData } from '@/packages/ask-questions-sort-answers-follow-up/.bitfield-entry-scope/ask-questions-sort-answers-follow-up/runtime-kit-react';
-import { ProgressSurface, type ProgressColumn } from '@/packages/ask-questions-sort-answers-follow-up/show/ProgressSurface';
-import { buildProgressModel } from '@/packages/ask-questions-sort-answers-follow-up/read-data/progress-model';
-import { resolveRespondentIdNow } from '@/packages/ask-questions-sort-answers-follow-up/read-data/current-respondent';
-import type { ProgressFieldMap } from '@/packages/ask-questions-sort-answers-follow-up/read-data/session-progress-rows';
+import { ProgressSurface, type ProgressColumn } from './ProgressSurface';
+import { buildProgressModel } from '../../../read-data/progress-model';
+import { resolveRespondentIdNow } from '../read-data/current-respondent';
+import type { ProgressFieldMap } from '../../../read-data/session-progress-rows';
 
 export interface ProgressViewProps {
   formId?: string;

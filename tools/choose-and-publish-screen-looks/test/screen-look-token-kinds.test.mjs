@@ -1,5 +1,5 @@
 // test/screen-look-token-kinds.test.mjs
-// Every token of a shipped look whose value is a colour is typed `color`, so the colour ladder (parts/screen-look/colour-ladder.json)
+// Every token of a shipped look whose value is a colour is typed `color`, so the colour ladder (tools/screen-look/colour-ladder.json)
 // applies to it: a bad value such as 'banana' degrades to a colour the screen can draw instead of reaching the page as text.
 import test from 'node:test';
 import assert from 'node:assert/strict';

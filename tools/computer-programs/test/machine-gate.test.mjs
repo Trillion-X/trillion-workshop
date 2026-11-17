@@ -1,4 +1,4 @@
-// The eligibility gate of a program row (parts/computer-programs/read-data/program-here.mjs): a hearing program that needs more than this Mac
+// The eligibility gate of a program row (tools/computer-programs/read-data/program-here.mjs): a hearing program that needs more than this Mac
 // has is never chosen, and listening says why instead of just "no program".
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';

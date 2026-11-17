@@ -1,5 +1,5 @@
 import React from 'react';
-import { FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
+import { FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
 import {
   sendLocalFileSelection,
   type LocalFileSelectionTarget,

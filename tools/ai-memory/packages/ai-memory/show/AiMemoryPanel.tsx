@@ -1,5 +1,5 @@
 import React from 'react';
-import { Badge, Card, Container, Text } from '@/packages/ui';
+import { Badge, Card, Container, Text } from '../../../../ui';
 import type { MemoryContextItem } from '../read-data/read-memory-context';
 
 function humanizeReference(value: string): string {

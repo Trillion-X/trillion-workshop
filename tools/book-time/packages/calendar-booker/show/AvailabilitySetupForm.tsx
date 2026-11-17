@@ -8,18 +8,18 @@
 import * as React from 'react';
 import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { Card } from '@/packages/ui/show/card/Card';
-import { Container } from '@/packages/ui/show/container/container';
-import { Text } from '@/packages/ui/show/text/Text';
-import { Button } from '@/packages/ui/show/button/Button';
-import { Badge } from '@/packages/ui/show/badge/Badge';
-import { Input } from '@/packages/ui/show/input';
-import { SelectablePillBar } from '@/packages/ui/show/selectable-pill-bar/SelectablePillBar';
-import { SegmentedControl } from '@/packages/ui/show/segmented-control/SegmentedControl';
+import { Card } from '../../../../ui/show/card/Card';
+import { Container } from '../../../../ui/show/container/container';
+import { Text } from '../../../../ui/show/text/Text';
+import { Button } from '../../../../ui/show/button/Button';
+import { Badge } from '../../../../ui/show/badge/Badge';
+import { Input } from '../../../../ui/show/input';
+import { SelectablePillBar } from '../../../../ui/show/selectable-pill-bar/SelectablePillBar';
+import { SegmentedControl } from '../../../../ui/show/segmented-control/SegmentedControl';
 import {
   resolveAvailabilitySetupPresentationProfile,
   type AvailabilitySetupPresentationProfile,
-} from '@/packages/calendar-booker/do-work/scheduling-offer-feed';
+} from '../do-work/scheduling-offer-feed';
 
 interface DayOption {
   id: string;

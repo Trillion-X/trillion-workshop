@@ -7,13 +7,13 @@
 
 import React from 'react';
 import { CheckCircle2, FileSearch } from 'lucide-react';
-import { Button } from '@/packages/ui/show/button/Button';
-import { Card } from '@/packages/ui/show/card/Card';
-import { Container } from '@/packages/ui/show/container/container';
-import { Text } from '@/packages/ui/show/text/Text';
-import { QuestionField } from '@/packages/ask-questions-sort-answers-follow-up/show/inputs/QuestionField';
-import { isEvidenceReference } from '@/packages/ask-questions-sort-answers-follow-up/read-data/evidence-reference';
-import type { QuestionInputProps } from '@/packages/ask-questions-sort-answers-follow-up/read-data/question-input-contract';
+import { Button } from '../../../../../ui/show/button/Button';
+import { Card } from '../../../../../ui/show/card/Card';
+import { Container } from '../../../../../ui/show/container/container';
+import { Text } from '../../../../../ui/show/text/Text';
+import { QuestionField } from './QuestionField';
+import { isEvidenceReference } from '../../../../read-data/evidence-reference';
+import type { QuestionInputProps } from '../../../../read-data/question-input-contract';
 
 export function EvidenceReferenceInput({
   label,

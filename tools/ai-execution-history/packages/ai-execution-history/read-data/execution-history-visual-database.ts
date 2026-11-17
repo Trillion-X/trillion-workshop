@@ -5,17 +5,17 @@ import {
   type VisualDatabaseEvaluatorDescriptor,
   type VisualDatabaseFieldDescriptor,
   type VisualDatabaseModel,
-} from '@/packages/visual-database/read-data/visual-database';
+} from '../../../../keep-lists-of-rows/read-data/visual-database';
 import {
   resolutionInputsForFoldedCells,
   resolveAddressedCells,
   type AddressedCellInput,
   type DeriveDispatch,
-} from '@/packages/visual-database/do-work/resolve-derived-fields';
+} from '../../../../keep-lists-of-rows/do-work/resolve-derived-fields';
 import {
   readExecutionHistory,
   type PublishedRecord,
-} from '@/packages/ai-execution-history/read-data/read-ai-execution-history';
+} from './read-ai-execution-history';
 
 type ProjectedExecutionRunRow = {
   address: string;

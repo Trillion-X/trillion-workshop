@@ -1,4 +1,4 @@
-# parts/docs-site/
+# tools/build-a-docs-site/parts/docs-site/
 
 Turns anyone's docs manifest (site facts, navigation, pages, two colour palettes) into every file a Mintlify docs site is made of. It runs as the Workshop tool `tool:build-docs-site` for every Trillion account; the person's AI saves the files and pushes them to the person's own repository connected to their own Mintlify project.
 

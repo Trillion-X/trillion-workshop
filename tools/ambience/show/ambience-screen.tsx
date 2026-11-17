@@ -1,4 +1,3 @@
-// parts/ambience/show/ambience-screen.tsx
 //
 // NO PRIOR: searched bitfield-packages show for ambience, visualizer screen, now playing, and Mobbin 'full screen
 //   ambient music visualizer with now playing' (Opal's player: the picture full-bleed, the title over it and the
@@ -17,7 +16,7 @@
 //   connection) it leads with one button that hears the music on this computer.
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. Every control is the shared one (parts/ui/show/sound-signal); this file writes no markup of its own and names no
+//   1. Every control is the shared one (tools/ui/show/sound-signal); this file writes no markup of its own and names no
 //      look, source, light or service.
 //   2. The chosen look and the lights that follow are kept on this device in the same shape a background layer keeps
 //      them (`{ look, custom, following }`), so a look tuned here reads the same everywhere.

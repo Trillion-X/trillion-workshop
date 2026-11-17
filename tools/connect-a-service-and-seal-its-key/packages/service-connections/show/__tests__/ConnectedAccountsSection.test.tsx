@@ -14,7 +14,7 @@ import React from 'react';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { ConnectedAccountsSection } from '@/packages/service-connections/show/ConnectedAccountsSection';
+import { ConnectedAccountsSection } from '../ConnectedAccountsSection';
 import type { RevealedServiceCredentialField } from '@/packages/service-connections/do-work/reveal-service-connection-credential';
 
 afterEach(cleanup);

@@ -2,7 +2,7 @@ import {
   createContentMediaWorkId,
   submitWorkflowAction,
   type ContentMediaSourceRef,
-} from '@/packages/content-media-evidence/do-work/content-media-work-loop';
+} from '../../content-media-evidence/do-work/content-media-work-loop';
 
 const TRANSCRIBE_ACTION_ID = 'action:submit-audio-transcription-request';
 export const DEFAULT_AUDIO_TRANSCRIPTION_PROFILE_REF =

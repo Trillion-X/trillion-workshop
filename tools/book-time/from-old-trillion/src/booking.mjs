@@ -16,8 +16,8 @@ import bookableRecords from '../records/bookable-access-records.json' with { typ
 import reminderSettings from './booking-reminders.json' with { type: 'json' };
 import workspaceSurfaces from './workspace/screens.mjs';
 import { addressOf } from './workspace/addresses.mjs';
-import { deriveOpenSlots } from '../parts/calendar-booker/do-work/derive-open-slots.ts';
-import { calendarInviteFile } from '../parts/calendar-booker/do-work/calendar-invite-file.ts';
+import { deriveOpenSlots } from '../../../booking-slots-and-invitations/do-work/derive-open-slots.ts';
+import { calendarInviteFile } from '../../../booking-slots-and-invitations/do-work/calendar-invite-file.ts';
 import { sendMail } from './mail-sender.mjs';
 import { contractAccessRefs, quantityFor } from './contract-entitlements.mjs';
 import { offerRows as offerRecords } from './offer-rows.mjs';

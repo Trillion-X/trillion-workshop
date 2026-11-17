@@ -1,4 +1,4 @@
-// The Book a session screen: a guide description (parts/ui/show/coss/guide.tsx draws it). It is the one place a
+// The Book a session screen: a guide description (tools/ui/show/coss/guide.tsx draws it). It is the one place a
 // session is picked, paid for, moved and cancelled; a link from an email (/book/<key>) opens this same screen with
 // that key, so no other page draws booking controls.
 import { lengthWords } from './booking.mjs';

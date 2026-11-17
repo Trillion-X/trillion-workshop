@@ -6,18 +6,18 @@
 
 import React from 'react';
 import { Bot, Sparkles } from 'lucide-react';
-import { Badge, Container, Divider, Icon, StatusDot, Text } from '@/packages/ui';
+import { Badge, Container, Divider, Icon, StatusDot, Text } from '../../../../ui';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
 import {
   decodeBackgroundRunnerCliRegistryFeed,
-} from '@/packages/background-runner-control/read-data/read-background-runner-cli-registry';
+} from '../read-data/read-background-runner-cli-registry';
 import {
   getBackgroundRunnerCliDefaultModelId,
   getBackgroundRunnerCliModels,
-} from '@/packages/background-runner-control/read-data/background-runner-cli-models';
+} from '../read-data/background-runner-cli-models';
 import {
   decodeBackgroundRunnerStatusFeed,
-} from '@/packages/background-runner-control/read-data/read-background-runner-status';
+} from '../read-data/read-background-runner-status';
 
 export interface BackgroundRunnerControlProps {
   onProjectChange?: (project: string) => void;

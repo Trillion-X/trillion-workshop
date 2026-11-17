@@ -8,7 +8,7 @@
 // ZERO code change (L069 primitive, L090 self-describing data + generic handler,
 // enum-dissolution: no closed TS union of health kinds).
 
-import type { ExecutionRun } from '@/packages/ai-execution-history/read-data/read-ai-execution-history';
+import type { ExecutionRun } from './read-ai-execution-history';
 
 // Rendering tone for a health bucket — a closed algebra of the design system's
 // semantic tones (Physics of the palette), not an extensible Society list.

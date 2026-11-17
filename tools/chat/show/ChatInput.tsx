@@ -157,7 +157,7 @@ export interface ChatInputProps {
   onStop?: () => void;
   /** Ref to the field element, for anchoring overlays (slash menu, mentions). */
   fieldRef?: React.Ref<HTMLTextAreaElement>;
-  /** A composer that can hold attachments takes the paste policy's answer (parts/chat/read-data/paste-policy.json): a long
+  /** A composer that can hold attachments takes the paste policy's answer (tools/chat/read-data/paste-policy.json): a long
    *  paste or an image-only paste arrives here instead of filling the field. Without it every paste is a normal paste. */
   onPasteAttachment?: (decision: Exclude<PasteDecision, { action: 'insert' }>) => void;
 }

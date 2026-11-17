@@ -1,4 +1,3 @@
-// parts/screen-matrix/check-screens.mjs
 //
 // PURPOSE
 //   One headless check every deploy runs before it goes live: every screen, in every width and every way a person may

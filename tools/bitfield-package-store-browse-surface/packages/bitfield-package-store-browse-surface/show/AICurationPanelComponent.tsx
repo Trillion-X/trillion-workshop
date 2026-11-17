@@ -1,11 +1,11 @@
 import React from "react";
 import { sendRequestToBitfieldTarget } from "@bitfield/runtime-kit";
 import { buildEngineReadCurrentRequestFromLabels, decodeEngineReadCurrentReply } from "@bitfield/runtime-kit/protocol";
-import { Button } from "@/packages/ui/show/button";
-import { Card } from "@/packages/ui/show/card";
-import { Text } from "@/packages/ui/show/text";
-import { Badge } from "@/packages/ui/show/badge";
-import { Container } from "@/packages/ui/show/container";
+import { Button } from "../../../../ui/show/button";
+import { Card } from "../../../../ui/show/card";
+import { Text } from "../../../../ui/show/text";
+import { Badge } from "../../../../ui/show/badge";
+import { Container } from "../../../../ui/show/container";
 
 interface CuratedItem {
   readonly id: string;

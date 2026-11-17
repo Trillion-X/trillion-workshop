@@ -5,7 +5,7 @@
 // host rule, is pure too), so every place a share is started reads the same rule: the account (src/share-destinations.mjs), the Android share page
 // (src/phone-share.mjs) and the browser extension's popup, whose bundle must carry nothing that runs only on a server.
 
-import { hostWithin } from '../parts/http-client/do-work/same-origin.mjs';
+import { hostWithin } from '../../../http-client/do-work/same-origin.mjs';
 
 /** The action a share from `address` starts on: the longest matching host_suffix's action_id, or null. */
 export function actionForAddress(defaults, address) {

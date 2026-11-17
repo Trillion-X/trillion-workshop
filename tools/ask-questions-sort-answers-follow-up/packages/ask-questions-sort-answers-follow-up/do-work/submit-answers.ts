@@ -5,7 +5,7 @@
 // (answer-fact-writes.ts); this file only performs the side effect.
 
 import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
-import { buildSubmitAnswersRequest } from '@/packages/ask-questions-sort-answers-follow-up/do-work/answer-fact-writes';
+import { buildSubmitAnswersRequest } from './answer-fact-writes';
 
 /** Persist every answer for one respondent's submission of one form. */
 export async function submitAnswers(

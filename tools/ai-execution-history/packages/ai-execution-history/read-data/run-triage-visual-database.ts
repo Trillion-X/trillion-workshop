@@ -1,8 +1,8 @@
-import type { DeriveDispatch } from '@/packages/visual-database/do-work/resolve-derived-fields';
+import type { DeriveDispatch } from '../../../../keep-lists-of-rows/do-work/resolve-derived-fields';
 import {
   buildExecutionHistoryVisualDatabaseProjection,
   type ExecutionHistoryVisualDatabaseProjection,
-} from '@/packages/ai-execution-history/read-data/execution-history-visual-database';
+} from './execution-history-visual-database';
 
 export type RunTriageVisualDatabaseProjection = ExecutionHistoryVisualDatabaseProjection;
 

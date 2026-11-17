@@ -41,7 +41,7 @@
 // You are forbidden from simplifying or removing it.
 // =============================================================================
 
-import { holdReasonSentence } from '@/packages/permission-lease/read-data/hold-reason';
+import { holdReasonSentence } from '../../permission-lease/read-data/hold-reason';
 
 // Re-export the canonical hold-reason translator so the panel imports one place.
 export { holdReasonSentence };

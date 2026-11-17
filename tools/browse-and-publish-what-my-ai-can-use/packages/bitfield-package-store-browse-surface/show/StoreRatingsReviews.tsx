@@ -1,10 +1,10 @@
 import React from 'react';
-import { Container } from '@/packages/ui/show/container';
-import { Text } from '@/packages/ui/show/text';
-import { Card } from '@/packages/ui/show/card';
-import { Badge } from '@/packages/ui/show/badge';
-import { Divider } from '@/packages/ui/show/divider';
-import { ProgressBar } from '@/packages/ui/show/progress-bar';
+import { Container } from '../../../../ui/show/container';
+import { Text } from '../../../../ui/show/text';
+import { Card } from '../../../../ui/show/card';
+import { Badge } from '../../../../ui/show/badge';
+import { Divider } from '../../../../ui/show/divider';
+import { ProgressBar } from '../../../../ui/show/progress-bar';
 
 // Mac App Store style Ratings and Reviews block, composed only from ui/ primitives
 // (L065). Grounded on the App Store / Best Buy / Faire review anatomy captured from

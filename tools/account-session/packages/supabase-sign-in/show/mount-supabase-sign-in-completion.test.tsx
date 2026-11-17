@@ -12,14 +12,14 @@ const completeMock = vi.fn(async () => ({ accountId: 'acct_1', email: 'person@ex
 const descriptorMock = vi.fn();
 vi.mock('@bitfield/runtime-kit', () => ({ sendRequestToBitfieldTarget: (...a: unknown[]) => sendTargetMock(...a) }));
 vi.mock('@bitfield/runtime-kit/react', () => ({ useBitfieldData: (...a: unknown[]) => useBitfieldDataMock(...a) }));
-vi.mock('@/packages/ui', () => ({ mountReactSurface: () => () => {} }));
+vi.mock('tools/ui', () => ({ mountReactSurface: () => () => {} }));
 vi.mock('@/packages/supabase-sign-in/do-work/complete-supabase-sign-in', () => ({
   completeSupabaseSignIn: (...a: unknown[]) => completeMock(...a),
 }));
 vi.mock('@/packages/supabase-sign-in/read-data/read-supabase-sign-in-records', () => ({
   readSupabaseSignInDescriptor: (...a: unknown[]) => descriptorMock(...a),
 }));
-vi.mock('@/packages/account-session/do-work/browser-session-browser-id', () => ({
+vi.mock('tools/account-session/do-work/browser-session-browser-id', () => ({
   currentLogBrowserSessionBrowserId: () => 'browser_test_1',
 }));
 

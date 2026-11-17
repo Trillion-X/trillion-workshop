@@ -4,10 +4,10 @@
 // multi-megabyte published-records aggregate. Rows arrive as bare payload objects.
 
 import React from 'react';
-import { Badge, Card, Container, Divider, Icon, ScrollableSurface, Spinner, StatusDot, Text } from '@/packages/ui';
+import { Badge, Card, Container, Divider, Icon, ScrollableSurface, Spinner, StatusDot, Text } from '../../../../ui';
 import { Activity, CheckCircle2, CircleSlash, Clock } from 'lucide-react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { readExecutionHistory, type ExecutionReviewDecision, type ExecutionRun, type PublishedRecord } from '@/packages/ai-execution-history/read-data/read-ai-execution-history';
+import { readExecutionHistory, type ExecutionReviewDecision, type ExecutionRun, type PublishedRecord } from '../read-data/read-ai-execution-history';
 import {
   deriveRunFacts,
   deriveRunHealth,
@@ -15,7 +15,7 @@ import {
   type HealthRule,
   type HealthTone,
   type RunHealth,
-} from '@/packages/ai-execution-history/read-data/derive-run-health';
+} from '../read-data/derive-run-health';
 
 type Row = { address?: string; payload?: Record<string, unknown> };
 

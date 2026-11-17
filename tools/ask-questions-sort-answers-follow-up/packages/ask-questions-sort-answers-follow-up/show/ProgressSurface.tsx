@@ -10,11 +10,11 @@
 
 import React from 'react';
 import { LineChart } from 'lucide-react';
-import { Card } from '@/packages/ui/show/card/Card';
-import { Container } from '@/packages/ui/show/container/container';
-import { Text } from '@/packages/ui/show/text/Text';
-import { StatStrip } from '@/packages/ui/show/stat-strip/StatStrip';
-import { LineChart as LineChartViz } from '@/packages/ui/show/line-chart/LineChart';
+import { Card } from '../../../../ui/show/card/Card';
+import { Container } from '../../../../ui/show/container/container';
+import { Text } from '../../../../ui/show/text/Text';
+import { StatStrip } from '../../../../ui/show/stat-strip/StatStrip';
+import { LineChart as LineChartViz } from '../../../../ui/show/line-chart/LineChart';
 import {
   Table,
   TableHeader,
@@ -22,9 +22,9 @@ import {
   TableRow,
   TableHead,
   TableCell,
-} from '@/packages/ui/show/table/Table';
-import { WorkStartState } from '@/packages/ui/show/work-start-state/WorkStartState';
-import type { ProgressModel } from '@/packages/ask-questions-sort-answers-follow-up/read-data/progress-model';
+} from '../../../../ui/show/table/Table';
+import { WorkStartState } from '../../../../ui/show/work-start-state/WorkStartState';
+import type { ProgressModel } from '../../../read-data/progress-model';
 
 /** A column of the session log: which output field, and its human header. DATA. */
 export interface ProgressColumn {

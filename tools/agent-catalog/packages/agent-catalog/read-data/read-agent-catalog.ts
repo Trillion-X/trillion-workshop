@@ -18,7 +18,7 @@
 //
 // =============================================================================
 
-import { decodeAgentRoleCatalogFeed } from '@/packages/agent-catalog/read-data/read-agent-role-catalog';
+import { decodeAgentRoleCatalogFeed } from './read-agent-role-catalog';
 import type {
   AgentCatalogEntry as RoleCatalogEntry,
   SkillCatalogEntry as RoleSkillEntry,

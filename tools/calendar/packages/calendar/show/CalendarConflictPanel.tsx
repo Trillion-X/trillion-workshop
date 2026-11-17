@@ -1,7 +1,7 @@
 import React from 'react';
-import { Button } from '@/packages/ui/show/button';
-import { Container } from '@/packages/ui/show/container';
-import { Text } from '@/packages/ui/show/text';
+import { Button } from '../../../../ui/show/button';
+import { Container } from '../../../../ui/show/container';
+import { Text } from '../../../../ui/show/text';
 import type { CalendarScreenModel } from './calendar-screen-model';
 
 export function CalendarConflictPanel({ model }: { model: CalendarScreenModel }) {

@@ -22,4 +22,4 @@ helpers below. Sign-in itself belongs to the Trillion service.
 
 **Depends on:** `../read-data/read-browser-session` (`readAccountPortalSession`), which reads through `#workspace-records`.
 
-**Depended on by:** `parts/screen-arrangement/show/screen-arrangement-context.tsx` (browser id); account screens that tie a saved profile to the signed-in account (the Mac app's Account screen, `mountAccountProfile` caller).
+**Depended on by:** `tools/screen-arrangement/show/screen-arrangement-context.tsx` (browser id); account screens that tie a saved profile to the signed-in account (the Mac app's Account screen, `mountAccountProfile` caller).

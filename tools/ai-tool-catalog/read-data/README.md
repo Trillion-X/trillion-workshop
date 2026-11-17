@@ -1,4 +1,4 @@
-# parts/ai-tool-catalog/read-data/
+# tools/ai-tool-catalog/read-data/
 
 The one decoder of the Workshop's shared DATA: turns published tool, placement, licence, price, byte store, gateway, search source, row source and event source rows into typed items, refusing any row that cannot work (with its reason) instead of guessing.
 
@@ -23,5 +23,5 @@ The one decoder of the Workshop's shared DATA: turns published tool, placement, 
 
 ## Dependencies
 
-**Depends on:** `parts/ui/read-data/declared-selector.ts` (output selectors).
+**Depends on:** `tools/ui/read-data/declared-selector.ts` (output selectors).
 **Depended on by:** `src/workshop.mjs` (readToolData), `src/events.mjs` and `src/starting-rules.mjs` through the admitted event sources, `scripts/workshop-rows.mjs` tests.

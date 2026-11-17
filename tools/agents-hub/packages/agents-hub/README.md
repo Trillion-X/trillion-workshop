@@ -38,7 +38,7 @@ One surface to see, configure, compose, and message every AI agent: a responsive
 
 ## Dependencies
 
-**Depends on:** `@/packages/ui` (pure parts only), `@bitfield/runtime-kit` (+`/protocol`, `/react`). Zero feature-package imports. DATA seam, no import: `ai-provider-option` published records (`provider_id` must equal a model descriptor's `provider_ref` byte for byte, and rows missing `vendor` are dropped) supply vendor, local/cloud marking, capability fallback and model-picker group labels.
+**Depends on:** `tools/ui` (pure parts only), `@bitfield/runtime-kit` (+`/protocol`, `/react`). Zero feature-package imports. DATA seam, no import: `ai-provider-option` published records (`provider_id` must equal a model descriptor's `provider_ref` byte for byte, and rows missing `vendor` are dropped) supply vendor, local/cloud marking, capability fallback and model-picker group labels.
 **Depended on by:** nothing — placeable surface.
 
 ## Invariants

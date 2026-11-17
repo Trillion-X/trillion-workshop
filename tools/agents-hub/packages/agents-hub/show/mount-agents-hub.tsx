@@ -4,8 +4,8 @@
 // other placeable package entry (FloatingMaterialFrame + ErrorBoundary).
 
 import React from 'react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
-import { AgentsHubSurface } from '@/packages/agents-hub/show/AgentsHubSurface';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
+import { AgentsHubSurface } from './AgentsHubSurface';
 
 type MountArgs = {
   el: HTMLElement;

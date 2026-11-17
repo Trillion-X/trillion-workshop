@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
-import { BookingsInbox } from '@/packages/calendar-booker/show/BookingsInbox';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
+import { BookingsInbox } from './BookingsInbox';
 
 type MountArgs = {
   el: HTMLElement;

@@ -37,7 +37,7 @@
 // =============================================================================
 
 import React from 'react';
-import { Card, Badge, Container, Text, StatusDot } from '@/packages/ui';
+import { Card, Badge, Container, Text, StatusDot } from '../../../../ui';
 import type { AgentCatalogEntry, SkillCatalogEntry } from '@/packages/agent-catalog/read-data/agent-role-catalog-types';
 
 // ============================================================================

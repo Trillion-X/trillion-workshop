@@ -1,4 +1,3 @@
-// parts/service-connections/do-work/engine-seams.ts
 //
 // The connect functions take a `seams` argument (connect-service.ts `ServiceConnectionSeams`): where the work
 // contract, the value store, the owner actions and the clock come from. Trillion always passes its own

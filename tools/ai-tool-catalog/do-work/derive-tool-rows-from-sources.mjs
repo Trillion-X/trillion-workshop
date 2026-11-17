@@ -1,4 +1,3 @@
-// parts/ai-tool-catalog/do-work/derive-tool-rows-from-sources.mjs
 //
 // Turns a live capability list into `ai-tool-descriptor` rows, so a tool set nobody typed by hand is callable
 // by job. Each `tool-row-source` row says where the list lives, which entry field holds what, and the row

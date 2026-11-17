@@ -7,15 +7,15 @@
 
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { FileTree } from '@/packages/local-files/show/LocalFileTree';
+import { FileTree } from './LocalFileTree';
 
-vi.mock('@/packages/local-files/read-data/read-local-file-roots', () => ({
+vi.mock('tools/local-files/read-data/read-local-file-roots', () => ({
   listLocalRootShortcuts: vi.fn().mockResolvedValue([
     { label: 'Home', path: '/workspace' },
   ]),
 }));
 
-vi.mock('@/packages/local-files/read-data/read-local-directory', () => ({
+vi.mock('tools/local-files/read-data/read-local-directory', () => ({
   listLocalDirectory: vi.fn().mockResolvedValue([
     { path: '/workspace/report.pdf', name: 'report.pdf', isDir: false },
     { path: '/workspace/receipts', name: 'receipts', isDir: true },
@@ -23,7 +23,7 @@ vi.mock('@/packages/local-files/read-data/read-local-directory', () => ({
   ]),
 }));
 
-vi.mock('@/packages/local-files/do-work/ask-local-file-display', () => ({
+vi.mock('tools/local-files/do-work/ask-local-file-display', () => ({
   askLocalFileDisplay: vi.fn().mockResolvedValue({ icon: 'File' }),
 }));
 

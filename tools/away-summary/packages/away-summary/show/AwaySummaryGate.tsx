@@ -23,11 +23,11 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { AwaySummary } from '@/packages/away-summary/show/AwaySummary';
-import { updateAwaySummaryLastSeen } from '@/packages/away-summary/do-work/update-away-summary-last-seen';
-import { decodeAwaySummaryLastSeen } from '@/packages/away-summary/read-data/read-away-summary-last-seen';
-import { decodeAwaySummaryFeed } from '@/packages/away-summary/read-data/read-away-summary';
-import { selectAwaySummarySince } from '@/packages/away-summary/read-data/select-away-summary';
+import { AwaySummary } from './AwaySummary';
+import { updateAwaySummaryLastSeen } from '../do-work/update-away-summary-last-seen';
+import { decodeAwaySummaryLastSeen } from '../read-data/read-away-summary-last-seen';
+import { decodeAwaySummaryFeed } from '../read-data/read-away-summary';
+import { selectAwaySummarySince } from '../read-data/select-away-summary';
 
 function AwaySummaryGateContents() {
   const lastSeenEntry = useBitfieldData('last-seen');

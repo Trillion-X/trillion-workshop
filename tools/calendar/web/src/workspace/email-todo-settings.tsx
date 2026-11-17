@@ -11,7 +11,7 @@
 //   3. Importing is the person's press: nothing is imported by opening the page. The button shows only when the screen
 //      can hand over the mail it has loaded (`onImport`).
 import React from 'react';
-import { Button, Container, errorWords, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue, Switch, Text } from '../../parts/ui';
+import { Button, Container, errorWords, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue, Switch, Text } from '../../../../ui';
 import words from './todo-lists-settings.json' with { type: 'json' };
 import { postJson, readJson } from './api';
 import { preferenceRequest } from './todo-lists-settings.mjs';

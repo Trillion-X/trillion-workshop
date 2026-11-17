@@ -21,10 +21,10 @@ import {
   Text,
   Textarea,
   Tooltip,
-} from '@/packages/ui';
-import type { AgentCardViewModel, MemoryRecord } from '@/packages/agents-hub/read-data/resolve-agent-cards';
-import { formatCost } from '@/packages/agents-hub/read-data/resolve-agent-cards';
-import { FloatingPanel } from '@/packages/screen-arrangement/show/FloatingPanel';
+} from '../../../../ui';
+import type { AgentCardViewModel, MemoryRecord } from '../read-data/resolve-agent-cards';
+import { formatCost } from '../read-data/resolve-agent-cards';
+import { FloatingPanel } from '../../../../screen-arrangement/show/FloatingPanel';
 
 export interface AgentQuickViewProps {
   agent: AgentCardViewModel;

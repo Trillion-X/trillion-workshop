@@ -26,7 +26,7 @@
 // no fixed columns, no domain branch. The only non-data branch is the surface
 // render-mode (overview vs the tiled workspace).
 //
-// fey-grade via @/packages/ui + visual-database; ZERO inline style / raw HTML.
+// fey-grade via tools/ui + visual-database; ZERO inline style / raw HTML.
 // =============================================================================
 
 import React from 'react';
@@ -57,8 +57,8 @@ import {
   type VisualDatabaseModel,
   type VisualDatabaseRecord,
 } from '../../keep-lists-of-rows/read-data/visual-database.ts';
-import { RecordMetricRow, type RecordMetricFormat } from '@/packages/visual-database/show/RecordMetricRow';
-import { FieldControl, displayTitle, statusTone } from '@/packages/visual-database/show/field-editors';
+import { RecordMetricRow, type RecordMetricFormat } from '../../keep-lists-of-rows/show/RecordMetricRow';
+import { FieldControl, displayTitle, statusTone } from '../../keep-lists-of-rows/show/field-editors';
 import { EmbeddedScreenArrangement } from '../../screen-arrangement/show/EmbeddedScreenArrangement';
 import { runInvestmentCommandAction } from '../do-work/run-investment-command-action.ts';
 import {

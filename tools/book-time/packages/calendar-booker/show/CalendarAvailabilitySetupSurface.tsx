@@ -10,19 +10,19 @@
 // descriptor via that descriptor's self-describing `product_action_refs`.
 
 import * as React from 'react';
-import contract from '@/packages/calendar-booker/things-to-store-and-run.json';
+import contract from '../things-to-store-and-run.json';
 import {
   calendarBookerActionDescriptors,
   invokeCalendarBookerOwnerAction,
-} from '@/packages/calendar-booker/do-work/calendar-booker-actions';
+} from '../do-work/calendar-booker-actions';
 import {
   buildSchedulingOfferView,
   type AvailabilitySetupPresentationProfile,
   type SurfaceStatusInput,
-} from '@/packages/calendar-booker/do-work/scheduling-offer-feed';
-import { readCalendarBookerWorkGraph } from '@/packages/calendar-booker/read-data/read-calendar-booker-work-graph';
-import { DescriptorWorkbench, type DescriptorWorkbenchPhase } from '@/packages/calendar-booker/show/descriptor-workbench';
-import { calendarBookerRenderCapabilities } from '@/packages/calendar-booker/show/render-capability-map';
+} from '../do-work/scheduling-offer-feed';
+import { readCalendarBookerWorkGraph } from '../read-data/read-calendar-booker-work-graph';
+import { DescriptorWorkbench, type DescriptorWorkbenchPhase } from './descriptor-workbench';
+import { calendarBookerRenderCapabilities } from './render-capability-map';
 
 type AnyRecord = Record<string, unknown>;
 

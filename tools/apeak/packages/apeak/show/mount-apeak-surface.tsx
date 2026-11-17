@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface, Text, Container } from '@/packages/ui';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface, Text, Container } from '../../../../ui';
 import { ApeakSurface } from './ApeakSurface';
 import {
   applyOverlayMappings,

@@ -1,5 +1,5 @@
 import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
-import { readBugReportConfiguredActionDefinitionId } from '@/packages/bug-reports/do-work/read-bug-report-configured-action';
+import { readBugReportConfiguredActionDefinitionId } from './read-bug-report-configured-action';
 
 export const CREATE_QUICK_BUG_REPORT_ACTION =
   readBugReportConfiguredActionDefinitionId('create-quick-report');

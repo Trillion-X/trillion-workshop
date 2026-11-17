@@ -7,11 +7,11 @@
 // questionTypeId (enum-dissolution / L090). Adding a question type = ship one
 // leaf here + one registry row + one map entry; zero handler/dispatcher change.
 
-import type { QuestionInputComponent } from '@/packages/ask-questions-sort-answers-follow-up/read-data/question-input-contract';
-import { TextInput } from '@/packages/ask-questions-sort-answers-follow-up/show/inputs/TextInput';
-import { MultilineTextInput } from '@/packages/ask-questions-sort-answers-follow-up/show/inputs/MultilineTextInput';
-import { ChoiceInput } from '@/packages/ask-questions-sort-answers-follow-up/show/inputs/ChoiceInput';
-import { RatingInput } from '@/packages/ask-questions-sort-answers-follow-up/show/inputs/RatingInput';
+import type { QuestionInputComponent } from '../../../../read-data/question-input-contract';
+import { TextInput } from './TextInput';
+import { MultilineTextInput } from './MultilineTextInput';
+import { ChoiceInput } from './ChoiceInput';
+import { RatingInput } from './RatingInput';
 import { NumberInput } from './NumberInput';
 import { EvidenceReferenceInput } from './EvidenceReferenceInput';
 

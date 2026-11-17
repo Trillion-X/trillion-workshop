@@ -23,7 +23,7 @@
 // =============================================================================
 
 import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
-import type { AgentProfileRecord } from '@/packages/agents-hub/read-data/resolve-agent-cards';
+import type { AgentProfileRecord } from '../read-data/resolve-agent-cards';
 
 /** The path that places a record in the shared published-records feed. */
 // Writes name NO partition, and go through the label-addressed request rather than the

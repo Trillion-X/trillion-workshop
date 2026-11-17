@@ -12,8 +12,8 @@
 //   3. A change whose old value is known offers an undo that puts it back; delete asks first, in place.
 //   4. Lists load a bounded page at a time; the rest comes with Load more.
 import React from 'react';
-import { ActionMenu, Badge, Button, ColorDot, Container, DragReorderList, errorWords, Input, Text } from '../../parts/ui';
-import { NamedIcon } from '../../parts/ui/show/icon';
+import { ActionMenu, Badge, Button, ColorDot, Container, DragReorderList, errorWords, Input, Text } from '../../../../ui';
+import { NamedIcon } from '../../../../ui/show/icon';
 import type { CalendarAccount } from './calendar-controls';
 import taskData from '../calendar-tasks.json' with { type: 'json' };
 import tray from './calendar-task-tray.json' with { type: 'json' };

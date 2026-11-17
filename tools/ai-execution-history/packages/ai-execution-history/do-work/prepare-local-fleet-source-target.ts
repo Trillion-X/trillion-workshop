@@ -12,7 +12,7 @@ import {
   makeIdentityTextAddressFromLabel,
   type EngineReadCurrentReply,
 } from '@bitfield/runtime-kit/protocol';
-import { LOCAL_DESKTOP_ACTOR } from '@/packages/ui/show/action-affordance/local-actor-admission';
+import { LOCAL_DESKTOP_ACTOR } from '../../../../ui/show/action-affordance/local-actor-admission';
 
 type Row = Record<string, unknown>;
 type Sender = (request: { target: string; payload: unknown }) => Promise<unknown>;

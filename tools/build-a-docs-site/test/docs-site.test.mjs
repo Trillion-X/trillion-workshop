@@ -1,4 +1,4 @@
-// The docs site builder (parts/docs-site) works for a product that has nothing to do with Trillion, refuses a broken
+// The docs site builder (tools/build-a-docs-site/parts/docs-site) works for a product that has nothing to do with Trillion, refuses a broken
 // manifest with every problem in plain words, and never names a product of its own.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -46,6 +46,6 @@ test('a broken manifest gets every problem at once and no files', () => {
 });
 
 test('the builder names no product of its own', () => {
-  const source = readFileSync(new URL('../parts/docs-site/do-work/build-docs-site.mjs', import.meta.url), 'utf8').replace(/^\/\/.*$/gm, '');
+  const source = readFileSync(new URL('tools/build-a-docs-site/parts/docs-site/do-work/build-docs-site.mjs', import.meta.url), 'utf8').replace(/^\/\/.*$/gm, '');
   assert.doesNotMatch(source, /trillion|needle|gettrillion/i);
 });

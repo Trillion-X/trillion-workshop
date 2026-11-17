@@ -4,9 +4,9 @@
 // prices, customers, rules, schedules, workflows) at the same time; a business that cannot be read still opens the
 // builder, with the reason shown where the offers and customers would be.
 import React from 'react';
-import { mountReactSurface } from '../../parts/ui';
-import { ErrorBoundary } from '../../parts/ui/show/error-boundary';
-import { ScreenState, useScreenLoad } from '../../parts/ui/show/screen-state';
+import { mountReactSurface } from '../../../../ui';
+import { ErrorBoundary } from '../../../../ui/show/error-boundary';
+import { ScreenState, useScreenLoad } from '../../../../ui/show/screen-state';
 import { refusal } from './failure';
 import { runWorkshopTool } from './workshop-tool-api';
 import {

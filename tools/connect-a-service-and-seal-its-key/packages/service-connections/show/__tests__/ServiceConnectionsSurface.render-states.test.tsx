@@ -59,8 +59,8 @@ vi.mock('@bitfield/runtime-kit', () => ({
   sendRequestToBitfieldTarget: vi.fn(async () => ({ ok: true })),
 }));
 
-import { ServiceConnectionsSurface } from '@/packages/service-connections/show/ServiceConnectionsSurface';
-import { ToastProvider } from '@/packages/ui/show/toast';
+import { ServiceConnectionsSurface } from '../ServiceConnectionsSurface';
+import { ToastProvider } from '../../../../../ui/show/toast';
 import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
 
 // ---------------------------------------------------------------------------

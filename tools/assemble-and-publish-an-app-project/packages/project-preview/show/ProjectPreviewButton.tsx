@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ExternalLink, Loader, Play, RefreshCw } from 'lucide-react';
-import { Button, Icon, Text } from '@/packages/ui';
+import { Button, Icon, Text } from '../../../../ui';
 import { openProjectPreviewUrl } from '@/packages/project-preview/do-work/open-project-preview-url';
 import { refreshProjectPreviewStatus } from '@/packages/project-preview/do-work/refresh-project-preview-status';
 import { showProjectPreview } from '@/packages/project-preview/do-work/show-project-preview';

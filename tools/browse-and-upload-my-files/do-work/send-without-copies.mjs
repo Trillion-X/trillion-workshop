@@ -1,4 +1,3 @@
-// parts/live-namespace/do-work/send-without-copies.mjs
 //
 // Purpose: a fetch for senders running in Node (a computer's uploader) that writes a request's bytes to the socket as
 // they are. Node's built-in fetch copies every Uint8Array body before sending it, so an uploader holding a few 16 MiB

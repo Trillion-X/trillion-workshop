@@ -9,7 +9,7 @@
 
 import React from 'react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { PlaceableSurfaceHost } from '@/packages/ui/show/placeable-surface-host';
+import { PlaceableSurfaceHost } from '../../../../../ui/show/placeable-surface-host';
 import {
   defaultPortalSurfaceId,
   findPortalSurface,

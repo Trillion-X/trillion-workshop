@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from '../../../test-helpers/vitest-shim.mjs';
 import { saveLocalFileCopy } from './save-local-file-copy.ts';
 import { invokeLocalFilesTarget } from '../read-data/invoke-local-files-target.ts';
-vi.mock('@/packages/local-files/read-data/invoke-local-files-target', () => ({ invokeLocalFilesTarget: vi.fn() }));
+vi.mock('tools/local-files/read-data/invoke-local-files-target', () => ({ invokeLocalFilesTarget: vi.fn() }));
 const invoke = vi.mocked(invokeLocalFilesTarget);
 const input = { fileName: 'board.md', bytes: new TextEncoder().encode('Exact selected cards'), directory: '/private', copyId: 'copy-1' };
 const path = '/private/board-copy-1.md';

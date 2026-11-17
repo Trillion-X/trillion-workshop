@@ -2,18 +2,18 @@
 // rendering and preference interactions live in the shared UI part.
 
 import * as React from 'react';
-import { CalendarControls as SharedCalendarControls, type CalendarControlsProps as SharedCalendarControlsProps, type CalendarControlColor } from '../../parts/ui';
+import { CalendarControls as SharedCalendarControls, type CalendarControlsProps as SharedCalendarControlsProps, type CalendarControlColor } from '../../../../ui';
 import calendarData from '../calendar.json';
 import spaceSettings from '../space-settings.json';
 import { calendarSelectionSourceId } from '../calendar-connections.mjs';
 import words from './calendar-controls.json';
 import { openAddress } from './open-screen';
-import { ArrangedContents } from '../../parts/screen-arrangement/show/ArrangedContents';
-import type { AvailabilityLinksProps } from '../../parts/calendar-booker/show/AvailabilityLinks';
-import { later } from '../../parts/ui/show/load-later/later';
+import { ArrangedContents } from '../../../../screen-arrangement/show/ArrangedContents';
+import type { AvailabilityLinksProps } from '../../../../calendar-booker/show/AvailabilityLinks';
+import { later } from '../../../../ui/show/load-later/later';
 
 // Availability links are drawn only in the opened settings panel, never in the sources menu: fetched when first shown.
-const AvailabilityLinks = later(() => import('../../parts/calendar-booker/show/AvailabilityLinks'), module => module.AvailabilityLinks);
+const AvailabilityLinks = later(() => import('../../../../calendar-booker/show/AvailabilityLinks'), module => module.AvailabilityLinks);
 
 export type {
   CalendarAccount,
@@ -21,8 +21,8 @@ export type {
   CalendarControlPreferences,
   CalendarControlSource,
   CalendarSelection,
-} from '../../parts/ui';
-import type { CalendarControlSource, WeeklyAvailabilitySchedule } from '../../parts/ui';
+} from '../../../../ui';
+import type { CalendarControlSource, WeeklyAvailabilitySchedule } from '../../../../ui';
 
 type ConnectionSource = CalendarControlSource & { base_source?: string; calendar_actions?: Record<string, unknown> };
 type AvailabilityLinksBinding = Omit<AvailabilityLinksProps, 'accounts' | 'preferences' | 'sources' | 'connectionsBusy' | 'connectionsError' | 'onRefreshCalendars'> & {

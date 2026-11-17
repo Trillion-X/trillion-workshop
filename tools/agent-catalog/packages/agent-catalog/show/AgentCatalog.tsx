@@ -38,7 +38,7 @@
 
 import * as React from 'react';
 import { Bot, Zap, Search } from 'lucide-react';
-import { Badge, Card, Input, Text, Icon } from '@/packages/ui';
+import { Badge, Card, Input, Text, Icon } from '../../../../ui';
 
 // ============================================================================
 // TYPES

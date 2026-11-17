@@ -3,9 +3,9 @@
 // PURPOSE
 //   A screen made of shared parts, sent by an AI as it writes it. The screen is a spec: { root, elements, state, reads }.
 //   `elements` is a flat map from a key the AI chooses to { type, props, children, on, visible, repeat }, where `type` is
-//   a shared part (parts/ui/declared-props.json: its export, the props it declares, its events), `children` are keys of
+//   a shared part (tools/ui/declared-props.json: its export, the props it declares, its events), `children` are keys of
 //   other elements, `on` binds a part's event to an action (a request the screen declares, the same declarations a
-//   saved module screen makes: parts/ui/show/isolated-module-surface/module-surface-requests.mjs, or setState), and a prop
+//   saved module screen makes: tools/ui/show/isolated-module-surface/module-surface-requests.mjs, or setState), and a prop
 //   may read the screen's state ({"$state": "/path"}), a repeated item ({"$item": "field"}), its index ({"$index": true}),
 //   words with state in them ({"$template": "Hello ${/name}"}) or a choice ({"$cond": ..., "$then": ..., "$else": ...});
 //   {"$bindState": "/path"} and {"$bindItem": "field"} read a value and write it back when the part reports a change.
@@ -17,7 +17,7 @@
 //   pure: no DOM, no I/O, so the Worker checks a screen with exactly what the page draws it with.
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. Blind: no part, prop or request is named here. Parts are rows of parts/ui/declared-props.json; requests are the
+//   1. Blind: no part, prop or request is named here. Parts are rows of tools/ui/declared-props.json; requests are the
 //      screen's own declarations. A new part is one DATA row.
 //   2. A bad line or a bad element never stops the rest: a line that cannot apply is left out whole and said; an element
 //      that cannot be drawn is marked unusable (the page draws its fallback in its place) and said.

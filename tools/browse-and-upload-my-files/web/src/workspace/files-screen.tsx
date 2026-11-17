@@ -17,8 +17,8 @@
 //      shows as its picture is DATA too (file-previews.json), drawn by the shared MediaPreview. A video, sound or
 //      picture shows small pictures the browser makes once from the file (a still, a strip of frames to scrub, a
 //      waveform) and keeps with it as a namespace result of kind `preview`, so every later view reads them.
-//   6. Resting the pointer on a file opens the shared hover preview (parts/ui/show/hover-preview), which shows it
-//      through the one file preview (parts/ui/show/file-preview): a video plays silently, a sound shows its waveform
+//   6. Resting the pointer on a file opens the shared hover preview (tools/ui/show/hover-preview), which shows it
+//      through the one file preview (tools/ui/show/file-preview): a video plays silently, a sound shows its waveform
 //      and player, a picture, a PDF, a text or code file, an Office document; with several selected, a carousel.
 //   7. A file row, card or hover preview dragged onto the screen arrangement opens that file in a tab where it lands.
 //   5. A list of thousands draws only what is on screen (the record views' windowing); pictures load lazily.
@@ -35,18 +35,18 @@
 //      a field (file-facts.json), read for the whole folder in one request; the person adds fields and edits facts in
 //      place, and a video's or picture's own bytes fill them once (file-facts-store.ts).
 
-import { mountRecordViews, type FieldDescriptor } from '../../parts/ui/show/record-views/record-views';
-import { mountFileDropzone, mountWorkspaceFileDropzone } from '../../parts/ui/show/kibo/file-dropzone';
-import { loadScreen, ScreenState } from '../../parts/ui/show/screen-state';
-import { notify } from '../../parts/ui/show/coss/notifications';
-import { mountBreadcrumb } from '../../parts/ui/show/breadcrumb/mount-breadcrumb';
-import { formatBytes } from '../../parts/ui/show/notifications/notification-center';
-import { mediaPreviewContent, madeMediaPreviewContent, settledPreview, type MadePreview } from '../../parts/ui/show/media-preview';
+import { mountRecordViews, type FieldDescriptor } from '../../../../ui/show/record-views/record-views';
+import { mountFileDropzone, mountWorkspaceFileDropzone } from '../../../../ui/show/kibo/file-dropzone';
+import { loadScreen, ScreenState } from '../../../../ui/show/screen-state';
+import { notify } from '../../../../ui/show/coss/notifications';
+import { mountBreadcrumb } from '../../../../ui/show/breadcrumb/mount-breadcrumb';
+import { formatBytes } from '../../../../ui/show/notifications/notification-center';
+import { mediaPreviewContent, madeMediaPreviewContent, settledPreview, type MadePreview } from '../../../../ui/show/media-preview';
 import { previewStore } from './made-previews';
-import timelineLevels from '../../parts/ui/show/record-views/timeline-zoom-levels.json';
+import timelineLevels from '../../../../ui/show/record-views/timeline-zoom-levels.json';
 import { baseName, bytesAddress, contentTypeOf, extensionOf, familyOf, previewFor, type FilePreviewRow } from './file-picture';
 import { recordFilter } from './record-filter';
-import { PLACEABLE_SURFACE_MIME, setPlaceableSurfaceDragData } from '../../parts/ui/show/placeable-surface-intent/placeable-surface-intent';
+import { PLACEABLE_SURFACE_MIME, setPlaceableSurfaceDragData } from '../../../../ui/show/placeable-surface-intent/placeable-surface-intent';
 import { readListing } from './api';
 import { refusal } from './failure';
 import { uploadFiles } from './upload';

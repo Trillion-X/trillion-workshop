@@ -3,9 +3,9 @@
 // Package entry for the builder surface. Same mount pattern as the fill entry.
 
 import React from 'react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
-import { ToastProvider } from '@/packages/ui/show/toast';
-import { BuilderView } from '@/packages/ask-questions-sort-answers-follow-up/show/BuilderView';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
+import { ToastProvider } from '../../../../ui/show/toast';
+import { BuilderView } from './BuilderView';
 
 type MountArgs = {
   el: HTMLElement;

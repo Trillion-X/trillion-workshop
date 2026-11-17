@@ -1,14 +1,14 @@
 import {
   connectServiceWithCredentialHandle,
   type ServiceConnectionSeams,
-} from '@/packages/service-connections/do-work/connect-service';
-import { engineSeams } from '@/packages/service-connections/do-work/engine-seams';
+} from './connect-service';
+import { engineSeams } from './engine-seams';
 import {
   deriveConnectionInstanceId,
   type ServiceAcquireDescriptor,
   type ServiceConnectionTarget,
   type ServiceEnvironment,
-} from '@/packages/service-connections/read-data/read-service-connection-options';
+} from '../read-data/read-service-connection-options';
 
 export type BeginAcquisitionDescriptor = {
   connection: ServiceConnectionTarget;

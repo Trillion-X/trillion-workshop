@@ -18,7 +18,7 @@
 //
 // =============================================================================
 
-import type { AwaySummaryData } from '@/packages/away-summary/read-data/read-away-summary';
+import type { AwaySummaryData } from './read-away-summary';
 
 export const AWAY_SUMMARY_GAP_THRESHOLD_MS = 5 * 60 * 1000;
 

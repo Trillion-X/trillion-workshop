@@ -10,7 +10,7 @@ Moved from Trillion-X/trillion (commit b92aa549f2) byte for byte by `tools/move-
 
 ## What stays in the old tree
 
-Its callers in the old tree, `parts/media-composition/do-work/cut-by-events.mjs` and `cut-the-action.mjs` (and `test/video-pipeline.test.mjs`), have not moved, so the old copy stays until they do. The segmentation, crop and colour nets and the mount types the finding names are the detector's, which this tool does not hold.
+Its callers in the old tree, `tools/media-composition/do-work/cut-by-events.mjs` and `cut-the-action.mjs` (and `test/video-pipeline.test.mjs`), have not moved, so the old copy stays until they do. The segmentation, crop and colour nets and the mount types the finding names are the detector's, which this tool does not hold.
 
 ## Files
 

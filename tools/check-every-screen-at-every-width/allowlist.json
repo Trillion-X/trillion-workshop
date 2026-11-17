@@ -25,7 +25,7 @@
     {
       "probe": "contrast",
       "selector": "span.inline-flex.shrink-0 > span.inline-flex > span.relative.inline-flex > span.relative.inline-flex",
-      "decided": "Decided 2026-10-09 (matrix-gate revert): a person's initials mark mixes 70% of its hue into the words (parts/ui/show/display-mark/DisplayMark.tsx); on the greener hues that is about 4.3 to 1, reported, never changed to pass."
+      "decided": "Decided 2026-10-09 (matrix-gate revert): a person's initials mark mixes 70% of its hue into the words (tools/ui/show/display-mark/DisplayMark.tsx); on the greener hues that is about 4.3 to 1, reported, never changed to pass."
     }
   ]
 }

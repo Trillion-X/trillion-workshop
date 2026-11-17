@@ -2,7 +2,7 @@ import type {
   CompositionSnapshot,
   SceneNode,
   VisibleEdgeRoute,
-} from '@/packages/documents/read-data/documents';
+} from '../../../../documents/read-data/documents';
 import {
   componentLabel,
   mountComponent as defaultMountComponent,
@@ -11,12 +11,12 @@ import {
   type CompositionComponentMountResult,
   type MountCompositionComponent,
   type OwnerSurfaceMountRegistry,
-} from '@/packages/composition-scene-renderer/show/mount-component';
+} from './mount-component';
 import {
   resolveSourceRenderDescriptor,
   type RenderDescriptor,
   type SourceItemData,
-} from '@/packages/screen-look/read-data/resolve-render-descriptor';
+} from '../../../../screen-look/read-data/resolve-render-descriptor';
 
 export type RenderSceneOptions = {
   readonly mountComponent?: MountCompositionComponent;

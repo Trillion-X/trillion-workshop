@@ -1,4 +1,3 @@
-// parts/service-connections/do-work/workflow-actions.ts
 //
 // Service connection owner-action bridge. Connection facts stay owned by the
 // workflow/action layer; this package only asks that owner to execute actions.

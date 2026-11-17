@@ -12,13 +12,13 @@ const fixtures = vi.hoisted(() => ({
     ] } },
   ],
 }));
-vi.mock('@/packages/ask-questions-sort-answers-follow-up/.bitfield-entry-scope/ask-questions-sort-answers-follow-up/runtime-kit-react', () => ({ useBitfieldData: () => fixtures.feed }));
-vi.mock('@/packages/ask-questions-sort-answers-follow-up/read-data/current-respondent', () => ({
+vi.mock('tools/ask-questions-sort-answers-follow-up/.bitfield-entry-scope/ask-questions-sort-answers-follow-up/runtime-kit-react', () => ({ useBitfieldData: () => fixtures.feed }));
+vi.mock('tools/ask-questions-sort-answers-follow-up/packages/ask-questions-sort-answers-follow-up/read-data/current-respondent', () => ({
   resolveRespondentIdNow: async (value: string) => value,
   freshRespondentId: () => 'draft-unique',
 }));
-vi.mock('@/packages/ask-questions-sort-answers-follow-up/do-work/process-submission', () => ({ processSubmission: fixtures.process }));
-vi.mock('@/packages/ask-questions-sort-answers-follow-up/do-work/run-after-saved-actions', () => ({ runAfterSavedActions: fixtures.afterSaved }));
+vi.mock('tools/ask-questions-sort-answers-follow-up/do-work/process-submission', () => ({ processSubmission: fixtures.process }));
+vi.mock('tools/ask-questions-sort-answers-follow-up/do-work/run-after-saved-actions', () => ({ runAfterSavedActions: fixtures.afterSaved }));
 import { AskQuestionsView } from './AskQuestionsView';
 afterEach(() => { cleanup(); vi.clearAllMocks(); });
 

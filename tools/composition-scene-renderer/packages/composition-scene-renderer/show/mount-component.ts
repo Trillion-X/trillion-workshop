@@ -1,5 +1,5 @@
-import type { SceneNode } from '@/packages/documents/read-data/documents';
-import { createBlindRegistry, type BlindRegistry } from '@/packages/ui/show/blind-registry/blind-registry';
+import type { SceneNode } from '../../../../documents/read-data/documents';
+import { createBlindRegistry, type BlindRegistry } from '../../../../ui/show/blind-registry/blind-registry';
 
 export type ComponentMountState = 'ready' | 'loading' | 'missing' | 'unknown' | 'error';
 

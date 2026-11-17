@@ -14,21 +14,21 @@
 //   4. Nothing here names a source: a call, a colour or a write exists only when the source's row offers it.
 
 import React from 'react';
-import { Badge, Button, Container, ColorDot, EventOptions, EventProperties, Input, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue, Switch, Text, Textarea, TaskRecurrence, addDays, type EventPropertySetting, type EventRepeatSetting, type EventReminderSetting, type TaskRecurrenceValue } from '../../parts/ui';
-import { DateTimePicker } from '../../parts/ui/show/date-picker/DateTimePicker';
-import { DatePicker } from '../../parts/ui/show/date-picker/DatePicker';
-import { Popover, PopoverPopup, PopoverTrigger } from '../../parts/ui/show/coss/ui/popover';
-import { SelectGroup, SelectGroupLabel } from '../../parts/ui/show/coss/ui/select';
-import { SegmentedControl } from '../../parts/ui/show/segmented-control';
-import { NamedIcon } from '../../parts/ui/show/icon';
-import { notify } from '../../parts/ui/show/coss/notifications';
+import { Badge, Button, Container, ColorDot, EventOptions, EventProperties, Input, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue, Switch, Text, Textarea, TaskRecurrence, addDays, type EventPropertySetting, type EventRepeatSetting, type EventReminderSetting, type TaskRecurrenceValue } from '../../../../ui';
+import { DateTimePicker } from '../../../../ui/show/date-picker/DateTimePicker';
+import { DatePicker } from '../../../../ui/show/date-picker/DatePicker';
+import { Popover, PopoverPopup, PopoverTrigger } from '../../../../ui/show/coss/ui/popover';
+import { SelectGroup, SelectGroupLabel } from '../../../../ui/show/coss/ui/select';
+import { SegmentedControl } from '../../../../ui/show/segmented-control';
+import { NamedIcon } from '../../../../ui/show/icon';
+import { notify } from '../../../../ui/show/coss/notifications';
 import { errorWords } from '../../../../ui/show/safe-error-card/sanitize-error-text.ts';
 import { copyTextToClipboard } from '../../../../ui/show/clipboard/copy-text.ts';
-import { addGuests, groupSourcesByAccount, guestFields, presetsFor, recurrenceToRRule, reminderOverrides, removeGuest, rruleToLabel, rruleToRecurrence, type RepeatData } from '../../parts/ui/show/schedule-calendar';
+import { addGuests, groupSourcesByAccount, guestFields, presetsFor, recurrenceToRRule, reminderOverrides, removeGuest, rruleToLabel, rruleToRecurrence, type RepeatData } from '../../../../ui/show/schedule-calendar';
 import { createMeetingJoinRecordingInvocation, isFreshMeetingJoinRecordingInvocation, meetingContextOfCalendarItem } from '../../../../record-voice-and-meetings/do-work/meeting-join-recording.ts';
 import meetingRecordingSettings from '../../../../record-voice-and-meetings/read-data/meeting-start-settings.json';
-import { decodeMeetingCaptureStartPolicy, decideMeetingCaptureStart } from '../../parts/record-audio/read-data/capture-policy';
-import type { CalendarAccount, CalendarControlSource } from '../../parts/ui';
+import { decodeMeetingCaptureStartPolicy, decideMeetingCaptureStart } from '../../../../record-audio/read-data/capture-policy';
+import type { CalendarAccount, CalendarControlSource } from '../../../../ui';
 import formsData from './calendar-event-forms.json';
 import screenData from './shared-calendar.json';
 import { postJson } from './api';

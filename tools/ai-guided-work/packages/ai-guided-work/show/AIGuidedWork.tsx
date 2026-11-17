@@ -1,12 +1,12 @@
 import React, { useCallback } from 'react';
 import { Bot, Route, Sparkles } from 'lucide-react';
-import { Badge, Button, Card, Container, Divider, Form, Icon, Input, Text, Textarea } from '@/packages/ui';
+import { Badge, Button, Card, Container, Divider, Form, Icon, Input, Text, Textarea } from '../../../../ui';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
 import {
   startAIGuidedWork,
   type AIGuidedWorkReceipt,
-} from '@/packages/ai-guided-work/do-work/start-ai-guided-work';
-import { decodeAIGuidedWorkSurface } from '@/packages/ai-guided-work/read-data/read-ai-guided-work';
+} from '../do-work/start-ai-guided-work';
+import { decodeAIGuidedWorkSurface } from '../read-data/read-ai-guided-work';
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (

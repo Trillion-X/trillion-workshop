@@ -9,11 +9,11 @@ import {
   PathRail,
   ProtocolSession,
   Text,
-} from '@/packages/ui';
-import type { PathNodeView, PathStatusOverrides } from '@/packages/ui/show/path-rail';
-import { resolveNamedIcon } from '@/packages/ui/show/icon/NamedIcon';
-import type { SessionSummary } from '@/packages/ui/show/protocol-session/protocol-session-machine';
-import type { ProtocolSessionStep } from '@/packages/ui/show/protocol-session/ProtocolSession';
+} from '../../../../ui';
+import type { PathNodeView, PathStatusOverrides } from '../../../../ui/show/path-rail';
+import { resolveNamedIcon } from '../../../../ui/show/icon/NamedIcon';
+import type { SessionSummary } from '../../../../ui/show/protocol-session/protocol-session-machine';
+import type { ProtocolSessionStep } from '../../../../ui/show/protocol-session/ProtocolSession';
 import {
   buildActionsIndex,
   deriveSections,

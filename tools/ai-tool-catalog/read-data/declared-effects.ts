@@ -1,4 +1,3 @@
-// parts/ai-tool-catalog/read-data/declared-effects.ts
 //
 // PURPOSE
 //   What a tool's run changes on the screens that show it, declared once on the tool's own row (`effects`), so every

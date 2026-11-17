@@ -6,11 +6,11 @@ vi.mock('@bitfield/runtime-kit', () => ({
   sendRequestToBitfieldTarget: vi.fn(async () => ({ ok: true })),
 }));
 
-import { BuilderSurface } from '@/packages/ask-questions-sort-answers-follow-up/show/BuilderSurface';
+import { BuilderSurface } from './BuilderSurface';
 import {
   indexCapabilities,
   type QuestionTypeCapability,
-} from '@/packages/ask-questions-sort-answers-follow-up/read-data/question-descriptor';
+} from '../read-data/question-descriptor';
 
 const CAPS: QuestionTypeCapability[] = [
   { questionTypeId: 'text', inputComponentKey: 'text', coerce: 'string', label: 'Text' },

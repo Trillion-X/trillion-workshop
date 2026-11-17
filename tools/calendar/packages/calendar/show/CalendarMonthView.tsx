@@ -1,7 +1,7 @@
 import React from 'react';
-import { ColorDot } from '@/packages/ui/show/color-dot';
-import { Container } from '@/packages/ui/show/container';
-import { Text } from '@/packages/ui/show/text';
+import { ColorDot } from '../../../../ui/show/color-dot';
+import { Container } from '../../../../ui/show/container';
+import { Text } from '../../../../ui/show/text';
 import type { CalendarScreenModel } from './calendar-screen-model';
 import type { CalendarViewDescriptor } from '../read-data/read-calendar-view-descriptors';
 import { blocksForDay, monthViewDays, monthViewLabel } from './calendar-view-dates';

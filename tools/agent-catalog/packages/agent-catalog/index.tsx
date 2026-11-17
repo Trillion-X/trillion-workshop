@@ -1,7 +1,7 @@
 import React from 'react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { decodeCatalogFeed } from '@/packages/agent-catalog/read-data/read-agent-catalog';
-import { AgentCatalog } from '@/packages/agent-catalog/show/AgentCatalog';
+import { decodeCatalogFeed } from './read-data/read-agent-catalog';
+import { AgentCatalog } from './show/AgentCatalog';
 
 function AgentCatalogContents() {
   const catalogEntry = useBitfieldData();
@@ -17,6 +17,6 @@ export default function AgentCatalogPackage() {
   return <AgentCatalogContents />;
 }
 
-export { AgentCatalog } from '@/packages/agent-catalog/show/AgentCatalog';
-export { OrganizationalChart } from '@/packages/agent-catalog/show/OrganizationalChart';
-export { decodeAgentRoleCatalogFeed } from '@/packages/agent-catalog/read-data/read-agent-role-catalog';
+export { AgentCatalog } from './show/AgentCatalog';
+export { OrganizationalChart } from './show/OrganizationalChart';
+export { decodeAgentRoleCatalogFeed } from './read-data/read-agent-role-catalog';

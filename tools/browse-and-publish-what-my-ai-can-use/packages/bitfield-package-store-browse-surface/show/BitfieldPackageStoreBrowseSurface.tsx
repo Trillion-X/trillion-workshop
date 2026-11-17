@@ -4,18 +4,18 @@ import {
   buildEngineReadCurrentRequestFromLabels,
   decodeEngineReadCurrentReply,
 } from '@bitfield/runtime-kit/protocol';
-import { Badge } from '@/packages/ui/show/badge';
-import { Button, buttonVariants } from '@/packages/ui/show/button';
-import { Card } from '@/packages/ui/show/card';
-import { Input } from '@/packages/ui/show/input';
-import { Text } from '@/packages/ui/show/text';
+import { Badge } from '../../../../ui/show/badge';
+import { Button, buttonVariants } from '../../../../ui/show/button';
+import { Card } from '../../../../ui/show/card';
+import { Input } from '../../../../ui/show/input';
+import { Text } from '../../../../ui/show/text';
 import { PointillistPackagePreviewCanvas } from './PointillistPackagePreviewCanvas';
 import { PresentationSectionRenderer } from './PresentationSectionRenderer';
 import { AICurationPanelComponent } from './AICurationPanelComponent';
 import { StoreRatingsReviews } from './StoreRatingsReviews';
-import { StatStrip } from '@/packages/ui/show/stat-strip';
+import { StatStrip } from '../../../../ui/show/stat-strip';
 import { SearchModeRow, SEARCH_MODES } from './SearchModeRow';
-import { Container } from '@/packages/ui/show/container';
+import { Container } from '../../../../ui/show/container';
 import {
   type BrowseHeroSceneConfig,
   type BrowseInstallDestinationOption,

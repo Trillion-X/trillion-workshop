@@ -5,11 +5,11 @@
 //   how a source's row is found, the words for a time, and the two roads that run a source's action (an action row's own
 //   road, and a provider write that is only done when Workshop says it completed).
 
-import type { EventPropertyChoice, EventPropertySetting } from '../../parts/ui';
-import type { TaskRecurrenceValue } from '../../parts/ui/show/task-recurrence/TaskRecurrence';
+import type { EventPropertyChoice, EventPropertySetting } from '../../../../ui';
+import type { TaskRecurrenceValue } from '../../../../ui/show/task-recurrence/TaskRecurrence';
 import sourceData from '../calendar.json';
 import screenData from './shared-calendar.json';
-import { notify } from '../../parts/ui/show/coss/notifications';
+import { notify } from '../../../../ui/show/coss/notifications';
 import { errorWords } from '../../../../ui/show/safe-error-card/sanitize-error-text.ts';
 import { postJson } from './api';
 import { openAddress, openScreen } from './open-screen';

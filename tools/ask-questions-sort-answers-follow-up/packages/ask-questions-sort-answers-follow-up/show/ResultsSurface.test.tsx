@@ -1,8 +1,8 @@
 // packages/ask-questions-sort-answers-follow-up/show/ResultsSurface.test.tsx
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
-import { ResultsSurface } from '@/packages/ask-questions-sort-answers-follow-up/show/ResultsSurface';
-import { buildResultsModel } from '@/packages/ask-questions-sort-answers-follow-up/read-data/results-model';
+import { ResultsSurface } from './ResultsSurface';
+import { buildResultsModel } from '../../../read-data/results-model';
 
 const ENTRY = [
   { payload: { kind: 'segment-assignment', formId: 'intake', respondentId: 'r1', segmentId: 'hot', score: 22, decided_at: '2026-06-26T01:00:00.000Z' } },

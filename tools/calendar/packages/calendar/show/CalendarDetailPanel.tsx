@@ -16,13 +16,13 @@
 // Container props).
 
 import React from 'react';
-import { Badge } from '@/packages/ui/show/badge';
-import { Button } from '@/packages/ui/show/button';
-import { ColorDot } from '@/packages/ui/show/color-dot';
-import { Container } from '@/packages/ui/show/container';
-import { Divider } from '@/packages/ui/show/divider/Divider';
-import { PlaceableSurfaceHost } from '@/packages/ui/show/placeable-surface-host';
-import { Text } from '@/packages/ui/show/text';
+import { Badge } from '../../../../ui/show/badge';
+import { Button } from '../../../../ui/show/button';
+import { ColorDot } from '../../../../ui/show/color-dot';
+import { Container } from '../../../../ui/show/container';
+import { Divider } from '../../../../ui/show/divider/Divider';
+import { PlaceableSurfaceHost } from '../../../../ui/show/placeable-surface-host';
+import { Text } from '../../../../ui/show/text';
 import type { CalendarActionModel, CalendarScreenModel } from './calendar-screen-model';
 import { labelForBlockState } from './calendar-screen-model';
 

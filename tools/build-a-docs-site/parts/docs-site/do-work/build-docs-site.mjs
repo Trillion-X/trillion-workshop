@@ -1,4 +1,3 @@
-// parts/docs-site/do-work/build-docs-site.mjs
 //
 // Purpose: turn one person's docs manifest (site facts, navigation, pages, two colour palettes) into the complete set
 //   of files a Mintlify docs site is made of: docs.json, theme.css, theme.js, llms.txt and every page as MDX. The

@@ -30,10 +30,10 @@
 import React from 'react';
 import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { mountReactSurface } from '@/packages/ui';
+import { mountReactSurface } from '../../../../ui';
 import { completeSupabaseSignIn } from '@/packages/supabase-sign-in/do-work/complete-supabase-sign-in';
 import { readSupabaseSignInDescriptor } from '@/packages/supabase-sign-in/read-data/read-supabase-sign-in-records';
-import { currentLogBrowserSessionBrowserId } from '@/packages/account-session/do-work/browser-session-browser-id';
+import { currentLogBrowserSessionBrowserId } from '../../../do-work/browser-session-browser-id';
 
 /** The query param that marks a returning magic-link completion. DATA-stable contract. */
 const COMPLETE_PARAM = 'supabase_sign_in';

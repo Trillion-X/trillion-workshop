@@ -13,14 +13,14 @@
 //   3. Nothing here keeps state: the screen owns what is marked, what is busy and when to read again.
 
 import React from 'react';
-import { Button, Container, Text } from '../../parts/ui';
-import { DatePicker } from '../../parts/ui/show/date-picker/DatePicker';
-import { DateTimePicker } from '../../parts/ui/show/date-picker/DateTimePicker';
-import { TaskRecurrence, type TaskRecurrenceValue } from '../../parts/ui/show/task-recurrence/TaskRecurrence';
+import { Button, Container, Text } from '../../../../ui';
+import { DatePicker } from '../../../../ui/show/date-picker/DatePicker';
+import { DateTimePicker } from '../../../../ui/show/date-picker/DateTimePicker';
+import { TaskRecurrence, type TaskRecurrenceValue } from '../../../../ui/show/task-recurrence/TaskRecurrence';
 import { errorWords } from '../../../../ui/show/safe-error-card/sanitize-error-text.ts';
 import { copyTextToClipboard } from '../../../../ui/show/clipboard/copy-text.ts';
-import { NamedIcon } from '../../parts/ui/show/icon';
-import type { NodeActionCapability } from '../../parts/ui/show/node-actions';
+import { NamedIcon } from '../../../../ui/show/icon';
+import type { NodeActionCapability } from '../../../../ui/show/node-actions';
 import taskData from '../calendar-tasks.json';
 import tray from './calendar-task-tray.json';
 import screenData from './shared-calendar.json';

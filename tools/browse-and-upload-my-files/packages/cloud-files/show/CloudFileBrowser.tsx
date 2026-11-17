@@ -1,14 +1,14 @@
 import React from 'react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { Button, Card, Container, Text } from '@/packages/ui';
+import { Button, Card, Container, Text } from '../../../../ui';
 import {
   decodeCloudFileSources,
   type CloudFileSource,
-} from '@/packages/cloud-files/read-data/read-cloud-file-sources';
+} from '../read-data/read-cloud-file-sources';
 import {
   readCloudDirectory,
   type CloudFileEntry,
-} from '@/packages/cloud-files/read-data/read-cloud-directory';
+} from '../read-data/read-cloud-directory';
 
 function sourceLabel(source: CloudFileSource): string {
   return source.provider ? `${source.name} (${source.provider})` : source.name;

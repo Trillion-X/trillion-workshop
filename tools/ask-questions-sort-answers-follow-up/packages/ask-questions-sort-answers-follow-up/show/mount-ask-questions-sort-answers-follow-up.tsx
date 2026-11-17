@@ -5,9 +5,9 @@
 // ToastProvider + View). The build pipeline turns this into a component_id.
 
 import React from 'react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
-import { ToastProvider } from '@/packages/ui/show/toast';
-import { AskQuestionsView } from '@/packages/ask-questions-sort-answers-follow-up/show/AskQuestionsView';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
+import { ToastProvider } from '../../../../ui/show/toast';
+import { AskQuestionsView } from './AskQuestionsView';
 
 type MountArgs = {
   el: HTMLElement;

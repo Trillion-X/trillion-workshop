@@ -20,20 +20,20 @@
 //   4. Presence never names anyone itself: the room gives each person the name they show in the space.
 
 import React from 'react';
-import { mountRecordViews, RecordViews, type FieldDescriptor, type RecordView, type RecordViewContext, type RecordViewsOptions } from '../../parts/ui/show/record-views/record-views';
-import { loadScreen } from '../../parts/ui/show/screen-state';
-import { notify } from '../../parts/ui/show/coss/notifications';
-import { Button, Container, Input, QuickCreate, type SelectionFormatCommand, ScheduleCalendar, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue, Tabs, TabsContent, TaskProperties, Text, addDays, dayStart, dayKey, planSchedule, timeboxEvent, visibleDays, visibleRange, type ScheduleRange, type ScheduleVerbRegistrar, type SchedulePlan, type ScheduleView } from '../../parts/ui';
-import { DateTimePicker } from '../../parts/ui/show/date-picker/DateTimePicker';
-import { DatePicker } from '../../parts/ui/show/date-picker/DatePicker';
-import { TaskRecurrence, type TaskRecurrenceValue } from '../../parts/ui/show/task-recurrence/TaskRecurrence';
-import { LiveSurfacePeopleOverlay, LiveSurfacePeopleRoster } from '../../parts/ui/show/live-surface-people';
-import { useSurfacePresence } from '../../parts/group/show/use-surface-presence';
+import { mountRecordViews, RecordViews, type FieldDescriptor, type RecordView, type RecordViewContext, type RecordViewsOptions } from '../../../../ui/show/record-views/record-views';
+import { loadScreen } from '../../../../ui/show/screen-state';
+import { notify } from '../../../../ui/show/coss/notifications';
+import { Button, Container, Input, QuickCreate, type SelectionFormatCommand, ScheduleCalendar, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue, Tabs, TabsContent, TaskProperties, Text, addDays, dayStart, dayKey, planSchedule, timeboxEvent, visibleDays, visibleRange, type ScheduleRange, type ScheduleVerbRegistrar, type SchedulePlan, type ScheduleView } from '../../../../ui';
+import { DateTimePicker } from '../../../../ui/show/date-picker/DateTimePicker';
+import { DatePicker } from '../../../../ui/show/date-picker/DatePicker';
+import { TaskRecurrence, type TaskRecurrenceValue } from '../../../../ui/show/task-recurrence/TaskRecurrence';
+import { LiveSurfacePeopleOverlay, LiveSurfacePeopleRoster } from '../../../../ui/show/live-surface-people';
+import { useSurfacePresence } from '../../../../organize-the-sidebar/show/use-surface-presence';
 import { errorWords } from '../../../../ui/show/safe-error-card/sanitize-error-text.ts';
 import { copyTextToClipboard } from '../../../../ui/show/clipboard/copy-text.ts';
-import { BulkSelectBar } from '../../parts/ui/show/bulk-select-bar';
-import { bindContainerSize } from '../../parts/ui/show/container-size';
-import type { NodeActionCapability, NodeRef } from '../../parts/ui/show/node-actions';
+import { BulkSelectBar } from '../../../../ui/show/bulk-select-bar';
+import { bindContainerSize } from '../../../../ui/show/container-size';
+import type { NodeActionCapability, NodeRef } from '../../../../ui/show/node-actions';
 import screenData from './shared-calendar.json';
 import sourceData from '../calendar.json';
 import { postJson, postJsonByKey, readJson } from './api';
@@ -48,7 +48,7 @@ import { recordConfigurationSource } from './record-configurations';
 import { makeConfigurationController } from '../../../../keep-lists-of-rows/read-data/configuration-controller.mjs';
 import taskListData from '../calendar-tasks.json';
 import listData from '../lists.json';
-import { ArrangedContents } from '../../parts/screen-arrangement/show/ArrangedContents';
+import { ArrangedContents } from '../../../../screen-arrangement/show/ArrangedContents';
 import { PlanningSettings } from './planning-settings';
 import { TodoListsSettings } from './todo-lists-settings';
 import { EmailTodoSettings } from './email-todo-settings';
@@ -61,19 +61,19 @@ import { KEYMAP, currentRows, onMac, registerVerb, subscribeKeymap, type Effecti
 import { shownChord } from './keymap.mjs';
 import { calendarKeyActions, shortcutOfAction } from './calendar-key-actions';
 import { TASK_KEY, VerbList, VerbPanel, taskVerbs, verbForKey, verbsAsNodeActions, type Verb, type VerbContext } from './task-verbs';
-import { formatElapsed, useElapsedSeconds } from '../../parts/group/show/use-elapsed';
+import { formatElapsed, useElapsedSeconds } from '../../../../organize-the-sidebar/show/use-elapsed';
 import { CalendarControls, calendarFormatChoice, calendarZoneGutters, type CalendarAccount, type CalendarControlPreferences, type CalendarSelection } from './calendar-controls';
 import { itemsOf } from '../calendar.mjs';
 import { EmailSurface, type MailMessageFacts } from './email-screen';
-import { Checkbox } from '../../parts/ui/show/coss/ui/checkbox';
-import { Popover, PopoverTrigger, PopoverPopup } from '../../parts/ui/show/coss/ui/popover';
-import { later } from '../../parts/ui/show/load-later/later';
-import { timeAt } from '../../parts/ui/show/schedule-calendar';
-import { addRange } from '../../parts/calendar-booker/show/slot-ranges.mjs';
-import slotWords from '../../parts/calendar-booker/read-data/slot-sharing.json';
-import { NamedIcon } from '../../parts/ui/show/icon';
-import { mountSharedContent } from '../../parts/ui/show/coss/shared-content';
-import { releaseNode } from '../../parts/ui/show/one-owner-per-node';
+import { Checkbox } from '../../../../ui/show/coss/ui/checkbox';
+import { Popover, PopoverTrigger, PopoverPopup } from '../../../../ui/show/coss/ui/popover';
+import { later } from '../../../../ui/show/load-later/later';
+import { timeAt } from '../../../../ui/show/schedule-calendar';
+import { addRange } from '../../../../calendar-booker/show/slot-ranges.mjs';
+import slotWords from '../../../../calendar-booker/read-data/slot-sharing.json';
+import { NamedIcon } from '../../../../ui/show/icon';
+import { mountSharedContent } from '../../../../ui/show/coss/shared-content';
+import { releaseNode } from '../../../../ui/show/one-owner-per-node';
 import { DockedComposer } from './global-composer';
 
 /** One day's change to the standing working hours (the planner subtracts it). */
@@ -191,8 +191,8 @@ function TaskTrayProjectionView({context, onProjection}: {context: RecordViewCon
 
 const words = screenData.words;
 // Sharing time is drawn only once opened or entered, so its code is fetched then.
-const ShareLinksMenu = later(() => import('../../parts/calendar-booker/show/SlotSharing'), module => module.ShareLinksMenu);
-const SlotBar = later(() => import('../../parts/calendar-booker/show/SlotSharing'), module => module.SlotBar);
+const ShareLinksMenu = later(() => import('../../../../calendar-booker/show/SlotSharing'), module => module.ShareLinksMenu);
+const SlotBar = later(() => import('../../../../calendar-booker/show/SlotSharing'), module => module.SlotBar);
 
 const VIEWS = screenData.views as { id: string; label: string; icon: string; view: ScheduleView }[];
 /** The calendar screens' keys are the rows of the one keymap whose scope is one of these; the calendar names what it can do and the keymap binds keys. */
@@ -737,18 +737,18 @@ export function mountSharedCalendarScreen(element: HTMLElement, props: { surface
     finally { connectionsBusy = false; redraw(); }
   }
 
-  const availabilityDraft: import('../../parts/calendar-booker/show/AvailabilityLinks').AvailabilityLinkDraftState = {};
+  const availabilityDraft: import('../../../../calendar-booker/show/AvailabilityLinks').AvailabilityLinkDraftState = {};
   const availabilityLinks = {
     retainedDraft: availabilityDraft,
     subscribeChanges: onStoreChange,
     listLinks: (after?: string) => {
       const query = new URLSearchParams({ limit: '25' });
       if (after) query.set('after', after);
-      return readJson<{ links: import('../../parts/calendar-booker/show/AvailabilityLinks').AvailabilityLink[]; next_cursor?: string | null }>(`/work/api/calendar/availability?${query}`);
+      return readJson<{ links: import('../../../../calendar-booker/show/AvailabilityLinks').AvailabilityLink[]; next_cursor?: string | null }>(`/work/api/calendar/availability?${query}`);
     },
-    readLink: (id: string) => postJson<import('../../parts/calendar-booker/show/AvailabilityLinks').AvailabilityLink>('/work/api/calendar/availability', { action: 'read', input: { link_id: id } }),
+    readLink: (id: string) => postJson<import('../../../../calendar-booker/show/AvailabilityLinks').AvailabilityLink>('/work/api/calendar/availability', { action: 'read', input: { link_id: id } }),
     readOffers: (id: string) => postJson<{link: {timezone: string}; slots: {startMs: number; endMs: number}[]}>('/work/api/calendar/availability', { action: 'offered-times', input: { link_id: id } }),
-    mutate: (action: import('../../parts/calendar-booker/show/AvailabilityLinks').AvailabilityLinkAction, input: Record<string, unknown>, requestKey: string) =>
+    mutate: (action: import('../../../../calendar-booker/show/AvailabilityLinks').AvailabilityLinkAction, input: Record<string, unknown>, requestKey: string) =>
       postJsonByKey('/work/api/calendar/availability', { action, input: { ...input, request_key: requestKey }, request_key: requestKey }),
     onShare: async (id: string, title: string, anchor: Element | null) => {
       (await import('./sharing-sheet')).openSharing(`availability-link:${id}`, { title, anchor });

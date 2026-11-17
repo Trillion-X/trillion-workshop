@@ -155,6 +155,6 @@ test('applyPatch changes only the path it touches and leaves the model given as 
 });
 
 // Trillion's other four tests stay there with the callers they run: 'every declared part has its component' reads
-// src/workspace/declared-parts.ts; 'every row names only props its part takes' reads the parts' sources under parts/ui/;
+// src/workspace/declared-parts.ts; 'every row names only props its part takes' reads the parts' sources under tools/ui/;
 // 'make_screen keeps the finished lines' runs src/screen-view.mjs; 'the AI app bridge hands the growing arguments'
-// runs parts/ui/show/ai-app-bridge/ai-app-bridge.mjs.
+// runs tools/ui/show/ai-app-bridge/ai-app-bridge.mjs.

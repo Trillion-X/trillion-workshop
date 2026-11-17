@@ -14,8 +14,8 @@ import packageManifest from '../things-to-store-and-run.json';
 import { cleanup, render, fireEvent, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { FillSurface } from "@/packages/ask-questions-sort-answers-follow-up/show/FillSurface";
-import { indexCapabilities } from "@/packages/ask-questions-sort-answers-follow-up/read-data/question-descriptor";
+import { FillSurface } from "./FillSurface";
+import { indexCapabilities } from "../read-data/question-descriptor";
 
 afterEach(() => cleanup());
 

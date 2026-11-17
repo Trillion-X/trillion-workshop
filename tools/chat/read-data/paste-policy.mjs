@@ -1,4 +1,3 @@
-// parts/chat/read-data/paste-policy.mjs
 //
 // Purpose: the one owner of what a paste into a composer becomes (hand-offs, notes, AI chat). Pure: it reads what was on
 // the clipboard and answers { action: 'insert' } (let the field take it, so undo keeps working), { action: 'attach_text',

@@ -10,8 +10,8 @@
 //   2. The form shows what is stored, read from the same road it writes to; a failed write says so and changes nothing.
 //   3. A change that answers an undo can be undone from the form.
 import React from 'react';
-import { Button, Container, errorWords, Input, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue, Switch, Text, timeboxPolicies } from '../../parts/ui';
-import { SegmentedControl } from '../../parts/ui/show/segmented-control';
+import { Button, Container, errorWords, Input, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue, Switch, Text, timeboxPolicies } from '../../../../ui';
+import { SegmentedControl } from '../../../../ui/show/segmented-control';
 import quietModes from '../../../../run-work-later-or-on-a-repeat/do-work/quiet-hours.json' with { type: 'json' };
 import words from './planning-settings.json' with { type: 'json' };
 import { postJson, readJson } from './api';

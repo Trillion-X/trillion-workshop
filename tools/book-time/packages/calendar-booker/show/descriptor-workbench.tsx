@@ -27,10 +27,10 @@
 // =============================================================================
 
 import * as React from 'react';
-import { Container, Spinner, Text } from '@/packages/ui';
-import { DescriptorSurface } from '@/packages/calendar-booker/show/descriptor-surface';
-import type { RenderCapabilityMap } from '@/packages/calendar-booker/show/render-capability-map';
-import type { ActionDescriptor, ViewDescriptor } from '@/packages/calendar-booker/show/view-descriptor';
+import { Container, Spinner, Text } from '../../../../ui';
+import { DescriptorSurface } from './descriptor-surface';
+import type { RenderCapabilityMap } from './render-capability-map';
+import type { ActionDescriptor, ViewDescriptor } from './view-descriptor';
 
 export type DescriptorWorkbenchPhase = 'loading' | 'ready' | 'error';
 

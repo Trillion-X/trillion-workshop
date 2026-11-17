@@ -2,7 +2,7 @@
 //
 // PURPOSE
 //   The Marketplace (entry `marketplace`): one shelf of everything a person or their AI can pick up, tools, workflows,
-//   studied screens and every kind added later, drawn as the same cards (parts/ui ListingCard) or as a table. A person
+//   studied screens and every kind added later, drawn as the same cards (tools/ui ListingCard) or as a table. A person
 //   switches between kinds and between everyone's and their own, searches the whole shelf, narrows a kind by the
 //   choices its owner lists (Filter by, in the view bar), opens one in its own tab or its original on the web, and
 //   publishes one of their own for every account's AI, or withdraws it, or uses any row as its kind allows (wears a look).
@@ -24,16 +24,16 @@
 
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { RecordViews, type BulkAction, type FieldDescriptor, type RecordView } from '../../parts/ui/show/record-views/record-views';
-import { ListingGrid, type Listing } from '../../parts/ui/show/listing-card';
-import { ExpandableTabs } from '../../parts/ui/show/expandable-tabs';
-import { Button } from '../../parts/ui/show/button';
-import { Container, Input, Switch, Text } from '../../parts/ui';
-import { MarketplacePreview, type MarketplacePreviewItem } from '../../parts/ui/show/marketplace-preview/MarketplacePreview';
-import { mountSharedContent } from '../../parts/ui/show/coss/shared-content';
-import { notify } from '../../parts/ui/show/coss/notifications';
-import { loadScreen } from '../../parts/ui/show/screen-state';
-import { PLACEABLE_SURFACE_MIME } from '../../parts/ui/show/placeable-surface-intent/placeable-surface-intent';
+import { RecordViews, type BulkAction, type FieldDescriptor, type RecordView } from '../../../../ui/show/record-views/record-views';
+import { ListingGrid, type Listing } from '../../../../ui/show/listing-card';
+import { ExpandableTabs } from '../../../../ui/show/expandable-tabs';
+import { Button } from '../../../../ui/show/button';
+import { Container, Input, Switch, Text } from '../../../../ui';
+import { MarketplacePreview, type MarketplacePreviewItem } from '../../../../ui/show/marketplace-preview/MarketplacePreview';
+import { mountSharedContent } from '../../../../ui/show/coss/shared-content';
+import { notify } from '../../../../ui/show/coss/notifications';
+import { loadScreen } from '../../../../ui/show/screen-state';
+import { PLACEABLE_SURFACE_MIME } from '../../../../ui/show/placeable-surface-intent/placeable-surface-intent';
 import { readJson } from './api';
 import { recordFilter } from './record-filter';
 import { askFor, reasonOf, refusal } from './failure';

@@ -9,23 +9,23 @@
 
 import React, { useState } from 'react';
 import { ClipboardList, CheckCircle2, AlertTriangle } from 'lucide-react';
-import { Card } from '@/packages/ui/show/card/Card';
-import { Container } from '@/packages/ui/show/container/container';
-import { Text } from '@/packages/ui/show/text/Text';
-import { Button } from '@/packages/ui/show/button/Button';
-import { Badge } from '@/packages/ui/show/badge/Badge';
-import { WorkStartState, WorkSkeletonRows } from '@/packages/ui/show/work-start-state/WorkStartState';
+import { Card } from '../../../../ui/show/card/Card';
+import { Container } from '../../../../ui/show/container/container';
+import { Text } from '../../../../ui/show/text/Text';
+import { Button } from '../../../../ui/show/button/Button';
+import { Badge } from '../../../../ui/show/badge/Badge';
+import { WorkStartState, WorkSkeletonRows } from '../../../../ui/show/work-start-state/WorkStartState';
 
 import {
   buildFillScreenModel,
   type FillScreenModel,
-} from '@/packages/ask-questions-sort-answers-follow-up/read-data/fill-screen-model';
-import { resolveInputComponent } from '@/packages/ask-questions-sort-answers-follow-up/show/inputs';
-import { coerceAnswer } from '@/packages/ask-questions-sort-answers-follow-up/read-data/validate-answer';
+} from '../../../read-data/fill-screen-model';
+import { resolveInputComponent } from './inputs';
+import { coerceAnswer } from '../read-data/validate-answer';
 import type {
   QuestionSequence,
   QuestionTypeCapability,
-} from '@/packages/ask-questions-sort-answers-follow-up/read-data/question-descriptor';
+} from '../read-data/question-descriptor';
 
 /** The respondent's own computed outcome, shown back to them after they submit —
  *  so a guided exercise ENDS in insight ("here is where your answers point"),

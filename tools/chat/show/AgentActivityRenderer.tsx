@@ -20,7 +20,7 @@
 //
 // 1. ONE component renders ALL AgentMessage types — no per-view dispatch logic
 // 2. ALL styling through ui/ component props only — zero raw HTML, zero className
-// 3. Import ONLY from @/packages/ui barrel — never relative ../../ui paths
+// 3. Import ONLY from tools/ui barrel — never relative ../../ui paths
 // 4. Human messages must NEVER be passed here — ChatMessage handles human
 // 5. ToolUseBlock handles tool_use + tool_result — do not duplicate that logic
 //

@@ -457,7 +457,7 @@
         },
         "result_selector": "$.result",
         "provenance": {
-          "source": "Trillion-X/trillion parts/screen-matrix/check-screens.mjs, in-page.mjs, views.json, allowlist.json and vendor/darkreader.js, moved in a9ee258 (#76); old capability row capabilities.json:558 at 4ffa1dc4a2^ (open every screen at every width and device setting and read every piece of text a person can see, before going live). check-given-pages.mjs is new: it serves the given pages inside the browser and runs runMatrix over them."
+          "source": "Trillion-X/trillion tools/check-every-screen-at-every-width/check-screens.mjs, in-page.mjs, views.json, allowlist.json and vendor/darkreader.js, moved in a9ee258 (#76); old capability row capabilities.json:558 at 4ffa1dc4a2^ (open every screen at every width and device setting and read every piece of text a person can see, before going live). check-given-pages.mjs is new: it serves the given pages inside the browser and runs runMatrix over them."
         },
         "verify": [
           {

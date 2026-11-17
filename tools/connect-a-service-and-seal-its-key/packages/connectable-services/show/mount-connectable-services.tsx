@@ -1,5 +1,5 @@
 import React from 'react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
 import { ConnectableServicesPanel } from './ConnectableServicesPanel';
 
 type MountArgs = {

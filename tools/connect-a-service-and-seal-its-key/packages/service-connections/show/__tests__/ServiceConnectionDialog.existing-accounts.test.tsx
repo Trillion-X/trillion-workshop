@@ -16,9 +16,9 @@ import React from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { ServiceConnectionDialog } from '@/packages/service-connections/show/ServiceConnectionDialog';
-import type { ServiceAuthConfig } from '@/packages/service-connections/read-data/read-service-connection-options';
-import { LAYER_ORDER } from '@/packages/ui';
+import { ServiceConnectionDialog } from '../ServiceConnectionDialog';
+import type { ServiceAuthConfig } from '../../../../read-data/read-service-connection-options';
+import { LAYER_ORDER } from '../../../../../ui';
 
 afterEach(cleanup);
 

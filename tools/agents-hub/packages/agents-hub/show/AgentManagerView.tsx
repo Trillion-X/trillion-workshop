@@ -39,7 +39,7 @@ import {
   NamedIcon,
   SegmentedControl,
   Text,
-} from '@/packages/ui';
+} from '../../../../ui';
 import type {
   AgentCardViewModel,
   CapabilityIconConfig,
@@ -50,8 +50,8 @@ import type {
   PermissionRow,
   ToolDescriptorRecord,
   ConversationSessionRow,
-} from '@/packages/agents-hub/read-data/resolve-agent-cards';
-import { formatRelativeTime, resolvePlacement } from '@/packages/agents-hub/read-data/resolve-agent-cards';
+} from '../read-data/resolve-agent-cards';
+import { formatRelativeTime, resolvePlacement } from '../read-data/resolve-agent-cards';
 
 export type ManagerTab = 'profile' | 'tools' | 'models' | 'runs' | 'memory' | 'instructions' | 'permissions';
 

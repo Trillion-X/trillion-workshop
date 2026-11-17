@@ -6,9 +6,9 @@
 // `options:[{label,value}]` shape, not redesigned).
 
 import React from 'react';
-import { SegmentedControl } from '@/packages/ui/show/segmented-control/SegmentedControl';
-import { QuestionField } from '@/packages/ask-questions-sort-answers-follow-up/show/inputs/QuestionField';
-import type { QuestionInputProps } from '@/packages/ask-questions-sort-answers-follow-up/read-data/question-input-contract';
+import { SegmentedControl } from '../../../../../ui/show/segmented-control/SegmentedControl';
+import { QuestionField } from './QuestionField';
+import type { QuestionInputProps } from '../../../../read-data/question-input-contract';
 
 export function ChoiceInput({
   questionId,

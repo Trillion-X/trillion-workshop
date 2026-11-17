@@ -3,9 +3,9 @@
 // Package entry for the operator results surface.
 
 import React from 'react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
-import { ToastProvider } from '@/packages/ui/show/toast';
-import { ResultsView } from '@/packages/ask-questions-sort-answers-follow-up/show/ResultsView';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
+import { ToastProvider } from '../../../../ui/show/toast';
+import { ResultsView } from './ResultsView';
 
 type MountArgs = {
   el: HTMLElement;

@@ -5,11 +5,11 @@
 // different form / field map / columns is a data change, never code (L090).
 
 import React from 'react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
-import { ToastProvider } from '@/packages/ui/show/toast';
-import { ProgressView, type ProgressViewProps } from '@/packages/ask-questions-sort-answers-follow-up/show/ProgressView';
-import type { ProgressColumn } from '@/packages/ask-questions-sort-answers-follow-up/show/ProgressSurface';
-import type { ProgressFieldMap } from '@/packages/ask-questions-sort-answers-follow-up/read-data/session-progress-rows';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
+import { ToastProvider } from '../../../../ui/show/toast';
+import { ProgressView, type ProgressViewProps } from './ProgressView';
+import type { ProgressColumn } from './ProgressSurface';
+import type { ProgressFieldMap } from '../../../read-data/session-progress-rows';
 
 type MountArgs = { el: HTMLElement; props?: Record<string, unknown> };
 

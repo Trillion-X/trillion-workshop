@@ -5,8 +5,8 @@
 
 import React from 'react';
 import { useBitfieldData } from '@/packages/ask-questions-sort-answers-follow-up/.bitfield-entry-scope/ask-questions-sort-answers-follow-up/runtime-kit-react';
-import { ResultsSurface } from '@/packages/ask-questions-sort-answers-follow-up/show/ResultsSurface';
-import { buildResultsModel } from '@/packages/ask-questions-sort-answers-follow-up/read-data/results-model';
+import { ResultsSurface } from './ResultsSurface';
+import { buildResultsModel } from '../../../read-data/results-model';
 
 export interface ResultsViewProps {
   /** Show results for ONE form, by `formId` (from the surface config). Omitted →

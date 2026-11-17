@@ -32,7 +32,7 @@ import {
   PlaceableSurfaceHost,
   Text,
   mountReactSurface,
-} from '@/packages/ui';
+} from '../../../../ui';
 import { readAccountPortalBrowserSession } from '../do-work/read-browser-session-state';
 import { currentPresenterBrowserSessionId as currentLogBrowserSessionBrowserId, currentBrowserSessionAccessKey } from '../../../../shared-code/packages/account-session/do-work/browser-session-access-key';
 import { readLocalFirstRunProvenance, type LocalFirstRunProvenanceMarker } from '../do-work/remove-local-first-run-provenance';
@@ -47,7 +47,7 @@ import {
   type LoginCopyVariant,
   type LoginCopyVariants,
 } from './LoginPanel';
-import { FloatingPanel } from '@/packages/screen-arrangement/show/FloatingPanel';
+import { FloatingPanel } from '../../../../screen-arrangement/show/FloatingPanel';
 
 /** DATA config carried on the resolved plan primary's `surfaceInput`. All optional — a missing
  *  requestTarget yields an honest "not configured" error rather than a silent broken form. */

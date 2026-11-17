@@ -1,8 +1,8 @@
 import React from 'react';
-import { Button } from '@/packages/ui/show/button';
-import { Container } from '@/packages/ui/show/container';
-import { SegmentedControl } from '@/packages/ui/show/segmented-control';
-import { Text } from '@/packages/ui/show/text';
+import { Button } from '../../../../ui/show/button';
+import { Container } from '../../../../ui/show/container';
+import { SegmentedControl } from '../../../../ui/show/segmented-control';
+import { Text } from '../../../../ui/show/text';
 import { calendarControlDisabledReason } from './calendar-screen-model';
 import type { CalendarActionModel, CalendarScreenModel } from './calendar-screen-model';
 

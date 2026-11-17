@@ -23,9 +23,9 @@
 //    no lens rows + no owner blocks => the screen model's own empty states.
 
 import React from 'react';
-import { ErrorBoundary } from '@/packages/ui/show/error-boundary';
-import { FloatingMaterialFrame } from '@/packages/ui/show/floating-material-frame';
-import { mountReactSurface } from '@/packages/ui/show/react-surface-mount';
+import { ErrorBoundary } from '../../../../ui/show/error-boundary';
+import { FloatingMaterialFrame } from '../../../../ui/show/floating-material-frame';
+import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
 import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
 import {

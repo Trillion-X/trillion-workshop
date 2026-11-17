@@ -6,8 +6,8 @@
 
 import React from 'react';
 import { useBitfieldData } from '@/packages/ask-questions-sort-answers-follow-up/.bitfield-entry-scope/ask-questions-sort-answers-follow-up/runtime-kit-react';
-import { BuilderSurface } from '@/packages/ask-questions-sort-answers-follow-up/show/BuilderSurface';
-import { readCapabilityRegistry } from '@/packages/ask-questions-sort-answers-follow-up/read-data/read-forms-data';
+import { BuilderSurface } from './BuilderSurface';
+import { readCapabilityRegistry } from '../../../read-data/read-forms-data';
 
 export function BuilderView() {
   const published = useBitfieldData('published-records');

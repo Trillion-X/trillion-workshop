@@ -1,4 +1,4 @@
-// parts/screen-look/read-data/type-register.ts and tint-look.ts: a register and a picked colour are worn on a look through save_look
+// tools/screen-look/read-data/type-register.ts and tint-look.ts: a register and a picked colour are worn on a look through save_look
 // (src/looks.mjs), the way a person or AI changes a look of their own; the look owner validates every value written.
 import test from 'node:test';
 import assert from 'node:assert/strict';

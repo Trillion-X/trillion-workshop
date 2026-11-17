@@ -1,6 +1,6 @@
 import React from 'react';
-import { FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
-import { CloudFileBrowser } from '@/packages/cloud-files/show/CloudFileBrowser';
+import { FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
+import { CloudFileBrowser } from './CloudFileBrowser';
 
 type MountArgs = {
   el: HTMLElement;

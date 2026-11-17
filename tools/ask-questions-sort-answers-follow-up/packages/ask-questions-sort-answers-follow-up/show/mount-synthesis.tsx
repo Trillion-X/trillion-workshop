@@ -4,9 +4,9 @@
 // All specifics arrive as DATA on surfaceInput (L090) — the view is blind.
 
 import React from 'react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
-import { ToastProvider } from '@/packages/ui/show/toast';
-import { SynthesisView } from '@/packages/ask-questions-sort-answers-follow-up/show/SynthesisView';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
+import { ToastProvider } from '../../../../ui/show/toast';
+import { SynthesisView } from './SynthesisView';
 
 type MountArgs = {
   el: HTMLElement;

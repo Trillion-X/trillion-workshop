@@ -1,4 +1,3 @@
-// parts/command-palette/show/match-ranges.ts
 //
 // PURPOSE
 //   Where the words typed sit in a result's words, as the inclusive [start, end] character ranges the palette draws marked.

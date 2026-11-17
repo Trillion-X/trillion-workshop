@@ -1,4 +1,4 @@
-// The window of chunks in flight to one person's namespace (parts/live-namespace/do-work/send-window.mjs): it opens
+// The window of chunks in flight to one person's namespace (tools/browse-and-upload-my-files/do-work/send-window.mjs): it opens
 // while the service takes chunks, halves the moment it answers busy, and never lets more than its size go at once.
 import test from 'node:test';
 import assert from 'node:assert/strict';

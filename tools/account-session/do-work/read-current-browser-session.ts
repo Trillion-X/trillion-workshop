@@ -1,4 +1,3 @@
-// parts/account-session/do-work/read-current-browser-session.ts
 //
 // PURPOSE
 //   The signed-in account for the browser this code runs in, with no argument:

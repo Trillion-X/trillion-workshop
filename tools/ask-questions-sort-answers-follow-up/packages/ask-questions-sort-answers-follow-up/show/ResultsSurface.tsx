@@ -8,11 +8,11 @@
 
 import React from 'react';
 import { Users } from 'lucide-react';
-import { Card } from '@/packages/ui/show/card/Card';
-import { Container } from '@/packages/ui/show/container/container';
-import { Text } from '@/packages/ui/show/text/Text';
-import { Badge } from '@/packages/ui/show/badge/Badge';
-import { StatStrip } from '@/packages/ui/show/stat-strip/StatStrip';
+import { Card } from '../../../../ui/show/card/Card';
+import { Container } from '../../../../ui/show/container/container';
+import { Text } from '../../../../ui/show/text/Text';
+import { Badge } from '../../../../ui/show/badge/Badge';
+import { StatStrip } from '../../../../ui/show/stat-strip/StatStrip';
 import {
   Table,
   TableHeader,
@@ -20,9 +20,9 @@ import {
   TableRow,
   TableHead,
   TableCell,
-} from '@/packages/ui/show/table/Table';
-import { WorkStartState } from '@/packages/ui/show/work-start-state/WorkStartState';
-import type { ResultsModel } from '@/packages/ask-questions-sort-answers-follow-up/read-data/results-model';
+} from '../../../../ui/show/table/Table';
+import { WorkStartState } from '../../../../ui/show/work-start-state/WorkStartState';
+import type { ResultsModel } from '../../../read-data/results-model';
 
 export interface ResultsSurfaceProps {
   model: ResultsModel;

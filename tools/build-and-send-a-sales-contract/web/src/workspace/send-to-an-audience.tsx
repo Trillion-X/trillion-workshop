@@ -8,15 +8,15 @@
 // NON-NEGOTIABLE INVARIANTS
 //   1. Channels, timings and every word come from src/audience-sends.json; adding a channel is a row there.
 //   2. The send goes through the Workshop tool, never a route of its own.
-//   3. Only shared parts draw it (parts/ui).
+//   3. Only shared parts draw it (tools/ui).
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import React from 'react';
-import { Button, Container, Input, NamedIcon, SegmentedControl, Text, Textarea } from '../../parts/ui';
-import { DateTimePicker } from '../../parts/ui/show/date-picker/DateTimePicker';
-import { Dropdown } from '../../parts/ui';
-import { ChoiceList } from '../../parts/ui/show/choice-list';
-import { ListingGrid, type Listing } from '../../parts/ui/show/listing-card';
+import { Button, Container, Input, NamedIcon, SegmentedControl, Text, Textarea } from '../../../../ui';
+import { DateTimePicker } from '../../../../ui/show/date-picker/DateTimePicker';
+import { Dropdown } from '../../../../ui';
+import { ChoiceList } from '../../../../ui/show/choice-list';
+import { ListingGrid, type Listing } from '../../../../ui/show/listing-card';
 import { errorWords } from '../../../../ui/show/safe-error-card/sanitize-error-text.ts';
 import { readLists } from './list-records';
 import { openScreen } from './open-screen';

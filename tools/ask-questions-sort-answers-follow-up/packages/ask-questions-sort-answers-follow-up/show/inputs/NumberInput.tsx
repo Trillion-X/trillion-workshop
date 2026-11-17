@@ -1,6 +1,6 @@
 import React from 'react';
-import { Input } from '@/packages/ui/show/input/Input';
-import type { QuestionInputProps } from '@/packages/ask-questions-sort-answers-follow-up/read-data/question-input-contract';
+import { Input } from '../../../../../ui/show/input/Input';
+import type { QuestionInputProps } from '../../../../read-data/question-input-contract';
 
 /** Generic bounded numeric answer leaf. Empty stays empty so the shared
  * coercion/validation owner can distinguish missing from zero. */

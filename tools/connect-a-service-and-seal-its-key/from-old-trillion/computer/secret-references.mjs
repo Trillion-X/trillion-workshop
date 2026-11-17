@@ -11,7 +11,7 @@
 //      reference, so a key never shows a path. An error never contains a value.
 //   3. Abortable: an AbortSignal stops the lookup (the command is killed, the web call cancelled) and nothing is cached from it.
 //   4. One lookup per reference at a time: concurrent asks share it.
-//   5. The answer lists the values that were placed, for the caller to mask in anything it keeps (parts/http-client/do-work/request-scopes.mjs scrubValues).
+//   5. The answer lists the values that were placed, for the caller to mask in anything it keeps (tools/http-client/do-work/request-scopes.mjs scrubValues).
 //
 import { execFile } from 'node:child_process';
 import { readFileSync } from 'node:fs';

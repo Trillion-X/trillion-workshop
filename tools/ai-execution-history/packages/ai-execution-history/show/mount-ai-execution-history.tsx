@@ -1,14 +1,14 @@
 import React from 'react';
-import { Container, ErrorBoundary, FloatingMaterialFrame, Text, mountReactSurface } from '@/packages/ui';
-import { ExecutionHistoryPanel } from '@/packages/ai-execution-history/show/ExecutionHistoryPanel';
-import { parseHealthRules } from '@/packages/ai-execution-history/read-data/derive-run-health';
+import { Container, ErrorBoundary, FloatingMaterialFrame, Text, mountReactSurface } from '../../../../ui';
+import { ExecutionHistoryPanel } from './ExecutionHistoryPanel';
+import { parseHealthRules } from '../read-data/derive-run-health';
 import { useBitfieldData } from '@/packages/ai-execution-history/.bitfield-entry-scope/ai-execution-history-surface/runtime-kit-react';
 import { sendRequestToBitfieldTarget } from '@/packages/ai-execution-history/.bitfield-entry-scope/ai-execution-history-surface/runtime-kit';
-import { VisualDatabaseSurface } from '@/packages/visual-database/show/VisualDatabaseSurface';
+import { VisualDatabaseSurface } from '../../../../keep-lists-of-rows/show/VisualDatabaseSurface';
 import {
   buildExecutionHistoryVisualDatabaseProjection,
   readExecutionHistoryVisualDatabaseFeedInputName,
-} from '@/packages/ai-execution-history/read-data/execution-history-visual-database';
+} from '../read-data/execution-history-visual-database';
 
 type MountArgs = { el: HTMLElement; props?: Record<string, unknown> };
 

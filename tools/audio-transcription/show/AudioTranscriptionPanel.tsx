@@ -20,7 +20,7 @@
 // 2. Every job goes through the owner workflow action
 //    (action:submit-audio-transcription-request) — envelopes and addresses
 //    only.
-// 3. All styling through @/packages/ui + screen-look tokens; flat sections
+// 3. All styling through tools/ui + screen-look tokens; flat sections
 //    with dividers, no nested card stacks, no raw colors, no gradients.
 // 4. Jobs, transcripts, and errors render only from this package's evidence
 //    lane in current log state.
@@ -38,15 +38,15 @@ import { useBitfieldData } from '@bitfield/runtime-kit/react';
 import {
   evidencePayloads,
   readEvidenceProjection,
-} from '@/packages/content-media-evidence/read-data/content-media-evidence';
+} from '../../record-voice-and-meetings/read-data/content-media-evidence';
 import {
   chooseContentMediaFiles,
   CONTENT_MEDIA_AUDIO_EXTENSIONS,
   CONTENT_MEDIA_VIDEO_EXTENSIONS,
   stageContentMediaFile,
-} from '@/packages/content-media-evidence/do-work/content-media-work-loop';
-import { submitAudioTranscriptionRequest } from '@/packages/audio-transcription/do-work/submit-audio-transcription';
-import { readPlaceableSurfaceSubject } from '@/packages/ui/show/placeable-surface-intent/placeable-surface-subject';
+} from '../../content-media-evidence/do-work/content-media-work-loop';
+import { submitAudioTranscriptionRequest } from '../do-work/submit-audio-transcription';
+import { readPlaceableSurfaceSubject } from '../../ui/show/placeable-surface-intent/placeable-surface-subject';
 import {
   Button,
   Container,
@@ -54,7 +54,7 @@ import {
   HoverRevealItem,
   OneStepAtATimeSurface,
   Text,
-} from '@/packages/ui';
+} from '../../ui';
 
 type SourceArtifactRef = {
   multihash?: string;

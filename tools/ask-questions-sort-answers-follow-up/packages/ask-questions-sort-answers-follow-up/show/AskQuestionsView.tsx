@@ -13,19 +13,19 @@
 
 import React from 'react';
 import { useBitfieldData } from '@/packages/ask-questions-sort-answers-follow-up/.bitfield-entry-scope/ask-questions-sort-answers-follow-up/runtime-kit-react';
-import { FillSurface, type FillResult } from '@/packages/ask-questions-sort-answers-follow-up/show/FillSurface';
+import { FillSurface, type FillResult } from './FillSurface';
 import {
   readCapabilityRegistry,
   readFirstQuestionSequence,
   readQuestionSequenceById,
-} from '@/packages/ask-questions-sort-answers-follow-up/read-data/read-forms-data';
-import { readDecideConfig } from '@/packages/ask-questions-sort-answers-follow-up/read-data/read-decide-config';
-import { processSubmission } from '@/packages/ask-questions-sort-answers-follow-up/do-work/process-submission';
-import { runAfterSavedActions } from '@/packages/ask-questions-sort-answers-follow-up/do-work/run-after-saved-actions';
-import { resolveRespondentIdNow, freshRespondentId } from '@/packages/ask-questions-sort-answers-follow-up/read-data/current-respondent';
+} from '../../../read-data/read-forms-data';
+import { readDecideConfig } from '../../../read-data/read-decide-config';
+import { processSubmission } from '../do-work/process-submission';
+import { runAfterSavedActions } from '../do-work/run-after-saved-actions';
+import { resolveRespondentIdNow, freshRespondentId } from '../read-data/current-respondent';
 import type { DraftCorrelation, RequestEvidenceReference } from '../../../read-data/evidence-reference';
-import type { ProcessSubmissionOutcome } from '@/packages/ask-questions-sort-answers-follow-up/do-work/process-submission';
-import type { QuestionSequence } from '@/packages/ask-questions-sort-answers-follow-up/read-data/question-descriptor';
+import type { ProcessSubmissionOutcome } from '../do-work/process-submission';
+import type { QuestionSequence } from '../read-data/question-descriptor';
 
 export interface AskQuestionsViewProps {
   /** The form this surface fills, by `formId`. Omitted → first sequence. */

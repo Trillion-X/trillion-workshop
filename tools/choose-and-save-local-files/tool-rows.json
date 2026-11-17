@@ -258,7 +258,7 @@
         },
         "result_selector": "$.result",
         "provenance": {
-          "source": "Trillion-X/trillion parts/local-files/do-work/choose-local-files.ts, save-local-file-copy.ts and read-data/invoke-local-files-target.ts at 7fd88384^, moved in a9ee258 (#76); the two do-work files' import of ../read-data/invoke-local-files-target now names its .ts, as the Workshop's other .ts imports do; old capability row capabilities.json:551 at 4ffa1dc4a2^ (choose files on this computer and save copies back through the Mac; moves_to at :555); run/ written here"
+          "source": "Trillion-X/trillion tools/local-files/do-work/choose-local-files.ts, save-local-file-copy.ts and read-data/invoke-local-files-target.ts at 7fd88384^, moved in a9ee258 (#76); the two do-work files' import of ../read-data/invoke-local-files-target now names its .ts, as the Workshop's other .ts imports do; old capability row capabilities.json:551 at 4ffa1dc4a2^ (choose files on this computer and save copies back through the Mac; moves_to at :555); run/ written here"
         },
         "verify": [
           {

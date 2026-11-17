@@ -6,8 +6,8 @@
 // does NOT use this (Input renders its own label/error).
 
 import React from 'react';
-import { Container } from '@/packages/ui/show/container/container';
-import { Text } from '@/packages/ui/show/text/Text';
+import { Container } from '../../../../../ui/show/container/container';
+import { Text } from '../../../../../ui/show/text/Text';
 
 export interface QuestionFieldProps {
   htmlFor?: string;

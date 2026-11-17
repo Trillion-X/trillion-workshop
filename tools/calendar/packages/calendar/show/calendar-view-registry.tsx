@@ -21,8 +21,8 @@
 // crash and never a closed union.
 
 import React from 'react';
-import { Container } from '@/packages/ui/show/container';
-import { Text } from '@/packages/ui/show/text';
+import { Container } from '../../../../ui/show/container';
+import { Text } from '../../../../ui/show/text';
 import type { CalendarViewDescriptor } from '../read-data/read-calendar-view-descriptors';
 import { CalendarAgenda } from './CalendarAgenda';
 import { CalendarMonthView } from './CalendarMonthView';

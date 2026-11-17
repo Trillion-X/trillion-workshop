@@ -6,7 +6,7 @@
 // import or mount sibling Bitfield Studio surfaces.
 
 import React from 'react';
-import { mountReactSurface } from '@/packages/ui';
+import { mountReactSurface } from '../../../../ui';
 import BrowserShell from './BrowserShell';
 
 type MountArgs = {

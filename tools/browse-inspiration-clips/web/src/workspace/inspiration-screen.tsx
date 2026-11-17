@@ -3,7 +3,7 @@
 // PORTED FROM: Trillion Media: inspiration-ui.js (Trillion Media's Inspiration screen).
 //
 // PURPOSE
-//   Inspiration: everything worth making from, drawn by the shared card layouts (parts/ui/show/card-layouts) as named
+//   Inspiration: everything worth making from, drawn by the shared card layouts (tools/ui/show/card-layouts) as named
 //   rows, a shuffled wall or a grid. What the rows are, where each reads its cards, which ways of seeing exist and
 //   which actions a card offers are DATA (src/inspiration.json), answered by tool:inspiration (src/inspiration.mjs)
 //   in the person's store, the same answer any AI gets. This file only turns cards into pictures and runs the actions
@@ -17,13 +17,13 @@
 //   3. The way of seeing it (rows, wall, grid) is kept for this person (workspace preference), not this device.
 //   4. Every control is a shared component; nothing here draws a control of its own.
 
-import { mountCardLayouts, type CardAction, type LayoutCard } from '../../parts/ui/show/card-layouts';
-import { mediaPreviewContent } from '../../parts/ui/show/media-preview';
-import { notify } from '../../parts/ui/show/coss/notifications';
-import { PLACEABLE_SURFACE_MIME } from '../../parts/ui/show/placeable-surface-intent/placeable-surface-intent';
+import { mountCardLayouts, type CardAction, type LayoutCard } from '../../../../ui/show/card-layouts';
+import { mediaPreviewContent } from '../../../../ui/show/media-preview';
+import { notify } from '../../../../ui/show/coss/notifications';
+import { PLACEABLE_SURFACE_MIME } from '../../../../ui/show/placeable-surface-intent/placeable-surface-intent';
 import { filePicture } from './file-picture';
 import { readJson } from './api';
-import { loadScreen } from '../../parts/ui/show/screen-state';
+import { loadScreen } from '../../../../ui/show/screen-state';
 import { refusal } from './failure';
 import { readWorkspacePreference, writeWorkspacePreference } from './records';
 import { runWorkshopTool } from './workshop-tool-api';

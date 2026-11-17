@@ -1,12 +1,12 @@
 // packages/ask-questions-sort-answers-follow-up/show/FillSurface.test.tsx
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { FillSurface } from '@/packages/ask-questions-sort-answers-follow-up/show/FillSurface';
+import { FillSurface } from './FillSurface';
 import {
   indexCapabilities,
   type QuestionSequence,
   type QuestionTypeCapability,
-} from '@/packages/ask-questions-sort-answers-follow-up/read-data/question-descriptor';
+} from '../read-data/question-descriptor';
 
 const CAPS: QuestionTypeCapability[] = [
   { questionTypeId: 'text', inputComponentKey: 'text', coerce: 'string', validate: { rules: { required: false } } },

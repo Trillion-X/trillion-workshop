@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button } from '@/packages/ui/show/button';
-import { Text } from '@/packages/ui/show/text';
+import { Button } from '../../../../ui/show/button';
+import { Text } from '../../../../ui/show/text';
 
 export interface SearchMode {
   id: string;

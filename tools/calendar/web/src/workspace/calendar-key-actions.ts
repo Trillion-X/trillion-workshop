@@ -16,8 +16,8 @@
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
-import type { NodeActionCapability, NodeRef } from '../../parts/ui/show/node-actions';
-import { addDays } from '../../parts/ui';
+import type { NodeActionCapability, NodeRef } from '../../../../ui/show/node-actions';
+import { addDays } from '../../../../ui';
 import { KEYMAP, onMac, type EffectiveRow } from './keymap-runtime';
 import { shownChord } from './keymap.mjs';
 import { errorWords } from '../../../../ui/show/safe-error-card/sanitize-error-text.ts';

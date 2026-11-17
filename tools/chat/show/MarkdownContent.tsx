@@ -13,7 +13,7 @@
 // 3. Memoizes per content string to avoid re-highlighting identical content
 //
 // Trillion: the words are drawn as React elements by the shared MarkdownNodes
-// (parts/ui/show/markdown-block), and Shiki's colours arrive as tokens
+// (tools/ui/show/markdown-block), and Shiki's colours arrive as tokens
 // (codeToTokens) rather than an HTML string, because application code in
 // Trillion never assigns HTML (the no-inline-html guard). Listed in
 // scripts/port-sources.json.

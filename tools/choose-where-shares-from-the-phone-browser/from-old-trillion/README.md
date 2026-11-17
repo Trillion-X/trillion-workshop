@@ -4,10 +4,10 @@ Files of old trillion whose job is this tool's (choose where shares from the pho
 
 | Old path | Here | Status |
 |---|---|---|
-| `src/share-destinations.mjs` | `src/share-destinations.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports records/share-destination-starters.json (at the tag, not moved here yet), parts/record-audio/read-data/meeting-settings.mjs (already gone at the tag) |
+| `src/share-destinations.mjs` | `src/share-destinations.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports records/share-destination-starters.json (at the tag, not moved here yet), tools/record-voice-and-meetings/read-data/meeting-settings.mjs (already gone at the tag) |
 | `src/share-history.mjs` | `src/share-history.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports records/share-destination-starters.json (at the tag, not moved here yet), src/namespace.mjs (at the tag, not moved here yet) |
-| `src/share-starting-action.mjs` | `src/share-starting-action.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports parts/http-client/do-work/same-origin.mjs (already gone at the tag) |
-| `test/share-destinations.test.mjs` | `test/share-destinations.test.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports test/agent-store-for-tests.mjs (at the tag, not moved here yet), src/execution-modes.mjs (at the tag, not moved here yet), records/saved-instruction-starters.json (at the tag, not moved here yet), parts/record-audio/read-data/meeting-settings.mjs (already gone at the tag) |
+| `src/share-starting-action.mjs` | `src/share-starting-action.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports tools/http-client/do-work/same-origin.mjs (already gone at the tag) |
+| `test/share-destinations.test.mjs` | `test/share-destinations.test.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports test/agent-store-for-tests.mjs (at the tag, not moved here yet), src/execution-modes.mjs (at the tag, not moved here yet), records/saved-instruction-starters.json (at the tag, not moved here yet), tools/record-voice-and-meetings/read-data/meeting-settings.mjs (already gone at the tag) |
 
 ## Still on old trillion main at 5dc302be37
 

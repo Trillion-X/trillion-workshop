@@ -30,13 +30,13 @@
 // =============================================================================
 
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { Card, Container, Text, Button, Badge, Input, Spinner } from '@/packages/ui';
+import { Card, Container, Text, Button, Badge, Input, Spinner } from '../../../../ui';
 import {
   decodeAiIdentityFeed,
   type AiIdentity,
-} from '@/packages/ai-identity/read-data/read-ai-identity';
+} from '../read-data/read-ai-identity';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { updateAiIdentityProfile } from '@/packages/ai-identity/do-work/update-ai-identity-profile';
+import { updateAiIdentityProfile } from '../do-work/update-ai-identity-profile';
 
 // ============================================================================
 // COMPONENT

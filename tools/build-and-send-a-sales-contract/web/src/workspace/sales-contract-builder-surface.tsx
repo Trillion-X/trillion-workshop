@@ -24,21 +24,21 @@
 //      (tool:manage-sales-contracts operation `resources`, src/sales-contract-builder.json sources) and the follow-ups
 //      and plain words for metrics, events and conditions are rows of src/sales-contract-builder.json.
 //   2. No price is fixed in code; an offer's price is the one its payment service keeps.
-//   3. Every control is a shared part (parts/ui); this file writes no markup of its own.
+//   3. Every control is a shared part (tools/ui); this file writes no markup of its own.
 //   4. Save, send and the follow-ups go through tool:manage-sales-contracts, the same tool an AI runs.
 
 import React from 'react';
 import {AnimatePresence, useReducedMotion, type Variants} from 'framer-motion';
 import { motion } from '../../../../ui/motion/lazy-motion.tsx';
-import { Badge, Button, Card, Container, DisclosureSection, Dropdown, Input, NamedIcon, SchemaValueView, SegmentedControl, Text, Textarea, ToastProvider } from '../../parts/ui';
-import { DateTimePicker } from '../../parts/ui/show/date-picker/DateTimePicker';
-import { cn } from '../../parts/ui/show/cn';
-import { useToastContext } from '../../parts/ui/show/toast';
-import { ListingCard, ListingGrid, type Listing } from '../../parts/ui/show/listing-card';
-import { ChoiceList } from '../../parts/ui/show/choice-list';
-import { FloatingPanel } from '../../parts/screen-arrangement/show/FloatingPanel';
+import { Badge, Button, Card, Container, DisclosureSection, Dropdown, Input, NamedIcon, SchemaValueView, SegmentedControl, Text, Textarea, ToastProvider } from '../../../../ui';
+import { DateTimePicker } from '../../../../ui/show/date-picker/DateTimePicker';
+import { cn } from '../../../../ui/show/cn';
+import { useToastContext } from '../../../../ui/show/toast';
+import { ListingCard, ListingGrid, type Listing } from '../../../../ui/show/listing-card';
+import { ChoiceList } from '../../../../ui/show/choice-list';
+import { FloatingPanel } from '../../../../screen-arrangement/show/FloatingPanel';
 import { openSharing } from './sharing-sheet';
-import { CopyButton } from '../../parts/ui/show/copy-button/CopyButton';
+import { CopyButton } from '../../../../ui/show/copy-button/CopyButton';
 import { openScreen } from './open-screen';
 import { replaceWorkspaceAddress } from './addresses.mjs';
 import { runWorkshopTool } from './workshop-tool-api';

@@ -32,7 +32,7 @@
 // =============================================================================
 
 import React, { useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
-import { Container, Text, Button, ExpandableTabs, Icon, Input, Card, emitPlaceableSurfaceIntent, setPlaceableSurfaceDragData } from '@/packages/ui';
+import { Container, Text, Button, ExpandableTabs, Icon, Input, Card, emitPlaceableSurfaceIntent, setPlaceableSurfaceDragData } from '../../../../ui';
 import { askLocalFileDisplay } from '@/packages/local-files/do-work/ask-local-file-display';
 import {
   listLocalRootShortcuts,
@@ -42,7 +42,7 @@ import {
   listLocalDirectory,
   type LocalFileEntry,
 } from '@/packages/local-files/read-data/read-local-directory';
-import { chooseLocalFiles } from '@/packages/local-files/do-work/choose-local-files';
+import { chooseLocalFiles } from '../../../../local-files/do-work/choose-local-files';
 import { chooseLocalFolder } from '@/packages/local-files/do-work/choose-local-folder';
 import { createLocalDirectory } from '@/packages/local-files/do-work/create-local-directory';
 import { createLocalEmptyFile } from '@/packages/local-files/do-work/create-local-empty-file';
@@ -61,7 +61,7 @@ import {
   PinOff,
   Search,
 } from 'lucide-react';
-import { FloatingPanel } from '@/packages/screen-arrangement/show/FloatingPanel';
+import { FloatingPanel } from '../../../../screen-arrangement/show/FloatingPanel';
 
 const PINNED_PATHS_STORAGE_KEY = 'bitfield.local-files.pinned-paths.v1';
 const SHOW_HIDDEN_STORAGE_KEY = 'bitfield.local-files.show-hidden.v1';

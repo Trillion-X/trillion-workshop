@@ -27,9 +27,9 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
 import { Send, CheckCircle } from 'lucide-react';
-import { createQuickBugReport } from '@/packages/bug-reports/do-work/create-quick-bug-report';
-import { Textarea, Button, Text, Icon } from '@/packages/ui';
-import { FloatingPanel } from '@/packages/screen-arrangement/show/FloatingPanel';
+import { createQuickBugReport } from '../do-work/create-quick-bug-report';
+import { Textarea, Button, Text, Icon } from '../../../../ui';
+import { FloatingPanel } from '../../../../screen-arrangement/show/FloatingPanel';
 
 // ============================================================================
 // TYPES

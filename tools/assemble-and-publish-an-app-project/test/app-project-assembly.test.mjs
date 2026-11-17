@@ -139,7 +139,7 @@ test('a saved running source keeps every locked build input with its GitHub orig
   const project = { id: 'a'.repeat(32), provider: 'github', owner: 'Example', repo: 'dynamic-app',
     branch: 'main', commit: 'c'.repeat(40), live_url: 'https://app.example.com/' };
   const build_inputs = { schema: 'trillion.source-build-inputs/v1', inputs: [
-    { repository: 'Example/shared-ui', commit: 'd'.repeat(40), mount: 'shared-ui', paths: ['parts/ui'] },
+    { repository: 'Example/shared-ui', commit: 'd'.repeat(40), mount: 'shared-ui', paths: ['tools/ui'] },
   ] };
   const snapshot = { kind: 'running-web-origin', project_id: project.id, owner: project.owner,
     repo: project.repo, branch: project.branch, commit: project.commit, url: project.live_url, build_inputs };

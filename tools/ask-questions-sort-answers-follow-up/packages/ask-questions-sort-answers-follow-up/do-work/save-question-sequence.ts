@@ -10,11 +10,11 @@ import {
   ENGINE_OPERATION_LABEL_TARGET,
   ENGINE_WRITE_BATCH_OPERATION,
   PUBLISHED_RECORD_PATH,
-} from '@/packages/ask-questions-sort-answers-follow-up/do-work/answer-fact-writes';
+} from './answer-fact-writes';
 import type {
   QuestionDescriptor,
   QuestionSequence,
-} from '@/packages/ask-questions-sort-answers-follow-up/read-data/question-descriptor';
+} from '../read-data/question-descriptor';
 
 const PKG = 'ask-questions-sort-answers-follow-up';
 export const QUESTION_SEQUENCE_KIND = 'question-sequence';

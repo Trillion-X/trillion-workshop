@@ -1,4 +1,4 @@
-// parts/ui/show/server-rendered-page/page-egress.mjs
+// tools/ui/show/server-rendered-page/page-egress.mjs
 //
 // Purpose: A BROWSER NEVER SEES A FAILURE AS BARE TEXT, JSON OR AN EMPTY BODY.
 //

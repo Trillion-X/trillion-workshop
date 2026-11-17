@@ -1,9 +1,9 @@
 import React from 'react';
-import { Badge } from '@/packages/ui/show/badge';
-import { Button } from '@/packages/ui/show/button';
-import { ColorDot } from '@/packages/ui/show/color-dot';
-import { Container } from '@/packages/ui/show/container';
-import { Text } from '@/packages/ui/show/text';
+import { Badge } from '../../../../ui/show/badge';
+import { Button } from '../../../../ui/show/button';
+import { ColorDot } from '../../../../ui/show/color-dot';
+import { Container } from '../../../../ui/show/container';
+import { Text } from '../../../../ui/show/text';
 import type { CalendarAccountModel } from './calendar-screen-model';
 
 export function CalendarAccountRail({

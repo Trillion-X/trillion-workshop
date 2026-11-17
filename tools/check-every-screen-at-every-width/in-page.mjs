@@ -1,4 +1,3 @@
-// parts/screen-matrix/in-page.mjs
 //
 // PURPOSE
 //   The functions that run INSIDE the page under test (check-screens.mjs hands each to page.evaluate, which sends its

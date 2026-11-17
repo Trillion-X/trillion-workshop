@@ -1,7 +1,7 @@
 import React from 'react';
 import { ExternalLink } from 'lucide-react';
-import { Button, Card, Icon, Text } from '@/packages/ui';
-import { ProjectPreviewButton } from '@/packages/project-preview/show/ProjectPreviewButton';
+import { Button, Card, Icon, Text } from '../../../../ui';
+import { ProjectPreviewButton } from './ProjectPreviewButton';
 import type { ProjectPreviewDescriptor } from '@/packages/project-preview/read-data/read-project-preview-descriptors';
 
 export interface ProjectPreviewsPanelProps {

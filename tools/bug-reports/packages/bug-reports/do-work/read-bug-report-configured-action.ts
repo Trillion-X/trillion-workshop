@@ -1,4 +1,4 @@
-import bugReportRecordsContract from '@/packages/bug-reports/things-to-store-and-run.json';
+import bugReportRecordsContract from '../things-to-store-and-run.json';
 
 export type BugReportConfiguredAction = 'create-quick-report';
 

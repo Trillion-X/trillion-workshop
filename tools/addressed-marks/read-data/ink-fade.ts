@@ -1,4 +1,3 @@
-// parts/addressed-marks/read-data/ink-fade.ts
 //
 // INK THAT FADES: A MARK IS FULLY SEEN FOR A WHILE AFTER IT IS MADE, THEN GOES, ALL FROM THE MARK'S OWN TIME.
 //

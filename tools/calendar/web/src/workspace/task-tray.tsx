@@ -12,10 +12,10 @@
 //      the Display choices belong to the screen, which keeps them as the person's own.
 
 import React from 'react';
-import { Button, ColorDot, Container, Input, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue, Switch, Tabs, TabsList, TabsTrigger, Text } from '../../parts/ui';
-import { BulkSelectBar } from '../../parts/ui/show/bulk-select-bar';
-import { Popover, PopoverPopup, PopoverTrigger } from '../../parts/ui/show/coss/ui/popover';
-import { NamedIcon } from '../../parts/ui/show/icon';
+import { Button, ColorDot, Container, Input, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue, Switch, Tabs, TabsList, TabsTrigger, Text } from '../../../../ui';
+import { BulkSelectBar } from '../../../../ui/show/bulk-select-bar';
+import { Popover, PopoverPopup, PopoverTrigger } from '../../../../ui/show/coss/ui/popover';
+import { NamedIcon } from '../../../../ui/show/icon';
 import taskData from '../calendar-tasks.json';
 import tray from './calendar-task-tray.json';
 import screenData from './shared-calendar.json';

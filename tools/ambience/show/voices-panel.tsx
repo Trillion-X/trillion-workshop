@@ -1,9 +1,8 @@
-// parts/ambience/show/voices-panel.tsx
 //
-// NO PRIOR: searched parts/ambience and parts/ui for a voice or speech-speed setting (only the audio player's 0.5-2x
+// NO PRIOR: searched tools/ambience and tools/ui for a voice or speech-speed setting (only the audio player's 0.5-2x
 //   menu), 21st.dev 'playback speed control slider with preset steps' and Mobbin 'audio playback speed picker' (Brink's
 //   Playback Speed: the speed large over its steps; Matter and Moonly: preset speeds with a check). The control itself
-//   is the shared SpeedControl (parts/ui/show/speed-control).
+//   is the shared SpeedControl (tools/ui/show/speed-control).
 //
 // PURPOSE
 //   How Trillion talks, set on the Ambience screen beside the other sound controls: which of the person's voices speaks

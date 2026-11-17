@@ -28,11 +28,11 @@
 //    the bytes.
 import {
   connectServiceWithCredentialHandle,
-} from '@/packages/service-connections/do-work/connect-service';
+} from './connect-service';
 import {
   deriveConnectionInstanceId,
   type ServiceConnectionTarget,
-} from '@/packages/service-connections/read-data/read-service-connection-options';
+} from '../read-data/read-service-connection-options';
 
 /** Outcome read from a completion line via the descriptor's declared paths. */
 export interface SessionAcquireOutcomeView {

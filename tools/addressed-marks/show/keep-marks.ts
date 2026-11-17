@@ -1,4 +1,3 @@
-// parts/addressed-marks/show/keep-marks.ts
 //
 // PURPOSE
 //   The one keeper of ink, colours and tools, wherever they are drawn: over one pane, the whole screen, a board or

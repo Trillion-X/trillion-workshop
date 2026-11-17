@@ -1,7 +1,7 @@
 // scripts/light-theme.mjs
 //
 // Purpose: the light theme's tokens as a stylesheet serves them, read once from their one source
-// (parts/ui/show/twenty/theme-light.css). The tokens hold for the whole page and for anything marked light, so the
+// (tools/ui/show/twenty/theme-light.css). The tokens hold for the whole page and for anything marked light, so the
 // theme's first rule is given both selectors and the file goes into a stylesheet once (it went in twice, once as
 // `.light` and once as `:root`, 65 KB each, which put the workspace stylesheet over its budget).
 //

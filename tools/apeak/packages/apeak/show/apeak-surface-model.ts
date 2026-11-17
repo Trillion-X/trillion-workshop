@@ -1,4 +1,4 @@
-import type { AdvanceCondition, SessionSummary } from '@/packages/ui/show/protocol-session/protocol-session-machine';
+import type { AdvanceCondition, SessionSummary } from '../../../../ui/show/protocol-session/protocol-session-machine';
 
 export type ApeakAction = {
   id: string;

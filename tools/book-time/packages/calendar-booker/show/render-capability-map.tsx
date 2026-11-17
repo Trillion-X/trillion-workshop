@@ -49,9 +49,9 @@ import {
   statusView,
   type OutputField,
   type StatusTone,
-} from '@/packages/ui';
-import { DescriptorSurface } from '@/packages/calendar-booker/show/descriptor-surface';
-import type { ActionDescriptor, ViewDescriptor } from '@/packages/calendar-booker/show/view-descriptor';
+} from '../../../../ui';
+import { DescriptorSurface } from './descriptor-surface';
+import type { ActionDescriptor, ViewDescriptor } from './view-descriptor';
 
 // ---------------------------------------------------------------------------
 // CAPABILITY CONTRACT

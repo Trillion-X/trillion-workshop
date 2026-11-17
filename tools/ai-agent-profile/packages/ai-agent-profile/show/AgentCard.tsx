@@ -29,10 +29,10 @@
 // =============================================================================
 
 import * as React from 'react';
-import { Card } from '@/packages/ui/show/card';
-import { ColorDot } from '@/packages/ui/show/color-dot';
-import { Container } from '@/packages/ui/show/container';
-import { Text } from '@/packages/ui/show/text';
+import { Card } from '../../../../ui/show/card';
+import { ColorDot } from '../../../../ui/show/color-dot';
+import { Container } from '../../../../ui/show/container';
+import { Text } from '../../../../ui/show/text';
 import type { AgentCardModel } from '../read-data/agent-card-model';
 
 export interface AgentCardProps {

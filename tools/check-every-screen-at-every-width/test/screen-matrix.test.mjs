@@ -1,5 +1,5 @@
 // Ported from old trillion test/screen-matrix.test.mjs (tag old-trillion-before-worker-retire, b6ae0ebf81), deleted by
-// Trillion-X/trillion #243. The probes are this tool's check-screens.mjs (old parts/screen-matrix/check-screens.mjs),
+// Trillion-X/trillion #243. The probes are this tool's check-screens.mjs (old tools/check-every-screen-at-every-width/check-screens.mjs),
 // the browser tools/headless-browser/launch.mjs and the fixture font tools/screen-look/show/fonts; the fixture pages and
 // eleven probe test bodies are retained; the current selector assertions are described below.
 // Not here: "the app screens file opens every screen that has an address, and the deploy runs the check before it
@@ -9,7 +9,7 @@
 // (screenMatrixCheck, screenMatrixScope), which no repository holds any more (searched the three repos for both names).
 // Current shared control-name evidence carries both a stable structural selector and a readable display selector.
 // test/screen-matrix.test.mjs
-// parts/screen-matrix/check-screens.mjs refuses a deploy whose screens cannot be read. This plants one defect per
+// tools/check-every-screen-at-every-width/check-screens.mjs refuses a deploy whose screens cannot be read. This plants one defect per
 // probe in a fixture page served from a tiny local server (low contrast, a font that never loads, text clipped
 // without an ellipsis, an element wider than a phone, a card whose text disappears when Dark Reader dresses it) and
 // asserts each probe fails on its defect and only there, and that a clean page passes in every mode and width.

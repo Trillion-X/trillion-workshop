@@ -3,7 +3,7 @@ import {
   buildCloudFileOperationPayload,
   requireCloudFileOperation,
   type CloudFileSource,
-} from '@/packages/cloud-files/read-data/read-cloud-file-sources';
+} from './read-cloud-file-sources';
 
 export interface CloudFileEntry {
   id: string;
