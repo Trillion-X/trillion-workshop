@@ -49,6 +49,17 @@ test('the internal listener verifies a key: valid, its id, its user and the crea
   assert.deepEqual(answer, { valid: true, key: { id: made.id, userId: user.id, metadata: { trillion_account: ACCOUNT }, permissions: settings.api_key.default_permissions } });
 });
 
+test('the internal listener points a user at the account their computer holds, and the key then answers it', async () => {
+  const moved = 'ab'.repeat(32);
+  const claim = body => fetch(`http://127.0.0.1:${internal}${settings.internal.account_path}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+  assert.equal((await claim({ email: 'keys@example.test', account: 'nope' })).status, 400);
+  assert.equal((await claim({ email: 'nobody@example.test', account: moved })).status, 404);
+  assert.equal((await post(`${ORIGIN}${settings.internal.account_path}`, { email: 'keys@example.test', account: moved })).status, 404, 'the public listener never answers it');
+  assert.deepEqual(await (await claim({ email: 'keys@example.test', account: moved })).json(), { email: 'keys@example.test', account: moved });
+  assert.equal((await (await ctx.internalAdapter.findUserByEmail('keys@example.test')).user).trillionAccount, moved);
+  await claim({ email: 'keys@example.test', account: ACCOUNT });
+});
+
 test('an altered key, or no key, is not valid', async () => {
   assert.deepEqual(await (await verify(`${made.key.slice(0, -2)}zz`)).json(), { valid: false, key: null });
   assert.equal((await verify('')).status, 400);

@@ -2,7 +2,9 @@
 // `host`, `port`, `verify_path`; Caddy routes nothing to it). POST verify_path {key} runs Better Auth's own
 // auth.api.verifyApiKey (server-only, so no public address answers it) and answers {valid, key: {id, userId, metadata}},
 // or {valid: false, key: null}. The same listener answers settings.credential_standing.path {credential} with {valid}: whether
-// a credential the engine names by its id still stands (credential-standing.mjs). Anything else is 404.
+// a credential the engine names by its id still stands (credential-standing.mjs), and settings.internal.account_path
+// {email, account} points a person's user at the account their own computer holds (accountClaimed): the one way to move a
+// user already linked, which no sign-up, key check or public route does. Anything else is 404.
 //
 // A computer elsewhere (another engine) asks the same over the public origin at settings.key_check.path, admitted by its
 // own proof, never a shared credential: `authorization: Bearer trp_<computer>_<blake3 of the key>_<at>_<signature>`
@@ -63,8 +65,21 @@ export function computerKeyCheck(auth, settings) {
   };
 }
 
-export function serveInternal(auth, { host, port, verify_path: path }, claim = null, standing = null) {
+/** Points the user whose email is `email` at `account` (a 64-hex account address), in the field settings.account_claim names.
+ * Answers {email, account}; 400 for a body that is not both, 404 for an email no user has, 404 when the settings name no claim. */
+async function accountClaimed(auth, claim, request, response) {
+  const { email, account } = (await bodyOf(request, 4096)) ?? {};
+  if (!claim || typeof email !== 'string' || !email || !/^[0-9a-f]{64}$/.test(account ?? '')) return json(response, 400, { error: 'email_and_account_required' });
+  const ctx = await auth.$context;
+  const found = await ctx.internalAdapter.findUserByEmail(email);
+  if (!found?.user) return json(response, 404, { error: 'no_such_user' });
+  await ctx.internalAdapter.updateUser(found.user.id, { [claim.field]: account });
+  return json(response, 200, { email, account });
+}
+
+export function serveInternal(auth, { host, port, verify_path: path, account_path: accountPath }, claim = null, standing = null) {
   return createServer(async (request, response) => {
+    if (accountPath && request.method === 'POST' && request.url === accountPath) return accountClaimed(auth, claim, request, response);
     if (standing && request.method === 'POST' && request.url === standing.path) {
       const { credential } = (await bodyOf(request, 4096)) ?? {};
       return json(response, 200, { valid: await credentialStands(auth, standing, credential).catch(() => false) });

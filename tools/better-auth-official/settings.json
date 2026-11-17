@@ -27,7 +27,8 @@
   "internal": {
     "host": "127.0.0.1",
     "port": 8793,
-    "verify_path": "/api-key/verify"
+    "verify_path": "/api-key/verify",
+    "account_path": "/account/claim"
   },
   "credential_standing": {
     "path": "/credential/standing",

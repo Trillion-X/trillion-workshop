@@ -61,6 +61,13 @@ request named. Better Auth's `verifyApiKey` is server-only, so the engine calls 
 for a body with no key. `api_key.rate_limit` is `{"enabled": false}`: the plugin's default (10 checks a key a day) would
 make a key invalid after the engine's tenth request.
 
+## Pointing a person at the account their computer holds
+
+`internal.account_path` (`/account/claim`) answers on the same loopback listener: `POST {email, account}` sets the user's
+`account_claim.field` to `account` (64 hex) and answers `{email, account}`; 400 for a body that is not both, 404 for an
+email no user has. It is the one way to move a user that is already linked (a sign-up links once, and a key check never
+moves a linked user). Caddy never routes to it, so only the computer itself calls it. test/internal-verify.test.mjs proves it.
+
 ## Whether a credential still stands
 
 A wake's delegation lasts only while the switcher's credential stands. The engine asks the same `internal` listener
