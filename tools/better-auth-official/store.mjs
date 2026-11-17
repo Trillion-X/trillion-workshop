@@ -5,6 +5,7 @@
 // connection string, which the engine or the unit hands the process under the credential settings.json `store.credential` names;
 // this tool never reads a vault.
 
+import { existsSync } from 'node:fs';
 import pg from 'pg';
 import { getMigrations } from 'better-auth/db/migration';
 
@@ -28,4 +29,19 @@ export async function migrateStore(auth, pool) {
     await held.query('select pg_advisory_unlock($1)', [MIGRATION_LOCK]).catch(() => {});
     held.release();
   }
+}
+
+// settings.json `store.migrate_from` names an old SQLite file while its rows have not been moved (null once they have). A store with no
+// user while that file holds users is the window between a switch to the store and the move: sign-in must not answer then, or a
+// person would be told they have no account, and a new account would land in the empty store. Names the file, never a value.
+export async function refuseWhileLegacyWaits({ store }, pool) {
+  const file = store.migrate_from;
+  if (!file || existsSync(file) === false) return;
+  const { DatabaseSync } = await import('node:sqlite');
+  const old = new DatabaseSync(file, { readOnly: true });
+  let waiting = 0;
+  try { waiting = old.prepare('select count(*) as n from "user"').get().n; } catch { waiting = 0; } finally { old.close(); }
+  if (!waiting) return;
+  if ((await pool.query('select 1 from "user" limit 1')).rowCount) return;
+  throw new Error(`the store holds no user while ${file} holds ${waiting}: run migrate-sqlite-to-postgres.mjs first, or unset settings store.migrate_from`);
 }

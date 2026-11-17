@@ -7,7 +7,8 @@
   "store": {
     "credential": "sign-in-store-connection",
     "env": "BETTER_AUTH_STORE_CONNECTION",
-    "pool_size": 10
+    "pool_size": 10,
+    "migrate_from": null
   },
   "session_cookie_name": "__Host-trillion_session",
   "passkey": {
