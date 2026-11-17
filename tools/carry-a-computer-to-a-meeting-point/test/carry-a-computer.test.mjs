@@ -29,7 +29,7 @@ test('the meeting-point port is a stable hash of the computer id into the config
 test('every shipped way row names its client, its files and its arguments, and no vendor appears in code', () => {
   for (const row of WAYS) {
     for (const key of ['id', 'transport_kind', 'relay_host_ref', 'client', 'params', 'order', 'requires_awake', 'install']) assert.ok(key in row, `${row.id} has ${key}`);
-    const rendered = renderClient(row, valuesFor({ way: row, relay_host: relayHost, computer_id: 'computer-one', local_port: 8789 }), { secret: 'SECRET', dir: '/run/dir' });
+    const rendered = renderClient(row, valuesFor({ way: row, relay_host: relayHost, computer_id: 'computer-one', local_port: 8789, values: { certificate: 'CERTIFICATE port-1' } }), { secret: 'SECRET', dir: '/run/dir' });
     assert.ok(rendered.argv.length > 0);
     assert.ok(!rendered.argv.join(' ').includes('SECRET'), `${row.id} never puts the credential in an argument`);
   }
@@ -207,4 +207,49 @@ test('live: the launchd row keeps the carrier connected to a local server, and t
   assert.equal(spawnSync('/bin/launchctl', ['print', `gui/${process.getuid()}/${label}`]).status, 0);
   removeCarrier(config, state);
   assert.notEqual(spawnSync('/bin/launchctl', ['print', `gui/${process.getuid()}/${label}`]).status, 0);
+});
+
+test('a carrier the meeting point gives a port and a certificate asks first, then dials with them', async t => {
+  const state = folder(t);
+  const answer = { port: 31337, seconds: 120, certificate: 'CERTIFICATE port-31337' };
+  const config = { way: way('ssh-certificate'), relay_host: relayHost, computer_id: 'mac-1', local_port: 9000, values: { public_key: 'ssh-ed25519 AAAAPUB carrier' },
+    announce: { argv: ['/bin/announce', '{"computer_id": "{computer_id}", "public_key": "{public_key}"}'], every_seconds: 60, gives: { remote_port: 'port', certificate: 'certificate' } } };
+  const asked = [], dialed = [], written = [];
+  const controller = new AbortController();
+  let answers = [null, answer];
+  const spawnImpl = (exe, argv, options) => {
+    const child = new EventEmitter(); child.stderr = new PassThrough(); child.stdout = new PassThrough(); child.kill = () => {};
+    if (exe === '/bin/announce') {
+      asked.push(argv);
+      if (options.stdio[1] === 'pipe') { const given = answers.shift(); setTimeout(() => { if (given) child.stdout.end(JSON.stringify(given)); else child.stdout.end(); child.emit('exit', given ? 0 : 1); }, 5); }
+      return child;
+    }
+    dialed.push(argv);
+    const dir = argv[argv.indexOf('-i') + 1].replace(/\/identity$/, '');
+    written.push(readFileSync(join(dir, 'identity-cert.pub'), 'utf8'));
+    setTimeout(() => { child.emit('exit', 0); controller.abort(); }, 20);
+    return child;
+  };
+  await serveCarrier(config, { credential: async () => 'PRIVATE', state, spawnImpl, wait: async () => {}, signal: controller.signal });
+  assert.deepEqual(asked[0], ['{"computer_id": "mac-1", "public_key": "ssh-ed25519 AAAAPUB carrier"}']);
+  assert.equal(dialed.length, 1, 'no dialing until the meeting point answered');
+  assert.ok(dialed[0].includes('127.0.0.1:31337:127.0.0.1:9000'), 'the given port, not a local hash');
+  assert.ok(dialed[0].includes(`carry@${relayHost.hostname}`));
+  assert.equal(written[0], `${answer.certificate}\n`);
+});
+
+test('the certificate meeting point is one user and one sshd file, the same for every computer, and sshd accepts it', t => {
+  const rendered = renderMeetingPoint({ way: way('ssh-certificate'), relay_host: relayHost, computers: [], values: { ca_public_file: '/var/lib/example/meeting-ca.key.pub', port_min: 20000, port_max: 59999 } });
+  const file = rendered.steps.find(step => step.file).file;
+  assert.equal(file.path, '/etc/ssh/sshd_config.d/carry.conf');
+  assert.match(file.text, /TrustedUserCAKeys \/var\/lib\/example\/meeting-ca\.key\.pub\n/);
+  assert.match(file.text, /-ge 20000 \] && \[ "\$p" -le 59999/);
+  assert.ok(rendered.steps[0].run.join(' ').includes('useradd --system --no-create-home --shell /usr/sbin/nologin carry'));
+  const sshd = ['/usr/sbin/sshd'].find(path => existsSync(path));
+  if (!sshd) return;
+  const dir = folder(t);
+  assert.equal(spawnSync('ssh-keygen', ['-t', 'ed25519', '-N', '', '-q', '-f', join(dir, 'host')]).status, 0);
+  writeFileSync(join(dir, 'sshd_config'), `HostKey ${join(dir, 'host')}\nUsePAM no\n${file.text.replace('AuthorizedPrincipalsCommandUser nobody', `AuthorizedPrincipalsCommandUser ${process.env.USER ?? 'nobody'}`)}`);
+  const checked = spawnSync(sshd, ['-t', '-f', join(dir, 'sshd_config')], { encoding: 'utf8' });
+  assert.equal(checked.status, 0, checked.stderr);
 });

@@ -37,7 +37,7 @@ test('a caddy row that names a site file renders that whole file from the row, w
   assert.doesNotMatch(file.text, /oauth-authorization-server\* \{/, 'discovery stays with the engine unless the row names better-auth-discovery');
   for (const own of ['{args[0]}', '{client_ip}', '{host}', '{uri}', '{$CADDY_STORAGE_PASSWORD}']) assert.ok(file.text.includes(own), `Caddy's ${own} is left as it is`);
   const lines = file.text.split('\n').length, templateLines = TEMPLATE.split('\n').length;
-  assert.equal(lines, templateLines, 'the routes slot grows by two (the route block is three lines) and the empty every-name and carried-computer slot lines go');
+  assert.equal(lines, templateLines + 1, 'the routes slot grows by two (the route block is three lines) and the empty every-name slot line goes');
 });
 
 test('every other name\'s routes (every_name_routes) go first in the on-demand block, so an attached name reaches the sign-in tool', () => {
@@ -165,23 +165,6 @@ test('applying a row with pages writes a binary page through base64 and reads it
   assert.doesNotMatch(page.command, /base64/);
 });
 
-test('a computer carried to the door (caddy.carried_computers) gets its /a/<address> routes sent to its tunnel\'s loopback port, ahead of the forwarder paths', () => {
-  const carried = [{ address: 'a1b2c3d4e5f60718', port: 18790 }, { address: '0f9e8d7c6b5a4321', port: 18791 }];
-  const [file] = renderWhatItRuns({ caddy: { ...caddy, carried_computers: carried }, units: [] }, SITE_BLOCK, PAGES);
-  assert.doesNotMatch(file.text, /\{\{/);
-  for (const { address, port } of carried) {
-    assert.match(file.text, new RegExp(`^\\t@carried_${address} path /a/${address} /a/${address}/\\*\\n\\thandle @carried_${address} \\{\\n\\t\\treverse_proxy 127\\.0\\.0\\.1:${port} \\{\\n\\t\\t\\theader_up Host door\\.example\\.test\\n\\t\\t\\tflush_interval -1\\n\\t\\t\\}\\n\\t\\}$`, 'm'));
-  }
-  assert.ok(file.text.indexOf('@carried_a1b2c3d4e5f60718') < file.text.indexOf('@forwarder path'), 'a carried computer is routed before the forwarder\'s /a/* paths');
-  const [none] = renderWhatItRuns({ caddy, units: [] }, SITE_BLOCK, PAGES);
-  const [empty] = renderWhatItRuns({ caddy: { ...caddy, carried_computers: [] }, units: [] }, SITE_BLOCK, PAGES);
-  assert.equal(empty.text, none.text);
-  assert.doesNotMatch(none.text, /carried/);
-  for (const bad of [{ address: 'a1b2c3d4 }\nrespond 200 {', port: 18790 }, { address: 'a1b2c3d4e5f60718', port: 0 }, { address: 'a1b2c3d4e5f60718', port: '18790' }, { address: 'short', port: 18790 }]) {
-    assert.throws(() => renderWhatItRuns({ caddy: { ...caddy, carried_computers: [bad] }, units: [] }, SITE_BLOCK, PAGES), /caddy\.carried_computers needs each computer's address/);
-  }
-});
-
 const single = {
   site_file: 'single-name-front-door', door_host: 'door.example.test', engine_listen: '127.0.0.1:7199', engine_paths: ['/a/*'], request_max: '4MB',
   pages_root: '/var/lib/front-door-pages', routes: ['better-auth', 'better-auth-pages', 'better-auth-discovery', 'better-auth-home'], engine_routes: ['engine'],
@@ -216,18 +199,12 @@ test('a single-name front door without an engine route has no engine paths, and 
   assert.throws(() => renderWhatItRuns({ caddy: noRoot, units: [] }, SITE_BLOCK, PAGES), /needs pages_root/);
 });
 
-test('a single-name front door sends a carried computer\'s /a/<address> to its tunnel port ahead of the engine paths, and a row with none leaves the slot out', () => {
-  const [file] = renderWhatItRuns({ caddy: { ...single, carried_computers: [{ address: 'a1b2c3d4e5f60718', port: 18790 }] }, units: [] }, SITE_BLOCK, PAGES);
-  assert.match(file.text, /^\t@carried_a1b2c3d4e5f60718 path \/a\/a1b2c3d4e5f60718 \/a\/a1b2c3d4e5f60718\/\*\n\thandle @carried_a1b2c3d4e5f60718 \{\n\t\treverse_proxy 127\.0\.0\.1:18790 \{/m);
-  assert.ok(file.text.indexOf('@carried_a1b2c3d4e5f60718') < file.text.indexOf('@engine path'));
-  const [none] = renderWhatItRuns({ caddy: single, units: [] }, SITE_BLOCK, PAGES);
-  assert.doesNotMatch(none.text, /carried/);
-});
-
-test('a computer carried by paths (caddy.carried_computers paths) gets those paths sent to its tunnel port, and bad paths or ports are refused', () => {
-  const carried = [{ port: 18790, paths: ['/mcp', '/.well-known/oauth-protected-resource', '/.well-known/oauth-protected-resource/mcp'] }];
-  const [file] = renderWhatItRuns({ caddy: { ...single, carried_computers: carried }, units: [] }, SITE_BLOCK, PAGES);
-  assert.match(file.text, /^\t@carried_18790 path \/mcp \/\.well-known\/oauth-protected-resource \/\.well-known\/oauth-protected-resource\/mcp\n\thandle @carried_18790 \{\n\t\treverse_proxy 127\.0\.0\.1:18790 \{\n\t\t\theader_up Host door\.example\.test$/m);
-  assert.throws(() => renderWhatItRuns({ caddy: { ...single, carried_computers: [{ port: 18790, paths: ['mcp'] }] }, units: [] }, SITE_BLOCK, PAGES), /paths must be a list of paths that start with \//);
-  assert.throws(() => renderWhatItRuns({ caddy: { ...single, carried_computers: [{ port: 0, paths: ['/mcp'] }] }, units: [] }, SITE_BLOCK, PAGES), /and a loopback port/);
+test('a meeting point renders its way row\'s host half once for every computer, with the commands that follow a change', () => {
+  const runs = { caddy: single, units: [], meeting_point: { way: 'ssh-certificate', values: { ca_public_file: '/var/lib/example/meeting-ca.key.pub', port_min: 20000, port_max: 59999 } } };
+  const files = renderWhatItRuns(runs, SITE_BLOCK, PAGES);
+  const ssh = files.find(file => file.path === '/etc/ssh/sshd_config.d/carry.conf');
+  assert.match(ssh.text, /^Match User carry\n    TrustedUserCAKeys \/var\/lib\/example\/meeting-ca\.key\.pub\n/);
+  assert.deepEqual(ssh.then.map(argv => argv[0]), ['sh', '/usr/sbin/sshd', 'systemctl']);
+  assert.throws(() => renderWhatItRuns({ ...runs, meeting_point: { way: 'no-such-way' } }, SITE_BLOCK, PAGES), /unknown way no-such-way/);
+  assert.throws(() => renderWhatItRuns({ ...runs, meeting_point: { way: 'ssh-certificate', values: {} } }, SITE_BLOCK, PAGES), /needs ca_public_file/);
 });

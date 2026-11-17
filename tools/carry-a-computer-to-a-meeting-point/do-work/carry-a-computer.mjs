@@ -32,8 +32,8 @@ export function portFor(computerId, { min, max } = PORT_RANGE, salt = '') {
 }
 
 /** The values a way row's text and arguments are filled with, for one computer at one relay host. */
-export function valuesFor({ way, relay_host: relayHost, computer_id: computerId, salt = '', local_port: localPort, ports = PORT_RANGE }) {
-  const base = { computer_id: computerId, short_id: hex(computerId).slice(0, 16), remote_port: portFor(computerId, ports, salt), host: relayHost.hostname, ...(relayHost.params ?? {}) };
+export function valuesFor({ way, relay_host: relayHost, computer_id: computerId, salt = '', local_port: localPort, ports = PORT_RANGE, values = {} }) {
+  const base = { computer_id: computerId, salt, short_id: hex(computerId).slice(0, 16), remote_port: portFor(computerId, ports, salt), host: relayHost.hostname, ...(relayHost.params ?? {}), ...values };
   if (localPort !== undefined) base.local_port = localPort;
   const own = Object.fromEntries(Object.entries(way.params ?? {}).map(([key, value]) => [key, typeof value === 'string' ? fill(value, base, `way ${way.id} params.${key}`) : value]));
   return { ...base, ...own };
@@ -83,12 +83,35 @@ export function credentialFrom(command) {
   });
 }
 
+/** The JSON a command prints on its standard output, or null when it fails or prints something else. */
+function answerOf(spawnImpl, argv) {
+  return new Promise(done => {
+    const child = spawnImpl(argv[0], argv.slice(1), { stdio: ['ignore', 'pipe', 'ignore'] });
+    let said = '';
+    child.stdout?.on('data', bytes => { if (said.length < 65536) said += bytes.toString(); });
+    child.once('error', () => done(null));
+    child.once('exit', code => { try { done(code === 0 ? JSON.parse(said) : null); } catch { done(null); } });
+  });
+}
+
 /** Keeps one computer carried: starts the way's client, and starts it again two seconds after it ends, until aborted. */
 export async function serveCarrier(config, { credential, state, have = here(), spawnImpl = spawn, fetchBytes, run, wait = ms => new Promise(resolveWait => setTimeout(resolveWait, ms)), signal, report = () => {} }) {
   const { way } = config;
-  const values = valuesFor(config);
   const exe = await ensureProgram(way.client.program, { have, state, fetchBytes, run });
   while (!signal?.aborted) {
+    let values = valuesFor(config);
+    // An announcement whose answer the client needs (`announce.gives`: a value name for each answer field, such as the port the
+    // meeting point gives this computer and a certificate that may listen on it alone) is asked before the client starts.
+    if (config.announce?.gives) {
+      const answer = await answerOf(spawnImpl, config.announce.argv.map(part => fill(part, values, 'announce')));
+      const given = answer && Object.entries(config.announce.gives).map(([name, field]) => [name, answer[field]]);
+      if (!given || given.some(([, value]) => value === undefined || value === null)) {
+        report({ way: way.id, ended: true, exit_code: null, said: 'the meeting point did not answer the announcement' });
+        if (!signal?.aborted) await wait(2000);
+        continue;
+      }
+      values = { ...values, ...Object.fromEntries(given) };
+    }
     const secret = await credential();
     mkdirSync(join(state, 'run'), { recursive: true, mode: 0o700 });
     const dir = mkdtempSync(join(state, 'run', 'carrier-'));
@@ -127,8 +150,10 @@ export function renderMeetingPoint({ way, relay_host: relayHost, computers, valu
     taken.set(own.remote_port, computer.id);
     return { ...values, ...own, server_value: computer.server_value };
   });
-  const base = { ...values, host: relayHost.hostname, ...(relayHost.params ?? {}) };
   const at = (text, field, where) => fill(text, field, `way ${way.id} ${where}`);
+  const hostValues = { ...values, host: relayHost.hostname, ...(relayHost.params ?? {}) };
+  // A step for the host as a whole (no `each`) is filled with the way's own params too, such as the one user every computer uses.
+  const base = { ...hostValues, ...Object.fromEntries(Object.entries(way.params ?? {}).filter(([, value]) => typeof value === 'string' && !/\{(computer_id|short_id|remote_port)\}/.test(value)).map(([key, value]) => [key, at(value, hostValues, `params.${key}`)])) };
   const file = (spec, field, extra = {}) => ({ file: { path: at(spec.path, field, 'file path'), mode: spec.mode ?? '0600', text: at(spec.text, { ...field, ...extra }, `file ${spec.path}`) } });
   const one = (step, field) => (step.run ? { run: step.run.map(part => at(part, field, 'step')) } : file(step.file, field));
   const steps = way.server.steps.flatMap(step => {
@@ -163,7 +188,7 @@ export function installCarrier(config, state, { have = here(), rows = INIT_ROWS,
   const entry = copyCarrier(state), configFile = join(state, `${config.label}.json`);
   writeFileSync(configFile, `${JSON.stringify({ ...config, state })}\n`, { mode: 0o600 });
   const row = selectInit(rows, have, config.way.install.scope);
-  return { ...installInit(row, installValues(config, state, entry, configFile), { run, pause, now }), way: config.way.id, port: valuesFor(config).remote_port };
+  return { ...installInit(row, installValues(config, state, entry, configFile), { run, pause, now }), way: config.way.id, port: config.announce?.gives?.remote_port ? 'given by the meeting point at each start' : valuesFor(config).remote_port };
 }
 
 export function removeCarrier(config, state, { have = here(), rows = INIT_ROWS, run, pause, now } = {}) {

@@ -252,6 +252,10 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
       await run(machine, `install -d -m 0755 ${q(dirname(path))} && ${binary ? 'base64 -d | ' : ''}install -m 0644 -o root -g root /dev/stdin ${q(path)}`, text);
     }
   }
+  // A file that names commands to run once it changed (`then`: the meeting point's user and its ssh server's reload) runs them,
+  // each once, in order.
+  const thens = [...new Map(writes.flatMap(({ then }) => then ?? []).map(argv => [JSON.stringify(argv), argv])).values()];
+  for (const argv of thens) await run(machine, argv.map(q).join(' '));
   // A file a unit reads (its settings, access file or script) changes that unit, and each unit that names it; a unit file or
   // drop-in changes its own unit.
   const unitsOf = path => {

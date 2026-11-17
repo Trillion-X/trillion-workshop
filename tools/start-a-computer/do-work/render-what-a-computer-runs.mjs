@@ -10,6 +10,7 @@
 // each such name and each of `door_hosts` is carried to `door_upstream`; the Caddy it runs is the row's `binary` (its path) and `binary_files`.
 import { existsSync, readFileSync } from 'node:fs';
 import { fill } from './fill-fields.mjs';
+import { WAYS, renderMeetingPoint } from '../../carry-a-computer-to-a-meeting-point/do-work/carry-a-computer.mjs';
 
 const TEMPLATE = name => readFileSync(new URL(`../read-data/unit-templates/${name}`, import.meta.url), 'utf8');
 // A unit's template is named by its file without the extension.
@@ -80,21 +81,9 @@ const SITE_FILE = name => {
   if (!/^[a-z0-9-]+$/.test(name) || !existsSync(file)) throw new Error(`caddy.site_file names an unknown site file ${name}`);
   return readFileSync(file, 'utf8');
 };
-/** A computer carried to the door (caddy.carried_computers: { address, port }): its /a/<address> routes go to the loopback
- * port its outbound tunnel (tools/carry-a-computer-to-a-meeting-point) listens on at this computer. The carrier passes bytes; the
- * engine behind the tunnel alone checks who calls. */
-const carriedRoutes = caddy => (caddy.carried_computers ?? []).map(({ address, paths, port }) => {
-  if (!Number.isSafeInteger(port) || port < 1 || port > 65535) throw new Error('caddy.carried_computers needs each computer\'s address (lowercase letters and digits) or its paths, and a loopback port');
-  if (paths !== undefined) {
-    if (!Array.isArray(paths) || !paths.length || !paths.every(path => /^\/[A-Za-z0-9._~\/*-]*$/.test(path))) throw new Error('caddy.carried_computers paths must be a list of paths that start with /');
-    return fill(ROUTE('carried-paths'), { ...caddy, carried_paths: paths, carried_port: port }, `carried computer at port ${port}`);
-  }
-  if (!/^[a-z0-9]{8,128}$/.test(address)) throw new Error('caddy.carried_computers needs each computer\'s address (lowercase letters and digits) and a loopback port');
-  return fill(ROUTE('carried-computer'), { ...caddy, carried_address: address, carried_port: port }, `carried computer ${address}`);
-}).join('\n');
 const renderSiteFile = caddy => {
   const where = `caddy site file ${caddy.site_file}`;
-  const routes = key => key === 'carried_computer_routes' ? carriedRoutes(caddy) : (caddy[key] ?? []).map(name => routeText(name, caddy, `caddy route ${name}`)).join('\n');
+  const routes = key => (caddy[key] ?? []).map(name => routeText(name, caddy, `caddy route ${name}`)).join('\n');
   const isRoutes = key => key === 'routes' || key.endsWith('_routes');
   const text = SITE_FILE(caddy.site_file).replace(/^\{\{([a-z_]+)\}\}\n/gm, (line, key) => isRoutes(key) && !routes(key) ? '' : line);
   return fillFields(text, caddy, where, key => (isRoutes(key) ? routes(key) : undefined));
@@ -196,6 +185,16 @@ export function renderWhatItRuns(runs, siteBlock, pages) {
   if (runs.caddy?.pages_root) files.push(...pageFiles(runs.caddy, pages));
   const door = runs.caddy?.front_door;
   if (door) files.push({ path: `${SYSTEMD}/caddy.service.d/front-door.conf`, text: fill(TEMPLATE('caddy-front-door.conf'), door, 'caddy.front_door') });
+  // A meeting point (`meeting_point`: { way, values }) runs the host half of that way row
+  // (tools/carry-a-computer-to-a-meeting-point read-data/ways.json), the same for every computer carried to it: its files are
+  // written like every other, and its commands (`then`) run, in order, after one of them changed.
+  if (runs.meeting_point) {
+    const way = WAYS.find(row => row.id === runs.meeting_point.way);
+    if (!way) throw new Error(`meeting_point names an unknown way ${runs.meeting_point.way}`);
+    const { steps } = renderMeetingPoint({ way, relay_host: { hostname: runs.meeting_point.values?.host ?? 'localhost' }, computers: [], values: runs.meeting_point.values ?? {} });
+    const then = steps.filter(step => step.run).map(step => step.run);
+    files.push(...steps.filter(step => step.file).map(step => ({ path: step.file.path, text: step.file.text, then })));
+  }
   for (const unit of runs.units ?? []) {
     const where = `unit ${unit.unit}`;
     const template = UNITS[unit.template];

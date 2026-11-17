@@ -28,7 +28,6 @@
 	}
 
 {{routes}}
-{{carried_computer_routes}}
 	handle /healthz {
 		respond "tls-ready
 " 200
