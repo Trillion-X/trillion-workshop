@@ -1,0 +1,268 @@
+{
+  "about": "workflow:make-a-cover-from-outside-inspiration: the cover and headline of any piece (a video thumbnail, a reel or carousel cover, a newsletter or article header, a printed postcard), made by studying what outperformed, pairing a credible source with what culture is talking about, and taking the visual idea from outside the piece's own platform.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:make-a-cover-from-outside-inspiration",
+        "label": "Make a cover from outside inspiration",
+        "job": "For one piece and one surface, make its cover and headline: study what outperformed on that surface, pair a credible source the piece truly rests on with something culture is talking about now, find the visual idea in galleries outside the surface's own platform, mock it up several ways with the piece's own subject, pick one, and record how it did and where its idea came from.",
+        "produces": "A chosen cover and headline for the piece, the mockups it was chosen from, the cited references, and after publishing its click and outlier result tallied by inspiration source.",
+        "made_from": [
+          "workflow:make-one-piece-of-content-from-audience-to-publish",
+          "workflow:ask-for-ten-and-keep-the-winner",
+          "workflow:source-a-screen-from-design-libraries"
+        ],
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "piece": {
+              "type": "string",
+              "description": "The piece the cover is for: a row id of the person's content, or its words."
+            },
+            "surface": {
+              "type": "string",
+              "description": "Where the cover appears, for example a YouTube thumbnail, an Instagram reel cover, the first slide of a carousel, a TikTok cover, a newsletter header, an article hero image or a printed postcard. Its size and safe area are read from the person's content-formats rows or the platform's published size."
+            }
+          },
+          "required": [
+            "piece",
+            "surface"
+          ]
+        },
+        "source": {
+          "from": "Shared by the person 2026-11-17: ant (x.com/antxoch/status/2122721425958002760), a 78.6x outlier on a 15K-subscriber channel (1M+ views in 72 hours, 8.5% CTR, their figures): the concept paired Harvard's credibility with one of the most talked-about figures in culture (cultural hacking); the thumbnail idea came from Pinterest (eyes peeking through torn paper), recreated with a Harvard research paper, a few mockups, then the direction. The person also shared ant's gallery, https://antioch-creative.com/gallery (about 150 curated thumbnails), saying it works for any image: articles, Instagram covers for a carousel or reel, TikTok, a newsletter, a physical postcard, anything.",
+          "note": "Galleries are rows of the person's list image-inspiration-sources, never named in a step; the two shared ones are the first candidates. Figures are the poster's and not checked here. References are studied for their idea and composition, never copied as images."
+        },
+        "steps": [
+          {
+            "id": "study-outliers",
+            "title": "Study what outperformed on this surface",
+            "when": "Every run starts here.",
+            "do": "For a video surface, run tool:find-outlier-videos-against-their-channel-median over channels in the person's niche (from their watched sources) and keep the top outliers with their titles and covers; for any other surface, read the person's own best-performing covers on it (the weekly read's rows) and the outliers their watched sources show. For each, write in one line the packaging move that made it stand out (a contrast, an authority, a face, a curiosity gap, a metaphor).",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outliers"
+              ],
+              "properties": {
+                "outliers": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "ref": {
+                        "type": "string"
+                      },
+                      "ratio": {
+                        "type": "number"
+                      },
+                      "move": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "done_when": "At least five outliers, each with a link or row id and the move named.",
+            "if_missing": "If no outlier data exists for the surface, say so and use the person's own best covers only.",
+            "why": "Outliers show which packaging moves beat their own channel's normal, not just what is popular.",
+            "good_answer": "Passes: each outlier has its ratio or result and a named move. Fails: a list of popular covers with no reason they won.",
+            "came_from": [
+              "x.com/antxoch/status/2122721425958002760: study outliers"
+            ],
+            "part_of": [
+              "make-a-cover-from-outside-inspiration"
+            ],
+            "position": 0
+          },
+          {
+            "id": "pair-credibility-with-attention",
+            "title": "Pair a credible source with what culture is talking about",
+            "when": "After study-outliers.",
+            "do": "List the credible sources input.piece truly rests on (a study, an institution, data, a known expert, the person's own proof) and what culture is talking about now (people, events and topics rising in the person's watched sources this week). Pair a source with a topic only where the piece really connects them, and write 5 to 10 headline drafts from those pairs in the person's title templates. Reject any pair the piece cannot back with its own content.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "pairs",
+                "headlines"
+              ],
+              "properties": {
+                "pairs": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "credible": {
+                        "type": "string"
+                      },
+                      "attention": {
+                        "type": "string"
+                      },
+                      "backed_by": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "headlines": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "rejected": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "done_when": "Every pair names where in the piece it is backed, and five or more headlines are drafted from the pairs.",
+            "if_missing": "If the piece rests on no credible source, say so and draft from the person's own proof instead; never borrow an authority the piece does not use.",
+            "why": "Familiar credibility with current curiosity is what made the outlier click; it only holds when the piece delivers what the cover promises.",
+            "good_answer": "Passes: each pair traced to a passage of the piece. Fails: a famous name or institution the piece never cites.",
+            "came_from": [
+              "x.com/antxoch/status/2122721425958002760: cultural hacking, pairing Harvard's credibility with one of the most talked-about figures"
+            ],
+            "part_of": [
+              "make-a-cover-from-outside-inspiration"
+            ],
+            "position": 1
+          },
+          {
+            "id": "find-the-idea-outside",
+            "title": "Find the visual idea outside the platform",
+            "when": "After pair-credibility-with-attention.",
+            "do": "Search the person's rows of list image-inspiration-sources (curated thumbnail and cover galleries, Pinterest, photo, poster and art collections), and anywhere outside input.surface's own platform, for a visual metaphor that carries the chosen pair. Keep three to five references, each with its link and what is taken from it (the metaphor, the composition, the crop, the texture), and say how it would be recreated with the piece's own subject.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "references"
+              ],
+              "properties": {
+                "references": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "url": {
+                        "type": "string"
+                      },
+                      "taken": {
+                        "type": "string"
+                      },
+                      "recreated_as": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "done_when": "Three or more cited references, each with what is taken and how it is recreated.",
+            "if_missing": "If the person has no inspiration sources yet, use the galleries named in this workflow's source as candidates and add them as rows of list image-inspiration-sources for the person to keep or drop.",
+            "why": "Covers taken from the same platform look like everything else in the feed; an idea from outside it is what stops the scroll.",
+            "good_answer": "Passes: references from outside the surface's platform, each with a recreation plan. Fails: copying a reference image, or only same-platform references.",
+            "came_from": [
+              "x.com/antxoch/status/2122721425958002760: the thumbnail inspiration came from Pinterest; some of the best thumbnail ideas come from outside YouTube",
+              "the person 2026-11-17: the gallery works for articles, IG covers, carousels, reels, TikTok, newsletters, postcards, anything"
+            ],
+            "part_of": [
+              "make-a-cover-from-outside-inspiration"
+            ],
+            "position": 2
+          },
+          {
+            "id": "mock-it-up",
+            "title": "Mock it up several ways",
+            "when": "After find-the-idea-outside.",
+            "do": "Make at least four mockups at the surface's size and safe area, each recreating a reference's idea with the piece's own subject and one of the headlines, using tool:compose-thumbnails-from-layout-templates or the person's image tools; vary the subject's crop, the headline and the reference. Judge them against each other and the outliers, as workflow:ask-for-ten-and-keep-the-winner does, and keep the best two with why.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "mockups",
+                "kept"
+              ],
+              "properties": {
+                "mockups": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "file": {
+                        "type": "string"
+                      },
+                      "headline": {
+                        "type": "string"
+                      },
+                      "reference": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "kept": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "done_when": "Four or more mockup files exist at the surface size, and two are kept with reasons.",
+            "if_missing": "If no image tool can make them, say which is missing and keep the briefs for each mockup.",
+            "why": "A few mockups of one idea are how the direction is found; one draft hides what a small change would do.",
+            "good_answer": "Passes: real files, each tied to a reference and a headline, judged side by side. Fails: one mockup, or files at the wrong size.",
+            "came_from": [
+              "x.com/antxoch/status/2122721425958002760: a few mockups later, we had our direction"
+            ],
+            "part_of": [
+              "make-a-cover-from-outside-inspiration"
+            ],
+            "position": 3
+          },
+          {
+            "id": "pick-and-measure",
+            "title": "Pick one and record how it did",
+            "when": "After mock-it-up; the measure part after the piece is published.",
+            "do": "Show the person the two kept mockups with their headlines; their pick is the cover. After publishing, read its click-through rate and its views against the channel's or account's median (the outlier ratio), and record them on the piece with the inspiration source and the pair used, so the weekly read and the daily learn-and-prune can tell which sources and pairings win.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "chosen"
+              ],
+              "properties": {
+                "chosen": {
+                  "type": "string"
+                },
+                "ctr": {
+                  "type": "number"
+                },
+                "outlier_ratio": {
+                  "type": "number"
+                },
+                "inspiration_source": {
+                  "type": "string"
+                }
+              }
+            },
+            "done_when": "The chosen cover is named; after publishing, its result and inspiration source are recorded on the piece.",
+            "if_missing": "If results are not readable yet, leave the measure for the next weekly read.",
+            "why": "Recording where each winning idea came from is what makes the inspiration sources themselves learnable.",
+            "good_answer": "Passes: result recorded with its source and pair. Fails: a chosen cover with nothing recorded after publishing.",
+            "came_from": [
+              "x.com/antxoch/status/2122721425958002760: 8.5% CTR, 78.6x outlier"
+            ],
+            "part_of": [
+              "make-a-cover-from-outside-inspiration"
+            ],
+            "position": 4
+          }
+        ]
+      }
+    }
+  ]
+}
