@@ -4,6 +4,7 @@
 // holds exactly the rights the row declares and a stand-in web whose servers answer as an MCP server, as a git repository, as both
 // or as neither. Every address, host, commit and label is made up.
 import test from 'node:test';
+import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
 import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
 import { openRecordsDoor } from '../../records-door/read-data/records-door.mjs';
@@ -23,6 +24,7 @@ function web(as) {
     asked.push({ address: String(address), init });
     const url = new URL(address);
     const server = as[url.hostname] ?? {};
+    if (server.oauth) return oauthWorld(server.oauth, url, init);
     if (init.method === 'POST') {
       if (server.mcp === 'json') return new Response(JSON.stringify(initialize), { status: 200, headers: { 'content-type': 'application/json' } });
       if (server.mcp === 'stream') return new Response(`event: message\ndata: ${JSON.stringify(initialize)}\n\n`, { status: 200, headers: { 'content-type': 'text/event-stream' } });
@@ -37,14 +39,38 @@ function web(as) {
   return { send, asked };
 }
 
-async function open(records = []) {
-  const door = await startFakeDoor({ rights: row.invoke.records.rights, records });
+/** A server that asks for a sign-in, its protected-resource document, its authorization server's metadata and registration. */
+function oauthWorld(how, url, init) {
+  const json = (value, status = 200) => new Response(JSON.stringify(value), { status, headers: { 'content-type': 'application/json' } });
+  const issuer = 'https://auth.made-up.example';
+  if (url.hostname === 'oauth.made-up.example') {
+    if (init.method === 'POST') return new Response('{}', { status: 401, headers: { 'www-authenticate': 'Bearer resource_metadata="https://oauth.made-up.example/.well-known/oauth-protected-resource/mcp", scope="tools.read"' } });
+    if (url.pathname.startsWith('/.well-known/oauth-protected-resource')) return json({ resource: 'https://oauth.made-up.example/mcp', authorization_servers: [issuer], scopes_supported: ['tools.read'] });
+  }
+  if (url.hostname === 'auth.made-up.example') {
+    if (url.pathname.startsWith('/.well-known/oauth-authorization-server')) {
+      if (how === 'no-metadata') return new Response('', { status: 404 });
+      return json({ issuer, authorization_endpoint: `${issuer}/authorize`, token_endpoint: `${issuer}/token`, ...(how === 'no-registration' ? {} : { registration_endpoint: `${issuer}/register` }), code_challenge_methods_supported: how === 'no-pkce' ? ['plain'] : ['S256'] });
+    }
+    if (url.pathname === '/register' && init.method === 'POST') {
+      const asked = JSON.parse(init.body);
+      return how === 'refuse-registration' ? json({ error: 'invalid_client_metadata' }, 400) : json({ client_id: 'public-client-1', redirect_uris: asked.redirect_uris }, 201);
+    }
+  }
+  return new Response('', { status: 404 });
+}
+
+const REDIRECT = 'https://signin.example.test/connect/tool-server/callback';
+const SETTING = { id: 'record:setting:tool-server-sign-in', type: 'record:setting', value: { redirect_uri: REDIRECT } };
+
+async function open(records = [], toolRuns = {}) {
+  const door = await startFakeDoor({ rights: row.invoke.records.rights, records, runs: row.invoke.records.runs, toolRuns });
   return { door, records_door: openRecordsDoor({ descriptor: door.descriptor }) };
 }
 
 const add = (records_door, input, as = {}) => addToolSource(input, { door: records_door, fetch: web(as).send });
 
-test('a path, a prefix and a listed git host are known by their syntax and nothing is asked of the web', async () => {
+test('a path, a prefix and a listed git host are known by their syntax and nothing more is asked of the web', async () => {
   const { door, records_door } = await open();
   try {
     const being = web({ 'github.com': { git: true } });
@@ -57,7 +83,7 @@ test('a path, a prefix and a listed git host are known by their syntax and nothi
     assert.deepEqual(server.entry, { label: 'tools.made-up.example', kind: 'remote-mcp', remote: { url: 'https://tools.made-up.example/mcp' } });
     const own = await addToolSource({ address: 'mcp+http://127.0.0.1:8123/mcp', label: 'mine' }, { door: records_door, fetch: being.send });
     assert.deepEqual(own.entry.remote, { url: 'http://127.0.0.1:8123/mcp', private_targets: [{ host: '127.0.0.1', port: 8123 }] });
-    assert.deepEqual(being.asked, [], 'a syntax that says what it is asks the web nothing');
+    assert.deepEqual(being.asked.map(sent => sent.address), ['https://tools.made-up.example/mcp'], 'a server of the person over https is asked once whether it wants a sign-in; every other syntax asks the web nothing');
   } finally { await door.close(); }
 });
 
@@ -77,10 +103,10 @@ test('a repository is a repository at any listed host, nested groups included, a
   } finally { await door.close(); }
 });
 
-test('a bare https address is looked at once: an MCP server by initialize or by asking for sign-in, a git repository by its refs', async () => {
+test('a bare https address is looked at once: an MCP server by initialize or as a stream, a git repository by its refs', async () => {
   const { door, records_door } = await open();
   try {
-    const answers = { 'a.made-up.example': { mcp: 'json' }, 'b.made-up.example': { mcp: 'stream' }, 'c.made-up.example': { mcp: 'sign-in' } };
+    const answers = { 'a.made-up.example': { mcp: 'json' }, 'b.made-up.example': { mcp: 'stream' } };
     for (const host of Object.keys(answers)) {
       const added = await add(records_door, { address: `https://${host}/mcp` }, answers);
       assert.deepEqual([added.entry.kind, added.source.learned], ['remote-mcp', 'probe'], host);
@@ -131,7 +157,7 @@ test('the source is kept as one request waiting for the person, once, and the ro
     assert.match(added.said, /Nothing is added until you approve it/);
     await assert.rejects(add(records_door, { address: '/tmp/other', label: 'made-up' }), /already waiting or added/);
     assert.equal(door.kept.size, 1);
-    assert.deepEqual(row.invoke.records.rights, [{ kind: 'record:tool-source-request', prefix: 'record:tool-source-request:', operations: ['records:list', 'records:write'] }]);
+    assert.deepEqual(row.invoke.records.rights, [{ kind: 'record:tool-source-request', prefix: 'record:tool-source-request:', operations: ['records:list', 'records:write'] }, { kind: 'tool-server-sign-in-pending', operations: ['records:read', 'records:list', 'records:write'] }, { kind: 'record:setting', id: 'record:setting:tool-server-sign-in', operations: ['records:read'] }]);
     assert.equal(row.invoke.internet, true);
   } finally { await door.close(); }
 });
@@ -149,5 +175,87 @@ test('a server that asks for a sign-in names the vault secret its bearer is read
     await assert.rejects(add(records_door, { address: 'mcp+https://a.made-up.example/mcp', credential: 'a', connection: {} }), /either a credential/);
     await assert.rejects(add(records_door, { address: 'mcp+https://a.made-up.example/mcp', credential: 'has a space' }), /name of a secret/);
     await assert.rejects(add(records_door, { address: 'mcp+https://a.made-up.example/mcp', connection: { connection_id: 'other:x', field_id: 'f' } }), /name of a secret/);
+  } finally { await door.close(); }
+});
+
+const TRADE = 'tool:trade-a-tool-servers-sign-in-code-for-its-tokens';
+const ASKS = { 'oauth.made-up.example': { oauth: 'works' }, 'auth.made-up.example': { oauth: 'works' } };
+
+test('a server that asks for a sign-in is found, registered with and sent to its own sign-in page with PKCE, and nothing is kept as a source', async () => {
+  const { door, records_door } = await open([SETTING]);
+  try {
+    const added = await add(records_door, { address: 'https://oauth.made-up.example/mcp', label: 'oauth' }, ASKS);
+    assert.deepEqual([added.source.kind, added.source.learned, added.source.row], ['remote-mcp', 'probe', null]);
+    const link = new URL(added.sign_in.authorize_url);
+    assert.equal(`${link.origin}${link.pathname}`, 'https://auth.made-up.example/authorize');
+    const query = Object.fromEntries(link.searchParams);
+    assert.deepEqual([query.response_type, query.client_id, query.redirect_uri, query.code_challenge_method, query.resource, query.scope],
+      ['code', 'public-client-1', REDIRECT, 'S256', 'https://oauth.made-up.example/mcp', 'tools.read']);
+    assert.match(query.code_challenge, /^[A-Za-z0-9_-]{43}$/);
+    assert.ok(query.state.length >= 32);
+    assert.equal(added.sign_in.host, 'auth.made-up.example');
+    assert.match(added.said, /Nothing is added until you approve it/);
+    // The pending sign-in holds the verifier and the entry the engine will read, under the state's digest only.
+    const pending = [...door.kept.values()].filter(record => record.type === 'tool-server-sign-in-pending');
+    assert.equal(pending.length, 1);
+    assert.ok(!pending[0].id.includes(query.state));
+    assert.deepEqual(pending[0].value.entry.remote, { url: 'https://oauth.made-up.example/mcp', sign_in: { token_url: 'https://auth.made-up.example/token', client_id: 'public-client-1' } });
+    assert.equal(createHash('sha256').update(pending[0].value.code_verifier).digest('base64url'), query.code_challenge);
+    assert.equal([...door.kept.values()].filter(record => record.type === 'record:tool-source-request').length, 0, 'no request for approval before the person has signed in');
+    assert.ok(!JSON.stringify(added).includes(pending[0].value.code_verifier), 'the verifier is in no answer');
+  } finally { await door.close(); }
+});
+
+test('a server whose sign-in cannot be used is refused in one plain line and nothing is kept', async () => {
+  const { door, records_door } = await open([SETTING]);
+  try {
+    const world = how => ({ 'oauth.made-up.example': { oauth: how }, 'auth.made-up.example': { oauth: how } });
+    await assert.rejects(add(records_door, { address: 'https://oauth.made-up.example/mcp' }, world('no-pkce')), /does not offer the sign-in protection .*\(PKCE S256\)/);
+    await assert.rejects(add(records_door, { address: 'https://oauth.made-up.example/mcp' }, world('no-registration')), /does not let a new caller register itself/);
+    await assert.rejects(add(records_door, { address: 'https://oauth.made-up.example/mcp' }, world('refuse-registration')), /refused to register this caller/);
+    await assert.rejects(add(records_door, { address: 'https://oauth.made-up.example/mcp' }, world('no-metadata')), /does not publish its sign-in addresses/);
+    assert.equal(door.kept.size, 1, 'only the setting is there');
+  } finally { await door.close(); }
+});
+
+test('the person comes back with a code: it is traded by the trade row, the pending sign-in is used once, and the request waits for approval with the entry the engine reads', async () => {
+  const traded = [];
+  const { door, records_door } = await open([SETTING], { [TRADE]: input => { traded.push(input); return { token_type: 'bearer', access_token: 'held-word', refresh_token: 'held-word' }; } });
+  try {
+    const added = await add(records_door, { address: 'https://oauth.made-up.example/mcp', label: 'oauth' }, ASKS);
+    const { state } = Object.fromEntries(new URL(added.sign_in.authorize_url).searchParams);
+    const verifier = [...door.kept.values()].find(record => record.type === 'tool-server-sign-in-pending').value.code_verifier;
+    await assert.rejects(addToolSource({ callback: { state: 'not-a-state', code: 'c' } }, { door: records_door }), /expired or was already used/);
+    const done = await addToolSource({ callback: { state, code: 'the-code' } }, { door: records_door });
+    assert.deepEqual(traded, [{ connection: { connection_id: 'service_connection:tool-server:oauth' }, token_url: 'https://auth.made-up.example/token', code: 'the-code', redirect_uri: REDIRECT, code_verifier: verifier, client_id: 'public-client-1', resource: 'https://oauth.made-up.example/mcp' }]);
+    assert.equal(done.source.row, 'record:tool-source-request:oauth');
+    assert.deepEqual(done.approve, { address: '@tools', method: 'tools:add-source', input: { entry: done.entry, learned: 'probe' } });
+    assert.deepEqual(done.entry.remote.sign_in, { token_url: 'https://auth.made-up.example/token', client_id: 'public-client-1' });
+    assert.ok(!('credential' in done.entry.remote) && !('grant' in done.entry));
+    const kept = door.kept.get('record:tool-source-request:oauth');
+    assert.equal(kept.value.status, 'pending');
+    assert.equal([...door.kept.values()].filter(record => record.type === 'tool-server-sign-in-pending').length, 0, 'a state is used once');
+    assert.ok(!JSON.stringify([done, kept]).includes('the-code') && !JSON.stringify([done, kept]).includes(verifier), 'no code or verifier is kept or answered');
+    await assert.rejects(addToolSource({ callback: { state, code: 'the-code' } }, { door: records_door }), /expired or was already used/);
+  } finally { await door.close(); }
+});
+
+test('a sign-in with no page to come back to is not started', async () => {
+  const { door, records_door } = await open();
+  try {
+    await assert.rejects(add(records_door, { address: 'https://oauth.made-up.example/mcp' }, ASKS), /has not said which page/);
+    assert.equal(door.kept.size, 0);
+  } finally { await door.close(); }
+});
+
+test('a sign-in the person did not finish, or that the token request refused, keeps nothing', async () => {
+  const { door, records_door } = await open([SETTING], { [TRADE]: () => { throw new Error('the server answered 400'); } });
+  try {
+    const first = await add(records_door, { address: 'https://oauth.made-up.example/mcp', label: 'oauth' }, ASKS);
+    const stateOf = added => Object.fromEntries(new URL(added.sign_in.authorize_url).searchParams).state;
+    await assert.rejects(addToolSource({ callback: { state: stateOf(first), error: 'access_denied' } }, { door: records_door }), /did not finish signing in to oauth/);
+    const again = await add(records_door, { address: 'https://oauth.made-up.example/mcp', label: 'oauth' }, ASKS);
+    await assert.rejects(addToolSource({ callback: { state: stateOf(again), code: 'c' } }, { door: records_door }), /did not finish: the server answered 400/);
+    assert.equal([...door.kept.values()].filter(record => record.type === 'record:tool-source-request').length, 0);
   } finally { await door.close(); }
 });

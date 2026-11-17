@@ -29,6 +29,8 @@
 // The extensive documentation in this codebase is a critical design feature.
 // You are forbidden from simplifying or removing it. Maintain and extend this detail.
 import data from '../read-data/add-tool-source.json' with { type: 'json' };
+import { ask, read } from './ask-the-web.mjs';
+import { finishSignIn, startSignIn } from './sign-in.mjs';
 
 const { probe, row, words } = data;
 const fill = (template, values) => template.replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));
@@ -83,32 +85,6 @@ function repoEntry(url, chosen, commit) {
   return { label: labelOf(chosen, repository.split('/').pop()), kind: 'repo', repository, first_start_commit: commit, archive: host.archive, source_hosts: host.hosts };
 }
 
-/** One request, bounded, with no credential, following at most `max_redirects` redirects each to https. */
-async function ask(send, address, init) {
-  let at = address;
-  for (let followed = 0; ; followed += 1) {
-    const reply = await send(at, { ...init, redirect: 'manual', credentials: 'omit', signal: AbortSignal.timeout(probe.timeout_ms) });
-    const next = [301, 302, 303, 307, 308].includes(reply.status) ? reply.headers.get('location') : null;
-    if (!next) return reply;
-    if (followed >= probe.max_redirects) throw new Error('followed too many redirects');
-    at = new URL(next, at);
-    if (at.protocol !== 'https:') throw new Error('was sent to an address that is not https');
-    at = at.href;
-  }
-}
-
-/** At most `max_bytes` of the answer's body, as text. */
-async function read(reply) {
-  const chunks = [];
-  let length = 0;
-  for await (const chunk of reply.body ?? []) {
-    chunks.push(chunk);
-    length += chunk.length;
-    if (length >= probe.max_bytes) break;
-  }
-  return Buffer.concat(chunks).subarray(0, probe.max_bytes).toString('latin1');
-}
-
 function initializes(text) {
   const bodies = text.trimStart().startsWith('{') ? [text] : text.split('\n').filter(line => line.startsWith('data:')).map(line => line.slice(5));
   return bodies.some(body => {
@@ -119,6 +95,12 @@ function initializes(text) {
   });
 }
 
+/** The `resource_metadata` and `scope` a `WWW-Authenticate` challenge names (RFC 9728 section 5.1). */
+function challengeOf(header) {
+  const named = name => new RegExp(`${name}="?([^",\\s]+)"?`, 'i').exec(header)?.[1] ?? null;
+  return { resource_metadata: named('resource_metadata'), scope: named('scope') };
+}
+
 /** Whether `address` answers an MCP `initialize`: { is, why }. A 401 that points to its protected-resource metadata is a server asking for sign-in. */
 async function asksMcp(send, address) {
   try {
@@ -127,9 +109,9 @@ async function asksMcp(send, address) {
       headers: { 'content-type': 'application/json', accept: 'application/json, text/event-stream' },
       body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: probe.protocol_version, capabilities: {}, clientInfo: { name: probe.client_name, version: probe.client_version } } }),
     });
-    if (reply.status === 401 && /resource_metadata=/i.test(reply.headers.get('www-authenticate') ?? '')) return { is: true };
+    if (reply.status === 401 && /resource_metadata=/i.test(reply.headers.get('www-authenticate') ?? '')) return { is: true, challenge: challengeOf(reply.headers.get('www-authenticate')) };
     if (reply.status !== 200) return { is: false, why: `it answered ${reply.status}` };
-    return initializes(await read(reply)) ? { is: true } : { is: false, why: 'its answer was not an initialize answer' };
+    return initializes(await read(reply)) ? { is: true, challenge: null } : { is: false, why: 'its answer was not an initialize answer' };
   } catch (error) {
     return { is: false, why: `it ${error.name === 'TimeoutError' ? 'did not answer in time' : error.message}` };
   }
@@ -149,13 +131,18 @@ async function asksGit(send, address) {
 }
 
 /** The entry and how its kind was learned, from the address alone or, for a bare https address, from one probe. */
-async function learn(address, chosen, send) {
+async function learn(address, chosen, send, askForSignIn) {
   if (/^(ssh:\/\/|git@|git:\/\/)/.test(address)) refuse('no_ssh');
   const prefix = data.prefixes.find(rule => address.startsWith(rule.starts));
   if (prefix) {
     const rest = prefix.strip ? address.slice(prefix.strip.length) : address;
     if (prefix.kind === 'folder') return { entry: folderEntry(rest, chosen), learned: 'syntax' };
-    if (prefix.kind === 'remote-mcp') return { entry: remoteEntry(rest, chosen, prefix.private === true), learned: 'syntax' };
+    if (prefix.kind === 'remote-mcp') {
+      const entry = remoteEntry(rest, chosen, prefix.private === true);
+      // A server of the person's that is reached over https is asked once whether it wants a sign-in.
+      const asked = askForSignIn && entry.remote.url.startsWith('https:') ? await asksMcp(send, entry.remote.url) : null;
+      return { entry, learned: 'syntax', challenge: asked?.challenge ?? null };
+    }
     return { entry: await repoFrom(parsed(rest), chosen, send), learned: 'syntax' };
   }
   if (!address.startsWith('https://')) refuse(address.startsWith('http://') ? 'no_http' : 'bad_address');
@@ -164,7 +151,7 @@ async function learn(address, chosen, send) {
   if (url.pathname.endsWith('.git')) return { entry: await repoFrom(url, chosen, send), learned: 'syntax' };
   const [mcp, git] = await Promise.all([asksMcp(send, url.href), asksGit(send, url.href)]);
   if (mcp.is && git.is) refuse('ambiguous', { address });
-  if (mcp.is) return { entry: remoteEntry(url.href, chosen, false), learned: 'probe' };
+  if (mcp.is) return { entry: remoteEntry(url.href, chosen, false), learned: 'probe', challenge: askForSignIn ? mcp.challenge : null };
   if (git.is) return { entry: repoEntry(url, chosen, git.commit ?? refuse('no_commit', { address })), learned: 'probe' };
   return refuse('neither', { address, mcp: mcp.why, git: git.why });
 }
@@ -193,18 +180,25 @@ function credentialName({ credential, connection }) {
 
 export async function addToolSource(input = {}, { door, fetch: send = globalThis.fetch } = {}) {
   if (!object(input)) throw new Error(words.no_address);
+  // The person came back from a server's sign-in page with its answer.
+  if (input.callback !== undefined) return finishSignIn({ callback: input.callback, door });
   const address = typeof input.address === 'string' ? input.address.trim() : '';
   if (!address) refuse('no_address');
   if (address.length > 2048 || /[\s\u0000-\u001f]/.test(address)) refuse('bad_address');
   if (input.label !== undefined && typeof input.label !== 'string') refuse('bad_label');
-  const { entry, learned } = await learn(address, input.label, send);
   const name = credentialName(input);
+  const { entry, learned, challenge } = await learn(address, input.label, send, !name);
   if (name) {
     if (entry.kind !== 'remote-mcp') refuse('credential_only_for_servers');
     entry.remote.credential = name;
   }
   for await (const held of door.list({ type: row.kind, prefix: row.prefix })) {
     if (held.value?.label === entry.label) refuse('taken', { label: entry.label });
+  }
+  if (challenge) {
+    // The server wants a sign-in: the person signs in on its own page, then approves the source.
+    const started = await startSignIn({ entry, challenge, send, door });
+    return { source: { label: entry.label, kind: entry.kind, learned, row: null }, entry, sign_in: started, said: fill(words.sign_in_needed, { label: entry.label, host: started.host }) };
   }
   const id = `${row.prefix}${entry.label}`;
   const approve = { address: data.approve.address, method: data.approve.method, input: { entry, learned } };

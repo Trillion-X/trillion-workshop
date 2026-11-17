@@ -7,13 +7,11 @@
         "label": "Add a source of tools",
         "status": "active",
         "job": "Add a source of tools to my computer from one address: a folder, a git repository at any host or a remote MCP server, and learn which it is without my typing a kind",
-        "description": "Takes one address and learns what kind of source it is: a path or a file:// address is a folder, mcp+https:// is a remote MCP server (mcp+http://host:port for one of your own at a private address), git+https:// is a git repository, and an https address of a listed git host (github.com, gitlab.com, codeberg.org) or ending .git is a repository. A bare https address is looked at once: it is an MCP server if it answers an MCP initialize (or asks for sign-in the way MCP servers do), a git repository if it answers a git ref advertisement; one that is neither, or both, is refused with what to write instead. Nothing it sends carries a credential, and a private address is not reached. A repository starts at the commit its server names as HEAD now. It keeps one pending request for you (deleted when you approve or decline it; your sources are the engine's own list, read with tools:sources) and hands back the entry and the call that adds it, tools:add-source at @tools, which only you can make: the source starts with an empty grant, so none of its tools may use your records, credentials or hosts until you say so. It adds nothing itself.",
+        "description": "Takes one address and learns what kind of source it is: a path or a file:// address is a folder, mcp+https:// is a remote MCP server (mcp+http://host:port for one of your own at a private address), git+https:// is a git repository, and an https address of a listed git host (github.com, gitlab.com, codeberg.org) or ending .git is a repository. A bare https address is looked at once: it is an MCP server if it answers an MCP initialize (or asks for sign-in the way MCP servers do), a git repository if it answers a git ref advertisement; one that is neither, or both, is refused with what to write instead. Nothing it sends carries a credential, and a private address is not reached. A repository starts at the commit its server names as HEAD now. It keeps one pending request for you (deleted when you approve or decline it; your sources are the engine's own list, read with tools:sources) and hands back the entry and the call that adds it, tools:add-source at @tools, which only you can make: the source starts with an empty grant, so none of its tools may use your records, credentials or hosts until you say so. It adds nothing itself. A server that asks for a sign-in (a 401 that names its sign-in) is signed in to as the Model Context Protocol describes: it finds where the server's sign-in lives, registers this caller, and answers the address to sign in at; the person signs in there and the sign-in tool's page hands the answer back as `callback`, the code is traded for tokens kept in your vault for the engine to use and refresh, and then the request waits for your approval as for any source.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
-          "required": [
-            "address"
-          ],
+          "required": [],
           "properties": {
             "address": {
               "type": "string",
@@ -41,6 +39,24 @@
               "required": [
                 "connection_id",
                 "field_id"
+              ]
+            },
+            "callback": {
+              "type": "object",
+              "description": "The answer of a server's sign-in page the person came back from: {state, code} or {state, error}; given by the sign-in tool's page, with no address",
+              "properties": {
+                "state": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "string"
+                },
+                "error": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "state"
               ]
             }
           }
@@ -79,6 +95,10 @@
             },
             "said": {
               "type": "string"
+            },
+            "sign_in": {
+              "type": "object",
+              "description": "The address to sign in at, when the server asks for a sign-in"
             }
           }
         },
@@ -136,6 +156,27 @@
                   "send-settings.json"
                 ],
                 "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
               }
             ]
           },
@@ -163,7 +204,25 @@
                   "records:list",
                   "records:write"
                 ]
+              },
+              {
+                "kind": "tool-server-sign-in-pending",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "record:setting",
+                "id": "record:setting:tool-server-sign-in",
+                "operations": [
+                  "records:read"
+                ]
               }
+            ],
+            "runs": [
+              "tool:trade-a-tool-servers-sign-in-code-for-its-tokens"
             ]
           }
         },
@@ -191,6 +250,124 @@
             "records": []
           }
         ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:trade-a-tool-servers-sign-in-code-for-its-tokens",
+        "label": "Trade a tool server's sign-in code for its tokens",
+        "status": "active",
+        "job": "Trade the code a remote tool server's sign-in page handed back for its access and refresh tokens, kept sealed in the vault",
+        "description": "One token request to the server's authorization server at the address its own sign-in documents gave (RFC 6749 section 4.1.3, a public client: the code, the callback address, the PKCE verifier and the client id go in a form body, the server named as the resource). The reply's access_token and refresh_token are kept in the vault as the fields of the connection the sign-in was made for (reply_holds_values) before the reply is read; nothing else is kept. Run by tool:add-tool-source when the person comes back from the sign-in page.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "connection",
+            "token_url",
+            "code",
+            "redirect_uri",
+            "code_verifier",
+            "client_id",
+            "resource"
+          ],
+          "properties": {
+            "connection": {
+              "type": "object",
+              "required": [
+                "connection_id"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "connection_id": {
+                  "type": "string",
+                  "description": "service_connection:tool-server:<the source's label>"
+                }
+              }
+            },
+            "token_url": {
+              "type": "string",
+              "description": "The authorization server's token address, from its sign-in documents"
+            },
+            "code": {
+              "type": "string",
+              "minLength": 1
+            },
+            "redirect_uri": {
+              "type": "string",
+              "minLength": 1
+            },
+            "code_verifier": {
+              "type": "string",
+              "minLength": 43,
+              "maxLength": 128
+            },
+            "client_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "resource": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The server's token reply, each kept token replaced by the held word"
+        },
+        "invoke": {
+          "kind": "http",
+          "url": {
+            "fill": {
+              "from": "input",
+              "field": "token_url"
+            }
+          },
+          "method": "POST",
+          "body_encoding": "form",
+          "timeout_seconds": 30,
+          "headers": {
+            "accept": "application/json"
+          },
+          "body": {
+            "grant_type": "authorization_code",
+            "code": "{code}",
+            "redirect_uri": "{redirect_uri}",
+            "code_verifier": "{code_verifier}",
+            "client_id": "{client_id}",
+            "resource": "{resource}"
+          },
+          "connection": {
+            "vendor": "tool-server",
+            "from_input": "connection"
+          },
+          "reply_holds_values": [
+            {
+              "from": "access_token",
+              "keep_as_field": "access_token",
+              "required": true
+            },
+            {
+              "from": "refresh_token",
+              "keep_as_field": "refresh_token"
+            }
+          ]
+        },
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": true
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:public-web-address"
+        ],
+        "maker": "maker:add-tool-source",
+        "result_selector": "$",
+        "provenance": {
+          "source": "the owner's decision case source:a2VlcC1vbmx5LWJyaWFucy1kYXRhLWFuZC13aXBlLXRoZS1ib3hlcy0yMDI2LTExLTE2; MCP authorization, RFC 6749 and RFC 8707"
+        }
       }
     }
   ]

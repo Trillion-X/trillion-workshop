@@ -1,0 +1,46 @@
+{
+  "drafted_from": "tool:trade-a-tool-servers-sign-in-code-for-its-tokens's own row (its words and input schema); it runs inside tool:add-tool-source when you come back from a server's sign-in page, and a person does not ask for it by hand",
+  "start_here": "You do not run this yourself: tool:add-tool-source runs it when you come back from a remote tool server's sign-in page, with the code that page handed back. It trades the code at the server's own token address and keeps the access and refresh tokens in your vault as the fields of the source's connection (service_connection:tool-server:<the source's label>).",
+  "lists": [],
+  "no_lists_because": "It keeps the tokens in your vault, not in a list.",
+  "workflows": [],
+  "tools": [
+    "tool:trade-a-tool-servers-sign-in-code-for-its-tokens",
+    "tool:add-tool-source"
+  ],
+  "instructions": [
+    "1. Ask your AI to add a remote tool server that asks for a sign-in with tool:add-tool-source.",
+    "2. Open the sign-in address it gives you and sign in on the server's own page.",
+    "3. This tool then trades the code for tokens and keeps them in your vault; you approve the source in the next step."
+  ],
+  "worked_examples": [
+    {
+      "title": "The code from one sign-in",
+      "ask": "Add the tool server at https://tools.example.com/mcp (it asks for a sign-in)",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:trade-a-tool-servers-sign-in-code-for-its-tokens",
+            "input": {
+              "connection": {
+                "connection_id": "service_connection:tool-server:example"
+              },
+              "token_url": "https://auth.example.com/token",
+              "code": "one-time-code",
+              "redirect_uri": "https://app.example.com/connect/tool-server/callback",
+              "code_verifier": "verifier-of-forty-three-or-more-characters-1234",
+              "client_id": "public-client-1",
+              "resource": "https://tools.example.com/mcp"
+            }
+          }
+        }
+      },
+      "given": "The code the server's sign-in page handed back, the callback address the sign-in was started with, the PKCE verifier kept for it and the client id it registered.",
+      "hands_back": "It answered {\"token_type\":\"bearer\"} with each token replaced by the held word, and the access and refresh tokens now held in your vault under the connection service_connection:tool-server:example."
+    }
+  ]
+}

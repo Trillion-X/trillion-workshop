@@ -5,12 +5,14 @@
   "no_lists_because": "It keeps one pending request per address (record:tool-source-request) until you approve or decline it; the sources you have are the engine's own list, read with tools:sources.",
   "workflows": [],
   "tools": [
-    "tool:add-tool-source"
+    "tool:add-tool-source",
+    "tool:trade-a-tool-servers-sign-in-code-for-its-tokens"
   ],
   "instructions": [
     "1. Give your AI the address. A path starts with / or ~/. A git repository on GitHub, GitLab or Codeberg is its https address. A remote MCP server is its https address, written mcp+https://... when it is not plain; one of your own at a private address is mcp+http://host:port/path.",
-    "2. Read what comes back: kind says what the address is, learned says whether its syntax or one look at it told, and said says what happens next.",
-    "3. To add it, make the approve call yourself at your engine's door (tools:add-source at @tools with the input it gave). It starts with an empty grant: none of its tools may use your records, credentials or hosts until you say so."
+    "2. If the server asks you to sign in, the answer carries a sign_in address: open it, sign in on the server's own page, and the sign-in tool's page brings you back. The token is kept in your vault and your engine refreshes it; no AI sees it.",
+    "3. Read what comes back: kind says what the address is, learned says whether its syntax or one look at it told, and said says what happens next.",
+    "4. To add it, make the approve call yourself at your engine's door (tools:add-source at @tools with the input it gave). It starts with an empty grant: none of its tools may use your records, credentials or hosts until you say so."
   ],
   "worked_examples": [
     {
