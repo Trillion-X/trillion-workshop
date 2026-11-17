@@ -2737,14 +2737,6 @@
       ]
     },
     {
-      "capability": "watch the service itself, such as the share of calls each store failed and whether what landed on main went live, on its own schedule",
-      "owner": [
-        "tools/watch-the-service-itself-such-as-the-share/"
-      ],
-      "entry": "tools/watch-the-service-itself-such-as-the-share/moved-from.json",
-      "evidence": "Existing job recorded at immutable commit b6ae0ebf815f2f5271eed34e6e023c7e1767ec04:capabilities.json; original entry src/service-watch.mjs. tools/watch-the-service-itself-such-as-the-share/moved-from.json records the source lineage. This registers the existing job in its Workshop home; held source, active adaptation and runtime qualification remain separate."
-    },
-    {
       "capability": "check a person’s list of recovery availability and move eligible local files or folders to recoverable Mac Trash only when asked, with a dry run by default",
       "owner": [
         "tools/free-what-the-list-says-can-be-got-back/"
