@@ -108,7 +108,7 @@ import { selectDockIsVertical, type DockablePlacementController } from '../../ui
 
 import { errorWords } from '../../ui/show/safe-error-card/sanitize-error-text';
 // The ⋯ popover's rows for marking and changing the screen: `area` names where strokes go (mark-targets.ts); `point`
-// picks one thing on the screen to change it (parts/ui/show/point-at-anything); the rest show or hide what was drawn.
+// picks one thing on the screen to change it (tools/ui/show/point-at-anything); the rest show or hide what was drawn.
 const DRAW_ROWS = [
   { id: 'draw-pane', area: PANE_AREA, point: false, icon: 'Pencil', label: 'Draw on this pane', onLabel: 'Stop drawing' },
   { id: 'draw-screen', area: WHOLE_SCREEN_AREA, point: false, icon: 'Monitor', label: 'Draw on the whole screen', onLabel: 'Stop drawing' },

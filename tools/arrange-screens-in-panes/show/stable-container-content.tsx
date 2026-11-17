@@ -1,4 +1,4 @@
-// parts/screen-arrangement/show/stable-container-content.tsx
+// tools/screen-arrangement/show/stable-container-content.tsx
 //
 // =============================================================================
 // PURPOSE

@@ -1,4 +1,4 @@
-// parts/screen-arrangement/show/tab-canvas-presentation.tsx
+// tools/screen-arrangement/show/tab-canvas-presentation.tsx
 //
 // Purpose: a tab's content shown on a pannable, zoomable canvas (the shared graph canvas, one node holding the tab).
 // Its own file, fetched by ContainerHost.tsx the first time a tab is shown as a canvas, so a layout of ordinary tabs

@@ -7,9 +7,9 @@
 // stays open with its name while the panel is open.
 
 import React from 'react'
-import { AnchoredOverlay } from '@/packages/ui/show/anchored-overlay'
-import type { ExpandableTab } from '@/packages/ui/show/expandable-tabs'
-import LayerPlacementPanel from '@/packages/screen-arrangement/show/LayerPlacementPanel'
+import { AnchoredOverlay } from '../../ui/show/anchored-overlay'
+import type { ExpandableTab } from '../../ui/show/expandable-tabs'
+import LayerPlacementPanel from '../../screen-arrangement/show/LayerPlacementPanel'
 
 const h = React.createElement
 

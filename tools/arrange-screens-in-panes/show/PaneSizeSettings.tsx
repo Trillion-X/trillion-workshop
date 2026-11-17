@@ -1,4 +1,4 @@
-// parts/screen-arrangement/show/PaneSizeSettings.tsx
+// tools/screen-arrangement/show/PaneSizeSettings.tsx
 //
 // NO PRIOR: searched 'pane size|snap|split settings' in ~/dev/bitfield-packages/packages/*/show; searched 'resizable panels with snap points' on the 21st.dev MCP; searched 'layout settings with panel sizes and snapping preview' on Mobbin
 //

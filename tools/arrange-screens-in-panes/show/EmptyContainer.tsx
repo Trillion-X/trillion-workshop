@@ -17,7 +17,7 @@
 //     and everything this app can open. With a start screen it sits behind a
 //     search field and one "Browse everything" button above it.
 //
-// Every section is a control the person's show rules decide (parts/ui/show/show-rules show-of.ts controlShown), declared
+// Every section is a control the person's show rules decide (tools/ui/show/show-rules show-of.ts controlShown), declared
 // in this part's part.json under `arrangement.empty`: the search, the layouts, the folders (and making one), each "Open as" choice,
 // everything this app can open, the screens kept at the foot, and the start screen. One rule on `arrangement.empty`
 // holds for all of them; a rule on one holds for it alone.
@@ -70,7 +70,7 @@ import { controlShown, showListed, useShowChange } from '../../ui/show/show-rule
 
 import { errorWords } from '../../ui/show/safe-error-card/sanitize-error-text';
 // The places (surface DATA `sidebar_place`) whose screens stick to the bottom of an empty pane, as the sidebar keeps
-// them at its foot (parts/sidebar/show/AppSidebar.tsx PLACES).
+// them at its foot (tools/sidebar/show/AppSidebar.tsx PLACES).
 const STICKS_TO_BOTTOM = new Set(['bottom']);
 
 function newCollectionId(prefix: string): string {

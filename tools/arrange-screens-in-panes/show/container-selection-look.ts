@@ -1,4 +1,4 @@
-// parts/screen-arrangement/show/container-selection-look.ts
+// tools/screen-arrangement/show/container-selection-look.ts
 //
 // PURPOSE
 //   The one look of the focused (selected) container and of a container being dragged, the same in every layout

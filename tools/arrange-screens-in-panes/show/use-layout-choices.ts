@@ -1,4 +1,4 @@
-// parts/screen-arrangement/show/use-layout-choices.ts
+// tools/screen-arrangement/show/use-layout-choices.ts
 //
 // =============================================================================
 // PURPOSE
@@ -21,7 +21,7 @@
 //    reads them again (SAVED_LAYOUTS_CHANGED_EVENT).
 // 3. The layout on screen is the choice whose signature equals the current
 //    arrangement's; when none does, `currentIndex` is -1.
-// 4. Whether a layout is offered is the person's show rules (parts/ui
+// 4. Whether a layout is offered is the person's show rules (tools/ui
 //    show-rules, subject `layout`, facts its id and name): a hidden one leaves
 //    `choices` (the Layouts menu, scrolling past the edge) while it is hidden,
 //    and is still in `every`, so a layout asked for by name opens.

@@ -28,7 +28,7 @@
     "show/behind-the-panes.tsx",
     "show/arrangement-lock.tsx"
   ],
-  "controls_what": "The controls this part draws, each a show-rules `control` (parts/ui/show/show-rules show-of.ts controlShown): every chrome zone is the control `arrangement.<zone>` (read-data/region-chrome.ts zoneControl), so a rule hides it for a person the way a layout's chrome map hides it for a layout. Each part of an empty pane is `arrangement.empty.<part>` (show/EmptyContainer.tsx); hidden, `arrangement.header.tabs.position` keeps the tabs on their default edge.",
+  "controls_what": "The controls this part draws, each a show-rules `control` (tools/ui/show/show-rules show-of.ts controlShown): every chrome zone is the control `arrangement.<zone>` (read-data/region-chrome.ts zoneControl), so a rule hides it for a person the way a layout's chrome map hides it for a layout. Each part of an empty pane is `arrangement.empty.<part>` (show/EmptyContainer.tsx); hidden, `arrangement.header.tabs.position` keeps the tabs on their default edge.",
   "controls": [
     { "id": "arrangement", "label": "Everything around the screens" },
     { "id": "arrangement.header", "label": "The bar above a screen" },

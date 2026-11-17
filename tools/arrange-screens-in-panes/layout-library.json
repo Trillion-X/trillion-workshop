@@ -1,5 +1,5 @@
 {
-  "what_this_is": "How the layouts a person's AIs make are kept with the group part (parts/group/read-data/kept-library.ts): one index group lists the categories in order, each category is a group whose members are layouts, and Recent is the newest few by when each was made. The Layouts menu shows a layout under its category.",
+  "what_this_is": "How the layouts a person's AIs make are kept with the group part (tools/make-screen-layouts-and-controls/parts/group/read-data/kept-library.ts): one index group lists the categories in order, each category is a group whose members are layouts, and Recent is the newest few by when each was made. The Layouts menu shows a layout under its category.",
   "index_ref": { "family": "group.index", "parts": { "scope": "screen-arrangement", "role": "layout-categories" } },
   "category_family": "group.layout-category",
   "member_family": "screen-arrangement.own-layout",

@@ -1,4 +1,4 @@
-// parts/screen-arrangement/show/region-drop-intents.ts
+// tools/screen-arrangement/show/region-drop-intents.ts
 //
 // The screen-arrangement's drop intents — the Society data the generic
 // RegionDropRouter (ui) dispatches a dropped subject to. The router is blind to

@@ -1,4 +1,4 @@
-// parts/screen-arrangement/show/ArrangementNavigator.tsx
+// tools/screen-arrangement/show/ArrangementNavigator.tsx
 //
 // =============================================================================
 // PURPOSE

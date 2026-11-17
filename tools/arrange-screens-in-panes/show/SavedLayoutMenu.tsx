@@ -31,25 +31,25 @@ import React from 'react'
 import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit'
 import { useBitfieldData } from '@bitfield/runtime-kit/react'
 import { Check, ChevronDown, LayoutGrid, Save, Star, X, Palette } from 'lucide-react'
-import { ExpandableTabs } from '@/packages/ui/show/expandable-tabs'
-import { Button } from '@/packages/ui/show/button';
-import { cn } from '@/packages/ui/show/cn';
-import { Dropdown } from '@/packages/ui/show/dropdown'
-import { ColorPickerPopover } from '@/packages/ui/show/color-picker-popover'
-import { readEditableScreenLookThemes } from '@/packages/screen-look/read-data/read-editable-screen-look-themes'
-import { readCurrentScreenLook } from '@/packages/screen-look/read-data/read-current-screen-look'
-import { chooseCurrentScreenLook } from '@/packages/screen-look/do-work/choose-current-screen-look'
-import { LayoutActionsContext, LayoutStateContext } from '@/packages/screen-arrangement/show/screen-arrangement-context'
-import type { LayoutState } from '@/packages/screen-arrangement/read-data/layout-types'
-import { readLayoutPresets } from '@/packages/screen-arrangement/read-data/read-layout-presets'
-import { readNewTabCollections } from '@/packages/screen-arrangement/read-data/read-tab-collections'
+import { ExpandableTabs } from '../../ui/show/expandable-tabs'
+import { Button } from '../../ui/show/button';
+import { cn } from '../../ui/show/cn';
+import { Dropdown } from '../../ui/show/dropdown'
+import { ColorPickerPopover } from '../../ui/show/color-picker-popover'
+import { readEditableScreenLookThemes } from '../../screen-look/read-data/read-editable-screen-look-themes'
+import { readCurrentScreenLook } from '../../screen-look/read-data/read-current-screen-look'
+import { chooseCurrentScreenLook } from '../../screen-look/do-work/choose-current-screen-look'
+import { LayoutActionsContext, LayoutStateContext } from '../../screen-arrangement/show/screen-arrangement-context'
+import type { LayoutState } from '../read-data/layout-types'
+import { readLayoutPresets } from '../../screen-arrangement/read-data/read-layout-presets'
+import { readNewTabCollections } from '../../screen-arrangement/read-data/read-tab-collections'
 import {
   deleteArrangementGroup,
   saveArrangementAsGroup,
   LAYOUT_PRESET_INDEX_REF,
   type GroupSavedLayout,
-} from '@/packages/screen-arrangement/do-work/save-arrangement-as-group'
-import { migrateLayoutPresetsToGroups } from '@/packages/screen-arrangement/do-work/migrate-layout-presets-to-groups'
+} from '../../screen-arrangement/do-work/save-arrangement-as-group'
+import { migrateLayoutPresetsToGroups } from '../../screen-arrangement/do-work/migrate-layout-presets-to-groups'
 
 type SavedLayoutControlsProps = {
   onDone?: () => void

@@ -6,7 +6,7 @@
 // generic store by every decoration caller (the add-layer picker + the drop
 // router) so the Society address string is defined once, not per call site.
 
-import type { CasNamespace } from '@/packages/screen-arrangement/do-work/store-bytes-to-cas'
+import type { CasNamespace } from './store-bytes-to-cas'
 
 export const DECORATION_BYTES_NAMESPACE: CasNamespace = {
   partitionLabel: 'runtime-partition',

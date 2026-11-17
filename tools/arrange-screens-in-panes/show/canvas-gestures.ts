@@ -1,4 +1,4 @@
-// parts/screen-arrangement/show/canvas-gestures.ts
+// tools/screen-arrangement/show/canvas-gestures.ts
 //
 // PURPOSE
 // The arrangement's own gestures: scrolling in any direction, zoom, pan by drag, pinch.

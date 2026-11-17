@@ -1,4 +1,4 @@
-// parts/screen-arrangement/show/continuous-layout-navigation.ts
+// tools/screen-arrangement/show/continuous-layout-navigation.ts
 //
 // =============================================================================
 // PURPOSE

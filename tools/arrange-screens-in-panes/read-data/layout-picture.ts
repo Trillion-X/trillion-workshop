@@ -1,4 +1,4 @@
-// parts/screen-arrangement/read-data/layout-picture.ts
+// tools/screen-arrangement/read-data/layout-picture.ts
 //
 // =============================================================================
 // PURPOSE

@@ -1,4 +1,4 @@
-// parts/screen-arrangement/show/ArrangementSection.tsx
+// tools/screen-arrangement/show/ArrangementSection.tsx
 //
 // =============================================================================
 // PURPOSE

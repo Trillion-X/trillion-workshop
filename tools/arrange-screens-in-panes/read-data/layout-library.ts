@@ -1,6 +1,5 @@
-// parts/screen-arrangement/read-data/layout-library.ts
 //
-// The layouts a person's AIs make, kept as a kept library of the group part (parts/group/read-data/kept-library.ts)
+// The layouts a person's AIs make, kept as a kept library of the group part (tools/make-screen-layouts-and-controls/parts/group/read-data/kept-library.ts)
 // configured by its row, ../layout-library.json: their categories and Recent. Read the same way by the store that
 // writes it (src/layouts.mjs) and by the Layouts menu (show/LayoutPicker.tsx), so both always agree.
 

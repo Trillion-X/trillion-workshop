@@ -1,4 +1,4 @@
-// parts/screen-arrangement/show/publish-shown-arrangement.tsx
+// tools/screen-arrangement/show/publish-shown-arrangement.tsx
 //
 // PURPOSE
 //   Keeps the arrangement on screen readable by the person's AIs: each time it changes, the arrangement is written to

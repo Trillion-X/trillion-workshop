@@ -14,7 +14,7 @@
 // the region side-map — it never touches `maximizedContainerId` (focus state is a
 // separate, optionally-composed concern, per the C-fork convergence).
 //
-// Every zone is also a control the person's show rules decide (parts/ui/show/show-rules show-of.ts controlShown): zone
+// Every zone is also a control the person's show rules decide (tools/ui/show/show-rules show-of.ts controlShown): zone
 // `header.nav` is control `arrangement.header.nav`, so a rule given to a person, or one they keep, hides it the same
 // way the layout's own map does. The layout says how this arrangement is drawn; the rules say what this person sees.
 
