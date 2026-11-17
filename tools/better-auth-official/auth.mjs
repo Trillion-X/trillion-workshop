@@ -18,6 +18,7 @@ import { trustedOriginsFor } from './attached-origins.mjs';
 import { readSettings } from './settings.mjs';
 import rules from './pages/sign-in-rules.json' with { type: 'json' };
 // How long an AI's access may go unused: the one owner of the number (also what a run share's end condition copies).
+import { holdLoopbackResources } from './loopback-resource.mjs';
 import { unusedSeconds, unusedDays, words as endWords } from '../share-anything/read-data/access-ends-when-unused.mjs';
 import { storePool } from './store.mjs';
 
@@ -192,7 +193,8 @@ export const auth = betterAuth({
     // is changed in place: a hook's returned context is merged over the request (defu), which never takes a key away.
     before: createAuthMiddleware(async ctx => {
       if (ctx.path === '/sign-in/email-otp') return clearWhatWasNotProven(ctx);
-      if (ctx.path === '/oauth2/authorize') return shapeAuthorize(ctx);
+      if (ctx.path === '/oauth2/authorize') { await holdLoopbackResources(ctx.context.adapter, settings.mcp.loopback_resources, settings.mcp.resource_scopes, ctx.query?.resource); return shapeAuthorize(ctx); }
+      if (ctx.path === '/oauth2/token') return holdLoopbackResources(ctx.context.adapter, settings.mcp.loopback_resources, settings.mcp.resource_scopes, ctx.body?.resource);
       if (ctx.path === '/oauth2/consent') return narrowConsent(ctx);
       if (ctx.path === '/api-key/create' && ctx.body) delete ctx.body.prefix;
     }),
@@ -235,6 +237,8 @@ export const auth = betterAuth({
       // The sign-in pages name the AI that is asking before the person has signed in: its public fields (name, address, icon) for a request whose signed query names that client.
       allowPublicClientPrelogin: true,
       resource: settings.mcp.resource,
+      // Every client may ask for every configured resource (the door and a person's own engine, any port, made on demand): there is no per-client list to keep.
+      enforcePerClientResources: false,
       // An AI's access ends when it goes this long unused: each refresh makes a new refresh token that lives this long (access-ends-when-unused.json, the one place that holds the number).
       refreshTokenExpiresIn: unusedSeconds,
       // The scopes a client may ask for and the /mcp resource allows (settings DATA); the resource row follows the settings.

@@ -45,6 +45,15 @@
     "resource": "http://localhost:8792/mcp",
     "always_offline_access": true,
     "first_party_clients": [],
+    "loopback_resources": {
+      "name": "A computer's own engine",
+      "hosts": [
+        "127.0.0.1",
+        "[::1]",
+        "localhost"
+      ],
+      "path": "/mcp"
+    },
     "scopes": [
       "openid",
       "profile",
