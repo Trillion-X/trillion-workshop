@@ -9,7 +9,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
-import { WAYS, ensureProgram, installCarrier, pickArtifact, portFor, removeCarrier, renderClient, renderMeetingPoint, serveCarrier, valuesFor } from '../do-work/carry-a-computer.mjs';
+import { WAYS, ensureProgram, makeKey, installCarrier, pickArtifact, portFor, removeCarrier, renderClient, renderMeetingPoint, serveCarrier, valuesFor } from '../do-work/carry-a-computer.mjs';
 
 const relayHost = { id: 'relay-example', hostname: 'relay.example.test', params: { control_port: 2333, ssh_port: 22, host_key: 'ssh-ed25519 AAAAEXAMPLE' } };
 const way = id => WAYS.find(row => row.id === id);
@@ -257,4 +257,14 @@ test('the certificate meeting point is one user and one sshd file, the same for 
   writeFileSync(join(dir, 'sshd_config'), `HostKey ${join(dir, 'host')}\nUsePAM no\n${file.text.replace('AuthorizedPrincipalsCommandUser nobody', `AuthorizedPrincipalsCommandUser ${process.env.USER ?? 'nobody'}`)}`);
   const checked = spawnSync(sshd, ['-t', '-f', join(dir, 'sshd_config')], { encoding: 'utf8' });
   assert.equal(checked.status, 0, checked.stderr);
+});
+
+test('a way that makes its own key makes one in a private folder that is gone after', t => {
+  const state = folder(t);
+  const made = makeKey(way('ssh-certificate'), { state });
+  const kept = join(state, 'kept'); writeFileSync(kept, made.private, { mode: 0o600 });
+  assert.equal(spawnSync('ssh-keygen', ['-y', '-f', kept], { encoding: 'utf8' }).stdout.trim(), made.public.split(' ').slice(0, 2).join(' '), 'the private key is the public key\'s');
+  assert.match(made.public, /^ssh-ed25519 [A-Za-z0-9+/=]+ carrier$/);
+  assert.deepEqual(spawnSync('ls', [join(state, 'run')], { encoding: 'utf8' }).stdout, '', 'nothing is left behind');
+  assert.throws(() => makeKey(way('frp'), { state }), /makes no key/);
 });

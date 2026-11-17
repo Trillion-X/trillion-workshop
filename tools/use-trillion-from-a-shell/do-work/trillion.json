@@ -107,6 +107,18 @@
       "packs/node_modules/@noble/hashes/utils.js",
       "packs/node_modules/@noble/hashes/package.json",
       "packs/node_modules/@noble/hashes/LICENSE",
+      "packs/tools/carry-a-computer-to-a-meeting-point/do-work/carry-a-computer.mjs",
+      "packs/tools/carry-a-computer-to-a-meeting-point/read-data/ways.json",
+      "packs/tools/carry-a-computer-to-a-meeting-point/read-data/ports.json",
+      "packs/tools/carry-a-computer-to-a-meeting-point/read-data/carrier-files.json",
+      "packs/tools/start-a-computer/do-work/fill-fields.mjs",
+      "packs/tools/start-a-computer/do-work/install-init.mjs",
+      "packs/tools/start-a-computer/read-data/init-rows.json",
+      "packs/tools/start-a-computer/read-data/unit-templates/init-launchd.plist",
+      "packs/tools/start-a-computer/read-data/unit-templates/init-systemd-user.service",
+      "packs/tools/start-a-computer/read-data/unit-templates/init-systemd-system.service",
+      "packs/tools/start-a-computer/read-data/unit-templates/init-quadlet.container",
+      "packs/tools/start-a-computer/read-data/unit-templates/init-startup-task.xml",
       "trillion.json",
       "trillion-skill.md",
       "ag-ui-agent.mjs",
@@ -440,6 +452,8 @@
     "write_pending": "Your change was saved, but it has not shown up yet. Look again before you try again.",
     "signed_in": "You're signed in to {brand} as {email}.",
     "signed_in_no_email": "You're signed in to {brand}.",
+    "carried": "This computer can be reached from {brand} while it is on.",
+    "not_carried": "This computer could not be made reachable from {brand}: {why}",
     "signed_out": "You're signed out of {brand}.",
     "not_signed_in": "You're not signed in to {brand}, so there is nothing to sign out of.",
     "signed_out_elsewhere_kept": "The key kept on this computer was not made by {cli} login, so it was left on. Turn it off in {brand}, under your connected AIs.",
@@ -588,7 +602,19 @@
     "files": [
       { "owner": "content-identity/read-data/identity.mjs", "packed": "packs/read-data/identity.mjs" },
       { "owner": "content-identity/read-data/blake3.mjs", "packed": "packs/read-data/blake3.mjs" },
-      { "owner": "records-door/read-data/settled-write.mjs", "packed": "packs/read-data/settled-write.mjs" }
+      { "owner": "records-door/read-data/settled-write.mjs", "packed": "packs/read-data/settled-write.mjs" },
+      { "owner": "carry-a-computer-to-a-meeting-point/do-work/carry-a-computer.mjs", "packed": "packs/tools/carry-a-computer-to-a-meeting-point/do-work/carry-a-computer.mjs" },
+      { "owner": "carry-a-computer-to-a-meeting-point/read-data/ways.json", "packed": "packs/tools/carry-a-computer-to-a-meeting-point/read-data/ways.json" },
+      { "owner": "carry-a-computer-to-a-meeting-point/read-data/ports.json", "packed": "packs/tools/carry-a-computer-to-a-meeting-point/read-data/ports.json" },
+      { "owner": "carry-a-computer-to-a-meeting-point/read-data/carrier-files.json", "packed": "packs/tools/carry-a-computer-to-a-meeting-point/read-data/carrier-files.json" },
+      { "owner": "start-a-computer/do-work/fill-fields.mjs", "packed": "packs/tools/start-a-computer/do-work/fill-fields.mjs" },
+      { "owner": "start-a-computer/do-work/install-init.mjs", "packed": "packs/tools/start-a-computer/do-work/install-init.mjs" },
+      { "owner": "start-a-computer/read-data/init-rows.json", "packed": "packs/tools/start-a-computer/read-data/init-rows.json" },
+      { "owner": "start-a-computer/read-data/unit-templates/init-launchd.plist", "packed": "packs/tools/start-a-computer/read-data/unit-templates/init-launchd.plist" },
+      { "owner": "start-a-computer/read-data/unit-templates/init-systemd-user.service", "packed": "packs/tools/start-a-computer/read-data/unit-templates/init-systemd-user.service" },
+      { "owner": "start-a-computer/read-data/unit-templates/init-systemd-system.service", "packed": "packs/tools/start-a-computer/read-data/unit-templates/init-systemd-system.service" },
+      { "owner": "start-a-computer/read-data/unit-templates/init-quadlet.container", "packed": "packs/tools/start-a-computer/read-data/unit-templates/init-quadlet.container" },
+      { "owner": "start-a-computer/read-data/unit-templates/init-startup-task.xml", "packed": "packs/tools/start-a-computer/read-data/unit-templates/init-startup-task.xml" }
     ]
   },
   "computer_config_files": [
@@ -601,5 +627,30 @@
     "done_path": "/sign-in/done",
     "redirect_port": 54718,
     "_what": "This program signs in as an OAuth client named by a Client ID Metadata Document: the address `origin` + id_path (https, at the sign-in server's own host) answers do-work/client-metadata.json with {origin} filled in by the host that serves it, listing the one loopback redirect on redirect_port. No client is registered, and no host is named here."
+  },
+  "carry": {
+    "_what": "After `login` on a computer that runs its own engine (a computer config of `computer_config_files` names where it listens), this computer is carried to the meeting point of the site this command came from, so the person reaches it from anywhere through that site: the carrier (packed from tools/carry-a-computer-to-a-meeting-point; `modules` are where it is found, packed or beside this tool in a Workshop copy) runs the way row `way`, kept running by this computer's init row under `label`, with its files in `state` under the state folder. Its key is made once by the way row and kept in the Keychain item `keychain_item` (else the 0600 file `key_file` in the state folder); the carrier reads it through `{cli} carrier-key`, which writes it on descriptor 3 only. The meeting point is told by `{cli} op` at the site (`announce`): it answers the port, certificate, ssh port and host key (`gives`), and nothing about it is kept here. The computer id is the BLAKE3 of the public key, its first 16 hex digits.",
+    "way": "ssh-certificate",
+    "label": "{cli}-carrier",
+    "state": "carrier",
+    "keychain_item": "{cli}-carrier-key",
+    "key_file": "carrier/key",
+    "modules": [
+      "packs/tools/carry-a-computer-to-a-meeting-point/do-work/carry-a-computer.mjs",
+      "../../carry-a-computer-to-a-meeting-point/do-work/carry-a-computer.mjs"
+    ],
+    "announce": {
+      "address": "@meeting",
+      "method": "computers:announce",
+      "input": "{\"computer_id\": \"{computer_id}\", \"public_key\": \"{public_key}\", \"salt\": \"{salt}\", \"carried\": {carried}}",
+      "every_seconds": 60,
+      "settle_seconds": 3,
+      "gives": {
+        "remote_port": "port",
+        "certificate": "certificate",
+        "ssh_port": "ssh_port",
+        "host_key": "host_key"
+      }
+    }
   }
 }

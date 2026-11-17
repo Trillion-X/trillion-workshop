@@ -506,6 +506,23 @@
       "params": {
         "user": "carry"
       },
+      "key": {
+        "_what": "How a computer makes its own key for this way, once: `make` runs with {dir} a private empty folder, and `private` and `public` are the files it leaves there. The private one is kept where the computer keeps credentials and handed to the client as {secret}; the public one is what the meeting point certifies.",
+        "make": [
+          "ssh-keygen",
+          "-q",
+          "-t",
+          "ed25519",
+          "-N",
+          "",
+          "-C",
+          "carrier",
+          "-f",
+          "{dir}/identity"
+        ],
+        "private": "identity",
+        "public": "identity.pub"
+      },
       "client": {
         "program": {
           "artifacts": [

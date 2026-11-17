@@ -1,0 +1,14 @@
+{
+  "_what": "The files a running carrier needs, so its init row can keep pointing at one stable folder (the engine keeps only its current and previous Workshop copies). Each entry is a path under tools/, or a module's files; install copies them into <state>/carrier with the same layout, and the copy is the program the init row starts.",
+  "tools": [
+    "carry-a-computer-to-a-meeting-point/do-work/carry-a-computer.mjs",
+    "carry-a-computer-to-a-meeting-point/read-data/ways.json",
+    "carry-a-computer-to-a-meeting-point/read-data/ports.json",
+    "carry-a-computer-to-a-meeting-point/read-data/carrier-files.json",
+    "start-a-computer/do-work/fill-fields.mjs",
+    "start-a-computer/do-work/install-init.mjs",
+    "start-a-computer/read-data/init-rows.json"
+  ],
+  "tool_folders": ["start-a-computer/read-data/unit-templates"],
+  "module": { "name": "@noble/hashes", "files": ["package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js", "LICENSE"] }
+}

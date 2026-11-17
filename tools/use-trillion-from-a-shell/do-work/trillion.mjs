@@ -40,7 +40,7 @@
 //
 import { spawn, spawnSync } from 'node:child_process';
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
-import { chmodSync, existsSync, lstatSync, mkdirSync, readFileSync, readlinkSync, realpathSync, renameSync, rmSync, statSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, writeSync, lstatSync, mkdirSync, readFileSync, readlinkSync, realpathSync, renameSync, rmSync, statSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
 import { createServer, request as httpRequest } from 'node:http';
 import { createInterface } from 'node:readline';
 import { homedir, hostname } from 'node:os';
@@ -48,6 +48,7 @@ import { basename, dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { runOnAgUi } from './ag-ui-agent.mjs';
 import { makeHashCodeHexFromBytes, requestKeyForEngine } from './packs/read-data/identity.mjs';
+import { blake3 } from './packs/read-data/blake3.mjs';
 import { settledWrite } from './packs/read-data/settled-write.mjs';
 import { KeepRefused, keepResult, readResult } from './keep-result.mjs';
 import { localDoorAddress } from './local-door.mjs';
@@ -551,6 +552,86 @@ export function findAgentSocket({ rules = settings, home = homedir() } = {}) {
     } catch { /* not this one */ }
   }
   return null;
+}
+
+/** This computer's engine config: the first of `computer_config_files` that reads as JSON, else null. */
+export function engineConfigHere({ rules = settings, home = homedir() } = {}) {
+  for (const file of rules.computer_config_files) {
+    try { return JSON.parse(readFileSync(expand(file, home), 'utf8')); } catch { /* not this one */ }
+  }
+  return null;
+}
+
+/** Where this computer keeps the carrier's key (trillion.json `carry`): the Keychain item `carry.keychain_item`, holding
+ *  { private, public } as one base64url word written through `security -i` on standard input, else the 0600 file
+ *  `carry.key_file` in the state folder. */
+export function carrierKeyStore({ rules = settings, home = homedir(), platform = process.platform, exec = run } = {}) {
+  const file = join(expand(rules.state_folder, home), rules.carry.key_file);
+  const keychain = platform === 'darwin';
+  const decode = text => {
+    try { const key = JSON.parse(Buffer.from(String(text).trim(), 'base64url').toString('utf8')); return object(key) && typeof key.private === 'string' && typeof key.public === 'string' ? key : null; } catch { return null; }
+  };
+  return {
+    read() {
+      if (keychain) {
+        const answer = exec('/usr/bin/security', ['find-generic-password', '-a', rules.keychain_account, '-s', rules.carry.keychain_item, '-w'], { stdio: ['ignore', 'pipe', 'ignore'] });
+        return answer.status === 0 ? decode(answer.stdout) : null;
+      }
+      try { return decode(readFileSync(file, 'utf8')); } catch { return null; }
+    },
+    write(key) {
+      const word = Buffer.from(JSON.stringify(key)).toString('base64url');
+      if (keychain) {
+        const answer = exec('/usr/bin/security', ['-i'], { input: `add-generic-password -U -a ${rules.keychain_account} -s ${rules.carry.keychain_item} -w ${word}\n`, stdio: ['pipe', 'ignore', 'pipe'] });
+        if (answer.status !== 0) throw new TrillionError(fill(rules.words.not_carried, { why: String(answer.stderr ?? '').trim() || answer.status }));
+        return;
+      }
+      mkdirSync(dirname(file), { recursive: true, mode: 0o700 });
+      writeFileSync(`${file}.new`, `${word}\n`, { mode: 0o600 });
+      renameSync(`${file}.new`, file);
+      chmodSync(file, 0o600);
+    },
+  };
+}
+
+/** The carrier module (trillion.json `carry.modules`, packed or beside this tool), or null when neither is here. */
+async function loadCarrier(rules = settings) {
+  for (const path of rules.carry.modules) {
+    const url = new URL(path, import.meta.url);
+    if (existsSync(url)) return import(url.href);
+  }
+  return null;
+}
+
+/** Carries this computer to the meeting point of the site this command came from (trillion.json `carry`) when it runs its own
+ *  engine: makes the carrier's key once, and installs the carrier under this computer's init row. Answers what the install
+ *  answered, or null when this computer runs no engine, came from no site, or has no carrier. */
+export async function carryThisComputer(context, { rules = settings, home = homedir(), platform = process.platform, exec = run, load = loadCarrier, program = null } = {}) {
+  const listen = engineConfigHere({ rules, home })?.listen;
+  const site = context.state.site();
+  if (typeof listen !== 'string' || !site) return null;
+  const carrier = await load(rules);
+  if (!carrier) return null;
+  const way = carrier.WAYS.find(row => row.id === rules.carry.way);
+  const state = join(expand(rules.state_folder, home), rules.carry.state);
+  const keys = carrierKeyStore({ rules, home, platform, exec });
+  let key = keys.read();
+  if (!key) { key = carrier.makeKey(way, { state }); keys.write(key); }
+  const installed = join(expand(rules.install.folder, home), rules.install.files[0]);
+  const self = program ?? [process.execPath, existsSync(installed) ? installed : fileURLToPath(import.meta.url)];
+  const { announce } = rules.carry;
+  return carrier.installCarrier({
+    label: rules.carry.label, way, relay_host: { id: 'site', hostname: new URL(site).hostname },
+    computer_id: Buffer.from(blake3(new TextEncoder().encode(key.public))).toString('hex').slice(0, 16), local_port: Number(listen.split(':').at(-1)),
+    values: { public_key: key.public }, credential_command: [...self, 'carrier-key'],
+    announce: { argv: [...self, 'op', '--origin', site, announce.address, announce.method, announce.input], every_seconds: announce.every_seconds, settle_seconds: announce.settle_seconds, gives: announce.gives },
+  }, state);
+}
+
+/** One line for `login` about carrying this computer: said only when it was carried, or when carrying it failed. */
+async function carriedWords(context) {
+  if (!context.carry) return '';
+  try { return (await context.carry()) ? `\n${settings.words.carried}` : ''; } catch (error) { return `\n${fill(settings.words.not_carried, { why: error.message })}`; }
 }
 
 /** Asks this computer's engine to hold the person the pass or key names: `POST /persons/add` on the engine's own unix socket,
@@ -1115,7 +1196,7 @@ export function speakFor(brand, rules = settings) {
     : Array.isArray(value) ? value.map(filled)
     : value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).map(([name, child]) => [name, filled(child)])) : value);
   for (const part of ['words', 'send_note', 'keep', 'who', 'ag_ui', 'state_folder', 'install', 'env', 'keychain_item', 'keychain_account', 'key_file',
-    'client_name', 'skill_name', 'skills', 'mac_app', 'computer_config_files', 'grant']) rules[part] = filled(rules[part]);
+    'client_name', 'skill_name', 'skills', 'mac_app', 'computer_config_files', 'grant', 'carry']) rules[part] = filled(rules[part]);
   rules.brand = brand;
 }
 
@@ -1573,7 +1654,7 @@ async function login(context, { again = false } = {}) {
       try {
         const known = await knownAs(context, client);
         keepConnection(context, client.door, known.account);
-        return signedInWords(client.credential);
+        return `${signedInWords(client.credential)}${await carriedWords(context)}`;
       } catch (error) {
         // A kept credential the engine refuses is no sign-in: the person signs in again. Anything else (an engine that did not answer) is said.
         if (!refusedBy(error)) throw error;
@@ -1608,7 +1689,7 @@ async function login(context, { again = false } = {}) {
   const client = await signedInClient(context);
   const known = await knownAs(context, client).catch(error => { throw refusedBy(error) ? new TrillionError(fill(settings.words.refused_new, { why: error.why ?? error.message }), { status: 3, detail: error.detail }) : error; });
   keepConnection(context, client.door, known.account);
-  return signedInWords(client.credential);
+  return `${signedInWords(client.credential)}${await carriedWords(context)}`;
 }
 
 async function logout(context) {
@@ -1758,6 +1839,8 @@ export async function main(argv, seams = {}) {
     localMcp: seams.localDoor ?? (() => findLocalDoor()), agentSocket: seams.agentSocket ?? (() => findAgentSocket()),
     me: agentOf({ as: flags.as ?? null, env, computerName: seams.computerName ?? computerNameOf(), ...(seams.model !== undefined ? { model: seams.model } : {}) }),
     placeImpl: seams.place ?? (() => placeOf()) };
+  // A run given its state (a test) carries this computer only through the carry it is given.
+  context.carry = seams.carry ?? (seams.state ? null : () => carryThisComputer(context));
   const print = (name, answer) => (flags.json ? JSON.stringify(answer, null, 2) : render(name, answer));
   const engine = settings.engine;
   if (command === 'help' || flags.help) return fill(HELP, settings.brand ? { ...settings.brand, CLI: settings.brand.cli.toUpperCase().replace(/-/g, '_') } : {});
@@ -1780,6 +1863,13 @@ export async function main(argv, seams = {}) {
   }
   if (command === 'records') return records(context, words);
   if (command === 'update') return updateWords();
+  // The carrier's key, on descriptor 3 only (the carrier's credential command), never on the output.
+  if (command === 'carrier-key') {
+    const key = carrierKeyStore().read();
+    if (!key) throw new TrillionError(fill(settings.words.not_carried, { why: 'no key is kept here' }), { status: 3 });
+    writeSync(3, key.private);
+    return '';
+  }
   if (command === 'serve') return serve(context);
   if (!WORK_COMMANDS.has(command) && !['whoami', 'tools', 'call', 'op', 'who', 'events', 'publish', 'schedule'].includes(command)) throw new TrillionError(`Unknown command ${command}. Run trillion help.`, { status: 2 });
   if (command === 'call' || command === 'op') {

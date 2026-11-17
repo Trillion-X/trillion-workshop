@@ -72,6 +72,19 @@ export function renderClient(way, values, { secret, dir }) {
   return { files, argv };
 }
 
+/** A new key for a way that says how one is made (`key`): its command runs in a private folder that is removed after, and the
+ * private and public texts are answered, for the caller to keep where it keeps credentials. */
+export function makeKey(way, { state, run = execFileSync } = {}) {
+  if (!way.key) throw new Error(`way ${way.id} makes no key`);
+  mkdirSync(join(state, 'run'), { recursive: true, mode: 0o700 });
+  const dir = mkdtempSync(join(state, 'run', 'key-'));
+  try {
+    const [command, ...args] = way.key.make.map(part => fill(part, { dir }, `way ${way.id} key`));
+    run(command, args, { stdio: 'ignore' });
+    return { private: readFileSync(join(dir, way.key.private), 'utf8'), public: readFileSync(join(dir, way.key.public), 'utf8').trim() };
+  } finally { rmSync(dir, { recursive: true, force: true }); }
+}
+
 /** The credential the client dials with, read from the descriptor 3 of a vault command, never from its output. */
 export function credentialFrom(command) {
   return () => new Promise((done, fail) => {
