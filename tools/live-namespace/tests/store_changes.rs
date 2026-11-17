@@ -124,21 +124,3 @@ fn a_sqlite_store_refuses_a_listening_connection() {
     assert!(matches!(store.hearing(live_namespace::store::link::Link::memory().unwrap()), Err(Error::Invalid(..))));
 }
 
-#[test]
-fn a_postgres_database_made_before_the_change_order_gets_its_columns_and_every_name_an_item_when_opened() {
-    let mut old = rows_in_both::postgres_link();
-    old.batch(
-        "CREATE TABLE ns_name (scope TEXT COLLATE \"C\" NOT NULL, id TEXT COLLATE \"C\" NOT NULL, version BIGINT NOT NULL, request_key TEXT, request_identity TEXT, \
-         \"byte_length\" BIGINT, \"file\" TEXT, \"identity\" TEXT, \"kind\" TEXT, \"modified_at_ms\" BIGINT, \"name\" TEXT, \"named_at\" TEXT, extra TEXT, PRIMARY KEY (scope, id));
-         CREATE TABLE ns_gone (scope TEXT COLLATE \"C\" NOT NULL, id TEXT COLLATE \"C\" NOT NULL, version BIGINT NOT NULL, request_key TEXT, request_identity TEXT, PRIMARY KEY (scope, id));
-         INSERT INTO ns_name (scope, id, version, kind, name) VALUES ('@namespace/names/', '/b', 1, 'namespace-name', '/b');
-         INSERT INTO ns_name (scope, id, version, kind, name) VALUES ('@namespace/names/', '/a', 3, 'namespace-name', '/a');",
-    )
-    .unwrap();
-    let store = SqlStore::open(old).unwrap();
-    let items: Vec<(String, Value, i64)> =
-        store.list_page("@namespace/names/", "", 10).unwrap().items.into_iter().map(|record| (record.id, record.value["item"].clone(), record.changed)).collect();
-    assert_eq!(items, [("/a".to_owned(), json!(1), 1), ("/b".to_owned(), json!(2), 2)]);
-    let next = put(&store, "@namespace/names/", "/c", 0, "c", json!({ "kind": "namespace-name", "name": "/c" })).unwrap();
-    assert_eq!((next.value.unwrap()["item"].clone(), next.changed), (json!(3), 3));
-}

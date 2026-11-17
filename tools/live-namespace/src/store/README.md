@@ -46,9 +46,8 @@ implementation, over SQLite (a file of the person's own) or Postgres (the person
   in their order) and the row or its tombstone keeps it as `changed`; `changes` walks it after a cursor. A table's `minted` column
   (tables.json) is filled by the store from the same order for a new row, kept by a changed row and its tombstone, and carried by a value
   that holds it (a rename).
-- Opening a store settles it: a column declared after the database was made is added (`ALTER TABLE ... ADD COLUMN`), rows with no minted id
-  get the next numbers in (scope, id) order in one statement a table, and the order starts past every row's own number. A copy settles the
-  same way when it ends.
+- A copy from the archive settles when it ends (`settle`): its rows get minted ids, the next numbers in (scope, id) order in one statement
+  a table, and the order starts past every row's own number.
 
 ## Copying the account owner's rows in
 

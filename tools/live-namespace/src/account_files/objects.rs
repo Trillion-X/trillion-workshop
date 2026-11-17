@@ -1087,10 +1087,11 @@ mod tests {
                 std::thread::sleep(Duration::from_millis(500));
             }
         });
-        let objects = span_store(port, std::time::Instant::now() + Duration::from_secs(2), Duration::from_secs(1));
+        // The call's time and the measured time start at the same instant, so setting up the store under load is not counted against it.
+        let started = std::time::Instant::now();
+        let objects = span_store(port, started + Duration::from_secs(2), Duration::from_secs(1));
         let bytes = vec![7u8; length];
         let mut reader: &[u8] = &bytes;
-        let started = std::time::Instant::now();
         let error = objects.write_stream("origin", "p/span", Body { length: length as u64, sha256: Sha256::digest(&bytes).into(), bytes: &mut reader }, "application/octet-stream").unwrap_err();
         let elapsed = started.elapsed();
         assert!(format!("{error:?}").contains("account files call stopped") || format!("{error:?}").contains("os error"), "{error:?}");

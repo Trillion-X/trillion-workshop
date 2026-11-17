@@ -410,55 +410,20 @@ impl SqlStore {
              CREATE TABLE IF NOT EXISTS ns_order (one BIGINT NOT NULL PRIMARY KEY, last BIGINT NOT NULL);\n",
             g = declared().generic
         ));
-        let mut link = self.link.lock().map_err(unavailable)?;
-        link.batch(&sql)?;
-        // A database made before a column was declared gets the column now, so a person's rows are never copied again for it.
-        let mut later = Vec::new();
-        for table in &declared().tables {
-            let held = Self::columns_held(&mut link, &table.table)?;
-            for column in &table.columns {
-                if !held.contains(&column.name) {
-                    later.push(format!("ALTER TABLE {} ADD COLUMN \"{}\" {}", table.table, column.name, column.kind.sql_type()));
-                }
-            }
-            if !held.contains("changed") {
-                later.push(format!("ALTER TABLE {} ADD COLUMN {CHANGED}", table.table));
-            }
-        }
-        for (table, extra) in [(declared().generic.as_str(), None), ("ns_gone", Some("minted BIGINT"))] {
-            let held = Self::columns_held(&mut link, table)?;
-            if !held.contains("changed") {
-                later.push(format!("ALTER TABLE {table} ADD COLUMN {CHANGED}"));
-            }
-            if let Some(extra) = extra.filter(|extra| !held.iter().any(|column| extra.starts_with(column.as_str()))) {
-                later.push(format!("ALTER TABLE {table} ADD COLUMN {extra}"));
-            }
-        }
         for table in declared().tables.iter().map(|table| table.table.as_str()).chain([declared().generic.as_str(), "ns_gone"]) {
-            later.push(format!("CREATE INDEX IF NOT EXISTS {table}_changed ON {table} (changed)"));
+            sql.push_str(&format!("CREATE INDEX IF NOT EXISTS {table}_changed ON {table} (changed);\n"));
         }
         for table in &declared().tables {
             if let Some(minted) = &table.minted {
-                later.push(format!("CREATE INDEX IF NOT EXISTS {t}_{minted} ON {t} (\"{minted}\")", t = table.table));
+                sql.push_str(&format!("CREATE INDEX IF NOT EXISTS {t}_{minted} ON {t} (\"{minted}\");\n", t = table.table));
             }
         }
-        link.batch(&later.iter().map(|statement| format!("{statement};\n")).collect::<String>())?;
-        Self::settle(&mut link)
+        self.link.lock().map_err(unavailable)?.batch(&sql)
     }
 
-    /// The columns a table of the database has now.
-    fn columns_held(link: &mut Link, table: &str) -> Result<std::collections::BTreeSet<String>, Error> {
-        let sql = match link.dialect() {
-            Dialect::Sqlite => "SELECT name FROM pragma_table_info(?)",
-            Dialect::Postgres => "SELECT column_name FROM information_schema.columns WHERE table_name = ? AND table_schema = current_schema()",
-        };
-        Ok(link.query(sql, &[Cell::text(table)])?.iter().filter_map(|cells| cells[0].as_text()).collect())
-    }
-
-    /// Rows that came in without the store (a copy from the archive, a table from before a column was declared) take their place in the
-    /// change order: each row of a table with a minted column that has none gets the next numbers, in (scope, id) order, as its minted
-    /// id and its `changed`, in one statement a table; then the order starts past every row's own number. Nothing to do costs one indexed
-    /// read a table.
+    /// Rows a copy brought in from the archive take their place in the change order: each row of a table with a minted column that has
+    /// none gets the next numbers, in (scope, id) order, as its minted id and its `changed`, in one statement a table; then the order
+    /// starts past every row's own number.
     fn settle(link: &mut Link) -> Result<(), Error> {
         for table in &declared().tables {
             let Some(minted) = &table.minted else { continue };
@@ -1165,30 +1130,6 @@ mod tests {
         let again = SqlStore::open(Link::sqlite(&path).unwrap()).unwrap();
         assert_eq!(again.get("@namespace/chunks", "c").unwrap().record.unwrap().value, chunk(1, "b2"));
         assert_eq!(again.place(), path.display().to_string());
-    }
-
-    #[test]
-    fn a_database_made_before_the_change_order_gets_its_columns_and_every_name_an_item_when_opened() {
-        let link = Link::memory().unwrap();
-        let mut old = link;
-        old.batch(
-            "CREATE TABLE ns_name (scope TEXT NOT NULL, id TEXT NOT NULL, version BIGINT NOT NULL, request_key TEXT, request_identity TEXT, \
-             \"byte_length\" BIGINT, \"file\" TEXT, \"identity\" TEXT, \"kind\" TEXT, \"modified_at_ms\" BIGINT, \"name\" TEXT, \"named_at\" TEXT, extra TEXT, PRIMARY KEY (scope, id));
-             CREATE TABLE ns_gone (scope TEXT NOT NULL, id TEXT NOT NULL, version BIGINT NOT NULL, request_key TEXT, request_identity TEXT, PRIMARY KEY (scope, id));
-             INSERT INTO ns_name (scope, id, version, kind, name) VALUES ('@namespace/names/', '/b', 1, 'namespace-name', '/b');
-             INSERT INTO ns_name (scope, id, version, kind, name) VALUES ('@namespace/names/', '/a', 3, 'namespace-name', '/a');",
-        )
-        .unwrap();
-        let store = SqlStore::open(old).unwrap();
-        let items: Vec<(String, Value, i64)> =
-            store.list_page("@namespace/names/", "", 10).unwrap().items.into_iter().map(|record| (record.id, record.value["item"].clone(), record.changed)).collect();
-        assert_eq!(items, [("/a".to_owned(), json!(1), 1), ("/b".to_owned(), json!(2), 2)]);
-        assert_eq!(store.order().unwrap(), 2);
-        let next = put(&store, "@namespace/names/", "/c", 0, "c", json!({"kind": "namespace-name", "name": "/c"})).unwrap();
-        assert_eq!((next.value.unwrap()["item"].clone(), next.changed), (json!(3), 3));
-        let again = store.same_database();
-        assert_eq!(again.order().unwrap(), 3, "opening again changes nothing");
-        assert_eq!(store.get("@namespace/names/", "/a").unwrap().record.unwrap().version, 3, "the rows keep their versions");
     }
 
     /// The archive's six tables, as the account owner's database has them (untyped columns, `extra` last), with a few rows of each.
