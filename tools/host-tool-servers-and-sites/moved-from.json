@@ -5,33 +5,11 @@
   "calls": [],
   "files": [
     {
-      "from": "src/hosted-mcp-apps.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/host-tool-servers-and-sites/src/hosted-mcp-apps.mjs",
-      "source_identity": "1f:12b4d381e8495a8bbeff21a3ed68ab6854b2b2b3e0b808f08bc69381c5ec4669",
-      "identity": "1f:12b4d381e8495a8bbeff21a3ed68ab6854b2b2b3e0b808f08bc69381c5ec4669"
-    },
-    {
       "from": "src/hosted-sites.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/host-tool-servers-and-sites/src/hosted-sites.mjs",
       "source_identity": "1f:45932e7e61042f123c76986033a9367aab252d667127f1445268e83d0423d52f",
       "identity": "1f:45932e7e61042f123c76986033a9367aab252d667127f1445268e83d0423d52f"
-    },
-    {
-      "from": "records/workshop-tool-server-records.json",
-      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/host-tool-servers-and-sites/from-old-trillion/records/workshop-tool-server-records.json",
-      "source_identity": "1f:83ff407f85e6deb09d8b2168c64a0ba85b5b1a03d1a747a8ec31e9bc9423531d",
-      "identity": "1f:83ff407f85e6deb09d8b2168c64a0ba85b5b1a03d1a747a8ec31e9bc9423531d"
-    },
-    {
-      "from": "records/hosted-mcp-apps.json",
-      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/host-tool-servers-and-sites/from-old-trillion/records/hosted-mcp-apps.json",
-      "source_identity": "1f:297117f5ad307d31cf43a8322ea7b1a33a2dc7f0801a284355d5172638958a01",
-      "identity": "1f:d28aa30f0a9e95b8ad1405cf9d8b14f999ff84af4ae4ddc2e20c4b838262bcaa",
-      "changed": "No maker, host or person of any one deployment stays in the file: the sample host is craft-mcp.example.com."
     },
     {
       "from": "records/hosted-service-records.json",
