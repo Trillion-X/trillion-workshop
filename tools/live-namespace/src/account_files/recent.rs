@@ -26,7 +26,7 @@
 // You are forbidden from simplifying or removing it. Maintain and extend this detail.
 
 use super::{account_routes::Files, AccountFiles, AccountFilesError, Answer};
-use crate::{records::{Error, Mutation, Records, MAX_PAGE_ITEMS}, storage::Storage};
+use crate::{store::{Error, Mutation, MAX_PAGE_ITEMS}};
 use content_crypto::advanced::blake3;
 use serde::Deserialize;
 use serde_json::{json, Value};
@@ -143,7 +143,7 @@ fn request_key(what: &str, id: &str, at: &str) -> String {
     format!("files-recent:{}", blake3::hash(format!("{what}\0{id}\0{at}").as_bytes()).to_hex())
 }
 
-impl<S: Storage + Send> AccountFiles<S> {
+impl AccountFiles {
     /// `record_file_use`: keep that `file` (a name starting with / or an identity) was used as `kind`, now. Answers
     /// {recorded, file: its row} (old src/recent-files.mjs:62 `record`).
     pub fn record_file_use(&mut self, file: &str, kind: &str) -> Answer<Value> {
@@ -166,7 +166,7 @@ impl<S: Storage + Send> AccountFiles<S> {
         let now = chrono::DateTime::from_timestamp_millis(now_ms).ok_or(crate::cause!(Error::Unavailable))?;
         let at = now.to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
         let order_ms = now_ms.clamp(0, LAST_MS);
-        let newest = self.store.list_page(&self.account, RECENT_ORDER, "", 1)?.items;
+        let newest = self.store.list_page(RECENT_ORDER, "", 1)?.items;
         let previous_tick = newest.first()
             .and_then(|row| row.id.split_once(':').map(|(inverted, _)| inverted))
             .and_then(|inverted| inverted.parse::<i64>().ok())
@@ -217,7 +217,7 @@ impl<S: Storage + Send> AccountFiles<S> {
         let mut after: Option<String> = None;
         let mut past = Vec::new();
         loop {
-            let (ids, next) = self.store.ids(&self.account, RECENT_ORDER, after.as_deref(), MAX_PAGE_ITEMS)?;
+            let (ids, next) = self.store.ids(RECENT_ORDER, after.as_deref(), MAX_PAGE_ITEMS)?;
             for id in ids {
                 seen += 1;
                 if seen > keep {
@@ -265,9 +265,9 @@ impl<S: Storage + Send> AccountFiles<S> {
         let recent = settings()?.recent();
         let size = limit.and_then(|limit| usize::try_from(limit).ok()).filter(|limit| *limit > 0)
             .unwrap_or(recent.list_default).clamp(1, recent.list_max);
-        let page = self.store.list_page(&self.account, RECENT_ORDER, before.unwrap_or(""), size)?;
+        let page = self.store.list_page(RECENT_ORDER, before.unwrap_or(""), size)?;
         let identities: Vec<&str> = page.items.iter().filter_map(|order| order.value.get("identity").and_then(Value::as_str)).collect();
-        let rows = self.store.get_many(&self.account, RECENT_FILES, &identities)?;
+        let rows = self.store.get_many(RECENT_FILES, &identities)?;
         let mut items = Vec::new();
         for (order, row) in page.items.iter().zip(identities.iter().zip(rows)) {
             let (identity, Some(row)) = row else { continue };

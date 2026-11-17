@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 
 use super::settings::settings;
-use crate::records::Record;
+use crate::store::Record;
 use content_crypto::subtree::SUBTREE_BYTES;
 
 /// The most spans one record carries: 256 × 32 KiB covers 8 MiB of file bytes.

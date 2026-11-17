@@ -132,7 +132,7 @@ struct Words {
 
 impl Settings {
     fn valid(&self) -> bool {
-        let page = 1..=crate::records::MAX_PAGE_ITEMS;
+        let page = 1..=crate::store::MAX_PAGE_ITEMS;
         self.read.response_metadata_reserve_bytes > 0
             && self.read.response_metadata_reserve_bytes < crate::mcp::MAX_MESSAGE_BYTES
             && page.contains(&self.release.candidates_per_page)

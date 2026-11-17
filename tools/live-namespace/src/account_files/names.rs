@@ -29,8 +29,7 @@
 
 use super::{folder_name, now_iso, parent, text, Answer, AccountFiles, AccountFilesError, Tree, DEFAULT_LIST_LIMIT, FILES};
 use crate::{
-    records::{Mutation, Record, Records, MAX_PAGE_ITEMS},
-    storage::Storage,
+    store::{Mutation, Record, MAX_PAGE_ITEMS},
 };
 use serde_json::{json, Value};
 use std::time::Instant;
@@ -92,7 +91,7 @@ fn carriable(name: &str) -> bool {
     name.starts_with('/') && name.len() > 1 && !name.ends_with('/') && !name.contains('\0')
 }
 
-impl<S: Storage + Send> AccountFiles<S> {
+impl AccountFiles {
     /// `find_names`: one page of the names in `prefix`'s folder that start with `prefix` (a folder ending in `/`
     /// lists that folder's names).
     pub fn find_names(&self, prefix: &str, after: Option<&str>, limit: Option<usize>) -> Answer<Value> {
@@ -111,7 +110,7 @@ impl<S: Storage + Send> AccountFiles<S> {
                 prefix.to_owned()
             }
         };
-        let page = self.store.list_page(&self.account, &scope, &start, limit + 1 - found.len())?;
+        let page = self.store.list_page(&scope, &start, limit + 1 - found.len())?;
         let mut more = page.next.is_some();
         for record in page.items {
             if !record.id.starts_with(prefix) {
@@ -339,7 +338,7 @@ impl<S: Storage + Send> AccountFiles<S> {
                 if *room == 0 {
                     return Ok(false);
                 }
-                let page = self.store.list_page(&self.account, &tree.names(folder), &cursor, (*room).min(MAX_PAGE_ITEMS))?;
+                let page = self.store.list_page(&tree.names(folder), &cursor, (*room).min(MAX_PAGE_ITEMS))?;
                 let more = page.next.is_some();
                 for record in page.items {
                     cursor.clone_from(&record.id);
@@ -365,7 +364,7 @@ impl<S: Storage + Send> AccountFiles<S> {
             if *room == 0 {
                 return Ok(false);
             }
-            let (children, next) = self.store.ids(&self.account, &tree.folders(folder), child_after.as_deref(), MAX_PAGE_ITEMS)?;
+            let (children, next) = self.store.ids(&tree.folders(folder), child_after.as_deref(), MAX_PAGE_ITEMS)?;
             for child in &children {
                 if !self.walk(tree, child, None, room, steps)? {
                     return Ok(false);

@@ -1,7 +1,6 @@
 // tests/account_files_route.rs
 //
-// Purpose: The local account files route end to end on a synthetic Worker copy: the migration's count proof, then the
-// tool contract (list_files with folders and paging, find_file by name, identity and alias, files_summary, read_file
+// Purpose: The account files end to end over synthetic rows: the tool contract (list_files with folders and paging, find_file by name, identity and alias, files_summary, read_file
 // across a chunk boundary, write_file of new and already-kept content), and the generic name operations (find_names,
 // move_names and copy_names of a name or a whole folder in bounded pages, set_aside, list_set_aside and put_back)
 // over a record store in memory and an in-memory byte port that serves only exact ranges.
@@ -13,7 +12,6 @@
 // You are forbidden from simplifying or removing it. Maintain and extend this detail.
 
 use content_crypto::advanced::blake3;
-use rusqlite::Connection;
 use serde_json::{json, Value};
 use std::{
     collections::HashMap,
@@ -25,14 +23,11 @@ use std::{
 };
 use live_namespace::{
     account_files::{
-        migrate::{migrate, open_source, Plan},
+        folders_scope, names_scope,
         objects::{Body, Listing, ObjectError, Objects, Origin, Stat},
         AccountFiles,
     },
-    storage::{
-        memory::Memory,
-        record_store::{settings, RecordStore, RealClock},
-    },
+    store::{Mutation, SqlStore, Store},
 };
 
 const ACCOUNT: &str = "account-a";
@@ -131,146 +126,73 @@ fn id(bytes: &[u8]) -> String {
     format!("1f:{}", blake3::hash(bytes).to_hex())
 }
 
-/// A Worker account files copy with: a whole file in R2 under two names, a chunked file in B2 (two chunks) named through
-/// an alias, and a deep folder whose ancestors hold no names.
-fn source(held: &Held) -> (tempfile::TempDir, std::path::PathBuf, Vec<u8>) {
-    let dir = tempfile::tempdir().unwrap();
-    let path = dir.path().join("book.sqlite");
-    let db = Connection::open(&path).unwrap();
-    db.execute_batch(
-        "CREATE TABLE namespace_files (identity TEXT PRIMARY KEY, byte_length INTEGER NOT NULL, media_type TEXT, origin TEXT NOT NULL, key TEXT NOT NULL, part_bytes INTEGER NOT NULL, stored_at TEXT NOT NULL, checked_at TEXT NOT NULL, checked_part INTEGER, spans INTEGER NOT NULL DEFAULT 0, prefix_identity TEXT, arrival_revision TEXT, arrival_completed_revision TEXT);
-         CREATE TABLE namespace_names (name TEXT PRIMARY KEY, collection TEXT NOT NULL, identity TEXT, byte_length INTEGER, modified_at_ms INTEGER, named_at TEXT NOT NULL);
-         CREATE TABLE namespace_aliases (alias TEXT PRIMARY KEY, identity TEXT NOT NULL, grade TEXT NOT NULL, added_at TEXT NOT NULL);
-         CREATE TABLE namespace_chunks (chunk TEXT PRIMARY KEY, byte_length INTEGER NOT NULL, origin TEXT NOT NULL, key TEXT NOT NULL, stored_at TEXT NOT NULL);
-         CREATE TABLE namespace_spans (file TEXT NOT NULL, ordinal INTEGER NOT NULL, offset INTEGER NOT NULL, length INTEGER NOT NULL, chunk TEXT NOT NULL, PRIMARY KEY (file, ordinal));
-         CREATE TABLE namespace_growing (growing TEXT PRIMARY KEY, byte_length INTEGER NOT NULL, media_type TEXT, origin TEXT NOT NULL, started_at TEXT NOT NULL, finished TEXT, new_bytes INTEGER NOT NULL DEFAULT 0, aliases TEXT NOT NULL DEFAULT '[]', app TEXT, length_open INTEGER NOT NULL DEFAULT 0, spans_described INTEGER NOT NULL DEFAULT 0, bytes_held INTEGER NOT NULL DEFAULT 0);",
-    )
-    .unwrap();
+/// Put `rows` (id, value) into `scope` as new rows.
+fn seed(store: &Store, scope: &str, rows: Vec<(String, Value)>) {
+    for (id, value) in rows {
+        store.mutate(scope, Mutation { id: id.clone(), expected_version: 0, request_key: format!("seed:{id}"), deleted: false, value }).unwrap();
+    }
+}
+
+/// The person's files with: a whole file in R2 under two names, a chunked file in B2 (two chunks) named through an alias, a deep
+/// folder whose ancestors hold no names, one upload in progress and two origins; its bytes in `Held`.
+fn kept() -> (AccountFiles, Arc<Held>, Vec<u8>) {
+    let held = Arc::new(Held::default());
+    let store: Store = Arc::new(SqlStore::memory().unwrap());
+    let origin = |rank: u32, bucket: Value, endpoint: Value, region: Value, id: &str| json!({
+        "kind": "namespace-origin", "rank": rank, "takes_new_bytes": true, "file_key_prefix": "people/p/files/",
+        "reach": { "key_id": {"held": format!("held-{id}-key-id")}, "secret": {"held": format!("held-{id}-application-key")},
+                   "bucket": bucket, "endpoint": endpoint, "region": region },
+    });
+    seed(&store, "@namespace/origins", vec![
+        ("backblaze-b2".into(), origin(2, json!({"held": "held-backblaze-b2-bucket"}), json!({"value": "https://s3.example.test"}), json!({"value": "r-1"}), "backblaze-b2")),
+        ("cloudflare-r2".into(), origin(1, json!({"value": "landing"}), json!({"held": "held-cloudflare-r2-endpoint"}), json!({"held": "held-cloudflare-r2-region"}), "cloudflare-r2")),
+    ]);
+
     let note = b"a note kept in the landing store".to_vec();
     let note_id = id(&note);
     let note_key = format!("people/p/files/{note_id}");
-    db.execute("INSERT INTO namespace_files VALUES (?1, ?2, 'text/plain', 'cloudflare-r2', ?3, 33554432, '2026-09-27T05:02:28.064Z', '2026-09-27T05:02:28.064Z', 0, 0, NULL, NULL, NULL)", rusqlite::params![note_id, note.len(), note_key]).unwrap();
-    held.objects
-        .lock()
-        .unwrap()
-        .insert(("cloudflare-r2".into(), note_key), note.clone());
+    held.objects.lock().unwrap().insert(("cloudflare-r2".into(), note_key.clone()), note.clone());
 
     let first: Vec<u8> = (0..1000u32).map(|n| (n % 251) as u8).collect();
     let second: Vec<u8> = (0..700u32).map(|n| (n % 241) as u8).collect();
     let video: Vec<u8> = [first.clone(), second.clone()].concat();
     let video_id = id(&video);
-    db.execute("INSERT INTO namespace_files VALUES (?1, ?2, 'application/octet-stream', 'backblaze-b2', '', 0, '2026-09-28T02:56:01.898Z', '2026-09-28T02:56:01.898Z', NULL, 2, NULL, NULL, NULL)", rusqlite::params![video_id, video.len()]).unwrap();
-    for (ordinal, (offset, piece)) in [(0usize, &first), (1000usize, &second)]
-        .into_iter()
-        .enumerate()
-    {
+    let alias = format!("12:{}", "a".repeat(64));
+    let (mut chunks, mut spans) = (Vec::new(), Vec::new());
+    for (offset, piece) in [(0usize, &first), (1000usize, &second)] {
         let chunk = id(piece);
         let key = format!("people/p/chunks/{chunk}");
-        db.execute("INSERT INTO namespace_chunks VALUES (?1, ?2, 'backblaze-b2', ?3, '2026-09-28T02:50:00.000Z')", rusqlite::params![chunk, piece.len(), key]).unwrap();
-        db.execute(
-            "INSERT INTO namespace_spans VALUES (?1, ?2, ?3, ?4, ?5)",
-            rusqlite::params![video_id, ordinal, offset, piece.len(), chunk],
-        )
-        .unwrap();
-        held.objects
-            .lock()
-            .unwrap()
-            .insert(("backblaze-b2".into(), key), piece.clone());
+        chunks.push((chunk.clone(), json!({"kind": "namespace-chunk", "byte_length": piece.len(), "origin": "backblaze-b2", "key": key, "stored_at": "2026-09-28T02:50:00.000Z"})));
+        spans.push(json!({"offset": offset, "length": piece.len(), "chunk": chunk}));
+        held.objects.lock().unwrap().insert(("backblaze-b2".into(), key), piece.clone());
     }
-    let alias = format!("12:{}", "a".repeat(64));
-    db.execute(
-        "INSERT INTO namespace_aliases VALUES (?1, ?2, 'checked', '2026-09-28T03:00:00.000Z')",
-        rusqlite::params![alias, video_id],
-    )
-    .unwrap();
-    for (name, collection, identity, size) in [
-        ("/Notes/a.txt", "/Notes", note_id.as_str(), note.len()),
-        ("/Notes/b.txt", "/Notes", note_id.as_str(), note.len()),
-        (
-            "/Recordings/club/player/day/C6637.MP4",
-            "/Recordings/club/player/day",
-            alias.as_str(),
-            video.len(),
-        ),
-    ] {
-        db.execute(
-            "INSERT INTO namespace_names VALUES (?1, ?2, ?3, ?4, NULL, '2026-09-28T03:22:52.307Z')",
-            rusqlite::params![name, collection, identity, size],
-        )
-        .unwrap();
+    seed(&store, "@namespace/chunks", chunks);
+    seed(&store, "@namespace/spans", vec![(video_id.clone(), json!({"kind": "namespace-spans", "spans": spans}))]);
+    seed(&store, "@namespace/aliases", vec![(alias.clone(), json!({"kind": "namespace-alias", "identity": video_id, "grade": "checked", "added_at": "2026-09-28T03:00:00.000Z"}))]);
+    seed(&store, "@namespace/files", vec![
+        (note_id.clone(), json!({"kind": "namespace-file", "byte_length": note.len(), "media_type": "text/plain", "origin": "cloudflare-r2", "key": note_key,
+            "part_bytes": 33554432, "stored_at": "2026-09-27T05:02:28.064Z", "checked_at": "2026-09-27T05:02:28.064Z", "spans": 0,
+            "aliases": [], "names": ["/Notes/a.txt", "/Notes/b.txt"]})),
+        (video_id.clone(), json!({"kind": "namespace-file", "byte_length": video.len(), "media_type": "application/octet-stream", "origin": "backblaze-b2", "key": "",
+            "part_bytes": 0, "stored_at": "2026-09-28T02:56:01.898Z", "checked_at": "2026-09-28T02:56:01.898Z", "spans": 2,
+            "aliases": [{"alias": alias, "grade": "checked"}], "names": ["/Recordings/club/player/day/C6637.MP4"]})),
+    ]);
+    let name = |name: &str, identity: &str, file: &str, size: usize| (name.to_owned(), json!({"kind": "namespace-name", "name": name, "identity": identity,
+        "file": file, "byte_length": size, "modified_at_ms": null, "named_at": "2026-09-28T03:22:52.307Z"}));
+    seed(&store, &names_scope("/Notes"), vec![name("/Notes/a.txt", &note_id, &note_id, note.len()), name("/Notes/b.txt", &note_id, &note_id, note.len())]);
+    seed(&store, &names_scope("/Recordings/club/player/day"), vec![name("/Recordings/club/player/day/C6637.MP4", &alias, &video_id, video.len())]);
+    for (parent_folder, folders) in [("/", vec!["/Notes", "/Recordings"]), ("/Recordings", vec!["/Recordings/club"]), ("/Recordings/club", vec!["/Recordings/club/player"]),
+        ("/Recordings/club/player", vec!["/Recordings/club/player/day"])] {
+        seed(&store, &folders_scope(parent_folder), folders.into_iter().map(|folder| (folder.to_owned(), json!({"kind": "namespace-folder", "folder": folder}))).collect());
     }
-    db.execute("INSERT INTO namespace_growing (growing, byte_length, origin, started_at) VALUES ('up:1', 5000, 'cloudflare-r2', '2026-10-22T00:00:00.000Z')", []).unwrap();
-    db.execute("INSERT INTO namespace_growing (growing, byte_length, origin, started_at, finished) VALUES ('up:2', 10, 'cloudflare-r2', '2026-10-22T00:00:00.000Z', 'yes')", []).unwrap();
-    drop(db);
-    (dir, path, video)
-}
-
-fn plan() -> Plan {
-    Plan {
-        account: ACCOUNT.into(),
-        origin_settings: vec![
-            json!({ "origin_id": "backblaze-b2", "rank": 2, "settings": { "endpoint": "https://s3.example.test", "region": "r-1" } }),
-            json!({ "origin_id": "cloudflare-r2", "rank": 1, "settings": { "bucket": "landing" } }),
-        ],
-        credential_prefix: "held-".into(),
-    }
-}
-
-fn migrated() -> (AccountFiles<Memory>, Arc<Held>, Vec<u8>, tempfile::TempDir) {
-    let held = Arc::new(Held::default());
-    let (dir, path, video) = source(&held);
-    let limits = settings::Limits::fixed(1 << 20, 10 << 30);
-    let mut store = RecordStore::new(
-        Memory::open("record_store").unwrap(),
-        Box::new(RealClock),
-        limits,
-    )
-    .unwrap();
-    let report = migrate(&open_source(&path).unwrap(), &mut store, &plan(), |_, _| {}).unwrap();
-    assert!(report.proved(), "{report:?}");
-    assert_eq!(report.migrated["files"], 2);
-    assert_eq!(report.migrated["names"], 3);
-    assert_eq!(
-        report.migrated["folders"], 5,
-        "Notes, Recordings, club, player, day"
-    );
-    assert_eq!(
-        report.migrated["uploads"], 1,
-        "a finished upload is not in progress"
-    );
-    (
-        AccountFiles::with_objects(store, ACCOUNT, Box::new(Port(held.clone()))),
-        held,
-        video,
-        dir,
-    )
-}
-
-#[test]
-fn origin_records_name_vault_values_and_settings_values() {
-    let (account_files, ..) = migrated();
-    let origins: HashMap<String, Origin> = account_files.origins().unwrap().into_iter().collect();
-    let b2 = serde_json::to_value(&origins["backblaze-b2"]).unwrap();
-    assert_eq!(
-        b2["reach"]["endpoint"],
-        json!({ "value": "https://s3.example.test" })
-    );
-    assert_eq!(
-        b2["reach"]["secret"],
-        json!({ "held": "held-backblaze-b2-application-key" })
-    );
-    assert_eq!(
-        b2["reach"]["bucket"],
-        json!({ "held": "held-backblaze-b2-bucket" })
-    );
-    let r2 = serde_json::to_value(&origins["cloudflare-r2"]).unwrap();
-    assert_eq!(r2["reach"]["bucket"], json!({ "value": "landing" }));
-    assert_eq!(r2["file_key_prefix"], json!("people/p/files/"));
+    seed(&store, "@namespace/uploads", vec![("up:1".into(), json!({"kind": "namespace-upload", "byte_length": 5000, "media_type": null, "origin": "cloudflare-r2",
+        "started_at": "2026-10-22T00:00:00.000Z", "bytes_held": 0, "app": null}))]);
+    (AccountFiles::with_objects(store, ACCOUNT, Box::new(Port(held.clone()))), held, video)
 }
 
 #[test]
 fn list_files_pages_a_folder_and_shows_child_folders_on_the_first_page() {
-    let (account_files, ..) = migrated();
+    let (account_files, ..) = kept();
     let root = account_files.list_files(Some("/"), None, None).unwrap();
     assert_eq!(root["names"], json!([]));
     assert_eq!(root["folders"], json!(["/Notes", "/Recordings"]));
@@ -306,7 +228,7 @@ fn list_files_pages_a_folder_and_shows_child_folders_on_the_first_page() {
 
 #[test]
 fn find_file_resolves_names_identities_and_aliases() {
-    let (account_files, _, video, _dir) = migrated();
+    let (account_files, _, video) = kept();
     let by_name = account_files
         .find_file("/Recordings/club/player/day/C6637.MP4")
         .unwrap();
@@ -333,7 +255,7 @@ fn find_file_resolves_names_identities_and_aliases() {
 /// and each hit answers the `find_file` call that opens it.
 #[test]
 fn search_finds_files_by_the_words_of_their_names_and_answers_the_call_that_opens_them() {
-    let (mut account_files, _, video, _dir) = migrated();
+    let (mut account_files, _, video) = kept();
     let found = account_files
         .call("search", &json!({"question": "C6637 mp4"}))
         .unwrap()
@@ -388,7 +310,7 @@ fn search_finds_files_by_the_words_of_their_names_and_answers_the_call_that_open
 
 #[test]
 fn files_summary_counts_from_declared_totals() {
-    let (account_files, ..) = migrated();
+    let (account_files, ..) = kept();
     let summary = account_files.files_summary().unwrap();
     assert_eq!(summary["files"], 2);
     assert_eq!(summary["bytes"], 1700 + 32);
@@ -409,7 +331,7 @@ fn files_summary_counts_from_declared_totals() {
 
 #[test]
 fn read_file_asks_each_chunk_for_exactly_the_crossed_range() {
-    let (account_files, held, video, _dir) = migrated();
+    let (account_files, held, video) = kept();
     let read = account_files
         .read_file("/Recordings/club/player/day/C6637.MP4", 990, Some(20))
         .unwrap();
@@ -436,7 +358,7 @@ fn read_file_asks_each_chunk_for_exactly_the_crossed_range() {
 /// outside the file, or of no bytes, is refused before any byte is read.
 #[test]
 fn read_file_span_answers_the_whole_span_in_one_call_and_refuses_one_outside_the_file() {
-    let (account_files, held, video, _dir) = migrated();
+    let (account_files, held, video) = kept();
     let name = "/Recordings/club/player/day/C6637.MP4";
     let read = account_files.read_file_span(name, 990, 20).unwrap();
     assert_eq!((read["bytes_returned"].as_u64(), read["encoding"].as_str()), (Some(20), Some("base64")));
@@ -457,7 +379,7 @@ fn read_file_span_answers_the_whole_span_in_one_call_and_refuses_one_outside_the
 
 #[test]
 fn write_file_keeps_bytes_first_then_records_and_reuses_kept_content() {
-    let (mut account_files, held, _, _dir) = migrated();
+    let (mut account_files, held, _) = kept();
     held.refuse.lock().unwrap().push("cloudflare-r2".into());
     let origins = account_files.origins().unwrap();
     let wrote = account_files
@@ -513,8 +435,7 @@ fn write_file_keeps_bytes_first_then_records_and_reuses_kept_content() {
 fn resumable_upload_reuses_legacy_identity_and_finish_replay_is_stable() {
     use base64::Engine as _;
     use live_namespace::account_files::{CHUNKS, FILES};
-    use live_namespace::records::Records;
-    let (mut account_files, _, _, _dir) = migrated();
+        let (mut account_files, _, _) = kept();
     let bytes = b"a note kept in the landing store";
     let upload_id = "a".repeat(32);
     let name = "/Notes/copied.txt";
@@ -565,7 +486,7 @@ fn resumable_upload_reuses_legacy_identity_and_finish_replay_is_stable() {
     assert_eq!(replay["identity"], identity);
     let file = account_files
         .store
-        .get(ACCOUNT, FILES, &identity)
+        .get(FILES, &identity)
         .unwrap()
         .record
         .unwrap();
@@ -577,7 +498,7 @@ fn resumable_upload_reuses_legacy_identity_and_finish_replay_is_stable() {
     assert_eq!(
         account_files
             .store
-            .get(ACCOUNT, CHUNKS, &identity)
+            .get(CHUNKS, &identity)
             .unwrap()
             .record
             .unwrap()
@@ -592,7 +513,7 @@ fn resumable_upload_reuses_legacy_identity_and_finish_replay_is_stable() {
 
 #[test]
 fn upload_finish_refuses_a_changed_name_but_cancel_still_retires_the_token() {
-    let (mut account_files, _, _, _dir) = migrated();
+    let (mut account_files, _, _) = kept();
     let upload_id = "b".repeat(32);
     let name = "/Notes/a.txt";
     account_files
@@ -629,9 +550,9 @@ fn upload_finish_refuses_a_changed_name_but_cancel_still_retires_the_token() {
 fn finish_retry_repairs_prior_file_names_after_a_crash_at_name_binding() {
     use live_namespace::{
         account_files::{names_scope, parent, FILES, FILE_KIND, UPLOADS},
-        records::{Mutation, Records},
+        store::Mutation,
     };
-    let (mut account_files, _, _, _dir) = migrated();
+    let (mut account_files, _, _) = kept();
     let old_identity = id(b"a note kept in the landing store");
     let upload_id = "f".repeat(32);
     let name = "/Notes/a.txt";
@@ -645,12 +566,12 @@ fn finish_retry_repairs_prior_file_names_after_a_crash_at_name_binding() {
     let identity = id(bytes);
     let upload = account_files
         .store
-        .get(ACCOUNT, UPLOADS, &upload_id)
+        .get(UPLOADS, &upload_id)
         .unwrap()
         .record
         .unwrap();
     let origin = upload.value["origin"].as_str().unwrap();
-    account_files.store.mutate(ACCOUNT, FILES, Mutation {
+    account_files.store.mutate(FILES, Mutation {
         id: identity.clone(), expected_version: 0, request_key: "test-crash-file-before-name".into(), deleted: false,
         value: json!({"kind":FILE_KIND,"byte_length":bytes.len(),"media_type":"text/plain","origin":origin,"key":"",
             "stored_at":"2026-01-01T00:00:00Z","checked_at":"2026-01-01T00:00:00Z","spans":1,
@@ -659,7 +580,7 @@ fn finish_retry_repairs_prior_file_names_after_a_crash_at_name_binding() {
     let name_scope = names_scope(parent(name));
     let name_record = account_files
         .store
-        .get(ACCOUNT, &name_scope, name)
+        .get(&name_scope, name)
         .unwrap()
         .record
         .unwrap();
@@ -670,7 +591,6 @@ fn finish_retry_repairs_prior_file_names_after_a_crash_at_name_binding() {
     account_files
         .store
         .mutate(
-            ACCOUNT,
             &name_scope,
             Mutation {
                 id: name.to_owned(),
@@ -689,7 +609,7 @@ fn finish_retry_repairs_prior_file_names_after_a_crash_at_name_binding() {
     assert_eq!(replay["identity"], identity);
     let old = account_files
         .store
-        .get(ACCOUNT, FILES, &old_identity)
+        .get(FILES, &old_identity)
         .unwrap()
         .record
         .unwrap();
@@ -705,9 +625,9 @@ fn finish_retry_repairs_prior_file_names_after_a_crash_at_name_binding() {
 fn upload_pages_cross_a_page_boundary_and_unknown_layout_fails_closed() {
     use live_namespace::{
         account_files::{FILES, UPLOADS},
-        records::{Mutation, Records},
+        store::Mutation,
     };
-    let (mut account_files, held, _, _dir) = migrated();
+    let (mut account_files, held, _) = kept();
     let upload_id = "c".repeat(32);
     let name = "/Upload/large.bin";
     let piece = vec![b'x'; 32 * 1024];
@@ -722,13 +642,12 @@ fn upload_pages_cross_a_page_boundary_and_unknown_layout_fails_closed() {
         )
         .unwrap();
     // An upload opened before chunks-v1 keeps the fixed 32 KiB layout: this one is opened as such.
-    let upload = account_files.store.get(ACCOUNT, UPLOADS, &upload_id).unwrap().record.unwrap();
+    let upload = account_files.store.get(UPLOADS, &upload_id).unwrap().record.unwrap();
     let mut fixed = upload.value.clone();
     fixed["span_layout"] = json!("pages-32k-v1");
     account_files
         .store
         .mutate(
-            ACCOUNT,
             UPLOADS,
             Mutation {
                 id: upload_id.clone(),
@@ -748,7 +667,7 @@ fn upload_pages_cross_a_page_boundary_and_unknown_layout_fails_closed() {
     let file_id = finished["identity"].as_str().unwrap();
     let file = account_files
         .store
-        .get(ACCOUNT, FILES, file_id)
+        .get(FILES, file_id)
         .unwrap()
         .record
         .unwrap();
@@ -772,7 +691,6 @@ fn upload_pages_cross_a_page_boundary_and_unknown_layout_fails_closed() {
     account_files
         .store
         .mutate(
-            ACCOUNT,
             FILES,
             Mutation {
                 id: file_id.to_owned(),
@@ -793,8 +711,7 @@ fn upload_pages_cross_a_page_boundary_and_unknown_layout_fails_closed() {
 fn upload_stops_after_custody_is_lost_during_the_piece_put() {
     use std::sync::atomic::{AtomicBool, Ordering};
     use live_namespace::account_files::CHUNKS;
-    use live_namespace::records::Records;
-    let (account_files, held, _, _dir) = migrated();
+        let (account_files, held, _) = kept();
     let current = Arc::new(AtomicBool::new(true));
     *held.revoke_after_write.lock().unwrap() = Some(current.clone());
     let mut account_files = account_files.while_current({
@@ -818,7 +735,7 @@ fn upload_stops_after_custody_is_lost_during_the_piece_put() {
     assert!(
         account_files
             .store
-            .get(ACCOUNT, CHUNKS, &id(b"accepted"))
+            .get(CHUNKS, &id(b"accepted"))
             .unwrap()
             .record
             .is_none(),
@@ -833,24 +750,11 @@ fn upload_stops_after_custody_is_lost_during_the_piece_put() {
 #[test]
 fn each_piece_record_commit_is_checked_and_the_piece_replays_after_loss() {
     use live_namespace::{
-        account_files::{CHUNKS, ORIGINS, SPANS, UPLOADS},
-        records::{Mutation, Records},
-        sqlite_work::WorkMeter,
-        storage::record_store_resources,
+        account_files::{CHUNKS, SPANS, UPLOADS},
     };
     let piece = b"accepted";
     for target in 1..=3 {
-        let dir = tempfile::tempdir().unwrap();
-        let path = std::fs::canonicalize(dir.path())
-            .unwrap()
-            .join("namespace.sqlite");
-        let mut store = record_store_resources::open(&path, WorkMeter::new()).unwrap();
-        store.mutate(ACCOUNT, ORIGINS, Mutation {
-            id: "origin".into(), expected_version: 0, request_key: format!("piece-origin-{target}"), deleted: false,
-            value: json!({"kind":"namespace-origin","rank":1,"takes_new_bytes":true,"file_key_prefix":"files/",
-                "reach":{"key_id":{"value":"synthetic"},"secret":{"held":"synthetic"},"bucket":{"value":"synthetic"},
-                    "endpoint":{"value":"http://127.0.0.1:9"},"region":{"value":"synthetic"}}}),
-        }).unwrap();
+        let (store, applied) = counted_rows(format!("piece-origin-{target}"));
         let held = Arc::new(Held::default());
         let mut account_files =
             AccountFiles::with_objects(store, ACCOUNT, Box::new(Port(held.clone())));
@@ -865,7 +769,7 @@ fn each_piece_record_commit_is_checked_and_the_piece_replays_after_loss() {
                 None,
             )
             .unwrap();
-        let (current, checker) = revoke_on_account_files_commit(path, target);
+        let (current, checker) = revoke_on_account_files_commit(applied, target);
         account_files = account_files.while_current(checker);
         assert!(
             account_files
@@ -876,18 +780,18 @@ fn each_piece_record_commit_is_checked_and_the_piece_replays_after_loss() {
         assert!(!current.load(Ordering::SeqCst));
         let chunk = account_files
             .store
-            .get(ACCOUNT, CHUNKS, &id(piece))
+            .get(CHUNKS, &id(piece))
             .unwrap()
             .record;
         let page_id = format!("{upload_id}:p0000000000000000");
         let page = account_files
             .store
-            .get(ACCOUNT, SPANS, &page_id)
+            .get(SPANS, &page_id)
             .unwrap()
             .record;
         let upload = account_files
             .store
-            .get(ACCOUNT, UPLOADS, &upload_id)
+            .get(UPLOADS, &upload_id)
             .unwrap()
             .record
             .unwrap();
@@ -907,25 +811,12 @@ fn each_piece_record_commit_is_checked_and_the_piece_replays_after_loss() {
 #[test]
 fn each_finish_record_commit_is_checked_and_finish_replays_to_completion() {
     use live_namespace::{
-        account_files::{names_scope, FILES, ORIGINS, UPLOADS},
-        records::{Mutation, Records},
-        sqlite_work::WorkMeter,
-        storage::record_store_resources,
+        account_files::{names_scope, FILES, UPLOADS},
     };
     let piece = b"finish me";
     let name = "/finish.bin";
     for target in 1..=4 {
-        let dir = tempfile::tempdir().unwrap();
-        let path = std::fs::canonicalize(dir.path())
-            .unwrap()
-            .join("namespace.sqlite");
-        let mut store = record_store_resources::open(&path, WorkMeter::new()).unwrap();
-        store.mutate(ACCOUNT, ORIGINS, Mutation {
-            id: "origin".into(), expected_version: 0, request_key: format!("finish-origin-{target}"), deleted: false,
-            value: json!({"kind":"namespace-origin","rank":1,"takes_new_bytes":true,"file_key_prefix":"files/",
-                "reach":{"key_id":{"value":"synthetic"},"secret":{"held":"synthetic"},"bucket":{"value":"synthetic"},
-                    "endpoint":{"value":"http://127.0.0.1:9"},"region":{"value":"synthetic"}}}),
-        }).unwrap();
+        let (store, applied) = counted_rows(format!("finish-origin-{target}"));
         let held = Arc::new(Held::default());
         let mut account_files = AccountFiles::with_objects(store, ACCOUNT, Box::new(Port(held)));
         let upload_id = format!("{target:032x}");
@@ -943,7 +834,7 @@ fn each_finish_record_commit_is_checked_and_finish_replays_to_completion() {
             .unwrap();
         let identity = id(piece);
 
-        let (current, checker) = revoke_on_account_files_commit(path, target);
+        let (current, checker) = revoke_on_account_files_commit(applied, target);
         account_files = account_files.while_current(checker);
         assert!(
             account_files.write_file_finish(&upload_id, name).is_err(),
@@ -952,17 +843,17 @@ fn each_finish_record_commit_is_checked_and_finish_replays_to_completion() {
         assert!(!current.load(Ordering::SeqCst));
         let file = account_files
             .store
-            .get(ACCOUNT, FILES, &identity)
+            .get(FILES, &identity)
             .unwrap()
             .record;
         let named = account_files
             .store
-            .get(ACCOUNT, &names_scope("/"), name)
+            .get(&names_scope("/"), name)
             .unwrap()
             .record;
         let upload = account_files
             .store
-            .get(ACCOUNT, UPLOADS, &upload_id)
+            .get(UPLOADS, &upload_id)
             .unwrap()
             .record
             .unwrap();
@@ -983,7 +874,7 @@ fn each_finish_record_commit_is_checked_and_finish_replays_to_completion() {
         assert_eq!(
             account_files
                 .store
-                .get(ACCOUNT, UPLOADS, &upload_id)
+                .get(UPLOADS, &upload_id)
                 .unwrap()
                 .record
                 .unwrap()
@@ -995,32 +886,12 @@ fn each_finish_record_commit_is_checked_and_finish_replays_to_completion() {
 
 #[test]
 fn concurrent_different_bytes_at_one_upload_offset_keep_one_consistent_winner() {
-    use live_namespace::{
-        account_files::{ORIGINS, SPANS},
-        records::{Mutation, Records},
-    };
-    let limits = settings::Limits::fixed(1 << 20, 10 << 30);
-    let memory = Memory::open("record_store").unwrap();
-    let mut prefill =
-        RecordStore::new(memory.reopen(), Box::new(RealClock), limits.clone()).unwrap();
-    prefill.mutate(ACCOUNT, ORIGINS, Mutation {
-        id: "origin".into(), expected_version: 0, request_key: "prefill-upload-origin".into(), deleted: false,
-        value: json!({"kind":"namespace-origin","rank":1,"takes_new_bytes":true,"file_key_prefix":"files/",
-            "reach":{"key_id":{"value":"synthetic"},"secret":{"held":"synthetic"},"bucket":{"value":"synthetic"},
-                "endpoint":{"value":"http://127.0.0.1:9"},"region":{"value":"synthetic"}}}),
-    }).unwrap();
+    use live_namespace::account_files::SPANS;
+    let (rows, _) = counted_rows("prefill-upload-origin".into());
     let held = Arc::new(Held::default());
     *held.write_barrier.lock().unwrap() = Some(Arc::new(Barrier::new(2)));
-    let mut left = AccountFiles::with_objects(
-        RecordStore::new(memory.reopen(), Box::new(RealClock), limits.clone()).unwrap(),
-        ACCOUNT,
-        Box::new(Port(held.clone())),
-    );
-    let mut right = AccountFiles::with_objects(
-        RecordStore::new(memory.reopen(), Box::new(RealClock), limits).unwrap(),
-        ACCOUNT,
-        Box::new(Port(held.clone())),
-    );
+    let mut left = AccountFiles::with_objects(rows.clone(), ACCOUNT, Box::new(Port(held.clone())));
+    let mut right = AccountFiles::with_objects(rows, ACCOUNT, Box::new(Port(held.clone())));
     let upload_id = "e".repeat(32);
     let name = "/Upload/race.bin";
     left.write_file_start(
@@ -1069,7 +940,7 @@ fn concurrent_different_bytes_at_one_upload_offset_keep_one_consistent_winner() 
     let page_id = format!("{upload_id}:p0000000000000000");
     let page = winner
         .store
-        .get(ACCOUNT, SPANS, &page_id)
+        .get(SPANS, &page_id)
         .unwrap()
         .record
         .unwrap();
@@ -1083,7 +954,7 @@ fn concurrent_different_bytes_at_one_upload_offset_keep_one_consistent_winner() 
 /// The migrated origins, each bound to the state folder `home` (or left unbound when `home` is None), the landing store
 /// declining so the bytes go to the next rank, as in the write test above.
 fn origins_bound(
-    account_files: &AccountFiles<Memory>,
+    account_files: &AccountFiles,
     home: Option<&str>,
 ) -> Vec<(String, live_namespace::account_files::objects::Origin)> {
     let mut origins = account_files.origins().unwrap();
@@ -1096,7 +967,7 @@ fn origins_bound(
 #[test]
 fn a_folder_that_is_not_the_one_a_real_store_was_bound_to_cannot_put_new_bytes_in_it() {
     use live_namespace::account_files::{objects::ObjectError, AccountFilesError};
-    let (account_files, held, _, _dir) = migrated();
+    let (account_files, held, _) = kept();
     let mut account_files = account_files.at_home("100:1.000000001".into());
     held.refuse.lock().unwrap().push("cloudflare-r2".into());
     let before = held.objects.lock().unwrap().len();
@@ -1152,7 +1023,7 @@ fn a_folder_that_is_not_the_one_a_real_store_was_bound_to_cannot_put_new_bytes_i
 #[test]
 fn a_loopback_store_takes_new_bytes_from_any_folder_and_a_account_files_with_no_folder_is_not_held_to_one(
 ) {
-    let (account_files, held, _, _dir) = migrated();
+    let (account_files, held, _) = kept();
     let mut origins = origins_bound(&account_files, None);
     for (_, origin) in &mut origins {
         origin.reach.endpoint =
@@ -1164,7 +1035,7 @@ fn a_loopback_store_takes_new_bytes_from_any_folder_and_a_account_files_with_no_
     at_home
         .write_file("/Notes/loop.txt", b"on loopback", "text/plain", &origins)
         .unwrap();
-    let (free, held, _, _dir) = migrated();
+    let (free, held, _) = kept();
     let mut free = free;
     held.refuse.lock().unwrap().push("cloudflare-r2".into());
     let real = origins_bound(&free, None);
@@ -1175,7 +1046,7 @@ fn a_loopback_store_takes_new_bytes_from_any_folder_and_a_account_files_with_no_
 
 /// One tool call of the contract, answered or refused.
 fn call(
-    account_files: &mut AccountFiles<Memory>,
+    account_files: &mut AccountFiles,
     tool: &str,
     input: Value,
 ) -> Result<Value, live_namespace::account_files::AccountFilesError> {
@@ -1185,7 +1056,7 @@ fn call(
 }
 
 /// Every name in `folder`, in name order.
-fn names_in(account_files: &AccountFiles<Memory>, folder: &str) -> Vec<String> {
+fn names_in(account_files: &AccountFiles, folder: &str) -> Vec<String> {
     let page = account_files.list_files(Some(folder), None, None).unwrap();
     page["names"]
         .as_array()
@@ -1195,35 +1066,54 @@ fn names_in(account_files: &AccountFiles<Memory>, folder: &str) -> Vec<String> {
         .collect()
 }
 
-/// Revoke inside the selected record store commit check. The independent SQLite
-/// writer probe distinguishes the real record transaction from callbacks
-/// made around it; each new mutation has two current checks under its lock.
+/// The person's rows, counting every change made through them.
+struct Counted {
+    rows: Store,
+    applied: Arc<std::sync::atomic::AtomicUsize>,
+}
+impl live_namespace::store::Rows for Counted {
+    fn get(&self, scope: &str, id: &str) -> Result<live_namespace::store::Read, live_namespace::store::Error> { self.rows.get(scope, id) }
+    fn get_many(&self, scope: &str, ids: &[&str]) -> Result<Vec<Option<live_namespace::store::Record>>, live_namespace::store::Error> { self.rows.get_many(scope, ids) }
+    fn held_record_with_version(&self, scope: &str, id: &str) -> Result<(i64, Option<live_namespace::store::Record>), live_namespace::store::Error> { self.rows.held_record_with_version(scope, id) }
+    fn list_page(&self, scope: &str, after: &str, limit: usize) -> Result<live_namespace::store::Page<live_namespace::store::Record, String>, live_namespace::store::Error> { self.rows.list_page(scope, after, limit) }
+    fn ids(&self, scope: &str, after: Option<&str>, limit: usize) -> Result<(Vec<String>, Option<String>), live_namespace::store::Error> { self.rows.ids(scope, after, limit) }
+    fn mutate(&self, scope: &str, input: Mutation) -> Result<live_namespace::store::Change, live_namespace::store::Error> {
+        let change = self.rows.mutate(scope, input)?;
+        self.applied.fetch_add(1, Ordering::SeqCst);
+        Ok(change)
+    }
+    fn stamp(&self, scope: &str) -> Result<i64, live_namespace::store::Error> { self.rows.stamp(scope) }
+    fn totals(&self) -> Result<Vec<live_namespace::store::Total>, live_namespace::store::Error> { self.rows.totals() }
+    fn search(&self, words: &[String], hits: usize) -> Result<Vec<live_namespace::store::Record>, live_namespace::store::Error> { self.rows.search(words, hits) }
+    fn place(&self) -> String { self.rows.place() }
+}
+
+/// Empty rows holding one origin, and the count of the changes made through them since.
+fn counted_rows(origin_request: String) -> (Store, Arc<std::sync::atomic::AtomicUsize>) {
+    let applied = Arc::new(std::sync::atomic::AtomicUsize::new(0));
+    let store: Store = Arc::new(Counted { rows: Arc::new(SqlStore::memory().unwrap()), applied: applied.clone() });
+    store.mutate("@namespace/origins", Mutation {
+        id: "origin".into(), expected_version: 0, request_key: origin_request, deleted: false,
+        value: json!({"kind":"namespace-origin","rank":1,"takes_new_bytes":true,"file_key_prefix":"files/",
+            "reach":{"key_id":{"value":"synthetic"},"secret":{"held":"synthetic"},"bucket":{"value":"synthetic"},
+                "endpoint":{"value":"http://127.0.0.1:9"},"region":{"value":"synthetic"}}}),
+    }).unwrap();
+    (store, applied)
+}
+
+/// A checker that is current until `target - 1` more changes have been made after this call, so the change numbered `target`
+/// (counting from the first after the call) is the first one a stopped caller stops.
 fn revoke_on_account_files_commit(
-    path: std::path::PathBuf,
+    applied: Arc<std::sync::atomic::AtomicUsize>,
     target: usize,
 ) -> (Arc<AtomicBool>, Arc<dyn Fn() -> bool + Send + Sync>) {
     let current = Arc::new(AtomicBool::new(true));
-    let busy_checks = Arc::new(std::sync::atomic::AtomicUsize::new(0));
+    let from = applied.load(Ordering::SeqCst);
     let checker = {
         let current = current.clone();
-        let busy_checks = busy_checks.clone();
         Arc::new(move || {
-            let probe = Connection::open(&path).unwrap();
-            probe.busy_timeout(std::time::Duration::ZERO).unwrap();
-            match probe.execute_batch("BEGIN IMMEDIATE") {
-                Ok(()) => probe.execute_batch("ROLLBACK").unwrap(),
-                Err(rusqlite::Error::SqliteFailure(error, _))
-                    if matches!(
-                        error.code,
-                        rusqlite::ErrorCode::DatabaseBusy | rusqlite::ErrorCode::DatabaseLocked
-                    ) =>
-                {
-                    let commit = (busy_checks.fetch_add(1, Ordering::SeqCst) + 2) / 2;
-                    if commit == target {
-                        current.store(false, Ordering::SeqCst);
-                    }
-                }
-                Err(error) => panic!("writer probe: {error}"),
+            if applied.load(Ordering::SeqCst) - from + 1 >= target {
+                current.store(false, Ordering::SeqCst);
             }
             current.load(Ordering::SeqCst)
         })
@@ -1233,7 +1123,7 @@ fn revoke_on_account_files_commit(
 
 #[test]
 fn find_names_pages_the_names_of_a_folder_that_start_with_a_prefix() {
-    let (mut account_files, ..) = migrated();
+    let (mut account_files, ..) = kept();
     let found = call(
         &mut account_files,
         "find_names",
@@ -1283,7 +1173,7 @@ fn find_names_pages_the_names_of_a_folder_that_start_with_a_prefix() {
 
 #[test]
 fn move_names_carries_a_whole_folder_in_bounded_pages_and_leaves_nothing_behind() {
-    let (mut account_files, _, video, _dir) = migrated();
+    let (mut account_files, _, video) = kept();
     let mut pages = Vec::new();
     let mut after = Value::Null;
     loop {
@@ -1351,7 +1241,7 @@ fn move_names_carries_a_whole_folder_in_bounded_pages_and_leaves_nothing_behind(
 
 #[test]
 fn copy_names_resumes_after_its_last_step_and_keeps_the_source() {
-    let (mut account_files, ..) = migrated();
+    let (mut account_files, ..) = kept();
     let mut after = Value::Null;
     let mut calls = 0;
     loop {
@@ -1404,7 +1294,7 @@ fn copy_names_resumes_after_its_last_step_and_keeps_the_source() {
 
 #[test]
 fn a_carry_never_replaces_a_name_of_another_file_and_never_goes_into_itself() {
-    let (mut account_files, ..) = migrated();
+    let (mut account_files, ..) = kept();
     let origins = account_files.origins().unwrap();
     account_files
         .write_file("/Other/a.txt", b"another file", "text/plain", &origins)
@@ -1481,7 +1371,7 @@ fn a_carry_never_replaces_a_name_of_another_file_and_never_goes_into_itself() {
 
 #[test]
 fn set_aside_moves_names_out_of_the_account_files_and_put_back_returns_them() {
-    let (mut account_files, ..) = migrated();
+    let (mut account_files, ..) = kept();
     call(
         &mut account_files,
         "set_aside",
@@ -1567,7 +1457,7 @@ fn set_aside_moves_names_out_of_the_account_files_and_put_back_returns_them() {
 
 #[test]
 fn a_carry_out_of_time_takes_no_step_and_answers_where_to_resume() {
-    let (account_files, ..) = migrated();
+    let (account_files, ..) = kept();
     let mut account_files = account_files.until(std::time::Instant::now());
     let late = call(
         &mut account_files,
@@ -1592,52 +1482,20 @@ fn a_carry_out_of_time_takes_no_step_and_answers_where_to_resume() {
 /// The actual SQLite writer lock witnesses the account files record commitment
 /// boundary, rather than an admission callback or a guessed callback ordinal.
 #[test]
-fn account_files_run_lifetime_is_rechecked_inside_each_record_commit() {
+fn account_files_run_lifetime_is_rechecked_before_each_record_commit() {
     use std::sync::atomic::{AtomicBool, Ordering};
-    use std::time::Duration;
-    use live_namespace::{
-        account_files::{names_scope, FILES},
-        records::Records,
-        sqlite_work::WorkMeter,
-        storage::record_store_resources,
-    };
+    use live_namespace::account_files::{names_scope, FILES};
     for revoke in [false, true] {
-        let dir = tempfile::tempdir().unwrap();
-        let path = std::fs::canonicalize(dir.path())
-            .unwrap()
-            .join("namespace.sqlite");
-        let store = record_store_resources::open(&path, WorkMeter::new()).unwrap();
+        let store: Store = Arc::new(SqlStore::memory().unwrap());
         let bytes = Arc::new(Held::default());
         let capability = Arc::new(AtomicBool::new(true));
-        let current = {
+        if revoke {
+            // The byte store has taken the object; the caller stops being current before the records that name it.
+            *bytes.revoke_after_write.lock().unwrap() = Some(capability.clone());
+        }
+        let checker: Arc<dyn Fn() -> bool + Send + Sync> = {
             let capability = capability.clone();
-            move || capability.load(Ordering::SeqCst)
-        };
-        let saw_writer = Arc::new(AtomicBool::new(false));
-        let checker = {
-            let path = path.clone();
-            let capability = capability.clone();
-            let saw_writer = saw_writer.clone();
-            Arc::new(move || {
-                let probe = Connection::open(&path).unwrap();
-                probe.busy_timeout(Duration::ZERO).unwrap();
-                match probe.execute_batch("BEGIN IMMEDIATE") {
-                    Ok(()) => probe.execute_batch("ROLLBACK").unwrap(),
-                    Err(rusqlite::Error::SqliteFailure(error, _))
-                        if matches!(
-                            error.code,
-                            rusqlite::ErrorCode::DatabaseBusy | rusqlite::ErrorCode::DatabaseLocked
-                        ) =>
-                    {
-                        saw_writer.store(true, Ordering::SeqCst);
-                        if revoke {
-                            capability.store(false, Ordering::SeqCst);
-                        }
-                    }
-                    Err(error) => panic!("writer probe: {error}"),
-                }
-                current()
-            })
+            Arc::new(move || capability.load(Ordering::SeqCst))
         };
         let mut account_files =
             AccountFiles::with_objects(store, ACCOUNT, Box::new(Port(bytes.clone())))
@@ -1649,10 +1507,6 @@ fn account_files_run_lifetime_is_rechecked_inside_each_record_commit() {
         }]])).unwrap();
         let answer =
             account_files.write_file("/boundary/note.txt", b"kept bytes", "text/plain", &origins);
-        assert!(
-            saw_writer.load(Ordering::SeqCst),
-            "the actual SQLite transaction was reached"
-        );
         assert_eq!(
             bytes.objects.lock().unwrap().len(),
             1,
@@ -1660,17 +1514,17 @@ fn account_files_run_lifetime_is_rechecked_inside_each_record_commit() {
         );
         let files = account_files
             .store
-            .list_page(ACCOUNT, FILES, "", 100)
+            .list_page(FILES, "", 100)
             .unwrap();
         let names = account_files
             .store
-            .list_page(ACCOUNT, &names_scope("/boundary"), "", 100)
+            .list_page(&names_scope("/boundary"), "", 100)
             .unwrap();
         if revoke {
             assert!(answer.is_err());
             assert!(
                 files.items.is_empty() && names.items.is_empty(),
-                "the refused atomic record step rolled back"
+                "the refused record step wrote nothing"
             );
         } else {
             assert!(answer.is_ok(), "{answer:?}");
@@ -1683,14 +1537,8 @@ fn account_files_run_lifetime_is_rechecked_inside_each_record_commit() {
 #[test]
 fn account_files_expired_call_sends_no_bytes_and_writes_no_records() {
     use std::time::Instant;
-    use live_namespace::{account_files::FILES, records::Records};
-    let limits = settings::Limits::fixed(1 << 20, 10 << 30);
-    let store = RecordStore::new(
-        Memory::open("record_store").unwrap(),
-        Box::new(RealClock),
-        limits,
-    )
-    .unwrap();
+    use live_namespace::account_files::FILES;
+    let store: Store = Arc::new(SqlStore::memory().unwrap());
     let held = Arc::new(Held::default());
     let mut account_files =
         AccountFiles::with_objects(store, ACCOUNT, Box::new(Port(held.clone())))
@@ -1701,7 +1549,7 @@ fn account_files_expired_call_sends_no_bytes_and_writes_no_records() {
     assert!(held.objects.lock().unwrap().is_empty());
     assert!(account_files
         .store
-        .list_page(ACCOUNT, FILES, "", 100)
+        .list_page(FILES, "", 100)
         .unwrap()
         .items
         .is_empty());
@@ -1712,7 +1560,7 @@ fn account_files_expired_call_sends_no_bytes_and_writes_no_records() {
 
 #[test]
 fn a_use_by_any_name_or_identity_is_one_row_per_file_with_each_kinds_newest_time() {
-    let (mut account_files, ..) = migrated();
+    let (mut account_files, ..) = kept();
     // Pin the wall clock so this exercises several accepted uses within one millisecond.
     account_files = account_files.with_clock(Arc::new(|| 1_800_000_000_000));
     let note = call(
@@ -1803,7 +1651,7 @@ fn a_use_by_any_name_or_identity_is_one_row_per_file_with_each_kinds_newest_time
 
 #[test]
 fn recent_order_keeps_sequential_uses_newest_first_when_the_clock_moves_backwards() {
-    let (account_files, ..) = migrated();
+    let (account_files, ..) = kept();
     let now = Arc::new(std::sync::atomic::AtomicU64::new(1_800_000_000_000));
     let clock = {
         let now = now.clone();
@@ -1826,7 +1674,7 @@ fn recent_order_keeps_sequential_uses_newest_first_when_the_clock_moves_backward
 
 #[test]
 fn a_renamed_file_reads_by_its_name_now_and_the_calls_keep_their_uses() {
-    let (mut account_files, ..) = migrated();
+    let (mut account_files, ..) = kept();
     let empty = call(&mut account_files, "recent_files", json!({})).unwrap();
     assert_eq!(empty["said"], "No files used yet.");
     let origins = account_files.origins().unwrap();
@@ -1880,7 +1728,7 @@ fn a_renamed_file_reads_by_its_name_now_and_the_calls_keep_their_uses() {
 
 #[test]
 fn past_keep_files_the_one_used_longest_ago_leaves_first() {
-    let (mut account_files, ..) = migrated();
+    let (mut account_files, ..) = kept();
     let data: Value = serde_json::from_str(include_str!(
         "../src/account_files/account-files-routes.json"
     ))
@@ -1928,7 +1776,7 @@ fn past_keep_files_the_one_used_longest_ago_leaves_first() {
 fn facts_are_the_results_merge_of_kind_facts_and_any_identity_of_a_file_reaches_one_result() {
     // Old trillion src/file-tools.mjs:135: set_file_facts is POST /namespace/results/<identity>/merge {kind: 'facts'},
     // and read_file_results with kind facts reads them (src/namespace-results.mjs:424 `merge`).
-    let (mut account_files, _, video, _) = migrated();
+    let (mut account_files, _, video) = kept();
     let alias = format!("12:{}", "a".repeat(64));
     let set = call(&mut account_files, "set_file_facts", json!({"identity": alias, "facts": {"camera": "Synthetic camera", "duration": 12}, "produced_by": "fixture"})).unwrap();
     assert_eq!(set["changed"], true);

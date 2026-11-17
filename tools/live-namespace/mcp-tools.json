@@ -2,9 +2,7 @@
   "_what": "The tools the Namespace tool server lists over MCP (src/serve/mcp.rs): one for each account files operation the door answers (account-files-routes.json `operations`) except `dav` and `dav_write`, which the WebDAV folder (src/serve/dav.rs) calls and an AI never does, and `setup_facts` and `held_connections`, which the engine's account routes answered and this tool has no composition for. The server refuses to start when an operation of the routes is not listed here or a listed name is not an operation.",
   "left_out": [
     "dav",
-    "dav_write",
-    "setup_facts",
-    "held_connections"
+    "dav_write"
   ],
   "tools": [
     {

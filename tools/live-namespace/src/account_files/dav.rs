@@ -21,7 +21,7 @@
 use super::{
     folder_name, names_scope, parent, settings::{settings, word}, text, AccountFiles, Answer, LIVE, FILES, READ_MAX_BYTES,
 };
-use crate::{storage::Storage, refusal_cause::{Cause, CodedError}};
+use crate::{refusal_cause::{Cause, CodedError}};
 use serde_json::Value;
 
 /// The methods this folder answers (old :22 `allow`).
@@ -194,9 +194,9 @@ pub(crate) fn asked_range(range: Option<&str>, length: u64) -> Result<Option<(u6
     Ok(Some((start, end)))
 }
 
-impl<S: Storage + Send> AccountFiles<S> {
+impl AccountFiles {
     /// What `name` is: the root folder, a folder record, or a name whose bytes are stored. None otherwise.
-    pub(super) fn dav_entry(&self, name: &str) -> Answer<Option<(Entry, Option<crate::records::Record>)>> {
+    pub(super) fn dav_entry(&self, name: &str) -> Answer<Option<(Entry, Option<crate::store::Record>)>> {
         if name == "/" {
             return Ok(Some((Entry::Folder, None)));
         }
@@ -298,6 +298,8 @@ impl<S: Storage + Send> AccountFiles<S> {
 mod tests {
     use super::*;
 
+    // A cause hashes by its site (file, line, column, condition); its interior mutability is a cached text that no hash reads.
+    #[allow(clippy::mutable_key_type)]
     #[test]
     fn range_refusals_retain_each_condition_in_the_http_header_without_the_range() {
         let mut causes = std::collections::HashSet::new();

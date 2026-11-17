@@ -17,7 +17,7 @@
 
 use hmac::{Hmac, Mac};
 use sha2::Sha256;
-use std::{collections::BTreeMap, fmt, io::Read, path::Path, sync::Arc};
+use std::{collections::BTreeMap, fmt, io::Read, sync::Arc};
 use zeroize::Zeroizing;
 
 /// The vault service the account files' store is connected as.
@@ -79,19 +79,19 @@ impl Held {
         Self { values: BTreeMap::new() }
     }
 
-    /// Hold `value` under the vault name of `field` of the `files-store` connection.
-    pub fn with(mut self, field: &str, value: Zeroizing<String>) -> Result<Self, Error> {
-        self.values.insert(held_name(SERVICE, field)?, value);
+    /// Hold `value` under the vault name of `field` of the connection `service`.
+    pub fn with(mut self, service: &str, field: &str, value: Zeroizing<String>) -> Result<Self, Error> {
+        self.values.insert(held_name(service, field)?, value);
         Ok(self)
     }
 
-    /// Read the attached fields: `fields` names each field of the connection and the file descriptor the engine attached
-    /// it at. A descriptor that is not open leaves its field not held.
+    /// Read the attached fields: `fields` names each field of each connection (service, field) and the file descriptor the
+    /// engine attached it at. A descriptor that is not open leaves its field not held.
     #[cfg(unix)]
-    pub fn from_descriptors(fields: &[(&str, i32)]) -> Result<Self, Error> {
+    pub fn from_descriptors(fields: &[(&str, &str, i32)]) -> Result<Self, Error> {
         use std::os::fd::{FromRawFd, OwnedFd};
         let mut held = Self::none();
-        for (field, descriptor) in fields {
+        for (service, field, descriptor) in fields {
             // SAFETY: the descriptor is the one the engine attached for this field; it is read once and closed here.
             if unsafe { libc::fcntl(*descriptor, libc::F_GETFD) } < 0 {
                 continue;
@@ -108,7 +108,7 @@ impl Held {
             if trimmed.is_empty() {
                 continue;
             }
-            held = held.with(field, trimmed)?;
+            held = held.with(service, field, trimmed)?;
         }
         Ok(held)
     }
@@ -148,17 +148,6 @@ pub fn keep(held: Held) -> Arc<Held> {
 }
 
 /// This process's holder; none held when the tool was started with no attached field.
-pub fn open_home(_: &Path, _: &str) -> Result<Arc<Held>, Error> {
+pub fn open_home() -> Result<Arc<Held>, Error> {
     Ok(HELD.get().cloned().unwrap_or_else(|| Arc::new(Held::none())))
-}
-
-/// The old Worker's vault as the account's RecordBook keeps it: the sealed snapshot and the secrets key identity it names.
-pub struct OldVault {
-    pub snapshot: Zeroizing<Vec<u8>>,
-    pub sealed_under: Option<String>,
-}
-impl fmt::Debug for OldVault {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str("OldVault([sealed])")
-    }
 }

@@ -7,7 +7,7 @@
     "tool:run-the-namespace-files-server"
   ],
   "instructions": [
-    "1. Make sure your files-store connection (your S3-compatible store: secret, key id, bucket, endpoint, region) is saved in your vault, and pick an empty folder in your home for the state, for example /home/example/namespace-state.",
+    "1. Make sure your files-store connection (your S3-compatible store: secret, key id, bucket, endpoint, region) is saved in your vault, and pick an empty folder in your home for the state, for example /home/example/namespace-state. Your names are kept as rows in a SQLite file there unless settings.json `store` names your Postgres database.",
     "2. Say to your AI: \"Run the Namespace files server in dav mode\", with {\"mode\":\"dav\",\"state_folder\":\"/home/example/namespace-state\"}. The AI runs tool:run-the-namespace-files-server at @workshop-tools with method tools:run; the first run builds the program and makes the names file from your connection.",
     "3. In Finder choose Go, Connect to Server and enter http://127.0.0.1:38481/ . To give an AI the same files as tools, run the same tool with {\"mode\":\"mcp\",\"state_folder\":\"/home/example/namespace-state\"} as its stdio MCP server."
   ],

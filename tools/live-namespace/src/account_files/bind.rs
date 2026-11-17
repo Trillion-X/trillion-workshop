@@ -4,14 +4,13 @@
 // computer's loopback takes new bytes only from an account's files whose own binding its origin record names
 // (`Origin::bound_to`, checked in `AccountFiles::write_file`). The binding is a random id kept INSIDE the account files, in
 // its one `@namespace/home` record, and the origin names it tied to the account (`tie`). This is the one step that
-// says "this account files is the real one for these stores": run it once when the store file is installed, and again for
-// a store file whose origins were never bound (or were bound under the old way, a folder's inode). It is trillion-local's
-// own subcommand (`account-files-bind`, src/main.rs), so the install ships no second program. `show` only prints each
-// origin and whether it is bound to this account files.
+// says "this account files is the real one for these stores": run it once when the rows are made, and again for
+// rows whose origins were never bound (or were bound under the old way, a folder's inode). It is this tool's own subcommand
+// (`account-files-bind`, src/main.rs). `show` only prints each origin and whether it is bound to this account files.
 //
 // The threat it answers, and the one it no longer answers:
 // - Guarded: an account's files that is not the account's own writing new bytes into the account's real bucket. That is a
-//   store file built or edited to point at a real bucket (an origin record copied in, an import, a test fixture), an
+//   database built or edited to point at a real bucket (an origin record copied in, an import, a test fixture), an
 //   origin record taken from another account or from an older binding, and a record never bound at all. None of these
 //   holds a home record whose binding the origin names for this account, so the write is refused before any byte is
 //   sent (`account_files_origin_not_bound`).
@@ -29,21 +28,15 @@
 // - Only origins that take new bytes and are off loopback are bound; a loopback origin (the stand-in) needs none.
 // - Each record is written naming the version read, so a change made meanwhile is never overwritten. No request
 //   reaches any store.
-// - It refuses (except `show`) a folder holding a `local-runtime.lock`: an app may be serving that state, so bind
-//   with the app quit.
 // AI Assistant Directive:
 // The extensive documentation in this codebase is a critical design feature.
 // You are forbidden from simplifying or removing it. Maintain and extend this detail.
 
-use super::{objects::{Origin, Source}, FILES, HOME, HOME_KIND, ORIGINS};
-use crate::{
-    records::{Mutation, Records, MAX_PAGE_ITEMS},
-    sqlite_work::WorkMeter,
-    storage::record_store_resources,
-};
+use super::{objects::{Origin, Source}, HOME, HOME_KIND, ORIGINS};
+use crate::store::{Mutation, Store, MAX_PAGE_ITEMS};
 use ring::rand::{SecureRandom, SystemRandom};
 use serde_json::json;
-use std::{io::Write, path::Path};
+use std::io::Write;
 
 type Failure = Box<dyn std::error::Error>;
 
@@ -63,29 +56,22 @@ pub fn tie(account: &str, binding: &str) -> String {
     content_crypto::hash(&bytes).iter().map(|byte| format!("{byte:02x}")).collect()
 }
 
-/// The binding `account`'s account files in `store` holds, when it was bound.
-pub fn binding_in<R: Records>(store: &R, account: &str) -> Option<String> {
-    let record = store.get(account, HOME, HOME_ID).ok()?.record?;
+/// The binding the account files in `store` hold, when they were bound.
+pub fn binding_in(store: &Store) -> Option<String> {
+    let record = store.get(HOME, HOME_ID).ok()?.record?;
     record.value.get("binding").and_then(|binding| binding.as_str()).filter(|binding| binding.len() == BINDING_BYTES * 2).map(str::to_owned)
 }
 
-/// Bind (or, with `show`, only report) the origins of `account` in the account files store file `store`, printing one JSON
-/// line per origin to `out`.
-pub fn run(store: &Path, account: &str, show: bool, out: &mut dyn Write) -> Result<(), Failure> {
-    let path = crate::io_operation!(std::fs::canonicalize(store))?;
-    let folder = path.parent().ok_or(crate::refusal_cause::CodedError::new("a store file has a folder"))?;
-    if !show && folder.join("local-runtime.lock").exists() {
-        return Err(crate::refusal_cause::CodedError::new("the folder holds a local-runtime.lock: an app may be serving it; quit the app first").into());
-    }
-    let mut records = record_store_resources::open(&path, WorkMeter::new())?;
-    let binding = match binding_in(&records, account) {
+/// Bind (or, with `show`, only report) the origins of `account` in `store`, printing one JSON line per origin to `out`.
+pub fn run(store: &Store, account: &str, show: bool, out: &mut dyn Write) -> Result<(), Failure> {
+    let binding = match binding_in(store) {
         Some(binding) => binding,
         None if show => String::new(),
-        None => new_home(&mut records, account)?,
+        None => new_home(store)?,
     };
     let identity = tie(account, &binding);
-    let origins: Vec<(String, Origin)> = records
-        .list_page(account, ORIGINS, "", MAX_PAGE_ITEMS)?
+    let origins: Vec<(String, Origin)> = store
+        .list_page(ORIGINS, "", MAX_PAGE_ITEMS)?
         .items
         .into_iter()
         .map(|record| Ok((record.id, serde_json::from_value(record.value).map_err(|error| { let cause = crate::refusal_cause::Caused::cause(&error); crate::refusal_cause::CodedError::with_cause(error, cause) })?)))
@@ -102,50 +88,35 @@ pub fn run(store: &Path, account: &str, show: bool, out: &mut dyn Write) -> Resu
         }
         origin.bound_to = Some(identity.clone());
         let value = serde_json::to_value(&origin).map_err(|error| { let cause = crate::refusal_cause::Caused::cause(&error); crate::refusal_cause::CodedError::with_cause(error, cause) })?;
-        let (version, _) = records.held_record_with_version(account, ORIGINS, &id)?;
+        let (version, _) = store.held_record_with_version(ORIGINS, &id)?;
         let request_key = format!("{id}@{version}@{identity}");
-        let change = records.mutate(account, ORIGINS, Mutation { id: id.clone(), expected_version: version, request_key, deleted: false, value })?;
+        let change = store.mutate(ORIGINS, Mutation { id: id.clone(), expected_version: version, request_key, deleted: false, value })?;
         crate::io_operation!(writeln!(out, "{}", json!({ "origin": id, "bound": true, "version_before": version, "version": change.version })))?;
     }
     Ok(())
 }
 
-/// Write `account`'s one home record with a fresh random binding into `records`, which holds none yet (version 0), and
+/// Write the account files' one home record with a fresh random binding into `store`, which holds none yet (version 0), and
 /// answer the binding.
-fn new_home<R: Records>(records: &mut R, account: &str) -> Result<String, Failure> {
+fn new_home(store: &Store) -> Result<String, Failure> {
     let mut bytes = [0u8; BINDING_BYTES];
     SystemRandom::new().fill(&mut bytes).map_err(|error| crate::refusal_cause::CodedError::with_cause("the operating system's random source did not answer", crate::refusal_cause::Caused::cause(&error)))?;
     let binding: String = bytes.iter().map(|byte| format!("{byte:02x}")).collect();
     let value = json!({ "kind": HOME_KIND, "binding": binding });
-    records.mutate(account, HOME, Mutation { id: HOME_ID.into(), expected_version: 0, request_key: format!("home@{binding}"), deleted: false, value })?;
+    store.mutate(HOME, Mutation { id: HOME_ID.into(), expected_version: 0, request_key: format!("home@{binding}"), deleted: false, value })?;
     Ok(binding)
 }
 
-/// Make a new account's own files store in the state folder `state`, at the file the files are placed in there
-/// (src/storage/record_store_resources.json), the way its records store is made (src/account/create.rs `write_records`):
-/// empty, with its home record and its own random binding, and no origin yet (an origin the account adds later is bound
-/// with `run`). A new account made at a computer (`trillion-local account create`, a sign-up) answered its files
-/// unavailable (step `no_store_file`) until someone ran `install` by hand (measured on place-fsn1, 2026-11-04). Old
-/// trillion gave every account its files with no step of its own (Trillion-X/trillion tag old-trillion-before-worker-retire,
-/// src/namespace-book-resource.mjs:1-2, the account's RecordBook is started on demand, and :243, the
-/// account's files store is mounted on its first use, `mounted ??= makeNativeNamespaceMount(...)`).
-/// Refuses when the state folder already holds a files store: an account's files are never made twice.
-///
-/// With `files` (the making computer's config `new_accounts.files`, `NewAccountFiles`), the account also gets its first
-/// byte store: one origin record that takes new bytes, under its own key prefix in the computer's store, bound to this
-/// account's files (`tie`), its secret held in the account's vault (`vault`) as a SigV4 signing root, which never
-/// leaves the vault (src/secrets.rs `Secrets::plain` refuses it; only a day key is made, for the engine's own request).
-/// Without one, a new account's `write_file_piece` answered "the account has no store that takes new bytes" (measured
-/// on place-fsn1, 2026-11-04). Old trillion kept every account's bytes in one store under the account's own prefix
-/// (Trillion-X/trillion tag old-trillion-before-worker-retire, src/resource-placement.json:42,
-/// the one bytes binding every account's files used); here each computer names its own store.
-pub fn make_new(state: &Path, account: &str, files: Option<&NewAccountFiles>) -> Result<(), Failure> {
-    let target = record_store_resources::placement(FILES).and_then(|placement| placement.in_state(state)).ok_or(crate::refusal_cause::CodedError::new("the namespace has no placement in a state folder"))?;
-    if std::fs::symlink_metadata(&target).is_ok() {
-        return Err(crate::refusal_cause::CodedError::new("the state folder already holds a namespace store").into());
+/// Make the account's own files in `store`: the home record with its own random binding, and with `files` (`NewAccountFiles`) its
+/// first byte store: one origin record that takes new bytes, under its own key prefix in the store, bound to these files (`tie`),
+/// its secret named by its held value (`secrets::Held`), which never leaves the run (`Secrets::plain` refuses it; only a day key is
+/// made, for the engine's own request). Without one, `write_file_piece` answers "the account has no store that takes new bytes".
+/// Refuses when `store` already holds files: an account's files are never made twice.
+pub fn make_new(store: &Store, account: &str, files: Option<&NewAccountFiles>) -> Result<(), Failure> {
+    if binding_in(store).is_some() {
+        return Err(crate::refusal_cause::CodedError::new("the database already holds these files").into());
     }
-    let mut records = record_store_resources::open(&target, WorkMeter::new())?;
-    let binding = new_home(&mut records, account)?;
+    let binding = new_home(store)?;
     if let Some(files) = files {
         let names = &super::settings::settings().new_account_files;
         let held = crate::secrets::held_name(&names.secret_service, &names.secret_field)?;
@@ -164,7 +135,7 @@ pub fn make_new(state: &Path, account: &str, files: Option<&NewAccountFiles>) ->
             bound_to: Some(tie(account, &binding)),
         };
         let value = serde_json::to_value(&origin).map_err(|error| { let cause = crate::refusal_cause::Caused::cause(&error); crate::refusal_cause::CodedError::with_cause(error, cause) })?;
-        records.mutate(account, ORIGINS, Mutation { id: names.origin_id.clone(), expected_version: 0,
+        store.mutate(ORIGINS, Mutation { id: names.origin_id.clone(), expected_version: 0,
             request_key: format!("first-origin@{binding}"), deleted: false, value })?;
     }
     Ok(())
@@ -199,39 +170,12 @@ impl NewAccountFiles {
     }
 }
 
-/// Install the files store file `store` as the files store of the state folder `state`: bind it (as `run`), then move
-/// it to the file the files store is put in there (src/storage/record_store_resources.json). The door never creates a store, so
-/// until this an account answers that its files store is unavailable (step `no_store_file`). Refuses when the state folder
-/// already holds a files store, and when a write-ahead log or journal is beside the store (a writer may still be
-/// open). It is one rename, so the store must be on the state folder's volume; nothing is copied, and the folder it
-/// leaves holds no second copy. The app may be serving the state folder: the door opens the files store for each call and
-/// never creates one, so the next call simply finds it.
-pub fn install(store: &Path, account: &str, state: &Path, out: &mut dyn Write) -> Result<(), Failure> {
-    let store = crate::io_operation!(std::fs::canonicalize(store))?;
-    let state = crate::io_operation!(std::fs::canonicalize(state))?;
-    let target = record_store_resources::placement(FILES).and_then(|placement| placement.in_state(&state)).ok_or(crate::refusal_cause::CodedError::new("the namespace has no placement in a state folder"))?;
-    if std::fs::symlink_metadata(&target).is_ok() {
-        return Err(crate::refusal_cause::CodedError::new(format!("{} already holds a namespace store; nothing was changed", state.display())).into());
-    }
-    let beside = || ["-wal", "-journal"].iter().any(|suffix| {
-        std::fs::metadata(format!("{}{suffix}", store.display())).is_ok_and(|metadata| metadata.len() > 0)
-    });
-    if beside() {
-        return Err(crate::refusal_cause::CodedError::new("a write-ahead log or journal is beside the store: close every writer of it first").into());
-    }
-    run(&store, account, false, out)?;
-    if beside() {
-        return Err(crate::refusal_cause::CodedError::new("a writer of the store left a write-ahead log beside it: close it, then install again").into());
-    }
-    crate::io_operation!(std::fs::rename(&store, &target))?;
-    crate::io_operation!(writeln!(out, "{}", json!({ "installed": target.display().to_string() })))?;
-    Ok(())
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::account_files::objects::{Reach, Source};
+    use crate::store::SqlStore;
+    use std::sync::Arc;
 
     fn origin(endpoint: &str, takes: bool) -> Origin {
         Origin {
@@ -250,117 +194,89 @@ mod tests {
         }
     }
 
-    /// A canonical state folder holding a store file with a real origin, a drained one and a loopback one.
-    fn state() -> (tempfile::TempDir, std::path::PathBuf) {
-        let dir = tempfile::tempdir().unwrap();
-        let root = std::fs::canonicalize(dir.path()).unwrap();
-        let path = record_store_resources::placement(crate::account_files::FILES).and_then(|placement| placement.in_state(&root)).unwrap();
-        let mut store = record_store_resources::open(&path, WorkMeter::new()).unwrap();
+    /// A store holding a real origin, a drained one and a loopback one.
+    fn state() -> Store {
+        let store: Store = Arc::new(SqlStore::memory().unwrap());
         for (id, origin) in [("real", origin("https://s3.example.test", true)), ("drained", origin("https://old.example.test", false)), ("local", origin("http://127.0.0.1:9", true))] {
             let value = serde_json::to_value(&origin).unwrap();
-            store.mutate("a", ORIGINS, Mutation { id: id.into(), expected_version: 0, request_key: format!("prefill-{id}"), deleted: false, value }).unwrap();
+            store.mutate(ORIGINS, Mutation { id: id.into(), expected_version: 0, request_key: format!("prefill-{id}"), deleted: false, value }).unwrap();
         }
-        (dir, path)
+        store
     }
 
-    fn lines(path: &Path, show: bool) -> Vec<serde_json::Value> {
+    fn lines(store: &Store, show: bool) -> Vec<serde_json::Value> {
         let mut out = Vec::new();
-        run(path, "a", show, &mut out).unwrap();
+        run(store, "a", show, &mut out).unwrap();
         String::from_utf8(out).unwrap().lines().map(|line| serde_json::from_str(line).unwrap()).collect()
     }
 
-    fn bound_to(path: &Path, id: &str) -> Option<String> {
-        let store = record_store_resources::open(path, WorkMeter::new()).unwrap();
-        let record = store.get("a", ORIGINS, id).unwrap().record.unwrap();
+    fn bound_to(store: &Store, id: &str) -> Option<String> {
+        let record = store.get(ORIGINS, id).unwrap().record.unwrap();
         serde_json::from_value::<Origin>(record.value).unwrap().bound_to
-    }
-
-    fn binding(path: &Path) -> Option<String> {
-        binding_in(&record_store_resources::open(path, WorkMeter::new()).unwrap(), "a")
-    }
-
-    #[test]
-    fn install_binds_the_store_and_moves_it_into_an_empty_state_folder_once() {
-        let (_from, path) = state();
-        let live = tempfile::tempdir().unwrap();
-        let mut out = Vec::new();
-        install(&path, "a", live.path(), &mut out).unwrap();
-        let target = record_store_resources::placement(FILES).and_then(|placement| placement.in_state(&std::fs::canonicalize(live.path()).unwrap())).unwrap();
-        assert!(!path.exists(), "the store left its old place; no copy stays behind");
-        let made = binding(&target).expect("installed bound");
-        assert_eq!(bound_to(&target, "real"), Some(tie("a", &made)));
-        assert!(String::from_utf8(out).unwrap().contains("installed"));
-        let (_other, second) = state();
-        assert!(install(&second, "a", live.path(), &mut Vec::new()).is_err(), "a state folder that holds a namespace is never replaced");
-        assert!(second.exists());
-        assert_eq!(binding(&target), Some(made));
     }
 
     #[test]
     fn bind_binds_only_the_real_store_that_takes_new_bytes_to_its_own_account_files_and_is_repeatable() {
-        let (_dir, path) = state();
-        let shown = lines(&path, true);
+        let store = state();
+        let shown = lines(&store, true);
         assert!(shown.iter().all(|line| line["bound_to_this_namespace"] == false), "{shown:?}");
-        assert_eq!(bound_to(&path, "real"), None, "show wrote nothing");
-        assert_eq!(binding(&path), None, "show made no binding");
-        let done = lines(&path, false);
+        assert_eq!(bound_to(&store, "real"), None, "show wrote nothing");
+        assert_eq!(binding_in(&store), None, "show made no binding");
+        let done = lines(&store, false);
         assert_eq!(done.iter().filter(|line| line["bound"] == true).count(), 1, "{done:?}");
-        let made = binding(&path).expect("bind made the account files' binding");
+        let made = binding_in(&store).expect("bind made the account files' binding");
         assert_eq!(made.len(), 32);
-        assert_eq!(bound_to(&path, "real"), Some(tie("a", &made)));
-        assert_eq!(bound_to(&path, "drained"), None);
-        assert_eq!(bound_to(&path, "local"), None);
-        assert!(lines(&path, false).iter().any(|line| line["already_bound"] == true), "a second bind changes nothing");
-        assert_eq!(binding(&path), Some(made), "a second bind keeps the binding");
+        assert_eq!(bound_to(&store, "real"), Some(tie("a", &made)));
+        assert_eq!(bound_to(&store, "drained"), None);
+        assert_eq!(bound_to(&store, "local"), None);
+        assert!(lines(&store, false).iter().any(|line| line["already_bound"] == true), "a second bind changes nothing");
+        assert_eq!(binding_in(&store), Some(made), "a second bind keeps the binding");
     }
 
-    /// The case the folder's inode refused: the account's folder copied to another folder or computer, or restored. The binding is
-    /// inside the account files, so the copy is bound exactly as the original was, with no step and nothing read from the
-    /// file system.
+    /// The binding is inside the rows, so the same rows read from another handle are bound exactly as the first was.
     #[test]
-    fn a_copy_or_restore_of_a_bound_account_files_is_still_bound() {
-        let (_dir, path) = state();
-        lines(&path, false);
-        let copy = tempfile::tempdir().unwrap();
-        let copied = std::fs::canonicalize(copy.path()).unwrap().join(path.file_name().unwrap());
-        std::fs::copy(&path, &copied).unwrap();
-        assert_eq!(binding(&copied), binding(&path));
-        let shown = lines(&copied, true);
+    fn a_second_handle_on_the_same_rows_sees_the_same_binding() {
+        let first = Arc::new(SqlStore::memory().unwrap());
+        let store: Store = first.clone();
+        for (id, origin) in [("real", origin("https://s3.example.test", true))] {
+            store.mutate(ORIGINS, Mutation { id: id.into(), expected_version: 0, request_key: format!("prefill-{id}"), deleted: false, value: serde_json::to_value(&origin).unwrap() }).unwrap();
+        }
+        lines(&store, false);
+        let other: Store = Arc::new(first.same_database());
+        assert_eq!(binding_in(&other), binding_in(&store));
+        let shown = lines(&other, true);
         assert!(shown.iter().any(|line| line["origin"] == "real" && line["bound_to_this_namespace"] == true), "{shown:?}");
-        assert_eq!(bound_to(&copied, "real"), bound_to(&path, "real"));
     }
 
-    /// What is still refused: an origin bound under the old way (a folder's inode), for another account, or for another
-    /// account files' binding is not bound to this account files, and a bind makes it so only on purpose.
+    /// What is refused: an origin bound under the old way (a folder's inode), for another account, or for another
+    /// account files' binding is not bound to these files, and a bind makes it so only on purpose.
     #[test]
     fn an_origin_bound_the_old_way_or_for_another_account_or_account_files_is_not_bound_here() {
-        let (_dir, path) = state();
-        lines(&path, false);
-        let mine = binding(&path).unwrap();
+        let store = state();
+        lines(&store, false);
+        let mine = binding_in(&store).unwrap();
         assert_ne!(tie("a", &mine), tie("b", &mine), "a binding never fits another account");
         assert_ne!(tie("a", &mine), tie("a", &"0".repeat(32)), "another account files' binding does not fit");
         assert_ne!(tie("a", ""), tie("a", &mine));
         for wrong in ["12345:1700000000.000000001".to_owned(), tie("b", &mine), tie("a", &"0".repeat(32))] {
-            let mut store = record_store_resources::open(&path, WorkMeter::new()).unwrap();
-            let (version, record) = store.held_record_with_version("a", ORIGINS, "real").unwrap();
+            let (version, record) = store.held_record_with_version(ORIGINS, "real").unwrap();
             let mut origin: Origin = serde_json::from_value(record.unwrap().value).unwrap();
             origin.bound_to = Some(wrong.clone());
             let value = serde_json::to_value(&origin).unwrap();
-            store.mutate("a", ORIGINS, Mutation { id: "real".into(), expected_version: version, request_key: format!("wrong-{wrong}"), deleted: false, value }).unwrap();
-            drop(store);
-            let shown = lines(&path, true);
+            store.mutate(ORIGINS, Mutation { id: "real".into(), expected_version: version, request_key: format!("wrong-{wrong}"), deleted: false, value }).unwrap();
+            let shown = lines(&store, true);
             assert!(shown.iter().any(|line| line["origin"] == "real" && line["bound_to_this_namespace"] == false), "{wrong}: {shown:?}");
-            assert_eq!(binding(&path), Some(mine.clone()), "show keeps the binding");
-            assert!(lines(&path, false).iter().any(|line| line["origin"] == "real" && line["bound"] == true));
-            assert_eq!(bound_to(&path, "real"), Some(tie("a", &mine)));
+            assert_eq!(binding_in(&store), Some(mine.clone()), "show keeps the binding");
+            assert!(lines(&store, false).iter().any(|line| line["origin"] == "real" && line["bound"] == true));
+            assert_eq!(bound_to(&store, "real"), Some(tie("a", &mine)));
         }
     }
 
     #[test]
-    fn a_folder_with_a_running_apps_lock_is_not_bound() {
-        let (_dir, path) = state();
-        std::fs::write(path.parent().unwrap().join("local-runtime.lock"), b"{}").unwrap();
-        assert!(run(&path, "a", false, &mut Vec::new()).is_err());
-        assert!(run(&path, "a", true, &mut Vec::new()).is_ok(), "show only reads");
+    fn files_are_made_once() {
+        let store: Store = Arc::new(SqlStore::memory().unwrap());
+        make_new(&store, "a", None).unwrap();
+        assert!(binding_in(&store).is_some());
+        assert!(make_new(&store, "a", None).is_err(), "an account's files are never made twice");
     }
 }

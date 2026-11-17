@@ -1,0 +1,881 @@
+// src/store/mod.rs
+//
+// Purpose: Where the person's files keep their names index: the names, folders, files, chunks, aliases and spans (and the few small rows
+// beside them: origins, shares, uploads, locks, release and recent lists, results, usage days) as plain rows in the person's own SQL
+// database. `Rows` is the whole of what the files ask of it: read a row, read rows by id, list a scope in id order a page at a time,
+// change one row only if it is still the version the caller read, the scope's change stamp, the declared totals, and a word search of the
+// file names. `SqlStore` is the one implementation: SQLite (a file) or Postgres (the person's database), the same statements.
+//
+// Non-Negotiable Invariants:
+// - A change succeeds only when the row is at the version the caller read (`expected_version`; 0 is "no row yet", and a deleted row keeps
+//   the version it had, so a new row after a delete expects it). Anything else is `Error::Conflict` and changes nothing.
+// - The change and the scope's stamp are written in one transaction. A write that would leave the row as it is writes nothing.
+// - A retry of the last change a row had (the same request key and the same change) answers that change again and changes nothing.
+// - Ids compare as bytes and a page ends strictly after its cursor, so a walk by cursor sees every row once, in the same order, in
+//   either database.
+// - No table is named outside `tables.json` and this module; no record leaves a field behind (a field that fits no column is kept in
+//   the row's `extra`).
+//
+// Key Concepts:
+// - A scope is the string a family of rows is kept under (`@namespace/files`, `@namespace/names/<folder>`). `tables.json` says which
+//   table a scope is in; a scope no table claims is in `ns_record`, one JSON value a row.
+// - The tables mirror the archive tables of the same names column for column, so the rows of an existing account copy in with one
+//   INSERT ... SELECT per table (README.md).
+//
+// Security Considerations:
+// - A statement carries values only as bound parameters. A database's own message never leaves this module (it can name a host or user).
+//
+// AI Assistant Directive:
+// The extensive documentation in this codebase is a critical design feature.
+// You are forbidden from simplifying or removing it. Maintain and extend this detail.
+
+pub mod link;
+
+use link::{Cell, Dialect, Link};
+use serde::{Deserialize, Serialize};
+use serde_json::{Map, Value};
+use std::{
+    fmt,
+    sync::{Arc, Mutex, OnceLock},
+};
+
+pub const MAX_RECORD_BYTES: usize = 1024 * 1024;
+/// A page's serialized values, in bytes; a page ends before a value that would pass it (the first value is always taken).
+pub const MAX_PAGE_BYTES: usize = 4 * 1024 * 1024;
+pub const MAX_PAGE_ITEMS: usize = 1000;
+/// Ids a statement names at once.
+const IDS_AT_ONCE: usize = 400;
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct Record {
+    pub id: String,
+    pub version: i64,
+    pub value: Value,
+}
+
+/// One row asked for: the record, or none when there is no such row (or it was deleted).
+#[derive(Debug)]
+pub struct Read {
+    pub record: Option<Record>,
+}
+
+/// A page of ordered rows. `next` is the cursor to resume strictly after; none means this page was the last.
+#[derive(Debug)]
+pub struct Page<T, C> {
+    pub items: Vec<T>,
+    pub next: Option<C>,
+    pub serialized_item_bytes: usize,
+}
+
+/// What one change did.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct Change {
+    /// The scope's change stamp after this change.
+    pub sequence: i64,
+    pub id: String,
+    pub version: i64,
+    pub deleted: bool,
+    pub value: Option<Value>,
+}
+
+/// A change to one row, made only if the row is still at `expected_version`.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Mutation {
+    pub id: String,
+    pub expected_version: i64,
+    pub request_key: String,
+    #[serde(default)]
+    pub deleted: bool,
+    #[serde(default)]
+    pub value: Value,
+}
+
+/// One declared total: how many rows, and their summed size, in a group (`group` is none for a total with no group).
+#[derive(Debug, Clone, PartialEq)]
+pub struct Total {
+    pub total: String,
+    pub group: Option<String>,
+    pub count: i64,
+    pub sum: i64,
+}
+
+#[derive(Debug, Clone)]
+pub enum Error {
+    /// The row is not at the version the caller read, or the request key was used for another change.
+    Conflict(crate::refusal_cause::Cause),
+    Invalid(&'static str, crate::refusal_cause::Cause),
+    Unavailable(crate::refusal_cause::Cause),
+    /// A commit may have been applied; retry the original request key.
+    OutcomeUnknown(crate::refusal_cause::Cause),
+}
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Conflict(_) => f.write_str("record version or request identity conflicts"),
+            Self::Invalid(message, _) => f.write_str(message),
+            Self::Unavailable(_) => f.write_str("record supply unavailable"),
+            Self::OutcomeUnknown(_) => f.write_str("record outcome unknown; retain original request key"),
+        }
+    }
+}
+impl std::error::Error for Error {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        Some(self.cause_ref())
+    }
+}
+impl Error {
+    /// The original condition's site.
+    pub fn cause(&self) -> crate::refusal_cause::Cause {
+        self.cause_ref().clone()
+    }
+    pub fn cause_ref(&self) -> &crate::refusal_cause::Cause {
+        match self {
+            Self::Conflict(cause) | Self::Unavailable(cause) | Self::OutcomeUnknown(cause) | Self::Invalid(_, cause) => cause,
+        }
+    }
+    /// The site of an uncertain effect.
+    pub fn outcome_cause(&self) -> Option<crate::refusal_cause::Cause> {
+        match self {
+            Self::OutcomeUnknown(cause) => Some(cause.clone()),
+            _ => None,
+        }
+    }
+}
+crate::impl_caused!(Error);
+impl PartialEq for Error {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::Conflict(_), Self::Conflict(_)) | (Self::Unavailable(_), Self::Unavailable(_)) | (Self::OutcomeUnknown(_), Self::OutcomeUnknown(_)) => true,
+            (Self::Invalid(a, _), Self::Invalid(b, _)) => a == b,
+            _ => false,
+        }
+    }
+}
+impl Eq for Error {}
+
+/// What the person's files ask of the database that keeps their rows.
+pub trait Rows: Send + Sync {
+    /// One row by id.
+    fn get(&self, scope: &str, id: &str) -> Result<Read, Error>;
+    /// The rows of `ids`, in the order asked; none where there is no such row.
+    fn get_many(&self, scope: &str, ids: &[&str]) -> Result<Vec<Option<Record>>, Error>;
+    /// The row's version, counting a deleted row's (what a change expects), and the row if it is there.
+    fn held_record_with_version(&self, scope: &str, id: &str) -> Result<(i64, Option<Record>), Error>;
+    /// The rows of a scope in id order, strictly after `after` (empty: from the first), at most `limit` of them.
+    fn list_page(&self, scope: &str, after: &str, limit: usize) -> Result<Page<Record, String>, Error>;
+    /// The ids of a scope in id order, strictly after `after`, at most `limit`, and the cursor to resume at when there are more.
+    fn ids(&self, scope: &str, after: Option<&str>, limit: usize) -> Result<(Vec<String>, Option<String>), Error>;
+    /// Change one row only if it is still at `expected_version`.
+    fn mutate(&self, scope: &str, input: Mutation) -> Result<Change, Error>;
+    /// How many changes the scope has had; moves whenever any row of the scope changes.
+    fn stamp(&self, scope: &str) -> Result<i64, Error>;
+    /// Every declared total.
+    fn totals(&self) -> Result<Vec<Total>, Error>;
+    /// The file rows whose names, together, hold every one of `words` (anywhere in a name, any case), at most `hits`, in id order.
+    /// They are the candidates: the caller decides which one name of a file holds the words the way a person reads them.
+    fn search(&self, words: &[String], hits: usize) -> Result<Vec<Record>, Error>;
+    /// Where the rows are, for a person to read (a file path, or `postgres://host:port/name`).
+    fn place(&self) -> String;
+}
+
+/// The rows a person's files are kept in, shared by everything that reads or changes them in one run.
+pub type Store = Arc<dyn Rows>;
+
+/// What `tables.json` declares.
+#[derive(Deserialize)]
+struct Declared {
+    tables: Vec<DeclaredTable>,
+    generic: String,
+    totals: Vec<DeclaredTotal>,
+}
+#[derive(Deserialize)]
+struct DeclaredTable {
+    table: String,
+    #[serde(default)]
+    prefixes: Vec<String>,
+    #[serde(default)]
+    exact: Vec<String>,
+    columns: Vec<DeclaredColumn>,
+}
+#[derive(Deserialize, Clone)]
+struct DeclaredColumn {
+    name: String,
+    kind: Kind,
+}
+#[derive(Deserialize, Clone, Copy, PartialEq)]
+#[serde(rename_all = "lowercase")]
+enum Kind {
+    Int,
+    Text,
+    Json,
+}
+#[derive(Deserialize)]
+struct DeclaredTotal {
+    total: String,
+    kind: String,
+    #[serde(default)]
+    table: Option<String>,
+    #[serde(default)]
+    scope: Option<String>,
+    #[serde(default)]
+    group: Option<String>,
+    #[serde(default)]
+    sum: Option<String>,
+}
+
+const DECLARED: &[u8] = include_bytes!("tables.json");
+
+fn declared() -> &'static Declared {
+    static HELD: OnceLock<Declared> = OnceLock::new();
+    HELD.get_or_init(|| serde_json::from_slice(DECLARED).expect("src/store/tables.json is read once and is valid"))
+}
+
+impl DeclaredTable {
+    fn holds(&self, scope: &str) -> bool {
+        self.exact.iter().any(|exact| exact == scope) || self.prefixes.iter().any(|prefix| scope.starts_with(prefix.as_str()))
+    }
+    fn column_list(&self) -> String {
+        self.columns.iter().map(|column| format!("\"{}\"", column.name)).collect::<Vec<_>>().join(", ")
+    }
+    /// The columns every row of a table is read by: id, version, the request, the table's columns, `extra`.
+    fn selected(&self) -> String {
+        format!("id, version, request_key, request_identity, {}, extra", self.column_list())
+    }
+}
+
+/// The person's rows in a SQL database.
+#[derive(Clone)]
+pub struct SqlStore {
+    link: Arc<Mutex<Link>>,
+    dialect: Dialect,
+    place: String,
+}
+
+fn unavailable<E>(_: E) -> Error {
+    crate::cause!(Error::Unavailable)
+}
+
+impl SqlStore {
+    /// The rows in `link`'s database, its tables made when they are not there.
+    pub fn open(link: Link) -> Result<Self, Error> {
+        let (dialect, place) = (link.dialect(), link.place().to_owned());
+        let store = Self { link: Arc::new(Mutex::new(link)), dialect, place };
+        store.prepare()?;
+        Ok(store)
+    }
+
+    /// Rows that live only as long as the store (tests).
+    pub fn memory() -> Result<Self, Error> {
+        Self::open(Link::memory()?)
+    }
+
+    /// Another handle to the same database, the way a second process opens it.
+    pub fn same_database(&self) -> Self {
+        self.clone()
+    }
+
+    fn prepare(&self) -> Result<(), Error> {
+        let id = self.dialect.id_type();
+        let mut sql = String::new();
+        for table in &declared().tables {
+            let columns: String = table
+                .columns
+                .iter()
+                .map(|column| format!("\"{}\" {}, ", column.name, if column.kind == Kind::Int { "BIGINT" } else { "TEXT" }))
+                .collect();
+            sql.push_str(&format!(
+                "CREATE TABLE IF NOT EXISTS {t} (scope {id} NOT NULL, id {id} NOT NULL, version BIGINT NOT NULL, request_key TEXT, request_identity TEXT, {columns}extra TEXT, PRIMARY KEY (scope, id));\n",
+                t = table.table
+            ));
+        }
+        sql.push_str(&format!(
+            "CREATE TABLE IF NOT EXISTS {g} (scope {id} NOT NULL, id {id} NOT NULL, version BIGINT NOT NULL, request_key TEXT, request_identity TEXT, value TEXT NOT NULL, PRIMARY KEY (scope, id));\n",
+            g = declared().generic
+        ));
+        sql.push_str(&format!(
+            "CREATE TABLE IF NOT EXISTS ns_gone (scope {id} NOT NULL, id {id} NOT NULL, version BIGINT NOT NULL, request_key TEXT, request_identity TEXT, PRIMARY KEY (scope, id));\n\
+             CREATE TABLE IF NOT EXISTS ns_stamp (scope {id} NOT NULL PRIMARY KEY, stamp BIGINT NOT NULL);\n"
+        ));
+        self.link.lock().map_err(unavailable)?.batch(&sql)
+    }
+
+    fn table_of(scope: &str) -> Option<&'static DeclaredTable> {
+        declared().tables.iter().find(|table| table.holds(scope))
+    }
+
+    /// A row of `table` as a record.
+    fn record(table: &DeclaredTable, cells: &[Cell]) -> Result<(Record, Option<String>, Option<String>), Error> {
+        let (id, version) = (cells[0].as_text().ok_or(crate::cause!(Error::Unavailable))?, cells[1].as_int().unwrap_or(0));
+        let mut value = Map::new();
+        for (column, cell) in table.columns.iter().zip(&cells[4..]) {
+            let Some(text) = cell.as_text() else { continue };
+            let field = match column.kind {
+                Kind::Int => cell.as_int().map(Value::from).ok_or(crate::cause!(Error::Unavailable))?,
+                Kind::Text => Value::String(text),
+                Kind::Json => serde_json::from_str(&text).map_err(unavailable)?,
+            };
+            value.insert(column.name.clone(), field);
+        }
+        if let Some(extra) = cells[4 + table.columns.len()].as_text() {
+            if let Value::Object(fields) = serde_json::from_str(&extra).map_err(unavailable)? {
+                value.extend(fields);
+            }
+        }
+        Ok((Record { id, version, value: Value::Object(value) }, cells[2].as_text(), cells[3].as_text()))
+    }
+
+    /// A row of the generic table as a record.
+    fn generic_record(cells: &[Cell]) -> Result<(Record, Option<String>, Option<String>), Error> {
+        let value = serde_json::from_str(&cells[4].as_text().ok_or(crate::cause!(Error::Unavailable))?).map_err(unavailable)?;
+        Ok((
+            Record { id: cells[0].as_text().ok_or(crate::cause!(Error::Unavailable))?, version: cells[1].as_int().unwrap_or(0), value },
+            cells[2].as_text(),
+            cells[3].as_text(),
+        ))
+    }
+
+    /// The columns of a record's value for `table`: each declared column its cell, and `extra` the fields that fit none.
+    fn cells_of(table: &DeclaredTable, value: &Value) -> Result<Vec<Cell>, Error> {
+        let Some(object) = value.as_object() else {
+            return Err(Error::Invalid("a record of these rows is an object", crate::cause!()));
+        };
+        let mut left = object.clone();
+        let mut cells = Vec::with_capacity(table.columns.len() + 1);
+        for column in &table.columns {
+            let cell = match (column.kind, left.get(&column.name)) {
+                (Kind::Int, Some(Value::Number(number))) if number.as_i64().is_some() => Cell::Int(number.as_i64()),
+                (Kind::Text, Some(Value::String(text))) => Cell::Text(Some(text.clone())),
+                (Kind::Json, Some(field @ (Value::Array(_) | Value::Object(_)))) => {
+                    Cell::Text(Some(serde_json::to_string(field).map_err(unavailable)?))
+                }
+                (Kind::Int, _) => {
+                    cells.push(Cell::Int(None));
+                    continue;
+                }
+                _ => {
+                    cells.push(Cell::Text(None));
+                    continue;
+                }
+            };
+            left.remove(&column.name);
+            cells.push(cell);
+        }
+        cells.push(Cell::Text((!left.is_empty()).then(|| serde_json::to_string(&Value::Object(left))).transpose().map_err(unavailable)?));
+        Ok(cells)
+    }
+
+    fn read_rows(&self, link: &mut Link, scope: &str, sql_tail: &str, params: &[Cell]) -> Result<Vec<(Record, Option<String>, Option<String>)>, Error> {
+        let rows = match Self::table_of(scope) {
+            Some(table) => {
+                let text = format!("SELECT {} FROM {} WHERE scope = ?{sql_tail}", table.selected(), table.table);
+                let mut all = vec![Cell::text(scope)];
+                all.extend_from_slice(params);
+                link.query(&text, &all)?.iter().map(|cells| Self::record(table, cells)).collect::<Result<Vec<_>, _>>()?
+            }
+            None => {
+                let text = format!("SELECT id, version, request_key, request_identity, value FROM {} WHERE scope = ?{sql_tail}", declared().generic);
+                let mut all = vec![Cell::text(scope)];
+                all.extend_from_slice(params);
+                link.query(&text, &all)?.iter().map(|cells| Self::generic_record(cells)).collect::<Result<Vec<_>, _>>()?
+            }
+        };
+        Ok(rows)
+    }
+
+    fn tombstone(link: &mut Link, scope: &str, id: &str, lock: &str) -> Result<Option<(i64, Option<String>, Option<String>)>, Error> {
+        let rows = link.query(
+            &format!("SELECT version, request_key, request_identity FROM ns_gone WHERE scope = ? AND id = ?{lock}"),
+            &[Cell::text(scope), Cell::text(id)],
+        )?;
+        Ok(rows.first().map(|cells| (cells[0].as_int().unwrap_or(0), cells[1].as_text(), cells[2].as_text())))
+    }
+
+    fn identity_of(input: &Mutation) -> String {
+        let canonical = serde_json::to_vec(&serde_json::json!([input.id, input.expected_version, input.deleted, input.value])).unwrap_or_default();
+        content_crypto::advanced::blake3::hash(&canonical).to_hex().to_string()
+    }
+
+    fn change(&self, link: &mut Link, scope: &str, input: &Mutation) -> Result<Change, Error> {
+        let lock = self.dialect.lock_read();
+        let identity = Self::identity_of(input);
+        let table = Self::table_of(scope);
+        let rows = self.read_rows(link, scope, &format!(" AND id = ?{lock}"), &[Cell::text(&input.id)])?;
+        let current = rows.into_iter().next();
+        let gone = if current.is_none() { Self::tombstone(link, scope, &input.id, lock)? } else { None };
+        let held = current.as_ref().map(|(record, _, _)| record.version).or(gone.as_ref().map(|gone| gone.0)).unwrap_or(0);
+        let (last_key, last_identity) = match (&current, &gone) {
+            (Some((_, key, identity)), _) => (key.clone(), identity.clone()),
+            (None, Some((_, key, identity))) => (key.clone(), identity.clone()),
+            _ => (None, None),
+        };
+        // The retry of the last change the row had answers that change again.
+        if last_key.as_deref() == Some(input.request_key.as_str()) && held > 0 {
+            if last_identity.as_deref() != Some(identity.as_str()) {
+                return Err(crate::cause!(Error::Conflict));
+            }
+            return Ok(Change {
+                sequence: Self::stamp_in(link, scope)?,
+                id: input.id.clone(),
+                version: held,
+                deleted: current.is_none(),
+                value: current.map(|(record, _, _)| record.value),
+            });
+        }
+        if input.deleted && !input.value.is_null() {
+            return Err(Error::Invalid("a delete must not include a new value", crate::cause!()));
+        }
+        if input.expected_version != held || (held == 0 && input.deleted) {
+            return Err(crate::cause!(Error::Conflict));
+        }
+        // A change that leaves the row as it is writes nothing: no version, no stamp.
+        if let Some((record, _, _)) = current.as_ref().filter(|_| !input.deleted) {
+            if record.value == input.value {
+                return Ok(Change { sequence: Self::stamp_in(link, scope)?, id: input.id.clone(), version: record.version, deleted: false, value: Some(input.value.clone()) });
+            }
+        }
+        if !input.deleted && serde_json::to_vec(&input.value).map_err(unavailable)?.len() > MAX_RECORD_BYTES {
+            return Err(Error::Invalid("a record is at most one mebibyte", crate::cause!()));
+        }
+        let version = held + 1;
+        let request = [Cell::text(&input.request_key), Cell::text(&identity)];
+        if input.deleted {
+            link.execute("DELETE FROM ns_gone WHERE scope = ? AND id = ?", &[Cell::text(scope), Cell::text(&input.id)])?;
+            link.execute(
+                "INSERT INTO ns_gone (scope, id, version, request_key, request_identity) VALUES (?, ?, ?, ?, ?)",
+                &[Cell::text(scope), Cell::text(&input.id), Cell::int(version), request[0].clone(), request[1].clone()],
+            )?;
+            match table {
+                Some(table) => link.execute(&format!("DELETE FROM {} WHERE scope = ? AND id = ?", table.table), &[Cell::text(scope), Cell::text(&input.id)])?,
+                None => link.execute(&format!("DELETE FROM {} WHERE scope = ? AND id = ?", declared().generic), &[Cell::text(scope), Cell::text(&input.id)])?,
+            };
+        } else {
+            match table {
+                Some(table) => {
+                    let cells = Self::cells_of(table, &input.value)?;
+                    let names = table.column_list();
+                    let marks = vec!["?"; table.columns.len() + 1].join(", ");
+                    let set = table.columns.iter().map(|column| format!("\"{}\" = ?", column.name)).collect::<Vec<_>>().join(", ");
+                    if current.is_some() {
+                        let mut params = vec![Cell::int(version), request[0].clone(), request[1].clone()];
+                        params.extend(cells);
+                        params.extend([Cell::text(scope), Cell::text(&input.id)]);
+                        link.execute(
+                            &format!("UPDATE {} SET version = ?, request_key = ?, request_identity = ?, {set}, extra = ? WHERE scope = ? AND id = ?", table.table),
+                            &params,
+                        )?;
+                    } else {
+                        link.execute("DELETE FROM ns_gone WHERE scope = ? AND id = ?", &[Cell::text(scope), Cell::text(&input.id)])?;
+                        let mut params = vec![Cell::text(scope), Cell::text(&input.id), Cell::int(version), request[0].clone(), request[1].clone()];
+                        params.extend(cells);
+                        link.execute(
+                            &format!("INSERT INTO {} (scope, id, version, request_key, request_identity, {names}, extra) VALUES (?, ?, ?, ?, ?, {marks})", table.table),
+                            &params,
+                        )?;
+                    }
+                }
+                None => {
+                    let text = serde_json::to_string(&input.value).map_err(unavailable)?;
+                    if current.is_some() {
+                        link.execute(
+                            &format!("UPDATE {} SET version = ?, request_key = ?, request_identity = ?, value = ? WHERE scope = ? AND id = ?", declared().generic),
+                            &[Cell::int(version), request[0].clone(), request[1].clone(), Cell::text(&text), Cell::text(scope), Cell::text(&input.id)],
+                        )?;
+                    } else {
+                        link.execute("DELETE FROM ns_gone WHERE scope = ? AND id = ?", &[Cell::text(scope), Cell::text(&input.id)])?;
+                        link.execute(
+                            &format!("INSERT INTO {} (scope, id, version, request_key, request_identity, value) VALUES (?, ?, ?, ?, ?, ?)", declared().generic),
+                            &[Cell::text(scope), Cell::text(&input.id), Cell::int(version), request[0].clone(), request[1].clone(), Cell::text(&text)],
+                        )?;
+                    }
+                }
+            }
+        }
+        let sequence = link
+            .query(
+                "INSERT INTO ns_stamp (scope, stamp) VALUES (?, 1) ON CONFLICT (scope) DO UPDATE SET stamp = ns_stamp.stamp + 1 RETURNING stamp",
+                &[Cell::text(scope)],
+            )?
+            .first()
+            .and_then(|cells| cells[0].as_int())
+            .ok_or(crate::cause!(Error::Unavailable))?;
+        Ok(Change { sequence, id: input.id.clone(), version, deleted: input.deleted, value: (!input.deleted).then(|| input.value.clone()) })
+    }
+
+    fn stamp_in(link: &mut Link, scope: &str) -> Result<i64, Error> {
+        Ok(link.query("SELECT stamp FROM ns_stamp WHERE scope = ?", &[Cell::text(scope)])?.first().and_then(|cells| cells[0].as_int()).unwrap_or(0))
+    }
+}
+
+impl Rows for SqlStore {
+    fn get(&self, scope: &str, id: &str) -> Result<Read, Error> {
+        let mut link = self.link.lock().map_err(unavailable)?;
+        let rows = self.read_rows(&mut link, scope, " AND id = ?", &[Cell::text(id)])?;
+        Ok(Read { record: rows.into_iter().next().map(|(record, _, _)| record) })
+    }
+
+    fn get_many(&self, scope: &str, ids: &[&str]) -> Result<Vec<Option<Record>>, Error> {
+        let mut link = self.link.lock().map_err(unavailable)?;
+        let mut found = std::collections::BTreeMap::new();
+        for batch in ids.chunks(IDS_AT_ONCE) {
+            let marks = vec!["?"; batch.len()].join(", ");
+            let params: Vec<Cell> = batch.iter().map(|id| Cell::text(id)).collect();
+            for (record, _, _) in self.read_rows(&mut link, scope, &format!(" AND id IN ({marks})"), &params)? {
+                found.insert(record.id.clone(), record);
+            }
+        }
+        Ok(ids.iter().map(|id| found.get(*id).cloned()).collect())
+    }
+
+    fn held_record_with_version(&self, scope: &str, id: &str) -> Result<(i64, Option<Record>), Error> {
+        let mut link = self.link.lock().map_err(unavailable)?;
+        let rows = self.read_rows(&mut link, scope, " AND id = ?", &[Cell::text(id)])?;
+        if let Some((record, _, _)) = rows.into_iter().next() {
+            return Ok((record.version, Some(record)));
+        }
+        Ok((Self::tombstone(&mut link, scope, id, "")?.map_or(0, |gone| gone.0), None))
+    }
+
+    fn list_page(&self, scope: &str, after: &str, limit: usize) -> Result<Page<Record, String>, Error> {
+        let limit = limit.clamp(1, MAX_PAGE_ITEMS);
+        let mut link = self.link.lock().map_err(unavailable)?;
+        let rows = self.read_rows(&mut link, scope, " AND id > ? ORDER BY id LIMIT ?", &[Cell::text(after), Cell::int(limit as i64 + 1)])?;
+        let mut items = Vec::new();
+        let (mut bytes, mut more) = (0usize, false);
+        for (record, _, _) in rows {
+            let size = serde_json::to_vec(&record.value).map_err(unavailable)?.len();
+            if items.len() == limit || (!items.is_empty() && bytes + size > MAX_PAGE_BYTES) {
+                more = true;
+                break;
+            }
+            bytes += size;
+            items.push(record);
+        }
+        let next = more.then(|| items.last().map(|record| record.id.clone())).flatten();
+        Ok(Page { items, next, serialized_item_bytes: bytes })
+    }
+
+    fn ids(&self, scope: &str, after: Option<&str>, limit: usize) -> Result<(Vec<String>, Option<String>), Error> {
+        let limit = limit.clamp(1, MAX_PAGE_ITEMS);
+        let mut link = self.link.lock().map_err(unavailable)?;
+        let table = match Self::table_of(scope) {
+            Some(table) => table.table.as_str(),
+            None => declared().generic.as_str(),
+        };
+        let rows = link.query(
+            &format!("SELECT id FROM {table} WHERE scope = ? AND id > ? ORDER BY id LIMIT ?"),
+            &[Cell::text(scope), Cell::text(after.unwrap_or("")), Cell::int(limit as i64 + 1)],
+        )?;
+        let mut ids: Vec<String> = rows.iter().filter_map(|cells| cells[0].as_text()).collect();
+        let more = ids.len() > limit;
+        ids.truncate(limit);
+        let next = more.then(|| ids.last().cloned()).flatten();
+        Ok((ids, next))
+    }
+
+    fn mutate(&self, scope: &str, input: Mutation) -> Result<Change, Error> {
+        if input.id.is_empty() {
+            return Err(Error::Invalid("a record has an id", crate::cause!()));
+        }
+        let mut link = self.link.lock().map_err(unavailable)?;
+        link.begin()?;
+        match self.change(&mut link, scope, &input) {
+            Ok(change) => {
+                link.commit()?;
+                Ok(change)
+            }
+            Err(error) => {
+                link.rollback();
+                Err(error)
+            }
+        }
+    }
+
+    fn stamp(&self, scope: &str) -> Result<i64, Error> {
+        Self::stamp_in(&mut *self.link.lock().map_err(unavailable)?, scope)
+    }
+
+    fn totals(&self) -> Result<Vec<Total>, Error> {
+        let mut link = self.link.lock().map_err(unavailable)?;
+        let mut totals = Vec::new();
+        for declared in &declared().totals {
+            match (&declared.table, &declared.scope) {
+                (Some(table), _) => {
+                    let sum = declared.sum.as_deref().map_or("0".to_owned(), |column| format!("CAST(COALESCE(SUM(\"{column}\"), 0) AS BIGINT)"));
+                    let (select, group) = match declared.group.as_deref() {
+                        Some(group) => (format!("\"{group}\", COUNT(*), {sum}"), format!(" GROUP BY \"{group}\" ORDER BY \"{group}\"")),
+                        None => (format!("NULL, COUNT(*), {sum}"), String::new()),
+                    };
+                    let rows = link.query(&format!("SELECT {select} FROM {table} WHERE \"kind\" = ?{group}"), &[Cell::text(&declared.kind)])?;
+                    for cells in rows {
+                        totals.push(Total { total: declared.total.clone(), group: cells[0].as_text(), count: cells[1].as_int().unwrap_or(0), sum: cells[2].as_int().unwrap_or(0) });
+                    }
+                }
+                (None, Some(scope)) => {
+                    let rows = self.read_rows(&mut link, scope, "", &[])?;
+                    let (mut count, mut sum) = (0i64, 0i64);
+                    for (record, _, _) in rows {
+                        if record.value.get("kind").and_then(Value::as_str) != Some(declared.kind.as_str()) {
+                            continue;
+                        }
+                        count += 1;
+                        sum += declared.sum.as_deref().and_then(|field| record.value.get(field)).and_then(Value::as_i64).unwrap_or(0);
+                    }
+                    totals.push(Total { total: declared.total.clone(), group: None, count, sum });
+                }
+                (None, None) => return Err(crate::cause!(Error::Unavailable)),
+            }
+        }
+        Ok(totals)
+    }
+
+    fn search(&self, words: &[String], hits: usize) -> Result<Vec<Record>, Error> {
+        if words.is_empty() {
+            return Ok(Vec::new());
+        }
+        let mut tail = String::new();
+        let mut params = Vec::new();
+        for word in words {
+            let escaped: String = word.to_lowercase().chars().flat_map(|c| if matches!(c, '%' | '_' | '\\') { vec!['\\', c] } else { vec![c] }).collect();
+            tail.push_str(" AND LOWER(\"names\") LIKE ? ESCAPE '\\'");
+            params.push(Cell::text(&format!("%{escaped}%")));
+        }
+        tail.push_str(" ORDER BY id LIMIT ?");
+        params.push(Cell::int(hits as i64));
+        let mut link = self.link.lock().map_err(unavailable)?;
+        Ok(self.read_rows(&mut link, "@namespace/files", &tail, &params)?.into_iter().map(|(record, _, _)| record).collect())
+    }
+
+    fn place(&self) -> String {
+        self.place.clone()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    fn put(store: &SqlStore, scope: &str, id: &str, expected: i64, key: &str, value: Value) -> Result<Change, Error> {
+        store.mutate(scope, Mutation { id: id.into(), expected_version: expected, request_key: key.into(), deleted: false, value })
+    }
+    fn remove(store: &SqlStore, scope: &str, id: &str, expected: i64, key: &str) -> Result<Change, Error> {
+        store.mutate(scope, Mutation { id: id.into(), expected_version: expected, request_key: key.into(), deleted: true, value: Value::Null })
+    }
+    fn chunk(bytes: i64, origin: &str) -> Value {
+        json!({"kind": "namespace-chunk", "byte_length": bytes, "origin": origin, "key": "k", "stored_at": "2026-11-16T00:00:00.000Z"})
+    }
+
+    #[test]
+    fn a_row_is_made_changed_and_deleted_only_at_the_version_the_caller_read() {
+        let store = SqlStore::memory().unwrap();
+        let scope = "@namespace/chunks";
+        assert_eq!(store.held_record_with_version(scope, "c").unwrap(), (0, None));
+        let made = put(&store, scope, "c", 0, "make", chunk(5, "b2")).unwrap();
+        assert_eq!((made.version, made.deleted), (1, false));
+        assert_eq!(put(&store, scope, "c", 0, "again", chunk(6, "b2")), Err(crate::cause!(Error::Conflict)), "a row that is there is not made twice");
+        let changed = put(&store, scope, "c", 1, "change", chunk(6, "b2")).unwrap();
+        assert_eq!(changed.version, 2);
+        assert_eq!(store.get(scope, "c").unwrap().record.unwrap().value, chunk(6, "b2"));
+        assert_eq!(remove(&store, scope, "c", 1, "stale"), Err(crate::cause!(Error::Conflict)));
+        let gone = remove(&store, scope, "c", 2, "remove").unwrap();
+        assert_eq!((gone.version, gone.deleted, gone.value), (3, true, None));
+        assert!(store.get(scope, "c").unwrap().record.is_none());
+        assert_eq!(store.held_record_with_version(scope, "c").unwrap(), (3, None), "a deleted row keeps its version");
+        assert_eq!(put(&store, scope, "c", 0, "new", chunk(7, "b2")), Err(crate::cause!(Error::Conflict)), "a new row after a delete expects the version it had");
+        assert_eq!(put(&store, scope, "c", 3, "new", chunk(7, "b2")).unwrap().version, 4);
+        assert_eq!(remove(&store, scope, "never", 0, "nothing"), Err(crate::cause!(Error::Conflict)), "nothing is deleted that was never there");
+        assert!(matches!(store.mutate(scope, Mutation { id: "d".into(), expected_version: 0, request_key: "d".into(), deleted: true, value: json!({"a": 1}) }), Err(Error::Invalid(..))));
+    }
+
+    #[test]
+    fn the_retry_of_a_rows_last_change_answers_that_change_and_another_change_under_its_key_is_refused() {
+        let store = SqlStore::memory().unwrap();
+        let scope = "@namespace/chunks";
+        let first = put(&store, scope, "c", 0, "key-1", chunk(5, "b2")).unwrap();
+        let replay = put(&store, scope, "c", 0, "key-1", chunk(5, "b2")).unwrap();
+        assert_eq!((replay.version, replay.value.clone()), (first.version, first.value.clone()));
+        assert_eq!(store.stamp(scope).unwrap(), 1, "a replay changes nothing");
+        assert_eq!(put(&store, scope, "c", 0, "key-1", chunk(9, "b2")), Err(crate::cause!(Error::Conflict)), "the key was another change");
+        put(&store, scope, "c", 1, "key-2", chunk(6, "b2")).unwrap();
+        assert_eq!(put(&store, scope, "c", 0, "key-1", chunk(5, "b2")), Err(crate::cause!(Error::Conflict)), "only the last change is replayed");
+        let gone = remove(&store, scope, "c", 2, "key-3").unwrap();
+        assert_eq!(remove(&store, scope, "c", 2, "key-3").unwrap().version, gone.version, "a delete replays too");
+    }
+
+    #[test]
+    fn a_change_that_leaves_the_row_as_it_is_writes_nothing() {
+        let store = SqlStore::memory().unwrap();
+        let scope = "@namespace/chunks";
+        put(&store, scope, "c", 0, "a", chunk(5, "b2")).unwrap();
+        let stamp = store.stamp(scope).unwrap();
+        let same = put(&store, scope, "c", 1, "b", chunk(5, "b2")).unwrap();
+        assert_eq!(same.version, 1);
+        assert_eq!(store.stamp(scope).unwrap(), stamp);
+        assert_eq!(store.get(scope, "c").unwrap().record.unwrap().version, 1);
+    }
+
+    #[test]
+    fn every_field_of_a_record_comes_back_whether_it_has_a_column_or_not() {
+        let store = SqlStore::memory().unwrap();
+        let value = json!({
+            "kind": "namespace-file", "byte_length": 12, "media_type": "text/plain", "origin": "b2", "key": "k", "spans": 0,
+            "aliases": [{"alias": "12:aa", "grade": "checked"}], "names": ["/a.txt"],
+            "extra_field": {"nested": [1, 2, {"x": null}]}, "also": true,
+            "part_bytes": "not a number",
+        });
+        put(&store, "@namespace/files", "1f:aa", 0, "file", value.clone()).unwrap();
+        assert_eq!(store.get("@namespace/files", "1f:aa").unwrap().record.unwrap().value, value);
+        let other = json!({"kind": "namespace-origin", "rank": 1, "reach": {"bucket": {"value": "b"}}, "takes_new_bytes": true});
+        put(&store, "@namespace/origins", "local", 0, "origin", other.clone()).unwrap();
+        assert_eq!(store.get("@namespace/origins", "local").unwrap().record.unwrap().value, other, "a scope no table claims keeps its value whole");
+        assert!(matches!(put(&store, "@namespace/files", "1f:bb", 0, "bad", json!("text")), Err(Error::Invalid(..))), "a row of a table is an object");
+    }
+
+    #[test]
+    fn a_scope_lists_in_byte_order_a_page_at_a_time_and_only_its_own_rows() {
+        let store = SqlStore::memory().unwrap();
+        let names = "@namespace/names/Notes";
+        for (at, id) in ["/Notes/b", "/Notes/B", "/Notes/a", "/Notes/é", "/Notes/10", "/Notes/9"].iter().enumerate() {
+            put(&store, names, id, 0, &format!("n{at}"), json!({"kind": "namespace-name", "name": id})).unwrap();
+        }
+        put(&store, "@namespace/names/Other", "/Other/z", 0, "z", json!({"kind": "namespace-name", "name": "/Other/z"})).unwrap();
+        let mut seen = Vec::new();
+        let mut after = String::new();
+        loop {
+            let page = store.list_page(names, &after, 2).unwrap();
+            assert!(page.items.len() <= 2);
+            seen.extend(page.items.iter().map(|record| record.id.clone()));
+            match page.next {
+                Some(next) => after = next,
+                None => break,
+            }
+        }
+        assert_eq!(seen, ["/Notes/10", "/Notes/9", "/Notes/B", "/Notes/a", "/Notes/b", "/Notes/é"], "bytes, not language, order the ids");
+        let (ids, next) = store.ids(names, Some("/Notes/9"), 2).unwrap();
+        assert_eq!((ids, next), (vec!["/Notes/B".to_owned(), "/Notes/a".to_owned()], Some("/Notes/a".to_owned())));
+        assert_eq!(store.list_page("@namespace/names/Nothing", "", 10).unwrap().items.len(), 0);
+        let many = store.get_many(names, &["/Notes/a", "/Notes/none", "/Notes/b"]).unwrap();
+        assert_eq!(many.iter().map(|row| row.is_some()).collect::<Vec<_>>(), [true, false, true]);
+    }
+
+    #[test]
+    fn a_scopes_stamp_moves_with_each_change_in_it_and_no_other() {
+        let store = SqlStore::memory().unwrap();
+        let (a, b) = ("@namespace/names/A", "@namespace/names/B");
+        assert_eq!(store.stamp(a).unwrap(), 0);
+        put(&store, a, "/A/1", 0, "1", json!({"kind": "namespace-name"})).unwrap();
+        put(&store, a, "/A/2", 0, "2", json!({"kind": "namespace-name"})).unwrap();
+        assert_eq!((store.stamp(a).unwrap(), store.stamp(b).unwrap()), (2, 0));
+        remove(&store, a, "/A/1", 1, "3").unwrap();
+        assert_eq!(store.stamp(a).unwrap(), 3);
+    }
+
+    #[test]
+    fn the_declared_totals_count_files_by_store_names_chunks_and_uploads() {
+        let store = SqlStore::memory().unwrap();
+        let file = |origin: &str, bytes: i64| json!({"kind": "namespace-file", "origin": origin, "byte_length": bytes});
+        put(&store, "@namespace/files", "1f:1", 0, "a", file("b2", 100)).unwrap();
+        put(&store, "@namespace/files", "1f:2", 0, "b", file("b2", 1)).unwrap();
+        put(&store, "@namespace/files", "1f:3", 0, "c", file("r2", 12)).unwrap();
+        put(&store, "@namespace/names/", "/a", 0, "d", json!({"kind": "namespace-name", "name": "/a"})).unwrap();
+        put(&store, "@namespace/set-aside/names/", "/b", 0, "e", json!({"kind": "namespace-set-aside", "name": "/b"})).unwrap();
+        put(&store, "@namespace/chunks", "c1", 0, "f", chunk(40, "b2")).unwrap();
+        put(&store, "@namespace/chunks", "c2", 0, "g", chunk(2, "b2")).unwrap();
+        put(&store, "@namespace/uploads", "up:1", 0, "h", json!({"kind": "namespace-upload", "byte_length": 5000})).unwrap();
+        let totals = store.totals().unwrap();
+        let of = |name: &str| -> Vec<(Option<String>, i64, i64)> { totals.iter().filter(|row| row.total == name).map(|row| (row.group.clone(), row.count, row.sum)).collect() };
+        assert_eq!(of("namespace-file/origin"), [(Some("b2".into()), 2, 101), (Some("r2".into()), 1, 12)]);
+        assert_eq!(of("namespace-name/all"), [(None, 1, 0)], "the names set aside are not the person's names");
+        assert_eq!(of("namespace-chunk/all"), [(None, 2, 42)]);
+        assert_eq!(of("namespace-upload/all"), [(None, 1, 5000)]);
+    }
+
+    #[test]
+    fn a_word_search_finds_the_files_whose_names_hold_every_word() {
+        let store = SqlStore::memory().unwrap();
+        let file = |names: Value| json!({"kind": "namespace-file", "origin": "b2", "byte_length": 1, "names": names});
+        put(&store, "@namespace/files", "1f:1", 0, "a", file(json!(["/Reports/Annual Report 2026.pdf"]))).unwrap();
+        put(&store, "@namespace/files", "1f:2", 0, "b", file(json!(["/Reports/annual-budget.xlsx", "/Old/Report.txt"]))).unwrap();
+        put(&store, "@namespace/files", "1f:3", 0, "c", file(json!(["/Photos/100%_done.png"]))).unwrap();
+        let found = |words: &[&str]| -> Vec<String> { store.search(&words.iter().map(|word| word.to_string()).collect::<Vec<_>>(), 10).unwrap().into_iter().map(|record| record.id).collect() };
+        assert_eq!(found(&["annual"]), ["1f:1", "1f:2"]);
+        assert_eq!(found(&["annual", "report"]), ["1f:1", "1f:2"], "the words may be in different names of one file: the caller keeps the file one name holds them all");
+        assert_eq!(found(&["REPORT", "budget"]), ["1f:2"]);
+        assert_eq!(found(&["100%"]), ["1f:3"], "a percent sign in a word is a character, not a wildcard");
+        assert!(found(&["_"]).len() == 1 && found(&["zzz"]).is_empty());
+        assert_eq!(store.search(&["annual".to_owned()], 1).unwrap().len(), 1);
+    }
+
+    #[test]
+    fn two_handles_on_one_database_see_each_others_changes() {
+        let first = SqlStore::memory().unwrap();
+        let second = first.same_database();
+        put(&first, "@namespace/chunks", "c", 0, "k", chunk(1, "b2")).unwrap();
+        assert_eq!(second.get("@namespace/chunks", "c").unwrap().record.unwrap().version, 1);
+        assert_eq!(put(&second, "@namespace/chunks", "c", 0, "other", chunk(2, "b2")), Err(crate::cause!(Error::Conflict)));
+    }
+
+    #[test]
+    fn rows_in_a_file_are_there_when_the_file_is_opened_again() {
+        let folder = tempfile::tempdir().unwrap();
+        let path = folder.path().join("names.sqlite");
+        put(&SqlStore::open(Link::sqlite(&path).unwrap()).unwrap(), "@namespace/chunks", "c", 0, "k", chunk(1, "b2")).unwrap();
+        let again = SqlStore::open(Link::sqlite(&path).unwrap()).unwrap();
+        assert_eq!(again.get("@namespace/chunks", "c").unwrap().record.unwrap().value, chunk(1, "b2"));
+        assert_eq!(again.place(), path.display().to_string());
+    }
+
+    /// The archive's six tables, as the account owner's database has them (untyped columns, `extra` last), with a few rows of each.
+    const ARCHIVE: &str = "
+        CREATE TABLE archive.ns_name(id text, \"byte_length\", \"file\", \"identity\", \"kind\", \"modified_at_ms\", \"name\", \"named_at\", extra text);
+        CREATE TABLE archive.ns_folder(id text, \"folder\", \"kind\", extra text);
+        CREATE TABLE archive.ns_file(id text, \"aliases\", \"byte_length\", \"checked_at\", \"key\", \"kind\", \"media_type\", \"names\", \"origin\", \"spans\", \"stored_at\", \"part_bytes\", \"prefix_identity\", \"span_layout\", \"span_set\", extra text);
+        CREATE TABLE archive.ns_chunk(id text, \"byte_length\", \"key\", \"kind\", \"origin\", \"stored_at\", extra text);
+        CREATE TABLE archive.ns_alias(id text, \"added_at\", \"grade\", \"identity\", \"kind\", extra text);
+        CREATE TABLE archive.ns_spans(id text, \"kind\", \"spans\", extra text);
+        INSERT INTO archive.ns_name VALUES ('/AI chat exports/a.zip', 3200166477, '1f:aa', '1f:aa', 'namespace-name', 1791886316769, '/AI chat exports/a.zip', '2026-11-04T07:30:22.398Z', '');
+        INSERT INTO archive.ns_name VALUES ('/top.txt', 5, '1f:bb', '1f:bb', 'namespace-name', NULL, '/top.txt', '2026-11-04T07:30:22.398Z', '');
+        INSERT INTO archive.ns_name VALUES ('/Recently deleted/gone.txt', 7, '1f:cc', '1f:cc', 'namespace-set-aside', NULL, '/Recently deleted/gone.txt', '2026-11-04T07:30:22.398Z', '{\"set_aside_at\":\"2026-11-05\"}');
+        INSERT INTO archive.ns_folder VALUES ('/AI chat exports', '/AI chat exports', 'namespace-folder', '');
+        INSERT INTO archive.ns_folder VALUES ('/AI chat exports/2026', '/AI chat exports/2026', 'namespace-folder', '');
+        INSERT INTO archive.ns_file VALUES ('1f:aa', '[]', 3200166477, '2026-11-04T07:29:46.856Z', '', 'namespace-file', 'application/zip', '[\"/AI chat exports/a.zip\"]', 'backblaze-b2', 2, '2026-11-04T07:29:46.856Z', 0, NULL, NULL, NULL, '');
+        INSERT INTO archive.ns_file VALUES ('1f:bb', '[]', '5', '2026-11-04T07:29:46.856Z', 'people/p/files/1f:bb', 'namespace-file', 'text/plain', '[\"/top.txt\"]', 'backblaze-b2', '0', '2026-11-04T07:29:46.856Z', '0', NULL, NULL, NULL, NULL);
+        INSERT INTO archive.ns_chunk VALUES ('1f:c1', 11284, 'people/p/chunks/1f:c1', 'namespace-chunk', 'backblaze-b2', '2026-10-21T00:24:47.031Z', '');
+        INSERT INTO archive.ns_alias VALUES ('12:dd', '2026-09-27T20:00:22.176Z', 'checked', '1f:aa', 'namespace-alias', '');
+        INSERT INTO archive.ns_spans VALUES ('1f:aa', 'namespace-spans', '[{\"chunk\":\"1f:c1\",\"length\":11284,\"offset\":0}]', '');
+    ";
+
+    #[test]
+    fn the_archive_tables_copy_in_with_one_insert_select_each_and_read_back_as_the_files_expect() {
+        let store = SqlStore::memory().unwrap();
+        {
+            let mut link = store.link.lock().unwrap();
+            link.batch("ATTACH DATABASE ':memory:' AS archive").unwrap();
+            link.batch(ARCHIVE).unwrap();
+            for statement in include_str!("copy-from-archive.sql").split(";\n").filter(|text| text.lines().any(|line| !line.starts_with("--") && !line.trim().is_empty())) {
+                link.batch(statement).unwrap();
+            }
+        }
+        let names = store.list_page("@namespace/names/AI chat exports", "", 10).unwrap();
+        assert_eq!(names.items.len(), 1);
+        assert_eq!(names.items[0].value, json!({"kind": "namespace-name", "name": "/AI chat exports/a.zip", "file": "1f:aa", "identity": "1f:aa",
+            "byte_length": 3200166477i64, "modified_at_ms": 1791886316769i64, "named_at": "2026-11-04T07:30:22.398Z"}));
+        assert_eq!(store.list_page("@namespace/names/", "", 10).unwrap().items[0].id, "/top.txt", "a top-level name is in the root folder's scope");
+        let aside = store.list_page("@namespace/set-aside/names/Recently deleted", "", 10).unwrap();
+        assert_eq!(aside.items[0].value["set_aside_at"], "2026-11-05", "an archive extra is the record's other fields");
+        assert_eq!(store.ids("@namespace/folders/", None, 10).unwrap().0, ["/AI chat exports"]);
+        assert_eq!(store.ids("@namespace/folders/AI chat exports", None, 10).unwrap().0, ["/AI chat exports/2026"]);
+        let file = store.get("@namespace/files", "1f:bb").unwrap().record.unwrap();
+        assert_eq!(file.value["byte_length"], 5);
+        assert_eq!(file.value["spans"], 0, "a count the archive kept as text is a number");
+        assert_eq!(file.value["names"], json!(["/top.txt"]));
+        assert_eq!(file.version, 1);
+        assert_eq!(store.get("@namespace/spans", "1f:aa").unwrap().record.unwrap().value["spans"][0]["chunk"], "1f:c1");
+        assert_eq!(store.get("@namespace/aliases", "12:dd").unwrap().record.unwrap().value["grade"], "checked");
+        let totals = store.totals().unwrap();
+        assert!(totals.iter().any(|row| row.total == "namespace-file/origin" && row.group.as_deref() == Some("backblaze-b2") && row.count == 2 && row.sum == 3200166482));
+        assert!(totals.iter().any(|row| row.total == "namespace-name/all" && row.count == 2));
+        // The copied rows are changed like any other, at the version the copy gave them.
+        assert_eq!(put(&store, "@namespace/chunks", "1f:c1", 1, "next", chunk(11284, "backblaze-b2")).unwrap().version, 2);
+    }
+}

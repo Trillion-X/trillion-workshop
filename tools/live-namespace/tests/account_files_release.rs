@@ -11,9 +11,9 @@ mod account_files_common;
 
 use account_files_common::*;
 use serde_json::{json, Value};
-use live_namespace::{account_files::{AccountFilesError, FILES, CHUNKS}, records::Records};
+use live_namespace::account_files::{AccountFilesError, FILES, CHUNKS};
 
-fn identity(files: &live_namespace::account_files::AccountFiles<live_namespace::storage::memory::Memory>, name: &str) -> Option<Value> {
+fn identity(files: &live_namespace::account_files::AccountFiles, name: &str) -> Option<Value> {
     files.find_file(name).ok().map(|file| file["identity"].clone())
 }
 
@@ -92,7 +92,7 @@ fn a_chunk_another_file_uses_stays_and_only_the_files_own_chunks_go() {
     upload(&mut files, 'b', "/video-b.bin", &[common.clone(), other_own].concat());
     let common_id = format!("1f:{}", content_crypto::advanced::blake3::hash(&common).to_hex());
     let own_id = format!("1f:{}", content_crypto::advanced::blake3::hash(&own).to_hex());
-    let chunk = files.store.get(ACCOUNT, CHUNKS, &common_id).unwrap().record.unwrap();
+    let chunk = files.store.get(CHUNKS, &common_id).unwrap().record.unwrap();
     assert_eq!(chunk.value["shared"], true, "the second upload marked the chunk it reused");
     call(&mut files, "set_aside", json!({"name": "/video-a.bin"})).unwrap();
     call(&mut files, "forget_set_aside", json!({"name": "/video-a.bin"})).unwrap();
@@ -101,10 +101,10 @@ fn a_chunk_another_file_uses_stays_and_only_the_files_own_chunks_go() {
     files.release_gone_bytes(None).unwrap();
     assert!(!keys(&held).contains(&format!("{PREFIX}{own_id}")));
     assert!(keys(&held).contains(&format!("{PREFIX}{common_id}")), "the shared chunk stays");
-    assert!(files.store.get(ACCOUNT, CHUNKS, &own_id).unwrap().record.is_none());
+    assert!(files.store.get(CHUNKS, &own_id).unwrap().record.is_none());
     let b = files.find_file("/video-b.bin").unwrap();
     let length = b["byte_length"].as_u64().unwrap();
-    let file = files.store.get(ACCOUNT, FILES, b["identity"].as_str().unwrap()).unwrap().record.unwrap();
+    let file = files.store.get(FILES, b["identity"].as_str().unwrap()).unwrap().record.unwrap();
     assert_eq!(files.read_range(&file, 0, length).unwrap().len() as u64, length, "the other file still reads whole");
 }
 
@@ -159,11 +159,11 @@ fn a_removal_that_never_reported_back_is_claimed_again_after_its_time_and_a_refu
 
 #[test]
 fn a_store_being_emptied_into_another_holds_its_files() {
-    use live_namespace::{account_files::ORIGINS, records::Mutation};
+    use live_namespace::{account_files::ORIGINS, store::Mutation};
     let (mut files, held, _) = account_files();
     let one = write(&mut files, "/a.txt", b"moving soon");
-    let version = files.store.get(ACCOUNT, ORIGINS, ORIGIN).unwrap().record.unwrap().version;
-    files.store.mutate(ACCOUNT, ORIGINS, Mutation { id: ORIGIN.into(), expected_version: version, request_key: "drain".into(), deleted: false, value: origin(false) }).unwrap();
+    let version = files.store.get(ORIGINS, ORIGIN).unwrap().record.unwrap().version;
+    files.store.mutate(ORIGINS, Mutation { id: ORIGIN.into(), expected_version: version, request_key: "drain".into(), deleted: false, value: origin(false) }).unwrap();
     call(&mut files, "set_aside", json!({"name": "/a.txt"})).unwrap();
     call(&mut files, "forget_set_aside", json!({"name": "/a.txt"})).unwrap();
     assert_eq!(call(&mut files, "queue_release", json!({})).unwrap()["kept"], 1);

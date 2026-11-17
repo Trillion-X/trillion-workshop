@@ -46,12 +46,8 @@
 // The extensive documentation in this codebase is a critical design feature.
 // You are forbidden from simplifying or removing it. Maintain and extend this detail.
 
-use super::{FILES, FILE_KIND, USAGE, USAGE_KIND};
-use crate::{
-    records::{Error, Mutation, Records},
-    sqlite_work::WorkMeter,
-    storage::{record_store::RecordStore, record_store_resources, Storage},
-};
+use super::{FILE_KIND, USAGE, USAGE_KIND};
+use crate::store::{Error, Mutation, Store};
 use serde_json::{json, Value};
 use std::{
     collections::HashMap,
@@ -278,13 +274,13 @@ impl Counts {
     }
 }
 
-/// Where one account's rows are kept: its state folder and its id.
+/// Where one account's counts are kept: the folder of this run's own working files, and the account's id.
 type Place = (PathBuf, String);
 
-/// The tallies of every account that counted since the last flush.
+/// The tallies of every account that counted since the last flush, each with the rows its day rows are written into.
 #[derive(Default)]
 pub struct Meters {
-    tallies: RwLock<HashMap<Place, Arc<Tally>>>,
+    tallies: RwLock<HashMap<Place, (Arc<Tally>, Store)>>,
 }
 
 impl Meters {
@@ -294,22 +290,23 @@ impl Meters {
         GLOBAL.get_or_init(Arc::default).clone()
     }
 
-    /// The tally of `account` in `state_root`, made on its first count in a period. Resolve it once per call.
-    pub fn tally(&self, state_root: &Path, account: &str) -> Arc<Tally> {
+    /// The tally of `account` whose pending file is in `state_root` and whose day rows go into `store`, made on its first
+    /// count in a period. Resolve it once per call.
+    pub fn tally(&self, state_root: &Path, store: &Store, account: &str) -> Arc<Tally> {
         let place = (state_root.to_path_buf(), account.to_owned());
-        if let Some(tally) = self.tallies.read().unwrap_or_else(|poisoned| poisoned.into_inner()).get(&place) {
+        if let Some((tally, _)) = self.tallies.read().unwrap_or_else(|poisoned| poisoned.into_inner()).get(&place) {
             return tally.clone();
         }
         let mut tallies = self.tallies.write().unwrap_or_else(|poisoned| poisoned.into_inner());
-        tallies.entry(place).or_insert_with(|| Arc::new(Tally::at(pending_file(state_root, account)))).clone()
+        tallies.entry(place).or_insert_with(|| (Arc::new(Tally::at(pending_file(state_root, account))), store.clone())).0.clone()
     }
 
-    /// Every account with a nonzero count, and its tally. An account whose tally is empty and held by no live call
+    /// Every account with a nonzero count, its tally and its rows. An account whose tally is empty and held by no live call
     /// leaves the registry.
-    fn counted(&self) -> Vec<(Place, Arc<Tally>)> {
+    fn counted(&self) -> Vec<(Place, Arc<Tally>, Store)> {
         let mut tallies = self.tallies.write().unwrap_or_else(|poisoned| poisoned.into_inner());
-        tallies.retain(|_, tally| Arc::strong_count(tally) > 1 || !tally.is_idle());
-        tallies.iter().filter(|(_, tally)| !tally.is_idle()).map(|(place, tally)| (place.clone(), tally.clone())).collect()
+        tallies.retain(|_, (tally, _)| Arc::strong_count(tally) > 1 || !tally.is_idle());
+        tallies.iter().filter(|(_, (tally, _))| !tally.is_idle()).map(|(place, (tally, store))| (place.clone(), tally.clone(), store.clone())).collect()
     }
 }
 
@@ -327,8 +324,8 @@ const MOST_ATTEMPTS: usize = 4;
 /// is missing or refuses keeps its counts (and any write in flight) for the next flush.
 pub fn flush(meters: &Meters, day: &str, at: &str) -> Flushed {
     let mut flushed = Flushed::default();
-    for ((state_root, account), tally) in meters.counted() {
-        match flush_tally(&tally, &state_root, &account, day, at) {
+    for (_, tally, store) in meters.counted() {
+        match flush_tally(&tally, &store, day, at) {
             Ok(true) => flushed.written += 1,
             Ok(false) => {}
             Err(_) => flushed.carried += 1,
@@ -343,13 +340,13 @@ pub fn flush(meters: &Meters, day: &str, at: &str) -> Flushed {
 /// carries for this pending file (`carried`), and only then does `applied` become `target`. A death before the row
 /// write leaves the journal, which the next flush writes; a death after it leaves a journal the row already carries,
 /// which the next flush only closes. A store that is missing or refuses leaves the journal for the next flush.
-fn flush_tally(tally: &Tally, state_root: &Path, account: &str, day: &str, at: &str) -> Result<bool, Error> {
+fn flush_tally(tally: &Tally, store: &Store, day: &str, at: &str) -> Result<bool, Error> {
     let _one = tally.flushing.lock().unwrap_or_else(|poisoned| poisoned.into_inner());
     let _file = tally.words.lock();
     let words = &tally.words;
     let mut wrote = false;
     if words.at(GEN).load(Ordering::Acquire) != 0 {
-        close_journal(tally, state_root, account, at)?;
+        close_journal(tally, store, at)?;
         wrote = true;
     }
     let (live, applied) = (tally.load(LIVE), tally.load(APPLIED));
@@ -367,18 +364,17 @@ fn flush_tally(tally: &Tally, state_root: &Path, account: &str, day: &str, at: &
     words.at(NEXT_GEN).store(generation, Ordering::Release);
     words.at(GEN).store(generation, Ordering::Release);
     words.sync();
-    close_journal(tally, state_root, account, at)?;
+    close_journal(tally, store, at)?;
     Ok(true)
 }
 
 /// Write the journalled write into its day row unless the row already carries its generation, then close it.
-fn close_journal(tally: &Tally, state_root: &Path, account: &str, at: &str) -> Result<(), Error> {
+fn close_journal(tally: &Tally, store: &Store, at: &str) -> Result<(), Error> {
     let words = &tally.words;
     let generation = words.at(GEN).load(Ordering::Acquire);
     let day = day_text(words.at(DAY).load(Ordering::Acquire)).ok_or(Error::Invalid("a pending usage write without its day", crate::cause!()))?;
     let delta = Counts::of(tally.load(DELTA));
-    let mut store = open_store(state_root)?;
-    add_to_day_once(&mut store, account, &day, at, &delta, Some((&format!("{:016x}", words.id()), generation)))?;
+    add_to_day_once(store, &day, at, &delta, Some((&format!("{:016x}", words.id()), generation)))?;
     for field in 0..FIELDS {
         words.at(APPLIED + field).store(words.at(TARGET + field).load(Ordering::Acquire), Ordering::Release);
     }
@@ -399,51 +395,39 @@ fn is_day(day: &str) -> bool {
     day.len() == 10 && day.bytes().enumerate().all(|(at, byte)| if at == 4 || at == 7 { byte == b'-' } else { byte.is_ascii_digit() })
 }
 
-/// The pending file of `account` in `state_root`: beside its files store, named for the account (a hash, never its
-/// id). None when the store has no placement in a state folder or does not exist yet.
+/// The pending file of `account` in `state_root`, named for the account (a hash, never its id). None when the folder is not
+/// there: an account's counts are then kept in memory only.
 fn pending_file(state_root: &Path, account: &str) -> Option<PathBuf> {
-    let store = record_store_resources::placement(FILES).and_then(|placement| placement.in_state(state_root))?;
-    // Only beside a store that exists: an account route creates nothing in a folder with no files store.
-    if !std::fs::symlink_metadata(&store).is_ok_and(|metadata| metadata.is_file()) {
+    if !std::fs::symlink_metadata(state_root).is_ok_and(|metadata| metadata.is_dir()) {
         return None;
     }
-    let name = store.file_name()?.to_str()?;
     let hash = content_crypto::advanced::blake3::hash(account.as_bytes()).to_hex();
-    Some(store.with_file_name(format!("{name}.usage-{}", &hash.as_str()[..16])))
-}
-
-/// The account's files store, only when it exists (never created here, as the account routes never create one).
-fn open_store(state_root: &Path) -> Result<RecordStore<impl Storage + Send>, Error> {
-    let path = record_store_resources::placement(FILES).and_then(|placement| placement.in_state(state_root)).ok_or(crate::cause!(Error::Unavailable))?;
-    if !std::fs::symlink_metadata(&path).is_ok_and(|metadata| metadata.is_file()) {
-        return Err(crate::cause!(Error::Unavailable));
-    }
-    record_store_resources::open(&path, WorkMeter::new())
+    Some(state_root.join(format!("usage-{}", &hash.as_str()[..16])))
 }
 
 /// The bytes of every file the account keeps, each stored file once: the declared `namespace-file/origin` totals.
-pub fn stored_level<S: Storage>(store: &RecordStore<S>, account: &str) -> Result<u64, Error> {
-    let totals = store.totals(account)?;
+pub fn stored_level(store: &Store) -> Result<u64, Error> {
+    let totals = store.totals()?;
     let total = format!("{FILE_KIND}/origin");
     Ok(totals.iter().filter(|row| row.total == total).map(|row| row.sum.max(0) as u64).sum())
 }
 
 /// Add `counts` to the account's row for `day`, by compare-and-set on the version it read, and set the day's stored
 /// level to what the store holds now.
-pub fn add_to_day<S: Storage + Send>(store: &mut RecordStore<S>, account: &str, day: &str, at: &str, counts: &Counts) -> Result<Value, Error> {
-    add_to_day_once(store, account, day, at, counts, None)
+pub fn add_to_day(store: &Store, day: &str, at: &str, counts: &Counts) -> Result<Value, Error> {
+    add_to_day_once(store, day, at, counts, None)
 }
 
 /// `add_to_day`, and when `pending` names a pending file and a generation: written only when the row does not yet
 /// carry that generation of that file (`carried`), so a write a death interrupted is never added twice.
-fn add_to_day_once<S: Storage + Send>(store: &mut RecordStore<S>, account: &str, day: &str, at: &str, counts: &Counts,
+fn add_to_day_once(store: &Store, day: &str, at: &str, counts: &Counts,
     pending: Option<(&str, u64)>) -> Result<Value, Error> {
     if !is_day(day) {
         return Err(Error::Invalid("a usage day is YYYY-MM-DD", crate::cause!()));
     }
     let mut last = crate::cause!(Error::Unavailable);
     for _ in 0..MOST_ATTEMPTS {
-        let (version, held) = store.held_record_with_version(account, USAGE, day)?;
+        let (version, held) = store.held_record_with_version(USAGE, day)?;
         let held = held.map(|record| record.value);
         let mut carried = held.as_ref().and_then(|value| value.get("carried")).cloned().unwrap_or_else(|| json!({}));
         if let Some((file, generation)) = pending {
@@ -456,7 +440,7 @@ fn add_to_day_once<S: Storage + Send>(store: &mut RecordStore<S>, account: &str,
         let value = json!({
             "kind": USAGE_KIND,
             "day": day,
-            "stored_bytes": stored_level(store, account)?,
+            "stored_bytes": stored_level(store)?,
             "stored_bytes_written": old("stored_bytes_written").saturating_add(counts.stored_bytes_written),
             "source_bytes_read": old("source_bytes_read").saturating_add(counts.source_bytes_read),
             "work_ms": old("work_ms").saturating_add(counts.work_ms),
@@ -472,7 +456,7 @@ fn add_to_day_once<S: Storage + Send>(store: &mut RecordStore<S>, account: &str,
             id: day.to_owned(), expected_version: version, request_key: format!("usage:{day}:{version}"), deleted: false,
             value: value.clone(),
         };
-        match store.mutate(account, USAGE, mutation) {
+        match store.mutate(USAGE, mutation) {
             Ok(_) => return Ok(value),
             Err(Error::Conflict(_)) => last = crate::cause!(Error::Conflict),
             Err(error) => return Err(error),
@@ -487,15 +471,15 @@ pub const MOST_DAYS: usize = 400;
 /// `usage_days {after?, limit?}`: the account's day rows in day order, after `after`, at most `limit` (1 up to
 /// `MOST_DAYS`, default `MOST_DAYS`), with where the next page starts. Each row's `stored_bytes` is refreshed to the
 /// store's level now only for today's row by the flush, never here: this read changes nothing.
-pub fn days<S: Storage + Send>(store: &RecordStore<S>, account: &str, after: Option<&str>, limit: Option<usize>) -> Result<Value, Error> {
+pub fn days(store: &Store, after: Option<&str>, limit: Option<usize>) -> Result<Value, Error> {
     let limit = limit.unwrap_or(MOST_DAYS);
     if !(1..=MOST_DAYS).contains(&limit) {
         return Err(Error::Invalid("limit must be 1 up to 400", crate::cause!()));
     }
-    let page = store.list_page(account, USAGE, after.unwrap_or(""), limit)?;
+    let page = store.list_page(USAGE, after.unwrap_or(""), limit)?;
     let next = (page.items.len() == limit).then(|| page.items.last().map(|record| record.id.clone())).flatten();
     let days: Vec<Value> = page.items.into_iter().map(|record| record.value).collect();
-    Ok(json!({ "days": days, "next_after": next, "stored_bytes_now": stored_level(store, account)? }))
+    Ok(json!({ "days": days, "next_after": next, "stored_bytes_now": stored_level(store)? }))
 }
 
 /// Start the process's one usage flush: every `period`, every counted account's counts go into its own day row. It
@@ -519,37 +503,90 @@ pub fn flush_rows_every(period: Duration, sink: fn(&str)) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::storage::{memory::Memory, record_store::settings};
+    use crate::store::{Change, Page, Read, Record, Rows, SqlStore, Total};
+    use std::sync::atomic::AtomicBool;
 
-    fn store() -> RecordStore<Memory> {
-        RecordStore::new(Memory::open("record_store").unwrap(), Box::new(crate::storage::record_store::RealClock), settings::Limits::fixed(1 << 20, 10 << 30)).unwrap()
+    fn store() -> Store {
+        Arc::new(SqlStore::memory().unwrap())
+    }
+
+    /// Rows that refuse every call while `down` is set.
+    struct Flaky {
+        rows: Store,
+        down: Arc<AtomicBool>,
+    }
+    impl Flaky {
+        fn gate(&self) -> Result<(), Error> {
+            if self.down.load(Ordering::SeqCst) {
+                return Err(crate::cause!(Error::Unavailable));
+            }
+            Ok(())
+        }
+    }
+    impl Rows for Flaky {
+        fn get(&self, scope: &str, id: &str) -> Result<Read, Error> {
+            self.gate()?;
+            self.rows.get(scope, id)
+        }
+        fn get_many(&self, scope: &str, ids: &[&str]) -> Result<Vec<Option<Record>>, Error> {
+            self.gate()?;
+            self.rows.get_many(scope, ids)
+        }
+        fn held_record_with_version(&self, scope: &str, id: &str) -> Result<(i64, Option<Record>), Error> {
+            self.gate()?;
+            self.rows.held_record_with_version(scope, id)
+        }
+        fn list_page(&self, scope: &str, after: &str, limit: usize) -> Result<Page<Record, String>, Error> {
+            self.gate()?;
+            self.rows.list_page(scope, after, limit)
+        }
+        fn ids(&self, scope: &str, after: Option<&str>, limit: usize) -> Result<(Vec<String>, Option<String>), Error> {
+            self.gate()?;
+            self.rows.ids(scope, after, limit)
+        }
+        fn mutate(&self, scope: &str, input: Mutation) -> Result<Change, Error> {
+            self.gate()?;
+            self.rows.mutate(scope, input)
+        }
+        fn stamp(&self, scope: &str) -> Result<i64, Error> {
+            self.gate()?;
+            self.rows.stamp(scope)
+        }
+        fn totals(&self) -> Result<Vec<Total>, Error> {
+            self.gate()?;
+            self.rows.totals()
+        }
+        fn search(&self, words: &[String], hits: usize) -> Result<Vec<Record>, Error> {
+            self.gate()?;
+            self.rows.search(words, hits)
+        }
+        fn place(&self) -> String {
+            self.rows.place()
+        }
     }
 
     #[test]
     fn a_day_row_adds_each_flush_and_never_counts_a_retry_twice() {
-        let mut store = store();
+        let store = store();
         let one = Counts { stored_bytes_written: 5, source_bytes_read: 7, work_ms: 11, tool_runs: 1, ..Counts::default() };
-        add_to_day(&mut store, "account", "2026-11-03", "t1", &one).unwrap();
-        let row = add_to_day(&mut store, "account", "2026-11-03", "t2", &one).unwrap();
+        add_to_day(&store, "2026-11-03", "t1", &one).unwrap();
+        let row = add_to_day(&store, "2026-11-03", "t2", &one).unwrap();
         assert_eq!((row["stored_bytes_written"].as_u64(), row["source_bytes_read"].as_u64(), row["work_ms"].as_u64(), row["flushes"].as_u64()),
             (Some(10), Some(14), Some(22), Some(2)));
         assert_eq!(row["kind"], USAGE_KIND);
-        let page = days(&store, "account", None, None).unwrap();
+        let page = days(&store, None, None).unwrap();
         assert_eq!(page["days"].as_array().unwrap().len(), 1);
         assert_eq!(page["days"][0]["work_ms"], 22);
-        assert!(add_to_day(&mut store, "account", "2026-11-3", "t", &one).is_err(), "a malformed day is refused");
-        assert!(days(&store, "account", None, Some(0)).is_err());
+        assert!(add_to_day(&store, "2026-11-3", "t", &one).is_err(), "a malformed day is refused");
+        assert!(days(&store, None, Some(0)).is_err());
     }
 
     #[test]
-    fn a_flush_writes_each_counted_account_into_its_own_store_on_disk_and_the_next_flush_adds_to_it() {
-        let state = tempfile::tempdir().unwrap();
-        // record store opens a canonical path (the temporary folder is a link on macOS).
-        let root = std::fs::canonicalize(state.path()).unwrap();
-        let path = record_store_resources::placement(FILES).and_then(|placement| placement.in_state(&root)).unwrap();
-        drop(record_store_resources::open(&path, WorkMeter::new()).unwrap());
+    fn a_flush_writes_each_counted_account_into_its_own_rows_and_the_next_flush_adds_to_it() {
+        let (_state, root) = kept_folder();
+        let store = store();
         let meters = Meters::default();
-        let tally = meters.tally(&root, "account-1");
+        let tally = meters.tally(&root, &store, "account-1");
         tally.stored(100);
         tally.read(40);
         tally.worked(9);
@@ -558,52 +595,52 @@ mod tests {
         assert_eq!(flush(&meters, "2026-11-03", "t2"), Flushed::default(), "nothing counted, nothing written");
         tally.read(2);
         assert_eq!(flush(&meters, "2026-11-03", "t3"), Flushed { written: 1, carried: 0 });
-        let store = open_store(&root).unwrap();
-        let page = days(&store, "account-1", None, None).unwrap();
+        let page = days(&store, None, None).unwrap();
         assert_eq!(page["days"][0]["source_bytes_read"], 42);
         assert_eq!(page["days"][0]["stored_bytes_written"], 100);
         assert_eq!((page["days"][0]["work_ms"].as_u64(), page["days"][0]["tool_runs"].as_u64()), (Some(9), Some(1)));
         assert_eq!(page["days"][0]["flushes"], 2);
-        assert!(days(&store, "account-2", None, None).unwrap()["days"].as_array().unwrap().is_empty(), "another account sees none");
     }
 
     #[test]
-    fn a_flush_with_no_store_carries_every_count_to_the_next_flush() {
+    fn a_flush_into_rows_that_refuse_carries_every_count_to_the_next_flush() {
+        let down = Arc::new(AtomicBool::new(true));
+        let store: Store = Arc::new(Flaky { rows: store(), down: down.clone() });
         let meters = Meters::default();
-        let folder = std::env::temp_dir().join(format!("usage-no-store-{}", std::process::id()));
-        let tally = meters.tally(&folder, "account");
+        let folder = std::env::temp_dir().join(format!("usage-no-folder-{}", std::process::id()));
+        let tally = meters.tally(&folder, &store, "account");
         tally.stored(3);
         tally.read(4);
         tally.worked(5);
         drop(tally);
         assert_eq!(flush(&meters, "2026-11-03", "t"), Flushed { written: 0, carried: 1 });
-        assert_eq!(meters.tally(&folder, "account").peek(), Counts { stored_bytes_written: 3, source_bytes_read: 4, work_ms: 5, tool_runs: 1, ..Counts::default() });
+        assert_eq!(meters.tally(&folder, &store, "account").peek(), Counts { stored_bytes_written: 3, source_bytes_read: 4, work_ms: 5, tool_runs: 1, ..Counts::default() });
+        down.store(false, Ordering::SeqCst);
+        assert_eq!(flush(&meters, "2026-11-03", "t"), Flushed { written: 1, carried: 0 });
         // An account that counted nothing writes nothing and leaves the registry.
         let idle = Meters::default();
-        drop(idle.tally(&folder, "idle"));
+        drop(idle.tally(&folder, &store, "idle"));
         assert_eq!(flush(&idle, "2026-11-03", "t"), Flushed::default());
         assert!(idle.tallies.read().unwrap().is_empty());
     }
 
-    /// An account's files store on disk in a new state folder, and that folder.
-    fn kept_store() -> (tempfile::TempDir, PathBuf) {
+    /// A new working folder, and its canonical path.
+    fn kept_folder() -> (tempfile::TempDir, PathBuf) {
         let state = tempfile::tempdir().unwrap();
         let root = std::fs::canonicalize(state.path()).unwrap();
-        let path = record_store_resources::placement(FILES).and_then(|placement| placement.in_state(&root)).unwrap();
-        drop(record_store_resources::open(&path, WorkMeter::new()).unwrap());
         (state, root)
     }
 
-    fn day_row(root: &Path, account: &str) -> Value {
-        days(&open_store(root).unwrap(), account, None, None).unwrap()["days"][0].clone()
+    fn day_row(store: &Store) -> Value {
+        days(store, None, None).unwrap()["days"][0].clone()
     }
 
-    #[cfg(owner_files = "posix")]
     #[test]
     fn counts_outlive_the_process_that_counted_them() {
-        let (_state, root) = kept_store();
+        let (_state, root) = kept_folder();
+        let store = store();
         let dead = Meters::default();
-        let tally = dead.tally(&root, "account-1");
+        let tally = dead.tally(&root, &store, "account-1");
         assert!(tally.is_kept(), "the tally lives in the account's pending file");
         tally.stored(10);
         tally.read(20);
@@ -613,39 +650,38 @@ mod tests {
         drop(tally);
         drop(dead);
         let next = Meters::default();
-        let tally = next.tally(&root, "account-1");
+        let tally = next.tally(&root, &store, "account-1");
         assert_eq!(tally.peek(), Counts { stored_bytes_written: 10, source_bytes_read: 20, list_requests: 1, stat_requests: 1,
             listed_bytes: 300, ..Counts::default() });
         assert_eq!(flush(&next, "2026-11-04", "t"), Flushed { written: 1, carried: 0 });
-        let row = day_row(&root, "account-1");
+        let row = day_row(&store);
         assert_eq!((row["stored_bytes_written"].as_u64(), row["source_bytes_read"].as_u64(), row["list_requests"].as_u64(),
             row["stat_requests"].as_u64(), row["listed_bytes"].as_u64()), (Some(10), Some(20), Some(1), Some(1), Some(300)));
         assert_eq!(tally.peek(), Counts::default());
         // Another account in the same folder has its own file.
-        assert_eq!(next.tally(&root, "account-2").peek(), Counts::default());
+        assert_eq!(next.tally(&root, &store, "account-2").peek(), Counts::default());
     }
 
-    #[cfg(owner_files = "posix")]
     #[test]
     fn a_write_a_death_interrupted_is_written_once_before_or_after_its_row() {
-        let (_state, root) = kept_store();
+        let (_state, root) = kept_folder();
+        let down = Arc::new(AtomicBool::new(false));
+        let store: Store = Arc::new(Flaky { rows: store(), down: down.clone() });
         let meters = Meters::default();
-        let tally = meters.tally(&root, "account-1");
+        let tally = meters.tally(&root, &store, "account-1");
         tally.read(7);
-        // Death after the journal, before the row: the store is missing, so the journal stays in the file.
-        let store = record_store_resources::placement(FILES).and_then(|placement| placement.in_state(&root)).unwrap();
-        let aside = store.with_extension("aside");
-        std::fs::rename(&store, &aside).unwrap();
+        // Death after the journal, before the row: the rows refuse, so the journal stays in the file.
+        down.store(true, Ordering::SeqCst);
         assert_eq!(flush(&meters, "2026-11-04", "t1"), Flushed { written: 0, carried: 1 });
         assert_ne!(tally.words.at(GEN).load(Ordering::Acquire), 0, "the write is journalled");
         tally.read(5);
-        std::fs::rename(&aside, &store).unwrap();
+        down.store(false, Ordering::SeqCst);
         drop(tally);
         drop(meters);
         let meters = Meters::default();
-        let tally = meters.tally(&root, "account-1");
+        let tally = meters.tally(&root, &store, "account-1");
         assert_eq!(flush(&meters, "2026-11-04", "t2"), Flushed { written: 1, carried: 0 });
-        assert_eq!(day_row(&root, "account-1")["source_bytes_read"], 12, "the journal and the counts after it, once each");
+        assert_eq!(day_row(&store)["source_bytes_read"], 12, "the journal and the counts after it, once each");
 
         // Death after the row, before the journal closed: the row already carries its generation.
         tally.read(100);
@@ -661,12 +697,11 @@ mod tests {
             tally.words.at(NEXT_GEN).store(generation, Ordering::Release);
             tally.words.at(GEN).store(generation, Ordering::Release);
             let pending = format!("{:016x}", tally.words.id());
-            add_to_day_once(&mut open_store(&root).unwrap(), "account-1", "2026-11-04", "t3", &Counts::of(tally.load(DELTA)),
-                Some((&pending, generation))).unwrap();
+            add_to_day_once(&store, "2026-11-04", "t3", &Counts::of(tally.load(DELTA)), Some((&pending, generation))).unwrap();
         }
-        assert_eq!(day_row(&root, "account-1")["source_bytes_read"], 112);
+        assert_eq!(day_row(&store)["source_bytes_read"], 112);
         assert_eq!(flush(&meters, "2026-11-04", "t4"), Flushed { written: 1, carried: 0 });
-        assert_eq!(day_row(&root, "account-1")["source_bytes_read"], 112, "never added twice");
+        assert_eq!(day_row(&store)["source_bytes_read"], 112, "never added twice");
         assert_eq!(tally.peek(), Counts::default());
         assert_eq!(flush(&meters, "2026-11-04", "t5"), Flushed::default());
     }
@@ -674,7 +709,7 @@ mod tests {
     #[test]
     fn a_tally_with_no_folder_counts_in_memory() {
         let meters = Meters::default();
-        let tally = meters.tally(Path::new("/no-such-state-folder-for-usage"), "account");
+        let tally = meters.tally(Path::new("/no-such-state-folder-for-usage"), &store(), "account");
         assert!(!tally.is_kept());
         tally.read(1);
         assert_eq!(tally.peek().source_bytes_read, 1);

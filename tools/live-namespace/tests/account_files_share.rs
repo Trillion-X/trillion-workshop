@@ -30,11 +30,7 @@ use live_namespace::{
         source_reads::{Admission, Allowance, Chunk, Supply, Unmetered},
         CallControl, AccountFiles, AccountFilesError, ORIGINS, SHARES,
     },
-    records::{Mutation, Records},
-    storage::{
-        memory::Memory,
-        record_store::{settings, RecordStore, RealClock},
-    },
+    store::{Mutation, SqlStore, Store},
 };
 use zeroize::Zeroizing;
 
@@ -91,9 +87,9 @@ fn puts(kept: &Kept) -> usize {
 
 /// The account's files as trillion-local opens them (`AccountFiles::open`: the origin records in the store, the port built
 /// inside the account files with no byte check of its own), over one stand-in store.
-fn opened(endpoint: &str) -> (AccountFiles<Memory>, Vec<(String, Origin)>) {
-    let mut store = record_store();
-    store.mutate(ACCOUNT, ORIGINS, Mutation { id: "stand-in".into(), expected_version: 0, request_key: "origin".into(),
+fn opened(endpoint: &str) -> (AccountFiles, Vec<(String, Origin)>) {
+    let store = record_store();
+    store.mutate(ORIGINS, Mutation { id: "stand-in".into(), expected_version: 0, request_key: "origin".into(),
         deleted: false, value: serde_json::to_value(origin(endpoint)).unwrap() }).unwrap();
     let account_files = AccountFiles::open(store, ACCOUNT, Box::new(Vault(HashMap::new()))).unwrap();
     let origins = account_files.origins().unwrap();
@@ -147,7 +143,7 @@ fn an_exhausted_allowance_refuses_before_dispatch_and_a_funded_read_takes_exactl
     let mut account_files = account_files.with_control(control(Unmetered::new("account_files_share keeps the file a metered read takes").into()));
     let identity = account_files.write_file("/a.txt", &bytes, "text/plain", &origins).unwrap()["identity"].as_str().unwrap().to_owned();
     let account_files = account_files.with_control(control(allowance.clone().into()));
-    let file = account_files.store.get(ACCOUNT, live_namespace::account_files::FILES, &identity).unwrap().record.unwrap();
+    let file = account_files.store.get(live_namespace::account_files::FILES, &identity).unwrap().record.unwrap();
 
     assert_eq!(account_files.read_range(&file, 2, 4).unwrap(), &bytes[2..6]);
     assert_eq!(allowance.resident(), 96, "exactly the requested bytes were taken");
@@ -266,7 +262,7 @@ fn the_admitted_handle_counts_the_accounts_stored_and_source_bytes_into_its_own_
     // The account routes' own port (`AccountFiles::open`): no unmetered fallback, so the control's byte check is the only one.
     let (account_files, origins) = opened(&endpoint);
     let meters = Meters::default();
-    let tally = meters.tally(std::path::Path::new("/synthetic-state"), ACCOUNT);
+    let tally = meters.tally(std::path::Path::new("/synthetic-state"), &account_files.store, ACCOUNT);
     let mut account_files = account_files.with_control(control(Unmetered::new("account_files_share usage count").into()).counting(tally.clone()));
     account_files.write_file("/a.txt", b"0123456789", "text/plain", &origins).unwrap();
     let read = account_files.call("read_file", &json!({"name_or_identity": "/a.txt", "offset": 2, "length": 4})).unwrap().unwrap();
@@ -275,7 +271,7 @@ fn the_admitted_handle_counts_the_accounts_stored_and_source_bytes_into_its_own_
     assert_eq!(tally.peek(), Counts { stored_bytes_written: 10, source_bytes_read: 4, work_ms: 0, tool_runs: 0, ..Counts::default() });
     tally.worked(25);
 
-    let day = usage::add_to_day(&mut account_files.store, ACCOUNT, "2026-11-03", "2026-11-03T21:00:00.000Z", &tally.peek()).unwrap();
+    let day = usage::add_to_day(&account_files.store, "2026-11-03", "2026-11-03T21:00:00.000Z", &tally.peek()).unwrap();
     assert_eq!((day["stored_bytes"].as_u64(), day["stored_bytes_written"].as_u64(), day["source_bytes_read"].as_u64(), day["work_ms"].as_u64()),
         (Some(10), Some(10), Some(4), Some(25)));
     let page = account_files.call("usage_days", &json!({})).unwrap().unwrap();
@@ -285,7 +281,7 @@ fn the_admitted_handle_counts_the_accounts_stored_and_source_bytes_into_its_own_
     assert!(page["days"][0].get("price").is_none() && page["days"][0].get("margin").is_none(), "no price in the engine's rows");
 
     // No byte check: nothing is sent, so nothing is counted.
-    let idle = meters.tally(std::path::Path::new("/synthetic-state"), "idle-account");
+    let idle = meters.tally(std::path::Path::new("/synthetic-state"), &account_files.store, "idle-account");
     let mut refused = account_files.with_control(control(Admission::none()).counting(idle.clone()));
     assert!(refused.call("read_file", &json!({"name_or_identity": "/a.txt"})).unwrap().is_err());
     assert_eq!(idle.peek(), Counts::default());
@@ -307,7 +303,7 @@ fn listing_and_stat_requests_are_admitted_and_metered() {
     let lessor = lessor(4);
     let funded = allowance(&lessor, 16 << 20, 0, &registry);
     let meters = Meters::default();
-    let tally = meters.tally(std::path::Path::new("/synthetic-state"), ACCOUNT);
+    let tally = meters.tally(std::path::Path::new("/synthetic-state"), &account_files.store, ACCOUNT);
     let metered = Admission::from(funded.clone()).counting(tally.clone());
     let mut objects = S3Objects::unmetered(vec![("stand-in".into(), origin(&endpoint))], Box::new(Vault(HashMap::new())),
         "account_files_share lookups; its control names the admission").unwrap();
@@ -442,7 +438,7 @@ fn a_share_with_no_delivery_owner_is_refused_rather_than_minting_a_provider_url(
     let answer = account_files.call("share_file", &json!({ "name_or_identity": "/a.txt", "seconds": 600 })).unwrap();
     assert!(matches!(&answer, Err(AccountFilesError::Invalid(why, _)) if why.contains("delivery owner")), "{answer:?}");
     assert_eq!(kept.requests.lock().unwrap().len(), before, "nothing reached the store");
-    assert!(account_files.store.list_page(ACCOUNT, SHARES, "", 100).unwrap().items.is_empty(), "nothing audited");
+    assert!(account_files.store.list_page(SHARES, "", 100).unwrap().items.is_empty(), "nothing audited");
 }
 
 #[test]
@@ -451,7 +447,7 @@ fn a_mediated_chunked_share_audits_only_its_grant() {
     let (endpoint, _) = stand_in();
     let (mut account_files, _) = account_files(&endpoint);
     let identity = format!("1f:{}", "b".repeat(64));
-    account_files.store.mutate(ACCOUNT, FILES, Mutation { id: identity.clone(), expected_version: 0,
+    account_files.store.mutate(FILES, Mutation { id: identity.clone(), expected_version: 0,
         request_key: "synthetic-chunk-share".into(), deleted: false,
         value: json!({"kind":FILE_KIND,"byte_length":9,"media_type":"text/plain","spans":2,"names":[]}) }).unwrap();
     let minted = Arc::new(Mutex::new(Vec::new()));
@@ -462,7 +458,7 @@ fn a_mediated_chunked_share_audits_only_its_grant() {
     assert_eq!(calls[0].0.identity, identity);
     assert_eq!(calls[0].0.byte_length, 9);
     assert_eq!(calls[0].1, 60);
-    let audit = account_files.store.list_page(ACCOUNT, SHARES, "", 100).unwrap();
+    let audit = account_files.store.list_page(SHARES, "", 100).unwrap();
     assert_eq!(audit.items.len(), 1);
     assert_eq!(audit.items[0].value["grant_id"], "sharing:synthetic");
     assert_eq!(audit.items[0].value["delivery"], "grant-bound");
@@ -506,7 +502,7 @@ fn mediated_share_withdrawal_during_mint_never_returns_or_audits_url() {
         .while_current(Arc::new(move || witness.load(Ordering::Acquire)))
         .with_share_delivery(Arc::new(GrantDelivery { minted: Arc::default(), current: Some(current) }));
     assert!(account_files.share_file("/a.txt", 60).is_err());
-    assert!(account_files.store.list_page(ACCOUNT, SHARES, "", 100).unwrap().items.is_empty());
+    assert!(account_files.store.list_page(SHARES, "", 100).unwrap().items.is_empty());
 }
 
 #[test]
@@ -703,13 +699,12 @@ fn origin(endpoint: &str) -> Origin {
     }
 }
 
-fn record_store() -> RecordStore<Memory> {
-    let limits = settings::Limits::fixed(1 << 20, 10 << 30);
-    RecordStore::new(Memory::open("record_store").unwrap(), Box::new(RealClock), limits).unwrap()
+fn record_store() -> Store {
+    Arc::new(SqlStore::memory().unwrap())
 }
 
 /// The account's files over one stand-in store through the named unmetered port, and that store's origins.
-fn account_files(endpoint: &str) -> (AccountFiles<Memory>, Vec<(String, Origin)>) {
+fn account_files(endpoint: &str) -> (AccountFiles, Vec<(String, Origin)>) {
     let origins = vec![("stand-in".to_owned(), origin(endpoint))];
     let objects = S3Objects::unmetered(origins.clone(), Box::new(Vault(HashMap::new())), "account_files_share stand-in account files").unwrap();
     (AccountFiles::with_objects(record_store(), ACCOUNT, Box::new(objects)), origins)

@@ -294,7 +294,6 @@ impl Caused for std::io::Error {
         stored_error_cause(self.get_ref()?)
     }
 }
-#[cfg(all(not(host = "module"), not(computer_build)))]
 impl Caused for rusqlite::Error {
     /// A SQLite failure's code and extended code are the cause's condition (e.g. `CannotOpen (extended 14)`), so a carried
     /// failure keeps the code the caller mapped away. Its message is left out: it names local file paths.
@@ -501,7 +500,7 @@ mod tests {
         assert_eq!(cause, decoded);
         let hash = |value: &Cause| { let mut state = std::collections::hash_map::DefaultHasher::new(); value.hash(&mut state); state.finish() };
         assert_eq!(hash(&cause), hash(&decoded));
-        assert_eq!(cause.file(), "src/mcp/cause.rs");
+        assert_eq!(cause.file(), "src/cause_book/cause.rs");
         assert_eq!(cause.condition(), "condition: static_roundtrip");
     }
 

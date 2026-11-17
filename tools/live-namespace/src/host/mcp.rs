@@ -2,7 +2,7 @@
 //
 // Purpose: The bounds and shapes this tool takes from the engine's MCP surface (src/mcp.rs of Trillion-X/trillion-rust at
 // 5fbc2ff4b1): one MCP message is at most `MAX_MESSAGE_BYTES`, a tool answer leaves room for its envelope
-// (`tool_answer_fits`), an answer too large for one message is delivered in byte pages (`byte_page`), the refusal an
+// (`tool_answer_fits`), the refusal an
 // operation answers with (`OperationFailure`) and the field-and-shape fault of a call's input (`InputFault`).
 //
 // AI Assistant Directive:
@@ -12,33 +12,6 @@
 use serde_json::{json, Value};
 
 pub const MAX_MESSAGE_BYTES: usize = 65_536;
-/// The MCP routes' request bound (product DATA src/mcp/settings.json).
-#[derive(serde::Deserialize)]
-struct RequestBounds {
-    request_bytes: usize,
-    call_bytes: usize,
-}
-
-fn request_bounds() -> &'static RequestBounds {
-    static BOUNDS: std::sync::OnceLock<RequestBounds> = std::sync::OnceLock::new();
-    BOUNDS.get_or_init(|| {
-        let bounds: RequestBounds = serde_json::from_slice(include_bytes!("mcp/settings.json"))
-            .expect("mcp/settings.json is valid");
-        assert!(
-            bounds.request_bytes >= MAX_MESSAGE_BYTES && bounds.call_bytes >= MAX_MESSAGE_BYTES,
-            "mcp/settings.json: a door request may carry at least one MCP message"
-        );
-        bounds
-    })
-}
-
-/// The most bytes one session message between the forwarder and a computer may carry: one MCP request in base64
-/// inside its JSON envelope (`request_bytes` in base64, plus `call_bytes`).
-pub(crate) fn carried_message_bytes() -> usize {
-    let bounds = request_bounds();
-    bounds.request_bytes.div_ceil(3) * 4 + bounds.call_bytes
-}
-
 /// The room a tool result leaves for its JSON-RPC envelope and the request's ID.
 const TOOL_ENVELOPE_RESERVE: usize = 1_024;
 
@@ -54,43 +27,6 @@ pub fn tool_answer_fits(answer: &Value) -> bool {
         "structuredContent":answer,"isError":false,"resultType":"complete"});
     encode_with_limit(&result, limit).is_some()
 }
-
-/// The bytes of one answer's own JSON that is too big for one message, delivered as pages of those bytes: no answer
-/// has to hold a whole thing. Page `{"byte_page": {total, blake3, offset, length, base64, next_after_byte}}` holds
-/// `length` bytes from `offset`; `total` and the BLAKE3 of the whole are on every page (so a reader that assembled
-/// pages of a changed value sees the hash differ), and `next_after_byte` is the `after_byte` of the next call, null on
-/// the last page. The largest page `fits` admits (down to one byte) is answered; `None` when `after_byte` is not
-/// inside the answer or not even one byte fits.
-pub(crate) fn byte_page(
-    whole: &[u8],
-    after_byte: u64,
-    fits: &dyn Fn(&Value) -> bool,
-) -> Option<Value> {
-    use base64::{engine::general_purpose::STANDARD, Engine};
-    let total = whole.len();
-    let from = usize::try_from(after_byte)
-        .ok()
-        .filter(|from| *from < total)?;
-    let hash = content_crypto::advanced::blake3::hash(whole).to_hex();
-    let page = |length: usize| {
-        let end = from + length;
-        json!({"byte_page": {"total": total, "blake3": hash.as_str(), "offset": from, "length": length,
-            "base64": STANDARD.encode(&whole[from..end]),
-            "next_after_byte": if end < total { json!(end) } else { Value::Null }}})
-    };
-    let mut length = (total - from).min(BYTE_PAGE_START);
-    while length > 0 {
-        let candidate = page(length);
-        if fits(&candidate) {
-            return Some(candidate);
-        }
-        length /= 2;
-    }
-    None
-}
-
-/// The bytes a byte page starts with before it is cut to fit: base64 of this, twice, is under one message.
-const BYTE_PAGE_START: usize = 24 * 1024;
 
 /// One encoding owner for both message classes. Callers supply only the
 /// source-owned protocol limits, never a limit from a request or app input.

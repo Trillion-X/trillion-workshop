@@ -15,8 +15,7 @@ use super::{
     parent, text,
 };
 use crate::{
-    records::{Mutation, Records},
-    storage::Storage,
+    store::{Mutation},
 };
 use content_crypto::{
     Multihash,
@@ -31,7 +30,7 @@ const UPLOAD_ID_BYTES: usize = 32;
 // but one verification step remains bounded to at most 768 spans.
 const VERIFY_PAGES_AT_ONCE: usize = 3;
 
-impl<S: Storage + Send> AccountFiles<S> {
+impl AccountFiles {
     /// Existing known-length entry point; its Rust signature and result shape
     /// remain stable for current callers.
     pub fn write_file_start(
@@ -284,7 +283,7 @@ impl<S: Storage + Send> AccountFiles<S> {
     /// length keeps the server checkpoint, fed in 32 KiB subtrees, so finish needs no read-back.
     fn write_variable_piece(
         &mut self,
-        upload: crate::records::Record,
+        upload: crate::store::Record,
         upload_id: &str,
         name: &str,
         offset: u64,
@@ -540,7 +539,7 @@ impl<S: Storage + Send> AccountFiles<S> {
         let cutoff = chrono::Utc::now() - chrono::Duration::days(days);
         let (cursor_version, cursor) = self.held(UPLOADS, EXPIRY_CURSOR)?;
         let after = cursor.as_ref().and_then(|record| text(&record.value, "after")).unwrap_or("").to_owned();
-        let page = self.store.list_page(&self.account, UPLOADS, &after, crate::records::MAX_PAGE_ITEMS)?;
+        let page = self.store.list_page(UPLOADS, &after, crate::store::MAX_PAGE_ITEMS)?;
         for record in page.items {
             if record.id == EXPIRY_CURSOR || text(&record.value, "status") != Some("open") {
                 continue;
@@ -1104,7 +1103,7 @@ impl<S: Storage + Send> AccountFiles<S> {
     /// when either file goes. A chunk with no first user (migrated) stays as it is: it is never released.
     fn share_chunk(
         &mut self,
-        chunk: &crate::records::Record,
+        chunk: &crate::store::Record,
         upload_id: &str,
         ordinal: u64,
     ) -> Answer<()> {
@@ -1190,7 +1189,6 @@ impl<S: Storage + Send> AccountFiles<S> {
                 .map(|page| paged_spans::page_id(upload_id, page))
                 .collect();
             let page_records = self.store.get_many(
-                &self.account,
                 SPANS,
                 &ids.iter().map(String::as_str).collect::<Vec<_>>(),
             )?;
@@ -1212,7 +1210,7 @@ impl<S: Storage + Send> AccountFiles<S> {
                      crate::cause!()));
                 }
                 let ids: Vec<&str> = spans.iter().map(|span| span.chunk.as_str()).collect();
-                let chunks = self.store.get_many(&self.account, CHUNKS, &ids)?;
+                let chunks = self.store.get_many(CHUNKS, &ids)?;
                 for (span, chunk) in spans.iter().zip(chunks) {
                     let chunk = chunk.ok_or(AccountFilesError::Invalid(
                         "an uploaded chunk record is missing",
@@ -1259,7 +1257,6 @@ impl<S: Storage + Send> AccountFiles<S> {
                 .map(|page| paged_spans::page_id(upload_id, page))
                 .collect();
             let page_records = self.store.get_many(
-                &self.account,
                 SPANS,
                 &ids.iter().map(String::as_str).collect::<Vec<_>>(),
             )?;
@@ -1280,7 +1277,7 @@ impl<S: Storage + Send> AccountFiles<S> {
                      crate::cause!()));
                 }
                 let ids: Vec<&str> = spans.iter().map(|span| span.chunk.as_str()).collect();
-                let chunks = self.store.get_many(&self.account, CHUNKS, &ids)?;
+                let chunks = self.store.get_many(CHUNKS, &ids)?;
                 for (span, chunk) in spans.iter().zip(chunks) {
                     if span.ordinal != actual_span_count || span.offset != actual_byte_length {
                         return Err(AccountFilesError::Invalid(
@@ -1354,7 +1351,6 @@ impl<S: Storage + Send> AccountFiles<S> {
                 .map(|page| paged_spans::page_id(upload_id, page))
                 .collect();
             let page_records = self.store.get_many(
-                &self.account,
                 SPANS,
                 &ids.iter().map(String::as_str).collect::<Vec<_>>(),
             )?;
@@ -1365,7 +1361,7 @@ impl<S: Storage + Send> AccountFiles<S> {
                 let spans = parse(&record.value, upload_id, page)
                     .map_err(|error| AccountFilesError::Invalid("an uploaded span page is invalid", error.cause()))?;
                 let chunk_ids: Vec<&str> = spans.iter().map(|span| span.chunk.as_str()).collect();
-                let chunks = self.store.get_many(&self.account, CHUNKS, &chunk_ids)?;
+                let chunks = self.store.get_many(CHUNKS, &chunk_ids)?;
                 for (span, chunk) in spans.into_iter().zip(chunks) {
                     let chunk = chunk.ok_or(AccountFilesError::Invalid(
                         "an uploaded chunk record is missing",
@@ -1511,7 +1507,7 @@ impl<S: Storage + Send> AccountFiles<S> {
     fn ensure_file_lists_name(
         &mut self,
         identity: &str,
-        file: &crate::records::Record,
+        file: &crate::store::Record,
         name: &str,
     ) -> Answer<()> {
         if file
@@ -1643,11 +1639,7 @@ mod growing_tests {
     use crate::{
         account_files::BASE64,
         account_files::objects::{Body, Listing, ObjectError, Objects, Stat},
-        records::Mutation,
-        storage::{
-            memory::Memory,
-            record_store::{RecordStore, RealClock, settings},
-        },
+        store::{Mutation, SqlStore},
     };
     use std::{
         collections::HashMap,
@@ -1715,14 +1707,8 @@ mod growing_tests {
         }
     }
 
-    fn growing_files() -> (AccountFiles<Memory>, Arc<Held>) {
-        let store = Memory::open(crate::storage::record_store::SCHEMA).unwrap();
-        let records = RecordStore::new(
-            store,
-            Box::new(RealClock),
-            settings::Limits::fixed(1 << 20, 10 << 30),
-        )
-        .unwrap();
+    fn growing_files() -> (AccountFiles, Arc<Held>) {
+        let records: crate::store::Store = Arc::new(SqlStore::memory().unwrap());
         let held = Arc::new(Held::default());
         let mut files =
             AccountFiles::with_objects(records, "account", Box::new(Port(held.clone())));
@@ -1840,7 +1826,7 @@ mod growing_tests {
 
     #[test]
     fn growing_spans_outlive_cancel() {
-        crate::simulation::verdict("growing-spans-outlive-finish-and-cancel", growing_spans_outlive_cancel_body);
+        growing_spans_outlive_cancel_body().unwrap();
     }
 
     /// A known-length upload is cut into chunks: each chunk is one stored object, the server checkpoint finishes the
@@ -1884,87 +1870,6 @@ mod growing_tests {
         assert_eq!(held.objects.lock().unwrap().len(), 3);
     }
 
-    /// The account files behind the growing route, as its `invoke`. With `fail_first_piece`, the first piece write commits
-    /// and then answers as failed: the reply was lost after the store kept the piece.
-    fn route_invoke<'a>(files: &'a std::cell::RefCell<AccountFiles<Memory>>, fail_first_piece: bool)
-        -> impl Fn(crate::mcp::Operation) -> Result<Value, crate::mcp::OperationFailure> + 'a {
-        let failed = std::cell::Cell::new(false);
-        move |operation: crate::mcp::Operation| {
-            let first_piece = fail_first_piece && operation.operation == "write_file_piece" && !failed.get();
-            if first_piece {
-                failed.set(true);
-            }
-            let answer = match files.borrow_mut().call(&operation.operation, &operation.input) {
-                Some(Ok(value)) => Ok(value),
-                Some(Err(error)) => Err(crate::mcp::OperationFailure {
-                    code: match &error {
-                        AccountFilesError::NotFound(_) => "namespace_not_found",
-                        AccountFilesError::IdentityMismatch(..) => "namespace_identity_mismatch",
-                        _ => "namespace_source_unavailable",
-                    }.into(),
-                    cause: error.cause().into(),
-                    outcome_unknown: false,
-                    detail: match &error {
-                        AccountFilesError::IdentityMismatch(identity, byte_length, _) => Some(json!({"identity": identity, "byte_length": byte_length})),
-                        _ => None,
-                    },
-                }),
-                None => Err(crate::mcp::OperationFailure {
-                    code: "namespace_source_unavailable".into(),
-                    cause: crate::cause!().into(),
-                    outcome_unknown: false,
-                    detail: None,
-                }),
-            };
-            match answer {
-                Ok(_) if first_piece => Err(crate::mcp::OperationFailure {
-                    code: "namespace_source_unavailable".into(),
-                    cause: crate::cause!().into(),
-                    outcome_unknown: true,
-                    detail: None,
-                }),
-                answer => answer,
-            }
-        }
-    }
-
-    /// A chunk whose write committed but whose reply was lost is sent again by the client: the replay answers the same
-    /// piece, and the file's identity at finish is still the BLAKE3 of its bytes.
-    #[test]
-    fn a_committed_chunk_whose_reply_was_lost_replays_to_the_same_identity() {
-        use crate::mcp::carried::bytes::answer;
-        let (files, _held) = growing_files();
-        let files = std::cell::RefCell::new(files);
-        let invoke = route_invoke(&files, true);
-        let account = "account";
-        let piece = 64 * 1024usize;
-        let content: Vec<u8> = (0..3 * piece).map(|index| (index * 11 % 253) as u8).collect();
-        let pieces: Vec<&[u8]> = content.chunks(piece).collect();
-        let chunk_ids: Vec<String> = pieces.iter().map(|bytes| Multihash::blake3(bytes).to_code_hex()).collect();
-        let spans: Vec<Value> = pieces.iter().enumerate().map(|(ordinal, bytes)| {
-            json!({"ordinal": ordinal, "offset": ordinal * piece, "length": bytes.len(), "chunk": chunk_ids[ordinal]})
-        }).collect();
-        let body = |value: Value| value.to_string().into_bytes();
-        let started = answer("POST", "/namespace/growing", None, account,
-            &body(json!({"byte_length": content.len(), "name": "/replay.bin", "media_type": "application/octet-stream"})), &invoke);
-        assert_eq!(started.status, 200, "{}", String::from_utf8_lossy(&started.body));
-        let growing = serde_json::from_slice::<Value>(&started.body).unwrap()["growing"].as_str().unwrap().to_owned();
-        let base = format!("/namespace/growing/{growing}");
-        let described = answer("POST", &format!("{base}/spans"), None, account, &body(json!({"spans": spans})), &invoke);
-        assert_eq!(described.status, 200, "{}", String::from_utf8_lossy(&described.body));
-        let put = |ordinal: usize| answer("PUT", &format!("{base}/chunks/{}", chunk_ids[ordinal]), None, account, pieces[ordinal], &invoke);
-        // The first piece is committed and its reply lost: the client sees a failure, then sends the same chunk again.
-        assert_ne!(put(0).status, 200);
-        assert_eq!(put(0).status, 200);
-        assert_eq!(put(1).status, 200);
-        assert_eq!(put(2).status, 200);
-        let identity = Multihash::blake3(&content).to_code_hex();
-        let finish = answer("POST", &format!("{base}/finish"), None, account,
-            &body(json!({"identity": identity, "byte_length": content.len()})), &invoke);
-        assert_eq!(finish.status, 200, "{}", String::from_utf8_lossy(&finish.body));
-        assert_eq!(serde_json::from_slice::<Value>(&finish.body).unwrap()["file"]["identity"], json!(identity));
-    }
-
     /// An upload left open past its expiry (DATA `described.open_upload_expiry_days`) is cancelled by a later start, and its
     /// described spans go with it, so an abandoned upload cannot keep its spans in the store.
     #[test]
@@ -1987,94 +1892,7 @@ mod growing_tests {
         assert_eq!(files.read_described_spans(abandoned).unwrap()["spans"], json!([]));
     }
 
-    /// A chunk that appears at two offsets (equal content, ordinals 0 and 2) is refused before anything is committed (a 503
-    /// on the first write), the client re-sends it, and the finish is still the BLAKE3 of the bytes: a retry lands at each
-    /// offset the chunk is described at, with the same bytes.
-    #[test]
-    fn a_retry_after_a_refused_write_of_a_repeated_chunk_keeps_the_identity() {
-        use crate::mcp::carried::bytes::answer;
-        let (files, _held) = growing_files();
-        let files = std::cell::RefCell::new(files);
-        let failed = std::cell::Cell::new(false);
-        let invoke = |operation: crate::mcp::Operation| -> Result<Value, crate::mcp::OperationFailure> {
-            if operation.operation == "write_file_piece" && !failed.get() {
-                failed.set(true);
-                return Err(crate::mcp::OperationFailure {
-                    code: "namespace_source_unavailable".into(),
-                    cause: crate::cause!().into(),
-                    outcome_unknown: false,
-                    detail: None,
-                });
-            }
-            match files.borrow_mut().call(&operation.operation, &operation.input) {
-                Some(Ok(value)) => Ok(value),
-                _ => Err(crate::mcp::OperationFailure {
-                    code: "namespace_source_unavailable".into(),
-                    cause: crate::cause!().into(),
-                    outcome_unknown: false,
-                    detail: None,
-                }),
-            }
-        };
-        let account = "account";
-        let piece = 64 * 1024usize;
-        let a: Vec<u8> = vec![9u8; piece];
-        let b: Vec<u8> = (0..piece).map(|index| (index * 3 % 241) as u8).collect();
-        let pieces: Vec<Vec<u8>> = vec![a.clone(), b, a.clone()];
-        let content: Vec<u8> = pieces.concat();
-        let chunk_ids: Vec<String> = pieces.iter().map(|bytes| Multihash::blake3(bytes).to_code_hex()).collect();
-        let spans: Vec<Value> = pieces.iter().enumerate().map(|(ordinal, bytes)| {
-            json!({"ordinal": ordinal, "offset": ordinal * piece, "length": bytes.len(), "chunk": chunk_ids[ordinal]})
-        }).collect();
-        let body = |value: Value| value.to_string().into_bytes();
-        let started = answer("POST", "/namespace/growing", None, account,
-            &body(json!({"byte_length": content.len(), "name": "/repeat.bin", "media_type": "application/octet-stream"})), &invoke);
-        assert_eq!(started.status, 200, "{}", String::from_utf8_lossy(&started.body));
-        let growing = serde_json::from_slice::<Value>(&started.body).unwrap()["growing"].as_str().unwrap().to_owned();
-        let base = format!("/namespace/growing/{growing}");
-        let described = answer("POST", &format!("{base}/spans"), None, account, &body(json!({"spans": spans})), &invoke);
-        assert_eq!(described.status, 200, "{}", String::from_utf8_lossy(&described.body));
-        let put = |ordinal: usize| answer("PUT", &format!("{base}/chunks/{}", chunk_ids[ordinal]), None, account, &pieces[ordinal], &invoke);
-        assert_ne!(put(0).status, 200);
-        assert_eq!(put(0).status, 200);
-        assert_eq!(put(1).status, 200);
-        assert_eq!(put(2).status, 200);
-        let identity = Multihash::blake3(&content).to_code_hex();
-        let finish = answer("POST", &format!("{base}/finish"), None, account,
-            &body(json!({"identity": identity, "byte_length": content.len()})), &invoke);
-        assert_eq!(finish.status, 200, "{}", String::from_utf8_lossy(&finish.body));
-        assert_eq!(serde_json::from_slice::<Value>(&finish.body).unwrap()["file"]["identity"], json!(identity));
-    }
 
-    /// A finish refused for its identity says which identity the bytes have, so a wrong-side question can be answered from
-    /// the refusal itself, and the name is not bound to that file.
-    #[test]
-    fn a_finish_refused_for_identity_names_the_identity_the_bytes_have() {
-        use crate::mcp::carried::bytes::answer;
-        let (files, _held) = growing_files();
-        let files = std::cell::RefCell::new(files);
-        let invoke = route_invoke(&files, false);
-        let account = "account";
-        let content: Vec<u8> = (0..(64 * 1024usize)).map(|index| (index % 233) as u8).collect();
-        let chunk = Multihash::blake3(&content).to_code_hex();
-        let body = |value: Value| value.to_string().into_bytes();
-        let started = answer("POST", "/namespace/growing", None, account,
-            &body(json!({"byte_length": content.len(), "name": "/named.bin", "media_type": "application/octet-stream"})), &invoke);
-        let growing = serde_json::from_slice::<Value>(&started.body).unwrap()["growing"].as_str().unwrap().to_owned();
-        let base = format!("/namespace/growing/{growing}");
-        answer("POST", &format!("{base}/spans"), None, account,
-            &body(json!({"spans": [{"ordinal": 0, "offset": 0, "length": content.len(), "chunk": chunk}]})), &invoke);
-        assert_eq!(answer("PUT", &format!("{base}/chunks/{chunk}"), None, account, &content, &invoke).status, 200);
-        let wrong = Multihash::blake3(b"not these bytes").to_code_hex();
-        let refused = answer("POST", &format!("{base}/finish"), None, account,
-            &body(json!({"identity": wrong, "byte_length": content.len()})), &invoke);
-        assert_eq!(refused.status, 409, "{}", String::from_utf8_lossy(&refused.body));
-        let said: Value = serde_json::from_slice(&refused.body).unwrap();
-        assert_eq!(said["claimed"], json!(wrong));
-        assert_eq!(said["claimed_byte_length"], json!(content.len()));
-        assert_eq!(said["computed"], json!(chunk));
-        assert_eq!(said["computed_byte_length"], json!(content.len()));
-    }
 
     /// The expiry sweep keeps its place in a cursor record and wraps: a start that reaches the end of the upload records
     /// clears the cursor, so the next start looks at the first page again and finds the abandoned upload.
@@ -2101,48 +1919,6 @@ mod growing_tests {
         assert_eq!(files.get(UPLOADS, abandoned).unwrap().unwrap().value["status"], json!("cancelled"));
     }
 
-    /// A growing upload survives a restart of the engine: its session lives in the account store, so once the in-memory
-    /// session is gone the next calls find it there, and the finish answers the identity of the whole content.
-    #[test]
-    fn a_growing_session_survives_a_restart_and_finishes_to_its_identity() {
-        use crate::mcp::carried::bytes::{answer, forget_in_memory};
-        let (files, _held) = growing_files();
-        let files = std::cell::RefCell::new(files);
-        let invoke = route_invoke(&files, false);
-        let account = "account";
-        let piece = 64 * 1024usize;
-        let content: Vec<u8> = (0..3 * piece).map(|index| (index * 7 % 251) as u8).collect();
-        let pieces: Vec<&[u8]> = content.chunks(piece).collect();
-        let chunk_ids: Vec<String> = pieces.iter().map(|bytes| Multihash::blake3(bytes).to_code_hex()).collect();
-        let spans: Vec<Value> = pieces.iter().enumerate().map(|(ordinal, bytes)| {
-            json!({"ordinal": ordinal, "offset": ordinal * piece, "length": bytes.len(), "chunk": chunk_ids[ordinal]})
-        }).collect();
-        let body = |value: Value| value.to_string().into_bytes();
-        let started = answer("POST", "/namespace/growing", None, account,
-            &body(json!({"byte_length": content.len(), "name": "/restart.bin", "media_type": "application/octet-stream"})), &invoke);
-        assert_eq!(started.status, 200, "{}", String::from_utf8_lossy(&started.body));
-        let growing = serde_json::from_slice::<Value>(&started.body).unwrap()["growing"].as_str().unwrap().to_owned();
-        let base = format!("/namespace/growing/{growing}");
-        let described = answer("POST", &format!("{base}/spans"), None, account, &body(json!({"spans": spans})), &invoke);
-        assert_eq!(described.status, 200, "{}", String::from_utf8_lossy(&described.body));
-        let put = |ordinal: usize| answer("PUT", &format!("{base}/chunks/{}", chunk_ids[ordinal]), None, account, pieces[ordinal], &invoke);
-        assert_eq!(put(0).status, 200);
-        // The engine restarts: its in-memory session is gone, and the account store keeps the rest.
-        forget_in_memory(&growing);
-        let again = answer("POST", &format!("{base}/spans"), None, account, &body(json!({"spans": spans})), &invoke);
-        assert_eq!(again.status, 200, "{}", String::from_utf8_lossy(&again.body));
-        assert_eq!(serde_json::from_slice::<Value>(&again.body).unwrap()["needed"], json!([1, 2]));
-        assert_eq!(put(1).status, 200);
-        assert_eq!(put(2).status, 200);
-        let identity = Multihash::blake3(&content).to_code_hex();
-        let finish = answer("POST", &format!("{base}/finish"), None, account,
-            &body(json!({"identity": identity, "byte_length": content.len()})), &invoke);
-        assert_eq!(finish.status, 200, "{}", String::from_utf8_lossy(&finish.body));
-        assert_eq!(serde_json::from_slice::<Value>(&finish.body).unwrap()["file"]["identity"], json!(identity));
-        // A finished upload keeps no described spans: its session is done and nothing in the store still describes it.
-        let upload_id = growing.trim_start_matches("up:");
-        assert_eq!(files.borrow().read_described_spans(upload_id).unwrap()["spans"], json!([]));
-    }
 
     /// A finish that asks for an identity the bytes do not have is refused before anything is kept: no file is stored under
     /// the bytes' identity, and the upload stays open so the right finish can still be made.
@@ -2302,19 +2078,17 @@ mod growing_tests {
             changed_page["spans"].as_array_mut().unwrap().pop();
             changed_page["end_offset"] = json!(2);
         }
-        let rival = RecordStore::new(files.store.storage().reopen(), Box::new(RealClock),
-            settings::Limits::fixed(1 << 20, 10 << 30)).unwrap();
-        let rival = Mutex::new(rival);
+        let rival = Mutex::new(files.store.clone());
         let checks = Arc::new(AtomicUsize::new(0));
         let checked = checks.clone();
         // Change a genuine record at the second-pass boundary, after the
         // metadata pass accepted the full page and before actual byte reads.
         files = files.while_current(Arc::new(move || {
             if checked.fetch_add(1, Ordering::SeqCst) == 1 {
-                rival.lock().unwrap().mutate_local_with_check("account", SPANS,
+                rival.lock().unwrap().mutate(SPANS,
                     Mutation { id: page_id.clone(), expected_version: page.version,
                         request_key: "change-between-verification-passes".into(), deleted: false,
-                        value: changed_page.clone() }, || Ok(())).unwrap();
+                        value: changed_page.clone() }).unwrap();
             }
             true
         }));

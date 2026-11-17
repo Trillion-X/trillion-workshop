@@ -53,8 +53,8 @@
       "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
       "to": "tools/live-namespace/src/account_files/account-files-routes.json",
       "source_identity": "1f:69ec8f8889e49f80048d868b3aad1b0b3170013191750e936626bafeb1fdd09a",
-      "identity": "1f:69ec8f8889e49f80048d868b3aad1b0b3170013191750e936626bafeb1fdd09a",
-      "found_by": "byte copy"
+      "identity_at_move": "1f:69ec8f8889e49f80048d868b3aad1b0b3170013191750e936626bafeb1fdd09a",
+      "byte_copy_commit": "5e6f2412861dd4e75611aaedbc052fc104eac6b1"
     },
     {
       "source": "Trillion-X/trillion-rust",
@@ -76,16 +76,6 @@
     },
     {
       "source": "Trillion-X/trillion-rust",
-      "from": "src/account_files/copier/carry-on-a-cloud-server.sh",
-      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
-      "to": "tools/live-namespace/src/account_files/copier/carry-on-a-cloud-server.sh",
-      "source_identity": "1f:3f63a9271e02cd112b1ed25b73a96570565b310ddd8e054a3105b9256dded1a5",
-      "identity": "1f:3f63a9271e02cd112b1ed25b73a96570565b310ddd8e054a3105b9256dded1a5",
-      "deleted": "2026-11-15: it stood up and deleted a Hetzner server by hand with hcloud; a computers layout row that tool:start-a-computer rents and gives back replaces it",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-rust",
       "from": "src/account_files/counters.rs",
       "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
       "to": "tools/live-namespace/src/account_files/counters.rs",
@@ -99,8 +89,8 @@
       "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
       "to": "tools/live-namespace/src/account_files/dav.rs",
       "source_identity": "1f:3cf89c3069c4f9e5c107f54ec8d19df0626d2c6ca7a0b2d8c6bfd63c76f6b62a",
-      "identity": "1f:3cf89c3069c4f9e5c107f54ec8d19df0626d2c6ca7a0b2d8c6bfd63c76f6b62a",
-      "found_by": "byte copy"
+      "identity_at_move": "1f:3cf89c3069c4f9e5c107f54ec8d19df0626d2c6ca7a0b2d8c6bfd63c76f6b62a",
+      "byte_copy_commit": "5e6f2412861dd4e75611aaedbc052fc104eac6b1"
     },
     {
       "source": "Trillion-X/trillion-rust",
@@ -108,8 +98,8 @@
       "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
       "to": "tools/live-namespace/src/account_files/dav_write.rs",
       "source_identity": "1f:79599164a9840a1eb3d1b0d90e14529c9902fcf65e4ab883ab55b34c49619c5c",
-      "identity": "1f:79599164a9840a1eb3d1b0d90e14529c9902fcf65e4ab883ab55b34c49619c5c",
-      "found_by": "byte copy"
+      "identity_at_move": "1f:79599164a9840a1eb3d1b0d90e14529c9902fcf65e4ab883ab55b34c49619c5c",
+      "byte_copy_commit": "5e6f2412861dd4e75611aaedbc052fc104eac6b1"
     },
     {
       "source": "Trillion-X/trillion-rust",
@@ -118,42 +108,6 @@
       "to": "tools/live-namespace/src/account_files/families.json",
       "source_identity": "1f:48d97e5ca9bde98b3c62a9f34c55c6f362ec4ffbd1a41433dde3af760b12aebd",
       "identity": "1f:48d97e5ca9bde98b3c62a9f34c55c6f362ec4ffbd1a41433dde3af760b12aebd",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-rust",
-      "from": "src/account_files/history_keeper.rs",
-      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
-      "to": "tools/live-namespace/src/account_files/history_keeper.rs",
-      "source_identity": "1f:9e1fb7dc83e706bb98f538d394508b94f49e030160db49431938c6ebd15e0d92",
-      "identity": "1f:9e1fb7dc83e706bb98f538d394508b94f49e030160db49431938c6ebd15e0d92",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-rust",
-      "from": "src/account_files/identity.json",
-      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
-      "to": "tools/live-namespace/src/account_files/identity.json",
-      "source_identity": "1f:41c357e0d304952adc573aebd2438308463adde326ba9fa77a92df533089e04a",
-      "identity": "1f:41c357e0d304952adc573aebd2438308463adde326ba9fa77a92df533089e04a",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-rust",
-      "from": "src/account_files/identity.rs",
-      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
-      "to": "tools/live-namespace/src/account_files/identity.rs",
-      "source_identity": "1f:4bc55d9c334ef7bdadac05e8f0869b3fb1f16f4a143701bf5790d9337f4b8950",
-      "identity": "1f:4bc55d9c334ef7bdadac05e8f0869b3fb1f16f4a143701bf5790d9337f4b8950",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-rust",
-      "from": "src/account_files/migrate.rs",
-      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
-      "to": "tools/live-namespace/src/account_files/migrate.rs",
-      "source_identity": "1f:896ee10a776e49b1189414c0aaee2afed9c099c07410796931e0005dbfac9fff",
-      "identity": "1f:896ee10a776e49b1189414c0aaee2afed9c099c07410796931e0005dbfac9fff",
       "found_by": "byte copy"
     },
     {
@@ -195,8 +149,8 @@
       "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
       "to": "tools/live-namespace/src/account_files/names.rs",
       "source_identity": "1f:0ebf6d75f57d4f70b95fca2cea8c84c533974e03f0c5ff68690882a46d495f57",
-      "identity": "1f:0ebf6d75f57d4f70b95fca2cea8c84c533974e03f0c5ff68690882a46d495f57",
-      "found_by": "byte copy"
+      "identity_at_move": "1f:0ebf6d75f57d4f70b95fca2cea8c84c533974e03f0c5ff68690882a46d495f57",
+      "byte_copy_commit": "5e6f2412861dd4e75611aaedbc052fc104eac6b1"
     },
     {
       "source": "Trillion-X/trillion-rust",
@@ -212,21 +166,12 @@
     },
     {
       "source": "Trillion-X/trillion-rust",
-      "from": "src/account_files/page_paths.rs",
-      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
-      "to": "tools/live-namespace/src/account_files/page_paths.rs",
-      "source_identity": "1f:c74a639d8302334f18aa1adf4a82fd4b7b5ed4aa94bab81ba96dd14e710b96a9",
-      "identity": "1f:c74a639d8302334f18aa1adf4a82fd4b7b5ed4aa94bab81ba96dd14e710b96a9",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-rust",
       "from": "src/account_files/paged_spans.rs",
       "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
       "to": "tools/live-namespace/src/account_files/paged_spans.rs",
       "source_identity": "1f:94f8ea3846f03303ecb36692e79d344360247750bb8a65acf7ad4e6115e59e1e",
-      "identity": "1f:94f8ea3846f03303ecb36692e79d344360247750bb8a65acf7ad4e6115e59e1e",
-      "found_by": "byte copy"
+      "identity_at_move": "1f:94f8ea3846f03303ecb36692e79d344360247750bb8a65acf7ad4e6115e59e1e",
+      "byte_copy_commit": "5e6f2412861dd4e75611aaedbc052fc104eac6b1"
     },
     {
       "source": "Trillion-X/trillion-rust",
@@ -234,8 +179,8 @@
       "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
       "to": "tools/live-namespace/src/account_files/recent.rs",
       "source_identity": "1f:13f9f79cdbd9d5c67af7bb6c722be4c7570679c4f27ab113dd52665e6736fa66",
-      "identity": "1f:13f9f79cdbd9d5c67af7bb6c722be4c7570679c4f27ab113dd52665e6736fa66",
-      "found_by": "byte copy"
+      "identity_at_move": "1f:13f9f79cdbd9d5c67af7bb6c722be4c7570679c4f27ab113dd52665e6736fa66",
+      "byte_copy_commit": "5e6f2412861dd4e75611aaedbc052fc104eac6b1"
     },
     {
       "source": "Trillion-X/trillion-rust",
@@ -243,8 +188,8 @@
       "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
       "to": "tools/live-namespace/src/account_files/release.rs",
       "source_identity": "1f:8c2e4434afe173e960a41890e7ec5267fe802431da8930bb17c14373a113dec3",
-      "identity": "1f:8c2e4434afe173e960a41890e7ec5267fe802431da8930bb17c14373a113dec3",
-      "found_by": "byte copy"
+      "identity_at_move": "1f:8c2e4434afe173e960a41890e7ec5267fe802431da8930bb17c14373a113dec3",
+      "byte_copy_commit": "5e6f2412861dd4e75611aaedbc052fc104eac6b1"
     },
     {
       "source": "Trillion-X/trillion-rust",
@@ -252,8 +197,8 @@
       "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
       "to": "tools/live-namespace/src/account_files/results.rs",
       "source_identity": "1f:49854c21873c6de7379bf27f4d6dfd8f76fab664914fb12628d5121b84207c72",
-      "identity": "1f:49854c21873c6de7379bf27f4d6dfd8f76fab664914fb12628d5121b84207c72",
-      "found_by": "byte copy"
+      "identity_at_move": "1f:49854c21873c6de7379bf27f4d6dfd8f76fab664914fb12628d5121b84207c72",
+      "byte_copy_commit": "5e6f2412861dd4e75611aaedbc052fc104eac6b1"
     },
     {
       "source": "Trillion-X/trillion-rust",
@@ -311,21 +256,12 @@
     },
     {
       "source": "Trillion-X/trillion-rust",
-      "from": "src/account_files/take.rs",
-      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
-      "to": "tools/live-namespace/src/account_files/take.rs",
-      "source_identity": "1f:d976d2785973b59e8002ea382241aed76e1fbe21d061c9cf3faac42647e477c7",
-      "identity_at_move": "1f:d976d2785973b59e8002ea382241aed76e1fbe21d061c9cf3faac42647e477c7",
-      "byte_copy_commit": "10ac51787d30ca87ce7ab10416fce0c8c4bf07d3"
-    },
-    {
-      "source": "Trillion-X/trillion-rust",
       "from": "src/account_files/usage.rs",
       "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
       "to": "tools/live-namespace/src/account_files/usage.rs",
       "source_identity": "1f:eb599428a532a2fa733996ccd79241289ae406bd341cac528f3b7e61702e561e",
-      "identity": "1f:eb599428a532a2fa733996ccd79241289ae406bd341cac528f3b7e61702e561e",
-      "found_by": "byte copy"
+      "identity_at_move": "1f:eb599428a532a2fa733996ccd79241289ae406bd341cac528f3b7e61702e561e",
+      "byte_copy_commit": "5e6f2412861dd4e75611aaedbc052fc104eac6b1"
     },
     {
       "source": "Trillion-X/trillion-rust",
@@ -342,8 +278,8 @@
       "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
       "to": "tools/live-namespace/src/account_files/write.rs",
       "source_identity": "1f:d2ba46793d1035dcec8d956f5980d846dc4ced0e0a207816d55e461469e8053c",
-      "identity": "1f:d2ba46793d1035dcec8d956f5980d846dc4ced0e0a207816d55e461469e8053c",
-      "found_by": "byte copy"
+      "identity_at_move": "1f:d2ba46793d1035dcec8d956f5980d846dc4ced0e0a207816d55e461469e8053c",
+      "byte_copy_commit": "5e6f2412861dd4e75611aaedbc052fc104eac6b1"
     },
     {
       "source": "Trillion-X/trillion-rust",
@@ -419,21 +355,12 @@
     },
     {
       "source": "Trillion-X/trillion-rust",
-      "from": "tests/resource_budget_account_files.rs",
-      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
-      "to": "tools/live-namespace/tests/resource_budget_account_files.rs",
-      "source_identity": "1f:6e20285d67fc871eb63c394ec60b4c25b58ba15cab547873f2b8b2189b8351e8",
-      "identity_at_move": "1f:6e20285d67fc871eb63c394ec60b4c25b58ba15cab547873f2b8b2189b8351e8",
-      "byte_copy_commit": "8d0597233cb238a6b790614ef9dc1b59d0574ed7"
-    },
-    {
-      "source": "Trillion-X/trillion-rust",
       "from": "src/mcp/cause.rs",
       "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
       "to": "tools/live-namespace/src/cause_book/cause.rs",
       "source_identity": "1f:0eb4b250c0155e67862c023025d6c6cd633fb8318105ad0b9816bbdab58a3fd3",
-      "identity": "1f:0eb4b250c0155e67862c023025d6c6cd633fb8318105ad0b9816bbdab58a3fd3",
-      "found_by": "byte copy"
+      "identity": "1f:9d0ce1bcef49ddba2558d322dc7dc237c09ec73ad180df7c4c29575580cf3d1f",
+      "adapted": "A test string names /home/private instead of a user folder (the private-data gate); the cfg line for the engine build script cfgs is removed (the impl is always there); the test of the cause file expects this tool's path."
     },
     {
       "source": "Trillion-X/trillion-rust",
@@ -473,69 +400,6 @@
     },
     {
       "source": "Trillion-X/trillion-rust",
-      "from": "src/record_indexes.rs",
-      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
-      "to": "tools/live-namespace/src/record_indexes.rs",
-      "source_identity": "1f:c6731e7b70e6d76f95a3df7185468841764e443ea92f01d8df0ea09bcb2710e3",
-      "identity": "1f:c6731e7b70e6d76f95a3df7185468841764e443ea92f01d8df0ea09bcb2710e3",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-rust",
-      "from": "src/record_indexes/current.rs",
-      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
-      "to": "tools/live-namespace/src/record_indexes/current.rs",
-      "source_identity": "1f:cc07060ebd27f6c3f2b65d516844990392b3873eeb9d15d081038993fa81f12c",
-      "identity": "1f:cc07060ebd27f6c3f2b65d516844990392b3873eeb9d15d081038993fa81f12c",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-rust",
-      "from": "src/record_indexes/installed.rs",
-      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
-      "to": "tools/live-namespace/src/record_indexes/installed.rs",
-      "source_identity": "1f:c019d199627a19f48281af327008f738eca5407660023fd0ad2d5b8dd0f0be9d",
-      "identity": "1f:c019d199627a19f48281af327008f738eca5407660023fd0ad2d5b8dd0f0be9d",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-rust",
-      "from": "src/resource_authority.rs",
-      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
-      "to": "tools/live-namespace/src/resource_authority.rs",
-      "source_identity": "1f:f1b27c4b1678869068df3c9a6a37e6ab14864eafe1c32f8a00ad5ae442724646",
-      "identity": "1f:f2e98efb0317252bc0837c5604aa09fffb50c6d8d0905841a4f5740a6501a5f8",
-      "adapted": "The rights gate and the operation reach table are not carried (this tool admits no engine call): the sub-modules it declares are the byte budget alone, included from tools/keep-lists-of-rows/account-state, and an operation resource is always refused."
-    },
-    {
-      "source": "Trillion-X/trillion-rust",
-      "from": "src/signed_authority.rs",
-      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
-      "to": "tools/live-namespace/src/engine/signed_authority.rs",
-      "source_identity": "1f:1fb0358eab89eb008b625edb731dd8e1b739425d88025cf4c6efe85f7a4a83fb",
-      "identity": "1f:1fb0358eab89eb008b625edb731dd8e1b739425d88025cf4c6efe85f7a4a83fb",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-rust",
-      "from": "src/account.rs",
-      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
-      "to": "tools/live-namespace/src/host/account.rs",
-      "source_identity": "1f:510d857b316c7ac24df918624d2e25a6d01d1b354e77af6c70fcb88d552d133a",
-      "identity": "1f:762d50cfe1ac101e44fb2dd77255f27bd442d81a07e3cb5e2fa80b5ce6d48354",
-      "adapted": "AccountError and AccountResult, with the report of this computer's store budget and the vault gate of an account with no copies; the rest of the account owner is not carried."
-    },
-    {
-      "source": "Trillion-X/trillion-rust",
-      "from": "src/account_rights/run_rules.rs",
-      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
-      "to": "tools/live-namespace/src/host/account_rights/run_rules.rs",
-      "source_identity": "1f:7b3a774b5448f02567f707e18b3b031728f85368be07f9bb63f1daaed794d97f",
-      "identity": "1f:7b3a774b5448f02567f707e18b3b031728f85368be07f9bb63f1daaed794d97f",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-rust",
       "from": "src/https.rs",
       "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
       "to": "tools/live-namespace/src/host/https.rs",
@@ -558,17 +422,8 @@
       "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
       "to": "tools/live-namespace/src/host/mcp.rs",
       "source_identity": "1f:18fcd23bae4b151552e651e5a50cd963f96acbce62d1d6bb810ddc7efff6af4b",
-      "identity": "1f:e5873a0b5d4235933bfa1ffc8b201150c750257eeda16a62bcacbe4b512d508d",
-      "adapted": "Only the message bounds, byte pages, the operation shapes and InputFault are kept; the JSON-RPC surface is not carried."
-    },
-    {
-      "source": "Trillion-X/trillion-rust",
-      "from": "src/mcp/settings.json",
-      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
-      "to": "tools/live-namespace/src/host/mcp/settings.json",
-      "source_identity": "1f:6abe0d00b68a14bd28aec720b523ab61a896efb9687948ecc8c9e5800db70ff0",
-      "identity": "1f:6abe0d00b68a14bd28aec720b523ab61a896efb9687948ecc8c9e5800db70ff0",
-      "found_by": "byte copy"
+      "identity": "1f:89c6b3b128e875f92df9d396bb169102860deb2b0c024a38b1f084fad5bb4e36",
+      "adapted": "Only the message bounds, the operation shapes and InputFault are kept; the JSON-RPC surface and the byte pages are not carried."
     },
     {
       "source": "Trillion-X/trillion-rust",
@@ -605,24 +460,134 @@
       "source_identity": "1f:9ea3d7380f1f149421e41ffada3103dac960f4173bc767f59142cfae87b3f716",
       "identity": "1f:9ea3d7380f1f149421e41ffada3103dac960f4173bc767f59142cfae87b3f716",
       "found_by": "byte copy"
+    }
+  ],
+  "left_out": [
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "src/account_files/copier/carry-on-a-cloud-server.sh",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "source_identity": "1f:3f63a9271e02cd112b1ed25b73a96570565b310ddd8e054a3105b9256dded1a5",
+      "why": "2026-11-15: it stood up and deleted a Hetzner server by hand with hcloud; a computers layout row renders servers."
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "src/account_files/history_keeper.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "source_identity": "1f:9e1fb7dc83e706bb98f538d394508b94f49e030160db49431938c6ebd15e0d92",
+      "why": "Nov 16 2026: kept record history is the engine's record store's, which this tool no longer links; the files keep their names, folders and files in the person's own rows and no history of them."
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "src/account_files/identity.json",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "source_identity": "1f:41c357e0d304952adc573aebd2438308463adde326ba9fa77a92df533089e04a",
+      "why": "Nov 16 2026: the product identity was read from the engine launcher's settings file; this tool is started with its own settings (settings.json)."
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "src/account_files/identity.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "source_identity": "1f:4bc55d9c334ef7bdadac05e8f0869b3fb1f16f4a143701bf5790d9337f4b8950",
+      "why": "Nov 16 2026: the product identity was read from the engine launcher's settings file; this tool is started with its own settings (settings.json)."
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "src/account_files/migrate.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "source_identity": "1f:896ee10a776e49b1189414c0aaee2afed9c099c07410796931e0005dbfac9fff",
+      "why": "Nov 16 2026: the one-way migration from the hosted Worker's tables is done (the person's rows are in the archive's ns_* tables); its source schema is the engine's storage boundary."
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "src/account_files/page_paths.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "source_identity": "1f:c74a639d8302334f18aa1adf4a82fd4b7b5ed4aa94bab81ba96dd14e710b96a9",
+      "why": "Nov 16 2026: the paths of old trillion's signed-in page were the engine's page road to the files; the page is the engine's, this tool answers the operations."
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "src/account_files/take.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "source_identity": "1f:d976d2785973b59e8002ea382241aed76e1fbe21d061c9cf3faac42647e477c7",
+      "why": "Nov 16 2026: the engine's own subcommand that took a folder of the computer into the files; the uploader of this tool is do-work/send-a-file-to-a-namespace.mjs, and the files here open no store file of the state folder."
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "tests/resource_budget_account_files.rs",
+      "commit": "4643917907701a60a241cb4c5d93e4ae60fc6a01",
+      "source_identity": "1f:6e20285d67fc871eb63c394ec60b4c25b58ba15cab547873f2b8b2189b8351e8",
+      "why": "Nov 16 2026: it tested the engine's finite byte budget owner (resource_authority::budget), which this tool does not link."
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "src/record_indexes.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "source_identity": "1f:c6731e7b70e6d76f95a3df7185468841764e443ea92f01d8df0ea09bcb2710e3",
+      "why": "Nov 16 2026: the engine record store's index files; the tool keeps its rows in SQL tables (src/store)."
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "src/record_indexes/current.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "source_identity": "1f:cc07060ebd27f6c3f2b65d516844990392b3873eeb9d15d081038993fa81f12c",
+      "why": "Nov 16 2026: the engine record store's index files; the tool keeps its rows in SQL tables (src/store)."
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "src/record_indexes/installed.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "source_identity": "1f:c019d199627a19f48281af327008f738eca5407660023fd0ad2d5b8dd0f0be9d",
+      "why": "Nov 16 2026: the engine record store's index files; the tool keeps its rows in SQL tables (src/store)."
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "src/resource_authority.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "source_identity": "1f:f1b27c4b1678869068df3c9a6a37e6ab14864eafe1c32f8a00ad5ae442724646",
+      "why": "Nov 16 2026: the engine's byte budget and funding owner; who may call and what a call may spend is the engine's."
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "src/signed_authority.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "source_identity": "1f:1fb0358eab89eb008b625edb731dd8e1b739425d88025cf4c6efe85f7a4a83fb",
+      "why": "Nov 16 2026: the engine's signed authority that its record store read; the tool keeps its rows in SQL tables (src/store)."
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "src/account.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "source_identity": "1f:510d857b316c7ac24df918624d2e25a6d01d1b354e77af6c70fcb88d552d133a",
+      "why": "Nov 16 2026: the engine's account owner stand-in the record store and the identity file needed."
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "src/account_rights/run_rules.rs",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "source_identity": "1f:7b3a774b5448f02567f707e18b3b031728f85368be07f9bb63f1daaed794d97f",
+      "why": "Nov 16 2026: what a tool run may touch is the engine's rights; the door answers the operations it is called for."
+    },
+    {
+      "source": "Trillion-X/trillion-rust",
+      "from": "src/mcp/settings.json",
+      "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+      "source_identity": "1f:6abe0d00b68a14bd28aec720b523ab61a896efb9687948ecc8c9e5800db70ff0",
+      "why": "Nov 16 2026: the engine's MCP request bounds; only the message bound (host/mcp.rs) is kept."
     },
     {
       "source": "Trillion-X/trillion-rust",
       "from": "src/workspace_domain.rs",
       "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
-      "to": "tools/live-namespace/src/host/workspace_domain.rs",
       "source_identity": "1f:69693747da53e37398b816f25176c10f47fd9a6ec859b74760ac5ef791376911",
-      "identity": "1f:c25addcda215caccdef04c6250ffb80f7037cfd2c86cce7bad65804975438137",
-      "adapted": "Only `decode` and its error are kept."
+      "why": "Nov 16 2026: percent-decoding for the engine's page paths, which are gone with page_paths.rs."
     },
     {
       "source": "Trillion-X/trillion-rust",
       "from": "tests/support/resource_budget.rs",
       "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
-      "to": "tools/live-namespace/tests/support/resource_budget.rs",
       "source_identity": "1f:05a4c29e7c7dac6c399e0c27e9b292f9355e2f5aeef058a05755088b56b372b0",
-      "identity": "1f:de08f848eea5ee137651654a566157817a82b41acbcd454b70be45a8d4a5cd83",
-      "adapted": "The crate is named live_namespace, not trillion_local."
+      "why": "Nov 16 2026: fixtures of the engine's byte budget test, deleted with it."
     }
   ]
 }

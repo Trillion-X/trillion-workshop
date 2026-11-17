@@ -11,18 +11,18 @@ use account_files_common::*;
 use serde_json::{json, Value};
 use live_namespace::{
     account_files::{AccountFilesError, ALIASES},
-    records::{Mutation, Records},
+    store::Mutation,
 };
 
-fn alias_of(files: &mut live_namespace::account_files::AccountFiles<live_namespace::storage::memory::Memory>, file: &str) -> String {
+fn alias_of(files: &mut live_namespace::account_files::AccountFiles, file: &str) -> String {
     use live_namespace::account_files::FILES;
     let alias = format!("12:{}", "e".repeat(64));
-    files.store.mutate(ACCOUNT, ALIASES, Mutation { id: alias.clone(), expected_version: 0, request_key: "alias".into(), deleted: false,
+    files.store.mutate(ALIASES, Mutation { id: alias.clone(), expected_version: 0, request_key: "alias".into(), deleted: false,
         value: json!({"kind": live_namespace::account_files::ALIAS_KIND, "identity": file, "grade": "checked"}) }).unwrap();
-    let record = files.store.get(ACCOUNT, FILES, file).unwrap().record.unwrap();
+    let record = files.store.get(FILES, file).unwrap().record.unwrap();
     let mut value = record.value.clone();
     value["aliases"] = json!([{"alias": alias, "grade": "checked"}]);
-    files.store.mutate(ACCOUNT, FILES, Mutation { id: file.into(), expected_version: record.version, request_key: "aliases".into(), deleted: false, value }).unwrap();
+    files.store.mutate(FILES, Mutation { id: file.into(), expected_version: record.version, request_key: "aliases".into(), deleted: false, value }).unwrap();
     alias
 }
 

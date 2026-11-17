@@ -56,13 +56,9 @@ pub mod bind;
 pub mod counters;
 pub mod dav;
 pub mod dav_write;
-pub mod history_keeper;
-pub mod identity;
-pub mod migrate;
 pub mod moves;
 pub(crate) mod names;
 pub mod objects;
-pub mod page_paths;
 mod paged_spans;
 pub mod recent;
 mod release;
@@ -71,14 +67,13 @@ mod secrets;
 pub mod settings;
 pub mod share_delivery;
 pub mod source_reads;
-pub mod take;
 pub mod usage;
+mod words;
 mod write;
 
 use self::objects::{MOST_SHARE_SECONDS, ObjectError, Objects, Origin, S3Objects, Secrets};
 use crate::{
-    records::{Error, MAX_PAGE_ITEMS, Mutation, Record, Records},
-    storage::{Storage, record_store::RecordStore},
+    store::{Error, MAX_PAGE_ITEMS, Mutation, Record, Store},
 };
 use base64::{Engine as _, engine::general_purpose::STANDARD as BASE64};
 use content_crypto::advanced::blake3;
@@ -403,8 +398,8 @@ struct Found {
 }
 
 /// The account files of one account.
-pub struct AccountFiles<S: Storage + Send> {
-    pub store: RecordStore<S>,
+pub struct AccountFiles {
+    pub store: Store,
     account: String,
     objects: Box<dyn Objects>,
     /// When a paged call (a carry of names) stops taking steps and answers where to resume.
@@ -425,7 +420,7 @@ fn system_ms() -> Clock {
     Arc::new(|| u64::try_from(chrono::Utc::now().timestamp_millis()).unwrap_or(0))
 }
 
-impl<S: Storage + Send> AccountFiles<S> {
+impl AccountFiles {
     /// Read time from `clock` (tests of the byte release's claim and write-race windows).
     pub fn with_clock(mut self, clock: Clock) -> Self {
         self.clock = clock;
@@ -437,8 +432,8 @@ impl<S: Storage + Send> AccountFiles<S> {
 
     /// The account files of `account` in `store`, reaching its bytes through the account's own origin records, signed
     /// through the secrets `vault`.
-    pub fn open(store: RecordStore<S>, account: &str, vault: Box<dyn Secrets>) -> Answer<Self> {
-        let page = store.list_page(account, ORIGINS, "", MAX_PAGE_ITEMS)?;
+    pub fn open(store: Store, account: &str, vault: Box<dyn Secrets>) -> Answer<Self> {
+        let page = store.list_page(ORIGINS, "", MAX_PAGE_ITEMS)?;
         let origins = page
             .items
             .into_iter()
@@ -461,7 +456,7 @@ impl<S: Storage + Send> AccountFiles<S> {
     }
 
     /// The account files with a given byte port (tests and simulations).
-    pub fn with_objects(store: RecordStore<S>, account: &str, objects: Box<dyn Objects>) -> Self {
+    pub fn with_objects(store: Store, account: &str, objects: Box<dyn Objects>) -> Self {
         Self {
             store,
             account: account.into(),
@@ -518,26 +513,21 @@ impl<S: Storage + Send> AccountFiles<S> {
         Ok(self.control.check()?)
     }
 
-    /// Reuse record store's own atomic check, including before a recovered receipt is
-    /// disclosed and immediately before commit. There is no second store or
+    /// One change to a row, made only while the caller is still current. There is no second store or
     /// rollback claim for earlier independent account files steps.
-    fn mutate(&mut self, resource: &str, input: Mutation) -> Answer<crate::records::Change> {
-        let control = self.control.clone();
-        Ok(self
-            .store
-            .mutate_local_with_check(&self.account, resource, input, || control.check())?)
+    fn mutate(&mut self, resource: &str, input: Mutation) -> Answer<crate::store::Change> {
+        self.control.check()?;
+        Ok(self.store.mutate(resource, input)?)
     }
 
     fn get(&self, resource: &str, id: &str) -> Answer<Option<Record>> {
-        Ok(self.store.get(&self.account, resource, id)?.record)
+        Ok(self.store.get(resource, id)?.record)
     }
 
     /// The record at `id` and the version a write there must name: a name or folder carried away leaves a tombstone,
     /// so writing the id again names the tombstone's version, not 0.
     fn held(&self, resource: &str, id: &str) -> Answer<(i64, Option<Record>)> {
-        Ok(self
-            .store
-            .held_record_with_version(&self.account, resource, id)?)
+        Ok(self.store.held_record_with_version(resource, id)?)
     }
 
     /// The file a name or identity points at (an alias is followed once).
@@ -587,7 +577,7 @@ impl<S: Storage + Send> AccountFiles<S> {
         let limit = limit.unwrap_or(DEFAULT_LIST_LIMIT).clamp(1, MAX_PAGE_ITEMS);
         let page = self
             .store
-            .list_page(&self.account, &tree.names(&folder), after, limit)?;
+            .list_page(&tree.names(&folder), after, limit)?;
         let names = self.name_rows(&page.items)?;
         let (folders, revisions) = if after.is_empty() {
             self.child_folders(tree, &folder)?
@@ -612,7 +602,7 @@ impl<S: Storage + Send> AccountFiles<S> {
             .collect::<BTreeSet<_>>()
             .into_iter()
             .collect();
-        let files = self.store.get_many(&self.account, FILES, &identities)?;
+        let files = self.store.get_many(FILES, &identities)?;
         let files: Vec<(&str, Record)> = identities
             .into_iter()
             .zip(files)
@@ -673,10 +663,10 @@ impl<S: Storage + Send> AccountFiles<S> {
     ) -> Answer<(Vec<String>, Map<String, Value>)> {
         let (folders, _) =
             self.store
-                .ids(&self.account, &tree.folders(folder), None, MAX_PAGE_ITEMS)?;
+                .ids(&tree.folders(folder), None, MAX_PAGE_ITEMS)?;
         let mut revisions = Map::new();
         for child in &folders {
-            let stamp = self.store.stamp(&self.account, &tree.names(child))?;
+            let stamp = self.store.stamp(&tree.names(child))?;
             revisions.insert(child.clone(), json!(format!("folder:{stamp}")));
         }
         Ok((folders, revisions))
@@ -713,39 +703,16 @@ impl<S: Storage + Send> AccountFiles<S> {
         if question.trim().is_empty() {
             return Err(AccountFilesError::Invalid("question is required", crate::cause!()));
         }
-        let (question, terms) = crate::record_value::search::terms(
-            question,
-            asked.question_chars,
-            asked.min_word_length,
-        );
+        let (question, terms) = words::terms(question, asked.question_chars, asked.min_word_length);
         let mut held: BTreeMap<String, Record> = BTreeMap::new();
         let mut results = Vec::new();
         if !terms.is_empty() {
-            let ids = crate::record_value::search::candidates(
-                |word| {
-                    let found = self.store.search(
-                        &self.account,
-                        FILES,
-                        self.store.settings().search.every_text(),
-                        word,
-                        asked.word_hits,
-                    )?;
-                    Ok::<_, Error>(
-                        found
-                            .records
-                            .into_iter()
-                            .map(|record| {
-                                let id = record.id.clone();
-                                held.insert(id.clone(), record);
-                                id
-                            })
-                            .collect(),
-                    )
-                },
-                &terms,
-                asked.word_hits,
-            )?;
-            for id in ids.unwrap_or_default() {
+            let mut ids = Vec::new();
+            for record in self.store.search(&terms, asked.word_hits)? {
+                ids.push(record.id.clone());
+                held.insert(record.id.clone(), record);
+            }
+            for id in ids {
                 if results.len() >= limit {
                     break;
                 }
@@ -757,7 +724,7 @@ impl<S: Storage + Send> AccountFiles<S> {
                     .cloned()
                     .unwrap_or_default();
                 let Some(path) = names.iter().filter_map(Value::as_str).find(|name| {
-                    crate::record_value::search::holds_every(
+                    words::holds_every(
                         name.rsplit('/').next().unwrap_or_default(),
                         &terms,
                     )
@@ -791,7 +758,7 @@ impl<S: Storage + Send> AccountFiles<S> {
 
     /// `files_summary`: the account files' totals, one read of the account's declared totals.
     pub fn files_summary(&self) -> Answer<Value> {
-        let totals = self.store.totals(&self.account)?;
+        let totals = self.store.totals()?;
         let mut by_origin = Map::new();
         let (mut files, mut bytes) = (0i64, 0i64);
         for row in totals.iter().filter(|row| row.total == "namespace-file/origin") {
@@ -1192,13 +1159,7 @@ impl<S: Storage + Send> AccountFiles<S> {
     /// The bytes `offset..offset+length` of a file (length >= 1, within the file): one ranged GET of a whole-file
     /// object, or one ranged GET per chunk the range crosses (spans record + one batch get of those chunks first).
     pub fn read_range(&self, file: &Record, offset: u64, length: u64) -> Answer<Vec<u8>> {
-        self.read_range_inner(file, offset, length, false)
-    }
-
-    /// The native verifier additionally requires the exact physical object length on each actual response. Keep
-    /// span resolution in this one owner; ordinary ranged reads retain their existing contract and request count.
-    fn read_range_verified(&self, file: &Record, offset: u64, length: u64) -> Answer<Vec<u8>> {
-        self.read_range_inner(file, offset, length, true)
+        self.read_range_inner(file, offset, length)
     }
 
     fn append_page(
@@ -1422,7 +1383,6 @@ impl<S: Storage + Send> AccountFiles<S> {
         file: &Record,
         offset: u64,
         length: u64,
-        verified: bool,
     ) -> Answer<Vec<u8>> {
         let spans = file.value.get("spans").and_then(Value::as_u64).unwrap_or(0);
         let byte_length = file
@@ -1468,7 +1428,7 @@ impl<S: Storage + Send> AccountFiles<S> {
                         .collect();
                     let page_id_refs: Vec<&str> = page_ids.iter().map(String::as_str).collect();
                     self.check_current()?;
-                    let page_records = self.store.get_many(&self.account, SPANS, &page_id_refs)?;
+                    let page_records = self.store.get_many(SPANS, &page_id_refs)?;
                     self.check_current()?;
                     let mut parsed_pages = Vec::with_capacity(page_numbers.len());
                     for ((page, page_id), record) in
@@ -1525,12 +1485,7 @@ impl<S: Storage + Send> AccountFiles<S> {
             let origin = text(&file.value, "origin").ok_or(crate::cause!(Error::Unavailable))?;
             let key = text(&file.value, "key").ok_or(crate::cause!(Error::Unavailable))?;
             self.check_current()?;
-            let bytes = if verified {
-                self.objects
-                    .read_verified(origin, key, offset, length, byte_length)?
-            } else {
-                self.objects.read(origin, key, offset, length)?
-            };
+            let bytes = self.objects.read(origin, key, offset, length)?;
             self.check_current()?;
             return Ok(bytes);
         }
@@ -1555,7 +1510,7 @@ impl<S: Storage + Send> AccountFiles<S> {
         }
         let chunk_ids: Vec<&str> = pieces.iter().map(|(_, _, chunk)| chunk.as_str()).collect();
         self.check_current()?;
-        let chunks = self.store.get_many(&self.account, CHUNKS, &chunk_ids)?;
+        let chunks = self.store.get_many(CHUNKS, &chunk_ids)?;
         self.check_current()?;
         let mut bytes = Vec::with_capacity(capacity);
         for ((start, size, _), chunk) in pieces.iter().zip(chunks) {
@@ -1565,20 +1520,7 @@ impl<S: Storage + Send> AccountFiles<S> {
             let origin = text(&chunk.value, "origin").ok_or(crate::cause!(Error::Unavailable))?;
             let key = text(&chunk.value, "key").ok_or(crate::cause!(Error::Unavailable))?;
             self.check_current()?;
-            let part = if verified {
-                let total = chunk
-                    .value
-                    .get("byte_length")
-                    .and_then(Value::as_u64)
-                    .ok_or(crate::cause!(Error::Unavailable))?;
-                if total != *size {
-                    return Err(crate::cause!(Error::Unavailable).into());
-                }
-                self.objects
-                    .read_verified(origin, key, from - start, to - from, total)?
-            } else {
-                self.objects.read(origin, key, from - start, to - from)?
-            };
+            let part = self.objects.read(origin, key, from - start, to - from)?;
             self.check_current()?;
             if part.len() as u64 != to - from {
                 return Err(crate::cause!(Error::Unavailable).into());
@@ -1863,7 +1805,6 @@ impl<S: Storage + Send> AccountFiles<S> {
             "files_summary" => self.files_summary(),
             "usage_days" => usage::days(
                 &self.store,
-                &self.account,
                 field("after"),
                 number("limit").map(|limit| limit as usize),
             )
@@ -2032,7 +1973,7 @@ impl<S: Storage + Send> AccountFiles<S> {
                 // Old src/file-tools.mjs:135: the results merge of kind `facts`; read back by read_file_results.
                 (Some(identity), Some(facts)) => account_routes::Files::shipped()
                     .ok_or(AccountFilesError::Records(
-                        crate::cause!(crate::records::Error::Unavailable),
+                        crate::cause!(crate::store::Error::Unavailable),
                      crate::cause!()))
                     .and_then(|files| {
                         self.merge_file_result(
@@ -2219,7 +2160,7 @@ impl<S: Storage + Send> AccountFiles<S> {
     pub fn origins(&self) -> Answer<Vec<(String, Origin)>> {
         let page = self
             .store
-            .list_page(&self.account, ORIGINS, "", MAX_PAGE_ITEMS)?;
+            .list_page(ORIGINS, "", MAX_PAGE_ITEMS)?;
         page.items
             .into_iter()
             .map(|record| {

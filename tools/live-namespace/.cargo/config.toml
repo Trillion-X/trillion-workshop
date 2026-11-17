@@ -1,4 +1,0 @@
-[env]
-# The record store meters its reads by SQLite's per-loop scan counters (src/sqlite_work.rs `sqlite3_stmt_scanstatus`), which the bundled SQLite
-# compiles in only when asked.
-LIBSQLITE3_FLAGS = "SQLITE_ENABLE_STMT_SCANSTATUS"

@@ -8,13 +8,13 @@
 // Non-Negotiable Invariants:
 // - The store credential reaches the run only on the file descriptors the engine attached, is read once into `secrets::Held`,
 //   and is never printed, logged or put in an answer.
-// - A call never creates a store: the first run makes it (`ensure_store`) from the attached connection's own facts, and
-//   every later call opens the file that is there.
+// - A call never makes the person's files: the first run makes them (`ensure_files`) from the attached connection's own facts, and
+//   every later call finds the rows that are there.
 // - Every call stops taking steps in time to answer inside its deadline (`ANSWER_MARGIN`), and a call asked to stop
 //   (the caller went away) takes no later step.
 //
 // Key Concepts:
-// - `Namespace` is the door, the state folder and the account name a run serves; `Namespace::call` is the one call.
+// - `Namespace` is the door, the person's rows, the state folder and the account name a run serves; `Namespace::call` is the one call.
 //
 // AI Assistant Directive:
 // The extensive documentation in this codebase is a critical design feature.
@@ -29,14 +29,16 @@ use live_namespace::{
         account_routes::{AccountFilesDoor, Failure},
         bind::{self, NewAccountFiles},
         settings::call_deadline,
-        usage, FILES,
+        usage,
     },
-    legacy_records::Bounds,
     secrets::{self, Held},
-    storage::record_store_resources,
+    store::{
+        link::{Link, PostgresAddress},
+        SqlStore, Store,
+    },
 };
 use serde_json::Value;
-use settings::Settings;
+use settings::{Rows, Settings};
 use std::{
     error::Error,
     path::{Path, PathBuf},
@@ -54,20 +56,25 @@ type Refusal = Box<dyn Error + Send + Sync>;
 pub struct Namespace {
     door: &'static AccountFilesDoor,
     state: PathBuf,
+    store: Store,
     account: String,
+    call_limit: Duration,
 }
 
 impl Namespace {
-    /// Open the run: read the attached connection once, make the store on a first run, and start the usage flush.
+    /// Open the run: read the attached connections once, open the person's rows, make the files on a first run, and start the
+    /// usage flush.
     pub fn open(settings: &Settings, state: &Path) -> Result<Self, Refusal> {
         let door = AccountFilesDoor::shipped().ok_or("the account files door DATA is refused")?;
-        make_private_folder(state)?;
-        let state = std::fs::canonicalize(state)?;
-        let fields: Vec<(&str, i32)> = settings.attached.iter().map(|attached| (attached.field.as_str(), attached.fd)).collect();
-        let held = secrets::keep(Held::from_descriptors(&fields)?);
-        ensure_store(&state, settings, &held)?;
+        let (state, held, store) = open_rows(settings, state)?;
+        ensure_files(&store, settings, &held)?;
         usage::flush_rows_every(door.usage_flush_period(), |line| live_namespace::quiet_eprintln!("{line}"));
-        Ok(Self { door, state, account: settings.account.clone() })
+        Ok(Self { door, state, store, account: settings.account.clone(), call_limit: Duration::from_secs(settings.call_seconds) })
+    }
+
+    /// The person's rows, opened as a run opens them, for a command that only reads or binds them.
+    pub fn rows(settings: &Settings, state: &Path) -> Result<Store, Refusal> {
+        Ok(open_rows(settings, state)?.2)
     }
 
     /// The operations this run answers, as the routes DATA lists them.
@@ -84,15 +91,33 @@ impl Namespace {
         current: Arc<dyn Fn() -> bool + Send + Sync>,
         fits: &dyn Fn(&Value) -> bool,
     ) -> Result<Value, Failure> {
-        let limit = call_deadline(Instant::now(), Bounds::default().elapsed, input);
+        let limit = call_deadline(Instant::now(), self.call_limit, input);
         let until = limit.checked_sub(ANSWER_MARGIN).unwrap_or(limit);
         let live = {
             let current = current.clone();
             Arc::new(move || Instant::now() < limit && current()) as Arc<dyn Fn() -> bool + Send + Sync>
         };
-        self.door.call_while_fitting(&self.state, &self.account, operation, input, until, live, fits)
+        self.door.call_while_fitting(&self.state, &self.store, &self.account, operation, input, until, live, fits)
     }
 
+}
+
+/// The state folder (made when it is not there, readable by its owner only), what the run holds of its attached connections, and the
+/// person's rows opened as `settings` says.
+fn open_rows(settings: &Settings, state: &Path) -> Result<(PathBuf, Arc<Held>, Store), Refusal> {
+    make_private_folder(state)?;
+    let state = std::fs::canonicalize(state)?;
+    let fields: Vec<(&str, &str, i32)> = settings.attached.iter().map(|attached| (attached.service.as_str(), attached.field.as_str(), attached.fd)).collect();
+    let held = secrets::keep(Held::from_descriptors(&fields)?);
+    let link = match &settings.store {
+        Rows::Sqlite { file } => Link::sqlite(&state.join(file))?,
+        Rows::Postgres { host, port, database, user, encrypted, password } => {
+            let password = held.plain(password).map_err(|_| "the database password is not attached: attach it to start the run")?;
+            Link::postgres(&PostgresAddress { host, port: *port, database, user, password: password.as_str(), encrypted: *encrypted })?
+        }
+    };
+    let store: Store = Arc::new(SqlStore::open(link)?);
+    Ok((state, held, store))
 }
 
 /// Make the state folder when it is not there, readable by its owner only.
@@ -102,13 +127,10 @@ fn make_private_folder(state: &Path) -> Result<(), Refusal> {
     Ok(())
 }
 
-/// Make the person's files store on a first run, from the facts of the attached connection: an S3-compatible store, the key
-/// id its requests are signed with, and the folder every key starts in. A store that is there is left as it is.
-fn ensure_store(state: &Path, settings: &Settings, held: &Held) -> Result<(), Refusal> {
-    let path = record_store_resources::placement(FILES)
-        .and_then(|placement| placement.in_state(state))
-        .ok_or("the account files have no placement in a state folder")?;
-    if std::fs::symlink_metadata(&path).is_ok() {
+/// Make the person's files on a first run, from the facts of the attached connection: an S3-compatible store, the key id its
+/// requests are signed with, and the folder every key starts in. Files that are there are left as they are.
+fn ensure_files(store: &Store, settings: &Settings, held: &Held) -> Result<(), Refusal> {
+    if bind::binding_in(store).is_some() {
         return Ok(());
     }
     let fact = |field: &str| -> Result<String, Refusal> {
@@ -128,9 +150,6 @@ fn ensure_store(state: &Path, settings: &Settings, held: &Held) -> Result<(), Re
     if !held.holds(&secrets::held_name(secrets::SERVICE, "secret").map_err(|error| error.to_string())?) {
         return Err("the files-store connection holds no secret: attach it to start the first run".into());
     }
-    bind::make_new(state, &settings.account, Some(&files)).map_err(|error| match error.downcast_ref::<live_namespace::records::Error>() {
-        Some(refused) => format!("{refused} ({})", refused.cause()),
-        None => error.to_string(),
-    })?;
+    bind::make_new(store, &settings.account, Some(&files)).map_err(|error| error.to_string())?;
     Ok(())
 }

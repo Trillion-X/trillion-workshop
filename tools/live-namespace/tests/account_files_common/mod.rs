@@ -17,11 +17,7 @@ use live_namespace::{
         objects::{Body, Listing, ObjectError, Objects, Stat},
         AccountFiles, CallControl, ORIGINS,
     },
-    records::{Mutation, Records},
-    storage::{
-        memory::Memory,
-        record_store::{settings, RecordStore, RealClock},
-    },
+    store::{Mutation, SqlStore, Store},
 };
 
 pub const ACCOUNT: &str = "account-a";
@@ -94,10 +90,9 @@ pub fn origin(takes_new_bytes: bool) -> Value {
 }
 
 /// Empty account files with one loopback store, its bytes in `Held`, and a clock the test moves.
-pub fn account_files() -> (AccountFiles<Memory>, Arc<Held>, Clock) {
-    let limits = settings::Limits::fixed(4 << 20, 10 << 30);
-    let mut store = RecordStore::new(Memory::open("record_store").unwrap(), Box::new(RealClock), limits).unwrap();
-    store.mutate(ACCOUNT, ORIGINS, Mutation { id: ORIGIN.into(), expected_version: 0, request_key: "origin".into(), deleted: false, value: origin(true) }).unwrap();
+pub fn account_files() -> (AccountFiles, Arc<Held>, Clock) {
+    let store: Store = Arc::new(SqlStore::memory().unwrap());
+    store.mutate(ORIGINS, Mutation { id: ORIGIN.into(), expected_version: 0, request_key: "origin".into(), deleted: false, value: origin(true) }).unwrap();
     let held = Arc::new(Held::default());
     let time = Arc::new(AtomicU64::new(1_790_000_000_000));
     let clock = time.clone();
@@ -106,18 +101,18 @@ pub fn account_files() -> (AccountFiles<Memory>, Arc<Held>, Clock) {
 }
 
 /// One tool call of the contract.
-pub fn call(files: &mut AccountFiles<Memory>, tool: &str, input: Value) -> Result<Value, live_namespace::account_files::AccountFilesError> {
+pub fn call(files: &mut AccountFiles, tool: &str, input: Value) -> Result<Value, live_namespace::account_files::AccountFilesError> {
     files.call(tool, &input).expect("an account files tool")
 }
 
 /// Write `bytes` under `name` whole; the answer is its identity.
-pub fn write(files: &mut AccountFiles<Memory>, name: &str, bytes: &[u8]) -> String {
+pub fn write(files: &mut AccountFiles, name: &str, bytes: &[u8]) -> String {
     let origins = files.origins().unwrap();
     files.write_file(name, bytes, "text/plain", &origins).unwrap()["identity"].as_str().unwrap().to_owned()
 }
 
 /// Upload `bytes` under `name` in 32 KiB pieces as upload `upload` (one hex digit, repeated); the answer is its identity.
-pub fn upload(files: &mut AccountFiles<Memory>, upload: char, name: &str, bytes: &[u8]) -> String {
+pub fn upload(files: &mut AccountFiles, upload: char, name: &str, bytes: &[u8]) -> String {
     let upload_id: String = std::iter::repeat_n(upload, 32).collect();
     files.write_file_start(&upload_id, name, bytes.len() as u64, "application/octet-stream", None).unwrap();
     for (at, piece) in bytes.chunks(32 * 1024).enumerate() {

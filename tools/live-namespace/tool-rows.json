@@ -9,7 +9,7 @@
         "id": "tool:run-the-namespace-files-server",
         "label": "Run the Namespace files server (runs on your computer)",
         "job": "Serve the person's files: every name they were given, listed, read by range, written, moved, shared and released, as tools an AI calls and as a WebDAV folder Finder, a file browser or an editor mounts",
-        "description": "Starts the Namespace server (tools/live-namespace) over one state folder of the person's own. Mode `mcp` answers MCP over stdio: each operation of the files is a tool (list_files, find_file, read_file, read_file_span, write_file, write_file_start, write_file_piece, write_file_finish, share_file, move_names, copy_names, set_aside, put_back, queue_release, release_gone_bytes and the rest; tools/list names them all). Mode `dav` serves the WebDAV folder on 127.0.0.1 at the port in settings.json (38481 as shipped) until stopped: in Finder choose Go, Connect to Server and enter http://127.0.0.1:38481/ (macOS `mount_webdav -S http://127.0.0.1:38481/ <empty folder>` does the same). Mode `serve` is both. The names live in a record store file in the state folder (never a temporary folder); the bytes live in the person's own S3-compatible store, read by the asked range only, never whole. The store is the person's `files-store` connection: its fields reach the run on the file descriptors settings.json `attached` names (secret 3, key-id 4, bucket 5, endpoint 6, region 7) and are never printed, logged or written. A first run makes the store file from the connection's endpoint, bucket, region and key id and the key_prefix in settings.json. The WebDAV folder answers 127.0.0.1 and localhost only and refuses a request a web page sent. share_file refuses until the grant owner that mints a share link is attached (it is not part of this server).",
+        "description": "Starts the Namespace server (tools/live-namespace) over one state folder of the person's own. Mode `mcp` answers MCP over stdio: each operation of the files is a tool (list_files, find_file, read_file, read_file_span, write_file, write_file_start, write_file_piece, write_file_finish, share_file, move_names, copy_names, set_aside, put_back, queue_release, release_gone_bytes and the rest; tools/list names them all). Mode `dav` serves the WebDAV folder on 127.0.0.1 at the port in settings.json (38481 as shipped) until stopped: in Finder choose Go, Connect to Server and enter http://127.0.0.1:38481/ (macOS `mount_webdav -S http://127.0.0.1:38481/ <empty folder>` does the same). Mode `serve` is both. The names index is rows in the person's own SQL database, set by settings.json `store`: a SQLite file of that name in the state folder as shipped, or the person's Postgres database (host, port, database, user and the attached field that holds its password); the bytes live in the person's own S3-compatible store, read by the asked range only, never whole. The byte store is the person's `files-store` connection and the database's password is its own attached field: each reaches the run on the file descriptor settings.json `attached` names (files-store secret 3, key-id 4, bucket 5, endpoint 6, region 7) and is never printed, logged or written. A first run makes the files from the connection's endpoint, bucket, region and key id and the key_prefix in settings.json. The WebDAV folder answers 127.0.0.1 and localhost only and refuses a request a web page sent. share_file refuses until a delivery owner that serves a shared file's bytes is attached (it is not part of this server).",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -30,7 +30,7 @@
             },
             "state_folder": {
               "type": "string",
-              "description": "The person's own folder for the names (an absolute path in their home, never a temporary folder). It is made, readable by its owner only, when it is not there."
+              "description": "The person's own folder for this run's working files (and the SQLite rows file, when settings.json `store` is SQLite): an absolute path in their home. It is made, readable by its owner only, when it is not there."
             },
             "settings": {
               "type": "string",
@@ -52,9 +52,10 @@
           "needs": [
             "rust 1.93 or newer",
             "the person's files-store connection (an S3-compatible store: its secret, key id, bucket, endpoint and region), each field handed to the run on the descriptor settings.json `attached` names, read from the vault by name and never printed",
+            "the person's database: a SQLite file in the state folder, or their Postgres database and its password as an attached field, as settings.json `store` says",
             "an empty or earlier state folder in the person's home"
           ],
-          "say": "This runs on the person's own computer. Run it from tools/live-namespace (its .cargo/config.toml builds SQLite with the scan counters the record store meters its reads by). Give the run the files-store connection's fields on the descriptors settings.json names (a here-string of each vault value, never echoed or logged). The first run builds and makes the store file. For the Finder folder, run mode dav (or serve) and connect to http://127.0.0.1:38481/ ; for an AI, run mode mcp as the AI's stdio MCP server. The state folder must be in the person's home: the record store refuses to keep names in a temporary folder."
+          "say": "This runs on the person's own computer. Run it from tools/live-namespace. Give the run the files-store connection's fields (and the database password, when the rows are in Postgres) on the descriptors settings.json names (a here-string of each vault value, never echoed or logged). The first run builds and makes the files. For the Finder folder, run mode dav (or serve) and connect to http://127.0.0.1:38481/ ; for an AI, run mode mcp as the AI's stdio MCP server."
         },
         "maker": "maker:live-namespace",
         "licence_class": "licence:maker-own",
@@ -62,7 +63,7 @@
           "placement:your-computer"
         ],
         "provenance": {
-          "source": "Trillion-X/trillion-rust src/account_files at 5fbc2ff4b1 (moved into tools/live-namespace byte for byte), over the record store of tools/keep-lists-of-rows/account-state"
+          "source": "Trillion-X/trillion-rust src/account_files at 5fbc2ff4b1 (moved into tools/live-namespace), over its own rows in SQL (src/store)"
         }
       }
     }

@@ -5,10 +5,10 @@
 //   live-namespace mcp   --state FOLDER [--settings FILE]   MCP over stdio: each operation of the account files is a tool
 //   live-namespace dav   --state FOLDER [--settings FILE]   the WebDAV folder on 127.0.0.1:<settings dav.port>, until stopped
 //   live-namespace serve --state FOLDER [--settings FILE]   both (the WebDAV folder runs while the stdio session lasts)
-//   live-namespace account-files-bind STORE_FILE ACCOUNT [show | into STATE_FOLDER]   bind a store file to its account files
+//   live-namespace account-files-bind [show] --state FOLDER [--settings FILE]   bind the origins of the person's files to them
 //
-// The store credential is never an argument: the engine attaches the person's `files-store` connection to the run on the file
-// descriptors `settings.json` `attached` names (src/serve/mod.rs).
+// A credential is never an argument: the engine attaches the person's `files-store` connection (and the database's own) to the run on
+// the file descriptors `settings.json` `attached` names (src/serve/mod.rs).
 //
 // Non-Negotiable Invariants:
 // - A refusal names what was wrong with the run, never a value of the connection.
@@ -28,55 +28,52 @@ use std::{
     sync::Arc,
 };
 
-const USAGE: &str = "usage: live-namespace (mcp | dav | serve) --state FOLDER [--settings FILE] | account-files-bind STORE_FILE ACCOUNT [show | into STATE_FOLDER]";
+const USAGE: &str = "usage: live-namespace (mcp | dav | serve) --state FOLDER [--settings FILE] | account-files-bind [show] --state FOLDER [--settings FILE]";
 
 /// The settings file next to the tool's own folder when none is named: the one the tool ships.
 const SHIPPED_SETTINGS: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/settings.json");
 
 enum Command {
     Serve { mcp: bool, dav: bool, state: PathBuf, settings: PathBuf },
-    Bind { store: PathBuf, account: String, show: bool, into: Option<PathBuf> },
+    Bind { show: bool, state: PathBuf, settings: PathBuf },
+}
+
+/// The `--state` and `--settings` flags of a command.
+fn flags(args: &[String]) -> Result<(PathBuf, PathBuf), String> {
+    let (mut state, mut settings) = (None, None);
+    let mut rest = args.iter();
+    while let Some(flag) = rest.next() {
+        match (flag.as_str(), rest.next()) {
+            ("--state", Some(folder)) => state = Some(PathBuf::from(folder)),
+            ("--settings", Some(file)) => settings = Some(PathBuf::from(file)),
+            _ => return Err(USAGE.into()),
+        }
+    }
+    Ok((state.ok_or(USAGE)?, settings.unwrap_or_else(|| PathBuf::from(SHIPPED_SETTINGS))))
 }
 
 fn parse(args: &[String]) -> Result<Command, String> {
     let command = args.first().map(String::as_str).ok_or(USAGE)?;
     match command {
         "mcp" | "dav" | "serve" => {
-            let (mut state, mut settings) = (None, None);
-            let mut rest = args[1..].iter();
-            while let Some(flag) = rest.next() {
-                match (flag.as_str(), rest.next()) {
-                    ("--state", Some(folder)) => state = Some(PathBuf::from(folder)),
-                    ("--settings", Some(file)) => settings = Some(PathBuf::from(file)),
-                    _ => return Err(USAGE.into()),
-                }
-            }
-            Ok(Command::Serve {
-                mcp: command != "dav",
-                dav: command != "mcp",
-                state: state.ok_or(USAGE)?,
-                settings: settings.unwrap_or_else(|| PathBuf::from(SHIPPED_SETTINGS)),
-            })
+            let (state, settings) = flags(&args[1..])?;
+            Ok(Command::Serve { mcp: command != "dav", dav: command != "mcp", state, settings })
         }
-        "account-files-bind" => match &args[1..] {
-            [store, account] => Ok(Command::Bind { store: store.into(), account: account.clone(), show: false, into: None }),
-            [store, account, show] if show == "show" => Ok(Command::Bind { store: store.into(), account: account.clone(), show: true, into: None }),
-            [store, account, into, state] if into == "into" => Ok(Command::Bind { store: store.into(), account: account.clone(), show: false, into: Some(state.into()) }),
-            _ => Err(USAGE.into()),
-        },
+        "account-files-bind" => {
+            let show = args.get(1).is_some_and(|word| word == "show");
+            let (state, settings) = flags(&args[1 + usize::from(show)..])?;
+            Ok(Command::Bind { show, state, settings })
+        }
         _ => Err(USAGE.into()),
     }
 }
 
 fn run(command: Command) -> Result<(), String> {
     match command {
-        Command::Bind { store, account, show, into } => {
-            let mut out = io::stdout();
-            match into {
-                Some(state) => live_namespace::account_files::bind::install(&store, &account, &state, &mut out),
-                None => live_namespace::account_files::bind::run(&store, &account, show, &mut out),
-            }
-            .map_err(|error| error.to_string())
+        Command::Bind { show, state, settings } => {
+            let settings = Settings::read(&settings).map_err(|error| error.to_string())?;
+            let store = Namespace::rows(&settings, &state).map_err(|error| error.to_string())?;
+            live_namespace::account_files::bind::run(&store, &settings.account, show, &mut io::stdout()).map_err(|error| error.to_string())
         }
         Command::Serve { mcp, dav, state, settings } => {
             let settings = Settings::read(&settings).map_err(|error| error.to_string())?;

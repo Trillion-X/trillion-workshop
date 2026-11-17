@@ -37,9 +37,8 @@ use super::{
     RESULT_INDEX_KIND, RESULT_KIND,
 };
 use crate::{
-    records::{Mutation, Record, Records, MAX_PAGE_ITEMS},
+    store::{Mutation, Record, MAX_PAGE_ITEMS},
     refusal_cause::{Cause, CodedError},
-    storage::Storage,
 };
 use content_crypto::advanced::blake3;
 use serde_json::{json, Map, Value};
@@ -119,7 +118,7 @@ pub fn admit_read(account: &str, caller: Option<&str>) -> Option<OpenRead> {
     Some(OpenRead { key, id })
 }
 
-impl<S: Storage + Send> AccountFiles<S> {
+impl AccountFiles {
     /// One change's request key: what, which result, which value, at which version of its record and when.
     fn result_request(&self, what: &str, identity: &str, kind: &str, value_identity: &str, version: i64) -> String {
         blake3::hash(format!("{what}\0{identity}\0{kind}\0{value_identity}\0{version}\0{}", self.now_ms()).as_bytes()).to_hex().to_string()
@@ -137,7 +136,7 @@ impl<S: Storage + Send> AccountFiles<S> {
         for known in self.same_file(identity)? {
             let found = match kind {
                 Some(kind) => self.get(&results_scope(&known), kind)?.into_iter().collect::<Vec<_>>(),
-                None => self.store.list_page(&self.account, &results_scope(&known), "", MAX_PAGE_ITEMS)?.items,
+                None => self.store.list_page(&results_scope(&known), "", MAX_PAGE_ITEMS)?.items,
             };
             for record in found {
                 match newest.iter_mut().find(|kept| kept.id == record.id) {
@@ -287,7 +286,7 @@ impl<S: Storage + Send> AccountFiles<S> {
     pub fn list_file_results(&self, kind: Option<&str>, after: Option<&str>, limit: Option<usize>, caller: Option<&str>) -> Answer<Value> {
         let limits = &settings().results;
         let Some(kind) = kind else {
-            let page = self.store.list_page(&self.account, RESULT_COUNTS, "", MAX_PAGE_ITEMS)?;
+            let page = self.store.list_page(RESULT_COUNTS, "", MAX_PAGE_ITEMS)?;
             let kinds: Map<String, Value> = page.items.into_iter().map(|record| (record.id, record.value.get("n").cloned().unwrap_or(json!(0)))).collect();
             return Ok(json!({ "kinds": kinds }));
         };
@@ -296,7 +295,7 @@ impl<S: Storage + Send> AccountFiles<S> {
         }
         let limit = limit.filter(|limit| *limit > 0).unwrap_or(limits.default_page_limit).min(limits.max_page_limit);
         let Some(_open) = admit_read(&self.account, caller) else { return Ok(busy(crate::cause!(caller_site: result_read_not_admitted))) };
-        let page = self.store.list_page(&self.account, &kind_scope(kind), after.unwrap_or(""), limit)?;
+        let page = self.store.list_page(&kind_scope(kind), after.unwrap_or(""), limit)?;
         let mut results = Vec::new();
         let mut bytes = 0usize;
         let mut cut = false;

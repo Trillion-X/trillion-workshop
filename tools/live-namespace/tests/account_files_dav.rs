@@ -11,7 +11,7 @@ mod account_files_common;
 use account_files_common::*;
 use live_namespace::account_files::dav::{Request, Response};
 
-fn ask(files: &live_namespace::account_files::AccountFiles<live_namespace::storage::memory::Memory>, method: &str, path: &str, depth: Option<&str>, range: Option<&str>) -> Response {
+fn ask(files: &live_namespace::account_files::AccountFiles, method: &str, path: &str, depth: Option<&str>, range: Option<&str>) -> Response {
     files.dav("/files", &Request { method, path, depth, range }).unwrap()
 }
 

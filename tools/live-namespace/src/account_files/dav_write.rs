@@ -43,7 +43,6 @@ use super::{
     settings::{settings, word},
     text, AccountFiles, AccountFilesError, Answer, LIVE, SET_ASIDE, WRITE_MAX_BYTES,
 };
-use crate::storage::Storage;
 use content_crypto::advanced::blake3;
 use serde_json::Value;
 
@@ -189,7 +188,7 @@ enum Carried {
     Conflict,
 }
 
-impl<S: Storage + Send> AccountFiles<S> {
+impl AccountFiles {
     /// True when `name` is a folder, or a name of any file (stored or not): what a MKCOL or a new folder would collide with.
     fn dav_taken(&self, name: &str) -> Answer<bool> {
         if name == "/" {
@@ -246,7 +245,7 @@ impl<S: Storage + Send> AccountFiles<S> {
 
     /// The lock that holds `name` now: its own, or one of a folder above it locked at depth infinity. None when no lock
     /// holds it or the lock ended.
-    fn dav_lock_on(&self, name: &str) -> Answer<Option<crate::records::Record>> {
+    fn dav_lock_on(&self, name: &str) -> Answer<Option<crate::store::Record>> {
         let now = self.now_ms();
         let mut at = name.to_owned();
         loop {
@@ -274,7 +273,7 @@ impl<S: Storage + Send> AccountFiles<S> {
     fn dav_drop_lock(&mut self, name: &str, now: &str) -> Answer<()> {
         let (version, held) = self.held(LOCKS, name)?;
         if held.is_some() {
-            let gone = crate::records::Mutation { id: name.to_owned(), expected_version: version, request_key: request_key("unlock", name, now), deleted: true, value: Value::Null };
+            let gone = crate::store::Mutation { id: name.to_owned(), expected_version: version, request_key: request_key("unlock", name, now), deleted: true, value: Value::Null };
             self.mutate(LOCKS, gone)?;
         }
         Ok(())
@@ -310,7 +309,7 @@ impl<S: Storage + Send> AccountFiles<S> {
             let depth = text(&lock.value, "depth").unwrap_or("infinity").to_owned();
             let mut value = lock.value.clone();
             value["expires_at_ms"] = serde_json::json!(expires_at_ms);
-            self.mutate(LOCKS, crate::records::Mutation { id: name.to_owned(), expected_version: version, request_key: request_key("lock-refresh", name, now), deleted: false, value })?;
+            self.mutate(LOCKS, crate::store::Mutation { id: name.to_owned(), expected_version: version, request_key: request_key("lock-refresh", name, now), deleted: false, value })?;
             let body = lock_discovery(&token, &depth, seconds, &root);
             return Ok(Response::new(200, &[("content-type", "application/xml; charset=utf-8")], body));
         }
@@ -333,7 +332,7 @@ impl<S: Storage + Send> AccountFiles<S> {
         let value = serde_json::json!({
             "kind": LOCK_KIND, "name": name, "token": token, "depth": depth, "expires_at_ms": expires_at_ms, "locked_at": now,
         });
-        self.mutate(LOCKS, crate::records::Mutation { id: name.to_owned(), expected_version: version, request_key: request_key("lock", name, now), deleted: false, value })?;
+        self.mutate(LOCKS, crate::store::Mutation { id: name.to_owned(), expected_version: version, request_key: request_key("lock", name, now), deleted: false, value })?;
         let held_token = format!("<{token}>");
         let body = lock_discovery(&token, depth, seconds, &root);
         Ok(Response::new(if made { 201 } else { 200 }, &[("content-type", "application/xml; charset=utf-8"), ("lock-token", &held_token)], body))

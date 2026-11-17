@@ -54,10 +54,7 @@ use super::{
     AccountFilesError, CHUNKS, FILES, ORIGINS, SPANS,
 };
 use content_crypto::advanced;
-use crate::{
-    records::{Error, Mutation, Record, Records, MAX_PAGE_ITEMS},
-    storage::{record_store::RecordStore, Storage},
-};
+use crate::store::{Error, Mutation, Record, Store, MAX_PAGE_ITEMS};
 use crate::refusal_cause::{Cause, CodedError};
 use serde::Serialize;
 use serde_json::{json, Value};
@@ -630,28 +627,27 @@ fn carry_all(
 }
 
 /// The mover over one account's store.
-pub struct Mover<'a, S: Storage + Send> {
-    store: &'a mut RecordStore<S>,
-    account: String,
+pub struct Mover<'a> {
+    store: &'a Store,
     plan: Plan,
     report: Report,
     counts: Arc<Counts>,
     started: Instant,
 }
 
-impl<'a, S: Storage + Send> Mover<'a, S> {
-    pub fn new(store: &'a mut RecordStore<S>, account: &str, plan: Plan) -> Self {
+impl<'a> Mover<'a> {
+    pub fn new(store: &'a Store, plan: Plan) -> Self {
         let report = Report { from: plan.from.clone(), to: plan.to.clone(), dry_run: plan.dry_run, ..Report::default() };
         let counts = Arc::new(Counts::with_budget(if plan.dry_run { None } else { plan.budget.clone() }));
-        Self { store, account: account.into(), plan, report, counts, started: Instant::now() }
+        Self { store, plan, report, counts, started: Instant::now() }
     }
 
     /// Mark `from` as taking no new bytes, unless this is a dry run (see `drain`).
     fn drain(&mut self) -> Result<(), AccountFilesError> {
         if self.plan.dry_run {
-            return check_pair(self.store, &self.account, &self.plan.from, &self.plan.to).map(|_| ());
+            return check_pair(self.store, &self.plan.from, &self.plan.to).map(|_| ());
         }
-        drain(self.store, &self.account, &self.plan.from, &self.plan.to).map(|_| ())
+        drain(self.store, &self.plan.from, &self.plan.to).map(|_| ())
     }
 
     /// Run every phase; answers the report (also on a dry run). Failed keys are counted, not fatal: a later run
@@ -698,7 +694,7 @@ impl<'a, S: Storage + Send> Mover<'a, S> {
         let mut after = String::new();
         // One page of records is carried before the next page is read.
         loop {
-            let page = self.store.list_page(&self.account, scope, &after, MAX_PAGE_ITEMS)?;
+            let page = self.store.list_page(scope, &after, MAX_PAGE_ITEMS)?;
             let next = page.next.clone();
             let items = self.items_of(phase, scope, page.items);
             self.carry_items(objects, items, progress)?;
@@ -748,7 +744,7 @@ impl<'a, S: Storage + Send> Mover<'a, S> {
     fn carry_items(&mut self, objects: &(dyn Objects + Sync), items: Vec<Item>, progress: &(dyn Fn(&str, &Phase) + Sync)) -> Result<(), AccountFilesError> {
         let moved = moved_scope(&self.plan.from);
         let keys: Vec<&str> = items.iter().map(|item| item.key.as_str()).collect();
-        let proofs = if keys.is_empty() { Vec::new() } else { self.store.get_many(&self.account, &moved, &keys)? };
+        let proofs = if keys.is_empty() { Vec::new() } else { self.store.get_many(&moved, &keys)? };
         let mut todo = Vec::new();
         for (mut item, proof) in items.into_iter().zip(proofs) {
             let phase = self.report.phases.entry(item.phase).or_default();
@@ -806,7 +802,7 @@ impl<'a, S: Storage + Send> Mover<'a, S> {
                 });
                 let request_key = request_key(&["moved", &self.plan.from, &to, &item.key, &item.proof_version.to_string()]);
                 let moved = moved_scope(&self.plan.from);
-                self.store.mutate(&self.account, &moved, Mutation { id: item.key.clone(), expected_version: item.proof_version, request_key, deleted: false, value })?;
+                self.store.mutate(&moved, Mutation { id: item.key.clone(), expected_version: item.proof_version, request_key, deleted: false, value })?;
                 self.relabel(&item, &to)?;
                 let phase = self.report.phases.entry(item.phase).or_default();
                 phase.copied += 1;
@@ -829,7 +825,7 @@ impl<'a, S: Storage + Send> Mover<'a, S> {
         let mut value = record.value.clone();
         value["origin"] = json!(to);
         let request_key = request_key(&["relabel", scope, &record.id, to, &record.version.to_string()]);
-        self.store.mutate(&self.account, scope, Mutation { id: record.id.clone(), expected_version: record.version, request_key, deleted: false, value })?;
+        self.store.mutate(scope, Mutation { id: record.id.clone(), expected_version: record.version, request_key, deleted: false, value })?;
         self.report.phases.entry(item.phase).or_default().records_rewritten += 1;
         Ok(())
     }
@@ -844,7 +840,7 @@ impl<'a, S: Storage + Send> Mover<'a, S> {
         self.report.phases.entry("chunked_files").or_default();
         let mut after = String::new();
         loop {
-            let page = self.store.list_page(&self.account, FILES, &after, MAX_PAGE_ITEMS)?;
+            let page = self.store.list_page(FILES, &after, MAX_PAGE_ITEMS)?;
             let next = page.next.clone();
             for file in page.items {
                 if file.value.get("origin").and_then(Value::as_str) != Some(self.plan.from.as_str())
@@ -885,7 +881,7 @@ impl<'a, S: Storage + Send> Mover<'a, S> {
     fn chunks_all_at(&self, file: &Record, origin: &str) -> Result<bool, AccountFilesError> {
         let mut chunks: Vec<String> = Vec::new();
         for page in super::paged_spans::page_ids(file) {
-            let Some(record) = self.store.get(&self.account, SPANS, &page)?.record else { return Ok(false) };
+            let Some(record) = self.store.get(SPANS, &page)?.record else { return Ok(false) };
             chunks.extend(record.value.get("spans").and_then(Value::as_array).into_iter().flatten().filter_map(|span| span.get("chunk")?.as_str()).map(str::to_owned));
         }
         if chunks.is_empty() {
@@ -893,7 +889,7 @@ impl<'a, S: Storage + Send> Mover<'a, S> {
         }
         let chunks: Vec<&str> = chunks.iter().map(String::as_str).collect();
         for batch in chunks.chunks(MAX_PAGE_ITEMS) {
-            for chunk in self.store.get_many(&self.account, CHUNKS, batch)? {
+            for chunk in self.store.get_many(CHUNKS, batch)? {
                 if chunk.as_ref().and_then(|chunk| chunk.value.get("origin")).and_then(Value::as_str) != Some(origin) {
                     return Ok(false);
                 }
@@ -904,21 +900,21 @@ impl<'a, S: Storage + Send> Mover<'a, S> {
 
     /// Upload records that name `from` (uploads the hosted Worker never finished).
     fn uploads_naming_from(&self) -> Result<u64, AccountFilesError> {
-        count_naming(self.store, &self.account, super::UPLOADS, &self.plan.from)
+        count_naming(self.store, super::UPLOADS, &self.plan.from)
     }
 }
 
 /// An origin record and what it holds.
-fn origin_of<S: Storage + Send>(store: &RecordStore<S>, account: &str, id: &str) -> Result<Option<(Record, Origin)>, AccountFilesError> {
-    let Some(record) = store.get(account, ORIGINS, id)?.record else { return Ok(None) };
+fn origin_of(store: &Store, id: &str) -> Result<Option<(Record, Origin)>, AccountFilesError> {
+    let Some(record) = store.get(ORIGINS, id)?.record else { return Ok(None) };
     let origin: Origin = serde_json::from_value(record.value.clone()).map_err(|_| Error::Invalid("invalid origin record", crate::cause!()))?;
     Ok(Some((record, origin)))
 }
 
 /// Both origins exist and `to` takes new bytes; answers the `from` record.
-fn check_pair<S: Storage + Send>(store: &RecordStore<S>, account: &str, from: &str, to: &str) -> Result<(Record, Origin), AccountFilesError> {
-    let held = origin_of(store, account, from)?.ok_or(AccountFilesError::Invalid("the account has no such from origin", crate::cause!()))?;
-    let (_, to) = origin_of(store, account, to)?.ok_or(AccountFilesError::Invalid("the account has no such to origin", crate::cause!()))?;
+fn check_pair(store: &Store, from: &str, to: &str) -> Result<(Record, Origin), AccountFilesError> {
+    let held = origin_of(store, from)?.ok_or(AccountFilesError::Invalid("the account has no such from origin", crate::cause!()))?;
+    let (_, to) = origin_of(store, to)?.ok_or(AccountFilesError::Invalid("the account has no such to origin", crate::cause!()))?;
     if !to.takes_new_bytes {
         return Err(AccountFilesError::Invalid("the to origin takes no new bytes", crate::cause!()));
     }
@@ -927,15 +923,15 @@ fn check_pair<S: Storage + Send>(store: &RecordStore<S>, account: &str, from: &s
 
 /// Mark `from` as taking no new bytes (one origin record rewrite; nothing when it already takes none), after checking
 /// that `to` exists and takes them. Answers whether the record was rewritten.
-pub fn drain<S: Storage + Send>(store: &mut RecordStore<S>, account: &str, from: &str, to: &str) -> Result<bool, AccountFilesError> {
-    let (record, mut origin) = check_pair(store, account, from, to)?;
+pub fn drain(store: &Store, from: &str, to: &str) -> Result<bool, AccountFilesError> {
+    let (record, mut origin) = check_pair(store, from, to)?;
     if !origin.takes_new_bytes {
         return Ok(false);
     }
     origin.takes_new_bytes = false;
     let value = serde_json::to_value(&origin).map_err(|_| Error::Invalid("invalid origin record", crate::cause!()))?;
     let request_key = request_key(&["drain", from, &record.version.to_string()]);
-    store.mutate(account, ORIGINS, Mutation { id: record.id, expected_version: record.version, request_key, deleted: false, value })?;
+    store.mutate(ORIGINS, Mutation { id: record.id, expected_version: record.version, request_key, deleted: false, value })?;
     Ok(true)
 }
 
@@ -979,9 +975,8 @@ fn budget_of(counts: Counts, margin_percent: u64) -> (Budget, Budget) {
 /// batch get of proofs per page.
 ///
 /// Answers the work list and how many keys the store listed (0 without the listing).
-pub fn work_list<S: Storage + Send>(
-    store: &RecordStore<S>,
-    account: &str,
+pub fn work_list(
+    store: &Store,
     objects: &(dyn Objects + Sync),
     from: &str,
     with_listing: bool,
@@ -993,7 +988,7 @@ pub fn work_list<S: Storage + Send>(
     for scope in [CHUNKS, FILES] {
         let mut after = String::new();
         loop {
-            let page = store.list_page(account, scope, &after, MAX_PAGE_ITEMS)?;
+            let page = store.list_page(scope, &after, MAX_PAGE_ITEMS)?;
             let found: Vec<Carry> = page
                 .items
                 .iter()
@@ -1009,7 +1004,7 @@ pub fn work_list<S: Storage + Send>(
                 })
                 .collect();
             let ids: Vec<&str> = found.iter().map(|key| key.key.as_str()).collect();
-            let proofs = if ids.is_empty() { Vec::new() } else { store.get_many(account, &moved, &ids)? };
+            let proofs = if ids.is_empty() { Vec::new() } else { store.get_many(&moved, &ids)? };
             for (key, proof) in found.into_iter().zip(proofs) {
                 named.insert(key.key.clone());
                 if proof.is_none() {
@@ -1028,7 +1023,7 @@ pub fn work_list<S: Storage + Send>(
     let listing = listing_of(objects, from, listed_so_far)?;
     for page in listing.chunks(MAX_PAGE_ITEMS) {
         let ids: Vec<&str> = page.iter().map(|(key, _)| key.as_str()).collect();
-        for ((key, length), proof) in page.iter().zip(store.get_many(account, &moved, &ids)?) {
+        for ((key, length), proof) in page.iter().zip(store.get_many(&moved, &ids)?) {
             let proved = proof.is_some_and(|proof| proof.value.get("byte_length").and_then(Value::as_u64) == Some(*length));
             if !proved && !named.contains(key) {
                 keys.push(Carry { key: key.clone(), length: *length, media_type: String::new(), identity: key_identity(key) });
@@ -1103,9 +1098,8 @@ pub fn carry_keys(
 /// Write proof lines (from a copier with no records) as `namespace-moved` records of `from`. A key whose proof is
 /// already held with the same size and BLAKE3 is left as it is; one held with another is refused (counted, not
 /// rewritten). Answers (written, already held, refused).
-pub fn import_proofs<S: Storage + Send>(
-    store: &mut RecordStore<S>,
-    account: &str,
+pub fn import_proofs(
+    store: &Store,
     from: &str,
     lines: impl IntoIterator<Item = Proved>,
 ) -> Result<(u64, u64, u64), AccountFilesError> {
@@ -1123,12 +1117,12 @@ pub fn import_proofs<S: Storage + Send>(
         if let Some(packed) = &line.packed {
             value["in"] = json!(packed);
         }
-        match store.get(account, &moved, &line.key)?.record {
+        match store.get(&moved, &line.key)?.record {
             Some(record) if record.value == value => held += 1,
             Some(_) => refused += 1,
             None => {
                 let request_key = request_key(&["moved", from, &line.to, &line.key, "0"]);
-                store.mutate(account, &moved, Mutation { id: line.key, expected_version: 0, request_key, deleted: false, value })?;
+                store.mutate(&moved, Mutation { id: line.key, expected_version: 0, request_key, deleted: false, value })?;
                 written += 1;
             }
         }
@@ -1494,11 +1488,11 @@ pub fn pack_keys(
 }
 
 /// Records of one scope whose `origin` is `origin` (one walk of the scope).
-fn count_naming<S: Storage + Send>(store: &RecordStore<S>, account: &str, scope: &str, origin: &str) -> Result<u64, AccountFilesError> {
+fn count_naming(store: &Store, scope: &str, origin: &str) -> Result<u64, AccountFilesError> {
     let mut after = String::new();
     let mut count = 0;
     loop {
-        let page = store.list_page(account, scope, &after, MAX_PAGE_ITEMS)?;
+        let page = store.list_page(scope, &after, MAX_PAGE_ITEMS)?;
         count += page.items.iter().filter(|record| record.value.get("origin").and_then(Value::as_str) == Some(origin)).count() as u64;
         match page.next {
             Some(next) => after = next,
@@ -1509,9 +1503,8 @@ fn count_naming<S: Storage + Send>(store: &RecordStore<S>, account: &str, scope:
 
 /// What the `from` store still holds, against the proof records: one listing walk of the store and one batch get of
 /// proof records per listing page, then one walk of the chunk and file records.
-pub fn audit<S: Storage + Send>(
-    store: &RecordStore<S>,
-    account: &str,
+pub fn audit(
+    store: &Store,
     objects: &(dyn Objects + Sync),
     from: &str,
     listed_so_far: ListingProgress<'_>,
@@ -1520,7 +1513,7 @@ pub fn audit<S: Storage + Send>(
     let mut audit = Audit { from: from.into(), ..Audit::default() };
     for page in listing_of(objects, from, listed_so_far)?.chunks(MAX_PAGE_ITEMS) {
         let keys: Vec<&str> = page.iter().map(|(key, _)| key.as_str()).collect();
-        for ((key, length), proof) in page.iter().zip(store.get_many(account, &moved, &keys)?) {
+        for ((key, length), proof) in page.iter().zip(store.get_many(&moved, &keys)?) {
             audit.listed += 1;
             audit.listed_bytes += length;
             // A proof counts only for the bytes it proved: an object rewritten at `from` since is not proved.
@@ -1536,27 +1529,26 @@ pub fn audit<S: Storage + Send>(
             }
         }
     }
-    audit.records_naming_from = count_naming(store, account, CHUNKS, from)? + count_naming(store, account, FILES, from)?;
+    audit.records_naming_from = count_naming(store, CHUNKS, from)? + count_naming(store, FILES, from)?;
     audit.complete = audit.unproved == 0 && audit.records_naming_from == 0;
     Ok(audit)
 }
 
 /// Delete the `from` origin record once its audit is complete, so no read or write can reach that store again.
 /// Refused while any listed key is unproved or any record names it.
-pub fn retire<S: Storage + Send>(
-    store: &mut RecordStore<S>,
-    account: &str,
+pub fn retire(
+    store: &Store,
     objects: &(dyn Objects + Sync),
     from: &str,
     listed_so_far: ListingProgress<'_>,
 ) -> Result<Audit, AccountFilesError> {
-    let audit = audit(store, account, objects, from, listed_so_far)?;
+    let audit = audit(store, objects, from, listed_so_far)?;
     if !audit.complete {
         return Err(AccountFilesError::Invalid("the from store still holds unproved keys or records still name it", crate::cause!()));
     }
-    let record = store.get(account, ORIGINS, from)?.record.ok_or(AccountFilesError::Invalid("the account has no such from origin", crate::cause!()))?;
+    let record = store.get(ORIGINS, from)?.record.ok_or(AccountFilesError::Invalid("the account has no such from origin", crate::cause!()))?;
     let request_key = request_key(&["retire", from, &record.version.to_string()]);
-    store.mutate(account, ORIGINS, Mutation { id: record.id, expected_version: record.version, request_key, deleted: true, value: Value::Null })?;
+    store.mutate(ORIGINS, Mutation { id: record.id, expected_version: record.version, request_key, deleted: true, value: Value::Null })?;
     Ok(audit)
 }
 

@@ -27,11 +27,7 @@ use live_namespace::{
         objects::{Body, Listing, ObjectError, Objects, Stat, MAX_RANGE_BYTES},
         AccountFiles, CHUNKS, FILES, ORIGINS, SPANS, UPLOADS,
     },
-    records::Records,
-    storage::{
-        memory::Memory,
-        record_store::{settings, RecordStore, RealClock},
-    },
+    store::{Mutation, SqlStore, Store},
 };
 
 const ACCOUNT: &str = "account-a";
@@ -132,27 +128,27 @@ fn origin(rank: u32) -> Value {
 /// What the world holds before a move.
 struct World {
     port: Port,
-    store: RecordStore<Memory>,
+    store: Store,
     /// Every key whose bytes must end at `TO`, with its bytes.
     expected: BTreeMap<String, Vec<u8>>,
     big_file: String,
     split_file: String,
 }
 
-fn chunk_record(store: &mut RecordStore<Memory>, port: &Port, at: &str, bytes: &[u8]) -> String {
+fn chunk_record(store: &Store, port: &Port, at: &str, bytes: &[u8]) -> String {
     let chunk = id(bytes);
     let key = format!("people/p/chunks/{chunk}");
-    store.import(ACCOUNT, CHUNKS, &[(chunk.clone(), json!({ "kind": "namespace-chunk", "byte_length": bytes.len(), "origin": at, "key": key }))]).unwrap();
+    seed(&store, CHUNKS, &[(chunk.clone(), json!({ "kind": "namespace-chunk", "byte_length": bytes.len(), "origin": at, "key": key }))]);
     port.put(at, &key, bytes.to_vec());
     chunk
 }
 
-fn file_record(store: &mut RecordStore<Memory>, identity: &str, at: &str, key: &str, length: usize, spans: usize) {
+fn file_record(store: &Store, identity: &str, at: &str, key: &str, length: usize, spans: usize) {
     let value = json!({
         "kind": "namespace-file", "byte_length": length, "media_type": "video/mp4", "origin": at, "key": key,
         "stored_at": "2026-10-01T00:00:00.000Z", "checked_at": "2026-10-01T00:00:00.000Z", "spans": spans, "aliases": [], "names": [],
     });
-    store.import(ACCOUNT, FILES, &[(identity.to_owned(), value)]).unwrap();
+    seed(&store, FILES, &[(identity.to_owned(), value)]);
 }
 
 /// A landing store holding: two chunks of a file kept wholly in chunks there, one landing chunk of a file whose other
@@ -160,26 +156,25 @@ fn file_record(store: &mut RecordStore<Memory>, identity: &str, at: &str, key: &
 /// names, and a chunk the archive already holds; plus one upload that never finished.
 fn world() -> World {
     let port = Port(Arc::new(Stores::default()));
-    let limits = settings::Limits::fixed(1 << 20, 10 << 30);
-    let mut store = RecordStore::new(Memory::open("record_store").unwrap(), Box::new(RealClock), limits).unwrap();
-    store.import(ACCOUNT, ORIGINS, &[(FROM.into(), origin(1)), (TO.into(), origin(2))]).unwrap();
+    let store: Store = Arc::new(SqlStore::memory().unwrap());
+    seed(&store, ORIGINS, &[(FROM.into(), origin(1)), (TO.into(), origin(2))]);
     let mut expected = BTreeMap::new();
 
     let (first, second, third, archived) = (vec![1u8; 700], vec![2u8; 900], vec![3u8; 400], vec![4u8; 300]);
     let mut spans = Vec::new();
     for (bytes, at) in [(&first, FROM), (&second, FROM), (&third, FROM), (&archived, TO)] {
-        let chunk = chunk_record(&mut store, &port, at, bytes);
+        let chunk = chunk_record(&store, &port, at, bytes);
         expected.insert(format!("people/p/chunks/{chunk}"), bytes.clone());
         spans.push(chunk);
     }
     let whole_in_chunks = id(&[first.clone(), second.clone()].concat());
-    file_record(&mut store, &whole_in_chunks, FROM, "", 1600, 2);
-    store.import(ACCOUNT, SPANS, &[(whole_in_chunks.clone(), json!({ "kind": "namespace-spans", "spans": [
-        {"offset": 0, "length": 700, "chunk": spans[0]}, {"offset": 700, "length": 900, "chunk": spans[1]}] }))]).unwrap();
+    file_record(&store, &whole_in_chunks, FROM, "", 1600, 2);
+    seed(&store, SPANS, &[(whole_in_chunks.clone(), json!({ "kind": "namespace-spans", "spans": [
+        {"offset": 0, "length": 700, "chunk": spans[0]}, {"offset": 700, "length": 900, "chunk": spans[1]}] }))]);
     let split = id(&[third.clone(), archived.clone()].concat());
-    file_record(&mut store, &split, FROM, "", 700, 2);
-    store.import(ACCOUNT, SPANS, &[(split.clone(), json!({ "kind": "namespace-spans", "spans": [
-        {"offset": 0, "length": 400, "chunk": spans[2]}, {"offset": 400, "length": 300, "chunk": spans[3]}] }))]).unwrap();
+    file_record(&store, &split, FROM, "", 700, 2);
+    seed(&store, SPANS, &[(split.clone(), json!({ "kind": "namespace-spans", "spans": [
+        {"offset": 0, "length": 400, "chunk": spans[2]}, {"offset": 400, "length": 300, "chunk": spans[3]}] }))]);
 
     let note = b"a small whole file".to_vec();
     let big: Vec<u8> = (0..(2 * MAX_RANGE_BYTES + 1)).map(|n| (n % 253) as u8).collect();
@@ -187,7 +182,7 @@ fn world() -> World {
     for bytes in [&note, &big] {
         let identity = id(bytes);
         let key = format!("people/p/files/{identity}");
-        file_record(&mut store, &identity, FROM, &key, bytes.len(), 0);
+        file_record(&store, &identity, FROM, &key, bytes.len(), 0);
         port.put(FROM, &key, bytes.clone());
         expected.insert(key, bytes.clone());
         big_file = identity;
@@ -200,8 +195,15 @@ fn world() -> World {
     // The archive's chunk, also still in the landing store (a move the Worker finished but never cleaned up).
     port.put(FROM, &format!("people/p/chunks/{}", spans[3]), archived.clone());
 
-    store.import(ACCOUNT, UPLOADS, &[("up:1".into(), json!({ "kind": "namespace-upload", "byte_length": 5000, "origin": FROM }))]).unwrap();
+    seed(&store, UPLOADS, &[("up:1".into(), json!({ "kind": "namespace-upload", "byte_length": 5000, "origin": FROM }))]);
     World { port, store, expected, big_file, split_file: split }
+}
+
+/// Put `rows` (id, value) into `scope` as new rows.
+fn seed(store: &Store, scope: &str, rows: &[(String, serde_json::Value)]) {
+    for (id, value) in rows {
+        store.mutate(scope, Mutation { id: id.clone(), expected_version: 0, request_key: format!("seed:{id}"), deleted: false, value: value.clone() }).unwrap();
+    }
 }
 
 fn plan(dry_run: bool) -> Plan {
@@ -210,14 +212,14 @@ fn plan(dry_run: bool) -> Plan {
 
 fn quiet(_: &str, _: &Phase) {}
 
-fn origin_of(store: &RecordStore<Memory>, scope: &str, id: &str) -> String {
-    store.get(ACCOUNT, scope, id).unwrap().record.unwrap().value["origin"].as_str().unwrap().to_owned()
+fn origin_of(store: &Store, scope: &str, id: &str) -> String {
+    store.get(scope, id).unwrap().record.unwrap().value["origin"].as_str().unwrap().to_owned()
 }
 
 #[test]
 fn a_dry_run_counts_from_records_and_sends_nothing() {
-    let mut world = world();
-    let report = Mover::new(&mut world.store, ACCOUNT, plan(true)).run(&world.port, &quiet).unwrap();
+    let world = world();
+    let report = Mover::new(&world.store, plan(true)).run(&world.port, &quiet).unwrap();
     assert_eq!(world.port.requests(), 0, "a dry run sends no request");
     assert_eq!(report.phases["chunks"].items, 3);
     assert_eq!(report.phases["chunks"].bytes, 700 + 900 + 400);
@@ -230,15 +232,15 @@ fn a_dry_run_counts_from_records_and_sends_nothing() {
     assert_eq!(report.requests[&format!("{TO} PUT")], 5);
     assert_eq!(report.requests[&format!("{TO} HEAD")], 5, "one HEAD of each key's length after its PUT");
     assert!(!report.requests.contains_key(&format!("{TO} GET")) && !report.bytes.contains_key(&format!("{TO} read")), "a copy is never read back");
-    let landing = world.store.get(ACCOUNT, ORIGINS, FROM).unwrap().record.unwrap();
+    let landing = world.store.get(ORIGINS, FROM).unwrap().record.unwrap();
     assert_eq!(landing.version, 1, "a dry run writes no record");
     assert_eq!(origin_of(&world.store, CHUNKS, &id(&[1u8; 700])), FROM);
 }
 
 #[test]
 fn a_move_proves_every_key_rewrites_records_and_retires_the_emptied_store() {
-    let mut world = world();
-    let report = Mover::new(&mut world.store, ACCOUNT, plan(false)).run(&world.port, &quiet).unwrap();
+    let world = world();
+    let report = Mover::new(&world.store, plan(false)).run(&world.port, &quiet).unwrap();
     assert_eq!(report.failed, 0, "{:?}", report.failures);
     for (key, bytes) in &world.expected {
         assert_eq!(world.port.held(TO, key).as_ref(), Some(bytes), "{key} is at the archive with its bytes");
@@ -252,21 +254,21 @@ fn a_move_proves_every_key_rewrites_records_and_retires_the_emptied_store() {
     assert!(!report.requests.contains_key(&format!("{TO} GET")), "a copy is never read back: {:?}", report.requests);
     assert_eq!(origin_of(&world.store, FILES, &world.big_file), TO);
     assert_eq!(origin_of(&world.store, FILES, &world.split_file), TO, "a file whose every chunk is at the archive names it");
-    let proof = world.store.get(ACCOUNT, &moved_scope(FROM), &format!("people/p/files/{}", world.big_file)).unwrap().record.unwrap();
+    let proof = world.store.get(&moved_scope(FROM), &format!("people/p/files/{}", world.big_file)).unwrap().record.unwrap();
     assert_eq!(proof.value["proof"], UPLOAD_PROOF);
     assert_eq!(proof.value["blake3"], world.big_file.trim_start_matches("1f:"));
 
     // The emptied store takes no new bytes, though it ranks first and accepts writes.
     let origins = {
-        let page = world.store.list_page(ACCOUNT, ORIGINS, "", 10).unwrap();
+        let page = world.store.list_page(ORIGINS, "", 10).unwrap();
         page.items.into_iter().map(|record| (record.id, serde_json::from_value(record.value).unwrap())).collect::<Vec<_>>()
     };
-    let audited = audit(&world.store, ACCOUNT, &world.port, FROM, &mut |_, _, _| {}).unwrap();
+    let audited = audit(&world.store, &world.port, FROM, &mut |_, _, _| {}).unwrap();
     assert!(audited.complete, "{audited:?}");
     assert_eq!(audited.listed, 7);
     assert_eq!(audited.proved, 7);
-    retire(&mut world.store, ACCOUNT, &world.port, FROM, &mut |_, _, _| {}).unwrap();
-    assert!(world.store.get(ACCOUNT, ORIGINS, FROM).unwrap().record.is_none(), "the emptied store's origin is gone");
+    retire(&world.store, &world.port, FROM, &mut |_, _, _| {}).unwrap();
+    assert!(world.store.get(ORIGINS, FROM).unwrap().record.is_none(), "the emptied store's origin is gone");
 
     let mut account_files = AccountFiles::with_objects(world.store, ACCOUNT, Box::new(world.port.clone()));
     let wrote = account_files.write_file("/new.txt", b"after the move", "text/plain", &origins).unwrap();
@@ -280,50 +282,50 @@ fn a_move_proves_every_key_rewrites_records_and_retires_the_emptied_store() {
 
 #[test]
 fn bytes_that_do_not_match_their_identity_are_never_sent() {
-    let mut world = world();
+    let world = world();
     let chunk = id(&[2u8; 900]);
     world.port.put(FROM, &format!("people/p/chunks/{chunk}"), vec![9u8; 900]);
-    let report = Mover::new(&mut world.store, ACCOUNT, plan(false)).run(&world.port, &quiet).unwrap();
+    let report = Mover::new(&world.store, plan(false)).run(&world.port, &quiet).unwrap();
     // Refused once through its chunk record and once more through the store's listing, which names the same key.
     assert_eq!(report.failed, 2);
     let key = format!("people/p/chunks/{chunk}");
     assert!(report.failures.iter().all(|failed| failed.key == key && failed.why.contains("not to the identity")), "{:?}", report.failures);
     assert!(world.port.held(TO, &format!("people/p/chunks/{chunk}")).is_none(), "refused bytes never reach the archive");
     assert_eq!(origin_of(&world.store, CHUNKS, &chunk), FROM);
-    let audited = audit(&world.store, ACCOUNT, &world.port, FROM, &mut |_, _, _| {}).unwrap();
+    let audited = audit(&world.store, &world.port, FROM, &mut |_, _, _| {}).unwrap();
     assert!(!audited.complete);
     assert_eq!(audited.unproved, 1);
-    assert!(retire(&mut world.store, ACCOUNT, &world.port, FROM, &mut |_, _, _| {}).is_err(), "an incomplete audit refuses retirement");
+    assert!(retire(&world.store, &world.port, FROM, &mut |_, _, _| {}).is_err(), "an incomplete audit refuses retirement");
 }
 
 #[test]
 fn a_stopped_run_is_finished_by_the_next_without_sending_a_key_twice() {
-    let mut world = world();
+    let world = world();
     *world.port.0.puts_allowed.lock().unwrap() = Some(2);
-    let first = Mover::new(&mut world.store, ACCOUNT, plan(false)).run(&world.port, &quiet).unwrap();
+    let first = Mover::new(&world.store, plan(false)).run(&world.port, &quiet).unwrap();
     assert!(first.failed > 0);
     assert!(first.budget_spent.as_deref().is_some_and(|why| why.contains("403")), "a refusal of access stops the whole run: {first:?}");
     *world.port.0.puts_allowed.lock().unwrap() = None;
-    let second = Mover::new(&mut world.store, ACCOUNT, plan(false)).run(&world.port, &quiet).unwrap();
+    let second = Mover::new(&world.store, plan(false)).run(&world.port, &quiet).unwrap();
     assert_eq!(second.failed, 0, "{:?}", second.failures);
     let copied = |report: &live_namespace::account_files::moves::Report| report.phases.values().map(|phase| phase.copied).sum::<u64>();
     assert_eq!(copied(&first) + copied(&second), 7, "5 named keys, the history key and the archive's own chunk, each proved once");
     // A key whose PUT landed just before the stop refused its HEAD is unproved, so the next run sends it once more.
     assert!(world.port.0.puts.lock().unwrap().values().all(|puts| *puts <= 2));
-    assert!(audit(&world.store, ACCOUNT, &world.port, FROM, &mut |_, _, _| {}).unwrap().complete);
-    let third = Mover::new(&mut world.store, ACCOUNT, plan(false)).run(&world.port, &quiet).unwrap();
+    assert!(audit(&world.store, &world.port, FROM, &mut |_, _, _| {}).unwrap().complete);
+    let third = Mover::new(&world.store, plan(false)).run(&world.port, &quiet).unwrap();
     assert_eq!(copied(&third), 0, "a finished move has nothing left to send");
 }
 
 #[test]
 fn a_budget_is_a_hard_stop() {
-    let mut world = world();
+    let world = world();
     // Room for the first chunk's requests only: the run stops at the cap and sends nothing past it.
     let budget = [(format!("{FROM} GET"), 1), (format!("{FROM} read"), 700), (format!("{TO} PUT"), 1), (format!("{TO} written"), 700), (format!("{TO} HEAD"), 1)]
         .into_iter()
         .collect();
     let plan = Plan { concurrency: 1, budget: Some(budget), ..plan(false) };
-    let report = Mover::new(&mut world.store, ACCOUNT, plan).run(&world.port, &quiet).unwrap();
+    let report = Mover::new(&world.store, plan).run(&world.port, &quiet).unwrap();
     assert!(report.budget_spent.is_some(), "{report:?}");
     assert_eq!(world.port.0.puts.lock().unwrap().len(), 1, "one key was sent before the cap");
     for (counter, used) in &report.requests {
@@ -333,8 +335,8 @@ fn a_budget_is_a_hard_stop() {
 
 #[test]
 fn a_copier_without_records_proves_keys_that_the_store_then_imports() {
-    let mut world = world();
-    let (keys, listed) = work_list(&world.store, ACCOUNT, &world.port, FROM, true, &mut |_, _, _| {}).unwrap();
+    let world = world();
+    let (keys, listed) = work_list(&world.store, &world.port, FROM, true, &mut |_, _, _| {}).unwrap();
     assert_eq!(listed, 7);
     assert_eq!(keys.len(), 7, "3 chunks, 2 whole files, the history key, and the archive's chunk the landing store still lists");
     let (planned, budget) = plan_of(&keys, FROM, TO, 110);
@@ -344,17 +346,17 @@ fn a_copier_without_records_proves_keys_that_the_store_then_imports() {
     assert_eq!(carried.failed, 0, "{:?}", carried.failures);
     assert_eq!(carried.budget_spent, None);
     assert_eq!(lines.len(), 7);
-    assert_eq!(import_proofs(&mut world.store, ACCOUNT, FROM, lines.clone()).unwrap(), (7, 0, 0));
-    assert_eq!(import_proofs(&mut world.store, ACCOUNT, FROM, lines).unwrap(), (0, 7, 0), "importing again changes nothing");
+    assert_eq!(import_proofs(&world.store, FROM, lines.clone()).unwrap(), (7, 0, 0));
+    assert_eq!(import_proofs(&world.store, FROM, lines).unwrap(), (0, 7, 0), "importing again changes nothing");
     let requests_before = world.port.requests();
     let records_only = Plan { records_only: true, unnamed_keys: false, budget: Some(BTreeMap::new()), ..plan(false) };
-    let report = Mover::new(&mut world.store, ACCOUNT, records_only).run(&world.port, &quiet).unwrap();
+    let report = Mover::new(&world.store, records_only).run(&world.port, &quiet).unwrap();
     assert_eq!(report.failed, 0);
     assert_eq!(world.port.requests(), requests_before, "a records-only run sends no request");
     assert_eq!(report.phases["chunks"].already_proved, 3);
     assert_eq!(report.phases["chunks"].records_rewritten, 3);
     assert_eq!(report.phases["chunked_files"].records_rewritten, 2);
-    assert!(audit(&world.store, ACCOUNT, &world.port, FROM, &mut |_, _, _| {}).unwrap().complete);
+    assert!(audit(&world.store, &world.port, FROM, &mut |_, _, _| {}).unwrap().complete);
 }
 
 /// The vault of the local test server: its throwaway root key (`src/storage/supplies/servers/servers.sh`), answered
@@ -422,7 +424,7 @@ fn a_move_between_two_buckets_of_a_real_s3_server() {
     assert!(!rest.more);
     assert!(rest.objects.iter().chain(&listed.objects).any(|(key, _)| key == "people/p/record history/a+b c.jsonl"), "{rest:?}");
 
-    let report = Mover::new(&mut world.store, ACCOUNT, plan(false)).run(&s3, &quiet).unwrap();
+    let report = Mover::new(&world.store, plan(false)).run(&s3, &quiet).unwrap();
     assert_eq!(report.failed, 0, "{:?}", report.failures);
     assert_eq!(report.phases["unnamed_keys"].copied, 3);
     for (key, bytes) in &world.expected {
@@ -436,7 +438,7 @@ fn a_move_between_two_buckets_of_a_real_s3_server() {
         }
         assert!(&there == bytes, "{key} holds its bytes at the archive bucket");
     }
-    let audited = audit(&world.store, ACCOUNT, &s3, FROM, &mut |_, _, _| {}).unwrap();
+    let audited = audit(&world.store, &s3, FROM, &mut |_, _, _| {}).unwrap();
     assert!(audited.complete, "{audited:?}");
     assert_eq!(audited.listed, 8);
 
@@ -453,15 +455,15 @@ fn a_move_between_two_buckets_of_a_real_s3_server() {
     assert_eq!(first.objects.len(), 1000);
     let second = s3.list_level(FROM, "stores/many/", first.next.as_deref().expect("a continuation token")).unwrap().unwrap();
     assert_eq!((second.objects.len(), second.next), (5, None));
-    let (keys, listed) = work_list(&world.store, ACCOUNT, &s3, FROM, true, &mut |_, _, _| {}).unwrap();
+    let (keys, listed) = work_list(&world.store, &s3, FROM, true, &mut |_, _, _| {}).unwrap();
     assert_eq!((keys.len(), listed), (1005, 1013), "only the new keys are unproved");
     let packs = pack_plan(keys.into_iter().filter(packs).collect());
     let (_, budget) = plan_of_packs(&packs, FROM, TO, 110).unwrap();
     let mut lines = Vec::new();
     let carried = pack_keys(&s3, FROM, TO, 8, Some(budget), packs, |line, _, _| lines.push(line.clone()));
     assert_eq!((carried.proved, carried.failed, carried.budget_spent), (1005, 0, None), "{:?}", carried.failures);
-    assert_eq!(import_proofs(&mut world.store, ACCOUNT, FROM, lines).unwrap(), (1005, 0, 0));
-    assert!(audit(&world.store, ACCOUNT, &s3, FROM, &mut |_, _, _| {}).unwrap().complete);
+    assert_eq!(import_proofs(&world.store, FROM, lines).unwrap(), (1005, 0, 0));
+    assert!(audit(&world.store, &s3, FROM, &mut |_, _, _| {}).unwrap().complete);
 
     // The one proof of a copy rests on this: the store refuses a body whose bytes do not hash to the SHA-256
     // signed into the PUT, and keeps nothing.
@@ -501,7 +503,7 @@ fn small_keys_are_packed_per_group_and_every_member_is_its_slice_of_its_archive(
         world.port.put(FROM, key, bytes.clone());
         world.expected.insert((*key).to_owned(), bytes.clone());
     }
-    let (keys, _) = work_list(&world.store, ACCOUNT, &world.port, FROM, true, &mut |_, _, _| {}).unwrap();
+    let (keys, _) = work_list(&world.store, &world.port, FROM, true, &mut |_, _, _| {}).unwrap();
     let (unnamed, named): (Vec<_>, Vec<_>) = keys.into_iter().partition(packs);
     assert_eq!(unnamed.len(), 6, "the history key, the archive's chunk the landing store still lists, and the four small keys");
     let packs = pack_plan(unnamed);
@@ -537,20 +539,20 @@ fn small_keys_are_packed_per_group_and_every_member_is_its_slice_of_its_archive(
     }
     let carried = carry_keys(&world.port, Route { from: FROM, to: TO, width: 3 }, None, named, |line, _, _| lines.push(line.clone()));
     assert_eq!(carried.failed, 0, "{:?}", carried.failures);
-    let (written, _, refused) = import_proofs(&mut world.store, ACCOUNT, FROM, lines).unwrap();
+    let (written, _, refused) = import_proofs(&world.store, FROM, lines).unwrap();
     assert_eq!((written, refused), (11, 0));
-    let packed_proof = world.store.get(ACCOUNT, &moved_scope(FROM), "stores/s2/empty").unwrap().record.unwrap();
+    let packed_proof = world.store.get(&moved_scope(FROM), "stores/s2/empty").unwrap().record.unwrap();
     assert!(packed_proof.value["in"]["manifest"].as_str().is_some() && packed_proof.value["in"]["archive"].is_null());
-    let report = Mover::new(&mut world.store, ACCOUNT, plan(false)).run(&world.port, &quiet).unwrap();
+    let report = Mover::new(&world.store, plan(false)).run(&world.port, &quiet).unwrap();
     assert_eq!(report.failed, 0);
-    assert!(audit(&world.store, ACCOUNT, &world.port, FROM, &mut |_, _, _| {}).unwrap().complete);
+    assert!(audit(&world.store, &world.port, FROM, &mut |_, _, _| {}).unwrap().complete);
 }
 
 #[test]
 fn a_records_only_run_leaves_unproved_keys_and_sends_nothing() {
-    let mut world = world();
+    let world = world();
     let records_only = Plan { records_only: true, unnamed_keys: false, budget: Some(BTreeMap::new()), ..plan(false) };
-    let report = Mover::new(&mut world.store, ACCOUNT, records_only).run(&world.port, &quiet).unwrap();
+    let report = Mover::new(&world.store, records_only).run(&world.port, &quiet).unwrap();
     assert_eq!(world.port.requests(), 0, "no request at all");
     assert_eq!((report.failed, report.budget_spent), (0, None));
     assert_eq!(report.phases["chunks"].unproved + report.phases["whole_files"].unproved, 5, "3 chunks and 2 whole files are left");
@@ -559,8 +561,8 @@ fn a_records_only_run_leaves_unproved_keys_and_sends_nothing() {
 
 #[test]
 fn a_copier_reads_nothing_back_and_its_proofs_import() {
-    let mut world = world();
-    let (keys, _) = work_list(&world.store, ACCOUNT, &world.port, FROM, true, &mut |_, _, _| {}).unwrap();
+    let world = world();
+    let (keys, _) = work_list(&world.store, &world.port, FROM, true, &mut |_, _, _| {}).unwrap();
     let (planned, budget) = plan_of(&keys, FROM, TO, 110);
     assert!(!planned.contains_key(&format!("{TO} GET")) && !planned.contains_key(&format!("{TO} read")), "no read-back is planned");
     let mut lines = Vec::new();
@@ -572,8 +574,8 @@ fn a_copier_reads_nothing_back_and_its_proofs_import() {
         assert_eq!(world.port.held(TO, &line.key).as_deref(), Some(world.expected[&line.key].as_slice()));
         assert_eq!(line.blake3, advanced::blake3::hash(&world.expected[&line.key]).to_hex().as_str());
     }
-    assert_eq!(import_proofs(&mut world.store, ACCOUNT, FROM, lines).unwrap(), (7, 0, 0));
+    assert_eq!(import_proofs(&world.store, FROM, lines).unwrap(), (7, 0, 0));
     let records_only = Plan { records_only: true, unnamed_keys: false, budget: Some(BTreeMap::new()), ..plan(false) };
-    assert_eq!(Mover::new(&mut world.store, ACCOUNT, records_only).run(&world.port, &quiet).unwrap().failed, 0);
-    assert!(audit(&world.store, ACCOUNT, &world.port, FROM, &mut |_, _, _| {}).unwrap().complete);
+    assert_eq!(Mover::new(&world.store, records_only).run(&world.port, &quiet).unwrap().failed, 0);
+    assert!(audit(&world.store, &world.port, FROM, &mut |_, _, _| {}).unwrap().complete);
 }

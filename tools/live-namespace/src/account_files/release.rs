@@ -44,8 +44,7 @@ use super::{
     RELEASE_NOTED, RELEASE_NOTED_KIND, RELEASE_WAITING, SPANS, LIVE, SET_ASIDE,
 };
 use crate::{
-    records::{Mutation, Record, Records, MAX_PAGE_ITEMS},
-    storage::Storage,
+    store::{Mutation, Record, MAX_PAGE_ITEMS},
 };
 use content_crypto::advanced::blake3;
 use serde_json::{json, Value};
@@ -72,7 +71,7 @@ pub(super) struct Gone {
     identity: String,
 }
 
-impl<S: Storage + Send> AccountFiles<S> {
+impl AccountFiles {
     /// One change's request key: what it does, to which record, at which of its versions and when, so a retry of the
     /// same change is answered by its first write and a later change of the same record is never taken for it.
     fn request(&self, what: &str, id: &str, version: i64, at: u64) -> String {
@@ -136,13 +135,13 @@ impl<S: Storage + Send> AccountFiles<S> {
     pub fn release_noted(&self, identity: &str) -> Answer<bool> {
         let (family, _) = self.family_of(identity)?;
         let ids: Vec<&str> = family.iter().map(String::as_str).collect();
-        Ok(self.store.get_many(&self.account, RELEASE_NOTED, &ids)?.iter().any(Option::is_some))
+        Ok(self.store.get_many(RELEASE_NOTED, &ids)?.iter().any(Option::is_some))
     }
 
     /// Whether anything is left to do: a noted file, or an object not removed yet (old `pending`).
     pub fn release_pending(&self) -> Answer<bool> {
-        Ok(!self.store.list_page(&self.account, RELEASE_NOTED, "", 1)?.items.is_empty()
-            || !self.store.list_page(&self.account, RELEASE_WAITING, "", 1)?.items.is_empty())
+        Ok(!self.store.list_page(RELEASE_NOTED, "", 1)?.items.is_empty()
+            || !self.store.list_page(RELEASE_WAITING, "", 1)?.items.is_empty())
     }
 
     /// Whether anything still holds the file `file` (invariant 2): a live name, a name set aside, or its bytes on a
@@ -169,7 +168,7 @@ impl<S: Storage + Send> AccountFiles<S> {
         }
         let at = self.now_ms();
         let draining = self.draining()?;
-        let page = self.store.list_page(&self.account, RELEASE_NOTED, "", limit)?;
+        let page = self.store.list_page(RELEASE_NOTED, "", limit)?;
         let (mut files, mut kept, mut keys, mut kept_chunks) = (0u64, 0u64, 0u64, 0u64);
         for noted in page.items {
             self.check_current()?;
@@ -204,7 +203,7 @@ impl<S: Storage + Send> AccountFiles<S> {
             // The note goes last: a stop before this leaves it noted, and the next page finishes it.
             self.forget(RELEASE_NOTED, &identity, "queued", at)?;
         }
-        let more = !self.store.list_page(&self.account, RELEASE_NOTED, "", 1)?.items.is_empty();
+        let more = !self.store.list_page(RELEASE_NOTED, "", 1)?.items.is_empty();
         Ok(json!({ "files": files, "kept": kept, "keys": keys, "kept_chunks": kept_chunks, "more": more }))
     }
 
@@ -239,7 +238,7 @@ impl<S: Storage + Send> AccountFiles<S> {
         let (mut gone, mut shared) = (Vec::new(), 0u64);
         for batch in chunks.chunks(MAX_PAGE_ITEMS) {
             let ids: Vec<&str> = batch.iter().map(String::as_str).collect();
-            for (id, chunk) in ids.iter().zip(self.store.get_many(&self.account, CHUNKS, &ids)?) {
+            for (id, chunk) in ids.iter().zip(self.store.get_many(CHUNKS, &ids)?) {
                 let Some(chunk) = chunk else { continue };
                 let only_this = text(&chunk.value, "used_by") == Some(user.as_str())
                     && chunk.value.get("shared").and_then(Value::as_bool) != Some(true)
@@ -282,7 +281,7 @@ impl<S: Storage + Send> AccountFiles<S> {
         }
         let at = self.now_ms();
         let stale = at.saturating_sub(release.claim_stale_minutes * 60_000);
-        let page = self.store.list_page(&self.account, RELEASE_WAITING, "", release.claim_walk)?;
+        let page = self.store.list_page(RELEASE_WAITING, "", release.claim_walk)?;
         let mut claimed = Vec::new();
         for row in page.items {
             if claimed.len() == limit {
@@ -401,7 +400,7 @@ impl<S: Storage + Send> AccountFiles<S> {
         if !(1..=MAX_PAGE_ITEMS).contains(&limit) {
             return Err(AccountFilesError::Invalid(word("release_limit"), crate::cause!()));
         }
-        let page = self.store.list_page(&self.account, RELEASE_DONE, after.unwrap_or(""), limit)?;
+        let page = self.store.list_page(RELEASE_DONE, after.unwrap_or(""), limit)?;
         let rows: Vec<Value> = page.items.into_iter().map(|row| row.value).collect();
         Ok(json!({ "released": rows, "next_after": page.next, "pending": self.release_pending()? }))
     }

@@ -14,25 +14,24 @@ use live_namespace::account_files::{
     dav_write::WriteRequest,
     AccountFiles,
 };
-use live_namespace::storage::memory::Memory;
 
-fn read(files: &AccountFiles<Memory>, method: &str, path: &str) -> Response {
+fn read(files: &AccountFiles, method: &str, path: &str) -> Response {
     files.dav("/dav", &Request { method, path, depth: Some("1"), range: None }).unwrap()
 }
 
-fn put(files: &mut AccountFiles<Memory>, path: &str, body: &[u8]) -> Response {
+fn put(files: &mut AccountFiles, path: &str, body: &[u8]) -> Response {
     files.dav_write("/dav", &WriteRequest { method: "PUT", path, body, content_type: Some("text/plain"), ..Default::default() }).unwrap()
 }
 
-fn carry(files: &mut AccountFiles<Memory>, method: &str, path: &str, destination: &str, overwrite: Option<&str>) -> Response {
+fn carry(files: &mut AccountFiles, method: &str, path: &str, destination: &str, overwrite: Option<&str>) -> Response {
     files.dav_write("/dav", &WriteRequest { method, path, destination: Some(destination), overwrite, ..Default::default() }).unwrap()
 }
 
-fn write_method(files: &mut AccountFiles<Memory>, method: &str, path: &str) -> Response {
+fn write_method(files: &mut AccountFiles, method: &str, path: &str) -> Response {
     files.dav_write("/dav", &WriteRequest { method, path, ..Default::default() }).unwrap()
 }
 
-fn listing(files: &AccountFiles<Memory>, path: &str) -> String {
+fn listing(files: &AccountFiles, path: &str) -> String {
     String::from_utf8(read(files, "PROPFIND", path).body).unwrap()
 }
 
@@ -197,7 +196,7 @@ fn a_lock_holds_its_name_against_every_write_without_its_token_until_unlocked_or
     let (mut files, _, clock) = account_files();
     write_method(&mut files, "MKCOL", "/Notes");
     put(&mut files, "/Notes/a.txt", b"one");
-    let lock = |files: &mut AccountFiles<Memory>, path: &'static str, depth: Option<&'static str>| {
+    let lock = |files: &mut AccountFiles, path: &'static str, depth: Option<&'static str>| {
         files.dav_write("/dav", &WriteRequest { method: "LOCK", path, depth, timeout: Some("Second-60"), body: b"<D:lockinfo xmlns:D=\"DAV:\"/>", ..Default::default() }).unwrap()
     };
     let held = lock(&mut files, "/Notes/a.txt", Some("0"));
