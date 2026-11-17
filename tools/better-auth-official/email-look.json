@@ -1,0 +1,33 @@
+{
+  "_what": "How every email the sign-in sends looks, moved from old Trillion's email look (src/mail-settings.json palette_roles resolved against the workspace look's start theme, the values src/mail-sender.mjs emailPalette gave on Nov 3 2026; brand and made_with as src/mail-settings.json and src/record-sharing.json gave them). email-message-html.mjs draws each message in it. `brand.image` and `made_with.image` are files of pages/assets, served at the sign-in's assets path, so a mail client fetches them from this computer's own address. A new look is a change of this file.",
+  "brand": {
+    "name": "Trillion",
+    "image": "wordmark.png"
+  },
+  "made_with": {
+    "label": "Made with",
+    "alt": "Trillion",
+    "image": "wordmark.png"
+  },
+  "palette": {
+    "ink": "#191919",
+    "accent": "#ff1d1d",
+    "muted": "#565553",
+    "paper": "#f4f0e8",
+    "card": "#fffdf8",
+    "line": "#d1cec7",
+    "button": "#ff1d1d",
+    "on_accent": "#ffffff",
+    "font": "SF Pro Text, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+    "display_font": "Recoleta, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+    "mono_font": "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+    "button_sheen": "linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(0, 0, 0, 0.1))",
+    "button_highlight": "inset 0 0 0 1px rgba(0, 0, 0, 0.22), inset 0 2px 0px rgba(255, 255, 255, 0.3)",
+    "button_shadow": "0 1px 1px rgba(25, 25, 25, 0.16), 0 3px 8px rgba(25, 25, 25, 0.14)",
+    "radius_control": "11px",
+    "radius_card": "14px",
+    "radius_chip": "5px",
+    "radius_pill": "999px",
+    "scheme": "light"
+  }
+}

@@ -13,6 +13,7 @@ import { apiKey } from '@better-auth/api-key';
 import { mcp } from '@better-auth/mcp';
 import { cimd } from '@better-auth/cimd';
 import { emailHook } from './send-email.mjs';
+import { table as pageTable } from './pages.mjs';
 import { cookieOptions } from './cookie-options.mjs';
 import { trustedOriginsFor } from './attached-origins.mjs';
 import { readSettings } from './settings.mjs';
@@ -26,7 +27,7 @@ const read = readSettings();
 const { fetchClientMetadataResource } = await import(read.settings.cimd.fetch_module);
 export const settings = read.settings;
 export const pool = storePool(settings);
-const deliver = emailHook(settings.email, { minutes: String(settings.email_code.expires_in_seconds / 60) });
+const deliver = emailHook(settings.email, { minutes: String(settings.email_code.expires_in_seconds / 60), site_url: `${settings.issuer}/`, assets_url: `${settings.issuer}${pageTable.assets_path}` });
 
 // Better Auth waits for a send but only logs its failure ("Failed to run background task"), so the answer would still say the
 // message is on its way. A send that failed is remembered by its address for a moment, and the after hook below turns the answer

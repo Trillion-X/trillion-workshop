@@ -7,6 +7,8 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import words from './email-words.json' with { type: 'json' };
+import look from './email-look.json' with { type: 'json' };
+import { emailMessageHtml } from './email-message-html.mjs';
 
 const at = (value, path) => path.split('.').reduce((held, key) => held?.[key], value);
 // Each {name} in a string of the body is that value; a string that is only {name} becomes the value itself.
@@ -21,12 +23,24 @@ const filled = (shape, values) => {
   return shape;
 };
 
-/** The message a kind says, in its words: { subject, text }, each {field} the message's own value. */
+/** The message a kind says, in its words and drawn in the email look (email-look.json): { subject, text, html }, each {field} the
+ * message's own value. `extra.assets_url` is where the look's pictures are served. A kind's `markdown` (else its `text`) is what
+ * the html says and its `action` the button under it; `text` is the plain part. */
 export function messageOf(message, extra = {}) {
   const said = words.kinds[message.kind];
   if (!said) throw new Error(`email-words.json has no words for ${message.kind}`);
   const values = { ...extra, ...message };
-  return { subject: filled(said.subject, values), text: filled(said.text.join('\n'), values) };
+  const text = filled(said.text.join('\n'), values);
+  const picture = name => (name ? `${extra.assets_url}${name}` : null);
+  const drawn = emailMessageHtml({
+    markdown: filled((said.markdown ?? said.text).join('\n'), values),
+    preheader: said.preheader ? filled(said.preheader, values) : undefined,
+    action: said.action ? filled(said.action, values) : undefined,
+    brand: { name: look.brand.name, image: picture(look.brand.image) },
+    made_with: { label: look.made_with.label, alt: look.made_with.alt, href: extra.site_url, image: picture(look.made_with.image) },
+    palette: look.palette,
+  });
+  return { subject: filled(said.subject, values), text, html: drawn.html };
 }
 
 export function emailHook(email, extra = {}) {
