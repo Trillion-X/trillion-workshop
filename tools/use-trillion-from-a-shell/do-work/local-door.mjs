@@ -9,7 +9,10 @@
 // `local_runtime.computer`) names the computer's folder under Application Support (`folder`), the loopback host
 // (`listen_host`) and the port (`port`); the account's address is the one `account create` printed, kept in that folder's
 // account.json. Who calls the door is the engine's own check of a pass the sign-in tool signed: this file only finds it.
+// The engine admits only the host of its `public_origin` (`local_runtime.computer.public_origin`), so a call to the loopback
+// door sends that host as Host (`localDoorHost`, `hostFetch`): a local AI goes straight in, with no round trip over the internet.
 import { readFileSync } from 'node:fs';
+import { request as httpRequest } from 'node:http';
 import os from 'node:os';
 import { dirname, isAbsolute, join } from 'node:path';
 
@@ -35,3 +38,22 @@ export function localDoorAddress({ runtime = process.execPath, home = os.homedir
   if (typeof address !== 'string' || !/^[a-f0-9]{64}$/.test(address)) throw new Error('The Mac app has no account on this computer yet.');
   return `http://${host}:${port}/a/${address}/mcp`;
 }
+
+/** The Host the engine admits, read from the app's sealed declaration (`local_runtime.computer.public_origin`), or null. */
+export function localDoorHost({ runtime = process.execPath, read = readText } = {}) {
+  try { return new URL(JSON.parse(read(join(contentsOf(runtime), 'Resources', 'computer-reader.json'))).local_runtime.computer.public_origin).host; }
+  catch { return null; }
+}
+
+/** A `fetch` for one loopback door that sends `host` as Host (Node's fetch will not): the call over node:http, answered as a Response. */
+export const hostFetch = host => (url, { method = 'GET', headers = {}, body, signal } = {}) => new Promise((resolve, reject) => {
+  const target = new URL(url);
+  const call = httpRequest({ host: target.hostname, port: target.port, path: `${target.pathname}${target.search}`, method, headers: { ...headers, host }, signal }, answer => {
+    const chunks = [];
+    answer.on('data', chunk => chunks.push(chunk));
+    answer.on('end', () => resolve(new Response([204, 304].includes(answer.statusCode) ? null : Buffer.concat(chunks), { status: answer.statusCode, headers: answer.headers })));
+    answer.on('error', reject);
+  });
+  call.on('error', reject);
+  call.end(body);
+});

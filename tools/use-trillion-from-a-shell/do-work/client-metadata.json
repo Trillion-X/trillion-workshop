@@ -1,0 +1,15 @@
+{
+  "client_id": "{origin}/cli/client.json",
+  "client_name": "Trillion command line",
+  "redirect_uris": [
+    "http://127.0.0.1:54718/callback"
+  ],
+  "grant_types": [
+    "authorization_code",
+    "refresh_token"
+  ],
+  "response_types": [
+    "code"
+  ],
+  "token_endpoint_auth_method": "none"
+}

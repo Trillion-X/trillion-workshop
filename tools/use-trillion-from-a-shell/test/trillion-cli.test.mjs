@@ -35,10 +35,10 @@ async function fakeDoor({ ops = {}, oauth = null, sse = false, bearers = [KEY], 
     for await (const chunk of request) raw += chunk;
     const url = new URL(request.url, 'http://127.0.0.1');
     const send = (code, value, type = 'application/json') => response.writeHead(code, { 'content-type': type }).end(typeof value === 'string' ? value : JSON.stringify(value));
-    if (url.pathname.startsWith('/oauth/') || url.pathname === '/authorize') return oauth(url, raw, request, send);
+    if (url.pathname.startsWith('/.well-known/') || url.pathname.startsWith('/api/auth/')) return oauth(url, raw, request, send);
     if (status) return send(status, { error: 'refused' });
     if (!bearers.some(bearer => request.headers.authorization === `Bearer ${bearer}`)) return send(401, { error: 'Bearer authentication is required' });
-    if (url.pathname !== '/mcp') return send(404, { error: 'Not found' });
+    if (url.pathname !== '/mcp' && url.pathname !== `/a/${ACCOUNT}/mcp`) return send(404, { error: 'Not found' });
     const message = JSON.parse(raw);
     let result;
     if (message.method === 'initialize') result = { protocolVersion: message.params.protocolVersion, serverInfo: { name: 'fake' }, _meta: { [settings.engine.account_meta]: { account_id: ACCOUNT } } };
@@ -244,10 +244,10 @@ test('the credential: TRILLION_KEY, the kept key, else the kept sign-in, renewed
     return send(400, { error: 'invalid_grant' });
   } });
   try {
-    const grants = { where: 'g', read: () => ({ access_token: 'access-1', refresh_token: 'refresh-1', expires_at_ms: 1000, client_id: 'c1', origin: fake.origin }), write: grant => { written = grant; }, forget: () => {} };
+    const grants = { where: 'g', read: () => ({ access_token: 'access-1', refresh_token: 'refresh-1', expires_at_ms: 1000, client_id: 'c1', origin: fake.origin, token_endpoint: `${fake.origin}/api/auth/oauth2/token`, resource: `${fake.origin}/mcp` }), write: grant => { written = grant; }, forget: () => {} };
     const renewed = await credentialFor({ env: {}, store, grants, now: () => 990 });
     assert.deepEqual([renewed.kind, renewed.bearer, renewed.origin, written.refresh_token], ['sign-in', 'access-2', fake.origin, 'refresh-2']);
-    const ended = { ...grants, read: () => ({ access_token: 'a', refresh_token: 'gone', expires_at_ms: 1, client_id: 'c1', origin: fake.origin }) };
+    const ended = { ...grants, read: () => ({ access_token: 'a', refresh_token: 'gone', expires_at_ms: 1, client_id: 'c1', origin: fake.origin, token_endpoint: `${fake.origin}/api/auth/oauth2/token`, resource: `${fake.origin}/mcp` }) };
     await assert.rejects(credentialFor({ env: {}, store, grants: ended, now: () => 990 }), error => error.status === 3 && /sign-in to Trillion has ended/.test(error.message));
   } finally { await fake.close(); }
 });
@@ -540,15 +540,18 @@ test('serve: a job taken is run, then finished, given back when its command fail
 
 test('login: the browser sign-in with PKCE keeps the sign-in itself, and no key route is asked', async () => {
   const seen = {};
-  let challenge = null, redirect = null;
-  const fake = await fakeDoor({ bearers: [KEY, 'access-1'],
+  let challenge = null;
+  const pass = `x.${Buffer.from(JSON.stringify({ trillion_account: ACCOUNT })).toString('base64url')}.y`;
+  const fake = await fakeDoor({ bearers: [KEY, pass],
     oauth: (url, raw, request, send) => {
       seen.paths = [...(seen.paths ?? []), url.pathname];
-      if (url.pathname === '/oauth/register') { const body = JSON.parse(raw); redirect = body.redirect_uris[0]; seen.client = body; return send(201, { client_id: 'c1' }); }
+      const at = path => `http://${request.headers.host}${path}`;
+      if (url.pathname === '/.well-known/oauth-authorization-server') return send(200, { authorization_endpoint: at('/api/auth/oauth2/authorize'), token_endpoint: at('/api/auth/oauth2/token'), revocation_endpoint: at('/api/auth/oauth2/revoke') });
+      if (url.pathname === '/.well-known/oauth-protected-resource') return send(200, { resource: at('/mcp') });
       const asked = new URLSearchParams(raw);
       if (asked.get('grant_type') === 'authorization_code') {
         seen.verified = createHash('sha256').update(asked.get('code_verifier')).digest('base64url') === challenge && asked.get('code') === 'code-1';
-        return send(200, { access_token: 'access-1', refresh_token: 'refresh-1', expires_in: 3600 });
+        return send(200, { access_token: pass, refresh_token: 'refresh-1', expires_in: 3600 });
       }
       if (asked.get('token_type_hint') === 'refresh_token') { seen.revoked = asked.get('token'); return send(200, {}); }
       return send(400, { error: 'unexpected' });
@@ -562,13 +565,14 @@ test('login: the browser sign-in with PKCE keeps the sign-in itself, and no key 
       seen.page = await back.text();
     };
     const grant = await signInWithBrowser({ origin: fake.origin, open, say: () => {}, now: () => 1000 });
-    assert.deepEqual(grant, { access_token: 'access-1', refresh_token: 'refresh-1', expires_at_ms: 1000 + 3600_000, client_id: 'c1', origin: fake.origin });
+    assert.deepEqual(grant, { access_token: pass, refresh_token: 'refresh-1', expires_at_ms: 1000 + 3600_000, client_id: `${fake.origin}${settings.client.id_path}`, origin: fake.origin, token_endpoint: `${fake.origin}/api/auth/oauth2/token`, revocation_endpoint: `${fake.origin}/api/auth/oauth2/revoke`, resource: `${fake.origin}/mcp`, account: ACCOUNT });
     assert.equal(seen.verified, true, 'the code was exchanged with the verifier that matches the challenge');
     assert.equal(seen.authorize.code_challenge_method, 'S256');
     assert.equal(seen.authorize.scope, settings.scope);
     assert.equal(seen.authorize.resource, `${fake.origin}/mcp`);
-    assert.match(redirect, /^http:\/\/127\.0\.0\.1:\d+\/callback$/);
-    assert.equal(seen.client.token_endpoint_auth_method, 'none');
+    assert.equal(seen.authorize.client_id, `${fake.origin}${settings.client.id_path}`);
+    assert.equal(seen.authorize.redirect_uri, `http://127.0.0.1:${settings.client.redirect_port}/callback`);
+    assert.deepEqual(JSON.parse(readFileSync(new URL('../do-work/client-metadata.json', import.meta.url), 'utf8').replaceAll('{origin}', fake.origin)).redirect_uris, [seen.authorize.redirect_uri], 'the client document lists the redirect the program uses');
     assert.match(seen.page, /Signed in/);
     assert.ok(seen.paths.every(path => !path.includes('/mcp/api')), 'no key route is asked');
 
@@ -578,7 +582,7 @@ test('login: the browser sign-in with PKCE keeps the sign-in itself, and no key 
     const grants = { where: 'test sign-in', read: () => kept, write: value => { kept = value; }, forget: () => { kept = null; } };
     const state = stateOf({ home: folder });
     const run = argv => main([...argv, '--origin', fake.origin], { store: { read: () => null, where: 'no key' }, grants, state, open, env: {}, localDoor: () => null, computerName: 'Mac', model: null, wait: noWait });
-    assert.match(await run(['login']), new RegExp(`^Signed in to Trillion as account ${ACCOUNT}, at the door ${fake.origin}/mcp\\. The sign-in is in test sign-in\\.$`));
+    assert.match(await run(['login']), new RegExp(`^Signed in to Trillion as account ${ACCOUNT}, at the door ${fake.origin}/a/${ACCOUNT}/mcp\\. The sign-in is in test sign-in\\.$`));
     assert.match(await run(['login']), /^Already signed in to Trillion as account/);
     assert.match(await run(['logout']), /^Signed out/);
     assert.equal(seen.revoked, 'refresh-1');
@@ -772,4 +776,22 @@ test('bearer: a TRILLION_KEY of no declared kind is refused and never replaced b
     assert.equal(fake.calls.length, 0, 'the kept key is not sent to a door that is neither local nor public');
     assert.match(await main(['whoami', '--origin', fake.origin], seams({ TRILLION_KEY: KEY })), new RegExp(`^account ${ACCOUNT}`), 'a key the person gives for that door is sent');
   } finally { await fake.close(); }
+});
+
+test('a local door is called with the Host the engine admits, read from the app\'s declaration', async () => {
+  const { hostFetch, localDoorHost } = await import('../do-work/local-door.mjs');
+  assert.equal(localDoorHost({ runtime: '/App/Contents/MacOS/node', read: () => JSON.stringify({ local_runtime: { computer: { public_origin: 'https://computer.example' } } }) }), 'computer.example');
+  assert.equal(localDoorHost({ runtime: '/App/Contents/MacOS/node', read: () => { throw new Error('none'); } }), null);
+  let seen = null;
+  const server = createServer((request, response) => { seen = { host: request.headers.host, method: request.method, path: request.url }; response.writeHead(401, { 'content-type': 'application/json' }).end('{"error":"Bearer authentication is required"}'); });
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  try {
+    const answer = await hostFetch('computer.example')(`http://127.0.0.1:${server.address().port}/a/${ACCOUNT}/mcp`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' });
+    assert.equal(answer.status, 401);
+    assert.deepEqual(seen, { host: 'computer.example', method: 'POST', path: `/a/${ACCOUNT}/mcp` });
+    const door = doorFor({ credential: { kind: 'sign-in', account: ACCOUNT, origin: 'https://computer.example' }, localMcp: `http://127.0.0.1:8788/a/${ACCOUNT}/mcp`, localHost: 'computer.example', declared: 'https://computer.example' });
+    assert.deepEqual([door.local, door.host, door.mcp], [true, 'computer.example', `http://127.0.0.1:8788/a/${ACCOUNT}/mcp`], 'a pass naming the local account goes to the local door');
+    const other = doorFor({ credential: { kind: 'sign-in', account: 'e'.repeat(64), origin: 'https://computer.example' }, localMcp: `http://127.0.0.1:8788/a/${ACCOUNT}/mcp`, localHost: 'computer.example', declared: 'https://computer.example' });
+    assert.equal(other.local, false, 'a pass naming another account does not');
+  } finally { server.close(); }
 });

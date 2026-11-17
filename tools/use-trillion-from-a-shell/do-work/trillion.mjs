@@ -26,7 +26,7 @@
 //
 // Non-negotiable invariants
 //   1. One road: run_resource_operation over MCP JSON-RPC at the door. The only other addresses are the public origin's
-//      own sign-in (OAuth: /oauth/register, /authorize, /oauth/token), used by login and to renew the sign-in it kept.
+//      own sign-in (OAuth, at the endpoints its /.well-known documents name), used by login and to renew the sign-in it kept.
 //   2. The credential is the account's existing key (the Keychain item the Trillion Mac app keeps, else a 0600 file, else
 //      TRILLION_KEY) or the sign-in login kept. It is read into memory only, never printed, never put in a command line
 //      or a log; the Keychain is written through `security -i` on standard input. logout forgets only a credential this
@@ -49,7 +49,7 @@ import { runOnAgUi } from './ag-ui-agent.mjs';
 import { makeHashCodeHexFromBytes, requestKeyForEngine } from './packs/read-data/identity.mjs';
 import { settledWrite } from './packs/read-data/settled-write.mjs';
 import { KeepRefused, keepResult, readResult } from './keep-result.mjs';
-import { localDoorAddress } from './local-door.mjs';
+import { hostFetch, localDoorAddress, localDoorHost } from './local-door.mjs';
 import settings from './trillion.json' with { type: 'json' };
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -353,14 +353,33 @@ async function asJson(response, what) {
   if (!response.ok) throw new TrillionError(`${what} failed: ${value.error_description ?? value.error ?? response.status}.`);
   return value;
 }
-const grantOf = (tokens, { client_id, origin, now = Date.now }) => ({ access_token: tokens.access_token, refresh_token: tokens.refresh_token ?? null,
-  expires_at_ms: Number.isFinite(tokens.expires_in) ? now() + tokens.expires_in * 1000 : null, client_id, origin });
+/** The account a pass names: the `account_claim` claim of its payload (trillion.json `grant.account_claim`), read without checking
+ *  the signature, which is the engine's to check. Null for a token that is not a JWT or names none. */
+export function accountOf(token, rules = settings) {
+  try {
+    const claim = JSON.parse(Buffer.from(String(token).split('.')[1], 'base64url').toString('utf8'))[rules.grant.account_claim];
+    return typeof claim === 'string' && /^[0-9a-f]{64}$/.test(claim) ? claim : null;
+  } catch { return null; }
+}
+const grantOf = (tokens, { client_id, origin, now = Date.now, found, rules = settings }) => ({ access_token: tokens.access_token, refresh_token: tokens.refresh_token ?? null,
+  expires_at_ms: Number.isFinite(tokens.expires_in) ? now() + tokens.expires_in * 1000 : null, client_id, origin,
+  token_endpoint: found.token_endpoint, revocation_endpoint: found.revocation_endpoint ?? null, resource: found.resource, account: accountOf(tokens.access_token, rules) });
+
+/** What a sign-in server says about itself and the resource it signs in to: the endpoints of its RFC 8414 document and the
+ *  `resource` of its RFC 9728 document (both under `origin`'s /.well-known). */
+export async function discover(origin, { fetchImpl = fetch } = {}) {
+  const server = await asJson(await fetchImpl(`${origin}/.well-known/oauth-authorization-server`), 'Reading the sign-in server');
+  const resource = await asJson(await fetchImpl(`${origin}/.well-known/oauth-protected-resource`), 'Reading the sign-in resource');
+  for (const name of ['authorization_endpoint', 'token_endpoint']) if (typeof server[name] !== 'string') throw new TrillionError(`The sign-in server names no ${name}.`);
+  if (typeof resource.resource !== 'string') throw new TrillionError('The sign-in resource names no resource.');
+  return { authorization_endpoint: server.authorization_endpoint, token_endpoint: server.token_endpoint, revocation_endpoint: server.revocation_endpoint ?? null, resource: resource.resource };
+}
 
 /** A kept sign-in renewed at its origin's /oauth/token with its refresh token. A refused renewal means the sign-in ended. */
 export async function refreshGrant(grant, { fetchImpl = fetch, rules = settings, now = Date.now } = {}) {
-  const response = await fetchImpl(`${grant.origin}/oauth/token`, form({ grant_type: 'refresh_token', refresh_token: grant.refresh_token, client_id: grant.client_id, resource: `${grant.origin}/mcp` }));
+  const response = await fetchImpl(grant.token_endpoint, form({ grant_type: 'refresh_token', refresh_token: grant.refresh_token, client_id: grant.client_id, resource: grant.resource }));
   if (response.status === 400 || response.status === 401) throw new TrillionError(rules.words.sign_in_ended, { status: 3 });
-  return grantOf(await asJson(response, 'Renewing this computer\'s sign-in'), { client_id: grant.client_id, origin: grant.origin, now });
+  return grantOf(await asJson(response, 'Renewing this computer\'s sign-in'), { client_id: grant.client_id, origin: grant.origin, now, rules, found: grant });
 }
 
 /** The credential for this run: TRILLION_KEY (a machine with no Keychain or file), else the kept key, else the sign-in
@@ -380,7 +399,7 @@ export async function credentialFor({ env = process.env, store = keyStore(), gra
     grant = await refreshGrant(grant, { fetchImpl, rules, now });
     grants.write(grant);
   }
-  return { kind: 'sign-in', bearer: grant.access_token, where: grants.where, origin: grant.origin };
+  return { kind: 'sign-in', bearer: grant.access_token, where: grants.where, origin: grant.origin, account: grant.account ?? accountOf(grant.access_token, rules) };
 }
 
 // ── The door ─────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -394,14 +413,21 @@ export function findLocalDoor({ rules = settings, home = homedir() } = {}) {
 /** The door this run talks to: `asked` (--origin or TRILLION_ORIGIN); else, for the account's key, the Mac app's local door
  *  when this computer has one; else the origin a sign-in was made at, else the declared address (`declared`, TRILLION_ORIGIN); with none the run is
  *  refused. { mcp, origin, name, local, public (the declared address), localMcp }: `localMcp` is this computer's local door, named when another door refuses the key. */
-export function doorFor({ asked = null, credential = null, declared = null, rules = settings, localMcp = findLocalDoor({ rules }) } = {}) {
+export function findLocalHost({ rules = settings } = {}) { return localDoorHost({ runtime: join(rules.mac_app, 'Contents', 'MacOS', 'node') }); }
+
+export function doorFor({ asked = null, credential = null, declared = null, rules = settings, localMcp = findLocalDoor({ rules }), localHost = findLocalHost({ rules }) } = {}) {
   const at = mcp => ({ mcp, origin: new URL(mcp).origin, localMcp });
-  if (!asked && credential?.kind === 'key' && localMcp) return { ...at(localMcp), name: fill(rules.words.local_door, { mcp: localMcp }), local: true, public: false };
+  // A key is the account's own and goes to its local door; a sign-in goes there when its pass names the account that door serves,
+  // and then sends the Host the engine admits.
+  const own = credential?.kind === 'key' || (credential?.kind === 'sign-in' && credential.account && localMcp?.includes(`/a/${credential.account}/`));
+  if (!asked && own && localMcp) return { ...at(localMcp), name: fill(rules.words.local_door, { mcp: localMcp }), local: true, public: false, ...(localHost ? { host: localHost } : {}) };
   const named = asked ?? credential?.origin ?? declared;
   if (!named) throw new TrillionError(rules.words.no_origin, { status: 2 });
   const origin = named.replace(/\/$/, '');
   const isPublic = origin === declared;
-  return { ...at(`${origin}/mcp`), name: fill(isPublic ? rules.words.public_door : rules.words.named_door, { mcp: `${origin}/mcp` }), local: false, public: isPublic };
+  // A sign-in's pass names the account it signs in to, and the account's door is /a/<account>/mcp at the computer that holds it.
+  const mcp = credential?.kind === 'sign-in' && credential.account && origin === credential.origin ? `${origin}/a/${credential.account}/mcp` : `${origin}/mcp`;
+  return { ...at(mcp), name: fill(isPublic ? rules.words.public_door : rules.words.named_door, { mcp }), local: false, public: isPublic };
 }
 
 // ── The MCP road ─────────────────────────────────────────────────────────────────────────────────────────────────
@@ -438,6 +464,7 @@ export function trillionClient({ door, credential, fetchImpl = fetch, rules = se
   if (!credential?.bearer) throw new TrillionError(rules.words.no_credential, { status: 3 });
   const headers = { 'content-type': 'application/json', accept: 'application/json, text/event-stream', authorization: `Bearer ${credential.bearer}`, 'user-agent': 'trillion-cli' };
   let next = 0;
+  const fetchAt = door.host ? hostFetch(door.host) : fetchImpl;
   // One try waits this many seconds (--timeout); the call itself ends only when retry.count tries are spent.
   const signal = () => AbortSignal.timeout(timeoutSeconds * 1000);
   const gap = (attempt, asked = null) => retryGap(rules.retry, attempt, asked, random);
@@ -447,7 +474,7 @@ export function trillionClient({ door, credential, fetchImpl = fetch, rules = se
   async function send(body, { idempotent }) {
     for (let attempt = 0; ; attempt += 1) {
       let response = null, failure = null;
-      try { response = await fetchImpl(door.mcp, { method: 'POST', headers, body, signal: signal() }); } catch (error) { failure = error; }
+      try { response = await fetchAt(door.mcp, { method: 'POST', headers, body, signal: signal() }); } catch (error) { failure = error; }
       const passing = failure || response.status === 429 || response.status >= 500;
       // Every try carries the same request_key, so a try after a lost or slow answer is answered as the first was.
       if (passing && attempt < rules.retry.count) { await wait(gap(attempt) * 1000); continue; }
@@ -598,11 +625,15 @@ export function pkce(random = randomBytes) {
   return { verifier, challenge: createHash('sha256').update(verifier).digest('base64url'), state: base64url(random(16)) };
 }
 
-/** The account's own browser sign-in: register this program as an OAuth client, open /authorize with PKCE, take the code
- *  on a loopback address and exchange it. Answers the sign-in (grantOf: access and refresh tokens, when the access token
- *  ends, the client id and the origin), kept by the caller. `open(url)` shows the page; the person signs in there. */
+/** The account's own browser sign-in: this program is a client of the sign-in server by its Client ID Metadata Document (the
+ *  https address `origin` + `client.id_path`, which lists the one loopback redirect `client.redirect_port` listens on), so nothing is
+ *  registered. It reads the server's endpoints (`discover`), opens its authorize address with PKCE and the resource the
+ *  server names, takes the code on that loopback address and exchanges it. Answers the sign-in (grantOf: access and refresh
+ *  tokens, when the access token ends, the client id, the origin, the endpoints and the account the pass names), kept by the
+ *  caller. `open(url)` shows the page; the person signs in there. */
 export async function signInWithBrowser({ origin, rules = settings, fetchImpl = fetch, open = openInBrowser, say = line => process.stderr.write(`${line}\n`), now = Date.now } = {}) {
   if (!origin) throw new TrillionError(rules.words.no_origin, { status: 2 });
+  const found = await discover(origin, { fetchImpl });
   const { verifier, challenge, state } = pkce();
   let resolveCode, rejectCode;
   const arrived = new Promise((resolve, reject) => { resolveCode = resolve; rejectCode = reject; });
@@ -615,29 +646,27 @@ export async function signInWithBrowser({ origin, rules = settings, fetchImpl = 
     if (done) resolveCode(url.searchParams.get('code'));
     else rejectCode(new TrillionError(`Sign-in did not finish: ${url.searchParams.get('error_description') ?? url.searchParams.get('error') ?? 'the answer did not match this sign-in'}.`));
   });
-  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  await new Promise((resolve, reject) => { server.once('error', reject); server.listen(rules.client.redirect_port ?? 0, '127.0.0.1', resolve); });
   const redirect = `http://127.0.0.1:${server.address().port}/callback`;
   try {
-    const client = await asJson(await fetchImpl(`${origin}/oauth/register`, { method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ client_name: rules.client_name, redirect_uris: [redirect], grant_types: ['authorization_code', 'refresh_token'], response_types: ['code'], token_endpoint_auth_method: 'none' }) }), 'Registering this program');
-    const authorize = new URL(`${origin}/authorize`);
-    for (const [name, value] of Object.entries({ response_type: 'code', client_id: client.client_id, redirect_uri: redirect, code_challenge: challenge, code_challenge_method: 'S256', state, scope: rules.scope, resource: `${origin}/mcp` })) authorize.searchParams.set(name, value);
+    const authorize = new URL(found.authorization_endpoint);
+    for (const [name, value] of Object.entries({ response_type: 'code', client_id: `${origin}${rules.client.id_path}`, redirect_uri: redirect, code_challenge: challenge, code_challenge_method: 'S256', state, scope: rules.scope, resource: found.resource })) authorize.searchParams.set(name, value);
     say(`Sign in to Trillion in your browser. If it did not open, open this address:\n  ${authorize.href}`);
     Promise.resolve().then(() => open(authorize.href)).catch(error => rejectCode(new TrillionError(`The browser could not open the sign-in: ${error.message.split('\n')[0]}`)));
     let timer;
     const late = new Promise((resolve, reject) => { timer = setTimeout(() => reject(new TrillionError(`No sign-in arrived within ${rules.sign_in_wait_seconds} seconds. Run trillion login again.`)), rules.sign_in_wait_seconds * 1000); });
     const code = await Promise.race([arrived, late]).finally(() => clearTimeout(timer));
-    const tokens = await asJson(await fetchImpl(`${origin}/oauth/token`, form({ grant_type: 'authorization_code', code, redirect_uri: redirect, client_id: client.client_id, code_verifier: verifier, resource: `${origin}/mcp` })), 'Finishing the sign-in');
+    const tokens = await asJson(await fetchImpl(found.token_endpoint, form({ grant_type: 'authorization_code', code, redirect_uri: redirect, client_id: `${origin}${rules.client.id_path}`, code_verifier: verifier, resource: found.resource })), 'The sign-in exchange');
     if (typeof tokens.access_token !== 'string' || !tokens.access_token) throw new TrillionError('The sign-in answered no access token.');
-    return grantOf(tokens, { client_id: client.client_id, origin, now });
+    return grantOf(tokens, { client_id: `${origin}${rules.client.id_path}`, origin, now, found, rules });
   } finally { server.close(); }
 }
 
-/** Ends a sign-in this program made: its refresh token is revoked at its origin's /oauth/token, which ends the grant and
+/** Ends a sign-in this program made: its refresh token is revoked at the server's revocation endpoint, which ends the grant and
  *  every token it gave. */
 export async function endSignIn(grant, { fetchImpl = fetch } = {}) {
-  if (!grant?.refresh_token) return;
-  await fetchImpl(`${grant.origin}/oauth/token`, form({ token: grant.refresh_token, token_type_hint: 'refresh_token', client_id: grant.client_id })).catch(() => null);
+  if (!grant?.refresh_token || !grant.revocation_endpoint) return;
+  await fetchImpl(grant.revocation_endpoint, form({ token: grant.refresh_token, token_type_hint: 'refresh_token', client_id: grant.client_id })).catch(() => null);
 }
 
 function openInBrowser(url) {

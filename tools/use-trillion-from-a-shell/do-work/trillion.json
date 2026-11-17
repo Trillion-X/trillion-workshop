@@ -33,7 +33,7 @@
   },
   "held_file": "held.json",
   "client_name": "Trillion command line",
-  "scope": "decisions",
+  "scope": "openid offline_access records tools",
   "sign_in_wait_seconds": 600,
   "retry": {
     "_what": "One call is tried again, under the same request_key, when the door does not answer within one try, answers 429 or 5xx, or says its run is still going (`codes`). A call has no deadline of its own: `count`, the number of tries after the first, is the one number that ends it. Each gap doubles from first_seconds up to most_seconds and is then cut down by up to `jitter` of itself, so callers that failed together do not try together. `attempt_seconds` is how long one try waits (--timeout SECONDS sets it for one command); the next try asks again with the same key and is answered with the first run's recorded result (trillion-rust tool_runs: one request key, one run). A run longer than the engine's tool-run deadline (tool-runs.json deadline_ms) is a row that declares invoke.max_run_ms or invoke.session, whose run id is read with the session read method.",
@@ -42,13 +42,28 @@
     "most_seconds": 60,
     "jitter": 0.5,
     "attempt_seconds": 120,
-    "codes": ["workshop_run_in_progress"]
+    "codes": [
+      "workshop_run_in_progress"
+    ]
   },
   "direct_calls": {
     "_what": "The flags `trillion op` and `trillion call` take, per command; any other flag is refused before anything is sent (parseArgs makes every unknown --flag a true, so an unchecked one was silently dropped: `op ... records:write --dry-run` removed a record on 2026-11-13). `--dry-run` is op only: it prints the request it would have sent {address, method, request_key, input} and sends nothing, except that for `dry_run_reads_first.method` (records:write) it reads each target row with `read_method` and prints, per row, the current value, the new value, a field-by-field diff, the fields the write drops, and `removes` for a value null; no write is sent.",
     "flags": {
-      "op": ["request-key", "timeout", "origin", "json", "help", "dry-run"],
-      "call": ["request-key", "timeout", "origin", "json", "help"]
+      "op": [
+        "request-key",
+        "timeout",
+        "origin",
+        "json",
+        "help",
+        "dry-run"
+      ],
+      "call": [
+        "request-key",
+        "timeout",
+        "origin",
+        "json",
+        "help"
+      ]
     },
     "dry_run_reads_first": {
       "method": "records:write",
@@ -62,7 +77,10 @@
   "install": {
     "follow": {
       "_what": "Where the installed command finds the Workshop copy it runs: the first of runtime_files that exists names the engine's state folder in `state_field`; <state>/<installs_folder>/<current> is the Workshop install the engine keeps current (current is `current_field` of <state>/<installs_folder>/<state_file>), and `program` is the command inside it. Nothing found, or the copy is this file: the installed copy runs itself.",
-      "runtime_files": ["~/Library/Application Support/Trillion/local-runtime.json", "~/.config/trillion/local-runtime.json"],
+      "runtime_files": [
+        "~/Library/Application Support/Trillion/local-runtime.json",
+        "~/.config/trillion/local-runtime.json"
+      ],
       "state_field": "state",
       "installs_folder": "workshop-installs",
       "state_file": "state.json",
@@ -303,7 +321,13 @@
       "take": "tool:take-an-ai-job",
       "change": "tool:change-an-ai-job"
     },
-    "holder_commands": ["finish", "fail", "release", "stuck", "plan"],
+    "holder_commands": [
+      "finish",
+      "fail",
+      "release",
+      "stuck",
+      "plan"
+    ],
     "actions": {
       "plan": "plan",
       "finish": "finish",
@@ -325,9 +349,18 @@
   "bearers": {
     "_what": "The shapes of credential the door accepts as a bearer, one row each: a `pattern` the whole value must match. The command sends whatever bearer it is given (TRILLION_KEY, the kept key, a key read on standard input) as it is, and refuses only a value no row matches, so a new kind of key or pass is one row here and no change in code. nm_ is the Mac app's account key; tr_ is a Better Auth API key (the prefix and 64 letters, no digits or separators, as the apiKey plugin mints it: better-auth-official, Nov 14); the third is an access token that is a signed JWT (three base64url parts).",
     "shapes": [
-      { "kind": "account key", "pattern": "^nm_\\S+$" },
-      { "kind": "API key", "pattern": "^tr_[A-Za-z]{64}$" },
-      { "kind": "signed token", "pattern": "^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$" }
+      {
+        "kind": "account key",
+        "pattern": "^nm_\\S+$"
+      },
+      {
+        "kind": "API key",
+        "pattern": "^tr_[A-Za-z]{64}$"
+      },
+      {
+        "kind": "signed token",
+        "pattern": "^[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+$"
+      }
     ],
     "refused": "That is not a kind of key or token the door takes ({kinds})."
   },
@@ -398,7 +431,8 @@
   "grant": {
     "keychain_item": "trillion-cli-sign-in",
     "file": "sign-in.json",
-    "refresh_before_seconds": 60
+    "refresh_before_seconds": 60,
+    "account_claim": "trillion_account"
   },
   "client_version": "2",
   "computer_name": {
@@ -488,5 +522,10 @@
     "changed_codes": [
       "original_command_conflict"
     ]
+  },
+  "client": {
+    "id_path": "/cli/client.json",
+    "redirect_port": 54718,
+    "_what": "This program signs in as an OAuth client named by a Client ID Metadata Document: the address `origin` + id_path (https, at the sign-in server's own host) answers do-work/client-metadata.json with {origin} filled in by the host that serves it, listing the one loopback redirect on redirect_port. No client is registered, and no host is named here."
   }
 }
