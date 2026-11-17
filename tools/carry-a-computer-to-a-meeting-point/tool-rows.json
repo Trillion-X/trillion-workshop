@@ -16,7 +16,7 @@
         "label": "Carry a computer to a meeting point",
         "status": "active",
         "job": "Say what a public host must run so my computers behind a router can be reached through it, and which port each one gets there",
-        "description": "Takes the id of a way row (rathole or ssh-reverse-forward are shipped; pass `ways` to use rows of your own), the meeting point's relay host (its hostname and the values the way's text names, such as control_port) and the computers carried to it, each with its id and the value the host needs to admit it (`server_value`: a token, or a public key). Answers the ordered steps the host runs (a file to write with its mode, or a command to run), the arguments of the program that serves the meeting point, and the program's pinned download. Each computer's port at the host is a stable hash of its id into a range held as data; two computers that hash to one port are refused, and one of them is given a `salt`. The computer's own half is kept running by `serve` under the init row for its kind of computer; run the file's `install` on that computer. The tool holds no vendor, operating system or host: each is a row.",
+        "description": "Takes the id of a way row (frp, rathole and ssh-reverse-forward are shipped; pass `ways` to use rows of your own), the meeting point's relay host (its hostname and the values the way's text names, such as control_port) and the computers carried to it, each with its id and the value the host needs to admit it (`server_value`: a token, or a public key). Answers the ordered steps the host runs (a file to write with its mode, or a command to run), the arguments of the program that serves the meeting point, and the program's pinned download. Each computer's port at the host is a stable hash of its id into a range held as data; two computers that hash to one port are refused, and one of them is given a `salt`. The computer's own half is kept running by `serve` under the init row for its kind of computer; run the file's `install` on that computer. The tool holds no vendor, operating system or host: each is a row.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -63,8 +63,7 @@
               "items": {
                 "type": "object",
                 "required": [
-                  "id",
-                  "server_value"
+                  "id"
                 ],
                 "properties": {
                   "id": {
@@ -78,7 +77,7 @@
                   "server_value": {
                     "type": "string",
                     "maxLength": 1000,
-                    "description": "The token or public key the host needs to admit this computer"
+                    "description": "The token or public key the host needs to admit this computer, when the way's host half names one"
                   }
                 }
               }

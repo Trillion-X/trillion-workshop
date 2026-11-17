@@ -8,7 +8,7 @@
     "tool:carry-a-computer-to-a-meeting-point"
   ],
   "instructions": [
-    "1. Pick a way: read-data/ways.json holds the shipped rows (rathole, ssh-reverse-forward); a way of your own is a row of the same shape, passed as `ways`.",
+    "1. Pick a way: read-data/ways.json holds the shipped rows (frp, rathole, ssh-reverse-forward); a way of your own is a row of the same shape, passed as `ways`.",
     "2. Give the relay host (id, hostname, and the values its way names, for example control_port) and each computer to carry (id, and the token or public key the host admits it with).",
     "3. Say \"Carry my computers to my meeting point\"; the AI calls run_resource_operation at @workshop-tools with method tools:run, the tool above and that input.",
     "4. Read what comes back: steps (files to write with their modes and commands to run on the host, in order), argv (the arguments of the program that serves the meeting point) and program (its pinned download). Each computer's meeting-point port is a hash of its id; the computer then runs `carry-a-computer.mjs install CONFIG STATE_FOLDER`."

@@ -2,6 +2,261 @@
   "_what": "The ways a computer is carried to a meeting point, one row each: {id, transport_kind, relay_host_ref, client, params, order, requires_awake, install}. A person's own way row is one of these with relay_host_ref set to their relay host (or a row of their own making; nothing here is the list of ways). `client` is the program the computer runs (`program.artifacts`: the first whose `where` holds for the computer's facts, either a pinned download with its BLAKE3 or a `command` already on the computer), the `files` it is given in a private folder (`{dir}`) that is removed when it ends, and its `argv`. `server` is the same for the meeting point's host: its steps run once, in order; a step with `each` repeats for every computer carried there. `install` says which init row keeps the client running (start-a-computer read-data/init-rows.json).",
   "rows": [
     {
+      "id": "frp",
+      "transport_kind": "reverse_tunnel",
+      "relay_host_ref": null,
+      "order": 1,
+      "requires_awake": true,
+      "install": {
+        "scope": "user"
+      },
+      "params": {},
+      "release": {
+        "what": "frp 0.72.0, published 2026-11-04, Apache-2.0, https://github.com/fatedier/frp. One token for the whole meeting point (frps takes one); a computer is held to its own port only by the host's allowPorts list, so a holder of the token could ask for another listed computer's port. A meeting point that needs a token per computer uses the rathole row."
+      },
+      "client": {
+        "program": {
+          "artifacts": [
+            {
+              "where": {
+                "platform": "darwin",
+                "arch": "arm64"
+              },
+              "url": "https://github.com/fatedier/frp/releases/download/v0.72.0/frp_0.72.0_darwin_arm64.tar.gz",
+              "blake3": "48fc13c85b5193c16337b6de260508918d0c6a29f45b1215f06d0c4f1b1c61c5",
+              "size": 13217943,
+              "extract": [
+                "tar",
+                "-xf",
+                "{file}",
+                "-C",
+                "{dir}"
+              ],
+              "exe": "frp_0.72.0_darwin_arm64/frpc"
+            },
+            {
+              "where": {
+                "platform": "darwin",
+                "arch": "x64"
+              },
+              "url": "https://github.com/fatedier/frp/releases/download/v0.72.0/frp_0.72.0_darwin_amd64.tar.gz",
+              "blake3": "edc9f40c9749ff093e373217124ba445e76b5f445821b0c805032b93a4066c8c",
+              "size": 14560907,
+              "extract": [
+                "tar",
+                "-xf",
+                "{file}",
+                "-C",
+                "{dir}"
+              ],
+              "exe": "frp_0.72.0_darwin_amd64/frpc"
+            },
+            {
+              "where": {
+                "platform": "linux",
+                "arch": "x64"
+              },
+              "url": "https://github.com/fatedier/frp/releases/download/v0.72.0/frp_0.72.0_linux_amd64.tar.gz",
+              "blake3": "9bf9d653cf591b9c504f3f3441ebfb8b95e0ce20e26cdef732cb693be12d950f",
+              "size": 14564595,
+              "extract": [
+                "tar",
+                "-xf",
+                "{file}",
+                "-C",
+                "{dir}"
+              ],
+              "exe": "frp_0.72.0_linux_amd64/frpc"
+            },
+            {
+              "where": {
+                "platform": "linux",
+                "arch": "arm64"
+              },
+              "url": "https://github.com/fatedier/frp/releases/download/v0.72.0/frp_0.72.0_linux_arm64.tar.gz",
+              "blake3": "8c2d9d68efaed82d88acc2ae4f7efd87dd89f1d43ac36d1b556172c74494faf9",
+              "size": 12925619,
+              "extract": [
+                "tar",
+                "-xf",
+                "{file}",
+                "-C",
+                "{dir}"
+              ],
+              "exe": "frp_0.72.0_linux_arm64/frpc"
+            },
+            {
+              "where": {
+                "platform": "linux",
+                "arch": "arm"
+              },
+              "url": "https://github.com/fatedier/frp/releases/download/v0.72.0/frp_0.72.0_linux_arm_hf.tar.gz",
+              "blake3": "6c1a4bc08ce6f50d12fea9f1ced18320413e4618bfab43abbd24776ac526f030",
+              "size": 13524495,
+              "extract": [
+                "tar",
+                "-xf",
+                "{file}",
+                "-C",
+                "{dir}"
+              ],
+              "exe": "frp_0.72.0_linux_arm_hf/frpc"
+            },
+            {
+              "where": {
+                "platform": "win32",
+                "arch": "x64"
+              },
+              "url": "https://github.com/fatedier/frp/releases/download/v0.72.0/frp_0.72.0_windows_amd64.zip",
+              "blake3": "24e95cff603080e7d452eaf4d643c41630eff7bc073598f4af9b86298fd1e42c",
+              "size": 14472216,
+              "extract": [
+                "tar",
+                "-xf",
+                "{file}",
+                "-C",
+                "{dir}"
+              ],
+              "exe": "frp_0.72.0_windows_amd64/frpc.exe"
+            }
+          ]
+        },
+        "files": [
+          {
+            "name": "frpc.toml",
+            "mode": "0600",
+            "text": "serverAddr = \"{host}\"\nserverPort = {control_port}\nauth.token = \"{secret}\"\n[[proxies]]\nname = \"{computer_id}\"\ntype = \"tcp\"\nlocalIP = \"127.0.0.1\"\nlocalPort = {local_port}\nremotePort = {remote_port}\n"
+          }
+        ],
+        "argv": [
+          "-c",
+          "{dir}/frpc.toml"
+        ]
+      },
+      "server": {
+        "program": {
+          "artifacts": [
+            {
+              "where": {
+                "platform": "darwin",
+                "arch": "arm64"
+              },
+              "url": "https://github.com/fatedier/frp/releases/download/v0.72.0/frp_0.72.0_darwin_arm64.tar.gz",
+              "blake3": "48fc13c85b5193c16337b6de260508918d0c6a29f45b1215f06d0c4f1b1c61c5",
+              "size": 13217943,
+              "extract": [
+                "tar",
+                "-xf",
+                "{file}",
+                "-C",
+                "{dir}"
+              ],
+              "exe": "frp_0.72.0_darwin_arm64/frps"
+            },
+            {
+              "where": {
+                "platform": "darwin",
+                "arch": "x64"
+              },
+              "url": "https://github.com/fatedier/frp/releases/download/v0.72.0/frp_0.72.0_darwin_amd64.tar.gz",
+              "blake3": "edc9f40c9749ff093e373217124ba445e76b5f445821b0c805032b93a4066c8c",
+              "size": 14560907,
+              "extract": [
+                "tar",
+                "-xf",
+                "{file}",
+                "-C",
+                "{dir}"
+              ],
+              "exe": "frp_0.72.0_darwin_amd64/frps"
+            },
+            {
+              "where": {
+                "platform": "linux",
+                "arch": "x64"
+              },
+              "url": "https://github.com/fatedier/frp/releases/download/v0.72.0/frp_0.72.0_linux_amd64.tar.gz",
+              "blake3": "9bf9d653cf591b9c504f3f3441ebfb8b95e0ce20e26cdef732cb693be12d950f",
+              "size": 14564595,
+              "extract": [
+                "tar",
+                "-xf",
+                "{file}",
+                "-C",
+                "{dir}"
+              ],
+              "exe": "frp_0.72.0_linux_amd64/frps"
+            },
+            {
+              "where": {
+                "platform": "linux",
+                "arch": "arm64"
+              },
+              "url": "https://github.com/fatedier/frp/releases/download/v0.72.0/frp_0.72.0_linux_arm64.tar.gz",
+              "blake3": "8c2d9d68efaed82d88acc2ae4f7efd87dd89f1d43ac36d1b556172c74494faf9",
+              "size": 12925619,
+              "extract": [
+                "tar",
+                "-xf",
+                "{file}",
+                "-C",
+                "{dir}"
+              ],
+              "exe": "frp_0.72.0_linux_arm64/frps"
+            },
+            {
+              "where": {
+                "platform": "linux",
+                "arch": "arm"
+              },
+              "url": "https://github.com/fatedier/frp/releases/download/v0.72.0/frp_0.72.0_linux_arm_hf.tar.gz",
+              "blake3": "6c1a4bc08ce6f50d12fea9f1ced18320413e4618bfab43abbd24776ac526f030",
+              "size": 13524495,
+              "extract": [
+                "tar",
+                "-xf",
+                "{file}",
+                "-C",
+                "{dir}"
+              ],
+              "exe": "frp_0.72.0_linux_arm_hf/frps"
+            },
+            {
+              "where": {
+                "platform": "win32",
+                "arch": "x64"
+              },
+              "url": "https://github.com/fatedier/frp/releases/download/v0.72.0/frp_0.72.0_windows_amd64.zip",
+              "blake3": "24e95cff603080e7d452eaf4d643c41630eff7bc073598f4af9b86298fd1e42c",
+              "size": 14472216,
+              "extract": [
+                "tar",
+                "-xf",
+                "{file}",
+                "-C",
+                "{dir}"
+              ],
+              "exe": "frp_0.72.0_windows_amd64/frps.exe"
+            }
+          ]
+        },
+        "steps": [
+          {
+            "file": {
+              "path": "{config_dir}/frps.toml",
+              "mode": "0600",
+              "text": "bindPort = {control_port}\nproxyBindAddr = \"127.0.0.1\"\nauth.token = \"{token}\"\nallowPorts = [{services}]\n"
+            },
+            "each": "{ single = {remote_port} }, "
+          }
+        ],
+        "argv": [
+          "-c",
+          "{config_dir}/frps.toml"
+        ]
+      }
+    },
+    {
       "id": "rathole",
       "transport_kind": "reverse_tunnel",
       "relay_host_ref": null,

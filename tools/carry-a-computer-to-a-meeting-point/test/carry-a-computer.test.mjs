@@ -48,6 +48,21 @@ test('the first row renders the client file and arguments for one computer, with
   assert.equal(values.remote_port, portFor('computer-one'));
 });
 
+test('the frp row hands its token only in the client file and holds the host to the computers carried', () => {
+  assert.equal(WAYS[0].id, 'frp');
+  const values = valuesFor({ way: way('frp'), relay_host: relayHost, computer_id: 'computer-one', local_port: 8789 });
+  const { files, argv } = renderClient(way('frp'), values, { secret: 'TOKEN', dir: '/run/dir' });
+  assert.deepEqual(argv, ['-c', '/run/dir/frpc.toml']);
+  assert.match(files[0].text, /auth\.token = "TOKEN"/);
+  assert.match(files[0].text, new RegExp(`remotePort = ${portFor('computer-one')}\\n`));
+  const host = renderMeetingPoint({ way: way('frp'), relay_host: relayHost, computers: [{ id: 'computer-one' }, { id: 'computer-two' }], values: { config_dir: '/etc/example', token: 'TOKEN' } });
+  assert.match(host.steps[0].file.text, /proxyBindAddr = "127\.0\.0\.1"/);
+  assert.ok(host.steps[0].file.text.includes(`allowPorts = [{ single = ${portFor('computer-one')} }, { single = ${portFor('computer-two')} }, ]`));
+  assert.deepEqual(host.argv, ['-c', '/etc/example/frps.toml']);
+  assert.match(host.program.artifacts[0].exe, /\/frps(\.exe)?$/);
+  assert.match(way('frp').client.program.artifacts[0].exe, /\/frpc(\.exe)?$/);
+});
+
 test('the second row is a reverse forward bound to loopback on both sides, with the host key pinned', () => {
   const values = valuesFor({ way: way('ssh-reverse-forward'), relay_host: relayHost, computer_id: 'computer-one', local_port: 8789 });
   const { files, argv } = renderClient(way('ssh-reverse-forward'), values, { secret: 'KEY', dir: '/run/dir' });
@@ -139,27 +154,27 @@ test('installing writes the init row for the computer it is on and loads it; rem
   assert.ok(!existsSync(`${home}/Library/LaunchAgents/example.carrier.plist`));
 });
 
-// The live proof (a real rathole server and client on this computer, the client kept by a real launchd user agent) runs
-// only when asked for, with CARRIER_LIVE_PROOF=<a rathole binary already on this computer>.
+// The live proof (a real server and client on this computer, the client kept by a real launchd user agent) runs only when
+// asked for: CARRIER_LIVE_PROOF=<the way's client program>, CARRIER_LIVE_SERVER=<its server program, when another file>,
+// CARRIER_LIVE_WAY=<the way row id, rathole when left out>.
 test('live: the launchd row keeps the carrier connected to a local server, and the carried port answers', { skip: !process.env.CARRIER_LIVE_PROOF || process.platform !== 'darwin' }, async t => {
-  const rathole = process.env.CARRIER_LIVE_PROOF;
-  const state = folder(t), home = process.env.HOME;
+  const client = process.env.CARRIER_LIVE_PROOF, server = process.env.CARRIER_LIVE_SERVER ?? client, liveWay = way(process.env.CARRIER_LIVE_WAY ?? 'rathole');
+  const state = folder(t);
   const free = () => new Promise(resolve => { const s = createServer().listen(0, '127.0.0.1', () => { const { port } = s.address(); s.close(() => resolve(port)); }); });
   const [control, door] = [await free(), await free()];
   const echo = createServer(socket => socket.end('door-answer\n')).listen(door, '127.0.0.1');
   t.after(() => echo.close());
   const lane = 'carrierproof';
   const ports = { min: await free(), max: undefined }; ports.max = ports.min;
-  const computer = { id: lane, server_value: 'a-synthetic-token' };
   const host = { id: 'local', hostname: '127.0.0.1', params: { control_port: control } };
-  const server = renderMeetingPoint({ way: way('rathole'), relay_host: host, computers: [computer], values: { config_dir: state }, ports });
-  writeFileSync(join(state, 'server.toml'), server.steps[0].file.text, { mode: 0o600 });
-  const serverChild = spawn(rathole, ['--server', join(state, 'server.toml')], { stdio: 'ignore' });
+  const rendered = renderMeetingPoint({ way: liveWay, relay_host: host, computers: [{ id: lane, server_value: 'a-synthetic-token' }], values: { config_dir: state, token: 'a-synthetic-token' }, ports });
+  const written = rendered.steps[0].file;
+  writeFileSync(written.path, written.text, { mode: 0o600 });
+  const serverChild = spawn(server, rendered.argv, { stdio: 'ignore' });
   t.after(() => serverChild.kill());
-  // the client's own rendering with the same port range, and its token from a vault stand-in on descriptor 3
   const vault = join(state, 'vault.sh'); writeFileSync(vault, '#!/bin/sh\nprintf %s a-synthetic-token >&3\n', { mode: 0o700 }); chmodSync(vault, 0o700);
   const label = `test.carrier.proof.${process.pid}`;
-  const config = { label, way: { ...way('rathole'), client: { ...way('rathole').client, program: { artifacts: [{ where: {}, command: rathole }] } } }, relay_host: host, computer_id: lane, local_port: door, credential_command: [vault], ports };
+  const config = { label, way: { ...liveWay, client: { ...liveWay.client, program: { artifacts: [{ where: {}, command: client }] } } }, relay_host: host, computer_id: lane, local_port: door, credential_command: [vault], ports };
   const done = installCarrier(config, state);
   t.after(() => { try { removeCarrier(config, state); } catch {} });
   assert.equal(done.port, ports.min);
