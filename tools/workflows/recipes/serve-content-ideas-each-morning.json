@@ -1,0 +1,276 @@
+{
+  "about": "workflow:serve-content-ideas-each-morning: every night, read the places the person draws ideas from, and by morning serve a batch of post ideas tuned to them; the ones they pick go through the content pipeline, and what each became is kept so the winners are reused.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:serve-content-ideas-each-morning",
+        "label": "Serve content ideas each morning",
+        "job": "Every night, read every source the person draws ideas from (their watched sources, their own recent conversations and notes, the news and places they follow), turn what is new into post ideas tuned to their pursuits, audience and what has won before, and serve them as rows they pick from in the morning; each picked idea is made through the content pipeline, and what each piece did is kept so the next batch leans on what won.",
+        "produces": "Rows of list content-ideas (one per idea, with its source, its angle, the platforms it fits and its state: Served, Picked, Made, Passed), and for each picked idea a run of the content pipeline.",
+        "made_from": [
+          "workflow:make-one-piece-of-content-from-audience-to-publish",
+          "workflow:read-the-week-and-make-more-of-what-won",
+          "workflow:turn-what-you-said-into-content"
+        ],
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "how_many": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Optional. How many ideas to serve each morning. Left out, it is read from the person's content settings row; when that has none, serve every idea that passes the fit step and say how many."
+            },
+            "platforms": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Optional. The platforms the person posts on. Left out, it is read from their connected accounts and content settings."
+            },
+            "start_at": {
+              "type": "string"
+            }
+          }
+        },
+        "source": {
+          "from": "Shared by the person 2026-11-17: Andrew Yeung (x.com/andruyeung/status/2122740288368075057), about 50 pieces a week across LinkedIn, X and Threads in under an hour a day: he mapped his idea sources (trending news, conversations with smart people, new jobs and the future of work, local happenings, ideas on X and in newsletters); every night an agent pulls from them tuned to his preferences; each morning it serves 40 ideas in a portal; he picks the best, writes, publishes or schedules; everything is tracked so what works is repurposed.",
+          "note": "His tool and his number of ideas are his; here the sources are the person's own rows, the batch size is their setting, and the tracking is their own lists. His claims (impressions, time spent) are his and not checked here."
+        },
+        "wakes": [
+          {
+            "id": "nightly",
+            "on": {
+              "time": {
+                "every_ms": 86400000,
+                "from_ms": 10800000,
+                "zone": "America/Chicago"
+              }
+            },
+            "budget": {
+              "steps": 60,
+              "wall_ms": 1800000
+            },
+            "input": {
+              "start_at": "read-the-sources"
+            }
+          }
+        ],
+        "steps": [
+          {
+            "id": "read-the-sources",
+            "title": "Read every idea source",
+            "when": "Each night, and whenever the person asks for ideas now.",
+            "do": "Read what is new since the last serving from every place the person draws ideas from: run tool:watch-my-sources over their rows of list signal-sources that are watched; read their own recent conversations, voice notes and notes (their message and note rows from the last day); read their posts that did best lately (rows the weekly read kept). Keep each new item with its link or row id and its time. Name any source that could not be read and why.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "items",
+                "unread"
+              ],
+              "properties": {
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "source": {
+                        "type": "string"
+                      },
+                      "ref": {
+                        "type": "string"
+                      },
+                      "at": {
+                        "type": "string"
+                      },
+                      "words": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "unread": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "done_when": "Every watched source and the person's own recent records were read, or named in unread with the reason.",
+            "if_missing": "If the person watches no sources yet, say so, serve ideas from their own records only, and add a row to list workflow-gaps naming the sources they mention most in their own words as candidates to watch.",
+            "why": "Ideas are only as good as their sources; reading the person's own conversations keeps the ideas theirs, not the feed's.",
+            "good_answer": "Passes: every item has a link or row id and a time. Fails: items with no source, or a source silently skipped.",
+            "came_from": [
+              "x.com/andruyeung/status/2122740288368075057: map the sources of inspiration; every night pull from them"
+            ],
+            "part_of": [
+              "serve-content-ideas-each-morning"
+            ],
+            "position": 0
+          },
+          {
+            "id": "make-the-ideas",
+            "title": "Turn what is new into ideas that fit",
+            "when": "After read-the-sources.",
+            "do": "Turn the items into post ideas. Each idea gives: the angle in one sentence (the person's take, not a summary of the source), the source item it came from, which of the person's pursuits, content pillars and audience it serves (read their rows), the platforms it fits, and the format that suits it (a row of list content-formats). Drop ideas that repeat one already served in the last 30 days or contradict the person's own stated beliefs. Rank by fit with what won lately. Keep input.how_many, or the person's setting, from the top.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "ideas"
+              ],
+              "properties": {
+                "ideas": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "angle": {
+                        "type": "string"
+                      },
+                      "source_ref": {
+                        "type": "string"
+                      },
+                      "serves": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "platforms": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "format": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "done_when": "Every kept idea has an angle, a source, what it serves and a format row.",
+            "if_missing": "If no item yields an idea that fits, serve none and say which sources were thin.",
+            "why": "A morning list is only fast to pick from when each idea already says its angle, its source and why it fits.",
+            "good_answer": "Passes: angles in the person's voice, each traced to a source and a pursuit. Fails: headlines restated as ideas, or ideas with no source.",
+            "came_from": [
+              "x.com/andruyeung/status/2122740288368075057: tuned to my preferences; 40 ideas each morning"
+            ],
+            "part_of": [
+              "serve-content-ideas-each-morning"
+            ],
+            "position": 1
+          },
+          {
+            "id": "serve-them",
+            "title": "Serve them for the morning",
+            "when": "After make-the-ideas.",
+            "do": "Write each idea as a row of list content-ideas with state Served, the date, and every field from make-the-ideas, and read the rows back. Tell the person once, through their chosen way of being told, how many ideas are waiting and the three best angles.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "rows"
+              ],
+              "properties": {
+                "rows": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "done_when": "Every served idea is a row read back, and the person was told once.",
+            "if_missing": "If the list cannot be written, keep the ideas in this step's answer and record the refusal.",
+            "why": "Picking from a list in the morning is the whole time the person spends; serving is what makes that under an hour.",
+            "good_answer": "Passes: rows read back with their ids. Fails: ideas left only in a message.",
+            "came_from": [
+              "x.com/andruyeung/status/2122740288368075057: he serves up ideas in a custom portal; I pick the best ones"
+            ],
+            "part_of": [
+              "serve-content-ideas-each-morning"
+            ],
+            "position": 2
+          },
+          {
+            "id": "make-the-picked",
+            "title": "Make the picked ideas",
+            "when": "When rows of list content-ideas have state Picked; each night's run starts by making the ones picked since the last run.",
+            "do": "For each row of list content-ideas in state Picked, run workflow:make-one-piece-of-content-from-audience-to-publish as a sub-run with the idea as its seed, and set the row's state to Made with the run's id. Rows left Served for 7 days become Passed.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "made",
+                "passed"
+              ],
+              "properties": {
+                "made": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "passed": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "done_when": "Every picked row has a run id and state Made; expired rows are Passed.",
+            "if_missing": "If the content pipeline cannot start, leave the row Picked and record why.",
+            "why": "The person chooses; everything after the choice is the pipeline's, so picking is the only step they do.",
+            "good_answer": "Passes: one run per picked row, state changed and read back. Fails: picked rows made by hand outside the pipeline.",
+            "came_from": [
+              "x.com/andruyeung/status/2122740288368075057: turn them into posts, and publish or schedule"
+            ],
+            "part_of": [
+              "serve-content-ideas-each-morning"
+            ],
+            "position": 3
+          },
+          {
+            "id": "keep-what-won",
+            "title": "Keep what each idea became",
+            "when": "After make-the-picked.",
+            "do": "For each idea Made at least 7 days ago, read how its piece did (the counts the weekly read keeps) and write them on the idea row with the source it came from. Record which sources and angles produced winners and which produced Passed ideas, so make-the-ideas ranks by them and the daily learn-and-prune can weigh the sources.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "scored"
+              ],
+              "properties": {
+                "scored": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "sources": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "done_when": "Every idea Made 7 or more days ago carries its result and its source's tally.",
+            "if_missing": "If a piece's counts are not yet read, leave it for the next run.",
+            "why": "Tracking what each idea became is what lets the person repurpose winners and drop sources that never pay off.",
+            "good_answer": "Passes: results on the idea rows and a per-source tally. Fails: results kept nowhere the next serving reads.",
+            "came_from": [
+              "x.com/andruyeung/status/2122740288368075057: everything gets tracked, so I can repurpose what works"
+            ],
+            "part_of": [
+              "serve-content-ideas-each-morning"
+            ],
+            "position": 4
+          }
+        ]
+      }
+    }
+  ]
+}
