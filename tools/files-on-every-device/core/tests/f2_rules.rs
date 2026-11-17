@@ -251,5 +251,6 @@ fn failure_4_a_move_keeps_its_item() {
 fn failure_5_the_core_names_its_root_and_trash_first() {
     let mut world = World::fast();
     world.event(json!({"tick": null}));
-    assert_eq!(world.log[0], Command::Ready { root: "trillion".into(), name: "Trillion".into(), trash: "trash".into() });
+    let problem_words = files_core::Contract::shipped().problem_words.clone();
+    assert_eq!(world.log[0], Command::Ready { root: "trillion".into(), name: "Trillion".into(), trash: "trash".into(), problem_words });
 }

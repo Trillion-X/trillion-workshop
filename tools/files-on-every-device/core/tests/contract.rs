@@ -131,10 +131,10 @@ fn with_no_computer_named_a_pin_and_a_conflict_copy_are_not_offered() {
 
 /// Every problem, by an exhaustive match: a new problem stops this test from compiling until it is listed.
 fn every_problem() -> Vec<Problem> {
-    let all = [Problem::Unauthorised, Problem::Forbidden, Problem::Missing, Problem::StaleVersion, Problem::Unreachable, Problem::Invalid, Problem::RefusedCopy, Problem::NotOffered, Problem::Cancelled];
+    let all = [Problem::Unauthorised, Problem::Forbidden, Problem::Missing, Problem::StaleVersion, Problem::Unreachable, Problem::Invalid, Problem::RefusedCopy, Problem::NotOffered, Problem::Cancelled, Problem::AnswerIncomplete];
     for problem in all {
         match problem {
-            Problem::Unauthorised | Problem::Forbidden | Problem::Missing | Problem::StaleVersion | Problem::Unreachable | Problem::Invalid | Problem::RefusedCopy | Problem::NotOffered | Problem::Cancelled => {}
+            Problem::Unauthorised | Problem::Forbidden | Problem::Missing | Problem::StaleVersion | Problem::Unreachable | Problem::Invalid | Problem::RefusedCopy | Problem::NotOffered | Problem::Cancelled | Problem::AnswerIncomplete => {}
         }
     }
     all.to_vec()

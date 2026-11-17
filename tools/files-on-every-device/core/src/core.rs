@@ -214,7 +214,8 @@ impl Core {
         };
         let root = &core.contract.root;
         let (root, name, trash) = (root.id.clone(), root.name.clone(), core.contract.trash_id.clone());
-        core.emit(Command::Ready { root, name, trash });
+        let problem_words = core.contract.problem_words.clone();
+        core.emit(Command::Ready { root, name, trash, problem_words });
         Ok(core)
     }
 

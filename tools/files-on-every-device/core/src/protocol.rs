@@ -5,6 +5,8 @@
 //! the shell takes them with `files_core_take_bytes`. Every event carries the host's monotonic time, `now_ms`: the
 //! core reads no clock.
 
+use std::collections::BTreeMap;
+
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
@@ -111,8 +113,9 @@ impl EventKind {
 #[serde(rename_all = "snake_case")]
 pub enum Command {
     /// The first command of every core: the one place the shell shows (the whole of the person's files: its id and
-    /// the name shown) and the id of its OS's trash container.
-    Ready { root: String, name: String, trash: String },
+    /// the name shown), the id of its OS's trash container, and the sentence for each problem, for one the shell
+    /// itself finds.
+    Ready { root: String, name: String, trash: String, problem_words: BTreeMap<String, String> },
     /// Send a `tick` at `at_ms` (host time) if no other event comes first: the next moment the core has something to do
     /// (a busy computer's wait ends, a request may have stalled, a change wait may be asked again). A later `wake`
     /// replaces it; with none due the core sends none.

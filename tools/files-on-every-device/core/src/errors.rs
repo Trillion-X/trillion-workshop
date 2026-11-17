@@ -25,4 +25,6 @@ pub enum Problem {
     NotOffered,
     /// The shell cancelled the demand.
     Cancelled,
+    /// An answer the shell itself found incomplete (an item answer with no item, an item with no version to fetch).
+    AnswerIncomplete,
 }

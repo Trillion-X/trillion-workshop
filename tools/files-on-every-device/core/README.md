@@ -37,7 +37,7 @@ Every rule a native folder of the person's files needs, written once for every O
 | `Setup` | `{origin}` | Where this computer's engine door is, the one thing only the shell knows; the root, this computer and the bounds come through the door |
 | `Event` | `{now_ms, <kind>: {...}}` | One OS callback, answer or tick; bytes beside it |
 | `Command` | `{<kind>: {...}}` | One thing for the shell to do; `bytes` beside it when it carries some |
-| `Problem` | `unauthorised`, `forbidden`, `missing`, `stale_version`, `unreachable`, `invalid`, `refused_copy`, `not_offered`, `cancelled` | The OS-neutral problems each shell maps to its own |
+| `Problem` | `unauthorised`, `forbidden`, `missing`, `stale_version`, `unreachable`, `invalid`, `refused_copy`, `not_offered`, `cancelled`, `answer_incomplete` | The OS-neutral problems each shell maps to its own; each has its words in contract.json `problem_words` |
 
 ## Invariants
 

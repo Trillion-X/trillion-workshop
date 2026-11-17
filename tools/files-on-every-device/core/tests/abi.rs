@@ -73,7 +73,8 @@ fn a_listing_goes_through_the_c_abi() {
     let core = unsafe { files_core_new(setup.as_ptr(), setup.len()) };
     assert!(!core.is_null());
     let (ready, _) = next(core).expect("the first command");
-    assert_eq!(ready, json!({"ready": {"root": "trillion", "name": "Trillion", "trash": "trash"}}));
+    assert_eq!((&ready["ready"]["root"], &ready["ready"]["name"], &ready["ready"]["trash"]), (&json!("trillion"), &json!("Trillion"), &json!("trash")));
+    assert_eq!(ready["ready"]["problem_words"]["answer_incomplete"], "Something went wrong reading your files. Try again.");
     assert_eq!(event(core, json!({"now_ms": 5, "list": {"demand": 1, "folder": "trillion", "page": null, "page_size": null}}), &[]), 0);
     // The contract's bounds and this computer come first, each one door message.
     let (send, body) = next(core).expect("the bounds call");
