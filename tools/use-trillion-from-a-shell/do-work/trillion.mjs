@@ -549,7 +549,7 @@ export async function addPersonHere({ socket, bearer, rules = settings }) {
   if (reply.status === 404) return null;
   let answer = {};
   try { answer = JSON.parse(reply.text); } catch { /* no JSON body */ }
-  if (reply.status < 200 || reply.status > 299) throw new TrillionError(reply.status === 401 ? rules.words.refused : rules.words.not_taken_in, { status: reply.status === 401 ? 3 : 4, detail: fill(rules.words.details.not_taken_in, { url: socket, status: reply.status, why: answer.error ?? 'refused' }) });
+  if (reply.status < 200 || reply.status > 299) throw Object.assign(new TrillionError(reply.status === 401 ? rules.words.refused : rules.words.not_taken_in, { status: reply.status === 401 ? 3 : 4, detail: fill(rules.words.details.not_taken_in, { url: socket, status: reply.status, why: answer.error ?? 'refused' }) }), { notTaken: true });
   return answer;
 }
 
@@ -1484,7 +1484,8 @@ async function login(context, { again = false } = {}) {
   if (!again) {
     // A credential its door refuses is no sign-in: the person signs in again below, instead of being told it is refused.
     const client = await signedInClient(context).catch(error => { if (error instanceof TrillionError && error.status === 3) return null; throw error; });
-    const known = client && await knownAs(context, client);
+    // A credential the engine will not hold (a kept key it cannot read, a pass it refuses) is no sign-in either.
+    const known = client && await knownAs(context, client).catch(error => { if (error.notTaken) return null; throw error; });
     if (known) {
       keepConnection(context, client.door, known.account);
       return signedInWords(client.credential);

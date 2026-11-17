@@ -982,3 +982,18 @@ test('whoami holds a pass the engine has not held (an engine started again) befo
     assert.deepEqual(fake.order, ['persons/add', 'whoami']);
   } finally { await fake.close(); }
 });
+
+test('login with a kept key the engine will not hold signs in at the browser instead of stopping', async () => {
+  const pass = passFor('person@example.com');
+  const fake = await fakeDoor({ bearers: [pass, KEY], holdsAddedOnly: true, oauth: signInServer(pass) });
+  const refusing = createServer((request, response) => response.writeHead(503, { 'content-type': 'application/json' }).end('{"error":"sign_in_unavailable"}'));
+  const refusingSocket = join(mkdtempSync(join(tmpdir(), 'td-')), 's');
+  await new Promise(resolve => refusing.listen(refusingSocket, resolve));
+  try {
+    const opened = [];
+    const answers = [refusingSocket, fake.socket];
+    const said = await main(['login'], { store: { read: () => KEY, where: 'a kept key' }, grants: grantsKept(null), state: stateOf({ home: home() }), open: openAndReturn(opened), env: {}, agentSocket: () => answers.shift() ?? fake.socket, localDoor: () => fake.mcp, declaredOrigin: () => fake.origin, computerName: 'Mac', model: null, wait: noWait });
+    assert.equal(said, "You're signed in to Trillion as person@example.com.");
+    assert.equal(opened.length, 1);
+  } finally { refusing.close(); await fake.close(); }
+});
