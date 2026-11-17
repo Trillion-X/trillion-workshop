@@ -400,7 +400,7 @@
     "sign_in_busy": "Trillion's sign-in is busy right now. Wait a minute, then try again. Your sign-in is still kept.",
     "sign_in_ended": "Your sign-in to Trillion ended. Run trillion login to sign in again.",
     "refused": "Trillion did not accept this sign-in. Run trillion login to sign in again.",
-    "not_covered": "Your sign-in does not cover that Trillion yet. Run trillion login once, then try again.",
+    "not_covered": "Your sign-in is not for that Trillion. Run trillion login for it, giving its address, then try again.",
     "refused_kept": "Trillion on this Mac did not accept your sign-in. Signing in again would not change that, so nothing was opened. Update the Trillion app, then try again.",
     "refused_key_at_door": "Trillion did not accept the key kept on this computer. Run trillion login to sign in.",
     "local_door": "Trillion on this Mac",
@@ -583,11 +583,6 @@
       { "owner": "content-identity/read-data/blake3.mjs", "packed": "packs/read-data/blake3.mjs" },
       { "owner": "records-door/read-data/settled-write.mjs", "packed": "packs/read-data/settled-write.mjs" }
     ]
-  },
-  "computers": {
-    "_what": "Where the doors of the person's computers are named: the rows of `type` in the person's own records, each holding its door resources (https://<host>/mcp) as a list at `resources_field` of its value. `trillion login` asks for every one of them in its one sign-in, so one pass reaches every engine it names.",
-    "type": "record:computer",
-    "resources_field": "door_resources"
   },
   "resign_when": ["exp", "revoked"],
   "computer_config_files": [

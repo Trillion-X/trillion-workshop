@@ -11,7 +11,7 @@ import settings from '../do-work/trillion.json' with { type: 'json' };
 import {
   TrillionError, agentOf, aiOf, aiRecordOf, allPages, groupsOf, argumentsFor, computerNameOf, computerOf, credentialFor, doorFor, grantStore, holdingOf, installProgram,
   installSkills, jobLines, keyStore, main, modelOf, namesOf, parseArgs, pkce, placeOf, providerOf, publishRecord, render, repliesOf, sendNote,
-  opWhole, serveOnce, signInWithBrowser, addPersonHere, findAgentSocket, audiencesOf, personDoors, stateOf, trillionClient, waitFor, workCall,
+  opWhole, serveOnce, signInWithBrowser, addPersonHere, findAgentSocket, audiencesOf, stateOf, trillionClient, waitFor, workCall,
 } from '../do-work/trillion.mjs';
 
 const KEY = `nm_${'ab'.repeat(32)}`;
@@ -1067,28 +1067,6 @@ test('a callback with another sign-in\'s state is told it is old and ignored; th
   } finally { await fake.close(); }
 });
 
-test('login names every door the person\'s computers list in its one sign-in; a sign-in already made for them all opens nothing', async () => {
-  const gateway = 'https://gateway.example/mcp';
-  const rows = { '@own-records records:list': () => ({ records: [{ id: 'computer:a', value: { door_resources: [gateway, 'not a url'] } }, { id: 'computer:b', value: {} }], next: null }) };
-  const run = async aud => {
-    const pass = passFor('person@example.com', aud);
-    const fake = await fakeDoor({ bearers: [pass], holdsAddedOnly: true, oauth: signInServer(pass), ops: rows });
-    try {
-      const opened = [];
-      const grants = grantsKept({ access_token: pass, refresh_token: 'refresh-1', expires_at_ms: Date.now() + 3600_000, client_id: 'c', origin: fake.origin, token_endpoint: `${fake.origin}/api/auth/oauth2/token`, resource: `${fake.origin}/mcp` });
-      const open = async url => { const asked = new URL(url); opened.push(asked.searchParams.getAll('resource')); await fetch(`${asked.searchParams.get('redirect_uri')}?code=code-1&state=${asked.searchParams.get('state')}`); };
-      const said = await main(['login', '--origin', fake.origin], { store: { read: () => null, where: 'none' }, grants, state: stateOf({ home: home() }), open, env: {}, agentSocket: () => fake.socket, localDoor: () => fake.mcp, computerName: 'Mac', model: null, wait: noWait });
-      return { said, opened, mcp: `${fake.origin}/mcp` };
-    } finally { await fake.close(); }
-  };
-  const uncovered = await run(undefined);
-  assert.equal(uncovered.said, "You're signed in to Trillion as person@example.com.");
-  assert.equal(uncovered.opened.length, 1, 'one walk');
-  assert.deepEqual(uncovered.opened[0].sort(), [gateway, uncovered.mcp].sort(), 'it names this computer\'s engine and the listed door, once each');
-  const covered = await run([gateway]);
-  assert.equal(covered.opened.length, 0, 'no browser when the pass already names the door');
-});
-
 test('a door a sign-in was not made for says so in plain words; the aud is read without checking', async () => {
   assert.deepEqual(audiencesOf(passFor('a@example.com', ['x', 'y'])), ['x', 'y']);
   assert.deepEqual(audiencesOf(passFor('a@example.com', 'x')), ['x']);
@@ -1097,6 +1075,5 @@ test('a door a sign-in was not made for says so in plain words; the aud is read 
   try {
     const client = trillionClient({ door: doorAt(`${fake.origin}/mcp`), credential: { kind: 'sign-in', bearer: passFor('a@example.com', ['https://other.example/mcp']), where: 'g' }, rules: quick, wait: noWait });
     await assert.rejects(client.whoami(), error => error.status === 3 && error.message === settings.words.not_covered && /not in the audience/.test(error.detail));
-    assert.deepEqual(await personDoors({ op: async () => { throw new TrillionError('no'); } }), [], 'rows that cannot be read name no door');
   } finally { await fake.close(); }
 });
