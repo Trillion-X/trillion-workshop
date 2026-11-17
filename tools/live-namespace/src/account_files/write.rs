@@ -1556,13 +1556,40 @@ pub fn decode_piece(encoded: &str) -> Answer<Vec<u8>> {
     let bytes = STANDARD
         .decode(encoded)
         .map_err(|_| AccountFilesError::Invalid("content_base64 is not base64", crate::cause!()))?;
-    // The most a piece may be is the largest layout's span (a chunk); each layout checks its own bound when it writes.
-    if bytes.is_empty() || bytes.len() as u64 > super::settings::settings().chunks.bytes {
+    piece_in_bounds(bytes.len() as u64)?;
+    Ok(bytes)
+}
+
+/// A piece the engine's door was sent raw (`content_file`, the row's `session.byte_argument`): the door kept the request
+/// body as a file and the engine moved it into this run's own folder `root`, naming it `{path, length}` with `path`
+/// relative to `root`. The file is read whole and removed; its size must be the `length` named and inside the piece bounds.
+pub fn take_piece_file(root: &std::path::Path, named: &Value) -> Answer<Vec<u8>> {
+    let refused = || AccountFilesError::Invalid("content_file is {path, length}, path a file inside this run's folder", crate::cause!());
+    let path = named.get("path").and_then(Value::as_str)
+        .filter(|path| !path.is_empty() && std::path::Path::new(path).components().all(|part| matches!(part, std::path::Component::Normal(_))))
+        .ok_or_else(refused)?;
+    let length = named.get("length").and_then(Value::as_u64).ok_or_else(refused)?;
+    let file = root.join(path);
+    let taken = (|| {
+        let size = std::fs::symlink_metadata(&file).ok().filter(std::fs::Metadata::is_file).map(|metadata| metadata.len());
+        if size != Some(length) {
+            return Err(refused());
+        }
+        piece_in_bounds(length)?;
+        Ok(std::fs::read(&file).map_err(|error| ObjectError::Unavailable(error.to_string(), crate::cause!()))?)
+    })();
+    let _gone = std::fs::remove_file(&file);
+    taken
+}
+
+/// The most a piece may be is the largest layout's span (a chunk); each layout checks its own bound when it writes.
+fn piece_in_bounds(length: u64) -> Answer<()> {
+    if length == 0 || length > super::settings::settings().chunks.bytes {
         return Err(AccountFilesError::Invalid(
             "file piece is outside its layout's size bounds",
          crate::cause!()));
     }
-    Ok(bytes)
+    Ok(())
 }
 
 fn checkpoint(value: &Value) -> Answer<Checkpoint> {
@@ -1992,6 +2019,24 @@ mod growing_tests {
         assert_eq!(repeated["already_received"], json!(true));
         assert_eq!(repeated["length_known"], json!(true));
         assert!(files.write_file_piece(upload, name, 0, &vec![8u8; SUBTREE_BYTES + 1]).is_err());
+    }
+
+    #[test]
+    fn a_piece_file_is_read_whole_and_removed_and_refused_outside_the_run_folder_or_off_its_length() {
+        let root = tempfile::tempdir().unwrap();
+        std::fs::create_dir_all(root.path().join("byte-uploads")).unwrap();
+        let put = |name: &str, bytes: &[u8]| std::fs::write(root.path().join(name), bytes).unwrap();
+        put("byte-uploads/1", b"piece bytes");
+        assert_eq!(take_piece_file(root.path(), &json!({"path": "byte-uploads/1", "length": 11})).unwrap(), b"piece bytes");
+        assert!(!root.path().join("byte-uploads/1").exists());
+        put("byte-uploads/2", b"piece bytes");
+        assert!(take_piece_file(root.path(), &json!({"path": "byte-uploads/2", "length": 10})).is_err());
+        assert!(!root.path().join("byte-uploads/2").exists());
+        for path in ["../outside", "/etc/hosts", ""] {
+            assert!(take_piece_file(root.path(), &json!({"path": path, "length": 1})).is_err());
+        }
+        put("empty", b"");
+        assert!(take_piece_file(root.path(), &json!({"path": "empty", "length": 0})).is_err());
     }
 
     #[test]

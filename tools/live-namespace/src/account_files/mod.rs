@@ -98,8 +98,8 @@ pub struct CallControl {
     admission: source_reads::Admission,
     share_authority: Option<Arc<dyn share_delivery::ShareAuthority>>,
     idle: Option<Duration>,
-    /// Where a raw span's bytes are written (`read_file_span` with `raw`): the run's own folder and the folder in it the
-    /// files go in; none, and a raw span is refused.
+    /// The run's own folder and the folder in it a raw span's bytes are written to (`read_file_span` with `raw`); a raw
+    /// piece (`write_file_piece` `content_file`) is read from the run's own folder. None, and both are refused.
     byte_results: Option<(PathBuf, String)>,
 }
 impl Default for CallControl {
@@ -2122,9 +2122,15 @@ impl AccountFiles {
                 let name = field("name").ok_or(AccountFilesError::Invalid("name is required", crate::cause!()))?;
                 let offset =
                     number("offset").ok_or(AccountFilesError::Invalid("offset is required", crate::cause!()))?;
-                let encoded = field("content_base64")
-                    .ok_or(AccountFilesError::Invalid("content_base64 is required", crate::cause!()))?;
-                let bytes = write::decode_piece(encoded)?;
+                let bytes = match (field("content_base64"), input.get("content_file")) {
+                    (Some(encoded), None) => write::decode_piece(encoded)?,
+                    (None, Some(named)) => {
+                        let (root, _) = self.control.byte_results.as_ref().ok_or(AccountFilesError::Invalid(
+                            "a content_file piece needs this run's own folder: this run has none", crate::cause!()))?;
+                        write::take_piece_file(root, named)?
+                    }
+                    _ => return Err(AccountFilesError::Invalid("a piece is content_base64 or content_file, exactly one", crate::cause!())),
+                };
                 self.write_file_piece(upload_id, name, offset, &bytes)
             })(),
             "write_file_finish" => (|| {

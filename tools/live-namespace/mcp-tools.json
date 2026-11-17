@@ -275,7 +275,7 @@
     },
     {
       "name": "write_file_piece",
-      "description": "Send one piece of an upload at its offset.",
+      "description": "Send one piece of an upload at its offset, as content_base64 or as content_file (exactly one).",
       "input_schema": {
         "type": "object",
         "properties": {
@@ -293,14 +293,30 @@
           },
           "content_base64": {
             "type": "string",
-            "description": "The piece's bytes, base64"
+            "description": "The piece's bytes, base64; or give content_file instead"
+          },
+          "content_file": {
+            "type": "object",
+            "description": "The piece sent raw: the file of its bytes the engine put in this run's own folder (the row's session.byte_argument), {path relative to that folder, length}; it is read and removed",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "length": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "path",
+              "length"
+            ],
+            "additionalProperties": false
           }
         },
         "required": [
           "upload_id",
           "name",
-          "offset",
-          "content_base64"
+          "offset"
         ],
         "additionalProperties": false
       }

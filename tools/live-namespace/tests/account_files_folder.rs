@@ -334,3 +334,28 @@ fn a_raw_span_is_written_as_a_file_of_exactly_its_bytes_and_the_answer_names_it_
         assert_eq!(call(&mut plain, "read_file_span", json!({ "name_or_identity": "/clip.bin", "offset": 0, "length": 3, "raw": false })).unwrap()["content"], STANDARD.encode("abc"));
     }
 }
+
+#[test]
+fn a_piece_sent_raw_is_read_from_the_file_the_engine_put_in_the_run_folder_and_the_file_is_removed() {
+    use live_namespace::account_files::CallControl;
+    for (database, files, _) in both() {
+        let folder = tempfile::tempdir().unwrap();
+        let mut files = files.with_control(CallControl::default().with_byte_results(folder.path().to_path_buf(), "byte-results"));
+        let upload = "0123456789abcdef0123456789abcdef";
+        call(&mut files, "write_file_start", json!({ "upload_id": upload, "name": "/raw.txt", "byte_length": 4 })).unwrap();
+        std::fs::create_dir_all(folder.path().join("byte-uploads")).unwrap();
+        std::fs::write(folder.path().join("byte-uploads/1"), b"four").unwrap();
+        let piece = json!({ "upload_id": upload, "name": "/raw.txt", "offset": 0, "content_file": { "path": "byte-uploads/1", "length": 4 } });
+        call(&mut files, "write_file_piece", piece).unwrap();
+        assert!(!folder.path().join("byte-uploads/1").exists(), "{database}: the piece's file is removed once read");
+        call(&mut files, "write_file_finish", json!({ "upload_id": upload, "name": "/raw.txt" })).unwrap();
+        assert_eq!(call(&mut files, "read_file", json!({ "name_or_identity": "/raw.txt" })).unwrap()["content"], "four", "{database}");
+        // Exactly one of content_base64 and content_file.
+        let both_ways = json!({ "upload_id": upload, "name": "/raw.txt", "offset": 0, "content_base64": "Zm91cg==", "content_file": { "path": "byte-uploads/1", "length": 4 } });
+        assert!(call(&mut files, "write_file_piece", both_ways).is_err(), "{database}");
+        // Without the run's own folder a content_file piece is refused.
+        let (mut plain, _) = files_over(rows_in_both::both().remove(0).1);
+        call(&mut plain, "write_file_start", json!({ "upload_id": upload, "name": "/raw.txt", "byte_length": 4 })).unwrap();
+        assert!(call(&mut plain, "write_file_piece", json!({ "upload_id": upload, "name": "/raw.txt", "offset": 0, "content_file": { "path": "byte-uploads/1", "length": 4 } })).is_err(), "{database}");
+    }
+}
