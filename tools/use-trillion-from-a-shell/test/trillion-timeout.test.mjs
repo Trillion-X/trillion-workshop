@@ -10,7 +10,10 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
 import settings from '../do-work/trillion.json' with { type: 'json' };
-import { main, retryGap, stateOf, trillionClient, TrillionError } from '../do-work/trillion.mjs';
+import { main, retryGap, stateOf, trillionClient, TrillionError, speakFor } from '../do-work/trillion.mjs';
+
+// These tests speak for one brand, as an install from that brand's site makes the command do.
+speakFor({ cli: 'trillion', brand: 'Trillion' });
 
 const KEY = `nm_${'ab'.repeat(16)}`;
 const noGrants = { where: 'test sign-in', read: () => null, write: () => {}, forget: () => {} };

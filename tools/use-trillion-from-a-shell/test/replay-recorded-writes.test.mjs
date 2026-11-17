@@ -4,10 +4,13 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
 import cli from '../do-work/trillion.json' with { type: 'json' };
-import { expand, main, parseArgs } from '../do-work/trillion.mjs';
+import { expand, main, parseArgs, speakFor } from '../do-work/trillion.mjs';
 import {
   batchesOf, credentialLike, dryRun, inventoryOf, shellCommands, shellWrites, writeInventory,
 } from '../do-work/replay-recorded-writes.mjs';
+
+// These tests speak for one brand, as an install from that brand's site makes the command do.
+speakFor({ cli: 'trillion', brand: 'Trillion' });
 
 const host = { parseArgs, expand, settings: cli, programs: new Set(['trillion', 'trillion.mjs']) };
 const folder = () => mkdtempSync(join(tmpdir(), 'replay-writes-test-'));

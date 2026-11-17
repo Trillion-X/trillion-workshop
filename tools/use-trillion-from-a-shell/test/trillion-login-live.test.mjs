@@ -4,7 +4,10 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
 import settings from '../do-work/trillion.json' with { type: 'json' };
-import { main, stateOf } from '../do-work/trillion.mjs';
+import { main, stateOf, speakFor } from '../do-work/trillion.mjs';
+
+// These tests speak for one brand, as an install from that brand's site makes the command do.
+speakFor({ cli: 'trillion', brand: 'Trillion' });
 
 // The real thing: the sign-in site's own engine and the issuer it names, with only the browser stubbed. It skips where that engine does not
 // answer (a computer with no network): one that is not answering is said, never replaced by another.

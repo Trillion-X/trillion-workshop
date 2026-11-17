@@ -4,7 +4,10 @@ import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import settings from '../do-work/trillion.json' with { type: 'json' };
-import { TrillionError, argumentsFor, schedules, validateAcceptance, validateCheck, validateContinuation } from '../do-work/trillion.mjs';
+import { TrillionError, argumentsFor, schedules, validateAcceptance, validateCheck, validateContinuation, speakFor } from '../do-work/trillion.mjs';
+
+// These tests speak for one brand, as an install from that brand's site makes the command do.
+speakFor({ cli: 'trillion', brand: 'Trillion' });
 
 const me = { agent_id: 'lane-a', ai_id: 'ai:lane-a', held_as: [] };
 const folder = mkdtempSync(join(tmpdir(), 'trillion-job-commands-'));

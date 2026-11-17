@@ -11,8 +11,10 @@ import settings from '../do-work/trillion.json' with { type: 'json' };
 import {
   TrillionError, agentOf, aiOf, aiRecordOf, allPages, groupsOf, argumentsFor, computerNameOf, computerOf, credentialFor, doorFor, grantStore, holdingOf, installProgram,
   installSkills, jobLines, keyStore, main, modelOf, namesOf, parseArgs, pkce, placeOf, providerOf, publishRecord, render, repliesOf, sendNote,
-  opWhole, serveOnce, signInWithBrowser, addPersonHere, findAgentSocket, audiencesOf, stateOf, trillionClient, waitFor, workCall,
-} from '../do-work/trillion.mjs';
+  opWhole, serveOnce, signInWithBrowser, addPersonHere, findAgentSocket, audiencesOf, stateOf, trillionClient, waitFor, workCall, speakFor } from '../do-work/trillion.mjs';
+
+// These tests speak for one brand, as an install from that brand's site makes the command do.
+speakFor({ cli: 'trillion', brand: 'Trillion' });
 
 const KEY = `nm_${'ab'.repeat(32)}`;
 const ACCOUNT = 'f'.repeat(64);

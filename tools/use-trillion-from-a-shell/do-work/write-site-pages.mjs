@@ -2,16 +2,18 @@
 // tools/use-trillion-from-a-shell/do-work/write-site-pages.mjs
 //
 // Purpose
-//   Writes the pages a site serves so anyone can put the `trillion` command on a computer with one line and sign in at that
+//   Writes the pages a site serves so anyone can put the site's own command on a computer with one line and sign in at that
 //   site: `cli/client.json` (this program's OAuth client document, client-metadata.json), `cli/install` (install.sh) and
 //   `cli/program/` (every file trillion.json `install.files` names, and files.txt listing them). {origin} in each is the
-//   site's own origin, so one site's pages never name another's.
+//   site's own origin, and {brand} and {cli} are the `name` and `cli` of the site's brand row (the same row its sign-in pages
+//   wear), so one site's pages never name another's and this tool names no product.
 //
-//   node write-site-pages.mjs ORIGIN PAGES_FOLDER
+//   node write-site-pages.mjs ORIGIN PAGES_FOLDER BRAND_FILE
 //
 // Non-negotiable invariants
 //   1. The bytes are this folder's own files; nothing is written by hand, and a page is rewritten only when its bytes change.
-//   2. ORIGIN must be an https origin (a loopback http origin is allowed for a test), with no path.
+//   2. ORIGIN must be an https origin (a loopback http origin is allowed for a test), with no path; the brand's name is plain
+//      words and its cli a plain command name, so neither can break the install line's quoting.
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -19,12 +21,15 @@ import settings from './trillion.json' with { type: 'json' };
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 
-/** The pages for `origin`, as [{ page, bytes }] with page relative to the pages folder. */
-export function sitePages(origin, { rules = settings, from = HERE } = {}) {
+/** The pages for `origin` and its brand row `{ name, cli }`, as [{ page, bytes }] with page relative to the pages folder. */
+export function sitePages(origin, brand, { rules = settings, from = HERE } = {}) {
   const url = URL.canParse(origin) ? new URL(origin) : null;
   const loopback = url && url.protocol === 'http:' && ['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname);
   if (!url || (url.protocol !== 'https:' && !loopback) || url.origin !== origin) throw new Error(`${origin} is not an origin (https://host, no path)`);
-  const filled = name => Buffer.from(readFileSync(join(from, name), 'utf8').replaceAll('{origin}', origin));
+  if (!/^[A-Za-z0-9][\w .-]{0,63}$/.test(brand?.name ?? '')) throw new Error('the brand row\'s name must be plain words');
+  if (!/^[a-z][a-z0-9-]{0,31}$/.test(brand?.cli ?? '')) throw new Error('the brand row\'s cli must be a plain command name');
+  const values = { origin, brand: brand.name, cli: brand.cli, program: rules.install.files[0] };
+  const filled = name => Buffer.from(readFileSync(join(from, name), 'utf8').replace(/\{(origin|brand|cli|program)\}/g, (whole, key) => values[key]));
   return [
     { page: 'cli/client.json', bytes: filled('client-metadata.json') },
     { page: 'cli/install', bytes: filled('install.sh') },
@@ -34,8 +39,8 @@ export function sitePages(origin, { rules = settings, from = HERE } = {}) {
 }
 
 /** Writes the pages under `folder`; answers each page with whether it changed. */
-export function writeSitePages(origin, folder, options) {
-  return sitePages(origin, options).map(({ page, bytes }) => {
+export function writeSitePages(origin, brand, folder, options) {
+  return sitePages(origin, brand, options).map(({ page, bytes }) => {
     const path = join(folder, page);
     let same = false;
     try { same = readFileSync(path).equals(bytes); } catch { /* not there yet */ }
@@ -45,7 +50,8 @@ export function writeSitePages(origin, folder, options) {
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const [origin, folder] = process.argv.slice(2);
-  if (!origin || !folder) { process.stderr.write('usage: write-site-pages.mjs ORIGIN PAGES_FOLDER\n'); process.exit(2); }
-  for (const row of writeSitePages(origin, folder)) process.stdout.write(`${row.changed ? 'written' : 'unchanged'}: ${row.page}\n`);
+  const [origin, folder, brandFile] = process.argv.slice(2);
+  if (!origin || !folder || !brandFile) { process.stderr.write('usage: write-site-pages.mjs ORIGIN PAGES_FOLDER BRAND_FILE\n'); process.exit(2); }
+  const brand = JSON.parse(readFileSync(brandFile, 'utf8'));
+  for (const row of writeSitePages(origin, brand, folder)) process.stdout.write(`${row.changed ? 'written' : 'unchanged'}: ${row.page}\n`);
 }

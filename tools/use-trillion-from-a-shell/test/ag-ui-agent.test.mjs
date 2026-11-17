@@ -9,8 +9,11 @@ import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { runOnAgUi, jobMessages } from '../do-work/ag-ui-agent.mjs';
 import { foldRun, sseEvents, sseFrame } from '../../offer-my-work-as-ag-ui-events/harness/ag-ui-wire.mjs';
-import { serveOnce } from '../do-work/trillion.mjs';
+import { serveOnce, speakFor } from '../do-work/trillion.mjs';
 import settings from '../do-work/trillion.json' with { type: 'json' };
+
+// These tests speak for one brand, as an install from that brand's site makes the command do.
+speakFor({ cli: 'trillion', brand: 'Trillion' });
 
 // An AG-UI agent written by hand, as the protocol's server starter writes one: each POST is one run. `script(input)`
 // returns the events after RUN_STARTED; the inputs it was sent are kept.

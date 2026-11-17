@@ -10,7 +10,10 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { workshopProgram } from '../do-work/trillion.mjs';
+import { workshopProgram, speakFor } from '../do-work/trillion.mjs';
+
+// These tests speak for one brand, as an install from that brand's site makes the command do.
+speakFor({ cli: 'trillion', brand: 'Trillion' });
 
 const DO_WORK = fileURLToPath(new URL('../do-work/', import.meta.url));
 const STUB = "export class TrillionError extends Error {}\nexport const main = async argv => `FOLLOWED ${argv.join(' ')}`;\n";

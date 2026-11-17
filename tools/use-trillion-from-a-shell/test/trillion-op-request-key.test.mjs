@@ -8,7 +8,10 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
 import settings from '../do-work/trillion.json' with { type: 'json' };
-import { main, stateOf, TrillionError } from '../do-work/trillion.mjs';
+import { main, stateOf, TrillionError, speakFor } from '../do-work/trillion.mjs';
+
+// These tests speak for one brand, as an install from that brand's site makes the command do.
+speakFor({ cli: 'trillion', brand: 'Trillion' });
 
 const ORIGIN = 'http://127.0.0.1:8788';
 const KEY = `nm_${'ab'.repeat(16)}`;

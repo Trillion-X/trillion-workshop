@@ -8,7 +8,7 @@
 //   the person's AIs and their AI jobs, hands and takes work, lists and runs Workshop tools and runs any engine
 //   operation, with no MCP connection of its own. Every command is ONE call of the engine's one MCP tool,
 //   run_resource_operation {address, method, request_key, input} (trillion.json `engine`), at the account's door: the Mac
-//   app's local door when this computer has one (./local-door.mjs), else the address given (--origin or TRILLION_ORIGIN). The engine's own
+//   app's local door when this computer has one (./local-door.mjs), else the address given (--origin or {CLI}_ORIGIN). The engine's own
 //   checks and the Workshop work tools (tools/hand-work-to-ais) decide; nothing here decides, stores or routes work.
 //
 //     trillion setup                      sign in once, put `trillion` on PATH, write the skill for each AI app here
@@ -28,7 +28,7 @@
 //   1. One road: run_resource_operation over MCP JSON-RPC at the door. The only other addresses are the public origin's
 //      own sign-in (OAuth, at the endpoints its /.well-known documents name), used by login and to renew the sign-in it kept.
 //   2. The credential is the account's existing key (the Keychain item the Trillion Mac app keeps, else a 0600 file, else
-//      TRILLION_KEY) or the sign-in login kept. It is read into memory only, never printed, never put in a command line
+//      {CLI}_KEY) or the sign-in login kept. It is read into memory only, never printed, never put in a command line
 //      or a log; the Keychain is written through `security -i` on standard input. logout forgets only a credential this
 //      program made, never the Mac app's key.
 //   3. Every call carries one request_key, reused on every retry, so a retry is answered as the first call was.
@@ -102,7 +102,7 @@ export function modelOf(row, { env = process.env, home = homedir(), read = path 
 /** The provider of a model id, a fact read from trillion.json `model_families` by the id's first word, or null. */
 export const providerOf = (id, rules = settings) => (id ? rules.model_families.find(row => row.prefix === id.split(/[-_\s]+/)[0].toLowerCase())?.provider ?? null : null);
 
-/** Which AI runs this command: --as, else TRILLION_AGENT, else the first `agents` row whose variable is set, one id per
+/** Which AI runs this command: --as, else {CLI}_AGENT, else the first `agents` row whose variable is set, one id per
  *  chat session when that app names its session (`session_env`), else one per computer. `held_as` are the other ids a job
  *  this AI holds may have been taken under: the computer id, for jobs taken before sessions had their own id. `ai_id` is
  *  its `ai` record id. `app`, `model`, `provider` and `computer` are the facts its record carries; no name is made here. */
@@ -112,7 +112,7 @@ export function agentOf({ as = null, env = process.env, computer = computerOf(),
   const session = named === undefined ? null : sessionOf(named, rules);
   const values = { harness: row.harness, agent: row.agent, computer, session };
   const computerId = fill(rules.agent_id.computer, values);
-  const chosen = as ?? (env.TRILLION_AGENT || null);
+  const chosen = as ?? (env[settings.env.agent] || null);
   const agent_id = chosen ?? (session ? fill(rules.agent_id.session, values) : computerId);
   // Trillion trims an agent id and cuts it at most_chars, so a longer or padded id would name some other agent.
   if (!agent_id || agent_id !== agent_id.trim() || agent_id.length > rules.agent_id.most_chars) {
@@ -485,14 +485,14 @@ async function renewedGrant(grant, { grants, fetchImpl, rules, now, home }) {
   }, { rules, home });
 }
 
-/** The credential for this run: TRILLION_KEY (a machine with no Keychain or file), else the sign-in
+/** The credential for this run: {CLI}_KEY (a machine with no Keychain or file), else the sign-in
  *  login kept, else the kept key, renewed first when it ends within `grant.refresh_before_seconds`. { kind: 'key'|'sign-in', bearer, where,
  *  origin? }, or null when there is none. */
 export async function credentialFor({ env = process.env, store = keyStore(), grants = grantStore(), fetchImpl = fetch, rules = settings, now = Date.now, home = homedir() } = {}) {
-  if (env.TRILLION_KEY) {
-    // A key the person put in TRILLION_KEY is sent as given or not at all: one of no declared kind is refused, never swapped for the kept key.
-    if (bearerOf(env.TRILLION_KEY, rules) === null) throw new TrillionError(fill(rules.bearers.refused, { kinds: rules.bearers.shapes.map(row => row.kind).join(', ') }), { status: 2 });
-    return { kind: 'key', bearer: env.TRILLION_KEY, where: 'TRILLION_KEY' };
+  if (env[rules.env.key]) {
+    // A key the person put in {CLI}_KEY is sent as given or not at all: one of no declared kind is refused, never swapped for the kept key.
+    if (bearerOf(env[rules.env.key], rules) === null) throw new TrillionError(fill(rules.bearers.refused, { kinds: rules.bearers.shapes.map(row => row.kind).join(', ') }), { status: 2 });
+    return { kind: 'key', bearer: env[rules.env.key], where: rules.env.key };
   }
   // A sign-in this person made (`trillion login`) is the newer word: it comes before a key an app kept, which an engine that
   // admits only the sign-in tool's passes and API keys would refuse.
@@ -514,8 +514,8 @@ export function findLocalDoor({ rules = settings } = {}) {
   try { return localDoorAddress({ runtime: join(rules.mac_app, 'Contents', 'MacOS', 'node') }); } catch { return null; }
 }
 
-/** The door this run talks to: `asked` (--origin or TRILLION_ORIGIN); else, for the account's key, the Mac app's local door
- *  when this computer has one; else the origin a sign-in was made at, else the declared address (`declared`, TRILLION_ORIGIN); with none the run is
+/** The door this run talks to: `asked` (--origin or {CLI}_ORIGIN); else, for the account's key, the Mac app's local door
+ *  when this computer has one; else the origin a sign-in was made at, else the declared address (`declared`, {CLI}_ORIGIN); with none the run is
  *  refused. { mcp, origin, name, local, public (the declared address), localMcp }: `localMcp` is this computer's local door, named when another door refuses the key. */
 /** The sign-in servers (origins) a door names in its protected-resource document (RFC 9728); none when it does not answer. */
 async function engineServersOf(door, { fetchImpl, rules }) {
@@ -526,7 +526,7 @@ async function engineServersOf(door, { fetchImpl, rules }) {
 
 
 export function doorFor({ asked = null, credential = null, declared = null, rules = settings, localMcp = findLocalDoor({ rules }) } = {}) {
-  // The engine a run talks to: the one asked for (--origin, TRILLION_ORIGIN); else, for a kept key, this computer's own; else, for a sign-in,
+  // The engine a run talks to: the one asked for (--origin, {CLI}_ORIGIN); else, for a kept key, this computer's own; else, for a sign-in,
   // the one its pass was made for (`resource`: the pass names it, so no host is compared and no other engine is tried); else the declared
   // address, else the sign-in site's own engine (the public origin the Mac app declares), else none: the run is refused.
   const mcp = asked ? `${asked}/mcp`
@@ -621,15 +621,15 @@ export function trillionClient({ door, credential, fetchImpl = fetch, rules = se
       // Every try carries the same request_key, so a try after a lost or slow answer is answered as the first was.
       if (passing && !once && attempt < rules.retry.count) { await wait(gap(attempt) * 1000); continue; }
       const maybe = idempotent ? '' : ' It may have happened; read it back before trying again.';
-      if (failure?.name === 'TimeoutError') throw new TrillionError(fill(rules.words.no_answer, { trillion: door.name, tries: attempt + 1 }) + maybe, { status: 4, detail: fill(rules.words.details.no_answer, { mcp: door.mcp, seconds: timeoutSeconds, tries: attempt + 1 }) });
+      if (failure?.name === 'TimeoutError') throw new TrillionError(fill(rules.words.no_answer, { which: door.name, tries: attempt + 1 }) + maybe, { status: 4, detail: fill(rules.words.details.no_answer, { mcp: door.mcp, seconds: timeoutSeconds, tries: attempt + 1 }) });
       if (failure) {
         const why = failure.cause?.code ?? failure.message;
         throw door.local ? new TrillionError(rules.words.not_running, { status: 4, detail: fill(rules.words.details.not_running, { mcp: door.mcp, why }) })
-          : new TrillionError(fill(rules.words.unreachable, { trillion: door.name }) + maybe, { status: 4, detail: fill(rules.words.details.unreachable, { mcp: door.mcp, why }) });
+          : new TrillionError(fill(rules.words.unreachable, { which: door.name }) + maybe, { status: 4, detail: fill(rules.words.details.unreachable, { mcp: door.mcp, why }) });
       }
       if (response.status === 401) throw refused();
-      if (response.status === 404) throw new TrillionError(fill(rules.words.missing_route, { trillion: door.name }), { status: 4, detail: fill(rules.words.details.missing_route, { mcp: door.mcp, route: new URL(door.mcp).pathname }) });
-      if (passing || !response.ok) throw new TrillionError(fill(rules.words.unreachable, { trillion: door.name }) + maybe, { status: 4, detail: fill(rules.words.details.answered, { mcp: door.mcp, status: response.status }) });
+      if (response.status === 404) throw new TrillionError(fill(rules.words.missing_route, { which: door.name }), { status: 4, detail: fill(rules.words.details.missing_route, { mcp: door.mcp, route: new URL(door.mcp).pathname }) });
+      if (passing || !response.ok) throw new TrillionError(fill(rules.words.unreachable, { which: door.name }) + maybe, { status: 4, detail: fill(rules.words.details.answered, { mcp: door.mcp, status: response.status }) });
       return response;
     }
   }
@@ -639,8 +639,8 @@ export function trillionClient({ door, credential, fetchImpl = fetch, rules = se
     const text = await response.text();
     let reply;
     try { reply = repliesOf(text).find(item => item?.id === id); } catch { reply = null; }
-    if (!reply) throw new TrillionError(fill(rules.words.unreachable, { trillion: door.name }), { status: 4, detail: fill(rules.words.details.no_reply, { mcp: door.mcp, status: response.status, method }) });
-    if (reply.error) throw new TrillionError(reply.error.message ?? fill(rules.words.refused_code, { trillion: door.name }), { answer: reply.error, detail: fill(rules.words.details.answered, { mcp: door.mcp, status: `an error to ${method}` }) });
+    if (!reply) throw new TrillionError(fill(rules.words.unreachable, { which: door.name }), { status: 4, detail: fill(rules.words.details.no_reply, { mcp: door.mcp, status: response.status, method }) });
+    if (reply.error) throw new TrillionError(reply.error.message ?? fill(rules.words.refused_code, { which: door.name }), { answer: reply.error, detail: fill(rules.words.details.answered, { mcp: door.mcp, status: `an error to ${method}` }) });
     return reply.result;
   }
   async function tool(name, args, { idempotent = false } = {}) {
@@ -656,8 +656,8 @@ export function trillionClient({ door, credential, fetchImpl = fetch, rules = se
       const words = code ? rules.words.codes[code] ?? rules.words.refused_code : null;
       // The engine names the step that refused in `cause` (file, line, and the error); the message names the door and the code.
       const cause = typeof answer?.cause === 'string' ? ` Cause: ${answer.cause}` : '';
-      const said = words ? fill(words, { trillion: door.name, code, tool: args?.input?.tool ?? name }) : null;
-      throw Object.assign(new TrillionError(error.message ?? answer?.text ?? said ?? fill(rules.words.refused_code, { trillion: door.name }), { answer, detail: `${fill(rules.words.details.refused_code, { mcp: door.mcp, tool: name, code: code ?? 'no code' })}${cause}` }), { code });
+      const said = words ? fill(words, { which: door.name, code, tool: args?.input?.tool ?? name }) : null;
+      throw Object.assign(new TrillionError(error.message ?? answer?.text ?? said ?? fill(rules.words.refused_code, { which: door.name }), { answer, detail: `${fill(rules.words.details.refused_code, { mcp: door.mcp, tool: name, code: code ?? 'no code' })}${cause}` }), { code });
     }
   }
   const op = (address, method, input = {}, { idempotent = false, requestKey = randomUUID() } = {}) =>
@@ -1023,7 +1023,7 @@ export function runJob(command, job, { rules = settings, me, spawnImpl = spawn }
     const terms = JSON.stringify({ taken_at: job.taken_at, outcome: job.outcome, obligations: job.obligations, acceptance: job.acceptance,
       source_job: job.source_job ?? job.source, continuation: job.continuation });
     const child = spawnImpl(command[0], command.slice(1), { stdio: ['pipe', 'pipe', 'pipe'],
-      env: { ...process.env, TRILLION_JOB_ID: job.id, TRILLION_AGENT: me.agent_id, AI_JOB_CONTEXT: terms } });
+      env: { ...process.env, [settings.env.job_id]: job.id, [settings.env.agent]: me.agent_id, AI_JOB_CONTEXT: terms } });
     let output = '', errors = '';
     const timer = setTimeout(() => child.kill('SIGTERM'), rules.serve.run_timeout_minutes * 60_000);
     child.stdout.on('data', chunk => { output = (output + chunk).slice(-rules.serve.result_chars); });
@@ -1072,43 +1072,67 @@ export async function serveOnce({ client, me, command, state, rules = settings, 
   return true;
 }
 
+// ── The brand ────────────────────────────────────────────────────────────────────────────────────────────────────
+
+/** The brand this command speaks for: the site file's `brand` and `cli` (written by the install line of the site it came from),
+ *  else the command's own name as it was run (`invoked`, the link's name). No product is named in this tool: every {brand} and
+ *  {cli} in a sentence a person reads, and in the folders it keeps, is filled from this. */
+export function brandOf({ invoked = process.argv[1] ?? '', home = homedir(), rules = settings } = {}) {
+  const cli = basename(invoked).replace(/\.m?js$/, '');
+  let site = null;
+  try { site = JSON.parse(readFileSync(join(expand(rules.state_folder.replaceAll('{cli}', cli), home), rules.site_file), 'utf8')); } catch { /* not installed from a site */ }
+  const named = value => (typeof value === 'string' && /^[\w .'-]{1,64}$/.test(value) ? value : null);
+  return { cli: named(site?.cli) ?? cli, brand: named(site?.brand) ?? named(site?.cli) ?? cli };
+}
+
+/** Fills {brand} and {cli} in this program's settings, once: the sentences a person reads and the places it keeps. */
+export function speakFor(brand, rules = settings) {
+  if (rules.brand) return;
+  const values = { ...brand, CLI: brand.cli.toUpperCase().replace(/-/g, '_') };
+  const filled = value => (typeof value === 'string' ? fill(value, values)
+    : Array.isArray(value) ? value.map(filled)
+    : value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).map(([name, child]) => [name, filled(child)])) : value);
+  for (const part of ['words', 'send_note', 'keep', 'who', 'ag_ui', 'state_folder', 'install', 'env']) rules[part] = filled(rules[part]);
+  rules.brand = brand;
+}
+
 // ── The commands ─────────────────────────────────────────────────────────────────────────────────────────────────
 
-const HELP = `trillion: see your AIs and their work, and run your Trillion's tools, from any shell.
+const HELP = `{cli}: see your AIs and their work, and run your {brand}'s tools, from any shell.
 
-  trillion setup [--harness claude-code,codex,cursor]   sign in once, put trillion on PATH, write each app's skill
-  trillion login [--origin ADDRESS] | logout | whoami    sign in to Trillion (to another one with its address), sign out, or say who is signed in
-  trillion connection [--write]                          the address and key source local bridges read, with a command per app
-  trillion who [--all]                                   your AIs seen lately (--all: every one): ready or away
-  trillion publish [--dry-run]                           write this AI's own record: its facts and that it was seen now
-  trillion tools | call TOOL JSON|-                      your Workshop tools, and run one by its id
-  trillion op ADDRESS METHOD JSON|-                      any engine operation (run_resource_operation); op --dry-run shows the request and sends nothing
+  {cli} setup [--harness claude-code,codex,cursor]   sign in once, put {cli} on PATH, write each app's skill
+  {cli} login [--origin ADDRESS] | logout | whoami    sign in to {brand} (to another one with its address), sign out, or say who is signed in
+  {cli} connection [--write]                          the address and key source local bridges read, with a command per app
+  {cli} who [--all]                                   your AIs seen lately (--all: every one): ready or away
+  {cli} publish [--dry-run]                           write this AI's own record: its facts and that it was seen now
+  {cli} tools | call TOOL JSON|-                      your Workshop tools, and run one by its id
+  {cli} op ADDRESS METHOD JSON|-                      any engine operation (run_resource_operation); op --dry-run shows the request and sends nothing
   --timeout SECONDS  wait this long for one try of a call (default ${settings.retry.attempt_seconds}); a try with no answer is asked again, up to ${settings.retry.count} more times, under the same request key
-  trillion schedule list | read ID                       list wake schedules or read one with its admitted runs
-  trillion schedule at ID TOOL WAKE_ID TIME BUDGET_JSON INPUT_JSON | repeat ID TOOL WAKE_ID EVERY_MS BUDGET_JSON INPUT_JSON [--from TIME]   create one
-  trillion schedule edit ID JSON | on ID | off ID | delete ID | cancel RUN_KEY   change, switch, remove, or cancel one admitted run
-  trillion update                                        who updates this command (it never updates itself)
+  {cli} schedule list | read ID                       list wake schedules or read one with its admitted runs
+  {cli} schedule at ID TOOL WAKE_ID TIME BUDGET_JSON INPUT_JSON | repeat ID TOOL WAKE_ID EVERY_MS BUDGET_JSON INPUT_JSON [--from TIME]   create one
+  {cli} schedule edit ID JSON | on ID | off ID | delete ID | cancel RUN_KEY   change, switch, remove, or cancel one admitted run
+  {cli} update                                        who updates this command (it never updates itself)
   ${basename(settings.install.link)} records replay-from-transcripts --since TIME            list the rows this computer's AIs wrote (writes nothing)
   ${basename(settings.install.link)} records replay-from-transcripts --write --inventory DIR write that list's rows back, then read some back
 
-  AI jobs (each runs the Workshop work tool trillion.json names for it):
-  trillion work [ID] [--status S --to AI --from AI --taker AI --limit N]   the newest jobs, or one with its result
-  trillion events ID                                     one job's versions, newest first
-  trillion send any "JOB" | send AI "JOB"                hand off a job (--wait SECONDS, --priority 0-9, --outcome "DONE WHEN", --label, --acceptance-file, --source-file, --obligations-file)
-  trillion take [ID] [--mine]                            take the oldest waiting job you may take (or that one)
-  trillion finish ID "RESULT" [--check-file JSON] | fail ID "WHY"            record what came of a job you took (no words: the result is read from standard input, any size; one too long for the job row is kept as a file of your files and the row names it)
-  trillion work ID --result                              print that job's whole result, whether on the row or kept as a file
-  trillion plan ID --acceptance-file JSON                save what a job you took must come to, read from the record that shows it (finish checks it)
-  trillion stuck ID "WORDS" | stuck ID --clear           say what is in the way, or that nothing is now
-  trillion release ID [--because WHY] [--continuation-file JSON]   give a job back, with an owned next step if you have one
-  trillion wait ID --continuation-file JSON              block on a bounded next step ({owner, action, after, reason})
-  trillion resume ID --because "WHAT CHANGED"            resume after reviewing existing effects and the dependency
-  trillion edit ID [--job WORDS --outcome TEXT --label TEXT --source-file JSON --obligations-file JSON --to AI|any --priority 0-9]   edit a job you sent
-  trillion withdraw ID --reason "WHY" | remove ID        take back a job you sent; delete a finished one
-  trillion serve -- COMMAND ARGS | serve --ag-ui URL     stay ready: run COMMAND (or an AG-UI agent) for each job taken
+  AI jobs (each runs the Workshop work tool this command's settings name for it):
+  {cli} work [ID] [--status S --to AI --from AI --taker AI --limit N]   the newest jobs, or one with its result
+  {cli} events ID                                     one job's versions, newest first
+  {cli} send any "JOB" | send AI "JOB"                hand off a job (--wait SECONDS, --priority 0-9, --outcome "DONE WHEN", --label, --acceptance-file, --source-file, --obligations-file)
+  {cli} take [ID] [--mine]                            take the oldest waiting job you may take (or that one)
+  {cli} finish ID "RESULT" [--check-file JSON] | fail ID "WHY"            record what came of a job you took (no words: the result is read from standard input, any size; one too long for the job row is kept as a file of your files and the row names it)
+  {cli} work ID --result                              print that job's whole result, whether on the row or kept as a file
+  {cli} plan ID --acceptance-file JSON                save what a job you took must come to, read from the record that shows it (finish checks it)
+  {cli} stuck ID "WORDS" | stuck ID --clear           say what is in the way, or that nothing is now
+  {cli} release ID [--because WHY] [--continuation-file JSON]   give a job back, with an owned next step if you have one
+  {cli} wait ID --continuation-file JSON              block on a bounded next step ({owner, action, after, reason})
+  {cli} resume ID --because "WHAT CHANGED"            resume after reviewing existing effects and the dependency
+  {cli} edit ID [--job WORDS --outcome TEXT --label TEXT --source-file JSON --obligations-file JSON --to AI|any --priority 0-9]   edit a job you sent
+  {cli} withdraw ID --reason "WHY" | remove ID        take back a job you sent; delete a finished one
+  {cli} serve -- COMMAND ARGS | serve --ag-ui URL     stay ready: run COMMAND (or an AG-UI agent) for each job taken
 
   AI ids are ai:NAME (the ai: may be left off); job ids are ai-job:KEY. --as AI acts as another AI id (default: from
-  TRILLION_AGENT or the AI running this). --json prints the answer. --verbose adds the technical details of a refusal.`;
+  {CLI}_AGENT or the AI running this). --json prints the answer. --verbose adds the technical details of a refusal.`;
 
 /** Wake declarations use the caller's records and wake rights. Writes use the root identity when present, else its
  * exact prior type/value, and each step gets a stable child key derived from this invocation's request key. */
@@ -1425,8 +1449,8 @@ async function signedInClient(context) {
   const credential = await credentialFor({ env: context.env, store: context.store, grants: context.grants, fetchImpl: context.fetchImpl });
   if (!credential) throw new TrillionError(settings.words.no_credential, { status: 3 });
   const door = doorFor({ asked: context.asked, declared: context.declared ?? context.state.site(), credential, localMcp: context.localMcp() });
-  // The key this computer keeps goes only to this computer's local door or the address declared in TRILLION_ORIGIN; any other door gets a key the person gives for it (TRILLION_KEY).
-  if (credential.kind === 'key' && credential.where !== 'TRILLION_KEY' && !door.local && !door.public) throw new TrillionError(settings.words.kept_key_elsewhere, { status: 3 });
+  // The key this computer keeps goes only to this computer's local door or the address declared in {CLI}_ORIGIN; any other door gets a key the person gives for it ({CLI}_KEY).
+  if (credential.kind === 'key' && credential.where !== settings.env.key && !door.local && !door.public) throw new TrillionError(settings.words.kept_key_elsewhere, { status: 3 });
   const timeoutSeconds = context.flags.timeout === undefined ? undefined : timeoutOf(context.flags.timeout);
   return trillionClient({ door, credential, fetchImpl: context.fetchImpl, wait: context.wait, ...(timeoutSeconds === undefined ? {} : { timeoutSeconds }) });
 }
@@ -1470,7 +1494,7 @@ export function sendNote(answer, rules = settings) {
 
 /** Where a local bridge finds this computer's Trillion: the address and where the key lives (never the key), rewritten whenever the key changes, so a rotated key never breaks a bridge that reads this file. */
 export function connectionOf({ origin, store, rules = settings, account = null, at = new Date().toISOString() }) {
-  const base = { schema: rules.connection.schema, origin, mcp_url: `${origin}/mcp`, account, key_source: { env: 'TRILLION_KEY', where: store.where, keychain_item: rules.keychain_item, key_file: rules.key_file }, written_at: at };
+  const base = { schema: rules.connection.schema, origin, mcp_url: `${origin}/mcp`, account, key_source: { env: rules.env.key, where: store.where, keychain_item: rules.keychain_item, key_file: rules.key_file }, written_at: at };
   const fill = text => text.replaceAll('{mcp_url}', base.mcp_url).replaceAll('{origin}', origin).replaceAll('{key_env}', base.key_source.env);
   // The connection guide owns app commands; standalone CLI installs point to that current guide rather than ship a copied manual.
   return { ...base, recipes: rules.connection.recipes.map(row => ({ id: row.id, label: row.label,
@@ -1541,7 +1565,7 @@ async function login(context, { again = false } = {}) {
     if (bearerOf(key, settings) === null) throw new TrillionError(fill(settings.bearers.refused, { kinds: settings.bearers.shapes.map(row => row.kind).join(', ') }), { status: 2 });
     context.store.write(key);
   } else {
-    // The engine signed in to is the one named (--origin, TRILLION_ORIGIN); else the one a kept sign-in was made for; else the site this
+    // The engine signed in to is the one named (--origin, {CLI}_ORIGIN); else the one a kept sign-in was made for; else the site this
     // command was installed from (`site_file`; no address is kept in this shared tool), where every website sign-up lives. Its
     // protected-resource document names the sign-in server and the resource; one that does not answer is said, and no other is tried.
     const site = context.state.site();
@@ -1696,6 +1720,7 @@ function printResult(bytes, stdout) {
 /** Runs one command line; answers the text to print. `seams` carries what tests replace: store, grants, state, open, env,
  *  fetchImpl, wait, place, localDoor (the local door's MCP address, or null), computerName and model. */
 export async function main(argv, seams = {}) {
+  if (seams.brand) speakFor(seams.brand);
   const parsed = parseArgs(argv);
   const [command = 'help', ...spoken] = parsed.words;
   // finish and fail with no result words (or `-`) take the result from standard input, as bytes of any size.
@@ -1704,15 +1729,15 @@ export async function main(argv, seams = {}) {
   const words = fromStdin ? [spoken[0], stdinBytes.toString('utf8')] : spoken;
   const flags = parsed.flags;
   const env = seams.env ?? process.env;
-  const asked = (flags.origin ?? env.TRILLION_ORIGIN)?.replace(/\/$/, '') || null;
-  const context = { asked, declared: env.TRILLION_ORIGIN?.replace(/\/$/, '') || null, flags, env, rest: parsed.rest, transcriptHome: seams.transcriptHome, fetchImpl: seams.fetchImpl ?? fetch, wait: seams.wait ?? pause,
+  const asked = (flags.origin ?? env[settings.env.origin])?.replace(/\/$/, '') || null;
+  const context = { asked, declared: env[settings.env.origin]?.replace(/\/$/, '') || null, flags, env, rest: parsed.rest, transcriptHome: seams.transcriptHome, fetchImpl: seams.fetchImpl ?? fetch, wait: seams.wait ?? pause,
     store: seams.store ?? keyStore(), grants: seams.grants ?? grantStore(), state: seams.state ?? stateOf(), open: seams.open ?? null,
     localMcp: seams.localDoor ?? (() => findLocalDoor()), agentSocket: seams.agentSocket ?? (() => findAgentSocket()),
     me: agentOf({ as: flags.as ?? null, env, computerName: seams.computerName ?? computerNameOf(), ...(seams.model !== undefined ? { model: seams.model } : {}) }),
     placeImpl: seams.place ?? (() => placeOf()) };
   const print = (name, answer) => (flags.json ? JSON.stringify(answer, null, 2) : render(name, answer));
   const engine = settings.engine;
-  if (command === 'help' || flags.help) return HELP;
+  if (command === 'help' || flags.help) return fill(HELP, settings.brand ? { ...settings.brand, CLI: settings.brand.cli.toUpperCase().replace(/-/g, '_') } : {});
   if (command === 'login') return login(context, { again: flags.again === true });
   if (command === 'logout') return logout(context);
   if (command === 'connection') {
@@ -1785,7 +1810,7 @@ export async function main(argv, seams = {}) {
   }
   if (command === 'whoami') {
     // An engine started again holds no one until told: a pass it has not held is added again here, as login adds it.
-    const kept = client.credential.kind === 'key' && client.credential.where !== 'TRILLION_KEY';
+    const kept = client.credential.kind === 'key' && client.credential.where !== settings.env.key;
     // A key the Mac app kept long ago that the engine will not read is no sign-in: say so at once, never after retries.
     const known = await knownAs(context, client).catch(error => { throw kept && refusedBy(error) ? new TrillionError(settings.words.no_credential, { status: 3, detail: error.detail }) : error; });
     const { account } = known;
@@ -1860,11 +1885,14 @@ if (startedAsProgram) {
     const again = spawnSync(appNode, process.argv.slice(1), { stdio: 'inherit' });
     process.exit(again.status ?? 1);
   }
+  // The brand this command speaks for, first: its folders (where it is installed, what it follows) are the brand's.
+  const brand = brandOf();
+  speakFor(brand);
   // The installed copy runs the Workshop's copy when there is one; a copy that cannot be loaded leaves this one to run.
   let run = { main, TrillionError };
   const followed = workshopProgram();
   if (followed !== null) run = await import(pathToFileURL(followed).href).catch(() => run);
-  run.main(process.argv.slice(2)).then(text => { if (text) process.stdout.write(`${text}\n`); }, error => {
+  run.main(process.argv.slice(2), { brand }).then(text => { if (text) process.stdout.write(`${text}\n`); }, error => {
     const known = error instanceof run.TrillionError || error instanceof TrillionError;
     const words = known ? error.message : `trillion: ${error.stack ?? error}`;
     // The technical line of a refusal is printed only with --verbose.

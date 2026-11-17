@@ -9,8 +9,11 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
 import { promisify } from 'node:util';
-import { credentialFor } from '../do-work/trillion.mjs';
+import { credentialFor, speakFor } from '../do-work/trillion.mjs';
 import settings from '../do-work/trillion.json' with { type: 'json' };
+
+// These tests speak for one brand, as an install from that brand's site makes the command do.
+speakFor({ cli: 'trillion', brand: 'Trillion' });
 
 const run = promisify(execFile);
 

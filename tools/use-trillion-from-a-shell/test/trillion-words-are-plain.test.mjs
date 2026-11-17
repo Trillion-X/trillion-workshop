@@ -32,7 +32,7 @@ test('the check sees jargon: it fails on a sentence that names a door, an addres
 });
 
 test('the sentences of a sign-in are the declared ones: success is one line with the email, and a failure is one line with the one thing to do', () => {
-  assert.equal(settings.words.signed_in, "You're signed in to Trillion as {email}.");
+  assert.equal(settings.words.signed_in, "You're signed in to {brand} as {email}.");
   // No sentence a person reads names an app or a Mac: a person may have neither.
   const said = Object.entries(settings.words).filter(([name, words]) => name !== 'details' && typeof words === 'string');
   for (const [name, words] of said) assert.ok(!/\bMac\b|\bapp\b/.test(words), `${name} names an app or a Mac: ${words}`);

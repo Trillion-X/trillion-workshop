@@ -2,9 +2,10 @@
 # tools/use-trillion-from-a-shell/do-work/install.sh
 #
 # Purpose
-#   The install line a site gives: `curl -fsSL {origin}/cli/install | sh`. It puts the `trillion` command on this computer
-#   from the site that served it and writes that site as the one `trillion login` signs in to (trillion.json `site_file`),
-#   so the person then types only `trillion login`. write-site-pages.mjs fills {origin} with the serving site's own origin.
+#   The install line a site gives: `curl -fsSL {origin}/cli/install | sh`. It puts the site's command ({cli}) on this
+#   computer from the site that served it and writes that site, its brand and its command to the site file (trillion.json
+#   `site_file`), so the person then types only `{cli} login`. write-site-pages.mjs fills {origin}, {brand}, {cli} and {program} from
+#   the serving site's own origin and brand row and this tool's settings; this file names no product.
 #
 # Non-negotiable invariants
 #   1. Every file comes from {origin}/cli/program/ over https, named by its files.txt; a file that does not arrive stops the
@@ -17,16 +18,19 @@
 set -eu
 
 origin='{origin}'
-home_state="$HOME/.trillion/cli"
+brand='{brand}'
+cli='{cli}'
+program_file='{program}'
+home_state="$HOME/.$cli/cli"
 program="$home_state/program"
 
 major=$(node -p 'process.versions.node.split(".")[0]' 2>/dev/null || echo 0)
 if [ "$major" -lt 22 ]; then
-  echo "Trillion needs Node.js 22 or newer on this computer. Get it from https://nodejs.org, then run the install line again."
+  echo "$brand needs Node.js 22 or newer on this computer. Get it from https://nodejs.org, then run the install line again."
   exit 1
 fi
 
-work=$(mktemp -d "${TMPDIR:-/tmp}/trillion-install.XXXXXX")
+work=$(mktemp -d "${TMPDIR:-/tmp}/$cli-install.XXXXXX")
 trap 'rm -rf "$work"' EXIT
 curl -fsSL "$origin/cli/program/files.txt" -o "$work/files.txt"
 while IFS= read -r name; do
@@ -34,13 +38,13 @@ while IFS= read -r name; do
   mkdir -p "$work/program/$(dirname "$name")"
   curl -fsSL "$origin/cli/program/$name" -o "$work/program/$name"
 done < "$work/files.txt"
-chmod 755 "$work/program/trillion.mjs"
+chmod 755 "$work/program/$program_file"
 
 mkdir -p "$home_state"
 chmod 700 "$home_state"
 if [ -d "$program" ]; then mv "$program" "$work/old-program"; fi
 mv "$work/program" "$program"
-printf '{\n  "origin": "%s"\n}\n' "$origin" > "$home_state/site.json.new"
+printf '{\n  "origin": "%s",\n  "brand": "%s",\n  "cli": "%s"\n}\n' "$origin" "$brand" "$cli" > "$home_state/site.json.new"
 chmod 600 "$home_state/site.json.new"
 mv "$home_state/site.json.new" "$home_state/site.json"
 
@@ -70,15 +74,15 @@ if [ -z "$bin" ]; then
   fi
   new_terminal=yes
 fi
-link="$bin/trillion"
+link="$bin/$cli"
 if [ -e "$link" ] && [ ! -L "$link" ]; then
-  echo "Trillion was installed, but $link is a file this install did not make, so it was left as it is."
+  echo "$brand was installed, but $link is a file this install did not make, so it was left as it is."
   exit 1
 fi
-ln -sf "$program/trillion.mjs" "$link"
+ln -sf "$program/$program_file" "$link"
 
 if [ -n "$new_terminal" ]; then
-  echo "Trillion is installed. Open a new terminal, then type: trillion login"
+  echo "$brand is installed. Open a new terminal, then type: $cli login"
 else
-  echo "Trillion is installed. Now type: trillion login"
+  echo "$brand is installed. Now type: $cli login"
 fi
