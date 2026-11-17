@@ -6,9 +6,9 @@
 //
 //   file-line  <root>/<path>:<line>   the line of that file (a checkout at the root's ref, or the copy in the person's files) holds the item's quote (when the check names one)
 //   commit     a commit hash          it exists in one of the roots and is dated after the item's `after` date
-//   row        a row id               the row exists in the person's own records (read through the door)
+//   row        a row id               the row exists in a table of the person's own database (the resolver's `tables`)
 //
-//   resolveItem(check, item, { resolvers, door }) -> [{ cite, ok, why }]   ok is true, false, or null when the root is not
+//   resolveItem(check, item, { resolvers, door, sql }) -> [{ cite, ok, why }]   ok is true, false, or null when the root is not
 //                                                                          on this computer (cannot be judged here)
 //
 // Nothing here names a repository, a step or a field: the roots and patterns are DATA, the field names come from the check.
@@ -17,6 +17,7 @@ import { existsSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { promisify } from 'node:util';
 import { readFileSync } from 'node:fs';
+import { identifier } from './sql.mjs';
 import { readWholeFile } from '../../records-door/read-data/whole-file.mjs';
 
 const run = promisify(execFile);
@@ -82,7 +83,7 @@ async function judgedAgainst(source) {
   return head ? `${source.name} at ${head}` : `${source.name}, head not recorded`;
 }
 
-async function fileLine(row, cite, item, check, door) {
+async function fileLine(row, cite, item, check, { door }) {
   const [, rootName, path, line] = new RegExp(row.pattern).exec(cite);
   const root = row.roots?.[rootName];
   if (!root) return { cite, ok: false, why: `no repository named ${rootName} in the resolver` };
@@ -103,7 +104,7 @@ async function fileLine(row, cite, item, check, door) {
   return { cite, ok: true, against };
 }
 
-async function commit(row, cite, item, check, door) {
+async function commit(row, cite, item, check, { door }) {
   const after = check.after === undefined ? null : Date.parse(item?.[check.after]);
   if (check.after !== undefined && Number.isNaN(after)) return { cite, ok: false, why: `${check.after} is not a date` };
   let blind = 0;
@@ -121,19 +122,23 @@ async function commit(row, cite, item, check, door) {
   return blind || unsure ? { cite, ok: null, why: blind ? 'a repository has no source here, so the commit cannot be ruled out' : 'the copy of a repository holds no date for that commit, so it cannot be ruled out' } : { cite, ok: false, why: 'no such commit in any root' };
 }
 
-async function rowExists(row, cite, _item, _check, door) {
-  if (!door) return { cite, ok: null, why: 'no records door to look the row up in' };
-  const type = row.type_of_id.map(source => new RegExp(source).exec(cite)?.[1]).find(Boolean) ?? cite.split(':')[0];
-  if (row.types && !row.types.includes(type)) return { cite, ok: null, why: `${type} is not a row type this check may read` };
-  try { return (await door.read(type, cite)) ? { cite, ok: true } : { cite, ok: false, why: 'no such row' }; } catch (error) { return { cite, ok: null, why: `the row could not be read: ${error.message}` }; }
+// A row id the resolver's `tables` name: the table a cite's prefix selects, and the row id in it (the whole cite, or what follows the prefix).
+async function rowExists(row, cite, _item, _check, { sql }) {
+  if (!sql) return { cite, ok: null, why: 'no database to look the row up in' };
+  const named = (row.tables ?? []).find(entry => cite.startsWith(entry.prefix));
+  if (!named) return { cite, ok: null, why: `${cite} starts with no prefix of a table this check may read` };
+  try {
+    const [found] = await sql(`select 1 as there from ${identifier(named.table)} where id = $1`, [named.strip_prefix ? cite.slice(named.prefix.length) : cite]);
+    return found ? { cite, ok: true } : { cite, ok: false, why: 'no such row' };
+  } catch (error) { return { cite, ok: null, why: `the row could not be read: ${error.message}` }; }
 }
 
 const KINDS = { 'file-line': fileLine, commit, row: rowExists };
 
-export async function resolveItem(check, item, { resolvers = RESOLVERS, door } = {}) {
+export async function resolveItem(check, item, { resolvers = RESOLVERS, door, sql } = {}) {
   const row = resolvers.resolvers.find(entry => entry.resolver === check.resolver);
   if (!row) return [{ cite: check.resolver, ok: null, why: `no resolver named ${check.resolver}` }];
   const text = item?.[check.field];
   const cites = [...new Set(typeof text === 'string' ? [...text.matchAll(new RegExp(row.pattern, 'g'))].map(match => match[0]) : [])];
-  return Promise.all(cites.map(cite => KINDS[row.kind](row, cite, item, check, door)));
+  return Promise.all(cites.map(cite => KINDS[row.kind](row, cite, item, check, { door, sql })));
 }

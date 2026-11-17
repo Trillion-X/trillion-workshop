@@ -6,7 +6,9 @@
 // (<run>:<step>:<lane>, written by start-a-recipe-step.mjs) and the catalog answers the taker that finished it, only
 // for a job whose status is done. An input that carries a catalog is refused, so no caller can say a job ran.
 //
-//   submitARecipeStep({ input: { run, step, answer }, task }, { door, tools })
+//   submitARecipeStep({ input: { run, step, answer }, task }, { sql, door, tools })
+//
+// `sql` is the person's own database (read-data/sql.mjs); `door` is only the files door a `cites-resolve` check reads a copy of a repository through (the person's files), and is absent when the row declares no files right.
 //     -> { status: 'kept' | 'already-there', answer_id, checks: [{ kind, says, passed }], unchecked: [{ kind, says, reason }], outputs? }
 //
 // A step with `outputs` has each named field of the answer kept where the person's cart line for its kind says, through
@@ -21,7 +23,7 @@
 // answer kept for a step stays: a
 // submit that comes again finds it and changes nothing.
 
-import { answerId, laneIds, laneJobId, runId, runStep, runsLaneJobs, slottedRunKey } from './step-agents.mjs';
+import { answerId, laneIds, laneJobId, readJob, runId, runStep, runsLaneJobs, slottedRunKey } from './step-agents.mjs';
 import { readARecipeRun } from './read-a-recipe-run.mjs';
 import { checkResults, valuesAt } from './recipe-check-results.mjs';
 import { readFileSync } from 'node:fs';
@@ -29,10 +31,11 @@ import { resolveItem } from './citation-resolvers.mjs';
 import { schemaProblems } from './answer-schema.mjs';
 import { publicRecipes } from './public-recipes.mjs';
 import { keepStepOutputs, parseStepOutputs } from './step-outputs.mjs';
+import { identifier } from './sql.mjs';
 
 const JOB_KIND = 'ai-job';
 const CHECK_VOCABULARY = JSON.parse(readFileSync(new URL('../recipe-check-kinds.json', import.meta.url), 'utf8'));
-const ROW_TYPES = JSON.parse(readFileSync(new URL('../arrivals/recipe-row-types.json', import.meta.url), 'utf8'));
+const TABLES = JSON.parse(readFileSync(new URL('../arrivals/recipe-row-types.json', import.meta.url), 'utf8'));
 const ALLOWED_INPUT = new Set(['run', 'step', 'answer', 'rows_of']);
 export { answerId };
 
@@ -45,9 +48,9 @@ export function slotWorkflows(value) {
   return [...new Set(ids.map(id => (id.startsWith('workflow:') ? id : `workflow:${id}`)))];
 }
 
-// For each row a slotted-runs check of the step names (rows of the one list type `rows_of` names): the row read through the door, its slot field's workflows, and
+// For each row a slotted-runs check of the step names (rows of the one table `rows_of` names): the row read from that table, its slot field's workflows, and
 // for each the sub-run `runId(workflow, slottedRunKey(run, step, row))` read the way read-a-recipe-run reads any run.
-async function slottedRows(step, context, { run, stepId, rowsOf, door }) {
+async function slottedRows(step, context, { run, stepId, rowsOf, sql }) {
   const slots = new Map();
   for (const check of (step.checks ?? []).filter(item => item.kind === 'slotted-runs')) {
     for (const item of valuesAt(check.path, context)) {
@@ -55,15 +58,16 @@ async function slottedRows(step, context, { run, stepId, rowsOf, door }) {
       const key = `${type}\n${row}`;
       if (slots.has(key)) continue;
       if (typeof row !== 'string' || !row || typeof type !== 'string' || !type) { slots.set(key, { missing: `names no row id and type in ${check.row} and ${check.type}` }); continue; }
-      // The run may read only the one list its caller named (tool:submit-a-step-that-slots-rows is given read on rows_of).
+      // The run may read only the one table its caller named (tool:submit-a-step-that-slots-rows is given rows_of).
       if (type !== rowsOf) { slots.set(key, { missing: `is a ${type} row; hand the step in with tool:submit-a-step-that-slots-rows and rows_of ${type}` }); continue; }
-      const value = await door.read(type, row);
+      const [found] = await sql(`select value from ${identifier(type)} where id = $1`, [row]);
+      const value = found?.value;
       if (!value) { slots.set(key, { missing: `there is no ${type} row ${row}` }); continue; }
       const workflows = slotWorkflows(value[check.slot]);
       if (!workflows) { slots.set(key, { missing: `its ${check.slot} is not a workflow id or a list of them` }); continue; }
       const runs = [];
       for (const workflow of workflows) {
-        const read = await readARecipeRun({ recipe: workflow, request_key: slottedRunKey(run, stepId, row) }, { door });
+        const read = await readARecipeRun({ recipe: workflow, request_key: slottedRunKey(run, stepId, row) }, { sql });
         runs.push({ workflow, run: runId(workflow, slottedRunKey(run, stepId, row)), finished: read.finished });
       }
       slots.set(key, { workflows: runs });
@@ -74,7 +78,7 @@ async function slottedRows(step, context, { run, stepId, rowsOf, door }) {
 
 // The workflow ids the step's `exists` checks on the workflow catalog name that the account can run (startable by
 // tool:start-a-recipe-run): a row of the person's list of workflows, else a recipe in the Workshop's recipes folder.
-async function knownWorkflows(step, context, door) {
+async function knownWorkflows(step, context, sql) {
   const known = new Set();
   const asked = new Set((step.checks ?? []).filter(check => check.kind === 'exists' && check.catalog === 'workflow')
     .flatMap(check => valuesAt(check.path, context)).filter(id => typeof id === 'string' && id.startsWith('workflow:')));
@@ -82,21 +86,20 @@ async function knownWorkflows(step, context, door) {
   const shipped = new Set(publicRecipes().map(payload => payload.id));
   for (const id of asked) {
     if (shipped.has(id)) { known.add(id); continue; }
-    for (const type of ROW_TYPES.recipe.types) {
-      if (await door.read(type, `${ROW_TYPES.recipe.id_prefix}${id.slice('workflow:'.length)}`)) { known.add(id); break; }
-    }
+    const [own] = await sql(`select 1 as there from ${identifier(TABLES.recipe.table)} where id = $1`, [id.slice('workflow:'.length)]);
+    if (own) known.add(id);
   }
   return known;
 }
 
-export async function submitARecipeStep({ input = {}, task = {} } = {}, { door, resolvers, tools }) {
+export async function submitARecipeStep({ input = {}, task = {} } = {}, { sql, door, resolvers, tools }) {
   for (const key of Object.keys(input)) if (!ALLOWED_INPUT.has(key)) throw new Error(`input.${key} is not taken: the checks look jobs up in the records themselves, never in what the caller gives.`);
   const { run, step: stepId, answer, rows_of: rowsOf } = input;
-  if (rowsOf !== undefined && !(typeof rowsOf === 'string' && rowsOf.startsWith('record:'))) throw new Error('input.rows_of must name the list row type the step\'s chosen rows are kept as (record:<type>).');
+  if (rowsOf !== undefined && !(typeof rowsOf === 'string' && rowsOf)) throw new Error('input.rows_of must name the table the step\'s chosen rows are kept in.');
   if (typeof run !== 'string' || !run || typeof stepId !== 'string' || !stepId) throw new Error('input.run and input.step must name the run and its step.');
   if (answer === null || typeof answer !== 'object' || Array.isArray(answer)) throw new Error('input.answer must be the step\'s answer, an object.');
   if (typeof task.request_key !== 'string' || !task.request_key) throw new Error('task.request_key is missing.');
-  const parent = await door.read(JOB_KIND, run);
+  const parent = await readJob(sql, run);
   if (!parent) throw new Error(`There is no run ${run}.`);
   const steps = parent.job ?? [];
   const at = steps.findIndex(item => item.id === stepId);
@@ -104,7 +107,7 @@ export async function submitARecipeStep({ input = {}, task = {} } = {}, { door, 
   // The step as this run runs it: the run's agents_per_step over the row's agents (runStep), as the starter read it.
   const step = runStep(steps[at], parent.input);
   const id = answerId(run, stepId);
-  if (await door.read(JOB_KIND, id)) return { status: 'already-there', answer_id: id, checks: [], unchecked: [] };
+  if (await readJob(sql, id)) return { status: 'already-there', answer_id: id, checks: [], unchecked: [] };
 
   // The answer must fit the step's own `submit` schema before any check is judged or anything is kept.
   const problems = step.submit ? schemaProblems(step.submit, answer) : [];
@@ -112,7 +115,7 @@ export async function submitARecipeStep({ input = {}, task = {} } = {}, { door, 
 
   const earlier = {};
   for (const before of steps.slice(0, at)) {
-    const kept = await door.read(JOB_KIND, answerId(run, before.id));
+    const kept = await readJob(sql, answerId(run, before.id));
     if (!kept) throw new Error(`Step "${before.id}" has no answer kept yet, and step "${stepId}" comes after it.`);
     earlier[before.id] = kept.answer;
   }
@@ -122,22 +125,22 @@ export async function submitARecipeStep({ input = {}, task = {} } = {}, { door, 
   if (runsLaneJobs(step) || (step.checks ?? []).some(check => check.kind === 'lane-jobs')) {
     for (const lane of laneIds(step, earlier)) {
       const job = laneJobId(run, stepId, lane);
-      const row = await door.read(JOB_KIND, job);
+      const row = await readJob(sql, job);
       if (row?.status === 'done' && typeof row.finished_by === 'string' && row.finished_by) takers.set(job, row.finished_by);
     }
   }
   const context = { this: answer, input: parent.input ?? {}, steps: earlier, run };
   // The rows the step chose, read from the account with their own workflows, and each workflow's sub-run of this step as
   // the run's records hold it (slottedRows): the slotted-run catalog.
-  const slots = await slottedRows(step, context, { run, stepId, rowsOf, door });
+  const slots = await slottedRows(step, context, { run, stepId, rowsOf, sql });
   // The workflows an `exists` check names, looked up the way tool:start-a-recipe-run finds a recipe: the person's own
   // row under any of their recipe row types, or a recipe the Workshop ships.
-  const workflows = await knownWorkflows(step, context, door);
+  const workflows = await knownWorkflows(step, context, sql);
   const catalogs = { 'ran-job': job => takers.get(job) ?? null, 'slotted-run': (row, type) => slots.get(`${type}\n${row}`) ?? null, workflow: id => workflows.has(id) };
   // What the answer cites is looked up first (a lookup is async), then the checks are judged on what was found.
   const looked = new Map();
   for (const check of (step.checks ?? []).filter(item => item.kind === 'cites-resolve')) {
-    for (const item of valuesAt(check.path, context)) looked.set(`${at}:${(step.checks).indexOf(check)}:${JSON.stringify(item)}`, await resolveItem(check, item, { resolvers, door }));
+    for (const item of valuesAt(check.path, context)) looked.set(`${at}:${(step.checks).indexOf(check)}:${JSON.stringify(item)}`, await resolveItem(check, item, { resolvers, door, sql }));
   }
   const resolved = (check, item) => looked.get(`${at}:${step.checks.indexOf(check)}:${JSON.stringify(item)}`);
   const results = checkResults(step, context, { catalogs, resolved });
@@ -153,8 +156,9 @@ export async function submitARecipeStep({ input = {}, task = {} } = {}, { door, 
   const value = { kind: JOB_KIND, status: 'done', row: parent.row, label: `${parent.label}: answer of ${step.title ?? step.id}`, parent: run, step: stepId, answer, finished_by: 'workflow:submit-a-recipe-step', kept_at: new Date().toISOString(), ...(judgedAgainst.length ? { judged_against: judgedAgainst } : {}) };
   // Where the step's output goes, written before the answer is kept: a refused write leaves the step open to a retry, and
   // each write's request key is fixed by run, step and port, so the retry does not write twice.
-  const outputs = step.outputs === undefined ? [] : await keepStepOutputs({ outputs: parseStepOutputs(step.outputs, `Step "${stepId}"`), answer, run, step: stepId }, { door, tools });
-  await door.write([{ id, type: JOB_KIND, value }], { key: `${run}:${stepId}:answer` });
+  const outputs = step.outputs === undefined ? [] : await keepStepOutputs({ outputs: parseStepOutputs(step.outputs, `Step "${stepId}"`), answer, run, step: stepId }, { sql, tools });
+  const written = await sql('insert into ai_job (id, value) values ($1, $2::jsonb) on conflict (id) do nothing returning id', [id, JSON.stringify(value)]);
+  if (!written.length) return { status: 'already-there', answer_id: id, checks: [], unchecked: [] };
   return {
     status: 'kept', answer_id: id, ...(outputs.length ? { outputs } : {}), ...(judgedAgainst.length ? { judged_against: judgedAgainst } : {}),
     checks: results.filter(result => result.passed).map(({ kind, says, passed }) => ({ kind, says, passed })),

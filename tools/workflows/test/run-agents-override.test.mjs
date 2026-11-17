@@ -3,24 +3,24 @@
 // the step start and the submit read the step the same way (runStep), so the lanes started are the lanes judged. Every
 // recipe here is made up; no number below is known to the code.
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import test, { after, before, beforeEach } from 'node:test';
 import { laneIds, laneJobId, runStep } from '../read-data/step-agents.mjs';
 import { startARecipeStep } from '../read-data/start-a-recipe-step.mjs';
 import { submitARecipeStep } from '../read-data/submit-a-recipe-step.mjs';
+import { readRow, startDatabase } from '../test-helpers/rows-in-sql.mjs';
 
 const laneCheck = { kind: 'lane-jobs', path: ['this', 'lanes'], lane: 'id', job: 'job', says: 'Every lane comes from its own job that ran' };
 const stepOf = (extra = {}) => ({ id: 'dig', title: 'Dig', do: 'Dig in your lane.', submit: { type: 'object' }, checks: [laneCheck], ...extra });
 const run = 'ai-job:workflow:made-up-dig:k1';
 
-function memoryDoor(steps, input) {
-  const held = new Map([[run, { id: run, value: { kind: 'ai-job', status: 'taken', row: 'workflow:made-up-dig', label: 'Made-up dig', job: steps, input } }]]);
-  return {
-    held,
-    read: async (_kind, id) => held.get(id)?.value ?? null,
-    async *list() {},
-    write: async records => { for (const record of records) held.set(record.id, record); },
-  };
-}
+let db;
+before(async () => { db = await startDatabase(); });
+after(async () => { await db.stop(); });
+beforeEach(async () => { await db.reset(); });
+
+const setJob = (id, value) => db.sql('insert into ai_job (id, value) values ($1, $2::jsonb) on conflict (id) do update set value = excluded.value', [id, JSON.stringify(value)]);
+const patchJob = async (id, patch) => setJob(id, { ...(await readRow(db.sql, 'ai_job', id)), ...patch });
+const startRun = (steps, input) => setJob(run, { kind: 'ai-job', status: 'taken', row: 'workflow:made-up-dig', label: 'Made-up dig', job: steps, input });
 
 test('the row number is the default and the run input overrides it', () => {
   assert.equal(runStep(stepOf({ agents: 3 }), {}).agents, 3);
@@ -41,23 +41,22 @@ test('an override that is not a whole number, or meets named lanes or a step wit
 
 test('a run that overrides the row starts that many lanes, and its submit judges exactly those lanes', async () => {
   const step = stepOf({ agents: 2 });
-  const door = memoryDoor([step], { topic: 'made up', agents_per_step: { dig: 5 } });
-  const began = await startARecipeStep({ input: { run, step: 'dig' }, task: { request_key: 'b1' } }, { door });
+  await startRun([step], { topic: 'made up', agents_per_step: { dig: 5 } });
+  const began = await startARecipeStep({ input: { run, step: 'dig' }, task: { request_key: 'b1' } }, { sql: db.sql });
   assert.equal(began.status, 'written');
   assert.equal(began.lane_jobs.length, 5);
   const lanes = began.lane_jobs.map(item => item.lane);
-  const submit = answer => submitARecipeStep({ input: { run, step: 'dig', answer }, task: { request_key: 's1' } }, { door });
-  for (const lane of lanes.slice(0, 2)) door.held.get(laneJobId(run, 'dig', lane)).value.status = 'done';
-  for (const lane of lanes.slice(0, 2)) door.held.get(laneJobId(run, 'dig', lane)).value.finished_by = `ai:taker-${lane}`;
+  const submit = answer => submitARecipeStep({ input: { run, step: 'dig', answer }, task: { request_key: 's1' } }, { sql: db.sql });
+  for (const lane of lanes.slice(0, 2)) await patchJob(laneJobId(run, 'dig', lane), { status: 'done', finished_by: `ai:taker-${lane}` });
   // The row's two lanes alone no longer pass: the run asked for five.
   await assert.rejects(submit({ lanes: lanes.slice(0, 2).map(id => ({ id, job: laneJobId(run, 'dig', id) })) }), /fails/);
-  for (const lane of lanes) Object.assign(door.held.get(laneJobId(run, 'dig', lane)).value, { status: 'done', finished_by: `ai:taker-${lane}` });
+  for (const lane of lanes) await patchJob(laneJobId(run, 'dig', lane), { status: 'done', finished_by: `ai:taker-${lane}` });
   const kept = await submit({ lanes: lanes.map(id => ({ id, job: laneJobId(run, 'dig', id) })) });
   assert.equal(kept.status, 'kept');
 });
 
 test('a run with no override keeps the row number', async () => {
-  const door = memoryDoor([stepOf({ agents: 3 })], { topic: 'made up' });
-  const began = await startARecipeStep({ input: { run, step: 'dig' }, task: { request_key: 'b1' } }, { door });
+  await startRun([stepOf({ agents: 3 })], { topic: 'made up' });
+  const began = await startARecipeStep({ input: { run, step: 'dig' }, task: { request_key: 'b1' } }, { sql: db.sql });
   assert.equal(began.lane_jobs.length, 3);
 });

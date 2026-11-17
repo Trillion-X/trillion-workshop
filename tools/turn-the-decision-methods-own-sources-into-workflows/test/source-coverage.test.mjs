@@ -7,6 +7,7 @@ import { sweepAtoms as sharedSweep } from '../../check-against-a-persons-rules-a
 import { atomsOf } from '../../documents-as-list-rows/read-data/atoms.mjs';
 import { recipeProblems, stepAnatomyProblems } from '../../workflows/read-data/recipe-problems.mjs';
 import { startARecipeRun } from '../../workflows/read-data/start-a-recipe-run.mjs';
+import { readRow, startDatabase } from '../../workflows/test-helpers/rows-in-sql.mjs';
 import { rowOf, runRow } from '../../../test-helpers/run-a-row.mjs';
 const source = { id: 'source:synthetic', text: 'Return the version.\nA story.', identity: textIdentity('Return the version.\nA story.') };
 const piece = (id='piece:one',text='Return the version.') => ({id,source_id:source.id,source_identity:source.identity,text,identity:textIdentity(text),location:'synthetic.txt:1'});
@@ -91,11 +92,14 @@ test('canonical recipe anatomy and actual starter readback, independent of seman
  const recipe=JSON.parse(readFileSync(new URL('../../workflows/recipes/turn-a-source-into-steps.json',import.meta.url))).records[0].payload;
  assert.deepEqual(recipeProblems(recipe),[]);
  for(const step of recipe.steps) assert.deepEqual(stepAnatomyProblems(step),[]);
- const kept=new Map();const door={read:async(type,id)=>kept.get(id)??null,list:async function*(){},write:async rows=>rows.forEach(row=>kept.set(row.id,row.value))};
- const input={row:recipe.id,reader:{tool_id:'tool:synthetic-reader',input:{source:'synthetic'}}};
- const r=await startARecipeRun({input,task:{request_key:'synthetic-recipe-readback'}},{door});
- assert.equal(r.status,'written'); assert.deepEqual(kept.get(r.job).job,recipe.steps); assert.equal(kept.get(r.job).input.reader.tool_id,'tool:synthetic-reader');
- assert.equal((await startARecipeRun({input,task:{request_key:'synthetic-recipe-readback'}},{door})).status,'already-there');
+ const db=await startDatabase();
+ try{
+  const input={row:recipe.id,reader:{tool_id:'tool:synthetic-reader',input:{source:'synthetic'}}};
+  const r=await startARecipeRun({input,task:{request_key:'synthetic-recipe-readback'}},{sql:db.sql});
+  const job=await readRow(db.sql,'ai_job',r.job);
+  assert.equal(r.status,'written'); assert.deepEqual(job.job,recipe.steps); assert.equal(job.input.reader.tool_id,'tool:synthetic-reader');
+  assert.equal((await startARecipeRun({input,task:{request_key:'synthetic-recipe-readback'}},{sql:db.sql})).status,'already-there');
+ }finally{await db.stop();}
 });
 
 test('one persisted id cannot name both a piece and a derived step or source',()=>{

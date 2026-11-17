@@ -324,6 +324,9 @@
                   "branches",
                   "read-data/wake-problems.mjs",
                   "read-data/step-agents.mjs",
+                  "read-data/step-outputs.mjs",
+                  "read-data/sql.mjs",
+                  "arrivals/step-outputs.json",
                   "recipe-check-kinds.json",
                   "host-tools.json",
                   "recipe-wake-causes.json"

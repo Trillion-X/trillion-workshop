@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:adc7a21a31d79596795f818f97698753fdda865713ee73e8e6bd13c937f8eac5"
+  "blake3": "1f:7d34c0053d15627813d886697c6685cf1eec2b9f6a49ad4e23e8ff56b1df234e"
  },
  "fields": [
   {
@@ -2515,7 +2515,7 @@
    "values": {
     "title": "Choose which of my workflows fire for these parts of a seed",
     "job": "Say which of all my workflows, and the Workshop's I have installed, fire for each part of something that arrived, from the conditions each workflow carries on its own row",
-    "description": "Every workflow is a candidate branch of the one tree. Takes parts: the parts of one seed, each an object of its typed fields (for example kinds, subjects, people, niches, own_words; the fields are whatever the conditions read). Reads every workflow row the person has (their list of workflows under each type arrivals/recipe-row-types.json lists) and every recipe this Workshop installs; when both hold an id the person's row wins, and when it holds no conditions the installed recipe's are used. Each workflow's conditions are its fires_when (branches/fires-when.json): a list of { label, condition: { fields, tree }, made_by, state }, the same fields and tree tool:filter-rows-by-rules takes, evaluated by the same formulas engine over the parts. Answers chosen (one row per workflow, part and condition that kept it, ranked within each part by specificity: score is the sum over the tags or rules the part met of log(workflows with a condition / workflows holding that tag), times the condition's measured weight, rank 1 best), broad (conditions that kept more than half of the parts, to be rewritten), unfinished (conditions with a rule the engine cannot evaluate or no rule at all, which choose nothing), unconditioned (workflows with no condition On, by id and label, to be judged by their words), unmatched_parts and the counts. Nothing is written; no workflow, branch or tag is named in the tool.",
+    "description": "Every workflow is a candidate branch of the one tree. Takes parts: the parts of one seed, each an object of its typed fields (for example kinds, subjects, people, niches, own_words; the fields are whatever the conditions read). Reads every workflow row the person has (their table of workflows, the name in arrivals/recipe-row-types.json) and every recipe this Workshop installs; when both hold an id the person's row wins, and when it holds no conditions the installed recipe's are used. Each workflow's conditions are its fires_when (branches/fires-when.json): a list of { label, condition: { fields, tree }, made_by, state }, the same fields and tree tool:filter-rows-by-rules takes, evaluated by the same formulas engine over the parts. Answers chosen (one row per workflow, part and condition that kept it, ranked within each part by specificity: score is the sum over the tags or rules the part met of log(workflows with a condition / workflows holding that tag), times the condition's measured weight, rank 1 best), broad (conditions that kept more than half of the parts, to be rewritten), unfinished (conditions with a rule the engine cannot evaluate or no rule at all, which choose nothing), unconditioned (workflows with no condition On, by id and label, to be judged by their words), unmatched_parts and the counts. Nothing is written; no workflow, branch or tag is named in the tool.",
     "status": "active",
     "maker": "maker:workflows",
     "licence_class": "licence:maker-own",
@@ -5591,21 +5591,6 @@
    }
   },
   {
-   "id": "tool:keep-service-usage-watches",
-   "values": {
-    "title": "Keep connected service usage readings on a schedule",
-    "job": "Keep account-owned usage watches and read their named connections at each due wake",
-    "description": "Configure an account-owned watch, pause or delete it, or run one due watch. An unresolved original blocks deletion. The native wake supplies the repeat clock and current standing grant; its wake starts off until switched on. Saves provider counter samples or explicit unread state. Conflicts and unresolved claims stop without changed-body or new-key retry. No invoice, provider write, billing or notice.",
-    "status": "active",
-    "maker": "maker:watch-the-service-itself-such-as-the-share",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "watch-the-service-itself-such-as-the-share"
-   }
-  },
-  {
    "id": "tool:keep-the-words-a-person-gave",
    "values": {
     "title": "Keep the words a person gave",
@@ -7261,6 +7246,21 @@
      "placement:deployed-container"
     ],
     "folder": "traffic-attribution"
+   }
+  },
+  {
+   "id": "tool:measure-first-frame",
+   "values": {
+    "title": "Measure how fast a video starts",
+    "job": "Measure how fast a video that is read by byte ranges starts and seeks for a real browser: first frame, Play to a moving frame, seek and bytes fetched, fresh and returning, against the speed the old files path set",
+    "description": "Give url (the address of a video a browser can play by Range: a share link, a file's byte route) and optionally samples (1 to 20, default 3), seek_fraction (default 0.6), timeout_ms and browser_path. Opens a real Chromium on this computer, plays the video in a blank page and answers per-sample first_frame_seconds, play_to_moving_seconds, seek_seconds, bytes and responses for a fresh visit and a returning one, their medians, and each median against the bar (warm first frame 2.9 s, cold 5.9 s, 17 MB, seek 204 ms) with within true, false or null when a number was not measured. The address is never answered (a share's key is in it); the answer names the host.",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "measure-first-frame"
    }
   },
   {
@@ -10115,36 +10115,6 @@
     "flags": [
      "read-only"
     ]
-   }
-  },
-  {
-   "id": "tool:read-saved-service-watches",
-   "values": {
-    "title": "Read saved connected service usage watches",
-    "job": "Read retained account-owned service-usage state without contacting a provider",
-    "description": "Read account-owned usage watches, latest samples, pending command and next due time. Distinct from the old service-wide tool:read-service-watch identity. Creates no provider request or schedule.",
-    "status": "active",
-    "maker": "maker:watch-the-service-itself-such-as-the-share",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "watch-the-service-itself-such-as-the-share"
-   }
-  },
-  {
-   "id": "tool:read-service-usage",
-   "values": {
-    "title": "Read a connected service's usage",
-    "job": "Read provider usage counters for one selected connected account and an inclusive range of UTC dates",
-    "description": "Reads the selected connection's provider account ID and token on private pipes, then runs its existing read_usage request DATA. Currently reads Cloudflare. Returns the provider's requested counter samples without pricing or converting missing data to zero. GraphQL, transport, HTTP, account and malformed-data failures answer unread. Empty sample lists remain empty. Counts are not an invoice. Creates no schedule, record, notice, alarm, grant or payment.",
-    "status": "active",
-    "maker": "maker:watch-the-service-itself-such-as-the-share",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "watch-the-service-itself-such-as-the-share"
    }
   },
   {
@@ -13104,8 +13074,8 @@
    "id": "tool:start-a-recipe-run",
    "values": {
     "title": "Start a run of a recipe: leave its steps as a job for my AI",
-    "job": "When a recipe of mine is started, by a wake I switched on or by a call, put its steps and its input in my own records as one job waiting for my AI, once per firing",
-    "description": "Every recipe row runs as this tool (the recipes' row source names it in invoke_with), with the recipe's id in input.row. It reads that recipe from the person's own list of workflows and the rows of its steps, or else from the public recipes folder (the person's own row wins when both hold the id; their rows may be typed record:workflow-recipe or workflow-recipe, arrivals/recipe-row-types.json), and, when a record wake names an arrival source, starts only from the changed rows that source's filter keeps, each a seed in the run's input, writing nothing when none is kept (arrivals/arrival-sources.json); it writes one record of kind ai-job, id ai-job:<recipe id>:<request key>, holding status waiting, the recipe id and label, its steps, the input it was started with and the wake cause that started it. It does no step itself, schedules nothing and keeps nothing else. The AI that next connects to the person's records lists ai-job records with status waiting, does the oldest, and writes status done with its result. A firing or a call that comes again with the same request key finds its job and writes nothing.",
+    "job": "When a recipe of mine is started, by a wake I switched on or by a call, put its steps and its input in my own database as one job waiting for my AI, once per firing",
+    "description": "Every recipe row runs as this tool (the recipes' row source names it in invoke_with), with the recipe's id in input.row. It reads that recipe from the person's own tables workflow_recipe and workflow_step in their Postgres database (arrivals/recipe-row-types.json names them), or else from the public recipes folder (the person's own row wins when both hold the id), and, when a wake names an arrival source, starts only from the changed rows that source's filter keeps (a row of the table arrival_source naming the table it reads, read_table), each a seed in the run's input, writing nothing when none is kept (arrivals/arrival-sources.json); it inserts one row into the table ai_job, id ai-job:<recipe id>:<request key>, holding status waiting, the recipe id and label, its steps, the input it was started with and the wake cause that started it. It makes its tables first from sql/, each `create table if not exists`. It does no step itself, schedules nothing and keeps nothing else. The AI that next connects to the person's database selects the ai_job rows whose status is waiting, does the oldest, and updates its status to done with its result. A firing or a call that comes again with the same request key finds its job and inserts nothing. The connection string is the held value own-rows-postgres-connection, handed on descriptor 3.",
     "status": "active",
     "maker": "maker:workflows",
     "licence_class": "licence:maker-own",
@@ -13119,8 +13089,8 @@
    "id": "tool:start-a-recipe-step",
    "values": {
     "title": "Start one step of a recipe run and get its work, with its lane jobs when it has several agents",
-    "job": "Begin a step of my recipe run: get the step with what to do, and when it says it has several agents have each agent's own job started in my own records, in the same call",
-    "description": "Reads the run (the ai-job tool:start-a-recipe-run wrote) and its step. A step with one agent is handed back as it is. A step whose agents is above 1 has its lane jobs started by this same call (tool:start-a-steps-agents does the writing, in door-sized batches, none twice), so the run's AI has no separate start to leave out; the lane jobs are handed back with the step. Each lane's job is then done by its own AI. tool:submit-a-recipe-step refuses an answer for lanes whose jobs never ran.",
+    "job": "Begin a step of my recipe run: get the step with what to do, and when it says it has several agents have each agent's own job started in my own database, in the same call",
+    "description": "Reads the run (the ai-job tool:start-a-recipe-run wrote) and its step. A step with one agent is handed back as it is. A step whose agents is above 1 has its lane jobs started by this same call (tool:start-a-steps-agents does the writing, in one statement, none twice), so the run's AI has no separate start to leave out; the lane jobs are handed back with the step. Each lane's job is then done by its own AI. tool:submit-a-recipe-step refuses an answer for lanes whose jobs never ran.",
     "status": "active",
     "maker": "maker:workflows",
     "licence_class": "licence:maker-own",
@@ -13134,8 +13104,8 @@
    "id": "tool:start-a-steps-agents",
    "values": {
     "title": "Start the agents of one step of a recipe run: one waiting job per lane",
-    "job": "When a step of a recipe run says it has several agents, start that many jobs for it in my own records, each with its own lane, so each lane is done by its own AI",
-    "description": "Reads the run (the ai-job tool:start-a-recipe-run wrote) and its step, whose own row says how many agents run it (agents, one whole number, 1 when left out) and may name the lanes (lanes). A step with one agent starts nothing. Otherwise it writes one waiting ai-job per lane, id <run id>:<step id>:<lane id>, holding the step, the run's input and cause, the lane and a note telling that AI to do only its lane. The jobs are written in batches that fit the door, the step's first lane last, so a start that comes again finds the first lane's job and changes none, even one an AI already finished. The step's lane-jobs check refuses an answer unless every lane names its own such job and that job ran.",
+    "job": "When a step of a recipe run says it has several agents, start that many jobs for it in my own database, each with its own lane, so each lane is done by its own AI",
+    "description": "Reads the run (the ai-job tool:start-a-recipe-run wrote) and its step, whose own row says how many agents run it (agents, one whole number, 1 when left out) and may name the lanes (lanes). A step with one agent starts nothing. Otherwise it inserts one waiting ai_job row per lane, id <run id>:<step id>:<lane id>, holding the step, the run's input and cause, the lane and a note telling that AI to do only its lane. The jobs are inserted by one statement, so all are there or none is, and a start that comes again finds the first lane's job and changes none, even one an AI already finished. The step's lane-jobs check refuses an answer unless every lane names its own such job and that job ran.",
     "status": "active",
     "maker": "maker:workflows",
     "licence_class": "licence:maker-own",
@@ -13286,8 +13256,8 @@
   {
    "id": "tool:submit-a-recipe-step",
    "values": {
-    "title": "Hand in the answer to one step of a recipe run, judged by the step's checks on what the records hold",
-    "job": "Hand in my answer to a step of my recipe run, and have it kept only when the step's checks pass, judged on what my own records say ran",
+    "title": "Hand in the answer to one step of a recipe run, judged by the step's checks on what the database holds",
+    "job": "Hand in my answer to a step of my recipe run, and have it kept only when the step's checks pass, judged on what my own database says ran",
     "description": "Reads the run, the step and the answers kept for the steps before it, and judges the step's checks. The ran-job catalog the lane-jobs check looks in is built here from each lane's own ai-job (<run>:<step>:<lane>): a lane's job ran when its status is done, and its taker is who finished it. The caller gives only run, step and answer; an input that carries a catalog or anything else is refused. A failing check refuses the answer and keeps nothing; a check that cannot be judged here is listed as unchecked, never as passed. A passing answer is kept as the ai-job <run>#answer:<step>; a submit that comes again finds it and changes nothing.",
     "status": "active",
     "maker": "maker:workflows",
@@ -13303,7 +13273,7 @@
    "values": {
     "title": "Hand in the answer to a recipe step that chose rows, kept only when each row's own workflows ran as its sub-runs",
     "job": "Hand in my answer to a step that chose rows of one of my lists (a format, a template, any row), and have it kept only when each chosen row's own workflows ran to the end inside this step",
-    "description": "The same submit as tool:submit-a-recipe-step, for a step with a slotted-runs check: the caller also names rows_of, the one list row type the chosen rows are kept as, and this run may read rows of that type and nothing else of the person's lists. Each chosen row names its own workflows in the field the check names; each runs as a sub-run of this step, started with tool:start-a-recipe-run under the request key <run>:<step>:slot:<row>, and the answer is kept only when every such sub-run has every step's answer kept. A row that holds no workflow is refused by name, so the workflow that gives a row its workflows can fill it. Nothing the answer says about a sub-run is believed: the rows and runs are read from the records.",
+    "description": "The same submit as tool:submit-a-recipe-step, for a step with a slotted-runs check: the caller also names rows_of, the one table the chosen rows are kept in, and this run reads chosen rows from that table. Each chosen row names its own workflows in the field the check names; each runs as a sub-run of this step, started with tool:start-a-recipe-run under the request key <run>:<step>:slot:<row>, and the answer is kept only when every such sub-run has every step's answer kept. A row that holds no workflow is refused by name, so the workflow that gives a row its workflows can fill it. Nothing the answer says about a sub-run is believed: the rows and runs are read from the database.",
     "status": "active",
     "maker": "maker:workflows",
     "licence_class": "licence:maker-own",

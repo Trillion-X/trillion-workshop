@@ -1,10 +1,11 @@
 // tools/workflows: an `exists` check on the workflow catalog is judged when a step is handed in, never left unchecked: a
-// workflow the person keeps in their own list (under any of their recipe row types) or one the Workshop ships exists, and
-// any other id fails by name. The recipes and rows here are made up, except one id read from the shipped recipes.
+// workflow the person keeps in their own table of workflows or one the Workshop ships exists, and any other id fails by
+// name. The recipes and rows here are made up, except one id read from the shipped recipes.
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import test, { after, before, beforeEach } from 'node:test';
 import { publicRecipes } from '../read-data/public-recipes.mjs';
 import { answerId, submitARecipeStep } from '../read-data/submit-a-recipe-step.mjs';
+import { keep, readRow, startDatabase } from '../test-helpers/rows-in-sql.mjs';
 
 const run = 'ai-job:workflow:made-up-find:k1';
 const step = {
@@ -13,31 +14,25 @@ const step = {
 };
 const shipped = publicRecipes()[0].id;
 
-function memoryDoor(rows = {}) {
-  const held = new Map([[`ai-job\n${run}`, { kind: 'ai-job', status: 'taken', row: 'workflow:made-up-find', label: 'Made-up find', job: [step], input: {} }]]);
-  for (const [key, value] of Object.entries(rows)) held.set(key, value);
-  return {
-    held,
-    read: async (type, id) => held.get(`${type}\n${id}`) ?? null,
-    async *list() {},
-    write: async records => { for (const record of records) held.set(`${record.type}\n${record.id}`, record.value); },
-  };
-}
-const submit = (door, fits, key = 's1') => submitARecipeStep({ input: { run, step: 'find', answer: { fits } }, task: { request_key: key } }, { door });
+let db;
+before(async () => { db = await startDatabase(); });
+after(async () => { await db.stop(); });
+beforeEach(async () => {
+  await db.reset();
+  await keep(db.sql, 'ai_job', run, { kind: 'ai-job', status: 'taken', row: 'workflow:made-up-find', label: 'Made-up find', job: [step], input: {} });
+});
+const submit = (fits, key = 's1') => submitARecipeStep({ input: { run, step: 'find', answer: { fits } }, task: { request_key: key } }, { sql: db.sql });
 
-test('a shipped recipe and the person\'s own rows, under either recipe row type, exist; the check is judged, not unchecked', async () => {
-  const door = memoryDoor({
-    'record:workflow-recipe\nrecord:workflow-recipe:made-up-own': { recipe: 'workflow:made-up-own' },
-    'workflow-recipe\nrecord:workflow-recipe:made-up-older': { recipe: 'workflow:made-up-older' },
-  });
-  const kept = await submit(door, [shipped, 'workflow:made-up-own', 'workflow:made-up-older']);
+test('a shipped recipe and the person\'s own rows exist; the check is judged, not unchecked', async () => {
+  await keep(db.sql, 'workflow_recipe', 'made-up-own', { recipe: 'workflow:made-up-own' });
+  await keep(db.sql, 'workflow_recipe', 'made-up-other', { recipe: 'workflow:made-up-other' });
+  const kept = await submit([shipped, 'workflow:made-up-own', 'workflow:made-up-other']);
   assert.equal(kept.status, 'kept');
   assert.deepEqual(kept.checks.map(check => check.kind), ['exists']);
   assert.deepEqual(kept.unchecked, []);
 });
 
 test('a workflow nobody keeps or ships fails by name and nothing is kept', async () => {
-  const door = memoryDoor();
-  await assert.rejects(submit(door, [shipped, 'workflow:made-up-nowhere']), /workflow:made-up-nowhere/);
-  assert.equal(door.held.has(`ai-job\n${answerId(run, 'find')}`), false);
+  await assert.rejects(submit([shipped, 'workflow:made-up-nowhere']), /workflow:made-up-nowhere/);
+  assert.equal(await readRow(db.sql, 'ai_job', answerId(run, 'find')), null);
 });

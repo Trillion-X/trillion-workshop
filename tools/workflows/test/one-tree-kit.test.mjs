@@ -42,18 +42,17 @@ test('the three workflows name no tool the Workshop lacks', () => {
 
 test('on a blank account (no workflow rows of its own) each of the three workflows starts from the public recipe and writes one waiting job', async () => {
   const { startARecipeRun } = await import('../read-data/start-a-recipe-run.mjs');
-  for (const id of kit.workflows) {
-    const kept = new Map();
-    const door = {
-      read: async (type, rowId) => kept.get(rowId) ?? null,
-      list: async function* () {},
-      write: async records => { for (const record of records) kept.set(record.id, record); },
-    };
-    const first = await startARecipeRun({ input: { row: id }, task: { request_key: 'blank-1' } }, { door });
-    assert.equal(first.status, 'written');
-    assert.deepEqual([...kept.values()][0].value.job, byId.get(id).steps);
-    assert.equal((await startARecipeRun({ input: { row: id }, task: { request_key: 'blank-1' } }, { door })).status, 'already-there');
-  }
+  const { startDatabase, readRow } = await import('../test-helpers/rows-in-sql.mjs');
+  const db = await startDatabase();
+  try {
+    for (const id of kit.workflows) {
+      await db.reset();
+      const first = await startARecipeRun({ input: { row: id }, task: { request_key: 'blank-1' } }, { sql: db.sql });
+      assert.equal(first.status, 'written');
+      assert.deepEqual((await readRow(db.sql, 'ai_job', first.job)).job, byId.get(id).steps);
+      assert.equal((await startARecipeRun({ input: { row: id }, task: { request_key: 'blank-1' } }, { sql: db.sql })).status, 'already-there');
+    }
+  } finally { await db.stop(); }
 });
 
 test('every condition a published workflow carries is one the formulas engine evaluates, and keeps a part with its tags', async () => {

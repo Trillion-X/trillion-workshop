@@ -65,11 +65,17 @@ export function laneIds(step, answers) {
 export const runId = (recipe, requestKey) => `ai-job:${recipe}:${requestKey}`;
 export const answerId = (run, step) => `${run}#answer:${step}`;
 
+// One ai_job row's value, or null when there is none: the one place a tool of a run reads a job.
+export async function readJob(sql, id) {
+  const [row] = await sql('select value from ai_job where id = $1', [id]);
+  return row?.value ?? null;
+}
+
 // The answers kept so far for the run's steps before `stepId`, by step id: what `lanes_from` and the checks read.
-export async function keptAnswers(door, run, steps, stepId) {
+export async function keptAnswers(sql, run, steps, stepId) {
   const answers = {};
   for (const before of steps.slice(0, steps.findIndex(item => item.id === stepId))) {
-    const kept = await door.read('ai-job', answerId(run, before.id));
+    const kept = await readJob(sql, answerId(run, before.id));
     if (kept) answers[before.id] = kept.answer;
   }
   return answers;

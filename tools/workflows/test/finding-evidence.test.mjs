@@ -2,10 +2,11 @@
 // the values a field may hold (`field-in`); the submit refuses an answer whose findings lack them and names them. Every
 // recipe and field name here is made up: no step and no field is known to the code.
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import test, { after, before, beforeEach } from 'node:test';
 import { checkResults } from '../read-data/recipe-check-results.mjs';
 import { recipeProblems } from '../read-data/recipe-problems.mjs';
 import { submitARecipeStep } from '../read-data/submit-a-recipe-step.mjs';
+import { readRow, startDatabase } from '../test-helpers/rows-in-sql.mjs';
 
 const REQUIRED = ['pain', 'since_then', 'now', 'proof'];
 const checks = [
@@ -17,11 +18,15 @@ const finding = (id, extra = {}) => ({ id, pain: 'a complaint', since_then: 'com
 const answerOf = findings => ({ items: [{ name: 'one', findings }] });
 const run = 'ai-job:workflow:made-up:k1';
 
-function door() {
-  const held = new Map([[run, { id: run, value: { kind: 'ai-job', status: 'taken', row: 'workflow:made-up', label: 'Made up', job: [step], input: {} } }]]);
-  return { held, read: async (_kind, id) => held.get(id)?.value ?? null, async *list() {}, write: async records => { for (const record of records) held.set(record.id, record); } };
-}
-const submit = (d, findings, key = 's1') => submitARecipeStep({ input: { run, step: 'look', answer: answerOf(findings) }, task: { request_key: key } }, { door: d });
+let db;
+before(async () => { db = await startDatabase(); });
+after(async () => { await db.stop(); });
+beforeEach(async () => {
+  await db.reset();
+  await db.sql('insert into ai_job (id, value) values ($1, $2::jsonb)', [run, JSON.stringify({ kind: 'ai-job', status: 'taken', row: 'workflow:made-up', label: 'Made up', job: [step], input: {} })]);
+});
+const kept = () => readRow(db.sql, 'ai_job', `${run}#answer:look`);
+const submit = (findings, key = 's1') => submitARecipeStep({ input: { run, step: 'look', answer: answerOf(findings) }, task: { request_key: key } }, { sql: db.sql });
 
 test('the two kinds are valid in a recipe, and a recipe that leaves out their fields is refused', () => {
   const recipe = checks_ => ({ kind: 'workflow-recipe', id: 'workflow:made-up', label: 'Made up', job: 'Made up.', steps: [{ ...step, checks: checks_ }] });
@@ -40,14 +45,13 @@ test('a finding with every field and a proof kind passes; a missing, blank, null
 });
 
 test('the submit refuses a stale finding without its work done since, naming it, and keeps one that has it', async () => {
-  const d = door();
   const stale = finding('f1');
   delete stale.since_then;
-  await assert.rejects(submit(d, [stale]), /f1\.since_then/);
-  assert.equal(d.held.has(`${run}#answer:look`), false);
-  assert.equal((await submit(d, [finding('f1')], 's2')).status, 'kept');
+  await assert.rejects(submit([stale]), /f1\.since_then/);
+  assert.equal(await kept(), null);
+  assert.equal((await submit([finding('f1')], 's2')).status, 'kept');
 });
 
 test('a finding without a proof kind in the allowed values is refused', async () => {
-  await assert.rejects(submit(door(), [finding('f1', { proof_kind: 'remembered' })]), /f1\.proof_kind/);
+  await assert.rejects(submit([finding('f1', { proof_kind: 'remembered' })]), /f1\.proof_kind/);
 });

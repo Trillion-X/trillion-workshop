@@ -2,36 +2,35 @@
 // each with its own lane id from the step's own data, and the step's lane-jobs check refuses a submit unless every lane's
 // findings name a distinct job that ran. Every recipe here is made up; no number below is known to the code.
 import assert from 'node:assert/strict';
-import test from 'node:test';
+import test, { after, before, beforeEach } from 'node:test';
 import { agentProblems, agentsOf, laneIds, laneJobId, runsLaneJobs } from '../read-data/step-agents.mjs';
 import { startAStepsAgents } from '../read-data/start-a-steps-agents.mjs';
 import { checkResults } from '../read-data/recipe-check-results.mjs';
 import { recipeFromRows } from '../read-data/recipe-rows.mjs';
+import { readFileSync } from 'node:fs';
+import { rowOf } from '../../../test-helpers/run-a-row.mjs';
 import { recipeProblems } from '../read-data/recipe-problems.mjs';
+import { readRow, runRowIn, startDatabase } from '../test-helpers/rows-in-sql.mjs';
 
 const submit = { type: 'object', required: ['lanes'], properties: { lanes: { type: 'array', items: { type: 'object', properties: { id: { type: 'string' }, job: { type: 'string' } } } } } };
 const laneCheck = { kind: 'lane-jobs', path: ['this', 'lanes'], lane: 'id', job: 'job', says: 'Every lane comes from its own job that ran' };
 const stepOf = (extra = {}) => ({ id: 'dig', title: 'Dig', do: 'Dig in your lane.', submit, checks: [laneCheck], ...extra });
 const recipeOf = steps => ({ kind: 'workflow-recipe', id: 'workflow:made-up-dig', label: 'Made-up dig', job: 'Dig somewhere made up.', steps });
 
-// A records door that holds ai-job records in memory and counts the writes it was given.
-function memoryDoor(seed = []) {
-  const held = new Map(seed.map(record => [record.id, record]));
-  const writes = [];
-  return {
-    held, writes,
-    read: async (_kind, id) => held.get(id)?.value ?? null,
-    async *list() {},
-    write: async (records, { key } = {}) => { writes.push({ key, count: records.length }); for (const record of records) held.set(record.id, record); },
-  };
-}
+let db;
+before(async () => { db = await startDatabase(); });
+after(async () => { await db.stop(); });
+beforeEach(async () => { await db.reset(); });
+
+// The ai_job rows of the database, by id.
+const jobRow = async id => readRow(db.sql, 'ai_job', id);
+const setJob = (id, value) => db.sql('insert into ai_job (id, value) values ($1, $2::jsonb) on conflict (id) do update set value = excluded.value', [id, JSON.stringify(value)]);
+const patchJob = async (id, patch) => setJob(id, { ...(await jobRow(id)), ...patch });
 const runWith = async (steps, request_key = 'k1') => {
-  const door = memoryDoor();
   const recipe = recipeOf(steps);
-  door.held.set('record:workflow-recipe:made-up-dig', { id: 'record:workflow-recipe:made-up-dig', value: { recipe: recipe.id, title: recipe.label, job: recipe.job } });
   const run = `ai-job:${recipe.id}:${request_key}`;
-  door.held.set(run, { id: run, type: 'ai-job', value: { kind: 'ai-job', status: 'waiting', row: recipe.id, label: recipe.label, job: steps, input: { topic: 'made up' } } });
-  return { door, run };
+  await setJob(run, { kind: 'ai-job', status: 'waiting', row: recipe.id, label: recipe.label, job: steps, input: { topic: 'made up' } });
+  return { run };
 };
 
 test('agents is one whole number on the step, 1 when left out', () => {
@@ -123,74 +122,68 @@ test('a step with one agent has nothing to fan out and the check holds with one 
 
 test('starting a step\'s agents writes that many waiting jobs, each with its own lane, and nothing for a step with one agent', async () => {
   for (const agents of [6, 3]) {
+    await db.reset();
     const step = stepOf({ agents });
-    const { door, run } = await runWith([step, stepOf({ id: 'plain', checks: [] })]);
-    // the run job was made from these steps; start the first step's agents
-    door.held.get(run).value.job = [{ ...step }, stepOf({ id: 'plain', checks: [] })];
-    const done = await startAStepsAgents({ input: { run, step: 'dig' }, task: { request_key: 'fan-1' } }, { door });
+    const { run } = await runWith([step, stepOf({ id: 'plain', checks: [] })]);
+    const done = await startAStepsAgents({ input: { run, step: 'dig' }, task: { request_key: 'fan-1' } }, { sql: db.sql });
     assert.equal(done.status, 'written');
     assert.equal(done.jobs.length, agents);
     assert.deepEqual(done.jobs, laneIds(step).map(lane => laneJobId(run, 'dig', lane)));
-    const jobs = done.jobs.map(id => door.held.get(id).value);
+    const jobs = await Promise.all(done.jobs.map(jobRow));
     assert.ok(jobs.every(job => job.status === 'waiting' && job.kind === 'ai-job' && job.step === 'dig' && job.of === agents && job.parent === run));
     assert.deepEqual(jobs.map(job => job.lane), laneIds(step));
     assert.ok(jobs.every(job => typeof job.outcome === 'string' && job.outcome.trim() === job.outcome && job.outcome === job.label), 'each lane job says what it asks for in words, since its `job` is the step as a list');
     assert.equal(new Set(done.jobs).size, agents);
-    const plain = await startAStepsAgents({ input: { run, step: 'plain' }, task: { request_key: 'fan-2' } }, { door });
+    const plain = await startAStepsAgents({ input: { run, step: 'plain' }, task: { request_key: 'fan-2' } }, { sql: db.sql });
     assert.deepEqual(plain, { jobs: [], status: 'one-agent' });
+    assert.equal((await db.sql('select count(*)::int as n from ai_job'))[0].n, agents + 1, 'the run and its lane jobs, nothing for the one-agent step');
   }
 });
 
 test('the same step started again finds its jobs and changes none, even one an AI already finished', async () => {
   const step = stepOf({ agents: 4 });
-  const { door, run } = await runWith([step]);
-  const first = await startAStepsAgents({ input: { run, step: 'dig' }, task: { request_key: 'a' } }, { door });
-  door.held.get(first.jobs[2]).value.status = 'done';
-  const writes = door.writes.length;
-  const again = await startAStepsAgents({ input: { run, step: 'dig' }, task: { request_key: 'b' } }, { door });
+  const { run } = await runWith([step]);
+  const first = await startAStepsAgents({ input: { run, step: 'dig' }, task: { request_key: 'a' } }, { sql: db.sql });
+  await patchJob(first.jobs[2], { status: 'done' });
+  const again = await startAStepsAgents({ input: { run, step: 'dig' }, task: { request_key: 'b' } }, { sql: db.sql });
   assert.equal(again.status, 'already-there');
   assert.deepEqual(again.jobs, first.jobs);
-  assert.equal(door.writes.length, writes);
-  assert.equal(door.held.get(first.jobs[2]).value.status, 'done');
+  assert.equal((await jobRow(first.jobs[2])).status, 'done');
+  assert.equal((await db.sql("select count(*)::int as n from ai_job where value ->> 'parent' = $1 and status = 'waiting'", [run]))[0].n, 3);
 });
 
-test('a large number is only a number: ten thousand agents are written in batches that each fit the door', async () => {
+test('a large number is only a number: ten thousand agents are inserted by one statement, all or none', async () => {
   const step = stepOf({ agents: 10000 });
-  const { door, run } = await runWith([step]);
-  const done = await startAStepsAgents({ input: { run, step: 'dig' }, task: { request_key: 'big' } }, { door, most_writes: 256 });
+  const { run } = await runWith([step]);
+  const done = await startAStepsAgents({ input: { run, step: 'dig' }, task: { request_key: 'big' } }, { sql: db.sql });
   assert.equal(done.jobs.length, 10000);
   assert.equal(new Set(done.jobs).size, 10000);
-  assert.ok(door.writes.every(write => write.count <= 256));
-  assert.equal(door.writes.reduce((sum, write) => sum + write.count, 0), 10000);
-  assert.equal(new Set(door.writes.map(write => write.key)).size, door.writes.length, 'each batch has its own request key');
+  assert.equal((await db.sql("select count(*)::int as n from ai_job where value ->> 'parent' = $1", [run]))[0].n, 10000);
 });
 
 test('a step the run does not hold, or a run that is not there, writes nothing and says so', async () => {
-  const { door, run } = await runWith([stepOf({ agents: 2 })]);
-  await assert.rejects(startAStepsAgents({ input: { run, step: 'nothing' }, task: { request_key: 'x' } }, { door }), /no step "nothing"/);
-  await assert.rejects(startAStepsAgents({ input: { run: 'ai-job:workflow:nope:k', step: 'dig' }, task: { request_key: 'x' } }, { door }), /no run/);
-  assert.equal(door.writes.length, 0);
+  const { run } = await runWith([stepOf({ agents: 2 })]);
+  await assert.rejects(startAStepsAgents({ input: { run, step: 'nothing' }, task: { request_key: 'x' } }, { sql: db.sql }), /no step "nothing"/);
+  await assert.rejects(startAStepsAgents({ input: { run: 'ai-job:workflow:nope:k', step: 'dig' }, task: { request_key: 'x' } }, { sql: db.sql }), /no run/);
+  assert.equal((await db.sql('select count(*)::int as n from ai_job'))[0].n, 1, 'only the run itself');
 });
 
-// The shipped row, run the way the container runs it, against the fake records door with exactly the row's rights.
+const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+const starter = rowOf(rows, 'tool:start-a-steps-agents');
+
 test('tool:start-a-steps-agents, run as its row, writes one waiting job per lane of a six-agent step and none twice', async () => {
-  const { readFileSync } = await import('node:fs');
-  const { answerOf, rowOf } = await import('../../../test-helpers/run-a-row.mjs');
-  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
-  const starter = rowOf(rows, 'tool:start-a-steps-agents');
-  assert.deepEqual(starter.invoke.records.rights, [{ kind: 'ai-job', operations: ['records:read', 'records:write'] }]);
   const step = stepOf({ agents: 6 });
   const run = 'ai-job:workflow:made-up-dig:k1';
-  const parent = { id: run, type: 'ai-job', value: { kind: 'ai-job', status: 'taken', row: 'workflow:made-up-dig', label: 'Made-up dig', job: [step], input: { topic: 'made up' } } };
-  const ran = await answerOf(starter, { run, step: 'dig' }, { task: { request_key: 'fan-1' }, records: [parent] });
-  assert.equal(ran.status, 0, ran.error);
-  assert.equal(ran.result.status, 'written');
-  assert.deepEqual(ran.result.jobs, laneIds(step).map(lane => laneJobId(run, 'dig', lane)));
-  const lanes = ran.kept.filter(record => record.id !== run);
+  await setJob(run, { kind: 'ai-job', status: 'taken', row: 'workflow:made-up-dig', label: 'Made-up dig', job: [step], input: { topic: 'made up' } });
+  const ran = await runRowIn(starter, { input: { run, step: 'dig' }, task: { request_key: 'fan-1' } }, { connection: db.connection });
+  assert.equal(ran.code, 0, ran.stderr + ran.out);
+  assert.equal(ran.last.result.status, 'written');
+  assert.deepEqual(ran.last.result.jobs, laneIds(step).map(lane => laneJobId(run, 'dig', lane)));
+  const lanes = await db.sql("select value from ai_job where id <> $1", [run]);
   assert.equal(lanes.length, 6);
-  assert.ok(lanes.every(record => record.value.status === 'waiting' && record.value.parent === run));
-  const again = await answerOf(starter, { run, step: 'dig' }, { task: { request_key: 'fan-2' }, records: ran.kept });
-  assert.equal(again.result.status, 'already-there');
+  assert.ok(lanes.every(({ value }) => value.status === 'waiting' && value.parent === run));
+  const again = await runRowIn(starter, { input: { run, step: 'dig' }, task: { request_key: 'fan-2' } }, { connection: db.connection });
+  assert.equal(again.last.result.status, 'already-there');
 });
 
 // A step's lanes may come from an earlier step's answer (`lanes_from`), so how many agents run it is decided when the
@@ -201,7 +194,7 @@ import { submitARecipeStep, answerId } from '../read-data/submit-a-recipe-step.m
 const splitStep = { id: 'split', title: 'Split', do: 'Split the topic into parts.', submit: { type: 'object', required: ['parts'], properties: { parts: { type: 'array' } } }, checks: [] };
 const fanned = (extra = {}) => stepOf({ id: 'dig', lanes_from: ['steps', 'split', 'parts', '*', 'id'], checks: [laneCheck, { kind: 'covers', path: ['this', 'lanes', '*', 'id'], of: ['steps', 'split', 'parts', '*', 'id'], says: 'Every part has its lane' }], ...extra });
 const partsOf = ids => ({ parts: ids.map(id => ({ id })) });
-const keepAnswer = (door, run, step, answer) => door.held.set(answerId(run, step), { id: answerId(run, step), type: 'ai-job', value: { status: 'done', answer } });
+const keepAnswer = (run, step, answer) => setJob(answerId(run, step), { status: 'done', answer });
 
 test('lanes_from reads the lane ids from the answer kept for an earlier step, so the count is that answer\'s', () => {
   const step = fanned();
@@ -242,38 +235,39 @@ test('step rows carry lanes_from into the recipe', () => {
 
 test('beginning a step with lanes_from starts one job per part, the count being the earlier answer\'s, and refuses before that answer exists', async () => {
   for (const ids of [['a', 'b'], ['a', 'b', 'c', 'd', 'e']]) {
-    const { door, run } = await runWith([splitStep, fanned()]);
-    await assert.rejects(startARecipeStep({ input: { run, step: 'dig' }, task: { request_key: 'early' } }, { door }), /no answer kept yet/);
-    assert.equal(door.writes.length, 0);
-    keepAnswer(door, run, 'split', partsOf(ids));
-    const began = await startARecipeStep({ input: { run, step: 'dig' }, task: { request_key: 'go' } }, { door });
+    await db.reset();
+    const { run } = await runWith([splitStep, fanned()]);
+    await assert.rejects(startARecipeStep({ input: { run, step: 'dig' }, task: { request_key: 'early' } }, { sql: db.sql }), /no answer kept yet/);
+    assert.equal((await db.sql('select count(*)::int as n from ai_job'))[0].n, 1);
+    await keepAnswer(run, 'split', partsOf(ids));
+    const began = await startARecipeStep({ input: { run, step: 'dig' }, task: { request_key: 'go' } }, { sql: db.sql });
     assert.equal(began.status, 'written');
     assert.deepEqual(began.lane_jobs.map(({ lane, job }) => ({ lane, job })), ids.map(lane => ({ lane, job: laneJobId(run, 'dig', lane) })));
-    assert.ok(began.lane_jobs.every(({ job }) => door.held.get(job).value.status === 'waiting'));
-    const again = await startARecipeStep({ input: { run, step: 'dig' }, task: { request_key: 'again' } }, { door });
+    for (const { job } of began.lane_jobs) assert.equal((await jobRow(job)).status, 'waiting');
+    const again = await startARecipeStep({ input: { run, step: 'dig' }, task: { request_key: 'again' } }, { sql: db.sql });
     assert.equal(again.status, 'already-there');
   }
 });
 
 test('a step listing one lane starts that one job, so a separate agent can be required; a step listing none starts nothing', async () => {
-  const { door, run } = await runWith([stepOf({ id: 'write', lanes: ['synthesis'] }), stepOf({ id: 'plain', checks: [] })]);
-  const began = await startARecipeStep({ input: { run, step: 'write' }, task: { request_key: 'w' } }, { door });
+  const { run } = await runWith([stepOf({ id: 'write', lanes: ['synthesis'] }), stepOf({ id: 'plain', checks: [] })]);
+  const began = await startARecipeStep({ input: { run, step: 'write' }, task: { request_key: 'w' } }, { sql: db.sql });
   assert.equal(began.status, 'written');
   assert.deepEqual(began.lane_jobs.map(({ lane, job }) => ({ lane, job })), [{ lane: 'synthesis', job: laneJobId(run, 'write', 'synthesis') }]);
-  assert.equal(door.held.get(laneJobId(run, 'write', 'synthesis')).value.of, 1);
-  assert.deepEqual((await startARecipeStep({ input: { run, step: 'plain' }, task: { request_key: 'p' } }, { door })).lane_jobs, []);
+  assert.equal((await jobRow(laneJobId(run, 'write', 'synthesis'))).of, 1);
+  assert.deepEqual((await startARecipeStep({ input: { run, step: 'plain' }, task: { request_key: 'p' } }, { sql: db.sql })).lane_jobs, []);
 });
 
 test('submitting a lanes_from step is judged against the earlier answer: every part needs its own job, finished by its own taker', async () => {
-  const { door, run } = await runWith([splitStep, fanned()]);
-  keepAnswer(door, run, 'split', partsOf(['a', 'b', 'c']));
-  await startARecipeStep({ input: { run, step: 'dig' }, task: { request_key: 'go' } }, { door });
+  const { run } = await runWith([splitStep, fanned()]);
+  await keepAnswer(run, 'split', partsOf(['a', 'b', 'c']));
+  await startARecipeStep({ input: { run, step: 'dig' }, task: { request_key: 'go' } }, { sql: db.sql });
   const lanes = ['a', 'b', 'c'].map(id => ({ id, job: laneJobId(run, 'dig', id) }));
-  const finish = (lane, by) => Object.assign(door.held.get(laneJobId(run, 'dig', lane)).value, { status: 'done', finished_by: by });
-  finish('a', 'ai:one'); finish('b', 'ai:one'); finish('c', 'ai:three');
-  await assert.rejects(submitARecipeStep({ input: { run, step: 'dig', answer: { lanes } }, task: { request_key: 's1' } }, { door }), /fails/);
-  finish('b', 'ai:two');
-  await assert.rejects(submitARecipeStep({ input: { run, step: 'dig', answer: { lanes: lanes.slice(0, 2) } }, task: { request_key: 's2' } }, { door }), /fails/);
-  const kept = await submitARecipeStep({ input: { run, step: 'dig', answer: { lanes } }, task: { request_key: 's3' } }, { door });
+  const finish = (lane, by) => patchJob(laneJobId(run, 'dig', lane), { status: 'done', finished_by: by });
+  await finish('a', 'ai:one'); await finish('b', 'ai:one'); await finish('c', 'ai:three');
+  await assert.rejects(submitARecipeStep({ input: { run, step: 'dig', answer: { lanes } }, task: { request_key: 's1' } }, { sql: db.sql }), /fails/);
+  await finish('b', 'ai:two');
+  await assert.rejects(submitARecipeStep({ input: { run, step: 'dig', answer: { lanes: lanes.slice(0, 2) } }, task: { request_key: 's2' } }, { sql: db.sql }), /fails/);
+  const kept = await submitARecipeStep({ input: { run, step: 'dig', answer: { lanes } }, task: { request_key: 's3' } }, { sql: db.sql });
   assert.equal(kept.status, 'kept');
 });

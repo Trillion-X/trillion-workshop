@@ -3,15 +3,16 @@
 // A recipe step can say where its output goes: `outputs: [{ port, kind }]`. `port` names a field of the step's answer;
 // `kind` is `row:<list>` (the field is kept as a row of that list), `file` (kept as a file) or `none` (returned, kept
 // nowhere). Which store serves a kind is the person's own DATA, a cart line `{ kind, store, credential_name }` read
-// through the records door (arrivals/step-outputs.json names its row types and the tool that writes for each kind).
+// from their table of cart lines (arrivals/step-outputs.json names it and the tool that writes for each kind).
 // This module holds no store: the runner finds the person's cart line and hands the write to that kind's tool by id.
 // A kind with no cart line keeps nothing, returns the value, and says so in the step result.
 //
 //   stepOutputsProblems(outputs, name) -> string[]      what is wrong with a step's `outputs` (empty when it is fine)
 //   parseStepOutputs(outputs, where) -> outputs         the same, thrown as one message
-//   keepStepOutputs({ outputs, answer, run, step }, { door, tools }) -> [{ port, kind, kept, said, value }]
+//   keepStepOutputs({ outputs, answer, run, step }, { sql, tools }) -> [{ port, kind, kept, said, value }]
 
 import { readFileSync } from 'node:fs';
+import { identifier } from './sql.mjs';
 
 const SOURCE = JSON.parse(readFileSync(new URL('../arrivals/step-outputs.json', import.meta.url), 'utf8'));
 const KIND = /^(?:file|none|row:[a-z0-9][a-z0-9-]*)$/;
@@ -39,14 +40,12 @@ export function parseStepOutputs(outputs, where) {
   return outputs;
 }
 
-// The person's cart lines: every row of the cart-line types, `{ kind, store, credential_name }`.
-async function cartLines(door) {
+// The person's cart lines: every row of the cart-line table, `{ kind, store, credential_name }`.
+async function cartLines(sql) {
   const lines = [];
-  for (const type of SOURCE.cart_line.types) {
-    for await (const row of door.list({ type, prefix: SOURCE.cart_line.id_prefix })) {
-      const { kind, store, credential_name: credential } = row.value ?? {};
-      if (typeof kind === 'string' && typeof store === 'string' && typeof credential === 'string') lines.push({ kind, store, credential_name: credential });
-    }
+  for (const row of await sql(`select value from ${identifier(SOURCE.cart_line.table)} order by id`)) {
+    const { kind, store, credential_name: credential } = row.value ?? {};
+    if (typeof kind === 'string' && typeof store === 'string' && typeof credential === 'string') lines.push({ kind, store, credential_name: credential });
   }
   return lines;
 }
@@ -54,8 +53,8 @@ async function cartLines(door) {
 // The line that serves a kind: its own kind first, then `row:*` for any list.
 const lineFor = (lines, kind) => lines.find(line => line.kind === kind) ?? (kind.startsWith('row:') ? lines.find(line => line.kind === 'row:*') : undefined);
 
-export async function keepStepOutputs({ outputs, answer, run, step }, { door, tools }) {
-  const lines = outputs.some(output => output.kind !== 'none') ? await cartLines(door) : [];
+export async function keepStepOutputs({ outputs, answer, run, step }, { sql, tools }) {
+  const lines = outputs.some(output => output.kind !== 'none') ? await cartLines(sql) : [];
   const results = [];
   for (const { port, kind } of outputs) {
     const value = answer?.[port];
