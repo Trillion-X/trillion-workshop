@@ -1,0 +1,181 @@
+{
+  "_what": "Everything the files core knows about the files contract and the folder it shows, as DATA (src/data.rs reads it once). The core names no operation, field, status, word or number in code: each is here. `call` is how one contract operation travels: an HTTP request of `method` to the computer's origin plus `path` with {operation} filled, its input as the JSON body (a name never travels in a URL: f1 bug 20). `operations` maps each job of the core to the contract operation that does it (tools/live-namespace/src/account_files/account-files-routes.json `operations`); one the contract does not offer yet is null, and the core refuses that job as `not_offered` instead of doing it another way. `fields` are the names of the fields the core reads from a contract answer and writes into a request. `problems` map an answer to the one OS-neutral problem set every shell maps to its own (src/errors.rs): the first row whose `status` matches (and `failure_code`, when the row names one) wins; an answer the rows do not name is `unreachable`, so the core asks the next computer. `identity` is the content identity form (BLAKE3, the contract's `1f:` multihash prefix, tools/live-namespace/src/account_files/write.rs). `upload_id_hex_chars` is the contract's upload id length (write.rs validate_upload_id). `bounds` names where each number the core plans with comes from in the contract's own settings (tools/live-namespace/src/account_files/settings.json): the host reads them and hands them in at setup, and tests/numbers.rs holds these names to that file. `root` is the folder the OS shows: its fixed id (Apple's domain id, the same on every device, so an orphaned sidebar entry comes alive), the name shown, and the contract folder it lists. `absent_version` is the `expected_version` that says a name must not exist yet (account-files-routes.json `_folder`). Pins are the contract's own pin rule rows naming items (`pin_*` fields; the contract answers `kept` per name for the device that asks); ignore rules are the person's rule rows the core decides itself. `trash_id` is the OS's trash container, which lists nothing (deleted names go to the contract's set-aside tree, Recently Deleted). `item_facts` are the facts of one item an ignore rule may name, with the field kind that picks its comparisons (tools/formula-engine/rules/rule-operators.json `applies_to`); `item_kinds` are the contract's row kinds, which the facts' `kind` reads as well. `conflict_name` writes the plain name a conflicting edit is kept under, beside the other version: {stem}, {device}, {date} and {ext}; `conflict_name_again` the same when that name is taken too, with {n} counting from `conflict_first_again`.",
+  "call": {
+    "method": "POST",
+    "path": "/work/api/files/{operation}",
+    "content_type": "application/json"
+  },
+  "operations": {
+    "list": "list_files",
+    "changes": "list_changes",
+    "item": "show_item",
+    "find": "find_names",
+    "read_span": "read_file_span",
+    "upload_start": "write_file_start",
+    "upload_piece": "write_file_piece",
+    "upload_finish": "write_file_finish",
+    "make_folder": null,
+    "move": "move_names",
+    "set_aside": "set_aside",
+    "pin_list": "list_pin_rules",
+    "pin_set": "set_pin_rule",
+    "pin_remove": "remove_pin_rule",
+    "thumbnail": "thumbnail"
+  },
+  "fields": {
+    "list_folder": "folder",
+    "list_after": "after",
+    "list_limit": "limit",
+    "list_files": "names",
+    "list_folders": "folders",
+    "list_folder_items": "folder_items",
+    "list_next": "next_after",
+    "device": "device",
+    "kept": "kept",
+    "changes_after": "after",
+    "changes_limit": "limit",
+    "changes_wait": "wait",
+    "changes": "changes",
+    "changes_next": "next",
+    "changes_more": "more",
+    "change_op": "op",
+    "change_put": "put",
+    "change_remove": "remove",
+    "change_kind": "kind",
+    "item_asked": "item",
+    "find_prefix": "prefix",
+    "find_names": "names",
+    "name": "name",
+    "item": "item",
+    "version": "version",
+    "generation": "generation",
+    "identity": "identity",
+    "byte_length": "byte_length",
+    "modified_ms": "modified_at_ms",
+    "media_type": "media_type",
+    "read_only": "read_only",
+    "expected_version": "expected_version",
+    "span_asked": "name_or_identity",
+    "span_offset": "offset",
+    "span_length": "length",
+    "span_returned": "bytes_returned",
+    "span_content": "content",
+    "upload_id": "upload_id",
+    "upload_name": "name",
+    "upload_length": "byte_length",
+    "upload_media_type": "media_type",
+    "piece_offset": "offset",
+    "piece_content": "content_base64",
+    "piece_next": "next_offset",
+    "finish_identity": "identity",
+    "move_from": "from",
+    "move_to": "to",
+    "move_next": "next_after",
+    "set_aside_name": "name",
+    "pin_id": "id",
+    "pin_device": "device",
+    "pin_items": "items",
+    "pin_on": "on",
+    "pin_rules": "rules",
+    "pin_rule": "rule",
+    "pin_version": "version",
+    "pin_next": "next_after",
+    "thumbnail_asked": "name_or_identity",
+    "thumbnail_size": "size",
+    "thumbnail_content": "content_base64",
+    "busy": "busy",
+    "retry_after_seconds": "retry_after_seconds",
+    "failure_code": "failure_code"
+  },
+  "problems": [
+    {
+      "status": 401,
+      "problem": "unauthorised"
+    },
+    {
+      "status": 403,
+      "problem": "forbidden"
+    },
+    {
+      "status": 404,
+      "failure_code": "no-owner",
+      "problem": "not_offered"
+    },
+    {
+      "status": 404,
+      "problem": "missing"
+    },
+    {
+      "status": 409,
+      "failure_code": "namespace_conflict",
+      "problem": "stale_version"
+    },
+    {
+      "status": 503,
+      "failure_code": "namespace_identity_mismatch",
+      "problem": "stale_version"
+    },
+    {
+      "status": 400,
+      "problem": "invalid"
+    },
+    {
+      "status": 413,
+      "problem": "invalid"
+    }
+  ],
+  "answered_status": 200,
+  "identity": {
+    "prefix": "1f:"
+  },
+  "upload_id_hex_chars": 32,
+  "bounds": {
+    "span_most_bytes": "chunks.bytes",
+    "piece_most_bytes": "chunks.bytes",
+    "idle_seconds": "transfer.idle_seconds"
+  },
+  "root": {
+    "id": "trillion",
+    "name": "Trillion",
+    "folder": "/"
+  },
+  "trash_id": "trash",
+  "item_facts": [
+    {
+      "id": "name",
+      "kind": "text"
+    },
+    {
+      "id": "path",
+      "kind": "text"
+    },
+    {
+      "id": "folder",
+      "kind": "text"
+    },
+    {
+      "id": "extension",
+      "kind": "text"
+    },
+    {
+      "id": "media_type",
+      "kind": "text"
+    },
+    {
+      "id": "size",
+      "kind": "bytes"
+    },
+    {
+      "id": "kind",
+      "kind": "choice"
+    }
+  ],
+  "item_kinds": {
+    "file": "name",
+    "folder": "folder"
+  },
+  "conflict_name": "{stem} ({device} conflicted copy {date}){ext}",
+  "conflict_name_again": "{stem} ({device} conflicted copy {date} {n}){ext}",
+  "conflict_first_again": 2,
+  "absent_version": 0
+}

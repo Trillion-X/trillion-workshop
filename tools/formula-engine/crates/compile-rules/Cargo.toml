@@ -1,0 +1,18 @@
+# crates/compile-rules/Cargo.toml
+#
+# A person's rule tree compiled to ONE composition-ast binding, for a Rust
+# host (the files core on a phone or a computer, where no JavaScript runs). It
+# is rules/compile-rules.mjs in Rust: the meaning of every comparison stays in
+# rules/rule-operators.json, read here as the same DATA; this crate fills
+# templates and nests groups. tests/parity.rs runs the JavaScript compiler and
+# this one over the same trees and requires the same bindings.
+
+[package]
+name = "formula-engine-compile-rules"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+serde_json.workspace = true

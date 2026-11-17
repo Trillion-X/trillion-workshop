@@ -1,0 +1,27 @@
+# tools/files-on-every-device/core/Cargo.toml
+#
+# The files core: every rule a native folder needs (enumeration and change
+# tracking, checked range reads and read-ahead, versions by BLAKE3 identity,
+# conflicts kept side by side, pin and ignore rules, one OS-neutral problem
+# set) with no I/O of its own. A shell hands it events (an OS callback, a
+# network answer, the time) and carries out the commands it answers. The C ABI
+# in src/ffi.rs and include/files_core.h is the only door a shell uses.
+
+[package]
+name = "files-core"
+version = "0.1.0"
+edition = "2021"
+license = "UNLICENSED"
+
+[lib]
+crate-type = ["rlib", "staticlib", "cdylib"]
+
+[dependencies]
+base64 = "0.22"
+blake3 = "1"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+formula-engine-compile-rules = { path = "../../formula-engine/crates/compile-rules" }
+formula-engine-evaluate-over-rows = { path = "../../formula-engine/crates/evaluate-over-rows" }
+
+[workspace]

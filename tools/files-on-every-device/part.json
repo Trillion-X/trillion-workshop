@@ -1,0 +1,10 @@
+{
+  "imported_by": [
+    "Trillion-X/trillion-apps"
+  ],
+  "public": [
+    "core/include/files_core.h",
+    "core/Cargo.toml",
+    "core/contract.json"
+  ]
+}
