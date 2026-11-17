@@ -18,7 +18,7 @@ import { recordLogStore } from '../../keep-and-wake-ai-sessions-on-this-computer
 import { RECORD_INDEXES } from '../../keep-and-wake-ai-sessions-on-this-computer/src/record-engine.mjs';
 import { sqliteHost } from '../../keep-and-wake-ai-sessions-on-this-computer/src/local-store.mjs';
 import { makeAgents } from '../../shared-code/src/agents.mjs';
-import { agentRecordStore } from '../agent-records.mjs';
+import { agentRecordStore } from '../../shared-code/src/agent-records.mjs';
 
 // What each statement hands back, counted (old test/person-store-reads-for-tests.mjs countingHost).
 function countingHost() {

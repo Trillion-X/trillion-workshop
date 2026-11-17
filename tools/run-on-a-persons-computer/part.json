@@ -20,7 +20,6 @@
     "file-arguments.json": "file-arguments.json",
     "follow-presence": "follow-presence.mjs",
     "follow-presence.json": "follow-presence.json",
-    "handoff-result-source.json": "handoff-result-source.json",
     "hear-with-bark.py": "hear-with-bark.py",
     "hear-with-mlx-whisper.py": "hear-with-mlx-whisper.py",
     "helper-runtimes": "helper-runtimes.mjs",

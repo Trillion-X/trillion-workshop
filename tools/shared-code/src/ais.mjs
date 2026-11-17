@@ -22,8 +22,8 @@
 //   4. A device an AI runs on is a record of its own (`device:<key>`), linked from the AI (`runs_on.device`), so what
 //      runs on a computer is what holds that device (participation, read_model holders).
 //
-import data from '../../shared-code/src/ais.json' with { type: 'json' };
-import { settle } from '../../shared-code/src/delegation-ceilings.mjs';
+import data from './ais.json' with { type: 'json' };
+import { settle } from './delegation-ceilings.mjs';
 
 const isObject = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const keyOf = text => String(text ?? '').trim().toLowerCase().normalize('NFKD').replace(/[^a-z0-9._-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 120);

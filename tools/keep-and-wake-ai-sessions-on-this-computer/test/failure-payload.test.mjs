@@ -1,5 +1,5 @@
 // Ported from old trillion test/failure-payload.test.mjs (tag old-trillion-before-worker-retire, b6ae0ebf81), deleted by
-// Trillion-X/trillion #243. The registry is tools/set-up-my-account/read-data/failure-codes.json, which this tool's
+// Trillion-X/trillion #243. The registry is tools/shared-code/src/failure-codes.json, which this tool's
 // src/failure.mjs reads. Left out: the second test's calls through the retired MCP handler (src/tools.mjs
 // handleMcpMessage, which shaped a thrown refusal into structuredContent); no running JS code has that handler (searched
 // the three repos for handleMcpMessage: only held copies). Its last two assertions, over payloadOf, are the old ones.
@@ -7,7 +7,7 @@
 // Every failure code is registered with a domain and the payload fields it may carry; an answer carries only those (F-0908).
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import codes from '../../set-up-my-account/read-data/failure-codes.json' with { type: 'json' };
+import codes from '../../shared-code/src/failure-codes.json' with { type: 'json' };
 import { failureOf, payloadOf } from '../src/failure.mjs';
 
 test('every registered code has a domain and a payload list', () => {

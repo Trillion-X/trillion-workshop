@@ -13,7 +13,7 @@ import test from 'node:test';
 import { sqliteHost } from '../../keep-and-wake-ai-sessions-on-this-computer/src/local-store.mjs';
 import { openRecords } from '../../keep-and-wake-ai-sessions-on-this-computer/src/record-engine.mjs';
 import { makeAgents } from '../../shared-code/src/agents.mjs';
-import { agentRecordStore } from '../agent-records.mjs';
+import { agentRecordStore } from '../../shared-code/src/agent-records.mjs';
 
 const NOW = Date.now();
 const iso = ms => new Date(ms).toISOString();

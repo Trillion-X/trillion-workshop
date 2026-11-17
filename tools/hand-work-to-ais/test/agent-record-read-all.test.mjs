@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { agentRecordStore } from '../agent-records.mjs';
+import { agentRecordStore } from '../../shared-code/src/agent-records.mjs';
 import { keepContentJson } from '../../serialized-content/do-work/content-json.mjs';
 
 const card = (id, extra = {}) => ({ agent_id: id, delivery: { url: `https://${id}.example/events` }, ...extra });

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { sqliteHost } from '../src/local-store.mjs';
 import { openRecords, setRecordEngine } from '../src/record-engine.mjs';
 import { identityOf } from '../src/decision-store.mjs';
-import { agentRecordStore } from '../../hand-work-to-ais/agent-records.mjs';
+import { agentRecordStore } from '../../shared-code/src/agent-records.mjs';
 import { makeAgents, handleAgentsRequest } from '../../shared-code/src/agents.mjs';
 import { readHandoffResultSource } from '../../shared-code/src/handoff-result-source.mjs';
 const ACTOR={actor:{by:'synthetic-proof'}};

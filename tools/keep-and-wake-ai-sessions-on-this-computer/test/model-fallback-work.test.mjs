@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { sqliteHost } from '../src/local-store.mjs';
 import { openRecords } from '../src/record-engine.mjs';
-import { agentRecordStore } from '../../hand-work-to-ais/agent-records.mjs';
+import { agentRecordStore } from '../../shared-code/src/agent-records.mjs';
 import { makeAgents, handoffIdFor } from '../../shared-code/src/agents.mjs';
 import { asksForYourAis } from '../../see-and-limit-what-each-ai-can-reach/src/asks-for-your-ais.mjs';
 

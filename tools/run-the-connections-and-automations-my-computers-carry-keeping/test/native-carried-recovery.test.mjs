@@ -8,7 +8,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { sqliteHost } from '../../keep-and-wake-ai-sessions-on-this-computer/src/local-store.mjs';
 import { decisionStore } from '../../keep-and-wake-ai-sessions-on-this-computer/src/decision-store.mjs';
-import { agentRecordStore } from '../../hand-work-to-ais/agent-records.mjs';
+import { agentRecordStore } from '../../shared-code/src/agent-records.mjs';
 import { makeAgents } from '../../shared-code/src/agents.mjs';
 import { makeCarriedConnections } from '../../shared-code/src/carried-connections.mjs';
 import { nativeCarriedAutomationOwners, nativeCarriedRequestReceipts } from '../src/native-carried-automation-owner.mjs';

@@ -6,7 +6,7 @@ import { sqliteHost } from '../src/local-store.mjs';
 import { recordLogStore } from '../parts/record-log/do-work/record-log-store.mjs';
 import { openRecords, RECORD_MODEL, RECORD_INDEXES } from '../src/record-engine.mjs';
 import indexData from '../src/record-indexes.json' with { type: 'json' };
-import { agentRecordStore } from '../../hand-work-to-ais/agent-records.mjs';
+import { agentRecordStore } from '../../shared-code/src/agent-records.mjs';
 import { makeAgents } from '../../shared-code/src/agents.mjs';
 import { handoffProjection, projectHandoff } from '../../shared-code/src/handoff-projection.mjs';
 const projection = { fields: ['finished_at'], presence: [['result', 'withdrawn_by']] };

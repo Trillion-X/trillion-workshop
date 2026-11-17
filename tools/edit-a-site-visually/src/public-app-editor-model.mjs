@@ -5,7 +5,7 @@
 
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
-import { checkedPublicAppDefinition } from './public-app-definition.mjs';
+import { checkedPublicAppDefinition } from '../../shared-code/src/public-app-definition.mjs';
 import { checkedPlacedCapabilities } from './public-app-capabilities.mjs';
 import { checkedPublicAppFiles, publicAppFilePath, publicAppMediaType } from '../../shared-code/src/public-app-files.mjs';
 import { setElement, withElementAddresses } from '../../shared-code/src/public-app-element-addresses.mjs';

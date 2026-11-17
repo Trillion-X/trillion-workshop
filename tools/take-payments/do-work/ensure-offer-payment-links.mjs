@@ -29,7 +29,7 @@
 //   → { links: [{ offer_id, price_option_id, url }], retired: [url], portal_url, portal_configuration, codes: [{ code, active, used, max }], retired_codes: [code] }
 //   ensureOfferCodes({ adjustments, offers, owner, send }) → { codes, retired }: only the codes, for a run that changes nothing else;
 //   each code comes off only the products of the offers its row's applies_to.offer_ids (read as scope.offer_ids) names.
-import { call } from './build-provider-request.mjs';
+import { call } from '../../shared-code/src/build-provider-request.mjs';
 import { quantityForCheckout } from './quantity-for-checkout.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 

@@ -4,7 +4,7 @@ import { useBitfieldData } from '@bitfield/runtime-kit/react';
 import { readAccountPortalBrowserSession } from '../../account-session/do-work/read-browser-session-state';
 import { currentPresenterBrowserSessionId } from '../../../../shared-code/packages/account-session/do-work/browser-session-access-key';
 import { readAccountSession, type AccountSessionProjection } from '../../account-session/read-data/read-session';
-import type { AccessScopedSurfaceInput } from '../../../../shared-code/packages/access-scoped-content/show/AccessScopedContent';
+import type { AccessScopedSurfaceInput } from '../../../../paid-access/packages/access-scoped-content/show/AccessScopedContent';
 import { readScreenAfterSignInCheckRecord } from '../read-data/read-screen-after-sign-in-check-records';
 import {
   resolveAnonEntryPlan,

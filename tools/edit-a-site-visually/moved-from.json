@@ -19,13 +19,6 @@
       "identity": "1f:78b27eeb743462065ba7bc254278b31073d64b02c5fa941b03d5941e632d9268"
     },
     {
-      "from": "src/public-app-definition.mjs",
-      "commit": "a1923c96f6f1da88a93d0d90612f1cf713a42bf2",
-      "to": "tools/edit-a-site-visually/src/public-app-definition.mjs",
-      "source_identity": "1f:b8f3dcaaa622cdea5572928c0e2a97d3f8a3ca9ccc21cf156c76abcc0eedce19",
-      "identity": "1f:b8f3dcaaa622cdea5572928c0e2a97d3f8a3ca9ccc21cf156c76abcc0eedce19"
-    },
-    {
       "from": "src/public-app-editor-model.mjs",
       "commit": "a1923c96f6f1da88a93d0d90612f1cf713a42bf2",
       "to": "tools/edit-a-site-visually/src/public-app-editor-model.mjs",

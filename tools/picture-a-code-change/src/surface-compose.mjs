@@ -21,7 +21,7 @@
 // Key concepts: `capabilityOf(surfaceId, settings?)`, `capabilityOfPlace(place, settings?)`,
 //   `composeFor(blocks, capability, { marker }, settings?)` -> { body, degraded: [capability], unproven_used: [capability], truncated }
 import rules from '../../write-a-post-for-each-place/read-data/surface-compose.json' with { type: 'json' };
-import { element, serialise, textOf } from '../../shared-code/parts/ui/show/server-rendered-page/markup-tree.mjs';
+import { element, serialise, textOf } from '../../ui/show/server-rendered-page/markup-tree.mjs';
 
 const fill = (template, values) => template.replace(/\{(\w+)\}/gu, (whole, name) => (name in values ? String(values[name]) : whole));
 

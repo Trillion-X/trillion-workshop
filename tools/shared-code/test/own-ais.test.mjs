@@ -1,6 +1,6 @@
 // Ported from old trillion test/own-ais.test.mjs (tag old-trillion-before-worker-retire, b6ae0ebf81), deleted by
 // Trillion-X/trillion #243. pick, liveness, needs and migrate are src/own-ais.mjs here, the rows makeAis
-// (tools/see-and-limit-what-each-ai-can-reach/src/ais.mjs). Old src/own-ais-routing.mjs, the loop that gave waiting work
+// (tools/shared-code/src/ais.mjs). Old src/own-ais-routing.mjs, the loop that gave waiting work
 // to a row, marked it no_taker and kept the person's ceiling through limitSync, has no home in any repository (searched
 // ownAisRouting, own-ais-routing, limitSync, no_taker in trillion-workshop tools/, trillion-rust src/, trillion-apps web/):
 // its four tests (a waiting MCP client, a cli row by address, no_taker with reasons, the ceiling kept through the routing)
@@ -11,7 +11,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { pick, isLive, liveProblem, covers, needsOf, noTakerWords, migrate } from '../src/own-ais.mjs';
-import { makeAis } from '../../see-and-limit-what-each-ai-can-reach/src/ais.mjs';
+import { makeAis } from '../src/ais.mjs';
 import aisData from '../src/ais.json' with { type: 'json' };
 import settings from '../src/own-ais.json' with { type: 'json' };
 

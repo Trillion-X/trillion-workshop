@@ -5,13 +5,6 @@
   "calls": [],
   "files": [
     {
-      "from": "packages/access-scoped-content/show/AccessScopedContent.tsx",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/shared-code/packages/access-scoped-content/show/AccessScopedContent.tsx",
-      "source_identity": "1f:c6d69458921abdcbd7091ca116409a7f1b3a0466a2b0df25e544ea28aa6dcf9b",
-      "identity": "1f:33c04f605959b26545a9a96645e87b9b1017a5dd4d2a40b13316656fbb213f50"
-    },
-    {
       "from": "packages/account-session/do-work/browser-session-access-key.ts",
       "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
       "to": "tools/shared-code/packages/account-session/do-work/browser-session-access-key.ts",
@@ -25,69 +18,6 @@
       "source_identity": "1f:877c581838ad807e31f36c1a89c2c9182f6b3ab65e0535d9047081516d778b50",
       "identity": "1f:0ab23984be72809a7ee32e369bc18b7bb0996f139f5e8d28be8ebe2183351f4e",
       "reused": true
-    },
-    {
-      "from": "parts/ui/show/layer-diagram/author-input.json",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/shared-code/parts/ui/show/layer-diagram/author-input.json",
-      "source_identity": "1f:d0734efd48c9db0891100a8c03b1215e26ff30f07dd4b4842a5f996625fae9a5",
-      "identity": "1f:d0734efd48c9db0891100a8c03b1215e26ff30f07dd4b4842a5f996625fae9a5"
-    },
-    {
-      "from": "parts/ui/show/layer-diagram/author-input.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/shared-code/parts/ui/show/layer-diagram/author-input.mjs",
-      "source_identity": "1f:5aefcec9d7e69d92da8ca5c427a7494c0620a0bee0c344ba727b4c568aa22d20",
-      "identity": "1f:5aefcec9d7e69d92da8ca5c427a7494c0620a0bee0c344ba727b4c568aa22d20"
-    },
-    {
-      "from": "parts/ui/show/layer-diagram/graph-contract.json",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/shared-code/parts/ui/show/layer-diagram/graph-contract.json",
-      "source_identity": "1f:e6d6413abd313eab2603cddb505ffb316976754ac287c429e8374387ffeef5dd",
-      "identity": "1f:e6d6413abd313eab2603cddb505ffb316976754ac287c429e8374387ffeef5dd"
-    },
-    {
-      "from": "parts/ui/show/layer-diagram/graph-contract.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/shared-code/parts/ui/show/layer-diagram/graph-contract.mjs",
-      "source_identity": "1f:6abe8d2d87ac57babf0138f6b121263e1ad3922145a4c528e55705362cfc9f2c",
-      "identity": "1f:5464ed34eed3e040e6114267d49cd02595f28134e2f78cd4a2208ef87d774947"
-    },
-    {
-      "from": "parts/ui/show/layer-diagram/graph-svg.json",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/shared-code/parts/ui/show/layer-diagram/graph-svg.json",
-      "source_identity": "1f:efeaaf4ae4f5a62c2341f137dce1f15db0f70bf4467ae9b123a71a0f6f3073db",
-      "identity": "1f:efeaaf4ae4f5a62c2341f137dce1f15db0f70bf4467ae9b123a71a0f6f3073db"
-    },
-    {
-      "from": "parts/ui/show/layer-diagram/graph-svg.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/shared-code/parts/ui/show/layer-diagram/graph-svg.mjs",
-      "source_identity": "1f:6f5d431493b265c98d622834bdc020b95bc20f16a4d26be5c541807aab34795b",
-      "identity": "1f:23a7086a4608f8aaa26aa1c5a0ea187f19c462ce3aabb2d169147b49872cc206"
-    },
-    {
-      "from": "parts/ui/show/layer-diagram/layer-diagram.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/shared-code/parts/ui/show/layer-diagram/layer-diagram.mjs",
-      "source_identity": "1f:14cf048fe7e0a2e3e42e1b850b4f7adde5a97ac669cf273b79559d62e784d400",
-      "identity": "1f:ac7cd446909de7b4f52b5fdb898c0e38e6551e6a8fb508c1b376b9d83860e872"
-    },
-    {
-      "from": "parts/ui/show/layer-diagram/select-glob.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/shared-code/parts/ui/show/layer-diagram/select-glob.mjs",
-      "source_identity": "1f:ccdc37d85230250a5b835a7c4270215ce71a617cff6c771382902005a5cff4b0",
-      "identity": "1f:ccdc37d85230250a5b835a7c4270215ce71a617cff6c771382902005a5cff4b0"
-    },
-    {
-      "from": "parts/ui/show/server-rendered-page/markup-tree.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/shared-code/parts/ui/show/server-rendered-page/markup-tree.mjs",
-      "source_identity": "1f:7c09bae5b6b46feb197e6d7a5dd38422a38bea8a2783975eff6d1d557d5f5ed7",
-      "identity": "1f:b811f26a1f9f0ceedc2bf649f69b53a8656a5f194db7dd43a9b99a2e293cf624"
     },
     {
       "from": "src/agent-delivery.mjs",
@@ -889,60 +819,12 @@
       "identity": "1f:f7bf66e6cf4485049eb49fbaecc8f714bc027f866f48c7c748f1c16634a32de4"
     },
     {
-      "from": "test/agents-before-the-record-move.test.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/shared-code/test/agents-before-the-record-move.test.mjs",
-      "source_identity": "1f:aa233a84112754bddb69942421e6c2d724aae6a24c8843238c4b7bd12e12991b",
-      "identity": "1f:8a1a21e54c3d13ce917aaa0a9e6fffa03971243d6a1e1b14d880d72db04f4480",
-      "adapted": "the booted old person store is replaced by what it composed (record engine and move, agent records, legacy rows, table mover, makeAgents) put together as its agentRecordStore did; every assertion is kept."
-    },
-    {
       "from": "test/agents.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/shared-code/test/agents.test.mjs",
       "source_identity": "1f:6b75ce4186bf0d0e5c88ae213d40c6a95762a90c7bc127afcc60295d85c15810",
       "identity": "1f:4cb0743d14e5579c9613e105473aa161ac821438e6698d219c617d1f0befe82d",
       "adapted": "the MCP initialize test checks agents.pendingForReader, what handleMcpMessage answered as pending_handoffs, and leaves out its two checks on the held old src/tools.mjs greeting words; starters are read from test/fixtures/saved-instruction-starters.json, the old records/ bytes."
-    },
-    {
-      "from": "test/automation-health.test.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/shared-code/test/automation-health.test.mjs",
-      "source_identity": "1f:ef9cf2d9140b64f5982a4ca2ee3e0fcce15f53d2c45a95be891d233871e53445",
-      "identity": "1f:81a98a91e487c3433b499baaa1a4a4c78a83e2016be48f78b2a5b1fc6fe3199f",
-      "adapted": "the six health tests run makeSourceHealth with the formula engine's filter, not the Workshop tool wrapper; the shipped-sample check (kept tool row) and the four readHealth tests (old automations and inbound run nowhere) are left out."
-    },
-    {
-      "from": "test/carried-connections.test.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/shared-code/test/carried-connections.test.mjs",
-      "source_identity": "1f:686ab15ec24c17e75be2364add9cd211deea86e49d4eb3e61b431b621da01eb7",
-      "identity": "1f:b3db8654a121f5e3e33a378f6269a498a08a9661b96119aabf0efc447ac9e3b8",
-      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
-    },
-    {
-      "from": "test/carried-lifecycle-races.test.mjs",
-      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "to": "tools/shared-code/test/carried-lifecycle-races.test.mjs",
-      "source_identity": "1f:1a4961b04ab9c3fbee920f07e83eb8211031eaad9800d99e241f20213fc628fa",
-      "identity": "1f:2add00537dcd8943a4a7b8e0a7276524363121a957a6199b7605ccaba303a63d",
-      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
-    },
-    {
-      "from": "test/carried-lifecycle.test.mjs",
-      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "to": "tools/shared-code/test/carried-lifecycle.test.mjs",
-      "source_identity": "1f:7e83aaf587a90e7b1697923aedd1a80fa78d3a1de71b660a230fd08880968023",
-      "identity": "1f:17970ca239f67d269c0f482af28df0ddbfe40acb5d5162bf3dd37d611476f9d8",
-      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
-    },
-    {
-      "from": "test/decision-identity-compiled.test.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/shared-code/test/decision-identity-compiled.test.mjs",
-      "source_identity": "1f:d9b13906bc56e3eaab3be283cc2c3feb6bd3cbea8ea70ad63b28c9ed7db09256",
-      "identity": "1f:a4548fcf75cb3bea9aa1503959b72ef9e77d59bb93ed61df92316dd9645d8675",
-      "adapted": "identityOf is this tool's record-identity.mjs and the compiled build is browse-and-upload-my-files loadChunking's Identity, without the retired restartable wrapper; every assertion is the old one"
     },
     {
       "from": "test/effect-unknown-lock.test.mjs",
@@ -959,14 +841,6 @@
       "source_identity": "1f:e759aafcaf6a9d96cf4f144e69a97805afc77a22cb2fb46ebb0e43f865647227",
       "identity": "1f:ae987c22c8b74119e0269c5cceec4042dcae8fb91e1a158049f78444c3a3f52f",
       "adapted": "the same workerd Durable Object probe bundled from where each owner lives now (keep-and-wake record-engine, shared-code record-identity, agents and handoff-result-source, hand-work-to-ais agent-records), without the compiled Namespace identity module this repository does not hold; every assertion is the old one"
-    },
-    {
-      "from": "test/moments.test.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/shared-code/test/moments.test.mjs",
-      "source_identity": "1f:4676ecca7d1bd96de63093abb58db7c777f91cc20dbc4c04229f35ce6ef35cdd",
-      "identity": "1f:b572392e334f94e31c6d54a12dc91a02f487420cf56851fde37114c2cadc75d9",
-      "adapted": "the four tests of the pure moment parts are the old ones; the fifteen that made arrivals through old src/inbound.mjs and the starting rules (src/automations.mjs) are left out: neither runs anywhere."
     },
     {
       "from": "test/new-work-seen-worker.test.mjs",
@@ -1054,22 +928,6 @@
       "source_identity": "1f:314f3192db95b94a2e5c2141c69dc8daa1ef4a206251ed74aeff4d6f96c72553",
       "identity": "1f:e5c8579756596d67e4441dcfe50a6826c82b59edebd12299f70ff1c3f9d5a306",
       "adapted": "the eight tests over the plain agent store are the old ones; the routing-owner test (old src/own-ais-routing.mjs) and the Workshop-tool run through the whole old person store are left out: neither runs anywhere."
-    },
-    {
-      "from": "test/vendor-table-rows.test.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/shared-code/test/vendor-table-rows.test.mjs",
-      "source_identity": "1f:94c190cd23ab2f87e26a0fc123b06e4806bacac7f7203561e9d2c98d70e7d734",
-      "identity": "1f:ed127edbed0bda6717d80320bff77d176887ebf1c015b2642177457a367c93d1",
-      "adapted": "the programs' tables are read from their tools' running readers, held to the old golden values (two tests fail: those tables changed); tests over records files only kept under from-old-trillion, firstChoiceFor and origin settings are left out, and the oauth records are a file of the golden rows."
-    },
-    {
-      "from": "test/workflow-step-versions.test.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/shared-code/test/workflow-step-versions.test.mjs",
-      "source_identity": "1f:7a0b795daf9993df9b8e0f50e31c7c979205da5b4916923e5db09f3493557611",
-      "identity": "1f:067958987a1b74d4ad96d4edaf2a1c97f342dfb48ad3b052bbe8c1a9e447996b",
-      "adapted": "the MCP-server harness is replaced by the modules that do each part (step versions, recipe-problems, authoring guidance, workflow-tools' schema); the engine-only run checks are left out: no repository runs the workflow routes."
     },
     {
       "from": "test/workshop-empty-prefix-admission.test.mjs",
@@ -1855,6 +1713,111 @@
       "source_identity": "1f:639665363575f43ef5e3af6ed83fe5969e2fbe83e0221eb31b6bcdc4e539a564",
       "identity": "1f:639665363575f43ef5e3af6ed83fe5969e2fbe83e0221eb31b6bcdc4e539a564",
       "found_by": "byte copy"
+    },
+    {
+      "from": "src/public-app-definition.mjs",
+      "commit": "a1923c96f6f1da88a93d0d90612f1cf713a42bf2",
+      "to": "tools/shared-code/src/public-app-definition.mjs",
+      "source_identity": "1f:b8f3dcaaa622cdea5572928c0e2a97d3f8a3ca9ccc21cf156c76abcc0eedce19",
+      "identity": "1f:b8f3dcaaa622cdea5572928c0e2a97d3f8a3ca9ccc21cf156c76abcc0eedce19"
+    },
+    {
+      "from": "src/agent-legacy-rows.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/shared-code/src/agent-legacy-rows.mjs",
+      "source_identity": "1f:3b9d74649208409b39039a62ac98ae0b39843e3e7c8b4c4e718106c5762e3d14",
+      "found_by": "same bytes",
+      "identity_at_move": "1f:3b9d74649208409b39039a62ac98ae0b39843e3e7c8b4c4e718106c5762e3d14",
+      "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d",
+      "changed": true
+    },
+    {
+      "from": "src/agent-records.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/shared-code/src/agent-records.mjs",
+      "source_identity": "1f:bb6507e0187207f69b374cec467ac1fc1987478d067181164aa60122b6b834ad",
+      "found_by": "same bytes",
+      "identity_at_move": "1f:bb6507e0187207f69b374cec467ac1fc1987478d067181164aa60122b6b834ad",
+      "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d",
+      "changed": true
+    },
+    {
+      "from": "src/agent-schedule-rows.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/shared-code/src/agent-schedule-rows.mjs",
+      "source_identity": "1f:cf9cc05eaac47472cdd0611d1563febef5f1cfedd200ddf86c19922342db0869",
+      "found_by": "same bytes",
+      "identity_at_move": "1f:cf9cc05eaac47472cdd0611d1563febef5f1cfedd200ddf86c19922342db0869",
+      "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d",
+      "changed": true
+    },
+    {
+      "from": "src/usage-meters.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/usage-meters.json",
+      "source_identity": "1f:a91222642323643e4406d205d4628385b90b878b24752c72add48d5b7a6d5736",
+      "identity": "1f:2b836e3a79d02290c23754c953c4c17507c5ad490f0e73437caf1c3a931477de",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
+    },
+    {
+      "from": "src/handoff-result-source.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/handoff-result-source.json",
+      "source_identity": "1f:4be63a06bfb2d1a553d08ecfa478230a615f0d6a51818b8d2a3f64c7de4ebcfa",
+      "identity": "1f:4be63a06bfb2d1a553d08ecfa478230a615f0d6a51818b8d2a3f64c7de4ebcfa",
+      "reused": true
+    },
+    {
+      "from": "src/ais.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/ais.mjs",
+      "source_identity": "1f:acd92c3df01e9e5bf68aa19b458cc04611f23a2a99004d0ccb93599b90b0ccaa",
+      "identity": "1f:0106cfe04001f522af7f6c3d1b2485d4a561ede0ec5ff5476130807e6adce24c"
+    },
+    {
+      "from": "src/activity-marks.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/activity-marks.json",
+      "source_identity": "1f:b0a5380c25dea6a217f747271fda45970bd6ac04346cc9e1b61bf58ccb2fe33a",
+      "identity": "1f:b0a5380c25dea6a217f747271fda45970bd6ac04346cc9e1b61bf58ccb2fe33a"
+    },
+    {
+      "from": "src/activity.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/shared-code/src/activity.mjs",
+      "source_identity": "1f:74b8526d1ffbd6cef1ec07a0f2ab88a5665638cc3b6b34d48f2d0a810bd5a3cf",
+      "reused": true,
+      "identity_at_move": "1f:74b8526d1ffbd6cef1ec07a0f2ab88a5665638cc3b6b34d48f2d0a810bd5a3cf",
+      "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d"
+    },
+    {
+      "from": "src/effect-outcomes.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/effect-outcomes.json",
+      "source_identity": "1f:e74121f14a1b0e0442f4b3b7560d8641bd906920bd2afc8d97d6ef4ec5c43942",
+      "identity": "1f:e74121f14a1b0e0442f4b3b7560d8641bd906920bd2afc8d97d6ef4ec5c43942",
+      "reused": true
+    },
+    {
+      "from": "src/failure-codes.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/failure-codes.json",
+      "source_identity": "1f:f85668913856d2bcbfcdf6e9c881da9bd84d568dab6360c1139bf13ac90907b6",
+      "identity": "1f:f85668913856d2bcbfcdf6e9c881da9bd84d568dab6360c1139bf13ac90907b6",
+      "reused": true
+    },
+    {
+      "from": "src/platform-failures.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/src/platform-failures.json",
+      "source_identity": "1f:ff05d10f2ec52e296ee5bb07efdbc630b106d7645b7a38ac3f84298ea102db68",
+      "reused": true,
+      "identity_at_move": "1f:ff05d10f2ec52e296ee5bb07efdbc630b106d7645b7a38ac3f84298ea102db68",
+      "byte_copy_commit": "bef19358f2b10a16a2be03730aaa4f1ba87d67d1",
+      "changed": true
     }
   ]
 }

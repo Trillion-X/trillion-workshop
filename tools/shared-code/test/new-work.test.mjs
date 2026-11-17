@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { DatabaseSync } from 'node:sqlite';
-import { activityRow, keepActivity, PERSON_APP } from '../../see-what-my-ais-did/activity.mjs';
+import { activityRow, keepActivity, PERSON_APP } from '../src/activity.mjs';
 import { markScreenSeen, readNewWork } from '../src/new-work.mjs';
 import { seenMarks } from '../src/seen-marks.mjs';
 

@@ -19,8 +19,8 @@ import { makeAgents } from '../src/agents.mjs';
 import { agentStoreForTests } from './agent-store-for-tests.mjs';
 import { sqliteHost } from '../../keep-and-wake-ai-sessions-on-this-computer/src/local-store.mjs';
 import { openRecords } from '../../keep-and-wake-ai-sessions-on-this-computer/src/record-engine.mjs';
-import { agentRecordStore } from '../../hand-work-to-ais/agent-records.mjs';
-import { agentLegacyRows } from '../../hand-work-to-ais/agent-legacy-rows.mjs';
+import { agentRecordStore } from '../src/agent-records.mjs';
+import { agentLegacyRows } from '../src/agent-legacy-rows.mjs';
 
 // The slice the reconciler reads a wake (src/agents.mjs RECONCILE_PAGE).
 const PAGE = 25;

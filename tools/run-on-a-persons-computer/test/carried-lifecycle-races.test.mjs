@@ -5,12 +5,12 @@ import { DatabaseSync } from 'node:sqlite';
 import { READERS, readNewItems } from '../../bring-in-new-items-from-this-computer/computer/read-new-items.mjs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { makeCarrier } from '../../run-on-a-persons-computer/carry-connections.mjs';
+import { makeCarrier } from '../carry-connections.mjs';
 import { whatsapp } from '../../bring-in-new-items-from-this-computer/computer/connections/whatsapp.mjs';
 import { incomingItems, readIncomingItems, acknowledgeIncomingItem } from '../../bring-in-new-items-from-this-computer/computer/connections/incoming-items.mjs';
-import { carriedTools, carriedAnnotations, handleCarriedRequest, isCarriedPath, makeCarriedConnections } from '../src/carried-connections.mjs';
+import { carriedTools, carriedAnnotations, handleCarriedRequest, isCarriedPath, makeCarriedConnections } from '../../shared-code/src/carried-connections.mjs';
 
-const settings = JSON.parse(readFileSync(new URL('../../run-on-a-persons-computer/carry-connections.json', import.meta.url)));
+const settings = JSON.parse(readFileSync(new URL('../carry-connections.json', import.meta.url)));
 const row = settings.connections.find(item => item.vendor === 'whatsapp');
 
 async function world(t, { linked = true, saveCreds = () => {}, setKeys = () => {}, query = request => { request.attrs.id = 'query-1'; return { tag: 'iq', attrs: { id: 'query-1', type: 'result' } }; } } = {}) {

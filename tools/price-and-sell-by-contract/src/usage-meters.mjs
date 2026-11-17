@@ -16,7 +16,7 @@
 //   4. A usage row kept with a purchase (its pinned terms) is read through `usageRow`, so terms pinned before a meter
 //      named its reading or unit size are read as the storage terms they were.
 //
-import settings from './usage-meters.json' with { type: 'json' };
+import settings from '../../shared-code/src/usage-meters.json' with { type: 'json' };
 import { aggregateOf, measure } from 'trillion-workshop/tools/query-and-change-list-rows/src/list-aggregates.mjs';
 
 const fill = (template, parts) => template.replace(/\{(\w+)\}/g, (_, name) => String(parts[name] ?? ''));

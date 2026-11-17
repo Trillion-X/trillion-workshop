@@ -62,7 +62,7 @@ import { APPROVAL_FIELDS, shaped } from './post-shape.mjs';
 import { resolveCaptionStyle } from '#tools/media-composition/read-data/caption-styles.mjs';
 import { timeZoneName } from '#tools/run-work-later-or-on-a-repeat/do-work/wall-time.ts';
 import { TYPED_ON_SIGNED_IN_SCREEN } from './native-post-origin.mjs';
-import marksData from '#tools/see-what-my-ais-did/activity-marks.json' with { type: 'json' };
+import marksData from '#tools/shared-code/src/activity-marks.json' with { type: 'json' };
 const PERSON_APP = marksData.person_app;
 import { makeSnippets, SnippetError } from './snippets.mjs';
 import { makeThreadSummaries, SummaryError } from './thread-summaries.mjs';

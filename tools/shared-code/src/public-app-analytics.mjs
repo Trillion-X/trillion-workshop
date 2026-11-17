@@ -3,7 +3,7 @@
 // is stored, and no network metadata or submitted field values enter analytics.
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
-import { checkedPublicAppDefinition } from '../../edit-a-site-visually/src/public-app-definition.mjs';
+import { checkedPublicAppDefinition } from './public-app-definition.mjs';
 import { publicAppInstallation, setUpPublicAppRecords } from './public-app-records.mjs';
 
 const INSTALLATION_ID = /^[a-f0-9]{32}$/;

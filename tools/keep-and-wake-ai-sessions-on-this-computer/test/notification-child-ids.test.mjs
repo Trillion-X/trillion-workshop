@@ -4,9 +4,9 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { sqliteHost } from '../src/local-store.mjs';
 import { openRecords, setRecordEngine } from '../src/record-engine.mjs';
-import { agentRecordStore } from '../../hand-work-to-ais/agent-records.mjs';
-import { agentLegacyRows } from '../../hand-work-to-ais/agent-legacy-rows.mjs';
-import { activityCount, activityCounts, keepActivity } from '../../see-what-my-ais-did/activity.mjs';
+import { agentRecordStore } from '../../shared-code/src/agent-records.mjs';
+import { agentLegacyRows } from '../../shared-code/src/agent-legacy-rows.mjs';
+import { activityCount, activityCounts, keepActivity } from '../../shared-code/src/activity.mjs';
 // This file writes made-up record types to test how a changed type shadows an earlier one, not shapes the product
 // writes, so the deploy guard's strict model (src/record-engine.mjs RECORD_MODEL_STRICT) is off here.
 process.env.RECORD_MODEL_STRICT = '';

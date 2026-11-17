@@ -17,6 +17,14 @@
       "to": "tools/let-an-ai-find-a-workflow-for-a-job-read/from-old-trillion/records/workflow-similarity.json",
       "source_identity": "1f:f0b09f4dd62b781ea5f3ce355a71367182bb48f6aff7cc77f7f44f8badce8a29",
       "identity": "1f:f0b09f4dd62b781ea5f3ce355a71367182bb48f6aff7cc77f7f44f8badce8a29"
+    },
+    {
+      "from": "test/workflow-step-versions.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/let-an-ai-find-a-workflow-for-a-job-read/test/workflow-step-versions.test.mjs",
+      "source_identity": "1f:7a0b795daf9993df9b8e0f50e31c7c979205da5b4916923e5db09f3493557611",
+      "identity": "1f:067958987a1b74d4ad96d4edaf2a1c97f342dfb48ad3b052bbe8c1a9e447996b",
+      "adapted": "the MCP-server harness is replaced by the modules that do each part (step versions, recipe-problems, authoring guidance, workflow-tools' schema); the engine-only run checks are left out: no repository runs the workflow routes."
     }
   ]
 }

@@ -2,7 +2,7 @@
 // pricing owner. The caller binds runTool to the admitted service seller; neither
 // an offer nor customer input may select that account. Existing purchases keep
 // their own saved terms and do not pass through this adapter again.
-import settings from '../../price-and-sell-by-contract/src/usage-meters.json' with { type: 'json' };
+import settings from './usage-meters.json' with { type: 'json' };
 
 const DEFAULT = settings.resource_pricing.default_rule;
 const object = value => value && typeof value === 'object' && !Array.isArray(value);

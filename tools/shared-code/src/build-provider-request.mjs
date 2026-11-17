@@ -1,4 +1,4 @@
-// tools/take-payments/do-work/build-provider-request.mjs
+// tools/shared-code/src/build-provider-request.mjs
 //
 // Assemble a ready-to-send Stripe HTTP request from a capability request ({ operation_id, input_facts,
 // idempotency_key, api_version_policy, required_credential_ref }). Everything up to the live key: the address, the

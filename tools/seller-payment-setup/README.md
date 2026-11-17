@@ -2,7 +2,7 @@
 
 One row, `tool:build-a-sellers-payment-setup-request`: it builds, without sending, the payment provider request that starts a seller's payment setup and gets their hosted onboarding link.
 
-It holds no code of its own. It runs `buildStripeHttpRequest` from `tools/take-payments/do-work/build-provider-request.mjs` over the operation rows in `tools/take-payments/read-data/provider-operation-map.json`: the one copy of the request builder, form encoder, webhook check and the operation and event maps. Adding an operation or a webhook event is one row in those files.
+It holds no code of its own. It runs `buildStripeHttpRequest` from `tools/shared-code/src/build-provider-request.mjs` over the operation rows in `tools/shared-code/src/provider-operation-map.json`: the one copy of the request builder, form encoder, webhook check and the operation and event maps. Adding an operation or a webhook event is one row in those files.
 
 ## Files
 

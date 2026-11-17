@@ -3,7 +3,7 @@
 // feed, so business data has only one stored copy.
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
-import { checkedVisitorAction } from '../../edit-a-site-visually/src/public-app-definition.mjs';
+import { checkedVisitorAction } from '../../shared-code/src/public-app-definition.mjs';
 import { prefixEnd } from '../../shared-code/src/workshop-facts.mjs';
 
 const KEY = /^[a-zA-Z0-9._:-]{8,200}$/;

@@ -81,7 +81,7 @@ test('a held job on a plan that keeps nothing gets the same title', () => {
 });
 
 test('AI activity names handed-off work by its kept title, never by the job', async () => {
-  const { default: marks } = await import('../../see-what-my-ais-did/activity-marks.json', { with: { type: 'json' } });
+  const { default: marks } = await import('../../shared-code/src/activity-marks.json', { with: { type: 'json' } });
   for (const tool of ['hand_off', 'take_work', 'finish_work']) {
     const mark = marks.marks.find(row => row.tool === tool);
     assert.deepEqual(mark.title[0], { from: 'result', path: ['handoff', 'said'] }, `${tool} reads the kept title first`);

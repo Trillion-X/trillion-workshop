@@ -20,7 +20,7 @@
 //      the last `window_days` days.
 
 import settings from './new-work.json' with { type: 'json' };
-import { activityResets, activityTable, PERSON_APP, visibleActivity } from '../../see-what-my-ais-did/activity.mjs';
+import { activityResets, activityTable, PERSON_APP, visibleActivity } from './activity.mjs';
 import { seenMarks } from './seen-marks.mjs';
 import { WorkFailure } from './failure.mjs';
 

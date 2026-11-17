@@ -7,7 +7,7 @@
 // settlement and version, so the provider refuses to repeat it. No state here says paid.
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { addAmounts, subtractAmounts, compareAmounts, rational, exactAmount, cashClearing } from '../read-data/resource-usage.mjs';
-import { call } from './build-provider-request.mjs';
+import { call } from '../../shared-code/src/build-provider-request.mjs';
 import { heldKey, makeStripeSender } from './stripe-send.mjs';
 export const usageReportingTypes = Object.freeze({ agreement: 'usage-billing-agreement', cash: 'resource-usage-cash', applied: 'resource-usage-applied-source', report: 'resource-usage-provider-report' });
 const sorted = x => Array.isArray(x) ? x.map(sorted) : x && typeof x === 'object' ? Object.fromEntries(Object.keys(x).sort().map(key => [key, sorted(x[key])])) : x;

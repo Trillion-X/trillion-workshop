@@ -10,12 +10,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { makeAgents } from '../src/agents.mjs';
-import { agentStoreForTests } from './agent-store-for-tests.mjs';
-import { carriedServicesFrom, carriedTools, handleCarriedRequest, makeCarriedConnections } from '../src/carried-connections.mjs';
-import { makeCarrier } from '../../run-on-a-persons-computer/carry-connections.mjs';
+import { makeAgents } from '../../shared-code/src/agents.mjs';
+import { agentStoreForTests } from '../../shared-code/test/agent-store-for-tests.mjs';
+import { carriedServicesFrom, carriedTools, handleCarriedRequest, makeCarriedConnections } from '../../shared-code/src/carried-connections.mjs';
+import { makeCarrier } from '../carry-connections.mjs';
 
-const settings = JSON.parse(readFileSync(new URL('../../run-on-a-persons-computer/carry-connections.json', import.meta.url), 'utf8'));
+const settings = JSON.parse(readFileSync(new URL('../carry-connections.json', import.meta.url), 'utf8'));
 const services = async () => [{ vendor: 'imessage', name: 'iMessage' }, { vendor: 'whatsapp', name: 'WhatsApp' }];
 
 function world({ now = () => new Date(), carries = ['imessage'] } = {}) {

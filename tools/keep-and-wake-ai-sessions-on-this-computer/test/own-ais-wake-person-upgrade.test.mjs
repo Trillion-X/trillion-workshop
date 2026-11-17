@@ -15,7 +15,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { recordLogStore } from '../parts/record-log/do-work/record-log-store.mjs';
 import { RECORD_INDEXES } from '../src/record-engine.mjs';
-import { agentRecordStore } from '../../hand-work-to-ais/agent-records.mjs';
+import { agentRecordStore } from '../../shared-code/src/agent-records.mjs';
 import settings from '../../shared-code/src/own-ais.json' with { type: 'json' };
 import { countingHost } from './counting-host-for-tests.mjs';
 

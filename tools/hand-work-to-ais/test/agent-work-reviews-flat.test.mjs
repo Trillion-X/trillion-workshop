@@ -16,7 +16,7 @@ import assert from 'node:assert/strict';
 import { recordLogStore } from '../../keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/record-log-store.mjs';
 import { RECORD_INDEXES } from '../../keep-and-wake-ai-sessions-on-this-computer/src/record-engine.mjs';
 import { sqliteHost } from '../../keep-and-wake-ai-sessions-on-this-computer/src/local-store.mjs';
-import { agentRecordStore, FOUND_BY } from '../agent-records.mjs';
+import { agentRecordStore, FOUND_BY } from '../../shared-code/src/agent-records.mjs';
 
 // What each statement hands back, counted (old test/person-store-reads-for-tests.mjs countingHost).
 function countingHost() {

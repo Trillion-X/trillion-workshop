@@ -1,7 +1,7 @@
 // A kept proposal is named by the AI its sign-in belongs to (src/ais.mjs withProposerNames), never by the sign-in.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { aiNameOfSignIn, withProposerNames } from '../src/ais.mjs';
+import { aiNameOfSignIn, withProposerNames } from '../../shared-code/src/ais.mjs';
 
 const ais = [{ id: 'ai:claude-code', label: 'Claude Code', sign_ins: ['key:k1'] }, { id: 'ai:cursor', label: 'Cursor', sign_ins: ['key:k2', 'key:k3'] }, { id: 'ai:none', sign_ins: ['key:k9'] }];
 

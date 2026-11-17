@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { sqliteHost } from '../src/local-store.mjs';
 import { setRecordEngine } from '../src/record-engine.mjs';
 import { decisionStore } from '../src/decision-store.mjs';
-import { agentRecordStore } from '../../hand-work-to-ais/agent-records.mjs';
+import { agentRecordStore } from '../../shared-code/src/agent-records.mjs';
 import { scheduledHandoffOf } from '../../shared-code/src/agents.mjs';
 const handed = '2026-10-11T10:00:00.000Z';
 const job = (id, history) => ({ handoff_id: id, handed_at: handed, state: 'taken', to_agent: null, taken_by: 'ai:a', generation: 7,

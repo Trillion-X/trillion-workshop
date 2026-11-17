@@ -16,8 +16,8 @@
 // Answers { kept: n, left: [{ index, tool, marked, why }], items, next_before, coverage }.
 // Refuses no calls, more calls than activity-marks.json's kept_at_once, and a call without a tool or an at.
 import { DatabaseSync } from 'node:sqlite';
-import marks from '../activity-marks.json' with { type: 'json' };
-import { activityRow, keepActivity, keptActivityRow, readActivity, recordableActivityRow, unmarkedActivityRow } from '../activity.mjs';
+import marks from '../../shared-code/src/activity-marks.json' with { type: 'json' };
+import { activityRow, keepActivity, keptActivityRow, readActivity, recordableActivityRow, unmarkedActivityRow } from '../../shared-code/src/activity.mjs';
 
 // The node:sqlite handle in the shape the store's code takes: exec(query, ...params), spread or toArray().
 function sqlOver(db) {

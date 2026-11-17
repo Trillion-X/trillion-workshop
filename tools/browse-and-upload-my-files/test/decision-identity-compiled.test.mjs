@@ -11,9 +11,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
-import { identityOf } from '../src/record-identity.mjs';
-import { useCompiledByteIdentity } from '../parts/live-namespace/do-work/byte-identity.mjs';
-import { loadChunking } from '../../browse-and-upload-my-files/do-work/content-chunks.mjs';
+import { identityOf } from '../../shared-code/src/record-identity.mjs';
+import { useCompiledByteIdentity } from '../../shared-code/parts/live-namespace/do-work/byte-identity.mjs';
+import { loadChunking } from '../do-work/content-chunks.mjs';
 
 const WINDOW = 1024 * 1024;
 const noble = text => `1f:${bytesToHex(blake3(new TextEncoder().encode(text)))}`;

@@ -2,7 +2,7 @@
 // deleted by Trillion-X/trillion #243. The same Durable Object probe runs in workerd (miniflare, a dependency of this
 // repository), bundled from where each owner lives now: openRecords and setRecordEngine from keep-and-wake's
 // src/record-engine.mjs, identityOf from tools/shared-code/src/record-identity.mjs (old src/decision-store.mjs exported
-// it), agentRecordStore from tools/hand-work-to-ais/agent-records.mjs, makeAgents and handleAgentsRequest from this tool's
+// it), agentRecordStore from tools/shared-code/src/agent-records.mjs, makeAgents and handleAgentsRequest from this tool's
 // src/agents.mjs and readHandoffResultSource from this tool's src/handoff-result-source.mjs.
 // Changed harness: the old bundle also installed the compiled Namespace identity module (src/namespace-identity-module.mjs
 // through test/compiled-namespace-identity-fixture.mjs, whose built bytes this repository does not hold); without it
@@ -36,7 +36,7 @@ for (const RESULT_BYTES of RESULT_SIZES) test(`actual Workerd ${RESULT_BYTES}-by
   const bundled = await build({ stdin: { sourcefile: 'result-source-entry.mjs', resolveDir: root, contents: `
 export {openRecords,setRecordEngine} from './keep-and-wake-ai-sessions-on-this-computer/src/record-engine.mjs';
 export {identityOf} from './shared-code/src/record-identity.mjs';
-export {agentRecordStore} from './hand-work-to-ais/agent-records.mjs';
+export {agentRecordStore} from './shared-code/src/agent-records.mjs';
 export {makeAgents,handleAgentsRequest} from './shared-code/src/agents.mjs';
 export {readHandoffResultSource} from './shared-code/src/handoff-result-source.mjs';` }, bundle: true, format: 'esm', platform: 'browser', write: false, logLevel: 'error' });
   const worker = `import {DurableObject} from 'cloudflare:workers';

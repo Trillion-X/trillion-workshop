@@ -1,6 +1,6 @@
 // The account's introduced AIs joined to the current native sign-in owners.
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
-import { listedAis } from '../src/ais.mjs';
+import { listedAis } from '../../shared-code/src/ais.mjs';
 
 // Earlier AI records named the OAuth client, rather than its individual grant. Keep reading those introductions.
 const clientSignIn = clientId => typeof clientId === 'string' && clientId

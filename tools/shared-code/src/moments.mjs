@@ -40,8 +40,6 @@ import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
 import data from './moments.json' with { type: 'json' };
 import { handoffIdFor } from './agents.mjs';
-import operators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json' with { type: 'json' };
-import { makeRowFilter } from 'trillion-workshop/tools/formula-engine/rules/filter-rows-by-rules.mjs';
 
 export const MOMENTS_PATH = '/moments/gather';
 // What hand_off accepts as a job (src/agents.mjs handOff, src/inbound.mjs MAX_JOB).
@@ -67,16 +65,10 @@ export const textKeyOf = (text, rows = data) => { const key = wordsKey(text); re
 
 // ---- matching a rule tree (the shape src/metered-use.json uses) over facts, synchronously ----
 // The formula engine decides every comparison (formula-engine/rules/rule-operators.json). A host that has loaded it gives
-// it with setConditionEngine(holds), the shape of filter-rows-by-rules.mjs holdsNow (tree, facts) -> boolean; a Node host gets it
-// loaded from the bytes the Workshop ships.
+// it with setConditionEngine(holds), the shape of filter-rows-by-rules.mjs holdsNow (tree, facts) -> boolean; this file
+// imports no tool, so the host that matches rule trees here gives it before the first match.
 let engine = null;
 export const setConditionEngine = given => { engine = given; };
-try {
-  const { readFileSync } = await import('node:fs');
-  const filter = makeRowFilter({ operators, wasm: () => readFileSync(new URL(import.meta.resolve('trillion-workshop/tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm'))) });
-  await filter.load();
-  engine ??= filter.holdsNow;
-} catch { /* a host without files gives the engine with setConditionEngine */ }
 export function holds(tree, facts) {
   if (!engine) throw new Error('The condition engine is not loaded: call setConditionEngine first.');
   return engine(tree, facts);

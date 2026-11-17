@@ -87,7 +87,6 @@
           "trillion-workshop/know-who-is-in-this",
           "trillion-workshop/learn-a-workflow-from-a-job",
           "trillion-workshop/learn-from-everyones-results",
-          "trillion-workshop/let-an-ai-find-a-workflow-for-a-job-read",
           "trillion-workshop/let-someone-look-at-my-trillion-read",
           "trillion-workshop/limit-what-one-sign-in-may-reach-the-persons",
           "trillion-workshop/list-and-run-trillions-tools-for-any-ai",
@@ -291,18 +290,12 @@
               {
                 "package": "shared-code",
                 "paths": [
-                  "src/failure.mjs"
+                  "src/effect-outcomes.json",
+                  "src/failure-codes.json",
+                  "src/failure.mjs",
+                  "src/platform-failures.json"
                 ],
                 "at": "/opt/shared-code"
-              },
-              {
-                "package": "set-up-my-account",
-                "paths": [
-                  "read-data/failure-codes.json",
-                  "read-data/platform-failures.json",
-                  "read-data/effect-outcomes.json"
-                ],
-                "at": "/opt/set-up-my-account"
               }
             ]
           }

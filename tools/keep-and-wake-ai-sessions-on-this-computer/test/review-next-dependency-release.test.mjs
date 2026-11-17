@@ -8,7 +8,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { makeAgents } from '../../shared-code/src/agents.mjs';
-import { agentRecordStore } from '../../hand-work-to-ais/agent-records.mjs';
+import { agentRecordStore } from '../../shared-code/src/agent-records.mjs';
 import { sqliteHost } from '../src/local-store.mjs';
 import { openRecords, setRecordEngine } from '../src/record-engine.mjs';
 import { agentStoreForTests } from '../../shared-code/test/agent-store-for-tests.mjs';

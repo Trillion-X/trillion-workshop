@@ -26,7 +26,7 @@ import {
   buildProjectedCollectionsNav,
   projectedCollectionsToCatalogItems,
 } from '../../../../organize-the-sidebar/show/ProjectedCollectionNav';
-import { containmentCollections } from '../../../../shared-code/packages/access-scoped-content/show/AccessScopedContent';
+import { containmentCollections } from './AccessScopedContent';
 
 const PROJECTION_ADDRESS = 'package-set-records::access-scoped-content-projection';
 

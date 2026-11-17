@@ -194,6 +194,14 @@
       "source_identity": "1f:6dc9d4df845a10e2b7c74e3499b450ac7b6bb8bd850b5f8c0e6759525b16178f",
       "identity": "1f:6dc9d4df845a10e2b7c74e3499b450ac7b6bb8bd850b5f8c0e6759525b16178f",
       "found_by": "byte copy"
+    },
+    {
+      "from": "test/decision-identity-compiled.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/browse-and-upload-my-files/test/decision-identity-compiled.test.mjs",
+      "source_identity": "1f:d9b13906bc56e3eaab3be283cc2c3feb6bd3cbea8ea70ad63b28c9ed7db09256",
+      "identity": "1f:a4548fcf75cb3bea9aa1503959b72ef9e77d59bb93ed61df92316dd9645d8675",
+      "adapted": "identityOf is this tool's record-identity.mjs and the compiled build is browse-and-upload-my-files loadChunking's Identity, without the retired restartable wrapper; every assertion is the old one"
     }
   ]
 }

@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { DatabaseSync } from 'node:sqlite';
 import { publicAppInstallationOwner, publicAppInstallationRowIdentity } from '../src/public-app-installation-owner.mjs';
-import { checkedPublicAppDefinition } from '../../edit-a-site-visually/src/public-app-definition.mjs';
+import { checkedPublicAppDefinition } from '../../shared-code/src/public-app-definition.mjs';
 
 const ID = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
 const OPERATOR = { claims: { sign_in: 'service:operator-import' } };

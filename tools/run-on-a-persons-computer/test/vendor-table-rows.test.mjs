@@ -3,7 +3,8 @@
 // test/fixtures/vendor-tables-golden.json. The programs now read their tables from their own tools: the readers of a link
 // from tools/audio-transcription/read-data/hear-here.mjs, the speech programs and engines from
 // tools/generate-speech/read-data/speak.mjs, the local models from tools/run-on-a-persons-computer/local-models.mjs; the
-// storage origins from tools/price-and-sell-by-contract/records/cloud-files-origins.json. Left out, each searched in
+// storage origins (test g) read tools/price-and-sell-by-contract/records/cloud-files-origins.json, whose rows the storage-without-a-vendor
+// change deleted, so that test is gone with them. Left out, each searched in
 // trillion-workshop tools/, trillion-apps web/ and trillion-rust src/ with nothing running found: test a (no
 // oauth-client-records.json or fixedClientIds runs), the dataRows reads of the hear, speech and local-model records files and
 // the records-file family test (those files are only kept, under from-old-trillion/), firstChoiceFor (old
@@ -13,11 +14,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import golden from './fixtures/vendor-tables-golden.json' with { type: 'json' };
-import { dataRowKinds, dataRows } from '../src/data-rows.mjs';
-import originRecords from '../../price-and-sell-by-contract/records/cloud-files-origins.json' with { type: 'json' };
+import { dataRowKinds, dataRows } from '../../shared-code/src/data-rows.mjs';
 import { linkSettings } from '../../audio-transcription/read-data/hear-here.mjs';
 import { speakSettings } from '../../generate-speech/read-data/speak.mjs';
-import { localModelSettings } from '../../run-on-a-persons-computer/local-models.mjs';
+import { localModelSettings } from '../local-models.mjs';
 
 // The shipped sign-in apps as a records file: one row of kind oauth-client per golden value, in its order.
 const oauthRecords = { records: golden.oauth_clients.map(payload => ({ id: `oauth-client:${payload.clientId}`, kind: 'oauth-client', payload })) };
@@ -28,7 +28,8 @@ test('c. each program reads its settings with its tables in place', () => {
   assert.deepEqual(linkSettings().fetchers, golden.hear_fetchers.map(({ list, ...hearing }) => hearing));
   const speak = speakSettings();
   assert.deepEqual(speak.programs, golden.speech_programs);
-  assert.deepEqual(speak.engines, golden.speech_engines);
+  // An engine row may carry `_measured`, a note of when it was timed; the golden keeps the fields the programs read.
+  assert.deepEqual(speak.engines.map(({ _measured, ...engine }) => engine), golden.speech_engines);
   const models = localModelSettings();
   assert.deepEqual(models.chat, golden.local_chat);
   assert.deepEqual(models.jobs, golden.local_jobs);
@@ -43,10 +44,6 @@ test('c. a program that adjusts what it read never changes the shipped rows', ()
   first.jobs.default.models.length = 0;
   assert.deepEqual(localModelSettings().chat, golden.local_chat);
   assert.deepEqual(localModelSettings().jobs, golden.local_jobs);
-});
-
-test('g. storage origins read as the old records did', () => {
-  assert.deepEqual(dataRows('storage-origin', originRecords), golden.storage_origins);
 });
 
 test('the installed set, when it answers, is the table; when it does not, the shipped file is', () => {

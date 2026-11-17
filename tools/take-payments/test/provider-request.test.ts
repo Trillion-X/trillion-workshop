@@ -9,12 +9,12 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from './expect.mjs';
 // eslint-disable-next-line import/extensions
-import { encodeStripeForm } from '../do-work/encode-provider-form.mjs';
+import { encodeStripeForm } from '../../shared-code/src/encode-provider-form.mjs';
 // eslint-disable-next-line import/extensions
-import { buildStripeHttpRequest } from '../do-work/build-provider-request.mjs';
+import { buildStripeHttpRequest } from '../../shared-code/src/build-provider-request.mjs';
 // eslint-disable-next-line import/extensions
 
-const packageRoot = join(import.meta.dirname, '..');
+const sharedSource = join(import.meta.dirname, '../../shared-code/src');
 
 describe('stripe form encoder (wire format)', () => {
   it('encodes scalars, nested objects, and arrays of objects in bracket notation', () => {
@@ -105,8 +105,8 @@ describe('stripe http request assembler (no key)', () => {
 
   it('source carries no literal secret key', () => {
     const src = [
-      readFileSync(join(packageRoot, 'do-work/build-provider-request.mjs'), 'utf8'),
-      readFileSync(join(packageRoot, 'do-work/encode-provider-form.mjs'), 'utf8'),
+      readFileSync(join(sharedSource, 'build-provider-request.mjs'), 'utf8'),
+      readFileSync(join(sharedSource, 'encode-provider-form.mjs'), 'utf8'),
     ].join('\n');
     expect(src).not.toMatch(/\bsk_(?:live|test)_[A-Za-z0-9]/);
     expect(src).not.toMatch(/\brk_(?:live|test)_[A-Za-z0-9]/);

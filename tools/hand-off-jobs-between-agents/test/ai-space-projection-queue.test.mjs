@@ -12,7 +12,7 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { aiSpaceProjectionQueue, initAiSpaceProjectionQueue } from '../src/ai-space-projection.mjs';
-import { makeAis } from '../../see-and-limit-what-each-ai-can-reach/src/ais.mjs';
+import { makeAis } from '../../shared-code/src/ais.mjs';
 import { sqliteHost } from '../../keep-and-wake-ai-sessions-on-this-computer/src/local-store.mjs';
 import { decisionStore } from '../../keep-and-wake-ai-sessions-on-this-computer/src/decision-store.mjs';
 import { recordLogStore } from '../../keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/record-log-store.mjs';

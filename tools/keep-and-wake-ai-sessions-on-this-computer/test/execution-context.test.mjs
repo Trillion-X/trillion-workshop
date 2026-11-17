@@ -1,6 +1,6 @@
 // Ported from old trillion test/execution-context.test.mjs (tag old-trillion-before-worker-retire, b6ae0ebf81), deleted by
 // Trillion-X/trillion #243. The execution records are this tool's src/execution-context.mjs; activity rows are
-// tools/see-what-my-ais-did/activity.mjs (old src/activity.mjs). Left out: the test of the managed dispatch gate around
+// tools/shared-code/src/activity.mjs (old src/activity.mjs). Left out: the test of the managed dispatch gate around
 // the retired MCP handler (src/tools.mjs handleMcpMessage) and the test that replayed native receipts through the
 // retired Spaces route (src/person-spaces.mjs handleSpacesRequest): neither handler runs anywhere now (searched the three
 // repos for handleMcpMessage and handleSpacesRequest: only held copies). The other six tests are the old ones.
@@ -11,7 +11,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { localStore, sqliteHost } from '../src/local-store.mjs';
 import { recordExecution, updateExecution, readExecution, findExecutionRecords, executionContext } from '../src/execution-context.mjs';
-import { namedActivityRows, keepActivity, traceActivity } from '../../see-what-my-ais-did/activity.mjs';
+import { namedActivityRows, keepActivity, traceActivity } from '../../shared-code/src/activity.mjs';
 import { recordSent } from '../src/sent.mjs';
 import { executionsOf, recordNew, settings } from '../harness/record-every-message.mjs';
 

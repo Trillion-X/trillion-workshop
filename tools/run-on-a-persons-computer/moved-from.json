@@ -28,14 +28,6 @@
       "changed": "observedMediaType and observedMediaKind are left out (no reader here); the extension table is ./file-type.json"
     },
     {
-      "from": "src/handoff-result-source.json",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/run-on-a-persons-computer/handoff-result-source.json",
-      "source_identity": "1f:4be63a06bfb2d1a553d08ecfa478230a615f0d6a51818b8d2a3f64c7de4ebcfa",
-      "identity": "1f:4be63a06bfb2d1a553d08ecfa478230a615f0d6a51818b8d2a3f64c7de4ebcfa",
-      "reused": true
-    },
-    {
       "from": "src/handoff-result-source.mjs",
       "commit": "27b458af2635254d67845c9a1c9f995cce2edd58",
       "to": "tools/run-on-a-persons-computer/handoff-result-source.mjs",
@@ -440,6 +432,46 @@
       "calls": [
         "the-workshop-checkout-is-the-runtime"
       ]
+    },
+    {
+      "from": "test/carried-connections.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/run-on-a-persons-computer/test/carried-connections.test.mjs",
+      "source_identity": "1f:686ab15ec24c17e75be2364add9cd211deea86e49d4eb3e61b431b621da01eb7",
+      "identity": "1f:b3db8654a121f5e3e33a378f6269a498a08a9661b96119aabf0efc447ac9e3b8",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
+    },
+    {
+      "from": "test/carried-lifecycle-races.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/run-on-a-persons-computer/test/carried-lifecycle-races.test.mjs",
+      "source_identity": "1f:1a4961b04ab9c3fbee920f07e83eb8211031eaad9800d99e241f20213fc628fa",
+      "identity": "1f:2add00537dcd8943a4a7b8e0a7276524363121a957a6199b7605ccaba303a63d",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
+    },
+    {
+      "from": "test/carried-lifecycle.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/run-on-a-persons-computer/test/carried-lifecycle.test.mjs",
+      "source_identity": "1f:7e83aaf587a90e7b1697923aedd1a80fa78d3a1de71b660a230fd08880968023",
+      "identity": "1f:17970ca239f67d269c0f482af28df0ddbfe40acb5d5162bf3dd37d611476f9d8",
+      "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."
+    },
+    {
+      "from": "test/vendor-table-rows.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/run-on-a-persons-computer/test/vendor-table-rows.test.mjs",
+      "source_identity": "1f:94c190cd23ab2f87e26a0fc123b06e4806bacac7f7203561e9d2c98d70e7d734",
+      "identity": "1f:ed127edbed0bda6717d80320bff77d176887ebf1c015b2642177457a367c93d1",
+      "adapted": "the programs' tables are read from their tools' running readers, held to the old golden values (two tests fail: those tables changed); tests over records files only kept under from-old-trillion, firstChoiceFor and origin settings are left out, and the oauth records are a file of the golden rows."
+    },
+    {
+      "from": "test/fixtures/vendor-tables-golden.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-on-a-persons-computer/test/fixtures/vendor-tables-golden.json",
+      "source_identity": "1f:20b64c6a01978542387a8b21e3c271cef0edd67b1359cbb2e004ef37fa03012c",
+      "identity": "1f:5081056f92b0b2da3cfa919c42fa390b53d42d5eee54338280c1166ec432113c",
+      "adapted": "Edited after the move so the tool holds no host, name or id of ours; callers pass those in."
     }
   ]
 }

@@ -6,8 +6,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { sqliteHost } from '../../keep-and-wake-ai-sessions-on-this-computer/src/local-store.mjs';
 import { openRecords, setRecordEngine } from '../../keep-and-wake-ai-sessions-on-this-computer/src/record-engine.mjs';
-import { agentRecordStore, AGENT_RECORD_TABLES } from '../../hand-work-to-ais/agent-records.mjs';
-import { agentLegacyRows } from '../../hand-work-to-ais/agent-legacy-rows.mjs';
+import { agentRecordStore, AGENT_RECORD_TABLES } from '../../shared-code/src/agent-records.mjs';
+import { agentLegacyRows } from '../../shared-code/src/agent-legacy-rows.mjs';
 import { makeAgents, scheduledHandoffOf } from '../../shared-code/src/agents.mjs';
 import { FIRST_SCAN, tablesIntoRecords } from '../src/tables-into-records.mjs';
 

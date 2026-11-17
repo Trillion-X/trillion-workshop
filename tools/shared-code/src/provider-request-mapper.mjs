@@ -1,10 +1,10 @@
-// tools/take-payments/do-work/provider-request-mapper.mjs
+// tools/shared-code/src/provider-request-mapper.mjs
 //
 // Generic operation→wire-shape mapper. The map of which operation_id becomes
 // which HTTP method/path/subject lives in `read-data/provider-operation-map.json` —
 // DATA, not code: this module enumerates nothing.
 // Adding a Stripe operation = one row in that JSON; this file never changes.
-import operationMapData from '../read-data/provider-operation-map.json' with { type: 'json' };
+import operationMapData from './provider-operation-map.json' with { type: 'json' };
 
 export const CURRENT_STRIPE_API_VERSION = operationMapData.current_api_version;
 

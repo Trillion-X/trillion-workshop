@@ -1,10 +1,15 @@
 {
   "exports": {
+    "activity": "src/activity.mjs",
     "agent-delivery": "src/agent-delivery.mjs",
     "agent-store-for-tests": "test/agent-store-for-tests.mjs",
     "agents": "src/agents.mjs",
+    "build-provider-request": "src/build-provider-request.mjs",
     "data-rows": "src/data-rows.mjs",
     "handoff-result-source": "src/handoff-result-source.mjs",
+    "handoff-result-source.json": "src/handoff-result-source.json",
+    "provider-operation-map.json": "src/provider-operation-map.json",
+    "public-app-definition": "src/public-app-definition.mjs",
     "public-app-element-addresses": "src/public-app-element-addresses.mjs",
     "public-app-files": "src/public-app-files.mjs",
     "repo-explorer": "src/repo-explorer.mjs",

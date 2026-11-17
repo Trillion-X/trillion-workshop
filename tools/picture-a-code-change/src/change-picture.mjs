@@ -22,9 +22,9 @@ import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
 import rules from './change-picture.json' with { type: 'json' };
 import { changeGraph } from '../parts/ui/show/layer-diagram/change-graph.mjs';
-import { validateGraphDocument } from '../../shared-code/parts/ui/show/layer-diagram/graph-contract.mjs';
-import { graphSvgAssets } from '../../shared-code/parts/ui/show/layer-diagram/graph-svg.mjs';
-import { boundAuthorInput, outboundList } from '../../shared-code/parts/ui/show/layer-diagram/author-input.mjs';
+import { validateGraphDocument } from '../../ui/show/layer-diagram/graph-contract.mjs';
+import { graphSvgAssets } from '../../ui/show/layer-diagram/graph-svg.mjs';
+import { boundAuthorInput, outboundList } from '../../ui/show/layer-diagram/author-input.mjs';
 import { capabilityOf, composeFor } from './surface-compose.mjs';
 import { upsertOwned } from './owned-upsert.mjs';
 

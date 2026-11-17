@@ -11,10 +11,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { recipeProblems } from '../../workflows/read-data/recipe-problems.mjs';
-import { compareToPin, pinOf, pinnedRecipe, runsKeepWords, stepVersionsOf, toolStepsOf, upgradeNeeded, upgradedRecipe } from '../src/workflow-step-versions.mjs';
-import { authoringNotes } from '../src/workflow-authoring-guidance.mjs';
-import { workflowTools } from '../../let-an-ai-find-a-workflow-for-a-job-read/src/workflow-tools.mjs';
-import guidance from '../src/workflow-authoring-guidance.json' with { type: 'json' };
+import { compareToPin, pinOf, pinnedRecipe, runsKeepWords, stepVersionsOf, toolStepsOf, upgradeNeeded, upgradedRecipe } from '../../shared-code/src/workflow-step-versions.mjs';
+import { authoringNotes } from '../../shared-code/src/workflow-authoring-guidance.mjs';
+import { workflowTools } from '../src/workflow-tools.mjs';
+import guidance from '../../shared-code/src/workflow-authoring-guidance.json' with { type: 'json' };
 
 // The tool definitions as the Workshop answers them now; a publisher's new release changes them.
 const describer = descriptors => async tool_id => descriptors[tool_id] ?? null;

@@ -95,7 +95,6 @@
       "trillion-workshop/know-who-is-in-this",
       "trillion-workshop/learn-a-workflow-from-a-job",
       "trillion-workshop/learn-from-everyones-results",
-      "trillion-workshop/let-an-ai-find-a-workflow-for-a-job-read",
       "trillion-workshop/let-someone-look-at-my-trillion-read",
       "trillion-workshop/limit-what-one-sign-in-may-reach-the-persons",
       "trillion-workshop/list-and-run-trillions-tools-for-any-ai",
@@ -343,14 +342,6 @@
         "at": "/opt/record-log"
        },
        {
-        "package": "see-what-my-ais-did",
-        "paths": [
-         "activity-marks.json",
-         "activity.mjs"
-        ],
-        "at": "/opt/see-what-my-ais-did"
-       },
-       {
         "package": "send-a-saved-edit-from-the-media-editor",
         "paths": [
          "src/editor-handoff.json",
@@ -362,6 +353,8 @@
        {
         "package": "shared-code",
         "paths": [
+         "src/activity-marks.json",
+         "src/activity.mjs",
          "src/work-media-session.json"
         ],
         "at": "/opt/shared-code"

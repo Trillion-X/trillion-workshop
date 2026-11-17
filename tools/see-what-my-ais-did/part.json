@@ -1,7 +1,4 @@
 {
-  "exports": {
-    "activity": "activity.mjs"
-  },
   "offers": [
     {
       "kind": "ai-tool-descriptor",

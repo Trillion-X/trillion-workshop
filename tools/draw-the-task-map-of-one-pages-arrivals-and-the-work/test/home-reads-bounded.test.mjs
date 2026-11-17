@@ -23,7 +23,7 @@ import { sqliteHost } from '../../keep-and-wake-ai-sessions-on-this-computer/src
 import { decisionStore } from '../../keep-and-wake-ai-sessions-on-this-computer/src/decision-store.mjs';
 import { messages } from '../../keep-and-wake-ai-sessions-on-this-computer/src/messages.mjs';
 import { makeAgents } from '../../shared-code/src/agents.mjs';
-import { agentRecordStore } from '../../hand-work-to-ais/agent-records.mjs';
+import { agentRecordStore } from '../../shared-code/src/agent-records.mjs';
 
 // The answer the old messageTaskCanvas gave for its first page: the page's messages, what the map draws of their
 // arrivals and work, and the newest jobs.

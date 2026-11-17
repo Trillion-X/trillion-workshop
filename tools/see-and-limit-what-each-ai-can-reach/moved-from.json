@@ -46,13 +46,6 @@
       "reused": true
     },
     {
-      "from": "src/ais.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/see-and-limit-what-each-ai-can-reach/src/ais.mjs",
-      "source_identity": "1f:acd92c3df01e9e5bf68aa19b458cc04611f23a2a99004d0ccb93599b90b0ccaa",
-      "identity": "1f:0106cfe04001f522af7f6c3d1b2485d4a561ede0ec5ff5476130807e6adce24c"
-    },
-    {
       "from": "src/app-places.json",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/see-and-limit-what-each-ai-can-reach/src/app-places.json",

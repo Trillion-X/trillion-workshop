@@ -7,7 +7,7 @@
 // across generations kept before the counts existed, a second such decision, calls kept between two reads, and a reset.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { activityCount, activityCounts, activityTable, forgetActivityTable, keepActivity } from '../activity.mjs';
+import { activityCount, activityCounts, activityTable, forgetActivityTable, keepActivity } from '../../shared-code/src/activity.mjs';
 import { sqliteHost } from '../../keep-and-wake-ai-sessions-on-this-computer/src/local-store.mjs';
 
 // What a statement hands back, counted (old test/person-store-reads-for-tests.mjs countingHost).

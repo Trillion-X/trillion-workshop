@@ -8,7 +8,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { DatabaseSync } from 'node:sqlite';
 import { makeAgents } from '../../shared-code/src/agents.mjs';
-import { activityFor, activityRow, keepActivity } from '../../see-what-my-ais-did/activity.mjs';
+import { activityFor, activityRow, keepActivity } from '../../shared-code/src/activity.mjs';
 import { AG_UI, AgUiInputError, eventStream, interruptIdOf, jobOfInterrupt, runInput, watchRun } from '../src/ag-ui.mjs';
 import { sseFrame } from '../harness/ag-ui-wire.mjs';
 import { agentStoreForTests } from '../../shared-code/test/agent-store-for-tests.mjs';

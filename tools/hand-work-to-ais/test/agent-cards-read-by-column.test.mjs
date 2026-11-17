@@ -16,7 +16,7 @@ import { sqliteHost } from '../../keep-and-wake-ai-sessions-on-this-computer/src
 import { openRecords } from '../../keep-and-wake-ai-sessions-on-this-computer/src/record-engine.mjs';
 import { makeAgents } from '../../shared-code/src/agents.mjs';
 import { tablesIntoRecords } from '../../move-the-rows-a-persons-store-kept-in-tables/src/tables-into-records.mjs';
-import { agentRecordStore, AGENT_RECORD_TABLES } from '../agent-records.mjs';
+import { agentRecordStore, AGENT_RECORD_TABLES } from '../../shared-code/src/agent-records.mjs';
 
 const CARDS = 600;
 // The most card rows one statement may hand back: the few cards that answer the question, never the account's cards.

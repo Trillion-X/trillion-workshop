@@ -4,7 +4,7 @@ import { sqliteHost } from '../../keep-and-wake-ai-sessions-on-this-computer/src
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
 import { eeafStore } from '../../keep-and-wake-ai-sessions-on-this-computer/parts/eeaf/do-work/eeaf-sqlite-store.mjs';
-import { checkedPublicAppDefinition } from '../../edit-a-site-visually/src/public-app-definition.mjs';
+import { checkedPublicAppDefinition } from '../../shared-code/src/public-app-definition.mjs';
 import { privatePublicAppRecords, recordPrivatePublicAppAction, recordSpacePublicAppAction, spacePublicAppRecords } from '../src/public-app-record-bridge.mjs';
 import { yourRecordsStore } from '../../keep-and-wake-ai-sessions-on-this-computer/src/your-records.mjs';
 

@@ -1,5 +1,5 @@
 // Immutable result transport only: the handoff keeps the parsed original result, never this descriptor.
-import rules from './handoff-result-source.json' with { type: 'json' };
+import rules from '../shared-code/src/handoff-result-source.json' with { type: 'json' };
 import { createByteIdentity } from '../browse-and-upload-my-files/do-work/byte-identity.mjs';
 import { keepContentJson } from '../serialized-content/do-work/content-json.mjs';
 export const HANDOFF_RESULT_SOURCE = rules;

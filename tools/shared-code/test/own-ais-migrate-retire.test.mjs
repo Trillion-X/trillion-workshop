@@ -11,7 +11,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { sqliteHost } from '../../keep-and-wake-ai-sessions-on-this-computer/src/local-store.mjs';
 import { openRecords } from '../../keep-and-wake-ai-sessions-on-this-computer/src/record-engine.mjs';
-import { makeAis } from '../../see-and-limit-what-each-ai-can-reach/src/ais.mjs';
+import { makeAis } from '../src/ais.mjs';
 import { makeAgents } from '../src/agents.mjs';
 import { retiredHarness, retiring } from '../src/own-ais.mjs';
 import settings from '../src/own-ais.json' with { type: 'json' };

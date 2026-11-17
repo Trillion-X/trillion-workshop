@@ -36,7 +36,7 @@ import {
   contentCollections,
   filterItemsWithAncestors,
   visibleViewerItems,
-} from '../../../../shared-code/packages/access-scoped-content/show/AccessScopedContent';
+} from './AccessScopedContent';
 
 const item = {
   id: 'item:1',

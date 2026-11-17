@@ -25,6 +25,14 @@
       "to": "tools/turn-a-button-press-like-ask-my-ai/src/queued-work.mjs",
       "source_identity": "1f:2a1bf6aeec3289cc33b7a07294259780eded70aafbccdc05f50bdd79e7ac8683",
       "identity": "1f:7554ca01a8b5bf6e691a2a2eccbf91951221dec665188a5fc64b887ec5c19949"
+    },
+    {
+      "from": "test/moments.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/turn-a-button-press-like-ask-my-ai/test/moments.test.mjs",
+      "source_identity": "1f:4676ecca7d1bd96de63093abb58db7c777f91cc20dbc4c04229f35ce6ef35cdd",
+      "identity": "1f:b572392e334f94e31c6d54a12dc91a02f487420cf56851fde37114c2cadc75d9",
+      "adapted": "the four tests of the pure moment parts are the old ones; the fifteen that made arrivals through old src/inbound.mjs and the starting rules (src/automations.mjs) are left out: neither runs anywhere."
     }
   ]
 }

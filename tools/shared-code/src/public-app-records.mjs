@@ -1,7 +1,7 @@
 // Durable installation and visitor records. The same table and validation run
 // inside a private PersonStore or the shared Network store. An acknowledged
 // visitor action is committed in that context's SQLite before the reply.
-import { checkedInstallationContext, checkedPublicAppDefinition, checkedVisitorAction } from '../../edit-a-site-visually/src/public-app-definition.mjs';
+import { checkedInstallationContext, checkedPublicAppDefinition, checkedVisitorAction } from './public-app-definition.mjs';
 
 const now = () => new Date().toISOString();
 const ID = /^[a-f0-9]{32}$/;

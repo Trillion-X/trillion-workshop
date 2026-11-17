@@ -20,7 +20,7 @@ The job's other moved files are kept once in a shared place, because more than o
 
 ## Not yet here
 
-- `src/automations.mjs`: it imports PERSON_APP from src/activity.mjs, whose home tools/see-what-my-ais-did/activity.mjs loads only inside its own row's packed run (that row lays src/execution-context.mjs beside it): src/automations.mjs moves once a row packs it, or activity.mjs loads where it is
+- `src/automations.mjs`: it imports PERSON_APP from src/activity.mjs, whose home tools/shared-code/src/activity.mjs loads only inside its own row's packed run (that row lays src/execution-context.mjs beside it): src/automations.mjs moves once a row packs it, or activity.mjs loads where it is
 
 ## Dependencies
 

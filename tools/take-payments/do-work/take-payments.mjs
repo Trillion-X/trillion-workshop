@@ -39,7 +39,7 @@ import {
 } from './hosted-session.ts';
 import { ensureOfferPaymentLinks } from './ensure-offer-payment-links.mjs';
 import { destinationCheckoutSubject, onboardingLinkSubject, payeeAccountSubject, payeeReadiness, shareTransferSubject } from './connect-payees.mjs';
-import { call } from './build-provider-request.mjs';
+import { call } from '../../shared-code/src/build-provider-request.mjs';
 import { admitStripeWebhook } from './admit-a-webhook.mjs';
 import { mapStripeWebhookEvent } from './map-webhook-event.mjs';
 import { heldKey, makeStripeSender } from './stripe-send.mjs';

@@ -85,7 +85,6 @@
           "trillion-workshop/know-who-is-in-this",
           "trillion-workshop/learn-a-workflow-from-a-job",
           "trillion-workshop/learn-from-everyones-results",
-          "trillion-workshop/let-an-ai-find-a-workflow-for-a-job-read",
           "trillion-workshop/let-someone-look-at-my-trillion-read",
           "trillion-workshop/limit-what-one-sign-in-may-reach-the-persons",
           "trillion-workshop/list-and-run-trillions-tools-for-any-ai",
@@ -220,7 +219,7 @@
         },
         "label": "Build the request that starts a seller's payment setup",
         "job": "Build, without sending it, the payment provider (Stripe) request that starts a seller's payment setup and gets their hosted onboarding link, or any other request the folder's operation map names",
-        "description": "Calls buildStripeHttpRequest (tools/take-payments/do-work/build-provider-request.mjs) with the input: operation_id names one row of tools/take-payments/read-data/provider-operation-map.json (operation:create-connected-account and operation:create-account-link start a seller's setup and its hosted onboarding link; the map has every other operation too), input_facts holds what the request says (operation_subject becomes the form-encoded body of a write or the query of a search, provider_object_ref fills the address, acting_account the Stripe-Account header where the row declares it; a subject id becomes client_reference_id), idempotency_key becomes the Idempotency-Key header of a write, api_version_policy the Stripe-Version (the map's current version when left out) and required_credential_ref the name of the key a sender would use (credential-class:stripe-restricted-key when left out). Answers the finished request: method, url, headers, body, auth { scheme, credential_ref } and api_version. It holds and reads no key, puts no Authorization header on the request, sends nothing and moves no money: the request is for a sender (or a person) to look at first. Refuses an operation the map does not name and a missing provider_object_ref where the address needs one. The old screen also sent the request with the seller's own key and took the seller to the onboarding page the answer names; this run does neither.",
+        "description": "Calls buildStripeHttpRequest (tools/shared-code/src/build-provider-request.mjs) with the input: operation_id names one row of tools/shared-code/src/provider-operation-map.json (operation:create-connected-account and operation:create-account-link start a seller's setup and its hosted onboarding link; the map has every other operation too), input_facts holds what the request says (operation_subject becomes the form-encoded body of a write or the query of a search, provider_object_ref fills the address, acting_account the Stripe-Account header where the row declares it; a subject id becomes client_reference_id), idempotency_key becomes the Idempotency-Key header of a write, api_version_policy the Stripe-Version (the map's current version when left out) and required_credential_ref the name of the key a sender would use (credential-class:stripe-restricted-key when left out). Answers the finished request: method, url, headers, body, auth { scheme, credential_ref } and api_version. It holds and reads no key, puts no Authorization header on the request, sends nothing and moves no money: the request is for a sender (or a person) to look at first. Refuses an operation the map does not name and a missing provider_object_ref where the address needs one. The old screen also sent the request with the seller's own key and took the seller to the onboarding page the answer names; this run does neither.",
         "read_only": true,
         "input_schema": {
           "type": "object",
@@ -417,6 +416,16 @@
                 ],
                 "at": "/opt/content-identity"
               },
+{
+                "package": "shared-code",
+                "paths": [
+                  "src/build-provider-request.mjs",
+                  "src/encode-provider-form.mjs",
+                  "src/provider-operation-map.json",
+                  "src/provider-request-mapper.mjs"
+                ],
+                "at": "/opt/shared-code"
+              },
               {
                 "packages": ["node_modules/@noble/hashes"],
                 "paths": [
@@ -450,7 +459,7 @@
         },
         "result_selector": "$.result",
         "provenance": {
-          "source": "Trillion-X/trillion parts/stripe-payment-provider/process/build-provider-request.mjs, provider-request-mapper.mjs, encode-provider-form.mjs and tools/take-payments/read-data/provider-operation-map.json, moved in a9ee258 (#76); old capability row capabilities.json:724 at 4ffa1dc4a2^ (start seller payment setup and send the seller to the payment provider's hosted onboarding)."
+          "source": "Trillion-X/trillion parts/stripe-payment-provider/process/build-provider-request.mjs, provider-request-mapper.mjs, encode-provider-form.mjs and tools/shared-code/src/provider-operation-map.json, moved in a9ee258 (#76); old capability row capabilities.json:724 at 4ffa1dc4a2^ (start seller payment setup and send the seller to the payment provider's hosted onboarding)."
         },
         "verify": [
           {

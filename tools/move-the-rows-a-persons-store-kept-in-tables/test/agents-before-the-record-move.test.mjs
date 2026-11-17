@@ -12,10 +12,10 @@ import assert from 'node:assert/strict';
 import { sqliteHost } from '../../keep-and-wake-ai-sessions-on-this-computer/src/local-store.mjs';
 import { LOG_ENGINE, openRecords, setRecordEngine } from '../../keep-and-wake-ai-sessions-on-this-computer/src/record-engine.mjs';
 import { makeRecordMove } from '../../keep-and-wake-ai-sessions-on-this-computer/src/record-move.mjs';
-import { agentRecordStore, AGENT_RECORD_TABLES } from '../../hand-work-to-ais/agent-records.mjs';
-import { agentLegacyRows } from '../../hand-work-to-ais/agent-legacy-rows.mjs';
-import { tablesIntoRecords } from '../../move-the-rows-a-persons-store-kept-in-tables/src/tables-into-records.mjs';
-import { CARD_COLUMNS, cardColumnsOf, JOB_COLUMNS, jobColumnsOf, makeAgents } from '../src/agents.mjs';
+import { agentRecordStore, AGENT_RECORD_TABLES } from '../../shared-code/src/agent-records.mjs';
+import { agentLegacyRows } from '../../shared-code/src/agent-legacy-rows.mjs';
+import { tablesIntoRecords } from '../src/tables-into-records.mjs';
+import { CARD_COLUMNS, cardColumnsOf, JOB_COLUMNS, jobColumnsOf, makeAgents } from '../../shared-code/src/agents.mjs';
 
 // The person store's records, record move and agents, composed as old src/person-store.mjs composed them.
 function personOver({ sql, transaction }) {

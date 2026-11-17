@@ -11,10 +11,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { makeSourceHealth } from '../src/automation-health.mjs';
+import { makeSourceHealth } from '../../shared-code/src/automation-health.mjs';
 import { makeRowFilter } from '../../formula-engine/rules/filter-rows-by-rules.mjs';
 import operators from '../../formula-engine/rules/rule-operators.json' with { type: 'json' };
-import looks from '../../run-rules-and-schedules-by-themselves/src/automation-health-looks.json' with { type: 'json' };
+import looks from '../src/automation-health-looks.json' with { type: 'json' };
 
 const NOW = '2026-09-29T12:00:00.000Z';
 const ago = hours => new Date(Date.parse(NOW) - hours * 3600000).toISOString();
@@ -104,7 +104,7 @@ test('a run that started and is still going after a failure clears failing: the 
 });
 
 test('an error kept as JSON reads as its own words, and one made while Trillion updated says so plainly', async () => {
-  const { plainError } = await import('../src/automation-health.mjs');
+  const { plainError } = await import('../../shared-code/src/automation-health.mjs');
   assert.equal(plainError('{"error":"The service is down.","phase":"dispatch"}', looks), 'The service is down.');
   assert.equal(plainError({ error: 'The service is down.' }, looks), 'The service is down.');
   assert.equal(plainError('{"error":"The RPC receiver does not implement the method \\"publishedWorkflows\\".","phase":"dispatch"}', looks),

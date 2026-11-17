@@ -2,7 +2,7 @@
 import { blake3 } from '../../keep-and-wake-ai-sessions-on-this-computer/parts/live-namespace/do-work/blake3.mjs';
 import { bytesToHex } from '@noble/hashes/utils.js';
 import { NAMESPACE_FILE, NAMESPACE_IDENTITY } from './repo-explorer.mjs';
-import { timeZoneName } from '../../run-work-later-or-on-a-repeat/do-work/wall-time.ts';
+import { timeZoneName } from '../../wall-time/read-data/wall-time.mjs';
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const nonempty = value => typeof value === 'string' && value.trim().length > 0;
 

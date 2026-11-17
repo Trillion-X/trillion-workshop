@@ -13,8 +13,8 @@ import test from 'node:test';
 import { sqliteHost } from '../../keep-and-wake-ai-sessions-on-this-computer/src/local-store.mjs';
 import { openRecords } from '../../keep-and-wake-ai-sessions-on-this-computer/src/record-engine.mjs';
 import { JOB_COLUMNS, jobColumnsOf } from '../../shared-code/src/agents.mjs';
-import { agentRecordStore } from '../agent-records.mjs';
-import { agentLegacyRows } from '../agent-legacy-rows.mjs';
+import { agentRecordStore } from '../../shared-code/src/agent-records.mjs';
+import { agentLegacyRows } from '../../shared-code/src/agent-legacy-rows.mjs';
 
 // The store these reads ran over: its records, and the agent store kept on them.
 async function personStore() {

@@ -15,7 +15,7 @@ import { sqliteHost } from '../../keep-and-wake-ai-sessions-on-this-computer/src
 import { openRecords } from '../../keep-and-wake-ai-sessions-on-this-computer/src/record-engine.mjs';
 import { makeAgents } from '../../shared-code/src/agents.mjs';
 import { liveWork } from '../../hand-off-jobs-between-agents/src/live-work.mjs';
-import { agentRecordStore } from '../agent-records.mjs';
+import { agentRecordStore } from '../../shared-code/src/agent-records.mjs';
 
 const OTHERS = 400;
 const PAGE = 50;

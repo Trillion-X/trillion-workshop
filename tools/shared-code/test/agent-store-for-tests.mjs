@@ -2,7 +2,7 @@
 // (src/agent-records.mjs), over a fresh in-memory database on the log engine, with saved instructions kept beside it.
 import { sqliteHost } from '../../keep-and-wake-ai-sessions-on-this-computer/src/local-store.mjs';
 import { openRecords } from '../../keep-and-wake-ai-sessions-on-this-computer/src/record-engine.mjs';
-import { agentRecordStore } from '../../hand-work-to-ais/agent-records.mjs';
+import { agentRecordStore } from '../src/agent-records.mjs';
 
 export function agentStoreForTests() {
   const host = sqliteHost(':memory:');

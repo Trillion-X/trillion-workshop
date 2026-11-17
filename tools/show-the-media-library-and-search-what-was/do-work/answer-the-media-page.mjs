@@ -27,7 +27,7 @@
 //      the person keeps and a word, and the store stamps its time (src/recent-files.mjs).
 
 const json = (value, status = 200) => Response.json(value, { status });
-import { PERSON_APP } from '../../see-what-my-ais-did/activity.mjs';
+import { PERSON_APP } from '../../shared-code/src/activity.mjs';
 import liveWords from '../../show-live-words-while-recording/src/live-words.json' with { type: 'json' };
 import { handleMediaEditor, isMediaEditorPath, startedRunAnswer } from '../../send-a-saved-edit-from-the-media-editor/src/work-media-editor.mjs';
 import { handleMediaSession, isMediaSessionPath } from '../../keep-the-media-editors-open-session-its-published/src/work-media-session.mjs';

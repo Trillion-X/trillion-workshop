@@ -5,8 +5,8 @@ import { anyoneFrom } from '../../shared-code/src/agents.mjs';
 import { agentStoreForTests } from '../../shared-code/test/agent-store-for-tests.mjs';
 import { sqliteHost } from '../src/local-store.mjs';
 import { openRecords, setRecordEngine } from '../src/record-engine.mjs';
-import { agentRecordStore } from '../../hand-work-to-ais/agent-records.mjs';
-import { agentLegacyRows } from '../../hand-work-to-ais/agent-legacy-rows.mjs';
+import { agentRecordStore } from '../../shared-code/src/agent-records.mjs';
+import { agentLegacyRows } from '../../shared-code/src/agent-legacy-rows.mjs';
 
 test('projected helper pages preserve unmoved legacy cursors, record shadows and dependency answers', () => {
   const host = sqliteHost(':memory:');

@@ -13,7 +13,7 @@ import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
 import { sqliteHost } from '../../keep-and-wake-ai-sessions-on-this-computer/src/local-store.mjs';
 import { openRecords } from '../../keep-and-wake-ai-sessions-on-this-computer/src/record-engine.mjs';
-import { agentsFromAis, makeAis } from '../src/ais.mjs';
+import { agentsFromAis, makeAis } from '../../shared-code/src/ais.mjs';
 import { recordLogStore } from '../../keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/record-log-store.mjs';
 
 // Old src/mcp-client-identity.mjs mcpSignInId: a key's own id, or an OAuth client's hashed id.

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { DatabaseSync } from 'node:sqlite';
-import { keepActivity, traceActivity } from 'trillion-workshop/tools/see-what-my-ais-did/activity.mjs';
+import { keepActivity, traceActivity } from 'trillion-workshop/tools/shared-code/src/activity.mjs';
 
 function fixture() {
   const db = new DatabaseSync(':memory:');

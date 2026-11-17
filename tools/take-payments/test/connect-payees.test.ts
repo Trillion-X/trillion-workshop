@@ -8,7 +8,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from './expect.mjs';
 // eslint-disable-next-line import/extensions
-import { buildStripeHttpRequest } from '../do-work/build-provider-request.mjs';
+import { buildStripeHttpRequest } from '../../shared-code/src/build-provider-request.mjs';
 // eslint-disable-next-line import/extensions
 import { destinationCheckoutSubject, feeCents, onboardingLinkSubject, payeeAccountSubject, payeeReadiness, shareTransferSubject } from '../do-work/connect-payees.mjs';
 // eslint-disable-next-line import/extensions

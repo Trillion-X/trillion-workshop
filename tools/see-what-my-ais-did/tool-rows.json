@@ -85,7 +85,6 @@
           "trillion-workshop/know-who-is-in-this",
           "trillion-workshop/learn-a-workflow-from-a-job",
           "trillion-workshop/learn-from-everyones-results",
-          "trillion-workshop/let-an-ai-find-a-workflow-for-a-job-read",
           "trillion-workshop/let-someone-look-at-my-trillion-read",
           "trillion-workshop/limit-what-one-sign-in-may-reach-the-persons",
           "trillion-workshop/list-and-run-trillions-tools-for-any-ai",
@@ -434,8 +433,6 @@
               {
                 "package": "see-what-my-ais-did",
                 "paths": [
-                  "activity.mjs",
-                  "activity-marks.json",
                   "do-work"
                 ],
                 "at": "/opt/activity/see-what-my-ais-did"
@@ -483,6 +480,14 @@
                   "read-data"
                 ],
                 "at": "/opt/content-identity"
+              },
+{
+                "package": "shared-code",
+                "paths": [
+                  "src/activity-marks.json",
+                  "src/activity.mjs"
+                ],
+                "at": "/opt/shared-code"
               },
               {
                 "packages": ["node_modules/@noble/hashes"],

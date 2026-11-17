@@ -1,8 +1,8 @@
 // One machine-readable failure contract for HTTP, MCP and internal retry decisions.
 // Trillion-created failures carry a stable code. Cloudflare-created errors are adapted here, once, at the boundary.
-import codes from '../../set-up-my-account/read-data/failure-codes.json' with { type: 'json' };
-import platform from '../../set-up-my-account/read-data/platform-failures.json' with { type: 'json' };
-import effectOutcomes from '../../set-up-my-account/read-data/effect-outcomes.json' with { type: 'json' };
+import codes from './failure-codes.json' with { type: 'json' };
+import platform from './platform-failures.json' with { type: 'json' };
+import effectOutcomes from './effect-outcomes.json' with { type: 'json' };
 
 /** The triple every failed or unsettled receipt carries (src/effect-outcomes.json): { retryable, side_effect,
  * required_next, next_said } for an effect state; a state with no row answers as the fallback row (unknown), never as
