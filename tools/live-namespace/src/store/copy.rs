@@ -56,6 +56,18 @@ fn kind_of(table: &str, column: &str) -> Kind {
 }
 
 impl SqlStore {
+    /// How many rows each table of this store's database holds, in `copy-from-archive.sql` order: the readback of a copy. Only reads.
+    pub fn table_counts(&self) -> Result<Vec<(String, u64)>, Error> {
+        let mut link = self.link.lock().map_err(|_| crate::cause!(Error::Unavailable))?;
+        let mut counts = Vec::new();
+        for step in steps() {
+            let rows = link.query(&format!("SELECT CAST(COUNT(*) AS BIGINT) FROM {}", step.table), &[])?;
+            counts.push((step.table, rows.first().and_then(|row| row[0].as_int()).and_then(|count| u64::try_from(count).ok()).ok_or(crate::cause!(Error::Unavailable))?));
+        }
+        Ok(counts)
+    }
+
+
     /// Copy every archive table into this store's database. `copied` is told the table and how many rows are in it so far, after each batch.
     /// Answers each table's name and the rows it had in the archive.
     pub fn copy_from_archive(&self, archive: &mut Link, copied: &mut dyn FnMut(&str, u64)) -> Result<Vec<(String, u64)>, Error> {

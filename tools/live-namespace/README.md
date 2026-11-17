@@ -76,7 +76,7 @@ results and shares).
 | `moved-from.json` | Each moved file's source path, commit and identities, and what was left behind. |
 | `part.json` | The files the app imports from this folder. |
 | `do-work/blake3.mjs`, `do-work/content-chunks-browser.mjs`, `do-work/send-a-file-to-namespace-browser.mjs` | The chunked sender the browser and folder uploaders share (moved from trillion-apps). |
-| `src/main.rs` | The program: modes `mcp`, `dav`, `serve`, `account-files-bind`, `copy-archive --from FILE` (copies an archive's ns_* tables, read-only, into the rows). |
+| `src/main.rs` | The program: modes `mcp`, `dav`, `serve`, `account-files-bind`, `counts` (how many rows each names-index table holds, only reads), `copy-archive --from FILE` (copies an archive's ns_* tables, read-only, into the rows). |
 | `src/serve/mod.rs` | One run: reads the attached connections, opens the rows, makes the files on a first run, `Namespace::call`. |
 | `src/serve/mcp.rs` | MCP over stdio. |
 | `src/serve/dav.rs` | The WebDAV listener. |

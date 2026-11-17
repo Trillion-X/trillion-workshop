@@ -11,7 +11,7 @@ import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
 import { WAYS, ensureProgram, installCarrier, pickArtifact, portFor, removeCarrier, renderClient, renderMeetingPoint, serveCarrier, valuesFor } from '../do-work/carry-a-computer.mjs';
 
-const relayHost = { id: 'relay-example', hostname: 'relay.example.test', params: { control_port: 2333, ssh_port: 22, host_key: 'ssh-ed25519 AAAAEXAMPLE' } };
+const relayHost = { id: 'relay-example', hostname: 'relay.example.test', params: { control_port: 2333, ssh_port: 22, host_key: 'ssh-ed25519 AAAAEXAMPLE', target_port: 5432 } };
 const way = id => WAYS.find(row => row.id === id);
 const folder = t => { const dir = mkdtempSync(join(tmpdir(), 'carrier-')); t.after(() => rmSync(dir, { recursive: true, force: true })); return dir; };
 
@@ -70,6 +70,22 @@ test('the second row is a reverse forward bound to loopback on both sides, with 
   assert.ok(argv.includes(`127.0.0.1:${portFor('computer-one')}:127.0.0.1:8789`));
   assert.match(argv.at(-1), /^carry-[0-9a-f]{16}@relay\.example\.test$/);
   assert.equal(files.find(file => file.name === 'known_hosts').text, '[relay.example.test]:22 ssh-ed25519 AAAAEXAMPLE\n');
+});
+
+test('the local forward row carries one loopback port of the host to this computer, and holds the host to that one port', () => {
+  const host = relayHost;
+  const values = valuesFor({ way: way('ssh-local-forward'), relay_host: host, computer_id: 'computer-one', local_port: 15432 });
+  const { files, argv } = renderClient(way('ssh-local-forward'), values, { secret: 'KEY', dir: '/run/dir' });
+  assert.ok(argv.includes('StrictHostKeyChecking=yes') && argv.includes('ExitOnForwardFailure=yes') && !argv.includes('-R'));
+  assert.ok(argv.includes('127.0.0.1:15432:127.0.0.1:5432'), 'listens on this computer\'s loopback and opens only the host\'s loopback port');
+  assert.equal(files.find(file => file.name === 'identity').text, 'KEY\n');
+  assert.ok(!argv.join(' ').includes('KEY'));
+  const served = renderMeetingPoint({ way: way('ssh-local-forward'), relay_host: host, computers: [{ id: 'computer-one', server_value: 'ssh-ed25519 AAAAC3 example' }] });
+  assert.ok(served.steps.find(step => step.file?.path.endsWith('authorized_keys')).file.text.startsWith('restrict,port-forwarding,permitopen="127.0.0.1:5432" ssh-ed25519'));
+  const entry = served.steps.find(step => step.file?.path.endsWith('.conf')).file.text;
+  assert.match(entry, /AllowTcpForwarding local\n/);
+  assert.match(entry, /PermitOpen 127\.0\.0\.1:5432\n/);
+  assert.match(entry, /PermitListen none\n/);
 });
 
 test('a synthetic way row runs with no code change', async t => {

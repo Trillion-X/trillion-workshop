@@ -98,6 +98,12 @@ impl Namespace {
         Ok(store.copy_from_archive(&mut Link::archive(archive)?, copied)?)
     }
 
+    /// How many rows each names-index table of the person's database holds (the readback of a copy).
+    pub fn counts(settings: &Settings, state: &Path) -> Result<Vec<(String, u64)>, Refusal> {
+        let (_, _, store) = open_sql(settings, state)?;
+        Ok(store.table_counts()?)
+    }
+
     /// The operations this run answers, as the routes DATA lists them.
     pub fn operations(&self) -> &[String] {
         self.door.operations()

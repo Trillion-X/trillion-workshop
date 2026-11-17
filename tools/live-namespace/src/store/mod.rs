@@ -869,6 +869,7 @@ mod tests {
         let counts = store.copy_from_archive(&mut Link::archive(&path).unwrap(), &mut |table, rows| progress.push((table.to_owned(), rows))).unwrap();
         assert_eq!(counts.iter().map(|(table, rows)| (table.as_str(), *rows)).collect::<Vec<_>>(), [("ns_chunk", 1), ("ns_alias", 1), ("ns_spans", 1), ("ns_file", 2), ("ns_name", 3), ("ns_folder", 2)]);
         assert_eq!(progress.len(), 6);
+        assert_eq!(store.table_counts().unwrap(), counts, "the readback equals what the copy counted");
         assert_eq!(store.copy_from_archive(&mut Link::archive(&path).unwrap(), &mut |_, _| {}).unwrap().len(), 6, "a copy run again changes nothing");
         let names = store.list_page("@namespace/names/AI chat exports", "", 10).unwrap();
         assert_eq!(names.items.len(), 1);
