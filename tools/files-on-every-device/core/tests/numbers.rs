@@ -1,7 +1,7 @@
 //! No arbitrary constants: every number the core plans with comes from DATA (contract.json, the contract's own
-//! settings handed in at setup) or is derived from a measurement (link.rs). This test reads the core's source and
-//! refuses any number in code but 0 and 1, and one unit (milliseconds in a second); and it holds contract.json's
-//! `bounds` to the contract's settings file, where the numbers live.
+//! answer to its `bounds` call) or is derived from a measurement (link.rs). This test reads the core's source and
+//! refuses any number in code but 0 and 1, and one unit (milliseconds in a second); and it holds the bounds fields the
+//! core reads to the fields live-namespace's `bounds` answers.
 
 use std::path::Path;
 
@@ -98,14 +98,12 @@ fn the_check_finds_a_number_in_code() {
 }
 
 #[test]
-fn the_bounds_are_the_contracts_own_settings() {
+fn the_bounds_are_the_contracts_own_answer() {
     let contract: Value = serde_json::from_str(include_str!("../contract.json")).unwrap();
-    let settings: Value = serde_json::from_str(include_str!("../../../live-namespace/src/account_files/settings.json")).unwrap();
-    for (bound, path) in contract["bounds"].as_object().unwrap() {
-        let mut value = &settings;
-        for part in path.as_str().unwrap().split('.') {
-            value = &value[part];
-        }
-        assert!(value.as_u64().is_some_and(|number| number > 0), "{bound} names {path}, which the settings do not hold");
+    let answered = include_str!("../../../live-namespace/src/account_files/folder.rs");
+    let answered = &answered[answered.find("pub fn bounds(").expect("live-namespace answers `bounds`")..];
+    for (job, field) in contract["fields"].as_object().unwrap().iter().filter(|(job, _)| job.starts_with("bounds_")) {
+        assert!(answered.contains(&format!("\"{}\":", field.as_str().unwrap())), "{job}: the contract's bounds answer has no {field}");
     }
+    assert_eq!(contract["operations"]["bounds"], "bounds");
 }

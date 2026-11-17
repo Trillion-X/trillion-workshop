@@ -6,7 +6,7 @@ mod sim;
 
 use files_core::{Command, Problem};
 use serde_json::{json, Value};
-use sim::{Content, Linked, World};
+use sim::{Content, Linked, Reply, World};
 
 fn kept(bytes: &[u8]) -> Content {
     Content::Kept(bytes.to_vec())
@@ -74,6 +74,7 @@ fn bug_04_a_restart_resumes_from_its_cursor() {
     again.store = std::mem::take(&mut world.store);
     again.event(json!({"restore": {"state": state.clone()}}));
     again.event(json!({"watch": null}));
+    again.settle();
     let watch = again.sends.iter().find(|(_, operation, _)| operation == "list_changes").unwrap();
     assert_eq!(watch.2["after"], state["cursor"]);
     assert!(again.sends.iter().all(|(_, operation, _)| operation != "list_files"), "no relisting");
@@ -139,7 +140,7 @@ fn bug_07_an_unheld_wait_is_never_a_tight_loop() {
         Command::Wake { at_ms } => Some(*at_ms),
         _ => None,
     });
-    let idle_ms = sim::contract_bounds()["idle_ms"].as_u64().unwrap();
+    let idle_ms = sim::idle_ms();
     let at = wake.expect("a wake for the next wait");
     assert!(at >= idle_ms, "{at}");
     world.until(at - 1);
@@ -251,8 +252,8 @@ fn bug_14_a_failed_copy_never_trains_read_ahead() {
     world.store.put_file("/clip.mov", Content::Made { seed: 3, size: 1 << 30 }, Some(1));
     world.list(1, "trillion");
     let mut refuse = true;
-    world.tamper = Some(Box::new(move |operation, _, _, body| {
-        if operation == "read_file_span" && refuse {
+    world.tamper = Some(Box::new(move |operation, _, reply| {
+        if let (Reply::Answer(body), true) = (reply, operation == "read_file_span" && refuse) {
             body["offset"] = json!(1);
             refuse = false;
         }
@@ -298,8 +299,8 @@ fn bug_16_a_wrong_answer_is_refused_and_poisons_nothing() {
         world.list(1, "trillion");
         let mut once = true;
         let (field_name, value) = (field.to_owned(), wrong.clone());
-        world.tamper = Some(Box::new(move |operation, _, _, body| {
-            if operation == "read_file_span" && once {
+        world.tamper = Some(Box::new(move |operation, _, reply| {
+            if let (Reply::Answer(body), true) = (reply, operation == "read_file_span" && once) {
                 body[field_name.as_str()] = value.clone();
                 once = false;
             }
@@ -320,10 +321,9 @@ fn bug_17_a_busy_computer_is_asked_again_after_its_wait() {
     world.store.put_file("/a.txt", kept(b"abc"), Some(1));
     world.list(1, "trillion");
     let mut busy = true;
-    world.tamper = Some(Box::new(move |operation, _, status, body| {
+    world.tamper = Some(Box::new(move |operation, _, reply| {
         if operation == "read_file_span" && busy {
-            *status = 200;
-            *body = json!({"busy": true, "retry_after_seconds": 2});
+            *reply = Reply::Answer(json!({"busy": true, "retry_after_seconds": 2}));
             busy = false;
         }
     }));

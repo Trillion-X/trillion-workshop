@@ -4,7 +4,9 @@
 //! is the latest answer's bytes over its transfer time (the link as it is now); a read's wait is the latest span
 //! read's time to its first byte, which holds what the store spends finding the bytes (a file kept as many small
 //! objects costs one store round trip each). Before a first answer nothing is derived: the core asks exactly what
-//! the OS asked.
+//! the OS asked. A span's bytes travel inside the door's answer, larger than themselves (encoded, and told twice);
+//! how much larger is measured from each span answer, so every amount of file bytes is planned at the rate file
+//! bytes actually arrive.
 
 use crate::data::Bounds;
 
@@ -17,6 +19,8 @@ pub struct Link {
     read_wait_ms: Option<u64>,
     /// When the latest answer was complete: an answer whose first byte came no later waited behind our own bytes.
     last_done_ms: u64,
+    /// The latest span answer's bytes over the file bytes it carried.
+    span_wire_ratio: Option<f64>,
 }
 
 impl Link {
@@ -41,6 +45,23 @@ impl Link {
         }
     }
 
+    /// One span answer's size against the file bytes it carried.
+    pub fn span_carried(&mut self, answer_bytes: u64, file_bytes: u64) {
+        if file_bytes > 0 {
+            self.span_wire_ratio = Some(answer_bytes as f64 / file_bytes as f64);
+        }
+    }
+
+    /// The bytes a span answer carrying `file_bytes` takes on the link.
+    pub fn span_answer_bytes(&self, file_bytes: u64) -> u64 {
+        (file_bytes as f64 * self.span_wire_ratio.unwrap_or(1.0)).ceil() as u64
+    }
+
+    /// File bytes per millisecond: the link's rate over a span answer's size per file byte.
+    pub fn file_rate(&self) -> Option<f64> {
+        Some(self.rate? / self.span_wire_ratio.unwrap_or(1.0))
+    }
+
     pub fn read_wait_ms(&self) -> Option<u64> {
         self.read_wait_ms
     }
@@ -53,19 +74,20 @@ impl Link {
         self.rate
     }
 
-    /// The bytes the link carries in one round trip, its bandwidth-delay product.
+    /// The file bytes the link carries in one round trip, its bandwidth-delay product.
     pub fn bytes_per_round_trip(&self) -> Option<u64> {
-        Some((self.rate? * self.round_trip_ms? as f64) as u64)
+        Some((self.file_rate()? * self.round_trip_ms? as f64) as u64)
     }
 
-    /// The most bytes one request may carry: the contract's bound for it (`most`), and no more than the link carries
-    /// in the contract's idle bound, so every answer arrives inside it and a stall is a real stall.
+    /// The most file bytes one request may carry: the contract's bound for it (`most`), and no more than the link
+    /// carries in the contract's idle bound, so every answer arrives inside it and a stall is a real stall.
     pub fn request_most(&self, bounds: &Bounds, most: u64) -> u64 {
-        let within_idle = self.rate.map(|rate| (rate * bounds.idle_ms as f64) as u64);
+        let within_idle = self.file_rate().map(|rate| (rate * bounds.idle_ms as f64) as u64);
         within_idle.map_or(most, |within| within.clamp(1, most))
     }
 
-    /// When a request of `bytes` sent at `sent_ms` has stalled: the contract's idle bound past its expected arrival.
+    /// When a request whose answer is `bytes` long, sent at `sent_ms`, has stalled: the contract's idle bound past its
+    /// expected arrival.
     pub fn deadline_ms(&self, bounds: &Bounds, sent_ms: u64, bytes: u64) -> u64 {
         let expected = self.round_trip_ms.unwrap_or_default()
             + self.rate.map_or(0, |rate| (bytes as f64 / rate) as u64);
@@ -86,7 +108,7 @@ impl Link {
     /// rate) + read`. A reader is never counted faster than the link: what it reads past the link's rate it waits for
     /// regardless.
     pub fn ahead_bytes(&self, consumption: f64, read: u64) -> Option<u64> {
-        let rate = self.rate?;
+        let rate = self.file_rate()?;
         let round_trip = self.read_wait_ms.or(self.round_trip_ms)? as f64;
         let reader = consumption.min(rate);
         Some((reader * (round_trip + read as f64 / rate)).ceil() as u64 + read)

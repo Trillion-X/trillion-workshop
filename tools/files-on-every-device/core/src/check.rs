@@ -25,7 +25,6 @@ pub struct Asked {
 /// Why an answer was refused.
 #[derive(Debug, PartialEq, Eq)]
 pub enum Refusal {
-    NotJson,
     OtherVersion,
     OtherOffset,
     OtherSize,
@@ -34,8 +33,7 @@ pub enum Refusal {
 }
 
 /// The bytes of a span answer that passed every check.
-pub fn checked_span(contract: &Contract, asked: &Asked, body: &[u8]) -> Result<Vec<u8>, Refusal> {
-    let answer: Value = serde_json::from_slice(body).map_err(|_| Refusal::NotJson)?;
+pub fn checked_span(contract: &Contract, asked: &Asked, answer: &Value) -> Result<Vec<u8>, Refusal> {
     let number = |job: &str| answer.get(contract.field(job)).and_then(Value::as_u64);
     if answer.get(contract.field("identity")).and_then(Value::as_str) != Some(asked.identity.as_str()) {
         return Err(Refusal::OtherVersion);

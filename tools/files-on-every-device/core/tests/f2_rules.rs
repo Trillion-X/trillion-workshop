@@ -106,7 +106,7 @@ fn rule_05_progress_keeps_moving() {
 /// Rule 6: at high latency the first request takes the whole file when it fits in one round trip.
 #[test]
 fn rule_06_a_small_file_is_taken_whole_at_high_latency() {
-    let mut world = World::new(vec![Linked::of(800, 5_000.0)]);
+    let mut world = World::new(vec![Linked::files(800, 5_000.0)]);
     world.store.put_file("/first.bin", Content::Made { seed: 1, size: 1 << 20 }, Some(1));
     world.store.put_file("/doc.pdf", Content::Made { seed: 2, size: 2 << 20 }, Some(1));
     world.list(1, "trillion");
@@ -185,7 +185,7 @@ fn failure_1_a_stalled_computer_is_passed_over() {
     let mut world = World::fast(2);
     world.links[0].silent = true;
     world.event(json!({"list": {"demand": 1, "folder": "trillion", "page": null, "page_size": null}}));
-    let idle_ms = sim::contract_bounds()["idle_ms"].as_u64().unwrap();
+    let idle_ms = sim::idle_ms();
     world.until(idle_ms + 1);
     world.settle();
     assert!(world.log.iter().any(|command| matches!(command, Command::Abandon { .. })));

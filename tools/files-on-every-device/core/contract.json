@@ -1,26 +1,56 @@
 {
-  "_what": "Everything the files core knows about the files contract and the folder it shows, as DATA (src/data.rs reads it once). The core names no operation, field, status, word or number in code: each is here. `call` is how one contract operation travels: an HTTP request of `method` to the computer's origin plus `path` with {operation} filled, its input as the JSON body (a name never travels in a URL: f1 bug 20). `operations` maps each job of the core to the contract operation that does it (tools/live-namespace/src/account_files/account-files-routes.json `operations`); one the contract does not offer yet is null, and the core refuses that job as `not_offered` instead of doing it another way. `fields` are the names of the fields the core reads from a contract answer and writes into a request. `problems` map an answer to the one OS-neutral problem set every shell maps to its own (src/errors.rs): the first row whose `status` matches (and `failure_code`, when the row names one) wins; an answer the rows do not name is `unreachable`, so the core asks the next computer (a 503, or a 409 `namespace_origin_not_bound` from a copy that may not write the real store). The statuses are the contract's own (account-files-routes.json `folder.statuses`); a 404 with no code is an operation the computer does not serve. The folder a core shows (its root id, name and contract folder) is the shell's setup, read from the computer's row, so one computer may show several folders, one core each. `identity` is the content identity form (BLAKE3, the contract's `1f:` multihash prefix, tools/live-namespace/src/account_files/write.rs). `upload_id_hex_chars` is the contract's upload id length (write.rs validate_upload_id). `bounds` names where each number the core plans with comes from in the contract's own settings (tools/live-namespace/src/account_files/settings.json): the host reads them and hands them in at setup, and tests/numbers.rs holds these names to that file. `absent_version` is the `expected_version` that says a name must not exist yet (account-files-routes.json `_folder`). Pins are the contract's own pin rule rows naming items (`pin_*` fields; the contract answers `kept` per name for the device that asks); ignore rules are the person's rule rows the core decides itself. `trash_id` is the OS's trash container, which lists nothing (deleted names go to the contract's set-aside tree, Recently Deleted). `item_facts` are the facts of one item an ignore rule may name, with the field kind that picks its comparisons (tools/formula-engine/rules/rule-operators.json `applies_to`); `item_kinds` are the contract's row kinds, which the facts' `kind` reads as well. `conflict_name` writes the plain name a conflicting edit is kept under, beside the other version: {stem}, {device}, {date} and {ext}; `conflict_name_again` the same when that name is taken too, with {n} counting from `conflict_first_again`.",
+  "_what": "Everything the files core knows about the files contract and the folder it shows, as DATA (src/data.rs reads it once). The core names no operation, field, status, word or number in code: each is here. `call` is how one contract operation travels: through the engine's one door (POST to the computer's origin plus `path`, the locally kept-open door or the remote one alike), as the JSON-RPC message `body` with each `slots` value filled: the request's number, its request key (BLAKE3 of this device, the request's number and the time it was sent, so a send is never mistaken for an earlier one), the contract operation and its input (a name never travels in a URL: f1 bug 20). The door runs live-namespace's session with that operation (tools/live-namespace/mcp-tools.json). `answer` points into the door's answer: `result` the operation's answer, `refused` whether it is a refusal, whose `result` is then {code, outcome}, and `protocol_refusal` the code of a JSON-RPC error. `operations` maps each job of the core to the contract operation that does it; one the contract does not offer yet is null, and the core refuses that job as `not_offered` instead of doing it another way. `fields` are the names of the fields the core reads from a contract answer and writes into a request. `refusals` map a refusal's code (and its outcome, when the row names one) to the one OS-neutral problem set every shell maps to its own (src/errors.rs); `protocol_refusals` do the same for a JSON-RPC error's code. A refusal the rows do not name, and an answer that is not the door's, are `unreachable`, so the core asks the next computer (namespace_unavailable, namespace_origin_not_bound from a copy that may not write the real store, an outcome the door could not learn). No HTTP status is read: the door answers every refusal in its body. The folder a core shows (its root id, name and contract folder) is the shell's setup, read from the computer's row, so one computer may show several folders, one core each. `identity` is the content identity form (BLAKE3, the contract's `1f:` multihash prefix, tools/live-namespace/src/account_files/write.rs). `upload_id_hex_chars` is the contract's upload id length (write.rs validate_upload_id). The numbers the core plans with are the contract's own `bounds` call (operations.bounds), asked of every computer at once before the first job and taken from the first that answers. `absent_version` is the `expected_version` that says a name must not exist yet (account-files-routes.json `_folder`). Pins are the contract's own pin rule rows naming items (`pin_*` fields; the contract answers `kept` per name for the device that asks); ignore rules are the person's rule rows the core decides itself. `trash_id` is the OS's trash container, which lists nothing (deleted names go to the contract's set-aside tree, Recently Deleted). `item_facts` are the facts of one item an ignore rule may name, with the field kind that picks its comparisons (tools/formula-engine/rules/rule-operators.json `applies_to`); `item_kinds` are the contract's row kinds, which the facts' `kind` reads as well. `conflict_name` writes the plain name a conflicting edit is kept under, beside the other version: {stem}, {device}, {date} and {ext}; `conflict_name_again` the same when that name is taken too, with {n} counting from `conflict_first_again`.",
   "call": {
     "method": "POST",
-    "path": "/work/api/files/{operation}",
-    "content_type": "application/json"
+    "path": "/mcp",
+    "content_type": "application/json",
+    "body": {
+      "jsonrpc": "2.0",
+      "id": "$request",
+      "method": "tools/call",
+      "params": {
+        "name": "run_resource_operation",
+        "arguments": {
+          "address": "@tools",
+          "method": "tools:run",
+          "request_key": "$request_key",
+          "input": {
+            "tool": "live-namespace",
+            "op": "$op",
+            "input": "$input"
+          }
+        }
+      }
+    },
+    "slots": {
+      "request": "$request",
+      "request_key": "$request_key",
+      "op": "$op",
+      "input": "$input"
+    }
+  },
+  "answer": {
+    "result": "/result/structuredContent",
+    "refused": "/result/isError",
+    "protocol_refusal": "/error/code"
   },
   "operations": {
-    "list": "list_files",
+    "bounds": "bounds",
     "changes": "list_changes",
-    "item": "show_item",
     "find": "find_names",
-    "read_span": "read_file_span",
-    "upload_start": "write_file_start",
-    "upload_piece": "write_file_piece",
-    "upload_finish": "write_file_finish",
+    "item": "show_item",
+    "list": "list_files",
     "make_folder": "make_folder",
     "move": "move_names",
-    "set_aside": "set_aside",
     "pin_list": "list_pin_rules",
-    "pin_set": "set_pin_rule",
     "pin_remove": "remove_pin_rule",
-    "thumbnail": "thumbnail"
+    "pin_set": "set_pin_rule",
+    "read_span": "read_file_span",
+    "set_aside": "set_aside",
+    "thumbnail": "thumbnail",
+    "upload_finish": "write_file_finish",
+    "upload_piece": "write_file_piece",
+    "upload_start": "write_file_start"
   },
   "fields": {
     "list_folder": "folder",
@@ -85,55 +115,58 @@
     "thumbnail_content": "content_base64",
     "busy": "busy",
     "retry_after_seconds": "retry_after_seconds",
-    "failure_code": "code"
+    "failure_code": "code",
+    "bounds_span_most": "span_most",
+    "bounds_piece_most": "piece_most",
+    "bounds_idle_seconds": "idle_seconds",
+    "failure_outcome": "outcome"
   },
-  "problems": [
+  "refusals": [
     {
-      "status": 401,
-      "problem": "unauthorised"
+      "code": "namespace_conflict",
+      "outcome": "not_started",
+      "problem": "stale_version"
     },
     {
-      "status": 403,
-      "problem": "forbidden"
+      "code": "namespace_identity_mismatch",
+      "outcome": "not_started",
+      "problem": "stale_version"
     },
     {
-      "status": 404,
-      "failure_code": "namespace_not_found",
+      "code": "namespace_not_found",
       "problem": "missing"
     },
     {
-      "status": 404,
+      "code": "original_input_refused",
+      "problem": "invalid"
+    },
+    {
+      "code": "client_not_authorized",
+      "problem": "unauthorised"
+    },
+    {
+      "code": "current_workspace_rights_refused",
+      "problem": "forbidden"
+    }
+  ],
+  "protocol_refusals": [
+    {
+      "code": -32001,
+      "problem": "unauthorised"
+    },
+    {
+      "code": -32601,
       "problem": "not_offered"
     },
     {
-      "status": 409,
-      "failure_code": "namespace_conflict",
-      "problem": "stale_version"
-    },
-    {
-      "status": 409,
-      "failure_code": "namespace_identity_mismatch",
-      "problem": "stale_version"
-    },
-    {
-      "status": 400,
-      "problem": "invalid"
-    },
-    {
-      "status": 413,
+      "code": -32602,
       "problem": "invalid"
     }
   ],
-  "answered_status": 200,
   "identity": {
     "prefix": "1f:"
   },
   "upload_id_hex_chars": 32,
-  "bounds": {
-    "span_most_bytes": "chunks.bytes",
-    "piece_most_bytes": "chunks.bytes",
-    "idle_seconds": "transfer.idle_seconds"
-  },
   "trash_id": "trash",
   "item_facts": [
     {

@@ -71,11 +71,44 @@ pub enum EventKind {
     Delete { demand: u64, item: String, base_version: Option<String> },
     /// The bytes a `read_local` asked for, beside the JSON.
     LocalBytes { demand: u64, offset: u64 },
-    /// A network answer: its status (absent when the transport failed), its timings, and its body beside the JSON.
-    Answer { request: u64, status: Option<u16>, sent_ms: u64, first_byte_ms: u64, done_ms: u64 },
+    /// A network answer: whether a body came (false when the transport failed), its timings, and its body beside the
+    /// JSON. The core reads every refusal from the body; a transport status is never handed in.
+    Answer { request: u64, reached: bool, sent_ms: u64, first_byte_ms: u64, done_ms: u64 },
     /// Time passed; nothing else happened.
     Tick,
     Cancel { demand: u64 },
+}
+
+impl EventKind {
+    /// Whether the event asks the contract for something, so it waits until the contract's bounds are known.
+    pub fn asks_the_contract(&self) -> bool {
+        self.demand().is_some() && !matches!(self, EventKind::Handed { .. } | EventKind::LocalBytes { .. } | EventKind::Cancel { .. })
+    }
+
+    /// The demand the event is for, when it is one.
+    pub fn demand(&self) -> Option<u64> {
+        match self {
+            EventKind::Anchor { demand }
+            | EventKind::Item { demand, .. }
+            | EventKind::Pin { demand, .. }
+            | EventKind::List { demand, .. }
+            | EventKind::Changes { demand, .. }
+            | EventKind::Fetch { demand, .. }
+            | EventKind::Handed { demand }
+            | EventKind::Thumbnail { demand, .. }
+            | EventKind::Create { demand, .. }
+            | EventKind::Modify { demand, .. }
+            | EventKind::Delete { demand, .. }
+            | EventKind::LocalBytes { demand, .. }
+            | EventKind::Cancel { demand } => Some(*demand),
+            EventKind::Rules { .. }
+            | EventKind::Restore { .. }
+            | EventKind::Keep
+            | EventKind::Watch
+            | EventKind::Answer { .. }
+            | EventKind::Tick => None,
+        }
+    }
 }
 
 #[derive(Serialize, Debug, Clone, PartialEq)]

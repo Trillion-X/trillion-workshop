@@ -8,6 +8,7 @@
 pub mod check;
 pub mod core;
 pub mod data;
+pub mod door;
 pub mod errors;
 pub mod ffi;
 pub mod items;

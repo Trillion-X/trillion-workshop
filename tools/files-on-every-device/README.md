@@ -20,6 +20,6 @@ A shell holds no rule, number, retry or conflict policy: if it needs one, the ru
 
 ## Dependencies
 
-**Depends on:** `tools/formula-engine` (`crates/compile-rules`, `crates/evaluate-over-rows`) for ignore rules; the files contract of `tools/live-namespace` (`src/account_files`), whose operations, fields and bounds `core/contract.json` names.
+**Depends on:** `tools/formula-engine` (`crates/compile-rules`, `crates/evaluate-over-rows`) for ignore rules; the files contract of `tools/live-namespace` (`src/account_files`, served through the engine's door as live-namespace's session, `mcp-tools.json`), whose operations and fields `core/contract.json` names and whose `bounds` the core asks.
 
 **Depended on by:** the OS shells (trillion-apps; lane finder-folder for macOS and iOS first).

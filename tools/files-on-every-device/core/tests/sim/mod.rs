@@ -10,13 +10,42 @@ use base64::Engine as _;
 use files_core::{Command, Core, Event, Problem};
 use serde_json::{json, Value};
 
-/// The contract's bounds as tools/live-namespace/src/account_files/settings.json holds them (tests/numbers.rs reads
-/// them from that file and holds them to these).
-pub fn contract_bounds() -> Value {
+/// The contract's answer to `bounds`, from where tools/live-namespace keeps each number (src/account_files/folder.rs
+/// `bounds`): a span and a piece at most one stored chunk (settings.json `chunks.bytes`, which is also objects.rs
+/// MAX_RANGE_BYTES), and the store's idle wait (`transfer.idle_seconds`).
+pub fn bounds_answer() -> Value {
     let settings: Value = serde_json::from_str(include_str!("../../../../live-namespace/src/account_files/settings.json")).unwrap();
     let chunk = settings["chunks"]["bytes"].as_u64().unwrap();
-    let idle_seconds = settings["transfer"]["idle_seconds"].as_u64().unwrap();
-    json!({"span_most_bytes": chunk, "piece_most_bytes": chunk, "idle_ms": idle_seconds * 1000})
+    json!({"span_most": chunk, "piece_most": chunk, "idle_seconds": settings["transfer"]["idle_seconds"]})
+}
+
+/// The contract's idle wait in milliseconds.
+pub fn idle_ms() -> u64 {
+    bounds_answer()["idle_seconds"].as_u64().unwrap() * 1000
+}
+
+/// Where in the door's message a slot of contract.json `call.body` sits.
+fn slot_path(template: &Value, slot: &str) -> Option<Vec<String>> {
+    match template {
+        Value::String(text) if text == slot => Some(Vec::new()),
+        Value::Object(fields) => fields.iter().find_map(|(name, value)| {
+            slot_path(value, slot).map(|mut path| {
+                path.insert(0, name.clone());
+                path
+            })
+        }),
+        _ => None,
+    }
+}
+
+/// The operation and input a door message carries.
+pub fn operation_of(message: &Value) -> (String, Value) {
+    let contract: Value = serde_json::from_str(include_str!("../../contract.json")).unwrap();
+    let at = |slot: &str| {
+        let path = slot_path(&contract["call"]["body"], contract["call"]["slots"][slot].as_str().unwrap()).unwrap();
+        path.iter().fold(message, |value, name| &value[name.as_str()]).clone()
+    };
+    (at("op").as_str().unwrap().to_owned(), at("input"))
 }
 
 pub fn identity_of(bytes: &[u8]) -> String {
@@ -183,12 +212,12 @@ impl Store {
         item
     }
 
-    fn failure(status: u16, code: &str) -> (u16, Value) {
-        (status, json!({"code": code, "outcome": "not_started"}))
+    fn failure(code: &str) -> Reply {
+        Reply::Refused(json!({"code": code, "outcome": "not_started"}))
     }
 
-    fn conflict() -> (u16, Value) {
-        Self::failure(409, "namespace_conflict")
+    fn conflict() -> Reply {
+        Self::failure("namespace_conflict")
     }
 
     /// Whether a write naming `expected` may change `name` (0: the name must not exist).
@@ -201,7 +230,7 @@ impl Store {
     }
 
     /// One contract call, answered as a computer that holds the account answers it.
-    pub fn call(&mut self, operation: &str, input: &Value) -> (u16, Value) {
+    pub fn call(&mut self, operation: &str, input: &Value) -> Reply {
         let text = |key: &str| input.get(key).and_then(Value::as_str).map(str::to_owned);
         let number = |key: &str| input.get(key).and_then(Value::as_u64);
         let device = text("device");
@@ -223,10 +252,10 @@ impl Store {
                         folder_items.insert((*name).clone(), json!({"item": file.item, "version": file.version, "generation": file.generation}));
                     }
                 }
-                (200, json!({"collection": folder, "names": files, "folders": folders, "folder_items": folder_items, "next_after": next}))
+                Reply::Answer(json!({"collection": folder, "names": files, "folders": folders, "folder_items": folder_items, "next_after": next}))
             }
             "list_changes" => {
-                let Some(after) = text("after") else { return (200, json!({"changes": [], "next": self.log.len().to_string(), "more": false})) };
+                let Some(after) = text("after") else { return Reply::Answer(json!({"changes": [], "next": self.log.len().to_string(), "more": false})) };
                 let at: usize = after.parse().unwrap();
                 let limit = number("limit").unwrap_or(200) as usize;
                 let end = at.saturating_add(limit).min(self.log.len());
@@ -244,29 +273,29 @@ impl Store {
                         _ => Some(change.clone()),
                     })
                     .collect();
-                (200, json!({"changes": changes, "next": end.to_string(), "more": end < self.log.len()}))
+                Reply::Answer(json!({"changes": changes, "next": end.to_string(), "more": end < self.log.len()}))
             }
             "show_item" => {
                 let item = text("item").unwrap();
                 match self.names.iter().find(|(_, file)| file.item == item).map(|(name, _)| name.clone()) {
-                    Some(name) => (200, self.row_for(&name, device.as_deref())),
-                    None => Self::failure(404, "namespace_not_found"),
+                    Some(name) => Reply::Answer(self.row_for(&name, device.as_deref())),
+                    None => Self::failure("namespace_not_found"),
                 }
             }
             "find_names" => {
                 let prefix = text("prefix").unwrap();
                 let rows: Vec<Value> = self.names.keys().filter(|name| name.starts_with(&prefix) && !self.names[*name].folder).map(|name| self.row(name)).collect();
-                (200, json!({"prefix": prefix, "names": rows, "next_after": null}))
+                Reply::Answer(json!({"prefix": prefix, "names": rows, "next_after": null}))
             }
             "read_file_span" => {
                 let asked = text("name_or_identity").unwrap();
                 let (offset, length) = (number("offset").unwrap(), number("length").unwrap());
-                let Some(content) = self.by_identity.get(&asked) else { return Self::failure(404, "namespace_not_found") };
+                let Some(content) = self.by_identity.get(&asked) else { return Self::failure("namespace_not_found") };
                 if length == 0 || offset + length > content.size() {
-                    return Self::failure(400, "original_input_refused");
+                    return Self::failure("original_input_refused");
                 }
                 let bytes = content.range(offset, length);
-                (200, json!({"identity": asked, "byte_length": content.size(), "offset": offset, "bytes_returned": bytes.len(), "encoding": "base64", "content": BASE64.encode(&bytes)}))
+                Reply::Answer(json!({"identity": asked, "byte_length": content.size(), "offset": offset, "bytes_returned": bytes.len(), "encoding": "base64", "content": BASE64.encode(&bytes)}))
             }
             "write_file_start" => {
                 let id = text("upload_id").unwrap();
@@ -278,7 +307,7 @@ impl Store {
                 }
                 let version = expected.unwrap();
                 self.uploads.entry(id.clone()).or_insert((name, number("byte_length").unwrap(), version, Vec::new()));
-                (200, json!({"upload_id": id, "next_offset": self.uploads[&id].3.len()}))
+                Reply::Answer(json!({"upload_id": id, "next_offset": self.uploads[&id].3.len()}))
             }
             "write_file_piece" => {
                 let id = text("upload_id").unwrap();
@@ -289,28 +318,28 @@ impl Store {
                 if offset == upload.3.len() {
                     upload.3.extend_from_slice(&bytes);
                 } else if offset > upload.3.len() {
-                    return Self::failure(400, "original_input_refused");
+                    return Self::failure("original_input_refused");
                 }
-                (200, json!({"next_offset": upload.3.len()}))
+                Reply::Answer(json!({"next_offset": upload.3.len()}))
             }
             "write_file_finish" => {
                 let id = text("upload_id").unwrap();
                 let (name, length, version, bytes) = self.uploads.get(&id).cloned().unwrap();
                 assert_eq!(name, text("name").unwrap());
                 if bytes.len() as u64 != length || identity_of(&bytes) != text("identity").unwrap() {
-                    return Self::failure(503, "namespace_identity_mismatch");
+                    return Self::failure("namespace_identity_mismatch");
                 }
                 if !self.at_version(&name, Some(version)) {
                     return Self::conflict();
                 }
                 self.uploads.remove(&id);
                 self.put_file(&name, Content::Kept(bytes), Some(1_800_000_000_000));
-                (200, json!({"upload_id": id, "state": "finished", "identity": self.names[&name].identity, "name": name, "byte_length": length}))
+                Reply::Answer(json!({"upload_id": id, "state": "finished", "identity": self.names[&name].identity, "name": name, "byte_length": length}))
             }
             "move_names" => {
                 let (from, to) = (text("from").unwrap(), text("to").unwrap());
                 if !self.names.contains_key(&from) {
-                    return Self::failure(404, "namespace_not_found");
+                    return Self::failure("namespace_not_found");
                 }
                 if self.names.contains_key(&to) || !self.at_version(&from, expected) {
                     return Self::conflict();
@@ -323,17 +352,17 @@ impl Store {
                     self.names.insert(new.clone(), file);
                     self.logged_put(&new);
                 }
-                (200, json!({"from": from, "to": to, "next_after": null}))
+                Reply::Answer(json!({"from": from, "to": to, "next_after": null}))
             }
             "set_aside" => {
                 let name = text("name").unwrap();
-                let Some(file) = self.names.get(&name).cloned() else { return Self::failure(404, "namespace_not_found") };
+                let Some(file) = self.names.get(&name).cloned() else { return Self::failure("namespace_not_found") };
                 if !self.at_version(&name, expected) {
                     return Self::conflict();
                 }
                 self.names.remove(&name);
                 self.logged_remove(&file.item);
-                (200, json!({"name": name, "next_after": null}))
+                Reply::Answer(json!({"name": name, "next_after": null}))
             }
             "list_pin_rules" => {
                 let rules: Vec<Value> = self
@@ -342,7 +371,7 @@ impl Store {
                     .filter(|(_, rule)| device.as_deref().is_none_or(|device| rule.device == device))
                     .map(|(id, rule)| json!({"id": id, "version": rule.version, "rule": {"device": rule.device, "items": rule.items, "on": rule.on}}))
                     .collect();
-                (200, json!({"rules": rules, "next_after": null}))
+                Reply::Answer(json!({"rules": rules, "next_after": null}))
             }
             "set_pin_rule" => {
                 let id = text("id").unwrap();
@@ -353,7 +382,7 @@ impl Store {
                 let items: Vec<String> = input["items"].as_array().unwrap().iter().map(|item| item.as_str().unwrap().to_owned()).collect();
                 let on = input.get("on").and_then(Value::as_bool).unwrap_or(true);
                 self.pins.insert(id.clone(), PinRule { device: device.unwrap(), items, on, version: current + 1 });
-                (200, json!({"id": id, "version": current + 1}))
+                Reply::Answer(json!({"id": id, "version": current + 1}))
             }
             "remove_pin_rule" => {
                 let id = text("id").unwrap();
@@ -361,7 +390,7 @@ impl Store {
                     return Self::conflict();
                 }
                 self.pins.remove(&id);
-                (200, json!({"id": id, "removed": true}))
+                Reply::Answer(json!({"id": id, "removed": true}))
             }
             "make_folder" => {
                 let name = text("name").unwrap();
@@ -369,18 +398,19 @@ impl Store {
                     return Self::conflict();
                 }
                 if !self.names.get(&Self::parent(&name)).is_some_and(|parent| parent.folder) && Self::parent(&name) != "/" {
-                    return Self::failure(404, "namespace_not_found");
+                    return Self::failure("namespace_not_found");
                 }
                 self.put_folder(&name);
-                (200, self.row(&name))
+                Reply::Answer(self.row(&name))
             }
             "thumbnail" => {
                 let identity = text("name_or_identity").unwrap();
                 *self.thumbnail_calls.entry(identity.clone()).or_default() += 1;
-                (200, json!({"identity": identity, "size": number("size"), "media_type": "image/png", "content_base64": BASE64.encode(b"picture")}))
+                Reply::Answer(json!({"identity": identity, "size": number("size"), "media_type": "image/png", "content_base64": BASE64.encode(b"picture")}))
             }
-            // A computer that does not serve an operation answers 404 in plain words, with no code.
-            _ => (404, json!("No such operation.")),
+            "bounds" => Reply::Answer(bounds_answer()),
+            // A computer whose session does not serve an operation: the door finds no such method.
+            _ => Reply::NoMethod,
         }
     }
 }
@@ -400,8 +430,35 @@ pub struct Linked {
     pub object_bytes: u64,
 }
 
-/// Changes an answer before it travels: (operation, input, status, body).
-pub type Tamper = Box<dyn FnMut(&str, &Value, &mut u16, &mut Value)>;
+/// What the store answers one operation: its answer, a refusal ({code, outcome}), or no such method at all.
+#[derive(Clone, Debug)]
+pub enum Reply {
+    Answer(Value),
+    Refused(Value),
+    NoMethod,
+}
+
+impl Reply {
+    /// The door's JSON-RPC answer carrying it (trillion-rust src/mcp.rs `tool_outcome`: the answer as text and as
+    /// structured content).
+    fn door(&self, request: u64) -> Value {
+        match self {
+            Reply::Answer(answer) => json!({"jsonrpc": "2.0", "id": request, "result": {"content": [{"type": "text", "text": answer.to_string()}], "structuredContent": answer, "isError": false}}),
+            Reply::Refused(refusal) => json!({"jsonrpc": "2.0", "id": request, "result": {"content": [{"type": "text", "text": "The resource operation was refused."}], "structuredContent": refusal, "isError": true}}),
+            Reply::NoMethod => json!({"jsonrpc": "2.0", "id": request, "error": {"code": -32601, "message": "Method not found."}}),
+        }
+    }
+
+    pub fn answer(&self) -> Option<&Value> {
+        match self {
+            Reply::Answer(answer) => Some(answer),
+            _ => None,
+        }
+    }
+}
+
+/// Changes an answer before it travels: (operation, input, reply).
+pub type Tamper = Box<dyn FnMut(&str, &Value, &mut Reply)>;
 
 impl Linked {
     /// A link that answers, with a store that costs nothing per object.
@@ -412,11 +469,18 @@ impl Linked {
     pub fn of(round_trip_ms: u64, bytes_per_ms: f64) -> Linked {
         Linked { round_trip_ms, bytes_per_ms, ..Linked::quick() }
     }
+
+    /// A link that carries `file_bytes_per_ms` of a file's own bytes through the door: a span answer holds them
+    /// base64-encoded (4 bytes for 3) and twice (as text and as structured content, trillion-rust src/mcp.rs
+    /// `tool_outcome`), so the link itself carries 8/3 as many.
+    pub fn files(round_trip_ms: u64, file_bytes_per_ms: f64) -> Linked {
+        Linked::of(round_trip_ms, file_bytes_per_ms * 8.0 / 3.0)
+    }
 }
 
 pub struct Arrival {
     pub request: u64,
-    pub status: Option<u16>,
+    pub reached: bool,
     pub sent_ms: u64,
     pub first_byte_ms: u64,
     pub body: Vec<u8>,
@@ -449,7 +513,7 @@ pub fn origin(index: usize) -> String {
 impl World {
     pub fn new(links: Vec<Linked>) -> World {
         let computers: Vec<Value> = (0..links.len()).map(|index| json!({"origin": origin(index)})).collect();
-        let setup = json!({"device": "device-a", "device_label": "Example Laptop", "computers": computers, "bounds": contract_bounds(), "root": {"id": "trillion", "name": "Trillion", "folder": "/"}});
+        let setup = json!({"device": "device-a", "device_label": "Example Laptop", "computers": computers, "root": {"id": "trillion", "name": "Trillion", "folder": "/"}});
         World {
             core: Core::new(serde_json::from_value(setup).unwrap()).unwrap(),
             store: Store::new(),
@@ -488,8 +552,7 @@ impl World {
             match &command {
                 Command::Send { request, url, .. } => {
                     let computer = (0..self.links.len()).find(|index| url.starts_with(&origin(*index))).unwrap();
-                    let operation = url.rsplit('/').next().unwrap().to_owned();
-                    let input: Value = serde_json::from_slice(&bytes).unwrap();
+                    let (operation, input) = operation_of(&serde_json::from_slice(&bytes).unwrap());
                     self.sends.push((*request, operation.clone(), input.clone()));
                     if operation == "read_file_span" {
                         self.span_bytes_asked += input["length"].as_u64().unwrap();
@@ -519,7 +582,7 @@ impl World {
         }
         if link.down {
             let at = self.now + link.round_trip_ms;
-            self.arrivals.insert((at, request), Arrival { request, status: None, sent_ms: self.now, first_byte_ms: at, body: Vec::new() });
+            self.arrivals.insert((at, request), Arrival { request, reached: false, sent_ms: self.now, first_byte_ms: at, body: Vec::new() });
             return;
         }
         if operation == "list_changes" && input.get("wait") == Some(&json!(true)) {
@@ -528,18 +591,17 @@ impl World {
             if input.get("after").is_none() {
                 input["after"] = json!(self.store.log.len().to_string());
             }
-            let (_, answer) = self.store.call(operation, &input);
-            if self.holds_waits && answer["changes"].as_array().is_some_and(|changes| changes.is_empty()) {
+            let reply = self.store.call(operation, &input);
+            if self.holds_waits && reply.answer().is_some_and(|answer| answer["changes"].as_array().is_some_and(|changes| changes.is_empty())) {
                 self.parked.push((request, computer, input));
                 return;
             }
-            let (status, body) = self.store.call(operation, &input);
-            self.arrive(request, computer, status, body);
+            self.arrive(request, computer, reply);
             return;
         }
-        let (mut status, mut body) = self.store.call(operation, input);
+        let mut reply = self.store.call(operation, input);
         if let Some(tamper) = self.tamper.as_mut() {
-            tamper(operation, input, &mut status, &mut body);
+            tamper(operation, input, &mut reply);
         }
         // The store reads a span's objects one after another before it answers.
         let serving = if operation == "read_file_span" && link.store_ms_per_object > 0 {
@@ -549,20 +611,20 @@ impl World {
         } else {
             0
         };
-        self.arrive_after(request, computer, status, body, serving);
+        self.arrive_after(request, computer, reply, serving);
     }
 
-    fn arrive(&mut self, request: u64, computer: usize, status: u16, body: Value) {
-        self.arrive_after(request, computer, status, body, 0);
+    fn arrive(&mut self, request: u64, computer: usize, reply: Reply) {
+        self.arrive_after(request, computer, reply, 0);
     }
 
-    fn arrive_after(&mut self, request: u64, computer: usize, status: u16, body: Value, serving: u64) {
+    fn arrive_after(&mut self, request: u64, computer: usize, reply: Reply, serving: u64) {
         let link = self.links[computer];
-        let body = body.to_string().into_bytes();
+        let body = reply.door(request).to_string().into_bytes();
         let first_byte = (self.now + link.round_trip_ms + serving).max(self.link_free[computer]);
         let done = first_byte + (body.len() as f64 / link.bytes_per_ms).ceil() as u64;
         self.link_free[computer] = done;
-        self.arrivals.insert((done, request), Arrival { request, status: Some(status), sent_ms: self.now, first_byte_ms: first_byte, body });
+        self.arrivals.insert((done, request), Arrival { request, reached: true, sent_ms: self.now, first_byte_ms: first_byte, body });
     }
 
     /// Answer parked watches that now have changes.
@@ -578,7 +640,7 @@ impl World {
         let Some((&(at, key), _)) = self.arrivals.iter().next() else { return false };
         let arrival = self.arrivals.remove(&(at, key)).unwrap();
         self.now = self.now.max(at);
-        let event = json!({"answer": {"request": arrival.request, "status": arrival.status, "sent_ms": arrival.sent_ms, "first_byte_ms": arrival.first_byte_ms, "done_ms": at}});
+        let event = json!({"answer": {"request": arrival.request, "reached": arrival.reached, "sent_ms": arrival.sent_ms, "first_byte_ms": arrival.first_byte_ms, "done_ms": at}});
         self.event_with(event, &arrival.body);
         true
     }

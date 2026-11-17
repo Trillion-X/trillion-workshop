@@ -1,10 +1,11 @@
 //! A measurement against a real computer, not run by default: the core reads one large file of the person's files
-//! straight through, as a player does, from a running live-namespace (`serve` or `dav` mode answers the contract at
-//! POST /work/api/files/<operation>), and prints the read rate, every read's wait and the bytes moved. This test plays
-//! the shell's one job (sending the core's requests, many at once) with a plain HTTP client.
+//! straight through, as a player does, through an engine's door to live-namespace's session, and prints the read
+//! rate, every read's wait and the bytes moved. This test plays the shell's one job (sending the core's requests, many
+//! at once, with the device credential) with a plain HTTP client.
 //!
-//! Run: FILES_CORE_ORIGIN=http://127.0.0.1:<port> FILES_CORE_FILE=/folder/big.mov [FILES_CORE_READS=64]
-//!      [FILES_CORE_CONSUMES=<bytes per ms>] cargo test --release --test real_store -- --ignored --nocapture
+//! Run: FILES_CORE_ORIGIN=https://<door> FILES_CORE_FILE=/folder/big.mov [FILES_CORE_CREDENTIAL_FILE=<a file holding
+//!      the device credential>] [FILES_CORE_READS=64] [FILES_CORE_CONSUMES=<bytes per ms>]
+//!      cargo test --release --test real_store -- --ignored --nocapture
 
 use std::io::Read;
 use std::sync::mpsc;
@@ -14,17 +15,13 @@ use files_core::{Command, Core, Event};
 use serde_json::{json, Value};
 
 fn setup(origin: &str) -> Value {
-    let settings: Value = serde_json::from_str(include_str!("../../../live-namespace/src/account_files/settings.json")).unwrap();
-    let chunk = settings["chunks"]["bytes"].as_u64().unwrap();
-    let idle_ms = settings["transfer"]["idle_seconds"].as_u64().unwrap() * 1000;
     json!({"device": "measurement", "device_label": "Measurement", "computers": [{"origin": origin}],
-        "bounds": {"span_most_bytes": chunk, "piece_most_bytes": chunk, "idle_ms": idle_ms},
         "root": {"id": "root", "name": "Files", "folder": "/"}})
 }
 
 struct Answer {
     request: u64,
-    status: Option<u16>,
+    reached: bool,
     sent_ms: u64,
     first_byte_ms: u64,
     done_ms: u64,
@@ -38,6 +35,8 @@ struct Shell {
     sender: mpsc::Sender<Answer>,
     in_flight: usize,
     log: Vec<Command>,
+    /// The `Authorization` value the door takes, when one is given.
+    credential: Option<String>,
 }
 
 impl Shell {
@@ -51,22 +50,26 @@ impl Shell {
         while let Some((command, bytes)) = self.core.next_command() {
             if let Command::Send { request, url, .. } = &command {
                 let (request, url, sender, started) = (*request, url.clone(), self.sender.clone(), self.started);
+                let credential = self.credential.clone();
                 self.in_flight += 1;
                 std::thread::spawn(move || {
                     let at = |instant: Instant| instant.duration_since(started).as_millis() as u64;
                     let sent = Instant::now();
-                    let answer = ureq::post(&url).set("content-type", "application/json").send_bytes(&bytes);
+                    let mut call = ureq::post(&url).set("content-type", "application/json");
+                    if let Some(credential) = &credential {
+                        call = call.set("authorization", credential);
+                    }
+                    let answer = call.send_bytes(&bytes);
                     let first = Instant::now();
-                    let (status, body) = match answer {
+                    let (reached, body) = match answer {
                         Ok(response) | Err(ureq::Error::Status(_, response)) => {
-                            let status = response.status();
                             let mut body = Vec::new();
                             let _ = response.into_reader().read_to_end(&mut body);
-                            (Some(status), body)
+                            (true, body)
                         }
-                        Err(_) => (None, Vec::new()),
+                        Err(_) => (false, Vec::new()),
                     };
-                    let _ = sender.send(Answer { request, status, sent_ms: at(sent), first_byte_ms: at(first), done_ms: at(Instant::now()), body });
+                    let _ = sender.send(Answer { request, reached, sent_ms: at(sent), first_byte_ms: at(first), done_ms: at(Instant::now()), body });
                 });
             }
             self.log.push(command);
@@ -81,7 +84,7 @@ impl Shell {
             }
             let answer = self.answers.recv().expect("an answer");
             self.in_flight -= 1;
-            let event = json!({"answer": {"request": answer.request, "status": answer.status, "sent_ms": answer.sent_ms, "first_byte_ms": answer.first_byte_ms, "done_ms": answer.done_ms}});
+            let event = json!({"answer": {"request": answer.request, "reached": answer.reached, "sent_ms": answer.sent_ms, "first_byte_ms": answer.first_byte_ms, "done_ms": answer.done_ms}});
             self.event(event, &answer.body);
         }
     }
@@ -96,7 +99,10 @@ fn read_a_large_file_from_a_real_computer() {
     let consumes: Option<u64> = std::env::var("FILES_CORE_CONSUMES").ok().and_then(|rate| rate.parse().ok());
     let (sender, answers) = mpsc::channel();
     let core = Core::new(serde_json::from_value(setup(&origin)).unwrap()).unwrap();
-    let mut shell = Shell { core, started: Instant::now(), answers, sender, in_flight: 0, log: Vec::new() };
+    let credential = std::env::var("FILES_CORE_CREDENTIAL_FILE")
+        .ok()
+        .map(|path| format!("Bearer {}", std::fs::read_to_string(path).expect("the credential file").trim()));
+    let mut shell = Shell { core, started: Instant::now(), answers, sender, in_flight: 0, log: Vec::new(), credential };
 
     // Find the file's item: list its folder page by page.
     let folder = match file.rfind('/') {

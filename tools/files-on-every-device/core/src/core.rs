@@ -12,6 +12,8 @@
 //!   - An item with an edit not yet kept reports `uploaded: false`, so the OS never evicts it (f2 rule 3).
 //!   - No retry runs on the core's own clock: a busy computer's wait is the time it named, checked when an event
 //!     brings the host's time.
+//!   - No job is asked before the contract's own bounds are known: they are asked of every computer at once, and
+//!     the events that ask the contract wait for the first answer.
 
 use std::collections::{HashMap, HashSet, VecDeque};
 
@@ -20,8 +22,9 @@ use base64::Engine as _;
 use serde_json::{json, Map, Value};
 
 use crate::check::{checked_span, Asked};
-use crate::data::{Contract, Setup};
-use crate::errors::{problem_of, Problem};
+use crate::data::{Bounds, Contract, Setup};
+use crate::door;
+use crate::errors::Problem;
 use crate::items::{item_of_row, ItemTable, ItemView};
 use crate::link::Link;
 use crate::names;
@@ -34,6 +37,7 @@ const MS_PER_SECOND: u64 = 1000;
 
 #[derive(Clone, Debug)]
 enum Purpose {
+    Bounds,
     Anchor { demand: u64 },
     Item { demand: u64 },
     List { demand: u64 },
@@ -57,8 +61,10 @@ struct Pending {
     purpose: Purpose,
     computer: usize,
     tried: usize,
-    url_operation: String,
-    body: Vec<u8>,
+    op: String,
+    input: Value,
+    /// The bytes its answer is expected to take on the link.
+    answer_bytes: u64,
     sent_ms: u64,
     deadline_ms: Option<u64>,
     retry_at_ms: Option<u64>,
@@ -168,6 +174,10 @@ pub struct Core {
     works: HashMap<u64, Work>,
     thumbnails: HashMap<(String, u64), Vec<u64>>,
     uploading: HashSet<String>,
+    /// The contract's own numbers, once a computer answered the `bounds` call.
+    bounds: Option<Bounds>,
+    /// Events that ask the contract, kept until the bounds are known.
+    waiting: Vec<(Event, Vec<u8>)>,
     out: VecDeque<(Command, Vec<u8>)>,
 }
 
@@ -176,10 +186,6 @@ impl Core {
     pub fn new(setup: Setup) -> Result<Core, String> {
         if setup.computers.is_empty() {
             return Err("the setup lists no computer of the account".into());
-        }
-        let bounds = setup.bounds;
-        if bounds.span_most_bytes == 0 || bounds.piece_most_bytes == 0 || bounds.idle_ms == 0 {
-            return Err("the setup's bounds are the contract's own numbers, each above 0".into());
         }
         let mut core = Core {
             contract: Contract::shipped(),
@@ -203,6 +209,8 @@ impl Core {
             works: HashMap::new(),
             thumbnails: HashMap::new(),
             uploading: HashSet::new(),
+            bounds: None,
+            waiting: Vec::new(),
             out: VecDeque::new(),
         };
         let (root, trash) = (core.setup.root.id.clone(), core.contract.trash_id.clone());
@@ -223,6 +231,12 @@ impl Core {
     /// One event, with the bytes it carries (empty when it carries none).
     pub fn handle(&mut self, event: Event, bytes: &[u8]) {
         self.now_ms = self.now_ms.max(event.now_ms);
+        if self.bounds.is_none() && event.kind.asks_the_contract() {
+            self.waiting.push((event, bytes.to_vec()));
+            self.ask_bounds();
+            self.tell_wake();
+            return;
+        }
         match event.kind {
             EventKind::Rules { ignore } => self.rules(&ignore),
             EventKind::Restore { state } => self.restore(state),
@@ -235,6 +249,9 @@ impl Core {
             }
             EventKind::Watch => {
                 self.want_watch = true;
+                if self.bounds.is_none() {
+                    self.ask_bounds();
+                }
                 self.watch();
             }
             EventKind::Anchor { demand } => {
@@ -273,11 +290,12 @@ impl Core {
             }
             EventKind::Delete { demand, item, base_version } => self.delete(demand, &item, base_version),
             EventKind::LocalBytes { demand, offset } => self.local_bytes(demand, offset, bytes),
-            EventKind::Answer { request, status, sent_ms, first_byte_ms, done_ms } => {
-                self.answer(request, status, sent_ms, first_byte_ms, done_ms, bytes)
+            EventKind::Answer { request, reached, sent_ms, first_byte_ms, done_ms } => {
+                self.answer(request, reached, sent_ms, first_byte_ms, done_ms, bytes)
             }
             EventKind::Tick => {}
             EventKind::Cancel { demand } => {
+                self.waiting.retain(|(waiting, _)| waiting.kind.demand() != Some(demand));
                 self.fetches.remove(&demand);
                 if let Some(work) = self.works.remove(&demand) {
                     if let Some(item) = work.item {
@@ -375,51 +393,127 @@ impl Core {
 
     /// Send one contract call for a job; a job the contract does not offer fails as `not_offered`.
     fn request(&mut self, purpose: Purpose, job: &str, input: Map<String, Value>) {
-        let Some(operation) = self.contract.operation(job).map(str::to_owned) else {
+        let Some(op) = self.contract.operation(job).map(str::to_owned) else {
             self.failed(purpose, Problem::NotOffered);
             return;
         };
-        let body = Value::Object(input).to_string().into_bytes();
         let computer = self.preferred;
         self.send(Pending {
             purpose,
             computer,
             tried: 0,
-            url_operation: operation,
-            body,
+            op,
+            input: Value::Object(input),
+            answer_bytes: 0,
             sent_ms: self.now_ms,
             deadline_ms: None,
             retry_at_ms: None,
         });
     }
 
+    /// The contract's bounds, known before any job is asked (events that ask the contract wait for them).
+    fn bounds(&self) -> Bounds {
+        self.bounds.expect("no job is asked before the contract's bounds are known")
+    }
+
+    /// Ask every computer for the contract's bounds at once, unless they are being asked; the first answer is taken.
+    /// No computer is passed over for another here, since every one is asked.
+    fn ask_bounds(&mut self) {
+        if self.pending.values().any(|pending| matches!(pending.purpose, Purpose::Bounds)) {
+            return;
+        }
+        let Some(op) = self.contract.operation("bounds").map(str::to_owned) else {
+            self.bounds_failed(Problem::NotOffered);
+            return;
+        };
+        let count = self.setup.computers.len();
+        for computer in 0..count {
+            self.send(Pending {
+                purpose: Purpose::Bounds,
+                computer,
+                tried: count,
+                op: op.clone(),
+                input: Value::Object(Map::new()),
+                answer_bytes: 0,
+                sent_ms: self.now_ms,
+                deadline_ms: None,
+                retry_at_ms: None,
+            });
+        }
+    }
+
+    fn bounded(&mut self, answer: &Value) {
+        let number = |job: &str| answer.get(self.contract.field(job)).and_then(Value::as_u64).filter(|number| *number > 0);
+        let (Some(span_most_bytes), Some(piece_most_bytes), Some(idle_seconds)) =
+            (number("bounds_span_most"), number("bounds_piece_most"), number("bounds_idle_seconds"))
+        else {
+            if !self.pending.values().any(|pending| matches!(pending.purpose, Purpose::Bounds)) {
+                self.bounds_failed(Problem::Invalid);
+            }
+            return;
+        };
+        self.bounds = Some(Bounds { span_most_bytes, piece_most_bytes, idle_ms: idle_seconds * MS_PER_SECOND });
+        let asked: Vec<u64> = self
+            .pending
+            .iter()
+            .filter(|(_, pending)| matches!(pending.purpose, Purpose::Bounds))
+            .map(|(request, _)| *request)
+            .collect();
+        for request in asked {
+            self.pending.remove(&request);
+            self.emit(Command::Abandon { request });
+        }
+        for (event, bytes) in std::mem::take(&mut self.waiting) {
+            self.handle(event, &bytes);
+        }
+        if self.want_watch && !self.watching {
+            self.watch();
+        }
+    }
+
+    /// No computer answered the bounds: every waiting demand fails with the problem; the next event asks again.
+    fn bounds_failed(&mut self, problem: Problem) {
+        if self.bounds.is_some() || self.pending.values().any(|pending| matches!(pending.purpose, Purpose::Bounds)) {
+            return;
+        }
+        for (event, _) in std::mem::take(&mut self.waiting) {
+            if let Some(demand) = event.kind.demand() {
+                self.fail(demand, problem);
+            }
+        }
+    }
+
     fn send(&mut self, mut pending: Pending) {
         self.next_request += 1;
         let request = self.next_request;
-        let expected = match &pending.purpose {
-            Purpose::Span { span, .. } => span.len(),
-            _ => pending.body.len() as u64,
+        let key = blake3::hash(format!("{}\n{request}\n{}", self.setup.device, self.now_ms).as_bytes()).to_hex();
+        let body = door::message(self.contract, request, key.as_str(), &pending.op, pending.input.clone());
+        pending.answer_bytes = match &pending.purpose {
+            Purpose::Span { span, .. } => self.link.span_answer_bytes(span.len()),
+            _ => body.len() as u64,
         };
+        // The link to a computer carries its answers one after another: this one arrives after those still on their way.
+        let ahead: u64 = self
+            .pending
+            .values()
+            .filter(|other| other.computer == pending.computer && other.deadline_ms.is_some() && other.retry_at_ms.is_none())
+            .map(|other| other.answer_bytes)
+            .sum();
         pending.sent_ms = self.now_ms;
         pending.retry_at_ms = None;
-        pending.deadline_ms = match pending.purpose {
-            Purpose::Watch => None,
-            _ => Some(self.link.deadline_ms(&self.setup.bounds, self.now_ms, expected)),
+        pending.deadline_ms = match (&pending.purpose, self.bounds) {
+            (Purpose::Watch | Purpose::Bounds, _) | (_, None) => None,
+            (_, Some(bounds)) => Some(self.link.deadline_ms(&bounds, self.now_ms, ahead + pending.answer_bytes)),
         };
         let origin = &self.setup.computers[pending.computer].origin;
-        let url = format!(
-            "{}{}",
-            origin.trim_end_matches('/'),
-            self.contract.call.path.replace("{operation}", &pending.url_operation)
-        );
+        let url = format!("{}{}", origin.trim_end_matches('/'), self.contract.call.path);
         let command = Command::Send {
             request,
             method: self.contract.call.method.clone(),
             url,
             content_type: self.contract.call.content_type.clone(),
-            bytes: pending.body.len(),
+            bytes: body.len(),
         };
-        let body = pending.body.clone();
         self.pending.insert(request, pending);
         self.emit_bytes(command, body);
     }
@@ -469,34 +563,28 @@ impl Core {
         }
     }
 
-    fn answer(&mut self, request: u64, status: Option<u16>, sent_ms: u64, first_byte_ms: u64, done_ms: u64, body: &[u8]) {
+    fn answer(&mut self, request: u64, reached: bool, sent_ms: u64, first_byte_ms: u64, done_ms: u64, body: &[u8]) {
         let Some(mut pending) = self.pending.remove(&request) else { return };
-        let Some(status) = status else {
+        if !reached {
             self.fail_over(pending);
             return;
-        };
-        if matches!(pending.purpose, Purpose::Span { .. }) {
+        }
+        if let Purpose::Span { span, .. } = &pending.purpose {
             self.link.read_waited(sent_ms, first_byte_ms);
+            self.link.span_carried(body.len() as u64, span.len());
         }
         self.link.sample(sent_ms, first_byte_ms, done_ms, body.len() as u64);
-        let parsed: Option<Value> = serde_json::from_slice(body).ok();
-        if status != self.contract.answered_status {
-            let code = parsed
-                .as_ref()
-                .and_then(|value| value.get(self.contract.field("failure_code")))
-                .and_then(Value::as_str);
-            match problem_of(self.contract, status, code) {
-                Problem::Unreachable => self.fail_over(pending),
-                problem => {
-                    self.reached(pending.computer);
-                    self.failed(pending.purpose, problem);
-                }
+        let answer = match door::answer(self.contract, body) {
+            Ok(answer) => answer,
+            Err(Problem::Unreachable) => {
+                self.fail_over(pending);
+                return;
             }
-            return;
-        }
-        let Some(answer) = parsed else {
-            self.fail_over(pending);
-            return;
+            Err(problem) => {
+                self.reached(pending.computer);
+                self.failed(pending.purpose, problem);
+                return;
+            }
         };
         self.reached(pending.computer);
         if answer.get(self.contract.field("busy")).and_then(Value::as_bool) == Some(true) {
@@ -509,7 +597,7 @@ impl Core {
             self.pending.insert(self.next_request, pending);
             return;
         }
-        self.answered(pending.purpose, answer, body);
+        self.answered(pending.purpose, answer);
     }
 
     /// A computer answered: it is asked first from now on, and a problem that stopped work is over.
@@ -526,6 +614,7 @@ impl Core {
 
     fn failed(&mut self, purpose: Purpose, problem: Problem) {
         match purpose {
+            Purpose::Bounds => self.bounds_failed(problem),
             Purpose::Anchor { demand } | Purpose::Item { demand } | Purpose::List { demand } | Purpose::Changes { demand } => {
                 self.fail(demand, problem)
             }
@@ -555,8 +644,9 @@ impl Core {
         }
     }
 
-    fn answered(&mut self, purpose: Purpose, answer: Value, body: &[u8]) {
+    fn answered(&mut self, purpose: Purpose, answer: Value) {
         match purpose {
+            Purpose::Bounds => self.bounded(&answer),
             Purpose::Anchor { demand } => {
                 let anchor = self.text(&answer, "changes_next").unwrap_or_default();
                 self.emit(Command::Anchor { demand, anchor });
@@ -576,7 +666,7 @@ impl Core {
             Purpose::List { demand } => self.listed(demand, &answer),
             Purpose::Changes { demand } => self.changed(demand, &answer),
             Purpose::Watch => self.watched(&answer),
-            Purpose::Span { item, identity, span, size } => self.span_arrived(item, identity, span, size, body),
+            Purpose::Span { item, identity, span, size } => self.span_arrived(item, identity, span, size, &answer),
             Purpose::Thumbnail { identity, size } => {
                 let waiting = self.thumbnails.remove(&(identity, size)).unwrap_or_default();
                 let bytes = self
@@ -704,7 +794,7 @@ impl Core {
     }
 
     fn watch(&mut self) {
-        if self.watching || self.rewatch_at_ms.is_some() || self.contract.operation("changes").is_none() {
+        if self.watching || self.rewatch_at_ms.is_some() || self.bounds.is_none() || self.contract.operation("changes").is_none() {
             return;
         }
         self.watching = true;
@@ -729,7 +819,7 @@ impl Core {
         // A wait that came back empty is asked again no sooner than the contract's idle bound after it was sent: a
         // computer that held it that long loses nothing, and one that did not hold it is never asked in a tight loop.
         // The first wait (no cursor yet) only learns the cursor of now, so the real wait follows at once.
-        let again = self.watch_sent_ms + self.setup.bounds.idle_ms;
+        let again = self.watch_sent_ms + self.bounds().idle_ms;
         if had_cursor && !changes && again > self.now_ms {
             self.rewatch_at_ms = Some(again);
             return;
@@ -761,7 +851,8 @@ impl Core {
 
     /// Ask for the parts of `span` neither held nor already asked for, each at most what one request may carry.
     fn ask_for(&mut self, key: &(String, String), span: Span, size: u64, piece: Option<u64>) {
-        let most = self.link.request_most(&self.setup.bounds, self.setup.bounds.span_most_bytes);
+        let bounds = self.bounds();
+        let most = self.link.request_most(&bounds, bounds.span_most_bytes);
         let most = piece.map_or(most, |piece| piece.min(most));
         let stream = self.streams.entry(key.clone()).or_default();
         let missing = stream.covered().missing(span);
@@ -781,10 +872,10 @@ impl Core {
         }
     }
 
-    fn span_arrived(&mut self, item: String, identity: String, span: Span, size: u64, body: &[u8]) {
+    fn span_arrived(&mut self, item: String, identity: String, span: Span, size: u64, answer: &Value) {
         let key = (item, identity);
         let asked = Asked { identity: key.1.clone(), span, size };
-        match checked_span(self.contract, &asked, body) {
+        match checked_span(self.contract, &asked, answer) {
             Ok(bytes) => {
                 let stream = self.streams.entry(key.clone()).or_default();
                 stream.inflight.retain(|piece| *piece != span);
@@ -1083,7 +1174,8 @@ impl Core {
                     return self.request(Purpose::Work { demand, stage: Stage::UploadFinish }, "upload_finish", input);
                 }
                 Some(_) => {
-                    let most = self.link.request_most(&self.setup.bounds, self.setup.bounds.piece_most_bytes);
+                    let bounds = self.bounds();
+                    let most = self.link.request_most(&bounds, bounds.piece_most_bytes);
                     let length = most.min(upload.length - upload.accepted);
                     let offset = upload.accepted;
                     self.emit(Command::ReadLocal { demand, offset, length });

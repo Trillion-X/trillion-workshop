@@ -12,7 +12,7 @@ license = "UNLICENSED"
 async-trait = "0.1"
 base64 = "0.22"
 bytes = "1"
-content-crypto = { path = "../../../../trillion-rust/crates/content-crypto" }
+content-crypto = { path = "../../live-namespace/content-crypto" }
 getrandom = { version = "0.4" }
 hex = "0.4"
 js-sys = "0.3"

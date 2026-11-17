@@ -5,10 +5,12 @@
  * through them.
  *
  * Use
- *   1. files_core_new(setup JSON) once: {device, device_label, computers: [{origin}], bounds: {span_most_bytes,
- *      piece_most_bytes, idle_ms}, root: {id, name, folder}}: the bounds read from the contract's own settings
- *      (core/contract.json `bounds`), `root` the folder this core shows (one core per shown folder). The first command
- *      is `ready {root, trash}`: the ids the shell gives its OS's root and trash containers.
+ *   1. files_core_new(setup JSON) once: {device, device_label, computers: [{origin}], root: {id, name, folder}}:
+ *      `device` this computer's derived id, `computers` the person's computer rows in order (each origin is where the
+ *      shell sends; the core only joins core/contract.json `call.path` to it), `root` the folder this core shows (the
+ *      computer row's `shows_folders`, one core per shown folder). The first command is `ready {root, trash}`: the ids
+ *      the shell gives its OS's root and trash containers. The core asks the contract's own `bounds` itself, of every
+ *      computer at once, before its first job.
  *   2. Hand every OS callback, network answer and passing of time to files_core_event as one JSON event
  *      (src/protocol.rs EventKind) with the bytes it carries (an answer's body, a local file's piece) beside it.
  *   3. After each event, take commands with files_core_next_command until it answers 0, and carry each out; a
@@ -20,6 +22,9 @@
  *     command waits for the next call.
  *   - The core reads no clock, file or socket. Every event carries "now_ms", the host's monotonic milliseconds; a
  *     `wake {at_ms}` command says when to send a `tick` if nothing else happens first.
+ *   - Every `send` is one JSON-RPC message to the engine's door (POST, its bytes as the body; the shell adds its
+ *     device credential). Its `answer` event says `reached` (false when no body came) and carries the body as it came,
+ *     whatever its transport status: the core reads every refusal from the body.
  */
 #ifndef FILES_CORE_H
 #define FILES_CORE_H

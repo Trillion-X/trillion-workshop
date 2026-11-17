@@ -346,7 +346,7 @@ impl AccountFiles {
         Ok(json!({
             "list_default": DEFAULT_LIST_LIMIT, "list_most": MAX_PAGE_ITEMS, "read_most": READ_MAX_BYTES,
             "span_most": super::objects::MAX_RANGE_BYTES, "chunk_bytes": read.chunks.bytes, "write_most": super::WRITE_MAX_BYTES,
-            "piece_most": read.chunks.bytes,
+            "piece_most": read.chunks.bytes, "idle_seconds": read.transfer.idle_seconds,
         }))
     }
 
