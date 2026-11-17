@@ -1,0 +1,7 @@
+	@carried_{carried_port} path {carried_paths}
+	handle @carried_{carried_port} {
+		reverse_proxy 127.0.0.1:{carried_port} {
+			header_up Host {door_host}
+			flush_interval -1
+		}
+	}

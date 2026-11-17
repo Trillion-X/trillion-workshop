@@ -1,6 +1,0 @@
-	handle /.well-known/oauth-authorization-server* {
-		reverse_proxy 127.0.0.1:{auth_port}
-	}
-	handle /.well-known/oauth-protected-resource* {
-		reverse_proxy 127.0.0.1:{auth_port}
-	}

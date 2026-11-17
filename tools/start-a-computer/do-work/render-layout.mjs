@@ -78,8 +78,13 @@ const SITE_FILE = name => {
 /** A computer carried to the door (caddy.carried_computers: { address, port }): its /a/<address> routes go to the loopback
  * port its outbound tunnel (tools/keep-a-door-tunnel-open) listens on at this computer. The carrier passes bytes; the
  * engine behind the tunnel alone checks who calls. */
-const carriedRoutes = caddy => (caddy.carried_computers ?? []).map(({ address, port }) => {
-  if (!/^[a-z0-9]{8,128}$/.test(address) || !Number.isSafeInteger(port) || port < 1 || port > 65535) throw new Error('caddy.carried_computers needs each computer\'s address (lowercase letters and digits) and a loopback port');
+const carriedRoutes = caddy => (caddy.carried_computers ?? []).map(({ address, paths, port }) => {
+  if (!Number.isSafeInteger(port) || port < 1 || port > 65535) throw new Error('caddy.carried_computers needs each computer\'s address (lowercase letters and digits) or its paths, and a loopback port');
+  if (paths !== undefined) {
+    if (!Array.isArray(paths) || !paths.length || !paths.every(path => /^\/[A-Za-z0-9._~\/*-]*$/.test(path))) throw new Error('caddy.carried_computers paths must be a list of paths that start with /');
+    return fill(ROUTE('carried-paths'), { ...caddy, carried_paths: paths, carried_port: port }, `carried computer at port ${port}`);
+  }
+  if (!/^[a-z0-9]{8,128}$/.test(address)) throw new Error('caddy.carried_computers needs each computer\'s address (lowercase letters and digits) and a loopback port');
   return fill(ROUTE('carried-computer'), { ...caddy, carried_address: address, carried_port: port }, `carried computer ${address}`);
 }).join('\n');
 const renderSiteFile = caddy => {
