@@ -4,7 +4,7 @@
 // it imports the module the row names, calls the export the row names with the run's stdin and prints { result } (or { error })
 // as its last line.
 //
-//   runWithSql({ file, name, openDoor?, usageOk? })   `usageOk: false` is an entry that was given arguments it does not take
+//   runWithSql({ file, name, openDoor?, usageOk?, sqlFolders? })   `sqlFolders` are the tool's own folders of tables, applied after sql/   `usageOk: false` is an entry that was given arguments it does not take
 //
 // The function is called as fn(request, { sql, door }) (read-data/sql.mjs). `door` is there only when the entry hands an
 // `openDoor`: the files door of the person's own files (the row's `files` right); it offers `files` and opens the door on its
@@ -17,11 +17,11 @@ import { readFileSync } from 'node:fs';
 import { text } from 'node:stream/consumers';
 import { pathToFileURL } from 'node:url';
 import pg from 'pg';
-import { applySqlFiles, sayWithout, sqlOver } from './sql.mjs';
+import { applySqlFiles, sayWithout, sqlFiles, sqlOver, SQL_FOLDER } from './sql.mjs';
 
 export const CONNECTION_DESCRIPTOR = 3;
 
-export async function runWithSql({ file, name, openDoor = null, usageOk = true }) {
+export async function runWithSql({ file, name, openDoor = null, usageOk = true, sqlFolders = [] }) {
   let connection = '';
   let client;
   try {
@@ -34,7 +34,7 @@ export async function runWithSql({ file, name, openDoor = null, usageOk = true }
     client = new pg.Client({ connectionString: connection });
     await client.connect();
     const sql = sqlOver(client);
-    await applySqlFiles(sql);
+    await applySqlFiles(sql, [SQL_FOLDER, ...sqlFolders].flatMap(folder => sqlFiles(folder)));
     let door;
     const context = { sql, door: openDoor === null ? undefined : { files: (...asked) => (door ??= openDoor()).files(...asked) } };
     console.log(JSON.stringify({ result: await fn(request, context) }));

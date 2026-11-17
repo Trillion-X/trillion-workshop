@@ -5,7 +5,7 @@
 // seeding helpers, and the way a tool's row is run for real: its packed files laid under one folder that stands for `/`
 // (the pinned pg libraries linked in, as the engine places them), its argv run with the connection string on descriptor 3.
 //
-//   const db = await startDatabase();   db.sql, db.connection, db.reset(), db.another(), db.stop()
+//   const db = await startDatabase({ sqlFolders? });   db.sql, db.connection, db.reset(), db.another(), db.stop()
 //   keep(db.sql, 'table', 'id', value)  one row of a table made as (id text primary key, value jsonb), replaced when it is there
 //   keepWorkflow(db.sql, slug, { recipe, steps })
 //   readRow(db.sql, 'table', 'id')      the row's value, or null
@@ -18,7 +18,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import EmbeddedPostgres from 'embedded-postgres';
 import pg from 'pg';
-import { applySqlFiles, identifier, sqlOver } from '../read-data/sql.mjs';
+import { applySqlFiles, identifier, SQL_FOLDER, sqlFiles, sqlOver } from '../read-data/sql.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const tools = join(here, '..', '..');
@@ -46,7 +46,8 @@ async function startServer(attempt = 1) {
   return { server, admin, port };
 }
 
-export async function startDatabase() {
+// `sqlFolders` are a tool's own folders of tables (its `sql/`), made after this folder's, as the entry makes them.
+export async function startDatabase({ sqlFolders = [] } = {}) {
   const { server, admin, port } = await startServer();
   const connection = `postgres://${admin.user}:${admin.password}@127.0.0.1:${port}/postgres`;
   const client = new pg.Client({ connectionString: connection });
@@ -58,7 +59,7 @@ export async function startDatabase() {
     async reset() {
       await client.query('drop schema public cascade');
       await client.query('create schema public');
-      await applySqlFiles(sql);
+      await applySqlFiles(sql, [SQL_FOLDER, ...sqlFolders].flatMap(folder => sqlFiles(folder)));
     },
     // A connection of its own, for a test that makes several calls at once (one connection answers one query at a time).
     async another() { const own = new pg.Client({ connectionString: connection }); await own.connect(); return { sql: sqlOver(own), end: () => own.end() }; },
