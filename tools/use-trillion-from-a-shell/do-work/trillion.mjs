@@ -374,8 +374,8 @@ export async function refreshGrant(grant, { fetchImpl = fetch, rules = settings,
   return grantOf(await asJson(response, 'Renewing this computer\'s sign-in'), { client_id: grant.client_id, origin: grant.origin, now, rules, found: grant });
 }
 
-/** The credential for this run: TRILLION_KEY (a machine with no Keychain or file), else the kept key, else the sign-in
- *  login kept, renewed first when it ends within `grant.refresh_before_seconds`. { kind: 'key'|'sign-in', bearer, where,
+/** The credential for this run: TRILLION_KEY (a machine with no Keychain or file), else the sign-in
+ *  login kept, else the kept key, renewed first when it ends within `grant.refresh_before_seconds`. { kind: 'key'|'sign-in', bearer, where,
  *  origin? }, or null when there is none. */
 export async function credentialFor({ env = process.env, store = keyStore(), grants = grantStore(), fetchImpl = fetch, rules = settings, now = Date.now } = {}) {
   if (env.TRILLION_KEY) {
@@ -383,10 +383,13 @@ export async function credentialFor({ env = process.env, store = keyStore(), gra
     if (bearerOf(env.TRILLION_KEY, rules) === null) throw new TrillionError(fill(rules.bearers.refused, { kinds: rules.bearers.shapes.map(row => row.kind).join(', ') }), { status: 2 });
     return { kind: 'key', bearer: env.TRILLION_KEY, where: 'TRILLION_KEY' };
   }
-  const key = store.read();
-  if (key) return { kind: 'key', bearer: key, where: store.where };
+  // A sign-in this person made (`trillion login`) is the newer word: it comes before a key an app kept, which an engine that
+  // admits only the sign-in tool's passes and API keys would refuse.
   let grant = grants.read();
-  if (!grant) return null;
+  if (!grant) {
+    const key = store.read();
+    return key ? { kind: 'key', bearer: key, where: store.where } : null;
+  }
   if (grant.refresh_token && Number.isFinite(grant.expires_at_ms) && grant.expires_at_ms - now() < rules.grant.refresh_before_seconds * 1000) {
     grant = await refreshGrant(grant, { fetchImpl, rules, now });
     grants.write(grant);
@@ -1013,9 +1016,12 @@ async function login(context, { again = false } = {}) {
   const existing = await credentialFor({ env: context.env, store: context.store, grants: context.grants, fetchImpl: context.fetchImpl });
   if (existing && !again) {
     const client = trillionClient({ door: doorFor({ asked: context.asked, declared: context.declared, credential: existing, localMcp: context.localMcp() }), credential: existing, fetchImpl: context.fetchImpl, wait: context.wait });
-    const { account } = await client.whoami();
-    keepConnection(context, client.door, account);
-    return `Already signed in to Trillion as account ${account}, with the ${existing.kind} in ${existing.where}, at ${client.door.name}.${await engineSentence(context, client)}`;
+    // A credential its door refuses is no sign-in: the person signs in again below, instead of being told it is refused.
+    const known = await client.whoami().catch(error => { if (error instanceof TrillionError) return null; throw error; });
+    if (known) {
+      keepConnection(context, client.door, known.account);
+      return `Already signed in to Trillion as account ${known.account}, with the ${existing.kind} in ${existing.where}, at ${client.door.name}.${await engineSentence(context, client)}`;
+    }
   }
   if (context.flags['key-stdin']) {
     const chunks = [];

@@ -595,6 +595,28 @@ test('login: the browser sign-in with PKCE keeps the sign-in itself, and no key 
   } finally { await fake.close(); }
 });
 
+test('login: a kept key its door refuses is no sign-in, so login signs in at the browser, and the sign-in then comes before the key', async () => {
+  const pass = 'x.y.z';
+  const fake = await fakeDoor({ bearers: [pass],
+    oauth: (url, raw, request, send) => {
+      const at = path => `http://${request.headers.host}${path}`;
+      if (url.pathname === '/.well-known/oauth-authorization-server') return send(200, { authorization_endpoint: at('/api/auth/oauth2/authorize'), token_endpoint: at('/api/auth/oauth2/token') });
+      if (url.pathname === '/.well-known/oauth-protected-resource') return send(200, { resource: at('/mcp') });
+      return new URLSearchParams(raw).get('grant_type') === 'authorization_code' ? send(200, { access_token: pass, refresh_token: 'refresh-1', expires_in: 3600 }) : send(400, { error: 'unexpected' });
+    } });
+  try {
+    let kept = null;
+    const grants = { where: 'test sign-in', read: () => kept, write: value => { kept = value; }, forget: () => { kept = null; } };
+    const store = { read: () => KEY, where: 'a kept key' };
+    const open = async url => { const asked = new URL(url); await fetch(`${asked.searchParams.get('redirect_uri')}?code=code-1&state=${asked.searchParams.get('state')}`); };
+    const said = await main(['login', '--origin', fake.origin], { store, grants, state: stateOf({ home: home() }), open, env: {}, localDoor: () => `${fake.origin}/mcp`, computerName: 'Mac', model: null, wait: noWait });
+    assert.match(said, /^Signed in to Trillion as account /);
+    assert.match(said, /This computer's engine now serves you\.$/);
+    assert.deepEqual(fake.added, [`Bearer ${pass}`], 'the engine at the local door was asked to hold the person the pass names');
+    assert.equal((await credentialFor({ env: {}, store, grants, fetchImpl: fetch })).kind, 'sign-in', 'the sign-in comes before the kept key');
+  } finally { await fake.close(); }
+});
+
 test('logout never ends or removes the Mac app\'s key', async () => {
   const folder = home();
   const store = keyStore({ home: folder, platform: 'linux' });
