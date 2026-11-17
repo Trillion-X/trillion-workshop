@@ -9,7 +9,6 @@ implementation, over SQLite (a file of the person's own) or Postgres (the person
 | File | Purpose |
 |------|---------|
 | `mod.rs` | `Rows` (the trait), `SqlStore` (its implementation), `Record`, `Mutation`, `Change`, `Page`, `Total`, `Error`, and the tests |
-| `ranges.rs` | `Range`, and `RecordRows` for `SqlStore`: a scope's rows in id order or the reverse within bounds, several rows changed in one transaction, the scopes under a prefix, rows holding every word of a text |
 | `link.rs` | `Link`: one connection to SQLite or Postgres behind `query`, `execute`, `batch` and the transaction brackets; `Cell`, `Dialect` |
 | `tables.json` | DATA: which table keeps which scope, each table's columns, and the declared totals |
 
@@ -50,4 +49,4 @@ implementation, over SQLite (a file of the person's own) or Postgres (the person
 
 **Depends on:** rusqlite (bundled SQLite), postgres and tokio-postgres-rustls (Postgres, encrypted), serde_json, content-crypto (BLAKE3 for a change's identity), `crate::refusal_cause`.
 
-**Depended on by:** `tools/live-namespace` (`src/account_files` reads and changes every record through `Rows`; `src/serve` opens the rows) and `tools/live-records` (`RecordRows`).
+**Depended on by:** `src/account_files` (every record it reads or changes), `src/serve` (opens the rows).

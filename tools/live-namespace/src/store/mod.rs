@@ -37,10 +37,8 @@
 // You are forbidden from simplifying or removing it. Maintain and extend this detail.
 
 pub mod link;
-pub mod ranges;
 
 use link::{Cell, Dialect, Link};
-pub use ranges::{Bound, Range};
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use std::{
@@ -216,19 +214,6 @@ pub trait Rows: Send + Sync {
     fn minted(&self, prefixes: &[&str], minted: i64) -> Result<Option<(String, Record)>, Error>;
     /// The change order, once it is past `after` or once `until` comes, whichever is first.
     fn wait_for_order(&self, after: i64, until: Instant) -> Result<i64, Error>;
-}
-
-/// What a tool that keeps the person's records asks of the rows beyond what `Rows` gives the files.
-pub trait RecordRows: Rows {
-    /// The rows of a scope within `range`, in id order or the reverse, at most `limit` (and one page's bytes); `next` is the id of the last
-    /// row shown when there are more, which the caller makes the next page's bound.
-    fn list_range(&self, scope: &str, range: &Range, limit: usize) -> Result<Page<Record, String>, Error>;
-    /// Several rows changed in one transaction: every one, or none when any refuses (its error is the first refusal).
-    fn mutate_all(&self, changes: &[(String, Mutation)]) -> Result<Vec<Change>, Error>;
-    /// The scopes that start with `prefix` that hold rows, in order, at most `limit`.
-    fn scopes(&self, prefix: &str, limit: usize) -> Result<Vec<String>, Error>;
-    /// The rows of one scope whose value text holds every one of `words` (any case, anywhere), the most recently changed first, at most `hits`.
-    fn find_text(&self, scope: &str, words: &[String], hits: usize) -> Result<Vec<Record>, Error>;
 }
 
 /// The column the store fills for the rows of `scope` (tables.json `minted`), when its table has one.
@@ -691,24 +676,6 @@ impl SqlStore {
     }
 }
 
-impl RecordRows for SqlStore {
-    fn list_range(&self, scope: &str, range: &Range, limit: usize) -> Result<Page<Record, String>, Error> {
-        self.range_page(scope, range, limit)
-    }
-
-    fn mutate_all(&self, changes: &[(String, Mutation)]) -> Result<Vec<Change>, Error> {
-        self.mutate_all_in(changes)
-    }
-
-    fn scopes(&self, prefix: &str, limit: usize) -> Result<Vec<String>, Error> {
-        self.scopes_in(prefix, limit)
-    }
-
-    fn find_text(&self, scope: &str, words: &[String], hits: usize) -> Result<Vec<Record>, Error> {
-        self.find_text_in(scope, words, hits)
-    }
-}
-
 impl Rows for SqlStore {
     fn get(&self, scope: &str, id: &str) -> Result<Read, Error> {
         let mut link = self.link.lock().map_err(unavailable)?;
@@ -849,7 +816,6 @@ impl Rows for SqlStore {
         let mut link = self.link.lock().map_err(unavailable)?;
         Ok(self.read_rows(&mut link, "@namespace/files", &tail, &params)?.into_iter().map(|(record, _, _)| record).collect())
     }
-
 
     fn place(&self) -> String {
         self.place.clone()

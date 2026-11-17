@@ -345,6 +345,7 @@ dependencies = [
  "ed25519-dalek",
  "hex",
  "serde",
+ "serde_json",
  "sha2 0.10.9",
  "thiserror 1.0.69",
 ]
@@ -1286,7 +1287,6 @@ dependencies = [
  "regex",
  "reqwest",
  "ring",
- "rows-store",
  "rusqlite",
  "rustls",
  "rustls-native-certs",
@@ -2009,30 +2009,6 @@ dependencies = [
  "libc",
  "untrusted",
  "windows-sys 0.52.0",
-]
-
-[[package]]
-name = "rows-store"
-version = "0.1.0"
-dependencies = [
- "axum",
- "base64 0.22.1",
- "chacha20poly1305",
- "chrono",
- "content-crypto",
- "hmac 0.12.1",
- "postgres",
- "regex",
- "ring",
- "rusqlite",
- "rustls",
- "rustls-native-certs",
- "serde",
- "serde_json",
- "tokio",
- "tokio-postgres-rustls",
- "url",
- "zeroize",
 ]
 
 [[package]]

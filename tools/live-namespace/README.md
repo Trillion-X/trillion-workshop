@@ -20,7 +20,7 @@ device's folder) reaches the files through the engine's one door; plus the brows
 
 ## Where the names are kept
 
-The names index is rows in the person's own SQL database, behind one small trait (`Rows` of the shared crate `tools/live-records/rows-store`, which this tool and `tools/live-records` both depend on): read a row, read rows by id,
+The names index is rows in the person's own SQL database, behind one small trait (`src/store`, `Rows`): read a row, read rows by id,
 list a scope in id order a page at a time, change one row only if it is still at the version the caller read, a scope's change stamp,
 the declared totals, and a word search of the file names. `SqlStore` is the one implementation, over SQLite or Postgres with the
 same statements. Which one is the run's `settings.json` `store`: `{"sqlite": {"file": NAME}}` is a SQLite file of that name in the
@@ -32,7 +32,7 @@ reached only encrypted. The Postgres side shares every statement with the SQLite
 `NAMESPACE_POSTGRES_TEST_CONNECTION` holds the connection string of a throwaway database (each test gets a schema of its own).
 
 The tables are `ns_name`, `ns_folder`, `ns_file`, `ns_chunk`, `ns_alias` and `ns_spans`, each with its own columns and
-`scope`, `version` and two request columns added (`../live-records/rows-store/src/store/tables.json`). Other small rows (origins, shares, uploads, locks, release and recent lists, results, usage days) are kept in
+`scope`, `version` and two request columns added (`src/store/tables.json`). Other small rows (origins, shares, uploads, locks, release and recent lists, results, usage days) are kept in
 `ns_record`, one JSON value a row.
 
 The bytes live in the person's own S3-compatible store and are read by the asked range. That store is the person's `files-store`
@@ -94,10 +94,10 @@ shares).
 | `src/lib.rs` | The library. |
 | `src/share_bytes/mod.rs` | The share byte route: `router`, `admit` (the whole decision about a request, read now), `stands`, `wanted` (the `Range` header), the `Grants` and `Reader` seams and `DoorGrants`. |
 | `src/serve/shares.rs` | One run of `serve-shares`. |
-| `../live-records/rows-store/` | The rows (its own README): `Rows`, `SqlStore`, `Link`, `tables.json`, shared with `tools/live-records`; `src/lib.rs` re-exports it as `store`. |
+| `src/store/` | The rows (see its README): `Rows`, `SqlStore`, `Link`, `tables.json`. |
 | `src/account_files/chunk_copies.rs` | The checked copies of stored chunks kept in the state folder (`src/account_files/settings.json` `chunk_copies`), served before the store is asked (see the account files' README). |
 | `src/account_files/` | The account files, moved from trillion-rust `src/account_files` (see its README). |
-| `../live-records/rows-store/src/cause_book/` | The engine's refusal causes, which every error here carries (re-exported as `refusal_cause`, with their macros). |
+| `src/cause_book/` | The engine's refusal causes, which every error here carries. |
 | `src/host/https.rs`, `src/host/https/settings.json` | The one HTTP client the byte store's requests go through. |
 | `src/host/mcp.rs` | The MCP message bounds, `tool_answer_fits`, `InputFault`. |
 | `src/host/os.rs`, `src/host/os/*.rs` | The computer under the program: owner-only files, locks, the process table. |
@@ -115,13 +115,13 @@ shares).
 | `Namespace` | `Namespace::open(&Settings, &Path)`; `call(operation, &Value, current, fits) -> Result<Value, Failure>` | One run's door: the one call every MCP tool makes. |
 | `AccountFilesDoor` | `shipped()`, `call_with_control_fitting(state, store, account, ...)`, `operations()` | The account files' routes DATA and the call that checks the caller and answers. |
 | `AccountFiles` | `list_files`, `read_file`, `write_file`, `share_file`, `move_names` ... | The tool contract over rows and a byte port (`src/account_files/mod.rs`). |
-| `Rows` | `get`, `get_many`, `held_record_with_version`, `list_page`, `ids`, `mutate`, `stamp`, `totals`, `search`, `place` | What the files ask of the database (`../live-records/rows-store/src/store/mod.rs`). |
+| `Rows` | `get`, `get_many`, `held_record_with_version`, `list_page`, `ids`, `mutate`, `stamp`, `totals`, `search`, `place` | What the files ask of the database (`src/store/mod.rs`). |
 | `SqlStore` | `open(Link)`, `memory()` | The rows in SQLite or Postgres. |
 | `secrets::Held` | `from_descriptors(&[(service, field, fd)])`, `plain`, `sigv4_day_key` | The attached connections; a value never leaves it. |
 | `serve::mcp::serve` | `serve(Arc<Namespace>, impl BufRead, impl Write + Send)` | MCP over stdio until its input ends and every call has answered. |
 
 ## Dependencies
 
-**Depends on:** `../live-records/rows-store` (the rows and the refusal causes, shared with `tools/live-records`) and its `content-crypto/` (BLAKE3 identities, vendored from trillion-rust `crates/content-crypto` at 26c296c134bf, receipted in `../live-records/moved-from.json`), rusqlite (bundled SQLite), postgres and tokio-postgres-rustls (the person's Postgres), axum, tokio, reqwest and rustls (the HTTP client), serde, ring, hmac and sha2.
+**Depends on:** `content-crypto/` (BLAKE3 identities, vendored here from trillion-rust `crates/content-crypto` at 26c296c134bf, receipted in `moved-from.json`), rusqlite (bundled SQLite), postgres and tokio-postgres-rustls (the person's Postgres), axum, tokio, reqwest and rustls (the HTTP client), serde, ring, hmac and sha2.
 
 **Depended on by:** `tools/live-namespace/do-work` files are imported by Trillion-X/trillion-apps (`part.json`); `tool:your-files` runs the program; tools/files-on-every-device calls `tool:your-files`.

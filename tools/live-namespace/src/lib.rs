@@ -5,13 +5,13 @@
 // the smallest form that answers it here. `main.rs` and `serve/` make it a tool: MCP over stdio, run by the engine as a session that takes calls.
 //
 // Non-Negotiable Invariants:
-// - The record store is the shared crate `rows-store` (tools/live-records/rows-store). Everything else this tool needs from the engine is named below and lives in `host/`.
+// - The record store is this tool's own (`store/`). Everything else this tool needs from the engine is named below and lives in `cause_book/`, `engine/` or `host/`.
 // - `host/` is what this tool is for the engine's modules it calls (the computer under it, the held credential, the MCP bounds); each
 //   file's header says which engine module it stands for and what it keeps of it.
 // - No module here names a person, a store, a host or a credential value.
 //
 // Key Concepts:
-// - `rows-store`: the engine's refusal causes (src/mcp/cause.rs of trillion-rust at 5fbc2ff4b1), which every error here carries, and the record store.
+// - `cause_book/`: the engine's refusal causes (src/mcp/cause.rs of trillion-rust at 5fbc2ff4b1), which every error here carries.
 // - `engine/`, `record_indexes`, `resource_authority`: files of the engine kept as they were, which the record store reads.
 //
 // AI Assistant Directive:
@@ -30,11 +30,16 @@ macro_rules! quiet_eprintln {
     ($($arg:tt)*) => {{ use ::std::io::Write as _; let _ = ::std::writeln!(::std::io::stderr(), $($arg)*); }};
 }
 
-// The record store and the refusal causes are the crate `rows-store` (tools/live-records/rows-store), which this tool and live-records share;
-// they are re-exported here under their old names, with the macros of the causes, so every `crate::store`, `crate::refusal_cause` and
-// `crate::cause!` of this tool reads as before.
-pub use rows_store::{refusal_cause, store};
-pub use rows_store::{__refusal_site, carry_cause, cause, facts, impl_caused, impl_chained_foreign_caused, impl_foreign_caused, io_operation};
+extern crate self as trillion_local;
+
+#[path = "cause_book/cause.rs"]
+pub mod refusal_cause;
+#[path = "cause_book/foreign_causes.rs"]
+mod foreign_causes;
+#[path = "cause_book/foreign_storage_causes.rs"]
+mod foreign_storage_causes;
+
+pub mod store;
 
 // What this tool is for the engine modules the record store and the account files call.
 #[path = "host/https.rs"]
