@@ -617,6 +617,12 @@ impl Core {
 
     fn failed(&mut self, purpose: Purpose, problem: Problem) {
         match purpose {
+            // A session that answers but names no computer (it refuses the call) names none, as a null answer does;
+            // only a door that does not answer fails the start.
+            Purpose::ThisComputer { .. } if problem != Problem::Unreachable => {
+                self.named = true;
+                self.started_now();
+            }
             Purpose::Bounds { asked_ms } | Purpose::ThisComputer { asked_ms } => self.start_failed(problem, asked_ms),
             Purpose::Anchor { demand } | Purpose::Item { demand } | Purpose::List { demand } | Purpose::Changes { demand } => {
                 self.fail(demand, problem)
