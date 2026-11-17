@@ -781,7 +781,7 @@ export function pkce(random = randomBytes) {
  *  server names, takes the code on that loopback address and exchanges it. Answers the sign-in (grantOf: access and refresh
  *  tokens, when the access token ends, the client id, the origin, the endpoints and the account the pass names), kept by the
  *  caller. `open(url)` shows the page; the person signs in there. */
-export async function signInWithBrowser({ origin, resourceDoor, rules = settings, fetchImpl = fetch, open = openInBrowser, now = Date.now } = {}) {
+export async function signInWithBrowser({ origin, resourceDoor, rules = settings, fetchImpl = fetch, open = openInBrowser, now = Date.now, say = text => process.stderr.write(`${text}\n`) } = {}) {
   if (!origin) throw new TrillionError(rules.words.no_origin, { status: 2 });
   const found = await discover(origin, { fetchImpl, resourceDoor, rules });
   const { verifier, challenge, state } = pkce();
@@ -797,13 +797,19 @@ export async function signInWithBrowser({ origin, resourceDoor, rules = settings
     if (done) resolveCode(url.searchParams.get('code'));
     else rejectCode(new TrillionError(rules.words.sign_in_step_failed, { detail: fill(rules.words.sign_in_failed, { why: url.searchParams.get('error_description') ?? url.searchParams.get('error') ?? rules.words.sign_in_failed_unknown }) }));
   });
-  await new Promise((resolve, reject) => { server.once('error', reject); server.listen(rules.client.redirect_port ?? 0, '127.0.0.1', resolve); });
+  // One sign-in waits at a time: the client document names one answer address, so a second run says so instead of failing raw.
+  await new Promise((resolve, reject) => {
+    server.once('error', error => reject(error.code === 'EADDRINUSE' ? new TrillionError(rules.words.sign_in_waiting, { status: 4, detail: error.message }) : error));
+    server.listen(rules.client.redirect_port ?? 0, '127.0.0.1', resolve);
+  });
   const redirect = `http://127.0.0.1:${server.address().port}/callback`;
   try {
     const authorize = new URL(found.authorization_endpoint);
     for (const [name, value] of Object.entries({ response_type: 'code', client_id: `${origin}${rules.client.id_path}`, redirect_uri: redirect, code_challenge: challenge, code_challenge_method: 'S256', state, scope: rules.scope })) authorize.searchParams.set(name, value);
     authorize.searchParams.set('resource', found.resource);
     Promise.resolve().then(() => open(authorize.href)).catch(error => rejectCode(new TrillionError(fill(rules.words.browser_not_opened, { link: authorize.href }), { detail: error.message.split('\n')[0] })));
+    // A computer with no browser (a remote shell) opens nothing and says nothing: the link is always said, so the person can open it anywhere.
+    say(fill(rules.words.open_this_link, { link: authorize.href }));
     let timer;
     const late = new Promise((resolve, reject) => { timer = setTimeout(() => reject(new TrillionError(fill(rules.words.sign_in_late, { seconds: rules.sign_in_wait_seconds }))), rules.sign_in_wait_seconds * 1000); });
     const code = await Promise.race([arrived, late]).finally(() => clearTimeout(timer));

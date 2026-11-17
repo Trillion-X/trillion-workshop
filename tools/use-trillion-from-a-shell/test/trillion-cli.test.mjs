@@ -1043,6 +1043,23 @@ test('the program runs under the Mac app\'s own node when the app is installed, 
   assert.equal(appNodeToRunUnder({ rules: { ...settings, mac_app: upper.replace('Upper.app', 'upper.app') }, execPath: process.execPath, env: {} }), null, 'the same node spelled in another case is the same node');
 });
 
+test('the sign-in link is always said, for a computer with no browser; a second sign-in while one waits says so in plain words', async () => {
+  const pass = passFor('person@example.com');
+  const fake = await fakeDoor({ bearers: [pass], oauth: signInServer(pass) });
+  try {
+    const said = [];
+    const open = async url => { const asked = new URL(url); await fetch(`${asked.searchParams.get('redirect_uri')}?code=code-1&state=${asked.searchParams.get('state')}`); };
+    await signInWithBrowser({ origin: fake.origin, open: () => {}, say: text => said.push(text), now: () => 1000, rules: { ...settings, sign_in_wait_seconds: 0.2 } }).catch(() => null);
+    assert.equal(said.length, 1);
+    assert.ok(said[0].startsWith('If your browser did not open, open this link to sign in: ') && said[0].includes('code_challenge='), said[0]);
+    const holder = createServer(() => {});
+    await new Promise(resolve => holder.listen(settings.client.redirect_port, '127.0.0.1', resolve));
+    try {
+      await assert.rejects(signInWithBrowser({ origin: fake.origin, open, say: () => {} }), error => error.message === settings.words.sign_in_waiting && error.status === 4);
+    } finally { await new Promise(resolve => holder.close(resolve)); }
+  } finally { await fake.close(); }
+});
+
 test('a callback with another sign-in\'s state is told it is old and ignored; the run keeps waiting for its own', async () => {
   const pass = passFor('person@example.com');
   const fake = await fakeDoor({ bearers: [pass], oauth: signInServer(pass) });
