@@ -17,7 +17,7 @@ A run that stops partway keeps nothing; the lease a rent answered is the only re
 
 A provider key reaches a run only through its row's credential mount, `{ secret_name: <vault name>, env: <the vault name in capitals, dashes as underscores> }`. The code reads it by the vault name the list row gives (`heldFrom`), sends it only in that provider's own auth header, and never prints, keeps or answers it.
 
-The move (`do-work/move-public-door.mjs` `movePublicDoor`) is a function whose host setup and download steps are handed in. Its row comes with the tools that own those steps: the certificate and public proxy (tools/renew-a-tls-certificate) and the carrier to a meeting point (tools/carry-a-computer-to-a-meeting-point).
+The move (`do-work/move-public-door.mjs` `movePublicDoor`) is a function whose host setup and download steps are handed in. Its row comes with the tools that own those steps: the public proxy and the carrier to a meeting point (tools/carry-a-computer-to-a-meeting-point).
 
 ## Files
 

@@ -268,15 +268,6 @@
           ],
           "words": 0.136,
           "near": false
-        },
-        {
-          "capability": "keep a rented server's public address on a valid certificate: issue and renew it by DNS-01 with the person's DNS key, set up the server's certificate owner and decide which paths its public host keeps before the rest goes to the engine",
-          "repository": "trillion-workshop",
-          "owner": [
-            "tools/renew-a-tls-certificate/"
-          ],
-          "words": 0.132,
-          "near": false
         }
       ],
       "code_patterns": [
