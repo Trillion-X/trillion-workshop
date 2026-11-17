@@ -559,7 +559,7 @@ test('login: the browser sign-in with PKCE keeps the sign-in itself, and no key 
       seen.paths = [...(seen.paths ?? []), url.pathname];
       const at = path => `http://${request.headers.host}${path}`;
       if (url.pathname === '/.well-known/oauth-authorization-server') return send(200, { authorization_endpoint: at('/api/auth/oauth2/authorize'), token_endpoint: at('/api/auth/oauth2/token'), revocation_endpoint: at('/api/auth/oauth2/revoke') });
-      if (url.pathname === '/.well-known/oauth-protected-resource') return send(200, { resource: at('/mcp') });
+      if (url.pathname === settings.protected_resource_path) return send(200, { resource: at('/mcp') });
       const asked = new URLSearchParams(raw);
       if (asked.get('grant_type') === 'authorization_code') {
         seen.verified = createHash('sha256').update(asked.get('code_verifier')).digest('base64url') === challenge && asked.get('code') === 'code-1';
@@ -626,13 +626,39 @@ test('login with no address: kept sign-in origin, then the engine\'s protected-r
   } finally { await engine.close(); }
 });
 
+test('login reads the protected-resource document from the door it will call, never from the issuer\'s root', async () => {
+  const pass = 'x.y.z';
+  const seen = [];
+  // The issuer serves only its authorization-server document; its root protected-resource path is a 404, as the live gateway's is.
+  const issuer = await fakeDoor({ bearers: [pass],
+    oauth: (url, raw, request, send) => {
+      seen.push(url.pathname);
+      const at = path => `http://${request.headers.host}${path}`;
+      if (url.pathname === '/.well-known/oauth-authorization-server') return send(200, { authorization_endpoint: at('/api/auth/oauth2/authorize'), token_endpoint: at('/api/auth/oauth2/token') });
+      return new URLSearchParams(raw).get('grant_type') === 'authorization_code' ? send(200, { access_token: pass, refresh_token: 'refresh-1', expires_in: 3600 }) : send(404, { error: 'not found' });
+    } });
+  const engine = await fakeDoor({ bearers: [pass],
+    oauth: (url, raw, request, send) => (url.pathname === settings.protected_resource_path
+      ? send(200, { resource: `${issuer.origin}/mcp`, authorization_servers: [issuer.origin] }) : send(404, {})) });
+  try {
+    let kept = null;
+    const grants = { where: 'test sign-in', read: () => kept, write: value => { kept = value; }, forget: () => { kept = null; } };
+    let opened = null;
+    const open = async url => { opened = new URL(url); await fetch(`${opened.searchParams.get('redirect_uri')}?code=code-1&state=${opened.searchParams.get('state')}`); };
+    const said = await main(['login'], { store: { read: () => null, where: 'no key' }, grants, state: stateOf({ home: home() }), open, env: {}, localDoor: () => `${engine.origin}/mcp`, declaredOrigin: () => null, computerName: 'Mac', model: null, wait: noWait });
+    assert.match(said, /^Signed in to Trillion as account /);
+    assert.equal(opened.origin, issuer.origin, 'the issuer comes from the engine\'s document');
+    assert.ok(!seen.includes('/.well-known/oauth-protected-resource') && !seen.includes(settings.protected_resource_path), 'the issuer is never asked for the resource document');
+  } finally { await engine.close(); await issuer.close(); }
+});
+
 test('login: a kept key its door refuses is no sign-in, so login signs in at the browser, and the sign-in then comes before the key', async () => {
   const pass = 'x.y.z';
   const fake = await fakeDoor({ bearers: [pass],
     oauth: (url, raw, request, send) => {
       const at = path => `http://${request.headers.host}${path}`;
       if (url.pathname === '/.well-known/oauth-authorization-server') return send(200, { authorization_endpoint: at('/api/auth/oauth2/authorize'), token_endpoint: at('/api/auth/oauth2/token') });
-      if (url.pathname === '/.well-known/oauth-protected-resource') return send(200, { resource: at('/mcp') });
+      if (url.pathname === settings.protected_resource_path) return send(200, { resource: at('/mcp') });
       return new URLSearchParams(raw).get('grant_type') === 'authorization_code' ? send(200, { access_token: pass, refresh_token: 'refresh-1', expires_in: 3600 }) : send(400, { error: 'unexpected' });
     } });
   try {

@@ -421,13 +421,16 @@ const grantOf = (tokens, { client_id, origin, now = Date.now, found, rules = set
   expires_at_ms: Number.isFinite(tokens.expires_in) ? now() + tokens.expires_in * 1000 : null, client_id, origin,
   token_endpoint: found.token_endpoint, revocation_endpoint: found.revocation_endpoint ?? null, resource: found.resource });
 
-/** What a sign-in server says about itself and the resource it signs in to: the endpoints of its RFC 8414 document and the
- *  `resource` of its RFC 9728 document (both under `origin`'s /.well-known). */
-export async function discover(origin, { fetchImpl = fetch } = {}) {
-  const server = await asJson(await fetchImpl(`${origin}/.well-known/oauth-authorization-server`), 'Reading the sign-in server');
-  const resource = await asJson(await fetchImpl(`${origin}/.well-known/oauth-protected-resource`), 'Reading the sign-in resource');
-  for (const name of ['authorization_endpoint', 'token_endpoint']) if (typeof server[name] !== 'string') throw new TrillionError(`The sign-in server names no ${name}.`);
+/** What the sign-in server says about itself and the resource it signs in to. The resource's RFC 9728 document is read from the
+ *  door the program will call (`resourceDoor`, an MCP address; the issuer's own /mcp when none is given), never from the issuer's
+ *  root; its `authorization_servers[0]` names the server whose RFC 8414 document gives the endpoints. */
+export async function discover(origin, { fetchImpl = fetch, resourceDoor = `${origin}/mcp`, rules = settings } = {}) {
+  const resource = await asJson(await fetchImpl(new URL(rules.protected_resource_path, resourceDoor)), 'Reading the sign-in resource');
   if (typeof resource.resource !== 'string') throw new TrillionError('The sign-in resource names no resource.');
+  const named = resource.authorization_servers?.[0];
+  const issuer = typeof named === 'string' && URL.canParse(named) ? new URL(named).origin : origin;
+  const server = await asJson(await fetchImpl(`${issuer}/.well-known/oauth-authorization-server`), 'Reading the sign-in server');
+  for (const name of ['authorization_endpoint', 'token_endpoint']) if (typeof server[name] !== 'string') throw new TrillionError(`The sign-in server names no ${name}.`);
   return { authorization_endpoint: server.authorization_endpoint, token_endpoint: server.token_endpoint, revocation_endpoint: server.revocation_endpoint ?? null, resource: resource.resource };
 }
 
@@ -482,13 +485,24 @@ export function findDeclaredOrigin({ rules = settings } = {}) { return localDoor
 export async function issuerFor({ asked = null, kept = null, localMcp = findLocalDoor(), declared = findDeclaredOrigin(), fetchImpl = fetch, rules = settings } = {}) {
   if (asked) return asked;
   if (kept) return kept;
-  if (localMcp) {
-    const document = await fetchImpl(new URL(rules.protected_resource_path, localMcp)).then(answer => (answer.ok ? answer.json() : null)).catch(() => null);
-    const server = document?.authorization_servers?.[0];
-    if (typeof server === 'string' && URL.canParse(server)) return new URL(server).origin;
-  }
+  const server = (await engineServersOf(localMcp, { fetchImpl, rules }))[0];
+  if (server) return server;
   if (declared) return declared;
   throw new TrillionError(rules.words.no_origin, { status: 2 });
+}
+
+/** The sign-in servers (origins) this computer's engine names in its protected-resource document; none when it has no engine
+ *  or does not answer. */
+async function engineServersOf(localMcp, { fetchImpl, rules }) {
+  if (!localMcp) return [];
+  const document = await fetchImpl(new URL(rules.protected_resource_path, localMcp)).then(answer => (answer.ok ? answer.json() : null)).catch(() => null);
+  return (Array.isArray(document?.authorization_servers) ? document.authorization_servers : []).filter(name => typeof name === 'string' && URL.canParse(name)).map(name => new URL(name).origin);
+}
+
+/** The door whose protected-resource document a sign-in at `origin` reads: this computer's engine when it names `origin` as its
+ *  sign-in server, else `origin`'s own /mcp. */
+export async function resourceDoorFor(origin, { localMcp = findLocalDoor(), fetchImpl = fetch, rules = settings } = {}) {
+  return (await engineServersOf(localMcp, { fetchImpl, rules })).includes(origin) ? localMcp : `${origin}/mcp`;
 }
 
 export function doorFor({ asked = null, credential = null, declared = null, rules = settings, localMcp = findLocalDoor({ rules }), localHost = findLocalHost({ rules }) } = {}) {
@@ -717,9 +731,9 @@ export function pkce(random = randomBytes) {
  *  server names, takes the code on that loopback address and exchanges it. Answers the sign-in (grantOf: access and refresh
  *  tokens, when the access token ends, the client id, the origin, the endpoints and the account the pass names), kept by the
  *  caller. `open(url)` shows the page; the person signs in there. */
-export async function signInWithBrowser({ origin, rules = settings, fetchImpl = fetch, open = openInBrowser, now = Date.now } = {}) {
+export async function signInWithBrowser({ origin, resourceDoor, rules = settings, fetchImpl = fetch, open = openInBrowser, now = Date.now } = {}) {
   if (!origin) throw new TrillionError(rules.words.no_origin, { status: 2 });
-  const found = await discover(origin, { fetchImpl });
+  const found = await discover(origin, { fetchImpl, resourceDoor, rules });
   const { verifier, challenge, state } = pkce();
   let resolveCode, rejectCode;
   const arrived = new Promise((resolve, reject) => { resolveCode = resolve; rejectCode = reject; });
@@ -1438,7 +1452,9 @@ async function login(context, { again = false } = {}) {
     if (bearerOf(key, settings) === null) throw new TrillionError(fill(settings.bearers.refused, { kinds: settings.bearers.shapes.map(row => row.kind).join(', ') }), { status: 2 });
     context.store.write(key);
   } else {
-    const grant = await signInWithBrowser({ origin: await issuerFor({ asked: context.asked, kept: context.grants.read()?.origin ?? null, localMcp: context.localMcp(), declared: context.declaredOrigin(), fetchImpl: context.fetchImpl }), fetchImpl: context.fetchImpl, ...(context.open ? { open: context.open } : {}) });
+    const localMcp = context.localMcp();
+    const origin = await issuerFor({ asked: context.asked, kept: context.grants.read()?.origin ?? null, localMcp, declared: context.declaredOrigin(), fetchImpl: context.fetchImpl });
+    const grant = await signInWithBrowser({ origin, resourceDoor: await resourceDoorFor(origin, { localMcp, fetchImpl: context.fetchImpl }), fetchImpl: context.fetchImpl, ...(context.open ? { open: context.open } : {}) });
     // A sign-in this program made before is ended when a new one replaces it; the Mac app's key is never touched.
     if (context.state.madeKey()?.where === context.grants.where) await endSignIn(context.grants.read(), { fetchImpl: context.fetchImpl });
     context.grants.write(grant);
