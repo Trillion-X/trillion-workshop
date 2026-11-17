@@ -3,15 +3,14 @@
 // What the sign-in pages' forms and buttons do: each calls Better Auth through its official client (better-auth/client
 // with the passkey, email OTP and two-factor client plugins, as the docs show). The pages themselves are sections in this
 // folder; this script only reads their own forms (by action and hidden `way`), buttons (data-passkey, data-consent,
-// data-device, data-approve) and steps (data-step), and the words it may show are words.json. Bundled to assets/sign-in.js
+// data-device) and steps (data-step), and the words it may show are words.json. Bundled to assets/sign-in.js
 // by `npm run build-pages`.
 import { createAuthClient } from 'better-auth/client';
 import { emailOTPClient, twoFactorClient } from 'better-auth/client/plugins';
 import { passkeyClient } from '@better-auth/passkey/client';
 import words from './words.json' with { type: 'json' };
-import approveRules from './approve.json' with { type: 'json' };
+import rules from './sign-in-rules.json' with { type: 'json' };
 import { authorizeQuery, signedQuery } from './oauth-query.mjs';
-import { changeOf, firstRoot, fingerprintOf, signRoot } from './approve-client.mjs';
 
 const authBase = '/api/auth';
 const client = createAuthClient({ plugins: [passkeyClient(), emailOTPClient(), twoFactorClient()] });
@@ -53,6 +52,27 @@ const listOf = (name, lines) => {
 };
 const scopeLines = scope => (scope ?? '').split(' ').filter(Boolean).map(name => words.scopes[name] ?? name);
 
+// What the person said Not now to on this device is not offered again for rules.skip_days.
+const skipped = way => Date.now() - Number(localStorage.getItem(`trillion-skipped-${way}`) ?? 0) < rules.skip_days * 864e5;
+const skip = way => localStorage.setItem(`trillion-skipped-${way}`, String(Date.now()));
+// A step that needs a signed-in person sends one who is not to sign in and back (their own request carried on).
+const signedOut = error => [401, 403].includes(error?.status);
+const toSignIn = () => go('/sign-in', { next: location.pathname + location.search });
+// The end of every sign-in: the person's name if there is none, a passkey if they have none and did not say Not now, a password
+// if they have none and did not say Not now, then where they were going.
+async function afterSignIn() {
+  const session = (await client.getSession()).data;
+  if (!session) return finish();
+  if (!session.user.name?.trim()) return go('/sign-in/name');
+  if (!skipped('passkey') && !((await client.passkey.listUserPasskeys()).data ?? []).length) return go('/sign-in/add-passkey');
+  if (!skipped('password') && !((await client.listAccounts()).data ?? []).some(account => account.providerId === 'credential')) return go('/sign-in/add-password');
+  return finish();
+}
+// The words for how a passkey step ended, by step and the error code Better Auth's client gives.
+const passkeyEnd = (step, error) => words.passkey_errors[step]?.[error?.code] ?? words.passkey_errors.any[error?.code] ?? { said: words.passkey_unknown, kind: 'error' };
+// An error from an email-code sign-in, in the words for what went wrong.
+const codeRefusal = error => status({ OTP_EXPIRED: words.code_ran_out, TOO_MANY_ATTEMPTS: words.code_tries, INVALID_OTP: words.code_wrong_login }[error?.code] ?? (error?.status === 429 ? words.too_many : words.failed));
+
 // The address a code went to: the pages draw "{name}" where it goes.
 if (email) {
   for (const node of document.querySelectorAll('[data-page-sent-to], .page-sent-to-address')) node.textContent = node.textContent.replaceAll('{name}', email);
@@ -82,42 +102,68 @@ async function submit(form) {
   if (action === '/sign-in/way' && way === 'password') {
     const { data, error } = await client.signIn.email({ email: field(form, 'sign_in_email'), password: form.querySelector('[name="password"]').value });
     if (error) return refusal(error);
-    return data?.twoFactorRedirect ? go('/sign-in/way', { way: 'authenticator' }) : finish();
+    return data?.twoFactorRedirect ? go('/sign-in/way', { way: 'authenticator' }) : afterSignIn();
   }
   if (action === '/sign-in/way' && way === 'email-code' && reset) {
     const to = field(form, 'sign_in_email') || email, password = form.querySelector('[name="new_password"]').value;
     const { error } = await client.emailOtp.resetPassword({ email: to, otp: field(form, 'code'), password });
     if (error) return refusal(error);
     const signed = await client.signIn.email({ email: to, password });
-    return signed.error ? go('/sign-in', { email: to }) : finish();
+    return signed.error ? go('/sign-in', { email: to }) : afterSignIn();
   }
   if (action === '/sign-in/way' && way === 'email-code') {
     const { error } = await client.signIn.emailOtp({ email: field(form, 'sign_in_email') || email, otp: field(form, 'code') });
-    return error ? refusal(error) : go('/sign-in/add-passkey');
+    return error ? codeRefusal(error) : afterSignIn();
   }
   if (action === '/sign-in/way' && way === 'authenticator') {
     const { error } = await client.twoFactor.verifyTotp({ code: field(form, 'code') });
-    return error ? refusal(error) : finish();
+    return error ? refusal(error) : afterSignIn();
   }
   if (action === '/sign-in/way' && way === 'backup-codes') {
     const { error } = await client.twoFactor.verifyBackupCode({ code: field(form, 'code') });
-    return error ? refusal(error) : finish();
+    return error ? refusal(error) : afterSignIn();
+  }
+  if (action === '/sign-in/name') {
+    const name = [field(form, 'given_name'), field(form, 'family_name')].filter(Boolean).join(' ');
+    if (!field(form, 'given_name') || !field(form, 'family_name')) return status(words.name_needed);
+    const { error } = await client.updateUser({ name });
+    return error ? (signedOut(error) ? toSignIn() : refusal(error)) : afterSignIn();
+  }
+  if (action === '/sign-in/add-password') {
+    const saved = await post(`${authBase}/set-password`, { newPassword: form.querySelector('[name="password"]').value });
+    return saved.ok ? afterSignIn() : signedOut(saved) ? toSignIn() : status(saved.data?.message ?? words.failed);
+  }
+  if (action === '/sign-in/change-email') {
+    const { error } = await client.changeEmail({ newEmail: field(form, 'new_email'), callbackURL: '/' });
+    return error ? (signedOut(error) ? toSignIn() : refusal(error)) : status(words.email_change_sent);
   }
   return status(words.unavailable);
 }
 
-// Each passkey button, by its purpose: sign in, or make one now (signed in), after which the person's first root is made.
+// Each passkey button, by its purpose: sign in, or make one now (signed in).
 async function passkey(button) {
   const purpose = button.dataset.purpose;
   if (purpose === 'sign-in') {
     const { error } = await client.signIn.passkey();
-    return error ? status(button.dataset.failed ?? words.failed) : finish();
+    if (!error) return afterSignIn();
+    status(passkeyEnd('sign-in', error).said);
+    return document.querySelector('.page-choices-send')?.focus();
   }
   if (purpose === 'register') {
     const { error } = await client.passkey.addPasskey();
-    if (error) return status(button.dataset.failed ?? words.failed);
-    return approveRules.first_root ? go('/approve', { first: '1' }) : finish();
+    if (!error) return afterSignIn();
+    if (signedOut(error)) return toSignIn();
+    const end = passkeyEnd('make', error);
+    return end.already ? afterSignIn() : status(end.said);
   }
+}
+
+// The link that adds a passkey on another device: a one-time link by email, which signs that device in and offers its own passkey.
+async function emailTheLink(button) {
+  const session = (await client.getSession()).data;
+  if (!session) return toSignIn();
+  const { error } = await client.signIn.magicLink({ email: session.user.email, callbackURL: '/sign-in/add-passkey' });
+  return status(error ? button.dataset.failed : words.link_sent);
 }
 
 // A passkey offered in the email box itself (WebAuthn conditional mediation, as the passkey docs show): the browser lists the
@@ -125,7 +171,7 @@ async function passkey(button) {
 function offerPasskeysInTheEmailBox() {
   if (!document.querySelector('input[autocomplete~="webauthn"]')) return;
   window.PublicKeyCredential?.isConditionalMediationAvailable?.().then(available => {
-    if (available) client.signIn.passkey({ autoFill: true }).then(({ error }) => { if (!error) finish(); });
+    if (available) client.signIn.passkey({ autoFill: true }).then(({ error }) => { if (!error) afterSignIn(); });
   });
 }
 
@@ -189,57 +235,15 @@ async function device(button) {
   return answer.ok ? deviceDone(allowed) : status(words.failed);
 }
 
-// /approve: a proposed root declaration (?root=<fingerprint>) or, right after the first passkey (?first=1), the person's first
-// root; the change in plain words, then the passkey signs it and the signature goes back to where the page got the root.
-let approving = null;
-const changeLines = (before, after) => {
-  const lines = changeOf(before, after, { kinds: words.kinds, summaryFields: approveRules.summary_fields })
-    .map(({ verb, kind, name }) => words[`approve_${verb}`].replace('{kind}', kind).replace('{name}', name));
-  return lines.length ? lines : [words.approve_none];
-};
-async function approvePage() {
-  if (!(await client.getSession()).data) return go('/sign-in', { next: location.pathname + location.search });
-  const current = await json(approveRules.current_path);
-  const previous = current.ok ? current.data : null;
-  // Only the engine's own "no root yet" is a person with no root; any other answer is a place with no root service, and the page steps aside.
-  if (!previous && current.data?.error !== 'no_root') return finish();
-  if (query.get('first') === '1') {
-    if (previous) return finish();
-    const root = firstRoot({ host: location.host, issuer: location.origin });
-    approving = { root, previous: null };
-    listOf('changes', changeLines(null, root));
-    return show('first');
-  }
-  const fingerprint = query.get('root') ?? '';
-  const proposed = await json(`${approveRules.proposed_path}${encodeURIComponent(fingerprint)}`);
-  if (!proposed.ok) { show('review'); return status(words.root_missing); }
-  if (fingerprintOf(proposed.data) !== fingerprint) { show('review'); return status(words.root_mismatch); }
-  approving = { root: proposed.data, previous: previous?.fingerprint ?? null };
-  listOf('changes', changeLines(previous?.root ?? null, proposed.data));
-  return show('review');
-}
-async function approve() {
-  const session = (await client.getSession()).data;
-  const options = await client.$fetch('/passkey/generate-authenticate-options', { method: 'GET' });
-  const passkeys = (await client.passkey.listUserPasskeys()).data ?? [];
-  if (!session || !options.data?.rpId || !passkeys.length) return status(words.approve_failed);
-  const signature = await signRoot({
-    ...approving, issuer: location.origin, sub: session.user.id, rpId: options.data.rpId, passkeys, credentials: navigator.credentials,
-  });
-  const sent = await post(approveRules.signature_path, { signature, root: approving.root });
-  if (!sent.ok) return status(words.failed);
-  return query.get('first') === '1' ? finish() : show('done');
-}
-
 document.addEventListener('click', event => {
-  const button = event.target.closest('button[data-key], button[data-consent], button[data-device], button[data-approve], button[data-passkey]');
+  const button = event.target.closest('button[data-key], button[data-passkey-link], button[data-consent], button[data-device], button[data-passkey]');
   if (!button) return;
   event.preventDefault();
   const failed = () => status(button.dataset.failed ?? words.failed);
   if (button.matches('[data-key]')) makeKey(button).catch(failed);
+  else if (button.matches('[data-passkey-link]')) emailTheLink(button).catch(failed);
   else if (button.matches('[data-consent]')) consent(button).catch(failed);
   else if (button.matches('[data-device]')) device(button).catch(failed);
-  else if (button.matches('[data-approve]')) approve().catch(() => status(words.approve_failed));
   else passkey(button).catch(failed);
 });
 
@@ -256,14 +260,18 @@ document.addEventListener('click', event => {
   event.preventDefault();
   go('/sign-in/forgot-password', { email: document.querySelector('[name="sign_in_email"]')?.value?.trim() });
 });
-// "Not now" ends the step the page offered and carries on to where the person was going.
+// "Not now" is remembered on this device and carries on to what comes next.
 document.addEventListener('click', event => {
-  if (!event.target.closest('[data-page-skip]')) return;
+  const link = event.target.closest('[data-page-skip]');
+  if (!link) return;
   event.preventDefault();
-  finish();
+  skip(link.dataset.pageSkip);
+  afterSignIn();
 });
 
 offerPasskeysInTheEmailBox();
 nameTheAsker().catch(() => {});
-const connectPage = { '/consent': consentPage, '/device': devicePage, '/approve': approvePage }[location.pathname];
+// The pages that are for a signed-in person send one who is not to sign in and come back.
+const needsSession = async () => { if (!(await client.getSession()).data) toSignIn(); };
+const connectPage = { '/consent': consentPage, '/device': devicePage, '/sign-in/add-passkey': needsSession, '/sign-in/add-password': needsSession, '/sign-in/name': needsSession, '/sign-in/change-email': needsSession }[location.pathname];
 connectPage?.().catch(() => status(words.unavailable));

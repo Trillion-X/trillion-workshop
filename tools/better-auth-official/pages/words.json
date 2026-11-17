@@ -1,5 +1,5 @@
 {
-  "_what": "The words the sign-in pages' script may show: failed, unavailable, not_sent, too_many and email_needed from the sign-in words the pages were drawn with; key_made is the key page's own; the rest are the connect pages' (consent, device, approve). `scopes` says in plain words what each OAuth scope lets an AI do (a scope not listed is shown as its own name); `kinds` names the kinds of row in a root declaration (a kind not listed is shown as its own name).",
+  "_what": "The words the sign-in pages' script may show: failed, unavailable, not_sent, too_many and email_needed from the sign-in words the pages were drawn with; key_made is the key page's own; the rest are the connect pages' (consent, device). `scopes` says in plain words what each OAuth scope lets an AI do (a scope not listed is shown as its own name). `passkey_errors` says how a passkey step ended, by step (sign-in, make, any) and the error code Better Auth's client gives, from old Trillion's src/passkey-step.json: `already` means the device already holds a passkey, which is done.",
   "failed": "That did not work. Try again.",
   "unavailable": "Sign-in is unavailable right now. Try again in a moment.",
   "not_sent": "The code could not be sent just now, so none is on its way. Try again in a minute.",
@@ -14,12 +14,6 @@
   "device_denied_body": "Nothing was shared.",
   "code_wrong": "That code is not right. Check it and try again.",
   "code_expired": "That code ran out. Start again on your device.",
-  "root_mismatch": "This change is not the one that was asked for, so it was not shown for approval.",
-  "root_missing": "This change could not be found.",
-  "approve_adds": "Adds {kind}: {name}",
-  "approve_removes": "Removes {kind}: {name}",
-  "approve_none": "Nothing changes.",
-  "approve_failed": "The passkey was not used, so nothing was approved.",
   "scopes": {
     "openid": "Know that it is you",
     "profile": "See your name",
@@ -31,18 +25,60 @@
     "vault": "Use the logins and keys you keep",
     "namespace-read": "Read your files"
   },
-  "kinds": {
-    "door": "a way in",
-    "issuer": "a place you sign in",
-    "computer": "a computer",
-    "tool_source": "a place tools come from",
-    "relay_host": "a meeting point",
-    "waker": "a wake-up",
-    "pin": "a fixed version",
-    "provider": "a provider",
-    "init": "a start-up step",
-    "client_kind": "an AI app",
-    "sign_in_way": "a way to sign in",
-    "way": "a way to reach a computer"
+  "code_wrong_login": "That code is not right. Check it and try again.",
+  "code_ran_out": "That code ran out. Send a new one.",
+  "code_tries": "Too many wrong tries for that code. Send a new one.",
+  "name_needed": "Type your first and last name.",
+  "link_sent": "A link is on its way to your email. Open it on the other device.",
+  "email_change_sent": "Two links are on their way: one to your current address to approve this, then one to the new address.",
+  "passkey_unknown": "The passkey step did not finish. Please try again, or choose \"Email me a code\".",
+  "passkey_errors": {
+    "sign-in": {
+      "AUTH_CANCELLED": {
+        "said": "No Trillion passkey was found on this device, or the step was closed. Choose \"Email me a code\".",
+        "kind": "cancelled"
+      }
+    },
+    "make": {
+      "ERROR_AUTHENTICATOR_PREVIOUSLY_REGISTERED": {
+        "said": "This device already has a passkey for Trillion.",
+        "kind": "done",
+        "already": true
+      },
+      "ERROR_CEREMONY_ABORTED": {
+        "said": "The passkey step was closed or timed out before a passkey was made. Nothing changed. You can try again.",
+        "kind": "cancelled"
+      }
+    },
+    "any": {
+      "ERROR_CEREMONY_ABORTED": {
+        "said": "The passkey step stopped before it finished. Nothing changed. You can try again.",
+        "kind": "cancelled"
+      },
+      "ERROR_INVALID_RP_ID": {
+        "said": "This browser refused a passkey for this address. Open the address you normally use for Trillion and try again.",
+        "kind": "error"
+      },
+      "ERROR_INVALID_DOMAIN": {
+        "said": "This browser refused a passkey for this address. Open the address you normally use for Trillion and try again.",
+        "kind": "error"
+      },
+      "ERROR_AUTHENTICATOR_NO_SUPPORTED_PUBKEYCREDPARAMS_ALG": {
+        "said": "This browser cannot use passkeys. Choose \"Email me a code\" instead.",
+        "kind": "error"
+      },
+      "ERROR_AUTHENTICATOR_MISSING_DISCOVERABLE_CREDENTIAL_SUPPORT": {
+        "said": "This device cannot keep a passkey for Trillion. Try your phone, or choose \"Email me a code\".",
+        "kind": "error"
+      },
+      "ERROR_AUTHENTICATOR_MISSING_USER_VERIFICATION_SUPPORT": {
+        "said": "This device cannot keep a passkey for Trillion. Try your phone, or choose \"Email me a code\".",
+        "kind": "error"
+      },
+      "ERROR_PASSTHROUGH_SEE_CAUSE_PROPERTY": {
+        "said": "Your device refused the passkey. Passkeys live in your Apple ID or password manager: open its settings, sign in, then try again, or choose \"Email me a code\".",
+        "kind": "error"
+      }
+    }
   }
 }

@@ -12,7 +12,7 @@ import { join } from 'node:path';
 
 const dir = mkdtempSync(join(tmpdir(), 'admin-remove-user-'));
 const shipped = JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8'));
-const settings = { ...shipped, database_path: 'auth.db', disabled_paths: [], email: { outbox: 'outbox.jsonl', command: null } };
+const settings = { ...shipped, database_path: 'auth.db', email_password: { require_verification: false }, disabled_paths: [], email: { outbox: 'outbox.jsonl', command: null } };
 const settingsFile = join(dir, 'settings.json');
 writeFileSync(settingsFile, JSON.stringify(settings));
 process.env.BETTER_AUTH_SETTINGS = settingsFile;

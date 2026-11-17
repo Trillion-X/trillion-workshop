@@ -16,7 +16,7 @@ const freePort = () => new Promise(done => { const s = createServer().listen(0, 
 const dir = mkdtempSync(join(tmpdir(), 'internal-verify-'));
 const [port, internal] = [await freePort(), await freePort()];
 const base = JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8'));
-const settings = { ...base, port, base_url: `http://localhost:${port}`, issuer: `http://localhost:${port}`, audience: `http://localhost:${port}`, trusted_origins: [`http://localhost:${port}`], database_path: 'auth.db', email: { outbox: 'outbox.jsonl', command: null }, internal: { ...base.internal, port: internal }, api_key: { ...base.api_key, default_permissions: { trillion: ['records', 'tools'] } } };
+const settings = { ...base, port, base_url: `http://localhost:${port}`, issuer: `http://localhost:${port}`, audience: `http://localhost:${port}`, trusted_origins: [`http://localhost:${port}`], database_path: 'auth.db', email_password: { require_verification: false }, rate_limit: { enabled: false }, email: { outbox: 'outbox.jsonl', command: null }, internal: { ...base.internal, port: internal }, api_key: { ...base.api_key, default_permissions: { trillion: ['records', 'tools'] } } };
 writeFileSync(join(dir, 'settings.json'), JSON.stringify(settings));
 const env = { ...process.env, BETTER_AUTH_SETTINGS: join(dir, 'settings.json'), BETTER_AUTH_SECRET: 'a-scratch-secret-for-this-test-only-0123456789' };
 const tool = new URL('..', import.meta.url).pathname;

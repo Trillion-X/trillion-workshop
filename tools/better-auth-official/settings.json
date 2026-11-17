@@ -77,5 +77,24 @@
   },
   "delete_user": {
     "enabled": false
+  },
+  "email_code": {
+    "digits": 6,
+    "expires_in_seconds": 600,
+    "attempts": 5,
+    "sends_per_window": 3,
+    "window_seconds": 900
+  },
+  "add_passkey_link": {
+    "expires_in_seconds": 86400
+  },
+  "session": {
+    "fresh_age_seconds": 600
+  },
+  "email_password": {
+    "require_verification": true
+  },
+  "rate_limit": {
+    "enabled": true
   }
 }

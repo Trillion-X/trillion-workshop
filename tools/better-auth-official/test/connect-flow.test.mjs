@@ -13,7 +13,7 @@ import { join } from 'node:path';
 import { createHash, randomBytes } from 'node:crypto';
 
 const dir = mkdtempSync(join(tmpdir(), 'connect-flow-'));
-const settings = { ...JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8')), database_path: 'auth.db', disabled_paths: [], email: { outbox: 'outbox.jsonl', command: null } };
+const settings = { ...JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8')), database_path: 'auth.db', email_password: { require_verification: false }, disabled_paths: [], email: { outbox: 'outbox.jsonl', command: null } };
 writeFileSync(join(dir, 'settings.json'), JSON.stringify(settings));
 process.env.BETTER_AUTH_SETTINGS = join(dir, 'settings.json');
 process.env.BETTER_AUTH_SECRET = 'a-scratch-secret-for-this-test-only-0123456789';
@@ -25,8 +25,8 @@ const { default: words } = await import('../pages/words.json', { with: { type: '
 
 const ORIGIN = settings.base_url;
 const REDIRECT = 'http://127.0.0.1:9/callback';
-const call = (path, { body, cookie } = {}) => auth.handler(new Request(`${ORIGIN}${settings.base_path}${path}`, {
-  method: body ? 'POST' : 'GET', headers: { origin: ORIGIN, 'content-type': 'application/json', ...(cookie ? { cookie } : {}) }, body: body && JSON.stringify(body),
+const call = (path, { body, cookie, from } = {}) => auth.handler(new Request(`${ORIGIN}${settings.base_path}${path}`, {
+  method: body ? 'POST' : 'GET', headers: { origin: ORIGIN, 'content-type': 'application/json', ...(cookie ? { cookie } : {}), ...(from ? { 'x-forwarded-for': from } : {}) }, body: body && JSON.stringify(body),
 }));
 const cookieOf = response => response.headers.getSetCookie().map(c => c.split(';')[0]).join('; ');
 const person = await call('/sign-up/email', { body: { email: 'connect@example.test', password: 'scratch-password-123', name: 'Scratch' } });
@@ -103,7 +103,7 @@ test('a device\'s code is claimed by the person who opens it, who sees its clien
   await call(`/device?user_code=${refused.user_code}`, { cookie });
   assert.equal((await call('/device/deny', { cookie, body: { userCode: refused.user_code } })).status, 200);
   assert.equal((await (await call(`/device?user_code=${refused.user_code}`, { cookie })).json()).status, 'denied');
-  assert.equal((await call('/device?user_code=NOSUCHCODE', { cookie })).status, 400);
+  assert.equal((await call('/device?user_code=NOSUCHCODE', { cookie, from: '203.0.113.9' })).status, 400);
 });
 
 test('every scope a client may ask for has its plain words on the consent page', () => {

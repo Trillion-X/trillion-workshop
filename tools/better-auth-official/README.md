@@ -23,6 +23,8 @@ cookie is `__Host-trillion_session`.
 `trusted_origins`, `attached_origins` (`ask_url`, `cache_ms`, `related_url`), `two_factor_issuer`, `mcp` (`login_page`, `consent_page`, `resource`, `scopes`: what a client may ask for, `resource_scopes`: what the MCP resource allows), `disabled_paths`, `device` (`verification_uri`), `admin` (`user_ids`: the users the admin plugin treats as admins, its `adminUserIds`; none by default), `delete_user` (`enabled`: Better Auth's `user.deleteUser`, so a signed-in person may delete their own user; false by default) and
 `email` (`command`, an argv that gets each message as JSON on stdin, or `outbox`, a file each message is appended to).
 
+`email_code` (`digits`, `expires_in_seconds`, `attempts`, `sends_per_window`, `window_seconds`: the email code the pages tell people about), `email_password` (`require_verification`: a password signs in only after its address is proven), `add_passkey_link` (`expires_in_seconds`: the one-time link that adds a passkey on another device), `session` (`fresh_age_seconds`: how recent a sign-in adding a passkey or changing an email needs) and `rate_limit` (`enabled`).
+
 `disabled_paths` is `["/token"]`: the JWT docs' OAuth Provider Mode says to turn off the session JWT route when MCP is on,
 because session JWTs share the access tokens' signing key. OAuth and MCP clients get tokens from `/api/auth/oauth2/token`.
 Empty `disabled_paths` and `GET /api/auth/token` hands back a session JWT (EdDSA; `kid` names the JWKS key; claims `sub`,
@@ -97,7 +99,6 @@ no page) and `/sign-out` (Better Auth's sign-out, then `/sign-in`), and the conn
   Allow and Deny through `POST /api/auth/oauth2/consent`.
 - `/device` (`device.verification_uri`): the code a device shows (RFC 8628), then its client and scopes, "Only approve a device
   you are holding.", Allow and Deny through `/api/auth/device/approve` and `/deny`. The person who opens a code claims it.
-- `/approve`: see below.
 
 When an AI's connect opens the sign-in (Better Auth's authorize step with a signed query), every page carries that query on
 (`pages/oauth-query.mjs`), the sign-in page names the AI (`allowPublicClientPrelogin`), and the end of the sign-in, whether after
@@ -108,30 +109,29 @@ Better Auth through `better-auth/client` with the passkey, email OTP and two-fac
 pages load the fonts, mark and icons at the addresses the product already serves them from (`/workspace/fonts.css`,
 `/brand/current/mark.svg`, `/favicon.ico`).
 
-## Approving a root declaration (`/approve`, `pages/approve-client.mjs`)
+## Sign-in edge cases (old Trillion's, ported)
 
-A root declaration is the one JSON document that says which computers and AIs are a person's. Its fingerprint is the lowercase
-hex BLAKE3-256 of its canonical bytes (keys sorted at every depth, no whitespace). `/approve?root=<fingerprint>` fetches the
-proposed document from `pages/approve.json` `proposed_path`, refuses one whose fingerprint is not the one asked for, says the rows
-it adds and removes against `current_path` in plain words (the kind of each row from `words.json` `kinds`, its name from the first
-of `approve.json` `summary_fields` it has; no kind is named in code), and one tap of the person's passkey signs it and sends
-`{signature, root}` to `signature_path`:
+From r6-sign-in-edge-cases.md, each with the old Trillion commit it comes from:
 
-    {"fingerprint": "<hex>", "previous": "<hex>" | null, "signed_at": <ms>,
-     "signer": {"issuer": "<origin>", "sub": "<user id>", "credential_id": "<b64url>", "public_key_cose": "<b64url>"},
-     "assertion": {"authenticatorData": "<b64url>", "clientDataJSON": "<b64url>", "signature": "<b64url>"}}
-
-The WebAuthn challenge is the 32 bytes of BLAKE3 over the canonical JSON of `{fingerprint, previous, signed_at}`, not the bare
-fingerprint. WebAuthn Level 3 (https://www.w3.org/TR/webauthn-3/) section 5.5 lets the challenge be any bytes the authenticator
-signs and section 7.2 verifies it, but section 13.4.3 says challenges must not be replayable; a bare fingerprint is the same for
-ever, so one old signature could put an old root back. A statement carrying `previous` and `signed_at` is not good for another
-position in the chain. A verifier recomputes the statement, checks it against `clientDataJSON.challenge` (base64url), the
-`rpIdHash`, the user present and verified flags, the origin and the signature over `authenticatorData || SHA-256(clientDataJSON)`
-with the COSE key (ES256 or EdDSA; the passkey plugin offers both, and EdDSA is the one most authenticators choose), and accepts
-a root whose `previous` is the current one. `test-fixtures/root-signature-verify.mjs` is that check in JavaScript.
-After the first passkey (`/sign-in/add-passkey`) the page `/approve?first=1` makes the person's first root from the place they
-signed in (`approve.json` `first_root`), when `current_path` answers `404 {"error": "no_root"}`; any other answer means this place
-holds no roots and the page steps aside.
+- A mail that did not go is an error, not "on its way" (cf1ce01b96): every send is awaited, and an after hook turns a send Better
+  Auth only logged as failed into `EMAIL_NOT_SENT`, which the page says in words (`not_sent`).
+- A code's digits, life, tries and sends per window are `settings.json` `email_code` (1357b4cfe0, `sign-in-email.json`); the pages
+  say the same minutes (`{{minutes}}`, drawn by pages.mjs); the expiry and the tries have their own words.
+- An address nobody proved cannot be taken with a password (02a2eb83ce, 78477700c9): `email_password.require_verification`, and
+  the owner's first code clears a password and sessions registered before it proved the address.
+- After every sign-in (`afterSignIn`): a name if there is none (c5457196ab, 0f850e620e), a passkey if there is none (9cdfdfb875),
+  a password if there is none (7fc78d23ee), then where the person was going; Not now is remembered per way on the device for
+  `pages/sign-in-rules.json` `skip_days` (a17026f3e5). `POST /api/auth/set-password` is the one door to Better Auth's
+  server-only setPassword, for the signed-in person's own user.
+- Passkey steps end in words by error code, and a device that already holds a passkey is done (a773be1476, e9e19cd34f,
+  src/passkey-step.json; `words.json` `passkey_errors`). A failed sign-in passkey focuses "Email me a code".
+- Adding a passkey needs a recent sign-in (`session.fresh_age_seconds`, 13a9416da9); a page for a signed-in person opened signed
+  out goes to sign-in and comes back (`next`).
+- A passkey on another device: a one-time link by email (magic link, `add_passkey_link.expires_in_seconds`, a day) that signs
+  that device in and opens `/sign-in/add-passkey` (21348b98b6, 9712729c52).
+- `/sign-in/change-email`: Better Auth's changeEmail, a link to the current address and one to the new (21348b98b6).
+- Authenticator app and backup codes are asked after a password, where Better Auth's second step has its pending cookie; the pages
+  that cannot start them no longer link them. Not ported here: rows 14 (Signal API), 20 (app association file), 26 (mail words).
 
 ## MCP access tokens
 

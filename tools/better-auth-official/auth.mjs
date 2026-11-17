@@ -3,11 +3,11 @@
 // with Client ID Metadata Documents), device authorization, bearer (which the device docs require to use its session token) and admin (removeUser and the rest, for the users settings.json names as admins). Everything that differs per place is DATA in settings.json,
 // read from BETTER_AUTH_SETTINGS (default ./settings.json); the secret comes from BETTER_AUTH_SECRET.
 
-import { readFileSync, mkdirSync } from 'node:fs';
+import { mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { betterAuth } from 'better-auth';
-import { createAuthMiddleware } from 'better-auth/api';
+import { APIError, createAuthEndpoint, createAuthMiddleware, sessionMiddleware } from 'better-auth/api';
 import {
   admin, bearer, deviceAuthorization, emailOTP, jwt, magicLink, multiSession, twoFactor,
 } from 'better-auth/plugins';
@@ -19,13 +19,53 @@ import { fetchClientMetadataResource } from '@better-auth/cimd/node';
 import { emailHook } from './send-email.mjs';
 import { cookieOptions } from './cookie-options.mjs';
 import { trustedOriginsFor } from './attached-origins.mjs';
+import { readSettings } from './settings.mjs';
 
-const settingsPath = resolve(process.env.BETTER_AUTH_SETTINGS ?? new URL('./settings.json', import.meta.url).pathname);
-export const settings = JSON.parse(readFileSync(settingsPath, 'utf8'));
-const here = dirname(settingsPath);
+const read = readSettings();
+export const settings = read.settings;
+const here = read.here;
 const databasePath = resolve(here, settings.database_path);
 mkdirSync(dirname(databasePath), { recursive: true });
-const sendEmail = emailHook({ ...settings.email, outbox: resolve(here, settings.email.outbox) });
+const deliver = emailHook({ ...settings.email, outbox: resolve(here, settings.email.outbox) });
+
+// Better Auth waits for a send but only logs its failure ("Failed to run background task"), so the answer would still say the
+// message is on its way. A send that failed is remembered by its address for a moment, and the after hook below turns the answer
+// into an error the page shows ("The code could not be sent just now") on the paths that send mail.
+const failedTo = new Map();
+const mailPaths = new Set(['/email-otp/send-verification-otp', '/forget-password/email-otp', '/email-otp/request-password-reset', '/sign-in/magic-link', '/request-password-reset', '/send-verification-email', '/change-email']);
+async function sendEmail(message) {
+  try { await deliver(message); } catch (error) { failedTo.set(message.to, Date.now()); throw error; }
+}
+async function refuseWhenNotSent(ctx) {
+  if (!mailPaths.has(ctx.path)) return;
+  const now = Date.now();
+  for (const [to, at] of failedTo) if (now - at > 10000) failedTo.delete(to);
+  // A change of email sends to the current address, which the request does not name.
+  const asked = ctx.path === '/change-email' ? [...failedTo.keys()] : [ctx.body?.email, ctx.body?.newEmail].filter(Boolean);
+  const failed = asked.filter(to => failedTo.delete(to));
+  if (failed.length) throw new APIError('INTERNAL_SERVER_ERROR', { code: 'EMAIL_NOT_SENT', message: 'The email could not be sent' });
+}
+
+// A password registered on an address before its owner proved it, and any session made with it, go when the owner signs in by code:
+// the code proves the address, so nothing a stranger set up beforehand stays valid.
+async function clearWhatWasNotProven(ctx) {
+  const found = typeof ctx.body?.email === 'string' && await ctx.context.internalAdapter.findUserByEmail(ctx.body.email.toLowerCase());
+  if (!found || found.user.emailVerified) return;
+  await ctx.context.internalAdapter.deleteUserSessions(found.user.id);
+  await ctx.context.internalAdapter.deleteAccounts(found.user.id);
+}
+
+// A person who signed in without a password sets one (POST /set-password {newPassword}): Better Auth's setPassword is server-only,
+// so this endpoint is its one door, for the signed-in person's own user.
+const setPassword = () => ({
+  id: 'set-password',
+  endpoints: {
+    setPasswordForSignedIn: createAuthEndpoint('/set-password', { method: 'POST', use: [sessionMiddleware] }, async ctx => {
+      await auth.api.setPassword({ body: { newPassword: String(ctx.body?.newPassword ?? '') }, headers: ctx.headers });
+      return ctx.json({ status: true });
+    }),
+  },
+});
 
 export const auth = betterAuth({
   baseURL: settings.base_url,
@@ -36,17 +76,32 @@ export const auth = betterAuth({
   disabledPaths: settings.disabled_paths,
   advanced: cookieOptions(settings),
   // A signed-in person deletes their own user (POST /delete-user) only while settings.json delete_user.enabled is true; off by default.
-  user: { deleteUser: { enabled: settings.delete_user?.enabled === true } },
+  user: {
+    deleteUser: { enabled: settings.delete_user?.enabled === true },
+    // A person changes their address behind a recent sign-in: a link to the current address approves it, a link to the new one proves it.
+    changeEmail: { enabled: true, sendChangeEmailConfirmation: async ({ user, newEmail, url, token }) => { await sendEmail({ kind: 'change-email', to: user.email, newEmail, url, token }); } },
+  },
+  session: { freshAge: settings.session.fresh_age_seconds },
+  rateLimit: { enabled: settings.rate_limit.enabled },
+  // A message that did not go is an error the page shows ("The code could not be sent just now"), never a promise that it is on its
+  // way, so every send is awaited (Better Auth's documented cost: the answer waits for the mail command).
+  // A password does not sign anyone in until its address is proven, so nobody can register a password on another person's address:
+  // the person who owns it signs in by email code (below), and that code clears whatever was registered before it was proven.
   emailAndPassword: {
     enabled: true,
-    sendResetPassword: async ({ user, url, token }) => {
-      void sendEmail({ kind: 'reset-password', to: user.email, url, token });
-    },
+    requireEmailVerification: settings.email_password.require_verification,
+    sendResetPassword: async ({ user, url, token }) => { await sendEmail({ kind: 'reset-password', to: user.email, url, token }); },
+  },
+  emailVerification: {
+    sendOnSignUp: true,
+    sendVerificationEmail: async ({ user, url, token }) => { await sendEmail({ kind: 'verify-email', to: user.email, url, token }); },
   },
   hooks: {
+    after: createAuthMiddleware(refuseWhenNotSent),
     // A new API key gets the settings prefix, never one the request asks for (the plugin lets a client choose its own). The body
     // is changed in place: a hook's returned context is merged over the request (defu), which never takes a key away.
     before: createAuthMiddleware(async ctx => {
+      if (ctx.path === '/sign-in/email-otp') return clearWhatWasNotProven(ctx);
       if (ctx.path === '/api-key/create' && ctx.body) delete ctx.body.prefix;
     }),
   },
@@ -55,16 +110,20 @@ export const auth = betterAuth({
     // names it (its related origins, /.well-known/webauthn), as its docs say.
     passkey({ rpID: settings.passkey.rp_id, rpName: settings.passkey.rp_name }),
     twoFactor({ issuer: settings.two_factor_issuer }),
+    // The code's length, life, tries and sends come from settings.email_code; the pages say the same minutes (pages.mjs).
     emailOTP({
-      async sendVerificationOTP({ email, otp, type }) {
-        void sendEmail({ kind: `otp-${type}`, to: email, otp });
-      },
+      otpLength: settings.email_code.digits,
+      expiresIn: settings.email_code.expires_in_seconds,
+      allowedAttempts: settings.email_code.attempts,
+      rateLimit: { window: settings.email_code.window_seconds, max: settings.email_code.sends_per_window },
+      async sendVerificationOTP({ email, otp, type }) { await sendEmail({ kind: `otp-${type}`, to: email, otp }); },
     }),
+    // The one-time link that adds a passkey on another device: valid settings.add_passkey_link.expires_in_seconds, used once.
     magicLink({
-      sendMagicLink: async ({ email, token, url }) => {
-        void sendEmail({ kind: 'magic-link', to: email, url, token });
-      },
+      expiresIn: settings.add_passkey_link.expires_in_seconds,
+      sendMagicLink: async ({ email, token, url }) => { await sendEmail({ kind: 'magic-link', to: email, url, token }); },
     }),
+    setPassword(),
     multiSession(),
     apiKey({
       defaultPrefix: settings.api_key?.prefix, enableMetadata: true, rateLimit: settings.api_key?.rate_limit,
@@ -80,6 +139,8 @@ export const auth = betterAuth({
     mcp({
       loginPage: settings.mcp.login_page,
       consentPage: settings.mcp.consent_page,
+      // The sign-in pages name the AI that is asking before the person has signed in: its public fields (name, address, icon) for a request whose signed query names that client.
+      allowPublicClientPrelogin: true,
       resource: settings.mcp.resource,
       // The scopes a client may ask for and the /mcp resource allows (settings DATA); the resource row follows the settings.
       ...(settings.mcp.scopes ? { scopes: settings.mcp.scopes } : {}),

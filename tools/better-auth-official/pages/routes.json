@@ -44,7 +44,7 @@
         "code-sent"
       ],
       "title": "Sign in with a code",
-      "description": "If this email has a Trillion account, a 6-digit code is on its way. It works for 10 minutes. Check your spam folder if it does not arrive."
+      "description": "If this email has a Trillion account, a 6-digit code is on its way. It works for {{minutes}} minutes. Check your spam folder if it does not arrive."
     },
     {
       "path": "/sign-in/way",
@@ -88,7 +88,7 @@
         "forgot-password-sent"
       ],
       "title": "Reset your password",
-      "description": "If this email has a Trillion account, a 6-digit code is on its way. It works for 10 minutes. Check your spam folder if it does not arrive."
+      "description": "If this email has a Trillion account, a 6-digit code is on its way. It works for {{minutes}} minutes. Check your spam folder if it does not arrive."
     },
     {
       "path": "/sign-in/forgot-password",
@@ -96,7 +96,7 @@
         "forgot-password"
       ],
       "title": "Reset your password",
-      "description": "We'll email you a 6-digit code. It works once, for 10 minutes."
+      "description": "We'll email you a 6-digit code. It works once, for {{minutes}} minutes."
     },
     {
       "path": "/sign-in/add-passkey",
@@ -105,6 +105,30 @@
       ],
       "title": "Make a passkey on this device",
       "description": "A passkey on this device signs you in next time without a code."
+    },
+    {
+      "path": "/sign-in/add-password",
+      "sections": [
+        "add-password"
+      ],
+      "title": "Add a password",
+      "description": "A password is another way into Trillion if you lose your passkeys."
+    },
+    {
+      "path": "/sign-in/name",
+      "sections": [
+        "name"
+      ],
+      "title": "What should we call you?",
+      "description": "Your name, so Trillion and the people you share with know who you are."
+    },
+    {
+      "path": "/sign-in/change-email",
+      "sections": [
+        "change-email"
+      ],
+      "title": "Change your email",
+      "description": "Change the email address you sign in with."
     },
     {
       "path": "/sign-in/key",
@@ -137,14 +161,6 @@
       ],
       "title": "Connect a device",
       "description": "Approve or deny the device that asked to use your Trillion."
-    },
-    {
-      "path": "/approve",
-      "sections": [
-        "approve"
-      ],
-      "title": "Approve this change",
-      "description": "Approve a change to which computers and AIs are yours, with your passkey."
     }
   ]
 }

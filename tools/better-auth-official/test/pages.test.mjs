@@ -93,7 +93,8 @@ test('the sign-in page offers an email code and a passkey, the email box offers 
   assert.doesNotMatch(signIn, /type="password"/);
   assert.match(signIn, /href="\/sign-in\/other-ways"/);
   const other = page('/sign-in/other-ways');
-  for (const way of ['password', 'authenticator', 'backup-codes']) assert.match(other, new RegExp(`way=${way}`), `other ways offers ${way}`);
+  assert.match(other, /way=password/, 'other ways offers a password');
+  assert.doesNotMatch(other, /way=authenticator|way=backup-codes/, 'a second factor is asked after a password, never offered as a first way');
   assert.match(page('/sign-up'), /action="\/sign-in\/way\/send"/, 'a new person starts with the same email code');
   assert.doesNotMatch(page('/sign-up'), /type="password"/);
 });
@@ -132,12 +133,24 @@ test('/device takes the code a device shows and asks to allow or deny it, for a 
   assert.match(device, /Only approve a device you are holding\./);
 });
 
-test('/approve shows a change in plain words and one passkey tap approves it', () => {
-  const approve = page('/approve');
-  assert.match(approve, /data-fill-list="changes"/);
-  assert.match(approve, /data-approve="sign"[^>]*>Approve with my passkey</);
-  assert.match(approve, /Only approve what you started\./);
-  assert.match(readFileSync(new URL('assets/sign-in.js', dir), 'utf8'), /webauthn\.get|credentials\.get|userVerification/, 'the bundle is built from approve-client.mjs');
+test('the steps after a sign-in exist: a name, a passkey, a password, each Not now is remembered, and sign-up never starts with a passkey', () => {
+  assert.match(page('/sign-in/name'), /name="given_name"[\s\S]*name="family_name"/);
+  assert.match(page('/sign-in/add-passkey'), /data-page-skip="passkey"/);
+  assert.match(page('/sign-in/add-passkey'), /data-passkey-link/, 'a passkey is added on another device through a link');
+  assert.match(page('/sign-in/add-password'), /data-page-skip="password"/);
+  assert.match(page('/sign-in/change-email'), /action="\/sign-in\/change-email"/);
+  assert.doesNotMatch(page('/sign-up'), /data-passkey/, 'a passkey is made on the device in hand after the email is proven, never first');
+  const client = readFileSync(new URL('sign-in-client.mjs', dir), 'utf8');
+  assert.match(client, /skip\(link\.dataset\.pageSkip\)/);
+  assert.match(client, /needsSession/);
+});
+
+test('the pages promise only what the server does: the minutes a code works are the settings\' minutes', () => {
+  const minutes = JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8')).email_code.expires_in_seconds / 60;
+  for (const url of ['/sign-in/way?way=email-code&sent=1', '/sign-in/forgot-password', '/sign-in/forgot-password?sent=1']) {
+    assert.match(page(url), new RegExp(`${minutes} minutes`), url);
+    assert.doesNotMatch(page(url), /\{\{/, url);
+  }
 });
 
 test('pages/assets/sign-in.js is the build of the client as it is now (npm run build-pages)', async () => {
