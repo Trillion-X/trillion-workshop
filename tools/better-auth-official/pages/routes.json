@@ -152,6 +152,17 @@
       ]
     },
     {
+      "path": "/approve",
+      "query": {
+        "call": "*"
+      },
+      "title": "Approve",
+      "description": "Approve a change your AI asked for.",
+      "sections": [
+        "approve"
+      ]
+    },
+    {
       "path": "/device",
       "sections": [
         "device"
