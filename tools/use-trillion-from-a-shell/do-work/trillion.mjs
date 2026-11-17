@@ -1114,7 +1114,7 @@ async function records(context, words) {
   const host = { parseArgs, expand, settings, programs: new Set([basename(expand(settings.install.link)), basename(fileURLToPath(import.meta.url))]) };
   if (flags.write !== true) {
     if (!Number.isFinite(Date.parse(flags.since ?? ''))) throw new TrillionError('Name the earliest call to read: --since TIME, for example 2026-01-31T00:00:00Z.', { status: 2 });
-    return JSON.stringify(await replay.dryRun({ host, since: flags.since, env: context.env }), null, 2);
+    return JSON.stringify(await replay.dryRun({ host, since: flags.since, env: context.env, home: context.transcriptHome }), null, 2);
   }
   const folder = need(flags.inventory, 'Name the inventory a dry run wrote: --write --inventory FOLDER.');
   if (!existsSync(join(folder, 'records.jsonl'))) throw new TrillionError(`${folder} holds no records.jsonl from a dry run.`, { status: 2 });
@@ -1200,7 +1200,7 @@ export async function main(argv, seams = {}) {
   const flags = parsed.flags;
   const env = seams.env ?? process.env;
   const asked = (flags.origin ?? env.TRILLION_ORIGIN)?.replace(/\/$/, '') || null;
-  const context = { asked, declared: env.TRILLION_ORIGIN?.replace(/\/$/, '') || null, flags, env, rest: parsed.rest, fetchImpl: seams.fetchImpl ?? fetch, wait: seams.wait ?? pause,
+  const context = { asked, declared: env.TRILLION_ORIGIN?.replace(/\/$/, '') || null, flags, env, rest: parsed.rest, transcriptHome: seams.transcriptHome, fetchImpl: seams.fetchImpl ?? fetch, wait: seams.wait ?? pause,
     store: seams.store ?? keyStore(), grants: seams.grants ?? grantStore(), state: seams.state ?? stateOf(), open: seams.open ?? null,
     localMcp: seams.localDoor ?? (() => findLocalDoor()), declaredOrigin: seams.declaredOrigin ?? (() => findDeclaredOrigin()),
     me: agentOf({ as: flags.as ?? null, env, computerName: seams.computerName ?? computerNameOf(), ...(seams.model !== undefined ? { model: seams.model } : {}) }),

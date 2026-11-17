@@ -91,6 +91,7 @@
     "files": [
       "trillion.mjs",
       "packs/read-data/identity.mjs",
+      "packs/read-data/blake3.mjs",
       "packs/read-data/settled-write.mjs",
       "packs/node_modules/@noble/hashes/_blake.js",
       "packs/node_modules/@noble/hashes/_md.js",
