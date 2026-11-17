@@ -65,8 +65,9 @@ const withSignIn = {
     unit: 'example-sign-in.service', template: 'serve-better-auth', description: 'Example sign-in', user: 'example-sign-in',
     workshop: '/var/lib/example-sign-in/trillion-workshop', repository: 'https://github.com/Trillion-X/trillion-workshop.git',
     tool_folder: 'tools/better-auth-official', node_bin: '/opt/node/bin', settings_file: '/var/lib/example-sign-in/settings.json',
-    settings: { port: 7201, base_url: 'https://place.example.test', issuer: 'https://place.example.test', database_path: '/var/lib/example-sign-in/auth.db' },
+    settings: { port: 7201, base_url: 'https://place.example.test', issuer: 'https://place.example.test', store: { credential: 'sign-in-store', env: 'BETTER_AUTH_STORE_CONNECTION' } },
     secret_vault_key: 'example-better-auth-secret', secret_name: 'better-auth-secret', secret_file: '/etc/example-sign-in/better-auth-secret',
+    store_secret_vault_key: 'example-store', store_secret_name: 'sign-in-store', store_secret_file: '/etc/credstore.encrypted/sign-in-store',
     writable: '/var/lib/example-sign-in',
   }],
 };
@@ -78,7 +79,7 @@ test('a layout that names the better-auth unit renders it, its settings file and
   assert.match(unit, /^LoadCredentialEncrypted=better-auth-secret:\/etc\/example-sign-in\/better-auth-secret$/m);
   assert.match(unit, /^# BETTER_AUTH_SECRET is the value held under the vault name example-better-auth-secret:/m);
   assert.match(unit, /^Environment=BETTER_AUTH_SETTINGS=\/var\/lib\/example-sign-in\/settings\.json$/m);
-  assert.match(unit, /^ExecStartPre=\/bin\/sh -c 'cd \/var\/lib\/example-sign-in\/trillion-workshop\/tools\/better-auth-official && npm ci --no-audit --no-fund'$/m);
+  assert.match(unit, /^ExecStartPre=\/bin\/sh -c 'cd \/var\/lib\/example-sign-in\/trillion-workshop\/tools\/better-auth-official && npm ci --omit=dev --no-audit --no-fund'$/m);
   assert.match(unit, /exec node server\.mjs'$/m);
   const settings = files.find(file => file.path === '/var/lib/example-sign-in/settings.json');
   assert.deepEqual(JSON.parse(settings.text), withSignIn.units[1].settings);

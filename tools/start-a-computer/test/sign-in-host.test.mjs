@@ -23,7 +23,8 @@ const signInUnit = (root, extra = {}) => ({
   repository: 'https://github.com/Trillion-X/trillion-workshop.git', tool_folder: 'tools/better-auth-official',
   node_bin: `${root}/opt/node/bin`, settings_file: `${root}/var/lib/example-sign-in/settings.json`, settings: { port: 7201 },
   secret_vault_key: 'example-better-auth-secret', secret_name: 'better-auth-secret',
-  secret_file: `${root}/etc/credstore.encrypted/better-auth-secret`, writable: `${root}/var/lib/example-sign-in`, ...extra,
+  secret_file: `${root}/etc/credstore.encrypted/better-auth-secret`,
+  store_secret_vault_key: 'example-store', store_secret_name: 'sign-in-store', store_secret_file: `${root}/etc/credstore.encrypted/sign-in-store`, writable: `${root}/var/lib/example-sign-in`, ...extra,
 });
 
 test('the set-up data names git, curl and a node release of 22.13 or newer for each machine kind, by address and sha256', () => {
@@ -142,14 +143,14 @@ test('a computer without the secret gets the value held under its vault name sea
   const live = Object.fromEntries(renderLayout(layout, SITE_BLOCK).map(({ path, text }) => [path, text]));
   live[`${unit.node_bin}/node`] = 'node';
   const { run, commands } = computer(live);
-  const answer = await applyHostLayout(machine, layout, run, undefined, { 'example-better-auth-secret': SECRET });
+  const answer = await applyHostLayout(machine, layout, run, undefined, { 'example-better-auth-secret': SECRET, 'example-store': 'made-up-store-connection' });
   const sealed = commands.find(({ command }) => command.includes('systemd-creds encrypt'));
   assert.ok(sealed, 'the secret is sealed on the computer');
   assert.equal(sealed.command, "install -d -m 0700 '/etc/credstore.encrypted' && umask 077 && systemd-creds encrypt --name='better-auth-secret' - '/etc/credstore.encrypted/better-auth-secret'");
   assert.equal(sealed.input, SECRET, 'the value travels only on the SSH channel\'s standard input');
   assert.ok(commands.every(({ command }) => !command.includes(SECRET)), 'no command line carries the value');
   assert.ok(!JSON.stringify(answer).includes(SECRET), 'the answer carries no value');
-  assert.deepEqual(answer.sealed, ['better-auth-secret']);
+  assert.deepEqual(answer.sealed, ['better-auth-secret', 'sign-in-store']);
   assert.ok(answer.restarted.includes('example-sign-in.service'), 'a unit whose secret was just sealed is restarted to load it');
 });
 
@@ -159,6 +160,7 @@ test('a computer that already holds the sealed secret is sent nothing; one witho
   const live = Object.fromEntries(renderLayout(layout, SITE_BLOCK).map(({ path, text }) => [path, text]));
   live[`${unit.node_bin}/node`] = 'node';
   live[unit.secret_file] = 'sealed';
+  live[unit.store_secret_file] = 'sealed';
   const held = computer({ ...live });
   assert.deepEqual(await applyHostLayout(machine, layout, held.run, undefined, {}), { written: [], restarted: [] });
   assert.ok(held.commands.every(({ command }) => !command.includes('systemd-creds')));
@@ -173,6 +175,7 @@ test('a computer whose sign-in unit\'s node is missing is set up again even when
   const layout = layoutFor(unit);
   const live = Object.fromEntries(renderLayout(layout, SITE_BLOCK).map(({ path, text }) => [path, text]));
   live[unit.secret_file] = 'sealed';
+  live[unit.store_secret_file] = 'sealed';
   const { run, commands } = computer(live);
   await applyHostLayout(machine, layout, run, undefined, {});
   const setUp = commands.find(({ command }) => command.startsWith('sh -s -- '));

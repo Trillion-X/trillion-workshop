@@ -249,6 +249,13 @@ async function readIfPresent(machine, run, path, binary) {
  * nothing written, no set-up run and nothing restarted. A file that is replaced keeps its previous bytes beside it as
  * `NAME.bak-STAMP`. `held` maps a unit's `secret_vault_key` to the value the person's vault holds under that name; the value
  * reaches the computer only on the SSH channel's standard input, sealed there by systemd-creds at the unit's `secret_file`. */
+/** The sealed credentials a unit loads: its own (`secret_*`) and, for a unit that keeps its state in a database, the connection
+ * to it (`store_secret_*`); each as { unit, secret_vault_key, secret_name, secret_file }. */
+export const secretsOf = unit => [
+  unit.secret_file && { unit: unit.unit, secret_vault_key: unit.secret_vault_key, secret_name: unit.secret_name, secret_file: unit.secret_file },
+  unit.store_secret_file && { unit: unit.unit, secret_vault_key: unit.store_secret_vault_key, secret_name: unit.store_secret_name, secret_file: unit.store_secret_file },
+].filter(Boolean);
+
 export async function applyHostLayout(machine, layout, run = onMachine, product, held = {}, deps = {}) {
   const { rendered, live, present, usersPresent, moves, firsts, programs, tarballs } = await hostLayoutState(machine, layout, run, product, deps);
   const writes = rendered.filter(({ path, text }) => live[path] !== text);
@@ -256,9 +263,8 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
   const nodes = [...new Set(layout.units.map(unit => unit.node_bin).filter(Boolean))];
   const nodeMissing = (await Promise.all(nodes.map(bin => absent(`test -x ${q(`${bin}/node`)}`)))).includes(true);
   const foldersMissing = (await Promise.all(layout.units.flatMap(unit => (unit.folders ?? []).map(folder => absent(`test -d ${q(folder)}`))))).includes(true);
-  const secretUnits = layout.units.filter(unit => unit.secret_file);
   const missing = [];
-  for (const unit of secretUnits) if (await absent(`test -s ${q(unit.secret_file)}`)) missing.push(unit);
+  for (const secret of layout.units.flatMap(secretsOf)) if (await absent(`test -s ${q(secret.secret_file)}`)) missing.push(secret);
   for (const unit of missing) {
     if (typeof held[unit.secret_vault_key] !== 'string' || !held[unit.secret_vault_key]) {
       throw refused(`${unit.unit} needs the value held under the vault name ${unit.secret_vault_key}: hand it on descriptor 5 as {"${unit.secret_vault_key}": value}, read from the person's vault.`);
@@ -927,7 +933,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     if (operation === 'layout' || operation === 'differences') {
       if (!first || second) throw Object.assign(new Error(usage), { exit: 2 });
       const request = json(first), layout = hostLayoutOf(request);
-      const held = operation === 'layout' && layout.units.some(unit => unit.secret_vault_key) ? heldValues(await pipe(5)) : {};
+      const held = operation === 'layout' && layout.units.some(unit => secretsOf(unit).length) ? heldValues(await pipe(5)) : {};
       const answer = operation === 'layout' ? await applyALayout(request, { held }) : await layoutDifferences(request);
       process.stdout.write(`${JSON.stringify(answer)}\n`);
       process.exit(0);
@@ -937,7 +943,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const needsName = ['rent', 'start'].includes(operation) ? Boolean(json(first).name?.provider) : operation === 'remove' && Boolean(lease.recordId);
     const needsMachine = !overMachine.includes(operation) && Boolean(readProvider(asked ? json(first).machine.provider : lease.providerFile).base);
     const startLayout = operation === 'start' ? hostLayoutOf(json(first)) : null;
-    const needsHeld = (startLayout?.units ?? []).some(unit => unit.secret_vault_key);
+    const needsHeld = (startLayout?.units ?? []).some(unit => secretsOf(unit).length);
     const tokens = { machineToken: needsMachine ? await pipe(3) : '', nameToken: needsName ? await pipe(4) : '', held: needsHeld ? heldValues(await pipe(5)) : {} };
     const answer = operation === 'price' ? await priceOfAPlace(json(first), tokens)
       : operation === 'rent' ? await rentAMachine(json(first), tokens).then(({ lease, host_name, arch, price, line, terms_url }) => ({ lease, host_name, arch, price, terms_url, ...(line && { line }) }))
