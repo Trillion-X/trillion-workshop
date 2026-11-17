@@ -197,3 +197,24 @@ test('the logo is served by the tool itself, and every page names that address',
   assert.match(String(served.body), /<svg/);
   for (const name of readdirSync(new URL('sections/', dir))) assert.doesNotMatch(readFileSync(new URL(`sections/${name}`, dir), 'utf8'), /\/brand\/current\//, name);
 });
+
+test('/approve is one page for every person-only call: a line, Allow and Deny, and the calls it may make are DATA, each a door path under /work/api/door/ for a row kind', () => {
+  const approve = pageAnswer('/approve?row=record:tool-source:x');
+  assert.equal(approve.status, 200);
+  const html = String(approve.body);
+  assert.match(html, /data-fill="line"/);
+  assert.match(html, /data-approve="allow"[^>]*>Allow</);
+  assert.match(html, /data-approve="deny"[^>]*>Deny</);
+  assert.match(html, /data-step="done"[\s\S]*You can close this tab\./);
+  assert.equal(pageAnswer('/approve'), null, 'with no row it is no page');
+  const calls = JSON.parse(readFileSync(new URL('person-calls.json', dir), 'utf8')).calls;
+  assert.ok(calls['tools:add-source'], 'adding a source of tools');
+  for (const [method, rule] of Object.entries(calls)) {
+    assert.match(method, /^[a-z-]+:[a-z-]+$/, method);
+    assert.match(rule.path, /^\/work\/api\/door\/[a-z-]+:[a-z-]+$/, `${method}'s path is a door path`);
+    assert.match(rule.row_prefix, /^record:[a-z-]+:$/, `${method}'s rows`);
+    for (const gap of rule.line.match(/\{\w+\}/g) ?? []) assert.ok(gap.length > 2, gap);
+  }
+  const client = readFileSync(new URL('sign-in-client.mjs', dir), 'utf8');
+  assert.match(client, /id\.startsWith\(rule\.row_prefix\) && value\.approve\.method === method/, 'only a call the DATA names, for a row kind it names');
+});

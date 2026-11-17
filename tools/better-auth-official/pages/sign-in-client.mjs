@@ -10,6 +10,7 @@ import { emailOTPClient, twoFactorClient } from 'better-auth/client/plugins';
 import { passkeyClient } from '@better-auth/passkey/client';
 import words from './words.json' with { type: 'json' };
 import rules from './sign-in-rules.json' with { type: 'json' };
+import personCalls from './person-calls.json' with { type: 'json' };
 import { authorizeQuery, signedQuery } from './oauth-query.mjs';
 
 const authBase = '/api/auth';
@@ -293,6 +294,45 @@ async function disconnect(button) {
   status(words.disconnected);
 }
 
+// /approve?row=<record id>: a call only the person present may make (the engine's `needs_person`), asked for by an AI and kept as a row.
+// The row's value holds `approve` {address, method, input}; the page makes only a call pages/person-calls.json names, at that call's path with
+// the row's input, so a row cannot name another call. The call is made with this person's own session; when the engine finds it not fresh
+// (403) the person signs in once more and comes back, then Allow makes it.
+const approveRow = () => query.get('row') ?? '';
+const reauthKey = () => `trillion-approve-reauth-${approveRow()}`;
+const requestKey = () => { const name = `trillion-approve-key-${approveRow()}`; let key = sessionStorage.getItem(name); if (!key) { key = crypto.randomUUID(); sessionStorage.setItem(name, key); } return key; };
+let approving = null;
+async function approvePage() {
+  if (!(await client.getSession()).data) return toSignIn();
+  const id = approveRow();
+  const read = await json(`/work/api/door/records:read?input=${encodeURIComponent(JSON.stringify({ id }))}`);
+  if (signedOut(read)) return toSignIn();
+  const value = read.data?.value;
+  const entry = value?.approve && Object.entries(personCalls.calls).find(([method, rule]) => id.startsWith(rule.row_prefix) && value.approve.method === method);
+  if (!entry) return show('unknown');
+  const [, rule] = entry;
+  approving = { rule, input: value.approve.input };
+  const named = text => text.replace(/\{(\w+)\}/g, (gap, key) => String(value[key] ?? ''));
+  fillAll({ line: named(rule.line), note: rule.note ?? '' });
+  document.querySelector('[data-fill="note"]').hidden = !rule.note;
+  const changes = (rule.changes ?? []).filter(name => value[name]).map(name => `${words[`approve_change_${name}`] ?? name}: ${value[name]}`);
+  listOf('changes', changes);
+  document.querySelector('[data-changes]').hidden = changes.length === 0;
+  show('ask');
+}
+async function approve(button) {
+  if (button.dataset.approve === 'deny') return show('denied');
+  if (!approving) return;
+  const made = await json(approving.rule.path, { method: 'POST', headers: { 'content-type': 'application/json', 'idempotency-key': requestKey() }, body: JSON.stringify({ input: approving.input }) });
+  if (made.ok) { sessionStorage.removeItem(reauthKey()); return show('done'); }
+  if (made.status === 403 && !sessionStorage.getItem(reauthKey())) {
+    sessionStorage.setItem(reauthKey(), '1');
+    status(words.approve_again);
+    return void client.signOut().then(() => toSignIn());
+  }
+  status(words.approve_failed);
+}
+
 // /device: the code a device showed (RFC 8628 user code), the app that asked and what it may do, then Allow or Deny.
 const deviceCode = query.get('user_code');
 // A device names itself by its client id (living-room-tv): said as words, and its code in the groups it was shown in.
@@ -321,7 +361,7 @@ async function device(button) {
 }
 
 document.addEventListener('click', event => {
-  const button = event.target.closest('button[data-key], button[data-passkey-link], button[data-undo], button[data-read-only], button[data-details], button[data-disconnect], button[data-consent], button[data-device], button[data-passkey]');
+  const button = event.target.closest('button[data-key], button[data-passkey-link], button[data-undo], button[data-read-only], button[data-details], button[data-disconnect], button[data-consent], button[data-approve], button[data-device], button[data-passkey]');
   if (!button) return;
   event.preventDefault();
   const failed = () => status(button.dataset.failed ?? words.failed);
@@ -329,6 +369,7 @@ document.addEventListener('click', event => {
   else if (button.matches('[data-passkey-link]')) emailTheLink(button).catch(failed);
   else if (button.matches('[data-undo]')) undo().catch(failed);
   else if (button.matches('[data-disconnect]')) disconnect(button).catch(failed);
+  else if (button.matches('[data-approve]')) approve(button).catch(() => status(words.approve_failed));
   else if (button.matches('[data-details]')) { const panel = document.querySelector('[data-details-panel]'); panel.hidden = !panel.hidden; button.setAttribute('aria-expanded', String(!panel.hidden)); }
   else if (button.matches('[data-read-only]')) { readOnly = !readOnly; button.setAttribute('aria-pressed', String(readOnly)); button.textContent = readOnly ? words.read_only_on : words.read_only_off; }
   else if (button.matches('[data-consent]')) consent(button).catch(failed);
@@ -371,5 +412,5 @@ offerPasskeysInTheEmailBox();
 nameTheAsker().catch(() => {});
 // The pages that are for a signed-in person send one who is not to sign in and come back.
 const needsSession = async () => { if (!(await client.getSession()).data) toSignIn(); };
-const connectPage = { '/consent': consentPage, '/connected': connectedPage, '/device': devicePage, '/sign-in/add-passkey': needsSession, '/sign-in/change-email': needsSession }[location.pathname];
+const connectPage = { '/consent': consentPage, '/connected': connectedPage, '/approve': approvePage, '/device': devicePage, '/sign-in/add-passkey': needsSession, '/sign-in/change-email': needsSession }[location.pathname];
 connectPage?.().catch(() => status(words.unavailable));

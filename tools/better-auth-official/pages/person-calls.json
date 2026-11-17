@@ -1,0 +1,12 @@
+{
+  "_what": "The calls only the person present may make, which the approve page (/approve?row=<record id>) may make for them, by the engine's method name (trillion-rust src/account/signed_in/settings.json `needs_person`). A pending request is a row a tool keeps (for tool sources, record:tool-source:<label>, tools/add-tool-source) whose value holds `approve` {address, method, input}; the page makes only a call this list names, with the row's `input`, at `path` (the engine's browser road to that call), so a row cannot name another call. `row_prefix`: the ids of the rows that may ask for it. `line`: the one plain line the person reads, each {name} a field of the row's value. `note`: one plain sentence under it. `changes`: the names of row fields whose short values are shown as lines, each as `label: value`. A new person-only call needs only its entry here.",
+  "calls": {
+    "tools:add-source": {
+      "row_prefix": "record:tool-source:",
+      "path": "/work/api/door/tools:add-source",
+      "line": "Add tools from {label}?",
+      "note": "It gets no access to your things until you say so.",
+      "changes": []
+    }
+  }
+}

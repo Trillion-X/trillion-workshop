@@ -141,6 +141,17 @@
       "description": "See which AIs can use your Trillion, when they last did, and disconnect one."
     },
     {
+      "path": "/approve",
+      "query": {
+        "row": "*"
+      },
+      "title": "Approve",
+      "description": "Approve a change your AI asked for.",
+      "sections": [
+        "approve"
+      ]
+    },
+    {
       "path": "/device",
       "sections": [
         "device"
