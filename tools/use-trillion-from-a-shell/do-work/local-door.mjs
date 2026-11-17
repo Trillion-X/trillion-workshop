@@ -8,7 +8,7 @@
 // sealed declaration (Contents/Resources/computer-reader.json `local_runtime.computer`) names the loopback host
 // (`listen_host`) and the port (`port`). Who calls the door is the engine's own check of a pass the sign-in tool signed:
 // this file only finds it. The engine admits its own loopback address as Host, so a local AI goes straight in, with no
-// round trip over the internet. The declaration's `public_origin` is the origin the engine serves (`localDoorHost`).
+// round trip over the internet. The declaration's `public_origin` is the origin the engine serves (`localDoorOrigin`).
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
@@ -33,8 +33,3 @@ export function localDoorOrigin({ runtime = process.execPath, read = readText } 
   catch { return null; }
 }
 
-/** The host of that origin, or null. */
-export function localDoorHost(options) {
-  const origin = localDoorOrigin(options);
-  return origin === null ? null : new URL(origin).host;
-}

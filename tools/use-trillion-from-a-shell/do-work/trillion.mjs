@@ -49,7 +49,7 @@ import { runOnAgUi } from './ag-ui-agent.mjs';
 import { makeHashCodeHexFromBytes, requestKeyForEngine } from './packs/read-data/identity.mjs';
 import { settledWrite } from './packs/read-data/settled-write.mjs';
 import { KeepRefused, keepResult, readResult } from './keep-result.mjs';
-import { localDoorAddress, localDoorHost, localDoorOrigin } from './local-door.mjs';
+import { localDoorAddress, localDoorOrigin } from './local-door.mjs';
 import settings from './trillion.json' with { type: 'json' };
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -475,8 +475,6 @@ export function findLocalDoor({ rules = settings } = {}) {
 /** The door this run talks to: `asked` (--origin or TRILLION_ORIGIN); else, for the account's key, the Mac app's local door
  *  when this computer has one; else the origin a sign-in was made at, else the declared address (`declared`, TRILLION_ORIGIN); with none the run is
  *  refused. { mcp, origin, name, local, public (the declared address), localMcp }: `localMcp` is this computer's local door, named when another door refuses the key. */
-export function findLocalHost({ rules = settings } = {}) { return localDoorHost({ runtime: join(rules.mac_app, 'Contents', 'MacOS', 'node') }); }
-
 export function findDeclaredOrigin({ rules = settings } = {}) { return localDoorOrigin({ runtime: join(rules.mac_app, 'Contents', 'MacOS', 'node') }); }
 
 /** Where a sign-in is made when `trillion login` names no address: the one asked (--origin, TRILLION_ORIGIN); else the origin
@@ -505,11 +503,11 @@ export async function resourceDoorFor(origin, { localMcp = findLocalDoor(), fetc
   return (await engineServersOf(localMcp, { fetchImpl, rules })).includes(origin) ? localMcp : `${origin}/mcp`;
 }
 
-export function doorFor({ asked = null, credential = null, declared = null, rules = settings, localMcp = findLocalDoor({ rules }), localHost = findLocalHost({ rules }) } = {}) {
+export function doorFor({ asked = null, credential = null, declared = null, rules = settings, localMcp = findLocalDoor({ rules }), localIssuers = [] } = {}) {
   const at = mcp => ({ mcp, origin: new URL(mcp).origin, localMcp });
-  // A key goes to this computer's local door; a sign-in goes there when its pass was issued by the origin this computer's engine
-  // serves (the app's declared public origin). The engine admits its own loopback address, so no Host is sent.
-  const own = credential?.kind === 'key' || (credential?.kind === 'sign-in' && localHost !== null && new URL(credential.origin).host === localHost);
+  // A key goes to this computer's local door; a sign-in goes there when this computer's engine names the pass's issuer as its own
+  // (`localIssuers`, the authorization_servers of its protected-resource document), else to the address it was made at.
+  const own = credential?.kind === 'key' || (credential?.kind === 'sign-in' && localIssuers.includes(credential.origin));
   if (!asked && own && localMcp) return { ...at(localMcp), name: rules.words.local_door, local: true, public: false };
   const named = asked ?? credential?.origin ?? declared;
   if (!named) throw new TrillionError(rules.words.no_origin, { status: 2 });
@@ -547,7 +545,7 @@ export async function addPersonHere({ socket, bearer, rules = settings }) {
   }).catch(error => { throw new TrillionError(rules.words.not_running, { status: 4, detail: fill(rules.words.details.not_running_engine, { url: socket, why: error.code ?? error.message }) }); });
   let answer = {};
   try { answer = JSON.parse(reply.text); } catch { /* no JSON body */ }
-  if (reply.status < 200 || reply.status > 299) throw Object.assign(new TrillionError(reply.status === 401 ? rules.words.refused : rules.words.not_taken_in, { status: reply.status === 401 ? 3 : 4, detail: fill(rules.words.details.not_taken_in, { url: socket, status: reply.status, why: answer.error ?? 'refused' }) }), { notTaken: true });
+  if (reply.status < 200 || reply.status > 299) throw Object.assign(new TrillionError(reply.status === 401 ? rules.words.refused : rules.words.not_taken_in, { status: reply.status === 401 ? 3 : 4, detail: fill(rules.words.details.not_taken_in, { url: socket, status: reply.status, why: answer.error ?? 'refused' }) }), { notTaken: true, why: typeof answer.why === 'string' ? answer.why : null });
   return answer;
 }
 
@@ -1394,10 +1392,17 @@ const timeoutOf = value => {
   return number;
 };
 
+/** The door a credential is presented at: doorFor, told which issuers this computer's engine names as its own. */
+async function doorOf(context, credential) {
+  const localMcp = context.localMcp();
+  const localIssuers = credential?.kind === 'sign-in' ? await engineServersOf(localMcp, { fetchImpl: context.fetchImpl, rules: settings }) : [];
+  return doorFor({ asked: context.asked, declared: context.declared, credential, localMcp, localIssuers });
+}
+
 async function signedInClient(context) {
   const credential = await credentialFor({ env: context.env, store: context.store, grants: context.grants, fetchImpl: context.fetchImpl });
   if (!credential) throw new TrillionError(settings.words.no_credential, { status: 3 });
-  const door = doorFor({ asked: context.asked, declared: context.declared, credential, localMcp: context.localMcp() });
+  const door = await doorOf(context, credential);
   // The key this computer keeps goes only to this computer's local door or the address declared in TRILLION_ORIGIN; any other door gets a key the person gives for it (TRILLION_KEY).
   if (credential.kind === 'key' && credential.where !== 'TRILLION_KEY' && !door.local && !door.public) throw new TrillionError(settings.words.kept_key_elsewhere, { status: 3 });
   const timeoutSeconds = context.flags.timeout === undefined ? undefined : timeoutOf(context.flags.timeout);
@@ -1466,29 +1471,38 @@ export function emailOf(credential) {
 const signedInWords = (credential, rules = settings) => { const email = emailOf(credential); return email ? fill(rules.words.signed_in, { email }) : rules.words.signed_in_no_email; };
 
 /** Holds the person at this computer's engine (`addPersonHere`), then asks who they are: a main-built engine serves no one it has
- *  not been told to hold, so asking first is refused. Answers { account }; null when the credential is refused. An engine that is
- *  not running is said only when the door in use is that engine, since a sign-in also works at the public address. */
+ *  not been told to hold, so asking first is refused. Answers { account }; a refusal is thrown (status 3, or `notTaken` from the add, with
+ *  the engine's `why` when it gave one). An engine that is not running is said only when the door in use is that engine, since a
+ *  sign-in also works at the public address. */
 async function knownAs(context, client) {
-  try {
-    await addPersonHere({ socket: context.agentSocket(), bearer: client.credential.bearer }).catch(error => {
-      if (!(error instanceof TrillionError) || error.status === 3 || client.door.local) throw error;
-    });
-    return await client.whoami();
-  } catch (error) {
-    if (error instanceof TrillionError && error.status === 3) return null;
-    throw error;
-  }
+  await addPersonHere({ socket: context.agentSocket(), bearer: client.credential.bearer }).catch(error => {
+    if (!(error instanceof TrillionError) || error.status === 3 || error.notTaken || client.door.local) throw error;
+  });
+  return client.whoami();
 }
 
+const refusedBy = error => error instanceof TrillionError && (error.status === 3 || error.notTaken === true);
+
+/** Whether a refusal of a kept sign-in is one a new sign-in mends: only one the engine says is expired or revoked (trillion.json
+ *  `resign_when`); a pass whose own renewal was refused never gets this far (signedInClient throws, and login signs in). Any other
+ *  reason, or none given, would refuse the new sign-in too. */
+const resigns = error => settings.resign_when.includes(error.why);
+
+/** `trillion login`: the person is known as the credential this computer keeps names them, else one browser sign-in is made (never more
+ *  than one per run, and none for a kept sign-in the engine refuses for a reason a new one would not mend), and then they are known. */
 async function login(context, { again = false } = {}) {
   if (!again) {
-    // A credential its door refuses is no sign-in: the person signs in again below, instead of being told it is refused.
-    const client = await signedInClient(context).catch(error => { if (error instanceof TrillionError && error.status === 3) return null; throw error; });
-    // A credential the engine will not hold (a kept key it cannot read, a pass it refuses) is no sign-in either.
-    const known = client && await knownAs(context, client).catch(error => { if (error.notTaken) return null; throw error; });
-    if (known) {
-      keepConnection(context, client.door, known.account);
-      return signedInWords(client.credential);
+    let client = null;
+    try { client = await signedInClient(context); } catch (error) { if (!refusedBy(error)) throw error; }
+    if (client) {
+      try {
+        const known = await knownAs(context, client);
+        keepConnection(context, client.door, known.account);
+        return signedInWords(client.credential);
+      } catch (error) {
+        // A kept key the engine will not hold is no sign-in yet: the person signs in. A kept sign-in it refuses for another reason is said, not repeated.
+        if (!refusedBy(error) || (client.credential.kind === 'sign-in' && !resigns(error))) throw error.status === 3 ? new TrillionError(settings.words.refused_kept, { status: 3, detail: error.detail }) : error;
+      }
     }
   }
   if (context.flags['key-stdin']) {
@@ -1507,8 +1521,7 @@ async function login(context, { again = false } = {}) {
     context.state.keepMade({ kind: 'sign-in', where: context.grants.where, at: new Date().toISOString() });
   }
   const client = await signedInClient(context);
-  const known = await knownAs(context, client);
-  if (!known) throw new TrillionError(settings.words.refused, { status: 3 });
+  const known = await knownAs(context, client).catch(error => { throw error.status === 3 ? new TrillionError(settings.words.refused_kept, { status: 3, detail: error.detail }) : error; });
   keepConnection(context, client.door, known.account);
   return signedInWords(client.credential);
 }
@@ -1666,7 +1679,7 @@ export async function main(argv, seams = {}) {
   if (command === 'logout') return logout(context);
   if (command === 'connection') {
     const credential = await credentialFor({ env, store: context.store, grants: context.grants, fetchImpl: context.fetchImpl }).catch(() => null);
-    const kept = context.state.connection() ?? connectionOf({ origin: doorFor({ asked, declared: context.declared, credential, localMcp: context.localMcp() }).origin, store: context.store });
+    const kept = context.state.connection() ?? connectionOf({ origin: (await doorOf(context, credential)).origin, store: context.store });
     if (flags.write === true) context.state.keepConnection(kept);
     return flags.json ? JSON.stringify(kept, null, 2) : [`${kept.mcp_url}  (key: ${kept.key_source.where})`, ...kept.recipes.map(row => `${row.label}: ${row.command}`)].join('\n');
   }
@@ -1736,8 +1749,7 @@ export async function main(argv, seams = {}) {
     // An engine started again holds no one until told: a pass it has not held is added again here, as login adds it.
     const kept = client.credential.kind === 'key' && client.credential.where !== 'TRILLION_KEY';
     // A key the Mac app kept long ago that the engine will not read is no sign-in: say so at once, never after retries.
-    const known = await knownAs(context, client).catch(error => { if (kept && error instanceof TrillionError && error.message !== settings.words.not_running) throw new TrillionError(settings.words.no_credential, { status: 3, detail: error.detail }); throw error; });
-    if (!known) throw new TrillionError(kept ? settings.words.no_credential : settings.words.refused, { status: 3 });
+    const known = await knownAs(context, client).catch(error => { throw kept && refusedBy(error) ? new TrillionError(settings.words.no_credential, { status: 3, detail: error.detail }) : error; });
     const { account } = known;
     const { agent_id, ai_id, held_as, app, model, provider, computer, harness } = context.me;
     return flags.json ? JSON.stringify({ account_id: account, agent_id, ai_id, held_as, app, model, provider, computer, harness, door: client.door.mcp, local: client.door.local }, null, 2)

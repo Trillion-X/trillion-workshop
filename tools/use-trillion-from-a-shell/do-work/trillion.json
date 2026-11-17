@@ -399,6 +399,7 @@
     "no_credential": "You are not signed in to Trillion. Run trillion login, then try again.",
     "sign_in_ended": "Your sign-in to Trillion ended. Run trillion login to sign in again.",
     "refused": "Trillion did not accept this sign-in. Run trillion login to sign in again.",
+    "refused_kept": "Trillion on this Mac did not accept your sign-in. Signing in again would not change that, so nothing was opened. Update the Trillion app, then try again.",
     "refused_key_at_door": "Trillion did not accept the key kept on this computer. Run trillion login to sign in.",
     "local_door": "Trillion on this Mac",
     "kept_key_elsewhere": "The key kept on this computer is for Trillion on this Mac, so it was not sent to a different Trillion. Set TRILLION_KEY to the key for that one, then try again.",
@@ -575,6 +576,7 @@
       { "owner": "records-door/read-data/settled-write.mjs", "packed": "packs/read-data/settled-write.mjs" }
     ]
   },
+  "resign_when": ["exp", "revoked"],
   "computer_config_files": [
     "~/Library/Application Support/Trillion/computer/computer.json",
     "~/.config/trillion/computer/computer.json"
