@@ -131,14 +131,15 @@ export function workshopCommitOf(unit) {
 
 /** A unit's `source` with its fields filled from the unit: the `repository` the request's `sources` maps to a checkout on
  * this computer, the `commit` built, the `build` argv run in its tree, the `output` file it makes, and the `environment`
- * lines it runs with. The program is the unit's own `program` (or its `door_file`) in its `builds` folder. */
+ * lines it runs with, each `{field}` in them the unit's own value or the `{commit}` built. The program is the unit's own
+ * `program` (or its `door_file`) in its `builds` folder. */
 export function sourceOf(unit) {
   const { source } = unit, where = `${unit.unit} source`;
   if (!/^[0-9a-f]{40}$/.test(source.commit ?? '')) throw refused(`${where} needs commit, a full commit id.`);
   if (typeof source.repository !== 'string' || !Array.isArray(source.build) || !source.build.length || typeof source.output !== 'string') throw refused(`${where} needs repository, build (an argv) and output (the file the build makes).`);
   const program = unit.program ?? unit.door_file;
   if (!/^[A-Za-z0-9._-]+$/.test(program ?? '') || typeof unit.builds !== 'string' || !isAbsolute(unit.builds)) throw refused(`${where} needs the unit's program and its builds folder.`);
-  const filled = text => fill(text, unit, where);
+  const filled = text => fill(text, { ...unit, commit: source.commit }, where);
   return { user: unit.user, builds: unit.builds, commit: source.commit, program, repository: source.repository,
     output: filled(source.output), build: source.build.map(filled), environment: (source.environment ?? []).map(filled) };
 }

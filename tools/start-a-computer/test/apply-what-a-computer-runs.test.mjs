@@ -80,7 +80,7 @@ test('a file that differs keeps its previous bytes beside it, and only that file
 // checkout by `git archive`, built there, and made `current`; a commit already built is only made `current`.
 const SOURCE_COMMIT = 'c'.repeat(40);
 const built = { ...runs, units: [{ ...runs.units[0], source: { repository: 'example-engine-source', commit: SOURCE_COMMIT,
-  build: ['cargo', 'build', '--release'], output: '{builds}/target/release/example-engine', environment: ['HOME={state}', 'CARGO_TARGET_DIR={builds}/target'] } }] };
+  build: ['cargo', 'build', '--release'], output: '{builds}/target/release/example-engine', environment: ['HOME={state}', 'CARGO_TARGET_DIR={builds}/target', 'BUILT_COMMIT={commit}'] } }] };
 const building = (live, { builtThere }) => {
   const base = computer(live), archives = [], spawned = [];
   const run = async (m, command, input) => {
@@ -116,7 +116,7 @@ test('a unit behind its source commit is built on the computer from the caller\'
   assert.deepEqual(archives, ['a tar of the tree']);
   const build = commands.find(({ command }) => command.startsWith('sh -c '));
   assert.match(build.command, /"output":"\/var\/lib\/example-place\/builds\/target\/release\/example-engine"/);
-  assert.match(build.command, /"environment":\["HOME=\/var\/lib\/example-place","CARGO_TARGET_DIR=\/var\/lib\/example-place\/builds\/target"\]/);
+  assert.match(build.command, new RegExp(`"environment":\\["HOME=/var/lib/example-place","CARGO_TARGET_DIR=/var/lib/example-place/builds/target","BUILT_COMMIT=${SOURCE_COMMIT}"\\]`));
   assert.ok(commands.some(({ command }) => command === "systemctl restart 'example-place.service'"));
 });
 
