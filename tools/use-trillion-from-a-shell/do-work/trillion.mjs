@@ -40,7 +40,7 @@
 //
 import { spawn, spawnSync } from 'node:child_process';
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
-import { chmodSync, existsSync, lstatSync, mkdirSync, readFileSync, readlinkSync, realpathSync, renameSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, lstatSync, mkdirSync, readFileSync, readlinkSync, realpathSync, renameSync, rmSync, statSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
 import { createServer, request as httpRequest } from 'node:http';
 import { homedir, hostname } from 'node:os';
 import { basename, dirname, join } from 'node:path';
@@ -442,10 +442,50 @@ export async function refreshGrant(grant, { fetchImpl = fetch, rules = settings,
   return grantOf(await asJson(response, 'Renewing this computer\'s sign-in', rules), { client_id: grant.client_id, origin: grant.origin, now, rules, found: grant });
 }
 
+const endsSoon = (grant, rules, now) => Boolean(grant.refresh_token) && Number.isFinite(grant.expires_at_ms) && grant.expires_at_ms - now() < rules.grant.refresh_before_seconds * 1000;
+
+/** Runs `work` holding this computer's one sign-in lock (a folder made atomically in the state folder), so one renewal is in flight
+ *  at a time across every process. A lock older than `lock_stale_seconds` is a dead process's and is taken over. */
+async function withSignInLock(work, { rules = settings, home = homedir() } = {}) {
+  const folder = expand(rules.state_folder, home);
+  const lock = join(folder, rules.grant.lock);
+  mkdirSync(folder, { recursive: true, mode: 0o700 });
+  const until = Date.now() + rules.grant.lock_wait_seconds * 1000;
+  for (;;) {
+    try { mkdirSync(lock); break; } catch (error) {
+      if (error.code !== 'EEXIST') throw error;
+      let age = 0;
+      try { age = Date.now() - statSync(lock).mtimeMs; } catch { continue; }
+      if (age > rules.grant.lock_stale_seconds * 1000 || Date.now() > until) { rmSync(lock, { recursive: true, force: true }); continue; }
+      await pause(25 + Math.random() * 50);
+    }
+  }
+  try { return await work(); } finally { rmSync(lock, { recursive: true, force: true }); }
+}
+
+/** The sign-in renewed once for every process that found it ending: under the lock the stored sign-in is read again and used if another
+ *  process has renewed it; a refused renewal is read against the store again before it is called ended, since the process that won may
+ *  have written the new one between. */
+async function renewedGrant(grant, { grants, fetchImpl, rules, now, home }) {
+  return withSignInLock(async () => {
+    const stored = grants.read() ?? grant;
+    if (!endsSoon(stored, rules, now)) return stored;
+    try {
+      const next = await refreshGrant(stored, { fetchImpl, rules, now });
+      grants.write(next);
+      return next;
+    } catch (error) {
+      const again = grants.read();
+      if (again && again.refresh_token !== stored.refresh_token && !endsSoon(again, rules, now)) return again;
+      throw error;
+    }
+  }, { rules, home });
+}
+
 /** The credential for this run: TRILLION_KEY (a machine with no Keychain or file), else the sign-in
  *  login kept, else the kept key, renewed first when it ends within `grant.refresh_before_seconds`. { kind: 'key'|'sign-in', bearer, where,
  *  origin? }, or null when there is none. */
-export async function credentialFor({ env = process.env, store = keyStore(), grants = grantStore(), fetchImpl = fetch, rules = settings, now = Date.now } = {}) {
+export async function credentialFor({ env = process.env, store = keyStore(), grants = grantStore(), fetchImpl = fetch, rules = settings, now = Date.now, home = homedir() } = {}) {
   if (env.TRILLION_KEY) {
     // A key the person put in TRILLION_KEY is sent as given or not at all: one of no declared kind is refused, never swapped for the kept key.
     if (bearerOf(env.TRILLION_KEY, rules) === null) throw new TrillionError(fill(rules.bearers.refused, { kinds: rules.bearers.shapes.map(row => row.kind).join(', ') }), { status: 2 });
@@ -458,10 +498,7 @@ export async function credentialFor({ env = process.env, store = keyStore(), gra
     const key = store.read();
     return key ? { kind: 'key', bearer: key, where: store.where } : null;
   }
-  if (grant.refresh_token && Number.isFinite(grant.expires_at_ms) && grant.expires_at_ms - now() < rules.grant.refresh_before_seconds * 1000) {
-    grant = await refreshGrant(grant, { fetchImpl, rules, now });
-    grants.write(grant);
-  }
+  if (endsSoon(grant, rules, now)) grant = await renewedGrant(grant, { grants, fetchImpl, rules, now, home });
   return { kind: 'sign-in', bearer: grant.access_token, where: grants.where, origin: grant.origin };
 }
 

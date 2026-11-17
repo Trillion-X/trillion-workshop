@@ -120,13 +120,24 @@ function openInBrowser(url) {
  * code comes back to a callback on this computer's loopback address. `showSignIn(url)` is told the address to open
  * (the default opens the browser); it can be replaced where a browser is driven another way.
  */
+/** The sign-in server's own addresses (RFC 8414: `/.well-known/oauth-authorization-server`), never typed paths. */
+async function serverAddresses(base, fetchImpl) {
+  const response = await fetchImpl(`${base}/.well-known/oauth-authorization-server`);
+  const document = await response.json().catch(() => ({}));
+  for (const name of ['registration_endpoint', 'authorization_endpoint', 'token_endpoint']) {
+    if (typeof document[name] !== 'string') throw new Error(`The sign-in server at ${base} does not name its ${name}.`);
+  }
+  return document;
+}
+
 export async function signInWithBrowser({ origin, appName = 'File upload', showSignIn = openInBrowser, say = () => {}, fetchImpl = fetch }) {
   const base = origin.replace(/\/$/, '');
+  const addresses = await serverAddresses(base, fetchImpl);
   const server = createServer();
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   const redirect = `http://127.0.0.1:${server.address().port}/callback`;
   try {
-    const registered = await (await fetchImpl(`${base}/oauth/register`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ client_name: appName, redirect_uris: [redirect], token_endpoint_auth_method: 'none' }) })).json();
+    const registered = await (await fetchImpl(addresses.registration_endpoint, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ client_name: appName, redirect_uris: [redirect], token_endpoint_auth_method: 'none' }) })).json();
     if (!registered.client_id) throw new Error(`The service did not register this program for sign-in: ${JSON.stringify(registered).slice(0, 200)}`);
     const verifier = randomBytes(32).toString('base64url');
     const challenge = createHash('sha256').update(verifier).digest('base64url'); // PKCE S256 is fixed by the OAuth standard
@@ -143,10 +154,10 @@ export async function signInWithBrowser({ origin, appName = 'File upload', showS
         else resolve(url.searchParams.get('code'));
       });
     });
-    const signInUrl = `${base}/authorize?${new URLSearchParams({ response_type: 'code', client_id: registered.client_id, redirect_uri: redirect, scope: 'decisions', state, code_challenge: challenge, code_challenge_method: 'S256', resource: `${base}/mcp` })}`;
+    const signInUrl = `${addresses.authorization_endpoint}?${new URLSearchParams({ response_type: 'code', client_id: registered.client_id, redirect_uri: redirect, scope: 'decisions', state, code_challenge: challenge, code_challenge_method: 'S256', resource: `${base}/mcp` })}`;
     say(`Sign in to continue: ${signInUrl}`);
     await showSignIn(signInUrl);
-    const token = await (await fetchImpl(`${base}/oauth/token`, { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ grant_type: 'authorization_code', code: await code, redirect_uri: redirect, client_id: registered.client_id, code_verifier: verifier, resource: `${base}/mcp` }) })).json();
+    const token = await (await fetchImpl(addresses.token_endpoint, { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ grant_type: 'authorization_code', code: await code, redirect_uri: redirect, client_id: registered.client_id, code_verifier: verifier, resource: `${base}/mcp` }) })).json();
     if (typeof token.access_token !== 'string') throw new Error(`Sign-in did not give access: ${token.error_description ?? token.error ?? 'no token'}`);
     return async () => `Bearer ${token.access_token}`;
   } finally { server.close(); }

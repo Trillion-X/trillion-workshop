@@ -259,7 +259,7 @@
           {
             "title": "Paste this message into Muse",
             "body": "Open a chat with Muse, paste the message below and send it.",
-            "code": "Connect Trillion to yourself with your own \"Add a custom connector\" sheet, using OAuth. Do not give me a link to open in a browser, do not use a 127.0.0.1 address, and do not ask me for a key. Use exactly these values: name custom.trillion; domain {host}; authorization_url {origin}/authorize; token_url {origin}/oauth/token; client_id muse; redirect_uri https://agent.meta.ai/api/hatch/oauth/callback; token_endpoint_auth_method none; scope decisions. Trillion's MCP server is {mcp}. Then send me the Add a custom connector link.",
+            "code": "Connect Trillion to yourself with your own \"Add a custom connector\" sheet, using OAuth. Do not give me a link to open in a browser, do not use a 127.0.0.1 address, and do not ask me for a key. Use exactly these values: name custom.trillion; domain {host}; authorization_url and token_url: the authorization_endpoint and the token_endpoint that {origin}/.well-known/oauth-authorization-server names (read that address; never type a path); client_id muse; redirect_uri https://agent.meta.ai/api/hatch/oauth/callback; token_endpoint_auth_method none; scope decisions. Trillion's MCP server is {mcp}. Then send me the Add a custom connector link.",
             "fix": "If Muse replies with a link to open in Safari, a 127.0.0.1 address, or asks for a key or a client id, paste the message again and add: Use the Add a custom connector sheet with client_id muse."
           }
         ],

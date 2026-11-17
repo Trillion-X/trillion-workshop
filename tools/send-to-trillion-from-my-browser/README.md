@@ -72,7 +72,7 @@ EXTENSION_OUT=<folder> node tools/send-to-trillion-from-my-browser/scripts/build
 
 | Name | Signature / Shape | Role |
 |------|-------------------|------|
-| `startSignIn` | `() => Promise<void>` | Registers this install at `/oauth/register` once, opens `/authorize` in a tab. |
+| `startSignIn` | `() => Promise<void>` | Registers this install once and opens the authorize address in a tab, both at the addresses the sign-in server's discovery document (`/.well-known/oauth-authorization-server`) names. |
 | `finishSignIn` | `(address: string) => Promise<void>` | Checks state, exchanges the code with the verifier, keeps the tokens. |
 | `tool` | `(name, args) => Promise<object>` | Calls one account tool on `/mcp`; a refused token is refreshed once. |
 | `shareRecord` | `({ requestKey, items, ownWords?, from, at, list? }) => { id, type, value }` | The one record a send writes (`src/share-record.mjs`). |

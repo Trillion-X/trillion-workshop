@@ -256,10 +256,10 @@ test('the credential: TRILLION_KEY, the kept key, else the kept sign-in, renewed
   } });
   try {
     const grants = { where: 'g', read: () => ({ access_token: 'access-1', refresh_token: 'refresh-1', expires_at_ms: 1000, client_id: 'c1', origin: fake.origin, token_endpoint: `${fake.origin}/api/auth/oauth2/token`, resource: `${fake.origin}/mcp` }), write: grant => { written = grant; }, forget: () => {} };
-    const renewed = await credentialFor({ env: {}, store, grants, now: () => 990 });
+    const renewed = await credentialFor({ env: {}, store, grants, now: () => 990, home: home() });
     assert.deepEqual([renewed.kind, renewed.bearer, renewed.origin, written.refresh_token], ['sign-in', 'access-2', fake.origin, 'refresh-2']);
     const ended = { ...grants, read: () => ({ access_token: 'a', refresh_token: 'gone', expires_at_ms: 1, client_id: 'c1', origin: fake.origin, token_endpoint: `${fake.origin}/api/auth/oauth2/token`, resource: `${fake.origin}/mcp` }) };
-    await assert.rejects(credentialFor({ env: {}, store, grants: ended, now: () => 990 }), error => error.status === 3 && /sign-in to Trillion ended/.test(error.message));
+    await assert.rejects(credentialFor({ env: {}, store, grants: ended, now: () => 990, home: home() }), error => error.status === 3 && /sign-in to Trillion ended/.test(error.message));
   } finally { await fake.close(); }
 });
 

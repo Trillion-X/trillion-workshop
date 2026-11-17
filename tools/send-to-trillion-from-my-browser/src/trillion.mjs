@@ -2,7 +2,7 @@
 //
 // PURPOSE
 //   Everything the browser extension says to the person's Trillion account: signing in the way any AI app does
-//   (OAuth with PKCE, registered by itself at /oauth/register), calling the account's tools on /mcp, and keeping a
+//   (OAuth with PKCE, registered by itself at the registration address the server's discovery document names), calling the account's tools on /mcp, and keeping a
 //   picture or recording of the page in the person's files through the addressed Namespace resource.
 //
 // NON-NEGOTIABLE INVARIANTS
@@ -65,12 +65,22 @@ const requestTokens = new WeakMap();
 const base64url = bytes => btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 const randomText = (length = 32) => base64url(crypto.getRandomValues(new Uint8Array(length)));
 
+// The sign-in server's own addresses (RFC 8414: /.well-known/oauth-authorization-server), read once per worker run, never typed paths.
+let discovered = null;
+async function serverAddresses() {
+  if (discovered) return discovered;
+  const document = await (await fetch(`${ORIGIN}/.well-known/oauth-authorization-server`)).json().catch(() => ({}));
+  for (const name of ['registration_endpoint', 'authorization_endpoint', 'token_endpoint']) if (typeof document[name] !== 'string') throw refusal(`The sign-in server does not name its ${name}.`);
+  discovered = document;
+  return discovered;
+}
+
 // This extension's own sign-in app on the account service, registered once per install (its redirect names this
 // install's id, so it is registered here rather than published as a fixed client).
 async function clientId() {
   const saved = await local.get('client');
   if (saved?.redirect === REDIRECT()) return saved.client_id;
-  const response = await fetch(`${ORIGIN}/oauth/register`, {
+  const response = await fetch((await serverAddresses()).registration_endpoint, {
     method: 'POST', headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ client_name: settings.client_name, redirect_uris: [REDIRECT()], token_endpoint_auth_method: 'none', grant_types: ['authorization_code', 'refresh_token'], response_types: ['code'] }),
   });
@@ -87,13 +97,13 @@ export async function startSignIn() {
   const challenge = base64url(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier))));
   const state = randomText(16);
   await withTokenLock(() => local.set('signing_in', { verifier, state, client_id }));
-  const url = new URL(`${ORIGIN}/authorize`);
+  const url = new URL((await serverAddresses()).authorization_endpoint);
   for (const [key, value] of Object.entries({ response_type: 'code', client_id, redirect_uri: REDIRECT(), code_challenge: challenge, code_challenge_method: 'S256', state, scope: settings.scope, resource: `${ORIGIN}/mcp` })) url.searchParams.set(key, value);
   await chrome.tabs.create({ url: url.href });
 }
 
 async function tokenRequest(fields, expectedTokens = null, expectedState = null) {
-  const response = await fetch(`${ORIGIN}/oauth/token`, { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams(fields) });
+  const response = await fetch((await serverAddresses()).token_endpoint, { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams(fields) });
   const body = await response.json().catch(() => ({}));
   if (!response.ok || !body.access_token) throw refusal(body.error_description ?? body.error);
   return withTokenLock(async () => {

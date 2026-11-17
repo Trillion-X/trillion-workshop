@@ -479,7 +479,12 @@
   "grant": {
     "keychain_item": "trillion-cli-sign-in",
     "file": "sign-in.json",
-    "refresh_before_seconds": 60
+    "refresh_before_seconds": 60,
+    "refresh_before_seconds_why": "A pass is used as it is until it ends within this many seconds, so a run that starts a moment before the end does not carry a pass that ends mid-call, and no run renews a pass that still has time: every renewal rotates the refresh token, and a second renewal of the same token ends the whole sign-in at the server (Better Auth's reuse rule).",
+    "lock": "sign-in.lock",
+    "lock_wait_seconds": 60,
+    "lock_stale_seconds": 120,
+    "lock_why": "One renewal at a time on this computer: processes that find the pass ending take this lock, read the sign-in again, and renew only if it still ends. A lock older than lock_stale_seconds belongs to a process that died, and is taken over."
   },
   "client_version": "2",
   "computer_name": {
