@@ -326,6 +326,22 @@ fn register_math_operators(registry: &mut OperatorRegistry) -> Result<(), Regist
         ops_core::series::streak(input, &get_arg(args, "period"), &get_arg(args, "times"), &get_arg(args, "now")).map_err(op_err)
     }))?;
 
+    registry.register(FnOperator::new("op:core.longest_streak", |input, args, _ctx| {
+        ops_core::series::longest_streak(input, &get_arg(args, "period"), &get_arg(args, "times")).map_err(op_err)
+    }))?;
+
+    registry.register(FnOperator::new("op:core.variance", |input, _args, _ctx| {
+        ops_core::series::variance(input).map_err(op_err)
+    }))?;
+
+    registry.register(FnOperator::new("op:core.stdev", |input, _args, _ctx| {
+        ops_core::series::standard_deviation(input).map_err(op_err)
+    }))?;
+
+    registry.register(FnOperator::new("op:core.histogram", |input, args, _ctx| {
+        ops_core::series::histogram(input, &get_arg(args, "edges")).map_err(op_err)
+    }))?;
+
     registry.register(FnOperator::new("op:core.count", |input, _args, _ctx| {
         math::count(input, ctx_fast()).map_err(op_err)
     }))?;
@@ -1522,6 +1538,16 @@ mod tests {
             serde_json::json!({"period": "day", "times": 1, "now": "2026-11-13T10:00:00Z"}),
         );
         assert_eq!(streak.as_i64(), Some(2));
+        let longest = run(
+            "op:core.longest_streak",
+            serde_json::json!(["2026-11-01", "2026-11-02", "2026-11-09"]),
+            serde_json::json!({"period": "day", "times": 1}),
+        );
+        assert_eq!(longest.as_i64(), Some(2));
+        assert_eq!(run("op:core.variance", serde_json::json!([2, 4, 4, 4, 5, 5, 7, 9]), serde_json::json!({})).as_f64(), Some(4.0));
+        assert_eq!(run("op:core.stdev", serde_json::json!([2, 4, 4, 4, 5, 5, 7, 9]), serde_json::json!({})).as_f64(), Some(2.0));
+        let bins = run("op:core.histogram", serde_json::json!([1, 6, 7, 12]), serde_json::json!({"edges": [0, 5, 10]}));
+        assert_eq!(bins, serde_json::json!([1, 2]));
     }
 
     #[test]

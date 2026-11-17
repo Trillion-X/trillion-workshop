@@ -1,6 +1,6 @@
 //! Series operators for ops-core: what a list of numbers or dated entries says as a whole.
 //!
-//! Three reductions a measure over rows needs and the element-wise operators cannot build, because
+//! The reductions a measure over rows needs and the element-wise operators cannot build, because
 //! none of them can sort numbers, count entries per calendar period or step back through periods:
 //!
 //! - `quantile(numbers, q)`: the q-th quantile by linear interpolation between order statistics
@@ -14,8 +14,16 @@
 //!   months, both in UTC. The period holding `now` counts when it already met the target; when it has not,
 //!   the streak is anchored at the previous period instead of breaking, so a period in progress never
 //!   penalises. No entry in the anchor period gives 0.
+//! - `longest_streak(entries, period, times)`: the longest run of consecutive calendar periods, anywhere in the
+//!   entries, in each of which at least `times` different UTC days have an entry (no `now`: the run need not
+//!   reach the present).
+//! - `variance(numbers)` and `standard_deviation(numbers)`: the population variance (the mean of the squared
+//!   distances from the mean) and its square root; null when there are no numbers.
+//! - `histogram(numbers, edges)`: how many of the numbers fall in each bin `[edges[i], edges[i + 1])`, one count
+//!   per pair of neighbouring edges; a number is counted in the first bin that holds it, a number outside every
+//!   bin in none.
 //!
-//! All three are pure: no clock (`now` is an argument), no I/O, deterministic.
+//! All are pure: no clock (`now` is an argument), no I/O, deterministic.
 
 use crate::{OpError, OpValue};
 use chrono::{DateTime, Datelike, NaiveDate};
@@ -108,28 +116,43 @@ fn period_index(day: i64, period: Period) -> i64 {
     }
 }
 
-/// Consecutive periods that met the target, counting back from the period holding `now`.
-pub fn streak(entries: &OpValue, period: &OpValue, times: &OpValue, now: &OpValue) -> Result<OpValue, OpError> {
-    let Some(list) = entries.as_inner().as_array().cloned() else {
-        return if entries.is_null() { Ok(OpValue::from_i64(0)) } else { Err(invalid("streak", "needs a list of dates")) };
-    };
-    let period = match period.as_inner() {
-        JsonValue::Null => Period::Day,
-        JsonValue::String(s) if s == "day" => Period::Day,
-        JsonValue::String(s) if s == "week" => Period::Week,
-        JsonValue::String(s) if s == "month" => Period::Month,
-        _ => return Err(invalid("streak", "period must be day, week or month")),
-    };
-    let times = if times.is_null() { 1.0 } else { number_of(&times.as_inner()).ok_or_else(|| invalid("streak", "times must be a number"))? };
-    if times < 1.0 || times.fract() != 0.0 {
-        return Ok(OpValue::from_i64(0));
+fn period_of(period: &OpValue, operation: &str) -> Result<Period, OpError> {
+    match period.as_inner() {
+        JsonValue::Null => Ok(Period::Day),
+        JsonValue::String(s) if s == "day" => Ok(Period::Day),
+        JsonValue::String(s) if s == "week" => Ok(Period::Week),
+        JsonValue::String(s) if s == "month" => Ok(Period::Month),
+        _ => Err(invalid(operation, "period must be day, week or month")),
     }
-    let now = millis_of(&now.as_inner()).ok_or_else(|| invalid("streak", "needs now: an ISO time or milliseconds"))?;
+}
+
+/// The target (days per period) and how many different UTC days hold an entry in each period, by its index.
+type DaysPerPeriod = (f64, HashMap<i64, i64>);
+
+/// How many different UTC days of each period (by its index) hold an entry; `None` when `times` is not a whole number of at least 1.
+fn days_per_period(list: &[JsonValue], period: Period, times: &OpValue, operation: &str) -> Result<Option<DaysPerPeriod>, OpError> {
+    let times = if times.is_null() { 1.0 } else { number_of(&times.as_inner()).ok_or_else(|| invalid(operation, "times must be a number"))? };
+    if times < 1.0 || times.fract() != 0.0 {
+        return Ok(None);
+    }
     let days: HashSet<i64> = list.iter().filter_map(millis_of).map(|ms| ms.div_euclid(DAY_MS)).collect();
     let mut per_period: HashMap<i64, i64> = HashMap::new();
     for day in days {
         *per_period.entry(period_index(day, period)).or_insert(0) += 1;
     }
+    Ok(Some((times, per_period)))
+}
+
+/// Consecutive periods that met the target, counting back from the period holding `now`.
+pub fn streak(entries: &OpValue, period: &OpValue, times: &OpValue, now: &OpValue) -> Result<OpValue, OpError> {
+    let Some(list) = entries.as_inner().as_array().cloned() else {
+        return if entries.is_null() { Ok(OpValue::from_i64(0)) } else { Err(invalid("streak", "needs a list of dates")) };
+    };
+    let period = period_of(period, "streak")?;
+    let Some((times, per_period)) = days_per_period(&list, period, times, "streak")? else {
+        return Ok(OpValue::from_i64(0));
+    };
+    let now = millis_of(&now.as_inner()).ok_or_else(|| invalid("streak", "needs now: an ISO time or milliseconds"))?;
     let met = |index: i64| per_period.get(&index).is_some_and(|count| *count as f64 >= times);
     let current = period_index(now.div_euclid(DAY_MS), period);
     let anchor = if met(current) { current } else { current - 1 };
@@ -140,6 +163,64 @@ pub fn streak(entries: &OpValue, period: &OpValue, times: &OpValue, now: &OpValu
         index -= 1;
     }
     Ok(OpValue::from_i64(run))
+}
+
+/// The longest run of consecutive periods that met the target, anywhere in the entries.
+pub fn longest_streak(entries: &OpValue, period: &OpValue, times: &OpValue) -> Result<OpValue, OpError> {
+    let Some(list) = entries.as_inner().as_array().cloned() else {
+        return if entries.is_null() { Ok(OpValue::from_i64(0)) } else { Err(invalid("longest_streak", "needs a list of dates")) };
+    };
+    let period = period_of(period, "longest_streak")?;
+    let Some((times, per_period)) = days_per_period(&list, period, times, "longest_streak")? else {
+        return Ok(OpValue::from_i64(0));
+    };
+    let mut met: Vec<i64> = per_period.into_iter().filter(|(_, count)| *count as f64 >= times).map(|(index, _)| index).collect();
+    met.sort_unstable();
+    let (mut best, mut run) = (0, 0);
+    for (place, index) in met.iter().enumerate() {
+        run = if place > 0 && *index == met[place - 1] + 1 { run + 1 } else { 1 };
+        best = best.max(run);
+    }
+    Ok(OpValue::from_i64(best))
+}
+
+fn numbers_in(values: &OpValue, operation: &str) -> Result<Option<Vec<f64>>, OpError> {
+    let Some(items) = values.as_inner().as_array().cloned() else {
+        return if values.is_null() { Ok(None) } else { Err(invalid(operation, "needs a list of numbers")) };
+    };
+    let numbers: Vec<f64> = items.iter().filter_map(number_of).collect();
+    Ok(if numbers.is_empty() { None } else { Some(numbers) })
+}
+
+fn population_variance(numbers: &[f64]) -> f64 {
+    let mean = numbers.iter().sum::<f64>() / numbers.len() as f64;
+    numbers.iter().map(|n| (n - mean) * (n - mean)).sum::<f64>() / numbers.len() as f64
+}
+
+/// The population variance of the numbers in `values`; null when there are none.
+pub fn variance(values: &OpValue) -> Result<OpValue, OpError> {
+    Ok(numbers_in(values, "variance")?.map_or_else(OpValue::null, |numbers| OpValue::number(population_variance(&numbers))))
+}
+
+/// The population standard deviation of the numbers in `values`; null when there are none.
+pub fn standard_deviation(values: &OpValue) -> Result<OpValue, OpError> {
+    Ok(numbers_in(values, "standard_deviation")?.map_or_else(OpValue::null, |numbers| OpValue::number(population_variance(&numbers).sqrt())))
+}
+
+/// One count per bin `[edges[i], edges[i + 1])`: how many of the numbers in `values` fall in it (the first bin that holds a number counts it).
+pub fn histogram(values: &OpValue, edges: &OpValue) -> Result<OpValue, OpError> {
+    let Some(edge_list) = edges.as_inner().as_array().cloned() else {
+        return Err(invalid("histogram", "needs edges: a list of numbers"));
+    };
+    let edge_numbers: Vec<f64> = edge_list.iter().map(number_of).collect::<Option<_>>().ok_or_else(|| invalid("histogram", "edges must all be numbers"))?;
+    let numbers = numbers_in(values, "histogram")?.unwrap_or_default();
+    let mut counts = vec![0_i64; edge_numbers.len().saturating_sub(1)];
+    for number in numbers {
+        if let Some(bin) = edge_numbers.windows(2).position(|pair| number >= pair[0] && number < pair[1]) {
+            counts[bin] += 1;
+        }
+    }
+    Ok(OpValue::from(JsonValue::Array(counts.into_iter().map(JsonValue::from).collect())))
 }
 
 #[cfg(test)]
@@ -231,5 +312,59 @@ mod tests {
         assert!(streak(&v(json!(["2026-11-13"])), &v(json!("day")), &v(json!(1)), &v(json!(null))).is_err());
         assert_eq!(streak_of(json!(["2026-11-13"]), "day", 0, "2026-11-13"), 0);
         assert_eq!(streak(&v(json!(null)), &v(json!("day")), &v(json!(1)), &v(json!("2026-11-13"))).unwrap().as_inner().as_i64(), Some(0));
+    }
+
+    #[test]
+    fn the_longest_streak_is_the_longest_run_anywhere_in_the_entries() {
+        let longest = |entries: JsonValue, period: &str, times: i64| longest_streak(&v(entries), &v(json!(period)), &v(json!(times))).unwrap().as_inner().as_i64().unwrap();
+        // Runs of 3 and 2 days, with a gap; the older run is the longer one.
+        let log = json!(["2026-11-01", "2026-11-02T09:00:00Z", "2026-11-03", "2026-11-10", "2026-11-11", "2026-11-11T20:00:00Z"]);
+        assert_eq!(longest(log.clone(), "day", 1), 3);
+        assert_eq!(longest(log.clone(), "day", 2), 0);
+        assert_eq!(longest(json!(["2026-11-13"]), "day", 1), 1);
+        assert_eq!(longest(json!([]), "day", 1), 0);
+        // Milliseconds are entries too (a habit log of day starts).
+        assert_eq!(longest(json!([1_767_225_600_000i64, 1_767_312_000_000i64, 1_767_571_200_000i64]), "day", 1), 2);
+        // Weeks of 11-02 (two days), 11-09 (two days), 11-16 (one day), then a missed week and 11-30 (two days).
+        let weeks = json!(["2026-11-02", "2026-11-04", "2026-11-09", "2026-11-11", "2026-11-16", "2026-11-30", "2026-12-01"]);
+        assert_eq!(longest(weeks.clone(), "week", 2), 2);
+        assert_eq!(longest(weeks, "week", 1), 3);
+        assert_eq!(longest(json!(["2026-11-03", "2026-12-20", "2027-01-02"]), "month", 1), 3);
+        assert_eq!(longest(json!(["2026-11-03", "2027-01-02"]), "month", 1), 1);
+        assert_eq!(longest(json!(["2026-11-03", "2026-12-20", "2027-01-02", "2027-02-01"]), "month", 1), 4);
+        assert_eq!(longest(json!(["2026-11-13"]), "day", 0), 0);
+        assert!(longest_streak(&v(json!(["2026-11-13"])), &v(json!("year")), &v(json!(1))).is_err());
+        assert!(longest_streak(&v(json!(3)), &v(json!("day")), &v(json!(1))).is_err());
+        assert_eq!(longest_streak(&v(json!(null)), &v(json!("day")), &v(json!(1))).unwrap().as_inner().as_i64(), Some(0));
+    }
+
+    #[test]
+    fn variance_and_standard_deviation_are_the_population_ones() {
+        let numbers = json!([2, 4, 4, 4, 5, 5, 7, 9]);
+        assert_eq!(variance(&v(numbers.clone())).unwrap().as_inner().as_f64(), Some(4.0));
+        assert_eq!(standard_deviation(&v(numbers)).unwrap().as_inner().as_f64(), Some(2.0));
+        // Text that is a number counts; anything else is skipped.
+        assert_eq!(variance(&v(json!([1, "3", null, "x"]))).unwrap().as_inner().as_f64(), Some(1.0));
+        assert_eq!(variance(&v(json!([6]))).unwrap().as_inner().as_f64(), Some(0.0));
+        assert!(variance(&v(json!([]))).unwrap().is_null());
+        assert!(standard_deviation(&v(json!(["a"]))).unwrap().is_null());
+        assert!(variance(&v(json!(null))).unwrap().is_null());
+        assert!(variance(&v(json!(3))).is_err());
+        assert!(standard_deviation(&v(json!({}))).is_err());
+    }
+
+    #[test]
+    fn a_histogram_counts_each_number_in_the_first_bin_that_holds_it() {
+        let counts = |numbers: JsonValue, edges: JsonValue| histogram(&v(numbers), &v(edges)).unwrap().as_inner();
+        assert_eq!(counts(json!([0, 1, 5, 9, 10, 11, -1, "4", "x", null]), json!([0, 5, 10])), json!([3, 2]));
+        // An edge belongs to the bin it starts; the last edge is outside every bin.
+        assert_eq!(counts(json!([5, 10]), json!([0, 5, 10])), json!([0, 1]));
+        assert_eq!(counts(json!([]), json!([0, 5, 10])), json!([0, 0]));
+        assert_eq!(counts(json!(null), json!([0, 5])), json!([0]));
+        assert_eq!(counts(json!([1, 2]), json!([])), json!([]));
+        assert_eq!(counts(json!([1, 2]), json!([3])), json!([]));
+        assert!(histogram(&v(json!([1])), &v(json!(null))).is_err());
+        assert!(histogram(&v(json!([1])), &v(json!([0, "a"]))).is_err());
+        assert!(histogram(&v(json!(7)), &v(json!([0, 5]))).is_err());
     }
 }

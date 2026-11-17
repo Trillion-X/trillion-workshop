@@ -52,7 +52,7 @@ A definition is `{ id, op, inputs: [{ match?, field? }], params?, window?, emit?
 |----|--------|-------|
 | `count`, `sum`, `distinct` | | the number of records, the sum of the field, the number of distinct field values |
 | `ratio` | `mode: "sum"` (else counts) | `inputs[0]` over `inputs[1]`; 0 with confidence 0 when the second is empty |
-| `bin` | `edges` | `{ counts }` per `[edge, next edge)` |
+| `bin` | `edges` | `{ counts }` per `[edge, next edge)`, counted by the list engine's `histogram` measure |
 | `band` | `bands: [{ min?, max?, payload? }]` | the payload (or index) of the band holding the latest value |
 | `rank` | `ascending` | record ids by the field, largest first |
 | `latest` | `sortBy` (path, required) | the field of the record with the highest sort key |

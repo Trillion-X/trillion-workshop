@@ -16,7 +16,7 @@
 //   4. Rows are read through the owner (any store the list lives in) and a view the same way the app reads it, so what is
 //      counted is what the person sees.
 //   5. A measure's own settings (the share of a quantile, the period of a streak) are `params` the aggregate row declares
-//      (kind number, text, choice, map, field or now) and its transform names with { "$param": name }; this file fills them
+//      (kind number, numbers, text, choice, map, field or now) and its transform names with { "$param": name }; this file fills them
 //      in and checks their kind, it never names a measure. A row that says `pairs: <param>` hands the engine each value
 //      with the value of the field that param names ({ value, <param> }, the row's place when none), which is how
 //      "the latest" is a sort and a last element and nothing more.
@@ -41,6 +41,7 @@ const answered = value => (typeof value === 'string' && /^-?\d+(\.\d+)?$/.test(v
 const PARAM_KINDS = {
   number: value => typeof value === 'number' && Number.isFinite(value),
   text: value => typeof value === 'string' && value !== '',
+  numbers: value => Array.isArray(value) && value.every(item => typeof item === 'number' && Number.isFinite(item)),
   map: value => isObject(value) && Object.values(value).every(item => typeof item === 'number' && Number.isFinite(item)),
 };
 

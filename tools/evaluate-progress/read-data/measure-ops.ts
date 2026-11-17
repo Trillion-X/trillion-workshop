@@ -8,7 +8,7 @@ import { getPath } from './get-path.ts';
 import { bandPayloadOf, type Band } from './band-membership.ts';
 import { aggregateOf, measure } from 'trillion-workshop/tools/query-and-change-list-rows/src/list-aggregates.mjs';
 
-// The tallies below (sum, count, distinct, mean, min, max, quantile, the latest value of a band) are the list engine's measures (the aggregate rows of
+// The tallies below (sum, count, distinct, mean, variance, standard deviation, min, max, quantile, the histogram's bin counts, the latest value of a band) are the list engine's measures (the aggregate rows of
 // lists.json, run by the formula engine), asked through `measured`; none is worked out here.
 function measured(values: readonly unknown[], id: string, params?: Record<string, unknown>): number | null {
   const answer = measure([...values], aggregateOf(id), params);
@@ -62,15 +62,7 @@ const ratioOp: MeasureOp = (inputs, params) => {
 
 const binOp: MeasureOp = (inputs, params) => {
   const edges = Array.isArray(params.edges) ? (params.edges as number[]) : [];
-  const counts = new Array(Math.max(0, edges.length - 1)).fill(0);
-  for (const v of numbersOf(inputs[0])) {
-    for (let i = 0; i < edges.length - 1; i++) {
-      if (v >= edges[i] && v < edges[i + 1]) {
-        counts[i]++;
-        break;
-      }
-    }
-  }
+  const counts = measure(numbersOf(inputs[0]), aggregateOf("histogram"), { edges });
   return { value: { counts }, basis: basisOf(inputs) };
 };
 
@@ -189,6 +181,7 @@ const rollupOp: MeasureOp = (inputs, params) => {
 };
 
 type FormulaReduce = "count" | "sum" | "mean" | "variance" | "stdev" | "min" | "max";
+const FORMULA_MEASURES: Record<string, string | undefined> = { mean: "average", variance: "variance", stdev: "stdev", min: "min", max: "max" };
 type FormulaNode =
   | { const: number }
   | { input: number; reduce?: FormulaReduce }
@@ -199,12 +192,9 @@ function reduceNumbers(nums: readonly number[], reduce: FormulaReduce | undefine
   if (reduce === "sum") return totalOf(nums);
   if (!reduce || reduce === "count") return countOf(nums);
   if (nums.length === 0) return NaN;
-  if (reduce === "min" || reduce === "max") return measured(nums, reduce) ?? NaN;
-  const mean = measured(nums, "average") ?? NaN;
-  if (reduce === "mean") return mean;
-  // The formula engine has no variance or standard-deviation operator: the squared distances from the mean are made here, their average is the engine's.
-  const variance = measured(nums.map((n) => (n - mean) * (n - mean)), "average") ?? NaN;
-  return reduce === "stdev" ? Math.sqrt(variance) : variance;
+  // The reducers of the formula are the engine's measures (the mean is the engine's average); a name that is none answers NaN.
+  const measureId = FORMULA_MEASURES[reduce];
+  return measureId ? (measured(nums, measureId) ?? NaN) : NaN;
 }
 
 function firstRawKey(input: SelectedInput | undefined): string | null {

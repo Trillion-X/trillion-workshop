@@ -6,7 +6,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { currentStreak } from '../read-data/board-habit.ts';
+import { currentStreak, longestStreak } from '../read-data/board-habit.ts';
 import { adherenceRate, completionsInPeriod, periodStartOf, prevPeriodStart } from '../read-data/board-habit-cadence.ts';
 import { OPS } from '../read-data/progression.mjs';
 import { measureOps } from '../read-data/measure-ops.ts';
@@ -92,6 +92,37 @@ test('sum, distinct, ratio, quantile and the formula reducers are the engine mea
   }
 });
 
+const retiredLongestStreak = log => {
+  if (log.length === 0) return 0;
+  let best = 1;
+  let run = 1;
+  for (let i = 1; i < log.length; i += 1) {
+    run = log[i] === log[i - 1] + DAY ? run + 1 : 1;
+    if (run > best) best = run;
+  }
+  return best;
+};
+const retiredBin = (values, edges) => {
+  const counts = new Array(Math.max(0, edges.length - 1)).fill(0);
+  for (const v of values) for (let i = 0; i < edges.length - 1; i++) if (v >= edges[i] && v < edges[i + 1]) { counts[i]++; break; }
+  return counts;
+};
+
+test('the longest streak is the list engine longest_streak, equal to the arithmetic it replaced', () => {
+  for (const { log } of logsAndClocks()) assert.equal(longestStreak(log), retiredLongestStreak(log));
+  assert.equal(longestStreak([]), 0);
+});
+
+test('bin counts are the engine histogram, equal to the arithmetic they replaced', () => {
+  const random = seeded(11);
+  for (let n = 0; n < 40; n += 1) {
+    const values = Array.from({ length: Math.floor(random() * 30) }, () => Math.floor(random() * 120) - 10);
+    for (const edges of [[0, 25, 50, 100], [0, 10], [5], [], [0, 50, 100]]) {
+      assert.deepEqual(measureOps.bin([input(values)], { edges }).value, { counts: retiredBin(values, edges) });
+    }
+  }
+});
+
 test('rollup sums, counts and averages each group through the engine', () => {
   const facts = [{ id: 'a', g: 'x', n: 2 }, { id: 'b', g: 'x', n: 4 }, { id: 'c', g: 'y', n: 'q' }, { id: 'd', g: 'y', n: 3 }];
   const rolled = reduce => measureOps.rollup([{ facts, selector: { match: {}, field: ['n'] } }], { groupBy: ['g'], reduce }).value.groups;
@@ -104,7 +135,8 @@ test('the files hold none of the arithmetic the engine does', () => {
   for (const name of ['board-habit.ts', 'board-habit-cadence.ts', 'progression.mjs', 'measure-ops.ts']) {
     assert.match(read(name), /from 'trillion-workshop\/tools\/query-and-change-list-rows\/src\/list-aggregates\.mjs'/, name);
   }
-  assert.doesNotMatch(read('board-habit.ts'), /for \(let d = anchor/);
+  assert.doesNotMatch(read('board-habit.ts'), /for \(let d = anchor|run = log\[i\]/);
+  assert.doesNotMatch(read('measure-ops.ts'), /counts\[i\]\+\+|\(n - mean\)/);
   assert.doesNotMatch(read('board-habit-cadence.ts'), /n \+= 1|met \+= 1/);
   assert.doesNotMatch(read('progression.mjs'), /input\.facts\.length \* /);
   assert.doesNotMatch(read('measure-ops.ts'), /nums\.reduce|numbersOf\([^)]*\)\.reduce|Math\.min\(\.\.\.nums\)|Math\.max\(\.\.\.nums\)|new Set<unknown>/);

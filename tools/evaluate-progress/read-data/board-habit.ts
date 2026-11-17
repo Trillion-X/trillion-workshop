@@ -66,14 +66,7 @@ export function currentStreak(log: HabitLog, now: number): number {
 
 /** The LONGEST streak ever — the largest run of consecutive completed days. */
 export function longestStreak(log: HabitLog): number {
-  if (log.length === 0) return 0;
-  let best = 1;
-  let run = 1;
-  for (let i = 1; i < log.length; i += 1) {
-    run = log[i] === log[i - 1] + DAY_MS ? run + 1 : 1;
-    if (run > best) best = run;
-  }
-  return best;
+  return Number(measure(log, aggregateOf('longest_streak'), { period: 'day', times: 1 }) ?? 0);
 }
 
 /** Completion rate over the last `windowDays` ending today (0..1): completed days in the window / window. */
