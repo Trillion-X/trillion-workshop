@@ -3,7 +3,7 @@
 //   BETTER_AUTH_SETTINGS=<settings.json> BETTER_AUTH_SECRET=... <settings.store.env>=<connection> node migrate-sqlite-to-postgres.mjs <better-auth.db>
 //
 // It makes or updates Better Auth's tables for the options this tool runs (store.mjs), then copies every table the file holds, in
-// foreign-key order, in one transaction: each column of the file goes to the same-named column, converted to the column's type (the
+// foreign-key order, in one transaction: each column of the file the store has goes to the same-named column, converted to the column's type (the
 // file keeps booleans as 0 and 1, dates as ISO text and JSON as text). Before the transaction commits it reads every row back and
 // refuses unless the row counts match and every value equals its source (text exactly, so the jwks keys are byte-identical; dates by
 // their instant; JSON by its parsed value). It refuses outright when the store already holds a user, so a store in use is never
@@ -60,15 +60,17 @@ const same = (stored, wanted, type) => (type === 'timestamp with time zone' ? st
 
 const client = await pool.connect();
 const report = [];
+const left = [];
 try {
   await client.query('begin');
   // A fresh store may hold rows the server seeded (the MCP resource); they go so the file's rows are the only rows.
   for (const table of [...ordered].reverse()) await client.query(`delete from ${quote(table)}`);
   for (const table of ordered) {
-    const columns = source.prepare(`pragma table_info(${quote(table)})`).all().map(column => column.name);
-    const unknown = columns.filter(column => !types.get(table).has(column));
-    if (unknown.length) throw new Error(`${table}: the store has no column ${unknown.join(', ')}`);
+    const held = source.prepare(`pragma table_info(${quote(table)})`).all().map(column => column.name);
+    const columns = held.filter(column => types.get(table).has(column));
     const rows = source.prepare(`select * from ${quote(table)}`).all();
+    // A column the tool has since dropped (the file is older) is not copied; its name and how many rows held a value are reported.
+    for (const column of held.filter(column => !columns.includes(column))) left.push(`${table}.${column} (${rows.filter(row => row[column] !== null).length} of ${rows.length} rows held a value)`);
     const insert = `insert into ${quote(table)} (${columns.map(quote).join(', ')}) values (${columns.map((_, i) => `$${i + 1}`).join(', ')})`;
     const wanted = rows.map(row => columns.map(column => toColumn(row[column], types.get(table).get(column), `${table}.${column}`)));
     for (const values of wanted) await client.query(insert, values);
@@ -93,3 +95,4 @@ try {
   await pool.end();
 }
 console.log(`copied and read back identical: ${report.join(', ')}`);
+if (left.length) console.log(`columns of the file the store no longer has, not copied: ${left.join(', ')}`);

@@ -27,6 +27,9 @@ for (const [table, tableRows] of Object.entries(rows)) {
     old.prepare(`insert into "${table}" (${columns.map(c => `"${c}"`).join(', ')}) values (${columns.map(() => '?').join(', ')})`).run(...columns.map(c => row[c]));
   }
 }
+// A column the tool has since dropped (user.trillionAccount, from before 9ba6a593f) is still in an older file.
+old.exec('alter table "user" add column "trillionAccount" text');
+old.prepare('update "user" set "trillionAccount" = ?').run('an-old-value-never-printed');
 old.close();
 
 const store = await startStore();
@@ -42,6 +45,8 @@ const migrate = () => spawnSync(process.execPath, [join(tool, 'migrate-sqlite-to
 test('every table keeps its rows and ids, jwks keys byte for byte, and booleans, dates and JSON arrive as the store\'s types', async () => {
   const done = migrate();
   assert.equal(done.status, 0, done.stderr);
+  assert.match(done.stdout, /user\.trillionAccount \(1 of 1 rows held a value\)/);
+  assert.doesNotMatch(done.stdout + done.stderr, /an-old-value-never-printed/);
   for (const [table, tableRows] of Object.entries(rows)) {
     const stored = (await sql.query(`select * from "${table}" order by id`)).rows;
     assert.deepEqual(stored.map(row => row.id), tableRows.map(row => row.id).sort(), `${table} ids`);
