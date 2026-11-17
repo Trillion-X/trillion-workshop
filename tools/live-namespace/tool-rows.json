@@ -1,7 +1,7 @@
 {
   "kind": "package-set-records",
   "record_set": "live-namespace-tool-rows",
-  "what_this_is": "The Workshop rows for the person's files in tools/live-namespace: tool:your-files, the session the engine keeps open and reaches by calls through its one door, and tool:count-or-copy-your-file-rows, one run over the person's own database.",
+  "what_this_is": "The Workshop row for the person's files in tools/live-namespace: tool:your-files, the session the engine keeps open and reaches by calls through its one door.",
   "records": [
     {
       "payload": {
@@ -74,96 +74,6 @@
               "secret_name": "files-store-region",
               "fd": 7
             },
-            {
-              "secret_name": "own-rows-postgres-connection",
-              "fd": 8
-            }
-          ]
-        },
-        "maker": "maker:live-namespace",
-        "licence_class": "licence:maker-own",
-        "placements": [
-          "placement:your-computer"
-        ],
-        "provenance": {
-          "source": "Trillion-X/trillion-rust src/account_files at 5fbc2ff4b1 (moved into tools/live-namespace), over its own rows in SQL (src/store)"
-        }
-      }
-    },
-    {
-      "payload": {
-        "kind": "ai-tool-descriptor",
-        "id": "tool:count-or-copy-your-file-rows",
-        "label": "Count or copy the rows of your files",
-        "job": "Count the rows of each table of the person's files index, or copy an archive's index tables into the person's own database",
-        "description": "Runs tools/live-namespace once over the person's own Postgres database (own-rows-postgres-connection on descriptor 8, reached on the loopback port the computer reports as own-rows-postgres). Mode `counts` answers each names-index table and how many rows it holds, and only reads. Mode `copy-archive` copies the ns_* tables of the SQLite archive at `from` (a path on this computer, opened read-only) into the database and answers each table's rows. Neither reaches the byte store.",
-        "status": "active",
-        "input_schema": {
-          "type": "object",
-          "required": [
-            "mode"
-          ],
-          "additionalProperties": false,
-          "properties": {
-            "mode": {
-              "type": "string",
-              "enum": [
-                "counts",
-                "copy-archive"
-              ],
-              "description": "counts: rows per table, only reads. copy-archive: copy the archive at `from` in."
-            },
-            "from": {
-              "type": "string",
-              "description": "copy-archive only: the absolute path of the archive SQLite file on this computer."
-            }
-          }
-        },
-        "output_schema": {
-          "type": "object",
-          "description": "One line per table on stdout: the table and its rows."
-        },
-        "invoke": {
-          "kind": "container",
-          "programs": {
-            "live-namespace": {
-              "search": "live-namespace"
-            }
-          },
-          "argv": [
-            "live-namespace",
-            {
-              "fill": {
-                "from": "input",
-                "field": "mode"
-              }
-            },
-            {
-              "$when": "from",
-              "value": "--from"
-            },
-            {
-              "$when": "from",
-              "value": {
-                "fill": {
-                  "from": "input",
-                  "field": "from"
-                }
-              }
-            },
-            "--state",
-            {
-              "fill": {
-                "from": "task",
-                "field": "kept_folder"
-              }
-            }
-          ],
-          "kept_folder": true,
-          "local_doors": [
-            "own-rows-postgres"
-          ],
-          "credential_mounts": [
             {
               "secret_name": "own-rows-postgres-connection",
               "fd": 8

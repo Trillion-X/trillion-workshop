@@ -24,8 +24,6 @@
 // Key Concepts:
 // - A scope is the string a family of rows is kept under (`@namespace/files`, `@namespace/names/<folder>`). `tables.json` says which
 //   table a scope is in; a scope no table claims is in `ns_record`, one JSON value a row.
-// - The tables mirror the archive tables of the same names column for column, so the rows of an existing account copy in with one
-//   INSERT ... SELECT per table (README.md).
 // - The change order is the store's own record order: `order` is the last number given, `changes` reads the rows and tombstones of some
 //   scopes changed after a number in that order, and `wait_for_order` holds a caller until a change after a number commits or its time
 //   ends. A commit in this process wakes the waiters at once; on Postgres a commit in any process does too (`NOTIFY`, heard by the
@@ -38,7 +36,6 @@
 // The extensive documentation in this codebase is a critical design feature.
 // You are forbidden from simplifying or removing it. Maintain and extend this detail.
 
-mod copy;
 pub mod link;
 
 use link::{Cell, Dialect, Link};
@@ -419,41 +416,6 @@ impl SqlStore {
             }
         }
         self.link.lock().map_err(unavailable)?.batch(&sql)
-    }
-
-    /// Rows a copy brought in from the archive take their place in the change order: each row of a table with a minted column that has
-    /// none gets the next numbers, in (scope, id) order, as its minted id and its `changed`, in one statement a table; then the order
-    /// starts past every row's own number.
-    fn settle(link: &mut Link) -> Result<(), Error> {
-        for table in &declared().tables {
-            let Some(minted) = &table.minted else { continue };
-            let base = Self::order_past_rows(link)?;
-            link.execute(
-                &format!(
-                    "UPDATE {t} SET \"{minted}\" = numbered.n, changed = numbered.n FROM \
-                     (SELECT scope AS s, id AS i, ? + ROW_NUMBER() OVER (ORDER BY scope, id) AS n FROM {t} WHERE \"{minted}\" IS NULL) AS numbered \
-                     WHERE {t}.scope = numbered.s AND {t}.id = numbered.i",
-                    t = table.table
-                ),
-                &[Cell::int(base)],
-            )?;
-        }
-        Self::order_past_rows(link).map(|_| ())
-    }
-
-    /// Start the change order past every row's own number, and answer the order then. One indexed read a table.
-    fn order_past_rows(link: &mut Link) -> Result<i64, Error> {
-        let mut highest = 0;
-        let tables = declared().tables.iter().map(|table| table.table.as_str()).chain([declared().generic.as_str(), "ns_gone"]);
-        for table in tables {
-            let rows = link.query(&format!("SELECT CAST(MAX(changed) AS BIGINT) FROM {table}"), &[])?;
-            highest = highest.max(rows.first().and_then(|cells| cells[0].as_int()).unwrap_or(0));
-        }
-        let order = link.query("SELECT last FROM ns_order WHERE one = 1", &[])?.first().and_then(|cells| cells[0].as_int()).unwrap_or(0);
-        if highest > order {
-            link.execute("INSERT INTO ns_order (one, last) VALUES (1, ?) ON CONFLICT (one) DO UPDATE SET last = ?", &[Cell::int(highest), Cell::int(highest)])?;
-        }
-        Ok(highest.max(order))
     }
 
     fn table_of(scope: &str) -> Option<&'static DeclaredTable> {
@@ -1130,66 +1092,5 @@ mod tests {
         let again = SqlStore::open(Link::sqlite(&path).unwrap()).unwrap();
         assert_eq!(again.get("@namespace/chunks", "c").unwrap().record.unwrap().value, chunk(1, "b2"));
         assert_eq!(again.place(), path.display().to_string());
-    }
-
-    /// The archive's six tables, as the account owner's database has them (untyped columns, `extra` last), with a few rows of each.
-    const ARCHIVE: &str = "
-        CREATE TABLE archive.ns_name(id text, \"byte_length\", \"file\", \"identity\", \"kind\", \"modified_at_ms\", \"name\", \"named_at\", extra text);
-        CREATE TABLE archive.ns_folder(id text, \"folder\", \"kind\", extra text);
-        CREATE TABLE archive.ns_file(id text, \"aliases\", \"byte_length\", \"checked_at\", \"key\", \"kind\", \"media_type\", \"names\", \"origin\", \"spans\", \"stored_at\", \"part_bytes\", \"prefix_identity\", \"span_layout\", \"span_set\", extra text);
-        CREATE TABLE archive.ns_chunk(id text, \"byte_length\", \"key\", \"kind\", \"origin\", \"stored_at\", extra text);
-        CREATE TABLE archive.ns_alias(id text, \"added_at\", \"grade\", \"identity\", \"kind\", extra text);
-        CREATE TABLE archive.ns_spans(id text, \"kind\", \"spans\", extra text);
-        INSERT INTO archive.ns_name VALUES ('/AI chat exports/a.zip', 3200166477, '1f:aa', '1f:aa', 'namespace-name', 1791886316769, '/AI chat exports/a.zip', '2026-11-04T07:30:22.398Z', '');
-        INSERT INTO archive.ns_name VALUES ('/top.txt', 5, '1f:bb', '1f:bb', 'namespace-name', NULL, '/top.txt', '2026-11-04T07:30:22.398Z', '');
-        INSERT INTO archive.ns_name VALUES ('/Recently deleted/gone.txt', 7, '1f:cc', '1f:cc', 'namespace-set-aside', NULL, '/Recently deleted/gone.txt', '2026-11-04T07:30:22.398Z', '{\"set_aside_at\":\"2026-11-05\"}');
-        INSERT INTO archive.ns_folder VALUES ('/AI chat exports', '/AI chat exports', 'namespace-folder', '');
-        INSERT INTO archive.ns_folder VALUES ('/AI chat exports/2026', '/AI chat exports/2026', 'namespace-folder', '');
-        INSERT INTO archive.ns_file VALUES ('1f:aa', '[]', 3200166477, '2026-11-04T07:29:46.856Z', '', 'namespace-file', 'application/zip', '[\"/AI chat exports/a.zip\"]', 'backblaze-b2', 2, '2026-11-04T07:29:46.856Z', 0, NULL, NULL, NULL, '');
-        INSERT INTO archive.ns_file VALUES ('1f:bb', '[]', '5', '2026-11-04T07:29:46.856Z', 'people/p/files/1f:bb', 'namespace-file', 'text/plain', '[\"/top.txt\"]', 'backblaze-b2', '0', '2026-11-04T07:29:46.856Z', '0', NULL, NULL, NULL, NULL);
-        INSERT INTO archive.ns_chunk VALUES ('1f:c1', 11284, 'people/p/chunks/1f:c1', 'namespace-chunk', 'backblaze-b2', '2026-10-21T00:24:47.031Z', '');
-        INSERT INTO archive.ns_alias VALUES ('12:dd', '2026-09-27T20:00:22.176Z', 'checked', '1f:aa', 'namespace-alias', '');
-        INSERT INTO archive.ns_spans VALUES ('1f:aa', 'namespace-spans', '[{\"chunk\":\"1f:c1\",\"length\":11284,\"offset\":0}]', '');
-    ";
-
-    #[test]
-    fn the_archive_tables_copy_in_with_one_insert_select_each_and_read_back_as_the_files_expect() {
-        let folder = tempfile::tempdir().unwrap();
-        let path = folder.path().join("archive.sqlite");
-        Link::sqlite(&path).unwrap().batch(&ARCHIVE.replace("archive.", "")).unwrap();
-        let store = under_test();
-        let mut progress = Vec::new();
-        let counts = store.copy_from_archive(&mut Link::archive(&path).unwrap(), &mut |table, rows| progress.push((table.to_owned(), rows))).unwrap();
-        assert_eq!(counts.iter().map(|(table, rows)| (table.as_str(), *rows)).collect::<Vec<_>>(), [("ns_chunk", 1), ("ns_alias", 1), ("ns_spans", 1), ("ns_file", 2), ("ns_name", 3), ("ns_folder", 2)]);
-        assert_eq!(progress.len(), 6);
-        assert_eq!(store.table_counts().unwrap(), counts, "the readback equals what the copy counted");
-        assert_eq!(store.copy_from_archive(&mut Link::archive(&path).unwrap(), &mut |_, _| {}).unwrap().len(), 6, "a copy run again changes nothing");
-        let names = store.list_page("@namespace/names/AI chat exports", "", 10).unwrap();
-        assert_eq!(names.items.len(), 1);
-        assert_eq!(names.items[0].value, json!({"kind": "namespace-name", "name": "/AI chat exports/a.zip", "file": "1f:aa", "identity": "1f:aa",
-            "byte_length": 3200166477i64, "modified_at_ms": 1791886316769i64, "named_at": "2026-11-04T07:30:22.398Z", "item": 2}));
-        assert_eq!(store.list_page("@namespace/names/", "", 10).unwrap().items[0].id, "/top.txt", "a top-level name is in the root folder's scope");
-        let aside = store.list_page("@namespace/set-aside/names/Recently deleted", "", 10).unwrap();
-        assert_eq!(aside.items[0].value["set_aside_at"], "2026-11-05", "an archive extra is the record's other fields");
-        assert_eq!(store.ids("@namespace/folders/", None, 10).unwrap().0, ["/AI chat exports"]);
-        assert_eq!(store.ids("@namespace/folders/AI chat exports", None, 10).unwrap().0, ["/AI chat exports/2026"]);
-        let file = store.get("@namespace/files", "1f:bb").unwrap().record.unwrap();
-        assert_eq!(file.value["byte_length"], 5);
-        assert_eq!(file.value["spans"], 0, "a count the archive kept as text is a number");
-        assert_eq!(file.value["names"], json!(["/top.txt"]));
-        assert_eq!(file.version, 1);
-        assert_eq!(store.get("@namespace/spans", "1f:aa").unwrap().record.unwrap().value["spans"][0]["chunk"], "1f:c1");
-        assert_eq!(store.get("@namespace/aliases", "12:dd").unwrap().record.unwrap().value["grade"], "checked");
-        let totals = store.totals().unwrap();
-        assert!(totals.iter().any(|row| row.total == "namespace-file/origin" && row.group.as_deref() == Some("backblaze-b2") && row.count == 2 && row.sum == 3200166482));
-        assert!(totals.iter().any(|row| row.total == "namespace-name/all" && row.count == 2));
-        // Every name and folder has its own item, in (scope, id) order, the store's order is past them all, and a new row takes the next.
-        assert_eq!(store.get("@namespace/names/", "/top.txt").unwrap().record.unwrap().value["item"], 1);
-        let folder = store.get("@namespace/folders/", "/AI chat exports").unwrap().record.unwrap();
-        assert_eq!((folder.value["item"].clone(), folder.changed), (json!(4), 4), "folders are numbered after the three names");
-        assert_eq!(store.order().unwrap(), 5);
-        // The copied rows are changed like any other, at the version the copy gave them.
-        let next = put(&store, "@namespace/chunks", "1f:c1", 1, "next", chunk(11284, "backblaze-b2")).unwrap();
-        assert_eq!((next.version, next.changed), (2, 6));
     }
 }

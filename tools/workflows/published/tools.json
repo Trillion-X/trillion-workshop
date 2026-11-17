@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:2186bfde3537786bcf541e5963b61d98c527ca2ed91e3d9c1c660b3ecee91e59"
+  "blake3": "1f:88d032cca837f59a94f0e8ef68874b80bec6d810deb841b0b7e1cfbb020c30a7"
  },
  "fields": [
   {
@@ -2892,21 +2892,6 @@
    }
   },
   {
-   "id": "tool:count-or-copy-your-file-rows",
-   "values": {
-    "title": "Count or copy the rows of your files",
-    "job": "Count the rows of each table of the person's files index, or copy an archive's index tables into the person's own database",
-    "description": "Runs tools/live-namespace once over the person's own Postgres database (own-rows-postgres-connection on descriptor 8, reached on the loopback port the computer reports as own-rows-postgres). Mode `counts` answers each names-index table and how many rows it holds, and only reads. Mode `copy-archive` copies the ns_* tables of the SQLite archive at `from` (a path on this computer, opened read-only) into the database and answers each table's rows. Neither reaches the byte store.",
-    "status": "active",
-    "maker": "maker:live-namespace",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "live-namespace"
-   }
-  },
-  {
    "id": "tool:count-real-rulings",
    "values": {
     "title": "Count the real bad rulings on lines",
@@ -4873,21 +4858,6 @@
      "placement:small-container"
     ],
     "folder": "paid-access"
-   }
-  },
-  {
-   "id": "tool:give-a-computer-a-new-release",
-   "values": {
-    "title": "Give a computer a new release",
-    "job": "Put a new engine release on a running computer and restart it",
-    "description": "Installs the request's engine release beside the old ones, points the computer at it, restarts the service and reads back the sign-up page. The old release stays on the machine, so going back is the same command with the old release_name.",
-    "status": "active",
-    "maker": "maker:start-a-computer",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "start-a-computer"
    }
   },
   {
@@ -9175,8 +9145,8 @@
    "id": "tool:read-a-computer",
    "values": {
     "title": "Read a computer",
-    "job": "See whether a computer's machine is running and its sign-up page answers",
-    "description": "Reads the saved lease, the machine's state at the provider and the sign-up page's HTTP status at the computer's public name.",
+    "job": "See whether a computer's machine is running and its health page answers",
+    "description": "Reads the saved lease, the machine's state at the provider and the health page's HTTP status at the computer's public name.",
     "status": "active",
     "maker": "maker:start-a-computer",
     "licence_class": "licence:maker-own",
@@ -13118,8 +13088,8 @@
    "id": "tool:start-a-computer",
    "values": {
     "title": "Start a computer",
-    "job": "Make a machine into a computer that keeps people's accounts: rent one or use one I already run, set it up, start the engine serving and read back its sign-up page",
-    "description": "Rents a machine from the provider description the request names (or adopts a Linux machine the person runs, at its address), points a public name at it through the name provider description, prepares it over SSH (a system user, Caddy with its own certificate, a firewall, a service), installs the engine release, writes the computer config with the machine's address and price, starts it, and answers the computer id, the machine's architecture, the monthly price and the sign-up page's HTTP status. Running it again resumes from the saved lease.",
+    "job": "Make a machine into a computer that runs what its own row says: rent one or use one I already run, set it up, build its programs from source there and read back its health page",
+    "description": "Rents a machine from the provider description the request names (or adopts a Linux machine the person runs, at its address), points a public name at it through the name provider description, and applies the computer's own row (record:computer, `runs`) over SSH: set-up (packages, toolchains, users, folders, keys), each unit with a `source` built from that commit on the machine itself from the caller's own checkout (no release, no feed, no copied program), the files the row renders, the restarts and each unit's boot check. Answers the lease, the machine's architecture, the monthly price, what the apply wrote, built and restarted, and the public health page's HTTP status. Running it again resumes from the saved lease.",
     "status": "active",
     "maker": "maker:start-a-computer",
     "licence_class": "licence:maker-own",

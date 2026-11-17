@@ -30,10 +30,8 @@ The credential is an attached descriptor like the byte store's, never an argumen
 reached only encrypted. The Postgres side shares every statement with the SQLite side: the store's tests run on it too, when
 `NAMESPACE_POSTGRES_TEST_CONNECTION` holds the connection string of a throwaway database (each test gets a schema of its own).
 
-The tables mirror the archive's `ns_name`, `ns_folder`, `ns_file`, `ns_chunk`, `ns_alias` and `ns_spans` column for column, with
-`scope`, `version` and two request columns added (`src/store/tables.json`). Copying the account owner's rows in is one
-`INSERT ... SELECT` a table (`src/store/copy-from-archive.sql`; the store's test runs that file over archive-shaped tables and reads
-the copy back). Other small rows (origins, shares, uploads, locks, release and recent lists, results, usage days) are kept in
+The tables are `ns_name`, `ns_folder`, `ns_file`, `ns_chunk`, `ns_alias` and `ns_spans`, each with its own columns and
+`scope`, `version` and two request columns added (`src/store/tables.json`). Other small rows (origins, shares, uploads, locks, release and recent lists, results, usage days) are kept in
 `ns_record`, one JSON value a row.
 
 The bytes live in the person's own S3-compatible store and are read by the asked range. That store is the person's `files-store`
@@ -71,17 +69,17 @@ shares).
 | `Cargo.lock` | The resolved versions of this program. |
 | `settings.json` | One run's settings: account name, where the rows are kept, key prefix, call time, attached connection fields. |
 | `mcp-tools.json` | Each MCP tool: name, description, input schema. |
-| `tool-rows.json` | The Workshop rows: `tool:your-files`, the session the engine keeps open and reaches by calls (`session.calls`, the computer's own `live-namespace` program, the credentials mounted by name, the local door `own-rows-postgres`), and `tool:count-or-copy-your-file-rows`, one run of `counts` or `copy-archive` over the database alone. |
-| `kits/your-files.json` | The kit those rows ship with. |
+| `tool-rows.json` | The Workshop row `tool:your-files`: the session the engine keeps open and reaches by calls (`session.calls`, the computer's own `live-namespace` program, the credentials mounted by name, the local door `own-rows-postgres`). |
+| `kits/your-files.json` | The kit that row ships with. |
 | `moved-from.json` | Each moved file's source path, commit and identities, and what was left behind. |
 | `part.json` | The files the app imports from this folder. |
 | `do-work/blake3.mjs`, `do-work/content-chunks-browser.mjs`, `do-work/send-a-file-to-namespace-browser.mjs` | The chunked sender the browser and folder uploaders share (moved from trillion-apps). |
-| `src/main.rs` | The program: modes `mcp`, `account-files-bind`, `counts` (how many rows each names-index table holds, only reads), `copy-archive --from FILE` (copies an archive's ns_* tables, read-only, into the rows). |
+| `src/main.rs` | The program: modes `mcp`, `account-files-bind`. |
 | `src/serve/mod.rs` | One run: reads the attached connections, opens the rows, makes the files on a first run, `Namespace::call`. |
 | `src/serve/mcp.rs` | MCP over stdio, each tool call on its own thread. |
 | `src/serve/settings.rs` | Reads and checks `settings.json`. |
 | `src/lib.rs` | The library. |
-| `src/store/` | The rows (see its README): `Rows`, `SqlStore`, `Link`, `tables.json`, `copy-from-archive.sql`, `copy.rs`. |
+| `src/store/` | The rows (see its README): `Rows`, `SqlStore`, `Link`, `tables.json`. |
 | `src/account_files/` | The account files, moved from trillion-rust `src/account_files` (see its README). |
 | `src/cause_book/` | The engine's refusal causes, which every error here carries. |
 | `src/host/https.rs`, `src/host/https/settings.json` | The one HTTP client the byte store's requests go through. |
@@ -110,4 +108,4 @@ shares).
 
 **Depends on:** `content-crypto/` (BLAKE3 identities, vendored here from trillion-rust `crates/content-crypto` at 26c296c134bf, receipted in `moved-from.json`), rusqlite (bundled SQLite), postgres and tokio-postgres-rustls (the person's Postgres), axum, tokio, reqwest and rustls (the HTTP client), serde, ring, hmac and sha2.
 
-**Depended on by:** `tools/live-namespace/do-work` files are imported by Trillion-X/trillion-apps (`part.json`); `tool:your-files` and `tool:count-or-copy-your-file-rows` run the program; tools/files-on-every-device calls `tool:your-files`.
+**Depended on by:** `tools/live-namespace/do-work` files are imported by Trillion-X/trillion-apps (`part.json`); `tool:your-files` runs the program; tools/files-on-every-device calls `tool:your-files`.

@@ -5,7 +5,6 @@
   "workflows": [],
   "tools": [
     "tool:your-files",
-    "tool:count-or-copy-your-file-rows",
     "tool:share-anything"
   ],
   "instructions": [

@@ -99,19 +99,6 @@ impl Namespace {
         Ok(open_rows(settings, state)?.2)
     }
 
-    /// Copy the account owner's names index from the archive SQLite file `archive` (opened read-only, never written) into the person's
-    /// rows, as the run's settings name them. `copied` is told each table and its rows so far. Answers each table and its row count.
-    pub fn copy_archive(settings: &Settings, state: &Path, archive: &Path, copied: &mut dyn FnMut(&str, u64)) -> Result<Vec<(String, u64)>, Refusal> {
-        let (_, _, store) = open_sql(settings, state)?;
-        Ok(store.copy_from_archive(&mut Link::archive(archive)?, copied)?)
-    }
-
-    /// How many rows each names-index table of the person's database holds (the readback of a copy).
-    pub fn counts(settings: &Settings, state: &Path) -> Result<Vec<(String, u64)>, Refusal> {
-        let (_, _, store) = open_sql(settings, state)?;
-        Ok(store.table_counts()?)
-    }
-
     /// The operations this run answers: the routes DATA's and `this_computer`.
     pub fn operations(&self) -> &[String] {
         &self.operations

@@ -111,13 +111,6 @@ impl Link {
         Self::sqlite_over(connection, path.display().to_string())
     }
 
-    /// A SQLite file that is only read: opened read-only, with no pragma, no permission change and no journal of its own, so a file in use
-    /// by another program (the account owner's archive) is left exactly as it is.
-    pub fn archive(path: &Path) -> Result<Self, Error> {
-        let connection = rusqlite::Connection::open_with_flags(path, rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY | rusqlite::OpenFlags::SQLITE_OPEN_NO_MUTEX).map_err(unavailable)?;
-        Ok(Self { inner: Inner::Sqlite(connection), place: path.display().to_string() })
-    }
-
     /// A SQLite database that lives only as long as the link (tests).
     pub fn memory() -> Result<Self, Error> {
         Self::sqlite_over(rusqlite::Connection::open_in_memory().map_err(unavailable)?, ":memory:".to_owned())
