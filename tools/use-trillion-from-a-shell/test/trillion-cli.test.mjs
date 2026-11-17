@@ -583,8 +583,8 @@ test('login: the browser sign-in with PKCE keeps the sign-in itself, and no key 
       const asked = new URL(url);
       challenge = asked.searchParams.get('code_challenge');
       seen.authorize = Object.fromEntries(asked.searchParams);
-      const back = await fetch(`${asked.searchParams.get('redirect_uri')}?code=code-1&state=${asked.searchParams.get('state')}`);
-      seen.page = await back.text();
+      const back = await fetch(`${asked.searchParams.get('redirect_uri')}?code=code-1&state=${asked.searchParams.get('state')}`, { redirect: 'manual' });
+      seen.page = { status: back.status, location: back.headers.get('location') };
     };
     const grant = await signInWithBrowser({ origin: fake.origin, open, now: () => 1000 });
     assert.deepEqual(grant, { access_token: pass, refresh_token: 'refresh-1', expires_at_ms: 1000 + 3600_000, client_id: `${fake.origin}${settings.client.id_path}`, origin: fake.origin, token_endpoint: `${fake.origin}/api/auth/oauth2/token`, revocation_endpoint: `${fake.origin}/api/auth/oauth2/revoke`, resource: `${fake.origin}/mcp` });
@@ -595,9 +595,8 @@ test('login: the browser sign-in with PKCE keeps the sign-in itself, and no key 
     assert.equal(seen.authorize.client_id, `${fake.origin}${settings.client.id_path}`);
     assert.equal(seen.authorize.redirect_uri, `http://127.0.0.1:${settings.client.redirect_port}/callback`);
     assert.deepEqual(JSON.parse(readFileSync(new URL('../do-work/client-metadata.json', import.meta.url), 'utf8').replaceAll('{origin}', fake.origin)).redirect_uris, [seen.authorize.redirect_uri], 'the client document lists the redirect the program uses');
-    assert.match(seen.page, /signed in/);
-    assert.match(seen.page, /background: #000[\s\S]*<svg[\s\S]*signed in/, 'the page is the Trillion logo on black');
-    assert.ok(!/127\.0\.0\.1|http/.test(seen.page.replace(/xmlns="[^"]*"/, '')), 'the page names no address');
+    assert.equal(seen.page.status, 302);
+    assert.equal(seen.page.location, `${fake.origin}/sign-in/done?result=done`, 'the browser is sent to the sign-in tool\'s own page');
     assert.ok(seen.paths.every(path => !path.includes('/mcp/api')), 'no key route is asked');
 
     // Through the command: no key here, so login keeps the sign-in, and the public origin answers as that account.
@@ -1034,13 +1033,12 @@ test('a callback with another sign-in\'s state is told it is old and ignored; th
     const seen = [];
     const open = async url => {
       const asked = new URL(url);
-      const stale = await fetch(`${asked.searchParams.get('redirect_uri')}?code=old-code&state=someone-elses`);
-      seen.push([stale.status, await stale.text()]);
+      const stale = await fetch(`${asked.searchParams.get('redirect_uri')}?code=old-code&state=someone-elses`, { redirect: 'manual' });
+      seen.push([stale.status, stale.headers.get('location')]);
       await fetch(`${asked.searchParams.get('redirect_uri')}?code=code-1&state=${asked.searchParams.get('state')}`);
     };
     const grant = await signInWithBrowser({ origin: fake.origin, open, now: () => 1000 });
     assert.equal(grant.access_token, pass, 'the exchange used the run\'s own code');
-    assert.equal(seen[0][0], 400);
-    assert.match(seen[0][1], /This sign-in is old\. Close this tab\./);
+    assert.deepEqual(seen[0], [302, `${fake.origin}/sign-in/done?result=old`]);
   } finally { await fake.close(); }
 });

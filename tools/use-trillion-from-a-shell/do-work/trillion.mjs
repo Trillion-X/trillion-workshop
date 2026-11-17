@@ -741,8 +741,8 @@ async function opWholeOnce(client, address, method, input, { requestKey, rules }
 
 // ── Signing in once ──────────────────────────────────────────────────────────────────────────────────────────────
 
-/** The page the browser lands on when the sign-in ends (signed-in-page.html: the Trillion logo on black, one sentence). */
-const signedInPage = message => readFileSync(join(HERE, 'signed-in-page.html'), 'utf8').replace('{message}', () => message.replace(/[&<>]/g, mark => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[mark]));
+/** The page the browser is sent to when the sign-in ends: the sign-in tool's own (`client.done_path`), the one owner of its look and words. */
+const donePage = (origin, result, rules = settings) => `${origin}${rules.client.done_path}?result=${result}`;
 
 const base64url = bytes => Buffer.from(bytes).toString('base64url');
 
@@ -768,9 +768,9 @@ export async function signInWithBrowser({ origin, resourceDoor, rules = settings
     const url = new URL(request.url, 'http://127.0.0.1');
     if (url.pathname !== '/callback') { response.writeHead(404).end(); return; }
     // An answer that carries another sign-in's state is an old tab's: it is told so and ignored, and this run keeps waiting for its own.
-    if (url.searchParams.get('state') !== state) { response.writeHead(400, { 'content-type': 'text/html; charset=utf-8' }).end(signedInPage(rules.words.sign_in_page_old)); return; }
+    if (url.searchParams.get('state') !== state) { response.writeHead(302, { location: donePage(origin, 'old', rules) }).end(); return; }
     const done = url.searchParams.get('code');
-    response.writeHead(done ? 200 : 400, { 'content-type': 'text/html; charset=utf-8' }).end(signedInPage(done ? rules.words.sign_in_page_done : rules.words.sign_in_page_failed));
+    response.writeHead(302, { location: donePage(origin, done ? 'done' : 'failed', rules) }).end();
     if (done) resolveCode(url.searchParams.get('code'));
     else rejectCode(new TrillionError(rules.words.sign_in_step_failed, { detail: fill(rules.words.sign_in_failed, { why: url.searchParams.get('error_description') ?? url.searchParams.get('error') ?? rules.words.sign_in_failed_unknown }) }));
   });

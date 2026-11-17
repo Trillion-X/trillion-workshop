@@ -106,7 +106,6 @@
       "packs/node_modules/@noble/hashes/package.json",
       "packs/node_modules/@noble/hashes/LICENSE",
       "trillion.json",
-      "signed-in-page.html",
       "trillion-skill.md",
       "ag-ui-agent.mjs",
       "ag-ui-wire.mjs",
@@ -446,9 +445,6 @@
     "sign_in_late": "No sign-in arrived within {seconds} seconds. Run trillion login again.",
     "browser_not_opened": "Trillion could not open your browser. Open this link to sign in: {link}",
     "sign_in_step_failed": "Sign-in did not finish. Run trillion login again.",
-    "sign_in_page_done": "You're signed in. You can close this tab and go back to the terminal.",
-    "sign_in_page_old": "This sign-in is old. Close this tab.",
-    "sign_in_page_failed": "Sign-in did not finish. Go back to the terminal and run trillion login again.",
     "whoami_ai": "AI: {ai}",
     "whoami_facts": "Running on: {facts}",
     "codes": {
@@ -586,6 +582,7 @@
   "protected_resource_path": "/.well-known/oauth-protected-resource/mcp",
   "client": {
     "id_path": "/cli/client.json",
+    "done_path": "/sign-in/done",
     "redirect_port": 54718,
     "_what": "This program signs in as an OAuth client named by a Client ID Metadata Document: the address `origin` + id_path (https, at the sign-in server's own host) answers do-work/client-metadata.json with {origin} filled in by the host that serves it, listing the one loopback redirect on redirect_port. No client is registered, and no host is named here."
   }
