@@ -69,12 +69,11 @@ async function madeQuietly() {
   if (!made.error) markPasskeyHere();
   return !made.error;
 }
-// The end of every sign-in: the person's name if there is none; for an AI's connect or a device code, straight on to it; else a
+// The end of every sign-in: for an AI's connect or a device code, straight on to it; else a
 // passkey, once, if this device can hold one, has none and the person did not say Not now; then where they were going.
 async function afterSignIn() {
   const session = (await client.getSession()).data;
   if (!session) return finish();
-  if (!session.user.name?.trim()) return go('/sign-in/name');
   const asked = carried || next.startsWith('/device');
   const canHold = await window.PublicKeyCredential?.isUserVerifyingPlatformAuthenticatorAvailable?.();
   if (asked || !canHold || skipped('passkey') || hasPasskeyHere() || await madeQuietly()) return finish();
@@ -134,12 +133,6 @@ async function submit(form) {
   if (action === '/sign-in/way' && way === 'backup-codes') {
     const { error } = await client.twoFactor.verifyBackupCode({ code: field(form, 'code') });
     return error ? refusal(error) : afterSignIn();
-  }
-  if (action === '/sign-in/name') {
-    const name = [field(form, 'given_name'), field(form, 'family_name')].filter(Boolean).join(' ');
-    if (!field(form, 'given_name') || !field(form, 'family_name')) return status(words.name_needed);
-    const { error } = await client.updateUser({ name });
-    return error ? (signedOut(error) ? toSignIn() : refusal(error)) : afterSignIn();
   }
   if (action === '/sign-in/change-email') {
     const { error } = await client.changeEmail({ newEmail: field(form, 'new_email'), callbackURL: '/' });
@@ -296,5 +289,5 @@ offerPasskeysInTheEmailBox();
 nameTheAsker().catch(() => {});
 // The pages that are for a signed-in person send one who is not to sign in and come back.
 const needsSession = async () => { if (!(await client.getSession()).data) toSignIn(); };
-const connectPage = { '/consent': consentPage, '/device': devicePage, '/sign-in/add-passkey': needsSession, '/sign-in/name': needsSession, '/sign-in/change-email': needsSession }[location.pathname];
+const connectPage = { '/consent': consentPage, '/device': devicePage, '/sign-in/add-passkey': needsSession, '/sign-in/change-email': needsSession }[location.pathname];
 connectPage?.().catch(() => status(words.unavailable));

@@ -59,7 +59,8 @@
       "account",
       "vault",
       "namespace-read"
-    ]
+    ],
+    "always_offline_access": true
   },
   "disabled_paths": [
     "/token"
@@ -101,5 +102,8 @@
   },
   "rate_limit": {
     "enabled": true
+  },
+  "cimd": {
+    "fetch_module": "@better-auth/cimd/node"
   }
 }

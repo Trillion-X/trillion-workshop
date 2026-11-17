@@ -13,7 +13,6 @@ import { passkey } from '@better-auth/passkey';
 import { apiKey } from '@better-auth/api-key';
 import { mcp } from '@better-auth/mcp';
 import { cimd } from '@better-auth/cimd';
-import { fetchClientMetadataResource } from '@better-auth/cimd/node';
 import { emailHook } from './send-email.mjs';
 import { cookieOptions } from './cookie-options.mjs';
 import { trustedOriginsFor } from './attached-origins.mjs';
@@ -21,6 +20,8 @@ import { readSettings } from './settings.mjs';
 import { storePool } from './store.mjs';
 
 const read = readSettings();
+// How an AI product's client metadata document is fetched: Better Auth's own https transport unless the layout names another module.
+const { fetchClientMetadataResource } = await import(read.settings.cimd.fetch_module);
 export const settings = read.settings;
 const here = read.here;
 export const pool = storePool(settings);
@@ -51,6 +52,15 @@ async function clearWhatWasNotProven(ctx) {
   if (!found || found.user.emailVerified) return;
   await ctx.context.internalAdapter.deleteUserSessions(found.user.id);
   await ctx.context.internalAdapter.deleteAccounts(found.user.id);
+}
+
+// A refresh token needs the offline_access scope, which an AI product may not ask for (the protected-resource document leaves it out by
+// design), and without one the person is signed out of their AI every hour. With settings.mcp.always_offline_access an AI's request
+// gets the scope added before anything else reads it, so the consent page says so ("Stay connected until you take it away").
+function stayConnected(ctx) {
+  const scope = ctx.query?.scope;
+  if (typeof scope !== 'string' || !scope.trim() || scope.split(' ').includes('offline_access')) return;
+  ctx.query.scope = `${scope} offline_access`;
 }
 
 export const auth = betterAuth({
@@ -90,6 +100,7 @@ export const auth = betterAuth({
     // is changed in place: a hook's returned context is merged over the request (defu), which never takes a key away.
     before: createAuthMiddleware(async ctx => {
       if (ctx.path === '/sign-in/email-otp') return clearWhatWasNotProven(ctx);
+      if (ctx.path === '/oauth2/authorize' && settings.mcp.always_offline_access) return stayConnected(ctx);
       if (ctx.path === '/api-key/create' && ctx.body) delete ctx.body.prefix;
     }),
   },

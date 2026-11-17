@@ -101,14 +101,6 @@
       "description": "A passkey on this device signs you in next time without a code."
     },
     {
-      "path": "/sign-in/name",
-      "sections": [
-        "name"
-      ],
-      "title": "What should we call you?",
-      "description": "Your name, so Trillion and the people you share with know who you are."
-    },
-    {
       "path": "/sign-in/change-email",
       "sections": [
         "change-email"

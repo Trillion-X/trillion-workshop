@@ -28,7 +28,6 @@
   "code_wrong_login": "That code is not right. Check it and try again.",
   "code_ran_out": "That code ran out. Send a new one.",
   "code_tries": "Too many wrong tries for that code. Send a new one.",
-  "name_needed": "Type your first and last name.",
   "link_sent": "A link is on its way to your email. Open it on the other device.",
   "email_change_sent": "Two links are on their way: one to your current address to approve this, then one to the new address.",
   "passkey_unknown": "The passkey step did not finish. Please try again, or choose \"Email me a code\".",

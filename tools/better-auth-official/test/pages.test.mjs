@@ -136,8 +136,8 @@ test('/device takes the code a device shows and asks to allow or deny it, for a 
   assert.match(device, /Only approve a device you are holding\./);
 });
 
-test('the steps after a sign-in: a name, a passkey once (Not now remembered), nothing between an AI\'s connect and its consent, and no password offer', () => {
-  assert.match(page('/sign-in/name'), /name="given_name"[\s\S]*name="family_name"/);
+test('the steps after a sign-in: a passkey once (Not now remembered), nothing between an AI\'s connect and its consent, and no password offer', () => {
+  assert.equal(pageAnswer('/sign-in/name'), null, 'nobody is asked their name: sign-in is an email, a code and one passkey offer');
   assert.match(page('/sign-in/add-passkey'), /data-page-skip="passkey"/);
   assert.match(page('/sign-in/add-passkey'), /data-passkey-link/, 'a passkey is added on another device through a link');
   assert.match(page('/sign-in/change-email'), /action="\/sign-in\/change-email"/);

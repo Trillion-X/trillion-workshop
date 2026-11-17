@@ -42,6 +42,8 @@ test-fixtures/embedded-store.mjs), with no install and no sudo.
 
 `email_code` (`digits`, `expires_in_seconds`, `attempts`, `sends_per_window`, `window_seconds`: the email code the pages tell people about), `email_password` (`require_verification`: a password signs in only after its address is proven), `add_passkey_link` (`expires_in_seconds`: the one-time link that adds a passkey on another device), `session` (`fresh_age_seconds`: how recent a sign-in adding a passkey or changing an email needs; `cookie_cache_seconds`: how long a signed session cookie answers without a store read) and `rate_limit` (`enabled`).
 
+`cimd` (`fetch_module`: the module that fetches an AI product's client metadata document, `@better-auth/cimd/node` by default; a test names a stand-in), `mcp.always_offline_access` (an AI's authorize request gets the `offline_access` scope when it left it out, so a refresh token is always issued; the consent page then says "Stay connected until you take it away"), and
+
 `disabled_paths` is `["/token"]`: the JWT docs' OAuth Provider Mode says to turn off the session JWT route when MCP is on,
 because session JWTs share the access tokens' signing key. OAuth and MCP clients get tokens from `/api/auth/oauth2/token`.
 Empty `disabled_paths` and `GET /api/auth/token` hands back a session JWT (EdDSA; `kid` names the JWKS key; claims `sub`,
@@ -136,7 +138,7 @@ From r6-sign-in-edge-cases.md, each with the old Trillion commit it comes from:
   say the same minutes (`{{minutes}}`, drawn by pages.mjs); the expiry and the tries have their own words.
 - An address nobody proved cannot be taken with a password (02a2eb83ce, 78477700c9): `email_password.require_verification`, and
   the owner's first code clears a password and sessions registered before it proved the address.
-- After every sign-in (`afterSignIn`): a name if there is none (c5457196ab, 0f850e620e); for an AI's connect or a device code, straight
+- After every sign-in (`afterSignIn`): for an AI's connect or a device code, straight
   on to it, with no passkey step between; else, once, a passkey if this device can hold one, has none here and the person did not say
   Not now (9cdfdfb875, a17026f3e5; `pages/sign-in-rules.json` `skip_days`), tried quietly first with conditional create where the browser
   has it (the page is shown when it does not fire, because a person who never sees it never gets a passkey); then where they were going.
@@ -150,6 +152,13 @@ From r6-sign-in-edge-cases.md, each with the old Trillion commit it comes from:
 - `/sign-in/change-email`: Better Auth's changeEmail, a link to the current address and one to the new (21348b98b6).
 - Authenticator app and backup codes are asked after a password, where Better Auth's second step has its pending cookie; the pages
   that cannot start them no longer link them. Not ported here: rows 14 (Signal API), 20 (app association file), 26 (mail words).
+
+## How an AI product connects
+
+Claude and ChatGPT use their client metadata document's https address as `client_id` (CIMD); Better Auth fetches and reads it, the person
+consents, the AI trades the code for tokens. `test/cimd-connect.test.mjs` runs that against a stand-in transport
+(`test-fixtures/cimd-stand-in.mjs`) and checks that a refresh token comes and refreshing works. A refresh token needs `offline_access`
+in the request, and the protected-resource document leaves it out by design, so `mcp.always_offline_access` adds it.
 
 ## MCP access tokens
 
