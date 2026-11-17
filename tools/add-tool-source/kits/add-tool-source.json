@@ -2,7 +2,7 @@
   "drafted_from": "tool:add-tool-source's own row (its words, input schema and sample run); read it before relying on it",
   "start_here": "Say to your AI: \"Add a source of tools from this address\" and give it the address, a folder's path, a git repository's https address or a remote MCP server's https address. It runs tool:add-tool-source and answers {\"source\":{\"label\":...,\"kind\":...,\"learned\":...},\"entry\":...,\"approve\":...,\"said\":...}. Nothing is added until you make the approve call yourself.",
   "lists": [],
-  "no_lists_because": "It keeps its one row per source in your list of tool sources (record:tool-source), which no kit has to set up.",
+  "no_lists_because": "It keeps one pending request per address (record:tool-source-request) until you approve or decline it; the sources you have are the engine's own list, read with tools:sources.",
   "workflows": [],
   "tools": [
     "tool:add-tool-source"

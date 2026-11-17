@@ -22,7 +22,7 @@
 // - An address with a user name or password in it is refused; no secret is ever kept in a source.
 // - A repository starts at the commit its server named as HEAD now, never at a moving branch.
 //
-// Security Considerations: the row's rights read and write the one record kind and prefix of the list of tool sources, nothing
+// Security Considerations: the row's rights read and write the one record kind and prefix of the pending requests, nothing
 // else; the engine, not this tool, adds the source, and only on the person's fresh sign-in.
 //
 // AI Assistant Directive:

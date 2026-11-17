@@ -7,7 +7,7 @@
         "label": "Add a source of tools",
         "status": "active",
         "job": "Add a source of tools to my computer from one address: a folder, a git repository at any host or a remote MCP server, and learn which it is without my typing a kind",
-        "description": "Takes one address and learns what kind of source it is: a path or a file:// address is a folder, mcp+https:// is a remote MCP server (mcp+http://host:port for one of your own at a private address), git+https:// is a git repository, and an https address of a listed git host (github.com, gitlab.com, codeberg.org) or ending .git is a repository. A bare https address is looked at once: it is an MCP server if it answers an MCP initialize (or asks for sign-in the way MCP servers do), a git repository if it answers a git ref advertisement; one that is neither, or both, is refused with what to write instead. Nothing it sends carries a credential, and a private address is not reached. A repository starts at the commit its server names as HEAD now. It keeps one row in your list of tool sources (waiting for your approval) and hands back the entry and the call that adds it, tools:add-source at @tools, which only you can make: the source starts with an empty grant, so none of its tools may use your records, credentials or hosts until you say so. It adds nothing itself.",
+        "description": "Takes one address and learns what kind of source it is: a path or a file:// address is a folder, mcp+https:// is a remote MCP server (mcp+http://host:port for one of your own at a private address), git+https:// is a git repository, and an https address of a listed git host (github.com, gitlab.com, codeberg.org) or ending .git is a repository. A bare https address is looked at once: it is an MCP server if it answers an MCP initialize (or asks for sign-in the way MCP servers do), a git repository if it answers a git ref advertisement; one that is neither, or both, is refused with what to write instead. Nothing it sends carries a credential, and a private address is not reached. A repository starts at the commit its server names as HEAD now. It keeps one pending request for you (deleted when you approve or decline it; your sources are the engine's own list, read with tools:sources) and hands back the entry and the call that adds it, tools:add-source at @tools, which only you can make: the source starts with an empty grant, so none of its tools may use your records, credentials or hosts until you say so. It adds nothing itself.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -137,8 +137,8 @@
             "fd": 3,
             "rights": [
               {
-                "kind": "record:tool-source",
-                "prefix": "record:tool-source:",
+                "kind": "record:tool-source-request",
+                "prefix": "record:tool-source-request:",
                 "operations": [
                   "records:list",
                   "records:write"

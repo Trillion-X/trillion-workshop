@@ -119,19 +119,19 @@ test('a redirect is followed only to https and only so far', async () => {
   } finally { await door.close(); }
 });
 
-test('the source is kept as one row waiting for the person, once, and the row can touch nothing else', async () => {
+test('the source is kept as one request waiting for the person, once, and the row can touch nothing else', async () => {
   const { door, records_door } = await open();
   try {
     const added = await add(records_door, { address: 'mcp+https://tools.made-up.example/mcp', label: 'made-up' });
-    assert.equal(added.source.row, 'record:tool-source:made-up');
+    assert.equal(added.source.row, 'record:tool-source-request:made-up');
     const kept = door.kept.get(added.source.row);
-    assert.equal(kept.type, 'record:tool-source');
-    assert.deepEqual(kept.value, { label: 'made-up', address: 'mcp+https://tools.made-up.example/mcp', kind: 'remote-mcp', learned: 'syntax', entry: added.entry, status: 'waiting-for-your-approval' });
+    assert.equal(kept.type, 'record:tool-source-request');
+    assert.deepEqual(kept.value, { label: 'made-up', address: 'mcp+https://tools.made-up.example/mcp', kind: 'remote-mcp', learned: 'syntax', entry: added.entry, status: 'pending' });
     assert.ok(!('grant' in added.entry), 'the entry names no grant: the engine starts it empty');
     assert.match(added.said, /Nothing is added until you approve it/);
     await assert.rejects(add(records_door, { address: '/tmp/other', label: 'made-up' }), /already waiting or added/);
     assert.equal(door.kept.size, 1);
-    assert.deepEqual(row.invoke.records.rights, [{ kind: 'record:tool-source', prefix: 'record:tool-source:', operations: ['records:list', 'records:write'] }]);
+    assert.deepEqual(row.invoke.records.rights, [{ kind: 'record:tool-source-request', prefix: 'record:tool-source-request:', operations: ['records:list', 'records:write'] }]);
     assert.equal(row.invoke.internet, true);
   } finally { await door.close(); }
 });

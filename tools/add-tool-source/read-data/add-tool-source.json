@@ -68,10 +68,10 @@
     }
   },
   "row": {
-    "_what": "The row the person's list of tool sources gets: one per source, at `prefix` + the label, waiting for the person's own approval (the engine's tools:add-source is the person's act, never the AI's).",
-    "kind": "record:tool-source",
-    "prefix": "record:tool-source:",
-    "waiting": "waiting-for-your-approval"
+    "_what": "A pending request, never a list of sources: one question for the person per address, at `prefix` + the label, kept until the person approves or declines it (the screen that asks them deletes it). The engine's own list of the account's sources (tools:sources) is the one list; tools:add-source is the person's act, never the AI's.",
+    "kind": "record:tool-source-request",
+    "prefix": "record:tool-source-request:",
+    "waiting": "pending"
   },
   "approve": {
     "address": "@tools",
