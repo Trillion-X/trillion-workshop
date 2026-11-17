@@ -129,14 +129,13 @@ pub struct Contract {
     pub raw: Raw,
 }
 
-/// How a raw span answer is told apart and checked (contract.json `raw`): its content type, the header names of the
-/// file's size and the span's offset, and the most bytes one raw read carries.
+/// How a raw span answer is told apart and checked (contract.json `raw`): its content type and the header names of the
+/// file's size and the span's offset.
 #[derive(Deserialize, Debug)]
 pub struct Raw {
     pub content_type: String,
     pub total: String,
     pub offset: String,
-    pub most_bytes: u64,
 }
 
 /// The end of a file read with its first bytes, for the media types named (contract.json `tail`).

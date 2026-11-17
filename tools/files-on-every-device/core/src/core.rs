@@ -865,7 +865,7 @@ impl Core {
     /// Ask for the parts of `span` neither held nor already asked for, each at most what one request may carry.
     fn ask_for(&mut self, key: &(String, String), span: Span, size: u64, piece: Option<u64>) {
         let bounds = self.bounds();
-        let most = self.link.request_most(&bounds, bounds.span_most_bytes.min(self.contract.raw.most_bytes));
+        let most = self.link.request_most(&bounds, bounds.span_most_bytes);
         let most = piece.map_or(most, |piece| piece.min(most));
         let stream = self.streams.entry(key.clone()).or_default();
         let missing = stream.covered().missing(span);
