@@ -767,7 +767,9 @@ export async function signInWithBrowser({ origin, resourceDoor, rules = settings
   const server = createServer((request, response) => {
     const url = new URL(request.url, 'http://127.0.0.1');
     if (url.pathname !== '/callback') { response.writeHead(404).end(); return; }
-    const done = url.searchParams.get('state') === state && url.searchParams.get('code');
+    // An answer that carries another sign-in's state is an old tab's: it is told so and ignored, and this run keeps waiting for its own.
+    if (url.searchParams.get('state') !== state) { response.writeHead(400, { 'content-type': 'text/html; charset=utf-8' }).end(signedInPage(rules.words.sign_in_page_old)); return; }
+    const done = url.searchParams.get('code');
     response.writeHead(done ? 200 : 400, { 'content-type': 'text/html; charset=utf-8' }).end(signedInPage(done ? rules.words.sign_in_page_done : rules.words.sign_in_page_failed));
     if (done) resolveCode(url.searchParams.get('code'));
     else rejectCode(new TrillionError(rules.words.sign_in_step_failed, { detail: fill(rules.words.sign_in_failed, { why: url.searchParams.get('error_description') ?? url.searchParams.get('error') ?? rules.words.sign_in_failed_unknown }) }));

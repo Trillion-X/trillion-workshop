@@ -1026,3 +1026,21 @@ test('the program runs under the Mac app\'s own node when the app is installed, 
   assert.equal(appNodeToRunUnder({ rules: { ...settings, mac_app: folder } }), null, 'already running under it');
   assert.equal(appNodeToRunUnder({ rules: { ...settings, mac_app: folder }, execPath: '/bin/sh' }) !== null, true);
 });
+
+test('a callback with another sign-in\'s state is told it is old and ignored; the run keeps waiting for its own', async () => {
+  const pass = passFor('person@example.com');
+  const fake = await fakeDoor({ bearers: [pass], oauth: signInServer(pass) });
+  try {
+    const seen = [];
+    const open = async url => {
+      const asked = new URL(url);
+      const stale = await fetch(`${asked.searchParams.get('redirect_uri')}?code=old-code&state=someone-elses`);
+      seen.push([stale.status, await stale.text()]);
+      await fetch(`${asked.searchParams.get('redirect_uri')}?code=code-1&state=${asked.searchParams.get('state')}`);
+    };
+    const grant = await signInWithBrowser({ origin: fake.origin, open, now: () => 1000 });
+    assert.equal(grant.access_token, pass, 'the exchange used the run\'s own code');
+    assert.equal(seen[0][0], 400);
+    assert.match(seen[0][1], /This sign-in is old\. Close this tab\./);
+  } finally { await fake.close(); }
+});

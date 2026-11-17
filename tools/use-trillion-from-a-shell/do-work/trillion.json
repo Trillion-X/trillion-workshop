@@ -447,6 +447,7 @@
     "browser_not_opened": "Trillion could not open your browser. Open this link to sign in: {link}",
     "sign_in_step_failed": "Sign-in did not finish. Run trillion login again.",
     "sign_in_page_done": "You're signed in. You can close this tab and go back to the terminal.",
+    "sign_in_page_old": "This sign-in is old. Close this tab.",
     "sign_in_page_failed": "Sign-in did not finish. Go back to the terminal and run trillion login again.",
     "whoami_ai": "AI: {ai}",
     "whoami_facts": "Running on: {facts}",
