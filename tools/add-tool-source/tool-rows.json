@@ -1,0 +1,177 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:add-tool-source",
+        "label": "Add a source of tools",
+        "status": "active",
+        "job": "Add a source of tools to my computer from one address: a folder, a git repository at any host or a remote MCP server, and learn which it is without my typing a kind",
+        "description": "Takes one address and learns what kind of source it is: a path or a file:// address is a folder, mcp+https:// is a remote MCP server (mcp+http://host:port for one of your own at a private address), git+https:// is a git repository, and an https address of a listed git host (github.com, gitlab.com, codeberg.org) or ending .git is a repository. A bare https address is looked at once: it is an MCP server if it answers an MCP initialize (or asks for sign-in the way MCP servers do), a git repository if it answers a git ref advertisement; one that is neither, or both, is refused with what to write instead. Nothing it sends carries a credential, and a private address is not reached. A repository starts at the commit its server names as HEAD now. It keeps one row in your list of tool sources (waiting for your approval) and hands back the entry and the call that adds it, tools:add-source at @tools, which only you can make: the source starts with an empty grant, so none of its tools may use your records, credentials or hosts until you say so. It adds nothing itself.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "address"
+          ],
+          "properties": {
+            "address": {
+              "type": "string",
+              "description": "The source's address: a folder path (/path or ~/path), a git repository's https address or a remote MCP server's https address, optionally with the prefix mcp+ or git+ when it is not plain from the address"
+            },
+            "label": {
+              "type": "string",
+              "description": "The name the source goes by in the menu of tools; made from the address when left out"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "source",
+            "entry",
+            "approve",
+            "said"
+          ],
+          "properties": {
+            "source": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string"
+                },
+                "learned": {
+                  "type": "string"
+                },
+                "row": {
+                  "type": "string"
+                }
+              }
+            },
+            "entry": {
+              "type": "object"
+            },
+            "approve": {
+              "type": "object"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "add-tool-source",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/add-tool-source"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          },
+          "workdir": "/opt/add-tool-source",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/add-tool-source/do-work/add-tool-source.mjs",
+            "addToolSource"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "record:tool-source",
+                "prefix": "record:tool-source:",
+                "operations": [
+                  "records:list",
+                  "records:write"
+                ]
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": true
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:add-tool-source",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "the owner, decision case source:a2VlcC1vbmx5LWJyaWFucy1kYXRhLWFuZC13aXBlLXRoZS1ib3hlcy0yMDI2LTExLTE2 (tool sources of any kind: a source is one address and its kind is a stored fact learned once)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "address": "/tmp/sample-tools"
+            },
+            "output_selector": "$.source.kind",
+            "contains": "folder",
+            "records": []
+          }
+        ]
+      }
+    }
+  ]
+}

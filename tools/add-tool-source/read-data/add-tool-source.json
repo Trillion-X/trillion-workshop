@@ -1,0 +1,101 @@
+{
+  "_what": "What the tool that adds a source of tools (do-work/add-tool-source.mjs) reads and says. A source is one address; what kind of source it is (`folder`, `repo` or `remote-mcp`) is learned once, here, and kept with how it was learned: the person never types a kind. The order is fixed by the owner's decision case source:a2VlcC1vbmx5LWJyaWFucy1kYXRhLWFuZC13aXBlLXRoZS1ib3hlcy0yMDI2LTExLTE2 (tool sources of any kind): first the address's own syntax (`prefixes`, then `repo_hosts`), then, only for a bare https address, ONE probe: an MCP `initialize`, else a git `info/refs`, else a refusal naming both. The engine never probes and never guesses (trillion-rust src/tool_runs/tools/sources.rs `merge`).",
+  "probe": {
+    "_why": {
+      "timeout_ms": "10 s for each request: a server that is a server answers a first request well inside it, and the probe makes at most four. A reasoned bound, not a measured one.",
+      "max_bytes": "64 KiB of an answer is read: an MCP initialize answer and a git ref advertisement's first lines fit with room, and no more is needed to tell which one it is. A reasoned bound, not a measured one.",
+      "max_redirects": "Three redirects are followed, each to an https address, so an address that moved once or twice still answers and none loops. A reasoned bound, not a measured one."
+    },
+    "timeout_ms": 10000,
+    "max_bytes": 65536,
+    "max_redirects": 3,
+    "protocol_version": "2025-06-18",
+    "client_name": "add-tool-source",
+    "client_version": "1",
+    "git_refs": "/info/refs?service=git-upload-pack",
+    "git_advertisement": "# service=git-upload-pack"
+  },
+  "prefixes": [
+    {
+      "starts": "mcp+https://",
+      "kind": "remote-mcp",
+      "strip": "mcp+"
+    },
+    {
+      "starts": "mcp+http://",
+      "kind": "remote-mcp",
+      "strip": "mcp+",
+      "private": true
+    },
+    {
+      "starts": "git+https://",
+      "kind": "repo",
+      "strip": "git+"
+    },
+    {
+      "starts": "file://",
+      "kind": "folder",
+      "strip": "file://"
+    },
+    {
+      "starts": "~/",
+      "kind": "folder"
+    },
+    {
+      "starts": "/",
+      "kind": "folder"
+    }
+  ],
+  "repo_hosts_what": "The hosts whose https address of the form host/owner/repo is a git repository by its syntax alone, and the address each serves a commit's archive at (`{repository}`, `{commit}`), with the hosts that archive is read from. A git server not listed here is refused with its host named: its archive address is not known.",
+  "repo_hosts": {
+    "github.com": {
+      "archive": "https://codeload.github.com/{repository}/tar.gz/{commit}",
+      "hosts": [
+        "codeload.github.com"
+      ]
+    },
+    "gitlab.com": {
+      "archive": "https://gitlab.com/{repository}/-/archive/{commit}/archive.tar.gz",
+      "hosts": [
+        "gitlab.com"
+      ]
+    },
+    "codeberg.org": {
+      "archive": "https://codeberg.org/{repository}/archive/{commit}.tar.gz",
+      "hosts": [
+        "codeberg.org"
+      ]
+    }
+  },
+  "row": {
+    "_what": "The row the person's list of tool sources gets: one per source, at `prefix` + the label, waiting for the person's own approval (the engine's tools:add-source is the person's act, never the AI's).",
+    "kind": "record:tool-source",
+    "prefix": "record:tool-source:",
+    "waiting": "waiting-for-your-approval"
+  },
+  "approve": {
+    "address": "@tools",
+    "method": "tools:add-source"
+  },
+  "label": {
+    "most_length": 64,
+    "allowed": "^[A-Za-z0-9][A-Za-z0-9._-]*$"
+  },
+  "words": {
+    "no_address": "Give the address of the source: a folder's path, a git repository's https address or a remote MCP server's https address.",
+    "bad_address": "That is not an address I can add: give a path that starts with / or ~/, or an https address.",
+    "bad_label": "A label is letters, digits, dots, dashes and underscores, and starts with a letter or digit.",
+    "taken": "A source called {label} is already waiting or added. Pick another label, or remove that one first.",
+    "no_ssh": "I do not add ssh or git@ addresses. Give the repository's https address.",
+    "no_http": "A plain http address is added only when you say it is a server of your own: write it as mcp+http://host:port/path.",
+    "private_named": "A server at {host} is a private address: it is reached only because you named it with mcp+http://.",
+    "credentials_in_address": "An address with a user name or password in it is not added. A server that needs a sign-in asks for one when it is first used.",
+    "unknown_archive": "{host} is a git server, but I do not know where it serves a commit's archive. I can add repositories from {known}.",
+    "not_a_repository": "{address} names no repository: a repository's address is host/owner/name.",
+    "ambiguous": "{address} answers as an MCP server and as a git repository. Say which it is: mcp+{address} or git+{address}.",
+    "neither": "{address} did not answer as an MCP server ({mcp}) or as a git repository ({git}). If you know which it is, write mcp+{address} or git+{address}; a server of your own at a private address is written mcp+http://host:port/path.",
+    "no_commit": "{address} answered as a git repository but named no commit to start from. An empty repository has nothing to add.",
+    "added": "{label} is ready to add as a {kind} source ({learned}). Nothing is added until you approve it: it is your act, at the engine's tools:add-source. It starts with an empty grant: none of its tools may use your records, credentials or hosts until you say so.",
+    "folder_note": "A folder holds one folder of tools inside it called tools."
+  }
+}
