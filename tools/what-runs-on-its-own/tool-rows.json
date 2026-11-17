@@ -11,6 +11,9 @@
     "published-record"
    ],
    "payload": {
+    "uses_tools": [
+      "trillion-workshop/content-identity"
+    ],
     "kind": "ai-tool-descriptor",
     "id": "tool:see-what-runs-on-its-own",
     "label": "See what runs on its own",

@@ -8,6 +8,9 @@
       "address": "package::import-markdown-to-editable-document::tool::import-markdown-as-editable-document",
       "path": ["current-item", "published-record"],
       "payload": {
+        "uses_tools": [
+          "trillion-workshop/content-identity"
+        ],
         "kind": "ai-tool-descriptor",
         "id": "tool:import-markdown-as-editable-document",
         "label": "Import Markdown as an editable document",
@@ -62,6 +65,9 @@
       "address": "package::import-markdown-to-editable-document::tool::import-markdown-file-as-editable-document",
       "path": ["current-item", "published-record"],
       "payload": {
+        "uses_tools": [
+          "trillion-workshop/content-identity"
+        ],
         "kind": "ai-tool-descriptor",
         "id": "tool:import-markdown-file-as-editable-document",
         "label": "Import a Markdown file as an editable document",

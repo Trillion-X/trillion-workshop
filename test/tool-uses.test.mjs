@@ -1,0 +1,43 @@
+// Every tool row declares the other tools its folder's files use (`uses_tools`), as test-helpers/write-pinned-files.mjs writes them.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
+import { rowsWithUses, toolClosures, usesProblems } from '../test-helpers/tool-closures.mjs';
+
+const top = resolve(import.meta.dirname, '..');
+
+test('every tool row declares the tools its folder\'s imports reach (run node test-helpers/write-pinned-files.mjs)', () => {
+  assert.deepEqual(usesProblems(top), []);
+});
+
+test('a relative path, a package path and a package_files item each name a folder, and the need is transitive', () => {
+  const root = mkdtempSync(join(tmpdir(), 'closures-'));
+  const put = (path, text) => {
+    mkdirSync(join(root, path, '..'), { recursive: true });
+    writeFileSync(join(root, path), text);
+  };
+  put('tools/a/show/x.tsx', "import b from '../../b/read-data/y.mjs';\n");
+  put('tools/b/read-data/y.mjs', "import c from 'trillion-workshop/tools/c/read-data/z.mjs';\n");
+  put('tools/c/read-data/z.mjs', 'export const z = 1;\n');
+  put('tools/d/tool-rows.json', JSON.stringify({ records: [{ payload: { kind: 'ai-tool-descriptor', id: 'tool:d', invoke: { files: { package_files: [{ package: 'c', paths: ['read-data'], at: '/opt/c' }, { package: 'd', paths: ['x'], at: '/opt/d' }] } } } }] }));
+  put('tools/e/notes.md', 'see tools/a/show/x.tsx\n');
+  put('tools/e/node_modules/p/index.mjs', "import '../../../a/show/x.tsx';\n");
+  assert.deepEqual(toolClosures(root), { a: ['b', 'c'], b: ['c'], c: [], d: ['c'], e: [] });
+});
+
+test('uses_tools is set on a tool row in its own layout, replaced when it changes, removed when empty, and nothing else moves', () => {
+  const spread = '{\n "records": [\n  {\n   "payload": {\n    "kind": "ai-tool-descriptor",\n    "id": "tool:x"\n   }\n  }\n ]\n}\n';
+  const packed = '{"records": [{"payload": {"kind": "ai-tool-descriptor", "id": "tool:x"}}, {"payload": {"kind": "tool-row-source", "id": "s"}}]}\n';
+  for (const text of [spread, packed]) {
+    const one = rowsWithUses(text, ['w/a']);
+    assert.deepEqual(JSON.parse(one).records[0].payload.uses_tools, ['w/a']);
+    assert.equal(JSON.parse(one).records[0].payload.id, 'tool:x');
+    const two = rowsWithUses(one, ['w/a', 'w/b']);
+    assert.deepEqual(JSON.parse(two).records[0].payload.uses_tools, ['w/a', 'w/b']);
+    assert.equal(rowsWithUses(two, ['w/a', 'w/b']), two);
+    assert.equal(rowsWithUses(two, []), text);
+  }
+  assert.equal(JSON.parse(rowsWithUses(packed, ['w/a'])).records[1].payload.uses_tools, undefined);
+});

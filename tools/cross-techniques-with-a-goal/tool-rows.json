@@ -8,6 +8,9 @@
    "address": "package::cross-techniques-with-a-goal::tool::cross-techniques-with-a-goal",
    "path": ["current-item", "published-record"],
    "payload": {
+    "uses_tools": [
+      "trillion-workshop/content-identity"
+    ],
     "kind": "ai-tool-descriptor",
     "id": "tool:cross-techniques-with-a-goal",
     "label": "Find the techniques from anywhere that would work for what you are making (runs on your computer)",
@@ -59,6 +62,9 @@
    "address": "package::cross-techniques-with-a-goal::tool::say-why-a-technique-works",
    "path": ["current-item", "published-record"],
    "payload": {
+    "uses_tools": [
+      "trillion-workshop/content-identity"
+    ],
     "kind": "ai-tool-descriptor",
     "id": "tool:say-why-a-technique-works",
     "label": "Say why each technique works, in words every other technique shares (runs on your computer)",

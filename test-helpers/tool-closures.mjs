@@ -1,9 +1,14 @@
 // test-helpers/tool-closures.mjs
 //
-// Purpose: for each tool folder under tools/, the other tool folders its files need, transitively. The engine reads the
-// Workshop's tool-closures.json (written by write-pinned-files.mjs) to fetch only the folders a run of one tool needs.
+// Purpose: for each tool folder under tools/, the other tool folders its files need, transitively, written into the folder's
+// OWN tool rows (tools/<folder>/tool-rows.json, each ai-tool-descriptor payload's `uses_tools`) as "<source>/<tool>" ids, the
+// source being this Workshop's package name. An engine that installs one tool at a time reads a tool's row alone to know
+// which other tools to fetch with it; it reads no file of the Workshop's own.
 //
-//   toolClosures(top)    { "<folder>": ["<folder>", ...] } for every folder under <top>/tools, keys and lists sorted
+//   toolClosures(top)         { "<folder>": ["<folder>", ...] } for every folder under <top>/tools, keys and lists sorted
+//   rowsWithUses(text, uses)  the text of one tool-rows.json with `uses_tools` set on each tool row (an empty list: absent)
+//   writeUses(top)            rewrites every tool-rows.json under <top>/tools whose text changes; returns the folders changed
+//   usesProblems(top)         one line for each tool-rows.json that is not what writeUses would write (none: they agree)
 //
 // A folder needs another folder when one of its files (code, build files, and json that holds relative paths) names it:
 //   - a relative path (`../../ui/show/x`) that resolves into the other folder;
@@ -14,12 +19,13 @@
 // Non-Negotiable Invariants:
 //   1. Complete over small: a mention that is not a real import only adds a folder; a missed import fails a run.
 //   2. Same source only: nothing outside the tree at `top` is read; no clock, no environment.
-//   3. Deterministic bytes: sorted keys, sorted lists, no timestamps.
+//   3. Deterministic bytes: sorted lists; the rest of a row file is left exactly as it was (a line is added or removed).
 
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, extname, join, relative, resolve, sep } from 'node:path';
 
-export const TOOL_CLOSURES = 'tool-closures.json';
+export const USES_TOOLS = 'uses_tools';
+const ROWS_FILE = 'tool-rows.json';
 const SKIPPED_FOLDERS = new Set(['node_modules', 'target', '.git']);
 const CODE = new Set(['.js', '.mjs', '.cjs', '.ts', '.tsx', '.jsx', '.mts', '.cts', '.py', '.css', '.html', '.sh', '.rs', '.toml']);
 const RELATIVE = /\.\.\/[A-Za-z0-9_@.\-/]*/g;
@@ -101,8 +107,115 @@ export function toolClosures(top) {
   return tools;
 }
 
-/** The text of tool-closures.json for the tree at `top`. */
-export const toolClosuresText = top => `${JSON.stringify({
-  _what: 'For each folder under tools/, the sorted list of OTHER tool folders its files need, transitively (relative paths, tools/<name>/ paths and package_files packages), same source only. The engine reads it to fetch only a tool\'s folders. Written by test-helpers/write-pinned-files.mjs; test/tool-closures.test.mjs fails when it differs.',
-  tools: toolClosures(top),
-}, null, 1)}\n`;
+const sourceOf = top => JSON.parse(readFileSync(join(top, 'package.json'), 'utf8')).name;
+const WHITE = /\s/;
+
+/** The index just past the JSON value that starts at `at` (leading white space skipped). */
+function valueEnd(text, at) {
+  let i = at;
+  while (WHITE.test(text[i])) i += 1;
+  if (text[i] === '"') {
+    for (i += 1; text[i] !== '"'; i += text[i] === '\\' ? 2 : 1);
+    return i + 1;
+  }
+  if (text[i] === '{' || text[i] === '[') {
+    const close = text[i] === '{' ? '}' : ']';
+    i += 1;
+    for (;;) {
+      while (WHITE.test(text[i]) || text[i] === ',' || text[i] === ':') i += 1;
+      if (text[i] === close) return i + 1;
+      i = valueEnd(text, i);
+    }
+  }
+  while (!/[\s,\]}]/.test(text[i])) i += 1;
+  return i;
+}
+
+/** The direct members of the object whose `{` is at `open`: [{ key, start, end }] with the value's end. */
+function members(text, open) {
+  const found = [];
+  let i = open + 1;
+  for (;;) {
+    while (WHITE.test(text[i]) || text[i] === ',') i += 1;
+    if (text[i] === '}') return found;
+    const start = i;
+    const keyEnd = valueEnd(text, i);
+    const key = JSON.parse(text.slice(start, keyEnd));
+    i = keyEnd;
+    while (WHITE.test(text[i]) || text[i] === ':') i += 1;
+    i = valueEnd(text, i);
+    found.push({ key, start, end: i });
+  }
+}
+
+/** The `{` of each record's payload in a tool-rows.json, in file order. */
+function payloadOpens(text) {
+  const top = members(text, text.indexOf('{'));
+  const records = top.find(member => member.key === 'records');
+  const opens = [];
+  let i = text.indexOf('[', records.start) + 1;
+  for (;;) {
+    while (WHITE.test(text[i]) || text[i] === ',') i += 1;
+    if (text[i] === ']') return opens;
+    const payload = members(text, i).find(member => member.key === 'payload');
+    opens.push(text.indexOf('{', text.indexOf(':', payload.start)));
+    i = valueEnd(text, i);
+  }
+}
+
+/** The text of one tool-rows.json with each tool row's `uses_tools` (ids "<source>/<tool>") set to `uses`. */
+export function rowsWithUses(text, uses) {
+  const opens = payloadOpens(text).reverse();
+  let out = text;
+  for (const open of opens) {
+    const kind = members(out, open).find(member => member.key === 'kind');
+    if (!kind || !out.slice(kind.start, kind.end).endsWith('"ai-tool-descriptor"')) continue;
+    const old = members(out, open).find(member => member.key === USES_TOOLS);
+    if (old) {
+      let { start, end } = old;
+      const after = /^,\s*/.exec(out.slice(end));
+      if (after) end += after[0].length;
+      else start -= /,\s*$/.exec(out.slice(0, start))[0].length;
+      out = out.slice(0, start) + out.slice(end);
+    }
+    if (!uses.length) continue;
+    const layout = /^\s*\n([ \t]*)/.exec(out.slice(open + 1));
+    const entry = layout
+      ? `\n${layout[1]}"${USES_TOOLS}": [\n${uses.map(use => `${layout[1]}  ${JSON.stringify(use)}`).join(',\n')}\n${layout[1]}],`
+      : `"${USES_TOOLS}": ${JSON.stringify(uses)}, `;
+    out = `${out.slice(0, open + 1)}${entry}${out.slice(open + 1)}`;
+  }
+  return out;
+}
+
+function rowFiles(top) {
+  return subfolders(resolve(top, 'tools')).map(entry => entry.name).sort().map(folder => [folder, join(top, 'tools', folder, ROWS_FILE)]).filter(([, file]) => existsSync(file));
+}
+
+function usesByFolder(top) {
+  const source = sourceOf(top);
+  const closures = toolClosures(top);
+  return folder => closures[folder].map(name => `${source}/${name}`);
+}
+
+export function writeUses(top) {
+  const uses = usesByFolder(top);
+  const changed = [];
+  for (const [folder, file] of rowFiles(top)) {
+    const before = readFileSync(file, 'utf8');
+    const after = rowsWithUses(before, uses(folder));
+    if (after !== before) {
+      writeFileSync(file, after);
+      changed.push(folder);
+    }
+  }
+  return changed;
+}
+
+export function usesProblems(top) {
+  const uses = usesByFolder(top);
+  return rowFiles(top).filter(([folder, file]) => {
+    const text = readFileSync(file, 'utf8');
+    return rowsWithUses(text, uses(folder)) !== text;
+  }).map(([folder]) => `tools/${folder}/tool-rows.json does not declare the tools its files use (run node test-helpers/write-pinned-files.mjs)`);
+}

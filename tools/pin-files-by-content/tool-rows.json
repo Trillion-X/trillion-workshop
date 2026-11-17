@@ -5,6 +5,9 @@
   "records": [
     {
       "payload": {
+        "uses_tools": [
+          "trillion-workshop/content-identity"
+        ],
         "kind": "ai-tool-descriptor",
         "id": "tool:pin-files-by-content",
         "status": "active",
@@ -86,6 +89,9 @@
     },
     {
       "payload": {
+        "uses_tools": [
+          "trillion-workshop/content-identity"
+        ],
         "kind": "ai-tool-descriptor",
         "status": "active",
         "licence_class": "licence:maker-own",
@@ -137,6 +143,9 @@
     },
     {
       "payload": {
+        "uses_tools": [
+          "trillion-workshop/content-identity"
+        ],
         "kind": "ai-tool-descriptor",
         "status": "active",
         "licence_class": "licence:maker-own",
