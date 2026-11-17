@@ -88,6 +88,10 @@ test('an AI used every day for 100 days never loses access', async () => {
     token = await answer.json();
   }
   assert.equal((await listed(client)).ended_by, null);
+  // Past a hundred revoked tokens the live one is still found, by the engine's standing check as by the list.
+  const { credentialStands } = await import('../credential-standing.mjs');
+  const user = (await (await auth.$context).internalAdapter.findUserByEmail('idle@example.test')).user;
+  assert.equal(await credentialStands(auth, settings.credential_standing, `mcp-access:${user.id}:${client}`), true);
 });
 
 test('an AI unused for 90 days has lost access: the refresh is refused and the list says so, with when, last use and where to reconnect', async () => {

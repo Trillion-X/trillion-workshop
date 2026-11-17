@@ -100,11 +100,14 @@ const connected = () => ({
       const ais = [];
       for (const consent of consents) {
         const client = await adapter.findOne({ model: 'oauthClient', where: [{ field: 'clientId', value: consent.clientId }] });
-        const refreshTokens = await adapter.findMany({ model: 'oauthRefreshToken', where: [{ field: 'userId', value: userId }, { field: 'clientId', value: consent.clientId }] });
-        const lastUsed = refreshTokens.map(token => new Date(token.createdAt).getTime()).reduce((latest, at) => Math.max(latest, at), 0);
+        // Asked of the database, never read as a page of rows: Better Auth's findMany answers 100 rows unless told more, and an AI used
+        // daily holds a revoked token for every refresh, so its live token could fall outside the page and the AI be reported ended.
+        const ofAi = [{ field: 'userId', value: userId }, { field: 'clientId', value: consent.clientId }];
+        const [newest] = await adapter.findMany({ model: 'oauthRefreshToken', where: ofAi, sortBy: { field: 'createdAt', direction: 'desc' }, limit: 1 });
+        const lastUsed = newest ? new Date(newest.createdAt).getTime() : 0;
         // Each refresh makes a token that lives idle_seconds from that moment, so the newest unused one is the access's end; with none
         // standing the access has ended: by the days passing unused (a token past its end), or because an old token was used a second time (Better Auth then deletes the whole chain).
-        const unused = refreshTokens.filter(token => !token.revoked);
+        const unused = await adapter.findMany({ model: 'oauthRefreshToken', where: [...ofAi, { field: 'revoked', value: null }] });
         const standing = unused.some(token => new Date(token.expiresAt).getTime() > now);
         const endedBy = standing ? null : unused.length ? 'unused' : 'chain_ended';
         const endedAt = endedBy === 'unused' ? new Date(unused.reduce((latest, token) => Math.max(latest, new Date(token.expiresAt).getTime()), 0)).toISOString() : null;

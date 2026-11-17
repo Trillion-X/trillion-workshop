@@ -18,7 +18,10 @@ export async function credentialStands(auth, standing, credential, now = new Dat
   if (!rule || !id) return false;
   const { adapter } = await auth.$context;
   const one = (model, field, value) => adapter.findOne({ model, where: [{ field, value }] });
-  const someLive = async (model, where) => (await adapter.findMany({ model, where, limit: 100 })).some(row => live(row, now));
+  // The database picks the live row (not revoked, not ended), so a holder with hundreds of old rows is not cut off by a page limit.
+  const someLive = async (model, where, { revocable } = {}) => (await adapter.findMany({
+    model, limit: 1, where: [...where, { field: 'expiresAt', operator: 'gt', value: now }, ...(revocable ? [{ field: 'revoked', value: null }] : [])],
+  })).length > 0;
   let userId = id;
   if (rule === 'api_key') {
     const key = await one('apikey', 'id', id);
@@ -32,7 +35,7 @@ export async function credentialStands(auth, standing, credential, now = new Dat
   if (rule === 'session') return someLive('session', [ofUser]);
   if (rule === 'client_grant' && client) {
     const granted = [ofUser, { field: 'clientId', value: client }];
-    return (await someLive('oauthRefreshToken', granted)) || (await someLive('oauthAccessToken', granted));
+    return (await someLive('oauthRefreshToken', granted, { revocable: true })) || (await someLive('oauthAccessToken', granted, { revocable: true }));
   }
   return false;
 }
