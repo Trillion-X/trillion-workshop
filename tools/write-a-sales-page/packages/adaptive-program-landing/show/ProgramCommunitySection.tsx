@@ -1,10 +1,10 @@
 'use client';
 
 import React from 'react';
-import { SectionShell, TextColumn } from '@/packages/ui/show/marketing-page/MarketingPagePrimitives';
-import { StatementText } from '@/packages/ui/show/marketing-page/MarketingPagePrimitives';
+import { SectionShell, TextColumn } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
+import { StatementText } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
 import { PROGRAM_HERO_ENGRAVED_HEADING_STYLE } from './programHeroTypography';
-import styles from '@/packages/screen-look/show/adaptive-program-landing/ProgramCommunitySection.module.css';
+import styles from '../../../../screen-look/show/adaptive-program-landing/ProgramCommunitySection.module.css';
 import { useProgramLandingData } from './ProgramLandingData';
 
 export function ProgramCommunitySection() {

@@ -34,10 +34,10 @@
 
 import * as React from 'react';
 
-import { CaptureControl, type CaptureControlState } from '@/packages/ui/show/capture-control/CaptureControl';
-import { Button } from '@/packages/ui/show/button';
-import { Container } from '@/packages/ui/show/container';
-import { Text } from '@/packages/ui/show/text';
+import { CaptureControl, type CaptureControlState } from '../../../../ui/show/capture-control/CaptureControl';
+import { Button } from '../../../../ui/show/button';
+import { Container } from '../../../../ui/show/container';
+import { Text } from '../../../../ui/show/text';
 
 /** The surface stage. Closed by Physics (a capture→analyze flow is either
  *  not-started, recording, analyzing, or showing its result / an error) — not

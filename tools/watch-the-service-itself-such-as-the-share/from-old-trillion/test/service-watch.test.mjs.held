@@ -7,10 +7,10 @@ import { READERS, environmentOwner, flushCalls, readCalls, readServiceWatch, rea
 import { readFileSync } from 'node:fs';
 import { makeServiceCheck, publishServiceCheckState, readServiceCheckStates, serviceCheckBookName, startServiceChecks, withServiceChecks } from '../../../run-trillions-own-capability-checks-each-on-its-own-schedule-and/from-old-trillion/src/service-checks.mjs.held';
 import { recordBooks } from './record-book-for-tests.mjs';
-import operators from '../parts/formula-engine/rules/rule-operators.json' with { type: 'json' };
-import { makeRowFilter } from '../parts/formula-engine/rules/filter-rows-by-rules.mjs';
+import operators from '../../../formula-engine/rules/rule-operators.json' with { type: 'json' };
+import { makeRowFilter } from '../../../formula-engine/rules/filter-rows-by-rules.mjs';
 
-const { filterRowsByRules } = makeRowFilter({ operators, wasm: () => readFileSync(new URL('../parts/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url)) });
+const { filterRowsByRules } = makeRowFilter({ operators, wasm: () => readFileSync(new URL('tools/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url)) });
 const matches = async (tree, fields, row) => (await filterRowsByRules({ tree, fields, rows: [row] })).matches.length === 1;
 
 // The service's own checks, one owner per check as src/book-handlers.mjs 'service-check' wires each (its rows in memory

@@ -6,9 +6,9 @@
 // renderer over the copy DATA array; adding a section is one row (L069/L090).
 
 import React from 'react';
-import { SectionShell, TextColumn } from '@/packages/ui/show/marketing-page/MarketingPagePrimitives';
-import { Text } from '@/packages/ui/show/marketing-page/MarketingPagePrimitives';
-import { StatementText } from '@/packages/ui/show/marketing-page/MarketingPagePrimitives';
+import { SectionShell, TextColumn } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
+import { Text } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
+import { StatementText } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
 import { GuidedMediaSection } from './GuidedMediaSection';
 import { StrategySequenceSection } from './StrategySequenceSection';
 import { AdaptivePriorityVisual, ComposureReadoutVisual, ObservedDialogueVisual } from './ProgramSystemVisuals';
@@ -17,10 +17,10 @@ import {
   PROGRAM_BRIDGE_SOLID_HIGHLIGHT_COLOR,
   PROGRAM_HERO_ENGRAVED_HEADING_STYLE,
 } from './programHeroTypography';
-import { highlightInkColor } from '@/packages/ui/show/marketing-page/MarketingPagePrimitives';
-import { LANDING_SOLID_HIGHLIGHT_COLOR } from '@/packages/ui/show/marketing-page/MarketingPagePrimitives';
+import { highlightInkColor } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
+import { LANDING_SOLID_HIGHLIGHT_COLOR } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
 import type { ProgramCopySegment, ProgramSectionCopy } from '../read-data/program-landing-data';
-import styles from '@/packages/screen-look/show/adaptive-program-landing/ProgramStatementSection.module.css';
+import styles from '../../../../screen-look/show/adaptive-program-landing/ProgramStatementSection.module.css';
 
 // A getLine can be a plain string or data-owned emphasis segments. When it is
 // segments, a `tone`/`solid` phrase renders in its highlight color (L090) so a

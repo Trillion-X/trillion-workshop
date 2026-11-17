@@ -6,9 +6,9 @@
 // Vizcom / Glide / Coda single-quote sections (Mobbin, 2026-08-27).
 
 import React from 'react';
-import { SectionShell } from '@/packages/ui/show/marketing-page/MarketingPagePrimitives';
+import { SectionShell } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
 import { useProgramLandingData } from './ProgramLandingData';
-import styles from '@/packages/screen-look/show/adaptive-program-landing/ProgramQuoteSpotlight.module.css';
+import styles from '../../../../screen-look/show/adaptive-program-landing/ProgramQuoteSpotlight.module.css';
 
 type SpotlightQuote = {
   readonly quote: string;

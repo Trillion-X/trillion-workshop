@@ -1,4 +1,4 @@
-// parts/guided-overlay/do-work/act-on-target.ts
+// tools/guided-overlay/do-work/act-on-target.ts
 //
 // A tour step that DOES the thing instead of describing it. A step's `act` DATA names what to do to the real control it
 // points at (`{ do: 'press' }`, `{ do: 'type', text }`, `{ do: 'choose', text }`, optionally `within`: a selector inside the

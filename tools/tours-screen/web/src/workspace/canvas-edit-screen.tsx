@@ -1,9 +1,9 @@
 // src/workspace/canvas-edit-screen.tsx
 //
-// NO PRIOR: the parts this composes were each found first: the canvas of frames (parts/ui/show/frames-canvas, which
-// now also holds live content), the card a tour step is drawn in (parts/guided-overlay/show/step-card.ts, the same body
-// the running tour draws), the controls a setting is tuned with (parts/ui/show/tuning-panel) and the one rule seam every
-// surface asks (parts/ui/show/show-rules). Anatomy from MagicPath's visual edit mode (Mobbin 60b61239: frames on a
+// NO PRIOR: the parts this composes were each found first: the canvas of frames (tools/ui/show/frames-canvas, which
+// now also holds live content), the card a tour step is drawn in (tools/guided-overlay/show/step-card.ts, the same body
+// the running tour draws), the controls a setting is tuned with (tools/ui/show/tuning-panel) and the one rule seam every
+// surface asks (tools/ui/show/show-rules). Anatomy from MagicPath's visual edit mode (Mobbin 60b61239: frames on a
 // canvas, the picked element ringed, its fields in a side panel) and Klaviyo's editor (3849c671: the panel beside the
 // canvas, the controls drawn as what they set).
 //
@@ -30,21 +30,21 @@
 
 import * as React from 'react';
 import { createRoot } from 'react-dom/client';
-import { Button, Card, Container, NamedIcon, SegmentedControl, Text, Textarea, TuningPanel, type TuningSetting, type TuningValue } from '../../parts/ui';
-import { FramesCanvas, type CanvasFrame } from '../../parts/ui/show/frames-canvas/FramesCanvas';
-import { QueueJobButton } from '../../parts/ui/show/queue-job/QueueJobButton';
-import { ScreenState, mountScreenState, useScreenLoad, type ScreenStateValue } from '../../parts/ui/show/screen-state';
-import { notify } from '../../parts/ui/show/coss/notifications';
+import { Button, Card, Container, NamedIcon, SegmentedControl, Text, Textarea, TuningPanel, type TuningSetting, type TuningValue } from '../../../../ui';
+import { FramesCanvas, type CanvasFrame } from '../../../../ui/show/frames-canvas/FramesCanvas';
+import { QueueJobButton } from '../../../../ui/show/queue-job/QueueJobButton';
+import { ScreenState, mountScreenState, useScreenLoad, type ScreenStateValue } from '../../../../ui/show/screen-state';
+import { notify } from '../../../../ui/show/coss/notifications';
 import { errorWords } from '../../../../ui/show/safe-error-card/sanitize-error-text.ts';
-import { removeShowRule, saveShowRule, showOf, useShowChange } from '../../parts/ui/show/show-rules/show-of';
+import { removeShowRule, saveShowRule, showOf, useShowChange } from '../../../../ui/show/show-rules/show-of';
 import {
   StepCardBody, buttonLooksOf, defaultStepRegistries, exitControlOf, paperOf, paperStyle, stepAsChanged,
   stepButtonsOf, stepFacts, type Paper,
-} from '../../parts/guided-overlay/show/step-card';
-import { emitWalkthroughEvent } from '../../parts/guided-overlay/show/walkthroughs';
+} from '../../../../guided-overlay/show/step-card';
+import { emitWalkthroughEvent } from '../../../../guided-overlay/show/walkthroughs';
 import { OWN_WALKTHROUGHS_INPUT } from '../../../read-data/tour-library.ts';
-import type { WalkthroughDefinition, WalkthroughStep } from '../../parts/guided-overlay/read-data/walkthrough-eeaf';
-import { NavItem, type NavItemData } from '../../parts/sidebar/show/SidebarContent';
+import type { WalkthroughDefinition, WalkthroughStep } from '../../../../guided-overlay/read-data/walkthrough-eeaf';
+import { NavItem, type NavItemData } from '../../../../sidebar/show/SidebarContent';
 import { useBitfieldData } from './records';
 import { screens } from './screen-mounts';
 import surfaces from './screens.mjs';
@@ -53,7 +53,7 @@ import { refusal } from './failure';
 import { withChanges } from './show-rules.mjs';
 import data from './canvas-edit.json';
 import showRules from '../../../../set-up-my-account/read-data/show-rules.json';
-import '../../parts/screen-look/show/canvas-edit.css';
+import '../../../../screen-look/show/canvas-edit.css';
 
 const KEEP_AFTER_MS = 400;
 type Path = (string | number)[];
@@ -156,7 +156,7 @@ function StepOnCanvas({ definition, step, index, width, registries }: { definiti
 }
 
 type ScreenRow = Record<string, unknown> & { id: string; label?: string; icon?: string; listed?: boolean };
-/** How a screen row is drawn: the same row the sidebar draws for it (parts/sidebar NavItem), in its list look or as
+/** How a screen row is drawn: the same row the sidebar draws for it (tools/sidebar NavItem), in its list look or as
  *  the pane tab (`look`). */
 const SCREEN_LOOKS = [{ id: 'list', label: 'In the sidebar', look: undefined }, { id: 'tab', label: 'As a tab', look: 'tab' }] as const;
 const screenItem = (row: ScreenRow, look?: string): NavItemData => ({

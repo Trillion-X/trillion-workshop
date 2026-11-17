@@ -7,7 +7,7 @@
 //   are followed through that script like a teleprompter; and a finished recording is named in the person's Files
 //   (one folder per day under recording.json's folder) with its transcript, then handed to their AIs as one job row of
 //   src/queued-work.json. Which recording kind the browser makes, and its file ending, is the one recorder's
-//   (parts/record-audio/show/record-in-the-browser.ts).
+//   (tools/record-audio/show/record-in-the-browser.ts).
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. A format's parts come from the account (GET /work/api/content-formats); nothing here names a format or a part.
@@ -140,7 +140,7 @@ export const heardWords = text => clean(text).split(/\s+/).map(comparable).filte
  * words; shorter turns wait and join the next one. A turn still being said is handed once long_turn_words have
  * gathered, so a long monologue is acted on before it ends. `handed` is how many words were already handed, so a
  * stretch is never handed twice. Returns { start, end, words, repeated } with words as said; `repeated` says the stretch
- * is mostly one line on repeat (parts/record-audio/read-data/heard-words.json), which is passed over, never handed.
+ * is mostly one line on repeat (tools/record-voice-and-meetings/read-data/heard-words.json), which is passed over, never handed.
  */
 export function liveStretch({ final, hearing = '', handed = 0, quiet = 0 }, rules = settings.live_work) {
   const said = text => String(text ?? '').trim().split(/\s+/).filter(Boolean);

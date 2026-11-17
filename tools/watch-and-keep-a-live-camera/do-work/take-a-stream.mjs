@@ -1,4 +1,3 @@
-// parts/receive-a-camera-stream/do-work/take-a-stream.mjs
 //
 // Purpose: the listener every destination capability shares: FFmpeg waits on this computer for one camera's RTMP
 // stream on a port, and writes it out the way the capability says (pieces into a folder, or on to another address).

@@ -14,7 +14,7 @@
 //
 // The usage estimate (reader `service_bill`): the service's own budget rows (src/spend-meter.json, scope service) are checked
 // against what the provider itself counted, read here with the service's own read-only token (a Worker secret the row
-// names) through the provider's request row in parts/service-connections/records.json, priced by src/spend-meter.mjs.
+// names) through the provider's request row in tools/connect-a-service-and-seal-its-key/records.json, priced by src/spend-meter.mjs.
 // A budget heading past its most (pace), near it or reached is a notice told once to the account the row's
 // `service_work_setting` names (whoever runs Trillion), for a row with `tell`, kept as told in APP_KV only once that account took it, so a busy store
 // is told on the next run instead of never. This watch only tells: the stops a reached budget asks for stay with the
@@ -402,7 +402,7 @@ let providerRows = null;
 async function askProvider({ env, watch, reading, period, which, token, fetch }) {
   const how = watch.readings[which.id];
   if (!how) return { state: 'unread', error: `This watch does not read ${which.id}.` };
-  providerRows ??= import('../parts/service-connections/records.json', { with: { type: 'json' } }).then(module => module.default.things);
+  providerRows ??= import('../../../connect-a-service-and-seal-its-key/records.json', { with: { type: 'json' } }).then(module => module.default.things);
   const payload = (await providerRows).find(thing => thing.address === how.record)?.payload;
   const request = payload?.instrument_requests?.[how.request];
   if (!request) return { state: 'unread', error: `${how.record} has no request ${how.request}.` };

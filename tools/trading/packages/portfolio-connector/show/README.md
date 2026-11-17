@@ -38,7 +38,7 @@ Point this exact file at a Schwab account, an options portfolio, or a futures ac
 
 ## Dependencies
 
-**Depends on:** `@/packages/ui` (Badge, Bar, Button, Card, Container, EmptyPlaceholder, Icon, LineChart, ScrollableSurface, StatusDot, Table family, Text, `emitPlaceableSurfaceIntent`, `FloatingMaterialFrame`, `ErrorBoundary`, `mountReactSurface`); `@/packages/visual-database` (`decodeVisualDatabaseModel`, `recordsForView`, `FieldControl`, `displayTitle`, `statusTone`, `RecordMetricRow`); `@bitfield/runtime-kit/react` (`useBitfieldData`); `../read-data/account-board` (the translation boundary); `lucide-react` (icons).
+**Depends on:** `tools/ui` (Badge, Bar, Button, Card, Container, EmptyPlaceholder, Icon, LineChart, ScrollableSurface, StatusDot, Table family, Text, `emitPlaceableSurfaceIntent`, `FloatingMaterialFrame`, `ErrorBoundary`, `mountReactSurface`); `tools/keep-lists-of-rows` (`decodeVisualDatabaseModel`, `recordsForView`, `FieldControl`, `displayTitle`, `statusTone`, `RecordMetricRow`); `@bitfield/runtime-kit/react` (`useBitfieldData`); `../read-data/account-board` (the translation boundary); `lucide-react` (icons).
 **Depended on by:** the package entry (`things-to-store-and-run.json`) and, when placed, the trading workspace layout (`investment-command`).
 
 ## Invariants

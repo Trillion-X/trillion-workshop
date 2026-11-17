@@ -6,9 +6,9 @@
 
 import React from 'react';
 import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
-import { SectionShell, TextColumn } from '@/packages/ui/show/marketing-page/MarketingPagePrimitives';
-import { Text, Button, Container, ShowcaseStrip } from '@/packages/ui/show/marketing-page/MarketingPagePrimitives';
-import { LANDING_PRICING_SECTION_ID } from '@/packages/ui/show/marketing-page/MarketingPagePrimitives';
+import { SectionShell, TextColumn } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
+import { Text, Button, Container, ShowcaseStrip } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
+import { LANDING_PRICING_SECTION_ID } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
 import { PROGRAM_HERO_ENGRAVED_HEADING_STYLE } from './programHeroTypography';
 import { useProgramLandingData } from './ProgramLandingData';
 import {

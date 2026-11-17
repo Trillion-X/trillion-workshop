@@ -6,9 +6,9 @@ Sales and landing pages as one row of DATA each, written as a whole static HTML 
 
 | File | Purpose |
 |------|---------|
-| `read-data/sales-page.mjs` | `pageProblems` (every problem with a row, in words), `salesPageHtml` (the row as a document through `parts/ui/show/server-rendered-page`, with its palette). |
+| `read-data/sales-page.mjs` | `pageProblems` (every problem with a row, in words), `salesPageHtml` (the row as a document through `tools/ui/show/server-rendered-page`, with its palette). |
 | `do-work/write-a-sales-page.mjs` | The tool's command: row JSON in argv[2], the page written at argv[3], one JSON line out (title, sections, bytes, BLAKE3 identity, the page's words). |
-| `records.json` | The tool row: input and output shapes, the container bundle (this part, the page writer, `parts/screen-look/show/sales-page.css`, @noble/hashes), the page kept in files, a sample. |
+| `records.json` | The tool row: input and output shapes, the container bundle (this part, the page writer, `tools/screen-look/show/sales-page.css`, @noble/hashes), the page kept in files, a sample. |
 | `part.json` | No public files: only the container runs this code. |
 
 ## Key Types / Functions
@@ -21,7 +21,7 @@ Sales and landing pages as one row of DATA each, written as a whole static HTML 
 
 ## Dependencies
 
-**Depends on:** `parts/ui/show/server-rendered-page/page-sections-html.mjs`, the mounted `parts/screen-look/show/sales-page.css` DATA file, `@noble/hashes`, Node in the tool container. The static CLI reads that stylesheet from the path in its row; direct library calls retain the package-resolved default.
+**Depends on:** `tools/ui/show/server-rendered-page/page-sections-html.mjs`, the mounted `tools/screen-look/show/sales-page.css` DATA file, `@noble/hashes`, Node in the tool container. The static CLI reads that stylesheet from the path in its row; direct library calls retain the package-resolved default.
 
 **Scope:** this writes section content and links into static HTML. It does not provide the interactive checkout, enrollment consent, email course or article behavior from `packages/adaptive-program-landing`.
 

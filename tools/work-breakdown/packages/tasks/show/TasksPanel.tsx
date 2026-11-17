@@ -26,10 +26,10 @@
 // =============================================================================
 
 import React, { useState, useMemo } from 'react';
-import { TaskList } from '@/packages/tasks/show/TaskList';
-import { KanbanBoard } from '@/packages/tasks/show/KanbanBoard';
-import { TaskDAG } from '@/packages/tasks/show/TaskDAG';
-import { Tabs, TabsList, TabsTrigger, TabsContent, Text } from '@/packages/ui';
+import { TaskList } from './TaskList';
+import { KanbanBoard } from './KanbanBoard';
+import { TaskDAG } from './TaskDAG';
+import { Tabs, TabsList, TabsTrigger, TabsContent, Text } from '../../../../ui';
 import type { DAGNode, DAGEdge, TaskEntry } from '@/packages/tasks/read-data/task-graph-types';
 
 interface TasksPanelProps {

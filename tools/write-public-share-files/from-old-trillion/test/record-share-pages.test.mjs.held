@@ -1,11 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { answerRecordShare as answerNativeRecordShare } from '../src/record-share-pages.mjs';
-import { PAGE_SECTIONS_CSS, sectionHtml } from '../parts/ui/show/server-rendered-page/page-sections-html.mjs';
+import { PAGE_SECTIONS_CSS, sectionHtml } from '../../../ui/show/server-rendered-page/page-sections-html.mjs';
 import { readFileSync } from 'node:fs';
 import { build } from 'esbuild';
 import { importSource } from './import-source-for-tests.mjs';
-const schemeBundle = (await build({ entryPoints: [new URL('../parts/screen-look/read-data/look-scheme.ts', import.meta.url).pathname], bundle: true, write: false, format: 'esm', platform: 'node', logLevel: 'error' })).outputFiles[0].text;
+const schemeBundle = (await build({ entryPoints: [new URL('tools/screen-look/read-data/look-scheme.ts', import.meta.url).pathname], bundle: true, write: false, format: 'esm', platform: 'node', logLevel: 'error' })).outputFiles[0].text;
 const { screenLookScheme } = await importSource(schemeBundle);
 import { PAGE_LOOK } from '../src/page-look.mjs';
 import { RECORD_SHARE_LINK_INDEX, previewOf } from '../src/record-sharing.mjs';

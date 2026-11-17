@@ -2,9 +2,9 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-libra
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { WalkthroughDefinition } from '../read-data/walkthrough-eeaf';
 import { WalkthroughSurface } from './WalkthroughSurface';
-import { PLACEABLE_SURFACE_MIME } from '@/packages/ui/show/placeable-surface-intent/placeable-surface-intent';
-import { createStepContentRegistry } from '@/packages/ui/show/step-content-renderer/step-content-renderer';
-import type { StepContentProps } from '@/packages/ui/show/step-content-renderer/StepContent';
+import { PLACEABLE_SURFACE_MIME } from '../../ui/show/placeable-surface-intent/placeable-surface-intent';
+import { createStepContentRegistry } from '../../ui/show/step-content-renderer/step-content-renderer';
+import type { StepContentProps } from '../../ui/show/step-content-renderer/StepContent';
 
 function definition(targetRef: unknown, timeout = 500): WalkthroughDefinition {
   return {

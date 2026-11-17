@@ -4,7 +4,7 @@
 //   Tours: every guided tour the workspace ships (walkthroughs/*.json) and every tour the person's AIs wrote for them
 //   (src/tours.mjs), as one list in the shared record views: whether this person has taken it, its category (the group
 //   part's category groups, read through group.load-graph; a tour of their own lately written under Recent) and Show me
-//   on each. It opens in the Guide view, the designed view every list is offered (parts/ui/show/record-views/designs),
+//   on each. It opens in the Guide view, the designed view every list is offered (tools/ui/show/record-views/designs),
 //   which draws the sectioned rows this screen once drew by hand; Table, Cards, Board and every other view read the
 //   same list, and the Guide look is offered on every other list too. A tour about a change (one with a landing time,
 //   `changedAt`) is a line of the changelog under What is new: what changed, when, newest first, and Show me walks
@@ -26,17 +26,17 @@
 //      seen without showing). When the next one shows is the person's show rules, opened from the list; nothing here
 //      decides it.
 
-import { dismissWalkthroughs, listWalkthroughs, startListedWalkthrough, TOUR_SUBJECT, waitingWalkthroughs, type WaitingWalkthrough } from '../../parts/guided-overlay/show/walkthroughs';
-import { chooseShow, onShowChange, removeShowRule, showMenu } from '../../parts/ui/show/show-rules/show-of';
+import { dismissWalkthroughs, listWalkthroughs, startListedWalkthrough, TOUR_SUBJECT, waitingWalkthroughs, type WaitingWalkthrough } from '../../../../guided-overlay/show/walkthroughs';
+import { chooseShow, onShowChange, removeShowRule, showMenu } from '../../../../ui/show/show-rules/show-of';
 import showRules from '../../../../set-up-my-account/read-data/show-rules.json';
-import { WALKTHROUGH_PROGRESS_LABEL } from '../../parts/guided-overlay/do-work/walkthrough-progress';
+import { WALKTHROUGH_PROGRESS_LABEL } from '../../../../guided-overlay/do-work/walkthrough-progress';
 import { OWN_WALKTHROUGHS_INPUT, TOUR_LIBRARY } from '../../../read-data/tour-library.ts';
-import { libraryCategories, libraryRecent } from '../../parts/group/read-data/kept-library';
+import { libraryCategories, libraryRecent } from '../../../../make-screen-layouts-and-controls/parts/group/read-data/kept-library';
 import type { GroupGraph } from '../../../../turn-frames-into-slides/read-data/group-graph.ts';
-import { mountRecordViews, type FieldDescriptor, type RecordView } from '../../parts/ui/show/record-views/record-views';
-import { viewsOfferedToEveryList } from '../../parts/ui/show/record-views/every-list-views';
-import { loadScreen } from '../../parts/ui/show/screen-state';
-import { notify } from '../../parts/ui/show/coss/notifications';
+import { mountRecordViews, type FieldDescriptor, type RecordView } from '../../../../ui/show/record-views/record-views';
+import { viewsOfferedToEveryList } from '../../../../ui/show/record-views/every-list-views';
+import { loadScreen } from '../../../../ui/show/screen-state';
+import { notify } from '../../../../ui/show/coss/notifications';
 import { errorWords } from '../../../../ui/show/safe-error-card/sanitize-error-text.ts';
 import { buildEngineReadCurrentRequestFromLabels, decodeEngineReadCurrentReply, readInputValue, sendRequestToBitfieldTarget, subscribe } from './records';
 import { refusal } from './failure';

@@ -23,8 +23,8 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 
-import { decodeTrainingPlan, type TrainingSessionPrescription } from '@/packages/training-plan/read-data/training-plan';
-import { deriveNextSession } from '@/packages/training-plan/read-data/derive-next-session';
+import { decodeTrainingPlan, type TrainingSessionPrescription } from '../../read-data/training-plan';
+import { deriveNextSession } from '../../read-data/derive-next-session';
 
 // stdout is the compute.process result channel and MUST be clean JSON — route any
 // diagnostic console output to stderr so it never corrupts the stdout JSON contract.

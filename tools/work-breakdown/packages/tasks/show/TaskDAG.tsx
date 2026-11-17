@@ -31,9 +31,9 @@
 // =============================================================================
 
 import * as React from 'react';
-import { computeDAGLayout, type PositionedNode } from '@/packages/tasks/show/compute-task-dag-layout';
+import { computeDAGLayout, type PositionedNode } from './compute-task-dag-layout';
 import type { DAGNode, DAGEdge, DAGDirection } from '@/packages/tasks/read-data/task-graph-types';
-import { Text } from '@/packages/ui';
+import { Text } from '../../../../ui';
 
 // ============================================================================
 // TYPES

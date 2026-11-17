@@ -6,12 +6,12 @@
 // GitHub quote walls (Mobbin, 2026-08-27).
 
 import React from 'react';
-import { SectionShell, TextColumn } from '@/packages/ui/show/marketing-page/MarketingPagePrimitives';
-import { StatementText } from '@/packages/ui/show/marketing-page/MarketingPagePrimitives';
+import { SectionShell, TextColumn } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
+import { StatementText } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
 import { PROGRAM_HERO_ENGRAVED_HEADING_STYLE } from './programHeroTypography';
 import { useProgramLandingData } from './ProgramLandingData';
 import type { ProgramTestimonial } from '../read-data/program-landing-data';
-import styles from '@/packages/screen-look/show/adaptive-program-landing/ProgramNamedStrip.module.css';
+import styles from '../../../../screen-look/show/adaptive-program-landing/ProgramNamedStrip.module.css';
 
 export function ProgramNamedStrip({ quotes }: { quotes?: readonly ProgramTestimonial[] }) {
   const data = useProgramLandingData();

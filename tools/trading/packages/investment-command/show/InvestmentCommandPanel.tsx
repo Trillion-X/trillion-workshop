@@ -26,7 +26,7 @@
 // no fixed columns, no domain branch. The only non-data branch is the surface
 // render-mode (overview vs the tiled workspace).
 //
-// fey-grade via @/packages/ui + visual-database; ZERO inline style / raw HTML.
+// fey-grade via tools/ui + visual-database; ZERO inline style / raw HTML.
 // =============================================================================
 
 import React from 'react';
@@ -48,7 +48,7 @@ import {
   Text,
   emitPlaceableSurfaceIntent,
   type LineChartTone,
-} from '@/packages/ui';
+} from '../../../../ui';
 import {
   decodeVisualDatabaseModel,
   extractFieldValue,
@@ -56,22 +56,22 @@ import {
   type VisualDatabaseFieldDescriptor,
   type VisualDatabaseModel,
   type VisualDatabaseRecord,
-} from '@/packages/visual-database/read-data/visual-database';
-import { RecordMetricRow, type RecordMetricFormat } from '@/packages/visual-database/show/RecordMetricRow';
-import { FieldControl, displayTitle, statusTone } from '@/packages/visual-database/show/field-editors';
-import { EmbeddedScreenArrangement } from '@/packages/screen-arrangement/show/EmbeddedScreenArrangement';
-import { runInvestmentCommandAction } from '@/packages/investment-command/do-work/run-investment-command-action';
+} from '../../../../keep-lists-of-rows/read-data/visual-database';
+import { RecordMetricRow, type RecordMetricFormat } from '../../../../keep-lists-of-rows/show/RecordMetricRow';
+import { FieldControl, displayTitle, statusTone } from '../../../../keep-lists-of-rows/show/field-editors';
+import { EmbeddedScreenArrangement } from '../../../../screen-arrangement/show/EmbeddedScreenArrangement';
+import { runInvestmentCommandAction } from '../../../../command-the-trading-agent-and-its-cockpit/do-work/run-investment-command-action';
 import {
   decodeInvestmentCommandSurfaceRecipe,
   decodeInvestmentMarketBars,
   investmentCommandSurface,
   summarizeInvestmentMarketBars,
   type InvestmentCommandSurfaceRecipe,
-} from '@/packages/investment-command/read-data/investment-command-surface';
+} from '../../../../command-the-trading-agent-and-its-cockpit/read-data/investment-command-surface';
 import {
   projectCockpit,
   TRADING_AGENT_CYCLE_INPUT,
-} from '@/packages/investment-command/read-data/read-trading-agent-cycle';
+} from '../../../../command-the-trading-agent-and-its-cockpit/read-data/read-trading-agent-cycle';
 import {
   COCKPIT_FIELDS_INPUT,
   COCKPIT_VIEWS_INPUT,
@@ -81,14 +81,14 @@ import {
   decodeRangeOptions,
   decodeViewSource,
   type CockpitRange,
-} from '@/packages/investment-command/read-data/cockpit-board';
+} from '../../../../command-the-trading-agent-and-its-cockpit/read-data/cockpit-board';
 import {
   acceptsTradingWorkspaceLayoutState,
   TRADING_WORKSPACE_LAYOUT_STATE,
   TRADING_WORKSPACE_LAYOUT_STATE_ADDRESS_LABEL,
   TRADING_WORKSPACE_LAYOUT_STATE_INPUT,
   TRADING_WORKSPACE_PLACEABLE_SURFACE_LIST_ADDRESS_LABEL,
-} from '@/packages/investment-command/read-data/read-trading-workspace-layout-state';
+} from '../../../../command-the-trading-agent-and-its-cockpit/read-data/read-trading-workspace-layout-state';
 
 type InvestmentCommandPanelProps = {
   surface?: InvestmentCommandSurfaceRecipe;

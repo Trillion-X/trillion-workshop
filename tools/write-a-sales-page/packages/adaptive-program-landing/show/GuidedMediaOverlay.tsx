@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Gauge, Headphones, Target } from 'lucide-react';
-import styles from '@/packages/screen-look/show/adaptive-program-landing/GuidedMediaOverlay.module.css';
+import styles from '../../../../screen-look/show/adaptive-program-landing/GuidedMediaOverlay.module.css';
 
 type GuidanceRole = 'guide' | 'metric';
 

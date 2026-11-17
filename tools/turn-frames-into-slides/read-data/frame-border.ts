@@ -38,15 +38,15 @@
 // SSOT RE-EXPORT (#200)
 // -----------------------------------------------------------------------------
 // The IMPLEMENTATION of `readFrameBorder` now lives ONCE, at the bedrock package
-// that OWNS the frame schema — `@/packages/ui/show/visual-layer-stack/frame-border`,
+// that OWNS the frame schema — `tools/ui/show/visual-layer-stack/frame-border`,
 // beside the `FrameDef` type and the `FrameControl` that WRITES the border (L088
 // recursive-CSSOT placement). Keeping a second copy here would be exactly the SSOT
 // divergence this module was created to KILL — two bodies drifting apart. So this
 // file is now a thin re-export: it preserves the group-local import path
-// (`@/packages/group/do-work/frame-border`) and the WHY-context above, while the
+// (`tools/organize-the-sidebar/do-work/frame-border.ts`) and the WHY-context above, while the
 // single function body lives upstream.
 //
-// The re-export targets the PURE LEAF module path (not the `@/packages/ui`
+// The re-export targets the PURE LEAF module path (not the `tools/ui`
 // mega-barrel) so the React-free `board-svg` serializer stays React-free.
 // -----------------------------------------------------------------------------
 

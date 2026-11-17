@@ -24,7 +24,7 @@ The one guard for walking untrusted nested input: an imported document, pasted r
 
 ## Moved from Trillion
 
-The original package entry was already adapted in `2dcc68cf830719bc0387583fb9e370f67d0ca6a7`. This does not claim that migration was source-first. Exact original `parts/bounded-walk.mjs` bytes were later preserved alone in `source-baselines/bounded-walk.mjs.held`, committed as `1b6f146a` before the fresh canonical core existed. The archive is evidence only and is never imported at runtime.
+The original package entry was already adapted in `2dcc68cf830719bc0387583fb9e370f67d0ca6a7`. This does not claim that migration was source-first. Exact original `tools/bounded-walk.mjs` bytes were later preserved alone in `source-baselines/bounded-walk.mjs.held`, committed as `1b6f146a` before the fresh canonical core existed. The archive is evidence only and is never imported at runtime.
 
 Both this package's public entry and the historical root `tools/bounded-walk.mjs` now forward to the one core. The list engine consumes the package entry. Existing limits, refusal words, named exports and the descriptor's JSON command remain available. The original library tests and actual packaged descriptor checks exercise those public paths.
 

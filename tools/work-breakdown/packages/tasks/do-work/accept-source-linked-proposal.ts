@@ -1,4 +1,4 @@
-import type { OperationCandidateFact, OperationEvidence } from '@/packages/operation-records/read-data/operation-records';
+import type { OperationCandidateFact, OperationEvidence } from '../../../../operation-records/read-data/operation-records';
 
 export interface SourceLinkedProposalBinding {
   from: 'candidate' | 'payload' | 'literal' | 'sourceProof';

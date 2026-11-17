@@ -56,7 +56,7 @@
     "licence_class": "licence:maker-own",
     "placements": ["placement:small-container"],
     "maker": "maker:what-a-paste-becomes",
-    "provenance": { "source": "moved from Trillion-X/trillion parts/chat/read-data/paste-policy.mjs and paste-policy.json, with its tests" },
+    "provenance": { "source": "moved from Trillion-X/trillion tools/chat/read-data/paste-policy.mjs and paste-policy.json, with its tests" },
     "verify": [
      {
       "kind": "sample-run",

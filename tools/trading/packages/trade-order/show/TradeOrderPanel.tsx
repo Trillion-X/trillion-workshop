@@ -26,7 +26,7 @@
 // Live order ROWS are derived (decodeTradeOrderLive merges the executor order-set
 // + per-order broker records + the agent cycle), then PROJECTED into visual-database
 // records. The decoder is the self-describing translation boundary; this file
-// renders generically. fey-grade via @/packages/ui; zero raw HTML, zero className.
+// renders generically. fey-grade via tools/ui; zero raw HTML, zero className.
 // =============================================================================
 
 import React from 'react';
@@ -46,8 +46,8 @@ import {
   TableHeader,
   TableRow,
   Text,
-} from '@/packages/ui';
-import type { MetricCell } from '@/packages/ui';
+} from '../../../../ui';
+import type { MetricCell } from '../../../../ui';
 import { Inbox } from 'lucide-react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
 import {
@@ -56,9 +56,9 @@ import {
   type VisualDatabaseFieldDescriptor,
   type VisualDatabaseModel,
   type VisualDatabaseRecord,
-} from '@/packages/visual-database/read-data/visual-database';
-import { FieldControl, displayTitle, statusTone, toneVariant } from '@/packages/visual-database/show/field-editors';
-import { ComposeFieldSet, type ComposeFieldDescriptor } from '@/packages/visual-database/show/ComposeFieldSet';
+} from '../../../../keep-lists-of-rows/read-data/visual-database';
+import { FieldControl, displayTitle, statusTone, toneVariant } from '../../../../keep-lists-of-rows/show/field-editors';
+import { ComposeFieldSet, type ComposeFieldDescriptor } from '../../../../keep-lists-of-rows/show/ComposeFieldSet';
 import { decodeTradeOrderLive, type TradeOrderAccount } from '@/packages/trade-order/read-data/trade-order-live';
 import {
   tradeOrderCycleInput,

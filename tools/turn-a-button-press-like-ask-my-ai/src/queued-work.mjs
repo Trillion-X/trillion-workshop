@@ -28,7 +28,7 @@
 //   7. The record names the item it is about (`item`): its own id, unless Trillion itself names the input it belongs
 //      to (a recording that came with a message is part of that message, src/voice-memos.mjs). The rules hand one job
 //      per item, so a press about an input that already has a job joins it. A page's press never names an item.
-//   8. A press may carry the person's steps just before it (`steps`, parts/ui/show/recent-steps): checked against
+//   8. A press may carry the person's steps just before it (`steps`, tools/ui/show/recent-steps): checked against
 //      queued-work.json `steps`, kept with the record and added to the job's words. Never part of the press's identity.
 //
 // Security
@@ -86,7 +86,7 @@ export function readPress(press = {}, rules = settings) {
   };
 }
 
-// The steps a press sent (parts/ui/show/recent-steps): each { at, kind, label, where } of one line within its max,
+// The steps a press sent (tools/ui/show/recent-steps): each { at, kind, label, where } of one line within its max,
 // oldest first, at most `max`. A step that is not is left out; the steps never decide whether the press is kept, and
 // they are not part of the press's identity, so the same press resent is the same job.
 function stepsOf(given, limits) {

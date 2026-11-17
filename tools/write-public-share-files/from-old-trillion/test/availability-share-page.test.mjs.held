@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {availabilityPageSections} from '../parts/calendar-booker/read-data/availability-page-sections.mjs';
-import {pageShellHtml} from '../parts/ui/show/server-rendered-page/page-sections-html.mjs';
+import {pageShellHtml} from '../../../ui/show/server-rendered-page/page-sections-html.mjs';
 const slots=Array.from({length:80},(_,index)=>({startMs:Date.parse('2026-10-15T00:00:00Z')+index*15*60000,endMs:Date.parse('2026-10-15T00:00:00Z')+(index*15+30)*60000}));
 const offered={link:{id:'one',title:'Meet with us',timezone:'UTC',duration_min:30},slots};
 test('booking DATA uses shared accessible choices with current offered values, timezone and stable request key',()=>{

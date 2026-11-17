@@ -19,7 +19,7 @@ import {
 
 const delegatedSurfaceProps: Array<{ packageName: string; entryName: string; surfaceInput?: Record<string, unknown> }> = [];
 
-vi.mock('@/packages/ui/show/placeable-surface-host/PlaceableSurfaceHost', () => ({
+vi.mock('tools/ui/show/placeable-surface-host/PlaceableSurfaceHost', () => ({
   PlaceableSurfaceHost: (props: { packageName: string; entryName: string; surfaceInput?: Record<string, unknown> }) => {
     delegatedSurfaceProps.push(props);
     return <div data-testid="delegated-surface">{props.packageName}:{props.entryName}</div>;

@@ -1,4 +1,4 @@
-// parts/guided-overlay/read-data/walkthrough-eeaf.ts
+// tools/guided-overlay/read-data/walkthrough-eeaf.ts
 //
 // PURPOSE
 // The translation boundary (L098) for guided-overlay. Tours are `walkthrough-definition`

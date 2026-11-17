@@ -17,7 +17,7 @@ What a paste becomes. In a composer (a message to the AIs, a hand-off, a note) a
 
 ## Moved from Trillion
 
-The earlier move copied `parts/chat/read-data/paste-policy.mjs` and `parts/documents/read-data/paste-sources.ts` into this tool, while their migrated screen owners also retained the algorithms. This tool now exposes those existing canonical owners through forwarding entries, with no second active clipboard or HTML conversion algorithm. Its local policy settings and original public function names remain available.
+The earlier move copied `tools/chat/read-data/paste-policy.mjs` and `tools/documents/read-data/paste-sources.ts` into this tool, while their migrated screen owners also retained the algorithms. This tool now exposes those existing canonical owners through forwarding entries, with no second active clipboard or HTML conversion algorithm. Its local policy settings and original public function names remain available.
 
 The narrow entry contracts describe only this forwarding and JSON invocation seam; they do not claim that paste handling had no older owner. Tests run the actual packaged descriptor and import the browser entry with its canonical module.
 

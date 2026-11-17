@@ -1,4 +1,3 @@
-// parts/transcript-reader/read-data/edit-transcript.ts
 //
 // PURPOSE
 //   The pure edits a person makes to a recording's kept words: name a speaker (or take the name back), split one

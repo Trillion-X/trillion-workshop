@@ -1,15 +1,15 @@
 import * as React from 'react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { Badge } from '@/packages/ui/show/badge';
-import { Button } from '@/packages/ui/show/button';
-import { Card } from '@/packages/ui/show/card';
-import { Container } from '@/packages/ui/show/container';
-import { Textarea } from '@/packages/ui/show/input';
-import { MediaThumb } from '@/packages/ui/show/media-thumb';
-import { MediaFrame } from '@/packages/ui/show/media-frame';
-import { Text } from '@/packages/ui/show/text';
-import { FileWorkAction } from '@/packages/ui/show/file-work-action';
-import { stageContentMediaFile } from '@/packages/content-media-evidence/do-work/content-media-work-loop';
+import { Badge } from '../../ui/show/badge';
+import { Button } from '../../ui/show/button';
+import { Card } from '../../ui/show/card';
+import { Container } from '../../ui/show/container';
+import { Textarea } from '../../ui/show/input';
+import { MediaThumb } from '../../ui/show/media-thumb';
+import { MediaFrame } from '../../ui/show/media-frame';
+import { Text } from '../../ui/show/text';
+import { FileWorkAction } from '../../ui/show/file-work-action';
+import { stageContentMediaFile } from '../../content-media-evidence/do-work/content-media-work-loop';
 import {
   attachCoachingNote,
   buildAttachCoachingNoteInput,

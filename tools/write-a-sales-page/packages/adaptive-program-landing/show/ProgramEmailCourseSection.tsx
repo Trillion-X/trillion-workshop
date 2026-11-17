@@ -1,12 +1,12 @@
 'use client';
 
 import React from 'react';
-import { Form } from '@/packages/ui/show/form/Form';
-import { Input } from '@/packages/ui/show/input/Input';
-import { Checkbox } from '@/packages/ui/show/coss/ui/checkbox';
-import { Button, SectionShell } from '@/packages/ui/show/marketing-page/MarketingPagePrimitives';
+import { Form } from '../../../../ui/show/form/Form';
+import { Input } from '../../../../ui/show/input/Input';
+import { Checkbox } from '../../../../ui/show/coss/ui/checkbox';
+import { Button, SectionShell } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
 import { useProgramLandingData } from './ProgramLandingData';
-import styles from '@/packages/screen-look/show/adaptive-program-landing/ProgramLandingSurface.module.css';
+import styles from '../../../../screen-look/show/adaptive-program-landing/ProgramLandingSurface.module.css';
 
 type EmailCoursePreview = {
   eyebrow: string;

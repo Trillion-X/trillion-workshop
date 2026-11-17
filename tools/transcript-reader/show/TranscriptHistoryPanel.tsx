@@ -9,9 +9,9 @@ import {
 import {
   OneStepAtATimeSurface,
   type OneStepAtATimeItem,
-} from '@/packages/ui/show/one-step-at-a-time-surface';
-import { Container } from '@/packages/ui/show/container';
-import { Text } from '@/packages/ui/show/text';
+} from '../../ui/show/one-step-at-a-time-surface';
+import { Container } from '../../ui/show/container';
+import { Text } from '../../ui/show/text';
 
 export type TranscriptHistoryPanelProps = {
   modelInput?: ReadTranscriptHistoryGraphInput;

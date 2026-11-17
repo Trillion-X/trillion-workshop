@@ -1,8 +1,8 @@
 import React from 'react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
 
-import { ErrorBoundary } from '@/packages/ui/show/error-boundary';
-import { mountReactSurface } from '@/packages/ui/show/react-surface-mount';
+import { ErrorBoundary } from '../../../../ui/show/error-boundary';
+import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
 import { assertProgramLandingData } from '../read-data/program-landing-data';
 import { ProgramLanding } from './ProgramLanding';
 

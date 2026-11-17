@@ -2,8 +2,8 @@
 
 import React, { startTransition, useState } from 'react';
 import { Activity, CheckCircle2, ClipboardList, Mic2, TrendingUp } from 'lucide-react';
-import { Button, Card, Container, Icon, Input, Text, Textarea } from '@/packages/ui';
-import { InteractiveTimeseriesChart } from '@/packages/ui/show/timeseries-chart/InteractiveTimeseriesChart';
+import { Button, Card, Container, Icon, Input, Text, Textarea } from '../../../../ui';
+import { InteractiveTimeseriesChart } from '../../../../ui/show/timeseries-chart/InteractiveTimeseriesChart';
 import {
   buildWorkoutEvidenceAtom,
   buildWorkoutProgressChart,

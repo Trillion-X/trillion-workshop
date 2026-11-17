@@ -1,4 +1,4 @@
-// parts/guided-overlay/show/WalkthroughHost.tsx
+// tools/guided-overlay/show/WalkthroughHost.tsx
 //
 // The LIVE intake (M7 host). Folds the tours it is handed (DATA the app ships) and
 // the person's one progress record (read by name through `useBitfieldData`), and
@@ -79,7 +79,7 @@ export interface WalkthroughHostProps {
   readonly words?: WalkthroughWords;
 }
 
-// What a tour is to the person's show rules (parts/ui/show/show-rules): a tour, with its id and title, and whether it
+// What a tour is to the person's show rules (tools/ui/show/show-rules): a tour, with its id and title, and whether it
 // started by itself. A tour the rules hide is turned away without being marked seen, so it waits for another open; a
 // tour asked for by name, or a trigger marked `takes_over`, is never held.
 const TOUR_SUBJECT = 'tour';
@@ -507,7 +507,7 @@ export function WalkthroughHost({
       if (!receipt.accepted) throw new Error('This tour could not be saved as finished. Try again.');
     }
     closeRun(run.runId);
-    // A tour taken to its end is a good thing that happened; whoever answers it (parts/delight-moments) plays its moment.
+    // A tour taken to its end is a good thing that happened; whoever answers it (tools/delight-moments) plays its moment.
     if (reason === 'completed') sayHappened({ event_kind: 'tour-finished', walkthrough_id: definition.id });
   };
 

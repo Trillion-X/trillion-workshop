@@ -8,7 +8,7 @@
 //   and a wake run the same rows, so each answer is the one the Tours screen gives.
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. The decisions are the tour host's own, moved from old trillion parts/guided-overlay: the definitions and progress
+//   1. The decisions are the tour host's own, moved from old trillion tools/guided-overlay: the definitions and progress
 //      folds and tourFacts (read-data/walkthrough-eeaf.ts), the trigger choice (engine/trigger-intake.ts), and the one
 //      progress move (do-work/walkthrough-progress.ts applyProgressTransition). The show rules are the person's own
 //      `show-rules` record (handed in as `show_rules`) decided by tools/set-up-my-account showDecision, the reader the

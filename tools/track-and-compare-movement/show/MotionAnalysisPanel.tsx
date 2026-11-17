@@ -2,8 +2,8 @@ import * as React from 'react';
 import { Activity } from 'lucide-react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
 
-import { evidenceBlockerText } from '@/packages/content-media-evidence/read-data/content-media-evidence';
-import { stageContentMediaFile } from '@/packages/content-media-evidence/do-work/content-media-work-loop';
+import { evidenceBlockerText } from '../../record-voice-and-meetings/read-data/content-media-evidence';
+import { stageContentMediaFile } from '../../content-media-evidence/do-work/content-media-work-loop';
 import { submitMotionAnalysisRequest } from '../do-work/submit-motion-analysis.ts';
 import {
   readMotionAnalysisEvidence,

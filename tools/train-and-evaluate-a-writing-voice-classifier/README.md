@@ -12,7 +12,7 @@ Old Trillion (Trillion-X/trillion) never trained or evaluated a voice classifier
 
 - `scripts/measure-decision-evals.mjs:1-20` asks each local judge every case of a decision eval and keeps right/of/cut/margin. That measures whether a judge can take one of the app's decisions; this measures a voice classifier on a person's challenge passages with request-and-reply evidence, resume and per-criterion confusion. Its "a judge is asked alone" and "the cases and the bar are DATA" hold here too.
 - `src/confidence-filter.mjs:36-39` (`act` / `ask` / `abstain` by confidence) is a rule for acting. This tool's `expectedDecision` (the choice above its diagnostic minimum, else uncertain) only reports; it never acts and is no calibrated threshold.
-- `parts/judge-words` runs word rules; it asks no model and is not used here.
+- `tools/judge-words` runs word rules; it asks no model and is not used here.
 
 ## Settings the person gives (no default in code)
 

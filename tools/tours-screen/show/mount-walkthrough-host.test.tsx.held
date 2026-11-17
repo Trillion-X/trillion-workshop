@@ -8,7 +8,7 @@ const captured: { node: React.ReactNode | null; props: Record<string, unknown> |
   props: null,
 };
 
-vi.mock('@/packages/ui', () => ({
+vi.mock('tools/ui', () => ({
   ErrorBoundary: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   mountReactSurface: (_el: HTMLElement, node: React.ReactNode) => {
     captured.node = node;
@@ -16,7 +16,7 @@ vi.mock('@/packages/ui', () => ({
   },
 }));
 
-vi.mock('@/packages/guided-overlay/show/WalkthroughHost', () => ({
+vi.mock('tools/guided-overlay/show/WalkthroughHost', () => ({
   WalkthroughHost: (props: Record<string, unknown>) => {
     captured.props = props;
     return <div data-testid="walkthrough-host-probe" />;

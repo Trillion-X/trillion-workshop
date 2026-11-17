@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { LANDING_SOLID_HIGHLIGHT_COLOR } from '@/packages/ui/show/marketing-page/MarketingPagePrimitives';
-import styles from '@/packages/screen-look/show/adaptive-program-landing/ComparisonLibrarySection.module.css';
+import { LANDING_SOLID_HIGHLIGHT_COLOR } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
+import styles from '../../../../screen-look/show/adaptive-program-landing/ComparisonLibrarySection.module.css';
 import { useProgramLandingData } from './ProgramLandingData';
 import { ProgramComparisonShowcase } from './ProgramComparisonShowcase';
 

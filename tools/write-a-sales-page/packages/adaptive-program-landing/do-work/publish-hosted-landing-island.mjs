@@ -226,7 +226,7 @@ export async function buildArticlePricingIsland({ packageSet, assetsDir }) {
     "import { createRoot } from 'react-dom/client';",
     `import { ProgramLandingDataProvider } from ${JSON.stringify(path.join(packageRoot, 'show', 'ProgramLandingData.tsx'))};`,
     `import { ProgramPricingSection } from ${JSON.stringify(path.join(packageRoot, 'show', 'ProgramPricingSection.tsx'))};`,
-    "import { MARKETING_PAGE_LAYOUT_CSS } from '@/packages/ui/show/marketing-page/MarketingPagePrimitives';",
+    "import { MARKETING_PAGE_LAYOUT_CSS } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';",
     `import data from ${JSON.stringify(dataPath)};`,
     "const mount = document.getElementById('shared-pricing-island');",
     'const offer = window.__inlineCheckoutOfferForThisPage__?.offer;',

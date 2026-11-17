@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// parts/receive-a-camera-stream/do-work/receive-a-camera-stream.mjs
+// tools/watch-and-keep-a-live-camera/do-work/receive-a-camera-stream.mjs
 //
 // Purpose: take a camera's live stream on this computer and send it where the person's own rows say. Run by the
 // Trillion Mac app as one of its children (macos/computer-reader.json), it reads four lists in the person's account

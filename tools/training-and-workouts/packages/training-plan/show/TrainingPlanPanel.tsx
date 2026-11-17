@@ -2,9 +2,9 @@
 
 import React from 'react';
 import { CalendarCheck, Dumbbell, Flag, Sparkles, Target } from 'lucide-react';
-import { Badge, Card, Container, Icon, ProgressBar, Text } from '@/packages/ui';
-import { sessionsForWeek, trainingPlanSummary, type TrainingPlan } from '@/packages/training-plan/read-data/training-plan';
-import type { AdaptiveNextSession } from '@/packages/training-plan/read-data/select-adaptive-next-session';
+import { Badge, Card, Container, Icon, ProgressBar, Text } from '../../../../ui';
+import { sessionsForWeek, trainingPlanSummary, type TrainingPlan } from '../../../read-data/training-plan';
+import type { AdaptiveNextSession } from '../../../read-data/select-adaptive-next-session';
 
 function valueText(value: Record<string, unknown>): string {
   return Object.entries(value)

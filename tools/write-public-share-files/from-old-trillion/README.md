@@ -4,8 +4,8 @@ Files old trillion deleted with no home and no backlog row, whose job is this to
 
 | Old path | Deleted by | Here | Status |
 |---|---|---|---|
-| `parts/calendar-booker/read-data/availability-page-sections.mjs` | 7e6f47d334 (Share links' public output moves to the Workshop's tool:write-public-s...) | `parts/calendar-booker/read-data/availability-page-sections.mjs` | not wired |
-| `parts/screen-look/show/list-public-comparison.mjs` | 7e6f47d334 (Share links' public output moves to the Workshop's tool:write-public-s...) | `parts/screen-look/show/list-public-comparison.mjs` | not wired |
+| `tools/calendar-booker/read-data/availability-page-sections.mjs` | 7e6f47d334 (Share links' public output moves to the Workshop's tool:write-public-s...) | `tools/calendar-booker/read-data/availability-page-sections.mjs` | not wired |
+| `tools/screen-look/show/list-public-comparison.mjs` | 7e6f47d334 (Share links' public output moves to the Workshop's tool:write-public-s...) | `tools/screen-look/show/list-public-comparison.mjs` | not wired |
 | `src/crawler-document-key.mjs` | 7e6f47d334 (Share links' public output moves to the Workshop's tool:write-public-s...) | `src/crawler-document-key.mjs` | not wired |
 | `src/list-public-comparison.mjs` | 7e6f47d334 (Share links' public output moves to the Workshop's tool:write-public-s...) | `src/list-public-comparison.mjs` | not wired |
 | `src/record-share-pages.mjs` | 7e6f47d334 (Share links' public output moves to the Workshop's tool:write-public-s...) | `src/record-share-pages.mjs` | not wired |

@@ -1,6 +1,6 @@
 import React from 'react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
-import { InvestmentCommandPanel } from '@/packages/investment-command/show/InvestmentCommandPanel';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
+import { InvestmentCommandPanel } from './InvestmentCommandPanel';
 
 type MountArgs = {
   el: HTMLElement;

@@ -224,7 +224,7 @@
         },
         "result_selector": "$.result",
         "provenance": {
-          "source": "Trillion-X/trillion parts/transcript-reader/read-data/edit-transcript.ts at 7fd88384^, moved byte for byte in a9ee258 (#76); old capability row capabilities.json:867 at 4ffa1dc4a2^ (play a recording and read its transcript as it plays; owner parts/transcript-reader/**); do-work/edit-a-transcript.mjs written here"
+          "source": "Trillion-X/trillion tools/transcript-reader/read-data/edit-transcript.ts at 7fd88384^, moved byte for byte in a9ee258 (#76); old capability row capabilities.json:867 at 4ffa1dc4a2^ (play a recording and read its transcript as it plays; owner tools/transcript-reader/**); do-work/edit-a-transcript.mjs written here"
         },
         "verify": [
           {

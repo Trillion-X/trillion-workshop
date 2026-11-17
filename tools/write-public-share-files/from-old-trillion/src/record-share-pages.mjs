@@ -48,7 +48,7 @@ import { HOT_PREFIX_BYTES, namespaceEdgeRange } from './namespace-edge-cache.mjs
 import { multipartByteStream, parseByteRange } from './byte-range.mjs';
 import { sampledStorageProbe } from './rpc-storage-probe.mjs';
 import { MAX_ORIGINAL_COVER_BYTES, TRANSPARENT_COVER, rasterImageTypeFor, savedImageCover } from './share-image-cover.mjs';
-import { markdownText } from '../parts/ui/show/document-page/document-page-html.mjs';
+import { markdownText } from '../../../ui/show/document-page/document-page-html.mjs';
 import { comparisonIndexSections, comparisonRowSections, comparisonRows } from './list-public-comparison.mjs';
 import { LIST_PUBLIC_COMPARISON_CSS } from '../parts/screen-look/show/list-public-comparison.mjs';
 

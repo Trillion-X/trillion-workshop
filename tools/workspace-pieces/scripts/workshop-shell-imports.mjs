@@ -1,5 +1,5 @@
 // A Workshop tool the page bundles may still import a file that stayed with the web shell when old trillion's features
-// moved to trillion-workshop (Trillion-X/trillion 7fd8838475): the ui part (old parts/ui, now web/parts/ui) or a src
+// moved to trillion-workshop (Trillion-X/trillion 7fd8838475): the ui part (old tools/ui, now tools/ui) or a src
 // file that sat beside a moved src file (now web/src), or a part's file that stayed in its part when a sibling moved
 // into a differently named tool (one web/parts/<part>/<folder>/<file> of that folder and name). Such an import names a path inside the Workshop package that the
 // package does not hold; this plugin answers it with the web shell's file. An import the Workshop does hold is left to

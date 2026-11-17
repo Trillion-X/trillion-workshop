@@ -30,7 +30,7 @@
 // The decoder (read-data/account-board.ts) is the self-describing translation
 // boundary; this file renders generically. Status dot tone/pulse come from the
 // shared visual-database `statusTone` helper (DATA-driven), never a hardcoded set.
-// fey-grade via @/packages/ui; zero raw HTML, zero className (L065/L066).
+// fey-grade via tools/ui; zero raw HTML, zero className (L065/L066).
 //
 // =============================================================================
 // =============================================================================
@@ -62,16 +62,16 @@ import {
   Text,
   emitPlaceableSurfaceIntent,
   type LineChartTone,
-} from '@/packages/ui';
+} from '../../ui';
 import {
   decodeVisualDatabaseModel,
   recordsForView,
   type VisualDatabaseFieldDescriptor,
   type VisualDatabaseModel,
   type VisualDatabaseRecord,
-} from '@/packages/visual-database/read-data/visual-database';
-import { FieldControl, displayTitle, statusTone } from '@/packages/visual-database/show/field-editors';
-import { RecordMetricRow } from '@/packages/visual-database/show/RecordMetricRow';
+} from '../../keep-lists-of-rows/read-data/visual-database';
+import { FieldControl, displayTitle, statusTone } from '../../keep-lists-of-rows/show/field-editors';
+import { RecordMetricRow } from '../../keep-lists-of-rows/show/RecordMetricRow';
 import {
   accountCycleInput,
   accountFieldsInput,

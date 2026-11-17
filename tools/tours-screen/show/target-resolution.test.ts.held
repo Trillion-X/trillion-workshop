@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createAnchorResolverRegistry } from '@/packages/ui/show/anchor-resolver/anchor-resolver';
+import { createAnchorResolverRegistry } from '../../ui/show/anchor-resolver/anchor-resolver';
 import {
   normalizeWalkthroughTargetRef,
   resolveWalkthroughTarget,

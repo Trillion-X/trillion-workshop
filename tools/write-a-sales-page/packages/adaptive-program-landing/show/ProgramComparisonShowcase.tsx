@@ -14,9 +14,9 @@
 // one adapter and the page's DATA decides where it appears.
 
 import React from 'react';
-import { FeaturedMediaShowcase } from '@/packages/ui/show/marketing-page/LandingMedia';
-import type { LandingMediaItem } from '@/packages/ui/show/marketing-page/LandingMedia';
-import styles from '@/packages/screen-look/show/adaptive-program-landing/ComparisonLibrarySection.module.css';
+import { FeaturedMediaShowcase } from '../../../../ui/show/marketing-page/LandingMedia';
+import type { LandingMediaItem } from '../../../../ui/show/marketing-page/LandingMedia';
+import styles from '../../../../screen-look/show/adaptive-program-landing/ComparisonLibrarySection.module.css';
 import { useProgramLandingData } from './ProgramLandingData';
 
 export type MediaComparison = {

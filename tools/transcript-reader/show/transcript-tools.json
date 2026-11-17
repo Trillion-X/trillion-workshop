@@ -1,5 +1,5 @@
 {
-  "_what": "Words the transcript reader's note tools say (parts/transcript-reader/show/TranscriptReaderSurface.tsx, src/workspace/note-transcript.tsx): the speaker picker, the moment link, Reprocess in, Copy transcript, Export PDF and Split.",
+  "_what": "Words the transcript reader's note tools say (tools/transcript-reader/show/TranscriptReaderSurface.tsx, src/workspace/note-transcript.tsx): the speaker picker, the moment link, Reprocess in, Copy transcript, Export PDF and Split.",
   "speaker": {
     "open": "Rename {speaker}",
     "heading": "Speakers in this recording",

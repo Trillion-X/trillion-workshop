@@ -1,6 +1,6 @@
 import React from 'react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
-import { PortfolioConnectorPanel } from '@/packages/portfolio-connector/show/PortfolioConnectorPanel';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
+import { PortfolioConnectorPanel } from './PortfolioConnectorPanel';
 
 type MountArgs = {
   el: HTMLElement;

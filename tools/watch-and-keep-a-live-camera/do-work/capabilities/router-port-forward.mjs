@@ -1,4 +1,3 @@
-// parts/receive-a-camera-stream/do-work/capabilities/router-port-forward.mjs
 //
 // Purpose: the way-in capability for a home router that forwards the camera's port to this computer: the home
 // network's public address. It opens nothing on this computer and cannot set the router; its row says which port the

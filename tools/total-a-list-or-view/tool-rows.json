@@ -207,7 +207,7 @@
               {
                 "package": "keep-and-wake-ai-sessions-on-this-computer",
                 "paths": [
-                  "parts/live-namespace/do-work/blake3.mjs",
+                  "tools/live-namespace/do-work/blake3.mjs",
                   "src/entity-mentions.json",
                   "src/entity-mentions.mjs",
                   "src/lists.json",

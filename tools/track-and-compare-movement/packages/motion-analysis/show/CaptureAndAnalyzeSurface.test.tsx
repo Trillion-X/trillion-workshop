@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { CaptureAndAnalyzeSurface } from '@/packages/motion-analysis/show/CaptureAndAnalyzeSurface';
+import { CaptureAndAnalyzeSurface } from './CaptureAndAnalyzeSurface';
 
 // Root vitest config has no testing-library auto-cleanup — clean up explicitly.
 afterEach(() => cleanup());

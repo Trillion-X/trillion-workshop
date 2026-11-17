@@ -1,4 +1,4 @@
-# parts/receive-a-camera-stream/
+# tools/watch-and-keep-a-live-camera/
 
 Lets a camera that streams live (RTMP or RTMPS, such as a mirrorless camera set up from its phone app) send to one address that never changes, and lets the person choose where the stream goes behind that address from their own rows: into their Trillion files in pieces that are clipped as they arrive, passed on to another service, or any kind added later. A camera's destination is set from its phone app, and the camera holds one address. So switching happens on the computer that takes the stream, by changing one cell on the camera's row.
 

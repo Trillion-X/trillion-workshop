@@ -15,9 +15,9 @@
 // derives the duration from its own measured width.
 
 import React from 'react';
-import { ProofMarquee } from '@/packages/ui/show/marketing-page/ProofMarquee';
-import type { ProofItem } from '@/packages/ui/show/marketing-page/ProofMarquee';
-import styles from '@/packages/screen-look/show/adaptive-program-landing/ProgramTestimonialMarquee.module.css';
+import { ProofMarquee } from '../../../../ui/show/marketing-page/ProofMarquee';
+import type { ProofItem } from '../../../../ui/show/marketing-page/ProofMarquee';
+import styles from '../../../../screen-look/show/adaptive-program-landing/ProgramTestimonialMarquee.module.css';
 import { useProgramLandingData } from './ProgramLandingData';
 import { weaveProofItems } from '../read-data/weave-proof-items';
 import type { ProofWeaveDescriptor } from '../read-data/weave-proof-items';

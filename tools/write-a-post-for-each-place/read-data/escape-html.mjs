@@ -1,6 +1,6 @@
-// parts/ui/show/server-rendered-page/escape-html.mjs
+// tools/ui/show/server-rendered-page/escape-html.mjs
 //
-// Purpose: the one HTML escape every server-side sink in parts/ui/show shares (page sections, the document page,
+// Purpose: the one HTML escape every server-side sink in tools/ui/show shares (page sections, the document page,
 // the share row), in a module that imports nothing, so any sink can use it without importing another sink.
 // Invariant: text escaped here is safe inside an element and inside a single- or double-quoted attribute.
 

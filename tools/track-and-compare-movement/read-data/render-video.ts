@@ -12,7 +12,7 @@ import * as React from 'react';
 import {
   assembleCasChunkManifestBlob,
   type CasFetch,
-} from '@/packages/ui/show/media-bytes';
+} from '../../ui/show/media-bytes';
 import type { MotionComparisonRenderRecord } from './motion-comparison-factor-types.ts';
 
 const VIDEO_MIME = 'video/mp4';

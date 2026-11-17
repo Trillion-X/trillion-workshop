@@ -1,8 +1,7 @@
-// parts/public-sales-page/read-data/sales-page.mjs
 //
 // PURPOSE
 //   One sales or landing page as ONE row of DATA, turned into a whole HTML document by the shared page writer
-//   (parts/ui/show/server-rendered-page/page-sections-html.mjs) in the sales look (parts/screen-look/show/
+//   (tools/ui/show/server-rendered-page/page-sections-html.mjs) in the sales look (tools/screen-look/show/
 //   sales-page.css). It follows bitfield-packages public-sales-page's static row-to-page shape and reuses section
 //   content concepts from adaptive-program-landing. It does not port that package's interactive checkout, enrollment
 //   consent, email course or article behavior; cards and actions here are static page content and links. A new kind of

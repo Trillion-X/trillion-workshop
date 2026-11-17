@@ -28,8 +28,8 @@ import { useBitfieldData } from '@bitfield/runtime-kit/react'
 import {
   decodeTasksFeed,
 } from '@/packages/tasks/read-data/read-tasks'
-import { TasksPanel } from '@/packages/tasks/show/TasksPanel'
-import { SelectablePillBar } from '@/packages/ui/show/selectable-pill-bar'
+import { TasksPanel } from './show/TasksPanel'
+import { SelectablePillBar } from '../../../ui/show/selectable-pill-bar'
 import type { TaskEntry } from '@/packages/tasks/read-data/task-graph-types'
 
 function toSharedTask(task: ReturnType<typeof decodeTasksFeed>[number]): TaskEntry & { projectId?: string; projectName?: string } {

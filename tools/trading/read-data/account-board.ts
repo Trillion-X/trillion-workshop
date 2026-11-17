@@ -356,8 +356,8 @@ export function projectPositionRecords(cycle: Record<string, unknown> | null): r
 // Metric formatting for RecordMetricRow (descriptor-driven, no field-id literals)
 // ---------------------------------------------------------------------------
 
-import type { VisualDatabaseFieldDescriptor } from '@/packages/visual-database/read-data/visual-database';
-import type { RecordMetricFormat } from '@/packages/visual-database/show/RecordMetricRow';
+import type { VisualDatabaseFieldDescriptor } from '../../keep-lists-of-rows/read-data/visual-database';
+import type { RecordMetricFormat } from '../../keep-lists-of-rows/show/RecordMetricRow';
 
 /**
  * Turn one metric descriptor's raw value into a display string + tone for the

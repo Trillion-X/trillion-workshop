@@ -1,6 +1,6 @@
 import React from 'react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
-import { TradeOrderPanel } from '@/packages/trade-order/show/TradeOrderPanel';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
+import { TradeOrderPanel } from './TradeOrderPanel';
 
 type MountArgs = { el: HTMLElement; props?: Record<string, unknown> };
 

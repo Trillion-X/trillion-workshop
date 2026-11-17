@@ -1,8 +1,8 @@
-// parts/bounded-walk.mjs
+// tools/bounded-walk.mjs
 //
 // Purpose: the one guard for walking untrusted nested input (imported documents, pasted rich text, list row values from
 // an AI, board scenes) with an explicit stack instead of recursion, so a deep or huge value is refused with a typed reason
-// before it can crash a renderer or a store. Dependency-free, like parts/json-expansion.mjs, so a Worker, a browser and a
+// before it can crash a renderer or a store. Dependency-free, like tools/json-expansion.mjs, so a Worker, a browser and a
 // Mac helper share it.
 //
 //   boundedWalk(root, { children, visit, limits }) -> { ok: true, nodes } | { ok: false, reason, limit }
@@ -13,7 +13,7 @@
 //   2. The walk stops at the first limit crossed: depth over max_depth is 'too_deep', nodes over max_nodes is
 //      'too_many_nodes', a value met again while it is still being walked is 'cycle'. `visit` may refuse too, by returning
 //      a reason string; the walk is then { ok: false, reason }.
-//   3. The limits and words are DATA (parts/bounded-walk.json); a caller with a tighter limit passes it in `limits`.
+//   3. The limits and words are DATA (tools/bounded-walk.json); a caller with a tighter limit passes it in `limits`.
 //
 import walkData from './bounded-walk.json' with { type: 'json' };
 

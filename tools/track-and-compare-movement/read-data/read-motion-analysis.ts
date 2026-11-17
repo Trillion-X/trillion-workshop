@@ -3,7 +3,7 @@ import {
   readEvidenceProjection,
   type EvidenceBlocker,
   type EvidencePipelineConfig,
-} from '@/packages/content-media-evidence/read-data/content-media-evidence';
+} from '../../record-voice-and-meetings/read-data/content-media-evidence';
 
 export type MotionAnalysisRequest = {
   kind?: string;

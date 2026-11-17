@@ -1,4 +1,4 @@
-// parts/guided-overlay/show/walkthrough-events.ts
+// tools/guided-overlay/show/walkthrough-events.ts
 //
 // The one channel a tour starts on and the one shape tours arrive in, shared by the always-on
 // WalkthroughHost and anything that lists or starts tours. No React: a screen or a test can

@@ -1,4 +1,4 @@
-// parts/guided-overlay/show/StepCardBody.tsx
+// tools/guided-overlay/show/StepCardBody.tsx
 //
 // PURPOSE
 //   What a tour step's card holds: its progress (and close button) on the top row, its content, the note under it while

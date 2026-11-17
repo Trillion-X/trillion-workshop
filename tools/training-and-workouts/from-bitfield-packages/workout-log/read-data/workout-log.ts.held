@@ -3,7 +3,7 @@
 import type {
   TimeseriesChartBucket,
   TimeseriesChartSummary,
-} from '@/packages/ui/show/timeseries-chart/InteractiveTimeseriesChart';
+} from '../../../../ui/show/timeseries-chart/InteractiveTimeseriesChart';
 
 export type WorkoutStatus = string;
 export type WorkoutReviewOperation = 'confirm' | 'correct' | 'split' | 'merge' | 'discard';

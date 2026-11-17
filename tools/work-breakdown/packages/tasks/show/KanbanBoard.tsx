@@ -27,9 +27,9 @@
 // =============================================================================
 
 import * as React from 'react';
-import { KanbanCard } from '@/packages/tasks/show/KanbanCard';
-import type { KanbanCardData, KanbanCardStatus } from '@/packages/tasks/show/KanbanCard';
-import { Badge, Card, Text, VirtualList } from '@/packages/ui';
+import { KanbanCard } from './KanbanCard';
+import type { KanbanCardData, KanbanCardStatus } from './KanbanCard';
+import { Badge, Card, Text, VirtualList } from '../../../../ui';
 
 // ============================================================================
 // TYPES

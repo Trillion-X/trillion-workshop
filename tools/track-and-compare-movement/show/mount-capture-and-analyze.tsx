@@ -52,7 +52,7 @@ import {
   createContentMediaWorkId,
   stageContentMediaFile,
   type ContentMediaSourceRef,
-} from '@/packages/content-media-evidence/do-work/content-media-work-loop';
+} from '../../content-media-evidence/do-work/content-media-work-loop';
 import { requestMatchPerception } from '../do-work/request-match-perception.ts';
 import {
   buildResultSurfaceInput,

@@ -1,4 +1,4 @@
-// parts/guided-overlay/show/glance-content.tsx
+// tools/guided-overlay/show/glance-content.tsx
 //
 // The `glance` step content: one card at a glance (the shared listing card: the thing's icon on a toned tile, its
 // title, when, the one key value, icon-led facts, chips, a badge or a signal), and optionally a small chart under it

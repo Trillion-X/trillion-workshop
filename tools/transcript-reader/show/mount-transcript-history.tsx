@@ -1,8 +1,8 @@
 import React from 'react';
-import { ErrorBoundary } from '@/packages/ui/show/error-boundary';
-import { FloatingMaterialFrame } from '@/packages/ui/show/floating-material-frame';
-import { mountReactSurface } from '@/packages/ui/show/react-surface-mount';
-import { TranscriptHistoryPanel } from '@/packages/transcript-history/show/TranscriptHistoryPanel';
+import { ErrorBoundary } from '../../ui/show/error-boundary';
+import { FloatingMaterialFrame } from '../../ui/show/floating-material-frame';
+import { mountReactSurface } from '../../ui/show/react-surface-mount';
+import { TranscriptHistoryPanel } from '../../audio-transcription/packages/transcript-history/show/TranscriptHistoryPanel';
 
 type MountArgs = {
   el: HTMLElement;

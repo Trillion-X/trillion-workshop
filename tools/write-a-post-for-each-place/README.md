@@ -8,7 +8,7 @@ Writes one body (a change summary, a status, a picture with words) for each kind
 |------|---------|
 | `read-data/surface-compose.mjs` | `capabilityOf`, `capabilityOfPlace`, `composeFor`. Moved from Trillion-X/trillion `src/surface-compose.mjs`; only its import of the markup tree writer changed (`./markup-tree.mjs`). |
 | `read-data/surface-compose.json` | One capability record per surface (`github_comment`, `gitlab_note`, `bitbucket_comment`, `plain_message`), the record a post place starts from, and every word written. Moved byte for byte. |
-| `read-data/markup-tree.mjs` | The one tree writer the composer writes markup through (`element`, `serialise`, `textOf`). Copied byte for byte from Trillion-X/trillion `parts/ui/show/server-rendered-page/markup-tree.mjs`. |
+| `read-data/markup-tree.mjs` | The one tree writer the composer writes markup through (`element`, `serialise`, `textOf`). Copied byte for byte from Trillion-X/trillion `tools/ui/show/server-rendered-page/markup-tree.mjs`. |
 | `read-data/escape-html.mjs` | The escaper the tree writer uses. Copied byte for byte from the same old folder. |
 | `read-data/post-tools.mjs` | The row's function: picks the capability record the input names (a surface, a whole record, or a post place) and composes. |
 | `tool-rows.json` | `tool:write-a-post-for-a-place`, a container row run by `tools/records-door`'s `run-an-export.mjs`; no records door. |
@@ -28,7 +28,7 @@ Writes one body (a change summary, a status, a picture with words) for each kind
 
 ## Moved from Trillion
 
-Trillion-X/trillion `src/surface-compose.mjs`, `src/surface-compose.json` and `test/surface-compose.test.mjs` (every test, assertions unchanged), with `markup-tree.mjs` and `escape-html.mjs` from `parts/ui/show/server-rendered-page/` copied beside them. The old caller `src/change-picture.mjs` (a picture of a pull request's change, kept as one comment of ours on it) stays in trillion: it needs `parts/ui/show/layer-diagram` (change graph, graph picture), the author input, the owned upsert of one comment and a connector runner. Every test in `test/change-picture.test.mjs` exercises change-picture itself, so none moved. Until it moves, it imports its own copy of `src/surface-compose.mjs`; the many old callers of `markup-tree.mjs` and `escape-html.mjs` keep theirs.
+Trillion-X/trillion `src/surface-compose.mjs`, `src/surface-compose.json` and `test/surface-compose.test.mjs` (every test, assertions unchanged), with `markup-tree.mjs` and `escape-html.mjs` from `parts/ui/show/server-rendered-page/` copied beside them. The old caller `src/change-picture.mjs` (a picture of a pull request's change, kept as one comment of ours on it) stays in trillion: it needs `tools/ui/show/layer-diagram` (change graph, graph picture), the author input, the owned upsert of one comment and a connector runner. Every test in `test/change-picture.test.mjs` exercises change-picture itself, so none moved. Until it moves, it imports its own copy of `src/surface-compose.mjs`; the many old callers of `markup-tree.mjs` and `escape-html.mjs` keep theirs.
 
 ## Dependencies
 

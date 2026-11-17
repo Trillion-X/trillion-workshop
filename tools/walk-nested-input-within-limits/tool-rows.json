@@ -52,7 +52,7 @@
     "licence_class": "licence:maker-own",
     "placements": ["placement:small-container"],
     "maker": "maker:walk-nested-input-within-limits",
-    "provenance": { "source": "moved from Trillion-X/trillion parts/bounded-walk.mjs and parts/bounded-walk.json, with its tests" },
+    "provenance": { "source": "moved from Trillion-X/trillion tools/bounded-walk.mjs and tools/bounded-walk.json, with its tests" },
     "verify": [
      {
       "kind": "sample-run",

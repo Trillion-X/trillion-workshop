@@ -1,9 +1,9 @@
 // package-set://bitfield-studio/packages/trade-audit/show/TradeAuditPanel.tsx
 
 import React from 'react';
-import { Badge, Card, Container, Icon, ScrollableSurface, Text } from '@/packages/ui';
+import { Badge, Card, Container, Icon, ScrollableSurface, Text } from '../../../../ui';
 import { Link2, ScrollText, ShieldAlert } from 'lucide-react';
-import { tradeAuditSurface } from '@/packages/trade-audit/read-data/trade-audit-surface';
+import { tradeAuditSurface } from '../read-data/trade-audit-surface';
 
 export function TradeAuditPanel() {
   return (

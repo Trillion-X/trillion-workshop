@@ -1,4 +1,3 @@
-// parts/receive-a-camera-stream/do-work/capabilities/relay-to-an-address.mjs
 //
 // Purpose: the destination capability that passes a camera's stream on, unchanged, to another service's ingest
 // address (any RTMP or RTMPS server: Cloudflare Stream, YouTube, a friend's server). The destination row's `address`

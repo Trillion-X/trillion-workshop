@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { mountReactMaterial, type ReactMaterialMountArgs } from '@/packages/ui/show/react-surface-mount';
-import { MotionComparisonSurface } from '@/packages/motion-comparison/show/MotionComparisonSurface';
+import { mountReactMaterial, type ReactMaterialMountArgs } from '../../../../ui/show/react-surface-mount';
+import { MotionComparisonSurface } from './MotionComparisonSurface';
 
 type MountProps = {
   user_id?: string;

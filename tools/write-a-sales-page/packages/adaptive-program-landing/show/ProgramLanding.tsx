@@ -4,20 +4,20 @@
 // media, demonstrations, prices, and proof all arrive through package-set DATA.
 
 import React from 'react';
-import { PageShell, SectionShell, TextColumn } from '@/packages/ui/show/marketing-page/MarketingPagePrimitives';
-import { Container } from '@/packages/ui/show/marketing-page/MarketingPagePrimitives';
-import { StatementText, StatementHighlight } from '@/packages/ui/show/marketing-page/MarketingPagePrimitives';
-import { SectionDivider } from '@/packages/ui/show/marketing-page/MarketingPagePrimitives';
-import { FaqSection } from '@/packages/ui/show/marketing-page/MarketingPagePrimitives';
-import { SiteHeader } from '@/packages/ui/show/marketing-page/MarketingPagePrimitives';
-import { LandingMinimap } from '@/packages/ui/show/marketing-page/LandingMinimap';
-import { EngravedTextDefs } from '@/packages/ui/show/marketing-page/MarketingPagePrimitives';
-import { LANDING_SOLID_HIGHLIGHT_COLOR } from '@/packages/ui/show/marketing-page/MarketingPagePrimitives';
-import { LANDING_FILM_GRAIN_TEXTURE, LANDING_LAYER_Z_INDEX } from '@/packages/ui/show/marketing-page/MarketingPagePrimitives';
+import { PageShell, SectionShell, TextColumn } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
+import { Container } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
+import { StatementText, StatementHighlight } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
+import { SectionDivider } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
+import { FaqSection } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
+import { SiteHeader } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
+import { LandingMinimap } from '../../../../ui/show/marketing-page/LandingMinimap';
+import { EngravedTextDefs } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
+import { LANDING_SOLID_HIGHLIGHT_COLOR } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
+import { LANDING_FILM_GRAIN_TEXTURE, LANDING_LAYER_Z_INDEX } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
 import { ProgramBridgeMoment, ProgramStatementSection } from './ProgramStatementSection';
 import { ProgramPricingSection } from './ProgramPricingSection';
 import { RecalculateVisual } from './ProgramSystemVisuals';
-import { CtaBlock } from '@/packages/ui/show/marketing-page/MarketingPagePrimitives';
+import { CtaBlock } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
 import { ProgramProofMarquee } from './ProgramProofMarquee';
 import { ProgramComparisonShowcase } from './ProgramComparisonShowcase';
 import { ComparisonLibrarySection } from './ComparisonLibrarySection';
@@ -32,11 +32,11 @@ import { PROGRAM_HERO_ENGRAVED_HEADING_STYLE } from './programHeroTypography';
 import { ProgramLandingDataProvider, useProgramLandingData } from './ProgramLandingData';
 import type { ProgramLandingData, ProgramTestimonial } from '../read-data/program-landing-data';
 import type { ProofWeaveDescriptor } from '../read-data/weave-proof-items';
-import surfaceStyles from '@/packages/screen-look/show/adaptive-program-landing/ProgramLandingSurface.module.css';
+import surfaceStyles from '../../../../screen-look/show/adaptive-program-landing/ProgramLandingSurface.module.css';
 // The canvas, its film grain and the viewport fade come from the one shared
 // owner, the same material the Trillion landing wears. This page used to carry
 // its own single-layer grain at 16% multiply, which read as no grain at all.
-import '@/packages/screen-look/show/styles/landing-canvas-material.css';
+import '../../../../screen-look/show/styles/landing-canvas-material.css';
 
 // Hero segment renderer, ported from the proven business-landing hero
 // segment painter (the landing flow visual): `solid` paints the crisp solid

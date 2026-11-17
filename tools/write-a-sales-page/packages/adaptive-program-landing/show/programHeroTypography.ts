@@ -3,7 +3,7 @@
 // recalculation, and closing-question headings cannot drift independently.
 
 import type { CSSProperties } from 'react';
-import { ENGRAVED_HEADING_FILTER } from '@/packages/ui/show/marketing-page/MarketingPagePrimitives';
+import { ENGRAVED_HEADING_FILTER } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
 
 export const PROGRAM_HERO_HEADING_STYLE = {
   color: '#0f172a',

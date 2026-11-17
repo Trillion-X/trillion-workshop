@@ -31,7 +31,7 @@
 // You are forbidden from simplifying or removing it.
 // =============================================================================
 
-import { submitWorkflowAction } from '@/packages/content-media-evidence/do-work/content-media-work-loop';
+import { submitWorkflowAction } from '../../content-media-evidence/do-work/content-media-work-loop';
 import {
   buildMotionAnalysisInput,
   type MotionAnalysisWorkflowInput,

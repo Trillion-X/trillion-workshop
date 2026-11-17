@@ -1,4 +1,3 @@
-// parts/receive-a-camera-stream/do-work/capabilities/public-address-through-tailscale-funnel.mjs
 //
 // Purpose: the way-in capability that gives a camera one public address reaching this computer from any network
 // (home Wi-Fi, a phone's hotspot, a hotel): Tailscale Funnel's TLS-terminated TCP on one of the public ports the

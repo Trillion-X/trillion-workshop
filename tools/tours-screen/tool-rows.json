@@ -198,7 +198,7 @@
         "maker": "maker:tours-screen",
         "result_selector": "$.result",
         "provenance": {
-          "source": "trillion parts/guided-overlay (tag old-trillion-before-worker-retire b6ae0ebf81; here tools/tours-screen) show/walkthroughs.ts listWalkthroughs, waitingWalkthroughs and dismissWalkthroughs over the moved folds read-data/walkthrough-eeaf.ts, engine/trigger-intake.ts and do-work/walkthrough-progress.ts applyProgressTransition; the labels are src/tours.json, moved byte for byte as read-data/tours.json; holds are the person's show-rules record by tools/set-up-my-account showDecision Keeps nothing and has no records door: own_tours, progress and show_rules come in the request (w7-tools-keep-nothing)."
+          "source": "trillion tools/guided-overlay (tag old-trillion-before-worker-retire b6ae0ebf81; here tools/tours-screen) show/walkthroughs.ts listWalkthroughs, waitingWalkthroughs and dismissWalkthroughs over the moved folds read-data/walkthrough-eeaf.ts, engine/trigger-intake.ts and do-work/walkthrough-progress.ts applyProgressTransition; the labels are src/tours.json, moved byte for byte as read-data/tours.json; holds are the person's show-rules record by tools/set-up-my-account showDecision Keeps nothing and has no records door: own_tours, progress and show_rules come in the request (w7-tools-keep-nothing)."
         },
         "verify": [
           {
@@ -448,7 +448,7 @@
         "maker": "maker:tours-screen",
         "result_selector": "$.result",
         "provenance": {
-          "source": "trillion parts/guided-overlay (tag old-trillion-before-worker-retire b6ae0ebf81; here tools/tours-screen) show/walkthroughs.ts listWalkthroughs, waitingWalkthroughs and dismissWalkthroughs over the moved folds read-data/walkthrough-eeaf.ts, engine/trigger-intake.ts and do-work/walkthrough-progress.ts applyProgressTransition; the labels are src/tours.json, moved byte for byte as read-data/tours.json; holds are the person's show-rules record by tools/set-up-my-account showDecision Keeps nothing and has no records door: own_tours, progress and show_rules come in the request (w7-tools-keep-nothing)."
+          "source": "trillion tools/guided-overlay (tag old-trillion-before-worker-retire b6ae0ebf81; here tools/tours-screen) show/walkthroughs.ts listWalkthroughs, waitingWalkthroughs and dismissWalkthroughs over the moved folds read-data/walkthrough-eeaf.ts, engine/trigger-intake.ts and do-work/walkthrough-progress.ts applyProgressTransition; the labels are src/tours.json, moved byte for byte as read-data/tours.json; holds are the person's show-rules record by tools/set-up-my-account showDecision Keeps nothing and has no records door: own_tours, progress and show_rules come in the request (w7-tools-keep-nothing)."
         },
         "verify": [
           {
@@ -709,7 +709,7 @@
         "maker": "maker:tours-screen",
         "result_selector": "$.result",
         "provenance": {
-          "source": "trillion parts/guided-overlay (tag old-trillion-before-worker-retire b6ae0ebf81; here tools/tours-screen) show/walkthroughs.ts listWalkthroughs, waitingWalkthroughs and dismissWalkthroughs over the moved folds read-data/walkthrough-eeaf.ts, engine/trigger-intake.ts and do-work/walkthrough-progress.ts applyProgressTransition; the labels are src/tours.json, moved byte for byte as read-data/tours.json; holds are the person's show-rules record by tools/set-up-my-account showDecision Keeps nothing and has no records door: own_tours, progress and show_rules come in the request (w7-tools-keep-nothing)."
+          "source": "trillion tools/guided-overlay (tag old-trillion-before-worker-retire b6ae0ebf81; here tools/tours-screen) show/walkthroughs.ts listWalkthroughs, waitingWalkthroughs and dismissWalkthroughs over the moved folds read-data/walkthrough-eeaf.ts, engine/trigger-intake.ts and do-work/walkthrough-progress.ts applyProgressTransition; the labels are src/tours.json, moved byte for byte as read-data/tours.json; holds are the person's show-rules record by tools/set-up-my-account showDecision Keeps nothing and has no records door: own_tours, progress and show_rules come in the request (w7-tools-keep-nothing)."
         },
         "verify": [
           {

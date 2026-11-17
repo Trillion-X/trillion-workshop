@@ -5,7 +5,7 @@
 //   records/workshop-screen-tool-records.json, opened by Home's Go through them press and by any AI app's show_screen):
 //   everything only the person can do, from the same answer Home's Needs you stack reads (GET /work/api/waiting-on-you,
 //   src/waiting-on-you.json), walked one after another until none is left, in the shared one-at-a-time queue
-//   (parts/ui/show/one-at-a-time-queue). Each thing says why it needs them, what it unlocks, which goal it serves and
+//   (tools/ui/show/one-at-a-time-queue). Each thing says why it needs them, what it unlocks, which goal it serves and
 //   what else was tried, with purpose and completion beside its one way to finish.
 //   Opened on ONE thing (`/waiting/<key>` or `/waiting?thing=<card id>`, input `thing`, the screen the hold locks the
 //   arrangement on: src/workspace/needs-you-hold.tsx, and where a source with no other place opens its cards, such as
@@ -40,19 +40,19 @@
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
 import * as React from 'react';
-import { mountReactSurface } from '../../parts/ui/show/react-surface-mount';
-import { ScreenState, useScreenLoad } from '../../parts/ui/show/screen-state';
-import { OneAtATimeQueue, type QueueFinish, type QueueThing } from '../../parts/ui/show/one-at-a-time-queue';
-import { StepsChecklist } from '../../parts/ui/show/steps-checklist';
-import { LiveCheck } from '../../parts/ui/show/live-check';
-import { CopyButton } from '../../parts/ui/show/copy-button/CopyButton';
-import { MarkdownWords } from '../../parts/ui/show/markdown-block/MarkdownWords';
-import { ArtifactEvidence, type EvidenceReference } from '../../parts/ui/show/artifact-evidence';
-import { safeLinkedIdentityUrl } from '../../parts/ui/show/linked-identity/LinkedIdentity';
-import { relativeWhen } from '../../parts/ui/show/relative-time/relative-time';
+import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
+import { ScreenState, useScreenLoad } from '../../../../ui/show/screen-state';
+import { OneAtATimeQueue, type QueueFinish, type QueueThing } from '../../../../ui/show/one-at-a-time-queue';
+import { StepsChecklist } from '../../../../ui/show/steps-checklist';
+import { LiveCheck } from '../../../../ui/show/live-check';
+import { CopyButton } from '../../../../ui/show/copy-button/CopyButton';
+import { MarkdownWords } from '../../../../ui/show/markdown-block/MarkdownWords';
+import { ArtifactEvidence, type EvidenceReference } from '../../../../ui/show/artifact-evidence';
+import { safeLinkedIdentityUrl } from '../../../../ui/show/linked-identity/LinkedIdentity';
+import { relativeWhen } from '../../../../ui/show/relative-time/relative-time';
 import { readJson } from './api';
 import { finishHere, useHold, WaysOut } from './hold-ways-out';
-import { returnToLockedScreen } from '../../parts/screen-arrangement/show/arrangement-lock';
+import { returnToLockedScreen } from '../../../../screen-arrangement/show/arrangement-lock';
 import { PlaceInPlace, ScreenInPlace } from './screen-in-place';
 import { refusal } from './failure';
 import { openScreenOn } from './open-screen';

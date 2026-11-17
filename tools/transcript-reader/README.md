@@ -1,4 +1,4 @@
-# parts/transcript-reader
+# tools/transcript-reader
 
 The shared reader for what is said in a recording: timed passages with each word at its own second, searchable, following playback, and choosable to jump to a moment.
 
@@ -31,5 +31,5 @@ The shared reader for what is said in a recording: timed passages with each word
 
 ## Dependencies
 
-**Depends on:** `parts/screen-ready-records` (reading published records), React, `lucide-react`.
+**Depends on:** `tools/screen-ready-records` (reading published records), React, `lucide-react`.
 **Depended on by:** `src/workspace/media-edit/transcribe-panel.tsx` (the editor's Words panel), `src/workspace/note-transcript.tsx` (a recording's note).

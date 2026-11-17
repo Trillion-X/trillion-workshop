@@ -44,15 +44,15 @@ import {
   Spinner,
   Text,
   mountReactSurface,
-} from '@/packages/ui';
-import { Button } from '@/packages/ui/show/button';
-import { FileWorkAction } from '@/packages/ui/show/file-work-action';
-import { FloatingMaterialFrame } from '@/packages/ui/show/floating-material-frame';
+} from '../../../../ui';
+import { Button } from '../../../../ui/show/button';
+import { FileWorkAction } from '../../../../ui/show/file-work-action';
+import { FloatingMaterialFrame } from '../../../../ui/show/floating-material-frame';
 import {
   createContentMediaWorkId,
   stageContentMediaFile,
   type ContentMediaSourceRef,
-} from '@/packages/content-media-evidence/do-work/content-media-work-loop';
+} from '../../../../content-media-evidence/do-work/content-media-work-loop';
 import { requestMatchPerception } from '@/packages/motion-analysis/do-work/request-match-perception';
 import {
   buildResultSurfaceInput,

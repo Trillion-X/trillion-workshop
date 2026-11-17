@@ -1,4 +1,4 @@
-  providerRows ??= import('../parts/service-connections/records.json', { with: { type: 'json' } }).then(module => module.default.things);
+  providerRows ??= import('../../connect-a-service-and-seal-its-key/records.json', { with: { type: 'json' } }).then(module => module.default.things);
   const payload = (await providerRows).find(thing => thing.address === how.record)?.payload;
   const request = payload?.instrument_requests?.[how.request];
   if (!request) return { state: 'unread', error: `${how.record} has no request ${how.request}.` };

@@ -12,7 +12,7 @@
 //   2. `return` is only ever an http(s) address with no user name or password in it; anything else is dropped, so it
 //      can never become a script address or a way to send someone somewhere else under Trillion's name.
 //   3. What was kept is the buyer's own (KV `checkout-return:<account id>`), for `keep_seconds`, and only read by them.
-//   4. Nothing here writes markup: the page is section DATA for the shared page shell (parts/ui/show/server-rendered-page).
+//   4. Nothing here writes markup: the page is section DATA for the shared page shell (tools/ui/show/server-rendered-page).
 //
 import { makeHashCodeHexFromJson } from '../../content-identity/read-data/identity.mjs';
 

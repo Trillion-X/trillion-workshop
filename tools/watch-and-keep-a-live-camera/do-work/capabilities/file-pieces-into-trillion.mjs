@@ -1,4 +1,3 @@
-// parts/receive-a-camera-stream/do-work/capabilities/file-pieces-into-trillion.mjs
 //
 // Purpose: the destination capability that keeps a camera's stream in the person's own files. The stream is cut
 // into pieces (settings `pieces`), and each piece is sent into the namespace while FFmpeg writes it, through the

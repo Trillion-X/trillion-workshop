@@ -1,9 +1,9 @@
 import React from 'react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
 import { useBitfieldData } from '@/packages/training-plan/.bitfield-entry-scope/training-plan/runtime-kit-react';
-import { decodeTrainingPlan } from '@/packages/training-plan/read-data/training-plan';
-import { selectAdaptiveNextSession } from '@/packages/training-plan/read-data/select-adaptive-next-session';
-import { TrainingPlanPanel } from '@/packages/training-plan/show/TrainingPlanPanel';
+import { decodeTrainingPlan } from '../../../read-data/training-plan';
+import { selectAdaptiveNextSession } from '../../../read-data/select-adaptive-next-session';
+import { TrainingPlanPanel } from './TrainingPlanPanel';
 
 type MountArgs = {
   el: HTMLElement;

@@ -698,7 +698,7 @@
     "maker": "maker:traffic-attribution",
     "result_selector": "$",
     "provenance": {
-     "source": "trillion parts/traffic-attribution"
+     "source": "trillion tools/traffic-attribution"
     },
     "verify": [
      {
@@ -991,7 +991,7 @@
     "maker": "maker:traffic-attribution",
     "result_selector": "$",
     "provenance": {
-     "source": "trillion parts/traffic-attribution"
+     "source": "trillion tools/traffic-attribution"
     },
     "verify": [
      {

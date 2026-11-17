@@ -228,7 +228,7 @@
         },
         "result_selector": "$.result",
         "provenance": {
-          "source": "Trillion-X/trillion parts/receive-a-camera-stream/do-work/take-a-stream.mjs and do-work/capabilities/public-address-through-tailscale-funnel.mjs with stream-settings.json, moved in a9ee258 (#76); old capability row capabilities.json:396 at 4ffa1dc4a2^ (watch a live camera stream and keep its clips)"
+          "source": "Trillion-X/trillion tools/watch-and-keep-a-live-camera/do-work/take-a-stream.mjs and do-work/capabilities/public-address-through-tailscale-funnel.mjs with stream-settings.json, moved in a9ee258 (#76); old capability row capabilities.json:396 at 4ffa1dc4a2^ (watch a live camera stream and keep its clips)"
         },
         "verify": [
           {

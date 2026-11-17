@@ -1,8 +1,8 @@
 import React from 'react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
 import { useBitfieldData } from '@/packages/workout-log/.bitfield-entry-scope/workout-log/runtime-kit-react';
 import { decodeWorkoutLog } from '@/packages/workout-log/read-data/workout-log';
-import { WorkoutLogPanel } from '@/packages/workout-log/show/WorkoutLogPanel';
+import { WorkoutLogPanel } from '../../../packages/workout-log/show/WorkoutLogPanel';
 
 type MountArgs = {
   el: HTMLElement;

@@ -16,7 +16,7 @@ import {
   selectedFactorForWeights,
   weightedFactorScore,
 } from '@/packages/motion-comparison/read-data/read-motion-comparison';
-import { MotionComparisonSurface } from '@/packages/motion-comparison/show/MotionComparisonSurface';
+import { MotionComparisonSurface } from '../packages/motion-comparison/show/MotionComparisonSurface';
 import type { MotionFactorMeasurement, MotionSyncWindow } from '@/packages/motion-comparison/read-data/motion-comparison-factor-types';
 
 vi.mock('@bitfield/runtime-kit', () => ({
@@ -27,7 +27,7 @@ vi.mock('@bitfield/runtime-kit/react', () => ({
   useBitfieldData: vi.fn(),
 }));
 
-vi.mock('@/packages/content-media-evidence/do-work/content-media-work-loop', () => ({
+vi.mock('tools/content-media-evidence/do-work/content-media-work-loop', () => ({
   stageContentMediaFile: vi.fn(async ({ file }: { file: File }) => ({
     media_type: file.type || 'video/mp4',
     display_name: file.name,

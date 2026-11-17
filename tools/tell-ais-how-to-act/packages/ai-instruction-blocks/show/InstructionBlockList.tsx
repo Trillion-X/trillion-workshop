@@ -1,6 +1,6 @@
 import React from 'react';
-import { Badge, Card, Container, Text } from '@/packages/ui';
-import { statusView } from '@/packages/ui/show/status-vocabulary/StatusVocabulary';
+import { Badge, Card, Container, Text } from '../../../../ui';
+import { statusView } from '../../../../ui/show/status-vocabulary/StatusVocabulary';
 import type { InstructionBlock } from '../read-data/read-ai-instruction-blocks';
 
 export type InstructionBlockListProps = {

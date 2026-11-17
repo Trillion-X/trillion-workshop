@@ -1,7 +1,7 @@
-// parts/guided-overlay/read-data/tour-library.ts
+// tools/guided-overlay/read-data/tour-library.ts
 //
 // The tour library: the tours the person's AIs write, kept as a kept library of the group part
-// (parts/group/read-data/kept-library.ts) configured by its row, tour-library.json. Read the same way by the store that
+// (tools/make-screen-layouts-and-controls/parts/group/read-data/kept-library.ts) configured by its row, tour-library.json. Read the same way by the store that
 // writes it (src/tours.mjs) and by the Tours screen, so both always agree.
 
 import library from '../tour-library.json';

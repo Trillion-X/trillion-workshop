@@ -25,5 +25,5 @@ React surface for the tasks package: list, kanban, and dependency-DAG views over
 
 ## Dependencies
 
-**Depends on:** `@/packages/ui` (including `VirtualList`), tasks package read-data decoders, `lucide-react` icons.
+**Depends on:** `tools/ui` (including `VirtualList`), tasks package read-data decoders, `lucide-react` icons.
 **Depended on by:** `mount-tasks.tsx` (browser entry), studio Tasks placeable surface.

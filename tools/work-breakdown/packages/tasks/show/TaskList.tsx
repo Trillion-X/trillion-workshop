@@ -25,7 +25,7 @@
 
 import React, { useState, useMemo } from 'react';
 import type { TaskEntry } from '@/packages/tasks/read-data/task-graph-types';
-import { Badge, Button, Container, Input, Text, VirtualList } from '@/packages/ui';
+import { Badge, Button, Container, Input, Text, VirtualList } from '../../../../ui';
 
 type TaskRow = TaskEntry;
 

@@ -29,7 +29,7 @@
 
 import React from 'react';
 import { Users } from 'lucide-react';
-import { Badge, Card, Text, Icon } from '@/packages/ui';
+import { Badge, Card, Text, Icon } from '../../../../ui';
 
 // ============================================================================
 // TYPES

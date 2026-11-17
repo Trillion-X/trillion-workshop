@@ -1,4 +1,3 @@
-// parts/public-sales-page/do-work/write-a-sales-page.mjs
 //
 // The Workshop tool "Write a sales or landing page". Reads one page row as JSON (argv[2], see
 // read-data/sales-page.mjs), writes the whole page as one HTML file at argv[3], which the Workshop keeps in the

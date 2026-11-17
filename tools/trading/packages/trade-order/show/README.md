@@ -22,7 +22,7 @@ The Order surface — an order ticket for composing a checked order and an order
 
 ## Dependencies
 
-- **Depends on:** `@/packages/ui` (Badge, Button, Card, Container, Divider, EmptyPlaceholder, Icon, Input, ScrollableSurface, SegmentedControl, StatusDot, Text), `@/packages/trade-order/read-data` (`decodeTradeOrderLive`, `tradeOrderCycleInput`, order types), `@bitfield/runtime-kit/react` (`useBitfieldData`), `lucide-react`.
+- **Depends on:** `tools/ui` (Badge, Button, Card, Container, Divider, EmptyPlaceholder, Icon, Input, ScrollableSurface, SegmentedControl, StatusDot, Text), `@/packages/trade-order/read-data` (`decodeTradeOrderLive`, `tradeOrderCycleInput`, order types), `@bitfield/runtime-kit/react` (`useBitfieldData`), `lucide-react`.
 - **Depended on by:** the package entry `trade-order` (via `mount-trade-order.tsx`).
 
 ## Reference anatomy
@@ -48,7 +48,7 @@ The broker order id (`broker_order_id`) renders as a short `Ref ########` line p
 
 ## Invariants
 
-- Zero raw HTML, zero `className` — composition is via `@/packages/ui` primitive props only (L065).
+- Zero raw HTML, zero `className` — composition is via `tools/ui` primitive props only (L065).
 - All rendered data is real (from the live cycle snapshot). No demo orders; honest empty/connect states when data is absent.
 - A fill price / "filled" state appears ONLY when the broker reports `filled_qty > 0` and a real `filled_avg_price` (L117). The 6 currently-queued orders render as "Queued", never filled.
 - `rejected` (broker said no) and `error` (broker call failed) are distinct terminal states with distinct copy — the user sees which kind of failure occurred.

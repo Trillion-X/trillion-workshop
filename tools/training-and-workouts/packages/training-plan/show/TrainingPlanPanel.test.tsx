@@ -2,9 +2,9 @@ import React from 'react';
 import { cleanup, render } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { TrainingPlanPanel } from '@/packages/training-plan/show/TrainingPlanPanel';
-import { decodeTrainingPlan } from '@/packages/training-plan/read-data/training-plan';
-import { selectAdaptiveNextSession } from '@/packages/training-plan/read-data/select-adaptive-next-session';
+import { TrainingPlanPanel } from './TrainingPlanPanel';
+import { decodeTrainingPlan } from '../../../read-data/training-plan';
+import { selectAdaptiveNextSession } from '../../../read-data/select-adaptive-next-session';
 
 const FEED = {
   goals: [{ id: 'g1', name: 'Forehand', domain: 'tennis' }],
