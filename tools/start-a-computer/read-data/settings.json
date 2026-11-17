@@ -26,7 +26,7 @@
     "engine-releases"
   ],
   "machine": {
-    "_what": "What set-up-the-machine.sh installs: the apt packages (b3sum checks a first engine release against its signed BLAKE3 content identity), the node release each unit node_bin folder gets when it has none (from nodejs.org's SHASUMS256.txt for that release, read 2026-11-13), and the ports the firewall admits (firewall_allow). A layout row's own `machine` object replaces any of these fields for that computer: a computer whose firewall another program keeps names firewall_allow null.",
+    "_what": "What set-up-the-machine.sh installs: the apt packages (b3sum checks a first engine release against its signed BLAKE3 content identity) and the ports the firewall admits (firewall_allow). A layout row's own `machine` object replaces any of these fields for that computer, and carries what only that computer needs: `node` ({ version, files: { <uname -m>: { url, sha256 } } }, the node release each unit `node_bin` folder gets when it has none; a computer with no unit that names a node_bin gets none), `downloads`, `files`, `apt_sources`. A computer whose firewall another program keeps names firewall_allow null.",
     "firewall_allow": [
       "22/tcp",
       "80/tcp",
@@ -39,19 +39,6 @@
       "git",
       "curl",
       "b3sum"
-    ],
-    "node": {
-      "version": "v24.22.3",
-      "files": {
-        "x86_64": {
-          "url": "https://nodejs.org/dist/v24.22.3/node-v24.22.3-linux-x64.tar.gz",
-          "sha256": "061ec3e3062115705b56b51fa9cc330ab50d34b6969387d4e4b1a50c6809acc2"
-        },
-        "aarch64": {
-          "url": "https://nodejs.org/dist/v24.22.3/node-v24.22.3-linux-arm64.tar.gz",
-          "sha256": "261af2af250dfd7e9f25cf151d1b2713a0adf8f10a9ad116c4947f68627affe8"
-        }
-      }
-    }
+    ]
   }
 }

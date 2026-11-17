@@ -808,7 +808,7 @@ test('the tool\'s own files name no provider', () => {
   for (const path of ['../do-work/start-a-computer.mjs', '../do-work/rent-a-machine.mjs', '../do-work/render-layout.mjs', '../do-work/set-up-the-machine.sh', '../do-work/update-a-computer.sh', '../do-work/cap-the-journal.sh']) {
     assert.doesNotMatch(read(path).split('\n').filter(line => !/^\s*(\/\/|#|\*|\/\*\*)/.test(line)).join('\n'), /\/var\/lib\/place|\/opt\/place|-u place\b|-o place\b|\bplace\.(service|json|key)\b|99-place/, `${path} holds no service user, folder or file of one product`);
   }
-  assert.doesNotMatch(read('../read-data/settings.json'), /gettrillion|\bplace\b|caddy_front_door|https:\/\/[^"]*caddy/i, 'settings hold no host, product word or pinned download');
+  assert.doesNotMatch(read('../read-data/settings.json'), /gettrillion|\bplace\b|caddy_front_door|nodejs\.org|https:\/\/[^"]*caddy/i, 'settings hold no host, product word or pinned download');
   assert.equal(existsSync(new URL('../read-data/providers.json', import.meta.url)), false);
 });
 

@@ -198,3 +198,14 @@ test('a computer missing a package or program its row names is set up, and one t
   await applyHostLayout(machine, changed, complete);
   assert.ok(!had.commands.some(({ command }) => command.startsWith('sh -s')), 'nothing missing, no set-up');
 });
+
+test('the node release is the computer row\'s own data: a computer that names none is set up without node', async () => {
+  const setUpOf = async row => {
+    const { run, commands } = computer({});
+    await applyHostLayout(machine, row, run);
+    return commands.find(({ command }) => command.startsWith('sh -s')).command;
+  };
+  assert.doesNotMatch(await setUpOf(layout), /"node"|nodejs/, 'the tool pins no node release');
+  const node = { version: 'v0.0.0', files: { x86_64: { url: 'https://downloads.example.test/node-x64.tar.gz', sha256: 'a'.repeat(64) } } };
+  assert.match(await setUpOf({ ...layout, machine: { node } }), /"node":\{"version":"v0\.0\.0"/, 'a row that names one hands it to set-up');
+});

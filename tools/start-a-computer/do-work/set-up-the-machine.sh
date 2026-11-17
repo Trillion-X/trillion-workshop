@@ -14,7 +14,7 @@
 # Caddy site file, each unit and its drop-ins) are written by apply-layout in start-a-computer.mjs, so this script names no
 # path a layout does not give.
 #
-# LAYOUT is the computer's layout row as JSON (request.host_layout, read at run time); SET_UP is settings.json `machine` with the layout row's own `machine` fields over it.
+# LAYOUT is the computer's layout row as JSON (request.host_layout, read at run time); SET_UP is settings.json `machine` with the layout row's own `machine` fields over it (the node release is the row's own).
 # FRONT_DOOR_CADDY, given when the layout's caddy row has `front_door`, is "PATH URL SHA256" of this machine's architecture
 # (the layout row's caddy.front_door binary_files): that Caddy is fetched and installed at PATH only when its SHA-256 is SHA256.
 set -eu
@@ -67,7 +67,7 @@ printf '%s' "$LAYOUT" | jq -r '[.units[] | .node_bin // empty] | unique[]' | whi
   kind=$(uname -m)
   url=$(printf '%s' "$SET_UP" | jq -r --arg kind "$kind" '.node.files[$kind].url // empty')
   want=$(printf '%s' "$SET_UP" | jq -r --arg kind "$kind" '.node.files[$kind].sha256 // empty')
-  [ -n "$url" ] && [ -n "$want" ] || { echo "The set-up data has no node release for $kind." >&2; exit 4; }
+  [ -n "$url" ] && [ -n "$want" ] || { echo "The set-up data has no node release for $kind: the layout row's machine.node gives one." >&2; exit 4; }
   download=$(mktemp)
   curl -fsSL -o "$download" "$url"
   [ "$(sha256sum "$download" | cut -d ' ' -f 1)" = "$want" ] || { rm -f "$download"; echo "The node download for $kind does not match its sha256." >&2; exit 5; }
