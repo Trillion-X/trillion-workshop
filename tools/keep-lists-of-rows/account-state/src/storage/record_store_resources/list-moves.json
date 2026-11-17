@@ -1,6 +1,0 @@
-{
-  "_what": "How a list moves into a store of its own (src/storage/record_store_resources/lists.rs `step`, old trillion src/placed-lists.mjs `move` and `continueMoves`). `page_rows`: the rows one step copies into the target or retires from the old home (one native write batch, records::MAX_PAGE_ITEMS at most; old trillion copied 50 per step inside a Durable Object request, lists.json limits.read_page_rows). `earlier`: the most earlier homes a list record names (old lists.json limits.placement_earlier). `lists_per_pass`: the most moving lists one idle pass steps (old continueMoves `most`).",
-  "page_rows": 256,
-  "earlier": 16,
-  "lists_per_pass": 4
-}

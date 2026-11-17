@@ -5,8 +5,7 @@
 // the smallest form that answers it here. `main.rs` and `serve/` make it a tool: MCP over stdio and a WebDAV folder.
 //
 // Non-Negotiable Invariants:
-// - The record store is the source of tools/keep-lists-of-rows/account-state, included from there and never copied: one source,
-//   two users. Everything else this tool needs from the engine is named below and lives in `cause_book/`, `engine/` or `host/`.
+// - The record store is this tool's own (`store/`). Everything else this tool needs from the engine is named below and lives in `cause_book/`, `engine/` or `host/`.
 // - `host/` is what this tool is for the engine's modules it calls (the computer under it, the held credential, the MCP bounds); each
 //   file's header says which engine module it stands for and what it keeps of it.
 // - No module here names a person, a store, a host or a credential value.

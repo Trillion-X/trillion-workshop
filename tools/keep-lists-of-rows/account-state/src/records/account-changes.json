@@ -1,4 +1,0 @@
-{
-  "_what": "The per-account change notifier (src/records/changes.rs): after each durable write the write owner publishes the (resource, kind, record id, sequence) of what it changed, and the account's readers (the wake ticker, the live owner) wait on it instead of polling the store. max_kept: the most changes the ring keeps; a reader that falls behind it is told Gap and reads the store again from its own last sequence.",
-  "max_kept": 1024
-}

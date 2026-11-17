@@ -1,8 +1,0 @@
-{
-  "not_writer": "This computer holds a copy of the account; the account's writer is another computer.",
-  "not_placed": "This computer does not hold this account: no placement row names it.",
-  "stale_row": "The placement row was changed since the revision this edit names.",
-  "no_route": "This computer answers /a/<address>/ routes only.",
-  "follow_stalled": "The writer's feed moved no stamp.",
-  "bad_request": "The request is not one this route reads."
-}

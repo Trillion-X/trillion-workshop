@@ -1,8 +1,0 @@
-{
-  "_what": "Settings of filling a new computer's store from a taken copy (src/storage/sqlite/first_copy.rs: the SQLite supply, since record store itself reaches storage only through the Storage trait), the port of the old engine's account carry between hosts. a taken copy is one consistent snapshot of a store file, made with SQLite's VACUUM INTO while the source keeps writing (its stamp is the stamp it was taken at). A new computer reads it in keyset pages (each table in its key order, from the key after the last row of the page before) and writes each page as one transaction into a store file of its own. `page_bytes` is the size a page is filled to (1 MiB): rows are taken until it is reached. `accepted_page_bytes` is the largest page taken (4 MiB): a page larger than that is taken only as one row alone. `row_max_bytes` is the largest row taken at all (16 MiB): one such row goes as its own page; a larger one refuses the fill. Every table's row count and identity (BLAKE3 over every row in key order) is read back from the new store before the fill counts as done: a store that does not match is removed. `statements` are the only schema statement starts a taken copy may hold (tables and indexes; never a trigger or a view).",
-  "page_bytes": 1048576,
-  "accepted_page_bytes": 4194304,
-  "row_max_bytes": 16777216,
-  "statements": ["CREATE TABLE ", "CREATE INDEX ", "CREATE UNIQUE INDEX "],
-  "identity_context": "trillion record_store frozen copy table identity v1"
-}

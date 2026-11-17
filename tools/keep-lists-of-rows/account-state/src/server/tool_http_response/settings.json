@@ -1,7 +1,0 @@
-{
-  "_what": "The generic Workshop HTTP text-response policy. A route opts in with http.format text and a UTF-8 string body. Only these MIME types may be inline; any other content type requires the encoder's validated attachment filename. Tools cannot set arbitrary response headers or alter this compiled policy.",
-  "max_content_type_bytes": 256,
-  "max_download_name_bytes": 200,
-  "default_content_type": "text/plain; charset=utf-8",
-  "inline_content_types": ["text/plain"]
-}

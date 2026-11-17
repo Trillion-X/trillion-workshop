@@ -1,5 +1,0 @@
-{
-  "_what": "Numbers of tests/answering_computers_hold_acknowledged_writes.rs. `rows` is how many rows the writer writes before it is killed (the brief of 2026-11-03: lane second-place's measured run lost one acknowledged write of its run). `slow_answer_ms` is how long the other computer that may answer waits before it answers each message, so the computer that only keeps a copy answers the writer first: a write acknowledged by a bare majority (the writer and the copy-only computer) then shows as missing at the computer that may answer. It is well below the forwarder's `message_wait_ms` (src/account/computers/settings.json), so that computer is slow, never lost.",
-  "rows": 200,
-  "slow_answer_ms": 40
-}
