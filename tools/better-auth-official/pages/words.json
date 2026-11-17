@@ -92,7 +92,6 @@
   "connected_since": "Connected {when}",
   "connected_can_read": "Can read only",
   "connected_can_all": "Can read and change",
-  "connected_ended_unused": "Access ended: not used for {days} days.",
   "connected_ended_chain_ended": "Access ended.",
   "connected_reconnect": "Reconnect",
   "connected_reconnect_none": "Open this AI and connect it again.",

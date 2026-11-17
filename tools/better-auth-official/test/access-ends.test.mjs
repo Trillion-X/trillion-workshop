@@ -1,7 +1,7 @@
 // tools/better-auth-official/test/access-ends.test.mjs
 //
 // An AI's access ends when it goes unused (access-lifetime plan A1): each refresh makes a refresh token that lives
-// settings.mcp.refresh_token_idle_seconds from that moment, so an AI used at least once in that time never loses access and one
+// unusedSeconds (access-ends-when-unused.json) from that moment, so an AI used at least once in that time never loses access and one
 // left alone loses it; a refresh token used a second time ends the whole chain; and the connected list says which AIs have ended,
 // why, when they were last used, and where one tap reconnects them.
 import test from 'node:test';
@@ -26,7 +26,7 @@ const { getMigrations } = await import('better-auth/db/migration');
 await (await getMigrations(auth.options)).runMigrations();
 const { signedQuery } = await import('../pages/oauth-query.mjs');
 
-const IDLE = settings.mcp.refresh_token_idle_seconds;
+const { unusedSeconds: IDLE, unusedDays } = await import('../../share-anything/read-data/access-ends-when-unused.mjs');
 const DAY = 86400;
 const ORIGIN = settings.base_url;
 const REDIRECT = 'http://127.0.0.1:9/callback';
@@ -58,7 +58,7 @@ const older = (clientId, days) => pool.query('update "oauthRefreshToken" set "cr
 const expiry = async clientId => (await pool.query('select max("expiresAt") as at from "oauthRefreshToken" where "clientId" = $1 and revoked is null', [clientId])).rows[0].at.getTime();
 const listed = async clientId => (await (await call('/connected', { cookie })).json()).ais.find(ai => ai.client_id === clientId);
 
-test('the idle window is the one settings number: a new refresh token ends that many seconds after it was made', async () => {
+test('the idle window is the number the rule file holds: a new refresh token ends that many seconds after it was made', async () => {
   const client = await newClient('Fresh AI');
   const token = await connect(client);
   const left = (await expiry(client) - Date.now()) / 1000;
@@ -98,7 +98,7 @@ test('an AI unused for 90 days has lost access: the refresh is refused and the l
   assert.equal((await refresh(client, token.refresh_token)).status, 400);
   const ai = await listed(client);
   assert.equal(ai.ended_by, 'unused');
-  assert.equal(ai.idle_days, 90);
+  assert.equal(ai.ended_text, `Access ended: not used for ${unusedDays} days.`);
   assert.ok(new Date(ai.ended_at) < new Date(), 'it ended in the past');
   assert.ok(new Date(ai.last_used_at) < new Date(usedAt), 'last used is when its newest refresh token was made');
   assert.equal(ai.reconnect_url, 'https://idle-ai.example.test/connect');

@@ -18,6 +18,8 @@ import { cookieOptions } from './cookie-options.mjs';
 import { trustedOriginsFor } from './attached-origins.mjs';
 import { readSettings } from './settings.mjs';
 import rules from './pages/sign-in-rules.json' with { type: 'json' };
+// How long an AI's access may go unused: the one owner of the number (also what a run share's end condition copies).
+import { unusedDays, unusedSeconds, words as endWords } from '../share-anything/read-data/access-ends-when-unused.mjs';
 import { storePool } from './store.mjs';
 
 const read = readSettings();
@@ -105,7 +107,7 @@ const connected = () => ({
         ais.push({
           client_id: consent.clientId, name: client?.name ?? null, scopes, connected_at: new Date(consent.createdAt).toISOString(),
           last_used_at: lastUsed ? new Date(lastUsed).toISOString() : null, read_only: !scopes.some(scope => rules.read_only_drops.includes(scope)),
-          ended_by: endedBy, ended_at: endedAt, idle_days: settings.mcp.refresh_token_idle_seconds / 86400,
+          ended_by: endedBy, ended_at: endedAt, ended_text: endedBy === 'unused' ? endWords.ended_unused.replace('{days}', unusedDays) : null,
           reconnect_url: /^https:\/\//.test(client?.uri ?? '') ? client.uri : null,
         });
       }
@@ -205,8 +207,8 @@ export const auth = betterAuth({
       // The sign-in pages name the AI that is asking before the person has signed in: its public fields (name, address, icon) for a request whose signed query names that client.
       allowPublicClientPrelogin: true,
       resource: settings.mcp.resource,
-      // An AI's access ends when it goes this long unused: each refresh makes a new refresh token that lives this long (settings DATA, the one place that holds the number).
-      refreshTokenExpiresIn: settings.mcp.refresh_token_idle_seconds,
+      // An AI's access ends when it goes this long unused: each refresh makes a new refresh token that lives this long (access-ends-when-unused.json, the one place that holds the number).
+      refreshTokenExpiresIn: unusedSeconds,
       // The scopes a client may ask for and the /mcp resource allows (settings DATA); the resource row follows the settings.
       ...(settings.mcp.scopes ? { scopes: settings.mcp.scopes } : {}),
       ...(settings.mcp.resource_scopes ? { resources: [{ identifier: settings.mcp.resource, allowedScopes: settings.mcp.resource_scopes }], resourceSeedMode: 'merge' } : {}),
