@@ -10,6 +10,9 @@
 //   (`tool_answer_fits`), and a refusal names its code and whether the call may have had an effect, never a value.
 // - The tool list and the routes DATA agree: a run does not start when an operation has no tool or a tool names no operation.
 // - A call that goes on while the caller has stopped listening (stdin closed) takes no later step.
+// - Each tool call runs on a thread of its own and answers under its own id when it is done, so a call that waits (a
+//   list_changes with `wait`, a long read) never holds back the calls sent after it; every other message is answered in
+//   order. One answer is written whole before the next begins. The input ends only after every call has answered.
 //
 // Security Considerations:
 // - The server speaks only to the process that started it; it opens no port (the WebDAV folder is `dav.rs`).
@@ -27,8 +30,9 @@ use std::{
     io::{BufRead, Write},
     sync::{
         atomic::{AtomicBool, Ordering},
-        Arc,
+        Arc, Mutex,
     },
+    thread,
 };
 
 /// The protocol version this server answers when the client names none it knows.
@@ -70,13 +74,22 @@ fn tools(namespace: &Namespace) -> Result<Tools, String> {
     Ok(listed)
 }
 
-/// Serve MCP over `input` and `output` until `input` ends.
-pub fn serve(namespace: Arc<Namespace>, input: impl BufRead, mut output: impl Write) -> Result<(), String> {
+/// Serve MCP over `input` and `output` until `input` ends and every call has answered.
+pub fn serve(namespace: Arc<Namespace>, input: impl BufRead, output: impl Write + Send) -> Result<(), String> {
     let listed = tools(&namespace)?;
+    let call = |listed: &Tools, listening: &Arc<AtomicBool>, id: Value, params: &Value| call(&namespace, listed, listening, id, params);
+    serve_calls(&listed, call, input, output)
+}
+
+/// `serve` with `call` answering each tool call.
+fn serve_calls(listed: &Tools, call: impl Fn(&Tools, &Arc<AtomicBool>, Value, &Value) -> Value + Sync, input: impl BufRead,
+    output: impl Write + Send) -> Result<(), String> {
     let listening = Arc::new(AtomicBool::new(true));
+    let output = Mutex::new(output);
+    let write = |answer: &Value| write_line(&mut *output.lock().map_err(|error| error.to_string())?, answer);
     let mut input = input;
     let mut line = String::new();
-    loop {
+    thread::scope(|calls| loop {
         line.clear();
         let read = std::io::Read::take(&mut input, MAX_MESSAGE_BYTES as u64 + 1).read_line(&mut line).map_err(|error| error.to_string())?;
         if read == 0 {
@@ -85,20 +98,32 @@ pub fn serve(namespace: Arc<Namespace>, input: impl BufRead, mut output: impl Wr
         }
         if line.len() > MAX_MESSAGE_BYTES {
             skip_rest_of_line(&mut input, &line)?;
-            write_line(&mut output, &error(Value::Null, -32600, "The message is longer than one MCP message."))?;
+            write(&error(Value::Null, -32600, "The message is longer than one MCP message."))?;
             continue;
         }
         if line.trim().is_empty() {
             continue;
         }
         let Ok(message) = serde_json::from_str::<Value>(&line) else {
-            write_line(&mut output, &error(Value::Null, -32700, "The message is not JSON."))?;
+            write(&error(Value::Null, -32700, "The message is not JSON."))?;
             continue;
         };
-        if let Some(answer) = answer(&namespace, &listed, &listening, &message) {
-            write_line(&mut output, &answer)?;
+        match message.get("id").cloned().filter(|_| message.get("method").and_then(Value::as_str) == Some("tools/call")) {
+            Some(id) => {
+                let (call, listening, write) = (&call, &listening, &write);
+                calls.spawn(move || {
+                    let params = message.get("params").cloned().unwrap_or(Value::Null);
+                    // An answer that cannot be written has no one left to read it.
+                    let _written = write(&call(listed, listening, id, &params));
+                });
+            }
+            None => {
+                if let Some(answer) = answer(listed, &message) {
+                    write(&answer)?;
+                }
+            }
         }
-    }
+    })
 }
 
 /// A line that was longer than a message is read to its end without keeping it.
@@ -134,8 +159,8 @@ fn error(id: Value, code: i32, message: &str) -> Value {
     json!({"jsonrpc": "2.0", "id": id, "error": {"code": code, "message": message}})
 }
 
-/// The answer to one message, or none for a notification.
-fn answer(namespace: &Arc<Namespace>, listed: &Tools, listening: &Arc<AtomicBool>, message: &Value) -> Option<Value> {
+/// The answer to one message that is not a tool call, or none for a notification.
+fn answer(listed: &Tools, message: &Value) -> Option<Value> {
     let id = message.get("id").cloned();
     let method = message.get("method").and_then(Value::as_str)?;
     let Some(id) = id else {
@@ -152,7 +177,6 @@ fn answer(namespace: &Arc<Namespace>, listed: &Tools, listening: &Arc<AtomicBool
         "tools/list" => json!({"tools": listed.tools.iter().map(|tool| json!({
             "name": tool.name, "description": tool.description, "inputSchema": tool.input_schema,
         })).collect::<Vec<_>>()}),
-        "tools/call" => return Some(call(namespace, listed, listening, id, &params)),
         _ => return Some(error(id, -32601, "No such method.")),
     };
     Some(json!({"jsonrpc": "2.0", "id": id, "result": result}))
@@ -191,4 +215,59 @@ fn call(namespace: &Arc<Namespace>, listed: &Tools, listening: &Arc<AtomicBool>,
 /// A tool result: the answer as text and as structured content.
 fn tool_result(answer: &Value, is_error: bool) -> Value {
     json!({"content": [{"type": "text", "text": answer.to_string()}], "structuredContent": answer, "isError": is_error})
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::{io::Cursor, sync::mpsc, time::Duration};
+
+    /// A writer the test reads every answer of, as written.
+    #[derive(Clone)]
+    struct Answers(mpsc::Sender<Value>);
+    impl Write for Answers {
+        fn write(&mut self, bytes: &[u8]) -> std::io::Result<usize> {
+            for line in bytes.split(|byte| *byte == b'\n').filter(|line| !line.is_empty()) {
+                let _sent = self.0.send(serde_json::from_slice(line).map_err(std::io::Error::other)?);
+            }
+            Ok(bytes.len())
+        }
+        fn flush(&mut self) -> std::io::Result<()> {
+            Ok(())
+        }
+    }
+
+    #[test]
+    fn a_call_that_waits_never_holds_back_the_calls_sent_after_it() {
+        let listed = Tools { _what: String::new(), left_out: Vec::new(), tools: ["slow", "fast"].map(|name| Tool {
+            name: name.to_owned(), description: String::new(), input_schema: json!({"type": "object"}) }).into() };
+        let (answers, heard) = mpsc::channel();
+        let (fast_done, fast_answered) = mpsc::channel::<()>();
+        let fast_answered = Mutex::new(fast_answered);
+        // `slow` answers only after `fast`, sent after it, has answered.
+        let call = |_: &Tools, _: &Arc<AtomicBool>, id: Value, params: &Value| {
+            match params["name"].as_str() {
+                Some("slow") => {
+                    let waited = fast_answered.lock().unwrap().recv_timeout(Duration::from_secs(30));
+                    json!({"jsonrpc": "2.0", "id": id, "result": {"waited": waited.is_ok()}})
+                }
+                _ => {
+                    let _done = fast_done.send(());
+                    json!({"jsonrpc": "2.0", "id": id, "result": {"fast": true}})
+                }
+            }
+        };
+        let input = [
+            json!({"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "slow"}}),
+            json!({"jsonrpc": "2.0", "id": 2, "method": "tools/call", "params": {"name": "fast"}}),
+            json!({"jsonrpc": "2.0", "id": 3, "method": "ping"}),
+        ].iter().map(|message| format!("{message}\n")).collect::<String>();
+        serve_calls(&listed, call, Cursor::new(input), Answers(answers)).unwrap();
+        let order: Vec<Value> = heard.try_iter().collect();
+        let ids: Vec<i64> = order.iter().filter_map(|answer| answer["id"].as_i64()).collect();
+        let at = |id: i64| ids.iter().position(|answered| *answered == id);
+        assert!(at(2) < at(1), "{order:?}");
+        assert_eq!(order.iter().find(|answer| answer["id"] == 1).map(|answer| answer["result"]["waited"].clone()), Some(json!(true)));
+        assert_eq!(ids.len(), 3, "{order:?}");
+    }
 }

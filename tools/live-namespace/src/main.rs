@@ -123,7 +123,7 @@ fn run(command: Command) -> Result<(), String> {
                 runtime.spawn(async move { serve::dav::serve(namespace, &port).await })
             });
             if mcp {
-                serve::mcp::serve(namespace, BufReader::new(io::stdin()), io::stdout().lock())?;
+                serve::mcp::serve(namespace, BufReader::new(io::stdin()), io::stdout())?;
                 return Ok(());
             }
             let listener = listener.ok_or(USAGE)?;
