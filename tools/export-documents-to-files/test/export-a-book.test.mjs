@@ -86,10 +86,12 @@ test('a comparison copy bound by its bytes exports and reads back', { skip: noLi
   assert.match(changed.reason, /source changed/i);
 });
 
-test('the settings come from the book\'s row through tools/settings', { skip: !settingsReader && 'tools/settings is not in this checkout' }, async () => {
+test('the settings come from the book\'s row the request carries, through tools/settings, and nothing is read for it', { skip: !settingsReader && 'tools/settings is not in this checkout' }, async () => {
   const { makeRecord } = await import('../../settings/read-data/settings.mjs');
   const row = makeRecord('export-documents-to-files', 'piece', 'made-up-book', { role: 'comparison' }, { name: 'made-up book', tool: TOOL_ID, source: 'made-up@0' });
-  assert.deepEqual(await settingsOfBook({ book_id: 'made-up-book' }, memoryDoor([row])), { role: 'comparison' });
-  await assert.rejects(settingsOfBook({ book_id: 'another-book' }, memoryDoor([row])), /No settings row/);
-  await assert.rejects(settingsOfBook({ book_id: 'made-up-book' }, memoryDoor([{ ...row, value: { ...row.value, status: 'retired' } }])), /retired/);
+  assert.deepEqual(await settingsOfBook({ book_id: 'made-up-book', settings_record: row }), { role: 'comparison' });
+  await assert.rejects(settingsOfBook({ book_id: 'another-book', settings_record: row }), /is not the settings row of piece another-book/);
+  await assert.rejects(settingsOfBook({ book_id: 'made-up-book', settings_record: { ...row, value: { ...row.value, status: 'retired' } } }), /retired/);
+  await assert.rejects(settingsOfBook({ book_id: 'made-up-book', settings_record: row.id }), /is a row's id: give the row itself/);
+  await assert.rejects(settingsOfBook({ book_id: 'made-up-book' }), /No settings row given/);
 });

@@ -18,7 +18,7 @@ textures are in the look. `read-data/example-look/` is a made-up look for sample
 
 ## Request and answer
 
-The row runs `do-work/render-overlay.mjs`. It refuses a row named by its id, then runs the renderer under `tools/settings` `run-with-settings.mjs`. The person's AI reads the look row and the piece's row from their list and gives them: the look as `settings_record` (the
+The row runs `do-work/render-overlay.mjs`. It refuses a row named by its id, then runs the renderer. The person's AI reads the look row and the piece's row from their list and gives them: the look as `settings_record` (the
 record itself, `{ id, type, value }`) and the piece's `settings.spec` as `spec`. No records door is opened and nothing is kept. The renderer lays the look out with `settings.request_settings`: `settings_files`,
 then the row, then the request's own `settings`.
 
@@ -118,7 +118,7 @@ plate?, plate_graded?, preview?, stills?, copied_to?}]}}`.
 
 **Depends on:**
 
-- `tools/settings`, `tools/records-door` and `tools/content-identity`, all packed; the insert row also packs
+- `tools/settings` (`read-data`) and `tools/content-identity`, both packed; the insert row also packs
   `tools/check-every-claim-against-its-facts-and-sources` and runs its `do-work/check_claims.py`.
 - Python 3.10+ with Pillow, numpy and OpenCV (`cv2`).
 - `ffmpeg` and `ffprobe` with `prores_ks`; for an insert's preview, `h264_videotoolbox` (a Mac) or `libx264`.

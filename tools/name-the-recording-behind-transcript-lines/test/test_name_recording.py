@@ -112,7 +112,7 @@ class NameRecording(unittest.TestCase):
 
 
 def record(folder, settings, status='active'):
-    """A row as run-with-settings.mjs hands it in: {id, type, value}, settings as the compact JSON text make_record writes."""
+    """A row as the person's AI hands it in: {id, type, value}, settings as the compact JSON text make_record writes."""
     return {'id': f'record:setting:{folder}~film~sample-film', 'type': 'record:setting',
             'value': {'name': 'made up', 'tool': f'tool:{folder}', 'scope_kind': 'film', 'scope_id': 'sample-film',
                       'settings': json.dumps(settings, sort_keys=True, separators=(',', ':')), 'from': 'made up', 'status': status}}
@@ -125,7 +125,7 @@ class SettingsRecord(unittest.TestCase):
         done = subprocess.run([sys.executable, '-I', str(SCRIPT), *extra], input=json.dumps(request), capture_output=True, text=True)
         return done.returncode, done.stdout.strip().split('\n')
 
-    def test_the_record_run_with_settings_hands_in_is_read_and_a_retired_one_refused(self):
+    def test_the_record_handed_in_is_read_and_a_retired_one_refused(self):
         with tempfile.TemporaryDirectory() as tmp:
             (Path(tmp) / 'a.json').write_text(json.dumps(WINDOWS))
             code, lines = self.run_request({'ranges': ['10-20'], 'settings_record': record(self.F, {'archive': 'a.json', 'preview_chars': 5})}, '--base', tmp)
@@ -135,7 +135,7 @@ class SettingsRecord(unittest.TestCase):
             self.assertEqual(code, 2)
             self.assertIn('retired', json.loads(lines[-1])['error'])
             code, lines = self.run_request({'ranges': ['10-20'], 'settings_record': 'record:setting:' + self.F + '~film~x'}, '--base', tmp)
-            self.assertIn('run-with-settings.mjs', json.loads(lines[-1])['error'])
+            self.assertIn('cannot read itself', json.loads(lines[-1])['error'])
 
 class OldCommandLine(unittest.TestCase):
     def test_the_old_command_line_prints_the_old_lines_and_nothing_else(self):

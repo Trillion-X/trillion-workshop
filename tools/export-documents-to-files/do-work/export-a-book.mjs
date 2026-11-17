@@ -1,7 +1,9 @@
 // tools/export-documents-to-files/do-work/export-a-book.mjs
 //
-// tool:export-a-markdown-book-to-word, the one entry with the person's records door. It reads the book's settings row
-// (record:setting:export-documents-to-files~piece~<book_id>, through tools/settings), runs the book's checks (the branch
+// tool:export-a-markdown-book-to-word, the one entry with the person's records door, which it uses only for the book's
+// checks. The book's settings row (record:setting:export-documents-to-files~piece~<book_id>) comes in the request as
+// settings_record, the record itself as the person's AI read it, and is read through tools/settings; it reads no row for
+// it. It runs the book's checks (the branch
 // of list:checks the settings name, through tools/check-against-a-persons-rules-and-verdicts in branch mode) on the exact
 // manuscript bytes, and only when they pass hands the settings and that receipt to the Word exporter
 // (export_markdown_book_to_word.py), whose writing gate also checks the writing profile and source spans
@@ -10,7 +12,7 @@
 // On the person's computer, with their door:
 //   node tools/records-door/do-work/run-with-stdio-mcp.mjs CLIENT.json \
 //     tools/export-documents-to-files/do-work/export-a-book.mjs exportABook REQUEST.json
-// REQUEST: { book_id, settings_record?, manuscript?, template?, output?, page_map?, answers?, purpose?, job_file?, python? }
+// REQUEST: { book_id, settings_record, manuscript?, template?, output?, page_map?, answers?, purpose?, job_file?, python? }
 // Answer: exported, blocked, or an explicitly admitted private_layout_proof with delivery_eligible=false.
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
@@ -27,17 +29,18 @@ const here = fileURLToPath(new URL('.', import.meta.url));
 const SETTINGS_READER = new URL('../../settings/read-data/settings.mjs', import.meta.url);
 const EXPORTER = join(here, 'export_markdown_book_to_word.py');
 
-/** The book's settings, read through the one shared reader. `settings` in the request wins only in tests. */
-export async function settingsOfBook(input, door) {
+/** The book's settings, from the settings row the request carries, read through the one shared reader. `settings` in the request wins only in tests. */
+export async function settingsOfBook(input) {
   if (input.settings !== undefined) return input.settings;
   if (typeof input.book_id !== 'string' || !input.book_id) throw new Error('book_id names the book whose settings row to read.');
   if (!existsSync(fileURLToPath(SETTINGS_READER))) throw new Error('tools/settings is not in this checkout; the settings row cannot be read.');
-  const { setting, settingId } = await import(SETTINGS_READER.href);
-  const id = input.settings_record ?? settingId(TOOL_FOLDER, 'piece', input.book_id);
-  const value = await door.read('record:setting', id);
-  if (value === null) throw new Error(`No settings row ${id}: the book has no export settings, so nothing is exported.`);
-  const settings = setting({ id, type: 'record:setting', value }, { folder: TOOL_FOLDER, scopes: [['piece', input.book_id]], tool: TOOL_ID });
-  if (settings === null) throw new Error(`${id} is not the settings row of piece ${input.book_id}.`);
+  const { setting, settingId, isSettingId } = await import(SETTINGS_READER.href);
+  const given = input.settings_record;
+  const id = settingId(TOOL_FOLDER, 'piece', input.book_id);
+  if (isSettingId(given)) throw new Error(`settings_record ${given} is a row's id: give the row itself, { id, type, value }, as your AI read it from your list:settings.`);
+  if (given === null || typeof given !== 'object') throw new Error(`No settings row given: the book has no export settings, so nothing is exported. Give ${id} as settings_record, the record itself.`);
+  const settings = setting(given, { folder: TOOL_FOLDER, scopes: [['piece', input.book_id]], tool: TOOL_ID });
+  if (settings === null) throw new Error(`${given.id} is not the settings row of piece ${input.book_id}.`);
   return settings;
 }
 
@@ -54,7 +57,7 @@ export async function bookChecks(door, { branch, bytes, answers = {}, reading = 
 }
 
 export async function exportABook(input, { door } = {}) {
-  const settings = await settingsOfBook(input, door);
+  const settings = await settingsOfBook(input);
   if (!settings || typeof settings !== 'object') return { status: 'blocked', reason: 'The settings row holds no settings object.' };
   const manuscript = input.manuscript ?? settings.manuscript;
   if (typeof manuscript !== 'string') return { status: 'blocked', reason: 'Name the manuscript (manuscript in the request or the settings).' };

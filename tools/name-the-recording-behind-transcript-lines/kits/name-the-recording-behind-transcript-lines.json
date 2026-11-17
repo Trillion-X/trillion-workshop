@@ -115,7 +115,7 @@
     "1. Say to your AI: \"Tell me which of my recordings a passage of my transcript archive comes from, given the line numbers it was cited by\", and give it ranges (Line ranges, first-last: a list, or one string with spaces between them.).",
     "2. The AI calls run_resource_operation at @workshop-tools with method tools:run, tool tool:name-the-recording-behind-transcript-lines and its input (the worked example shows one).",
     "3. Read what comes back: Reads an archive index the person let this tool read (a JSON list of windows, each with an id, the recording's title, the first and last line it covers and its text) and, for each line range given, lists every window that overlaps it: the window id, the recording's title, the window's line span and its first words.",
-    "4. It reads and writes only its own rows through the records door: record:setting (records:read)."
+    "4. It reads and writes no rows: the settings row comes in the request as settings_record, the record itself, which your AI reads and passes in."
   ],
   "worked_examples": [
     {

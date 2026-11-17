@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Render a motion-graphics overlay: one JSON request on standard input, one JSON answer as the last printed line.
 
-The row runs this under tools/settings do-work/run-with-settings.mjs (through do-work/render-overlay.mjs, which also reads a
-spec), so a `settings_record` arrives as the record itself. The look is, weakest first: settings_files, the
+The row runs this through do-work/render-overlay.mjs, which also checks for a spec, so a `settings_record` arrives as
+the record itself. The look is, weakest first: settings_files, the
 person's settings row (settings_record), the request's own `settings` (tools/settings request_settings).
 
 Request:

@@ -57,7 +57,7 @@ test('in the branch mode, run as the container runs it, a made-up reading row is
 test('the packed film descriptor reads public plans and recordings from stdin and refuses absent or changed origin evidence', async () => {
   const row = rows.find(each => each.id === 'tool:check-a-films-copy');
   const sample = structuredClone(row.verify.find(each => each.kind === 'sample-run'));
-  const settings = sample.records.find(record => record.type === 'record:setting').value.settings;
+  const settings = sample.input.settings_record.value.settings;
   settings.spoken_spans = { cites_plan: 'never', words_json: ['takes/{clip}.json'],
     tsv: { path: 'tables/moments.tsv', clip: 'clip', from: 'start', to: 'end', text: 'text' }, speaker_unverified: '^UNCHECKED' };
   settings.origin_words = { own: 'recorded', added: 'added', unverified: 'unverified' };

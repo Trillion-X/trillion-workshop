@@ -44,6 +44,7 @@ test('a row named by its id is refused: the row itself is what the request carri
 test('the row holds no records door and does not accept a row id', () => {
   const row = rowOf(rows, 'tool:render-a-motion-graphics-overlay');
   assert.equal(row.invoke.records, undefined);
+  assert.doesNotMatch(JSON.stringify(row.invoke.files), /records-door|run-with-settings/, 'nothing reads the setting for the tool: no records door and no settings wrapper are packed');
   assert.equal(row.input_schema.properties.spec_record, undefined);
   assert.deepEqual(row.input_schema.properties.settings_record.type, 'object');
 });

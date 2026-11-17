@@ -2164,7 +2164,7 @@
     "label": "Check a film's copy against a person's rules and verdicts",
     "status": "active",
     "job": "Check every line of a film's copy files (a script table, titles, cards, a post, a description, prose or narration) against the person's own branch of their checks, with their film readers and settings",
-    "description": "Reads the person's settings row for this tool (list:settings, by the id given as settings_record) and the rules of one branch of their one Checks list (its own rows and every row of the branches above it; the nearest branch with judge_settings makes their verdict rows), both through their records door, read only. Reads the lines of each file handed in by the layouts their settings name (Markdown table columns by file name, fenced post text, blockquotes, paragraph files, plain lines, JSON lines), or by a declared reader (sectioned prose, cue narration, a JSON owner's paths). Marks a line the person's own recorded words when every word is in a recording span the piece's plan cites, so a row written for added words only holds there; attaches each line's context and the reader-knowledge findings it is handed. Answers per line pass, fail or uncertain with every finding, the questions a model should answer by id (send them back as answers), the report with the BLAKE3 identity of each file, the reader settings, the rules and the checker, and exit_code (0 passed, 1 failed, 2 unqualified, 3 uncertain). Nothing is written.",
+    "description": "Takes the person's settings row for this tool (list:settings, the record itself as settings_record) and reads the rules of one branch of their one Checks list (its own rows and every row of the branches above it; the nearest branch with judge_settings makes their verdict rows) through their records door, read only. Reads the lines of each file handed in by the layouts their settings name (Markdown table columns by file name, fenced post text, blockquotes, paragraph files, plain lines, JSON lines), or by a declared reader (sectioned prose, cue narration, a JSON owner's paths). Marks a line the person's own recorded words when every word is in a recording span the piece's plan cites, so a row written for added words only holds there; attaches each line's context and the reader-knowledge findings it is handed. Answers per line pass, fail or uncertain with every finding, the questions a model should answer by id (send them back as answers), the report with the BLAKE3 identity of each file, the reader settings, the rules and the checker, and exit_code (0 passed, 1 failed, 2 unqualified, 3 uncertain). Nothing is written.",
     "input_schema": {
      "type": "object",
      "required": [
@@ -2179,8 +2179,8 @@
        "description": "The id of one of the person's branch rows of list:checks, such as content-production"
       },
       "settings_record": {
-       "type": "string",
-       "description": "record:setting:check-against-a-persons-rules-and-verdicts~<scope_kind>~<scope_id>: the film readers, spans, profiles, owners, fields, origin words and reader-knowledge rows"
+       "type": "object",
+       "description": "The person's list:settings row for this tool, record:setting:check-against-a-persons-rules-and-verdicts~<scope_kind>~<scope_id>, as records:read gives it, { id, type, value }: the film readers, spans, profiles, owners, fields, origin words and reader-knowledge rows. Your AI reads it and gives it here; an id alone is refused."
       },
       "files": {
        "type": "array",
@@ -2481,16 +2481,7 @@
       "kind": "sample-run",
       "input": {
        "branch": "made-up-base",
-       "settings_record": "record:setting:check-against-a-persons-rules-and-verdicts~person~made-up",
-       "files": [
-        {
-         "name": "SCRIPT.md",
-         "text": "| # | line |\n|---|---|\n| 1 | A sparkle line. |\n| 2 | A plain line. |\n"
-        }
-       ]
-      },
-      "records": [
-       {
+       "settings_record": {
         "id": "record:setting:check-against-a-persons-rules-and-verdicts~person~made-up",
         "type": "record:setting",
         "value": {
@@ -2526,6 +2517,14 @@
          "status": "active"
         }
        },
+       "files": [
+        {
+         "name": "SCRIPT.md",
+         "text": "| # | line |\n|---|---|\n| 1 | A sparkle line. |\n| 2 | A plain line. |\n"
+        }
+       ]
+      },
+      "records": [
        {
         "id": "record:check:made-up-base",
         "type": "record:check",

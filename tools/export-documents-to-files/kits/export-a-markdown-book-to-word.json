@@ -201,7 +201,7 @@
   ],
   "instructions": [
     "1. Pour the example rows into your own settings list (see pour), put the manuscript, the Word template and the output folder in the book's settings JSON, and set source_blake3 to the BLAKE3 of the manuscript bytes. For current prose also name checks_branch and keep the example check rows in your checks list.",
-    "2. Say \"Export my book rye-cookbook to Word\". The AI reads the row with tools:list, writes {\"book_id\":\"rye-cookbook\"} to a request file and runs the row's run command from the Workshop checkout with your records door.",
+    "2. Say \"Export my book rye-cookbook to Word\". The AI reads the row with tools:list and your settings row with records:read, writes {\"book_id\":\"rye-cookbook\",\"settings_record\":<that row, { id, type, value }>} to a request file and runs the row's run command from the Workshop checkout with your records door.",
     "3. Read the last line, {\"result\": ...}. status exported names the Word file; blocked gives the reason (changed source bytes, the checks failed or ask reading questions, missing writing evidence). Answer reading questions in answers and run again.",
     "4. After an export render the Word file to PDF and run verify_book_against_its_source.py as the row says; passing proves coverage only, never author approval."
   ],
@@ -220,7 +220,7 @@
           }
         }
       },
-      "given": "Read from tools/export-documents-to-files/do-work/export-a-book.mjs (the same path test/export-a-book.test.mjs runs: \"current prose whose checks fail is blocked before any DOCX is written\"), not run here against a real door. Command: node tools/records-door/do-work/run-with-stdio-mcp.mjs door-client.json tools/export-documents-to-files/do-work/export-a-book.mjs exportABook request.json, with request.json {\"book_id\":\"rye-cookbook\"}. The settings row above gives role current_prose and checks_branch bakery-book; the manuscript holds the line \"Some glitter here.\"; list:checks holds the no-glitter check with words [\"glitter\"] under bakery-writing, which bakery-book is part of.",
+      "given": "Read from tools/export-documents-to-files/do-work/export-a-book.mjs (the same path test/export-a-book.test.mjs runs: \"current prose whose checks fail is blocked before any DOCX is written\"), not run here against a real door. Command: node tools/records-door/do-work/run-with-stdio-mcp.mjs door-client.json tools/export-documents-to-files/do-work/export-a-book.mjs exportABook request.json, with request.json {\"book_id\":\"rye-cookbook\",\"settings_record\":<the settings row itself>}. The settings row above gives role current_prose and checks_branch bakery-book; the manuscript holds the line \"Some glitter here.\"; list:checks holds the no-glitter check with words [\"glitter\"] under bakery-writing, which bakery-book is part of.",
       "hands_back": "{\"result\":{\"status\":\"blocked\",\"reason\":\"The book's checks answered failed; no DOCX was created.\",\"checks\":{\"branch\":\"bakery-book\",\"lineage\":[\"bakery-book\",\"bakery-writing\"],\"status\":\"failed\",\"passed\":false}}} (checks also carries document_blake3 and the lines that failed); no .docx file is written."
     }
   ],

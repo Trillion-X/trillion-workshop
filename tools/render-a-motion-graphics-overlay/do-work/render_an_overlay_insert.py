@@ -4,8 +4,8 @@ voice and the music-and-effects stem aligned to the overlay's first frame, the S
 in-context preview), after the shot's claims pass tool:check-every-claim-against-its-facts-and-sources. One JSON request
 on standard input, one JSON answer as the last printed line. overlay/insert.py says what each file is.
 
-The row runs this under tools/settings run-with-settings.mjs (through do-work/render-insert.mjs, which checks the request
-holds its rows themselves), so a `settings_record` arrives as the record itself. The look is read exactly as for
+The row runs this through do-work/render-insert.mjs, which checks the request holds its rows themselves, so a
+`settings_record` arrives as the record itself. The look is read exactly as for
 tool:render-a-motion-graphics-overlay (render_a_motion_graphics_overlay.py read_request): settings_files, then the
 person's look row, then the request's own `settings`.
 

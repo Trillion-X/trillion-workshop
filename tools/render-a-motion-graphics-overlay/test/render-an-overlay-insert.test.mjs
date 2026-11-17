@@ -52,6 +52,7 @@ test('withRows takes a batch of shots, the look row and the claim check row in t
 test('the row holds no records door and takes the rows themselves', () => {
   const row = rowOf(rows, 'tool:render-an-overlay-insert-for-a-cut');
   assert.equal(row.invoke.records, undefined);
+  assert.doesNotMatch(JSON.stringify(row.invoke.files), /records-door|run-with-settings/, 'nothing reads the setting for the tool: no records door and no settings wrapper are packed');
   assert.equal(row.input_schema.properties.spec_record, undefined);
   assert.equal(row.input_schema.properties.spec_records, undefined);
   assert.equal(row.input_schema.properties.settings_record.type, 'object');

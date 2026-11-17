@@ -11,13 +11,11 @@
 // Then runs do-work/render_an_overlay_insert.py and prints its last line unchanged.
 //
 //   node do-work/render-insert.mjs < request.json
-import { Readable } from 'node:stream';
 import { text } from 'node:stream/consumers';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { isSettingId, settingsOf } from '../../settings/read-data/settings.mjs';
-import { runWithSettings } from '../../settings/do-work/run-with-settings.mjs';
-import { FOLDER, OverlayRequestError, refuseRowIds } from './render-overlay.mjs';
+import { FOLDER, OverlayRequestError, refuseRowIds, runProgram } from './render-overlay.mjs';
 
 export const CLAIMS_FOLDER = 'check-every-claim-against-its-facts-and-sources';
 const here = dirname(fileURLToPath(import.meta.url));
@@ -41,8 +39,7 @@ export function withRows(request) {
 export async function renderInsert({ stdin = process.stdin, out = process.stdout, python = 'python3' } = {}) {
   const request = JSON.parse((await text(stdin)) || '{}');
   const handed = withRows(request);
-  return runWithSettings(['--folder', FOLDER, '--', python, join(here, 'render_an_overlay_insert.py')],
-    { stdin: Readable.from([JSON.stringify(handed)]), out });
+  return runProgram([python, join(here, 'render_an_overlay_insert.py')], handed, out);
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

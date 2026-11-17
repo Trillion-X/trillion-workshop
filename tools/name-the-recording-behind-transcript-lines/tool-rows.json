@@ -47,9 +47,8 @@
               "description": "Line ranges, first-last: a list, or one string with spaces between them."
             },
             "settings_record": {
-              "type": "string",
-              "pattern": "^record:setting:name-the-recording-behind-transcript-lines~",
-              "description": "The person's list:settings row for this tool (for one film: its archive and preview length)."
+              "type": "object",
+              "description": "The person's list:settings row for this tool (for one film: its archive and preview length) as records:read gives it, { id, type, value }; your AI reads it and gives it here. A row's id alone is refused."
             },
             "settings": {
               "type": "object",
@@ -123,11 +122,6 @@
           "internet": false,
           "stdout": "json",
           "argv": [
-            "node",
-            "/opt/settings/do-work/run-with-settings.mjs",
-            "--folder",
-            "name-the-recording-behind-transcript-lines",
-            "--",
             "python3",
             "-I",
             "/opt/name-the-recording-behind-transcript-lines/do-work/name_recording.py",
@@ -144,18 +138,6 @@
               "from": "input"
             }
           },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "record:setting",
-                "prefix": "record:setting:name-the-recording-behind-transcript-lines~",
-                "operations": [
-                  "records:read"
-                ]
-              }
-            ]
-          },
           "files": {
             "package_files": [
               {
@@ -168,53 +150,9 @@
               {
                 "package": "settings",
                 "paths": [
-                  "read-data",
-                  "do-work"
+                  "read-data"
                 ],
                 "at": "/opt/settings"
-              },
-              {
-                "package": "records-door",
-                "paths": [
-                  "do-work",
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
-              },
-              {
-                "package": "content-identity",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/content-identity"
-              },
-              {
-                "packages": ["node_modules/@noble/hashes"],
-                "paths": [
-                  "LICENSE",
-                  "package.json",
-                  "blake3.js",
-                  "blake2.js",
-                  "_blake.js",
-                  "_md.js",
-                  "_u64.js",
-                  "utils.js"
-                ],
-                "at": "/opt/node_modules/@noble/hashes"
-              },
-              {
-                "package": "browse-and-upload-my-files",
-                "paths": [
-                  "built-stored-bytes/content-chunks/content_chunks.js",
-                  "do-work/content-chunks.mjs",
-                  "do-work/namespace-client.mjs",
-                  "do-work/send-a-file-to-a-namespace.mjs",
-                  "do-work/send-retry.mjs",
-                  "do-work/send-window.mjs",
-                  "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
-                ],
-                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           }
@@ -245,17 +183,7 @@
             "kind": "sample-run",
             "input": {
               "ranges": "10-20",
-              "settings_record": "record:setting:name-the-recording-behind-transcript-lines~film~sample-film"
-            },
-            "files": [
-              {
-                "grant": "read-a-folder",
-                "path": "film/archive.json",
-                "text": "[{\"id\": \"w-001\", \"recording\": \"Sample interview one\", \"start_line\": 1, \"end_line\": 100, \"text\": \"The first words of window one.\"}, {\"id\": \"w-002\", \"recording\": \"Sample interview two\", \"start_line\": 101, \"end_line\": 200, \"text\": \"Second window opens here.\"}]"
-              }
-            ],
-            "records": [
-              {
+              "settings_record": {
                 "id": "record:setting:name-the-recording-behind-transcript-lines~film~sample-film",
                 "type": "record:setting",
                 "value": {
@@ -270,6 +198,13 @@
                   "from": "made up for this sample",
                   "status": "active"
                 }
+              }
+            },
+            "files": [
+              {
+                "grant": "read-a-folder",
+                "path": "film/archive.json",
+                "text": "[{\"id\": \"w-001\", \"recording\": \"Sample interview one\", \"start_line\": 1, \"end_line\": 100, \"text\": \"The first words of window one.\"}, {\"id\": \"w-002\", \"recording\": \"Sample interview two\", \"start_line\": 101, \"end_line\": 200, \"text\": \"Second window opens here.\"}]"
               }
             ]
           }

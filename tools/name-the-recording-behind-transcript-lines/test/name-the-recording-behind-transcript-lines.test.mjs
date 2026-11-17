@@ -15,9 +15,10 @@ test('the row runs the one script on the person\'s computer, over the folder the
   assert.equal(row.invoke.kind, 'computer');
   assert.deepEqual(row.invoke.capabilities, ['read-a-folder']);
   assert.deepEqual(row.placements, ['placement:your-computer']);
-  assert.deepEqual(row.invoke.argv.slice(0, 5), ['node', '/opt/settings/do-work/run-with-settings.mjs', '--folder', 'name-the-recording-behind-transcript-lines', '--']);
+  assert.deepEqual(row.invoke.argv.slice(0, 2), ['python3', '-I']);
+  assert.doesNotMatch(JSON.stringify(row.invoke), /run-with-settings|records-door/, 'the setting arrives in the request; nothing reads it for the tool');
   assert.ok(row.invoke.argv.includes('/opt/name-the-recording-behind-transcript-lines/do-work/name_recording.py'));
-  assert.deepEqual(row.invoke.records.rights, [{ kind: 'record:setting', prefix: 'record:setting:name-the-recording-behind-transcript-lines~', operations: ['records:read'] }]);
+  assert.equal(row.invoke.records, undefined);
   assert.equal(row.result_selector, '$.result');
   assert.ok(existsSync(join(folder, 'do-work', 'name_recording.py')));
 });

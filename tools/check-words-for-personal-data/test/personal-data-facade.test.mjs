@@ -22,7 +22,7 @@ test('the packaged descriptor executes the historical public entry with its rela
   t.after(() => rmSync(sandbox, { recursive: true, force: true }));
   const placed = path => path.startsWith('/opt/') ? join(sandbox, path.slice(1)) : path;
   for (const spec of [row.invoke.files.package_files].flat()) {
-    const owner = spec.package ? join(repository, 'tools', spec.package) : join(repository, 'node_modules', spec.module);
+    const owner = spec.package ? join(repository, 'tools', spec.package) : join(repository, spec.packages[0]);
     for (const path of spec.paths) {
       const target = join(placed(spec.at), path);
       mkdirSync(dirname(target), { recursive: true });

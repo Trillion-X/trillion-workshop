@@ -28,7 +28,8 @@
   "answers": "model answers by question id"
  },
  "words": {
-  "no_settings": "settings_record {id} is not in the person's list:settings (or is not theirs): the film readers, spans and reader-knowledge rows are read from it. Write it, or name the row that holds them.",
+  "no_settings": "settings_record {id} is not a settings row: give the person's list:settings row itself, { id, type, value }, as their AI read it. The film readers, spans and reader-knowledge rows are read from it.",
+  "setting_id": "settings_record {id} is a row's id: give the row itself, { id, type, value }, as your AI read it from your list:settings.",
   "no_files": "files is a non-empty list of { name, text }: the film's copy files, each by its name (the layouts are chosen by the file's name) and its text.",
   "reader": "reader must be one of {readers}.",
   "owner": "--owner (owner) is only valid with the json-words reader, which requires it.",

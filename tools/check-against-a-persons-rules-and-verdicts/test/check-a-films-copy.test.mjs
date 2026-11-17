@@ -62,15 +62,17 @@ function records({ settings = SETTINGS, checks = CHECKS } = {}) {
     ...BRANCHES.map(value => ({ id: `record:check:${value.id}`, type: 'record:check', value: { kind: 'branch', ...value } })),
     ...checks.map(value => ({ id: `record:check:${value.id}`, type: 'record:check', value }))];
 }
+const settingOf = held => held.find(record => record.type === 'record:setting');
 function memoryDoor(held = records()) {
   const matches = (record, where) => !where || Object.entries(where).every(([name, value]) => JSON.stringify(record.value?.[name]) === JSON.stringify(value));
   return {
+    held,
     async read(type, id) { return held.find(record => record.type === type && record.id === id)?.value ?? null; },
     async *list(query) { for (const record of held) if (record.type === query.type && matches(record, query.where)) yield record; },
     write() { throw new Error('a film check writes nothing'); },
   };
 }
-const run = (files, extra = {}, door = memoryDoor()) => checkAFilmsCopy({ branch: 'made-up-video', settings_record: SETTINGS_ID, files,
+const run = (files, extra = {}, door = memoryDoor()) => checkAFilmsCopy({ branch: 'made-up-video', settings_record: settingOf(door.held), files,
   reader_knowledge: { findings: [] }, ...extra }, door);
 const script = (rows, header = '| # | line | words |') => `${header}\n|---|---|---|\n${rows.map((row, at) => `| ${at + 1} | ${row} | 3 |`).join('\n')}\n`;
 
@@ -149,7 +151,7 @@ test('a film\'s rules are read from the branch through the door; a branch\'s row
   assert.equal(answer.exit_code, 1);
   assert.equal(answer.rules.count, 3);
   assert.equal(answer.verdict_rules.count, 3);
-  await assert.rejects(checkAFilmsCopy({ branch: 'made-up-video', settings_record: SETTINGS_ID, files: [], rules: [] }, memoryDoor()), /Send a branch/);
+  await assert.rejects(checkAFilmsCopy({ branch: 'made-up-video', settings_record: settingRecord(), files: [], rules: [] }, memoryDoor()), /Send a branch/);
 });
 
 test('a row for added words holds, never fails, on the person\'s own recorded words named in their own origin word', async () => {
@@ -195,7 +197,7 @@ test('declared plans refuse a missing plan, missing recordings never soften a ru
 
 test('the film descriptor declares the plans and recordings request used by the origin check', async () => {
   const row = JSON.parse(readFileSync(join(here, 'tool-rows.json'), 'utf8')).records.find(record => record.payload.id === 'tool:check-a-films-copy').payload;
-  const input = { branch: 'made-up-video', settings_record: SETTINGS_ID,
+  const input = { branch: 'made-up-video', settings_record: settingRecord(),
     files: [{ name: 'SCRIPT.md', text: script(['Three zorblax.', 'Moment zorblax.']) }], plan: 'public.json',
     plans: { 'public.json': { segments: [{ clip: 'C1', from: 2, to: 3 }, { clip: 'C2', from: 2, to: 3 }] } },
     recordings: { words: { C1: [{ text: 'Three', start: 2, end: 2.4 }, { text: 'zorblax', start: 2.4, end: 3 }] },
@@ -275,7 +277,11 @@ test('the report binds its inputs by BLAKE3 and is the same on a repeat; the set
   assert.match(first.coverage.files[0].source_blake3, /^[0-9a-f]{64}$/);
   assert.deepEqual([first.rules, first.coverage, first.reader], [again.rules, again.coverage, again.reader]);
   assert.equal(first.schema, 'copy-check-report-v1');
-  await assert.rejects(checkAFilmsCopy({ branch: 'made-up-video', settings_record: 'record:setting:check-against-a-persons-rules-and-verdicts~person~nobody', files }, memoryDoor()));
+  await assert.rejects(checkAFilmsCopy({ branch: 'made-up-video', settings_record: SETTINGS_ID, files }, memoryDoor()), /is a row's id: give the row itself/);
+  await assert.rejects(checkAFilmsCopy({ branch: 'made-up-video', files }, memoryDoor()), /is not a settings row/);
+  const door = memoryDoor();
+  door.read = () => { throw new Error('the tool read a row for its setting'); };
+  assert.equal((await run(files, {}, door)).schema, 'copy-check-report-v1', 'the setting comes in the request; nothing is read for it');
 });
 
 test('the units the computer run hands reader_knowledge.py are the ones the check reads, in the same order', () => {

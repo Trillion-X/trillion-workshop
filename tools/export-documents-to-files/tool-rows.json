@@ -439,11 +439,12 @@
     "label": "Export a Markdown book to Word through its writing checks, and verify the Word file and its PDF against the source (runs on your computer)",
     "status": "active",
     "job": "export a markdown manuscript to word and verify it against its source",
-    "description": "Reads the book's settings row (record:setting:export-documents-to-files~piece~<book_id>, list:settings): its manuscript, role (current_prose, comparison or historical_reference), the BLAKE3 its bytes must have, a retained Word template and output folder, and for current prose the checks branch, writing profile, reviews and captured book-voice runs in its evidence folder. For current prose it first runs the book's checks branch of list:checks (tools/check-against-a-persons-rules-and-verdicts, branch mode) on the exact bytes and stops when they do not pass; then the writing gate checks the writing profile and review evidence (tools/pin-files-by-content), and the captured voice-classifier run and its qualification benchmark (tools/train-and-evaluate-a-writing-voice-classifier). Only then is the Word file built from the template (title, a clickable contents list with page fields, heading bookmarks, native tables, lists, quotes, footer page numbers), read back and compared to the source. verify_book_against_its_source.py checks the Word file and a rendered PDF against the source (outline, contents links, page map, body text with two PDF readers) and can repair confirmed ligature mappings. Passing proves coverage and regression checks only, never author approval.",
+    "description": "Takes the book's settings row (record:setting:export-documents-to-files~piece~<book_id>, list:settings, the record itself as settings_record): its manuscript, role (current_prose, comparison or historical_reference), the BLAKE3 its bytes must have, a retained Word template and output folder, and for current prose the checks branch, writing profile, reviews and captured book-voice runs in its evidence folder. For current prose it first runs the book's checks branch of list:checks (tools/check-against-a-persons-rules-and-verdicts, branch mode) on the exact bytes and stops when they do not pass; then the writing gate checks the writing profile and review evidence (tools/pin-files-by-content), and the captured voice-classifier run and its qualification benchmark (tools/train-and-evaluate-a-writing-voice-classifier). Only then is the Word file built from the template (title, a clickable contents list with page fields, heading bookmarks, native tables, lists, quotes, footer page numbers), read back and compared to the source. verify_book_against_its_source.py checks the Word file and a rendered PDF against the source (outline, contents links, page map, body text with two PDF readers) and can repair confirmed ligature mappings. Passing proves coverage and regression checks only, never author approval.",
     "input_schema": {
      "type": "object",
      "required": [
-      "book_id"
+      "book_id",
+      "settings_record"
      ],
      "additionalProperties": false,
      "properties": {
@@ -452,8 +453,8 @@
        "description": "The piece id of the book's settings row"
       },
       "settings_record": {
-       "type": "string",
-       "description": "The settings row id, when it is not record:setting:export-documents-to-files~piece~<book_id>"
+       "type": "object",
+       "description": "The book's settings row, record:setting:export-documents-to-files~piece~<book_id>, as records:read gives it, { id, type, value }. Your AI reads it and gives it here; an id alone is refused."
       },
       "manuscript": {
        "type": "string",
@@ -537,7 +538,7 @@
       "python",
       "the person's records door (stdio client config)"
      ],
-     "say": "This runs on the person's own computer, from the root of the Workshop checkout, with their records door. Write the request ({ book_id }, plus a manuscript, template or output when they differ from the book's settings row) to a file and run `run`; the last line is { result }. status exported names the Word file; blocked says why (no settings row, changed source bytes, the book's checks failed or have unanswered reading questions, the writing profile or review evidence, the voice-classifier evidence). When the checks ask reading questions, answer them and send `answers`. Then render the Word file to PDF (soffice --headless --convert-to pdf) and run `python3 tools/export-documents-to-files/do-work/verify_book_against_its_source.py --source MD --docx DOCX --raw-pdf PDF --page-map-out MAP --report REPORT`; rebuild with page_map set to MAP, render and verify again. Tell the person what passed and every unresolved difference. Never say the book is approved: these are coverage checks. If you cannot run commands, give them these steps."
+     "say": "This runs on the person's own computer, from the root of the Workshop checkout, with their records door. Write the request ({ book_id, settings_record }, plus a manuscript, template or output when they differ from the book's settings row) to a file and run `run`; the last line is { result }. status exported names the Word file; blocked says why (no settings row, changed source bytes, the book's checks failed or have unanswered reading questions, the writing profile or review evidence, the voice-classifier evidence). When the checks ask reading questions, answer them and send `answers`. Then render the Word file to PDF (soffice --headless --convert-to pdf) and run `python3 tools/export-documents-to-files/do-work/verify_book_against_its_source.py --source MD --docx DOCX --raw-pdf PDF --page-map-out MAP --report REPORT`; rebuild with page_map set to MAP, render and verify again. Tell the person what passed and every unresolved difference. Never say the book is approved: these are coverage checks. If you cannot run commands, give them these steps."
     },
     "verify": null,
     "result_selector": null,

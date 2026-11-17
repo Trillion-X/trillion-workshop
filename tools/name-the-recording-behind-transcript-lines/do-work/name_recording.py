@@ -13,9 +13,9 @@ prints, one tab-separated line per archive window that overlaps it, the window i
 window's line span and its first words, so a cited passage can be found in the person's media. The last line is
 {"result": {"matches": [...], "not_found": [...]}} with the same facts as fields.
 
-Settings (the person's list:settings row for this folder, read by tools/settings/do-work/run-with-settings.mjs, which
-hands the record in as `settings_record`, read here with request_settings): `archive`, the archive index a film's citations point into, used when the request names
-none, and `preview_chars`, how many first characters of a window to show (default 120). A relative archive path is
+Settings (the person's list:settings row for this folder, which their AI reads and hands in as `settings_record`, the
+record itself; read here with request_settings, which reads no records): `archive`, the archive index a film's
+citations point into, used when the request names none, and `preview_chars`, how many first characters of a window to show (default 120). A relative archive path is
 read from --base, the folder the person let this tool read.
 
 Moved from a film's tools folder (package_lines.py): the overlap rule and the printed line are unchanged; the archive
