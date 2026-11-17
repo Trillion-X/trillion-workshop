@@ -313,7 +313,7 @@ impl Store {
                     return Self::failure("original_input_refused");
                 }
                 assert_eq!(input["raw"], json!(true), "every span is read raw");
-                Reply::Raw { bytes: content.range(offset, length), total: content.size(), offset }
+                Reply::Raw { bytes: content.range(offset, length), total: content.size(), offset, identity: asked }
             }
             "write_file_start" => {
                 let id = text("upload_id").unwrap();
@@ -460,7 +460,7 @@ pub enum Reply {
     Refused(Value),
     NoTool,
     /// A span's bytes as the door hands them raw, with the headers that name the file's size and the span's offset.
-    Raw { bytes: Vec<u8>, total: u64, offset: u64 },
+    Raw { bytes: Vec<u8>, total: u64, offset: u64, identity: String },
 }
 
 impl Reply {
@@ -469,10 +469,10 @@ impl Reply {
     /// src/serve/mcp.rs `tool_result`), which the door answers inside {tool, result} or, for a JSON-RPC error,
     /// {tool, error} (trillion-rust src/tool_runs/tools/sessions.rs, session calls).
     /// What crosses the wire: the body and its headers. A raw span is its bytes alone (trillion-rust f4a4cb0a8b,
-    /// e42ec83506: content-type application/octet-stream, X-Total-Bytes and X-Offset).
+    /// e42ec83506, 7e0fbe2ec5: content-type application/octet-stream, X-Total-Bytes, X-Offset, X-Content-Identity).
     fn wire(&self, request: u64) -> (Vec<u8>, Value) {
-        if let Reply::Raw { bytes, total, offset } = self {
-            return (bytes.clone(), json!({"content-type": "application/octet-stream", "x-total-bytes": total.to_string(), "x-offset": offset.to_string()}));
+        if let Reply::Raw { bytes, total, offset, identity } = self {
+            return (bytes.clone(), json!({"content-type": "application/octet-stream", "x-total-bytes": total.to_string(), "x-offset": offset.to_string(), "x-content-identity": identity}));
         }
         (self.door(request).to_string().into_bytes(), json!({"content-type": "application/json"}))
     }

@@ -284,19 +284,18 @@ fn bug_15_a_fetch_rescans_nothing() {
     assert!(world.sends[sends..].iter().all(|(_, operation, _)| operation == "read_file_span"));
 }
 
-/// Changes one raw span answer: its bytes, the file's size it names, the offset it names.
-type Wrong = fn(&mut Vec<u8>, &mut u64, &mut u64);
+/// Changes one raw span answer: its bytes, the file's size, the offset and the identity it names.
+type Wrong = fn(&mut Vec<u8>, &mut u64, &mut u64, &mut String);
 
 /// Bug 16: wrong-version bytes, and a bad range that poisoned the domain. Each wrong answer is refused with nothing
 /// written, and the next good answer is served.
 #[test]
 fn bug_16_a_wrong_answer_is_refused_and_poisons_nothing() {
-    // The read names the version by its content identity, so the answer is of that version or refused by the store;
-    // what the core checks is the rest: the offset, the file's size and the length.
     let wrongs: Vec<(&str, Wrong)> = vec![
-        ("offset", |_, _, offset| *offset = 7),
-        ("size", |_, total, _| *total = 3),
-        ("length", |bytes, _, _| bytes.truncate(1)),
+        ("identity", |_, _, _, identity| *identity = "1f:0000".into()),
+        ("offset", |_, _, offset, _| *offset = 7),
+        ("size", |_, total, _, _| *total = 3),
+        ("length", |bytes, _, _, _| bytes.truncate(1)),
     ];
     for (field, wrong) in wrongs {
         let mut world = World::fast();
@@ -304,8 +303,8 @@ fn bug_16_a_wrong_answer_is_refused_and_poisons_nothing() {
         world.list(1, "trillion");
         let mut once = true;
         world.tamper = Some(Box::new(move |operation, _, reply| {
-            if let (Reply::Raw { bytes, total, offset }, true) = (reply, operation == "read_file_span" && once) {
-                wrong(bytes, total, offset);
+            if let (Reply::Raw { bytes, total, offset, identity }, true) = (reply, operation == "read_file_span" && once) {
+                wrong(bytes, total, offset, identity);
                 once = false;
             }
         }));

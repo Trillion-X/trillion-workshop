@@ -2,8 +2,8 @@
 //! strongest piece of the old client: partial answer, its range, its version, its length).
 //!
 //! Invariants
-//!   - The answer is raw bytes (contract.json `raw.content_type`), of the version asked: the read names the content
-//!     identity, never a name, so a file changed meanwhile never mixes bytes.
+//!   - The answer is raw bytes (contract.json `raw.content_type`) of the version asked: it names the content identity
+//!     it was read from (`raw.identity`), and a file changed meanwhile never mixes bytes.
 //!   - It starts at the offset asked (`raw.offset`), for a file of the size known (`raw.total`), and carries exactly
 //!     the length asked.
 //!   - A failed check hands nothing over and changes nothing else: one bad answer never poisons the item (f1 bug 16).
@@ -16,6 +16,7 @@ use crate::ranges::Span;
 /// What one span read asked for.
 #[derive(Clone, Debug, PartialEq)]
 pub struct Asked {
+    pub identity: String,
     pub span: Span,
     pub size: u64,
 }
@@ -24,6 +25,7 @@ pub struct Asked {
 #[derive(Debug, PartialEq, Eq)]
 pub enum Refusal {
     NotRaw,
+    OtherVersion,
     OtherOffset,
     OtherSize,
     OtherLength,
@@ -39,6 +41,9 @@ pub fn is_raw(contract: &Contract, headers: &BTreeMap<String, String>) -> bool {
 pub fn checked_span(contract: &Contract, asked: &Asked, headers: &BTreeMap<String, String>, body: &[u8]) -> Result<Vec<u8>, Refusal> {
     if !is_raw(contract, headers) {
         return Err(Refusal::NotRaw);
+    }
+    if headers.get(&contract.raw.identity).map(|identity| identity.trim()) != Some(asked.identity.as_str()) {
+        return Err(Refusal::OtherVersion);
     }
     let number = |name: &str| headers.get(name).and_then(|value| value.trim().parse::<u64>().ok());
     if number(&contract.raw.offset) != Some(asked.span.start) {

@@ -13,7 +13,7 @@ Every rule a native folder of the person's files needs, written once for every O
 | `src/core.rs` | `Core`: the state machine. The contract's bounds and this computer's id and name asked of the door before the first job; requests to this computer's engine door with stall detection (a stall counts the answers queued ahead on the same link); one item, listing, anchors, change pages and the change wait; fetches with checked spans, read-ahead and progress; creates, renames, moves, deletes and uploads naming the expected version; conflict copies; pins through the contract's pin rule rows; busy waits; kept state |
 | `src/protocol.rs` | `Event` / `EventKind` (shell to core) and `Command` (core to shell), as JSON |
 | `src/items.rs` | Stable item ids with current names, versions and `kept`, folder dates from children, the item view a shell shows, |
-| `src/check.rs` | The checked copy: a span answer is handed on only if it is raw bytes of the offset, size and length asked (the read names the version by its identity) |
+| `src/check.rs` | The checked copy: a span answer is handed on only if it is raw bytes of the version (by its content identity header), offset, size and length asked |
 | `src/link.rs` | Round trip, rate, read wait and a span answer's size per file byte, measured from answers; every size and deadline derived from them and the contract's bounds |
 | `src/ranges.rs` | Byte spans and merged span sets (held and in-flight bytes per version) |
 | `src/errors.rs` | The OS-neutral problem set |

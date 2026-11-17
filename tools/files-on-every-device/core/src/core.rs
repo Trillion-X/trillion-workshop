@@ -888,7 +888,7 @@ impl Core {
 
     fn span_arrived(&mut self, item: String, identity: String, span: Span, size: u64, headers: &BTreeMap<String, String>, body: &[u8]) {
         let key = (item, identity);
-        let asked = Asked { span, size };
+        let asked = Asked { identity: key.1.clone(), span, size };
         match check::checked_span(self.contract, &asked, headers, body) {
             Ok(bytes) => {
                 let stream = self.streams.entry(key.clone()).or_default();
