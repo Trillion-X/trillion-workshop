@@ -4,8 +4,6 @@
 // (set up, then every file the row renders written, and its units started).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { EventEmitter } from 'node:events';
-import { PassThrough } from 'node:stream';
 import { applyWhatItRuns, runsDifferences, SITE_BLOCK } from '../do-work/start-a-computer.mjs';
 import { renderWhatItRuns } from '../do-work/render-what-a-computer-runs.mjs';
 
@@ -76,63 +74,55 @@ test('a file that differs keeps its previous bytes beside it, and only that file
   assert.equal(commands.filter(({ command }) => command.startsWith('sh -s')).length, 0, 'an existing account is not set up again');
 });
 
-// A unit with a `source` runs the program built from that commit on the computer: the tree is streamed from the caller's own
-// checkout by `git archive`, built there, and made `current`; a commit already built is only made `current`.
+// A unit with a `source` runs the program built from that commit on the computer: the computer fetches the commit itself from
+// the row's repository address, builds it there and makes it `current`. A private repository's key is the vault's value under
+// the row's `credential`, handed only on the build's standard input.
 const SOURCE_COMMIT = 'c'.repeat(40);
-const built = { ...runs, units: [{ ...runs.units[0], source: { repository: 'example-engine-source', commit: SOURCE_COMMIT,
+const built = { ...runs, units: [{ ...runs.units[0], source: { repository: 'https://git.example.test/example-engine.git', commit: SOURCE_COMMIT,
   build: ['cargo', 'build', '--release'], output: '{builds}/target/release/example-engine', environment: ['HOME={state}', 'CARGO_TARGET_DIR={builds}/target', 'BUILT_COMMIT={commit}'] } }] };
-const building = (live, { builtThere }) => {
-  const base = computer(live), archives = [], spawned = [];
+const { source } = built.units[0];
+const keyed = { ...runs, units: [{ ...runs.units[0], source: { ...source, repository: 'git@example.com:example/engine.git', credential: 'example-engine-read-key', host_keys: ['example.com ssh-ed25519 AAAAexample'] } }] };
+const building = live => {
+  const base = computer(live);
   const run = async (m, command, input) => {
     if (command.startsWith('readlink ')) { base.commands.push({ command }); return 'b'.repeat(40); }
-    if (command.startsWith(`test -x '/var/lib/example-place/builds/${SOURCE_COMMIT}/example-engine'`)) { if (!builtThere) throw Object.assign(new Error('not built'), { code: 3 }); return ''; }
-    if (command.startsWith('sh -c ')) {
-      base.commands.push({ command, input });
-      if (input) for await (const bytes of input) archives.push(String(bytes));
-      return `${SOURCE_COMMIT}\n`;
-    }
+    if (command.startsWith('sh -c ')) { base.commands.push({ command, input }); return `${SOURCE_COMMIT}\n`; }
     return base.run(m, command, input);
   };
-  const spawnImpl = (program, args) => {
-    const child = new EventEmitter(), stdout = new PassThrough();
-    Object.assign(child, { stdout, stderr: new PassThrough() });
-    stdout.end('a tar of the tree');
-    stdout.on('end', () => setImmediate(() => child.emit('close', 0)));
-    spawned.push([program, ...args]);
-    return child;
-  };
-  return { run, commands: base.commands, archives, spawned, spawnImpl };
+  return { run, commands: base.commands };
 };
+const sourceSent = command => JSON.parse(command.match(/ sh '(\{.*\})'$/s)[1]);
 
-test('a unit behind its source commit is built on the computer from the caller\'s checkout, made current and restarted', async () => {
+test('a unit behind its source commit is fetched and built by the computer itself, made current and restarted', async () => {
   const live = Object.fromEntries(renderWhatItRuns(built, SITE_BLOCK).map(({ path, text }) => [path, text]));
-  const { run, commands, archives, spawned, spawnImpl } = building(live, { builtThere: false });
-  const found = await runsDifferences(machine, built, run);
-  assert.deepEqual(found, [{ path: '/var/lib/example-place/builds/current', reason: `runs ${'b'.repeat(40)}; its row builds ${SOURCE_COMMIT}` }]);
-  const answer = await applyWhatItRuns(machine, built, run, {}, { sources: { 'example-engine-source': '/home/example/engine' }, spawnImpl });
+  const { run, commands } = building(live);
+  assert.deepEqual(await runsDifferences(machine, built, run), [{ path: '/var/lib/example-place/builds/current', reason: `runs ${'b'.repeat(40)}; its row builds ${SOURCE_COMMIT}` }]);
+  const answer = await applyWhatItRuns(machine, built, run);
   assert.deepEqual(answer.built, [{ unit: 'example-place.service', from: 'b'.repeat(40), commit: SOURCE_COMMIT }]);
   assert.deepEqual(answer.restarted, ['example-place.service']);
-  assert.deepEqual(spawned, [['git', '-C', '/home/example/engine', 'archive', '--format=tar', SOURCE_COMMIT]]);
-  assert.deepEqual(archives, ['a tar of the tree']);
   const build = commands.find(({ command }) => command.startsWith('sh -c '));
-  assert.match(build.command, /"output":"\/var\/lib\/example-place\/builds\/target\/release\/example-engine"/);
+  const sent = sourceSent(build.command);
+  assert.equal(sent.repository, 'https://git.example.test/example-engine.git', 'the computer is told where to fetch, never handed a tree');
+  assert.equal(sent.keyed, false);
+  assert.equal(sent.output, '/var/lib/example-place/builds/target/release/example-engine');
   assert.match(build.command, new RegExp(`"environment":\\["HOME=/var/lib/example-place","CARGO_TARGET_DIR=/var/lib/example-place/builds/target","BUILT_COMMIT=${SOURCE_COMMIT}"\\]`));
+  assert.equal(build.input, '');
   assert.ok(commands.some(({ command }) => command === "systemctl restart 'example-place.service'"));
 });
 
-test('a commit already built on the computer is only made current, and nothing is streamed', async () => {
-  const live = Object.fromEntries(renderWhatItRuns(built, SITE_BLOCK).map(({ path, text }) => [path, text]));
-  const { run, commands, spawned, spawnImpl } = building(live, { builtThere: true });
-  const answer = await applyWhatItRuns(machine, built, run, {}, { sources: {}, spawnImpl });
-  assert.equal(answer.built[0].commit, SOURCE_COMMIT);
-  assert.deepEqual(spawned, []);
-  assert.equal(commands.find(({ command }) => command.startsWith('sh -c ')).input, undefined);
-});
-
-test('a unit to build from source with no checkout of its repository named in the request is refused', async () => {
-  const live = Object.fromEntries(renderWhatItRuns(built, SITE_BLOCK).map(({ path, text }) => [path, text]));
-  const { run, spawnImpl } = building(live, { builtThere: false });
-  await assert.rejects(applyWhatItRuns(machine, built, run, {}, { sources: {}, spawnImpl }), /the request's sources needs the path of a checkout of example-engine-source on this computer/);
+test('a private repository is fetched with the key the vault holds under its credential name, sent only on standard input', async () => {
+  const live = Object.fromEntries(renderWhatItRuns(keyed, SITE_BLOCK).map(({ path, text }) => [path, text]));
+  const { run, commands } = building(live);
+  const KEY = 'made-up-private-key-text';
+  await applyWhatItRuns(machine, keyed, run, { 'example-engine-read-key': KEY });
+  const build = commands.find(({ command }) => command.startsWith('sh -c '));
+  assert.equal(build.input, `${KEY}\n`);
+  assert.ok(!commands.some(({ command }) => command.includes(KEY)), 'the key is in no command line');
+  const sent = sourceSent(build.command);
+  assert.deepEqual([sent.keyed, sent.host_keys, 'credential' in sent], [true, ['example.com ssh-ed25519 AAAAexample'], false]);
+  await assert.rejects(applyWhatItRuns(machine, keyed, building(live).run, {}), /the key held under the vault name example-engine-read-key: hand it on descriptor 5/);
+  const noHostKeys = { ...keyed, units: [{ ...keyed.units[0], source: { ...keyed.units[0].source, host_keys: [] } }] };
+  await assert.rejects(applyWhatItRuns(machine, noHostKeys, building(live).run, { 'example-engine-read-key': KEY }), /needs host_keys/);
 });
 
 test('a restarted unit must answer its health row on the machine, or the apply fails', async () => {

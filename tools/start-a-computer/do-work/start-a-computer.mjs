@@ -113,35 +113,34 @@ export async function runsState(machine, given, run = onMachine, { pages } = {})
   return { runs, rendered, live, found, present, usersPresent, builds };
 }
 
-/** A unit's `source` with its fields filled from the unit: the `repository` the request's `sources` maps to a checkout on
- * this computer, the `commit` built, the `build` argv run in its tree, the `output` file it makes, and the `environment`
- * lines it runs with, each `{field}` in them the unit's own value or the `{commit}` built. The program is the unit's own
- * `program` (or its `door_file`) in its `builds` folder. */
+/** A unit's `source` with its fields filled from the unit: the git `repository` address the computer fetches from (any host;
+ * the address is the row's), the `commit` built, the `build` argv run in its tree, the `output` file it makes, and the
+ * `environment` lines it runs with, each `{field}` in them the unit's own value or the `{commit}` built. A private repository
+ * names `credential`, the vault name of an SSH key that may read it, and `host_keys`, the known_hosts lines of its host. The
+ * program is the unit's own `program` (or its `door_file`) in its `builds` folder. */
 export function sourceOf(unit) {
   const { source } = unit, where = `${unit.unit} source`;
   if (!/^[0-9a-f]{40}$/.test(source.commit ?? '')) throw refused(`${where} needs commit, a full commit id.`);
-  if (typeof source.repository !== 'string' || !Array.isArray(source.build) || !source.build.length || typeof source.output !== 'string') throw refused(`${where} needs repository, build (an argv) and output (the file the build makes).`);
+  if (typeof source.repository !== 'string' || !/^(https:\/\/|ssh:\/\/|[A-Za-z0-9._-]+@[A-Za-z0-9.-]+:)\S+$/.test(source.repository)) throw refused(`${where} needs repository, the git address the computer fetches the commit from.`);
+  if (!Array.isArray(source.build) || !source.build.length || typeof source.output !== 'string') throw refused(`${where} needs build (an argv) and output (the file the build makes).`);
+  if (source.credential !== undefined && (typeof source.credential !== 'string' || !Array.isArray(source.host_keys) || !source.host_keys.length)) throw refused(`${where} credential is the vault name of an SSH key, and needs host_keys: the known_hosts lines of the repository's host.`);
   const program = unit.program ?? unit.door_file;
   if (!/^[A-Za-z0-9._-]+$/.test(program ?? '') || typeof unit.builds !== 'string' || !isAbsolute(unit.builds)) throw refused(`${where} needs the unit's program and its builds folder.`);
   const filled = text => fill(text, { ...unit, commit: source.commit }, where);
-  return { user: unit.user, builds: unit.builds, commit: source.commit, program, repository: source.repository,
-    output: filled(source.output), build: source.build.map(filled), environment: (source.environment ?? []).map(filled) };
+  return { user: unit.user, builds: unit.builds, commit: source.commit, program, repository: source.repository, credential: source.credential ?? null,
+    host_keys: source.host_keys ?? [], output: filled(source.output), build: source.build.map(filled), environment: (source.environment ?? []).map(filled) };
 }
 
-/** Build a unit's source commit on the computer (do-work/build-from-source.sh): the tree at that commit is streamed from the
- * caller's own checkout of its repository (`checkout`, a path on this computer) by `git archive`, built as the unit's user,
- * and made `current`. A commit already built there is only made `current`, and nothing is streamed. */
-export async function buildOnTheComputer(machine, unit, checkout, run = onMachine, spawnImpl = spawn) {
-  const source = sourceOf(unit), command = `sh -c ${q(BUILD)} sh ${q(JSON.stringify(source))}`;
-  const built = await run(machine, `test -x ${q(`${source.builds}/${source.commit}/${source.program}`)} || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; });
-  if (built) return (await run(machine, command)).trim();
-  if (typeof checkout !== 'string' || !isAbsolute(checkout)) throw refused(`${unit.unit} builds ${source.repository} at ${source.commit}: the request's sources needs the path of a checkout of ${source.repository} on this computer.`);
-  const archive = spawnImpl('git', ['-C', checkout, 'archive', '--format=tar', source.commit], { stdio: ['ignore', 'pipe', 'pipe'] });
-  let err = '';
-  archive.stderr.on('data', bytes => { err += bytes; });
-  const archived = new Promise((resolve, reject) => archive.on('close', code => (code === 0 ? resolve() : reject(new Error(`git archive ${source.commit} in ${checkout} exited ${code}: ${err.trim()}`)))));
-  const [answer] = await Promise.all([run(machine, command, archive.stdout), archived]);
-  return answer.trim();
+/** Build a unit's source commit on the computer (do-work/build-from-source.sh): the computer fetches that commit itself from
+ * the row's repository address into a copy it keeps in `builds`, builds it as the unit's user and makes it `current`. A key
+ * the row names (`credential`) is the value the person's vault holds under that name (`held`); it reaches the computer only
+ * on the SSH channel's standard input, into an ssh-agent for that one fetch. A commit already built there is only made
+ * `current`. */
+export async function buildOnTheComputer(machine, unit, held = {}, run = onMachine) {
+  const source = sourceOf(unit);
+  if (source.credential && (typeof held[source.credential] !== 'string' || !held[source.credential])) throw refused(`${unit.unit} fetches ${source.repository} with the key held under the vault name ${source.credential}: hand it on descriptor 5 as {"${source.credential}": value}, read from the person's vault.`);
+  const { credential, ...given } = source;
+  return (await run(machine, `sh -c ${q(BUILD)} sh ${q(JSON.stringify({ ...given, keyed: Boolean(credential) }))}`, credential ? `${held[credential]}\n` : '')).trim();
 }
 
 /** One file's text on the computer, or undefined when it is absent. A binary file is read as its base64, the form the computer row renders it in. */
@@ -149,11 +148,6 @@ async function readIfPresent(machine, run, path, binary) {
   return run(machine, `if [ -f ${q(path)} ]; then ${binary ? 'base64 -w0' : 'cat'} ${q(path)}; else exit 3; fi`).catch(error => { if (error.code === 3) return undefined; throw error; });
 }
 
-/** Apply what a computer's row says it runs: set it up, seal each secret a unit names that the computer does not hold yet, write only
- * the files that differ from what the row renders, and restart what those change. A computer that already matches gets
- * nothing written, no set-up run and nothing restarted. A file that is replaced keeps its previous bytes beside it as
- * `NAME.bak-STAMP`. `held` maps a unit's `secret_vault_key` to the value the person's vault holds under that name; the value
- * reaches the computer only on the SSH channel's standard input, sealed there by systemd-creds at the unit's `secret_file`. */
 /** The sealed credentials a unit loads: its own (`secret_*`) and each of its `credentials` ({ vault_key, name, file, env? });
  * each as { unit, secret_vault_key, secret_name, secret_file }. */
 export const secretsOf = unit => [
@@ -161,6 +155,14 @@ export const secretsOf = unit => [
   ...(unit.credentials ?? []).map(credential => ({ unit: unit.unit, secret_vault_key: credential.vault_key, secret_name: credential.name, secret_file: credential.file })),
 ].filter(Boolean);
 
+/** Whether a unit needs values from the person's vault (descriptor 5): a sealed credential, or the key its source is fetched with. */
+const needsHeld = unit => secretsOf(unit).length > 0 || Boolean(unit.source?.credential);
+
+/** Apply what a computer's row says it runs: set it up, seal each secret a unit names that the computer does not hold yet, write only
+ * the files that differ from what the row renders, and restart what those change. A computer that already matches gets
+ * nothing written, no set-up run and nothing restarted. A file that is replaced keeps its previous bytes beside it as
+ * `NAME.bak-STAMP`. `held` maps a unit's `secret_vault_key` to the value the person's vault holds under that name; the value
+ * reaches the computer only on the SSH channel's standard input, sealed there by systemd-creds at the unit's `secret_file`. */
 export async function applyWhatItRuns(machine, given, run = onMachine, held = {}, deps = {}) {
   const { runs, rendered, live, present, usersPresent, builds } = await runsState(machine, given, run, deps);
   const writes = rendered.filter(({ path, text }) => live[path] !== text);
@@ -219,7 +221,7 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
   }
   // A unit behind its row's source commit is built there once set-up has made its user, builds folder and toolchain.
   const built = [];
-  for (const { unit, from } of builds) built.push({ unit: unit.unit, from: from || null, commit: await buildOnTheComputer(machine, unit, deps.sources?.[unit.source.repository], run, deps.spawnImpl) });
+  for (const { unit, from } of builds) built.push({ unit: unit.unit, from: from || null, commit: await buildOnTheComputer(machine, unit, held, run) });
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
   for (const { path, text, binary } of writes) {
     if (live[path] !== undefined) await run(machine, `cp -p ${q(path)} ${q(`${path}.bak-${stamp}`)}`);
@@ -351,12 +353,12 @@ export async function rentAMachine(request, { machineToken, nameToken, fetchImpl
 
 /** Rent (or adopt) the request's machine and apply its computer row to it: set-up, the units' source builds, the files the row
  * renders and the restarts, then the row's health page (`runs.health`) asked through its public name. */
-export async function startAComputer(request, { machineToken, nameToken, held = {}, fetchImpl = fetch, wait = pause, tries = 48, run = onMachine, spawnImpl = spawn } = {}) {
+export async function startAComputer(request, { machineToken, nameToken, held = {}, fetchImpl = fetch, wait = pause, tries = 48, run = onMachine } = {}) {
   const runs = runsOf(request);
   const rented = await rentAMachine(request, { machineToken, nameToken, fetchImpl, wait, run });
   if (rented.lease.state === 'waiting') return rented;
   const { machine, price, arch, lease, host_name } = rented;
-  const applied = await applyWhatItRuns(machine, runs, run, held, { pages: readPages(request), sources: request.sources, wait, spawnImpl });
+  const applied = await applyWhatItRuns(machine, runs, run, held, { pages: readPages(request), wait });
   await capTheJournal(machine, run);
   const status = await healthStatus(machine, {}, host_name, { ...healthOf(runs.health), where: 'public' }, { fetchImpl, wait, tries, run });
   return { lease, host_name, arch, price, applied, health_status: status };
@@ -421,9 +423,9 @@ export function readPages(request) {
 }
 
 /** Apply a computer's row to the computer the request names (`machine.address`, `ssh`), already running: the same
- * apply a start does, with the values its units name by vault name (`held`) and the request's checkouts (`sources`). */
-export async function applyAComputerRow(request, { held = {}, run = onMachine, spawnImpl = spawn } = {}) {
-  return applyWhatItRuns({ ssh: request.ssh, address: request.machine.address }, runsOf(request), run, held, { pages: readPages(request), sources: request.sources, spawnImpl });
+ * apply a start does, with the values its units name by vault name (`held`). */
+export async function applyAComputerRow(request, { held = {}, run = onMachine } = {}) {
+  return applyWhatItRuns({ ssh: request.ssh, address: request.machine.address }, runsOf(request), run, held, { pages: readPages(request) });
 }
 
 /** What the computer the request names runs that its row does not render: [] when it matches. */
@@ -437,8 +439,6 @@ export function readRequest(file) {
   const resolveIn = (holder, key) => { if (holder && typeof holder[key] === 'string') holder[key] = resolvePath(here, holder[key]); };
   resolveIn(request, 'lease_file');
   resolveIn(request, 'pages_folder');
-  // `sources` maps each repository a unit's `source` names to the caller's own checkout of it, a path on this computer.
-  for (const key of Object.keys(request.sources ?? {})) resolveIn(request.sources, key);
   // The computer's row may be its own file (`computer_row_file`): the row is that file's JSON, read here.
   let rowHere = here;
   if (typeof request.computer_row_file === 'string') {
@@ -495,7 +495,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     if (operation === 'apply' || operation === 'differences') {
       if (!first || second) throw Object.assign(new Error(usage), { exit: 2 });
       const request = json(first), runs = withReach(runsOf(request));
-      const held = operation === 'apply' && runs.units.some(unit => secretsOf(unit).length) ? heldValues(await pipe(5)) : {};
+      const held = operation === 'apply' && runs.units.some(needsHeld) ? heldValues(await pipe(5)) : {};
       const answer = operation === 'apply' ? await applyAComputerRow(request, { held }) : await computerRowDifferences(request);
       process.stdout.write(`${JSON.stringify(answer)}\n`);
       process.exit(0);
@@ -505,8 +505,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const needsName = ['rent', 'start'].includes(operation) ? Boolean(json(first).name?.provider) : operation === 'remove' && Boolean(lease.recordId);
     const needsMachine = operation !== 'unit' && Boolean(readProvider(asked ? json(first).machine.provider : lease.providerFile).base);
     const startRuns = operation === 'start' ? withReach(runsOf(json(first))) : null;
-    const needsHeld = (startRuns?.units ?? []).some(unit => secretsOf(unit).length);
-    const tokens = { machineToken: needsMachine ? await pipe(3) : '', nameToken: needsName ? await pipe(4) : '', held: needsHeld ? heldValues(await pipe(5)) : {} };
+    const tokens = { machineToken: needsMachine ? await pipe(3) : '', nameToken: needsName ? await pipe(4) : '', held: (startRuns?.units ?? []).some(needsHeld) ? heldValues(await pipe(5)) : {} };
     const answer = operation === 'price' ? await priceOfAComputer(json(first), tokens)
       : operation === 'rent' ? await rentAMachine(json(first), tokens).then(({ lease, host_name, arch, price, line, terms_url }) => ({ lease, host_name, arch, price, terms_url, ...(line && { line }) }))
       : operation === 'start' ? await startAComputer(json(first), tokens)

@@ -44,7 +44,7 @@ const COMPUTER_ROW = { address: '192.0.2.41', name: 'example-computer', runs: {
     state: '/var/lib/example-computer', builds: '/var/lib/example-computer/builds', program: 'example-engine', key_file: '/var/lib/example-computer/computer.key',
     folders: ['/var/lib/example-computer/persons'], settings_file: '/etc/example-computer/computer.json', writable: '/var/lib/example-computer', drop_ins: ['nofile'],
     settings: { listen: '127.0.0.1:7199', persons: '/var/lib/example-computer/persons', computer_key_file: '/var/lib/example-computer/computer.key', public_origin: 'https://computer.example.com' },
-    source: { repository: 'example-engine-source', commit: SOURCE_COMMIT, build: ['cargo', 'build', '--locked', '--release'], output: '{builds}/target/release/example-engine', environment: ['HOME={state}'] },
+    source: { repository: 'https://git.example.test/example-engine.git', commit: SOURCE_COMMIT, build: ['cargo', 'build', '--locked', '--release'], output: '{builds}/target/release/example-engine', environment: ['HOME={state}'] },
   }],
   unmanaged: [],
 } };
@@ -183,42 +183,31 @@ test('the public name points at the machine with this lease\'s mark, and only th
   assert.ok(calls.some(([key]) => key.startsWith('DELETE')));
 });
 
-test('a request\'s paths are read relative to its own file, its checkouts among them', () => {
+test('a request\'s paths are read relative to its own file', () => {
   const here = folder(), file = join(here, 'request.json');
-  writeFileSync(file, JSON.stringify({ lease_file: 'lease.json', machine: { provider: ADOPTED }, ssh: { known_hosts: 'known_hosts' }, sources: { 'example-engine-source': '../engine' } }));
+  writeFileSync(file, JSON.stringify({ lease_file: 'lease.json', machine: { provider: ADOPTED }, ssh: { known_hosts: 'known_hosts' } }));
   const request = readRequest(file);
-  assert.deepEqual([request.lease_file, request.ssh.known_hosts, request.sources['example-engine-source']], [join(here, 'lease.json'), join(here, 'known_hosts'), join(here, '..', 'engine')]);
+  assert.deepEqual([request.lease_file, request.ssh.known_hosts], [join(here, 'lease.json'), join(here, 'known_hosts')]);
 });
 
-test('starting a computer on an adopted machine sets it up, builds its engine there from source, serves and reads it back', async () => {
+test('starting a computer on an adopted machine sets it up, has it fetch and build its engine itself, serves and reads it back', async () => {
   const here = folder(), commands = [];
   const run = async (_machine, command, input) => {
     commands.push({ command, input });
     if (command === 'uname -m') return 'aarch64\n';
     if (command.includes('curl')) return '200';
     if (command.startsWith('getent passwd') || command.startsWith('if [ -f ') || command.startsWith('test -')) throw Object.assign(new Error('absent'), { code: 3 });
-    if (command.startsWith('sh -c ')) { if (input) for await (const bytes of input) commands.push({ archive: String(bytes) }); return `${SOURCE_COMMIT}\n`; }
+    if (command.startsWith('sh -c ')) return `${SOURCE_COMMIT}\n`;
     return '';
-  };
-  const spawned = [];
-  const { EventEmitter } = await import('node:events'), { PassThrough } = await import('node:stream');
-  const spawnImpl = (program, args) => {
-    spawned.push([program, ...args]);
-    const child = Object.assign(new EventEmitter(), { stdout: new PassThrough(), stderr: new PassThrough() });
-    child.stdout.on('end', () => setImmediate(() => child.emit('close', 0)));
-    child.stdout.end('the tree');
-    return child;
   };
   const answer = await startAComputer({
     lease_file: join(here, 'lease.json'), machine: { provider: ADOPTED, name: 'a-pi', placement: { address: '192.0.2.40' } },
     name: { host_name: 'computer.example.com' }, ssh: { known_hosts: join(here, 'known_hosts') }, computer_row: COMPUTER_ROW,
-    sources: { 'example-engine-source': '/home/example/engine' },
-  }, { run, spawnImpl, fetchImpl: async address => ({ status: address === 'https://computer.example.com/readyz' ? 200 : 404 }), wait: async () => {} });
+  }, { run, fetchImpl: async address => ({ status: address === 'https://computer.example.com/readyz' ? 200 : 404 }), wait: async () => {} });
   assert.deepEqual([answer.arch, answer.health_status, answer.price], ['aarch64', 200, null]);
   assert.deepEqual(answer.applied.built, [{ unit: 'example-computer.service', from: null, commit: SOURCE_COMMIT }]);
   assert.deepEqual(answer.applied.booted, ['example-computer.service']);
-  assert.deepEqual(spawned, [['git', '-C', '/home/example/engine', 'archive', '--format=tar', SOURCE_COMMIT]]);
-  assert.ok(commands.some(({ archive }) => archive === 'the tree'), 'the tree is streamed to the computer');
+  assert.ok(commands.some(({ command }) => command.startsWith('sh -c ') && command.includes('"repository":"https://git.example.test/example-engine.git"')), 'the computer is told where to fetch its source');
   const at = test => commands.findIndex(({ command }) => command !== undefined && test(command));
   assert.ok(at(c => c.startsWith('sh -s')) < at(c => c.startsWith('sh -c ')), 'set-up makes the user, folders and toolchain before the build');
   assert.ok(at(c => c.startsWith('sh -c ')) < at(c => c.startsWith('install ') && c.includes("'/etc/example-computer/computer.json'")), 'the program is built before its config is written');

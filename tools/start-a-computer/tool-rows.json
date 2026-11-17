@@ -210,7 +210,7 @@
         "id": "tool:start-a-computer",
         "label": "Start a computer",
         "job": "Make a machine into a computer that runs what its own row says: rent one or use one I already run, set it up, build its programs from source there and read back its health page",
-        "description": "Rents a machine from the provider description the request names (or adopts a Linux machine the person runs, at its address), points a public name at it through the name provider description, and applies the computer's own row (record:computer, `runs`) over SSH: set-up (packages, toolchains, users, folders, keys), each unit with a `source` built from that commit on the machine itself from the caller's own checkout (no release, no feed, no copied program), the files the row renders, the restarts and each unit's boot check. Answers the lease, the machine's architecture, the monthly price, what the apply wrote, built and restarted, and the public health page's HTTP status. Running it again resumes from the saved lease.",
+        "description": "Rents a machine from the provider description the request names (or adopts a Linux machine the person runs, at its address), points a public name at it through the name provider description, and applies the computer's own row (record:computer, `runs`) over SSH: set-up (packages, toolchains, users, folders, keys), each unit with a `source` fetched by the machine itself from the git address the row names and built there (no release, no feed, no copied program), the files the row renders, the restarts and each unit's boot check. Answers the lease, the machine's architecture, the monthly price, what the apply wrote, built and restarted, and the public health page's HTTP status. Running it again resumes from the saved lease.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -221,7 +221,7 @@
           "properties": {
             "request_file": {
               "type": "string",
-              "description": "A request JSON (lease_file, machine, name, ssh, computer_row or computer_row_file, sources mapping each repository a unit builds to a checkout on this computer, pages_folder when the row's caddy names pages_root); local paths are read relative to it."
+              "description": "A request JSON (lease_file, machine, name, ssh, computer_row or computer_row_file, pages_folder when the row's caddy names pages_root); local paths are read relative to it."
             }
           }
         },
