@@ -22,6 +22,7 @@
 
 pub mod mcp;
 pub mod settings;
+pub mod shares;
 
 use live_namespace::{
     account_files::{
@@ -139,7 +140,7 @@ impl Namespace {
 
 /// The state folder (made when it is not there, readable by its owner only), what the run holds of its attached connections, and the
 /// person's rows opened as `settings` says.
-fn open_rows(settings: &Settings, state: &Path) -> Result<(PathBuf, Arc<Held>, Store), Refusal> {
+pub(crate) fn open_rows(settings: &Settings, state: &Path) -> Result<(PathBuf, Arc<Held>, Store), Refusal> {
     let (state, held, store) = open_sql(settings, state)?;
     Ok((state, held, store))
 }

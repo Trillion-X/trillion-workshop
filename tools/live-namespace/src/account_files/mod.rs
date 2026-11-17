@@ -1139,11 +1139,11 @@ impl AccountFiles {
         Ok(shown)
     }
 
-    /// `share_file`: share one immutable file through share-anything. The byte link (a GET of the file's one object, signed for
-    /// `seconds`) is minted here and handed to the share authority, which keeps it in a record only the share's holders can read and
-    /// answers the share's address. Without an authority the share is refused: this byte port never hands out a provider URL on its
-    /// own, whose reads would be no one's to stop. The audit keeps identity, expiry and grant id, never the URL; its id is the URL's
-    /// BLAKE3 digest.
+    /// `share_file`: share one immutable file through share-anything, whole or chunked. The file's facts are handed to the share
+    /// authority, which keeps them where only the share's holders can read them and answers the share's address, which the byte route
+    /// (`share_bytes`) serves by range for as long as the person's share stands. No link to the store is made: a provider URL would
+    /// outlive the share and its reads would be no one's to stop. The audit keeps identity, expiry and grant id, never the URL; its
+    /// id is the URL's BLAKE3 digest.
     pub fn share_file(&mut self, name_or_identity: &str, seconds: u64) -> Answer<Value> {
         if !(1..=MOST_SHARE_SECONDS).contains(&seconds) {
             return Err(AccountFilesError::Invalid(
@@ -1161,7 +1161,6 @@ impl AccountFiles {
             .ok_or(crate::cause!(Error::Unavailable))?;
         let signed_at = chrono::Utc::now();
         self.check_current()?;
-        let download = share_delivery::presigned_link(self.objects.as_ref(), file, seconds)?;
         let minted = authority.authorize(
             &share_delivery::ShareFile {
                 identity: file.id.clone(),
@@ -1171,7 +1170,6 @@ impl AccountFiles {
                     .unwrap_or("application/octet-stream")
                     .to_owned(),
             },
-            &download,
             seconds,
         )?;
         if minted.grant_id.is_empty()

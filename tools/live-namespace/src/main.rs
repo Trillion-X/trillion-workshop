@@ -4,6 +4,8 @@
 //
 //   live-namespace mcp   --state FOLDER [--settings FILE] [--computer JSON]   MCP over stdio: each operation of the account files is a
 //                        tool, and `this_computer` answers the computer the run is on ({id, label}, as the engine fills it)
+//   live-namespace serve-shares --state FOLDER [--settings FILE]   the public byte route of a share (src/share_bytes), on the loopback
+//                        address settings.json `share_bytes` names
 //   live-namespace account-files-bind [show] --state FOLDER [--settings FILE]   bind the origins of the person's files to them
 //
 // A credential is never an argument: the engine attaches the person's `files-store` connection (and the database's own) to the run on
@@ -29,13 +31,14 @@ use std::{
     sync::Arc,
 };
 
-const USAGE: &str = "usage: live-namespace mcp --state FOLDER [--settings FILE] [--computer JSON] | account-files-bind [show] --state FOLDER [--settings FILE]";
+const USAGE: &str = "usage: live-namespace mcp --state FOLDER [--settings FILE] [--computer JSON] | serve-shares --state FOLDER [--settings FILE] | account-files-bind [show] --state FOLDER [--settings FILE]";
 
 /// The settings file next to the tool's own folder when none is named: the one the tool ships.
 const SHIPPED_SETTINGS: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/settings.json");
 
 enum Command {
     Serve { state: PathBuf, settings: PathBuf, computer: Value },
+    Shares { state: PathBuf, settings: PathBuf },
     Bind { show: bool, state: PathBuf, settings: PathBuf },
 }
 
@@ -71,6 +74,10 @@ fn parse(args: &[String]) -> Result<Command, String> {
             let (state, settings) = flags(rest)?;
             Ok(Command::Serve { state, settings, computer })
         }
+        "serve-shares" => {
+            let (state, settings) = flags(&args[1..])?;
+            Ok(Command::Shares { state, settings })
+        }
         "account-files-bind" => {
             let show = args.get(1).is_some_and(|word| word == "show");
             let (state, settings) = flags(&args[1 + usize::from(show)..])?;
@@ -86,6 +93,10 @@ fn run(command: Command) -> Result<(), String> {
             let settings = Settings::read(&settings).map_err(|error| error.to_string())?;
             let store = Namespace::rows(&settings, &state).map_err(|error| error.to_string())?;
             live_namespace::account_files::bind::run(&store, &settings.account, show, &mut io::stdout()).map_err(|error| error.to_string())
+        }
+        Command::Shares { state, settings } => {
+            let settings = Settings::read(&settings).map_err(|error| error.to_string())?;
+            serve::shares::run(&settings, &state).map_err(|error| error.to_string())
         }
         Command::Serve { state, settings, computer } => {
             let settings = Settings::read(&settings).map_err(|error| error.to_string())?;

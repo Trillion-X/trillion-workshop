@@ -348,6 +348,12 @@ impl AccountFilesDoor {
             })
     }
 
+    /// The account files opened for one admitted read outside a tool call (the share byte route), counting its bytes for the account.
+    pub fn open_counted(&self, state_root: &Path, store: &Store, account: &str, control: super::CallControl) -> Result<AccountFiles, Failure> {
+        let control = control.counting(super::usage::Meters::global().tally(state_root, store, account));
+        Ok(self.open(store, account)?.with_control(control))
+    }
+
     fn open(&self, store: &Store, account: &str) -> Result<AccountFiles, Failure> {
         let vault = crate::secrets::open_home().map_err(|error| Failure::Unavailable(Step::Vault(why(&error)), crate::cause!()))?;
         // The account files' own binding (bind.rs), tied to the account. Files never bound have none, and `tie` of an

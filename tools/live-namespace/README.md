@@ -12,6 +12,7 @@ device's folder) reaches the files through the engine's one door; plus the brows
 |------|----------------|
 | `mcp` | MCP over stdio. Each operation of `src/account_files/account-files-routes.json` is a tool of the same name, listed by `tools/list` from `mcp-tools.json`: `list_files`, `find_file`, `read_file`, `read_file_span`, `write_file`, `write_file_start` / `_piece` / `_finish`, `find_names`, `move_names`, `copy_names`, `set_aside`, `put_back`, `queue_release`, `release_gone_bytes`, `search`, `recent_files` and the rest. |
 | `this_computer` | An operation of `mcp` the run answers itself: the computer it is on, `{id, label}`, as the engine filled `--computer` (null when the engine did not start it). |
+| `serve-shares --state FOLDER [--settings FILE]` | The public byte route of a share (below): `GET`/`HEAD` `/share/<id>/<key>` on a loopback address, by range. |
 | `account-files-bind [show] --state FOLDER` | Bind the origins of the person's files to them on purpose (`src/account_files/bind.rs`). |
 
     cd tools/live-namespace
@@ -44,14 +45,27 @@ that waits (`list_changes` with `wait`) never holds back the calls after it. A c
 at `@tools` with `{tool: "tool:your-files", call: {name, arguments}}` sends one MCP `tools/call` to the
 account's one session of the row, started by the first call (trillion-rust src/tool_runs/tools/sessions.rs `call`).
 
-`share_file` shares a file that is one object in the store through `tools/share-anything`: it signs a link that reads that one object for
-the share's seconds (`src/account_files/share_delivery.rs`, SigV4 in the URL's query), keeps it in a record of the person's own,
-`namespace-shared-file:<id>`, and runs `tool:share-anything` to share that record with a link anyone holding it can open, ending when
-the byte link does (`src/account_files/share_anything.rs`). Stopping the share in share-anything is what stops the next reader. It
-needs the records door the run is handed (`settings.json` `share`: the held name of the door's descriptor field and the https address
-the share opens at; the row grants the right to write `namespace-shared-file` records and to run `tool:share-anything`) and is refused
-without it. A file kept in chunks has no single object to link and is refused. share-anything's own reader that serves a share's
-record (the engine's reach reader) is not built yet, so a share made now opens nothing until it is.
+`share_file` shares a file of any size, kept as one object or in chunks, through `tools/share-anything`: it hands the file's facts to the share
+authority, which keeps them in a record of the person's own, `namespace-shared-file:<id>`, and runs `tool:share-anything` to share that
+record with a key anyone holding it can use, ending when the share does (`src/account_files/share_anything.rs`). It answers
+`<origin>/share/<id>/<key>`. No link to the store is made: the byte route (`serve-shares`, below) serves that address. It needs the records
+door the run is handed (`settings.json` `share`: the held name of the door's descriptor field and the https address the share opens at; the
+row grants the right to write `namespace-shared-file` records and to run `tool:share-anything`) and is refused without it.
+
+## The share byte route
+
+`live-namespace serve-shares --state FOLDER` (`src/share_bytes`, `src/serve/shares.rs`) answers `GET` and `HEAD` at `/share/<id>/<key>` on the
+loopback address `settings.json` `share_bytes.listen` names: the file's bytes, whole (200) or by one byte range (206; `bytes=a-b`, `a-`, `-n`; 416
+past the end), `Accept-Ranges`, `Content-Range`, the file's media type, `Cache-Control: no-store`, `nosniff`, a `sandbox` content policy, and
+`inline` only for the types `inline_types` names (every other is a download). On every request it reads the person's own share record
+`sharing:<id>` and the shared-file record through the records door (the one in `settings.json` `share`), and serves only when the share holds
+a person whose `key_blake3` is the BLAKE3 of the key, is published, not revoked, not expired, lets `view`, and reaches that one record; a long
+body reads the share again each `recheck_seconds`. Nothing about a share is cached, so a share stopped in share-anything refuses the next
+request. Every refusal of a key, id, share or file is the same 404; a records door that does not answer is 503. Bytes are read a
+`window_bytes` window at a time by range through the account files, each read through the same byte check and usage count as any read.
+Not built here, by their owners: the computer's unit row that runs `serve-shares` and the front door's `/share/*` route to its loopback
+address (the computer row), and the share's page (share-anything's `show`); the route answers bytes for a bare `<video src>`, a download or `curl`.
+The door's capability for this run needs `records:read` of `namespace-shared-file` and `workspace:read` of the labels `sharing:namespace-shared-file:*`.
 
 ## Build and test
 
@@ -79,6 +93,8 @@ shares).
 | `src/serve/mcp.rs` | MCP over stdio, each tool call on its own thread. |
 | `src/serve/settings.rs` | Reads and checks `settings.json`. |
 | `src/lib.rs` | The library. |
+| `src/share_bytes/mod.rs` | The share byte route: `router`, `admit` (the whole decision about a request, read now), `stands`, `wanted` (the `Range` header), the `Grants` and `Reader` seams and `DoorGrants`. |
+| `src/serve/shares.rs` | One run of `serve-shares`. |
 | `src/store/` | The rows (see its README): `Rows`, `SqlStore`, `Link`, `tables.json`. |
 | `src/account_files/chunk_copies.rs` | The checked copies of stored chunks kept in the state folder (`src/account_files/settings.json` `chunk_copies`), served before the store is asked (see the account files' README). |
 | `src/account_files/` | The account files, moved from trillion-rust `src/account_files` (see its README). |
@@ -91,6 +107,7 @@ shares).
 | `src/host/tool_runs.rs` | The computer under the program, for the usage counts' pending file. |
 | `tests/account_files_common/mod.rs` | The account files over rows and a byte port in memory. |
 | `tests/account_files_folder.rs`, `store_changes.rs`, `rows_in_both/` | What a native folder asks (changes, items, compare-and-set, pins, make_folder, bounds, thumbnails) and the store's change order, each in SQLite and in a real Postgres the tests start. |
+| `tests/share_bytes.rs` | The route over a real loopback socket: whole, ranges, 416, HEAD, a file in several pieces, every refusal the same 404, a share stopped between two requests. |
 | `tests/account_files_release.rs`, `account_files_results.rs`, `account_files_route.rs`, `account_files_share.rs` | The moved tests of release, results, the tool contract and shares. |
 
 ## Key Types / Functions

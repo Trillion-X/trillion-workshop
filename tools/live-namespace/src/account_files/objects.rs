@@ -166,12 +166,6 @@ pub trait Objects: Send + Sync {
         let _ = (origin, prefix, token);
         Ok(None)
     }
-    /// A link that reads the whole object `key` at `origin` for `seconds` (at most `MOST_SHARE_SECONDS`) and nothing else: a GET signed
-    /// into the URL's query, so whoever holds the link needs no credential. A port that cannot sign one refuses.
-    fn presign_get(&self, origin: &str, key: &str, seconds: u64) -> Result<String, ObjectError> {
-        let _ = (origin, key, seconds);
-        Err(ObjectError::Unavailable("this byte port signs no link".into(), crate::cause!()))
-    }
     /// Remove the object `key` at `origin` (one DELETE; a store that holds no such object has nothing left to remove,
     /// which is done too). Only the byte release (`release.rs`) asks, for a claimed release row. A port that cannot
     /// remove refuses, so the row stays claimed and is tried again when its claim goes stale.
@@ -592,18 +586,6 @@ fn no_body(empty: &mut std::io::Empty) -> Body<'_> {
 
 impl Objects for S3Objects {
     fn set_control(&mut self, control: super::CallControl) { self.control = control; }
-    fn presign_get(&self, origin: &str, key: &str, seconds: u64) -> Result<String, ObjectError> {
-        if !(1..=MOST_SHARE_SECONDS).contains(&seconds) {
-            return Err(ObjectError::Unavailable("a signed link lasts 1 second up to 7 days".into(), crate::cause!()));
-        }
-        let connection = self.connection(origin)?;
-        let (authority, path) = address_of(&connection, key)?;
-        let now = chrono::Utc::now();
-        let day = now.format("%Y%m%d").to_string();
-        let signing = self.signing_key(origin, &connection, &day)?;
-        let query = presigned_query(&connection.key_id, &connection.region, &now.format("%Y%m%dT%H%M%SZ").to_string(), seconds, &authority, &path, &signing);
-        Ok(request_url(&connection, &authority, &path, &query)?.to_string())
-    }
     fn read(&self, origin: &str, key: &str, offset: u64, length: u64) -> Result<Vec<u8>, ObjectError> {
         self.read_controlled(origin, key, offset, length, None)
     }
@@ -893,25 +875,6 @@ fn hex(bytes: &[u8]) -> String {
 }
 
 /// RFC 3986 encoding of one path segment, as SigV4's canonical URI requires (unreserved characters stay).
-/// The canonical query of a presigned GET, signature last: SigV4 with the credential, date, lifetime and signed headers in the query,
-/// `host` the only signed header and the payload unsigned (the holder of the link sends no body).
-fn presigned_query(key_id: &str, region: &str, amz_date: &str, seconds: u64, authority: &str, path: &str, signing: &[u8]) -> String {
-    let day = &amz_date[..8];
-    let scope = format!("{day}/{region}/s3/aws4_request");
-    let mut pairs = [
-        ("X-Amz-Algorithm", "AWS4-HMAC-SHA256".to_owned()),
-        ("X-Amz-Credential", encode_segment(&format!("{key_id}/{scope}"))),
-        ("X-Amz-Date", amz_date.to_owned()),
-        ("X-Amz-Expires", seconds.to_string()),
-        ("X-Amz-SignedHeaders", "host".to_owned()),
-    ];
-    pairs.sort();
-    let query = pairs.iter().map(|(name, value)| format!("{name}={value}")).collect::<Vec<_>>().join("&");
-    let canonical = format!("GET\n{path}\n{query}\nhost:{authority}\n\nhost\nUNSIGNED-PAYLOAD");
-    let to_sign = format!("AWS4-HMAC-SHA256\n{amz_date}\n{scope}\n{}", hex(&Sha256::digest(canonical.as_bytes())));
-    format!("{query}&X-Amz-Signature={}", hex(&hmac(signing, to_sign.as_bytes())))
-}
-
 fn encode_segment(segment: &str) -> String {
     let mut out = String::with_capacity(segment.len());
     for byte in segment.bytes() {
@@ -1205,18 +1168,6 @@ mod tests {
     fn content_range_reads_the_served_span() {
         assert_eq!(content_range("bytes 0-99/1000"), Some((0, 99)));
         assert_eq!(content_range("bytes */1000"), None);
-    }
-
-    /// The AWS documented presigned URL example (GET /test.txt, examplebucket, 86400 seconds, 20130524) signs to its published value.
-    #[test]
-    fn a_presigned_link_matches_the_aws_example() {
-        let mut key = format!("AWS4{}", "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY").into_bytes();
-        for part in ["20130524", "us-east-1", "s3", "aws4_request"] {
-            key = hmac(&key, part.as_bytes());
-        }
-        let query = presigned_query("AKIAIOSFODNN7EXAMPLE", "us-east-1", "20130524T000000Z", 86400, "examplebucket.s3.amazonaws.com", "/test.txt", &key);
-        assert!(query.ends_with("&X-Amz-Signature=aeeed9bbccd4d02ee5c0109b86d86835f995330da4c265957d157751f604d404"), "{query}");
-        assert!(query.starts_with("X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAIOSFODNN7EXAMPLE%2F20130524%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20130524T000000Z&X-Amz-Expires=86400&X-Amz-SignedHeaders=host&"));
     }
 
     /// The AWS SigV4 documented example (GET /test.txt with Range, us-east-1, 20130524) signs to its published value.

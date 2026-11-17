@@ -1,5 +1,5 @@
 {
-  "_what": "What one run of the Namespace tool reads once (src/serve/settings.rs). `account` is the name the person's files are kept under in the rows. `store` says where the person's rows are kept: `{\"sqlite\": {\"file\": NAME}}` is a SQLite file of that name in the state folder (the first run makes it; it is for a person's own computer and for tests), `{\"postgres\": {\"connection\": NAME}}` is the person's own Postgres database, `NAME` the held name (`<service>-<field>`) of the attached field that holds its connection string (`own-rows-postgres-connection`: service `own-rows-postgres`, field `connection`), the credential the person's run-sql tool reaches the same database with, on the loopback port the computer reports as `own-rows-postgres`; the shipped file names the person's own Postgres database by its held connection (`own-rows-postgres-connection`, attached on descriptor 8; the credential exists in the vault by that name and its value is never written here), and a person on one computer with no database sets `store` to a SQLite file instead (`{\"sqlite\": {\"file\": NAME}}`, and drops the descriptor-8 field). `call_seconds` is how long one call may take before it answers where it stopped (a paged call resumes there). `share` (optional) is how a file is shared: `descriptor` is the held name (`<service>-<field>`) of the attached field that holds the records door's descriptor line `{ url, resource, capability }`, `origin` the https address a share opens at (`<origin>/share/<key>`); without it share_file is refused. `key_prefix` is the folder in the byte store that every file's key starts in; it ends with a slash or is empty. The byte store itself is the person's own `files-store` connection, never a value written here: the engine attaches each field of a connection to the run on a file descriptor (`attached`: the connection, the field and the descriptor, as the tool row's credential_mounts name them), and the run reads each once. Its `endpoint`, `bucket`, `region` and `key-id` make the origin record a first run keeps (src/account_files/bind.rs `make_new`); its `secret` signs the requests and never leaves the run. The state folder is not here: the run is started with the person's own folder (`--state`), where the run keeps its own working files.",
+  "_what": "What one run of the Namespace tool reads once (src/serve/settings.rs). `account` is the name the person's files are kept under in the rows. `store` says where the person's rows are kept: `{\"sqlite\": {\"file\": NAME}}` is a SQLite file of that name in the state folder (the first run makes it; it is for a person's own computer and for tests), `{\"postgres\": {\"connection\": NAME}}` is the person's own Postgres database, `NAME` the held name (`<service>-<field>`) of the attached field that holds its connection string (`own-rows-postgres-connection`: service `own-rows-postgres`, field `connection`), the credential the person's run-sql tool reaches the same database with, on the loopback port the computer reports as `own-rows-postgres`; the shipped file names the person's own Postgres database by its held connection (`own-rows-postgres-connection`, attached on descriptor 8; the credential exists in the vault by that name and its value is never written here), and a person on one computer with no database sets `store` to a SQLite file instead (`{\"sqlite\": {\"file\": NAME}}`, and drops the descriptor-8 field). `call_seconds` is how long one call may take before it answers where it stopped (a paged call resumes there). `share` (optional) is how a file is shared: `descriptor` is the held name (`<service>-<field>`) of the attached field that holds the records door's descriptor line `{ url, resource, capability }`, `origin` the https address a share opens at (`<origin>/share/<id>/<key>`, served by the byte route `share_bytes`); without it share_file is refused. `key_prefix` is the folder in the byte store that every file's key starts in; it ends with a slash or is empty. The byte store itself is the person's own `files-store` connection, never a value written here: the engine attaches each field of a connection to the run on a file descriptor (`attached`: the connection, the field and the descriptor, as the tool row's credential_mounts name them), and the run reads each once. Its `endpoint`, `bucket`, `region` and `key-id` make the origin record a first run keeps (src/account_files/bind.rs `make_new`); its `secret` signs the requests and never leaves the run. The state folder is not here: the run is started with the person's own folder (`--state`), where the run keeps its own working files.",
   "account": "person",
   "store": {
     "postgres": {
@@ -39,5 +39,20 @@
       "field": "connection",
       "fd": 8
     }
-  ]
+  ],
+  "share_bytes": {
+    "_what": "The public byte route of a share (`serve-shares`, src/share_bytes): `listen` is the loopback address it answers on (a front door's route for /share/* reaches it); `window_bytes` the most one read of the store answers a body with (a body is read a window at a time, so memory holds one window); `recheck_seconds` how often a long body reads the person's share again, so a share stopped mid-play ends the body; `inline_types` the media types shown in the browser (a whole type, or a prefix ending in a slash), every other is offered as a download.",
+    "listen": "127.0.0.1:7421",
+    "window_bytes": 1048576,
+    "recheck_seconds": 5,
+    "inline_types": [
+      "video/",
+      "audio/",
+      "image/png",
+      "image/jpeg",
+      "image/gif",
+      "image/webp",
+      "application/pdf"
+    ]
+  }
 }

@@ -100,6 +100,22 @@ impl RecordsDoor {
         self.call(&self.resource, "records:write", &json!({ "records": records }), key)
     }
 
+    /// The record of `kind` and `id` at the person's own records, or None when there is none (`records:read`). A value the store
+    /// answers as its stored body `{ kind, sequence, stored, .. }` is the value parsed from `stored`.
+    pub fn read_record(&self, kind: &str, id: &str, key: &str) -> Result<Option<Value>, DoorError> {
+        let answer = self.call(&self.resource, "records:read", &json!({ "id": id, "type": kind }), key)?;
+        Ok(match answer.get("value") {
+            None | Some(Value::Null) => None,
+            Some(value) => Some(stored_value(value)),
+        })
+    }
+
+    /// The workspace record at the exact `label`, or None when there is none (`workspace:read` of that one label).
+    pub fn read_workspace(&self, label: &str, key: &str) -> Result<Option<Value>, DoorError> {
+        let answer = self.call(&self.resource, "workspace:read", &json!({ "selection": { "labels": [label], "prefixes": [] } }), key)?;
+        workspace_record(&answer, label)
+    }
+
     /// `tools:run` of one Workshop tool the row declares in `runs`; answers the tool's own output.
     pub fn run(&self, tool: &str, input: &Value, key: &str) -> Result<Value, DoorError> {
         self.call(&self.tools_resource, "tools:run", &json!({ "tool": tool, "input": input }), key)
@@ -142,6 +158,25 @@ impl RecordsDoor {
     }
 }
 
+/// A record value as the store answers it: its stored body `{ kind, sequence, stored, meta, protected }` is the value parsed from `stored`.
+fn stored_value(value: &Value) -> Value {
+    match (value.get("sequence"), value.get("stored").and_then(Value::as_str)) {
+        (Some(_), Some(stored)) => serde_json::from_str(stored).unwrap_or_else(|_| value.clone()),
+        _ => value.clone(),
+    }
+}
+
+/// The record at `label` in a `workspace:read` answer (`{ status, content_type, text }`, the text JSON `{ records: { label: value } }`).
+fn workspace_record(answer: &Value, label: &str) -> Result<Option<Value>, DoorError> {
+    let json = answer.get("content_type").and_then(Value::as_str).is_some_and(|kind| kind.trim_start().to_ascii_lowercase().starts_with("application/json"));
+    if answer.get("status").and_then(Value::as_u64) != Some(200) || !json {
+        return Err(DoorError::Unavailable);
+    }
+    let body: Value = serde_json::from_str(answer.get("text").and_then(Value::as_str).ok_or(DoorError::Unavailable)?).map_err(|_| DoorError::Unavailable)?;
+    let records = body.get("records").and_then(Value::as_object).ok_or(DoorError::Unavailable)?;
+    Ok(records.get(label).filter(|value| value.is_object()).cloned())
+}
+
 /// The door's answer: JSON, or an event stream whose last `data:` line is the JSON. The tool result's structured content, or its refusal.
 fn answer_of(text: &str, event_stream: bool) -> Result<Value, DoorError> {
     let json = if event_stream { text.lines().filter_map(|line| line.strip_prefix("data:")).next_back().ok_or(DoorError::Unavailable)? } else { text };
@@ -161,6 +196,18 @@ fn answer_of(text: &str, event_stream: bool) -> Result<Value, DoorError> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_workspace_read_is_the_record_at_its_label_and_a_stored_body_is_its_value() {
+        let answer = json!({"status": 200, "content_type": "application/json; charset=utf-8", "text": r#"{"records":{"sharing:a":{"people":[]}}}"#});
+        assert_eq!(workspace_record(&answer, "sharing:a"), Ok(Some(json!({"people": []}))));
+        assert_eq!(workspace_record(&answer, "sharing:b"), Ok(None), "no record is none, not a refusal");
+        assert_eq!(workspace_record(&json!({"status": 500, "content_type": "application/json", "text": "{}"}), "x"), Err(DoorError::Unavailable));
+        assert_eq!(workspace_record(&json!({"status": 200, "content_type": "text/html", "text": "{}"}), "x"), Err(DoorError::Unavailable));
+        let stored = json!({"kind": "r", "sequence": 3, "stored": r#"{"kind":"namespace-shared-file","identity":"1f:aa"}"#});
+        assert_eq!(stored_value(&stored), json!({"kind": "namespace-shared-file", "identity": "1f:aa"}));
+        assert_eq!(stored_value(&json!({"kind": "namespace-shared-file"})), json!({"kind": "namespace-shared-file"}));
+    }
 
     #[test]
     fn a_result_is_its_structured_content_and_a_refusal_is_its_code() {

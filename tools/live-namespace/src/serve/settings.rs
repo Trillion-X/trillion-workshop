@@ -30,7 +30,7 @@ const MOST_BYTES: u64 = 64 * 1024;
 pub struct Share {
     /// The held name (`<service>-<field>`) of the attached field that holds the door's descriptor line `{ url, resource, capability }`.
     pub descriptor: String,
-    /// The https address the person's pages are served from; a share opens at `<origin>/share/<key>`.
+    /// The https address the person's pages are served from; a share opens at `<origin>/share/<id>/<key>`.
     pub origin: String,
 }
 
@@ -50,6 +50,9 @@ pub struct Settings {
     /// How a file is shared: through share-anything, over the records door the run is handed. Without it `share_file` is refused.
     #[serde(default)]
     pub share: Option<Share>,
+    /// The public byte route of a share (`serve-shares`): where it listens and its numbers. `serve-shares` also needs `share` (the door it reads shares through) and refuses to start without it.
+    #[serde(default)]
+    pub share_bytes: Option<live_namespace::share_bytes::Config>,
     /// The fields of the connections (`files-store`: the byte store; the database's own) and the descriptor each is attached on.
     pub attached: Vec<Attached>,
 }
@@ -135,6 +138,9 @@ impl Settings {
             if !(share.origin.starts_with("https://") && url::Url::parse(&share.origin).is_ok_and(|url| url.host().is_some() && url.username().is_empty() && url.query().is_none() && url.fragment().is_none())) {
                 return Err(Refused("the share's origin is an https address"));
             }
+        }
+        if let Some(route) = &self.share_bytes {
+            route.check().map_err(Refused)?;
         }
         let mut descriptors = std::collections::BTreeSet::new();
         let mut fields = std::collections::BTreeSet::new();

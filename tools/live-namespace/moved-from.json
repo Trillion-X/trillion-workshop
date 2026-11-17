@@ -153,7 +153,7 @@
       "calls": [
         "person-name"
       ],
-      "adapted": "Adds presign_get: a GET of one object signed into the URL query for the share's seconds (SigV4, host the only signed header), proved against the AWS documented example."
+      "adapted": "Added presign_get (a GET of one object signed into the URL query for the share's seconds, SigV4, proved against the AWS documented example); removed from this tool on Nov 17 2026 (lane share-bytes) with its test: a signed store link outlived the share it was made for, and the byte route src/share_bytes serves a share by range instead."
     },
     {
       "source": "Trillion-X/trillion-rust",
@@ -225,7 +225,7 @@
       "to": "tools/live-namespace/src/account_files/share_delivery.rs",
       "source_identity": "1f:804242710e946fe9bf43940e73e74a2d1f984ed7c38073d5b053dfd936a5a200",
       "identity": "1f:9f0ddfac70d7b7c97888fa844cd8a949de9ae0d5ef13c9f0351795a9c1eb42df",
-      "adapted": "Rewritten: the grant-aware delivery owner seam becomes the share authority seam (share-anything), plus the signed byte link of a whole-object file."
+      "adapted": "Rewritten: the grant-aware delivery owner seam becomes the share authority seam (share-anything), plus the signed byte link of a whole-object file (the link was removed from this tool on Nov 17 2026, lane share-bytes: the byte route src/share_bytes serves a share by range)."
     },
     {
       "source": "Trillion-X/trillion-rust",
