@@ -143,3 +143,58 @@ test('a layout that names the door renders its unit from its releases folder, wi
   assert.match(door, /^ExecStart=\/bin\/sh -c 'exec "\$\(readlink -f \/opt\/example-door\/releases\/current\)\/example-door"'$/m);
   assert.match(door, /^User=example-door$/m);
 });
+
+// A computer that runs a database server: its settings file of lines, its backup, restore test and role scripts, and the
+// timers that run them, all from the row.
+const database = {
+  caddy: layout.caddy,
+  units: [{
+    unit: 'example-database.service', template: 'serve-postgres', description: 'Example database', user: 'postgres',
+    state: '/var/lib/postgresql', data_dir: '/var/lib/postgresql/18/example', program_bin: '/usr/lib/postgresql/18/bin',
+    settings_file: '/etc/example-database/postgresql.conf', settings_lines: ["listen_addresses = '127.0.0.1'", "archive_command = 'wal-g wal-push %p'"],
+    environment: ['PGDATA=/var/lib/postgresql/18/example', 'WALG_S3_PREFIX=s3://example-bucket/postgres'], writable: '/var/lib/postgresql',
+    secret_name: 'example-store', secret_file: '/etc/credstore.encrypted/example-database', secret_vault_key: 'example-store-env',
+    check_command: 'pg_isready -q',
+  }, {
+    unit: 'example-database-backup.service', template: 'run-a-script', description: 'Example database backup', user: 'postgres',
+    state: '/var/lib/postgresql', after: 'example-database.service', script: 'back-up-postgres', script_file: '/usr/local/lib/example-database/back-up.sh',
+    program_bin: '/usr/lib/postgresql/18/bin', environment: ['PGDATA=/var/lib/postgresql/18/example', 'SECRET_NAME=example-store'], writable: '/var/lib/postgresql',
+    secret_name: 'example-store', secret_file: '/etc/credstore.encrypted/example-database-backup', secret_vault_key: 'example-store-env',
+  }, {
+    unit: 'example-database-backup.timer', template: 'run-on-a-timer', description: 'Example database backup, daily', user: 'postgres',
+    state: '/var/lib/postgresql', runs: 'example-database-backup.service', on_calendar: 'daily',
+  }],
+};
+
+test('a database unit, a script unit and a timer render from their fields, and the script and settings lines are written', () => {
+  const files = renderLayout(database, SITE_BLOCK);
+  const text = path => files.find(file => file.path === path)?.text;
+  for (const { path, text: body } of files) if (path.startsWith('/etc/systemd/system/')) assert.doesNotMatch(body, /\{[a-z_]+\}/, path);
+  const server = text('/etc/systemd/system/example-database.service');
+  assert.match(server, /^LoadCredentialEncrypted=example-store:\/etc\/credstore\.encrypted\/example-database$/m);
+  assert.match(server, /^Environment=PGDATA=\/var\/lib\/postgresql\/18\/example WALG_S3_PREFIX=s3:\/\/example-bucket\/postgres$/m);
+  assert.match(server, /exec postgres -D \/var\/lib\/postgresql\/18\/example -c config_file=\/etc\/example-database\/postgresql\.conf'$/m);
+  assert.equal(text('/etc/example-database/postgresql.conf'), "listen_addresses = '127.0.0.1'\narchive_command = 'wal-g wal-push %p'\n");
+  const job = text('/etc/systemd/system/example-database-backup.service');
+  assert.match(job, /^Type=oneshot$/m);
+  assert.match(job, /^After=network-online\.target example-database\.service$/m);
+  assert.match(job, /^ExecStart=\/bin\/sh \/usr\/local\/lib\/example-database\/back-up\.sh$/m);
+  assert.match(text('/usr/local/lib/example-database/back-up.sh'), /^wal-g backup-push "\$PGDATA"$/m);
+  const timer = text('/etc/systemd/system/example-database-backup.timer');
+  assert.match(timer, /^OnCalendar=daily$/m);
+  assert.match(timer, /^Unit=example-database-backup\.service$/m);
+});
+
+test('a unit that names an unknown script is refused', () => {
+  const [server, job] = database.units;
+  assert.throws(() => renderLayout({ ...database, units: [server, { ...job, script: 'nope' }] }, SITE_BLOCK), /unknown script nope/);
+});
+
+test('every script the Workshop keeps for units is valid shell', async () => {
+  const { readdirSync } = await import('node:fs');
+  const { spawnSync } = await import('node:child_process');
+  const folder = new URL('../read-data/scripts/', import.meta.url);
+  const names = readdirSync(folder).filter(name => name.endsWith('.sh'));
+  assert.ok(names.length >= 3);
+  for (const name of names) assert.equal(spawnSync('sh', ['-n', new URL(name, folder).pathname]).status, 0, name);
+});

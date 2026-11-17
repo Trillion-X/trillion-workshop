@@ -12,8 +12,14 @@ import { existsSync, readFileSync } from 'node:fs';
 
 const TEMPLATE = name => readFileSync(new URL(`../read-data/unit-templates/${name}`, import.meta.url), 'utf8');
 // A unit's template is named by its file without the extension.
-const UNITS = Object.fromEntries(['serve-place', 'serve-computer', 'serve-set-up', 'serve-better-auth', 'serve-door']
-  .map(name => [name, TEMPLATE(`${name}.service`)]));
+const UNITS = Object.fromEntries(['serve-place', 'serve-computer', 'serve-set-up', 'serve-better-auth', 'serve-door', 'serve-postgres', 'run-a-script']
+  .map(name => [name, TEMPLATE(`${name}.service`)]).concat([['run-on-a-timer', TEMPLATE('run-on-a-timer.timer')]]));
+// A script a unit runs (`script`): the program's own text, written at the unit's `script_file`.
+const SCRIPT = name => {
+  const file = new URL(`../read-data/scripts/${name}.sh`, import.meta.url);
+  if (!/^[a-z0-9-]+$/.test(name) || !existsSync(file)) throw new Error(`a unit names an unknown script ${name}`);
+  return readFileSync(file, 'utf8');
+};
 const ROUTE = name => {
   const file = new URL(`../read-data/caddy-routes/${name}.caddy`, import.meta.url);
   if (!/^[a-z0-9-]+$/.test(name) || !existsSync(file)) throw new Error(`caddy.routes names an unknown route ${name}`);
@@ -101,6 +107,7 @@ const renderFrontDoor = (door, sites) => {
  * row's own `new_accounts` over them, so the row names only what is this computer's; its `release_feed.releases` must be
  * the unit's `releases`, the folder whose `current` the unit starts. */
 const unitSettings = (unit, productSettings, where) => {
+  if (unit.settings_lines) return { path: unit.settings_file, text: `${unit.settings_lines.join('\n')}\n` };
   if (unit.settings_file) return { path: unit.settings_file, text: `${JSON.stringify(unit.settings, null, 2)}\n` };
   if (!unit.config) throw new Error(`${where} gives settings and needs settings_file or config`);
   if (productSettings === undefined) throw new Error(`${where} gives its engine config and needs the product data for its new_accounts`);
@@ -123,7 +130,8 @@ export function renderLayout(layout, siteBlock, productSettings, pages) {
     if (!template) throw new Error(`${where} names an unknown template ${unit.template}`);
     files.push({ path: `${SYSTEMD}/${unit.unit}`, text: fill(template, unit, where) });
     if (productSettings !== undefined && unit.product_settings) files.push({ path: unit.product_settings, text: productSettings });
-    if (unit.settings !== undefined) files.push(unitSettings(unit, productSettings, where));
+    if (unit.settings !== undefined || unit.settings_lines !== undefined) files.push(unitSettings(unit, productSettings, where));
+    if (unit.script !== undefined) files.push({ path: fill('{script_file}', unit, where), text: SCRIPT(unit.script) });
     for (const name of unit.drop_ins ?? []) {
       const dropIn = DROP_INS[name];
       if (!dropIn) throw new Error(`${where} names an unknown drop-in ${name}`);

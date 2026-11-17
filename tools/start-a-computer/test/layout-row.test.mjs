@@ -4,7 +4,10 @@
 // and applying or comparing uses that row.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { applyALayout, hostLayoutOf, layoutDifferences, SITE_BLOCK } from '../do-work/start-a-computer.mjs';
+import { mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { applyALayout, hostLayoutOf, layoutDifferences, readRequest, SITE_BLOCK } from '../do-work/start-a-computer.mjs';
 import { renderLayout } from '../do-work/render-layout.mjs';
 
 const row = {
@@ -21,6 +24,15 @@ const request = { machine: { address: '192.0.2.9' }, ssh: { known_hosts: '/dev/n
 
 test('a request gets the layout row it hands in, as it is', () => {
   assert.equal(hostLayoutOf(request), row);
+});
+
+test('a request may name the layout row as a file beside it: the row is that file\'s JSON', () => {
+  const folder = mkdtempSync(join(tmpdir(), 'layout-file-'));
+  writeFileSync(join(folder, 'computer.json'), JSON.stringify(row));
+  writeFileSync(join(folder, 'request.json'), JSON.stringify({ machine: request.machine, ssh: request.ssh, host_layout_file: 'computer.json' }));
+  const read = readRequest(join(folder, 'request.json'));
+  assert.deepEqual(hostLayoutOf(read), row);
+  assert.equal(read.host_layout_file, undefined);
 });
 
 test('a layout that is an id, a missing value, or a row with no units and caddy is refused', () => {

@@ -1,0 +1,22 @@
+[Unit]
+Description={description}
+After=network-online.target {after}
+Wants={after}
+
+[Service]
+# One run of the program {script_file} as {user}, started by its timer or by start-a-computer's apply. The sealed credential
+# {secret_name} is read by the program from $CREDENTIALS_DIRECTORY; this unit names only where.
+Type=oneshot
+LoadCredentialEncrypted={secret_name}:{secret_file}
+Environment={environment}
+Environment=PATH={program_bin}:/usr/local/bin:/usr/bin:/bin
+User={user}
+Group={user}
+ExecStart=/bin/sh {script_file}
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths={writable}
+ProtectHome=true
+PrivateTmp=true
+LimitCORE=0

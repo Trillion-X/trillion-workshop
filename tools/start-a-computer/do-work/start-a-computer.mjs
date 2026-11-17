@@ -278,7 +278,16 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
     if (!unit.tool_folder || await tree(from).catch(() => null) !== await tree(to)) toolChanged.push(unit.unit);
   }
   const moved = moves.length ? { moved: moves.map(({ unit, from, to }) => ({ path: unit.workshop, from, to })) } : {};
-  if (!writes.length && !missing.length && !nodeMissing && !foldersMissing && !toolChanged.length && !firsts.length && !programs.length && !tarballs.length && !usersPresent.length) return { written: [], restarted: [], ...removed, ...moved };
+  // A timer the row names runs only while it is active: one that is not, whether it was just written or stopped, is started.
+  const timersOff = [];
+  for (const unit of layout.units.filter(row => row.unit.endsWith('.timer'))) if (await absent(`systemctl is-active --quiet ${q(unit.unit)}`)) timersOff.push(unit.unit);
+  // The packages and programs the set-up data names (settings.json `machine` with the row's own over it) are made by set-up too.
+  const machineData = { ...SETTINGS.machine, ...layout.machine };
+  const programsMissing = (await Promise.all([
+    ...(machineData.packages ?? []).map(name => absent(`dpkg -s ${q(name)} >/dev/null 2>&1`)),
+    ...(machineData.downloads ?? []).map(({ path }) => absent(`test -x ${q(path)}`)),
+  ])).includes(true);
+  if (!writes.length && !missing.length && !nodeMissing && !foldersMissing && !programsMissing && !timersOff.length && !toolChanged.length && !firsts.length && !programs.length && !tarballs.length && !usersPresent.length) return { written: [], restarted: [], ...removed, ...moved };
   // Set-up makes what is missing (packages, node, accounts, folders); a computer whose accounts and node all exist needs
   // none, and running it would refresh the package lists on every apply.
   const accounts = await Promise.all(layout.units.map(unit => run(machine, `getent passwd ${q(unit.user)} >/dev/null || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; })));
@@ -288,7 +297,7 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
   const doorCaddy = door ? await frontDoorCaddy(machine, run, door) : null;
   const caddyMissing = door ? await run(machine, `printf '%s  %s\\n' ${q(doorCaddy.sha256)} ${q(doorCaddy.binary)} | sha256sum -c --status || exit 3`).then(() => false, error => { if (error.code === 3) return true; throw error; }) : false;
   // The set-up data is settings.json `machine` with the row's own `machine` fields over it (its packages, its firewall).
-  if (accounts.includes(false) || caddyMissing || nodeMissing || foldersMissing) await run(machine, `sh -s -- ${q(JSON.stringify(layout))} ${q(JSON.stringify({ ...SETTINGS.machine, ...layout.machine }))}${door ? ` ${q(`${doorCaddy.binary} ${doorCaddy.url} ${doorCaddy.sha256}`)}` : ''}`, readFileSync(SETUP));
+  if (accounts.includes(false) || caddyMissing || nodeMissing || foldersMissing || programsMissing) await run(machine, `sh -s -- ${q(JSON.stringify(layout))} ${q(JSON.stringify(machineData))}${door ? ` ${q(`${doorCaddy.binary} ${doorCaddy.url} ${doorCaddy.sha256}`)}` : ''}`, readFileSync(SETUP));
   for (const unit of missing) {
     await run(machine, `install -d -m 0700 ${q(dirname(unit.secret_file))} && umask 077 && systemd-creds encrypt --name=${q(unit.secret_name)} - ${q(unit.secret_file)}`, held[unit.secret_vault_key]);
   }
@@ -319,9 +328,9 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
       await run(machine, `install -d -m 0755 ${q(dirname(path))} && ${binary ? 'base64 -d | ' : ''}install -m 0644 -o root -g root /dev/stdin ${q(path)}`, text);
     }
   }
-  const unitOf = path => layout.units.find(unit => [unit.product_settings, unit.config, unit.settings_file].includes(path))?.unit ?? path.match(/\/([^/]+\.service)(?:\.d\/[^/]+)?$/)?.[1];
+  const unitOf = path => layout.units.find(unit => [unit.product_settings, unit.config, unit.settings_file].includes(path))?.unit ?? path.match(/\/([^/]+\.(?:service|timer))(?:\.d\/[^/]+)?$/)?.[1];
   const fedUnits = [...programs, ...tarballs].map(({ unit }) => unit.unit);
-  const units = [...new Set([...writes.map(({ path }) => unitOf(path)), ...missing.map(unit => unit.unit), ...toolChanged, ...firsts.map(unit => unit.unit), ...fedUnits].filter(Boolean))];
+  const units = [...new Set([...writes.map(({ path }) => unitOf(path)), ...missing.map(unit => unit.unit), ...timersOff, ...toolChanged, ...firsts.map(unit => unit.unit), ...fedUnits].filter(Boolean))];
   const running = new Set([...writes.filter(({ path }) => live[path] !== undefined).map(({ path }) => unitOf(path)),
     ...[...missing.map(unit => unit.unit), ...toolChanged, ...firsts.map(unit => unit.unit), ...fedUnits].filter(name => live[`/etc/systemd/system/${name}`] !== undefined)]);
   if (units.length) await run(machine, 'systemctl daemon-reload');
@@ -336,6 +345,12 @@ export async function applyHostLayout(machine, layout, run = onMachine, product,
   const booted = [];
   for (const unit of units) {
     const row = layout.units.find(given => given.unit === unit) ?? {};
+    // A unit that is not an HTTP server names the command that tells it is well (`check_command`, run on the computer, exit 0).
+    if (row.check_command) {
+      await commandPasses(machine, row.check_command, { run, wait: deps.wait ?? pause, tries: 12 }, `${unit}'s check_command`);
+      booted.push(unit);
+      continue;
+    }
     const health = healthOf({ health: row.health ?? layout.health }, {});
     const listen = row.health_listen ?? layout.health_listen ?? layout.caddy?.listen ?? `127.0.0.1:${layout.caddy?.port}`;
     const status = await healthStatus(machine, { listen }, health.host ?? layout.caddy?.site_hosts?.[0] ?? '', { ...health, where: 'machine' }, { fetchImpl: undefined, wait: pause, tries: 12, run });
@@ -527,6 +542,17 @@ export function healthOf(config, request = {}) {
     throw refused('health takes a path that starts with /, a status from 100 to 599, where: public or machine, and optionally the host name its request names (host).');
   }
   return health;
+}
+
+/** A command run on the computer until it exits 0, tried `tries` times; the last failure is the error. */
+async function commandPasses(machine, command, { run, wait, tries }, what) {
+  for (let i = 1; ; i++) {
+    try { await run(machine, command); return; }
+    catch (error) {
+      if (i >= tries) throw Object.assign(new Error(`${what} did not pass after the restart: ${error.message}`), { code: error.code });
+      await wait(5000);
+    }
+  }
 }
 
 /** Ask the place its health check once per try: its status, or null when nothing answers. */
@@ -832,6 +858,11 @@ export function readRequest(file) {
   resolveIn(request, 'lease_file');
   resolveIn(request, 'product_data');
   resolveIn(request, 'pages_folder');
+  // The computer's layout row may be its own file (`host_layout_file`): the row is that file's JSON, read here.
+  if (typeof request.host_layout_file === 'string') {
+    request.host_layout = JSON.parse(readFileSync(resolvePath(here, request.host_layout_file), 'utf8'));
+    delete request.host_layout_file;
+  }
   resolveIn(request.machine, 'public_key_file');
   resolveIn(request.ssh, 'known_hosts');
   resolveIn(request.ssh, 'identity_file');

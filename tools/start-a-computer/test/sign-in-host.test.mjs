@@ -50,7 +50,8 @@ function standInMachine({ tarball, arch = 'x86_64' }) {
   program('id', 'exit 1');
   program('uname', `echo ${arch}`);
   program('curl', `echo "curl $*" >> '${log}'; while [ $# -gt 0 ]; do if [ "$1" = -o ]; then cp '${tarball}' "$2"; fi; shift; done`);
-  program('sha256sum', `node -e 'const c=require("crypto");process.stdout.write(c.createHash("sha256").update(require("fs").readFileSync(process.argv[1])).digest("hex")+"  "+process.argv[1]+"\\n")' "$1"`);
+  // `sha256sum FILE` prints the digest; `sha256sum -c --status` reads "DIGEST  FILE" lines from stdin and exits 1 on a mismatch.
+  program('sha256sum', `node -e 'const c=require("crypto"),f=require("fs");const sum=p=>c.createHash("sha256").update(f.readFileSync(p)).digest("hex");if(process.argv[1]==="-c"){const bad=f.readFileSync(0,"utf8").trim().split("\\n").some(l=>{const[h,p]=l.split(/  /);try{return sum(p)!==h}catch{return true}});process.exit(bad?1:0)}process.stdout.write(sum(process.argv[1])+"  "+process.argv[1]+"\\n")' -- "$@"`);
   return { root, bin, log };
 }
 
@@ -77,7 +78,7 @@ test('set-up installs the packages the set-up data names and the node release fo
   const ran = setUp(machine, layout, data);
   assert.equal(ran.status, 0, ran.stderr);
   const calls = readFileSync(machine.log, 'utf8');
-  assert.match(calls, /^apt-get install -y -qq caddy jq ufw git curl$/m);
+  assert.match(calls, /^apt-get install -y -qq -o Dpkg::Options::=--force-confold caddy jq ufw git curl$/m);
   assert.match(calls, /^curl -fsSL -o \S+ https:\/\/releases\.example\.test\/node-x64\.tar\.gz$/m);
   assert.match(calls, /^useradd --system --home-dir \S+\/var\/lib\/example-sign-in /m, 'a unit with no engine config is set up from its state folder');
   assert.equal(spawnSync(join(machine.root, 'opt/node/bin/node'), { encoding: 'utf8' }).stdout.trim(), 'v24.0.0-stand-in');
@@ -178,4 +179,50 @@ test('a computer whose sign-in unit\'s node is missing is set up again even when
   assert.ok(setUp, 'set-up runs to install node');
   const quoted = `'${JSON.stringify(SETTINGS.machine).replace(/'/g, `'\\''`)}'`;
   assert.ok(setUp.command.endsWith(` ${quoted}`), 'set-up is handed the set-up data from settings.json');
+});
+
+// A machine can also need files written, package sources and programs fetched before its units run; every address, path and
+// pinned digest is the row's own data.
+test('set-up writes the files and package sources the data names and installs a pinned program only when it is not there', () => {
+  const at = mkdtempSync(join(tmpdir(), 'fake-program-'));
+  mkdirSync(join(at, 'pack'));
+  writeFileSync(join(at, 'pack', 'tool-x'), '#!/bin/sh\necho tool\n');
+  const tarball = join(at, 'tool.tar.gz');
+  assert.equal(spawnSync('tar', ['-czf', tarball, '-C', join(at, 'pack'), 'tool-x']).status, 0);
+  const digest = path => createHash('sha256').update(readFileSync(path)).digest('hex');
+  const machine = standInMachine({ tarball });
+  // This set-up writes real files: the stand-in install logs the call, then makes the folder, or copies the file or standard input.
+  writeFileSync(join(machine.bin, 'install'), `#!/bin/sh
+echo "install $*" >> '${machine.log}'
+make=''; modes=''
+for last; do :; done
+while [ $# -gt 0 ]; do case "$1" in -d) make=1;; -m) shift;; -o|-g) shift;; *) args="$args $1";; esac; shift; done
+set -- $args
+if [ -n "$make" ]; then mkdir -p "$@"; elif [ "$1" = /dev/stdin ]; then cat > "$2"; else cp "$1" "$2"; fi
+`);
+  chmodSync(join(machine.bin, 'install'), 0o755);
+  const data = {
+    packages: ['git'],
+    files: [{ path: `${machine.root}/etc/example/package.conf`, text: 'one = 1\n' }],
+    apt_sources: [{ name: 'example', key_url: 'https://keys.example.test/example.asc', key_sha256: digest(tarball), line: 'deb https://packages.example.test stable main',
+      key_file: `${machine.root}/etc/apt/keyrings/example.asc`, list_file: `${machine.root}/etc/apt/sources.list.d/example.list` }],
+    downloads: [{ path: `${machine.root}/usr/local/bin/tool-x`, files: { x86_64: { url: 'https://tools.example.test/tool.tar.gz', sha256: digest(tarball), member: 'tool-x', binary_sha256: digest(join(at, 'pack', 'tool-x')) } } }],
+  };
+  const ran = setUp(machine, { units: [] }, data);
+  assert.equal(ran.status, 0, ran.stderr);
+  const calls = readFileSync(machine.log, 'utf8');
+  assert.match(calls, /^curl -fsSL -o \S+example\.asc\.new https:\/\/keys\.example\.test\/example\.asc$/m);
+  assert.match(calls, /^curl -fsSL -o \S+ https:\/\/tools\.example\.test\/tool\.tar\.gz$/m);
+  assert.match(calls, /^install -m 0755 \S+\/tool-x \S+\/usr\/local\/bin\/tool-x$/m);
+  assert.ok(calls.indexOf('example.asc.new') < calls.indexOf('apt-get update'), 'the source is in place before the package lists are read');
+  assert.ok(calls.indexOf('apt-get install') < calls.indexOf('tool.tar.gz'), 'programs are fetched after the packages');
+  // A program already there as the pinned bytes is not fetched again, and a key that is not the pinned one is refused.
+  mkdirSync(join(machine.root, 'usr/local/bin'), { recursive: true });
+  writeFileSync(join(machine.root, 'usr/local/bin/tool-x'), readFileSync(join(at, 'pack', 'tool-x')));
+  writeFileSync(machine.log, '');
+  assert.equal(setUp(machine, { units: [] }, { ...data, apt_sources: [] }).status, 0);
+  assert.doesNotMatch(readFileSync(machine.log, 'utf8'), /tools\.example\.test/);
+  const wrong = setUp(machine, { units: [] }, { ...data, files: [], downloads: [], apt_sources: [{ ...data.apt_sources[0], key_sha256: '0'.repeat(64) }] });
+  assert.notEqual(wrong.status, 0);
+  assert.match(wrong.stderr, /is not the pinned one/);
 });

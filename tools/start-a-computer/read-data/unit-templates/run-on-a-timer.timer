@@ -1,0 +1,10 @@
+[Unit]
+Description={description}
+
+[Timer]
+OnCalendar={on_calendar}
+Persistent=true
+Unit={runs}
+
+[Install]
+WantedBy=timers.target

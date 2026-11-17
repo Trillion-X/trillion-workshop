@@ -166,3 +166,34 @@ test('a user the row says is absent is a difference while the computer has it, a
   assert.ok(commands.includes("userdel -r 'old-tunnel'"));
   assert.ok(commands.includes('sshd -t && systemctl reload ssh'));
 });
+
+// A unit that is not an HTTP server names the command that tells it is well; the apply asks it after the restart.
+test('a unit with a check_command is booted when the command passes, and the apply fails when it never does', async () => {
+  const withCheck = { ...layout, units: [{ ...layout.units[0], check_command: 'pg_isready -q' }] };
+  const base = computer({});
+  const asked = [];
+  const passing = async (m, command, input) => { if (command === 'pg_isready -q') { asked.push(command); return ''; } return base.run(m, command, input); };
+  const ok = await applyHostLayout(machine, withCheck, passing);
+  assert.deepEqual(ok.booted, ['example-place.service']);
+  assert.deepEqual(asked, ['pg_isready -q']);
+  assert.ok(!base.commands.some(({ command }) => command.startsWith('curl')), 'no HTTP health request is made for it');
+  const never = async (m, command, input) => { if (command === 'pg_isready -q') throw Object.assign(new Error('no response'), { code: 2 }); return computer({}).run(m, command, input); };
+  await assert.rejects(applyHostLayout(machine, withCheck, never, undefined, {}, { wait: async () => {} }), /example-place\.service's check_command did not pass after the restart: no response/);
+});
+
+test('a computer missing a package or program its row names is set up, and one that has them all is not', async () => {
+  const data = { ...layout, machine: { packages: ['jq'], downloads: [{ path: '/usr/local/bin/example-tool' }] } };
+  const live = Object.fromEntries(renderLayout(data, SITE_BLOCK).map(({ path, text }) => [path, text]));
+  const changed = { ...data, units: [{ ...data.units[0], description: 'Example place again' }] };
+  const lacking = computer(live);
+  const run = (missing) => async (m, command, input) => {
+    if (command.startsWith('dpkg -s') || command.startsWith('test -x')) { lacking.commands.push({ command }); if (missing(command)) throw Object.assign(new Error('missing'), { code: 3 }); return ''; }
+    return lacking.run(m, command, input);
+  };
+  await applyHostLayout(machine, changed, run(command => command.includes('example-tool')));
+  assert.ok(lacking.commands.some(({ command }) => command.startsWith('sh -s')), 'a missing program runs set-up');
+  const had = computer(live);
+  const complete = async (m, command, input) => { if (command.startsWith('dpkg -s') || command.startsWith('test -x')) return ''; return had.run(m, command, input); };
+  await applyHostLayout(machine, changed, complete);
+  assert.ok(!had.commands.some(({ command }) => command.startsWith('sh -s')), 'nothing missing, no set-up');
+});
