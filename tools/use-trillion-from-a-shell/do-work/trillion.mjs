@@ -521,11 +521,13 @@ export function doorFor({ asked = null, credential = null, declared = null, rule
 
 /** Asks this computer's engine to hold the person the pass or key names (`POST /persons/add` at its own loopback address, which
  *  it answers only to a request from this computer: someone here, as this login is). Answers { person, added }; null when this
- *  computer has no local door; a TrillionError saying why when the engine refused. */
+ *  computer has no local door, or its engine has no such route (404: it is not asked to hold anyone, and the question of who the
+ *  person is, asked next, is its answer); a TrillionError saying why when the engine refused. */
 export async function addPersonHere({ localMcp, bearer, fetchImpl = fetch, rules = settings }) {
   if (!localMcp) return null;
   const url = new URL('/persons/add', localMcp);
   const response = await fetchImpl(url, { method: 'POST', headers: { authorization: `Bearer ${bearer}` } }).catch(error => { throw new TrillionError(rules.words.not_running, { status: 4, detail: fill(rules.words.details.not_running_engine, { url: url.origin, why: error.cause?.code ?? error.message }) }); });
+  if (response.status === 404) return null;
   const answer = await response.json().catch(() => ({}));
   if (!response.ok) throw new TrillionError(response.status === 401 ? rules.words.refused : rules.words.not_taken_in, { status: response.status === 401 ? 3 : 4, detail: fill(rules.words.details.not_taken_in, { url: url.origin, status: response.status, why: answer.error ?? 'refused' }) });
   return answer;

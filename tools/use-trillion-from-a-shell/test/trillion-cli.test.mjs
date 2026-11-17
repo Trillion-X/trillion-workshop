@@ -889,6 +889,11 @@ test('a local door is the app\'s loopback address, a sign-in of the origin it se
   try {
     await assert.rejects(addPersonHere({ localMcp: `http://127.0.0.1:${refusing.address().port}/mcp`, bearer: KEY }), error => error.message === settings.words.not_taken_in && error.detail.endsWith('answered 403 persons_are_added_at_this_computer.'));
   } finally { refusing.close(); }
+  const without = createServer((request, response) => response.writeHead(404).end());
+  await new Promise(resolve => without.listen(0, '127.0.0.1', resolve));
+  try {
+    assert.equal(await addPersonHere({ localMcp: `http://127.0.0.1:${without.address().port}/mcp`, bearer: KEY }), null, 'an engine with no route to add a person is not asked again; who the person is comes from its answer to whoami');
+  } finally { without.close(); }
 });
 
 // ── The login journey: the person is held at this computer's engine before anything asks who they are, and every
