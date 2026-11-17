@@ -10,6 +10,8 @@ import operators from 'trillion-workshop/tools/formula-engine/rules/rule-operato
 import { createRecordFilter } from '../../../../formula-engine/rules/filter-records.mjs';
 import { makeRowFilter } from 'trillion-workshop/tools/formula-engine/rules/filter-rows-by-rules.mjs';
 import { evaluatorBytes as filterBytes } from 'trillion-workshop/tools/formula-engine/rules/evaluator-bytes-in-the-page.mjs';
+import { loadRowEvaluator } from 'trillion-workshop/tools/formula-engine/rules/evaluate-over-rows.mjs';
+import { provideMeasureEngine } from 'trillion-workshop/tools/query-and-change-list-rows/src/list-aggregates.mjs';
 import { setConditionEngine } from 'trillion-workshop/tools/build-a-screen-from-patches/read-data/screen-spec.mjs';
 import type { RecordViewsOptions } from '../../../../ui/show/record-views/record-views';
 
@@ -18,6 +20,9 @@ let rows: ReturnType<typeof makeRowFilter> | null = null;
 
 // The evaluator's bytes are fetched once for every filter this page makes (formula-engine rules/evaluator-bytes-in-the-page.mjs),
 // and the same fetch serves the totals its screens work out (a metric card, a group's total, a customer count): the list engine's `measure`.
+
+// The totals' owner is told how to get the evaluator from those bytes; nothing is fetched until a screen has a total to work out.
+provideMeasureEngine(async () => loadRowEvaluator(await filterBytes()));
 
 export function loadRecordFilter(): Promise<ReturnType<typeof createRecordFilter>> {
   loading ||= filterBytes()

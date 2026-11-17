@@ -36,7 +36,7 @@ const holds = (field, operator, params, row) => {
   return evaluator().evaluate(binding, row);
 };
 
-// tools/drive-the-screen/read-data/run-decision.mjs globMatches (the same function sits in tools/run-on-a-persons-computer): * is the wildcard, the whole text is matched, case is ignored.
+// The retired glob test of the screen driver's run-decision (globMatches, the same function as the person's-computer runner's): * is the wildcard, the whole text is matched, case is ignored.
 const oldGlobMatches = (pattern, value) => new RegExp(`^${pattern.toLowerCase().replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*')}$`, 'u').test(value.toLowerCase());
 
 test('matches_glob answers what the retired glob test answered, for every pattern and text', () => {
