@@ -5,13 +5,6 @@
   "calls": [],
   "files": [
     {
-      "from": "records/cloud-files-origins.json",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/price-and-sell-by-contract/records/cloud-files-origins.json",
-      "source_identity": "1f:212d0468996d3ba0e8fe9a900fef09949327dfc87ec0159972b0f62414b92feb",
-      "identity": "1f:212d0468996d3ba0e8fe9a900fef09949327dfc87ec0159972b0f62414b92feb"
-    },
-    {
       "from": "src/billing-screen.json",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/price-and-sell-by-contract/src/billing-screen.json",

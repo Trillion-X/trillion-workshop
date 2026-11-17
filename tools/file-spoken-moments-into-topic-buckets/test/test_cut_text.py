@@ -26,7 +26,7 @@ def results(path):
     db.close()
 
 
-HELD = {"aliases": {"a" * 64: "1f:fileA"}, "files": {"1f:fileA": {"origin": "backblaze-b2"}, "1f:" + "b" * 64: {"origin": "cloudflare-r2"}}}
+HELD = {"aliases": {"a" * 64: "1f:fileA"}, "files": {"1f:fileA": {"origin": "store-a"}, "1f:" + "b" * 64: {"origin": "store-b"}}}
 
 
 def run(*argv):
@@ -54,17 +54,17 @@ class CutText(unittest.TestCase):
             self.assertEqual([m["id"] for m in a], ["xaaaaaaaaaaaa#0", "xaaaaaaaaaaaa#1", "xaaaaaaaaaaaa#2"])
             self.assertTrue(all(len(m["text"].split()) <= 120 for m in a))
             self.assertEqual((a[0]["frac_start"], a[-1]["frac_end"], a[0]["est_start"], a[-1]["est_end"]), (0.0, 1.0, 0.0, 1800.0))
-            self.assertEqual((a[0]["source"], a[0]["name"], a[0]["timing"]), ("b2", "walk.mp4", "estimated-from-text-position"))
+            self.assertEqual((a[0]["source"], a[0]["name"], a[0]["timing"]), ("store-a", "walk.mp4", "estimated-from-text-position"))
             b = [m for m in moments if m["identity"] == "1f:" + "b" * 64]
-            self.assertEqual((b[0]["source"], b[0]["duplicates"], b[0]["est_start"]), ("r2", ["1f:" + "c" * 64], None))
+            self.assertEqual((b[0]["source"], b[0]["duplicates"], b[0]["est_start"]), ("store-b", ["1f:" + "c" * 64], None))
             e = [m for m in moments if m["identity"] == "1f:" + "e" * 64]
             self.assertEqual(e[0]["source"], "drive-only")
             self.assertEqual(result["transcripts"], 3)
             self.assertEqual(result["duplicates_dropped"], 1)
-            self.assertEqual(result["moments_by_source"], {"b2": 3, "r2": 1, "drive-only": 1})
-            self.assertEqual(result["transcripts_by_source_and_kind"], {"b2 video": 1, "drive-only None": 1, "r2 audio": 1})
+            self.assertEqual(result["moments_by_source"], {"store-a": 3, "store-b": 1, "drive-only": 1})
+            self.assertEqual(result["transcripts_by_source_and_kind"], {"store-a video": 1, "drive-only None": 1, "store-b audio": 1})
             self.assertEqual(result["hours_with_known_length"], 0.5)
-            self.assertIn("{'b2': 3, 'r2': 1, 'drive-only': 1} 0.5 hours of media with known duration", printed)
+            self.assertIn("{'store-a': 3, 'store-b': 1, 'drive-only': 1} 0.5 hours of media with known duration", printed)
 
     def test_a_namespace_copy_gives_the_same_sources(self):
         with tempfile.TemporaryDirectory() as work:
@@ -78,7 +78,7 @@ class CutText(unittest.TestCase):
             db.commit()
             db.close()
             _, result, _ = self.cut(work, "--namespace-sqlite", store)
-            self.assertEqual(result["by_source"], {"b2": 1, "r2": 1, "drive-only": 1})
+            self.assertEqual(result["by_source"], {"store-a": 1, "store-b": 1, "drive-only": 1})
 
 
 if __name__ == "__main__":

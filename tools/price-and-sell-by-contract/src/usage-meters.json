@@ -31,12 +31,7 @@
       "per": "month",
       "days_per": 30,
       "cost": {
-        "records": "cloud-files.origin",
-        "path": [
-          "price",
-          "usd_per_gb_month"
-        ],
-        "take": "max",
+        "unit_dollars": 0.015,
         "margin": 1.3
       },
       "words": {

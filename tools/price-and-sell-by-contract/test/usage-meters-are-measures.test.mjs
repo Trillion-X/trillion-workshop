@@ -7,8 +7,9 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { meterDayDollars, meterOf, meterPrice } from '../src/usage-meters.mjs';
 
-const stored = meterOf('meter:stored-gigabytes');
-const origins = rates => new Map([[stored.cost.records, rates.map(rate => ({ price: { usd_per_gb_month: rate } }))]]);
+// A meter whose rate is read from rows: the storage meter itself names its own rate, so this one names the rows' kind and path.
+const stored = { ...meterOf('meter:stored-gigabytes'), cost: { records: 'rate-rows', path: ['price', 'per_unit'], take: 'max', margin: 1.3 } };
+const origins = rates => new Map([[stored.cost.records, rates.map(rate => ({ price: { per_unit: rate } }))]]);
 
 test('the base rate is the largest rate the records give, as the meter takes max', () => {
   assert.equal(stored.cost.take, 'max');

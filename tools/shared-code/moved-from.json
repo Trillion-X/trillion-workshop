@@ -90,35 +90,6 @@
       "identity": "1f:b811f26a1f9f0ceedc2bf649f69b53a8656a5f194db7dd43a9b99a2e293cf624"
     },
     {
-      "from": "scripts/built-worker-folder.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/shared-code/scripts/built-worker-folder.mjs",
-      "source_identity": "1f:7a45b9f4e28922f3b1a1729c534426b434853256103885e5ea2e0505823c0912",
-      "identity": "1f:7a45b9f4e28922f3b1a1729c534426b434853256103885e5ea2e0505823c0912"
-    },
-    {
-      "from": "scripts/local-only-options.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/shared-code/scripts/local-only-options.mjs",
-      "source_identity": "1f:2aad28a1739f1d78760807a22078035b49078dd42bfc4aadc42c830449f4305d",
-      "identity": "1f:2aad28a1739f1d78760807a22078035b49078dd42bfc4aadc42c830449f4305d"
-    },
-    {
-      "from": "scripts/namespace-worker-vars.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/shared-code/scripts/namespace-worker-vars.mjs",
-      "source_identity": "1f:9f8330ad5af242411ae6db4623172c0eef376764f33aa8076d3510c2f8ff6a4b",
-      "identity": "1f:9f8330ad5af242411ae6db4623172c0eef376764f33aa8076d3510c2f8ff6a4b"
-    },
-    {
-      "from": "scripts/namespace-worker-vars.mjs",
-      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "to": "tools/shared-code/scripts/namespace-worker-vars.mjs",
-      "source_identity": "1f:9f8330ad5af242411ae6db4623172c0eef376764f33aa8076d3510c2f8ff6a4b",
-      "identity": "1f:9f8330ad5af242411ae6db4623172c0eef376764f33aa8076d3510c2f8ff6a4b",
-      "reused": true
-    },
-    {
       "from": "src/agent-delivery.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/shared-code/src/agent-delivery.mjs",
@@ -996,13 +967,6 @@
       "source_identity": "1f:4676ecca7d1bd96de63093abb58db7c777f91cc20dbc4c04229f35ce6ef35cdd",
       "identity": "1f:b572392e334f94e31c6d54a12dc91a02f487420cf56851fde37114c2cadc75d9",
       "adapted": "the four tests of the pure moment parts are the old ones; the fifteen that made arrivals through old src/inbound.mjs and the starting rules (src/automations.mjs) are left out: neither runs anywhere."
-    },
-    {
-      "from": "test/namespace-worker-vars.test.mjs",
-      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "to": "tools/shared-code/test/namespace-worker-vars.test.mjs",
-      "source_identity": "1f:13b2003e30758544eeadca881d2940e6d10307f575096ad6ce67bbf646edc290",
-      "identity": "1f:13b2003e30758544eeadca881d2940e6d10307f575096ad6ce67bbf646edc290"
     },
     {
       "from": "test/new-work-seen-worker.test.mjs",

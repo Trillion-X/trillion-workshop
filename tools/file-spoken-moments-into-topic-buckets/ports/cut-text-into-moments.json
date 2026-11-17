@@ -39,7 +39,7 @@
  "preserve": [
   "a transcript of fewer than three words is skipped",
   "identical transcript texts (by a 16-byte blake2b of the text) are cut once; the copies are named in duplicates",
-  "a transcript's source is b2 or r2 by its file's origin in the store (alias first, else the 1f: identity of the same hash), else drive-only",
+  "a transcript's source is the id of its file's origin row in the store (alias first, else the 1f: identity of the same hash), else drive-only",
   "the text is cut at sentence ends into moments of at most 120 words, and each moment's place is estimated from its share of the characters: frac_start, frac_end, and est_start, est_end when the duration is known",
   "each moment keeps the transcript's name, path, media kind and duration from its library entry and facts",
   "the coverage: moments per source, distinct transcripts per source and media kind, and hours of media with known duration"

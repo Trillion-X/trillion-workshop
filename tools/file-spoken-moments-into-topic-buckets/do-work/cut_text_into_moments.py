@@ -7,7 +7,7 @@ Reads a cloud-results sqlite copy read only (table results: identity, kind, valu
 {name, path, media_kind} and facts {duration}) and the person's file store for each transcript's origin: the files door's
 answer as --held {"aliases": {"<sha256>": "<identity>"}, "files": {"<identity>": {"origin"}}}, or a namespace sqlite copy
 opened read only. Writes one line per moment with
-{id, identity, name, path, media_kind, duration, source: b2|r2|drive-only, text, frac_start, frac_end,
+{id, identity, name, path, media_kind, duration, source: the id of the origin row that holds the file, or drive-only, text, frac_start, frac_end,
  est_start, est_end, timing: "estimated-from-text-position", duplicates:[identity...]}.
 Identical transcripts (raw/cleaned copies) are kept once, listing the other identities. Prints the coverage (moments per
 source, transcripts per source and media kind, hours of media with known duration), then {"result": {...}}.
@@ -82,7 +82,7 @@ def main(argv=None):
         for ident, text, dups in kept:
             h = ident.split(":", 1)[1]
             file_id = alias.get(h) or (f"1f:{h}" if f"1f:{h}" in origin else None)
-            src = {"backblaze-b2": "b2", "cloudflare-r2": "r2"}.get(origin.get(file_id), "drive-only")
+            src = origin.get(file_id) or "drive-only"    # the origin row's own id names the store
             e, dur = entry.get(ident, {}), facts.get(ident, {}).get("duration")
             parts = chunks(text)
             total = sum(len(p) for p in parts) or 1

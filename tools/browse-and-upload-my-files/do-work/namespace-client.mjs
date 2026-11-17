@@ -223,21 +223,6 @@ export function namespaceClient({ origin, control, leaseSeconds = 24 * 3600, nam
   return {
     control, lease, file, entry, sharedFile, sharedNamespaceFile, readUrl, readers, grow, keepWholeFiles,
     summary: async () => (await control('/namespace/summary')).body,
-    // Attach a store's access key (both halves held in the vault under their names) to this namespace. The service
-    // checks it with one signed request to the store before keeping it; the values never pass through this process.
-    attachStore: async ({ id, keyIdName, keySecretName, settings = null, shape = null }) => {
-      const { status, body } = await control('/namespace/origins', { method: 'POST', body: { id, ...(settings ? { settings } : {}), ...(shape ? { interface: shape } : {}) }, alsoInjected: [{ header: 'x-key-id', vaultName: keyIdName }, { header: 'x-key', vaultName: keySecretName }] });
-      if (status !== 200) throw new Error(`The namespace did not attach ${id} (${status}): ${body?.error ?? body}`);
-      return body;
-    },
-    // Hand the service the app's own key for one of its stores, kept for everyone. The request also carries a
-    // Cloudflare API token from the vault, which proves the sender runs the service; neither value passes through here.
-    keepAppStoreKey: async ({ id, keyIdName, keySecretName, ownerTokenName }) => {
-      const { status, body } = await control(`/namespace/origins/${encodeURIComponent(id)}/app-key`, { method: 'POST', body: {}, alsoInjected: [{ header: 'x-key-id', vaultName: keyIdName }, { header: 'x-key', vaultName: keySecretName }, { header: 'x-service-owner-token', vaultName: ownerTokenName }] });
-      if (status !== 200) throw new Error(`The namespace did not keep the key for ${id} (${status}): ${body?.error ?? body}`);
-      return body;
-    },
-    stores: async () => (await control('/namespace/origins')).body,
     // One page of a folder: its folders, and each name with its identity, size, modified time and whether it is stored.
     names: async (collection, { after = '', limit = 1000, signal } = {}) => {
       const { status, body } = await withControlDeadline(signal, (checked, read) => read('/namespace/listing', { method: 'POST', body: { collection, after, limit }, signal: checked }));

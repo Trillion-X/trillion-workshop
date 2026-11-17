@@ -17,19 +17,8 @@
 //      named its reading or unit size are read as the storage terms they were.
 //
 import settings from './usage-meters.json' with { type: 'json' };
-import cloudFilesOrigins from '../records/cloud-files-origins.json' with { type: 'json' };
 import { aggregateOf, measure } from 'trillion-workshop/tools/query-and-change-list-rows/src/list-aggregates.mjs';
-import { dataRows } from '../../shared-code/src/data-rows.mjs';
 
-// The package records a meter's cost may read, by record kind: gathered when a price is first asked for, so a page that
-// imports this file only for its words (a browser extension's plan title) leaves the records out of its bundle.
-let costRecords = null;
-const COST_RECORDS = () => {
-  if (costRecords) return costRecords;
-  // The storage origins' rows, under the record kind a meter names (usage-meters.json `records`).
-  costRecords = new Map([['cloud-files.origin', dataRows('storage-origin', cloudFilesOrigins)]]);
-  return costRecords;
-};
 const fill = (template, parts) => template.replace(/\{(\w+)\}/g, (_, name) => String(parts[name] ?? ''));
 const at = (value, path) => path.reduce((inner, key) => (inner == null ? undefined : inner[key]), value);
 
@@ -45,7 +34,7 @@ export const meterOf = id => settings.meters.find(meter => meter.id === id) ?? n
 
 /** The listed base rate of one unit of a meter in dollars (from the records it names, or its own unit_dollars) and its
  *  price in cents, rounded up from base rate x margin to the meter's own precision. Throws when a base rate cannot be read. */
-export function meterPrice(meter, records = COST_RECORDS()) {
+export function meterPrice(meter, records = new Map()) {
   let cost = meter.cost.unit_dollars;
   if (!Number.isFinite(cost)) {
     const values = (records.get(meter.cost.records) ?? []).map(record => Number(at(record, meter.cost.path))).filter(Number.isFinite);

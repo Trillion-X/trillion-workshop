@@ -3,7 +3,6 @@
     "agent-delivery": "src/agent-delivery.mjs",
     "agent-store-for-tests": "test/agent-store-for-tests.mjs",
     "agents": "src/agents.mjs",
-    "built-worker-folder": "scripts/built-worker-folder.mjs",
     "data-rows": "src/data-rows.mjs",
     "handoff-result-source": "src/handoff-result-source.mjs",
     "public-app-element-addresses": "src/public-app-element-addresses.mjs",
