@@ -71,9 +71,12 @@ export async function startFakeDoor({ throttleFirst = 0, retryAfter = null, file
         delete runGrants[label];
         return { structuredContent: { label, on: false, was_kept: wasKept } };
       }
-      // The engine reads no end: a sharing record that holds any field but its grant and its people is refused naming nothing kept.
-      if (!sharing || Object.keys(sharing).some(field => !['grant', 'people'].includes(field))) return refuse('original_input_refused');
-      runGrants[label] = { label, party: 'jwt:fake-owner', ...sharing };
+      // The engine keeps the person's end rule (`ends`, an object) beside the grant and reads none of it; a sharing record that
+      // holds any other field but its grant and its people is refused, keeping nothing. No kept label ends in *.
+      if (label.endsWith('*') || !sharing || Object.keys(sharing).some(field => !['grant', 'people', 'ends'].includes(field))
+        || ('ends' in sharing && (!sharing.ends || typeof sharing.ends !== 'object' || Array.isArray(sharing.ends)))) return refuse('original_input_refused');
+      const lastUse = runGrants[label] && Object.hasOwn(runGrants[label], 'last_used') ? { last_used: runGrants[label].last_used } : {};
+      runGrants[label] = { label, party: 'jwt:fake-owner', ...sharing, ...lastUse };
       return { structuredContent: { label, on: true } };
     },
     // The engine's withdraw only ever ends a grant: `{label}` removes the record and every person it names.
@@ -87,6 +90,8 @@ export async function startFakeDoor({ throttleFirst = 0, retryAfter = null, file
     'sharing.list': ({ label }) => {
       if (typeof label !== 'string' || !label) return refuse('original_input_refused');
       if (!mayGrant('sharing.list', label)) return refuse(OUTSIDE);
+      // A label ending in * lists every grant whose label starts with what comes before it.
+      if (label.endsWith('*')) return { structuredContent: { grants: Object.values(runGrants).filter(grant => grant.label.startsWith(label.slice(0, -1))) } };
       return { structuredContent: { grants: Object.hasOwn(runGrants, label) ? [runGrants[label]] : [] } };
     },
     'records:read': ({ id, type }) => {

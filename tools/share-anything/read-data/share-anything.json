@@ -6,13 +6,12 @@
   "link_principal": "link",
   "can": ["view"],
   "run": {
-    "_what": "A share that lets its people run some of the sharer's Workshop tools at the sharer's own door, with no copy on their computer (can: [\"run\"]): kept by the engine's run grant (trillion-rust src/account_rights/share-grant.json `act`) in the sharer's vault through keep_operation and read back through list_operation, at the run's own door resource, for the one label `grant` names. The grant is {tools, identity, journal}; people are {principal, key_blake3}. The engine holds no end and reads none: a share that is to end holds its end as a row of kind `end_kind` at `end_prefix` + the grant (`{grant, ends_at}`, the person's own condition), and the sweep (do-work/end-shares-whose-condition-failed.mjs, run by a wake the person switched on) withdraws the grant with withdraw_operation when its end has passed. identity and journal are the defaults a share that names neither gets.",
+    "_what": "A share that lets its people run some of the sharer's Workshop tools at the sharer's own door, with no copy on their computer (can: [\"run\"]): kept by the engine's run grant (trillion-rust src/account_rights/share-grant.json `act`) in the sharer's vault through keep_operation and read back through list_operation, at the run's own door resource, for the one label `grant` names. The grant is {tools, identity, journal}; people are {principal, key_blake3}. How long it lasts is the person's choice and by default it has no end (the owner, Nov 17 2026): the rule they give is kept as `ends` beside the grant ({until?, unused_days?, since}), which the engine keeps and never reads, and the sweep (do-work/end-shares-whose-condition-failed.mjs, run by a wake the person switched on) lists every run share with its rule and last use and withdraws one whose rule says it has ended, with withdraw_operation. check_every_ms is how often that wake runs: the engine writes a share's last use at most once an hour (share-grant.json act.use_every_seconds, 3600), so judging more often reads nothing new. identity and journal are the defaults a share that names neither gets.",
     "can": ["run"],
     "keep_operation": "sharing.keep",
     "list_operation": "sharing.list",
     "withdraw_operation": "sharing.withdraw",
-    "end_kind": "grant-end",
-    "end_prefix": "grant-end:",
+    "check_every_ms": 3600000,
     "identity": "none",
     "journal": "input",
     "identities": ["none", "self"],
@@ -43,7 +42,7 @@
     "writes_tried": 3
   },
   "words": {
-    "op": "op is share, stop or access.",
+    "op": "op is share, stop, access or end.",
     "grant": "grant is where this share is kept: {grant}.",
     "thing": "thing is one of: { type, id }, { list: <list id> }, { text, title? } or { items: [{ type, id? | prefix? }], title }.",
     "can": "A share lets people view it (can: [\"view\"]) or run the tools it names at your door (can: [\"run\"], with tools).",
@@ -52,8 +51,10 @@
     "run_link": "A share that runs tools is given to named people or AIs, each with a key of its own, never a link.",
     "run_choice": "identity is none or self, and journal is input or none.",
     "different_tools": "{label} already shares other tools. Stop it first to share these.",
-    "added_runner": "{principal} can now run {tools} at your door, with no copy on their computer, until you stop it.",
-    "until": "until must be a future time (ISO), or left out for no end.",
+    "added_runner": "{principal} can now run {tools} at your door, with no copy on their computer, until you stop it or its end rule says.",
+    "until": "until must be a future time (ISO), or left out or null for no end.",
+    "unused_days": "unused_days must be a whole number of days, 1 or more, or left out or null for no such end.",
+    "end_run_only": "Only a share that runs tools (can: [\"run\"]) takes an end rule here; a shared view takes until.",
     "origin": "origin must be a web address starting https://.",
     "principal": "A person or AI is named by 1 to {most} characters with no control characters; the name {link} is the link's.",
     "who": "Name who to share with, or ask for a link.",
@@ -69,10 +70,13 @@
     "stopped_person": "Stopped sharing {title} with {principal}.",
     "stopped_all": "Stopped sharing {title} with everyone.",
     "ends": "It ends {until}.",
-    "swept": "Ended {ended} shares whose time had passed; {waiting} are still waiting for theirs.",
-    "sweep_nothing": "No share has an end that has passed; {waiting} are waiting for theirs.",
+    "ends_unused": "It ends after {days} days with no use.",
+    "no_end": "It has no end: it stands until you stop it.",
+    "swept": "Ended {ended} shares whose end rule said so; {waiting} have a rule whose end has not come, and {never} have no end.",
+    "sweep_nothing": "No share's end rule says it has ended; {waiting} have a rule whose end has not come, and {never} have no end.",
     "open": "Open",
     "stopped": "Stopped",
-    "ended": "Ended"
+    "ended": "Ended",
+    "unjudged": "{count} shares have no last use the engine answers, so only their until is read."
   }
 }

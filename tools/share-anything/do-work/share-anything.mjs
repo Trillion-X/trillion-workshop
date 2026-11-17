@@ -2,17 +2,20 @@
 //
 // Purpose: The one sharing tool (`tool:share-anything`): share anything of the person's, from one record or one piece of text to a
 // list, a whole collection of records, with a named person, an AI, or anyone holding a link, read-only; or let named people and AIs
-// run some of the person's Workshop tools at the person's own door, with no copy on their computer, until a time or until stopped;
-// show who has access; and stop it. It makes the share and keeps it, and nothing else: the engine reads exactly what a share names
-// (trillion-rust src/account_rights/share_grant.rs) each time someone presents a key.
+// run some of the person's Workshop tools at the person's own door, with no copy on their computer, until stopped or until the
+// end rule the person gives says (none by default); show who has access; change when a run share ends; and stop it. It makes
+// the share and keeps it, and nothing else: the engine reads exactly what a share names (trillion-rust
+// src/account_rights/share_grant.rs) each time someone presents a key.
 //
-//   shareAnything(input, { door })   input { op: "share" | "stop" | "access", grant, thing?, with?, link?, can?, until?, origin?,
-//                                     principal?, now? }; the one export the row runs.
+//   shareAnything(input, { door })   input { op: "share" | "stop" | "access" | "end", grant, thing?, with?, link?, can?, until?,
+//                                     unused_days?, origin?, principal?, now? }; the one export the row runs.
 //
-// A run share holds no end in the engine, which reads none: its end is the sharer's own condition, a row of kind data.run.end_kind
-// at data.run.end_prefix + the grant, `{ grant, unused_days, since, ends_at? }`, written before the grant is kept with the default
-// of read-data/access-ends-when-unused.json (unused for 90 days) and `until` as `ends_at`; the sweep (end-shares-whose-condition-
-// failed.mjs), which a wake the sharer switched on runs, withdraws the grant when the end has passed. Decision case
+// How long a run share lasts is the person's choice, and by default it has no end (the owner, Nov 17 2026). The end rule the
+// person gives (`until`, a future time, and/or `unused_days`, whole days with no use) is kept as `ends` beside the grant in the
+// engine's own keep ({ until?, unused_days?, since }, `since` the time the rule was set); the engine keeps it and reads none of it.
+// `op: "end"` sets a run share's rule again (neither given: it never ends), and a later share to more people keeps the rule it
+// has unless it gives a new one. The sweep (end-shares-whose-condition-failed.mjs), which a wake the person switched on runs,
+// lists the shares with their rules and last uses and withdraws one whose rule says it has ended. Decision case
 // source:bm8tZ3JhbnQtY29uZGl0aW9uLWluLWVuZ2luZS1jb2RlOndoZXJlLWNvbmRpdGlvbnMtbGl2ZS0yMDI2LTExLTE2.
 //
 // A share is the sharer's own workspace record at `grant` (record_prefix + the thing's label, read-data/share-label.mjs):
@@ -46,7 +49,6 @@
 // You are forbidden from simplifying or removing it. Maintain and extend this detail.
 import { randomBytes, randomUUID } from 'node:crypto';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
-import { conditionOf, ended as endedRecords } from '../read-data/access-ends-when-unused.mjs';
 import data from '../read-data/share-anything.json' with { type: 'json' };
 import { grantOf, labelOf, listRecordId, reachOf, shapeOf } from '../read-data/share-label.mjs';
 
@@ -257,12 +259,24 @@ async function readRun(door, grant) {
   return Array.isArray(grants) && object(grants[0]) ? grants[0] : null;
 }
 
-const endIdOf = grant => `${runs.end_prefix}${grant}`;
-/** The end a run share holds as its sharer's own condition row, an ISO time, or null when it holds none. */
-async function endHeld(door, grant) {
-  const held = await door.read(runs.end_kind, endIdOf(grant));
-  return object(held) && typeof held.ends_at === 'string' ? held.ends_at : null;
+/**
+ * The end rule `input` gives a run share, kept as `ends`: { until?, unused_days?, since } with `since` the time it is set, null
+ * when it gives neither (the share never ends), or undefined when it names no rule at all (a share kept again keeps its own).
+ */
+function endsOf(input, now, named = input.until !== undefined || input.unused_days !== undefined) {
+  if (!named) return undefined;
+  const until = endOf(input.until, now);
+  const days = input.unused_days;
+  if (days !== undefined && days !== null && (!Number.isInteger(days) || days < 1)) throw new Error(words.unused_days);
+  if (until === undefined && (days === undefined || days === null)) return null;
+  return { ...(until === undefined ? {} : { until }), ...(days === undefined || days === null ? {} : { unused_days: days }), since: new Date(now).toISOString() };
 }
+const untilOf = ends => (object(ends) && typeof ends.until === 'string' ? ends.until : null);
+const withEnds = (sharing, ends) => (object(ends) ? { ...sharing, ends } : sharing);
+const endsSaid = ends => [
+  ...(untilOf(ends) ? [fill(words.ends, { until: ends.until })] : []),
+  ...(object(ends) && Number.isInteger(ends.unused_days) ? [fill(words.ends_unused, { days: ends.unused_days })] : []),
+];
 
 const keepRun = (door, grant, sharing, key) => door.sharing(runs.keep_operation, { label: grant, on: true, sharing }, { key });
 const peopleKept = held => peopleOf(held).map(person => ({ principal: person.principal, key_blake3: person.key_blake3 }));
@@ -279,7 +293,7 @@ async function shareRun(input, door) {
   const journal = input.journal ?? runs.journal;
   if (!runs.identities.includes(identity) || !runs.journals.includes(journal)) throw new Error(words.run_choice);
   const now = nowOf(input);
-  const ends = endOf(input.until, now);
+  const given = endsOf(input, now);
   const named = input.with ?? [];
   if (!Array.isArray(named)) throw new Error(words.who);
   const principals = [...new Set(named.map(runPrincipalOf))];
@@ -294,26 +308,13 @@ async function shareRun(input, door) {
   }
   if (held.length + principals.length > data.most.people) throw new Error(fill(words.too_many, { most: data.most.people }));
   const keys = new Map(principals.map(principal => [principal, newKey()]));
-  // The condition row is written before the grant is kept, so a grant never stands without its row: a new grant gets the default
-  // (read-data/access-ends-when-unused.mjs) and the earlier ended record at its label is removed; a grant that stands keeps the
-  // row its person holds (edited or removed), and `until` only sets its fixed end.
-  const at = new Date(now).toISOString();
-  if (!earlier) {
-    await door.write([
-      { id: endIdOf(grant), type: runs.end_kind, value: conditionOf({ grant, at, endsAt: ends }) },
-      { id: `${endedRecords.prefix}${grant}`, type: endedRecords.kind, value: null },
-    ], { key: `${run}:end` });
-  } else if (ends !== undefined) {
-    const row = await door.read(runs.end_kind, endIdOf(grant));
-    await door.write([{ id: endIdOf(grant), type: runs.end_kind, value: { ...(object(row) ? row : { grant }), ends_at: ends } }], { key: `${run}:end` });
-  }
-  await keepRun(door, grant, { grant: asked, people: [...held, ...[...keys].map(([principal, key]) => ({ principal, key_blake3: hex(key) }))] }, run);
-  const expires_at = ends ?? await endHeld(door, grant);
-  const said = [
-    ...principals.map(principal => fill(words.added_runner, { principal, tools: asked.tools.join(', ') })),
-    ...(expires_at ? [fill(words.ends, { until: expires_at })] : []),
-  ].join(' ');
-  return { op: 'share', can: runs.can, grant, tools: asked.tools, people: principals.map(principal => ({ principal, key: keys.get(principal) })), expires_at, said };
+  // A share given no rule keeps the one it has (a new share has none, so it never ends).
+  const ends = given === undefined ? earlier?.ends : given;
+  const people = [...held, ...[...keys].map(([principal, key]) => ({ principal, key_blake3: hex(key) }))];
+  await keepRun(door, grant, withEnds({ grant: asked, people }, ends), run);
+  const said = [...principals.map(principal => fill(words.added_runner, { principal, tools: asked.tools.join(', ') })), ...endsSaid(ends)].join(' ');
+  return { op: 'share', can: runs.can, grant, tools: asked.tools, people: principals.map(principal => ({ principal, key: keys.get(principal) })),
+    ends: object(ends) ? ends : null, expires_at: untilOf(ends), said };
 }
 
 async function stopRun(input, door) {
@@ -325,35 +326,48 @@ async function stopRun(input, door) {
   const title = grant;
   if (input.principal === undefined) {
     await door.sharing(runs.keep_operation, { label: grant, on: false }, { key: run });
-    await door.write([{ id: endIdOf(grant), type: runs.end_kind, value: null }], { key: `${run}:end` });
     return { op: 'stop', can: runs.can, grant, removed: people.map(person => person.principal), said: fill(words.stopped_all, { title }) };
   }
   const principal = runPrincipalOf(input.principal);
   if (!people.some(person => person.principal === principal)) throw new Error(fill(words.not_shared_with, { label: grant, principal }));
   const left = people.filter(person => person.principal !== principal);
-  await keepRun(door, grant, { grant: earlier.grant, people: left }, run);
+  await keepRun(door, grant, withEnds({ grant: earlier.grant, people: left }, earlier.ends), run);
   return { op: 'stop', can: runs.can, grant, removed: [principal], said: fill(words.stopped_person, { title, principal }) };
 }
 
 async function accessRun(input, door) {
   const grant = runLabelOf(input);
   const held = await readRun(door, grant);
-  if (!held) return { op: 'access', can: runs.can, grant, shared: false, state: null, tools: [], people: [], expires_at: null, said: fill(words.no_share, { label: grant }) };
-  const expires_at = await endHeld(door, grant);
+  if (!held) return { op: 'access', can: runs.can, grant, shared: false, state: null, tools: [], people: [], ends: null, expires_at: null, last_used: null, said: fill(words.no_share, { label: grant }) };
+  const ends = object(held.ends) ? held.ends : null;
+  const expires_at = untilOf(ends);
   const ended = expires_at !== null && Date.parse(expires_at) <= nowOf(input);
   const state = ended ? 'ended' : 'open';
   return {
     op: 'access', can: runs.can, grant, shared: true, state, tools: held.grant?.tools ?? [], identity: held.grant?.identity, journal: held.grant?.journal,
-    people: peopleOf(held).map(person => ({ principal: person.principal, kind: 'person' })), expires_at, said: words[state],
+    people: peopleOf(held).map(person => ({ principal: person.principal, kind: 'person' })), ends, expires_at, last_used: held.last_used ?? null,
+    said: [words[state], ...(ends ? endsSaid(ends) : [words.no_end])].join(' '),
   };
 }
 
+/** Set when a run share ends: the rule `until` and/or `unused_days` give, or none (it never ends); its people and keys stay. */
+async function endRun(input, door) {
+  const grant = runLabelOf(input);
+  const earlier = await readRun(door, grant);
+  if (!earlier) throw new Error(fill(words.no_share, { label: grant }));
+  const ends = endsOf(input, nowOf(input), true);
+  await keepRun(door, grant, withEnds({ grant: earlier.grant, people: peopleKept(earlier) }, ends), randomUUID());
+  return { op: 'end', can: runs.can, grant, ends, expires_at: untilOf(ends), said: (ends ? endsSaid(ends) : [words.no_end]).join(' ') };
+}
+
 export async function shareAnything(input = {}, { door } = {}) {
-  if (!object(input) || !['share', 'stop', 'access'].includes(input.op)) throw new Error(words.op);
+  if (!object(input) || !['share', 'stop', 'access', 'end'].includes(input.op)) throw new Error(words.op);
   if (runsTools(input)) {
     if (input.op === 'share') return shareRun(input, door);
+    if (input.op === 'end') return endRun(input, door);
     return input.op === 'stop' ? stopRun(input, door) : accessRun(input, door);
   }
+  if (input.op === 'end') throw new Error(words.end_run_only);
   if (input.op === 'share') return share(input, door);
   return input.op === 'stop' ? stop(input, door) : access(input, door);
 }

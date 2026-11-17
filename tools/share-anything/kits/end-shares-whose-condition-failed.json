@@ -1,17 +1,17 @@
 {
   "drafted_from": "tool:end-shares-whose-condition-failed's own row (its words, input schema and sample run) and what its sample run answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"End the shares I let people run my tools by, once the end I gave each has passed, so none stays open past its time\", with {\"now\":\"2026-01-01T00:00:00Z\"}. It runs tool:end-shares-whose-condition-failed and answers {\"ended\":[],\"waiting\":0,\"said\":...} when no share of yours holds an end.",
+  "start_here": "Say to your AI: \"End the shares I let people run my tools by, once the end rule I gave each says so\", with {\"now\":\"2026-01-01T00:00:00Z\"}. It runs tool:end-shares-whose-condition-failed and answers {\"ended\":[],\"waiting\":0,\"never\":0,\"unjudged\":0,\"said\":...} when no share of yours is kept.",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it reads and removes only its own grant-end rows, which tool:share-anything keeps for each run share given an end.",
+  "no_lists_because": "It names no list of yours: it reads your run shares and the end rule each holds through your door's own share list, and withdraws them there.",
   "workflows": [],
   "tools": [
     "tool:end-shares-whose-condition-failed",
     "tool:share-anything"
   ],
   "instructions": [
-    "1. Share a run with an end: say \"Share it until 2026-12-01T00:00:00Z\" to tool:share-anything; it keeps a grant-end row for that share and gives the engine no end.",
+    "1. Give a run share an end rule if you want one (none by default: it stands until you stop it): say \"Share it until 2026-12-01T00:00:00Z\" or \"end it after 30 days with no use\" to tool:share-anything (op share with until or unused_days, or op end to change it later); the rule is kept beside the share and the engine reads none of it.",
     "2. Switch on this tool's wake (wake:switch, check-unused-grants), or run tool:end-shares-whose-condition-failed by hand with {} or {\"now\": an ISO time}.",
-    "3. Read what comes back: ended names each share withdrawn at your door (its grant-end row is removed), waiting counts rows whose time has not passed or names no readable time, and said states it in words."
+    "3. Read what comes back: ended names each share withdrawn at your door, waiting counts shares whose rule's end has not come (or names no readable end), never counts shares with no rule, and said states it in words."
   ],
   "worked_examples": [
     {
@@ -31,8 +31,8 @@
           }
         }
       },
-      "given": "The input {\"now\":\"2026-01-01T00:00:00Z\"} and no grant-end row kept.",
-      "hands_back": "It answered {\"ended\":[],\"waiting\":0} and said nothing was waiting to end."
+      "given": "The input {\"now\":\"2026-01-01T00:00:00Z\"} and no run share kept.",
+      "hands_back": "It answered {\"ended\":[],\"waiting\":0,\"never\":0,\"unjudged\":0} and said no share's end rule says it has ended."
     }
   ]
 }

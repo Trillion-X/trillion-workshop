@@ -207,7 +207,7 @@
         "label": "Share anything",
         "status": "active",
         "job": "Share anything of mine read-only, from one record or one piece of text to a whole list or any mix of records, with a person, an AI or anyone holding a link, or let named people and AIs run some of my tools at my door with no copy on their computer; show who has access; and stop it",
-        "description": "op share (the default job): give grant (sharing: plus the thing's label; read-data/share-label.mjs grantOf makes it, and the answer of any earlier call names it), thing (one of { type, id }, { list } for a list and all its rows, { text, title? } for a piece of text, or { items: [{ type, id? | prefix? }], title } for any mix) and who: with (a list of names of people or AIs, each given a key of its own) and/or link: true (one key anyone can hold). Optional until (a future ISO time the share ends: kept as your own condition row, ended by tool:end-shares-whose-condition-failed when you have switched its wake on, never read by the engine) and origin (https:// address that opens a link: url is then origin/share/<key>). A view share only lets people view (can: [\"view\"], the default). It keeps the share as one record of yours and answers each key once: the key itself is not kept anywhere, only a digest of it, so lose it and share again after stopping. A person or AI presents the key at your door (records:read and records:list inside what was shared) and a person opens the url in a browser. op stop: give grant, and principal to stop one person (principal \"link\" stops the link), or leave principal out to stop everyone. op access: give grant; answers who can open it now (people with when added, the link, until when, whether it is open, stopped or ended), never a key. To let people run tools instead: can [\"run\"] with grant (sharing: plus a name you choose), tools (Workshop tool ids, tool:...), with (names of people or AIs: letters, digits, _ or -), optional until, identity (none, the default: your side learns nothing of who runs; self: the tool's input gets their name) and journal (input, the default, or none). Each person gets a key of their own, answered once; they or any MCP client of theirs present it at your door and can list and run only those tools there. op stop and op access take can [\"run\"] and grant the same way; stopping a person or everyone ends their next call.",
+        "description": "op share (the default job): give grant (sharing: plus the thing's label; read-data/share-label.mjs grantOf makes it, and the answer of any earlier call names it), thing (one of { type, id }, { list } for a list and all its rows, { text, title? } for a piece of text, or { items: [{ type, id? | prefix? }], title } for any mix) and who: with (a list of names of people or AIs, each given a key of its own) and/or link: true (one key anyone can hold). Optional until (a future ISO time the view share ends) and origin (https:// address that opens a link: url is then origin/share/<key>). A view share only lets people view (can: [\"view\"], the default). It keeps the share as one record of yours and answers each key once: the key itself is not kept anywhere, only a digest of it, so lose it and share again after stopping. A person or AI presents the key at your door (records:read and records:list inside what was shared) and a person opens the url in a browser. op stop: give grant, and principal to stop one person (principal \"link\" stops the link), or leave principal out to stop everyone. op access: give grant; answers who can open it now (people with when added, the link, until when, whether it is open, stopped or ended), never a key. To let people run tools instead: can [\"run\"] with grant (sharing: plus a name you choose), tools (Workshop tool ids, tool:...), with (names of people or AIs: letters, digits, _ or -), an optional end rule you choose (until, a future ISO time; unused_days, whole days with no use; or both, the earlier ends it; by default it has no end and stands until you stop it), identity (none, the default: your side learns nothing of who runs; self: the tool's input gets their name) and journal (input, the default, or none). Each person gets a key of their own, answered once; they or any MCP client of theirs present it at your door and can list and run only those tools there. op stop and op access take can [\"run\"] and grant the same way; stopping a person or everyone ends their next call. op end with can [\"run\"] and grant sets the end rule again (until and/or unused_days, or neither for no end), and the people keep their keys. The rule is kept beside the share and the engine never reads it: tool:end-shares-whose-condition-failed, once you switch its wake on, withdraws a share whose rule says it has ended.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -220,7 +220,8 @@
               "enum": [
                 "share",
                 "stop",
-                "access"
+                "access",
+                "end"
               ],
               "default": "share"
             },
@@ -317,7 +318,15 @@
             },
             "until": {
               "type": "string",
-              "description": "When the share ends: a future ISO time. A view share is read against it by the engine of the share; a run share keeps it as the fixed end of your own condition row that tool:end-shares-whose-condition-failed acts on. Every run share also ends after 90 days with no use, whether or not you give until."
+              "description": "When the share ends: a future ISO time. A view share is read against it by the engine of the share. A run share keeps it in its end rule (null with op end clears it); by default a run share has no end."
+            },
+            "unused_days": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 1,
+              "description": "With can [\"run\"]: the share ends after this many days with no use, each use starting the days again (null with op end clears it). No default: left out, the share has no such end."
             },
             "origin": {
               "type": "string",
@@ -472,6 +481,20 @@
                 "null"
               ]
             },
+            "ends": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "description": "A run share's end rule as kept, {until?, unused_days?, since}, or null when it has no end"
+            },
+            "last_used": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "access of a run share: when a call was last admitted under it, as the engine lists it"
+            },
             "revoked_at": {
               "type": [
                 "string",
@@ -594,21 +617,6 @@
                 "operations": [
                   "sharing.keep",
                   "sharing.list"
-                ]
-              },
-              {
-                "kind": "grant-end",
-                "prefix": "grant-end:",
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "grant-ended",
-                "prefix": "grant-ended:",
-                "operations": [
-                  "records:write"
                 ]
               }
             ]
@@ -870,7 +878,7 @@
         "label": "End shares whose condition failed",
         "status": "active",
         "job": "End the shares I let people run my tools by, once the end I gave each has passed, so none stays open past its time",
-        "description": "Reads each condition row of kind grant-end that tool:share-anything kept for a run share: every run share is given one that ends it after 90 days with no use (each use starts the days again), and your own until is its fixed end. For each row whose end has passed by this run's clock (or now, an ISO time to decide at) it withdraws that share at your door, removes the row and keeps a grant-ended record saying why, for the Connections page. The engine keeps no end and reads none: it admits a person while their share is kept, so a share ends when this withdraws it. A row with no readable end is left alone and counted as waiting; a share the engine lists with no last use is judged by its fixed end alone and counted as unjudged. Edit or remove a grant-end row and it stays so. Switch its wake on (wake:switch) and it runs about every 22 hours (a hundredth of the 90 days); run it once by hand and it does the same.",
+        "description": "Lists every share that lets people run your tools, with the end rule you gave it (if any) and when it was last used, through your door's own share list, and withdraws each whose rule says it has ended: until, a time that has passed, or unused_days, that many days with no use counted from the later of when you set the rule and its last use (each use starts the days again). A share with no rule never ends here; it stands until you stop it. The engine keeps your rule beside the share and reads none of it: it admits a person while their share is kept, so a share ends when this withdraws it. A rule it cannot read is left alone and counted as waiting; a share the engine lists with no last use is judged by its until alone and counted as unjudged. Change a rule with tool:share-anything op end and the next run acts on it. Switch its wake on (wake:switch) and it runs every hour, the grain the engine writes a last use at; run it once by hand and it does the same.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -900,6 +908,12 @@
             },
             "said": {
               "type": "string"
+            },
+            "never": {
+              "type": "integer"
+            },
+            "unjudged": {
+              "type": "integer"
             }
           }
         },
@@ -978,21 +992,6 @@
             "fd": 3,
             "rights": [
               {
-                "kind": "grant-end",
-                "prefix": "grant-end:",
-                "operations": [
-                  "records:list",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "grant-ended",
-                "prefix": "grant-ended:",
-                "operations": [
-                  "records:write"
-                ]
-              },
-              {
                 "grant": "sharing:*",
                 "operations": [
                   "sharing.withdraw",
@@ -1013,7 +1012,7 @@
         "maker": "maker:share-anything",
         "result_selector": "$.result",
         "provenance": {
-          "source": "The owner, Nov 14 to 16 2026: anything that is not one of the five core jobs is a tool and leaves the engine, and who decides that an end time; decision case source:bm8tZ3JhbnQtY29uZGl0aW9uLWluLWVuZ2luZS1jb2RlOndoZXJlLWNvbmRpdGlvbnMtbGl2ZS0yMDI2LTExLTE2 (a condition is a row the person holds and a wake they switched on withdraws the share); old trillion src/record-sharing.mjs createRecordShare expires_at"
+          "source": "The owner, Nov 14 to 16 2026: anything that is not one of the five core jobs is a tool and leaves the engine, and who decides that an end time; decision case source:bm8tZ3JhbnQtY29uZGl0aW9uLWluLWVuZ2luZS1jb2RlOndoZXJlLWNvbmRpdGlvbnMtbGl2ZS0yMDI2LTExLTE2 (a condition the person holds and a wake they switched on withdraws the share); the owner, Nov 17 2026: how long a share lasts is the person's choice, no end by default, and the person can change it; old trillion src/record-sharing.mjs createRecordShare expires_at"
         },
         "verify": [
           {
@@ -1029,7 +1028,7 @@
             "id": "check-unused-grants",
             "on": {
               "time": {
-                "every_ms": 77760000
+                "every_ms": 3600000
               }
             },
             "budget": {
