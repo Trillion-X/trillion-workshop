@@ -1,11 +1,9 @@
-// Better Auth, set up as its docs show (https://www.better-auth.com/docs): the built-in node:sqlite database, email and password,
+// Better Auth, set up as its docs show (https://www.better-auth.com/docs): the shared Postgres store (store.mjs), email and password,
 // passkey, two factor, email OTP, magic link, multi session, API keys, JWT (EdDSA), MCP (the OAuth 2.1 provider for MCP clients,
 // with Client ID Metadata Documents), device authorization, bearer (which the device docs require to use its session token) and admin (removeUser and the rest, for the users settings.json names as admins). Everything that differs per place is DATA in settings.json,
 // read from BETTER_AUTH_SETTINGS (default ./settings.json); the secret comes from BETTER_AUTH_SECRET.
 
-import { mkdirSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
+import { resolve } from 'node:path';
 import { betterAuth } from 'better-auth';
 import { APIError, createAuthMiddleware } from 'better-auth/api';
 import {
@@ -20,12 +18,12 @@ import { emailHook } from './send-email.mjs';
 import { cookieOptions } from './cookie-options.mjs';
 import { trustedOriginsFor } from './attached-origins.mjs';
 import { readSettings } from './settings.mjs';
+import { storePool } from './store.mjs';
 
 const read = readSettings();
 export const settings = read.settings;
 const here = read.here;
-const databasePath = resolve(here, settings.database_path);
-mkdirSync(dirname(databasePath), { recursive: true });
+export const pool = storePool(settings);
 const deliver = emailHook({ ...settings.email, outbox: resolve(here, settings.email.outbox) });
 
 // Better Auth waits for a send but only logs its failure ("Failed to run background task"), so the answer would still say the
@@ -58,7 +56,7 @@ async function clearWhatWasNotProven(ctx) {
 export const auth = betterAuth({
   baseURL: settings.base_url,
   basePath: settings.base_path,
-  database: new DatabaseSync(databasePath),
+  database: pool,
   // The home origins, and every verified attached origin at request time (attached-origins.mjs).
   trustedOrigins: trustedOriginsFor(settings),
   disabledPaths: settings.disabled_paths,
@@ -69,7 +67,9 @@ export const auth = betterAuth({
     // A person changes their address behind a recent sign-in: a link to the current address approves it, a link to the new one proves it.
     changeEmail: { enabled: true, sendChangeEmailConfirmation: async ({ user, newEmail, url, token }) => { await sendEmail({ kind: 'change-email', to: user.email, newEmail, url, token }); } },
   },
-  session: { freshAge: settings.session.fresh_age_seconds },
+  // The signed session cookie answers a read for cookie_cache_seconds without a store read; the store stays the authority for
+  // revocation, so a signed-out session is refused by the engine's standing check at once and by this tool when the cache ends.
+  session: { freshAge: settings.session.fresh_age_seconds, cookieCache: { enabled: true, maxAge: settings.session.cookie_cache_seconds, strategy: 'compact' } },
   rateLimit: { enabled: settings.rate_limit.enabled },
   // A message that did not go is an error the page shows ("The code could not be sent just now"), never a promise that it is on its
   // way, so every send is awaited (Better Auth's documented cost: the answer waits for the mail command).

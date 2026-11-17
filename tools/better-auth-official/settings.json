@@ -4,7 +4,11 @@
   "base_path": "/api/auth",
   "issuer": "http://localhost:8792",
   "audience": "http://localhost:8792",
-  "database_path": "data/better-auth.db",
+  "store": {
+    "credential": "sign-in-store-connection",
+    "env": "BETTER_AUTH_STORE_CONNECTION",
+    "pool_size": 10
+  },
   "session_cookie_name": "__Host-trillion_session",
   "passkey": {
     "rp_id": "localhost",
@@ -89,7 +93,8 @@
     "expires_in_seconds": 86400
   },
   "session": {
-    "fresh_age_seconds": 600
+    "fresh_age_seconds": 600,
+    "cookie_cache_seconds": 300
   },
   "email_password": {
     "require_verification": true

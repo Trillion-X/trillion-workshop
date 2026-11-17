@@ -9,15 +9,20 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { startStore } from '../test-fixtures/embedded-store.mjs';
 
 const dir = mkdtempSync(join(tmpdir(), 'admin-remove-user-'));
 const shipped = JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8'));
-const settings = { ...shipped, database_path: 'auth.db', email_password: { require_verification: false }, disabled_paths: [], email: { outbox: 'outbox.jsonl', command: null } };
+const settings = { ...shipped, email_password: { require_verification: false }, disabled_paths: [], email: { outbox: 'outbox.jsonl', command: null } };
 const settingsFile = join(dir, 'settings.json');
 writeFileSync(settingsFile, JSON.stringify(settings));
 process.env.BETTER_AUTH_SETTINGS = settingsFile;
+const store = await startStore();
+process.env.BETTER_AUTH_STORE_CONNECTION = await store.database();
 process.env.BETTER_AUTH_SECRET = 'a-scratch-secret-for-this-test-only-0123456789';
-const { auth: unnamed } = await import('../auth.mjs');
+const { auth: unnamed, pool } = await import('../auth.mjs');
+store.hold(pool);
+test.after(() => store.stop());
 const { getMigrations } = await import('better-auth/db/migration');
 await (await getMigrations(unnamed.options)).runMigrations();
 
@@ -51,7 +56,8 @@ test('a signed-in person the settings do not name as admin is refused and the us
 
 test('an admin the settings name removes the user and no other', async () => {
   writeFileSync(settingsFile, JSON.stringify({ ...settings, admin: { user_ids: [operator.id] } }));
-  const { auth: named } = await import('../auth.mjs?admin-named');
+  const { auth: named, pool: namedPool } = await import('../auth.mjs?admin-named');
+  store.hold(namedPool);
   const token = await signIn(named, 'operator@example.test');
   const removed = await post(named, '/admin/remove-user', { userId: target.id }, token);
   assert.equal(removed.status, 200);

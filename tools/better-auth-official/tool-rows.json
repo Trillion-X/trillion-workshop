@@ -9,7 +9,7 @@
         "id": "tool:run-official-better-auth",
         "label": "Run the official Better Auth sign-in server (runs on your computer)",
         "job": "Start official Better Auth: email and password, passkeys, two factor, email codes, magic links, API keys, JWTs, and the OAuth server MCP clients sign in through",
-        "description": "Starts official Better Auth (the TypeScript library, set up as https://www.better-auth.com/docs shows) on node with the built-in node:sqlite database. Plugins: email and password with password reset, passkey, two factor (TOTP and backup codes), email OTP, magic link, multi session, API keys, JWT (EdDSA, keys at {base_path}/jwks), MCP (the OAuth 2.1 authorization server for MCP clients, with Client ID Metadata Documents; discovery at /.well-known/oauth-authorization-server and /.well-known/oauth-protected-resource) device authorization, and bearer (so a device's session token works as Authorization: Bearer, as the device docs require). MCP access tokens are EdDSA JWTs with header typ at+jwt, the JWKS kid, and aud naming settings.json mcp.resource (the MCP door's address). As the JWT docs require with MCP, settings.json disabled_paths turns off the session /token route by default; OAuth clients get tokens from {base_path}/oauth2/token. Port, base URL, issuer, audience, passkey relying party, trusted origins, MCP resource and pages, the SQLite file, the session cookie name (__Host-trillion_session) and where email goes are all in settings.json; the secret comes from BETTER_AUTH_SECRET and is never printed.",
+        "description": "Starts official Better Auth (the TypeScript library, set up as https://www.better-auth.com/docs shows) on node with a shared Postgres store (Better Auth's Kysely PostgreSQL adapter), so any number of these processes serve one sign-in. Plugins: email and password with password reset, passkey, two factor (TOTP and backup codes), email OTP, magic link, multi session, API keys, JWT (EdDSA, keys at {base_path}/jwks), MCP (the OAuth 2.1 authorization server for MCP clients, with Client ID Metadata Documents; discovery at /.well-known/oauth-authorization-server and /.well-known/oauth-protected-resource) device authorization, and bearer (so a device's session token works as Authorization: Bearer, as the device docs require). MCP access tokens are EdDSA JWTs with header typ at+jwt, the JWKS kid, and aud naming settings.json mcp.resource (the MCP door's address). As the JWT docs require with MCP, settings.json disabled_paths turns off the session /token route by default; OAuth clients get tokens from {base_path}/oauth2/token. Port, base URL, issuer, audience, passkey relying party, trusted origins, MCP resource and pages, the SQLite file, the session cookie name (__Host-trillion_session) and where email goes are all in settings.json; the secret comes from BETTER_AUTH_SECRET and is never printed.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -31,12 +31,13 @@
             "git clone https://github.com/Trillion-X/trillion-workshop.git",
             "npm ci --prefix trillion-workshop/tools/better-auth-official"
           ],
-          "run": "cd trillion-workshop/tools/better-auth-official && BETTER_AUTH_SETTINGS={settings} npx auth migrate --config auth.mjs -y && BETTER_AUTH_SETTINGS={settings} node server.mjs",
+          "run": "cd trillion-workshop/tools/better-auth-official && BETTER_AUTH_SETTINGS={settings} node server.mjs",
           "needs": [
-            "node 22.13 or newer (node:sqlite without a flag)",
-            "BETTER_AUTH_SECRET in the environment: a random secret of at least 32 characters"
+            "node 22.13 or newer",
+            "BETTER_AUTH_SECRET in the environment: a random secret of at least 32 characters",
+            "BETTER_AUTH_STORE_CONNECTION in the environment: the connection string of the Postgres store, handed over under the credential settings.json store.credential names"
           ],
-          "say": "This runs on any computer that serves an account, the person's own or a rented place: the same clone, npm ci and run work on each. Set BETTER_AUTH_SECRET from the vault by name (never print it), edit tools/better-auth-official/settings.json for the port, issuer, passkey origin, MCP resource, database file and email, then run `run`; the migrate step creates or updates the tables the Better Auth CLI generates (schema.sql). Check GET {base_url}{base_path}/ok. Email (password reset, codes, magic links) goes to settings.json email.command as JSON on stdin, or to the email.outbox file when no command is set."
+          "say": "This runs on any computer that serves an account, the person's own or a rented place: the same clone, npm ci and run work on each. Set BETTER_AUTH_SECRET from the vault by name (never print it), edit tools/better-auth-official/settings.json for the port, issuer, passkey origin, MCP resource, store and email, then run `run`; every start creates or updates the tables the Better Auth CLI generates (schema.sql) in the store, one process at a time. Check GET {base_url}{base_path}/ok. Email (password reset, codes, magic links) goes to settings.json email.command as JSON on stdin, or to the email.outbox file when no command is set."
         },
         "maker": "maker:better-auth",
         "licence_class": "licence:maker-own",
@@ -45,7 +46,7 @@
           "placement:caller-sandbox"
         ],
         "provenance": {
-          "source": "better-auth 1.7.25 with @better-auth/passkey, @better-auth/api-key, @better-auth/mcp and @better-auth/cimd 1.7.25, configured from the docs pages for installation, the Node integration, the SQLite adapter (node:sqlite), email and password, and the passkey, two-factor, email-otp, magic-link, multi-session, api-key, jwt (OAuth Provider Mode), mcp, cimd device-authorization and bearer plugins; schema.sql from `auth generate`"
+          "source": "better-auth 1.7.25 with @better-auth/passkey, @better-auth/api-key, @better-auth/mcp and @better-auth/cimd 1.7.25, configured from the docs pages for installation, the Node integration, the PostgreSQL adapter, email and password, and the passkey, two-factor, email-otp, magic-link, multi-session, api-key, jwt (OAuth Provider Mode), mcp, cimd device-authorization and bearer plugins; schema.sql from `auth generate`"
         }
       }
     }

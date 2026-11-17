@@ -1,8 +1,8 @@
 # Better Auth (official)
 
 Official [Better Auth](https://www.better-auth.com/docs) (TypeScript, `better-auth` 1.7.25), set up as its docs show: the Node
-integration (`toNodeHandler`), the built-in `node:sqlite` database, and the schema the Better Auth CLI generates
-(`schema.sql`, from `npx auth generate --config auth.mjs`). No custom auth code.
+integration (`toNodeHandler`), the shared Postgres store below through Better Auth's Kysely PostgreSQL adapter, and the schema the Better Auth
+CLI generates (`schema.sql`, from `npx auth generate --config auth.mjs` on a database). No custom auth code.
 
 Plugins: email and password (with `sendResetPassword`), passkey, two factor (TOTP and backup codes), email OTP, magic link,
 multi session, API key, JWT (EdDSA, `/api/auth/jwks`), MCP (the OAuth 2.1 authorization server MCP clients connect through,
@@ -14,16 +14,33 @@ cookie is `__Host-trillion_session`.
 
     npm ci
     export BETTER_AUTH_SECRET=<random, 32+ characters>      # from the vault, never printed
-    npx auth migrate --config auth.mjs -y
+    export BETTER_AUTH_STORE_CONNECTION=<postgres connection string>   # the credential settings.json store.credential names
     node server.mjs                                          # BETTER_AUTH_SETTINGS=<file> for another settings file
+
+## The store
+
+Every Better Auth process of a sign-in shares one Postgres database (users, passkeys, the one-time passkey challenge, email-code and
+authorization-code rows, sessions, grants, and the `jwks` signing keys, whose private halves Better Auth encrypts with
+`BETTER_AUTH_SECRET`), so a passkey sign-in asked on one process finishes on another, and a code, an authorization code or a refresh
+token works once whichever process is asked (test/store-shared-by-processes.test.mjs runs two processes on one store and proves each).
+settings.json `store` names the credential (`credential`) and the environment variable (`env`) the engine or the unit hands the process
+it under, and the pool size; this tool never reads a vault. `store.mjs` makes the pool and, at every start, makes or updates Better
+Auth's tables for the options that process runs, holding an advisory lock so processes starting together do it one at a time
+(`schema.sql` is what `npx auth generate` writes for them). `session.cookie_cache_seconds` is how long a signed session cookie answers
+without a store read; the store stays the authority for revocation.
+
+`migrate-sqlite-to-postgres.mjs <better-auth.db>` is the one-time move from the old SQLite file: every table, every id, the jwks keys
+byte for byte, read back before it commits, refused when the store already holds a user (test/store-migration.test.mjs). Run it with the
+tool stopped on a copy of the file made when nothing was writing. The tests run on a real Postgres (the embedded-postgres package,
+test-fixtures/embedded-store.mjs), with no install and no sudo.
 
 ## settings.json
 
-`port`, `base_url`, `base_path`, `issuer`, `audience`, `database_path`, `session_cookie_name`, `api_key` (`prefix`, `rate_limit` in the plugin's own `rateLimit` shape, `default_permissions`: the scope names a new key reaches, `{"trillion": [names]}`, none by default), `internal` (`host`, `port`, `verify_path`), `passkey` (`rp_id`, `rp_name`),
+`port`, `base_url`, `base_path`, `issuer`, `audience`, `store` (`credential`, `env`, `pool_size`), `session_cookie_name`, `api_key` (`prefix`, `rate_limit` in the plugin's own `rateLimit` shape, `default_permissions`: the scope names a new key reaches, `{"trillion": [names]}`, none by default), `internal` (`host`, `port`, `verify_path`), `passkey` (`rp_id`, `rp_name`),
 `trusted_origins`, `attached_origins` (`ask_url`, `cache_ms`, `related_url`), `two_factor_issuer`, `mcp` (`login_page`, `consent_page`, `resource`, `scopes`: what a client may ask for, `resource_scopes`: what the MCP resource allows), `disabled_paths`, `device` (`verification_uri`), `admin` (`user_ids`: the users the admin plugin treats as admins, its `adminUserIds`; none by default), `delete_user` (`enabled`: Better Auth's `user.deleteUser`, so a signed-in person may delete their own user; false by default) and
 `email` (`command`, an argv that gets each message as JSON on stdin, or `outbox`, a file each message is appended to).
 
-`email_code` (`digits`, `expires_in_seconds`, `attempts`, `sends_per_window`, `window_seconds`: the email code the pages tell people about), `email_password` (`require_verification`: a password signs in only after its address is proven), `add_passkey_link` (`expires_in_seconds`: the one-time link that adds a passkey on another device), `session` (`fresh_age_seconds`: how recent a sign-in adding a passkey or changing an email needs) and `rate_limit` (`enabled`).
+`email_code` (`digits`, `expires_in_seconds`, `attempts`, `sends_per_window`, `window_seconds`: the email code the pages tell people about), `email_password` (`require_verification`: a password signs in only after its address is proven), `add_passkey_link` (`expires_in_seconds`: the one-time link that adds a passkey on another device), `session` (`fresh_age_seconds`: how recent a sign-in adding a passkey or changing an email needs; `cookie_cache_seconds`: how long a signed session cookie answers without a store read) and `rate_limit` (`enabled`).
 
 `disabled_paths` is `["/token"]`: the JWT docs' OAuth Provider Mode says to turn off the session JWT route when MCP is on,
 because session JWTs share the access tokens' signing key. OAuth and MCP clients get tokens from `/api/auth/oauth2/token`.
@@ -46,7 +63,7 @@ sessions and accounts; the tables whose `userId` references the user with `on de
 session, 403 for anyone else); an admin cannot remove themself. An admin needs no device: a user made with email and
 password signs in with them, and once the computer's layout row names its id under `admin.user_ids` and the computer is
 started again, its session removes users. The plugin's columns (`user.role`, `banned`, `banReason`, `banExpires`,
-`session.impersonatedBy`) are in `schema.sql` and are added by `npx auth migrate`, which every start runs.
+`session.impersonatedBy`) are in `schema.sql` and are added by the migration every start runs (store.mjs).
 test/admin-remove-user.test.mjs proves the refusals and one removal that leaves every other user.
 
 With `delete_user.enabled` true, a signed-in person deletes their own user with `POST /api/auth/delete-user {"password"}`

@@ -9,15 +9,20 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { startStore } from '../test-fixtures/embedded-store.mjs';
 
 const dir = mkdtempSync(join(tmpdir(), 'delete-user-'));
 const shipped = JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8'));
-const settings = { ...shipped, database_path: 'auth.db', email_password: { require_verification: false }, disabled_paths: [], email: { outbox: 'outbox.jsonl', command: null } };
+const settings = { ...shipped, email_password: { require_verification: false }, disabled_paths: [], email: { outbox: 'outbox.jsonl', command: null } };
 const settingsFile = join(dir, 'settings.json');
 writeFileSync(settingsFile, JSON.stringify(settings));
 process.env.BETTER_AUTH_SETTINGS = settingsFile;
+const store = await startStore();
+process.env.BETTER_AUTH_STORE_CONNECTION = await store.database();
 process.env.BETTER_AUTH_SECRET = 'a-scratch-secret-for-this-test-only-0123456789';
-const { auth: off } = await import('../auth.mjs');
+const { auth: off, pool } = await import('../auth.mjs');
+store.hold(pool);
+test.after(() => store.stop());
 const { getMigrations } = await import('better-auth/db/migration');
 await (await getMigrations(off.options)).runMigrations();
 
@@ -44,7 +49,8 @@ test('as shipped, deleting one\'s own user answers 404 and the user stays', asyn
 
 test('turned on, a person deletes their own user with their password and no other user', async () => {
   writeFileSync(settingsFile, JSON.stringify({ ...settings, delete_user: { enabled: true } }));
-  const { auth: on } = await import('../auth.mjs?delete-user-on');
+  const { auth: on, pool: onPool } = await import('../auth.mjs?delete-user-on');
+  store.hold(onPool);
   const token = await signIn(on, 'leaving@example.test');
   assert.equal((await post(on, '/delete-user', { password: 'not-the-password-1' }, token)).status, 400);
   assert.ok(await userOf(on, 'leaving@example.test'));

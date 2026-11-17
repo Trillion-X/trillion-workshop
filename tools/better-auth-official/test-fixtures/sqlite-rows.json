@@ -1,0 +1,272 @@
+{
+ "user": [
+  {
+   "id": "VFAP9yW4T8CR04PfWGzbz6kvx3uVYMbv",
+   "name": "Fx",
+   "email": "fx@example.test",
+   "emailVerified": 0,
+   "image": null,
+   "createdAt": "2026-11-17T04:43:29.095Z",
+   "updatedAt": "2026-11-17T04:43:29.095Z",
+   "twoFactorEnabled": 0,
+   "role": "user",
+   "banned": 0,
+   "banReason": null,
+   "banExpires": null
+  }
+ ],
+ "session": [
+  {
+   "id": "uTxDYsjHfexz1AEIF9uwwl04AXLDNzFT",
+   "expiresAt": "2026-11-24T04:43:29.097Z",
+   "token": "ksXrlMMfPuWmAf8kMb7yvsmOlLvrUHjv",
+   "createdAt": "2026-11-17T04:43:29.097Z",
+   "updatedAt": "2026-11-17T04:43:29.097Z",
+   "ipAddress": "",
+   "userAgent": "",
+   "userId": "VFAP9yW4T8CR04PfWGzbz6kvx3uVYMbv",
+   "impersonatedBy": null
+  }
+ ],
+ "account": [
+  {
+   "id": "nJoalsKnOKo7x9zpsxcbzQvpsVsdQyjp",
+   "accountId": "VFAP9yW4T8CR04PfWGzbz6kvx3uVYMbv",
+   "providerId": "credential",
+   "userId": "VFAP9yW4T8CR04PfWGzbz6kvx3uVYMbv",
+   "accessToken": null,
+   "refreshToken": null,
+   "idToken": null,
+   "accessTokenExpiresAt": null,
+   "refreshTokenExpiresAt": null,
+   "scope": null,
+   "password": "dce6caba916b88b33b0c460772dc56ba:2c3a649744ff922000a528922363ad872ce9e396bfe5f5a262714a111d916a348e59a670d87980b4233c9e5bac5080107475675b16376702f3b18c1114db2ab1",
+   "createdAt": "2026-11-17T04:43:29.097Z",
+   "updatedAt": "2026-11-17T04:43:29.097Z"
+  }
+ ],
+ "verification": [
+  {
+   "id": "ver-1",
+   "identifier": "sign-in-otp-fx@example.test",
+   "value": "123456:0",
+   "expiresAt": "2026-11-17T05:00:00.000Z",
+   "createdAt": "2026-11-17T04:50:00.000Z",
+   "updatedAt": "2026-11-17T04:50:00.000Z"
+  }
+ ],
+ "passkey": [
+  {
+   "id": "pk-1",
+   "name": "Fixture key",
+   "publicKey": "pQECAyYgASFYIA==",
+   "userId": "VFAP9yW4T8CR04PfWGzbz6kvx3uVYMbv",
+   "credentialID": "Y3JlZC0x",
+   "counter": 7,
+   "deviceType": "multiDevice",
+   "backedUp": 1,
+   "transports": "internal,hybrid",
+   "createdAt": "2026-11-10T12:00:00.000Z",
+   "aaguid": null
+  }
+ ],
+ "twoFactor": [
+  {
+   "id": "FZ00SDs9tOS86YJG4PUSpHF5Zl2Z8FAL",
+   "secret": "88eb70db963358b4b17583ccefe7d3b36d98c5db7ddfdb82542745dfbcc1eb61f4c01bda6f724017e28789c74cf59136a4f69593f3a6c3d96d6594efe5efb7873ce2d127c035bfc4",
+   "backupCodes": "1e69a8ea19590229f153d2979ea79c7671ed0ab56f3a74eb57014aff14b845642a460543adfa42cbe5beec1561c48da541fe7b12061164231bcbd072c28e969c0c5a33fc43e51236e7f459a770816133878a2a4f2cdc50058d4305bfc06971a2238efa4c998abff36628a8ab0b072ff029406af38d42ee12b569c81fb795a36088cdd64a6e978ab082e9746d665d9be911d4cb609939c8c35f11eb86e58df15cce13919822cbcdeac27aa5b195e2f58ed2afb1e3d7",
+   "userId": "VFAP9yW4T8CR04PfWGzbz6kvx3uVYMbv",
+   "verified": 0,
+   "failedVerificationCount": 0,
+   "lockedUntil": null
+  }
+ ],
+ "apikey": [
+  {
+   "id": "Um3r8EYhMaHDyF2jEbe9C7ECZblsvYTa",
+   "configId": "default",
+   "name": "k",
+   "start": "tr_Anz",
+   "referenceId": "VFAP9yW4T8CR04PfWGzbz6kvx3uVYMbv",
+   "prefix": "tr_",
+   "key": "YR_7D-ZtBrXsNX7UQv41VFQthNKCkuxqgtF--rYYSpI",
+   "refillInterval": null,
+   "refillAmount": null,
+   "lastRefillAt": null,
+   "enabled": 1,
+   "rateLimitEnabled": 0,
+   "rateLimitTimeWindow": 86400000,
+   "rateLimitMax": 10,
+   "requestCount": 0,
+   "remaining": null,
+   "lastRequest": null,
+   "expiresAt": null,
+   "createdAt": "2026-11-17T04:43:29.109Z",
+   "updatedAt": "2026-11-17T04:43:29.109Z",
+   "permissions": null,
+   "metadata": "null"
+  }
+ ],
+ "jwks": [
+  {
+   "id": "M9RlejbZn298fhQmFiZyLddCSoPrQ1ks",
+   "publicKey": "{\"crv\":\"Ed25519\",\"x\":\"fNYpSTDOzbZkttQNvY5Dp2IPxWngEmZvaBKBSiSMqRM\",\"kty\":\"OKP\"}",
+   "privateKey": "{\"iv\":\"a\\\"b\",\"ct\":\"line\\nbreak é中🔑\"}",
+   "createdAt": "2026-11-17T04:43:29.105Z",
+   "expiresAt": null,
+   "alg": "EdDSA",
+   "crv": "Ed25519"
+  },
+  {
+   "id": "jwk-2",
+   "publicKey": "{\"kty\":\"OKP\",\"crv\":\"Ed25519\",\"x\":\"fixture\"}",
+   "privateKey": "{\"iv\":\"a\\\"b\",\"ct\":\"line\\nbreak é中🔑\"}",
+   "createdAt": "2026-11-01T00:00:00.000Z",
+   "expiresAt": "2026-12-01T00:00:00.000Z",
+   "alg": "EdDSA",
+   "crv": "Ed25519"
+  }
+ ],
+ "oauthClient": [
+  {
+   "id": "lK3nBFibRKvCmBOfJ5Wh4tRgLEawuXOC",
+   "clientId": "RKARomsqYGNQMTeRPnROqtQYasDPylne",
+   "clientSecret": null,
+   "clientDiscoveryId": null,
+   "disabled": 0,
+   "skipConsent": null,
+   "enableEndSession": null,
+   "subjectType": null,
+   "scopes": null,
+   "clientCredentialsScopes": "[]",
+   "userId": "VFAP9yW4T8CR04PfWGzbz6kvx3uVYMbv",
+   "createdAt": "2026-11-17T04:43:29.000Z",
+   "updatedAt": "2026-11-17T04:43:29.000Z",
+   "name": "AI",
+   "uri": null,
+   "icon": null,
+   "contacts": null,
+   "tos": null,
+   "policy": null,
+   "softwareId": null,
+   "softwareVersion": null,
+   "softwareStatement": null,
+   "redirectUris": "[\"http://127.0.0.1:9/cb\"]",
+   "postLogoutRedirectUris": null,
+   "backchannelLogoutUri": null,
+   "backchannelLogoutSessionRequired": null,
+   "tokenEndpointAuthMethod": "none",
+   "applicationType": "native",
+   "jwks": null,
+   "jwksUri": null,
+   "grantTypes": "[\"authorization_code\"]",
+   "responseTypes": "[\"code\"]",
+   "requirePKCE": null,
+   "dpopBoundAccessTokens": 0,
+   "referenceId": null,
+   "metadata": null
+  }
+ ],
+ "oauthResource": [
+  {
+   "id": "31CJoQDxHZTqVhRIEZAYT7J4w88ArMoh",
+   "identifier": "http://localhost:8792/mcp",
+   "name": "http://localhost:8792/mcp",
+   "accessTokenTtl": null,
+   "refreshTokenTtl": null,
+   "signingAlgorithm": null,
+   "signingKeyId": null,
+   "allowedScopes": "[\"records\",\"tools\",\"account\",\"vault\",\"namespace-read\"]",
+   "customClaims": "null",
+   "dpopBoundAccessTokensRequired": 0,
+   "disabled": 0,
+   "createdAt": "2026-11-17T04:43:29.157Z",
+   "updatedAt": "2026-11-17T04:43:29.157Z",
+   "policyVersion": 1,
+   "metadata": "null"
+  }
+ ],
+ "oauthClientResource": [
+  {
+   "id": "WPMWolWrpfM9cjENQIqO03S3UGMB6LSo",
+   "clientId": "RKARomsqYGNQMTeRPnROqtQYasDPylne",
+   "resourceId": "http://localhost:8792/mcp",
+   "metadata": null,
+   "createdAt": "2026-11-17T04:43:29.158Z"
+  }
+ ],
+ "oauthRefreshToken": [
+  {
+   "id": "rt-1",
+   "token": "refresh-token-1",
+   "clientId": "RKARomsqYGNQMTeRPnROqtQYasDPylne",
+   "sessionId": "uTxDYsjHfexz1AEIF9uwwl04AXLDNzFT",
+   "userId": "VFAP9yW4T8CR04PfWGzbz6kvx3uVYMbv",
+   "referenceId": null,
+   "authorizationCodeId": null,
+   "resources": "[\"http://localhost:8792/mcp\"]",
+   "requestedUserInfoClaims": null,
+   "expiresAt": "2026-12-17T04:50:00.000Z",
+   "createdAt": "2026-11-17T04:50:00.000Z",
+   "revoked": null,
+   "rotatedAt": null,
+   "rotationReplayResponse": null,
+   "rotationReplayExpiresAt": null,
+   "authTime": "2026-11-17T04:49:00.000Z",
+   "confirmation": null,
+   "scopes": "[\"records\",\"offline_access\"]"
+  }
+ ],
+ "oauthAccessToken": [
+  {
+   "id": "at-1",
+   "token": "access-token-1",
+   "clientId": "RKARomsqYGNQMTeRPnROqtQYasDPylne",
+   "sessionId": "uTxDYsjHfexz1AEIF9uwwl04AXLDNzFT",
+   "userId": "VFAP9yW4T8CR04PfWGzbz6kvx3uVYMbv",
+   "referenceId": null,
+   "authorizationCodeId": null,
+   "resources": null,
+   "requestedUserInfoClaims": null,
+   "refreshId": "rt-1",
+   "expiresAt": "2026-11-17T05:50:00.000Z",
+   "createdAt": "2026-11-17T04:50:00.000Z",
+   "revoked": null,
+   "confirmation": null,
+   "scopes": "[\"records\"]"
+  }
+ ],
+ "oauthConsent": [
+  {
+   "id": "co-1",
+   "clientId": "RKARomsqYGNQMTeRPnROqtQYasDPylne",
+   "userId": "VFAP9yW4T8CR04PfWGzbz6kvx3uVYMbv",
+   "referenceId": null,
+   "resources": null,
+   "requestedUserInfoClaims": null,
+   "scopes": "[\"records\",\"tools\"]",
+   "createdAt": "2026-11-17T04:50:00.000Z",
+   "updatedAt": "2026-11-17T04:50:00.000Z"
+  }
+ ],
+ "oauthClientAssertion": [
+  {
+   "id": "ca-1",
+   "expiresAt": "2026-11-17T05:00:00.000Z"
+  }
+ ],
+ "deviceCode": [
+  {
+   "id": "vf2cZKZjNFEX3wKfu3faEpWhHSDHjKsI",
+   "deviceCode": "lSBA1c3zjqRAakALHxiKxNZwu2G5nxEzNq8nsuKC",
+   "userCode": "2B7G6H29",
+   "userId": null,
+   "expiresAt": "2026-11-17T05:13:29.160Z",
+   "status": "pending",
+   "lastPolledAt": null,
+   "pollingInterval": 5000,
+   "clientId": "d",
+   "scope": "records"
+  }
+ ]
+}

@@ -11,20 +11,24 @@ import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { startStore } from '../test-fixtures/embedded-store.mjs';
 
 const freePort = () => new Promise(done => { const s = createServer().listen(0, '127.0.0.1', () => { const { port } = s.address(); s.close(() => done(port)); }); });
 const dir = mkdtempSync(join(tmpdir(), 'internal-verify-'));
 const [port, internal] = [await freePort(), await freePort()];
 const base = JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8'));
-const settings = { ...base, port, base_url: `http://localhost:${port}`, issuer: `http://localhost:${port}`, audience: `http://localhost:${port}`, trusted_origins: [`http://localhost:${port}`], database_path: 'auth.db', email_password: { require_verification: false }, rate_limit: { enabled: false }, email: { outbox: 'outbox.jsonl', command: null }, internal: { ...base.internal, port: internal }, api_key: { ...base.api_key, default_permissions: { trillion: ['records', 'tools'] } } };
+const settings = { ...base, port, base_url: `http://localhost:${port}`, issuer: `http://localhost:${port}`, audience: `http://localhost:${port}`, trusted_origins: [`http://localhost:${port}`], email_password: { require_verification: false }, rate_limit: { enabled: false }, email: { outbox: 'outbox.jsonl', command: null }, internal: { ...base.internal, port: internal }, api_key: { ...base.api_key, default_permissions: { trillion: ['records', 'tools'] } } };
 writeFileSync(join(dir, 'settings.json'), JSON.stringify(settings));
-const env = { ...process.env, BETTER_AUTH_SETTINGS: join(dir, 'settings.json'), BETTER_AUTH_SECRET: 'a-scratch-secret-for-this-test-only-0123456789' };
+const store = await startStore();
+const connection = await store.database();
+const env = { ...process.env, BETTER_AUTH_STORE_CONNECTION: connection, BETTER_AUTH_SETTINGS: join(dir, 'settings.json'), BETTER_AUTH_SECRET: 'a-scratch-secret-for-this-test-only-0123456789' };
 const tool = new URL('..', import.meta.url).pathname;
-const { auth } = await (async () => { process.env.BETTER_AUTH_SETTINGS = env.BETTER_AUTH_SETTINGS; process.env.BETTER_AUTH_SECRET = env.BETTER_AUTH_SECRET; return import('../auth.mjs'); })();
+const { auth, pool } = await (async () => { process.env.BETTER_AUTH_SETTINGS = env.BETTER_AUTH_SETTINGS; process.env.BETTER_AUTH_STORE_CONNECTION = connection; process.env.BETTER_AUTH_SECRET = env.BETTER_AUTH_SECRET; return import('../auth.mjs'); })();
 const { getMigrations } = await import('better-auth/db/migration');
 await (await getMigrations(auth.options)).runMigrations();
 const server = spawn(process.execPath, [join(tool, 'server.mjs')], { env, stdio: ['ignore', 'pipe', 'inherit'] });
-test.after(() => server.kill());
+store.hold(pool);
+test.after(async () => { server.kill(); await store.stop(); });
 await new Promise(done => { setTimeout(done, 30000); server.stdout.on('data', function wait(chunk) { if (/internal/.test(String(chunk))) { server.stdout.off('data', wait); done(); } }); });
 
 const ORIGIN = settings.base_url;

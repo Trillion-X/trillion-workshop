@@ -10,20 +10,25 @@ import { mkdtempSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pageAnswer } from '../pages.mjs';
+import { startStore } from '../test-fixtures/embedded-store.mjs';
 
 const shipped = JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8'));
 process.env.BETTER_AUTH_SECRET = 'a-scratch-secret-for-this-test-only-0123456789';
 const { getMigrations } = await import('better-auth/db/migration');
+const store = await startStore();
+test.after(() => store.stop());
 let made = 0;
 let caller = 0; // each request comes from its own address, because the rate limit is kept per address for the whole process
 
 // A scratch Better Auth on the shipped settings and what a test changes, with its mail in an outbox file.
 async function scratch(overrides = {}) {
   const dir = mkdtempSync(join(tmpdir(), 'sign-in-edge-'));
-  const settings = { ...shipped, database_path: 'auth.db', disabled_paths: [], email: { outbox: 'outbox.jsonl', command: null }, ...overrides };
+  const settings = { ...shipped, disabled_paths: [], email: { outbox: 'outbox.jsonl', command: null }, ...overrides };
   writeFileSync(join(dir, 'settings.json'), JSON.stringify(settings));
   process.env.BETTER_AUTH_SETTINGS = join(dir, 'settings.json');
-  const { auth } = await import(`../auth.mjs?scratch-${made++}`);
+  process.env.BETTER_AUTH_STORE_CONNECTION = await store.database();
+  const { auth, pool } = await import(`../auth.mjs?scratch-${made++}`);
+  store.hold(pool);
   await (await getMigrations(auth.options)).runMigrations();
   const origin = settings.base_url;
   const call = (path, { body, cookie, from = `198.51.100.${(caller++ % 250) + 1}` } = {}) => auth.handler(new Request(`${origin}${settings.base_path}${path}`, {
