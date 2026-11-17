@@ -11,7 +11,7 @@ import settings from '../do-work/trillion.json' with { type: 'json' };
 import {
   TrillionError, agentOf, aiOf, aiRecordOf, allPages, groupsOf, argumentsFor, computerNameOf, computerOf, credentialFor, doorFor, grantStore, holdingOf, installProgram,
   installSkills, jobLines, keyStore, main, modelOf, namesOf, parseArgs, pkce, placeOf, providerOf, publishRecord, render, repliesOf, sendNote,
-  opWhole, serveOnce, signInWithBrowser, addPersonHere, stateOf, trillionClient, waitFor, workCall,
+  opWhole, serveOnce, signInWithBrowser, addPersonHere, findAgentSocket, stateOf, trillionClient, waitFor, workCall,
 } from '../do-work/trillion.mjs';
 
 const KEY = `nm_${'ab'.repeat(32)}`;
@@ -64,13 +64,17 @@ async function fakeDoor({ ops = {}, oauth = null, sse = false, bearers = [KEY], 
     return sse ? send(200, `event: message\ndata: ${reply}\n\n`, 'text/event-stream') : send(200, reply);
   });
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  // The engine's own unix socket answers the same requests, as the real engine answers /persons/add only there.
+  const socket = join(mkdtempSync(join(tmpdir(), 'td-')), 's');
+  const onSocket = createServer(server.listeners('request')[0]);
+  await new Promise(resolve => onSocket.listen(socket, resolve));
   const origin = `http://127.0.0.1:${server.address().port}`;
-  return { origin, mcp: `${origin}/mcp`, calls, added, order, close: () => new Promise(resolve => server.close(resolve)) };
+  return { origin, mcp: `${origin}/mcp`, socket, calls, added, order, close: () => Promise.all([new Promise(resolve => server.close(resolve)), new Promise(resolve => onSocket.close(resolve))]) };
 }
 const keyCredential = { kind: 'key', bearer: KEY, where: 'test' };
 const doorAt = (mcp, extra = {}) => ({ mcp, origin: new URL(mcp).origin, name: `the door ${mcp}`, local: false, public: false, localMcp: null, ...extra });
 const seamsFor = (folder = home(), extra = {}) => ({ store: { read: () => KEY, where: 'test key' }, grants: noGrants, state: stateOf({ home: folder }), env: { CLAUDECODE: '1' },
-  place, localDoor: () => null, computerName: 'Mac', model: null, wait: noWait, ...extra });
+  place, localDoor: () => null, agentSocket: () => null, computerName: 'Mac', model: null, wait: noWait, ...extra });
 
 test('arguments: words and flags, with -- ending them', () => {
   assert.deepEqual(parseArgs(['send', 'any', 'fix', 'the', 'build', '--priority', '3', '--json']), { words: ['send', 'any', 'fix', 'the', 'build'], flags: { priority: '3', json: true }, rest: [] });
@@ -601,7 +605,7 @@ test('login: the browser sign-in with PKCE keeps the sign-in itself, and no key 
     let kept = null;
     const grants = { where: 'test sign-in', read: () => kept, write: value => { kept = value; }, forget: () => { kept = null; } };
     const state = stateOf({ home: folder });
-    const run = argv => main([...argv, '--origin', fake.origin], { store: { read: () => null, where: 'no key' }, grants, state, open, env: {}, localDoor: () => null, computerName: 'Mac', model: null, wait: noWait });
+    const run = argv => main([...argv, '--origin', fake.origin], { store: { read: () => null, where: 'no key' }, grants, state, open, env: {}, agentSocket: () => null, localDoor: () => null, computerName: 'Mac', model: null, wait: noWait });
     assert.equal(await run(['login']), "You're signed in to Trillion.");
     assert.equal(await run(['login']), "You're signed in to Trillion.", 'signed in already is the same one line');
     assert.equal(await run(['logout']), "You're signed out of Trillion.");
@@ -630,7 +634,7 @@ test('login with no address: kept sign-in origin, then the engine\'s protected-r
     const declaration = JSON.stringify({ local_runtime: { computer: { public_origin: 'https://computer.example/path' } } });
     assert.equal(localDoorOrigin({ runtime: '/App/Contents/MacOS/node', read: () => declaration }), 'https://computer.example');
     assert.equal(localDoorOrigin({ runtime: '/App/Contents/MacOS/node', read: () => { throw new Error('none'); } }), null);
-    await assert.rejects(main(['login'], { store: { read: () => null, where: 'no key' }, grants: { where: 'g', read: () => null }, state: stateOf({ home: home() }), env: {}, localDoor: () => null, declaredOrigin: () => null, computerName: 'Mac', model: null, wait: noWait }), /Open the Trillion app/);
+    await assert.rejects(main(['login'], { store: { read: () => null, where: 'no key' }, grants: { where: 'g', read: () => null }, state: stateOf({ home: home() }), env: {}, agentSocket: () => null, localDoor: () => null, declaredOrigin: () => null, computerName: 'Mac', model: null, wait: noWait }), /Open the Trillion app/);
   } finally { await engine.close(); }
 });
 
@@ -653,7 +657,7 @@ test('login reads the protected-resource document from the door it will call, ne
     const grants = { where: 'test sign-in', read: () => kept, write: value => { kept = value; }, forget: () => { kept = null; } };
     let opened = null;
     const open = async url => { opened = new URL(url); await fetch(`${opened.searchParams.get('redirect_uri')}?code=code-1&state=${opened.searchParams.get('state')}`); };
-    const said = await main(['login'], { store: { read: () => null, where: 'no key' }, grants, state: stateOf({ home: home() }), open, env: {}, localDoor: () => `${engine.origin}/mcp`, declaredOrigin: () => null, computerName: 'Mac', model: null, wait: noWait });
+    const said = await main(['login'], { store: { read: () => null, where: 'no key' }, grants, state: stateOf({ home: home() }), open, env: {}, agentSocket: () => engine.socket, localDoor: () => `${engine.origin}/mcp`, declaredOrigin: () => null, computerName: 'Mac', model: null, wait: noWait });
     assert.equal(said, "You're signed in to Trillion.");
     assert.equal(opened.origin, issuer.origin, 'the issuer comes from the engine\'s document');
     assert.ok(!seen.includes('/.well-known/oauth-protected-resource') && !seen.includes(settings.protected_resource_path), 'the issuer is never asked for the resource document');
@@ -674,7 +678,7 @@ test('login: a kept key its door refuses is no sign-in, so login signs in at the
     const grants = { where: 'test sign-in', read: () => kept, write: value => { kept = value; }, forget: () => { kept = null; } };
     const store = { read: () => KEY, where: 'a kept key' };
     const open = async url => { const asked = new URL(url); await fetch(`${asked.searchParams.get('redirect_uri')}?code=code-1&state=${asked.searchParams.get('state')}`); };
-    const said = await main(['login', '--origin', fake.origin], { store, grants, state: stateOf({ home: home() }), open, env: {}, localDoor: () => `${fake.origin}/mcp`, computerName: 'Mac', model: null, wait: noWait });
+    const said = await main(['login', '--origin', fake.origin], { store, grants, state: stateOf({ home: home() }), open, env: {}, agentSocket: () => fake.socket, localDoor: () => `${fake.origin}/mcp`, computerName: 'Mac', model: null, wait: noWait });
     assert.equal(said, "You're signed in to Trillion.");
     assert.deepEqual(fake.added, [`Bearer ${pass}`], 'the engine at the local door was asked to hold the person the pass names');
     assert.equal((await credentialFor({ env: {}, store, grants, fetchImpl: fetch })).kind, 'sign-in', 'the sign-in comes before the kept key');
@@ -880,19 +884,21 @@ test('a local door is the app\'s loopback address, a sign-in of the origin it se
   assert.deepEqual([other.local, other.mcp], [false, 'https://elsewhere.example/mcp'], 'a pass of another origin does not');
   const fake = await fakeDoor({ bearers: [KEY] });
   try {
-    assert.equal(await addPersonHere({ localMcp: null, bearer: KEY }), null, 'a computer with no local door adds no one');
-    assert.deepEqual(await addPersonHere({ localMcp: `${fake.origin}/mcp`, bearer: KEY }), { person: 'person-1', added: true });
-    assert.deepEqual(fake.added, [`Bearer ${KEY}`], 'the pass is sent to the engine\'s own loopback address, as the bearer');
+    assert.equal(await addPersonHere({ socket: null, bearer: KEY }), null, 'a computer with no engine socket adds no one');
+    assert.deepEqual(await addPersonHere({ socket: fake.socket, bearer: KEY }), { person: 'person-1', added: true });
+    assert.deepEqual(fake.added, [`Bearer ${KEY}`], 'the pass is sent to the engine\'s own socket, as the bearer');
   } finally { await fake.close(); }
   const refusing = createServer((request, response) => response.writeHead(403, { 'content-type': 'application/json' }).end('{"error":"persons_are_added_at_this_computer"}'));
-  await new Promise(resolve => refusing.listen(0, '127.0.0.1', resolve));
+  const refusingSocket = join(mkdtempSync(join(tmpdir(), 'td-')), 's');
+  await new Promise(resolve => refusing.listen(refusingSocket, resolve));
   try {
-    await assert.rejects(addPersonHere({ localMcp: `http://127.0.0.1:${refusing.address().port}/mcp`, bearer: KEY }), error => error.message === settings.words.not_taken_in && error.detail.endsWith('answered 403 persons_are_added_at_this_computer.'));
+    await assert.rejects(addPersonHere({ socket: refusingSocket, bearer: KEY }), error => error.message === settings.words.not_taken_in && error.detail.endsWith('answered 403 persons_are_added_at_this_computer.'));
   } finally { refusing.close(); }
   const without = createServer((request, response) => response.writeHead(404).end());
-  await new Promise(resolve => without.listen(0, '127.0.0.1', resolve));
+  const withoutSocket = join(mkdtempSync(join(tmpdir(), 'td-')), 's');
+  await new Promise(resolve => without.listen(withoutSocket, resolve));
   try {
-    assert.equal(await addPersonHere({ localMcp: `http://127.0.0.1:${without.address().port}/mcp`, bearer: KEY }), null, 'an engine with no route to add a person is not asked again; who the person is comes from its answer to whoami');
+    assert.equal(await addPersonHere({ socket: withoutSocket, bearer: KEY }), null, 'an engine with no route to add a person is not asked again; who the person is comes from its answer to whoami');
   } finally { without.close(); }
 });
 
@@ -914,7 +920,7 @@ test('login with a new person: the engine is asked to hold them first, then who 
   const fake = await fakeDoor({ bearers: [pass], holdsAddedOnly: true, oauth: signInServer(pass) });
   try {
     const opened = [];
-    const said = await main(['login', '--origin', fake.origin], { store: { read: () => null, where: 'no key' }, grants: grantsKept(null), state: stateOf({ home: home() }), open: openAndReturn(opened), env: {}, localDoor: () => fake.mcp, computerName: 'Mac', model: null, wait: noWait });
+    const said = await main(['login', '--origin', fake.origin], { store: { read: () => null, where: 'no key' }, grants: grantsKept(null), state: stateOf({ home: home() }), open: openAndReturn(opened), env: {}, agentSocket: () => fake.socket, localDoor: () => fake.mcp, computerName: 'Mac', model: null, wait: noWait });
     assert.equal(said, "You're signed in to Trillion as person@example.com.");
     assert.deepEqual(fake.order, ['persons/add', 'whoami'], 'the person is held before the engine is asked who they are');
     assert.equal(opened.length, 1);
@@ -927,7 +933,7 @@ test('login when already signed in and held: one line, nothing asked of the brow
   try {
     const opened = [];
     const grants = grantsKept({ access_token: pass, refresh_token: 'refresh-1', expires_at_ms: Date.now() + 3600_000, client_id: 'c', origin: fake.origin, token_endpoint: `${fake.origin}/api/auth/oauth2/token`, resource: `${fake.origin}/mcp` });
-    const seams = { store: { read: () => null, where: 'no key' }, grants, state: stateOf({ home: home() }), open: openAndReturn(opened), env: {}, localDoor: () => fake.mcp, computerName: 'Mac', model: null, wait: noWait };
+    const seams = { store: { read: () => null, where: 'no key' }, grants, state: stateOf({ home: home() }), open: openAndReturn(opened), env: {}, agentSocket: () => fake.socket, localDoor: () => fake.mcp, computerName: 'Mac', model: null, wait: noWait };
     assert.equal(await main(['login', '--origin', fake.origin], seams), "You're signed in to Trillion as person@example.com.");
     assert.deepEqual(fake.order, ['persons/add', 'whoami'], 'a sign-in the engine had not yet been told about is held first here too');
     assert.equal(opened.length, 0, 'no browser');
@@ -941,7 +947,7 @@ test('login with a kept sign-in the engine refuses: the person signs in again in
   try {
     const opened = [];
     const grants = grantsKept({ access_token: passFor('old@example.com'), refresh_token: 'refresh-0', expires_at_ms: Date.now() + 3600_000, client_id: 'c', origin: fake.origin, token_endpoint: `${fake.origin}/api/auth/oauth2/token`, resource: `${fake.origin}/mcp` });
-    const said = await main(['login', '--origin', fake.origin], { store: { read: () => null, where: 'no key' }, grants, state: stateOf({ home: home() }), open: openAndReturn(opened), env: {}, localDoor: () => fake.mcp, computerName: 'Mac', model: null, wait: noWait });
+    const said = await main(['login', '--origin', fake.origin], { store: { read: () => null, where: 'no key' }, grants, state: stateOf({ home: home() }), open: openAndReturn(opened), env: {}, agentSocket: () => fake.socket, localDoor: () => fake.mcp, computerName: 'Mac', model: null, wait: noWait });
     assert.equal(said, "You're signed in to Trillion as person@example.com.");
     assert.equal(opened.length, 1, 'the browser sign-in ran');
     assert.equal(grants.box.value.access_token, fresh, 'the new sign-in replaced the refused one');
@@ -953,7 +959,26 @@ test('login when Trillion on this Mac is not running: one plain line saying what
   await new Promise(resolve => gone.listen(0, '127.0.0.1', resolve));
   const port = gone.address().port;
   await new Promise(resolve => gone.close(resolve));
-  const seams = { store: { read: () => KEY, where: 'a kept key' }, grants: noGrants, state: stateOf({ home: home() }), env: {}, localDoor: () => `http://127.0.0.1:${port}/mcp`, computerName: 'Mac', model: null, wait: noWait };
+  const seams = { store: { read: () => KEY, where: 'a kept key' }, grants: noGrants, state: stateOf({ home: home() }), env: {}, agentSocket: () => join(tmpdir(), 'no-such-engine.sock'), localDoor: () => `http://127.0.0.1:${port}/mcp`, computerName: 'Mac', model: null, wait: noWait };
   await assert.rejects(main(['login'], seams), error => error.message === "Trillion on this Mac isn't running. Open the Trillion app, then try again."
-    && /^Nothing answered at http:\/\/127\.0\.0\.1:\d+/.test(error.detail));
+    && /^Nothing answered at .*no-such-engine\.sock: ENOENT/.test(error.detail));
+});
+
+test('the engine socket is read from the computer config, never named in code', () => {
+  const folder = home();
+  assert.equal(findAgentSocket({ home: folder }), null, 'no computer config: no socket');
+  const file = join(folder, settings.computer_config_files[0].replace(/^~\//, ''));
+  mkdirSync(join(file, '..'), { recursive: true });
+  writeFileSync(file, JSON.stringify({ agent_socket: '/some/engine.sock', listen: '127.0.0.1:1' }));
+  assert.equal(findAgentSocket({ home: folder }), '/some/engine.sock');
+});
+
+test('whoami holds a pass the engine has not held (an engine started again) before it asks who they are', async () => {
+  const pass = passFor('person@example.com');
+  const fake = await fakeDoor({ bearers: [pass], holdsAddedOnly: true });
+  try {
+    const said = await main(['whoami', '--origin', fake.origin], { ...seamsFor(home(), { localDoor: () => fake.mcp, agentSocket: () => fake.socket, store: { read: () => null, where: 'none' }, env: { CLAUDECODE: '1', TRILLION_KEY: pass } }) });
+    assert.equal(said.split('\n')[0], "You're signed in to Trillion as person@example.com.");
+    assert.deepEqual(fake.order, ['persons/add', 'whoami']);
+  } finally { await fake.close(); }
 });

@@ -578,6 +578,10 @@
       { "owner": "records-door/read-data/settled-write.mjs", "packed": "packs/read-data/settled-write.mjs" }
     ]
   },
+  "computer_config_files": [
+    "~/Library/Application Support/Trillion/computer/computer.json",
+    "~/.config/trillion/computer/computer.json"
+  ],
   "protected_resource_path": "/.well-known/oauth-protected-resource/mcp",
   "client": {
     "id_path": "/cli/client.json",
