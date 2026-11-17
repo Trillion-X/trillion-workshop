@@ -1,0 +1,12 @@
+{
+  "about": "The table each kind of row this tool keeps lives in (made by sql/). A kind is the `kind` its value carries; a table is one kind, never a mix.",
+  "tables": {
+    "question-sequence": "question_sequence",
+    "answer-fact": "answer_fact",
+    "segment-assignment": "segment_assignment",
+    "score-rule": "score_rule",
+    "segment-rule": "segment_rule",
+    "follow-up-sequence": "follow_up_sequence",
+    "owner-action-request": "owner_action_request"
+  }
+}

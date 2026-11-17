@@ -1,19 +1,18 @@
 // tools/ask-questions-sort-answers-follow-up/do-work/form-tools.mjs
 //
-// The form tools. Each answers its result and keeps nothing: the person's AI reads the rows from a store and
-// hands them in as `records` ({ id, type, value }, as a store lists them), and writes the answer's records back to
-// a store when the person wants them kept. Each export is called by run-an-export.mjs as fn(input).
+// The form tools. Each keeps its rows in the person's own Postgres (read-data/kept-rows.mjs, tables made by sql/) and is called
+// by tools/workflows/do-work/run-with-sql.mjs as fn({ input }, { sql }).
 //
-//   saveForm            check a form's questions and answer its question-sequence record
-//   submitFormAnswers   check a respondent's answers against the form in `records`; when all are valid, answer the
-//                       answer facts, the score and segment decision, and a request record for each question's
-//                       after-saved hand-off
+//   saveForm            check a form's questions and keep its question-sequence row
+//   submitFormAnswers   check a respondent's answers against the form kept in the database; when all are valid, keep the
+//                       answer facts, the score and segment decision, and a request row for each question's after-saved
+//                       hand-off, all together, and answer them
 //   readFormResults     the segment each respondent was sorted into, newest first, with a count per segment
 //   readAnswerProgress  one respondent's answers over time, as ordered rows and a numeric trend
 //   readAnswerLines     the latest answers of a form as prose lines, each labelled with its question
 //
-// Record types worked on: question-sequence, answer-fact, segment-assignment, score-rule, segment-rule,
-// follow-up-sequence; answered: owner-action-request.
+// Tables worked on: question_sequence, answer_fact, segment_assignment, score_rule, segment_rule, follow_up_sequence,
+// owner_action_request.
 import { buildFillScreenModel } from '../read-data/fill-screen-model.ts';
 import { registry } from './check-answers.mjs';
 import { coerceAnswer } from '../read-data/validate-answer.ts';
@@ -26,6 +25,7 @@ import { payloadRows } from '../read-data/record-rows.ts';
 import { buildSaveQuestionSequenceWrite, questionSequenceId } from './save-question-sequence.ts';
 import { buildProcessSubmission } from './process-submission.ts';
 import { runAfterSavedActions } from './run-after-saved-actions.ts';
+import { keepRows, readRows } from '../read-data/kept-rows.mjs';
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const text = (value, name) => {
@@ -33,13 +33,7 @@ const text = (value, name) => {
   return value.trim();
 };
 
-// The handed-in records of one type, whose ids start with `prefix` when given.
-function recordsOf(input, type, prefix = '') {
-  if (!Array.isArray(input.records)) throw new Error('Give records: the rows to work from, as a store lists them ({ id, type, value }).');
-  return input.records.filter(record => object(record) && record.type === type && typeof record.id === 'string' && record.id.startsWith(prefix));
-}
-
-export function saveForm(input) {
+export async function saveForm({ input }, { sql }) {
   if (!object(input)) throw new Error('Give form_id, title and questions.');
   const formId = text(input.form_id, 'form_id');
   if (!Array.isArray(input.questions) || !input.questions.length) throw new Error('questions must be a list of the form\'s questions.');
@@ -51,10 +45,11 @@ export function saveForm(input) {
     ...(object(input.presentation) ? { presentation: input.presentation } : {}),
     questions: input.questions,
   });
+  await keepRows(sql, [write]);
   return { form_id: formId, record_id: write.id, question_count: input.questions.length, record: write };
 }
 
-export async function submitFormAnswers(input) {
+export async function submitFormAnswers({ input }, { sql }) {
   if (!object(input)) throw new Error('Give form_id, respondent_id and answers.');
   const formId = text(input.form_id, 'form_id');
   const respondentId = text(input.respondent_id, 'respondent_id');
@@ -62,9 +57,9 @@ export async function submitFormAnswers(input) {
   const submissionId = typeof input.submission_id === 'string' && input.submission_id ? input.submission_id : undefined;
   const answeredAt = typeof input.answered_at === 'string' && input.answered_at ? input.answered_at : new Date().toISOString();
 
-  const stored = recordsOf(input, 'question-sequence').find(record => record.id === questionSequenceId(formId));
+  const [stored] = await readRows(sql, 'question-sequence', { id: questionSequenceId(formId) });
   const sequence = stored ? readFirstQuestionSequence(payloadRows([stored])) : null;
-  if (!sequence) throw new Error(`records holds no form ${formId} (${questionSequenceId(formId)}): read it from the store, or make it with the save-a-form tool.`);
+  if (!sequence) throw new Error(`The database holds no form ${formId} (${questionSequenceId(formId)}): make it with the save-a-form tool.`);
 
   const model = buildFillScreenModel(sequence.questions, registry, answers, { revealErrors: true });
   if (!model.allValid) {
@@ -85,7 +80,8 @@ export async function submitFormAnswers(input) {
     if (value !== undefined) kept[id] = value;
   }
 
-  const rules = ['score-rule', 'segment-rule', 'follow-up-sequence'].flatMap(type => recordsOf(input, type));
+  const rules = [];
+  for (const kind of ['score-rule', 'segment-rule', 'follow-up-sequence']) rules.push(...await readRows(sql, kind));
   const config = readDecideConfig(payloadRows(rules), formId);
   const plan = buildProcessSubmission(formId, respondentId, kept, config, answeredAt, submissionId);
 
@@ -97,26 +93,28 @@ export async function submitFormAnswers(input) {
     value: { kind: 'owner-action-request', formId, respondentId, ...(submissionId ? { submissionId } : {}), owner: request.owner, actionRef: request.actionRef, input: request.input, status: 'requested', requested_at: answeredAt },
   }));
 
+  const records = [...plan.writes, ...requestWrites];
+  await keepRows(sql, records);
   return {
     accepted: true,
     decision: plan.decision,
     follow_up: plan.followUp,
-    records: [...plan.writes, ...requestWrites],
+    records,
     action_requests: requestWrites.map(write => ({ id: write.id, owner: write.value.owner, actionRef: write.value.actionRef })),
     ignored: Object.keys(answers).filter(id => !Object.hasOwn(kept, id)),
   };
 }
 
-export function readFormResults(input) {
+export async function readFormResults({ input }, { sql }) {
   const formId = typeof input.form_id === 'string' && input.form_id ? input.form_id : undefined;
-  return buildResultsModel(payloadRows(recordsOf(input, 'segment-assignment', formId ? `segment-assignment:${formId}:` : '')), formId);
+  return buildResultsModel(payloadRows(await readRows(sql, 'segment-assignment', { formId })), formId);
 }
 
-export function readAnswerProgress(input) {
+export async function readAnswerProgress({ input }, { sql }) {
   if (!object(input) || !object(input.field_map)) throw new Error('Give form_id, respondent_id and field_map (output field -> questionId).');
   const formId = text(input.form_id, 'form_id');
   const respondentId = text(input.respondent_id, 'respondent_id');
-  return buildProgressModel(payloadRows(recordsOf(input, 'answer-fact', `answer-fact:${formId}:${respondentId}:`)), {
+  return buildProgressModel(payloadRows(await readRows(sql, 'answer-fact', { formId, respondentId })), {
     formId,
     respondentId,
     fieldMap: input.field_map,
@@ -124,10 +122,10 @@ export function readAnswerProgress(input) {
   });
 }
 
-export function readAnswerLines(input) {
+export async function readAnswerLines({ input }, { sql }) {
   const formId = text(object(input) ? input.form_id : undefined, 'form_id');
   const respondentId = typeof input.respondent_id === 'string' && input.respondent_id ? input.respondent_id : undefined;
-  const facts = recordsOf(input, 'answer-fact', `answer-fact:${formId}:${respondentId ? `${respondentId}:` : ''}`);
-  const forms = recordsOf(input, 'question-sequence', questionSequenceId(formId));
+  const facts = await readRows(sql, 'answer-fact', { formId, respondentId });
+  const forms = await readRows(sql, 'question-sequence', { id: questionSequenceId(formId) });
   return { lines: answerLinesForSequence(payloadRows([...facts, ...forms]), formId) };
 }

@@ -1,20 +1,20 @@
 // tools/ask-questions-sort-answers-follow-up/read-data/record-rows.ts
 //
-// The seam between the records door and the package's readers. The door lists records as { id, type, value };
+// The seam between the person's tables and the package's readers. A table of this tool holds rows read as { id, type, value };
 // every reader here (foldAnswerFacts, readDecideConfig, buildResultsModel, the sequence decoders) reads
 // payload-wrapped rows, { address?, payload }. This is the one place the two shapes meet.
 
-/** One record as the person's records door gives it and takes it. */
-export interface DoorRecord {
+/** One kept row: its id, its kind (which table holds it) and its value. */
+export interface KeptRow {
   id: string;
   type: string;
   value: unknown;
 }
 
-/** A record the package asks the door to write. */
-export type RecordWrite = DoorRecord;
+/** A row the package asks to be kept. */
+export type RecordWrite = KeptRow;
 
-/** Door records as the payload-wrapped rows the readers take. A removed record (value null) is left out. */
-export function payloadRows(records: readonly DoorRecord[]): Array<{ address: string; payload: unknown }> {
+/** Kept rows as the payload-wrapped rows the readers take. A row with no value is left out. */
+export function payloadRows(records: readonly KeptRow[]): Array<{ address: string; payload: unknown }> {
   return records.filter((record) => record.value !== null && record.value !== undefined).map((record) => ({ address: record.id, payload: record.value }));
 }

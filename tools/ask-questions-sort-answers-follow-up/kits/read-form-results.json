@@ -1,22 +1,22 @@
 {
-  "drafted_from": "tool:read-form-results's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Show who answered a form, the score each earned and the segment each was sorted into, with a count per segment, from the segment assignments it is given\", with {\"records\":[]}. It runs tool:read-form-results and answers {\"rows\":[],\"summary\":{\"total\":0,\"bySegment\":{}}}",
+  "drafted_from": "tool:read-form-results's own row (its words and input schema) and what its tool answered when run against a real PostgreSQL server (test/form-tools.test.mjs); read it before relying on it",
+  "start_here": "Say to your AI: \"Show who answered a form, the score each earned and the segment each was sorted into, with a count per segment, from the segment assignments in the database\", with {}. It runs tool:read-form-results and answers {\"rows\":[{\"respondentId\":\"respondent-1\",\"formId\":\"sample-intake\",\"segmentId\":null,\"score\":0,\"decidedAt\":\"2026-06-26T00:00:00Z\"}],\"summary\":{\"total\":1,\"bySegment\":{\"unsegmented\":1}}}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it works only from the input it is given and keeps nothing; the AI reads the rows from a store and writes any result back to a store.",
+  "no_lists_because": "It names no list of yours: it keeps its rows in tables of your own database, reached only on the local port your computer reports as own-rows-postgres.",
   "workflows": [],
   "tools": [
     "tool:read-form-results"
   ],
   "instructions": [
-    "1. Say to your AI: \"Show who answered a form, the score each earned and the segment each was sorted into, with a count per segment, from the segment assignments it is given\", and give it records (The segment-assignment records, as a store lists them).",
+    "1. Say to your AI: \"Show who answered a form, the score each earned and the segment each was sorted into, with a count per segment, from the segment assignments in the database\", and give it nothing, or form_id (only this form).",
     "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:read-form-results and its input (the worked example shows one).",
     "3. Read what comes back: Returns rows (respondentId, formId, segmentId, score, decidedAt), newest decision first, and a summary with the total and a count per segment. No assignments gives an empty list, never an invented one.",
-    "4. It keeps nothing: it is given the rows it works from as `records`, and answers its result for your AI to read or to write to a store."
+    "4. It keeps its rows in tables of your own database, reached only on the local port your computer reports as own-rows-postgres."
   ],
   "worked_examples": [
     {
       "title": "Form results on its own sample",
-      "ask": "Show who answered a form, the score each earned and the segment each was sorted into, with a count per segment, from the segment assignments it is given",
+      "ask": "Show who answered a form, the score each earned and the segment each was sorted into, with a count per segment, from the segment assignments in the database",
       "mcp": {
         "server": "trillion",
         "tool": "run_resource_operation",
@@ -25,14 +25,12 @@
           "method": "tools:run",
           "input": {
             "tool": "tool:read-form-results",
-            "input": {
-              "records": []
-            }
+            "input": {}
           }
         }
       },
-      "given": "The input {\"records\":[]}.",
-      "hands_back": "It answered {\"rows\":[],\"summary\":{\"total\":0,\"bySegment\":{}}}."
+      "given": "The input {} (after the sample form was answered once).",
+      "hands_back": "It answered {\"rows\":[{\"respondentId\":\"respondent-1\",\"formId\":\"sample-intake\",\"segmentId\":null,\"score\":0,\"decidedAt\":\"2026-06-26T00:00:00Z\"}],\"summary\":{\"total\":1,\"bySegment\":{\"unsegmented\":1}}}."
     }
   ]
 }

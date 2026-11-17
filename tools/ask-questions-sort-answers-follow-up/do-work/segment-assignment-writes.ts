@@ -4,7 +4,7 @@
 // (formId, respondentId), so the follow-up step reads exactly the decision and the results view projects
 // respondents -> segment. No I/O here.
 //
-// Changed from the package: the record is a door record { id, type, value } (the package built an engine
+// Changed from the package: the record is a kept row { id, type, value } (the package built an engine
 // write-batch entry and a write-batch request, both gone with the old engine).
 
 import type { RecordWrite } from '../read-data/record-rows.ts';

@@ -1,0 +1,1 @@
+create table if not exists answer_fact (id text primary key, value jsonb not null, form_id text generated always as (value->>'formId') stored, respondent_id text generated always as (value->>'respondentId') stored, updated_at timestamptz not null default now())

@@ -5,7 +5,7 @@
 // answers that changed. No I/O here: form-tools.mjs answers the
 // records these builders return.
 //
-// Changed from the package: a fact is a door record { id, type, value } (the package built engine
+// Changed from the package: a fact is a kept row { id, type, value } (the package built engine
 // write-batch entries addressed by `package::<name>::answer::...` labels), so the address labels became
 // record ids and the write-batch envelope is gone.
 

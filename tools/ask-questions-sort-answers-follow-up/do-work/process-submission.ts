@@ -6,7 +6,7 @@
 // answers it. Ties CAPTURE -> DECIDE -> ACT with zero new concepts, it composes
 // the already-tested layers.
 //
-// Changed from the package: the plan holds `writes` (door records) where the package held an engine
+// Changed from the package: the plan holds `writes` (kept rows) where the package held an engine
 // write-batch `request`; the `processSubmission` wrapper that sent it through the old engine is gone.
 
 import { buildAnswerFactWrites } from './answer-fact-writes.ts';
