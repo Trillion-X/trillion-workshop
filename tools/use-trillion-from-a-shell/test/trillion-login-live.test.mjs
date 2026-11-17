@@ -15,7 +15,7 @@ test('bare trillion login reaches the browser step against this computer\'s engi
   const open = async url => { opened = new URL(url); throw new Error('browser stubbed'); };
   const memory = { where: 'memory', read: () => null, write: () => {}, forget: () => {} };
   const started = Date.now();
-  await assert.rejects(main(['login'], { store: { read: () => null, where: 'no key' }, grants: memory, state: stateOf({ home: mkdtempSync(join(tmpdir(), 'trillion-login-live-')) }), open, env: {}, localDoor: () => localMcp }), /browser could not open the sign-in/);
+  await assert.rejects(main(['login'], { store: { read: () => null, where: 'no key' }, grants: memory, state: stateOf({ home: mkdtempSync(join(tmpdir(), 'trillion-login-live-')) }), open, env: {}, localDoor: () => localMcp }), /Trillion could not open your browser/);
   assert.ok(opened, 'the authorize page was reached');
   assert.equal(opened.protocol, 'https:');
   assert.equal(opened.searchParams.get('code_challenge_method'), 'S256');

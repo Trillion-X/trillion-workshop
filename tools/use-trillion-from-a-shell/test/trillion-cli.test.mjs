@@ -28,9 +28,11 @@ const noGrants = { where: 'test sign-in', read: () => null, write: () => {}, for
 
 // A stand-in engine door: /mcp answers initialize with the account in _meta, and run_resource_operation from `ops`
 // (a function per "address method"); /oauth/* and /authorize from `oauth`. Bearers in `bearers` are admitted.
-async function fakeDoor({ ops = {}, oauth = null, sse = false, bearers = [KEY], status = null } = {}) {
+async function fakeDoor({ ops = {}, oauth = null, sse = false, bearers = [KEY], status = null, holdsAddedOnly = false } = {}) {
   const calls = [];
   const added = [];
+  const held = new Set();
+  const order = [];
   const server = createServer(async (request, response) => {
     let raw = '';
     for await (const chunk of request) raw += chunk;
@@ -39,10 +41,13 @@ async function fakeDoor({ ops = {}, oauth = null, sse = false, bearers = [KEY], 
     if (url.pathname.startsWith('/.well-known/') || url.pathname.startsWith('/api/auth/')) return oauth(url, raw, request, send);
     if (status) return send(status, { error: 'refused' });
     if (!bearers.some(bearer => request.headers.authorization === `Bearer ${bearer}`)) return send(401, { error: 'Bearer authentication is required' });
-    if (url.pathname === '/persons/add') { added.push(request.headers.authorization); return send(200, { person: 'person-1', added: added.length === 1 }); }
+    if (url.pathname === '/persons/add') { order.push('persons/add'); added.push(request.headers.authorization); held.add(request.headers.authorization); return send(200, { person: 'person-1', added: added.length === 1 }); }
     if (url.pathname !== '/mcp') return send(404, { error: 'Not found' });
+    // A main-built engine serves a person only after /persons/add held them.
+    if (holdsAddedOnly && !held.has(request.headers.authorization)) return send(401, { error: 'Bearer authentication is required' });
     const message = JSON.parse(raw);
     let result;
+    if (message.method === 'initialize') order.push('whoami');
     if (message.method === 'initialize') result = { protocolVersion: message.params.protocolVersion, serverInfo: { name: 'fake' }, _meta: { [settings.engine.account_meta]: { account_id: ACCOUNT } } };
     else {
       const args = message.params.arguments;
@@ -60,7 +65,7 @@ async function fakeDoor({ ops = {}, oauth = null, sse = false, bearers = [KEY], 
   });
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
   const origin = `http://127.0.0.1:${server.address().port}`;
-  return { origin, mcp: `${origin}/mcp`, calls, added, close: () => new Promise(resolve => server.close(resolve)) };
+  return { origin, mcp: `${origin}/mcp`, calls, added, order, close: () => new Promise(resolve => server.close(resolve)) };
 }
 const keyCredential = { kind: 'key', bearer: KEY, where: 'test' };
 const doorAt = (mcp, extra = {}) => ({ mcp, origin: new URL(mcp).origin, name: `the door ${mcp}`, local: false, public: false, localMcp: null, ...extra });
@@ -250,14 +255,14 @@ test('the credential: TRILLION_KEY, the kept key, else the kept sign-in, renewed
     const renewed = await credentialFor({ env: {}, store, grants, now: () => 990 });
     assert.deepEqual([renewed.kind, renewed.bearer, renewed.origin, written.refresh_token], ['sign-in', 'access-2', fake.origin, 'refresh-2']);
     const ended = { ...grants, read: () => ({ access_token: 'a', refresh_token: 'gone', expires_at_ms: 1, client_id: 'c1', origin: fake.origin, token_endpoint: `${fake.origin}/api/auth/oauth2/token`, resource: `${fake.origin}/mcp` }) };
-    await assert.rejects(credentialFor({ env: {}, store, grants: ended, now: () => 990 }), error => error.status === 3 && /sign-in to Trillion has ended/.test(error.message));
+    await assert.rejects(credentialFor({ env: {}, store, grants: ended, now: () => 990 }), error => error.status === 3 && /sign-in to Trillion ended/.test(error.message));
   } finally { await fake.close(); }
 });
 
 test('the door: the Mac app\'s local door for the key when this computer has one, else the declared address; an asked origin wins', () => {
   const local = 'http://127.0.0.1:8788/mcp';
   const atHome = doorFor({ credential: keyCredential, localMcp: local });
-  assert.deepEqual([atHome.mcp, atHome.local, atHome.name], [local, true, `the Mac app's local door ${local}`]);
+  assert.deepEqual([atHome.mcp, atHome.local, atHome.name], [local, true, 'Trillion on this Mac']);
   const away = doorFor({ credential: keyCredential, localMcp: null, declared: 'https://app.example.com' });
   assert.deepEqual([away.mcp, away.public], ['https://app.example.com/mcp', true]);
   assert.throws(() => doorFor({ credential: keyCredential, localMcp: null }), error => error.status === 2 && error.message === settings.words.no_origin, 'no address is built in');
@@ -300,16 +305,16 @@ test('the engine road: replies in JSON or events, one request key on every retry
     await assert.rejects(client.op('@own-records', 'records:read', { id: 'x' }), /not readable here/);
     // A refused key: the door says which door; at the public door it names this computer's local door.
     const refusedAt = (door, credential = { kind: 'key', bearer: `nm_${'cd'.repeat(32)}`, where: 'k' }) => trillionClient({ door, credential, rules: quick, wait: noWait }).whoami();
-    await assert.rejects(refusedAt(doorAt(fake.mcp)), error => error.status === 3 && error.message === `the door ${fake.mcp} refused this computer's credential.`);
+    await assert.rejects(refusedAt(doorAt(fake.mcp)), error => error.status === 3 && error.message === settings.words.refused && error.detail === `${fake.mcp} answered 401 to this key, kept in k.`);
     await assert.rejects(refusedAt(doorAt(fake.mcp, { public: true, name: `the public door ${fake.mcp}`, localMcp: 'http://127.0.0.1:8788/mcp' })),
-      error => error.message === `the public door ${fake.mcp} does not admit this computer's key yet; the key works at this computer's local door http://127.0.0.1:8788/mcp.` && !/log ?in/i.test(error.message));
+      error => error.message === settings.words.refused_key_at_door && !/127\.0\.0\.1|8788/.test(error.message));
     // A route the door does not serve.
     const missing = trillionClient({ door: doorAt(`${fake.origin}/mcp/api/account`), credential: keyCredential, rules: quick, wait: noWait });
-    await assert.rejects(missing.whoami(), error => error.message === `the door ${fake.origin}/mcp/api/account does not serve /mcp/api/account.` && !/log ?in/i.test(error.message));
+    await assert.rejects(missing.whoami(), error => error.message === `the door ${fake.origin}/mcp/api/account does not have what this needs. Update Trillion, then try again.` && error.detail === `${fake.origin}/mcp/api/account answered 404 for /mcp/api/account.` && !/log ?in/i.test(error.message));
     assert.throws(() => trillionClient({ door: doorAt(fake.mcp), credential: null }), error => error.status === 3 && /Run trillion login/.test(error.message));
   } finally { await fake.close(); }
   const gone = trillionClient({ door: doorAt('http://127.0.0.1:9/mcp'), credential: keyCredential, rules: { ...quick, retry: { ...quick.retry, count: 0 } }, wait: noWait });
-  await assert.rejects(gone.whoami(), error => error.status === 4 && /could not be reached/.test(error.message) && !/log ?in/i.test(error.message));
+  await assert.rejects(gone.whoami(), error => error.status === 4 && /could not be reached/.test(error.message) && /127\.0\.0\.1:9\/mcp could not be reached/.test(error.detail) && !/log ?in/i.test(error.message));
 });
 
 test('whoami: the account from MCP initialize, this AI\'s id and facts, and the door that answered', async () => {
@@ -317,7 +322,8 @@ test('whoami: the account from MCP initialize, this AI\'s id and facts, and the 
   try {
     const seams = seamsFor(home(), { localDoor: () => fake.mcp });
     const said = await main(['whoami'], seams);
-    assert.equal(said, [`account ${ACCOUNT}`, `ai ai:claude-code-on-${computerOf()}`, 'facts Claude Code, Anthropic, Mac', `door the Mac app's local door ${fake.mcp}`].join('\n'));
+    assert.equal(said, ["You're signed in to Trillion.", `AI: ai:claude-code-on-${computerOf()}`, 'Running on: Claude Code, Anthropic, Mac'].join('\n'));
+    assert.equal(await main(['whoami', '--verbose'], seams), [said, `account ${ACCOUNT}`, `door ${fake.mcp}`].join('\n'), 'the account id and the address are said only with --verbose');
     const json = JSON.parse(await main(['whoami', '--json'], seams));
     assert.deepEqual([json.account_id, json.local, json.door, json.app, json.computer], [ACCOUNT, true, fake.mcp, 'Claude Code', 'Mac']);
     assert.ok(!JSON.stringify(json).includes(KEY));
@@ -337,7 +343,7 @@ test('tools: every page of the Workshop list until next is null, and a pager tha
     assert.deepEqual(JSON.parse(await main(['call', 'tool:b', '{"x":1}'], seams)), { ran: 'tool:b', with: { x: 1 } });
     await assert.rejects(main(['call', 'tool:b', '[1]'], seams), /one JSON object/);
     const stuck = { op: async () => ({ tools: [{ id: 'tool:a' }], next: 'same' }) };
-    await assert.rejects(allPages(stuck, '@tools', 'tools:list', {}, 'tools'), /answered a page it already gave/);
+    await assert.rejects(allPages(stuck, '@tools', 'tools:list', {}, 'tools'), error => error.message === settings.words.pager_stuck && /answered the page after same again/.test(error.detail));
   } finally { await fake.close(); }
 });
 
@@ -401,7 +407,7 @@ test('who: the AIs tool:see-my-ais answers, named by the list:ais formula in one
   const bare = await fakeDoor({ ops: { '@tools tools:run': () => ({ code: 'tools_tool_unknown' }) } });
   try {
     await assert.rejects(main(['who'], seamsFor(home(), { localDoor: () => bare.mcp })),
-      error => error.code === 'tools_tool_unknown' && error.message === `tool:see-my-ais is not in this account's Workshop yet (the Mac app's local door ${bare.mcp}).`);
+      error => error.code === 'tools_tool_unknown' && error.message === 'tool:see-my-ais is not set up in your Trillion yet.');
   } finally { await bare.close(); }
 });
 
@@ -585,7 +591,9 @@ test('login: the browser sign-in with PKCE keeps the sign-in itself, and no key 
     assert.equal(seen.authorize.client_id, `${fake.origin}${settings.client.id_path}`);
     assert.equal(seen.authorize.redirect_uri, `http://127.0.0.1:${settings.client.redirect_port}/callback`);
     assert.deepEqual(JSON.parse(readFileSync(new URL('../do-work/client-metadata.json', import.meta.url), 'utf8').replaceAll('{origin}', fake.origin)).redirect_uris, [seen.authorize.redirect_uri], 'the client document lists the redirect the program uses');
-    assert.match(seen.page, /Signed in/);
+    assert.match(seen.page, /signed in/);
+    assert.match(seen.page, /background: #000[\s\S]*<svg[\s\S]*signed in/, 'the page is the Trillion logo on black');
+    assert.ok(!/127\.0\.0\.1|http/.test(seen.page.replace(/xmlns="[^"]*"/, '')), 'the page names no address');
     assert.ok(seen.paths.every(path => !path.includes('/mcp/api')), 'no key route is asked');
 
     // Through the command: no key here, so login keeps the sign-in, and the public origin answers as that account.
@@ -594,12 +602,12 @@ test('login: the browser sign-in with PKCE keeps the sign-in itself, and no key 
     const grants = { where: 'test sign-in', read: () => kept, write: value => { kept = value; }, forget: () => { kept = null; } };
     const state = stateOf({ home: folder });
     const run = argv => main([...argv, '--origin', fake.origin], { store: { read: () => null, where: 'no key' }, grants, state, open, env: {}, localDoor: () => null, computerName: 'Mac', model: null, wait: noWait });
-    assert.match(await run(['login']), new RegExp(`^Signed in to Trillion as account ${ACCOUNT}, at the door ${fake.origin}/mcp\\. The sign-in is in test sign-in\\.$`));
-    assert.match(await run(['login']), /^Already signed in to Trillion as account/);
-    assert.match(await run(['logout']), /^Signed out/);
+    assert.equal(await run(['login']), "You're signed in to Trillion.");
+    assert.equal(await run(['login']), "You're signed in to Trillion.", 'signed in already is the same one line');
+    assert.equal(await run(['logout']), "You're signed out of Trillion.");
     assert.equal(seen.revoked, 'refresh-1');
     assert.equal(kept, null);
-    assert.equal(await run(['logout']), 'Not signed in; there is nothing to sign out of.');
+    assert.equal(await run(['logout']), settings.words.not_signed_in);
     const pair = pkce();
     assert.equal(createHash('sha256').update(pair.verifier).digest('base64url'), pair.challenge);
   } finally { await fake.close(); }
@@ -646,7 +654,7 @@ test('login reads the protected-resource document from the door it will call, ne
     let opened = null;
     const open = async url => { opened = new URL(url); await fetch(`${opened.searchParams.get('redirect_uri')}?code=code-1&state=${opened.searchParams.get('state')}`); };
     const said = await main(['login'], { store: { read: () => null, where: 'no key' }, grants, state: stateOf({ home: home() }), open, env: {}, localDoor: () => `${engine.origin}/mcp`, declaredOrigin: () => null, computerName: 'Mac', model: null, wait: noWait });
-    assert.match(said, /^Signed in to Trillion as account /);
+    assert.equal(said, "You're signed in to Trillion.");
     assert.equal(opened.origin, issuer.origin, 'the issuer comes from the engine\'s document');
     assert.ok(!seen.includes('/.well-known/oauth-protected-resource') && !seen.includes(settings.protected_resource_path), 'the issuer is never asked for the resource document');
   } finally { await engine.close(); await issuer.close(); }
@@ -667,8 +675,7 @@ test('login: a kept key its door refuses is no sign-in, so login signs in at the
     const store = { read: () => KEY, where: 'a kept key' };
     const open = async url => { const asked = new URL(url); await fetch(`${asked.searchParams.get('redirect_uri')}?code=code-1&state=${asked.searchParams.get('state')}`); };
     const said = await main(['login', '--origin', fake.origin], { store, grants, state: stateOf({ home: home() }), open, env: {}, localDoor: () => `${fake.origin}/mcp`, computerName: 'Mac', model: null, wait: noWait });
-    assert.match(said, /^Signed in to Trillion as account /);
-    assert.match(said, /This computer's engine now serves you\.$/);
+    assert.equal(said, "You're signed in to Trillion.");
     assert.deepEqual(fake.added, [`Bearer ${pass}`], 'the engine at the local door was asked to hold the person the pass names');
     assert.equal((await credentialFor({ env: {}, store, grants, fetchImpl: fetch })).kind, 'sign-in', 'the sign-in comes before the kept key');
   } finally { await fake.close(); }
@@ -679,7 +686,7 @@ test('logout never ends or removes the Mac app\'s key', async () => {
   const store = keyStore({ home: folder, platform: 'linux' });
   store.write(KEY);
   const said = await main(['logout'], { ...seamsFor(folder), store });
-  assert.match(said, /was not made by this program \(the Trillion Mac app keeps it\), so it was left on/);
+  assert.equal(said, settings.words.signed_out_elsewhere_kept);
   assert.equal(store.read(), KEY);
 });
 
@@ -747,7 +754,7 @@ test('a refused engine call names the step that refused it: the message ends wit
   const fetchImpl = async () => new Response(JSON.stringify(reply), { status: 200, headers: { 'content-type': 'application/json' } });
   const client = trillionClient({ door: doorAt('http://127.0.0.1:9/mcp', { local: true }), credential: keyCredential, fetchImpl, rules: quick, wait: noWait });
   await assert.rejects(client.op('@tools', 'tools:list', {}), error => error.code === 'original_workspace_source_unavailable'
-    && error.answer.cause === 'src/x.rs:118:36:Error::Invalid#abc' && /Cause: src\/x\.rs:118:36:Error::Invalid#abc$/.test(error.message));
+    && error.answer.cause === 'src/x.rs:118:36:Error::Invalid#abc' && /Cause: src\/x\.rs:118:36:Error::Invalid#abc$/.test(error.detail));
 });
 
 test('a refused call names the request key it was sent under, so the caller can quote it', async () => {
@@ -755,7 +762,7 @@ test('a refused call names the request key it was sent under, so the caller can 
     structuredContent: { code: 'original_input_refused', outcome: 'not_started' } } };
   const fetchImpl = async () => new Response(JSON.stringify(reply), { status: 200, headers: { 'content-type': 'application/json' } });
   const client = trillionClient({ door: doorAt('http://127.0.0.1:9/mcp', { local: true }), credential: keyCredential, fetchImpl, rules: quick, wait: noWait });
-  await assert.rejects(opWhole(client, '@own-records', 'records:write', {}, { requestKey: 'quote-me-7' }), error => /Request key: quote-me-7/.test(error.message));
+  await assert.rejects(opWhole(client, '@own-records', 'records:write', {}, { requestKey: 'quote-me-7' }), error => /Reference: quote-me-7\./.test(error.message));
 });
 
 test('a job shows its own words, and its label on a line of its own', () => {
@@ -839,7 +846,7 @@ test('bearer: whatever kind of key or token TRILLION_KEY holds reaches the door 
   try {
     for (const bearer of [KEY, keptKey, apiKey, token]) {
       const said = await main(['whoami'], seamsFor(home(), { localDoor: () => fake.mcp, store: nobody, env: { CLAUDECODE: '1', TRILLION_KEY: bearer } }));
-      assert.match(said, new RegExp(`^account ${ACCOUNT}`), 'the door took the bearer exactly as given');
+      assert.match(said, /^You're signed in to Trillion\./, 'the door took the bearer exactly as given');
     }
     assert.deepEqual((await credentialFor({ env: { TRILLION_KEY: apiKey }, store: nobody, grants: noGrants })).bearer, apiKey);
     await assert.rejects(credentialFor({ env: { TRILLION_KEY: 'not a key' }, store: nobody, grants: noGrants }), /not a kind of key or token/, 'a value no shape row matches is refused, not skipped');
@@ -853,9 +860,9 @@ test('bearer: a TRILLION_KEY of no declared kind is refused and never replaced b
     const seams = env => seamsFor(home(), { localDoor: () => null, env: { CLAUDECODE: '1', ...env } });
     await assert.rejects(main(['whoami', '--origin', fake.origin], seams({ TRILLION_KEY: 'not a key' })), error => error.status === 2 && /not a kind of key or token/.test(error.message));
     assert.equal(fake.calls.length, 0, 'nothing was sent to the door, least of all the kept key');
-    await assert.rejects(main(['whoami', '--origin', fake.origin], seams({})), error => error.status === 2 && /is not sent to/.test(error.message));
+    await assert.rejects(main(['whoami', '--origin', fake.origin], seams({})), error => error.status === 3 && /was not sent to a different Trillion/.test(error.message));
     assert.equal(fake.calls.length, 0, 'the kept key is not sent to a door that is neither local nor public');
-    assert.match(await main(['whoami', '--origin', fake.origin], seams({ TRILLION_KEY: KEY })), new RegExp(`^account ${ACCOUNT}`), 'a key the person gives for that door is sent');
+    assert.match(await main(['whoami', '--origin', fake.origin], seams({ TRILLION_KEY: KEY })), /^You're signed in to Trillion\./, 'a key the person gives for that door is sent');
   } finally { await fake.close(); }
 });
 
@@ -880,6 +887,68 @@ test('a local door is the app\'s loopback address, a sign-in of the origin it se
   const refusing = createServer((request, response) => response.writeHead(403, { 'content-type': 'application/json' }).end('{"error":"persons_are_added_at_this_computer"}'));
   await new Promise(resolve => refusing.listen(0, '127.0.0.1', resolve));
   try {
-    await assert.rejects(addPersonHere({ localMcp: `http://127.0.0.1:${refusing.address().port}/mcp`, bearer: KEY }), /did not take you in \(403 persons_are_added_at_this_computer\)/);
+    await assert.rejects(addPersonHere({ localMcp: `http://127.0.0.1:${refusing.address().port}/mcp`, bearer: KEY }), error => error.message === settings.words.not_taken_in && error.detail.endsWith('answered 403 persons_are_added_at_this_computer.'));
   } finally { refusing.close(); }
+});
+
+// ── The login journey: the person is held at this computer's engine before anything asks who they are, and every
+// sentence the person reads is plain ───────────────────────────────────────────────────────────────────────────────
+
+const passFor = email => `${Buffer.from('{"typ":"at+jwt"}').toString('base64url')}.${Buffer.from(JSON.stringify({ sub: 'p', email })).toString('base64url')}.${'s'.repeat(20)}`;
+const signInServer = pass => (url, raw, request, send) => {
+  const at = path => `http://${request.headers.host}${path}`;
+  if (url.pathname === '/.well-known/oauth-authorization-server') return send(200, { authorization_endpoint: at('/api/auth/oauth2/authorize'), token_endpoint: at('/api/auth/oauth2/token') });
+  if (url.pathname === settings.protected_resource_path) return send(200, { resource: at('/mcp') });
+  return new URLSearchParams(raw).get('grant_type') === 'authorization_code' ? send(200, { access_token: pass, refresh_token: 'refresh-1', expires_in: 3600 }) : send(400, { error: 'unexpected' });
+};
+const openAndReturn = opened => async url => { const asked = new URL(url); opened.push(asked); await fetch(`${asked.searchParams.get('redirect_uri')}?code=code-1&state=${asked.searchParams.get('state')}`); };
+const grantsKept = initial => { const box = { value: initial }; return { where: 'test sign-in', read: () => box.value, write: value => { box.value = value; }, forget: () => { box.value = null; }, box }; };
+
+test('login with a new person: the engine is asked to hold them first, then who they are, and the person reads one line with their email', async () => {
+  const pass = passFor('person@example.com');
+  const fake = await fakeDoor({ bearers: [pass], holdsAddedOnly: true, oauth: signInServer(pass) });
+  try {
+    const opened = [];
+    const said = await main(['login', '--origin', fake.origin], { store: { read: () => null, where: 'no key' }, grants: grantsKept(null), state: stateOf({ home: home() }), open: openAndReturn(opened), env: {}, localDoor: () => fake.mcp, computerName: 'Mac', model: null, wait: noWait });
+    assert.equal(said, "You're signed in to Trillion as person@example.com.");
+    assert.deepEqual(fake.order, ['persons/add', 'whoami'], 'the person is held before the engine is asked who they are');
+    assert.equal(opened.length, 1);
+  } finally { await fake.close(); }
+});
+
+test('login when already signed in and held: one line, nothing asked of the browser', async () => {
+  const pass = passFor('person@example.com');
+  const fake = await fakeDoor({ bearers: [pass], holdsAddedOnly: true, oauth: signInServer(pass) });
+  try {
+    const opened = [];
+    const grants = grantsKept({ access_token: pass, refresh_token: 'refresh-1', expires_at_ms: Date.now() + 3600_000, client_id: 'c', origin: fake.origin, token_endpoint: `${fake.origin}/api/auth/oauth2/token`, resource: `${fake.origin}/mcp` });
+    const seams = { store: { read: () => null, where: 'no key' }, grants, state: stateOf({ home: home() }), open: openAndReturn(opened), env: {}, localDoor: () => fake.mcp, computerName: 'Mac', model: null, wait: noWait };
+    assert.equal(await main(['login', '--origin', fake.origin], seams), "You're signed in to Trillion as person@example.com.");
+    assert.deepEqual(fake.order, ['persons/add', 'whoami'], 'a sign-in the engine had not yet been told about is held first here too');
+    assert.equal(opened.length, 0, 'no browser');
+    assert.equal(await main(['whoami', '--origin', fake.origin], seams).then(text => text.split('\n')[0]), "You're signed in to Trillion as person@example.com.");
+  } finally { await fake.close(); }
+});
+
+test('login with a kept sign-in the engine refuses: the person signs in again instead of reading a refusal', async () => {
+  const fresh = passFor('person@example.com');
+  const fake = await fakeDoor({ bearers: [fresh], holdsAddedOnly: true, oauth: signInServer(fresh) });
+  try {
+    const opened = [];
+    const grants = grantsKept({ access_token: passFor('old@example.com'), refresh_token: 'refresh-0', expires_at_ms: Date.now() + 3600_000, client_id: 'c', origin: fake.origin, token_endpoint: `${fake.origin}/api/auth/oauth2/token`, resource: `${fake.origin}/mcp` });
+    const said = await main(['login', '--origin', fake.origin], { store: { read: () => null, where: 'no key' }, grants, state: stateOf({ home: home() }), open: openAndReturn(opened), env: {}, localDoor: () => fake.mcp, computerName: 'Mac', model: null, wait: noWait });
+    assert.equal(said, "You're signed in to Trillion as person@example.com.");
+    assert.equal(opened.length, 1, 'the browser sign-in ran');
+    assert.equal(grants.box.value.access_token, fresh, 'the new sign-in replaced the refused one');
+  } finally { await fake.close(); }
+});
+
+test('login when Trillion on this Mac is not running: one plain line saying what to do, and the technical line kept in the error', async () => {
+  const gone = createServer(() => {});
+  await new Promise(resolve => gone.listen(0, '127.0.0.1', resolve));
+  const port = gone.address().port;
+  await new Promise(resolve => gone.close(resolve));
+  const seams = { store: { read: () => KEY, where: 'a kept key' }, grants: noGrants, state: stateOf({ home: home() }), env: {}, localDoor: () => `http://127.0.0.1:${port}/mcp`, computerName: 'Mac', model: null, wait: noWait };
+  await assert.rejects(main(['login'], seams), error => error.message === "Trillion on this Mac isn't running. Open the Trillion app, then try again."
+    && /^Nothing answered at http:\/\/127\.0\.0\.1:\d+/.test(error.detail));
 });

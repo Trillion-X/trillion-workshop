@@ -12,7 +12,7 @@
 //   checks and the Workshop work tools (tools/hand-work-to-ais) decide; nothing here decides, stores or routes work.
 //
 //     trillion setup                      sign in once, put `trillion` on PATH, write the skill for each AI app here
-//     trillion whoami                     the account, this AI's id and facts, and the door that answered
+//     trillion whoami                     who is signed in, this AI's id and facts (--verbose: the account id and the address that answered)
 //     trillion who [--all]                the person's AIs, named by the list:ais name formula, grouped by owner
 //     trillion publish                    write this AI's own `ai` record (its facts and when it was seen)
 //     trillion send|work|take|finish|fail|stuck|release|withdraw|remove|serve
@@ -58,7 +58,7 @@ const pause = ms => new Promise(done => setTimeout(done, ms));
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 
 export class TrillionError extends Error {
-  constructor(message, { status = 1, answer = null } = {}) { super(message); this.status = status; this.answer = answer; }
+  constructor(message, { status = 1, answer = null, detail = null } = {}) { super(message); this.status = status; this.answer = answer; this.detail = detail; }
 }
 
 /** A path from settings with ~ as the home folder. */
@@ -396,7 +396,7 @@ export function grantStore({ rules = settings, home = homedir(), platform = proc
       const word = Buffer.from(JSON.stringify(grant)).toString('base64url');
       if (keychain) {
         const answer = exec('/usr/bin/security', ['-i'], { input: `add-generic-password -U -a ${rules.keychain_account} -s ${rules.grant.keychain_item} -w ${word}\n`, stdio: ['pipe', 'ignore', 'pipe'] });
-        if (answer.status !== 0) throw new TrillionError(`The sign-in could not be kept in the Keychain (${String(answer.stderr ?? '').trim() || answer.status}).`);
+        if (answer.status !== 0) throw new TrillionError(rules.words.sign_in_not_kept, { detail: fill(rules.words.details.sign_in_not_kept, { why: String(answer.stderr ?? '').trim() || answer.status }) });
         return;
       }
       mkdirSync(dirname(file), { recursive: true, mode: 0o700 });
@@ -412,9 +412,9 @@ export function grantStore({ rules = settings, home = homedir(), platform = proc
 }
 
 const form = values => ({ method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams(values).toString() });
-async function asJson(response, what) {
+async function asJson(response, what, rules = settings) {
   const value = await response.json().catch(() => ({}));
-  if (!response.ok) throw new TrillionError(`${what} failed: ${value.error_description ?? value.error ?? response.status}.`);
+  if (!response.ok) throw new TrillionError(rules.words.sign_in_step_failed, { detail: fill(rules.words.details.sign_in_step_failed, { what, why: value.error_description ?? value.error ?? response.status }) });
   return value;
 }
 const grantOf = (tokens, { client_id, origin, now = Date.now, found, rules = settings }) => ({ access_token: tokens.access_token, refresh_token: tokens.refresh_token ?? null,
@@ -425,12 +425,12 @@ const grantOf = (tokens, { client_id, origin, now = Date.now, found, rules = set
  *  door the program will call (`resourceDoor`, an MCP address; the issuer's own /mcp when none is given), never from the issuer's
  *  root; its `authorization_servers[0]` names the server whose RFC 8414 document gives the endpoints. */
 export async function discover(origin, { fetchImpl = fetch, resourceDoor = `${origin}/mcp`, rules = settings } = {}) {
-  const resource = await asJson(await fetchImpl(new URL(rules.protected_resource_path, resourceDoor)), 'Reading the sign-in resource');
-  if (typeof resource.resource !== 'string') throw new TrillionError('The sign-in resource names no resource.');
+  const resource = await asJson(await fetchImpl(new URL(rules.protected_resource_path, resourceDoor)), 'Reading the sign-in resource', rules);
+  if (typeof resource.resource !== 'string') throw new TrillionError(rules.words.sign_in_step_failed, { detail: fill(rules.words.details.sign_in_step_failed, { what: 'Reading the sign-in resource', why: 'it names no resource' }) });
   const named = resource.authorization_servers?.[0];
   const issuer = typeof named === 'string' && URL.canParse(named) ? new URL(named).origin : origin;
-  const server = await asJson(await fetchImpl(`${issuer}/.well-known/oauth-authorization-server`), 'Reading the sign-in server');
-  for (const name of ['authorization_endpoint', 'token_endpoint']) if (typeof server[name] !== 'string') throw new TrillionError(`The sign-in server names no ${name}.`);
+  const server = await asJson(await fetchImpl(`${issuer}/.well-known/oauth-authorization-server`), 'Reading the sign-in server', rules);
+  for (const name of ['authorization_endpoint', 'token_endpoint']) if (typeof server[name] !== 'string') throw new TrillionError(rules.words.sign_in_step_failed, { detail: fill(rules.words.details.sign_in_step_failed, { what: 'Reading the sign-in server', why: `it names no ${name}` }) });
   return { authorization_endpoint: server.authorization_endpoint, token_endpoint: server.token_endpoint, revocation_endpoint: server.revocation_endpoint ?? null, resource: resource.resource };
 }
 
@@ -438,7 +438,7 @@ export async function discover(origin, { fetchImpl = fetch, resourceDoor = `${or
 export async function refreshGrant(grant, { fetchImpl = fetch, rules = settings, now = Date.now } = {}) {
   const response = await fetchImpl(grant.token_endpoint, form({ grant_type: 'refresh_token', refresh_token: grant.refresh_token, client_id: grant.client_id, resource: grant.resource }));
   if (response.status === 400 || response.status === 401) throw new TrillionError(rules.words.sign_in_ended, { status: 3 });
-  return grantOf(await asJson(response, 'Renewing this computer\'s sign-in'), { client_id: grant.client_id, origin: grant.origin, now, rules, found: grant });
+  return grantOf(await asJson(response, 'Renewing this computer\'s sign-in', rules), { client_id: grant.client_id, origin: grant.origin, now, rules, found: grant });
 }
 
 /** The credential for this run: TRILLION_KEY (a machine with no Keychain or file), else the sign-in
@@ -510,24 +510,24 @@ export function doorFor({ asked = null, credential = null, declared = null, rule
   // A key goes to this computer's local door; a sign-in goes there when its pass was issued by the origin this computer's engine
   // serves (the app's declared public origin). The engine admits its own loopback address, so no Host is sent.
   const own = credential?.kind === 'key' || (credential?.kind === 'sign-in' && localHost !== null && new URL(credential.origin).host === localHost);
-  if (!asked && own && localMcp) return { ...at(localMcp), name: fill(rules.words.local_door, { mcp: localMcp }), local: true, public: false };
+  if (!asked && own && localMcp) return { ...at(localMcp), name: rules.words.local_door, local: true, public: false };
   const named = asked ?? credential?.origin ?? declared;
   if (!named) throw new TrillionError(rules.words.no_origin, { status: 2 });
   const origin = named.replace(/\/$/, '');
   const isPublic = origin === declared;
   const mcp = `${origin}/mcp`;
-  return { ...at(mcp), name: fill(isPublic ? rules.words.public_door : rules.words.named_door, { mcp }), local: false, public: isPublic };
+  return { ...at(mcp), name: isPublic ? rules.words.public_door : rules.words.named_door, local: false, public: isPublic };
 }
 
 /** Asks this computer's engine to hold the person the pass or key names (`POST /persons/add` at its own loopback address, which
  *  it answers only to a request from this computer: someone here, as this login is). Answers { person, added }; null when this
  *  computer has no local door; a TrillionError saying why when the engine refused. */
-export async function addPersonHere({ localMcp, bearer, fetchImpl = fetch }) {
+export async function addPersonHere({ localMcp, bearer, fetchImpl = fetch, rules = settings }) {
   if (!localMcp) return null;
   const url = new URL('/persons/add', localMcp);
-  const response = await fetchImpl(url, { method: 'POST', headers: { authorization: `Bearer ${bearer}` } }).catch(error => { throw new TrillionError(`This computer's engine did not answer at ${url.origin}: ${error.cause?.code ?? error.message}.`); });
+  const response = await fetchImpl(url, { method: 'POST', headers: { authorization: `Bearer ${bearer}` } }).catch(error => { throw new TrillionError(rules.words.not_running, { status: 4, detail: fill(rules.words.details.not_running_engine, { url: url.origin, why: error.cause?.code ?? error.message }) }); });
   const answer = await response.json().catch(() => ({}));
-  if (!response.ok) throw new TrillionError(`This computer's engine did not take you in (${response.status} ${answer.error ?? 'refused'}).`);
+  if (!response.ok) throw new TrillionError(response.status === 401 ? rules.words.refused : rules.words.not_taken_in, { status: response.status === 401 ? 3 : 4, detail: fill(rules.words.details.not_taken_in, { url: url.origin, status: response.status, why: answer.error ?? 'refused' }) });
   return answer;
 }
 
@@ -569,8 +569,7 @@ export function trillionClient({ door, credential, fetchImpl = fetch, rules = se
   const signal = () => AbortSignal.timeout(timeoutSeconds * 1000);
   const gap = (attempt, asked = null) => retryGap(rules.retry, attempt, asked, random);
   const refused = () => new TrillionError(credential.kind === 'key' && !door.local && door.localMcp !== door.mcp && (door.public || door.localMcp)
-    ? fill(rules.words.refused_key_at_door, { door: door.name, local: door.localMcp ? fill(rules.words.local_door_named, { mcp: door.localMcp }) : '' })
-    : fill(rules.words.refused, { door: door.name }), { status: 3 });
+    ? rules.words.refused_key_at_door : rules.words.refused, { status: 3, detail: fill(rules.words.details.refused, { mcp: door.mcp, kind: credential.kind, where: credential.where }) });
   async function send(body, { idempotent }) {
     for (let attempt = 0; ; attempt += 1) {
       let response = null, failure = null;
@@ -579,11 +578,15 @@ export function trillionClient({ door, credential, fetchImpl = fetch, rules = se
       // Every try carries the same request_key, so a try after a lost or slow answer is answered as the first was.
       if (passing && attempt < rules.retry.count) { await wait(gap(attempt) * 1000); continue; }
       const maybe = idempotent ? '' : ' It may have happened; read it back before trying again.';
-      if (failure?.name === 'TimeoutError') throw new TrillionError(fill(rules.words.no_answer, { door: door.name, tries: attempt + 1 }) + maybe, { status: 4 });
-      if (failure) throw new TrillionError(fill(rules.words.unreachable, { door: door.name, why: failure.cause?.code ?? failure.message }) + maybe, { status: 4 });
+      if (failure?.name === 'TimeoutError') throw new TrillionError(fill(rules.words.no_answer, { trillion: door.name, tries: attempt + 1 }) + maybe, { status: 4, detail: fill(rules.words.details.no_answer, { mcp: door.mcp, seconds: timeoutSeconds, tries: attempt + 1 }) });
+      if (failure) {
+        const why = failure.cause?.code ?? failure.message;
+        throw door.local ? new TrillionError(rules.words.not_running, { status: 4, detail: fill(rules.words.details.not_running, { mcp: door.mcp, why }) })
+          : new TrillionError(fill(rules.words.unreachable, { trillion: door.name }) + maybe, { status: 4, detail: fill(rules.words.details.unreachable, { mcp: door.mcp, why }) });
+      }
       if (response.status === 401) throw refused();
-      if (response.status === 404) throw new TrillionError(fill(rules.words.missing_route, { door: door.name, route: new URL(door.mcp).pathname }), { status: 4 });
-      if (passing || !response.ok) throw new TrillionError(`${door.name} answered ${response.status}.${maybe}`, { status: 4 });
+      if (response.status === 404) throw new TrillionError(fill(rules.words.missing_route, { trillion: door.name }), { status: 4, detail: fill(rules.words.details.missing_route, { mcp: door.mcp, route: new URL(door.mcp).pathname }) });
+      if (passing || !response.ok) throw new TrillionError(fill(rules.words.unreachable, { trillion: door.name }) + maybe, { status: 4, detail: fill(rules.words.details.answered, { mcp: door.mcp, status: response.status }) });
       return response;
     }
   }
@@ -593,8 +596,8 @@ export function trillionClient({ door, credential, fetchImpl = fetch, rules = se
     const text = await response.text();
     let reply;
     try { reply = repliesOf(text).find(item => item?.id === id); } catch { reply = null; }
-    if (!reply) throw new TrillionError(`${door.name} answered ${response.status} with no reply to ${method}.`, { status: 4 });
-    if (reply.error) throw new TrillionError(reply.error.message ?? `${door.name} refused ${method}.`, { answer: reply.error });
+    if (!reply) throw new TrillionError(fill(rules.words.unreachable, { trillion: door.name }), { status: 4, detail: fill(rules.words.details.no_reply, { mcp: door.mcp, status: response.status, method }) });
+    if (reply.error) throw new TrillionError(reply.error.message ?? fill(rules.words.refused_code, { trillion: door.name }), { answer: reply.error, detail: fill(rules.words.details.answered, { mcp: door.mcp, status: `an error to ${method}` }) });
     return reply.result;
   }
   async function tool(name, args, { idempotent = false } = {}) {
@@ -610,7 +613,8 @@ export function trillionClient({ door, credential, fetchImpl = fetch, rules = se
       const words = code ? rules.words.codes[code] ?? rules.words.refused_code : null;
       // The engine names the step that refused in `cause` (file, line, and the error); the message names the door and the code.
       const cause = typeof answer?.cause === 'string' ? ` Cause: ${answer.cause}` : '';
-      throw Object.assign(new TrillionError((error.message ?? answer?.text ?? (words ? fill(words, { door: door.name, code, tool: args?.input?.tool ?? name }) : `${name} was refused.`)) + cause, { answer }), { code });
+      const said = words ? fill(words, { trillion: door.name, code, tool: args?.input?.tool ?? name }) : null;
+      throw Object.assign(new TrillionError(error.message ?? answer?.text ?? said ?? fill(rules.words.refused_code, { trillion: door.name }), { answer, detail: `${fill(rules.words.details.refused_code, { mcp: door.mcp, tool: name, code: code ?? 'no code' })}${cause}` }), { code });
     }
   }
   const op = (address, method, input = {}, { idempotent = false, requestKey = randomUUID() } = {}) =>
@@ -618,7 +622,7 @@ export function trillionClient({ door, credential, fetchImpl = fetch, rules = se
   async function whoami() {
     const result = await rpc('initialize', { protocolVersion: rules.engine.protocol_version, capabilities: {}, clientInfo: { name: rules.client_name, version: rules.client_version } });
     const account = result?._meta?.[rules.engine.account_meta]?.account_id;
-    if (typeof account !== 'string' || !account) throw new TrillionError(fill(rules.words.no_account, { door: door.name }), { status: 4 });
+    if (typeof account !== 'string' || !account) throw new TrillionError(rules.words.no_account, { status: 4, detail: fill(rules.words.details.no_account, { mcp: door.mcp }) });
     return { account, server: result.serverInfo ?? null, capabilities: result.capabilities ?? {} };
   }
   return { rpc, tool, op, whoami, door, credential, wait };
@@ -634,11 +638,11 @@ export async function allPages(client, address, method, input, field, rules = se
     rows.push(...(Array.isArray(answer?.[field]) ? answer[field] : []));
     const next = answer?.next ?? null;
     if (next === null) return rows;
-    if (seen.has(next) || next === after) throw new TrillionError(fill(rules.words.pager_stuck, { method, next: short(next, 80) }), { status: 4 });
+    if (seen.has(next) || next === after) throw new TrillionError(rules.words.pager_stuck, { status: 4, detail: fill(rules.words.details.pager_stuck, { method, next: short(next, 80) }) });
     seen.add(next);
     after = next;
   }
-  throw new TrillionError(fill(rules.words.too_many_pages, { method, pages: rules.engine.most_pages }), { status: 4 });
+  throw new TrillionError(rules.words.too_many_pages, { status: 4, detail: fill(rules.words.details.too_many_pages, { method, pages: rules.engine.most_pages }) });
 }
 
 /** The BLAKE3 of bytes as the door names it: 64 hex digits, the content identity's `1f:` prefix taken off. */
@@ -657,7 +661,7 @@ const bytePageOf = answer => (object(answer) && object(answer.byte_page) ? answe
  * JSON, else answered as text.
  */
 async function wholeAnswer(client, address, method, input, first, { requestKey, rules = settings } = {}) {
-  const broken = why => new TrillionError(fill(rules.words.byte_page_broken, { method, why }), { status: 4 });
+  const broken = why => new TrillionError(rules.words.byte_page_broken, { status: 4, detail: fill(rules.words.details.byte_page_broken, { method, why }) });
   const head = bytePageOf(first);
   const { total, blake3 } = head;
   if (!Number.isInteger(total) || total < 0) throw broken('no whole size');
@@ -675,14 +679,14 @@ async function wholeAnswer(client, address, method, input, first, { requestKey, 
     if (at > total) throw broken(`the pages hold more than ${total} bytes`);
     if (at === total) break;
     if (page.next_after_byte !== at) throw broken(`next_after_byte is ${page.next_after_byte ?? 'null'} at byte ${at} of ${total}`);
-    if (count >= rules.engine.most_pages) throw new TrillionError(fill(rules.words.too_many_pages, { method, pages: rules.engine.most_pages }), { status: 4 });
+    if (count >= rules.engine.most_pages) throw new TrillionError(rules.words.too_many_pages, { status: 4, detail: fill(rules.words.details.too_many_pages, { method, pages: rules.engine.most_pages }) });
     const next = await client.op(address, method, { ...input, after_byte: at }, { idempotent: true, requestKey });
     page = bytePageOf(next);
     if (!page) throw broken(`the page after byte ${at} is not a byte_page`);
   }
   const joined = Buffer.concat(parts);
   const got = blake3Hex(joined);
-  if (got !== blake3.toLowerCase()) throw new TrillionError(fill(rules.words.byte_page_mismatch, { method, bytes: joined.length, got, want: blake3 }), { status: 4 });
+  if (got !== blake3.toLowerCase()) throw new TrillionError(rules.words.byte_page_mismatch, { status: 4, detail: fill(rules.words.details.byte_page_mismatch, { method, bytes: joined.length, got, want: blake3 }) });
   const text = joined.toString('utf8');
   try { return JSON.parse(text); } catch { return text; }
 }
@@ -698,7 +702,7 @@ export async function opWhole(client, address, method, input, { requestKey = ran
     const line = fill(rules.words.request_key_line, { key: requestKey });
     const hint = error instanceof TrillionError && error.status === 4 ? ` ${fill(rules.words.retry_with_key, { key: requestKey, flag: '--request-key' })}` : '';
     if (error instanceof TrillionError) {
-      throw Object.assign(new TrillionError(`${error.message} ${line}${hint}`, { status: error.status }), { answer: error.answer, code: error.code });
+      throw Object.assign(new TrillionError(`${error.message} ${line}${hint}`, { status: error.status, detail: error.detail }), { answer: error.answer, code: error.code });
     }
     throw error;
   }
@@ -710,12 +714,15 @@ async function opWholeOnce(client, address, method, input, { requestKey, rules }
   const first = await settledWrite(answerKey => client.op(address, method, input, { requestKey: answerKey }), requestKey, {
     sleep: client.wait,
     pending: answer => answer?.accepted === true && answer?.pending === true,
-    expired: () => new TrillionError(fill(rules.words.write_pending, { method }), { status: 4 }),
+    expired: () => new TrillionError(rules.words.write_pending, { status: 4 }),
   });
   return bytePageOf(first) ? wholeAnswer(client, address, method, input, first, { requestKey, rules }) : first;
 }
 
 // ── Signing in once ──────────────────────────────────────────────────────────────────────────────────────────────
+
+/** The page the browser lands on when the sign-in ends (signed-in-page.html: the Trillion logo on black, one sentence). */
+const signedInPage = message => readFileSync(join(HERE, 'signed-in-page.html'), 'utf8').replace('{message}', () => message.replace(/[&<>]/g, mark => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[mark]));
 
 const base64url = bytes => Buffer.from(bytes).toString('base64url');
 
@@ -741,22 +748,21 @@ export async function signInWithBrowser({ origin, resourceDoor, rules = settings
     const url = new URL(request.url, 'http://127.0.0.1');
     if (url.pathname !== '/callback') { response.writeHead(404).end(); return; }
     const done = url.searchParams.get('state') === state && url.searchParams.get('code');
-    response.writeHead(done ? 200 : 400, { 'content-type': 'text/plain; charset=utf-8' })
-      .end(done ? 'Signed in. You can close this tab and go back to the terminal.' : `Sign-in did not finish: ${url.searchParams.get('error_description') ?? url.searchParams.get('error') ?? 'the answer did not match this sign-in'}.`);
+    response.writeHead(done ? 200 : 400, { 'content-type': 'text/html; charset=utf-8' }).end(signedInPage(done ? rules.words.sign_in_page_done : rules.words.sign_in_page_failed));
     if (done) resolveCode(url.searchParams.get('code'));
-    else rejectCode(new TrillionError(`Sign-in did not finish: ${url.searchParams.get('error_description') ?? url.searchParams.get('error') ?? 'the answer did not match this sign-in'}.`));
+    else rejectCode(new TrillionError(rules.words.sign_in_step_failed, { detail: fill(rules.words.sign_in_failed, { why: url.searchParams.get('error_description') ?? url.searchParams.get('error') ?? rules.words.sign_in_failed_unknown }) }));
   });
   await new Promise((resolve, reject) => { server.once('error', reject); server.listen(rules.client.redirect_port ?? 0, '127.0.0.1', resolve); });
   const redirect = `http://127.0.0.1:${server.address().port}/callback`;
   try {
     const authorize = new URL(found.authorization_endpoint);
     for (const [name, value] of Object.entries({ response_type: 'code', client_id: `${origin}${rules.client.id_path}`, redirect_uri: redirect, code_challenge: challenge, code_challenge_method: 'S256', state, scope: rules.scope, resource: found.resource })) authorize.searchParams.set(name, value);
-    Promise.resolve().then(() => open(authorize.href)).catch(error => rejectCode(new TrillionError(`The browser could not open the sign-in (${error.message.split('\n')[0]}). Open this address yourself: ${authorize.href}`)));
+    Promise.resolve().then(() => open(authorize.href)).catch(error => rejectCode(new TrillionError(fill(rules.words.browser_not_opened, { link: authorize.href }), { detail: error.message.split('\n')[0] })));
     let timer;
-    const late = new Promise((resolve, reject) => { timer = setTimeout(() => reject(new TrillionError(`No sign-in arrived within ${rules.sign_in_wait_seconds} seconds. Run trillion login again.`)), rules.sign_in_wait_seconds * 1000); });
+    const late = new Promise((resolve, reject) => { timer = setTimeout(() => reject(new TrillionError(fill(rules.words.sign_in_late, { seconds: rules.sign_in_wait_seconds }))), rules.sign_in_wait_seconds * 1000); });
     const code = await Promise.race([arrived, late]).finally(() => clearTimeout(timer));
-    const tokens = await asJson(await fetchImpl(found.token_endpoint, form({ grant_type: 'authorization_code', code, redirect_uri: redirect, client_id: `${origin}${rules.client.id_path}`, code_verifier: verifier, resource: found.resource })), 'The sign-in exchange');
-    if (typeof tokens.access_token !== 'string' || !tokens.access_token) throw new TrillionError('The sign-in answered no access token.');
+    const tokens = await asJson(await fetchImpl(found.token_endpoint, form({ grant_type: 'authorization_code', code, redirect_uri: redirect, client_id: `${origin}${rules.client.id_path}`, code_verifier: verifier, resource: found.resource })), 'The sign-in exchange', rules);
+    if (typeof tokens.access_token !== 'string' || !tokens.access_token) throw new TrillionError(rules.words.sign_in_step_failed, { detail: fill(rules.words.details.sign_in_step_failed, { what: 'The sign-in exchange', why: 'no access token' }) });
     return grantOf(tokens, { client_id: `${origin}${rules.client.id_path}`, origin, now, found, rules });
   } finally { server.close(); }
 }
@@ -1022,7 +1028,7 @@ export async function serveOnce({ client, me, command, state, rules = settings, 
 const HELP = `trillion: see your AIs and their work, and run your Trillion's tools, from any shell.
 
   trillion setup [--harness claude-code,codex,cursor]   sign in once, put trillion on PATH, write each app's skill
-  trillion login | logout | whoami                       this computer's credential, the account and the door it reaches
+  trillion login | logout | whoami                       sign in to Trillion, sign out, or say who is signed in
   trillion connection [--write]                          the address and key source local bridges read, with a command per app
   trillion who [--all]                                   your AIs seen lately (--all: every one): ready or away
   trillion publish [--dry-run]                           write this AI's own record: its facts and that it was seen now
@@ -1053,7 +1059,7 @@ const HELP = `trillion: see your AIs and their work, and run your Trillion's too
   trillion serve -- COMMAND ARGS | serve --ag-ui URL     stay ready: run COMMAND (or an AG-UI agent) for each job taken
 
   AI ids are ai:NAME (the ai: may be left off); job ids are ai-job:KEY. --as AI acts as another AI id (default: from
-  TRILLION_AGENT or the AI running this). --json prints the answer.`;
+  TRILLION_AGENT or the AI running this). --json prints the answer. --verbose adds the technical details of a refusal.`;
 
 /** Wake declarations use the caller's records and wake rights. Writes use the root identity when present, else its
  * exact prior type/value, and each step gets a stable child key derived from this invocation's request key. */
@@ -1095,11 +1101,11 @@ async function scheduleCauses(client, rules = settings) {
     pages.push(answer);
     const next = answer?.next ?? null;
     if (next === null) return pages;
-    if (seen.has(next) || next === after) throw new TrillionError(fill(rules.words.pager_stuck, { method: rules.engine.wake.causes, next: short(next, 80) }), { status: 4 });
+    if (seen.has(next) || next === after) throw new TrillionError(rules.words.pager_stuck, { status: 4, detail: fill(rules.words.details.pager_stuck, { method: rules.engine.wake.causes, next: short(next, 80) }) });
     seen.add(next);
     after = next;
   }
-  throw new TrillionError(fill(rules.words.too_many_pages, { method: rules.engine.wake.causes, pages: rules.engine.most_pages }), { status: 4 });
+  throw new TrillionError(rules.words.too_many_pages, { status: 4, detail: fill(rules.words.details.too_many_pages, { method: rules.engine.wake.causes, pages: rules.engine.most_pages }) });
 }
 const scheduleWake = (pages, declaration) => pages.flatMap(page => Array.isArray(page?.wakes) ? page.wakes : [])
   .find(wake => wake?.origin === 'person' && wake.tool === declaration?.tool && wake.id === declaration?.id) ?? null;
@@ -1371,7 +1377,7 @@ async function signedInClient(context) {
   if (!credential) throw new TrillionError(settings.words.no_credential, { status: 3 });
   const door = doorFor({ asked: context.asked, declared: context.declared, credential, localMcp: context.localMcp() });
   // The key this computer keeps goes only to this computer's local door or the address declared in TRILLION_ORIGIN; any other door gets a key the person gives for it (TRILLION_KEY).
-  if (credential.kind === 'key' && credential.where !== 'TRILLION_KEY' && !door.local && !door.public) throw new TrillionError(fill(settings.words.kept_key_elsewhere, { mcp: door.mcp }), { status: 2 });
+  if (credential.kind === 'key' && credential.where !== 'TRILLION_KEY' && !door.local && !door.public) throw new TrillionError(settings.words.kept_key_elsewhere, { status: 3 });
   const timeoutSeconds = context.flags.timeout === undefined ? undefined : timeoutOf(context.flags.timeout);
   return trillionClient({ door, credential, fetchImpl: context.fetchImpl, wait: context.wait, ...(timeoutSeconds === undefined ? {} : { timeoutSeconds }) });
 }
@@ -1425,24 +1431,41 @@ export function connectionOf({ origin, store, rules = settings, account = null, 
 }
 const keepConnection = (context, door, account) => { context.state.keepConnection(connectionOf({ origin: door.origin, store: context.store, account })); };
 
-/** What this login says about this computer's engine: it is asked to hold the person the credential names (`addPersonHere`), and
- *  the sentence says whether it does now. A refusal is said in the sentence, never thrown: the sign-in itself is made. */
-async function engineSentence(context, client) {
+/** The email a pass names (its `email` claim), or null: a key, or a pass that names none. Read to say who is signed in; the pass is
+ *  never checked here (the door checks it on every call). */
+export function emailOf(credential) {
+  const parts = String(credential?.bearer ?? '').split('.');
+  if (parts.length !== 3) return null;
   try {
-    const held = await addPersonHere({ localMcp: context.localMcp(), bearer: client.credential.bearer, fetchImpl: context.fetchImpl });
-    return held ? ` This computer's engine ${held.added ? 'now serves' : 'already serves'} you.` : '';
-  } catch (error) { return ` ${error.message}`; }
+    const email = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8')).email;
+    return typeof email === 'string' && email ? email : null;
+  } catch { return null; }
+}
+const signedInWords = (credential, rules = settings) => { const email = emailOf(credential); return email ? fill(rules.words.signed_in, { email }) : rules.words.signed_in_no_email; };
+
+/** Holds the person at this computer's engine (`addPersonHere`), then asks who they are: a main-built engine serves no one it has
+ *  not been told to hold, so asking first is refused. Answers { account }; null when the credential is refused. An engine that is
+ *  not running is said only when the door in use is that engine, since a sign-in also works at the public address. */
+async function knownAs(context, client) {
+  try {
+    await addPersonHere({ localMcp: context.localMcp(), bearer: client.credential.bearer, fetchImpl: context.fetchImpl }).catch(error => {
+      if (!(error instanceof TrillionError) || error.status === 3 || client.door.local) throw error;
+    });
+    return await client.whoami();
+  } catch (error) {
+    if (error instanceof TrillionError && error.status === 3) return null;
+    throw error;
+  }
 }
 
 async function login(context, { again = false } = {}) {
-  const existing = await credentialFor({ env: context.env, store: context.store, grants: context.grants, fetchImpl: context.fetchImpl });
-  if (existing && !again) {
-    const client = trillionClient({ door: doorFor({ asked: context.asked, declared: context.declared, credential: existing, localMcp: context.localMcp() }), credential: existing, fetchImpl: context.fetchImpl, wait: context.wait });
+  if (!again) {
     // A credential its door refuses is no sign-in: the person signs in again below, instead of being told it is refused.
-    const known = await client.whoami().catch(error => { if (error instanceof TrillionError) return null; throw error; });
+    const client = await signedInClient(context).catch(error => { if (error instanceof TrillionError && error.status === 3) return null; throw error; });
+    const known = client && await knownAs(context, client);
     if (known) {
       keepConnection(context, client.door, known.account);
-      return `Already signed in to Trillion as account ${known.account}, with the ${existing.kind} in ${existing.where}, at ${client.door.name}.${await engineSentence(context, client)}`;
+      return signedInWords(client.credential);
     }
   }
   if (context.flags['key-stdin']) {
@@ -1461,9 +1484,10 @@ async function login(context, { again = false } = {}) {
     context.state.keepMade({ kind: 'sign-in', where: context.grants.where, at: new Date().toISOString() });
   }
   const client = await signedInClient(context);
-  const { account } = await client.whoami();
-  keepConnection(context, client.door, account);
-  return `Signed in to Trillion as account ${account}, at ${client.door.name}. The ${client.credential.kind} is in ${client.credential.where}.${await engineSentence(context, client)}`;
+  const known = await knownAs(context, client);
+  if (!known) throw new TrillionError(settings.words.refused, { status: 3 });
+  keepConnection(context, client.door, known.account);
+  return signedInWords(client.credential);
 }
 
 async function logout(context) {
@@ -1473,11 +1497,10 @@ async function logout(context) {
     context.grants.forget();
     context.state.forgetMade();
     context.state.forgetConnection();
-    return 'Signed out: this computer\'s sign-in is ended and removed from this computer.';
+    return settings.words.signed_out;
   }
   const kept = await credentialFor({ env: context.env, store: context.store, grants: context.grants, fetchImpl: context.fetchImpl }).catch(() => null);
-  if (!kept) return 'Not signed in; there is nothing to sign out of.';
-  return `The ${kept.kind} in ${kept.where} was not made by this program (the Trillion Mac app keeps it), so it was left on. Turn it off in your account's list of connected AIs.`;
+  return kept ? settings.words.signed_out_elsewhere_kept : settings.words.not_signed_in;
 }
 
 async function serve(context) {
@@ -1690,8 +1713,8 @@ export async function main(argv, seams = {}) {
     const { account } = await client.whoami();
     const { agent_id, ai_id, held_as, app, model, provider, computer, harness } = context.me;
     return flags.json ? JSON.stringify({ account_id: account, agent_id, ai_id, held_as, app, model, provider, computer, harness, door: client.door.mcp, local: client.door.local }, null, 2)
-      : [`account ${account}`, `ai ${ai_id}`, `facts ${[app, model, provider, computer].filter(Boolean).join(', ')}`,
-        ...(held_as.length ? [`jobs taken before this session had its own id are finished as ${held_as.join(', ')}`] : []), `door ${client.door.name}`].join('\n');
+      : [signedInWords(client.credential), fill(settings.words.whoami_ai, { ai: ai_id }), fill(settings.words.whoami_facts, { facts: [app, model, provider, computer].filter(Boolean).join(', ') }),
+        ...(flags.verbose === true ? [`account ${account}`, ...(held_as.length ? [`jobs taken before this session had its own id are finished as ${held_as.join(', ')}`] : []), `door ${client.door.mcp}`] : [])].join('\n');
   }
   if (command === 'schedule') {
     const requestKey = flags['request-key'] ?? randomUUID();
@@ -1753,8 +1776,10 @@ if (startedAsProgram) {
   run.main(process.argv.slice(2)).then(text => { if (text) process.stdout.write(`${text}\n`); }, error => {
     const known = error instanceof run.TrillionError || error instanceof TrillionError;
     const words = known ? error.message : `trillion: ${error.stack ?? error}`;
+    // The technical line of a refusal is printed only with --verbose.
+    const technical = known && error.detail && process.argv.includes('--verbose') ? error.detail : null;
     // With --json a refusal is {code, message} on the error line, so a program reads the engine's code and never the words.
-    process.stderr.write(`${process.argv.includes('--json') ? JSON.stringify({ code: error.code ?? null, message: words }) : words}\n`);
+    process.stderr.write(`${process.argv.includes('--json') ? JSON.stringify({ code: error.code ?? null, message: words, ...(technical ? { detail: technical } : {}) }) : [words, technical].filter(Boolean).join('\n')}\n`);
     process.exitCode = known ? error.status : 1;
   });
 }

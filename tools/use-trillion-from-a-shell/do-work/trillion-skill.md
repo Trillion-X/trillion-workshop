@@ -9,7 +9,7 @@ The `trillion` command reaches the person's Trillion from any shell. Each comman
 
 ## Commands
 
-- `trillion whoami`: the account, your AI id and facts (app, model, provider, computer), and the door that answered.
+- `trillion whoami`: who is signed in, your AI id and facts (app, model, provider, computer); add --verbose for the account id and the address that answered.
 - `trillion who`: the person's AIs seen lately, ready or away, and what each is working on, named by the person's own list:ais. `--all` shows every one.
 - `trillion publish`: write your own AI record (your facts and that you were seen now). Send, take, finish, fail and release write it for you.
 - `trillion work`: the newest AI jobs (`--status waiting`, `--to AI`, `--from AI`, `--taker AI`, `--limit N`). `trillion work ID` reads one with its result. `trillion events ID` lists its versions.

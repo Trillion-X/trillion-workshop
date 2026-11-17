@@ -1,0 +1,38 @@
+{
+  "_what": "Words and shapes no sentence a person reads may contain, as DATA: the sign-in pages' words and the trillion command's words (tools/use-trillion-from-a-shell/do-work/trillion.json, `words`) are each checked against this one list by their own test. `words` match whole words, any case; `patterns` are regular expressions (flags `i`). Technical detail a person asks for with --verbose is not person-facing and is kept apart from these checks.",
+  "words": [
+    "door",
+    "credential",
+    "credentials",
+    "MCP",
+    "engine",
+    "keychain",
+    "localhost",
+    "loopback",
+    "OAuth",
+    "PKCE",
+    "JWT",
+    "JSON",
+    "BLAKE3",
+    "HTTP",
+    "HTTPS",
+    "token",
+    "endpoint",
+    "origin"
+  ],
+  "patterns": [
+    "https?://",
+    "\\b\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\b",
+    ":\\d{4,5}\\b",
+    "\\b[0-9a-f]{32,}\\b",
+    "\\b(?:401|403|404|500|502|503)\\b"
+  ],
+  "placeholders": [
+    "mcp",
+    "url",
+    "route",
+    "hash",
+    "account",
+    "origin"
+  ]
+}

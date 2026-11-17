@@ -45,7 +45,7 @@ test('a try that gets no answer is asked again with the same request key until t
   const client = trillionClient({ door, credential, rules, fetchImpl: silent.fetchImpl, wait: async ms => { waits.push(ms); }, random: () => 0 });
   await assert.rejects(client.op('@own-records', 'records:write', { records: [] }, { requestKey: 'one-key' }), error => {
     assert.ok(error instanceof TrillionError);
-    assert.match(error.message, /did not answer after 4 tries with the same request key.* It may have happened/);
+    assert.match(error.message, /did not answer after 4 tries\..* It may have happened/);
     return true;
   });
   assert.equal(silent.bodies.length, 4);

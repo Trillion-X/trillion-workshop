@@ -49,7 +49,8 @@ test('trillion op refuses a pending write the writer later refuses, and says why
   const door = fakeDoor([pending('k-2'), refused]);
   await assert.rejects(run(WRITE, door), error => {
     assert.ok(error instanceof TrillionError, String(error));
-    assert.match(error.message, /command_settle_mismatch|refused/);
+    assert.equal(error.code, 'command_settle_mismatch');
+    assert.match(error.detail, /command_settle_mismatch/);
     return true;
   });
   assert.equal(door.seen.length, 2, 'the refusal is read by asking the same key again, not reported as kept');

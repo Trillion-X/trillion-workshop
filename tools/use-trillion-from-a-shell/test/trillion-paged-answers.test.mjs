@@ -10,6 +10,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
+import settings from '../do-work/trillion.json' with { type: 'json' };
 import { main, stateOf, TrillionError } from '../do-work/trillion.mjs';
 
 const ORIGIN = 'http://127.0.0.1:8788';
@@ -116,7 +117,8 @@ test('a BLAKE3 that does not match the joined pages is refused, and nothing is p
   await assert.rejects(run(['call', 'tool:any', '{}'], door), error => {
     assert.ok(error instanceof TrillionError);
     assert.equal(error.status, 4);
-    assert.match(error.message, new RegExp(`joined ${whole.length} bytes have BLAKE3 ${makeHashCodeHexFromBytes(whole).slice(3)}, not the f{64}`));
+    assert.ok(error.message.startsWith(settings.words.byte_page_mismatch));
+    assert.match(error.detail, new RegExp(`joined ${whole.length} bytes have BLAKE3 ${makeHashCodeHexFromBytes(whole).slice(3)}, not f{64}`));
     return true;
   });
   assert.equal(door.seen.length, 4, 'every page was read before the check');
@@ -125,7 +127,7 @@ test('a BLAKE3 that does not match the joined pages is refused, and nothing is p
 test('a page whose bytes were changed is refused by the BLAKE3', async () => {
   const whole = bigAnswer();
   const door = fakeDoor({ whole, shape: page => (page.offset ? { ...page, base64: Buffer.from(Buffer.from(page.base64, 'base64').map(byte => byte ^ 1)).toString('base64') } : page) });
-  await assert.rejects(run(['call', 'tool:any', '{}'], door), /have BLAKE3 [0-9a-f]{64}, not the/);
+  await assert.rejects(run(['call', 'tool:any', '{}'], door), error => error.message.startsWith(settings.words.byte_page_mismatch) && /have BLAKE3 [0-9a-f]{64}, not [0-9a-f]{64}/.test(error.detail));
 });
 
 test('pages that do not hold together are refused before they are joined', async () => {
@@ -139,7 +141,7 @@ test('pages that do not hold together are refused before they are joined', async
     [page => (page.offset === 0 ? { ...page, length: page.length + 1 } : page), /says \d+ bytes and holds/],
     [page => ({ ...page, blake3: 'not a hash' }), /no BLAKE3/],
   ];
-  for (const [shape, words] of cases) await assert.rejects(run(['call', 'tool:any', '{}'], fakeDoor({ whole, shape })), words);
+  for (const [shape, words] of cases) await assert.rejects(run(['call', 'tool:any', '{}'], fakeDoor({ whole, shape })), error => error.message.startsWith(settings.words.byte_page_broken) && words.test(error.detail));
 });
 
 test('a page the door could not answer at once is asked again under the same key', async () => {
