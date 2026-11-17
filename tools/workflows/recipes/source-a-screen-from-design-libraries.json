@@ -1,0 +1,266 @@
+{
+  "about": "workflow:source-a-screen-from-design-libraries: the order and branches every screen or component is designed by. A ready-made whole comes first; real products are looked at only when no whole fits, and then the parts are taken from the component library again.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:source-a-screen-from-design-libraries",
+        "label": "Source a screen from the design libraries",
+        "job": "Design a screen, flow or component by taking it ready-made from the component library (21st.dev) when a whole fit exists; when none does, read how real products do it (Mobbin), take each part from the component library, then make it the person's own look and judge it against the references.",
+        "produces": "A screen, flow or component built from cited library parts, with the component ids and product screen links it came from, and a judged before and after.",
+        "made_from": [
+          "workflow:make-it-once-for-everyone",
+          "workflow:ask-for-ten-and-keep-the-winner"
+        ],
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "need": {
+              "type": "string",
+              "description": "The screen, flow or component wanted, in the person's words (for example a sign-up flow, a feedback form, a nested popover)."
+            },
+            "platform": {
+              "type": "string",
+              "description": "Optional: web, iOS, Android or a browser extension. Left out, it is read from where the screen will live."
+            },
+            "where": {
+              "type": "string",
+              "description": "Optional: the existing screen, route or file it goes into."
+            }
+          },
+          "required": [
+            "need"
+          ]
+        },
+        "source": {
+          "from": "The person, 2026-09-29 about 12:51 AM CST: \"the 21st mcp first is what should be looked at to see if all those screens and ui and stuff exist, if so just take from that, and then if not then look at mobbin mcp see the inspiration then look at 21st mcp see the components we need for that to be replicated then implement that\". 2026-10-05 about 2:44 AM CST: \"the 21st mcp and then mobbin mcp if needed for inspo then back to 21st mcp then all our design on brand stuff and then decision judge models\". 2026-10-09: \"my law of using 21st mcp and then also mobbin mcp and back to 21st mcp\". 2026-11-17: the flow has its own branching rules and belongs in the tree.",
+          "note": "21st.dev and Mobbin are reached through the person's own connected MCP servers; their names are the libraries this flow was given with, and another component library or product-screen library takes the same place."
+        },
+        "steps": [
+          {
+            "id": "find-a-whole-fit",
+            "title": "Look for the whole thing ready-made",
+            "when": "Every run starts here.",
+            "do": "Search the component library (the 21st.dev MCP: search, then get_component on the best matches) for input.need as a whole: the full screen, section, template or flow, not its parts. Run at least three short queries in different words. For each candidate say whether it fits the need as it is (layout, states, platform). Submit fit true with the chosen component ids when one fits as it is; otherwise fit false with every query run and why each near miss falls short.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "fit",
+                "queries"
+              ],
+              "properties": {
+                "fit": {
+                  "type": "boolean"
+                },
+                "queries": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "components": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "near_misses": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "done_when": "fit is true with at least one component id read with get_component, or fit is false with the queries run and the near misses named.",
+            "if_missing": "If the component library cannot be reached, submit fit false with the refusal as a near miss and go on; never build from memory without saying so.",
+            "why": "A ready-made whole is the fastest correct answer: when it exists, everything after it is wasted work.",
+            "good_answer": "Passes: three or more queries, a get_component read for each fit, and a plain reason for each rejected near miss. Fails: one query, or a fit claimed from a search title alone.",
+            "came_from": [
+              "the person 2026-09-29: 21st first, if the screens exist just take from that"
+            ],
+            "part_of": [
+              "source-a-screen-from-design-libraries"
+            ],
+            "position": 0
+          },
+          {
+            "id": "read-real-products",
+            "title": "See how real products do it",
+            "when": "Only when find-a-whole-fit answered fit false.",
+            "do": "Search the product-screen library (the Mobbin MCP: search_screens for a screen, search_flows for a flow) for input.need on input.platform. Pick the three to five best real-product examples. For each, write its anatomy: the parts in order (for example header, field group, primary action, empty state, success state), their hierarchy and spacing, and the states the flow moves through. Cite each example's mobbin_url.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "examples",
+                "anatomy"
+              ],
+              "properties": {
+                "examples": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "url": {
+                        "type": "string"
+                      },
+                      "product": {
+                        "type": "string"
+                      },
+                      "taken": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "anatomy": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "done_when": "At least three cited examples and one anatomy list whose parts the next step can search for one by one.",
+            "if_missing": "If the product-screen library cannot be reached, say so, write the anatomy from the near misses of find-a-whole-fit, and mark it as not drawn from real products.",
+            "why": "When no whole exists, real products show which parts and states the thing needs before any part is chosen.",
+            "good_answer": "Passes: each anatomy part traceable to a cited screen. Fails: an anatomy invented without examples, or examples with no links.",
+            "came_from": [
+              "the person 2026-09-29: if not then look at mobbin mcp see the inspiration"
+            ],
+            "part_of": [
+              "source-a-screen-from-design-libraries"
+            ],
+            "position": 1
+          },
+          {
+            "id": "find-the-parts",
+            "title": "Take each part from the component library",
+            "when": "Only when read-real-products ran.",
+            "do": "For each part of read-real-products.anatomy, search the component library again (21st.dev search, then get_component) for that part alone, and choose one component per part. A part with no fit after three queries is named with its queries, and is built from the person's existing shared components rather than written from nothing.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "parts"
+              ],
+              "properties": {
+                "parts": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "part": {
+                        "type": "string"
+                      },
+                      "component": {
+                        "type": "string"
+                      },
+                      "queries": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "done_when": "Every anatomy part has a component id or its queries and the shared component used instead.",
+            "if_missing": "If a part has neither, keep it open with its queries and do not invent markup for it.",
+            "why": "The real products say what the parts are; the component library supplies tested parts so nothing is hand-built that already exists.",
+            "good_answer": "Passes: one row per anatomy part, each with an id or its queries. Fails: parts skipped, or one generic component used for all of them.",
+            "came_from": [
+              "the person 2026-09-29: then look at 21st mcp see the components we need for that to be replicated"
+            ],
+            "part_of": [
+              "source-a-screen-from-design-libraries"
+            ],
+            "position": 2
+          },
+          {
+            "id": "make-it-ours",
+            "title": "Build it in the person's own look",
+            "when": "After find-a-whole-fit answered fit true, or after find-the-parts.",
+            "do": "Build the screen or component at input.where from the chosen components (find-a-whole-fit.components, or find-the-parts.parts), through the person's shared components and their screen look, with no raw interactive markup and no inline styling. Take a screenshot of the real result, and of what was there before when something was.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "built",
+                "after"
+              ],
+              "properties": {
+                "built": {
+                  "type": "string"
+                },
+                "before": {
+                  "type": "string"
+                },
+                "after": {
+                  "type": "string"
+                }
+              }
+            },
+            "done_when": "The built thing is named by its path or address, and an after screenshot of the real result exists.",
+            "if_missing": "If it cannot be shown, say what blocked the screenshot; a saved file is not a shown result.",
+            "why": "Library parts are the floor; the person's own look and shared components make it theirs and keep one owner per part.",
+            "good_answer": "Passes: built from the cited components and shared parts, with real screenshots. Fails: copied markup with inline styles, or no screenshot.",
+            "came_from": [
+              "the person 2026-10-05: then all our design on brand stuff"
+            ],
+            "part_of": [
+              "source-a-screen-from-design-libraries"
+            ],
+            "position": 3
+          },
+          {
+            "id": "judge-it",
+            "title": "Judge it against the references",
+            "when": "After make-it-ours.",
+            "do": "Judge the after screenshot against the chosen references (the whole-fit components, or the cited product screens) with the person's judge models and their design principles: does it look as good or better, are all states present, does it fit the platform. Fix what fails and judge again. Record the verdicts and which branch this run took (whole fit, or real products then parts), so the person's weekly read can tell which branch wins.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "verdict",
+                "branch"
+              ],
+              "properties": {
+                "verdict": {
+                  "type": "string",
+                  "enum": [
+                    "passes",
+                    "fails"
+                  ]
+                },
+                "branch": {
+                  "type": "string",
+                  "enum": [
+                    "whole-fit",
+                    "real-products-then-parts"
+                  ]
+                },
+                "fixes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "done_when": "A passes verdict on the final screenshot, with the branch taken recorded.",
+            "if_missing": "If no judge model answers, say so and keep the run open; never mark it passed by self-review alone.",
+            "why": "The person's bar is a screen the component library itself would be proud of; a judged comparison is what shows it was met.",
+            "good_answer": "Passes: judged against named references, fixes listed, branch recorded. Fails: a pass with no reference, or no branch.",
+            "came_from": [
+              "the person 2026-10-05: and then decision judge models"
+            ],
+            "part_of": [
+              "source-a-screen-from-design-libraries"
+            ],
+            "position": 4
+          }
+        ]
+      }
+    }
+  ]
+}
