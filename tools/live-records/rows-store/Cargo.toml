@@ -1,0 +1,47 @@
+[package]
+name = "rows-store"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "The person's rows in their own SQL database (SQLite or Postgres) behind one small trait, and the refusal causes every error here carries; shared by the tools that keep rows (live-records, live-namespace)"
+
+[lib]
+name = "rows_store"
+path = "src/lib.rs"
+test = true
+
+[dependencies]
+serde = { version = "=1.0.228", features = ["derive"] }
+serde_json = { version = "=1.0.149", features = ["raw_value", "float_roundtrip"] }
+regex = "=1.13.1"
+url = "=2.5.8"
+base64 = "=0.22.1"
+ring = "=0.17.14"
+zeroize = "=1.8.2"
+# Its `mac` feature of `digest` is what gives `InvalidLength` the cause adapter in src/cause_book/foreign_storage_causes.rs names.
+hmac = "=0.12.1"
+content-crypto = { path = "content-crypto" }
+rusqlite = { version = "=0.32.1", features = ["bundled"] }
+tokio = { version = "=1.48.0", features = ["macros", "rt-multi-thread", "net", "signal", "time", "sync", "io-util"] }
+axum = "=0.8.9"
+chacha20poly1305 = "=0.10.1"
+chrono = { version = "=0.4.42", default-features = false, features = ["std", "clock", "serde"] }
+postgres = "=0.19.14"
+tokio-postgres-rustls = "=0.13.0"
+rustls = { version = "=0.23.46", default-features = false, features = ["ring", "std", "tls12", "logging"] }
+rustls-native-certs = "=0.8.5"
+
+[dev-dependencies]
+tempfile = "3"
+# A real Postgres server for the store's tests, fetched once (its archive checked by the publisher's own checksum) and started in a
+# temporary folder by the test itself.
+postgresql_embedded = { version = "=0.20.0", default-features = false, features = ["blocking", "rustls", "theseus"] }
+
+[workspace]
+
+[lints.clippy]
+# The source of this crate is moved from the Namespace tool, which moved it from the engine, and keeps their style; clippy reads all of
+# it for what is wrong (correctness, suspicious) and leaves how it is written to the sources it came from.
+style = { level = "allow", priority = -1 }
+complexity = { level = "allow", priority = -1 }
+perf = { level = "allow", priority = -1 }

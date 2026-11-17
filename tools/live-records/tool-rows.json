@@ -1,0 +1,73 @@
+{
+  "kind": "package-set-records",
+  "record_set": "live-records-tool-rows",
+  "what_this_is": "The Workshop row for the person's own records in tools/live-records: tool:your-records, the session the engine keeps open and reaches by calls through its one door.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:your-records",
+        "label": "Your records",
+        "job": "Every record the person keeps, read, listed, searched, written and recovered by receipt, and the workspace labels, for the engine's one records door, over the person's own database",
+        "description": "The person's own records (tools/live-records) as a session the engine keeps open and reaches only by calls: tools:run at @tools {tool: \"tool:your-records\", call: {name, arguments}} sends one MCP tools/call to the account's one session of this row, which the first call starts (trillion-rust src/tool_runs/tools/sessions.rs `call`); each call is answered on its own. `name` is an operation of the records door (tools/records-door/README.md): records:read, records:list, records:search, records:write, records:result, workspace:read and workspace:write. The answer is {tool, result} with the operation's answer in result.structuredContent; a refusal is result.isError with {code, outcome}. An answer too big for one message is a byte page, and the same call with after_byte set to its next_after_byte answers the next. The run opens no port. Its records are rows in the person's own Postgres database (own-rows-postgres-connection, reached on the loopback port the computer reports as own-rows-postgres). The program is the live-records this computer keeps among its program folders.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "A call answers {tool, result: {structuredContent, content, isError}} or {tool, error}; the session's start answers its state."
+        },
+        "invoke": {
+          "kind": "container",
+          "programs": {
+            "live-records": {
+              "search": "live-records"
+            }
+          },
+          "argv": [
+            "live-records",
+            "mcp",
+            "--state",
+            {
+              "fill": {
+                "from": "task",
+                "field": "kept_folder"
+              }
+            },
+            "--computer",
+            {
+              "fill": {
+                "from": "computer"
+              }
+            }
+          ],
+          "session": {
+            "keep_open": true,
+            "calls": true
+          },
+          "kept_folder": true,
+          "local_doors": [
+            "own-rows-postgres"
+          ],
+          "credential_mounts": [
+            {
+              "secret_name": "own-rows-postgres-connection",
+              "fd": 8
+            }
+          ]
+        },
+        "maker": "maker:live-records",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "tools/live-namespace's row store (src/store, now the shared crate tools/live-records/rows-store), over the records door contract of tools/records-door and the former engine record store's door (trillion-workshop tools/keep-lists-of-rows/account-state at 6d6702b8b4, record_value and local_workspace)"
+        }
+      }
+    }
+  ]
+}

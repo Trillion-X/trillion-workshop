@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:adc7a21a31d79596795f818f97698753fdda865713ee73e8e6bd13c937f8eac5"
+  "blake3": "1f:09535b3a789bfbd0e202c544f6a96cb7fa6d83f091e92d4c292c3c8810dd6bb5"
  },
  "fields": [
   {
@@ -14771,6 +14771,21 @@
      "placement:your-computer"
     ],
     "folder": "live-namespace"
+   }
+  },
+  {
+   "id": "tool:your-records",
+   "values": {
+    "title": "Your records",
+    "job": "Every record the person keeps, read, listed, searched, written and recovered by receipt, and the workspace labels, for the engine's one records door, over the person's own database",
+    "description": "The person's own records (tools/live-records) as a session the engine keeps open and reaches only by calls: tools:run at @tools {tool: \"tool:your-records\", call: {name, arguments}} sends one MCP tools/call to the account's one session of this row, which the first call starts (trillion-rust src/tool_runs/tools/sessions.rs `call`); each call is answered on its own. `name` is an operation of the records door (tools/records-door/README.md): records:read, records:list, records:search, records:write, records:result, workspace:read and workspace:write. The answer is {tool, result} with the operation's answer in result.structuredContent; a refusal is result.isError with {code, outcome}. An answer too big for one message is a byte page, and the same call with after_byte set to its next_after_byte answers the next. The run opens no port. Its records are rows in the person's own Postgres database (own-rows-postgres-connection, reached on the loopback port the computer reports as own-rows-postgres). The program is the live-records this computer keeps among its program folders.",
+    "status": "active",
+    "maker": "maker:live-records",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "live-records"
    }
   }
  ]

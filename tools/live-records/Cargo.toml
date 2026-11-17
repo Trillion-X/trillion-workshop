@@ -1,0 +1,38 @@
+[package]
+name = "live-records"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "The person's own records: read, list, search and write, and the workspace labels, over the person's own SQL database, as a Workshop tool the engine runs as a session that takes calls"
+
+[lib]
+name = "live_records"
+path = "src/lib.rs"
+test = true
+
+[[bin]]
+name = "live-records"
+path = "src/main.rs"
+
+[dependencies]
+rows-store = { path = "rows-store" }
+content-crypto = { path = "rows-store/content-crypto" }
+serde = { version = "=1.0.228", features = ["derive"] }
+serde_json = { version = "=1.0.149", features = ["raw_value", "float_roundtrip"] }
+base64 = "=0.22.1"
+zeroize = "=1.8.2"
+libc = "=0.2.178"
+
+[dev-dependencies]
+tempfile = "3"
+
+[workspace]
+# rows-store is its own workspace (its cause coordinates are taken from its own root), shared with live-namespace.
+exclude = ["rows-store"]
+
+[lints.clippy]
+# This tool is written in the style of the tools it shares rows-store with; clippy reads all of it for what is wrong (correctness,
+# suspicious) and leaves how it is written (style, complexity, perf) to that style.
+style = { level = "allow", priority = -1 }
+complexity = { level = "allow", priority = -1 }
+perf = { level = "allow", priority = -1 }

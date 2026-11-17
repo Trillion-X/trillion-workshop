@@ -1,0 +1,303 @@
+{
+  "_what": "The tools the records tool server lists over MCP (src/serve/mcp.rs): one for each operation of the records door (tools/records-door/README.md), named as the door names it. The server refuses to start when an operation of src/records/mod.rs OPERATIONS is not listed here or a listed name is not an operation. Every tool takes the call's request key as `call_key` and, for a read, `after_byte` (settings.json `call_fields`), which the engine adds; a tool's other fields are the door's input.",
+  "tools": [
+    {
+      "name": "records:read",
+      "description": "One record: {id, type, value}, value null when the record is absent or of another type.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The record's id (text without a slash)"
+          },
+          "type": {
+            "type": "string",
+            "description": "The record's type"
+          },
+          "after_byte": {
+            "type": "integer",
+            "description": "Where the next byte page of an answer too big for one message starts (the previous page's next_after_byte)"
+          },
+          "call_key": {
+            "type": "string",
+            "description": "The call's request key, which the engine adds to the call; a write answers its first receipt when it is sent again under the same key"
+          }
+        },
+        "required": [
+          "id",
+          "type"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "records:list",
+      "description": "One page of the records of a type, greatest id first unless reverse is false: {records: [{id, type, value}], next}. prefix, above and below bound the ids; after is a previous page's next; fields narrows each value to those top-level fields ([] gives ids and types only); where keeps the rows whose fields equal the values given and limit then bounds the rows shown. A declared order and a typed view are not answered.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "prefix": {
+            "type": "string"
+          },
+          "above": {
+            "type": "string"
+          },
+          "below": {
+            "type": "string"
+          },
+          "reverse": {
+            "type": "boolean"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 999
+          },
+          "after": {
+            "type": "string"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 64
+          },
+          "where": {
+            "type": "object",
+            "minProperties": 1,
+            "maxProperties": 64
+          },
+          "order": {
+            "type": "null",
+            "description": "Not answered: a call that names a declared order is refused"
+          },
+          "view": {
+            "type": "boolean",
+            "description": "Not answered: true is refused"
+          },
+          "after_byte": {
+            "type": "integer",
+            "description": "Where the next byte page of an answer too big for one message starts (the previous page's next_after_byte)"
+          },
+          "call_key": {
+            "type": "string",
+            "description": "The call's request key, which the engine adds to the call; a write answers its first receipt when it is sent again under the same key"
+          }
+        },
+        "required": [
+          "type"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "records:search",
+      "description": "The records whose text holds every asked word, ranked: {question, terms, results: [{id, type, title, said, score, address, found_in, places}], unavailable, pending}. With type only that type is searched; with none, every type.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200
+          },
+          "after_byte": {
+            "type": "integer",
+            "description": "Where the next byte page of an answer too big for one message starts (the previous page's next_after_byte)"
+          },
+          "call_key": {
+            "type": "string",
+            "description": "The call's request key, which the engine adds to the call; a write answers its first receipt when it is sent again under the same key"
+          }
+        },
+        "required": [
+          "question"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "records:write",
+      "description": "Write whole records in one transaction: each {id, type, value | null, expected?}; null removes; expected is null (the record must be absent) or {type, value} (it must be exactly that). Answers {changed, write_count}; the same request key sent again answers the first receipt and changes nothing.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "records": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 256,
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": [
+                    "object",
+                    "null"
+                  ]
+                },
+                "expected": {
+                  "type": [
+                    "object",
+                    "null"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "type",
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "check_only": {
+            "type": "boolean"
+          },
+          "call_key": {
+            "type": "string",
+            "description": "The call's request key, which the engine adds to the call; a write answers its first receipt when it is sent again under the same key"
+          }
+        },
+        "required": [
+          "records",
+          "call_key"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "records:result",
+      "description": "The receipt of an earlier records:write or workspace:write, given its original request key, operation and input; it never writes. A write that left no receipt is not said to have had no effect.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "request_key": {
+            "type": "string",
+            "description": "The ORIGINAL write's request key"
+          },
+          "operation": {
+            "type": "string",
+            "enum": [
+              "records:write",
+              "workspace:write"
+            ]
+          },
+          "input": {
+            "type": "object"
+          },
+          "after_byte": {
+            "type": "integer",
+            "description": "Where the next byte page of an answer too big for one message starts (the previous page's next_after_byte)"
+          },
+          "call_key": {
+            "type": "string",
+            "description": "This read's own request key, which the engine adds"
+          }
+        },
+        "required": [
+          "request_key",
+          "operation",
+          "input"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "workspace:read",
+      "description": "The payloads of exact workspace labels: {status, content_type, text}, text the JSON {records: {label: payload}} with a label that is not there absent. Prefixes must be an empty array.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "selection": {
+            "type": "object",
+            "properties": {
+              "labels": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1,
+                "maxItems": 256
+              },
+              "prefixes": {
+                "type": "array",
+                "maxItems": 0
+              }
+            },
+            "required": [
+              "labels",
+              "prefixes"
+            ],
+            "additionalProperties": false
+          },
+          "after_byte": {
+            "type": "integer",
+            "description": "Where the next byte page of an answer too big for one message starts (the previous page's next_after_byte)"
+          },
+          "call_key": {
+            "type": "string",
+            "description": "The call's request key, which the engine adds to the call; a write answers its first receipt when it is sent again under the same key"
+          }
+        },
+        "required": [
+          "selection"
+        ],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "workspace:write",
+      "description": "Write the payloads of workspace labels in one transaction: {writes: [{address_label, payload}]}. Answers {changed, write_count}; the same request key answers the first receipt.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "writes": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 256,
+            "items": {
+              "type": "object",
+              "properties": {
+                "address_label": {
+                  "type": "string"
+                },
+                "payload": {}
+              },
+              "required": [
+                "address_label",
+                "payload"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "call_key": {
+            "type": "string",
+            "description": "The call's request key, which the engine adds to the call; a write answers its first receipt when it is sent again under the same key"
+          }
+        },
+        "required": [
+          "writes",
+          "call_key"
+        ],
+        "additionalProperties": false
+      }
+    }
+  ]
+}
