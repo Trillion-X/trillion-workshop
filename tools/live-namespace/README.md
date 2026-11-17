@@ -90,7 +90,7 @@ shares).
 | `src/host/tool_runs.rs` | The computer under the program, for the usage counts' pending file. |
 | `tests/account_files_common/mod.rs` | The account files over rows and a byte port in memory. |
 | `tests/account_files_folder.rs`, `store_changes.rs`, `rows_in_both/` | What a native folder asks (changes, items, compare-and-set, pins, make_folder, bounds, thumbnails) and the store's change order, each in SQLite and in a real Postgres the tests start. |
-| `tests/account_files_move.rs`, `account_files_release.rs`, `account_files_results.rs`, `account_files_route.rs`, `account_files_share.rs` | The moved tests of moves, release, results, the tool contract and shares. |
+| `tests/account_files_release.rs`, `account_files_results.rs`, `account_files_route.rs`, `account_files_share.rs` | The moved tests of release, results, the tool contract and shares. |
 
 ## Key Types / Functions
 

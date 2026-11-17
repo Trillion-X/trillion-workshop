@@ -1,4 +1,0 @@
-{
-  "_what": "Settings of emptying one store into another (src/account_files/moves.rs). A copy is never downloaded back to check it: its proof is the BLAKE3 computed while it streams from the source, the SHA-256 signed into its PUT (the destination refuses any other body) and one HEAD of its length. verify_sample_most_bytes is the ceiling of the one read of a destination, the explicit spot check `account_files_move ... verify-sample N [AT_MOST_BYTES]`: it refuses before any request when the sampled keys hold more bytes than this. 1 GiB costs at most about $0.01 of B2 download ($0.01/GB), against the person's $5/day download cap.",
-  "verify_sample_most_bytes": 1073741824
-}

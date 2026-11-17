@@ -17,7 +17,7 @@
 //   name without bytes.
 // - Nothing here deletes bytes in a store but the byte release (`release.rs`), and only an object nothing names.
 // - New bytes land only in a store whose origin record takes new bytes (`Origin::takes_new_bytes`); a store being
-//   emptied into another (`moves.rs`) answers reads of what it still holds and takes nothing new.
+//   emptied into another answers reads of what it still holds and takes nothing new.
 //
 // Key Concepts (record layout; account = the person's account, resource = one scope per kind of fact):
 // - `@namespace/names<folder>`: one record per name in that folder, id = the full name. A list page is one
@@ -55,7 +55,6 @@ pub mod account_routes;
 pub mod bind;
 pub mod counters;
 pub mod folder;
-pub mod moves;
 pub(crate) mod names;
 pub mod objects;
 mod paged_spans;

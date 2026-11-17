@@ -14,7 +14,7 @@
 //!    itself: some files are held by identity on purpose.
 //! 2. A file stays while anything names it by any of its identities: a live name (its file record's `names`), a
 //!    name still set aside (its file record's `set_aside`, `Tree::listed_in`), or a move off its store in progress
-//!    (its store takes no new bytes while `moves.rs` empties it).
+//!    (its store takes no new bytes, `Origin::takes_new_bytes`, while its bytes are carried off).
 //! 3. A chunk is released only when no other file, finished or still uploading, uses it: the chunk record names the
 //!    one upload that first kept it (`used_by`) until a second user marks it `shared` (`write.rs`). A chunk with no
 //!    `used_by` (migrated from the hosted Worker, whose span table this store does not have) is never released here.
@@ -151,8 +151,8 @@ impl AccountFiles {
         listed(LIVE.listed_in) || listed(SET_ASIDE.listed_in) || text(&file.value, "origin").is_some_and(|origin| draining.contains(origin))
     }
 
-    /// The stores being emptied into another: they take no new bytes while a move carries what they hold
-    /// (`moves.rs`, the old moves table).
+    /// The stores being emptied into another: they take no new bytes while what they hold is carried off
+    /// (`Origin::takes_new_bytes`).
     fn draining(&self) -> Answer<BTreeSet<String>> {
         Ok(self.origins()?.into_iter().filter(|(_, origin)| !origin.takes_new_bytes).map(|(id, _)| id).collect())
     }

@@ -226,7 +226,7 @@ pub struct Origin {
     pub kind: String,
     /// New bytes go to the lowest rank whose store accepts them.
     pub rank: u32,
-    /// Whether new bytes may land here. A store being emptied (its bytes moving to another, `moves.rs`) still
+    /// Whether new bytes may land here. A store being emptied (its bytes moving to another) still
     /// answers reads of what it holds and takes nothing new. Records written before the field existed take
     /// new bytes.
     #[serde(default = "takes_new_bytes")]
