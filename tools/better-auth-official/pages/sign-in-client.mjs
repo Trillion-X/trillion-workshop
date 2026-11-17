@@ -314,7 +314,7 @@ async function approvalAsked() {
     const params = Object.fromEntries(rule.live.params.map(name => [name, query.get(name) ?? '']));
     const read = await json(`${rule.live.path}?input=${encodeURIComponent('{}')}`);
     if (signedOut(read)) return 'signed-out';
-    const found = (read.data?.[rule.live.list] ?? []).find(item => item[rule.live.match] === params[rule.live.match]);
+    const found = (read.data?.[rule.live.list] ?? []).find(item => rule.live.match.every(name => item[name] === params[name]));
     return found ? { rule, from: { ...params, ...found }, input: filled(rule.input, { ...params, ...found }) } : null;
   }
   const id = query.get('row') ?? '';
