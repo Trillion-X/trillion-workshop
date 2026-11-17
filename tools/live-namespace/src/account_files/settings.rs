@@ -1,10 +1,9 @@
-//! The numbers and words of the account files' byte release, name retirement, results and WebDAV folder (read and write).
+//! The numbers and words of the account files' byte release, name retirement and results.
 //!
 //! Numbers are `settings.json`, words are `words.json` (docs/PRINCIPLES.md rule 6), each read and checked once per
 //! process. The numbers are the old trillion values (each module's contract in ports/): the byte release's settings
 //! (`release`, ports/account-files-byte-release.json), the set-aside sweep's `items_per_request` (`retire`), the
-//! results module's constants :38-57 (`results`, ports/account-files-results.json) and the WebDAV module's :15
-//! `LIST_LIMIT` (`dav`, ports/account-files-dav.json).
+//! results module's constants :38-57 (`results`, ports/account-files-results.json).
 
 use serde::Deserialize;
 use std::{collections::BTreeMap, sync::OnceLock};
@@ -21,7 +20,6 @@ pub struct Settings {
     pub release: Release,
     pub retire: Retire,
     pub results: Results,
-    pub dav: Dav,
     pub chunks: Chunks,
     pub transfer: Transfer,
     pub described: Described,
@@ -104,24 +102,6 @@ pub struct Results {
     pub read_counts_for_ms: u64,
 }
 
-/// The read-only WebDAV folder (old trillion's WebDAV module :15, ports/account-files-dav.json).
-#[derive(Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct Dav {
-    pub list_limit: usize,
-    pub list_page: usize,
-    /// The most bytes one PUT keeps (`dav_write.rs`).
-    pub put_most_bytes: usize,
-    /// The steps one carry call of a MOVE, COPY or DELETE takes.
-    pub carry_step: usize,
-    /// The most carry calls one write request makes.
-    pub carry_calls: usize,
-    /// How long a LOCK lasts when it asks no time.
-    pub lock_default_seconds: u64,
-    /// The longest a LOCK lasts before it is refreshed.
-    pub lock_most_seconds: u64,
-}
-
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Words {
@@ -148,12 +128,6 @@ impl Settings {
             && self.results.max_write > 0
             && self.results.fields_most > 0
             && self.results.reads_at_once_per_caller > 0
-            && self.dav.list_limit > 0
-            && page.contains(&self.dav.list_page)
-            && (1..=super::WRITE_MAX_BYTES).contains(&self.dav.put_most_bytes)
-            && page.contains(&self.dav.carry_step)
-            && self.dav.carry_calls > 0
-            && (1..=self.dav.lock_most_seconds).contains(&self.dav.lock_default_seconds)
             && (content_crypto::subtree::SUBTREE_BYTES as u64..=super::objects::MAX_RANGE_BYTES).contains(&self.chunks.bytes)
             && self.transfer.idle_seconds > 0
             && self.transfer.outer_cap_seconds >= self.transfer.idle_seconds

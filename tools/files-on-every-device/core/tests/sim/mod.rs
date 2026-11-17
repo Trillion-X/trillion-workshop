@@ -476,9 +476,9 @@ impl Reply {
             (Reply::Answer(answer), false) => (answer.clone(), false),
             (Reply::Refused(refusal), false) => (refusal.clone(), true),
             (Reply::NoTool, false) => return json!({"jsonrpc": "2.0", "id": request, "error": {"code": -32601, "message": "Method not found."}}),
-            (Reply::Answer(answer), true) => (json!({"tool": "tool:run-the-namespace-files-server", "result": result(answer, false)}), false),
-            (Reply::Refused(refusal), true) => (json!({"tool": "tool:run-the-namespace-files-server", "result": result(refusal, true)}), false),
-            (Reply::NoTool, true) => (json!({"tool": "tool:run-the-namespace-files-server", "error": {"code": -32602, "message": "No such tool."}}), false),
+            (Reply::Answer(answer), true) => (json!({"tool": "tool:your-files", "result": result(answer, false)}), false),
+            (Reply::Refused(refusal), true) => (json!({"tool": "tool:your-files", "result": result(refusal, true)}), false),
+            (Reply::NoTool, true) => (json!({"tool": "tool:your-files", "error": {"code": -32602, "message": "No such tool."}}), false),
         };
         json!({"jsonrpc": "2.0", "id": request, "result": result(&answer, refused)})
     }

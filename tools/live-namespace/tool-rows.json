@@ -1,63 +1,174 @@
 {
   "kind": "package-set-records",
   "record_set": "live-namespace-tool-rows",
-  "what_this_is": "The Workshop row for the Namespace server in tools/live-namespace: the person's files on their own S3-compatible store, as MCP tools over stdio and as a WebDAV folder on a loopback port.",
+  "what_this_is": "The Workshop rows for the person's files in tools/live-namespace: tool:your-files, the session the engine keeps open and reaches by calls through its one door, and tool:count-or-copy-your-file-rows, one run over the person's own database.",
   "records": [
     {
       "payload": {
         "kind": "ai-tool-descriptor",
-        "id": "tool:run-the-namespace-files-server",
-        "label": "Run the Namespace files server (runs on your computer)",
-        "job": "Serve the person's files: every name they were given, listed, read by range, written, moved, shared and released, as tools an AI calls and as a WebDAV folder Finder, a file browser or an editor mounts",
-        "description": "Starts the Namespace server (tools/live-namespace) over one state folder of the person's own. Mode `mcp` answers MCP over stdio: each operation of the files is a tool (list_files, find_file, read_file, read_file_span, write_file, write_file_start, write_file_piece, write_file_finish, share_file, move_names, copy_names, set_aside, put_back, queue_release, release_gone_bytes and the rest; tools/list names them all). Mode `dav` serves the WebDAV folder on 127.0.0.1 at the port in settings.json (38481 as shipped) until stopped: in Finder choose Go, Connect to Server and enter http://127.0.0.1:38481/ (macOS `mount_webdav -S http://127.0.0.1:38481/ <empty folder>` does the same). Mode `serve` is both. The names index is rows in the person's own SQL database, set by settings.json `store`: the person's own Postgres database as shipped, or a SQLite file of that name in the state folder (`own-rows-postgres-connection`, its connection string as an attached field, reached on the loopback port the computer reports as `own-rows-postgres`); the bytes live in the person's own S3-compatible store, read by the asked range only, never whole. The byte store is the person's `files-store` connection and the database's connection string is its own attached field: each reaches the run on the file descriptor settings.json `attached` names (files-store secret 3, key-id 4, bucket 5, endpoint 6, region 7, own-rows-postgres connection 8) and is never printed, logged or written. A first run makes the files from the connection's endpoint, bucket, region and key id and the key_prefix in settings.json. The WebDAV folder answers 127.0.0.1 and localhost only and refuses a request a web page sent. share_file shares a file that is one object in the store through share-anything: it signs a link that reads that one object for the share's seconds, keeps it in a record of the person's own (`namespace-shared-file`) and runs `tool:share-anything` to share that record with a link anyone holding it can open, ending when the byte link does; stopping the share in share-anything is what stops the next reader. It needs the records door the run is handed (settings.json `share`: the held name of the door's descriptor field, and the https address the share opens at) and refuses without it; a file kept in chunks has no single object to link and is refused.",
+        "id": "tool:your-files",
+        "label": "Your files",
+        "job": "Every name of the person's files, listed, followed as it changes, read by range, written, moved, shared and released, for an AI or a device's folder, through the engine's one door",
+        "description": "The person's files (tools/live-namespace) as a session the engine keeps open and reaches only by calls: tools:run at @tools {tool: \"tool:your-files\", call: {name, arguments}} sends one MCP tools/call to the account's one session of this row, which the first call starts (trillion-rust src/tool_runs/tools/sessions.rs `call`); each call is answered on its own, so a list_changes that waits holds back no read. `name` is an operation of mcp-tools.json: list_files, list_changes, show_item, read_file_span, write_file, write_file_start, write_file_piece, write_file_finish, move_names, set_aside, put_back, make_folder, set_pin_rule, thumbnail, bounds, this_computer and the rest. The answer is {tool, result} with the operation's answer in result.structuredContent; a refusal is result.isError with {code, outcome}. The run opens no port. Its names are rows in the person's own Postgres database (own-rows-postgres-connection, reached on the loopback port the computer reports as own-rows-postgres); its bytes are the person's own files-store connection, each field mounted on the descriptor settings.json `attached` names and never printed. The program is the live-namespace this computer keeps among its program folders.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "A call answers {tool, result: {structuredContent, content, isError}} or {tool, error}; the session's start answers its state."
+        },
+        "invoke": {
+          "kind": "container",
+          "programs": {
+            "live-namespace": {
+              "search": "live-namespace"
+            }
+          },
+          "argv": [
+            "live-namespace",
+            "mcp",
+            "--state",
+            {
+              "fill": {
+                "from": "task",
+                "field": "kept_folder"
+              }
+            },
+            "--computer",
+            {
+              "fill": {
+                "from": "computer"
+              }
+            }
+          ],
+          "session": {
+            "keep_open": true,
+            "calls": true
+          },
+          "kept_folder": true,
+          "internet": true,
+          "local_doors": [
+            "own-rows-postgres"
+          ],
+          "credential_mounts": [
+            {
+              "secret_name": "files-store-secret",
+              "fd": 3
+            },
+            {
+              "secret_name": "files-store-key-id",
+              "fd": 4
+            },
+            {
+              "secret_name": "files-store-bucket",
+              "fd": 5
+            },
+            {
+              "secret_name": "files-store-endpoint",
+              "fd": 6
+            },
+            {
+              "secret_name": "files-store-region",
+              "fd": 7
+            },
+            {
+              "secret_name": "own-rows-postgres-connection",
+              "fd": 8
+            }
+          ]
+        },
+        "maker": "maker:live-namespace",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Trillion-X/trillion-rust src/account_files at 5fbc2ff4b1 (moved into tools/live-namespace), over its own rows in SQL (src/store)"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:count-or-copy-your-file-rows",
+        "label": "Count or copy the rows of your files",
+        "job": "Count the rows of each table of the person's files index, or copy an archive's index tables into the person's own database",
+        "description": "Runs tools/live-namespace once over the person's own Postgres database (own-rows-postgres-connection on descriptor 8, reached on the loopback port the computer reports as own-rows-postgres). Mode `counts` answers each names-index table and how many rows it holds, and only reads. Mode `copy-archive` copies the ns_* tables of the SQLite archive at `from` (a path on this computer, opened read-only) into the database and answers each table's rows. Neither reaches the byte store.",
         "status": "active",
         "input_schema": {
           "type": "object",
           "required": [
-            "mode",
-            "state_folder"
+            "mode"
           ],
           "additionalProperties": false,
           "properties": {
             "mode": {
               "type": "string",
               "enum": [
-                "mcp",
-                "dav",
-                "serve"
+                "counts",
+                "copy-archive"
               ],
-              "description": "mcp: MCP tools over stdio. dav: the WebDAV folder, until stopped. serve: both."
+              "description": "counts: rows per table, only reads. copy-archive: copy the archive at `from` in."
             },
-            "state_folder": {
+            "from": {
               "type": "string",
-              "description": "The person's own folder for this run's working files (and the SQLite rows file, when settings.json `store` is SQLite): an absolute path in their home. It is made, readable by its owner only, when it is not there."
-            },
-            "settings": {
-              "type": "string",
-              "description": "Optional path to a settings file (account, WebDAV port and prefix, key prefix, attached fields), put after --settings where {settings} is in the command. Leave it out to use tools/live-namespace/settings.json."
+              "description": "copy-archive only: the absolute path of the archive SQLite file on this computer."
             }
           }
         },
         "output_schema": {
           "type": "object",
-          "description": "Mode mcp answers JSON-RPC lines on stdout; mode dav answers HTTP on the loopback port and prints nothing; a refusal ends the run with one line on stderr naming what was wrong, never a value of the connection."
+          "description": "One line per table on stdout: the table and its rows."
         },
         "invoke": {
-          "kind": "on-your-computer",
-          "repository": "https://github.com/Trillion-X/trillion-workshop",
-          "get_it": [
-            "git clone https://github.com/Trillion-X/trillion-workshop.git"
+          "kind": "container",
+          "programs": {
+            "live-namespace": {
+              "search": "live-namespace"
+            }
+          },
+          "argv": [
+            "live-namespace",
+            {
+              "fill": {
+                "from": "input",
+                "field": "mode"
+              }
+            },
+            {
+              "$when": "from",
+              "value": "--from"
+            },
+            {
+              "$when": "from",
+              "value": {
+                "fill": {
+                  "from": "input",
+                  "field": "from"
+                }
+              }
+            },
+            "--state",
+            {
+              "fill": {
+                "from": "task",
+                "field": "kept_folder"
+              }
+            }
           ],
-          "run": "cd trillion-workshop/tools/live-namespace && cargo run --release --quiet --target-dir /tmp/live-namespace-build -- {mode} --state {state_folder} {settings}",
-          "needs": [
-            "rust 1.93 or newer",
-            "the person's files-store connection (an S3-compatible store: its secret, key id, bucket, endpoint and region), each field handed to the run on the descriptor settings.json `attached` names, read from the vault by name and never printed",
-            "the person's records door, when files are to be shared: its descriptor line `{ url, resource, capability }` as an attached field (settings.json `share`), with the right to write `namespace-shared-file` records and to run `tool:share-anything`",
-            "the person's database: a SQLite file in the state folder, or their Postgres database's connection string (`own-rows-postgres-connection`) as an attached field, as settings.json `store` says",
-            "ffmpeg on the computer's path: the program the account files' routes DATA (`folder.thumbnails.makers`) names to make a file's thumbnail; without it `thumbnail` answers that the program is not on this computer",
-            "an empty or earlier state folder in the person's home"
+          "kept_folder": true,
+          "local_doors": [
+            "own-rows-postgres"
           ],
-          "say": "This runs on the person's own computer. Run it from tools/live-namespace. Give the run the files-store connection's fields (and the database connection string, when the rows are in Postgres) on the descriptors settings.json names (a here-string of each vault value, never echoed or logged). The first run builds and makes the files. For the Finder folder, run mode dav (or serve) and connect to http://127.0.0.1:38481/ ; for an AI, run mode mcp as the AI's stdio MCP server."
+          "credential_mounts": [
+            {
+              "secret_name": "own-rows-postgres-connection",
+              "fd": 8
+            }
+          ]
         },
         "maker": "maker:live-namespace",
         "licence_class": "licence:maker-own",

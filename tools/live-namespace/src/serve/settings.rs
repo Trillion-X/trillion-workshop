@@ -2,7 +2,7 @@
 //
 // Purpose: What one run of the Namespace tool reads once from its settings file (`settings.json` of the tool folder, or the file the
 // run is told): which account the person's files are kept under, where the person's rows are kept (a SQLite file in the state folder,
-// or the person's Postgres database), the WebDAV folder's port and path prefix, the folder the byte store's keys start in, and which
+// or the person's Postgres database), the folder the byte store's keys start in, and which
 // fields of which connections the engine attached on which file descriptor.
 //
 // Non-Negotiable Invariants:
@@ -43,7 +43,6 @@ pub struct Settings {
     pub account: String,
     /// Where the person's rows are kept.
     pub store: Rows,
-    pub dav: Dav,
     /// The folder in the byte store that every file's key starts in: empty, or ending with a slash.
     pub key_prefix: String,
     /// How long one call may take before it answers where it stopped.
@@ -64,16 +63,6 @@ pub enum Rows {
     /// The person's Postgres database. `connection` is the held name of the attached field that holds its connection string
     /// (`own-rows-postgres-connection`, the credential the person's other tools reach the same database with).
     Postgres { connection: String },
-}
-
-/// The WebDAV folder.
-#[derive(Debug, Clone, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct Dav {
-    /// The loopback port it listens on.
-    pub port: u16,
-    /// The path every name sits under: empty, or starting with a slash and not ending with one.
-    pub prefix: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -116,13 +105,6 @@ impl Settings {
         }
         if !(1..=600).contains(&self.call_seconds) {
             return Err(Refused("a call takes 1 up to 600 seconds"));
-        }
-        if self.dav.port < 1024 {
-            return Err(Refused("the WebDAV port is a user port, 1024 or more"));
-        }
-        let prefix = &self.dav.prefix;
-        if !(prefix.is_empty() || (prefix.starts_with('/') && !prefix.ends_with('/') && !prefix.chars().any(char::is_control))) {
-            return Err(Refused("the WebDAV prefix is empty or starts with a slash and does not end with one"));
         }
         let key_prefix = &self.key_prefix;
         if !(key_prefix.is_empty() || (key_prefix.ends_with('/') && !key_prefix.split('/').any(|part| part == "..") && !key_prefix.chars().any(char::is_control))) {

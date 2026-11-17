@@ -1,5 +1,5 @@
 {
-  "_what": "The words the account files' byte release, name retirement, results and WebDAV folder (read and write) say (src/account_files/settings.rs `word`). Each key is the code's name for one refusal or answer; the value is what a person or an AI reads.",
+  "_what": "The words the account files' byte release, name retirement and results say (src/account_files/settings.rs `word`). Each key is the code's name for one refusal or answer; the value is what a person or an AI reads.",
   "words": {
     "release_identities": "Note files by their identities: a list of 1f: or 12: identities.",
     "release_ack": "A byte release acknowledgement needs one exact origin and key.",
@@ -20,26 +20,6 @@
     "result_patch": "value must be an object of the fields to change",
     "result_not_object": "this file's result of that kind is not an object, so it has no fields to change",
     "result_fields": "Name a bounded list of fields of one saved result: lowercase letters, digits and underscores.",
-    "result_busy": "This caller is already reading several results. Try again in a second, or ask for many files at once with read_file_results_many.",
-    "dav_sign_in": "Sign in with your personal key as the password.",
-    "dav_not_found": "Not found",
-    "dav_folder": "This is a folder.",
-    "dav_read_only": "These files can only be read here.",
-    "dav_range": "The asked byte range is not in this file.",
-    "dav_request": "A WebDAV request names its method.",
-    "dav_not_a_write": "This is not a WebDAV write.",
-    "dav_body": "A WebDAV write's body_base64 is not base64.",
-    "dav_precondition": "This name is not as the request expected; read it again.",
-    "dav_too_large": "One write here keeps at most 16 MiB; a larger file goes in pieces.",
-    "dav_no_parent": "The folder this goes in does not exist yet.",
-    "dav_mkcol_body": "Making a folder takes no body.",
-    "dav_exists": "Something already has this name.",
-    "dav_root": "The top folder cannot be moved, copied or removed.",
-    "dav_unfinished": "Part of this folder was carried; ask again to finish.",
-    "dav_conflict": "A name where this goes already names another file.",
-    "dav_destination": "Say where this goes, below the same folder.",
-    "dav_onto_itself": "A name or folder is never carried onto or into itself.",
-    "dav_locked": "Someone holds a lock on this name; send its lock token, or wait until it ends.",
-    "dav_not_locked": "No lock with that token holds this name."
+    "result_busy": "This caller is already reading several results. Try again in a second, or ask for many files at once with read_file_results_many."
   }
 }

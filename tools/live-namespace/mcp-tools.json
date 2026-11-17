@@ -1,9 +1,6 @@
 {
-  "_what": "The tools the Namespace tool server lists over MCP (src/serve/mcp.rs): one for each account files operation the door answers (account-files-routes.json `operations`) except `dav` and `dav_write`, which the WebDAV folder (src/serve/dav.rs) calls and an AI never does, and `setup_facts` and `held_connections`, which the engine's account routes answered and this tool has no composition for. The server refuses to start when an operation of the routes is not listed here or a listed name is not an operation.",
-  "left_out": [
-    "dav",
-    "dav_write"
-  ],
+  "_what": "The tools the Namespace tool server lists over MCP (src/serve/mcp.rs): one for each account files operation the door answers (account-files-routes.json `operations`), and `this_computer`, which the run answers itself from the computer the engine filled except `setup_facts` and `held_connections`, which the engine's account routes answered and this tool has no composition for. The server refuses to start when an operation of the routes is not listed here or a listed name is not an operation.",
+  "left_out": [],
   "tools": [
     {
       "name": "list_files",
@@ -1163,6 +1160,16 @@
     {
       "name": "bounds",
       "description": "The numbers a caller sizes its calls by: page sizes, the most bytes a read, a span, a write and a piece carry, the stored chunk size, and the longest a store request waits for progress (idle_seconds).",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "this_computer",
+      "description": "The computer this run is on: its id (the engine's id for it) and its label, as the engine filled them when it started the session; both null when the run was not started by the engine.",
       "input_schema": {
         "type": "object",
         "properties": {},

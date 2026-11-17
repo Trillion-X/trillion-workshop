@@ -6,7 +6,7 @@
 // the same field names, so a client that spoke to the hosted Worker reads the same shapes here, and the generic name
 // operations (`names.rs`: find_names, move_names, copy_names, set_aside, put_back, list_set_aside, forget_set_aside,
 // retire_names), the byte release of files deleted for good (`release.rs`: queue_release, release_gone_bytes,
-// list_released), the results kept about files (`results.rs`) and the WebDAV folder (`dav.rs` reads, `dav_write.rs` writes).
+// list_released) and the results kept about files (`results.rs`).
 //
 // Non-Negotiable Invariants:
 // - Every read is bounded: a list page is one scope walk plus one batch get of the page's files (at most 1000
@@ -54,8 +54,6 @@
 pub mod account_routes;
 pub mod bind;
 pub mod counters;
-pub mod dav;
-pub mod dav_write;
 pub mod folder;
 pub mod moves;
 pub(crate) mod names;
@@ -2285,41 +2283,6 @@ impl AccountFiles {
                 let kind = field("kind")
                     .ok_or(AccountFilesError::Invalid(settings::word("result_kind"), crate::cause!()))?;
                 self.remove_file_result(identity, kind)
-            })(),
-            // The read-only WebDAV folder (src/account_files/dav.rs), one request a call: the /dav route signs
-            // the caller in and passes {prefix, method, path, depth?, range?}; the answer is the HTTP answer as data.
-            "dav" => (|| {
-                let request = dav::Request {
-                    method: field("method")
-                        .ok_or(AccountFilesError::Invalid(settings::word("dav_request"), crate::cause!()))?,
-                    path: field("path").unwrap_or(""),
-                    depth: field("depth"),
-                    range: field("range"),
-                };
-                let answer = self.dav(field("prefix").unwrap_or(""), &request)?;
-                Ok(serde_json::json!({
-                    "status": answer.status,
-                    "headers": answer.headers,
-                    "body_base64": BASE64.encode(&answer.body),
-                }))
-            })(),
-            // The writable half of the same folder (src/account_files/dav_write.rs), one request a call: the /dav route
-            // passes a PUT, DELETE, MKCOL, COPY or MOVE here with its headers and body; the answer is the same data.
-            "dav_write" => (|| {
-                let body = match field("body_base64") {
-                    Some(encoded) => BASE64
-                        .decode(encoded)
-                        .map_err(|_| AccountFilesError::Invalid(settings::word("dav_body"), crate::cause!()))?,
-                    None => Vec::new(),
-                };
-                let request = dav_write::request_of(input, &body)
-                    .ok_or(AccountFilesError::Invalid(settings::word("dav_request"), crate::cause!()))?;
-                let answer = self.dav_write(field("prefix").unwrap_or(""), &request)?;
-                Ok(serde_json::json!({
-                    "status": answer.status,
-                    "headers": answer.headers,
-                    "body_base64": BASE64.encode(&answer.body),
-                }))
             })(),
             _ => return None,
         })

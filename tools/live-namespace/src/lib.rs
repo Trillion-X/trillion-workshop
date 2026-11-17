@@ -2,7 +2,7 @@
 //
 // Purpose: The person's files (Namespace) as a library: the account files (`account_files`, moved from trillion-rust
 // src/account_files) over the record store they keep their names in, and what they ask of the engine they were moved out of, kept in
-// the smallest form that answers it here. `main.rs` and `serve/` make it a tool: MCP over stdio and a WebDAV folder.
+// the smallest form that answers it here. `main.rs` and `serve/` make it a tool: MCP over stdio, run by the engine as a session that takes calls.
 //
 // Non-Negotiable Invariants:
 // - The record store is this tool's own (`store/`). Everything else this tool needs from the engine is named below and lives in `cause_book/`, `engine/` or `host/`.

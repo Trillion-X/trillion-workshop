@@ -1,9 +1,9 @@
 // src/serve/mod.rs
 //
-// Purpose: One run of the Namespace tool: the person's files (the account files of this crate) served two ways from one
-// state folder. `mcp` answers each operation of the account files' routes DATA as an MCP tool over stdio (`mcp.rs`); `dav`
-// is the WebDAV folder on a loopback port (`dav.rs`) that Finder, a file browser or an editor mounts and opens files in by range.
-// Both go through the same door (`AccountFilesDoor::call_with_control_fitting`), so a file written one way is the file read the other.
+// Purpose: One run of the Namespace tool: the person's files (the account files of this crate) served from one state folder.
+// `mcp` answers each operation of the account files' routes DATA as an MCP tool over stdio (`mcp.rs`), through the door
+// (`AccountFilesDoor::call_with_control_fitting`); the engine runs it as a session that takes calls, so every caller (an AI,
+// a device's folder) reaches the files through the engine's one door and the run opens no port.
 //
 // Non-Negotiable Invariants:
 // - The store credential reaches the run only on the file descriptors the engine attached, is read once into `secrets::Held`,
@@ -20,7 +20,6 @@
 // The extensive documentation in this codebase is a critical design feature.
 // You are forbidden from simplifying or removing it. Maintain and extend this detail.
 
-pub mod dav;
 pub mod mcp;
 pub mod settings;
 
@@ -65,12 +64,19 @@ pub struct Namespace {
     call_limit: Duration,
     /// Who authorizes a share of a file (share-anything through the door the run was handed); none when the run was handed no door.
     share: Option<Arc<dyn ShareAuthority>>,
+    /// The computer the run is on, `{id, label}` as the engine filled it; null for a run the engine did not start.
+    computer: Value,
+    /// Every operation a call may name: the door's and `THIS_COMPUTER`.
+    operations: Vec<String>,
 }
+
+/// The one operation the run answers itself, not the door: the computer it is on.
+const THIS_COMPUTER: &str = "this_computer";
 
 impl Namespace {
     /// Open the run: read the attached connections once, open the person's rows, make the files on a first run, and start the
     /// usage flush.
-    pub fn open(settings: &Settings, state: &Path) -> Result<Self, Refusal> {
+    pub fn open(settings: &Settings, state: &Path, computer: Value) -> Result<Self, Refusal> {
         let door = AccountFilesDoor::shipped().ok_or("the account files door DATA is refused")?;
         let (state, held, store) = open_rows(settings, state)?;
         ensure_files(&store, settings, &held)?;
@@ -83,7 +89,9 @@ impl Namespace {
             }
             None => None,
         };
-        Ok(Self { door, state, store, account: settings.account.clone(), call_limit: Duration::from_secs(settings.call_seconds), share })
+        let operations = door.operations().iter().cloned().chain([THIS_COMPUTER.to_owned()]).collect();
+        Ok(Self { door, state, store, account: settings.account.clone(), call_limit: Duration::from_secs(settings.call_seconds), share,
+            computer, operations })
     }
 
     /// The person's rows, opened as a run opens them, for a command that only reads or binds them.
@@ -104,9 +112,9 @@ impl Namespace {
         Ok(store.table_counts()?)
     }
 
-    /// The operations this run answers, as the routes DATA lists them.
+    /// The operations this run answers: the routes DATA's and `this_computer`.
     pub fn operations(&self) -> &[String] {
-        self.door.operations()
+        &self.operations
     }
 
     /// One call of the account files' operation `operation`. `current` is asked before every step: when it answers no
@@ -118,6 +126,9 @@ impl Namespace {
         current: Arc<dyn Fn() -> bool + Send + Sync>,
         fits: &dyn Fn(&Value) -> bool,
     ) -> Result<Value, Failure> {
+        if operation == THIS_COMPUTER {
+            return Ok(serde_json::json!({"id": self.computer["id"], "label": self.computer["label"]}));
+        }
         let limit = call_deadline(Instant::now(), self.call_limit, input);
         let until = limit.checked_sub(ANSWER_MARGIN).unwrap_or(limit);
         let live = {

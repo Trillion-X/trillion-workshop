@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:1ac23f15434b16a418fa8c37600e59de2480ad4262973663050573e77c87d4b3"
+  "blake3": "1f:2186bfde3537786bcf541e5963b61d98c527ca2ed91e3d9c1c660b3ecee91e59"
  },
  "fields": [
   {
@@ -750,6 +750,22 @@
      "placement:deployed-container"
     ],
     "folder": "media-composition"
+   }
+  },
+  {
+   "id": "tool:ask-a-command-line-mcp-server-once",
+   "values": {
+    "title": "Ask a command-line MCP server one request",
+    "job": "Ask a command-line MCP server one request the way the web gateway answers a caller with no session: start it in a working folder of its own, initialize it, ask, and stop it",
+    "description": "Makes the gateway (do-work/gateway.mjs createGateway) for the one stdio MCP server the input names (cli, args, env) and hands it one POST /<app>/mcp with no session id, in this process: no port is opened. The gateway starts the server as a child process in a fresh empty working folder with only PATH, HOME, TMPDIR and LANG (plus env), sends initialize (protocol_version, 2025-06-18 when left out) and notifications/initialized, writes the request (one JSON-RPC message per line), waits at most timeout_seconds (30 when left out), answers a request the server asks back with method not found, then kills the server and removes its folder. An arg that starts with ./ or ../ names a file in the run's working folder (the tool folder) and is made absolute first. Answers the HTTP status the gateway gave (200, or 502 when the server would not start or initialize) and the JSON-RPC reply. The server runs whatever command cli names inside the run's container, with no internet; this run reads and writes nothing else and keeps nothing. Refuses a missing cli, args that are not text, an app name the gateway's path would not take, a request with no method, and initialize as the request. The hosted gateway (do-work/serve.mjs) also keeps sessions open between requests (Mcp-Session-Id), streams a server's notifications, caps and reaps idle sessions and serves on a port for the web; this run does only the one-off flow.",
+    "status": "active",
+    "maker": "maker:serve-command-line-mcp-servers-on-the-web",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "serve-command-line-mcp-servers-on-the-web"
    }
   },
   {
@@ -2876,6 +2892,21 @@
    }
   },
   {
+   "id": "tool:count-or-copy-your-file-rows",
+   "values": {
+    "title": "Count or copy the rows of your files",
+    "job": "Count the rows of each table of the person's files index, or copy an archive's index tables into the person's own database",
+    "description": "Runs tools/live-namespace once over the person's own Postgres database (own-rows-postgres-connection on descriptor 8, reached on the loopback port the computer reports as own-rows-postgres). Mode `counts` answers each names-index table and how many rows it holds, and only reads. Mode `copy-archive` copies the ns_* tables of the SQLite archive at `from` (a path on this computer, opened read-only) into the database and answers each table's rows. Neither reaches the byte store.",
+    "status": "active",
+    "maker": "maker:live-namespace",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "live-namespace"
+   }
+  },
+  {
    "id": "tool:count-real-rulings",
    "values": {
     "title": "Count the real bad rulings on lines",
@@ -4842,6 +4873,21 @@
      "placement:small-container"
     ],
     "folder": "paid-access"
+   }
+  },
+  {
+   "id": "tool:give-a-computer-a-new-release",
+   "values": {
+    "title": "Give a computer a new release",
+    "job": "Put a new engine release on a running computer and restart it",
+    "description": "Installs the request's engine release beside the old ones, points the computer at it, restarts the service and reads back the sign-up page. The old release stays on the machine, so going back is the same command with the old release_name.",
+    "status": "active",
+    "maker": "maker:start-a-computer",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "start-a-computer"
    }
   },
   {
@@ -9129,8 +9175,8 @@
    "id": "tool:read-a-computer",
    "values": {
     "title": "Read a computer",
-    "job": "See whether a computer's machine is running and its health page answers",
-    "description": "Reads the saved lease, the machine's state at the provider and the health page's HTTP status at the computer's public name.",
+    "job": "See whether a computer's machine is running and its sign-up page answers",
+    "description": "Reads the saved lease, the machine's state at the provider and the sign-up page's HTTP status at the computer's public name.",
     "status": "active",
     "maker": "maker:start-a-computer",
     "licence_class": "licence:maker-own",
@@ -11484,21 +11530,6 @@
    }
   },
   {
-   "id": "tool:run-the-namespace-files-server",
-   "values": {
-    "title": "Run the Namespace files server (runs on your computer)",
-    "job": "Serve the person's files: every name they were given, listed, read by range, written, moved, shared and released, as tools an AI calls and as a WebDAV folder Finder, a file browser or an editor mounts",
-    "description": "Starts the Namespace server (tools/live-namespace) over one state folder of the person's own. Mode `mcp` answers MCP over stdio: each operation of the files is a tool (list_files, find_file, read_file, read_file_span, write_file, write_file_start, write_file_piece, write_file_finish, share_file, move_names, copy_names, set_aside, put_back, queue_release, release_gone_bytes and the rest; tools/list names them all). Mode `dav` serves the WebDAV folder on 127.0.0.1 at the port in settings.json (38481 as shipped) until stopped: in Finder choose Go, Connect to Server and enter http://127.0.0.1:38481/ (macOS `mount_webdav -S http://127.0.0.1:38481/ <empty folder>` does the same). Mode `serve` is both. The names index is rows in the person's own SQL database, set by settings.json `store`: the person's own Postgres database as shipped, or a SQLite file of that name in the state folder (`own-rows-postgres-connection`, its connection string as an attached field, reached on the loopback port the computer reports as `own-rows-postgres`); the bytes live in the person's own S3-compatible store, read by the asked range only, never whole. The byte store is the person's `files-store` connection and the database's connection string is its own attached field: each reaches the run on the file descriptor settings.json `attached` names (files-store secret 3, key-id 4, bucket 5, endpoint 6, region 7, own-rows-postgres connection 8) and is never printed, logged or written. A first run makes the files from the connection's endpoint, bucket, region and key id and the key_prefix in settings.json. The WebDAV folder answers 127.0.0.1 and localhost only and refuses a request a web page sent. share_file shares a file that is one object in the store through share-anything: it signs a link that reads that one object for the share's seconds, keeps it in a record of the person's own (`namespace-shared-file`) and runs `tool:share-anything` to share that record with a link anyone holding it can open, ending when the byte link does; stopping the share in share-anything is what stops the next reader. It needs the records door the run is handed (settings.json `share`: the held name of the door's descriptor field, and the https address the share opens at) and refuses without it; a file kept in chunks has no single object to link and is refused.",
-    "status": "active",
-    "maker": "maker:live-namespace",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "live-namespace"
-   }
-  },
-  {
    "id": "tool:sample-shots-and-frames-from-my-format-library",
    "values": {
     "title": "Sample shots and their frames from my format library (runs on your computer)",
@@ -13087,8 +13118,8 @@
    "id": "tool:start-a-computer",
    "values": {
     "title": "Start a computer",
-    "job": "Make a machine into a computer that runs what its own row says: rent one or use one I already run, set it up, build its programs from source there and read back its health page",
-    "description": "Rents a machine from the provider description the request names (or adopts a Linux machine the person runs, at its address), points a public name at it through the name provider description, and applies the computer's own row (record:computer, `runs`) over SSH: set-up (packages, toolchains, users, folders, keys), each unit with a `source` built from that commit on the machine itself from the caller's own checkout (no release, no feed, no copied program), the files the row renders, the restarts and each unit's boot check. Answers the lease, the machine's architecture, the monthly price, what the apply wrote, built and restarted, and the public health page's HTTP status. Running it again resumes from the saved lease.",
+    "job": "Make a machine into a computer that keeps people's accounts: rent one or use one I already run, set it up, start the engine serving and read back its sign-up page",
+    "description": "Rents a machine from the provider description the request names (or adopts a Linux machine the person runs, at its address), points a public name at it through the name provider description, prepares it over SSH (a system user, Caddy with its own certificate, a firewall, a service), installs the engine release, writes the computer config with the machine's address and price, starts it, and answers the computer id, the machine's architecture, the monthly price and the sign-up page's HTTP status. Running it again resumes from the saved lease.",
     "status": "active",
     "maker": "maker:start-a-computer",
     "licence_class": "licence:maker-own",
@@ -14754,6 +14785,21 @@
      "placement:your-computer"
     ],
     "folder": "motion-film-template"
+   }
+  },
+  {
+   "id": "tool:your-files",
+   "values": {
+    "title": "Your files",
+    "job": "Every name of the person's files, listed, followed as it changes, read by range, written, moved, shared and released, for an AI or a device's folder, through the engine's one door",
+    "description": "The person's files (tools/live-namespace) as a session the engine keeps open and reaches only by calls: tools:run at @tools {tool: \"tool:your-files\", call: {name, arguments}} sends one MCP tools/call to the account's one session of this row, which the first call starts (trillion-rust src/tool_runs/tools/sessions.rs `call`); each call is answered on its own, so a list_changes that waits holds back no read. `name` is an operation of mcp-tools.json: list_files, list_changes, show_item, read_file_span, write_file, write_file_start, write_file_piece, write_file_finish, move_names, set_aside, put_back, make_folder, set_pin_rule, thumbnail, bounds, this_computer and the rest. The answer is {tool, result} with the operation's answer in result.structuredContent; a refusal is result.isError with {code, outcome}. The run opens no port. Its names are rows in the person's own Postgres database (own-rows-postgres-connection, reached on the loopback port the computer reports as own-rows-postgres); its bytes are the person's own files-store connection, each field mounted on the descriptor settings.json `attached` names and never printed. The program is the live-namespace this computer keeps among its program folders.",
+    "status": "active",
+    "maker": "maker:live-namespace",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "live-namespace"
    }
   }
  ]

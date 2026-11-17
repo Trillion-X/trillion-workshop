@@ -15,7 +15,8 @@
 //   order. One answer is written whole before the next begins. The input ends only after every call has answered.
 //
 // Security Considerations:
-// - The server speaks only to the process that started it; it opens no port (the WebDAV folder is `dav.rs`).
+// - The server speaks only to the process that started it (the engine's session, which every caller reaches through the
+//   engine's door); it opens no port.
 //
 // AI Assistant Directive:
 // The extensive documentation in this codebase is a critical design feature.

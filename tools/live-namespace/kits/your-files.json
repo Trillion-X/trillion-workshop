@@ -1,0 +1,66 @@
+{
+  "start_here": "Say to your AI: \"List my files\". It calls tool:your-files at @tools with tools:run and {call: {name: \"list_files\", arguments: {folder: \"/\"}}}; the engine starts the person's files session on the first call and every later call reaches the same one.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it serves your files from your own store and keeps their names as rows in your own database.",
+  "workflows": [],
+  "tools": [
+    "tool:your-files",
+    "tool:count-or-copy-your-file-rows",
+    "tool:share-anything"
+  ],
+  "instructions": [
+    "1. Make sure your files-store connection (your S3-compatible store: secret, key id, bucket, endpoint, region) and your database connection (own-rows-postgres-connection) are saved in your vault; the engine mounts each by name on the descriptor settings.json `attached` names and never prints one.",
+    "2. Ask your AI for your files. Each ask is one call: tools:run at @tools with {tool: \"tool:your-files\", call: {name, arguments}}, where name is an operation of mcp-tools.json (list_files, list_changes, read_file_span, write_file, move_names, set_aside, make_folder, bounds, this_computer and the rest).",
+    "3. A device's folder (tools/files-on-every-device) makes the same calls through the same door, so a file saved there is the file your AI reads.",
+    "4. To share a file, say to your AI: \"Share /Notes/a.txt for a day\". share_file signs one link for the file's object and runs tool:share-anything to share it; stop the share with tool:share-anything and the next reader is refused."
+  ],
+  "worked_examples": [
+    {
+      "title": "List my files",
+      "ask": "List my files",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:your-files",
+            "call": {
+              "name": "list_files",
+              "arguments": {
+                "folder": "/"
+              }
+            }
+          }
+        }
+      },
+      "given": "A saved files-store connection and database connection.",
+      "hands_back": "{tool: \"tool:your-files\", result: {structuredContent: {...}}}: the folder's names, each with its item, version and generation."
+    },
+    {
+      "title": "Follow what changed",
+      "ask": "Tell me what changed in my files",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:your-files",
+            "call": {
+              "name": "list_changes",
+              "arguments": {
+                "after": "c-example",
+                "wait": true
+              }
+            }
+          }
+        }
+      },
+      "given": "A cursor (next) an earlier list_changes answered; without after it answers only the cursor of now.",
+      "hands_back": "The changes after the cursor in the store's own order, each {op, kind, item, generation}, and next; with wait it waits for a change until the call's own time ends."
+    }
+  ]
+}

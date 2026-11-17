@@ -60,7 +60,7 @@ fn event(core: *mut files_core::ffi::FilesCore, event: Value, bytes: &[u8]) -> u
 /// `session` (src/tool_runs/tools/sessions.rs: {tool, result}).
 fn answer(core: *mut files_core::ffi::FilesCore, request: Value, now_ms: u64, result: &Value, session: bool) {
     let outcome = |answer: &Value| json!({"content": [{"type": "text", "text": answer.to_string()}], "structuredContent": answer, "isError": false});
-    let result = if session { json!({"tool": "tool:run-the-namespace-files-server", "result": outcome(result)}) } else { result.clone() };
+    let result = if session { json!({"tool": "tool:your-files", "result": outcome(result)}) } else { result.clone() };
     let body = json!({"jsonrpc": "2.0", "id": request, "result": outcome(&result)}).to_string();
     let answered = json!({"now_ms": now_ms, "answer": {"request": request, "reached": true, "sent_ms": now_ms - 1, "first_byte_ms": now_ms - 1, "done_ms": now_ms}});
     assert_eq!(event(core, answered, body.as_bytes()), 0);

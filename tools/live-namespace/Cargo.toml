@@ -3,7 +3,7 @@ name = "live-namespace"
 version = "0.1.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
-description = "The person's files (Namespace): names over S3-compatible stores, ranged reads, shares, and the WebDAV folder, as a Workshop tool"
+description = "The person's files (Namespace): names over S3-compatible stores, ranged reads, writes, moves and shares, as a Workshop tool the engine runs as a session that takes calls"
 
 [lib]
 name = "live_namespace"

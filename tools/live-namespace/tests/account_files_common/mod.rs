@@ -2,7 +2,7 @@
 //
 // Purpose: The account files over a record store in memory and a byte port in memory that serves only exact ranges,
 // keeps every write and removal it was asked for, and can be told to refuse removals; shared by the byte release, name
-// retirement, results and WebDAV tests. Synthetic data only.
+// retirement and results tests. Synthetic data only.
 
 #![allow(dead_code)]
 

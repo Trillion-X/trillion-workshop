@@ -32,7 +32,7 @@
     "address": "@tools",
     "method": "tools:run",
     "input": {
-      "tool": "tool:run-the-namespace-files-server",
+      "tool": "tool:your-files",
       "call": {
         "name": "$op",
         "arguments": "$input"
