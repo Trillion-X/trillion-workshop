@@ -45,7 +45,7 @@
           "placement:caller-sandbox"
         ],
         "provenance": {
-          "source": "better-auth 1.7.23 with @better-auth/passkey, @better-auth/api-key, @better-auth/mcp and @better-auth/cimd 1.7.23, configured from the docs pages for installation, the Node integration, the SQLite adapter (node:sqlite), email and password, and the passkey, two-factor, email-otp, magic-link, multi-session, api-key, jwt (OAuth Provider Mode), mcp, cimd device-authorization and bearer plugins; schema.sql from `auth generate`"
+          "source": "better-auth 1.7.25 with @better-auth/passkey, @better-auth/api-key, @better-auth/mcp and @better-auth/cimd 1.7.25, configured from the docs pages for installation, the Node integration, the SQLite adapter (node:sqlite), email and password, and the passkey, two-factor, email-otp, magic-link, multi-session, api-key, jwt (OAuth Provider Mode), mcp, cimd device-authorization and bearer plugins; schema.sql from `auth generate`"
         }
       }
     }

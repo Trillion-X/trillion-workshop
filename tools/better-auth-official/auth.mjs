@@ -94,6 +94,8 @@ export const auth = betterAuth({
     mcp({
       loginPage: settings.mcp.login_page,
       consentPage: settings.mcp.consent_page,
+      // The sign-in pages name the AI that is asking before the person has signed in: its public fields (name, address, icon) for a request whose signed query names that client.
+      allowPublicClientPrelogin: true,
       resource: settings.mcp.resource,
       // The scopes a client may ask for and the /mcp resource allows (settings DATA); the resource row follows the settings.
       ...(settings.mcp.scopes ? { scopes: settings.mcp.scopes } : {}),

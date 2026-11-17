@@ -1,6 +1,6 @@
 # Better Auth (official)
 
-Official [Better Auth](https://www.better-auth.com/docs) (TypeScript, `better-auth` 1.7.23), set up as its docs show: the Node
+Official [Better Auth](https://www.better-auth.com/docs) (TypeScript, `better-auth` 1.7.25), set up as its docs show: the Node
 integration (`toNodeHandler`), the built-in `node:sqlite` database, and the schema the Better Auth CLI generates
 (`schema.sql`, from `npx auth generate --config auth.mjs`). No custom auth code.
 
@@ -100,13 +100,54 @@ sends each attached name's `/api/auth/*` here.
 
 ## Sign-in pages
 
-`pages/` holds the sign-in pages as this tool's own files, in Trillion's sign-in design: `/sign-in` (email, then the
-account's ways), `/sign-up`, `/sign-in/way?way=password|email-code|text-code|authenticator|backup-codes`, `/sign-in/email`,
-`/sign-in/forgot-password`, `/sign-in/add-passkey` and `/sign-out` (one button: Better Auth's sign-out, then `/sign-in`). `pages/routes.json` says which file answers each address. What the
-pages' forms and buttons do is `pages/sign-in-client.mjs`: each calls Better Auth through `better-auth/client` with the
-passkey, email OTP and two-factor client plugins, and its words are `pages/words.json`. `npm run build-pages` bundles it
-to `pages/assets/sign-in.js`, served at `/sign-in/assets/sign-in.js`. The pages load the fonts, mark and icons at the
-addresses the product already serves them from (`/workspace/fonts.css`, `/brand/current/mark.svg`, `/favicon.ico`).
+`pages/shell.html` is the one head, style set and script set every page shares. `pages/routes.json` says which `pages/sections/`
+files are drawn inside it for each address, with the page's own `title` and `description`; a new page is a section file and a
+row. The addresses: `/sign-in` (an email code, a passkey, and passkeys listed in the email box itself by WebAuthn conditional
+mediation, `autocomplete="username webauthn"`), `/sign-in/other-ways` (password, authenticator app, backup code),
+`/sign-up` (the same email code), `/sign-in/way?way=email-code&sent=1|password|authenticator|backup-codes`,
+`/sign-in/forgot-password`, `/sign-in/add-passkey` (one tap, or Not now), `/sign-in/key` (an API key, for scripts, linked from
+no page) and `/sign-out` (Better Auth's sign-out, then `/sign-in`), and the connect pages:
+
+- `/consent` (`mcp.consent_page`): the AI that asked (its `client_name`, from its Client ID Metadata Document), the computer it
+  asked for (the host of `resource`), what it may do in plain words (`words.json` `scopes`), "Only approve what you started.",
+  Allow and Deny through `POST /api/auth/oauth2/consent`.
+- `/device` (`device.verification_uri`): the code a device shows (RFC 8628), then its client and scopes, "Only approve a device
+  you are holding.", Allow and Deny through `/api/auth/device/approve` and `/deny`. The person who opens a code claims it.
+- `/approve`: see below.
+
+When an AI's connect opens the sign-in (Better Auth's authorize step with a signed query), every page carries that query on
+(`pages/oauth-query.mjs`), the sign-in page names the AI (`allowPublicClientPrelogin`), and the end of the sign-in, whether after
+the email code, the passkey step, a password or an authenticator, is the same request back at authorize without its signature
+parts, so authorize resumes and asks consent. What the pages' forms and buttons do is `pages/sign-in-client.mjs`: each calls
+Better Auth through `better-auth/client` with the passkey, email OTP and two-factor client plugins, and its words are
+`pages/words.json`. `npm run build-pages` bundles it to `pages/assets/sign-in.js`, served at `/sign-in/assets/sign-in.js`. The
+pages load the fonts, mark and icons at the addresses the product already serves them from (`/workspace/fonts.css`,
+`/brand/current/mark.svg`, `/favicon.ico`).
+
+## Approving a root declaration (`/approve`, `pages/approve-client.mjs`)
+
+A root declaration is the one JSON document that says which computers and AIs are a person's. Its fingerprint is the lowercase
+hex BLAKE3-256 of its canonical bytes (keys sorted at every depth, no whitespace). `/approve?root=<fingerprint>` fetches the
+proposed document from `pages/approve.json` `proposed_path`, refuses one whose fingerprint is not the one asked for, says the rows
+it adds and removes against `current_path` in plain words (the kind of each row from `words.json` `kinds`, its name from the first
+of `approve.json` `summary_fields` it has; no kind is named in code), and one tap of the person's passkey signs it and sends
+`{signature, root}` to `signature_path`:
+
+    {"fingerprint": "<hex>", "previous": "<hex>" | null, "signed_at": <ms>,
+     "signer": {"issuer": "<origin>", "sub": "<user id>", "credential_id": "<b64url>", "public_key_cose": "<b64url>"},
+     "assertion": {"authenticatorData": "<b64url>", "clientDataJSON": "<b64url>", "signature": "<b64url>"}}
+
+The WebAuthn challenge is the 32 bytes of BLAKE3 over the canonical JSON of `{fingerprint, previous, signed_at}`, not the bare
+fingerprint. WebAuthn Level 3 (https://www.w3.org/TR/webauthn-3/) section 5.5 lets the challenge be any bytes the authenticator
+signs and section 7.2 verifies it, but section 13.4.3 says challenges must not be replayable; a bare fingerprint is the same for
+ever, so one old signature could put an old root back. A statement carrying `previous` and `signed_at` is not good for another
+position in the chain. A verifier recomputes the statement, checks it against `clientDataJSON.challenge` (base64url), the
+`rpIdHash`, the user present and verified flags, the origin and the signature over `authenticatorData || SHA-256(clientDataJSON)`
+with the COSE key (ES256 or EdDSA; the passkey plugin offers both, and EdDSA is the one most authenticators choose), and accepts
+a root whose `previous` is the current one. `test-fixtures/root-signature-verify.mjs` is that check in JavaScript.
+After the first passkey (`/sign-in/add-passkey`) the page `/approve?first=1` makes the person's first root from the place they
+signed in (`approve.json` `first_root`), when `current_path` answers `404 {"error": "no_root"}`; any other answer means this place
+holds no roots and the page steps aside.
 
 ## MCP access tokens
 

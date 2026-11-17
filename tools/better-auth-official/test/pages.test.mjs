@@ -10,15 +10,17 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { pageAnswer, table } from '../pages.mjs';
 
 const dir = new URL('../pages/', import.meta.url);
-const html = readdirSync(dir).filter(name => name.endsWith('.html'));
+const sectionFiles = readdirSync(new URL('sections/', dir)).filter(name => name.endsWith('.html'));
+const shell = readFileSync(new URL('shell.html', dir), 'utf8');
 const csp = table.headers['content-security-policy'];
 const scriptSrc = csp.split(';').map(part => part.trim()).find(part => part.startsWith('script-src ')).split(' ').slice(1);
+const urlOf = ({ path, query = {} }) => `${path}?${new URLSearchParams(Object.fromEntries(Object.entries(query).map(([key, value]) => [key, value === '*' ? 'someone@example.test' : value])))}`;
+const page = url => pageAnswer(url)?.body.toString() ?? '';
 
 test('every address in routes.json answers its page with the policy, the referrer rule and the frame rule', () => {
-  for (const { path, query = {} } of table.routes) {
-    const url = `${path}?${new URLSearchParams(Object.fromEntries(Object.entries(query).map(([key, value]) => [key, value === '*' ? 'someone@example.test' : value])))}`;
-    const answer = pageAnswer(url);
-    assert.ok(answer, `${url} answers a page`);
+  for (const route of table.routes) {
+    const answer = pageAnswer(urlOf(route));
+    assert.ok(answer, `${urlOf(route)} answers a page`);
     assert.equal(answer.headers['content-type'], 'text/html; charset=utf-8');
     assert.equal(answer.headers['content-security-policy'], csp);
     assert.equal(answer.headers['referrer-policy'], 'same-origin');
@@ -29,34 +31,46 @@ test('every address in routes.json answers its page with the policy, the referre
   assert.equal(pageAnswer('/elsewhere'), null);
 });
 
-test('the policy allows exactly the scripts the pages run: each inline script by its sha256 and the tool\'s own script by \'self\'', () => {
-  const inline = new Set();
-  for (const name of html) {
-    const text = readFileSync(new URL(name, dir), 'utf8');
-    for (const [, body] of text.matchAll(/<script>([\s\S]*?)<\/script>/g)) inline.add(`'sha256-${createHash('sha256').update(body).digest('base64')}'`);
-    for (const [, src] of text.matchAll(/<script src="([^"]+)"/g)) assert.ok(src.startsWith(table.assets_path), `${name} loads its script from this tool (${src})`);
-    assert.doesNotMatch(text, / on[a-z]+=/, `${name} has no inline event handler, which the policy would block`);
+test('every page is the one shared shell around its own sections: no head, style or script is copied per page', () => {
+  assert.deepEqual(readdirSync(dir).filter(name => name.endsWith('.html')), ['shell.html']);
+  for (const name of sectionFiles) assert.doesNotMatch(readFileSync(new URL(`sections/${name}`, dir), 'utf8'), /<(?:html|head|style|script|body)\b/, `${name} holds sections only`);
+  const used = new Set(table.routes.flatMap(route => route.sections));
+  assert.deepEqual([...used].sort(), sectionFiles.map(name => name.replace(/\.html$/, '')).sort(), 'every section file is drawn by a route and every route draws a file');
+  for (const route of table.routes) {
+    const body = page(urlOf(route));
+    assert.ok(body.includes(`<title>${route.title.replace(/&/g, '&amp;')}</title>`), `${route.path} carries its own title`);
+    assert.doesNotMatch(body, /\{\{/, `${route.path} leaves no gap of the shell undrawn`);
   }
+});
+
+test('the policy allows exactly the scripts the shell runs: each inline script by its sha256 and the tool\'s own script by \'self\'', () => {
+  const inline = new Set();
+  for (const [, body] of shell.matchAll(/<script>([\s\S]*?)<\/script>/g)) inline.add(`'sha256-${createHash('sha256').update(body).digest('base64')}'`);
+  for (const [, src] of shell.matchAll(/<script src="([^"]+)"/g)) assert.ok(src.startsWith(table.assets_path), `the shell loads its script from this tool (${src})`);
   assert.deepEqual(new Set(scriptSrc), new Set(["'self'", ...inline]));
+  for (const name of sectionFiles) {
+    const text = readFileSync(new URL(`sections/${name}`, dir), 'utf8');
+    assert.doesNotMatch(text, / on[a-z]+=/, `${name} has no inline event handler, which the policy would block`);
+    assert.doesNotMatch(text, / style=/, `${name} has no inline style: pages reuse the shell's own styles`);
+  }
 });
 
 test('no page or the client names the old sign-in tool', () => {
-  for (const name of [...html, 'sign-in-client.mjs', 'routes.json', 'words.json']) {
+  for (const name of [...sectionFiles.map(file => `sections/${file}`), 'shell.html', 'sign-in-client.mjs', 'routes.json', 'words.json']) {
     assert.doesNotMatch(readFileSync(new URL(name, dir), 'utf8'), /from-trillion-rust|tools\/sign-in\//, name);
   }
 });
 
 test('/sign-out answers a page whose one form signs out through Better Auth and goes to /sign-in', () => {
-  const page = pageAnswer('/sign-out')?.body.toString();
-  assert.match(page ?? '', /<form class="page-choices" method="post" action="\/sign-out">/);
-  const client = readFileSync(new URL('../pages/sign-in-client.mjs', import.meta.url), 'utf8');
+  assert.match(page('/sign-out'), /<form class="page-choices" method="post" action="\/sign-out">/);
+  const client = readFileSync(new URL('sign-in-client.mjs', dir), 'utf8');
   assert.match(client, /if \(action === '\/sign-out'\) \{\n    const \{ error \} = await client\.signOut\(\);\n    return error \? refusal\(error\) : location\.assign\('\/sign-in'\);/);
-  assert.match(readFileSync(new URL('../pages/assets/sign-in.js', import.meta.url), 'utf8'), /\/sign-out/, 'the bundle is built from the client');
+  assert.match(readFileSync(new URL('assets/sign-in.js', dir), 'utf8'), /\/sign-out/, 'the bundle is built from the client');
 });
 
 test('every email box shows the placeholder old Trillion showed (src/pages.mjs:223, :419)', () => {
-  for (const name of html) {
-    for (const [box] of readFileSync(new URL(name, dir), 'utf8').matchAll(/<input[^>]*type="email"[^>]*>|<input[^>]*name="(?:email|sign_in_email)"[^>]*>/g)) {
+  for (const name of sectionFiles) {
+    for (const [box] of readFileSync(new URL(`sections/${name}`, dir), 'utf8').matchAll(/<input[^>]*type="email"[^>]*>|<input[^>]*name="(?:email|sign_in_email)"[^>]*>/g)) {
       const placeholder = box.match(/placeholder="([^"]*)"/)?.[1];
       if (placeholder !== undefined) assert.equal(placeholder, 'you@example.com', `${name}: ${box}`);
     }
@@ -64,10 +78,70 @@ test('every email box shows the placeholder old Trillion showed (src/pages.mjs:2
 });
 
 test('/sign-in/key answers a page whose key button makes the signed-in person a key through Better Auth and shows it once', () => {
-  const page = pageAnswer('/sign-in/key')?.body.toString();
-  assert.match(page ?? '', /<button class="page-action" type="button" data-key /);
-  assert.match(page ?? '', /name="made-key" readonly hidden/);
-  const client = readFileSync(new URL('../pages/sign-in-client.mjs', import.meta.url), 'utf8');
-  assert.match(client, /fetch\('\/api\/auth\/api-key\/create'/);
-  assert.match(readFileSync(new URL('../pages/assets/sign-in.js', import.meta.url), 'utf8'), /api-key\/create/, 'the bundle is built from the client');
+  assert.match(page('/sign-in/key'), /<button class="page-action" type="button" data-key /);
+  assert.match(page('/sign-in/key'), /name="made-key" readonly hidden/);
+  const client = readFileSync(new URL('sign-in-client.mjs', dir), 'utf8');
+  assert.match(client, /\$\{authBase\}\/api-key\/create/);
+  assert.match(readFileSync(new URL('assets/sign-in.js', dir), 'utf8'), /api-key\/create/, 'the bundle is built from the client');
+});
+
+test('the sign-in page offers an email code and a passkey, the email box offers passkeys, and no password is asked first', () => {
+  const signIn = page('/sign-in');
+  assert.match(signIn, /action="\/sign-in\/way\/send"/, 'the one form sends an email code');
+  assert.match(signIn, /<input[^>]*name="sign_in_email"[^>]*autocomplete="username webauthn"/, 'the email box lists the person\'s passkeys (conditional mediation)');
+  assert.match(signIn, /data-passkey data-purpose="sign-in"/);
+  assert.doesNotMatch(signIn, /type="password"/);
+  assert.match(signIn, /href="\/sign-in\/other-ways"/);
+  const other = page('/sign-in/other-ways');
+  for (const way of ['password', 'authenticator', 'backup-codes']) assert.match(other, new RegExp(`way=${way}`), `other ways offers ${way}`);
+  assert.match(page('/sign-up'), /action="\/sign-in\/way\/send"/, 'a new person starts with the same email code');
+  assert.doesNotMatch(page('/sign-up'), /type="password"/);
+});
+
+test('no page offers a way that never works: no text code, no address that answers nothing', () => {
+  for (const name of sectionFiles) assert.doesNotMatch(readFileSync(new URL(`sections/${name}`, dir), 'utf8'), /text-code|Text me a code/, name);
+  assert.equal(pageAnswer('/sign-in/way?way=text-code'), null);
+  const addresses = new Set(table.routes.map(route => route.path));
+  const queried = route => (route.path === '/sign-in/way' ? route.query?.way : null);
+  for (const name of sectionFiles) {
+    for (const [, href] of readFileSync(new URL(`sections/${name}`, dir), 'utf8').matchAll(/href="(\/[^"#]*)"/g)) {
+      const url = new URL(href, 'http://page');
+      if (['/', '/privacy', '/terms'].includes(url.pathname)) continue;
+      assert.ok(addresses.has(url.pathname), `${name} links ${href}, which a route answers`);
+      assert.ok(url.pathname !== '/sign-in/way' || table.routes.some(route => queried(route) === url.searchParams.get('way')), `${name} links ${href}, which a way answers`);
+    }
+  }
+});
+
+test('/consent shows who asks, where, what it may do, and Allow and Deny with the line to approve only what the person started', () => {
+  const consent = page('/consent');
+  assert.match(consent, /data-fill-list="scopes"/);
+  assert.match(consent, /data-consent="allow"[^>]*>Allow</);
+  assert.match(consent, /data-consent="deny"[^>]*>Deny</);
+  assert.match(consent, /Only approve what you started\./);
+  assert.match(consent, /\{client\} wants to use your Trillion/);
+  assert.match(consent, /On \{computer\}/);
+});
+
+test('/device takes the code a device shows and asks to allow or deny it, for a device the person holds', () => {
+  const device = page('/device?user_code=ABCD-1234');
+  assert.match(device, /action="\/device"/);
+  assert.match(device, /name="user_code"[^>]*autocomplete="off"/);
+  assert.match(device, /data-device="allow"/);
+  assert.match(device, /data-device="deny"/);
+  assert.match(device, /Only approve a device you are holding\./);
+});
+
+test('/approve shows a change in plain words and one passkey tap approves it', () => {
+  const approve = page('/approve');
+  assert.match(approve, /data-fill-list="changes"/);
+  assert.match(approve, /data-approve="sign"[^>]*>Approve with my passkey</);
+  assert.match(approve, /Only approve what you started\./);
+  assert.match(readFileSync(new URL('assets/sign-in.js', dir), 'utf8'), /webauthn\.get|credentials\.get|userVerification/, 'the bundle is built from approve-client.mjs');
+});
+
+test('pages/assets/sign-in.js is the build of the client as it is now (npm run build-pages)', async () => {
+  const { build } = await import('esbuild');
+  const built = await build({ entryPoints: [new URL('sign-in-client.mjs', dir).pathname], bundle: true, minify: true, format: 'iife', target: 'es2020', write: false, outfile: 'sign-in.js' });
+  assert.equal(built.outputFiles[0].text, readFileSync(new URL('assets/sign-in.js', dir), 'utf8'));
 });

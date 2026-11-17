@@ -1,16 +1,21 @@
-// The sign-in pages' answers, read from pages/routes.json: which page file answers a GET of an address (first match wins),
-// the script assets under assets_path, and the headers every page answer carries (its content security policy).
+// The sign-in pages' answers, read from pages/routes.json: which sections answer a GET of an address (first match wins) inside the
+// one shared shell (pages/shell.html), the script assets under assets_path, and the headers every page answer carries (its
+// content security policy).
 import { readFileSync } from 'node:fs';
 
 const pages = new URL('./pages/', import.meta.url);
 export const table = JSON.parse(readFileSync(new URL('routes.json', pages), 'utf8'));
+const shell = readFileSync(new URL('shell.html', pages), 'utf8');
+const escaped = text => text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-/** The page file's bytes for a GET of `url`, or null. */
+/** The page for a GET of `url` as bytes, or null: the shell with the matching route's title, description and sections. */
 export function pageOf(url) {
   const { pathname, searchParams } = new URL(url, 'http://page');
   const route = table.routes.find(({ path, query = {} }) => path === pathname
     && Object.entries(query).every(([key, value]) => searchParams.has(key) && (value === '*' || searchParams.get(key) === value)));
-  return route ? readFileSync(new URL(route.file, pages)) : null;
+  if (!route) return null;
+  const sections = route.sections.map(name => readFileSync(new URL(`sections/${name}.html`, pages), 'utf8')).join('');
+  return Buffer.from(shell.replace('{{title}}', () => escaped(route.title)).replace('{{description}}', () => escaped(route.description)).replace('{{sections}}', () => sections));
 }
 
 /** An asset under assets_path, by its plain file name only, or null. */

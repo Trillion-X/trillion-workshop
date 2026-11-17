@@ -1,5 +1,5 @@
 {
-  "_what": "Which page file answers each sign-in address (GET only), first match wins: `path` is the address, `query` the values its query must hold (\"*\": any value). The addresses are the ones the sign-in pages link and post to. `assets` is the folder served under `assets_path`. `headers` go on every page answer: the content security policy the engine's sign-in pages were served with (its inline scripts by their sha256, this tool's own script by 'self'), and its referrer and frame rules.",
+  "_what": "Which page answers each sign-in address (GET only), first match wins: `path` is the address, `query` the values its query must hold (\"*\": any value), `sections` the files of sections/ drawn between the shell's <main> tags (shell.html is the one shared head, style and script set), `title` and `description` the page's own words. The addresses are the ones the sign-in pages link and post to. `assets` is the folder served under `assets_path`. `headers` go on every page answer: the content security policy (its inline scripts by their sha256, this tool's own script by 'self'), and its referrer and frame rules.",
   "assets_path": "/sign-in/assets/",
   "assets": "assets",
   "headers": {
@@ -10,18 +10,29 @@
   "routes": [
     {
       "path": "/sign-in",
-      "query": {
-        "email": "*"
-      },
-      "file": "sign-in-account.html"
+      "sections": [
+        "sign-in",
+        "legal"
+      ],
+      "title": "Sign in to Trillion",
+      "description": "Sign in to Trillion or create your account, and bring the AI you already use to find the needle mover and get it done."
     },
     {
-      "path": "/sign-in",
-      "file": "sign-in.html"
+      "path": "/sign-in/other-ways",
+      "sections": [
+        "other-ways"
+      ],
+      "title": "Other ways to sign in",
+      "description": "Sign in with a password, an authenticator app or a backup code."
     },
     {
       "path": "/sign-up",
-      "file": "sign-up.html"
+      "sections": [
+        "sign-up",
+        "legal"
+      ],
+      "title": "Create your Trillion account",
+      "description": "Sign in to Trillion or create your account, and bring the AI you already use to find the needle mover and get it done."
     },
     {
       "path": "/sign-in/way",
@@ -29,69 +40,111 @@
         "way": "email-code",
         "sent": "1"
       },
-      "file": "way-email-code-sent.html"
-    },
-    {
-      "path": "/sign-in/way",
-      "query": {
-        "way": "email-code"
-      },
-      "file": "way-email-code.html"
+      "sections": [
+        "code-sent"
+      ],
+      "title": "Sign in with a code",
+      "description": "If this email has a Trillion account, a 6-digit code is on its way. It works for 10 minutes. Check your spam folder if it does not arrive."
     },
     {
       "path": "/sign-in/way",
       "query": {
         "way": "password"
       },
-      "file": "way-password.html"
-    },
-    {
-      "path": "/sign-in/way",
-      "query": {
-        "way": "text-code"
-      },
-      "file": "way-text-code.html"
+      "sections": [
+        "password"
+      ],
+      "title": "Sign in with a password",
+      "description": "Sign in with your email and a password."
     },
     {
       "path": "/sign-in/way",
       "query": {
         "way": "authenticator"
       },
-      "file": "way-authenticator.html"
+      "sections": [
+        "authenticator"
+      ],
+      "title": "Sign in with your authenticator app",
+      "description": "Sign in with the code your authenticator app shows for this account."
     },
     {
       "path": "/sign-in/way",
       "query": {
         "way": "backup-codes"
       },
-      "file": "way-backup-codes.html"
-    },
-    {
-      "path": "/sign-in/email",
-      "file": "way-email-code.html"
+      "sections": [
+        "backup-codes"
+      ],
+      "title": "Sign in with a backup code",
+      "description": "One-time codes you keep for when every device is lost."
     },
     {
       "path": "/sign-in/forgot-password",
       "query": {
         "sent": "1"
       },
-      "file": "forgot-password-sent.html"
+      "sections": [
+        "forgot-password-sent"
+      ],
+      "title": "Reset your password",
+      "description": "If this email has a Trillion account, a 6-digit code is on its way. It works for 10 minutes. Check your spam folder if it does not arrive."
     },
     {
       "path": "/sign-in/forgot-password",
-      "file": "forgot-password.html"
+      "sections": [
+        "forgot-password"
+      ],
+      "title": "Reset your password",
+      "description": "We'll email you a 6-digit code. It works once, for 10 minutes."
     },
     {
       "path": "/sign-in/add-passkey",
-      "file": "add-passkey.html"
+      "sections": [
+        "add-passkey"
+      ],
+      "title": "Make a passkey on this device",
+      "description": "A passkey on this device signs you in next time without a code."
     },
     {
       "path": "/sign-in/key",
-      "file": "make-a-key.html"
+      "sections": [
+        "make-a-key"
+      ],
+      "title": "Make a key for your AI",
+      "description": "A key lets an AI or a computer of yours use your Trillion account."
     },
     {
       "path": "/sign-out",
-      "file": "sign-out.html"
+      "sections": [
+        "sign-out"
+      ],
+      "title": "Sign out",
+      "description": "Sign out of Trillion on this browser."
+    },
+    {
+      "path": "/consent",
+      "sections": [
+        "consent"
+      ],
+      "title": "Let this AI use your Trillion",
+      "description": "Approve or deny the AI that asked to use your Trillion."
+    },
+    {
+      "path": "/device",
+      "sections": [
+        "device"
+      ],
+      "title": "Connect a device",
+      "description": "Approve or deny the device that asked to use your Trillion."
+    },
+    {
+      "path": "/approve",
+      "sections": [
+        "approve"
+      ],
+      "title": "Approve this change",
+      "description": "Approve a change to which computers and AIs are yours, with your passkey."
     }
   ]
 }
