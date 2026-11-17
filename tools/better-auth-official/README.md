@@ -143,7 +143,7 @@ no page) and `/sign-out` (Better Auth's sign-out, then `/sign-in`), and the conn
   The engine's wake runner is the only caller of credential standing: for a grant it asks `{credential}` on the internal listener, and an
   unrevoked grant stands even past its idle end (a job the person switched on keeps working); each ask is noted in the consent's
   `updatedAt`, and the list says `held_by_wake` ("Only your scheduled job still uses this.", with the same one-tap Disconnect) when
-  the grant is past its idle end and an ask came within twice `checkEveryMs`; otherwise past the idle end it says ended.
+  a wake has asked for it since its idle end (no time window: a job that runs once a year is still told it stands); otherwise past the idle end it says ended.
   `test/access-ends.test.mjs` runs the 89-day refresh, 100 days of daily use, 91 days unused, reuse ending the chain, and revoke.
 - `/device` (`device.verification_uri`): the code a device shows (RFC 8628), then its client and scopes, "Only approve a device
   you are holding.", Allow and Deny through `/api/auth/device/approve` and `/deny`. The person who opens a code claims it.

@@ -174,6 +174,13 @@ test('the engine\'s ask for a grant (only the wake runner makes it) stands past 
   const held = await listed(idle);
   assert.equal(held.held_by_wake, true, 'the ask was noted: only the job still uses it');
   assert.equal(held.ended_by, 'unused');
+  // A job that runs once a year: a year passes with no ask, and the page still tells the truth, because the ask after the idle end is what counts, not how long ago it was.
+  await older(idle, 365);
+  assert.equal((await listed(idle)).held_by_wake, true, 'a year later, no ask since: still only the job');
+  assert.equal(await stands(`mcp-access:${userId}:${idle}`), true, 'and the yearly ask finds it standing');
+  assert.equal((await call('/connected/revoke', { cookie, body: { clientId: idle } })).status, 200, 'until the person ends it');
+  assert.equal(await listed(idle), undefined);
+  assert.equal(await stands(`mcp-access:${userId}:${idle}`), false);
 
   const revoked = await newClient('Revoked scheduled AI');
   await connect(revoked);
