@@ -71,7 +71,7 @@ const PRODUCT_DATA = writeProductData(mkdtempSync(join(tmpdir(), 'start-a-comput
 const SETTINGS_FILE = '/var/lib/place/product-settings.json';
 const PRODUCT_BYTES = productSettingsOf(readProductData({ product_data: PRODUCT_DATA }), SETTINGS_FILE).bytes;
 const FEED = { urls: ['https://releases.example.test/feed.json'], public_keys: ['a'.repeat(64)], releases: '/opt/place/releases' };
-const withProfile = request => ({ product_data: PRODUCT_DATA, release_feed: FEED, product_settings_file: SETTINGS_FILE, ...request, place_config: { accounts: '/var/lib/place/accounts', place_key_file: '/var/lib/place/place.key', ...request.place_config }, ...(request.engine && { engine: { releases: '/opt/place/releases', ...request.engine } }) });
+const withProfile = request => ({ product_data: PRODUCT_DATA, release_feed: FEED, product_settings_file: SETTINGS_FILE, ...request, place_config: { accounts: '/var/lib/place/accounts', computer_key_file: '/var/lib/place/place.key', ...request.place_config }, ...(request.engine && { engine: { releases: '/opt/place/releases', ...request.engine } }) });
 const startAComputer = (request, ...deps) => startAComputerRaw(withProfile(request), ...deps);
 const computerConfig = (machine, request, ...deps) => computerConfigRaw(machine, withProfile(request), ...deps);
 const updateAComputer = (lease, request, ...deps) => updateAComputerRaw(lease, withProfile(request), ...deps);
@@ -267,7 +267,7 @@ test('the computer config takes the machine\'s own fields and values read from t
   }, { cents: 699, currency: 'EUR' }, run);
   assert.deepEqual(config, {
     report: { takes_new_accounts: true, reach: 'https://computer.example.com', cost_per_month_cents: 699 }, router: 'app.example.com:443',
-    listen: '127.0.0.1:7199', accounts: '/var/lib/place/accounts', place_key_file: '/var/lib/place/place.key', public_origin: 'https://computer.example.com',
+    listen: '127.0.0.1:7199', accounts: '/var/lib/place/accounts', computer_key_file: '/var/lib/place/place.key', public_origin: 'https://computer.example.com',
     new_accounts: { ...PRODUCT.new_accounts, sign_in_ways: [{ way: 'passkey' }], copies: { least_copy_keepers: 1, least_voters: 1, least_may_answer: 1, least_always_on: 0 } }, release_feed: FEED,
   });
   const behind = await computerConfig({}, { port: 7199, name: { host_name: 'computer.example.com' }, public_origin: 'https://front.example.com' }, null, run);
@@ -682,7 +682,7 @@ test('starting rows fill missing sign-in words and copy rules while retaining co
   rows.sign_in.token_seconds = 1; rows.extra.own = false;
   assert.deepEqual(PRODUCT, productBefore);
   assert.deepEqual(config, before);
-  const withoutFeed = await computerConfigRaw({}, { product_data: PRODUCT_DATA, place_config: { accounts: '/var/lib/place/accounts', place_key_file: '/var/lib/place/place.key' }, port: 7199, name: { host_name: 'sample.example.test' } }, null);
+  const withoutFeed = await computerConfigRaw({}, { product_data: PRODUCT_DATA, place_config: { accounts: '/var/lib/place/accounts', computer_key_file: '/var/lib/place/place.key' }, port: 7199, name: { host_name: 'sample.example.test' } }, null);
   assert.ok(!Object.hasOwn(withoutFeed, 'release_feed'), 'no compiled product feed is selected');
 });
 
@@ -692,7 +692,7 @@ test('a start uses one exact file snapshot for remote settings and starting rows
   let settingsWritten, configWritten;
   const request = {
     product_data: data, release_feed: null, product_settings_file: SETTINGS_FILE,
-    place_config: { accounts: '/var/lib/place/accounts', place_key_file: '/var/lib/place/place.key' },
+    place_config: { accounts: '/var/lib/place/accounts', computer_key_file: '/var/lib/place/place.key' },
     host_layout: HOST_LAYOUT,
     lease_file: join(here, 'lease.json'), machine: { provider: ADOPTED, name: 'sample', placement: { address: '192.0.2.44' } },
     name: { host_name: 'sample.example.test' }, ssh: { known_hosts: '/dev/null' }, port: 7199,

@@ -527,7 +527,7 @@ export async function computerConfig(machine, request, price, run = onMachine, p
   // came back through place_config and made every computer's messages fail, so a request that names one is refused.
   if (request.place_config && 'router' in request.place_config) throw refused('place_config must not name a router: the computer\'s router is the product settings app_host row.');
   if (typeof product?.data?.app_host !== 'string' || !product.data.app_host) throw refused('the product settings name no app_host, so the computer has no router.');
-  for (const key of ['accounts', 'place_key_file']) if (typeof config[key] !== 'string') throw refused(`place_config.${key} is the path the engine keeps it at on the computer.`);
+  for (const key of ['accounts', 'computer_key_file']) if (typeof config[key] !== 'string') throw refused(`place_config.${key} is the path the engine keeps it at on the computer.`);
   Object.assign(config, { listen: `127.0.0.1:${request.port}`, public_origin: request.public_origin ?? reach, router: `${product.data.app_host}:443` });
   config.report = { ...config.report, reach, ...(price && { cost_per_month_cents: price.cents }) };
   const feed = feedOf(request);

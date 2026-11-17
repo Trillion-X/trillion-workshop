@@ -134,7 +134,7 @@ const engine = {
   key_file: '/var/lib/example-engine/computer.key', folders: ['/var/lib/example-engine/accounts'],
   health: { path: '/readyz', status: 200 }, health_listen: '127.0.0.1:7199',
   settings: {
-    listen: '127.0.0.1:7199', accounts: '/var/lib/example-engine/accounts', place_key_file: '/var/lib/example-engine/computer.key',
+    listen: '127.0.0.1:7199', accounts: '/var/lib/example-engine/accounts', computer_key_file: '/var/lib/example-engine/computer.key',
     public_origin: 'https://computer.example.test', report: { reach: 'https://computer.example.test' },
     new_accounts: { copies: { least_copy_keepers: 1, least_voters: 1, least_may_answer: 1, least_always_on: 0 } },
     release_feed: { urls: [engineFeedUrl], public_keys: [publicKeyHex(key)], releases: '/opt/example-engine/releases' },
