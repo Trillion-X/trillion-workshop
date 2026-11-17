@@ -322,6 +322,7 @@ fn a_raw_span_is_written_as_a_file_of_exactly_its_bytes_and_the_answer_names_it_
         let answer = call(&mut files, "read_file_span", json!({ "name_or_identity": "/clip.bin", "offset": 10, "length": 100, "raw": true })).unwrap();
         let named = &answer["bytes"];
         assert_eq!((named["total"].clone(), named["offset"].clone()), (json!(256), json!(10)), "{database}");
+        assert_eq!(named["identity"], answer["identity"], "{database}: the bytes name the version they are of");
         assert!(answer.get("content").is_none(), "{database}: the bytes are never in the answer");
         let written = std::fs::read(folder.path().join(named["file"].as_str().unwrap())).unwrap();
         assert_eq!(written, (10u8..110).collect::<Vec<_>>(), "{database}: the file is exactly the span");

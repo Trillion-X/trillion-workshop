@@ -1069,7 +1069,7 @@ impl AccountFiles {
     }
 
     /// `read_file_span` with `raw`: the same span written as a file of its bytes (`CallControl::with_byte_results`), and the
-    /// answer names it, `{bytes: {file, total, offset}}`, beside the file's facts; the bytes are never in the answer, so a
+    /// answer names it, `{bytes: {file, total, offset, identity}}`, beside the file's facts; the bytes are never in the answer, so a
     /// caller through the engine's door is handed them raw (the row's `session.byte_result`).
     pub fn read_file_span_raw(&self, name_or_identity: &str, offset: u64, length: u64) -> Answer<Value> {
         let (root, folder) = self.control.byte_results.clone()
@@ -1084,7 +1084,7 @@ impl AccountFiles {
             "identity": file.id,
             "media_type": text(&file.value, "media_type").unwrap_or("application/octet-stream"),
             "byte_length": size,
-            "bytes": {"file": name, "total": size, "offset": offset},
+            "bytes": {"file": name, "total": size, "offset": offset, "identity": file.id},
         }))
     }
 
