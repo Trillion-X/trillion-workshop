@@ -14,7 +14,7 @@
 import React from 'react';
 import { Container, NamedIcon, ScrollableSurface, Spinner, Text } from '../../ui/index.ts';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { PlaceableSurfaceHost } from '@/packages/ui/show/placeable-surface-host';
+import { PlaceableSurfaceHost } from '../../ui/show/placeable-surface-host';
 import { readGateInputs, GateCard } from './ObligationGatePanel.tsx';
 import { conditionPack } from '../read-data/condition-node-pack.ts';
 import {

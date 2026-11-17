@@ -1,5 +1,5 @@
 /**
- * file: parts/record-video/do-work/recording-session-from-presentation-plan.mjs
+ * file: tools/record-video/do-work/recording-session-from-presentation-plan.mjs
  *
  * PURPOSE: The conversion build-recording-session-from-presentation-plan.mjs runs, as a function a screen can call:
  * one already-compiled video presentation plan becomes the recording-session DATA this package's capture surface reads

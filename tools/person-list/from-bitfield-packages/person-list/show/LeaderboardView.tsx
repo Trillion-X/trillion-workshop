@@ -22,7 +22,7 @@ import {
   Spinner,
   StatementHeader,
   Text,
-} from '@/packages/ui';
+} from '../../../../ui';
 import { RankRow } from './RankRow';
 import {
   decodeEffectRows,

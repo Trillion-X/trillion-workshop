@@ -70,7 +70,7 @@ function taskDetails(input) {
   return values;
 }
 
-// How the planner (parts/ui schedule-planner) is told to treat a task: the kind of deadline, the earliest start, what must
+// How the planner (tools/ui schedule-planner) is told to treat a task: the kind of deadline, the earliest start, what must
 // end first, and the pin that holds an automatically placed task where a person put it. Every choice and limit is the
 // list's own DATA (calendar-tasks.json fields), so a new deadline kind is a new choice row.
 function schedulingDetails(input) {
@@ -878,7 +878,7 @@ async function rolloverTasks(lists, input) {
 }
 
 // ---- Day hours --------------------------------------------------------------------------------------------------------
-// A one-day change to the standing working hours, kept as a row the planner subtracts (parts/ui schedule-planner
+// A one-day change to the standing working hours, kept as a row the planner subtracts (tools/ui schedule-planner
 // `day_overrides`), so a late start or a blocked afternoon never edits the schedule the person keeps.
 const dayHoursId = day => `calendar-day-${day}`;
 const dayHoursOf = row => {
@@ -920,7 +920,7 @@ async function clearDayHours(lists, input) {
 }
 
 // ---- Working hours and quiet hours --------------------------------------------------------------------------------------
-// The person's standing working hours and what a sender is told outside them (parts/timed-action quiet-hours.ts).
+// The person's standing working hours and what a sender is told outside them (tools/run-work-later-or-on-a-repeat quiet-hours.ts).
 const workingHoursOf = row => row?.values?.start && row.values.end && row.values.time_zone ? {
   start: row.values.start, end: row.values.end, time_zone: row.values.time_zone,
   ...(Array.isArray(row.values.weekdays) && row.values.weekdays.length ? { weekdays: row.values.weekdays.map(Number) } : {}),
@@ -1124,7 +1124,7 @@ const preferenceStored = (name, value) => {
   if (row.kind === 'text') return value.trim() || null;
   return row.choices ? value : value ? 'yes' : 'no';
 };
-// The most planned work in a day (parts/ui/show/schedule-calendar/schedule-planner.mjs `capacity`), kept on the working-hours row.
+// The most planned work in a day (tools/ui/show/schedule-calendar/schedule-planner.mjs `capacity`), kept on the working-hours row.
 /** This person's standing working hours { start, end, time_zone, weekdays?, mode }, or null when not set (what a member's store lets a space-mate learn only as quiet or not, space-calendars.mjs). */
 export const readWorkingHours = async lists => workingHoursOf(await lists.row(data.working_hours.id, data.working_hours.row_id));
 /** Whether this person, at `atMs`, is outside their working hours and chose to be written to without a push (quiet-hours.json mode auto_silent). */

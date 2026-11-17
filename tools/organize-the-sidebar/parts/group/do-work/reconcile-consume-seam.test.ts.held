@@ -11,7 +11,7 @@
 // React useEffect glue (which just calls this chain and commits the result).
 
 import { describe, expect, it } from 'vitest';
-import { emptyGraph, membersOf, memberById, type AddressRef } from '@/packages/ui/show/group/group-graph';
+import { emptyGraph, membersOf, memberById, type AddressRef } from '../../../../ui/show/group/group-graph';
 import { applyProducerOutput } from './apply-producer-output';
 import { reconcileBoardGraphAuthoritative } from './reconcile-board-producer';
 import { reconcileOutputFromItems, producerItemsToReconcileItems } from './reconcile-output-from-items';

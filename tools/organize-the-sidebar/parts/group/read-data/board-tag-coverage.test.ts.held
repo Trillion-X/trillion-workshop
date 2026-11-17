@@ -1,13 +1,13 @@
 // packages/group/read-data/board-tag-coverage.test.ts
 import { describe, it, expect } from 'vitest';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
+import type { BoardItem } from '../../../read-data/group-board-model';
 import {
   taggedCardIds,
   untaggedCardIds,
   boardHasTagGaps,
   tagCoverage,
   tagCoverageText,
-} from '@/packages/group/read-data/board-tag-coverage';
+} from '../../../read-data/board-tag-coverage';
 
 const card = (memberId: string, tags?: string[]): BoardItem =>
   ({ memberId, nodeRef: { id: memberId }, kind: 'note', x: 0, y: 0, w: 1, h: 1, isSection: false, childCount: 0, text: memberId, extra: tags ? { tags } : {} } as unknown as BoardItem);

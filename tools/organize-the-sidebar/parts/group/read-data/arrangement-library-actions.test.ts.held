@@ -4,11 +4,11 @@ import {
   runArrangementLibraryAction,
   isLibraryManageAction,
   ARRANGEMENT_LIBRARY_ACTIONS,
-} from '@/packages/group/read-data/arrangement-library-actions';
-import { readSavedArrangementLibrary } from '@/packages/group/read-data/saved-arrangement';
-import { saveCollection, readActiveCollections } from '@/packages/group/read-data/collection-store';
-import { emptyGraph } from '@/packages/ui/show/group/group-graph';
-import type { AddressRef } from '@/packages/ui/show/group/group-graph';
+} from '../../../read-data/arrangement-library-actions';
+import { readSavedArrangementLibrary } from '../../../read-data/saved-arrangement';
+import { saveCollection, readActiveCollections } from '../../../read-data/collection-store';
+import { emptyGraph } from '../../../../ui/show/group/group-graph';
+import type { AddressRef } from '../../../../ui/show/group/group-graph';
 
 const IDX: AddressRef = { input: 'published-record', identity: 'collection-index' };
 

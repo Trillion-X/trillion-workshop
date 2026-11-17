@@ -11,7 +11,7 @@
 //   1. Every branch is on a capability field (html, collapsibles, checkboxes, dialect, max_chars, theme.strategy), never on a
 //      surface id.
 //   2. The marker (if given) is first and survives any cut: a message that cannot be found again is not one we posted.
-//   3. Markup is written through the one tree writer (parts/ui/show/server-rendered-page/markup-tree.mjs), never by hand.
+//   3. Markup is written through the one tree writer (tools/ui/show/server-rendered-page/markup-tree.mjs), never by hand.
 //   4. A body over max_chars is cut at a block boundary, never mid-block, and says so.
 //   5. Pure: same blocks and capability, same body.
 //

@@ -27,7 +27,7 @@
 import rules from './referrals.json' with { type: 'json' };
 import friendInvites from './friend-invites.json' with { type: 'json' };
 import adjustmentRecords from '../records/checkout-code-adjustment-records.json' with { type: 'json' };
-import { scoreCandidates } from '../parts/choose-per-observer/read-data/score-candidates.ts';
+import { scoreCandidates } from '../../../funnels-screen/read-data/score-candidates.ts';
 
 export const PICTURE_LIMIT = 1_500_000;
 export const REF_COOKIE = rules.join_cookie;

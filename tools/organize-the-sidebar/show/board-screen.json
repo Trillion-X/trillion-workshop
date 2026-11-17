@@ -1,5 +1,5 @@
 {
-  "what_this_is": "The board (parts/group/show/board-screen.tsx, the screen of tool:screen-board): how it lays out the pictures and links shared into the space (a picture as an image card, a link as a link card), where a picture dropped on it is kept, and the actions it offers. Each action is an action-affordance row the ported board reads (parts/ui/show/action-affordance): its triggers say where it shows (the add shelf, the command palette, the right-click menu on a selection or on the board) and what it asks; its dispatch names `board:<job>`, the row of src/queued-work.json that hands the job to the person's own AIs with the space, its title, the words `what` and the chosen cards (`items`). A new action is a row here (and, for a new kind of job, a row in src/queued-work.json). A frame (`frame`) is a picture put here at a page's shape with where it was drawn from; the Draw again action (definition_prefix `board-frame:`) draws chosen frames anew, done here rather than by an AI.",
+  "what_this_is": "The board (tools/organize-the-sidebar/show/board-screen.tsx, the screen of tool:screen-board): how it lays out the pictures and links shared into the space (a picture as an image card, a link as a link card), where a picture dropped on it is kept, and the actions it offers. Each action is an action-affordance row the ported board reads (tools/ui/show/action-affordance): its triggers say where it shows (the add shelf, the command palette, the right-click menu on a selection or on the board) and what it asks; its dispatch names `board:<job>`, the row of src/queued-work.json that hands the job to the person's own AIs with the space, its title, the words `what` and the chosen cards (`items`). A new action is a row here (and, for a new kind of job, a row in src/queued-work.json). A frame (`frame`) is a picture put here at a page's shape with where it was drawn from; the Draw again action (definition_prefix `board-frame:`) draws chosen frames anew, done here rather than by an AI.",
   "definition_prefix": "board:",
   "artifact_role": "board-artifact",
   "folder": "/Boards",
@@ -526,7 +526,7 @@
                 "id": "vlog",
                 "control": "text",
                 "label": "Which vlog?",
-                "free_text_because": "The board's ask form (parts/ui/show/action-affordance) has no record control and no list keeps vlogs yet; the words go to the person's AI, which finds the vlog itself."
+                "free_text_because": "The board's ask form (tools/ui/show/action-affordance) has no record control and no list keeps vlogs yet; the words go to the person's AI, which finds the vlog itself."
               }
             ],
             "submit_label": "Send to my AI"
@@ -579,7 +579,7 @@
                 "id": "vlog",
                 "control": "text",
                 "label": "Which vlog?",
-                "free_text_because": "The board's ask form (parts/ui/show/action-affordance) has no record control and no list keeps vlogs yet; the words go to the person's AI, which finds the vlog itself."
+                "free_text_because": "The board's ask form (tools/ui/show/action-affordance) has no record control and no list keeps vlogs yet; the words go to the person's AI, which finds the vlog itself."
               }
             ],
             "submit_label": "Send to my AI"

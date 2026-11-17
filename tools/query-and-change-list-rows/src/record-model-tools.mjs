@@ -6,7 +6,7 @@
 //   entity type with its properties, the value kinds each property has held and the kind declared for it, and its parts:
 //   participation roles, a role over a list being an interaction set); with an id, that one record as attribute facts,
 //   what it holds by its kind's parts, and what holds it (participation read the other way: what it is inside). The model
-//   itself is parts/record-log record-model.mjs over src/record-model.json; nothing here keeps or changes anything.
+//   itself is tools/record-log record-model.mjs over src/record-model.json; nothing here keeps or changes anything.
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. read_model only reads, and is marked read-only; the one write here is relate (relate_records): relations and the

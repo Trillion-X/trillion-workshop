@@ -5,8 +5,8 @@
 // Tab-child below the previous one). Both shape-based (itemIsConnector), zero kind literals.
 
 import { describe, expect, it } from 'vitest';
-import { emptyGraph } from '@/packages/ui/show/group/group-graph';
-import { boardRootRef, itemRef, placeItem, readItems } from '@/packages/group/read-data/group-board-model';
+import { emptyGraph } from '../../../../ui/show/group/group-graph';
+import { boardRootRef, itemRef, placeItem, readItems } from '../../../read-data/group-board-model';
 import { parentViaConnectors, directChildCount } from './batch-actions';
 
 const B = boardRootRef('mm');

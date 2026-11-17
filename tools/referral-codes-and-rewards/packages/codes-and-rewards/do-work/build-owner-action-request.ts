@@ -4,8 +4,8 @@
 // materializes requests; workflow, HTTP, payment, account, and process-session
 // owners execute and prove their own work.
 
-import defaultContract from '@/packages/codes-and-rewards/record-interaction-contract.json';
-import type { ActionDescriptor, JsonRecord, RecordInteractionContract } from '@/packages/codes-and-rewards/read-data/read-record-interaction-surface';
+import defaultContract from '../record-interaction-contract.json';
+import type { ActionDescriptor, JsonRecord, RecordInteractionContract } from '../read-data/read-record-interaction-surface';
 
 export interface BuildOwnerActionRequestInput {
   contract?: RecordInteractionContract;

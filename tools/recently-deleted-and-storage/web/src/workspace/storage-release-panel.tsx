@@ -18,11 +18,11 @@
 //      rule the store refused.
 
 import React, { useMemo, useState } from 'react';
-import { Button, Chart, chartOfPoints, Container, StatStrip, Switch, Text, UsageMeter } from '../../parts/ui';
-import { ActionMenu, type ActionMenuItem } from '../../parts/ui/show/action-menu';
-import { RuleFilterChips, type RuleFacet, type RuleFieldView, type RuleGroup, type RuleOperatorData } from '../../parts/ui/show/rule-filter';
-import { formatBytes } from '../../parts/ui/show/notifications/notification-center';
-import { notify } from '../../parts/ui/show/coss/notifications';
+import { Button, Chart, chartOfPoints, Container, StatStrip, Switch, Text, UsageMeter } from '../../../../ui';
+import { ActionMenu, type ActionMenuItem } from '../../../../ui/show/action-menu';
+import { RuleFilterChips, type RuleFacet, type RuleFieldView, type RuleGroup, type RuleOperatorData } from '../../../../ui/show/rule-filter';
+import { formatBytes } from '../../../../ui/show/notifications/notification-center';
+import { notify } from '../../../../ui/show/coss/notifications';
 import { errorWords } from '../../../../ui/show/safe-error-card/sanitize-error-text.ts';
 import operators from '../../../../formula-engine/rules/rule-operators.json';
 import { readJson } from './api';

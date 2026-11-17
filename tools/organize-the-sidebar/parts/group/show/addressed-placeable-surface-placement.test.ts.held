@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { emptyGraph } from '@/packages/ui/show/group/group-graph';
-import { boardRootRef, readItems } from '@/packages/group/read-data/group-board-model';
+import { emptyGraph } from '../../../../ui/show/group/group-graph';
+import { boardRootRef, readItems } from '../../../read-data/group-board-model';
 import {
   commitAddressedBoardDraft,
   commitAddressedPlaceableSurface,

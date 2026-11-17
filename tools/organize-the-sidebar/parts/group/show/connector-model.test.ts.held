@@ -7,7 +7,7 @@
 // pruned when an endpoint is deleted. No DOM, no engine — pure model truth.
 
 import { describe, it, expect } from 'vitest';
-import { emptyGraph } from '@/packages/ui/show/group/group-graph';
+import { emptyGraph } from '../../../../ui/show/group/group-graph';
 import {
   placeItem,
   patchItem,
@@ -16,7 +16,7 @@ import {
   boardRootRef,
   itemRef,
   type BoardItem,
-} from '@/packages/group/read-data/group-board-model';
+} from '../../../read-data/group-board-model';
 
 // The board's shape-based edge test (mirrors GroupBoardPanel.itemIsConnector / the
 // ConnectorLayer partition): an item is an edge iff it carries two endpoint refs.

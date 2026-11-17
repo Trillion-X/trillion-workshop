@@ -3,7 +3,7 @@
 // PURPOSE
 //   Always recording (entry `always-recording`): every camera and microphone this device sees, each with its live
 //   picture or its sound, switched on or off, and one Start. From then on nobody presses record: each input switched on
-//   records without end through parts/record-audio/do-work/always-recording.ts, cut on the clock into pieces that line
+//   records without end through tools/record-audio/do-work/always-recording.ts, cut on the clock into pieces that line
 //   up across inputs and devices, kept on this device first and sent into the person's Files while they are recorded
 //   (always-recording.json says where and how long each piece runs). A camera plugged in over USB (a camera body streaming
 //   over USB-C), a phone used as this computer's camera, the computer's own camera and microphone are all inputs the
@@ -20,22 +20,22 @@
 //      no account signed in.
 //   3. The recording outlives this screen: it is held by this module, and a reopened screen shows the same session.
 //   4. A recording this device was sending when its page closed is sent by itself the next time this screen opens.
-//   5. Every control is a shared part (parts/ui): MediaFrame for a picture, LiveWaveform for a sound, Switch, Button,
+//   5. Every control is a shared part (tools/ui): MediaFrame for a picture, LiveWaveform for a sound, Switch, Button,
 //      Badge, ShowRuleMenu for the pause rule, CopyButton for the address; this file writes no markup of its own.
 
 import * as React from 'react';
-import { Badge, Button, Card, Container, InlineEditText, LiveWaveform, Switch, Text } from '../../parts/ui';
-import { MediaFrame } from '../../parts/ui/show/media-frame/MediaFrame';
-import { CopyButton } from '../../parts/ui/show/copy-button/CopyButton';
-import { ShowRuleMenu } from '../../parts/ui/show/show-rules/ShowRuleMenu';
-import { showOf, useShowChange } from '../../parts/ui/show/show-rules/show-of';
-import { mountReactSurface } from '../../parts/ui/show/react-surface-mount';
-import { ScreenState, useScreenLoad } from '../../parts/ui/show/screen-state';
+import { Badge, Button, Card, Container, InlineEditText, LiveWaveform, Switch, Text } from '../../../../ui';
+import { MediaFrame } from '../../../../ui/show/media-frame/MediaFrame';
+import { CopyButton } from '../../../../ui/show/copy-button/CopyButton';
+import { ShowRuleMenu } from '../../../../ui/show/show-rules/ShowRuleMenu';
+import { showOf, useShowChange } from '../../../../ui/show/show-rules/show-of';
+import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
+import { ScreenState, useScreenLoad } from '../../../../ui/show/screen-state';
 import { errorWords } from '../../../../ui/show/safe-error-card/sanitize-error-text.ts';
-import { startAlwaysRecording, sendLeftOver, type AlwaysRecording, type FeedInput, type FeedStatus } from '../../parts/record-audio/do-work/always-recording';
-import { inputName } from '../../parts/record-audio/do-work/rolling-segments.mjs';
-import { captureSource, openSource, type CaptureSource } from '../../parts/record-audio/show/record-in-the-browser';
-import { accountKey } from '../../parts/ui/show/page-storage/page-storage';
+import { startAlwaysRecording, sendLeftOver, type AlwaysRecording, type FeedInput, type FeedStatus } from '../../../../record-audio/do-work/always-recording';
+import { inputName } from '../../../../record-audio/do-work/rolling-segments.mjs';
+import { captureSource, openSource, type CaptureSource } from '../../../../record-audio/show/record-in-the-browser';
+import { accountKey } from '../../../../ui/show/page-storage/page-storage';
 import { deviceAccount } from './api';
 import { growingFiles, keepText } from './upload';
 import settings from './always-recording.json';

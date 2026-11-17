@@ -3,7 +3,7 @@ import { BOARD_TEMPLATES } from './board-templates';
 import { applyTemplate, type TemplateItem } from '../read-data/board-template-apply';
 import { parseBoardTemplate } from '../read-data/collection-store';
 import { boardIndexRef, boardRootRef, readItems } from '../read-data/group-board-model';
-import { emptyGraph } from '@/packages/ui/show/group/group-graph';
+import { emptyGraph } from '../../../../ui/show/group/group-graph';
 
 function mintSeq() {
   let n = 0;

@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
 import { ExternalLink } from 'lucide-react';
-import { Container } from '@/packages/ui/show/container';
-import { Icon } from '@/packages/ui/show/icon';
-import { ScrollableSurface } from '@/packages/ui/show/scrollable-surface';
-import { Text } from '@/packages/ui/show/text';
+import { Container } from '../../../../ui/show/container';
+import { Icon } from '../../../../ui/show/icon';
+import { ScrollableSurface } from '../../../../ui/show/scrollable-surface';
+import { Text } from '../../../../ui/show/text';
 import {
   readPublicDocumentSiteModel,
   type PublicDocument,

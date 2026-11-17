@@ -1,4 +1,3 @@
-// parts/receive-files-over-ftp/do-work/ftp-receiver.mjs
 //
 // Purpose: accept files a device pushes over FTP (a camera's automatic transfer, a scanner, a recorder) into one
 // folder on this computer, and tell the caller about each file the moment the device starts sending it (so it can be

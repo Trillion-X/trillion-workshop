@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { CircleDollarSign, Club, Crown, Eye, EyeOff } from 'lucide-react';
-import { Badge, Button, Card, Container, Icon, ScrollableSurface, Text, cn } from '@/packages/ui';
+import { Badge, Button, Card, Container, Icon, ScrollableSurface, Text, cn } from '../../../../ui';
 import { POKER_RULES_STATE_MACHINE } from '@/packages/poker-rules/read-data/poker-rules';
 import type { PlayerAction, PokerCard, PokerHandState, PokerSuit } from '@/packages/poker-rules/read-data/poker-rules';
 import {

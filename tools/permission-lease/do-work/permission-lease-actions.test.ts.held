@@ -3,11 +3,11 @@ import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
 import {
   buildPermissionLeaseCheckRequest,
   requestPermissionLeaseCheck,
-} from '@/packages/permission-lease/do-work/request-permission-lease-check';
+} from './request-permission-lease-check';
 import {
   buildPermissionLeaseRecordRequest,
   recordPermissionLease,
-} from '@/packages/permission-lease/do-work/record-permission-lease';
+} from './record-permission-lease';
 
 vi.mock('@bitfield/runtime-kit', () => ({
   sendRequestToBitfieldTarget: vi.fn(async (request) => ({ request })),

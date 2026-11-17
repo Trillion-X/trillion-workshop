@@ -8,9 +8,9 @@
 
 import { describe, expect, it } from 'vitest';
 import { hueBucketName, colorFacetOf, kindFamilyOf, boardFocusMatch, focusedItemIds, nonFocusedVisibleIds, BOARD_ITEM_FACETS, BOARD_FOCUS_FACETS } from './board-item-facets';
-import { matchesFacets, facetValues } from '@/packages/group/read-data/facet-filter';
+import { matchesFacets, facetValues } from '../../../read-data/facet-filter';
 import { seededFillStack } from './item-fill';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
+import type { BoardItem } from '../../../read-data/group-board-model';
 
 const noteWith = (extra: Record<string, unknown>): BoardItem =>
   ({ memberId: 'm', kind: 'note', x: 0, y: 0, w: 1, h: 1, isSection: false, childCount: 0, extra } as unknown as BoardItem);

@@ -5,7 +5,7 @@
 // the result flows through the existing write-batch diff. Blind to kind/product.
 
 import { describe, expect, it } from 'vitest';
-import { emptyGraph, membersOf, memberById, type AddressRef } from '@/packages/ui/show/group/group-graph';
+import { emptyGraph, membersOf, memberById, type AddressRef } from '../../../../ui/show/group/group-graph';
 import { applyProducerOutput, applyPartialProducerOutput } from './apply-producer-output';
 import {
   reconcileBoardGraph,

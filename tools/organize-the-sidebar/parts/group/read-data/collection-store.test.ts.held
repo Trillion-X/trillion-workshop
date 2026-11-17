@@ -4,7 +4,7 @@
 // fold assertions. No engine, no I/O, no mocks needed (all pure).
 
 import { describe, expect, it } from 'vitest';
-import { emptyGraph } from '@/packages/ui/show/group/group-graph';
+import { emptyGraph } from '../../../../ui/show/group/group-graph';
 import type { BoardTemplate } from './board-template-apply';
 import {
   archiveCollection,

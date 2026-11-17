@@ -1,5 +1,5 @@
 // Ported from old trillion test/public-app-visitor-form.test.mjs (tag old-trillion-before-worker-retire, b6ae0ebf81),
-// deleted by Trillion-X/trillion #243. The four tests of the page script and the form (web/parts/ui/show/public-app-editor)
+// deleted by Trillion-X/trillion #243. The four tests of the page script and the form (tools/ui/show/public-app-editor)
 // run here as they were, the action given as plain DATA. Left out for their Workshop owners: the placement and form-word
 // checks (checkedPlacedCapabilities, checkedVisitorFormPresentation, checkedVisitorAction in trillion-workshop
 // tools/edit-a-site-visually src/public-app-capabilities.mjs and public-app-definition.mjs), and publishing, serving and

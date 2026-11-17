@@ -7,7 +7,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { groupGraphFromContainment, type ContainmentRecord } from './group-from-containment-projection';
-import { getGroup, hasGroup, membersOf } from '@/packages/ui/show/group/group-graph';
+import { getGroup, hasGroup, membersOf } from '../../../../ui/show/group/group-graph';
 
 const FAMILY = 'tree-node';
 

@@ -1,4 +1,3 @@
-// parts/sidebar/read-data/merge-surface-collections.ts
 //
 // PURPOSE
 //   Lay the person's saved copy of each app-provided list over that list, and

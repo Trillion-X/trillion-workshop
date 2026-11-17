@@ -8,8 +8,8 @@ Moved here byte for byte from Trillion-X/trillion by `tools/move-code-between-tr
 
 | File | Purpose |
 |------|---------|
-| `web/parts/ui/show/public-app-editor/placed-capability-runtime.mjs` | The runtime a public page loads to draw a placed capability: its form, its result and its failure, served from the current Trillion host. Moved byte for byte from the web client (`moved-from.json`). |
-| `web/parts/ui/show/public-app-editor/public-app-run-form.mjs` | The schema-driven controls of a capability a public page can run. |
+| `tools/ui/show/public-app-editor/placed-capability-runtime.mjs` | The runtime a public page loads to draw a placed capability: its form, its result and its failure, served from the current Trillion host. Moved byte for byte from the web client (`moved-from.json`). |
+| `tools/ui/show/public-app-editor/public-app-run-form.mjs` | The schema-driven controls of a capability a public page can run. |
 | `web/test/public-app-capability-runtime.test.mjs` | The runtime's form, result and refusals. |
 | `web/test/public-app-visitor-form.test.mjs` | The visitor's form built from a capability's input schema. |
 | `web/test/public-app-workflow-card-runtime.test.mjs` | A workflow card drawn by the runtime. |

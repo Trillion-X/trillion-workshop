@@ -1,7 +1,7 @@
 // RankRow — one leaderboard row: rank, avatar, title, value. ui primitives only.
 
 import React from 'react';
-import { Card, Container, DisplayMark, Text } from '@/packages/ui';
+import { Card, Container, DisplayMark, Text } from '../../../../ui';
 
 export interface RankRowProps {
   rank: number;

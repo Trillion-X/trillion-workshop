@@ -6,7 +6,7 @@
 // untouched. A wrong remap silently corrupts the duplicate, so this is unit-tested.
 
 import { describe, expect, it } from 'vitest';
-import { emptyGraph, membersOf } from '@/packages/ui/show/group/group-graph';
+import { emptyGraph, membersOf } from '../../../../ui/show/group/group-graph';
 import {
   addBoard,
   boardIndexRef,
@@ -21,7 +21,7 @@ import {
   readItems,
   sectionRef,
   setBoardBackground,
-} from '@/packages/group/read-data/group-board-model';
+} from '../../../read-data/group-board-model';
 
 const idx = boardIndexRef('surf');
 

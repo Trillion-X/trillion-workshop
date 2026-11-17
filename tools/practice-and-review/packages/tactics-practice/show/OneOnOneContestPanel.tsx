@@ -1,14 +1,14 @@
 import * as React from 'react';
-import { Bar } from '@/packages/ui/show/bar/Bar';
-import { Badge } from '@/packages/ui/show/badge';
-import { Card } from '@/packages/ui/show/card';
-import { Container } from '@/packages/ui/show/container';
-import { Text } from '@/packages/ui/show/text';
+import { Bar } from '../../../../ui/show/bar/Bar';
+import { Badge } from '../../../../ui/show/badge';
+import { Card } from '../../../../ui/show/card';
+import { Container } from '../../../../ui/show/container';
+import { Text } from '../../../../ui/show/text';
 import type {
   TacticsContestView,
-} from '@/packages/tactics-practice/read-data/tactics-practice-types';
-import { displayName, type NameResolver } from '@/packages/tactics-practice/show/humanize-ref';
-import { PeerVoteSplit } from '@/packages/tactics-practice/show/PeerVoteSplit';
+} from '../read-data/tactics-practice-types';
+import { displayName, type NameResolver } from './humanize-ref';
+import { PeerVoteSplit } from './PeerVoteSplit';
 
 // One-on-one tactics contest panel.
 //

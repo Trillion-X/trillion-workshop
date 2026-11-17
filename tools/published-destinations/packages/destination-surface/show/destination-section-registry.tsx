@@ -10,16 +10,16 @@ import {
   IconTile,
   StatStrip,
   Text,
-} from '@/packages/ui';
+} from '../../../../ui';
 import {
   createBlindRegistry,
   registerAll,
   type BlindRegistry,
-} from '@/packages/ui/show/blind-registry';
+} from '../../../../ui/show/blind-registry';
 import type {
   DestinationItem,
   DestinationSection,
-} from '@/packages/destination-surface/read-data/read-destination';
+} from '../read-data/read-destination';
 
 export interface DestinationSectionRendererProps {
   section: DestinationSection;

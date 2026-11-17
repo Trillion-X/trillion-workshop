@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { saveWhatSomeoneIsAllowedToDoTarget } from '@/packages/permission-lease/do-work/save-what-someone-is-allowed-to-do-target';
+import { saveWhatSomeoneIsAllowedToDoTarget } from './save-what-someone-is-allowed-to-do-target';
 
 /*
  * What went wrong and what these check.

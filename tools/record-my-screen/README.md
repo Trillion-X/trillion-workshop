@@ -29,7 +29,7 @@ This package mirrors the architecture of `record-audio/record-video` but for scr
 
 ## Dependencies
 
-**Depends on:** `@bitfield/runtime-kit` (+ `/react`), `@/packages/ui` (sanctioned), `@/packages/content-media-evidence` (artifact staging), `slot::workflow` via owner actions.
+**Depends on:** `@bitfield/runtime-kit` (+ `/react`), `tools/ui` (sanctioned), `tools/content-media-evidence` (artifact staging), `slot::workflow` via owner actions.
 
 **Depended on by:** downstream consumers discover recorded files only through evidence records/addresses (media-analysis, media-composition) — never by import.
 

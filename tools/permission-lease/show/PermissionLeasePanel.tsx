@@ -29,7 +29,7 @@
 // here. There is no guardrail vocabulary in this file: no cap names, no
 // paper/live literals, no fixed dimension set.
 //
-// fey-grade via @/packages/ui; zero raw HTML, zero className.
+// fey-grade via tools/ui; zero raw HTML, zero className.
 // =============================================================================
 
 import React from 'react';
@@ -39,9 +39,9 @@ import {
   decodeVisualDatabaseModel,
   type VisualDatabaseFieldDescriptor,
   type VisualDatabaseRecord,
-} from '@/packages/visual-database/read-data/visual-database';
-import { statusTone } from '@/packages/visual-database/show/field-editors';
-import { RecordMetricRow, type RecordMetricFormat } from '@/packages/visual-database/show/RecordMetricRow';
+} from '../../keep-lists-of-rows/read-data/visual-database';
+import { statusTone } from '../../keep-lists-of-rows/show/field-editors';
+import { RecordMetricRow, type RecordMetricFormat } from '../../keep-lists-of-rows/show/RecordMetricRow';
 import {
   type GuardrailLine,
   type GuardrailTone,

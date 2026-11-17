@@ -304,7 +304,7 @@
         },
         "result_selector": "$.result",
         "provenance": {
-          "source": "Trillion-X/trillion parts/signed-event-effects/do-work/signed-event-effects-targets.js and records.json, moved in a9ee258 (#76); old capability row capabilities.json:537 at 4ffa1dc4a2^ (verify a signed event once and run its effects once). do-work/run-with-given-replies.mjs is new: it answers the targets' send from replies given in the input."
+          "source": "Trillion-X/trillion tools/run-a-signed-events-effects-once/do-work/signed-event-effects-targets.js and records.json, moved in a9ee258 (#76); old capability row capabilities.json:537 at 4ffa1dc4a2^ (verify a signed event once and run its effects once). do-work/run-with-given-replies.mjs is new: it answers the targets' send from replies given in the input."
         },
         "verify": [
           {

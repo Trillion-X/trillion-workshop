@@ -5,8 +5,8 @@
 // count), and that a built descriptor feeds reportRows to real grouped rows with card ids (the click target).
 
 import { describe, it, expect } from 'vitest';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
-import { reportRows } from '@/packages/group/read-data/board-report';
+import type { BoardItem } from '../../../read-data/group-board-model';
+import { reportRows } from '../../../read-data/board-report';
 import {
   REDUCTION_OPTIONS, DIMENSION_OPTIONS, MEASURE_OPTIONS,
   reportControlRelevance, buildReportDescriptor, formatReportValue,

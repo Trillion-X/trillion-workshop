@@ -16,7 +16,7 @@
     "show/mount-sidebar.tsx",
     "show/use-surface-collections.ts"
   ],
-  "controls_what": "The controls this part draws, each a show-rules `control` (parts/ui/show/show-rules show-of.ts controlShown): a rule can hide any of them, or everything under a path, for anyone. DesktopSidebar draws `<controls>.<capability>` for each capability; a host that draws another frame (the pane tab bar) names its own path.",
+  "controls_what": "The controls this part draws, each a show-rules `control` (tools/ui/show/show-rules show-of.ts controlShown): a rule can hide any of them, or everything under a path, for anyone. DesktopSidebar draws `<controls>.<capability>` for each capability; a host that draws another frame (the pane tab bar) names its own path.",
   "controls": [
     { "id": "sidebar", "label": "The sidebar" },
     { "id": "sidebar.position", "label": "Move the sidebar to another edge" },

@@ -1,4 +1,3 @@
-// parts/receive-files-over-ftp/do-work/this-computers-address.mjs
 //
 // Purpose: the address a device on the same network reaches this computer at, and a certificate for secure sessions
 // that names that address, so the receiver can follow this computer when the network hands it a new address.

@@ -1,13 +1,13 @@
 import * as React from 'react';
-import { Badge } from '@/packages/ui/show/badge';
-import { Card } from '@/packages/ui/show/card';
-import { Container } from '@/packages/ui/show/container';
-import { Divider } from '@/packages/ui/show/divider/Divider';
-import { Text } from '@/packages/ui/show/text';
+import { Badge } from '../../../../ui/show/badge';
+import { Card } from '../../../../ui/show/card';
+import { Container } from '../../../../ui/show/container';
+import { Divider } from '../../../../ui/show/divider/Divider';
+import { Text } from '../../../../ui/show/text';
 import type {
   TacticsSeasonTournamentView,
-} from '@/packages/tactics-practice/read-data/tactics-practice-types';
-import { displayName, type NameResolver } from '@/packages/tactics-practice/show/humanize-ref';
+} from '../read-data/tactics-practice-types';
+import { displayName, type NameResolver } from './humanize-ref';
 
 // Season tactics tournament panel.
 //

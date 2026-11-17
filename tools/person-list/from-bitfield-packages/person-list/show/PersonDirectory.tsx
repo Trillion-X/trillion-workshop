@@ -13,8 +13,8 @@
 import React, { useCallback, useMemo, useState, useEffect } from 'react';
 import { Search, Users } from 'lucide-react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { SelectablePillBar } from '@/packages/ui/show/selectable-pill-bar';
-import type { SelectablePillBarItem } from '@/packages/ui/show/selectable-pill-bar';
+import { SelectablePillBar } from '../../../../ui/show/selectable-pill-bar';
+import type { SelectablePillBarItem } from '../../../../ui/show/selectable-pill-bar';
 import {
   Badge,
   Button,
@@ -28,7 +28,7 @@ import {
   StatementHeader,
   Text,
   emitPlaceableSurfaceIntent,
-} from '@/packages/ui';
+} from '../../../../ui';
 import {
   decodeAddressedRecords,
   decodeFieldValueRows,

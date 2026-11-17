@@ -2,17 +2,17 @@ import React from 'react';
 import { cleanup, render } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { PeerVoteSplit } from '@/packages/tactics-practice/show/PeerVoteSplit';
-import { TacticalRatingStandings } from '@/packages/tactics-practice/show/TacticalRatingStandings';
-import { OneOnOneContestPanel } from '@/packages/tactics-practice/show/OneOnOneContestPanel';
-import { SeasonTournamentPanel } from '@/packages/tactics-practice/show/SeasonTournamentPanel';
-import { humanizeRef } from '@/packages/tactics-practice/show/humanize-ref';
+import { PeerVoteSplit } from '../PeerVoteSplit';
+import { TacticalRatingStandings } from '../TacticalRatingStandings';
+import { OneOnOneContestPanel } from '../OneOnOneContestPanel';
+import { SeasonTournamentPanel } from '../SeasonTournamentPanel';
+import { humanizeRef } from '../humanize-ref';
 import type {
   TacticsPeerVote,
   TacticsSeasonTournamentView,
   TacticalRatingEffect,
   TacticsContestView,
-} from '@/packages/tactics-practice/read-data/tactics-practice-types';
+} from '../../read-data/tactics-practice-types';
 
 afterEach(cleanup);
 

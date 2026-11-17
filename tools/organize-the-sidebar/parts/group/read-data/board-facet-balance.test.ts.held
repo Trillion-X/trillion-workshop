@@ -5,7 +5,7 @@
 // engine was never written for); (2) `facetBalance` emergence over the REAL BOARD_ITEM_FACETS (tag vs colour).
 
 import { describe, it, expect } from 'vitest';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
+import type { BoardItem } from '../../../read-data/group-board-model';
 import {
   distributionBalance,
   facetBalance,
@@ -13,8 +13,8 @@ import {
   facetBalanceText,
   EVENNESS_BANDS,
 } from './board-facet-balance';
-import { BOARD_ITEM_FACETS, colorFacetOf } from '@/packages/group/show/board-item-facets';
-import { seededFillStack } from '@/packages/group/show/item-fill';
+import { BOARD_ITEM_FACETS, colorFacetOf } from '../../../show/board-item-facets';
+import { seededFillStack } from '../../../show/item-fill';
 
 function card(memberId: string, extra: Record<string, unknown> = {}): BoardItem {
   return { memberId, kind: 'note', x: 0, y: 0, w: 100, h: 40, extra } as unknown as BoardItem;

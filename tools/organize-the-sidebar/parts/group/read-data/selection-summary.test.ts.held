@@ -1,8 +1,8 @@
 // packages/group/read-data/selection-summary.test.ts
 import { describe, it, expect } from 'vitest';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
-import { boardSummary } from '@/packages/group/read-data/board-summary';
-import { selectionSummary, summaryChips } from '@/packages/group/read-data/selection-summary';
+import type { BoardItem } from '../../../read-data/group-board-model';
+import { boardSummary } from '../../../read-data/board-summary';
+import { selectionSummary, summaryChips } from '../../../read-data/selection-summary';
 
 // minimal card factory — memberId + kind + text, plus optional metric/dueDate in extra.
 function card(id: string, text: string, extra?: Record<string, unknown>): BoardItem {

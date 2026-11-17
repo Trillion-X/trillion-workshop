@@ -4,7 +4,7 @@
 // dense grid + ordering, the NUL key (no space-collision), cell() lookup, and the markdown table renderer.
 
 import { describe, it, expect } from 'vitest';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
+import type { BoardItem } from '../../../read-data/group-board-model';
 import { crossTab, cell, crossTabText } from './board-crosstab';
 import type { FacetExtract } from './board-facet-census';
 import { aggregatorById, type BoardMeasure } from './board-facet-pivot';

@@ -7,7 +7,7 @@
 // names no facet — a different extractor set reduces identically).
 
 import { describe, it, expect } from 'vitest';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
+import type { BoardItem } from '../../../read-data/group-board-model';
 import {
   censusReducedTable,
   reducedTableIsEmpty,

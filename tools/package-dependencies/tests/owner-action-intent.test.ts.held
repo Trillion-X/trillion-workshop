@@ -1,8 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { createOwnerActionIntent, createOwnerActionIntentTarget } from '@/packages/package-dependencies/do-work/create-owner-action-intent';
-import { readPackageDependencyDescriptors } from '@/packages/package-dependencies/read-data/read-relation-projection';
+import { createOwnerActionIntent, createOwnerActionIntentTarget } from '../do-work/create-owner-action-intent';
+import { readPackageDependencyDescriptors } from '../read-data/read-relation-projection';
 
 const packageRoot = join(process.cwd(), 'packages/package-dependencies');
 

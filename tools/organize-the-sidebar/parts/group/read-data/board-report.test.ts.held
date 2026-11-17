@@ -6,7 +6,7 @@
 // test) and the honest handling of bad keys.
 
 import { describe, it, expect } from 'vitest';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
+import type { BoardItem } from '../../../read-data/group-board-model';
 import {
   runReport, reportRows, reportSelect, REDUCTIONS, reductionDefByKey, BOARD_MEASURES, measureDefById,
   BOARD_DIMENSIONS, dimensionDefById, PROGRESS_MEASURE, PROGRESS_BUCKETS,
@@ -15,8 +15,8 @@ import { facetCensusText } from './board-facet-census';
 import { facetPivotText, aggregatorById } from './board-facet-pivot';
 import { bucketDistributionText } from './board-measure-bucket';
 import { crossTabText } from './board-crosstab';
-import { itemTags } from '@/packages/group/show/item-tags';
-import { kindFamilyOf } from '@/packages/group/show/board-item-facets';
+import { itemTags } from '../../../show/item-tags';
+import { kindFamilyOf } from '../../../show/board-item-facets';
 
 const card = (memberId: string, kind: string, tags: string[], metric?: { current: number; target: number }): BoardItem =>
   ({ memberId, kind, x: 0, y: 0, w: 100, h: 40, text: 'a few words here', extra: { tags, ...(metric ? { metric } : {}) }, isSection: false } as unknown as BoardItem);

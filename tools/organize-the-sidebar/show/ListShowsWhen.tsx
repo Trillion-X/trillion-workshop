@@ -1,10 +1,10 @@
-// parts/sidebar/show/ListShowsWhen.tsx
+// tools/sidebar/show/ListShowsWhen.tsx
 //
 // NO PRIOR: Trillion's own (a person's list shown only while a rule holds).
 //
 // PURPOSE
 //   When one of the person's lists shows, chosen from that list's own menu ("When it shows"): the shared rule filter
-//   (parts/ui rule-filter, the same menu and chips every record view's filter uses) over the facts that describe a list
+//   (tools/ui rule-filter, the same menu and chips every record view's filter uses) over the facts that describe a list
 //   (surfaces.json `sidebar_row_facts` marked `on: lists`: today's date, days since it was made, the count an AI left on
 //   it), kept as the list's `shown_when` and decided by the formula engine as time passes
 //   (read-data/apply-list-rules.ts). "For 7 days" is Days since it was made is less than 7; "until a date" is Today is

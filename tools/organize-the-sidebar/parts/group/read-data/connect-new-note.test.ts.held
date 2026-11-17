@@ -7,7 +7,7 @@
 // connector links source→new note via extra.from/toMemberId, and the input graph is unmutated.
 
 import { describe, expect, it } from 'vitest';
-import { emptyGraph } from '@/packages/ui/show/group/group-graph';
+import { emptyGraph } from '../../../../ui/show/group/group-graph';
 import { boardRootRef, itemRef, placeItem, readItems, connectNewNote } from './group-board-model';
 
 const BOARD = 'vision-board';

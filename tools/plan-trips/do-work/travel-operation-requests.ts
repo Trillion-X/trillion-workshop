@@ -6,7 +6,7 @@ import type {
   TripAction,
   TripCreateAction,
   TripItem,
-} from '@/packages/travel-operations/read-data/travel-operations';
+} from '../read-data/travel-operations';
 
 export const TRAVEL_NOTE_WRITE_ACTION = 'action:travel-operations:write-evidence';
 

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { reviewShareReferences } from './review-share-references';
-import type { ShareCapsule } from '@/packages/group/read-data/share-capsule';
+import type { ShareCapsule } from '../../../read-data/share-capsule';
 
 const card = (memberId: string, text: string) => ({ memberId, text, kind: 'note', x: 0, y: 0, w: 100, h: 100 });
 const capsule = (items: ReturnType<typeof card>[]): ShareCapsule => ({

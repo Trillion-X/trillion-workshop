@@ -1,4 +1,3 @@
-// parts/record-log/do-work/record-time.mjs
 //
 // UNDO ANY CHANGE, AND READ ANY RECORD AS IT WAS, FROM THE LOG THE STORE ALREADY KEEPS.
 //

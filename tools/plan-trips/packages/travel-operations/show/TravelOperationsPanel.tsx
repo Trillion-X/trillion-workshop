@@ -12,7 +12,7 @@ import {
   Route,
   StickyNote,
 } from 'lucide-react';
-import { Badge, Button, Card, Container, Icon, Input, ScrollableSurface, Text, Textarea, cn } from '@/packages/ui';
+import { Badge, Button, Card, Container, Icon, Input, ScrollableSurface, Text, Textarea, cn } from '../../../../ui';
 import {
   appendTravelNotesState,
   buildTripCreateAction,
@@ -24,12 +24,12 @@ import {
   type TripCreateLane,
   type TripItem,
   type TripLane,
-} from '@/packages/travel-operations/read-data/travel-operations';
+} from '../../../read-data/travel-operations';
 import {
   dispatchTripCreateAction,
   dispatchTravelItemAction,
   writeTravelNoteState,
-} from '@/packages/travel-operations/do-work/travel-operation-requests';
+} from '../../../do-work/travel-operation-requests';
 
 export const TRIP_BOARD_SURFACE_CSS = `
 .trip-board {

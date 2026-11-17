@@ -5,8 +5,8 @@
 // descriptor parsing, and that it is isolated from the collection store (different index family).
 
 import { describe, it, expect } from 'vitest';
-import { emptyGraph } from '@/packages/ui/show/group/group-graph';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
+import { emptyGraph } from '../../../../ui/show/group/group-graph';
+import type { BoardItem } from '../../../read-data/group-board-model';
 import { runReport, type ReportDescriptor } from './board-report';
 import {
   reportIndexRef, saveReport, readActiveReports, readArchivedReports, getReport, renameReport,

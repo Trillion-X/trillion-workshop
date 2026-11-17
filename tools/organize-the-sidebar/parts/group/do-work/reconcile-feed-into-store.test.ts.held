@@ -5,7 +5,7 @@
 // preserved across a reconcile, and an unchanged feed writes nothing.
 
 import { describe, expect, it } from 'vitest';
-import { emptyGraph, membersOf, memberById, type GroupGraph, type AddressRef } from '@/packages/ui/show/group/group-graph';
+import { emptyGraph, membersOf, memberById, type GroupGraph, type AddressRef } from '../../../../ui/show/group/group-graph';
 import { reconcileFeedIntoStore, seedNewMemberPositions } from './reconcile-feed-into-store';
 import { applyProducerOutput } from './apply-producer-output';
 import type { GroupBoardStore } from '../read-data/read-group-board';

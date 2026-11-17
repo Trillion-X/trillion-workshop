@@ -1,8 +1,8 @@
 import React from 'react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
 import { useBitfieldData } from '@/packages/poker-rules/.bitfield-entry-scope/poker-rules/runtime-kit-react';
 import { createPokerHandState, createPokerPlayers, type PokerTableConfig } from '@/packages/poker-rules/read-data/poker-rules';
-import { PokerRuleSummary } from '@/packages/poker-rules/show/PokerRuleSummary';
+import { PokerRuleSummary } from './PokerRuleSummary';
 
 type MountArgs = {
   el: HTMLElement;

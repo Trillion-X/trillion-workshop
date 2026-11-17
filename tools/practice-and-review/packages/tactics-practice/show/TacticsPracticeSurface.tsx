@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { Swords, Trophy } from 'lucide-react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { Badge } from '@/packages/ui/show/badge';
-import { Button } from '@/packages/ui/show/button';
-import { Card } from '@/packages/ui/show/card';
-import { Container } from '@/packages/ui/show/container';
-import { Input, Textarea } from '@/packages/ui/show/input';
-import { Text } from '@/packages/ui/show/text';
-import { WorkSkeletonRows, WorkStartState } from '@/packages/ui/show/work-start-state';
+import { Badge } from '../../../../ui/show/badge';
+import { Button } from '../../../../ui/show/button';
+import { Card } from '../../../../ui/show/card';
+import { Container } from '../../../../ui/show/container';
+import { Input, Textarea } from '../../../../ui/show/input';
+import { Text } from '../../../../ui/show/text';
+import { WorkSkeletonRows, WorkStartState } from '../../../../ui/show/work-start-state';
 import {
   buildSubmitDecisionResponseInput,
   submitDecisionResponse,
@@ -15,17 +15,17 @@ import {
 import {
   buildCreateTacticsContestInput,
   createTacticsContest,
-} from '@/packages/tactics-practice/do-work/create-tactics-contest';
+} from '../do-work/create-tactics-contest';
 import {
   dailyTacticsContestView,
   oneOnOneTacticsContestView,
   readTacticsPracticeState,
   seasonTournamentView,
-} from '@/packages/tactics-practice/read-data/read-tactics-practice';
-import { OneOnOneContestPanel } from '@/packages/tactics-practice/show/OneOnOneContestPanel';
-import { PeerVoteSplit } from '@/packages/tactics-practice/show/PeerVoteSplit';
-import { SeasonTournamentPanel } from '@/packages/tactics-practice/show/SeasonTournamentPanel';
-import { TacticalRatingStandings } from '@/packages/tactics-practice/show/TacticalRatingStandings';
+} from '../read-data/read-tactics-practice';
+import { OneOnOneContestPanel } from './OneOnOneContestPanel';
+import { PeerVoteSplit } from './PeerVoteSplit';
+import { SeasonTournamentPanel } from './SeasonTournamentPanel';
+import { TacticalRatingStandings } from './TacticalRatingStandings';
 
 type TacticsPracticeSurfaceProps = {
   userId?: string;

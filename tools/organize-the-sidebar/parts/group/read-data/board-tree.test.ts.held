@@ -5,7 +5,7 @@
 // findMemberRef/findParentRef resolve refs at depth; unknown ids → null. No DOM.
 
 import { describe, expect, it } from 'vitest';
-import { emptyGraph, groupKey, type GroupGraph } from '@/packages/ui/show/group/group-graph';
+import { emptyGraph, groupKey, type GroupGraph } from '../../../../ui/show/group/group-graph';
 import { boardRootRef, itemRef, placeItem, groupItems, sectionRef, readItems } from './group-board-model';
 import { flattenBoardTree, findMemberRef, findParentRef } from './board-tree';
 

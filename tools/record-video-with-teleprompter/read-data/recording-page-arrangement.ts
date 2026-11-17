@@ -1,4 +1,4 @@
-// parts/record-video/read-data/recording-page-arrangement.ts
+// tools/record-video/read-data/recording-page-arrangement.ts
 //
 // =============================================================================
 // PURPOSE

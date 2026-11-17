@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// parts/receive-files-over-ftp/do-work/send-what-arrives-to-a-namespace.mjs
+// tools/receive-files-over-ftp/do-work/send-what-arrives-to-a-namespace.mjs
 //
 // Purpose: keep a receiver open on this computer that devices push files to over FTP (ftp-receiver.mjs), and send
 // every file into the person's namespace while it arrives, through the shared chunked sender every uploader uses
@@ -60,7 +60,7 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const DEFAULT_SETTINGS = path.join(HERE, '..', 'receive-settings.json');
 const DEVICES = path.join(HERE, '..', 'devices.json');
 
-/** This computer's folder for app data (one owner: parts/process-session/do-work/computer-data-folder.mjs). */
+/** This computer's folder for app data (one owner: tools/process-session/do-work/computer-data-folder.mjs). */
 export { appDataFolder };
 
 /** The day a file arrived, in this computer's time zone: 2026-09-28. */

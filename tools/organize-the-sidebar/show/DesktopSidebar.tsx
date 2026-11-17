@@ -417,7 +417,7 @@ export function SidebarFrame({
   const [insideAside, setInsideAside] = React.useState(false);
   const sidebarFrameRef = React.useRef<HTMLElement | null>(null);
   // The open-the-list button floats over the window's bottom edge, so it publishes the band it covers and a box pinned
-  // at the bottom of the screen (the message box) lifts above it (parts/ui/show/floating-occlusion).
+  // at the bottom of the screen (the message box) lifts above it (tools/ui/show/floating-occlusion).
   const restoreDockResizeStylesRef = React.useRef<(() => void) | null>(null);
   const beginDockResize = (cursor: 'col-resize' | 'row-resize') => {
     restoreDockResizeStylesRef.current?.();

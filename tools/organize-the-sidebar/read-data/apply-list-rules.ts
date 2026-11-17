@@ -1,4 +1,3 @@
-// parts/sidebar/read-data/apply-list-rules.ts
 //
 // NO PRIOR: Trillion's own (the person's lists and rows that hold or show by a rule).
 //

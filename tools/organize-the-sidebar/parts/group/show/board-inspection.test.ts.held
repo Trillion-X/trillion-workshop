@@ -11,7 +11,7 @@ import {
   readInspectionFieldSets,
   type BoardItemLike,
 } from './board-inspection';
-import { resolveInspection, stampInspectionRef, INSPECTION_REF_ATTR } from '@/packages/ui/show/inspection-ref';
+import { resolveInspection, stampInspectionRef, INSPECTION_REF_ATTR } from '../../../../ui/show/inspection-ref';
 
 const item: BoardItemLike = { memberId: 'm1', text: 'hello', extra: { shape: 'star' } };
 

@@ -1,9 +1,8 @@
-// parts/record-log/do-work/record-model.mjs
 //
 // THE EEAF DATA MODEL AS DATA OVER WHOLE RECORDS.
 //
 // Purpose
-//   The model the decomposed store (parts/eeaf) kept as tables, declared here as DATA the host passes and read over the
+//   The model the decomposed store (tools/keep-and-wake-ai-sessions-on-this-computer/parts/eeaf) kept as tables, declared here as DATA the host passes and read over the
 //   whole records the log store keeps: entity types (a record's type), their properties (its top-level fields, each of
 //   a declared value kind), participation (a record holding another thing under a role: an id, a list of ids, or a list
 //   of objects each naming one) and interaction sets (a participation over a list: its members in order). The store

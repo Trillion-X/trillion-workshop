@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { mountReactMaterial, type ReactMaterialMountArgs } from '@/packages/ui/show/react-surface-mount';
-import { SpacedRepetitionSurface } from '@/packages/spaced-repetition/show/SpacedRepetitionSurface';
+import { mountReactMaterial, type ReactMaterialMountArgs } from '../../ui/show/react-surface-mount';
+import { SpacedRepetitionSurface } from '../packages/spaced-repetition/show/SpacedRepetitionSurface';
 
 type MountProps = {
   learner_id?: string;

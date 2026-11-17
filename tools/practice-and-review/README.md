@@ -48,7 +48,7 @@ Carried as generic mechanism: the next-record builder (`nextScheduleRecord`, wit
 `from-bitfield-packages/quiz-me-on-saved-items/` holds the package that turns a summarized saved item into recall questions and routes the answers into review and progress, moved byte for byte from bitfield-packages (its records, README and conformance test). The records are in the retired engine's shape; turning them into this model is not done.
 ## Files moved from bitfield-packages (packages/practice-decision-loop)
 
-Each file below is the package's own, byte for byte; `from-bitfield-packages/moved-from.json` names each source path and commit, the identity of its source bytes and of its bytes here, and the `calls` that made a real name or id made up. After the first commit only import paths changed. A file named `.held` is the same bytes with its test name taken off so the repository test does not run it; the reason is under `held` in the receipt. Most files import `@/packages/ui` and the retired package runtime (`@bitfield/runtime-kit`); the shared ui parts live in apps `parts/ui`, so the screens and targets here are prepared, not wired to a tool row.
+Each file below is the package's own, byte for byte; `from-bitfield-packages/moved-from.json` names each source path and commit, the identity of its source bytes and of its bytes here, and the `calls` that made a real name or id made up. After the first commit only import paths changed. A file named `.held` is the same bytes with its test name taken off so the repository test does not run it; the reason is under `held` in the receipt. Most files import `@/packages/ui` and the retired package runtime (`@bitfield/runtime-kit`); the shared ui parts live in apps `tools/ui`, so the screens and targets here are prepared, not wired to a tool row.
 
 | File | What it is |
 |---|---|
@@ -61,7 +61,7 @@ Each file below is the package's own, byte for byte; `from-bitfield-packages/mov
 | `show/PracticeDecisionLoopSurface.tsx` | renders the generic question, choices, reason box, and submit action. |
 | `show/mount-practice-decision-loop.tsx` | mounts the React surface. |
 | `test/practice-decision-loop-scoped-feed.test.ts.held` | A test of the package, held: reads the package boundary file things-to-store-and-run.json (or the package's own data path), which is not carried |
-| `test/practice-decision-loop.test.ts.held` | proves the genericity and hostile fixtures. (held: imports react or shared ui parts (@/packages/ui) that live in apps parts/ui, not in the Workshop) |
+| `test/practice-decision-loop.test.ts.held` | proves the genericity and hostile fixtures. (held: imports react or shared ui parts (tools/ui) that live in apps tools/ui, not in the Workshop) |
 
 ### Not carried
 

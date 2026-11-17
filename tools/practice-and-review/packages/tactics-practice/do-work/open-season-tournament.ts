@@ -12,7 +12,7 @@ import type {
   TacticsSeasonCoachReview,
   TacticsSeasonInvite,
   TacticsConfig,
-} from '@/packages/tactics-practice/read-data/tactics-practice-types';
+} from '../read-data/tactics-practice-types';
 
 export const OPEN_SEASON_TOURNAMENT_ACTION = 'action:tactics-practice.open-season';
 

@@ -40,11 +40,11 @@ test('the Workshop source is the exact Trillion source and the old copy is gone'
   const original = readers.readSource({
     repository: 'trillion',
     commit: '5cd0dc3103e4f54b30b1784f0d77a67de0147064',
-    path: 'parts/process-session/do-work/place-data-folder.mjs',
+    path: 'tools/process-session/do-work/place-data-folder.mjs',
   });
   assert.ok(original);
   assert.equal(makeHashCodeHexFromBytes(original), '1f:95dd9424a177b6ad4b8ada730b3d9481c71303d30cf9b253bbe86db061c9f034');
-  assert.equal(readers.lives('trillion', 'parts/process-session/do-work/place-data-folder.mjs'), false);
+  assert.equal(readers.lives('trillion', 'tools/process-session/do-work/place-data-folder.mjs'), false);
 });
 
 test('app data follows the Mac location, then XDG, then the home data directory', () => {

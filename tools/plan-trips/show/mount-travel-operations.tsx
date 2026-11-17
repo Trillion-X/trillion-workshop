@@ -1,8 +1,8 @@
 import React from 'react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../ui';
 import { useBitfieldData } from '@/packages/travel-operations/.bitfield-entry-scope/travel-operations/runtime-kit-react';
-import { buildTravelOperationsModel } from '@/packages/travel-operations/read-data/travel-operations';
-import { TravelOperationsPanel } from '@/packages/travel-operations/show/TravelOperationsPanel';
+import { buildTravelOperationsModel } from '../read-data/travel-operations';
+import { TravelOperationsPanel } from './TravelOperationsPanel';
 
 type MountArgs = {
   el: HTMLElement;

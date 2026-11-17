@@ -1,7 +1,7 @@
 import React from 'react';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from '../../../../../test-helpers/vitest-shim.mjs';
-import { Button } from '@/packages/ui';
+import { Button } from '../../../../ui';
 import { BoardChromeMenu } from '../../../show/BoardChromeMenu.tsx';
 
 afterEach(() => cleanup());

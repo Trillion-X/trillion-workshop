@@ -9,10 +9,10 @@
 //      place, as ONE batch. Connectors are never moved (they re-route from endpoints).
 
 import { describe, expect, it } from 'vitest';
-import { emptyGraph } from '@/packages/ui/show/group/group-graph';
-import { boardRootRef, itemRef, placeItem, readItems } from '@/packages/group/read-data/group-board-model';
+import { emptyGraph } from '../../../../ui/show/group/group-graph';
+import { boardRootRef, itemRef, placeItem, readItems } from '../../../read-data/group-board-model';
 import { computeTreeLayout, arrangeMindMap, arrangeByGraph } from './batch-actions';
-import { tidyTreeLayout, layeredDagLayout, radialTreeLayout } from '@/packages/group/show/graph-layout';
+import { tidyTreeLayout, layeredDagLayout, radialTreeLayout } from '../../../show/graph-layout';
 
 const B = boardRootRef('mm');
 

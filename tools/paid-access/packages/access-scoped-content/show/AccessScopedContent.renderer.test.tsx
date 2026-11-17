@@ -24,7 +24,7 @@ if (typeof (globalThis as { ResizeObserver?: unknown }).ResizeObserver === 'unde
 const EMPTY_BITFIELD_FEED: readonly never[] = Object.freeze([]);
 vi.mock('@bitfield/runtime-kit/react', () => ({ useBitfieldData: vi.fn(() => EMPTY_BITFIELD_FEED) }));
 vi.mock('@bitfield/runtime-kit', () => ({ sendRequestToBitfieldTarget: vi.fn() }));
-vi.mock('@/packages/ui/show/placeable-surface-host', () => ({
+vi.mock('tools/ui/show/placeable-surface-host', () => ({
   PlaceableSurfaceHost: ({ packageName, entryName }: { packageName: string; entryName: string }) => (
     <div data-testid="mounted-owner">{packageName}/{entryName}</div>
   ),

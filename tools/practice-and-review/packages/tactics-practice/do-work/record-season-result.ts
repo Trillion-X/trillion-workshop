@@ -3,7 +3,7 @@ import type {
   TacticsSeasonCoachReview,
   TacticsSeasonResult,
   TacticalRatingEffect,
-} from '@/packages/tactics-practice/read-data/tactics-practice-types';
+} from '../read-data/tactics-practice-types';
 
 export const RECORD_SEASON_RESULT_ACTION = 'action:tactics-practice.record-season-result';
 

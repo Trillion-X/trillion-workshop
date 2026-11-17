@@ -6,7 +6,7 @@
 // centered within the margins.
 
 import { describe, it, expect } from 'vitest';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
+import type { BoardItem } from '../../../read-data/group-board-model';
 import { unionBox, frameCamera, frameAll, frameSelection, frameIsland } from './camera-frame';
 import type { Camera, Viewport, WorldBox } from './viewport-visibility';
 

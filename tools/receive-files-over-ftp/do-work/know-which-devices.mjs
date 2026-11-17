@@ -1,4 +1,3 @@
-// parts/receive-files-over-ftp/do-work/know-which-devices.mjs
 //
 // Purpose: find out whether this person has a device the receiver serves (devices.json), so a Mac with no such device
 // opens no FTP port and tells the account nothing. Three roads lead to a device, all read from the settings'

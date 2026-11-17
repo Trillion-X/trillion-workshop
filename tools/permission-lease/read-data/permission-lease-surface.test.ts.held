@@ -5,7 +5,7 @@ import {
   decodePermissionLeaseChecks,
   decodePermissionLeases,
   permissionDecisionForOperation,
-} from '@/packages/permission-lease/read-data/permission-lease-surface';
+} from './permission-lease-surface';
 import permissionLeaseContract from '@/packages/permission-lease/things-to-store-and-run.json';
 
 const NOW = new Date('2026-05-29T12:00:00.000Z');

@@ -2,7 +2,7 @@
 //
 // The board's keyboard-shortcut CATALOG — Society DATA, the SSOT for what the
 // "?" cheat sheet displays, now made from the board's one command table
-// (board-commands.json, parts/ui/show/command-table). The same table makes the
+// (board-commands.json, tools/ui/show/command-table). The same table makes the
 // command palette's board rows and the tips that name a shortcut, so the three
 // cannot drift apart. This is purely DESCRIPTIVE: it names each shortcut and its
 // display keys; it does NOT execute anything. The actual key handlers live in

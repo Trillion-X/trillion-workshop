@@ -4,4 +4,4 @@ Files of old trillion whose job is this tool's (publish my progress as a public 
 
 | Old path | Here | Status |
 |---|---|---|
-| `src/shares.mjs` | `src/shares.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/referrals.json (at the tag, not moved here yet), src/friend-invites.json (at the tag, not moved here yet), records/checkout-code-adjustment-records.json (at the tag, not moved here yet), parts/choose-per-observer/read-data/score-candidates.ts (already gone at the tag) |
+| `src/shares.mjs` | `src/shares.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/referrals.json (at the tag, not moved here yet), src/friend-invites.json (at the tag, not moved here yet), records/checkout-code-adjustment-records.json (at the tag, not moved here yet), tools/run-experiments/packages/choose-per-observer/read-data/score-candidates.ts (already gone at the tag) |

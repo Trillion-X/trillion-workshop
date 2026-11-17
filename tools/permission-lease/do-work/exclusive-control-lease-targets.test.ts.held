@@ -4,7 +4,7 @@ import {
   recordControlTarget,
   handBackControlTarget,
   type ControlTargetSender,
-} from '@/packages/permission-lease/do-work/exclusive-control-lease-targets';
+} from './exclusive-control-lease-targets';
 
 // Each case still injects its own clock as the fourth argument, which is what these
 // cases are about. The context supplies the ENTROPY the lease-ref nonce is minted

@@ -415,7 +415,7 @@
         },
         "result_selector": "$.result",
         "provenance": {
-          "source": "Trillion-X/trillion parts/record-video/do-work/recording-session-from-presentation-plan.mjs (the conversion build-recording-session-from-presentation-plan.mjs runs), moved in a9ee258 (#76); old capability row capabilities.json:87 at 4ffa1dc4a2^ (record a video of myself with the camera ... a teleprompter that follows my speech)"
+          "source": "Trillion-X/trillion tools/record-video/do-work/recording-session-from-presentation-plan.mjs (the conversion build-recording-session-from-presentation-plan.mjs runs), moved in a9ee258 (#76); old capability row capabilities.json:87 at 4ffa1dc4a2^ (record a video of myself with the camera ... a teleprompter that follows my speech)"
         },
         "verify": [
           {

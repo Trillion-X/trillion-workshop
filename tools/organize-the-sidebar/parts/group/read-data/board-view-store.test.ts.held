@@ -6,10 +6,10 @@
 // collection + report stores.
 
 import { describe, it, expect } from 'vitest';
-import { emptyGraph } from '@/packages/ui/show/group/group-graph';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
-import type { Camera, Viewport } from '@/packages/group/read-data/viewport-visibility';
-import { frameSelection } from '@/packages/group/read-data/camera-frame';
+import { emptyGraph } from '../../../../ui/show/group/group-graph';
+import type { BoardItem } from '../../../read-data/group-board-model';
+import type { Camera, Viewport } from '../../../read-data/viewport-visibility';
+import { frameSelection } from '../../../read-data/camera-frame';
 import {
   viewIndexRef, saveView, readActiveViews, readArchivedViews, getView, renameView, archiveView, restoreView,
   parseBoardView, resolveViewCamera, type BoardView,

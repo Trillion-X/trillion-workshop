@@ -16,7 +16,7 @@
 //    the same owner actions the inline editors use — an explicit person action.
 // 2. A suggestion appears only when it differs from what the person already has;
 //    when there is nothing to add the panel renders nothing (L118 — no filler).
-// 3. All styling through @/packages/ui primitives — no raw elements, no inline
+// 3. All styling through tools/ui primitives — no raw elements, no inline
 //    style (L065).
 //
 // =============================================================================

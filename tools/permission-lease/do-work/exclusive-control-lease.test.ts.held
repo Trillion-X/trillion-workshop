@@ -13,7 +13,7 @@ import {
   recordControlWithDeps,
   requestControlCheck,
   type ControlNote,
-} from '@/packages/permission-lease/do-work/exclusive-control-lease';
+} from './exclusive-control-lease';
 
 vi.mock('@bitfield/runtime-kit', () => ({
   sendRequestToBitfieldTarget: vi.fn(async (request) => ({ request })),

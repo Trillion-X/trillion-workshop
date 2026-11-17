@@ -1,13 +1,13 @@
 // packages/group/read-data/board-entity-index.test.ts
 import { describe, it, expect } from 'vitest';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
+import type { BoardItem } from '../../../read-data/group-board-model';
 import {
   boardEntityIndex,
   boardEntityValues,
   cardIdsWithEntity,
   boardHasEntities,
   entityIndexText,
-} from '@/packages/group/read-data/board-entity-index';
+} from '../../../read-data/board-entity-index';
 
 const card = (memberId: string, text: string): BoardItem =>
   ({ memberId, nodeRef: { id: memberId }, kind: 'note', x: 0, y: 0, w: 1, h: 1, isSection: false, childCount: 0, text, extra: {} } as unknown as BoardItem);

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { boardLayerTree } from './board-layer-rows';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
+import type { BoardItem } from '../../../read-data/group-board-model';
 
 function item(partial: Partial<BoardItem> & { memberId: string }): BoardItem {
   return {

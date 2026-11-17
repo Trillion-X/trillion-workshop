@@ -1,5 +1,5 @@
 import React from 'react';
-import { Badge, Button, Card, Container, Text, mountReactSurface } from '@/packages/ui';
+import { Badge, Button, Card, Container, Text, mountReactSurface } from '../../../../ui';
 
 type MountArgs = {
   el: HTMLElement;

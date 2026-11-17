@@ -11,9 +11,9 @@ import { afterEach, describe, expect, it, vi } from '../../../../../test-helpers
 import React, { useRef } from 'react';
 import { render, fireEvent, act, cleanup } from '@testing-library/react';
 import { BoardMarkLayers, DrawToolBinder } from '../../../show/BoardMarkLayers.tsx';
-import { MarkSessionProvider } from '@/packages/addressed-marks/show/MarkSessionContext';
+import { MarkSessionProvider } from '../../../../addressed-marks/show/MarkSessionContext';
 
-vi.mock('@/packages/addressed-marks/show/use-mark-data', () => ({
+vi.mock('tools/addressed-marks/show/use-mark-data', () => ({
   useOptionalBitfieldData: () => [],
   useMarkOperations: () => [],
   useMarkStyles: () => [],

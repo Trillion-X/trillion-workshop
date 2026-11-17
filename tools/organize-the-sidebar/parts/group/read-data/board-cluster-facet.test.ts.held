@@ -5,7 +5,7 @@
 // crosstab) reduces per-cluster through it with zero new reducer (L069 emergence / deletion test).
 
 import { describe, it, expect } from 'vitest';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
+import type { BoardItem } from '../../../read-data/group-board-model';
 import { clusterFacet } from './board-cluster-facet';
 import { facetCensus, type FacetExtract } from './board-facet-census';
 import { facetPivot, aggregatorById, type BoardMeasure } from './board-facet-pivot';

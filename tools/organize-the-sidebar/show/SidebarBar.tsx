@@ -1,4 +1,4 @@
-// parts/sidebar/show/SidebarBar.tsx
+// tools/sidebar/show/SidebarBar.tsx
 //
 // =============================================================================
 // PURPOSE

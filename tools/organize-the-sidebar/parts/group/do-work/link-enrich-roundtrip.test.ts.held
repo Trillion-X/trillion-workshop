@@ -15,7 +15,7 @@
 // point of the #208 identity-preserving consumer — with zero engine.
 
 import { describe, expect, it } from 'vitest';
-import { emptyGraph, memberById, type AddressRef } from '@/packages/ui/show/group/group-graph';
+import { emptyGraph, memberById, type AddressRef } from '../../../../ui/show/group/group-graph';
 import { applyProducerOutput, applyPartialProducerOutput } from './apply-producer-output';
 import { identityPatchOutput, isIdentityPreserving, layoutMixedProducerOutput } from './layout-producer-drafts';
 import { itemsFromResult, itemResultStatus } from '../read-data/read-producer-status';

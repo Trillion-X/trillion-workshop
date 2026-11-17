@@ -10,8 +10,8 @@ import { describe, it, expect, afterEach, vi } from '../../../../../test-helpers
 import { render, cleanup, fireEvent, waitFor } from '@testing-library/react';
 import { BoardExportPanel } from '../../../show/BoardExportPanel.tsx';
 import type { BoardItem } from '../../../read-data/group-board-model.ts';
-import type { OutputDestination } from '@/packages/ui/show/output-destination';
-import { outputDeliveryOutcome } from '@/packages/ui/show/output-destination';
+import type { OutputDestination } from '../../../../ui/show/output-destination';
+import { outputDeliveryOutcome } from '../../../../ui/show/output-destination';
 import { DOCUMENT_EXPORTS } from '../../../do-work/board-document-exports.ts';
 
 it('keeps the selected format and delivery pending until the current export settles', async () => {

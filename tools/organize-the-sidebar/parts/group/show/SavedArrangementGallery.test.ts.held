@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { arrangementActions, arrangementThumbSvg } from './SavedArrangementGallery';
-import type { SavedArrangement } from '@/packages/group/read-data/saved-arrangement';
+import type { SavedArrangement } from '../../../read-data/saved-arrangement';
 
 const row = (over: Partial<SavedArrangement>): SavedArrangement => ({
   id: 'x',

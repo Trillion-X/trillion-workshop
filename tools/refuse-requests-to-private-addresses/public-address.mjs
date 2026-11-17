@@ -1,4 +1,3 @@
-// parts/http-client/do-work/public-address.mjs
 // The one test of whether this service may send a request to an address someone else gave it (an AI's tool, a
 // delivery address, a tool server, a file to fetch, a source page), and the one way to send it.
 //

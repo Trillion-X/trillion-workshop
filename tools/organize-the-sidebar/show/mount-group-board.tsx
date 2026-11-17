@@ -13,11 +13,11 @@
 import React from 'react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
 import { bitfieldGeneratedLiveReadScopeDescriptor } from '@/packages/group/.bitfield-entry-scope/group-board/runtime-kit-react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../ui';
 import { GroupBoardPanel } from './GroupBoardPanel.tsx';
 import type { ProducerSubmitDescriptor } from '../do-work/submit-producer-request.ts';
-import { readSurfaceIntentReaderConfig } from '@/packages/ui/show/placeable-surface-intent';
-import { ViewerAccessRefsProvider } from '@/packages/ui/show/placeable-surface-intent';
+import { readSurfaceIntentReaderConfig } from '../../ui/show/placeable-surface-intent';
+import { ViewerAccessRefsProvider } from '../../ui/show/placeable-surface-intent';
 
 type MountArgs = { el: HTMLElement; props?: Record<string, unknown> };
 type CadenceProp = { unit: 'day' | 'week' | 'month' | 'year'; keepActive?: number; landOnCurrent?: boolean };

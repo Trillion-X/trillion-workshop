@@ -1,7 +1,6 @@
-// parts/group/show/board-screen.tsx
 //
 // PURPOSE
-//   The board: the group board ported from Bitfield (parts/group, GroupBoardPanel), composed over a space so every
+//   The board: the group board ported from Bitfield (tools/make-screen-layouts-and-controls, GroupBoardPanel), composed over a space so every
 //   member works on the same canvas at once. It is the screen of tool:screen-board
 //   (records/workshop-screen-tool-records.json, the trillion.board screen), a screen module (scripts/screen-modules.mjs):
 //   the workspace never carries this code, it imports it from its bundle when the board first opens
@@ -27,13 +26,13 @@
 //      The board keeps what it has placed (PLACED: picture files by identity, links by address), so a card someone
 //      deleted does not come back, and a picture dropped on the board (kept in the dropper's files, then shared into
 //      the space) is placed once, as the card they dropped.
-//   3. Cursors cross accounts through the space's board room (parts/group/show/presence-channel.ts), so a space's board
+//   3. Cursors cross accounts through the space's board room (tools/organize-the-sidebar/show/presence-channel.ts), so a space's board
 //      id is the space id.
 //   4. Every action the board offers (board-screen.json `actions`) hands a job to the acting member's own AIs
 //      (src/queued-work.json `board-*` rows) through Ask my AI (src/workspace/ask-my-ai.ts, the same owner Write's Ask AI
 //      uses): Trillion runs no model here. What the AI makes comes back into the space and so onto the board.
 //   5. Ink is kept where its board is kept: a space board's ink in the space (every member sees it), any other ink in
-//      the person's own records (MARK_OPERATIONS_ADDRESS), kept by the marks keeper (parts/addressed-marks/show/keep-marks.ts).
+//      the person's own records (MARK_OPERATIONS_ADDRESS), kept by the marks keeper (tools/addressed-marks/show/keep-marks.ts).
 //   6. Nothing here names a space, a company or a kind of work: the words of each action are DATA (board-screen.json).
 //   7. A picture shared with a frame item (src/workspace/put-sizes-on-board.ts: where it was drawn from and its size) is
 //      placed at its page's shape and keeps that frame, so Draw again draws it anew from the same address and the same

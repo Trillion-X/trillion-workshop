@@ -1,7 +1,7 @@
 // packages/group/show/board-action-affordances.test.ts
 import { describe, expect, it, vi } from 'vitest';
-import { readActionAffordances } from '@/packages/ui/show/action-affordance';
-import type { PublishedRecord } from '@/packages/ui/show/placeable-surface-intent/placeable-surface-record';
+import { readActionAffordances } from '../../../../ui/show/action-affordance';
+import type { PublishedRecord } from '../../../../ui/show/placeable-surface-intent/placeable-surface-record';
 import {
   affordanceShelfTools,
   boardAffordanceContextActions,
@@ -12,7 +12,7 @@ import {
   ownerSelectionContext,
   templateBindsTypedText,
 } from './board-action-affordances';
-import { triggerForChannel } from '@/packages/ui/show/action-affordance';
+import { triggerForChannel } from '../../../../ui/show/action-affordance';
 
 function published(payload: unknown, i = 0): PublishedRecord {
   return { recordId: `r${i}`, path: ['current-item', 'published-record'], payload, row: {} };

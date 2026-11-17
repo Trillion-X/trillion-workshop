@@ -2,7 +2,7 @@
 //
 // Purpose
 //   Names and keys the store in which a signed-in browser keeps the last answer to each workspace read
-//   (parts/ui/show/request/kept-values.ts, used by src/workspace/api.ts), so a screen opened again draws at once.
+//   (tools/ui/show/request/kept-values.ts, used by src/workspace/api.ts), so a screen opened again draws at once.
 //   The Worker writes both into the workspace page for this sign-in (src/worker.mjs workspacePage).
 //
 // Non-negotiable invariants

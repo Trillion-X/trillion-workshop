@@ -1,6 +1,6 @@
 // packages/group/read-data/board-themes.test.ts
 import { describe, it, expect } from 'vitest';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
+import type { BoardItem } from '../../../read-data/group-board-model';
 import {
   boardThemes,
   topTheme,
@@ -10,7 +10,7 @@ import {
   themesText,
   cardTerms,
   DEFAULT_STOPWORDS,
-} from '@/packages/group/read-data/board-themes';
+} from '../../../read-data/board-themes';
 
 const card = (memberId: string, text: string): BoardItem =>
   ({ memberId, nodeRef: { id: memberId }, kind: 'note', x: 0, y: 0, w: 1, h: 1, isSection: false, childCount: 0, text, extra: {} } as unknown as BoardItem);

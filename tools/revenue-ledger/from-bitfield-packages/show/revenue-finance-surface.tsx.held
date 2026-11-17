@@ -30,15 +30,15 @@
 
 import React from 'react';
 import { Wallet } from 'lucide-react';
-import { Card } from '@/packages/ui/show/card';
-import { Container } from '@/packages/ui/show/container';
-import { EmptyPlaceholder } from '@/packages/ui/show/empty-placeholder';
-import { StatStrip } from '@/packages/ui/show/stat-strip';
-import { Text } from '@/packages/ui/show/text';
+import { Card } from '../../../ui/show/card';
+import { Container } from '../../../ui/show/container';
+import { EmptyPlaceholder } from '../../../ui/show/empty-placeholder';
+import { StatStrip } from '../../../ui/show/stat-strip';
+import { Text } from '../../../ui/show/text';
 import type {
   RevenueBreakdownRow,
   RevenueFinanceDisplay,
-} from '@/packages/revenue-ledger/show/revenue-finance-display';
+} from './revenue-finance-display.ts.held';
 
 /** Format integer cents as a currency string. Presentation lives at the host
  *  boundary — the model stays pure integer cents. */

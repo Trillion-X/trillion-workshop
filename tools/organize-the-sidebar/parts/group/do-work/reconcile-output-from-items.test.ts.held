@@ -7,7 +7,7 @@
 // core of Rosa's ask: "reorganize + fill in the empty notes", not just append.
 
 import { describe, expect, it } from 'vitest';
-import { emptyGraph, membersOf, memberById, type AddressRef } from '@/packages/ui/show/group/group-graph';
+import { emptyGraph, membersOf, memberById, type AddressRef } from '../../../../ui/show/group/group-graph';
 import { applyProducerOutput } from './apply-producer-output';
 import { reconcileBoardGraphAuthoritative } from './reconcile-board-producer';
 import { reconcileOutputFromItems, type ReconcileItem } from './reconcile-output-from-items';

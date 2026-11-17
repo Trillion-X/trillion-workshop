@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { Bar } from '@/packages/ui/show/bar/Bar';
-import { Container } from '@/packages/ui/show/container';
-import { Text } from '@/packages/ui/show/text';
-import type { TacticsPeerVote } from '@/packages/tactics-practice/read-data/tactics-practice-types';
+import { Bar } from '../../../../ui/show/bar/Bar';
+import { Container } from '../../../../ui/show/container';
+import { Text } from '../../../../ui/show/text';
+import type { TacticsPeerVote } from '../read-data/tactics-practice-types';
 
 // Peer vote / result split.
 //

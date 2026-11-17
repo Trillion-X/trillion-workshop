@@ -8,7 +8,7 @@
 // changed since it was proposed makes the proposal conflicted instead of half applied. A list that says
 // review_changes: true refuses direct writes from a gated writer (src/lists.mjs putRows, `gatedWriter`).
 //
-// Why the lists engine and not parts/record-log record-layers: a layer keeps raw records aside and merges them into the
+// Why the lists engine and not tools/record-log record-layers: a layer keeps raw records aside and merges them into the
 // store with applyChanges, under none of a list's rules (identity keys, paired links, required values, settled values,
 // stamps, history, write rights), needs the store's own SQL (a list placed in another database, or a store without it,
 // has none) and holds a table per draft. A proposal is the request putRows will be asked, kept as data, so approving

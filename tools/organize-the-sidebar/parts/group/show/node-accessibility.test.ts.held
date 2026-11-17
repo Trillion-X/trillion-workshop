@@ -5,7 +5,7 @@
 // ZERO change here — the kind→noun mapping is the shared kindFamilyOf SSOT).
 
 import { describe, expect, it } from 'vitest';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
+import type { BoardItem } from '../../../read-data/group-board-model';
 import { nodeAriaLabel, nodeKindNoun } from './node-accessibility';
 
 const make = (kind: string, text?: string, extra?: Record<string, unknown>, src?: string): BoardItem =>

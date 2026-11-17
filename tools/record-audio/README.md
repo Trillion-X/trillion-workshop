@@ -35,12 +35,12 @@ That rebase supersedes the old `recorded_file` and June 16 `captured-media-sourc
 
 ## Dependencies
 
-**Depends on:** `@bitfield/runtime-kit` (+ `/react`), `@/packages/ui` (sanctioned), `@/packages/local-files` file choice capability, `slot::workflow` + `slot::find-current-items` via owner actions.
+**Depends on:** `@bitfield/runtime-kit` (+ `/react`), `tools/ui` (sanctioned), `tools/local-files` file choice capability, `slot::workflow` + `slot::find-current-items` via owner actions.
 **Depended on by:** downstream consumers discover recorded files only through evidence records/addresses (`audio-transcription`, `media-analysis`) — never by import.
 
 ## In Trillion
 
-Ported from `<checkout>/packages/record-audio`; every difference from that package is listed in `scripts/port-sources.json`. Trillion records in the browser through one recorder built on this package, used by every screen that records (the message box in `parts/ui/show/composer`, the Record screen and its teleprompter in `src/workspace/record-screen.tsx`):
+Ported from `<checkout>/packages/record-audio`; every difference from that package is listed in `scripts/port-sources.json`. Trillion records in the browser through one recorder built on this package, used by every screen that records (the message box in `tools/ui/show/composer`, the Record screen and its teleprompter in `src/workspace/record-screen.tsx`):
 
 | File | Purpose |
 |------|---------|
@@ -79,6 +79,6 @@ A recording also has its note from the moment it starts: `RecordAudioPanel` send
 | `RecordingProblem` / `problemKind` / `problemWords` | `Error & { kind, said }` / `(error) => string` / `(error, source) => string` | The browser's name for what went wrong, and the plain words from the DATA. |
 | `momentName` / `extensionOf` | `(Date) => string` / `(source, mediaType) => string` | A moment as it goes in a file name; the file ending for what was recorded. |
 
-**Depends on (Trillion):** `parts/record-video/show/browser-media-capture.ts` and `silence-stop.ts`, `parts/screen-recording/do-work/browser-screen-capture.ts`, `parts/permission-lease/read-data/capability-permission.ts`, the browser's MediaRecorder, getUserMedia, getDisplayMedia, AudioContext and speech recognition.
+**Depends on (Trillion):** `tools/record-video/show/browser-media-capture.ts` and `silence-stop.ts`, `tools/screen-recording/do-work/browser-screen-capture.ts`, `tools/permission-lease/read-data/capability-permission.ts`, the browser's MediaRecorder, getUserMedia, getDisplayMedia, AudioContext and speech recognition.
 **Depends on (Trillion, keeping):** `do-work/recorded-file-store.ts` (IndexedDB `record-audio`), the browser's IndexedDB, OfflineAudioContext and `navigator.storage.persist`; the service side of `GrowingClient` is `src/workspace/upload.ts` `growingFiles` over `src/namespace.mjs` growing files.
-**Depended on by (Trillion):** `parts/ui/show/composer/Composer.tsx` (and `momentName` through `parts/ui/show/composer/index.ts` for `src/workspace/send-message.ts`), `src/workspace/record-screen.tsx`.
+**Depended on by (Trillion):** `tools/ui/show/composer/Composer.tsx` (and `momentName` through `tools/ui/show/composer/index.ts` for `src/workspace/send-message.ts`), `src/workspace/record-screen.tsx`.

@@ -1,4 +1,3 @@
-// parts/record-log/do-work/record-digest.mjs
 //
 // AN ORDER-FREE CHECKSUM OF A WHOLE STORE, KEPT UP TO DATE ONE CHANGED FIELD AT A TIME.
 //

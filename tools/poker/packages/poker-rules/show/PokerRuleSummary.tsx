@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Activity, BadgeCheck, CircleDollarSign, GitBranch, ShieldCheck, Users } from 'lucide-react';
-import { Badge, Card, Container, Icon, ProgressBar, ScrollableSurface, Text } from '@/packages/ui';
+import { Badge, Card, Container, Icon, ProgressBar, ScrollableSurface, Text } from '../../../../ui';
 import type { PokerHandState, PokerPlayer } from '@/packages/poker-rules/read-data/poker-rules';
 
 function formatNumber(value: number): string {

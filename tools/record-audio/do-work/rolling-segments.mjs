@@ -1,4 +1,3 @@
-// parts/record-audio/do-work/rolling-segments.mjs
 //
 // NO PRIOR: searched parts/ and ~/dev/bitfield-packages/packages for a recording that runs without end and is cut into
 // pieces that each play on their own ("rolling", "segment", "continuous", "always on", "chunk length"); the recorders

@@ -9,7 +9,7 @@
 //
 // Composition of proven parts (L093): the presence model (read-data/presence.ts: merge, staleness, order), the room
 // transport (presence-channel.ts openPresenceRoom) and the shared people overlay and roster
-// (parts/ui/show/live-surface-people), which only paint.
+// (tools/ui/show/live-surface-people), which only paint.
 //
 // Identity comes from the room, never from this page: a person cannot show up as someone else. Presence is never kept.
 

@@ -25,15 +25,15 @@
 
 import * as React from 'react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { mountReactMaterial, type ReactMaterialMountArgs } from '@/packages/ui/show/react-surface-mount';
+import { mountReactMaterial, type ReactMaterialMountArgs } from '../../../../ui/show/react-surface-mount';
 import {
   readPaymentEvents,
   readRevenueProjectionConfig,
-} from '@/packages/revenue-ledger/read-data/read-payment-events';
-import { projectRevenue } from '@/packages/revenue-ledger/read-data/project-revenue';
-import { presentRevenue } from '@/packages/revenue-ledger/show/revenue-finance-display';
-import { RevenueFinanceSurface } from '@/packages/revenue-ledger/show/revenue-finance-surface';
-import type { RevenueView } from '@/packages/revenue-ledger/read-data/revenue-types';
+} from '../../../read-data/read-payment-events';
+import { projectRevenue } from '../../../read-data/project-revenue';
+import { presentRevenue } from './revenue-finance-display';
+import { RevenueFinanceSurface } from './revenue-finance-surface';
+import type { RevenueView } from '../read-data/revenue-types';
 
 const EMPTY_VIEW: RevenueView = {
   gross_cents: 0,

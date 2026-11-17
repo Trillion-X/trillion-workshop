@@ -10,8 +10,8 @@
 // guards their composition so a future change can't silently break cross-board paste.
 
 import { describe, expect, it } from 'vitest';
-import { emptyGraph } from '@/packages/ui/show/group/group-graph';
-import { boardRootRef, itemRef, placeItem, readItems } from '@/packages/group/read-data/group-board-model';
+import { emptyGraph } from '../../../../ui/show/group/group-graph';
+import { boardRootRef, itemRef, placeItem, readItems } from '../../../read-data/group-board-model';
 import { copyItemsToClipboard, clipboardToDrafts, planPaste, setBoardClipboard, getBoardClipboard } from './board-clipboard';
 import { branchMemberIds } from './batch-actions';
 

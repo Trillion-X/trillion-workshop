@@ -9,9 +9,9 @@
 // This proves the hardcoded `DEFAULTS {220,160}` is now board-presettable DATA, not source.
 
 import { describe, it, expect } from 'vitest';
-import { emptyGraph } from '@/packages/ui/show/group/group-graph';
-import { placeItem, readItems, boardRootRef, itemRef } from '@/packages/group/read-data/group-board-model';
-import { boardDefaultItemSize } from '@/packages/group/show/item-appearance';
+import { emptyGraph } from '../../../../ui/show/group/group-graph';
+import { placeItem, readItems, boardRootRef, itemRef } from '../../../read-data/group-board-model';
+import { boardDefaultItemSize } from '../../../show/item-appearance';
 
 /** The exact placeDraftAt size logic: a draft's own w/h wins, else the board's cascade default. */
 function placeWithDefault(

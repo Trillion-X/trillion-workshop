@@ -6,9 +6,9 @@
 // it is isolated from the report store (different index family).
 
 import { describe, it, expect } from 'vitest';
-import { emptyGraph } from '@/packages/ui/show/group/group-graph';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
-import type { FacetExtractors } from '@/packages/group/read-data/facet-filter';
+import { emptyGraph } from '../../../../ui/show/group/group-graph';
+import type { BoardItem } from '../../../read-data/group-board-model';
+import type { FacetExtractors } from '../../../read-data/facet-filter';
 import {
   smartSetIndexRef, saveSmartSet, readActiveSmartSets, readArchivedSmartSets, getSmartSet, renameSmartSet,
   archiveSmartSet, restoreSmartSet, parseSmartQuery, smartQueryText, smartQueryIsEmpty, resolveSmartSet,

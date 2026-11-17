@@ -4,7 +4,7 @@
 // subtree. Before this, a share dropped every nested note (Codex share-audit #2). Pure, no DOM.
 
 import { describe, expect, it } from 'vitest';
-import { emptyGraph, groupKey, type GroupGraph } from '@/packages/ui/show/group/group-graph';
+import { emptyGraph, groupKey, type GroupGraph } from '../../../../ui/show/group/group-graph';
 import { boardRootRef, itemRef, placeItem, placeSection, sectionRef } from './group-board-model';
 import { boardToCapsuleSource } from './board-to-capsule-source';
 

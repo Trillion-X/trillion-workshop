@@ -136,7 +136,7 @@ export function missingLines(placed, settings = lifeMapSettings) {
 }
 
 /**
- * Progress's section for the map (a guide description's section, parts/ui/show/coss/guide.tsx): every area as a row
+ * Progress's section for the map (a guide description's section, tools/ui/show/coss/guide.tsx): every area as a row
  * with how many pursuits live it, the missing ones first, opening the person's map list to change it.
  */
 export function lifeMapSection(placed, settings = lifeMapSettings) {

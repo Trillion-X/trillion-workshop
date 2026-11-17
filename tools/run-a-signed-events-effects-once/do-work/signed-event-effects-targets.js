@@ -1,4 +1,3 @@
-// parts/signed-event-effects/do-work/signed-event-effects-targets.js
 //
 // Admit signed events as effects, and list a subject's effects, through descriptors installed with this part
 // (../records.json). Every call to a verifier, writer or reader goes through the caller's `send`; this part has

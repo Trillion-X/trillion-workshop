@@ -13,11 +13,11 @@
 //
 // Non-negotiable invariants
 //   1. The lists are the page's lists, read the way the page reads them: the app's lists (surfaces.json through
-//      src/workspace/sidebar-lists.ts) with the person's saved copies laid over them (parts/sidebar
+//      src/workspace/sidebar-lists.ts) with the person's saved copies laid over them (tools/sidebar
 //      merge-surface-collections.ts), from the same group records. Nothing here names a list, a row or a screen.
-//   2. Every list change is the sidebar's own ops (parts/sidebar/do-work/surface-collection-ops.ts) applied by the
-//      group's own transitions (parts/group/do-work/group-op-transitions.ts) and written as the group's own records
-//      (parts/group/do-work/group-mutation-writes.ts): the same records the page writes when the person drags a row.
+//   2. Every list change is the sidebar's own ops (tools/organize-the-sidebar/do-work/surface-collection-ops.ts) applied by the
+//      group's own transitions (tools/organize-the-sidebar/do-work/group-op-transitions.ts) and written as the group's own records
+//      (tools/organize-the-sidebar/do-work/group-mutation-writes.ts): the same records the page writes when the person drags a row.
 //   3. A note names something the person's sidebar shows (a list or a row); anything else is refused, saying where to
 //      find the ids. One note per list or row: a new one replaces it.
 //   4. A note with a message tells the person (src/tell-the-person.mjs, kind sidebar-note), once per message.
@@ -25,7 +25,7 @@
 //      laid over the app's row by the page (src/workspace/main.tsx); null puts back what the app gives.
 //   6. The person's own lists may hold rows by a rule and a list or a row of it may show only while a rule holds
 //      (make_list, set_rule), kept in the list's own records and decided as the page decides them
-//      (parts/sidebar/read-data/apply-list-rules.ts, the formula engine); a rule naming an unknown fact or comparison
+//      (tools/organize-the-sidebar/read-data/apply-list-rules.ts, the formula engine); a rule naming an unknown fact or comparison
 //      is refused. read answers the lists shown now, and under not_shown_now the person's lists whose rule does not.
 //
 
@@ -37,15 +37,15 @@ import { sidebarCollections } from './workspace/sidebar-lists.ts';
 import { pursuitNavigationRows } from './workspace/pursuit-navigation-rows.mjs';
 import { oneRowPerId } from './workspace/one-row-per-id.mjs';
 import { decideSidebarRules } from './workspace/sidebar-rules.mjs';
-import { applyDecidedRules, ruleListsOf } from '../parts/sidebar/read-data/apply-list-rules.ts';
-import { compileRules, ruleVocabulary } from '../parts/formula-engine/rules/compile-rules.mjs';
-import ruleOperators from '../parts/formula-engine/rules/rule-operators.json' with { type: 'json' };
-import { readSurfaceCollections } from '../parts/sidebar/read-data/read-surface-collections.ts';
-import { isSpaceRow } from '../parts/sidebar/read-data/space-row.ts';
-import { mergeSurfaceCollections } from '../parts/sidebar/read-data/merge-surface-collections.ts';
-import { addRowOps, createListOps, deleteListOps, patchListOps, patchRowOps, removeRowOps, reorderRowOps, rowMemberId } from '../parts/sidebar/do-work/surface-collection-ops.ts';
-import { applyGroupOp } from '../parts/group/do-work/group-op-transitions.ts';
-import { buildGroupWriteBatch } from '../parts/group/do-work/group-mutation-writes.ts';
+import { applyDecidedRules, ruleListsOf } from './read-data/apply-list-rules.ts';
+import { compileRules, ruleVocabulary } from '../formula-engine/rules/compile-rules.mjs';
+import ruleOperators from '../formula-engine/rules/rule-operators.json' with { type: 'json' };
+import { readSurfaceCollections } from './read-data/read-surface-collections.ts';
+import { isSpaceRow } from './read-data/space-row.ts';
+import { mergeSurfaceCollections } from './read-data/merge-surface-collections.ts';
+import { addRowOps, createListOps, deleteListOps, patchListOps, patchRowOps, removeRowOps, reorderRowOps, rowMemberId } from './do-work/surface-collection-ops.ts';
+import { applyGroupOp } from './do-work/group-op-transitions.ts';
+import { buildGroupWriteBatch } from './do-work/group-mutation-writes.ts';
 import { foldGroupRecords } from './read-data/group-eeaf.ts';
 import { failureOf } from './failure.mjs';
 
@@ -135,7 +135,7 @@ export function makeSidebar({ records, rows, pursuits = async () => [], tell, fi
       ...(list.meta.order_by ? { order_by: list.meta.order_by } : {}),
       ...(list.meta.shown_when ? { shown_when: list.meta.shown_when } : {}),
       // A row the page cannot draw (its screen is no longer offered: uninstalled, or a tool that took over a shipped
-      // screen's id) is skipped as the page skips it (parts/sidebar/show/CollectionSections.ts), never shown by its id.
+      // screen's id) is skipped as the page skips it (tools/sidebar/show/CollectionSections.ts), never shown by its id.
       rows: list.members.filter(member => member.kind === 'surface' && member.presentation?.removed !== true && (labels.has(member.surfaceId) || isSpaceRow(member.surfaceId)))
         .map(member => ({ row_id: member.surfaceId, label: labels.get(member.surfaceId) ?? member.surfaceId, ...(member.presentation?.shown_when ? { shown_when: member.presentation.shown_when } : {}) })),
     }));

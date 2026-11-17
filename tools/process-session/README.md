@@ -128,9 +128,9 @@ An owner root holds only workspaces this module made. A workspace is assembled a
 
 ## In Trillion
 
-Trillion's `parts/process-session` carries only what the documents surface imports, copied verbatim but for imports pointed at `#workspace-records` (`scripts/port-sources.json`): `show/use-process-session-live-output.ts` (a session's output as it grows), `envelope-client/start-process-session.ts` (asks for a session to start), and `read-data/accumulate-process-session-output.ts`, `read-process-session-events.ts`, `read-process-session-launch.ts`, `render-launch-from-chat-launch.ts` and `stream-output-text.ts` under it. `part.json` names the files other parts may import. Trillion runs no process sessions of its own in the page, so `do-work/`, the session lists and the package's tests did not come across.
+Trillion's `tools/process-session` carries only what the documents surface imports, copied verbatim but for imports pointed at `#workspace-records` (`scripts/port-sources.json`): `show/use-process-session-live-output.ts` (a session's output as it grows), `envelope-client/start-process-session.ts` (asks for a session to start), and `read-data/accumulate-process-session-output.ts`, `read-process-session-events.ts`, `read-process-session-launch.ts`, `render-launch-from-chat-launch.ts` and `stream-output-text.ts` under it. `part.json` names the files other parts may import. Trillion runs no process sessions of its own in the page, so `do-work/`, the session lists and the package's tests did not come across.
 
-**Depended on by:** `parts/documents/show/DocumentsSurface.tsx`.
+**Depended on by:** `tools/documents/show/DocumentsSurface.tsx`.
 
 
 ## Moved from bitfield-packages (byte for byte, not yet wired to a tool row)

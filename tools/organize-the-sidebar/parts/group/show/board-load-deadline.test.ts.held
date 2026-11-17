@@ -35,7 +35,7 @@
 // =============================================================================
 
 import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
-import { BOARD_LOAD_TIMEOUT_MS, loadDeadline } from '@/packages/group/show/GroupBoardPanel';
+import { BOARD_LOAD_TIMEOUT_MS, loadDeadline } from '../../../show/GroupBoardPanel';
 
 describe('loadDeadline (task #47 — board-load timeout)', () => {
   beforeEach(() => {

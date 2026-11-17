@@ -1,4 +1,3 @@
-// parts/receive-files-over-ftp/do-work/keychain.mjs
 //
 // Purpose: read and keep a value held under a name in this computer's keychain (macOS `security`), for the receiver's
 // password, its certificate and the account key it sends with.

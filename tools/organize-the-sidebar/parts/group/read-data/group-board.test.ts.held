@@ -6,7 +6,7 @@
 // The engine is mocked at the sender boundary; the real fold/diff logic runs.
 
 import { describe, expect, it, vi } from 'vitest';
-import { emptyGraph } from '@/packages/ui/show/group/group-graph';
+import { emptyGraph } from '../../../../ui/show/group/group-graph';
 import {
   addBoard,
   addBoardEntry,

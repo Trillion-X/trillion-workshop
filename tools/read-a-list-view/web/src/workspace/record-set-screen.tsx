@@ -2,11 +2,11 @@
 //
 // PURPOSE
 //   Record set (entry `record-set`): any list of the person's records whose store answer describes itself, drawn on the
-//   one shared record views (parts/ui/show/record-views/record-set.tsx). The surface row names where its records are
+//   one shared record views (tools/ui/show/record-views/record-set.tsx). The surface row names where its records are
 //   read (`surface_input.records_url`); the answer's `view` DATA names the columns, the empty words and how an opened
 //   record is drawn. Sent (records/sent-kinds.json, /work/api/sent) is one such list; another list is one surface row
 //   and its store answer, with no screen code.
-//   Each placement keeps its own rules, grouping, view and depth (parts/ui/show/placement-kept, input `kept`): one
+//   Each placement keeps its own rules, grouping, view and depth (tools/ui/show/placement-kept, input `kept`): one
 //   Spend piece can stay on Cloudflare grouped by store while another shows the total. Opening a record that is made of
 //   records (`view.inside`) goes one level down in place, and the steps above it lead back up.
 //
@@ -19,13 +19,13 @@
 //      shared by every placement of the list.
 
 import * as React from 'react';
-import { RecordSet, type RecordSetAnswer, type RecordSetKept } from '../../parts/ui/show/record-views/record-set';
+import { RecordSet, type RecordSetAnswer, type RecordSetKept } from '../../../../ui/show/record-views/record-set';
 import { focusPathFor } from './scope-focus';
-import { BreadcrumbSteps } from '../../parts/ui/show/breadcrumb/mount-breadcrumb';
-import { Container } from '../../parts/ui/show/container';
-import { ScreenState, mountScreenState, useScreenLoad } from '../../parts/ui/show/screen-state';
-import { mountReactSurface } from '../../parts/ui/show/react-surface-mount';
-import { keepInPlacement, keptIn } from '../../parts/ui/show/placement-kept/placement-kept';
+import { BreadcrumbSteps } from '../../../../ui/show/breadcrumb/mount-breadcrumb';
+import { Container } from '../../../../ui/show/container';
+import { ScreenState, mountScreenState, useScreenLoad } from '../../../../ui/show/screen-state';
+import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
+import { keepInPlacement, keptIn } from '../../../../ui/show/placement-kept/placement-kept';
 import { readJson } from './api';
 import { refusal } from './failure';
 import { goTo } from './open-screen';

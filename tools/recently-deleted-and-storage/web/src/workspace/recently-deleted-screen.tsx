@@ -19,13 +19,13 @@
 //   4. Every control is shared: record views (rows, saved views, row and selection actions, the view bar's menu),
 //      screen states, notifications.
 
-import { mountRecordViews, type FieldDescriptor } from '../../parts/ui/show/record-views/record-views';
-import { loadScreen } from '../../parts/ui/show/screen-state';
-import { notify } from '../../parts/ui/show/coss/notifications';
-import { relativeWhen } from '../../parts/ui/show/relative-time/relative-time';
-import { mediaPreviewContent } from '../../parts/ui/show/media-preview';
-import { formatBytes } from '../../parts/ui/show/notifications/notification-center';
-import type { ActionMenuItem } from '../../parts/ui/show/action-menu';
+import { mountRecordViews, type FieldDescriptor } from '../../../../ui/show/record-views/record-views';
+import { loadScreen } from '../../../../ui/show/screen-state';
+import { notify } from '../../../../ui/show/coss/notifications';
+import { relativeWhen } from '../../../../ui/show/relative-time/relative-time';
+import { mediaPreviewContent } from '../../../../ui/show/media-preview';
+import { formatBytes } from '../../../../ui/show/notifications/notification-center';
+import type { ActionMenuItem } from '../../../../ui/show/action-menu';
 import { familyOf, previewFor } from './file-picture';
 import { recordFilter } from './record-filter';
 import { readJson } from './api';
@@ -33,7 +33,7 @@ import { refusal } from './failure';
 import { openScreen } from './open-screen';
 import { onStoreChange } from './store-changes';
 import { putBack } from './set-aside';
-import { mountReactSurface } from '../../parts/ui/show/react-surface-mount';
+import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
 import { StoragePanel, type Storage } from './storage-release-panel';
 
 import { errorWords } from '../../../../ui/show/safe-error-card/sanitize-error-text.ts';

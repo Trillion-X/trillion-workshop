@@ -3,12 +3,12 @@ import React from 'react';
 import { afterEach, describe, expect, it, vi } from '../../../../../test-helpers/vitest-shim.mjs';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 
-vi.mock('@/packages/ui/show/media-bytes/read-guarded-artifact-blob', () => ({
+vi.mock('tools/ui/show/media-bytes/read-guarded-artifact-blob', () => ({
   readGuardedArtifactObjectUrl: vi.fn(),
 }));
 
 import { boardMediaSource, rendererForKind } from '../../../show/item-renderers.tsx';
-import { readGuardedArtifactObjectUrl } from '@/packages/ui/show/media-bytes/read-guarded-artifact-blob';
+import { readGuardedArtifactObjectUrl } from '../../../../ui/show/media-bytes/read-guarded-artifact-blob';
 import type { BoardItem } from '../../../read-data/group-board-model.ts';
 
 afterEach(() => {

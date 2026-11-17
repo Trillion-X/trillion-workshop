@@ -1,8 +1,8 @@
 // packages/group/do-work/reading-tour-actions.test.ts
 import { describe, it, expect } from 'vitest';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
-import { stepAt, nextIndex, tourProgressLabel } from '@/packages/group/read-data/walkthrough';
-import { readingTour } from '@/packages/group/do-work/reading-tour-actions';
+import type { BoardItem } from '../../../read-data/group-board-model';
+import { stepAt, nextIndex, tourProgressLabel } from '../../../read-data/walkthrough';
+import { readingTour } from '../../../do-work/reading-tour-actions';
 
 const card = (memberId: string, x: number, y: number, text: string): BoardItem =>
   ({ memberId, kind: 'note', x, y, w: 100, h: 60, text, extra: {}, isSection: false } as unknown as BoardItem);

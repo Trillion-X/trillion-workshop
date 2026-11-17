@@ -26,9 +26,9 @@
 
 import React from 'react';
 import { bitfieldGeneratedLiveReadScopeDescriptor } from '@/packages/group/.bitfield-entry-scope/live-feed-board/runtime-kit-react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../ui';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { readPublishedRecords } from '@/packages/ui/show/placeable-surface-intent';
+import { readPublishedRecords } from '../../ui/show/placeable-surface-intent';
 import { GroupBoardPanel } from './GroupBoardPanel.tsx';
 import { boardRootRef } from '../read-data/group-board-model.ts';
 import { createGroupBoardStore } from '../read-data/read-group-board.ts';

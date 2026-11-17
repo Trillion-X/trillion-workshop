@@ -1,11 +1,11 @@
 // src/workspace/record-video-screen.tsx
 //
 // PURPOSE
-//   Record video (entry `record-video`): Alex's record-video package screen (parts/record-video RecordVideoPanel, with
+//   Record video (entry `record-video`): Alex's record-video package screen (tools/record-video RecordVideoPanel, with
 //   its own list of recordings, its camera picture, countdown, silence stop and speech-following teleprompter) as a
 //   Trillion screen. Opened from Formats with a format and a thought, the format's script becomes the panel's
 //   recording session through the part's own conversion (a presentation plan through
-//   parts/record-video/do-work/recording-session-from-presentation-plan.mjs), so the script scrolls with the voice
+//   tools/record-video/do-work/recording-session-from-presentation-plan.mjs), so the script scrolls with the voice
 //   while recording; beside the title, the way to read the script (in full, as its structure or as its ideas:
 //   recording.json script_views, kept by script-view.ts) and Have my AI write it, which hands the script to the person's AIs;
 //   the work it started is drawn live above the panel (write-with-my-ai.tsx). Where a recording is
@@ -27,13 +27,13 @@
 //      is kept and handed on as that row's take, and the next take comes up. Nothing here names a list or a field.
 
 import * as React from 'react';
-import { Button, Container, ErrorBoundary, SegmentedControl, Text } from '../../parts/ui';
-import { useFocusContainerWhile } from '../../parts/screen-arrangement/show/use-focus-container-while';
-import { ScreenState, useScreenLoad } from '../../parts/ui/show/screen-state';
-import { mountReactSurface } from '../../parts/ui/show/react-surface-mount';
-import { RecordVideoPanel } from '../../parts/record-video/show/RecordVideoPanel';
-import { currentLiveRecording, subscribeToLiveRecording } from '../../parts/record-video/show/live-recording';
-import { recordingSessionFromPlan } from '../../parts/record-video/do-work/recording-session-from-presentation-plan.mjs';
+import { Button, Container, ErrorBoundary, SegmentedControl, Text } from '../../../../ui';
+import { useFocusContainerWhile } from '../../../../screen-arrangement/show/use-focus-container-while';
+import { ScreenState, useScreenLoad } from '../../../../ui/show/screen-state';
+import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
+import { RecordVideoPanel } from '../../../../record-video/show/RecordVideoPanel';
+import { currentLiveRecording, subscribeToLiveRecording } from '../../../../record-video/show/live-recording';
+import { recordingSessionFromPlan } from '../../../../record-video/do-work/recording-session-from-presentation-plan.mjs';
 import { postJson, readJson } from './api';
 import { refusal } from './failure';
 import { openScreenOn } from './open-screen';

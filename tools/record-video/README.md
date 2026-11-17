@@ -36,7 +36,7 @@ That rebase supersedes the old `recorded_file` and June 16 `captured-media-sourc
 
 ## Dependencies
 
-**Depends on:** `@bitfield/runtime-kit` (+ `/react`), `@/packages/ui` (sanctioned), `@/packages/local-files` file choice capability, `slot::workflow` + `slot::find-current-items` via owner actions.
+**Depends on:** `@bitfield/runtime-kit` (+ `/react`), `tools/ui` (sanctioned), `tools/local-files` file choice capability, `slot::workflow` + `slot::find-current-items` via owner actions.
 **Depended on by:** downstream consumers discover recorded files only through evidence records/addresses (`audio-transcription`, `media-analysis`) — never by import.
 
 ## In Trillion

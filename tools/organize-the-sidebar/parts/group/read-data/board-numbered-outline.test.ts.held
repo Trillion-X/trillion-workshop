@@ -1,13 +1,13 @@
 // packages/group/read-data/board-numbered-outline.test.ts
 import { describe, it, expect } from 'vitest';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
+import type { BoardItem } from '../../../read-data/group-board-model';
 import {
   numberedOutline,
   numberOutlineLines,
   numberedOutlineText,
   boardHasOutline,
   outlineNumberOf,
-} from '@/packages/group/read-data/board-numbered-outline';
+} from '../../../read-data/board-numbered-outline';
 
 const card = (memberId: string, text: string, x = 0, y = 0): BoardItem =>
   ({ kind: 'note', memberId, x, y, w: 100, h: 40, text, extra: {} } as unknown as BoardItem);

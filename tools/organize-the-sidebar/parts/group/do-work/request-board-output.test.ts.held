@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { BoardOutputPartialFailure, requestBoardOutputDelivery, type BoardOutputSender } from './request-board-output';
 import { ownerValidatedProcessResultWire } from '@/tests/fixtures/process-result-wire';
-import { readBoardOutputTargets } from '@/packages/group/read-data/board-output-targets';
+import { readBoardOutputTargets } from '../../../read-data/board-output-targets';
 
 vi.mock('@bitfield/runtime-kit', () => ({ sendRequestToBitfieldTarget: vi.fn() }));
 

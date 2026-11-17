@@ -1,4 +1,3 @@
-// parts/record-log/do-work/record-layers.mjs
 //
 // A LAYER: CHANGES KEPT ASIDE OVER A RECORD STORE, READ AS IF MADE, THEN MERGED IN ONE WRITE OR DROPPED FOR NOTHING.
 //

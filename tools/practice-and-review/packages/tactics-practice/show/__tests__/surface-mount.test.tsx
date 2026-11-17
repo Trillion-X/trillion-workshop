@@ -10,7 +10,7 @@ vi.mock('@bitfield/runtime-kit/react', () => ({
   useBitfieldData: () => rowsRef.current,
 }));
 
-import { TacticsPracticeSurface } from '@/packages/tactics-practice/show/TacticsPracticeSurface';
+import { TacticsPracticeSurface } from '../TacticsPracticeSurface';
 
 afterEach(cleanup);
 

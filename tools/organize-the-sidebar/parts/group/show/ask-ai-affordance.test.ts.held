@@ -10,7 +10,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { affordanceShelfTools, producerDescriptorOfTrigger, BOARD_CHANNELS } from './board-action-affordances';
-import { triggerForChannel, type ActionAffordance } from '@/packages/ui/show/action-affordance';
+import { triggerForChannel, type ActionAffordance } from '../../../../ui/show/action-affordance';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const things = JSON.parse(readFileSync(join(here, '..', 'things-to-store-and-run.json'), 'utf8')).things as Array<{ address?: string; payload?: unknown }>;

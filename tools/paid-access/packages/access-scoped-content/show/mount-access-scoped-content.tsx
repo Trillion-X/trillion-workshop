@@ -13,12 +13,12 @@
 // synthesis) uses this exact mount-wrapper shape; Learn was the odd one out.
 
 import React from 'react';
-import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '@/packages/ui';
-import { ToastProvider } from '@/packages/ui/show/toast';
+import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
+import { ToastProvider } from '../../../../ui/show/toast';
 import {
   AccessScopedContent,
   type AccessScopedSurfaceInput,
-} from '@/packages/access-scoped-content/show/AccessScopedContent';
+} from './AccessScopedContent';
 
 type MountArgs = {
   el: HTMLElement;

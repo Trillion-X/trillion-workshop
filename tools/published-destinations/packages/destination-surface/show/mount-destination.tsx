@@ -5,8 +5,8 @@
 // records can each point the same entry at a different descriptor.
 
 import React from 'react';
-import { mountReactMaterial, type ReactMaterialMountArgs } from '@/packages/ui';
-import { DestinationView } from '@/packages/destination-surface/show/DestinationView';
+import { mountReactMaterial, type ReactMaterialMountArgs } from '../../../../ui';
+import { DestinationView } from './DestinationView';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);

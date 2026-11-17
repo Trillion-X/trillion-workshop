@@ -6,13 +6,13 @@
 // decodeVisualDatabaseModel against research-workspace field/view descriptors and rendered by
 // VisualDatabaseSurface. A different source kind = different DATA, same surface (L069/L090).
 import React from 'react';
-import { Card } from '@/packages/ui';
-import { ErrorBoundary } from '@/packages/ui/show/error-boundary';
-import { FloatingMaterialFrame } from '@/packages/ui/show/floating-material-frame';
-import { mountReactSurface } from '@/packages/ui/show/react-surface-mount';
+import { Card } from '../../../../ui';
+import { ErrorBoundary } from '../../../../ui/show/error-boundary';
+import { FloatingMaterialFrame } from '../../../../ui/show/floating-material-frame';
+import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { VisualDatabaseSurface } from '@/packages/visual-database/show/VisualDatabaseSurface';
-import { decodeVisualDatabaseModel } from '@/packages/visual-database/read-data/visual-database';
+import { VisualDatabaseSurface } from '../../../../keep-lists-of-rows/show/VisualDatabaseSurface';
+import { decodeVisualDatabaseModel } from '../../../../keep-lists-of-rows/read-data/visual-database';
 import { AddChannelPanel, type AddChannelConfig } from './AddChannelPanel';
 
 type MountArgs = {

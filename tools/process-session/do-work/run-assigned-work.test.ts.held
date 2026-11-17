@@ -1,7 +1,7 @@
 import { describe, expect, it } from '../../../test-helpers/vitest-shim.mjs';
 import { readFileSync } from 'node:fs';
 
-import processSessionContract from '@/packages/process-session/things-to-store-and-run.json';
+import processSessionContract from '../things-to-store-and-run.json';
 import {
   assignedWorkPrompt,
   buildAssignedWorkLaunchInputFromVisualDatabaseAction,

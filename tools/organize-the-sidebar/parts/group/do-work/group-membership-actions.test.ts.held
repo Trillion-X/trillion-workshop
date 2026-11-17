@@ -4,9 +4,9 @@
 // the §4 adversarial gate's hostile compositions asserted as write-sets.
 
 import { describe, expect, it } from 'vitest';
-import type { AddressRef } from '@/packages/ui/show/group/group-graph';
-import { emptyGraph, membersOf } from '@/packages/ui/show/group/group-graph';
-import { groupRecordAddress } from '@/packages/group/read-data/group-eeaf';
+import type { AddressRef } from '../../../../ui/show/group/group-graph';
+import { emptyGraph, membersOf } from '../../../../ui/show/group/group-graph';
+import { groupRecordAddress } from '../../../read-data/group-eeaf';
 import { buildGroupWriteBatch } from './group-mutation-writes';
 import { applyGroupOp, applyGroupMutationTarget, loadGroupGraphTarget, opRoots, runGroupMutation, type GroupMutationOp } from './group-membership-actions';
 

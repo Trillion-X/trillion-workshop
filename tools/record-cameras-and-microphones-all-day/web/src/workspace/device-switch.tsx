@@ -10,13 +10,13 @@
 // NON-NEGOTIABLE INVARIANTS
 //   1. A switch shows on only once the device says it is on; the page never assumes.
 //   2. No switch is named in code: a new one is a DATA row here and one object on the device.
-//   3. Every control is a shared part (parts/ui Card, Container, Switch, Text); this file writes no markup of its own.
+//   3. Every control is a shared part (tools/ui Card, Container, Switch, Text); this file writes no markup of its own.
 //   4. Each switch's state is reported as the device's fact `<switch id>.on` (on or off, src/workspace/device-facts.ts),
 //      so a step waiting on the person to turn it on ticks itself.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import * as React from 'react';
-import { Card, Container, Switch, Text } from '../../parts/ui';
+import { Card, Container, Switch, Text } from '../../../../ui';
 import words from './device-switches.json';
 import { reportDeviceFacts } from './device-facts';
 

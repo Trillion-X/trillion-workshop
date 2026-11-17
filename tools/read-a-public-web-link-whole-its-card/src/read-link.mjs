@@ -16,7 +16,7 @@
 //   1. The page's bytes are read by the one page reader (trillion-workshop: tools/browse-public-page/do-work/page-facts.mjs), the same
 //      one the container tool runs, so a link reads the same everywhere.
 //   2. Public pages only: the address is checked before it is fetched, every redirect hop is judged again before it is
-//      asked for (parts/http-client/do-work/public-address.mjs fetchPublic, the one outbound-read road), and the
+//      asked for (tools/refuse-requests-to-private-addresses/public-address.mjs fetchPublic, the one outbound-read road), and the
 //      Worker's fetch reaches only the public internet (wrangler.jsonc global_fetch_strictly_public). A hop to a
 //      private address answers as a page that did not answer, naming no address.
 //   3. Bounded: at most READ_BYTES bytes and waitMs milliseconds. A page that does not answer, is not a page, or says

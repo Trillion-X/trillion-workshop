@@ -10,7 +10,7 @@ import type {
   TacticsConfig,
   TacticsConfigKind,
   TacticsContest,
-} from '@/packages/tactics-practice/read-data/tactics-practice-types';
+} from '../read-data/tactics-practice-types';
 
 export const CREATE_DAILY_TACTICS_CONTEST_ACTION = 'action:tactics-practice.create-daily-contest';
 export const CREATE_ONE_ON_ONE_TACTICS_CONTEST_ACTION = 'action:tactics-practice.create-one-on-one-contest';

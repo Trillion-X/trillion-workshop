@@ -20,7 +20,7 @@ import type {
   TacticsPracticeHome,
   TacticsPracticeState,
   TacticsSeasonTournamentView,
-} from '@/packages/tactics-practice/read-data/tactics-practice-types';
+} from './tactics-practice-types';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);

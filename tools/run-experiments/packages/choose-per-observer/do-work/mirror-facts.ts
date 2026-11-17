@@ -9,7 +9,7 @@
 //
 // Dependencies: injected emit function (venue-agnostic), zero provider enum.
 
-import type { ObserverFact } from '@/packages/choose-per-observer/read-data/score-candidates';
+import type { ObserverFact } from '../read-data/score-candidates';
 
 /**
  * Mirror configuration: which facts → which venue, field mappings.

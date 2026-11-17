@@ -141,7 +141,7 @@
         "licence_class": "licence:maker-own",
         "placements": ["placement:deployed-container"],
         "maker": "maker:record-a-web-page",
-        "provenance": { "source": "trillion parts/record-a-web-page/do-work" },
+        "provenance": { "source": "trillion tools/record-a-web-page/do-work" },
         "verify": [
           { "kind": "output-number-within", "output_selector": "$.result.frames", "at_least": 1 },
           { "kind": "output-numbers-close", "left": { "output_selector": "$.files.video.bytes" }, "right": { "output_selector": "$.result.video_bytes" }, "tolerance": 0 }

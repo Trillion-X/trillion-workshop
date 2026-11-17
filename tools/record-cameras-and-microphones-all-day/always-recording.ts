@@ -1,4 +1,4 @@
-// parts/record-audio/do-work/always-recording.ts
+// tools/record-audio/do-work/always-recording.ts
 //
 // NO PRIOR: searched parts/ and ~/dev/bitfield-packages/packages for a recorder that runs several inputs at once and
 // never stops ("always on", "multi camera", "several cameras", "rolling", "continuous recording"); every recorder here

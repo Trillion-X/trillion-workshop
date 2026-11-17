@@ -5,7 +5,7 @@
 // and that it GENERALISES the census (measure≡1 + sum ≡ card count) + the L069 deletion test.
 
 import { describe, it, expect } from 'vitest';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
+import type { BoardItem } from '../../../read-data/group-board-model';
 import { facetPivot, facetPivotText, AGGREGATORS, aggregatorById, type BoardMeasure } from './board-facet-pivot';
 import { facetCensus, type FacetExtract } from './board-facet-census';
 

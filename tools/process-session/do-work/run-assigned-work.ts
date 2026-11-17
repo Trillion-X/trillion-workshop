@@ -5,7 +5,7 @@ import {
   sendRequestToBitfieldTarget,
   type BitfieldRuntimeContext,
 } from '@bitfield/runtime-kit';
-import processSessionContract from '@/packages/process-session/things-to-store-and-run.json';
+import processSessionContract from '../things-to-store-and-run.json';
 import {
   readConfiguredTimedTarget,
   renderProcessSessionLaunchDescriptor,

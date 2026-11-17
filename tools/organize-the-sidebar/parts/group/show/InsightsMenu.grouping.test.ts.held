@@ -5,7 +5,7 @@
 // pure fold logic across the edge cases a single harness can't cheaply cover: order preservation, ungrouped
 // collection, mixed grouped+ungrouped, and the exact "> 1 named group" header rule the component renders from.
 import { describe, it, expect } from 'vitest';
-import { groupLenses, namedGroupCount, type InsightLens } from '@/packages/group/show/InsightsMenu';
+import { groupLenses, namedGroupCount, type InsightLens } from '../../../show/InsightsMenu';
 
 // A lens's render is irrelevant to the fold — stub it so we can build lenses in a plain .ts test.
 const lens = (key: string, group?: string): InsightLens => ({

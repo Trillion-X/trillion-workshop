@@ -52,7 +52,7 @@ Mount it as `AppSidebar` and feed it a PURE projection of your own rows:
 
 - a list inside your own screen (recordings, a document's pages, conversations): `sections`, the shared sidebar's own
   recursive rows (`NavSectionData`: a section per group, `sections` nested to any depth, row `actions` as DATA); worked
-  examples `parts/documents/show/documents-page-sidebar.ts`, `parts/record-video/show/RecordVideoPanel.tsx`
+  examples `tools/documents/show/documents-page-sidebar.ts`, `tools/record-video/show/RecordVideoPanel.tsx`
 - the person's own navigation lists: `buildProjectedCollectionsNav` + `projectedCollectionsToCatalogItems`
   (src/workspace/sidebar-lists.ts), the graph the editable lists are kept in
 

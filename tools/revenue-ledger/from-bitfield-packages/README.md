@@ -13,9 +13,9 @@ Files of the bitfield-packages package `revenue-ledger` at commit d926b7adb8ca24
 | `show/README.md` | `show/README.md` | data |
 | `show/__tests__/present-revenue.test.ts` | `show/__tests__/present-revenue.test.ts.held` | held: test (vitest or the retired loader) |
 | `show/__tests__/revenue-finance-surface.test.tsx` | `show/__tests__/revenue-finance-surface.test.tsx.held` | held: test (vitest or the retired loader) |
-| `show/mount-revenue-finance.tsx` | `show/mount-revenue-finance.tsx.held` | held: imports react, @bitfield/runtime-kit/react, @/packages/ui/show/react-surface-mount, @/packages/revenue-ledger/read-data/read-payment-events, ... |
+| `show/mount-revenue-finance.tsx` | `show/mount-revenue-finance.tsx.held` | held: imports react, @bitfield/runtime-kit/react, tools/ui/show/react-surface-mount, tools/revenue-ledger/read-data/read-payment-events, ... |
 | `show/reference-grounded-screen-contract.md` | `show/reference-grounded-screen-contract.md` | data |
 | `show/revenue-finance-display.ts` | `show/revenue-finance-display.ts.held` | held: imports ../read-data/revenue-types |
-| `show/revenue-finance-surface.tsx` | `show/revenue-finance-surface.tsx.held` | held: imports react, lucide-react, @/packages/ui/show/card, @/packages/ui/show/container, ... |
+| `show/revenue-finance-surface.tsx` | `show/revenue-finance-surface.tsx.held` | held: imports react, lucide-react, tools/ui/show/card, tools/ui/show/container, ... |
 | `things-to-store-and-run.json` | `things-to-store-and-run.json` | data |
 | `vitest.config.mjs` | `vitest.config.mjs.held` | held: test (vitest or the retired loader) |

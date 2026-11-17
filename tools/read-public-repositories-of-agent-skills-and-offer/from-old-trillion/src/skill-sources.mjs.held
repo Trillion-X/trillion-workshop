@@ -30,7 +30,7 @@
 //   2. A fact lives at its source: no row is ever typed or copied in by hand; every row names the repository and commit
 //      it was read from.
 //   3. Read only what changed: the archive is read only when its commit or the source/import definition changed.
-//   4. Only public addresses are read (parts/http-client/do-work/public-address.mjs fetchPublic judges every hop).
+//   4. Only public addresses are read (tools/refuse-requests-to-private-addresses/public-address.mjs fetchPublic judges every hop).
 //   5. A skill whose text holds a secret, a computer path, an email or a phone number, or that names no licence, never
 //      becomes a row; it is named under held with its reasons. A known licence that does not allow sharing makes a
 //      reference row (src/skill-rows.mjs): credited and linked, none of its instructions copied.

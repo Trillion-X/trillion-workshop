@@ -13,7 +13,7 @@ export {
   type RecordInteractionSurface,
   type RecordTypeDescriptor,
   type SourceRecord,
-} from '@/packages/codes-and-rewards/read-data/read-record-interaction-surface';
+} from './read-data/read-record-interaction-surface';
 
 export {
   buildOwnerActionRequest,
@@ -21,4 +21,4 @@ export {
   type LocalPresentationAcknowledgement,
   type OwnerActionRequest,
   type OwnerActionRequestError,
-} from '@/packages/codes-and-rewards/do-work/build-owner-action-request';
+} from './do-work/build-owner-action-request';

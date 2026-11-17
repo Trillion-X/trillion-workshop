@@ -4,7 +4,7 @@
 // data; this module follows record, field, view, action, and evidence
 // descriptors without branching on package labels.
 
-import defaultContract from '@/packages/codes-and-rewards/record-interaction-contract.json';
+import defaultContract from '../record-interaction-contract.json';
 
 export type JsonRecord = Record<string, unknown>;
 

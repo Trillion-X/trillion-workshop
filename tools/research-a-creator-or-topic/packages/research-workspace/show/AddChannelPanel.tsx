@@ -17,7 +17,7 @@
 // inside the workflow (that deadlocks the workflow slot).
 import React from 'react';
 import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
-import { Button, Card, Inline, Input, Text } from '@/packages/ui';
+import { Button, Card, Inline, Input, Text } from '../../../../ui';
 
 /** DATA config carried on the placeable-surface `surfaceInput`. All optional — a missing
  *  field disables Add with a configuration message rather than dispatching a broken call. */

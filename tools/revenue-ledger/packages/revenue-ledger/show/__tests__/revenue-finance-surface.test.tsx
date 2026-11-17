@@ -10,9 +10,9 @@
 import React from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
-import { presentRevenue } from '@/packages/revenue-ledger/show/revenue-finance-display';
-import { RevenueFinanceSurface } from '@/packages/revenue-ledger/show/revenue-finance-surface';
-import type { RevenueView } from '@/packages/revenue-ledger/read-data/revenue-types';
+import { presentRevenue } from '../revenue-finance-display';
+import { RevenueFinanceSurface } from '../revenue-finance-surface';
+import type { RevenueView } from '../../read-data/revenue-types';
 
 const EMPTY_VIEW: RevenueView = {
   gross_cents: 0,

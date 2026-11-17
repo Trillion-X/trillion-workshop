@@ -1,4 +1,3 @@
-// parts/sidebar/read-data/space-row.ts
 //
 // PURPOSE
 // The empty space row: a row of a list that holds nothing. On a thin bar it takes no icon's place and only pushes the

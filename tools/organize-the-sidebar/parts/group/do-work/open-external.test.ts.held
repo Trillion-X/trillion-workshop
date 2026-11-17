@@ -1,6 +1,6 @@
 // packages/group/do-work/open-external.test.ts
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { openExternalHref, isSafeExternalHref } from '@/packages/group/do-work/open-external';
+import { openExternalHref, isSafeExternalHref } from '../../../do-work/open-external';
 
 describe('openExternalHref (#210 — never hijacks the shell frame)', () => {
   beforeEach(() => { document.body.innerHTML = ''; });

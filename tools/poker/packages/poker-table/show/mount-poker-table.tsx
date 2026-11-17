@@ -10,8 +10,8 @@ import {
 // that installed it. Package source must never name an app: a module constant here
 // addressed one app from every set, which is how this surface pointed at a retired one.
 const partitionLabel = bitfieldGeneratedLiveReadScopeDescriptor.partitionLabel;
-import { ErrorBoundary, FloatingMaterialFrame, Badge, Button, Card, Container, Input, ScrollableSurface, Text, mountReactSurface } from '@/packages/ui';
-import { EmbeddedScreenArrangement } from '@/packages/screen-arrangement/show/EmbeddedScreenArrangement';
+import { ErrorBoundary, FloatingMaterialFrame, Badge, Button, Card, Container, Input, ScrollableSurface, Text, mountReactSurface } from '../../../../ui';
+import { EmbeddedScreenArrangement } from '../../../../screen-arrangement/show/EmbeddedScreenArrangement';
 import {
   applyPokerRoomPlayerAction,
   configurePokerRoom,
@@ -52,7 +52,7 @@ import {
   POKER_WORKSPACE_LAYOUT_STATE_INPUT,
   POKER_WORKSPACE_PLACEABLE_SURFACE_LIST_ADDRESS_LABEL,
 } from '@/packages/poker-table/read-data/read-poker-workspace-layout-state';
-import { PokerTablePanel, PokerTableStyles } from '@/packages/poker-table/show/PokerTablePanel';
+import { PokerTablePanel, PokerTableStyles } from './PokerTablePanel';
 
 type MountArgs = {
   el: HTMLElement;

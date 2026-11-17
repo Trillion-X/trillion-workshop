@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// parts/receive-files-over-ftp/do-work/set-up-this-computer.mjs
+// tools/receive-files-over-ftp/do-work/set-up-this-computer.mjs
 //
 // Purpose: make this computer a place a device can push its files to, and say exactly what to enter on the device.
 //

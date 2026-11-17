@@ -99,7 +99,7 @@ Reuses the same pattern as record-audio/record-video.
 3. UI reads live recordings from `useBitfieldData('recordings')` — never from component state
 4. All mutations go through workflow actions + publish feed
 
-**L065 Compliance:** Uses ONLY `@/packages/ui` components (Button, Container, Dropdown, etc.). No raw HTML divs or inline styles.
+**L065 Compliance:** Uses ONLY `tools/ui` components (Button, Container, Dropdown, etc.). No raw HTML divs or inline styles.
 
 ---
 
@@ -274,7 +274,7 @@ Both record-audio/record-video and screen-recording implement this pattern indep
 
 **L063 Structural Elimination:** Shared chunk storage is the category to eliminate (recorded-file-store duplication). Fix: extract to leaf, both import from it.
 
-**L065 UI Rule:** All styling via @/packages/ui, zero raw HTML. ✓ Compliant.
+**L065 UI Rule:** All styling via tools/ui, zero raw HTML. ✓ Compliant.
 
 **L100 Genericization:** Removing chunk-store duplication shrinks code without reducing capability.
 

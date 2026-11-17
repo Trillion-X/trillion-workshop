@@ -6,7 +6,7 @@
 //     a test: ONE reducer produces a colour legend AND a type census AND a tag census, zero per-facet code.
 
 import { describe, it, expect } from 'vitest';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
+import type { BoardItem } from '../../../read-data/group-board-model';
 import {
   facetCensus,
   topFacetValue,
@@ -16,8 +16,8 @@ import {
   boardHasFacet,
   facetCensusText,
 } from './board-facet-census';
-import { BOARD_ITEM_FACETS, colorFacetOf, kindFamilyOf } from '@/packages/group/show/board-item-facets';
-import { seededFillStack } from '@/packages/group/show/item-fill';
+import { BOARD_ITEM_FACETS, colorFacetOf, kindFamilyOf } from '../../../show/board-item-facets';
+import { seededFillStack } from '../../../show/item-fill';
 
 function card(memberId: string, extra: Record<string, unknown> = {}, kind = 'note'): BoardItem {
   return { memberId, kind, address: { boardId: 'b', memberId }, position: { x: 0, y: 0 }, extra } as unknown as BoardItem;

@@ -32,7 +32,7 @@
 // You are forbidden from simplifying or removing it.
 // =============================================================================
 
-import type { VisualDatabaseFieldDescriptor } from '@/packages/visual-database/read-data/visual-database';
+import type { VisualDatabaseFieldDescriptor } from '../../../../keep-lists-of-rows/read-data/visual-database';
 
 function rollup(
   id: string,

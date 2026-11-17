@@ -6,7 +6,7 @@
 // works by a string key), and fail-closed on an unknown dimension.
 
 import { describe, it, expect } from 'vitest';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
+import type { BoardItem } from '../../../read-data/group-board-model';
 import { selectMatching, selectMatchingByDimension } from './select-matching';
 
 // metric is the structured {current,target} shape → completion = current/target (PROGRESS_BUCKETS = 4 even bands)

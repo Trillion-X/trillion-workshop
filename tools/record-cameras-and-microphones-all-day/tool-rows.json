@@ -251,7 +251,7 @@
         },
         "result_selector": "$.result",
         "provenance": {
-          "source": "Trillion-X/trillion parts/record-audio/do-work/rolling-segments.mjs (the piece arithmetic always-recording.ts cuts by), moved in a9ee258 (#76); old capability row capabilities.json:54 at 4ffa1dc4a2^ (record every camera and microphone on a device without anyone pressing record)"
+          "source": "Trillion-X/trillion tools/record-audio/do-work/rolling-segments.mjs (the piece arithmetic always-recording.ts cuts by), moved in a9ee258 (#76); old capability row capabilities.json:54 at 4ffa1dc4a2^ (record every camera and microphone on a device without anyone pressing record)"
         },
         "verify": [
           {

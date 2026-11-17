@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import type { AddressRef, Group } from '@/packages/ui/show/group/group-graph';
-import { groupRecordAddress } from '@/packages/group/read-data/group-eeaf';
+import type { AddressRef, Group } from '../../../../ui/show/group/group-graph';
+import { groupRecordAddress } from '../../../read-data/group-eeaf';
 import { materializeGroupSelectionTarget } from './materialize-selection-target';
 import { makeFactAddressBytesFromLabel } from '@bitfield/slot-protocol';
 

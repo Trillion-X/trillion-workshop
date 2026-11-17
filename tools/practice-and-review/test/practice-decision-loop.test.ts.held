@@ -13,7 +13,7 @@ import {
   readPracticeDecisionState,
 } from '@/packages/practice-decision-loop/read-data/read-practice-decision-loop';
 import type { DecisionEvidence, DecisionPrompt } from '@/packages/practice-decision-loop/read-data/practice-decision-loop-types';
-import { PracticeDecisionLoopSurface } from '@/packages/practice-decision-loop/show/PracticeDecisionLoopSurface';
+import { PracticeDecisionLoopSurface } from '../packages/practice-decision-loop/show/PracticeDecisionLoopSurface';
 
 vi.mock('@bitfield/runtime-kit', () => ({
   sendRequestToBitfieldTarget: vi.fn(async () => ({ ok: true })),

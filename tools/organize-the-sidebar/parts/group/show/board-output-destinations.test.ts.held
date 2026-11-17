@@ -2,7 +2,7 @@
 // Unit tests for board export destinations.
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { OutputPayload } from '@/packages/ui/show/output-destination';
+import type { OutputPayload } from '../../../../ui/show/output-destination';
 import {
   clipboardDestination,
   downloadDestination,
@@ -13,21 +13,21 @@ import {
 } from './board-output-destinations';
 
 // Mock the dependencies
-vi.mock('@/packages/ui/show/clipboard/copy-text', () => ({
+vi.mock('tools/ui/show/clipboard/copy-text', () => ({
   copyTextToClipboard: vi.fn(),
 }));
 
-vi.mock('@/packages/group/do-work/download-text', () => ({
+vi.mock('tools/organize-the-sidebar/do-work/download-text.ts', () => ({
   downloadText: vi.fn(),
 }));
 
-vi.mock('@/packages/group/do-work/request-board-output', () => ({
+vi.mock('tools/organize-the-sidebar/do-work/request-board-output.ts', () => ({
   requestBoardOutputDelivery: vi.fn(),
 }));
 
-import { copyTextToClipboard } from '@/packages/ui/show/clipboard/copy-text';
-import { downloadText } from '@/packages/group/do-work/download-text';
-import { requestBoardOutputDelivery } from '@/packages/group/do-work/request-board-output';
+import { copyTextToClipboard } from '../../../../ui/show/clipboard/copy-text';
+import { downloadText } from '../../../do-work/download-text';
+import { requestBoardOutputDelivery } from '../../../do-work/request-board-output';
 
 describe('board-output-destinations', () => {
   beforeEach(() => {

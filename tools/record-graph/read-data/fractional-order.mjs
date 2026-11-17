@@ -1,7 +1,7 @@
 // tools/record-graph/read-data/fractional-order.mjs
 //
 // Lexicographic fractional order keys that never run out under repeated bisection, carried unchanged from Trillion's
-// parts/visual-database/do-work/fractional-order.ts (isOrderKey, keyBetween) so a relation's subject_order and
+// tools/keep-lists-of-rows/do-work/fractional-order.ts (isOrderKey, keyBetween) so a relation's subject_order and
 // object_order are the same keys the old relate wrote. Pure: no imports, no I/O.
 //
 //   1. Keys are non-empty strings over ORDER_ALPHABET; plain string `<` is the comparator.

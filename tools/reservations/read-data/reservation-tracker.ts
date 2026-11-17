@@ -1,5 +1,5 @@
 
-import type { OperationRecord } from '@/packages/operation-records/read-data/operation-records';
+import type { OperationRecord } from '../../operation-records/read-data/operation-records';
 
 export type ReservationStatus = string;
 export type ReservationKind = string;

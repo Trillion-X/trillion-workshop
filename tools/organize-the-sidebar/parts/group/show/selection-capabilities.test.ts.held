@@ -6,7 +6,7 @@
 // the anchor's subtree has visible / hidden descendants; tags from the anchor DATA.
 
 import { describe, expect, it } from 'vitest';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
+import type { BoardItem } from '../../../read-data/group-board-model';
 import { selectionCapabilityFlags } from './selection-capabilities';
 
 function base(memberId: string, extra: Record<string, unknown>): BoardItem {

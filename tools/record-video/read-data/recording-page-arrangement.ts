@@ -1,4 +1,3 @@
-// parts/record-video/read-data/recording-page-arrangement.ts
 //
 // =============================================================================
 // PURPOSE

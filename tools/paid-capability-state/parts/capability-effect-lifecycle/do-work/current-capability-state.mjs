@@ -1,4 +1,3 @@
-// parts/capability-effect-lifecycle/do-work/current-capability-state.mjs
 //
 // Track an effect from start to finish: fold a person's admitted effects (from signed-event-effects) into the
 // episodes they belong to and each episode's current state, then into the capabilities the person holds now.

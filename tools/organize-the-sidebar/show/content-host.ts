@@ -1,4 +1,4 @@
-// parts/sidebar/show/content-host.ts
+// tools/sidebar/show/content-host.ts
 //
 // PURPOSE
 //   A sidebar list can host a shared panel instead of rows (DATA: the app's content_host_by_section_id names the

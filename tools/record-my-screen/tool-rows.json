@@ -225,7 +225,7 @@
         },
         "result_selector": "$.result",
         "provenance": {
-          "source": "Trillion-X/trillion parts/screen-recording/do-work/recorded-file-store.ts, moved in a9ee258 (#76); old capability row capabilities.json:97 at 4ffa1dc4a2^ (record my screen from the browser, keep chunks safely while recording and publish the finished recording)"
+          "source": "Trillion-X/trillion tools/record-my-screen/do-work/recorded-file-store.ts, moved in a9ee258 (#76); old capability row capabilities.json:97 at 4ffa1dc4a2^ (record my screen from the browser, keep chunks safely while recording and publish the finished recording)"
         },
         "verify": [
           {

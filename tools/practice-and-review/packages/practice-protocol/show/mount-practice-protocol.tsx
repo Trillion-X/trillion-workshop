@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { mountReactMaterial, type ReactMaterialMountArgs } from '@/packages/ui/show/react-surface-mount';
-import { PracticeProtocolSurface } from '@/packages/practice-protocol/show/PracticeProtocolSurface';
+import { mountReactMaterial, type ReactMaterialMountArgs } from '../../../../ui/show/react-surface-mount';
+import { PracticeProtocolSurface } from './PracticeProtocolSurface';
 
 type MountProps = {
   learner_id?: string;

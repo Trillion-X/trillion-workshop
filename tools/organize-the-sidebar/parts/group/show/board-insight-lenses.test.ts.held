@@ -7,9 +7,9 @@
 // board surfaces nothing, and a board of plain notes surfaces only the "has any card" lenses (not the
 // data-dependent ones — due/metric/connectivity/etc.), which is what keeps the InsightsMenu honest (L118).
 import { describe, it, expect } from 'vitest';
-import type { AddressRef, GroupGraph } from '@/packages/ui/show/group/group-graph';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
-import { boardInsightLenses, type BoardInsightLensCtx } from '@/packages/group/show/board-insight-lenses';
+import type { AddressRef, GroupGraph } from '../../../../ui/show/group/group-graph';
+import type { BoardItem } from '../../../read-data/group-board-model';
+import { boardInsightLenses, type BoardInsightLensCtx } from '../../../show/board-insight-lenses';
 
 const NOW = 1_800_000_000_000;
 

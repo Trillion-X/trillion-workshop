@@ -1,4 +1,3 @@
-// parts/record-audio/do-work/recorded-file-store.ts
 //
 // PURPOSE
 //   A recording kept on this device (IndexedDB, database `record-audio`) while it is made: each piece the recorder

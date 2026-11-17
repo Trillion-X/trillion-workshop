@@ -2,35 +2,35 @@ import React from 'react';
 import { BookOpen, Download, Map as MapIcon, PlayCircle } from 'lucide-react';
 import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { Button } from '@/packages/ui/show/button';
-import { cardVariants } from '@/packages/ui/show/card';
-import { cn } from '@/packages/ui/show/cn';
-import { Container } from '@/packages/ui/show/container';
-import { PlaceableSurfaceHost } from '@/packages/ui/show/placeable-surface-host';
-import { Text } from '@/packages/ui/show/text';
-import { NestedNavigationPicker } from '@/packages/ui/show/nested-navigation/NestedNavigationPicker';
-import { AppSidebar } from '@/packages/sidebar/show/AppSidebar';
-import type { AppSidebarProps } from '@/packages/sidebar/show/AppSidebar';
+import { Button } from '../../../../ui/show/button';
+import { cardVariants } from '../../../../ui/show/card';
+import { cn } from '../../../../ui/show/cn';
+import { Container } from '../../../../ui/show/container';
+import { PlaceableSurfaceHost } from '../../../../ui/show/placeable-surface-host';
+import { Text } from '../../../../ui/show/text';
+import { NestedNavigationPicker } from '../../../../ui/show/nested-navigation/NestedNavigationPicker';
+import { AppSidebar } from '../../../../sidebar/show/AppSidebar';
+import type { AppSidebarProps } from '../../../../sidebar/show/AppSidebar';
 import defaultSidebarCapabilities from '../../../../edit-a-document-together/data/sidebar-config.json';
 import {
   buildProjectedCollectionsNav,
   projectedCollectionsToCatalogItems,
-} from '@/packages/sidebar/show/ProjectedCollectionNav';
+} from '../../../../organize-the-sidebar/show/ProjectedCollectionNav';
 import {
   accessDecisionIsCurrent,
   readAccessScopedContentProjection,
   renderSurfaceIsValid,
   type AccessScopedContentProjection,
-} from '@/packages/access-scoped-content/read-data/read-access-scoped-items';
+} from '../read-data/read-access-scoped-items';
 import {
   decodeTargetValue,
   itemAvailableForViewer,
   type ViewerAccessState,
-} from '@/packages/access-scoped-content/read-data/resolve-viewer-access';
+} from '../read-data/resolve-viewer-access';
 import {
   currentBrowserSessionAccessKey,
   currentPresenterBrowserSessionId,
-} from '@/packages/account-session/do-work/browser-session-access-key';
+} from '../../../../shared-code/packages/account-session/do-work/browser-session-access-key';
 
 const DEFAULT_PROJECTION_ADDRESS = 'package-set-records::access-scoped-content-projection';
 const SESSION_ACCESS_TARGET = 'product-access.read-session-access';

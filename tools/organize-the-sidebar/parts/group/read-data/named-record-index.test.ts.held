@@ -5,7 +5,7 @@
 // fail-closed skip of a malformed payload, id/name fallbacks, and index isolation.
 
 import { describe, it, expect } from 'vitest';
-import { emptyGraph, addMember, ensureGroup, type GroupGraph, type AddressRef } from '@/packages/ui/show/group/group-graph';
+import { emptyGraph, addMember, ensureGroup, type GroupGraph, type AddressRef } from '../../../../ui/show/group/group-graph';
 import {
   recordIndexRef, readRecords, readRejectedRecords, readActiveRecords, readArchivedRecords, getRecord, saveRecord,
   renameRecord, archiveRecord, restoreRecord, type RecordStoreSpec,

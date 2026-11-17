@@ -1,4 +1,3 @@
-// parts/receive-files-over-ftp/do-work/tell-the-account.mjs
 //
 // Purpose: what the receiver tells the person's account, through the account's own tools (its /mcp door, with the
 // account key): the receiver's password kept in their Saved logins, and one row on their Waiting on you list per device

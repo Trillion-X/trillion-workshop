@@ -7,7 +7,7 @@
 import { describe, expect, it } from 'vitest';
 import { applyTemplate, type BoardTemplate } from './board-template-apply';
 import { boardIndexRef, boardRootRef, readBoards, readItems } from './group-board-model';
-import { emptyGraph, getGroup, membersOf } from '@/packages/ui/show/group/group-graph';
+import { emptyGraph, getGroup, membersOf } from '../../../../ui/show/group/group-graph';
 
 function mintSeq() {
   let n = 0;
@@ -130,7 +130,7 @@ describe('applyTemplate', () => {
 
 describe('BOARD_TEMPLATES catalog', () => {
   it('every template applies cleanly (no throw) and yields the expected top-level member count', async () => {
-    const { BOARD_TEMPLATES } = await import('@/packages/group/show/board-templates');
+    const { BOARD_TEMPLATES } = await import('../../../show/board-templates');
     const indexRef = boardIndexRef('idx');
     for (const t of BOARD_TEMPLATES) {
       const g = applyTemplate(emptyGraph(), indexRef, { template: t, newBoardId: `b-${t.id}`, newMemberId: `mem-${t.id}`, mint: mintSeq() });

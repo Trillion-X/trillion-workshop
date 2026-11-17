@@ -1,6 +1,6 @@
 // packages/group/read-data/board-health.test.ts
 import { describe, it, expect } from 'vitest';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
+import type { BoardItem } from '../../../read-data/group-board-model';
 import {
   boardHealth,
   boardHealthText,
@@ -9,7 +9,7 @@ import {
   healthGrade,
   healthSignalDetails,
   type HealthSignal,
-} from '@/packages/group/read-data/board-health';
+} from '../../../read-data/board-health';
 
 const card = (memberId: string, text = memberId, tags?: string[]): BoardItem =>
   ({ kind: 'note', memberId, x: 0, y: 0, w: 100, h: 40, text, extra: tags ? { tags } : {} } as unknown as BoardItem);

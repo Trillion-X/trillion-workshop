@@ -10,8 +10,8 @@
 import React from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
-import { decodeVisualDatabaseModel } from '@/packages/visual-database/read-data/visual-database';
-import { VisualDatabaseSurface } from '@/packages/visual-database/show/VisualDatabaseSurface';
+import { decodeVisualDatabaseModel } from '../../../../keep-lists-of-rows/read-data/visual-database';
+import { VisualDatabaseSurface } from '../../../../keep-lists-of-rows/show/VisualDatabaseSurface';
 import { AddChannelPanel } from './AddChannelPanel';
 
 afterEach(cleanup);

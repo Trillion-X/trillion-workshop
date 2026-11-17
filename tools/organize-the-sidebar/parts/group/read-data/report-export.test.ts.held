@@ -4,8 +4,8 @@
 // RFC-4180 quoted when they contain commas, and a null value serialises to a blank cell.
 
 import { describe, it, expect } from 'vitest';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
-import { buildReportDescriptor } from '@/packages/group/show/report-controls';
+import type { BoardItem } from '../../../read-data/group-board-model';
+import { buildReportDescriptor } from '../../../show/report-controls';
 import { reportToCsv } from './report-export';
 
 const note = (memberId: string, tags: string[]): BoardItem =>

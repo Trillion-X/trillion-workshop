@@ -6,16 +6,16 @@
 
 import React from 'react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
-import { Container, StatementHeader, Text } from '@/packages/ui';
+import { Container, StatementHeader, Text } from '../../../../ui';
 import {
   findDestinationDescriptor,
   finishedCelebratingRefs,
   type DestinationDescriptor,
-} from '@/packages/destination-surface/read-data/read-destination';
+} from '../read-data/read-destination';
 import {
   createDestinationSectionRegistry,
   type DestinationSectionRegistry,
-} from '@/packages/destination-surface/show/destination-section-registry';
+} from './destination-section-registry';
 
 export interface DestinationViewProps {
   destinationRef?: string | null;

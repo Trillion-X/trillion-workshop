@@ -5,7 +5,7 @@
 // re-projects facetCensus onto band order with zero-fill, showing empty bands the raw census omits.
 
 import { describe, it, expect } from 'vitest';
-import type { BoardItem } from '@/packages/group/read-data/group-board-model';
+import type { BoardItem } from '../../../read-data/group-board-model';
 import { facetCensus } from './board-facet-census';
 import { bucketFacet, evenBuckets, bucketDistribution, bucketDistributionText, type BucketSpec } from './board-measure-bucket';
 import type { BoardMeasure } from './board-facet-pivot';

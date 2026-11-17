@@ -1,5 +1,5 @@
 {
-  "what_this_is": "What a person can change on a thing on the board, drawn by the shared inspector (parts/ui TuningPanel) from its Edit details menu and an Alt-click. Each row is one setting: where its value is read (path, on the record boardItemRecordProjection serves), how it is kept (write_op, the board's write-op registry, with write_config), and how it is drawn (setting: a TuningPanel setting without its key and label; its default_value is what an item that never set it shows). Published inspection-field-descriptor-set records for the same family replace these rows; adding a setting is one row here.",
+  "what_this_is": "What a person can change on a thing on the board, drawn by the shared inspector (tools/ui TuningPanel) from its Edit details menu and an Alt-click. Each row is one setting: where its value is read (path, on the record boardItemRecordProjection serves), how it is kept (write_op, the board's write-op registry, with write_config), and how it is drawn (setting: a TuningPanel setting without its key and label; its default_value is what an item that never set it shows). Published inspection-field-descriptor-set records for the same family replace these rows; adding a setting is one row here.",
   "kind": "inspection-field-descriptor-set",
   "family": "group.board-item",
   "fields": [

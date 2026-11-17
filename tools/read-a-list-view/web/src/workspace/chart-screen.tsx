@@ -7,7 +7,7 @@
 //   chart (`chart`: the id of one of the answer's own `view.charts`; `placement`: a whole chart placement row). With
 //   neither, the answer's first chart is drawn, or a starting chart made from its fields.
 //   What the person changes there (which chart, the bucket, how far it drilled) is kept in the placement itself
-//   (parts/ui/show/placement-kept, input `kept`), so each placed chart reopens where it was left and an AI can place one
+//   (tools/ui/show/placement-kept, input `kept`), so each placed chart reopens where it was left and an AI can place one
 //   already drilled with save_layout.
 //
 // NON-NEGOTIABLE INVARIANTS
@@ -19,15 +19,15 @@
 //   5. In a pane that fits its content the chart is drawn at its own height; in a pane given a length it fills it.
 
 import * as React from 'react';
-import { ChartPlacements, type ChartKept } from '../../parts/ui/show/chart/ChartPlacement';
-import type { ChartPlacement as Placement } from '../../parts/ui/show/chart/chart-types';
-import { startingPlacement } from '../../parts/ui/show/chart/chart-from-records';
-import { Container } from '../../parts/ui/show/container';
-import { Dropdown } from '../../parts/ui/show/dropdown';
-import { fieldsFromRows, type RecordSetAnswer } from '../../parts/ui/show/record-views/record-set';
-import { ScreenState, mountScreenState, useScreenLoad } from '../../parts/ui/show/screen-state';
-import { mountReactSurface } from '../../parts/ui/show/react-surface-mount';
-import { keepInPlacement, keptIn } from '../../parts/ui/show/placement-kept/placement-kept';
+import { ChartPlacements, type ChartKept } from '../../../../ui/show/chart/ChartPlacement';
+import type { ChartPlacement as Placement } from '../../../../ui/show/chart/chart-types';
+import { startingPlacement } from '../../../../ui/show/chart/chart-from-records';
+import { Container } from '../../../../ui/show/container';
+import { Dropdown } from '../../../../ui/show/dropdown';
+import { fieldsFromRows, type RecordSetAnswer } from '../../../../ui/show/record-views/record-set';
+import { ScreenState, mountScreenState, useScreenLoad } from '../../../../ui/show/screen-state';
+import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
+import { keepInPlacement, keptIn } from '../../../../ui/show/placement-kept/placement-kept';
 import { readJson } from './api';
 import { refusal } from './failure';
 import { goTo } from './open-screen';

@@ -1,6 +1,6 @@
 import { describe, expect, it } from '../../../../../test-helpers/vitest-shim.mjs';
 import { itemFillColor, setStackFill, emptyStack, BOARD_FILL_SWATCHES, seededFillStack, BOARD_ITEM_LAYER_REGISTRY, inheritedBranchStyle, parseRgb, hueOf } from '../../../show/item-fill.ts';
-import type { VisualLayerStackRecord } from '@/packages/ui';
+import type { VisualLayerStackRecord } from '../../../../ui';
 
 const REG = { family: 'group.board-item-layers', parts: {} };
 const region = { family: 'group.board', parts: { board: 'b' } };

@@ -1,5 +1,5 @@
 {
-  "_what": "The screens a record's page opens on, by the kind of record it is: a starter arrangement (parts/screen-arrangement starter-layouts.ts) whose entries open a Trillion screen on one thing, with inputs read from the record ({ \"from\": \"record\", \"key\" }). An entry whose value the record lacks is left out, so a page opens on the screens the record has things for, and never on an empty picker. A new kind of record, or a new screen for one, is a row here. A Write entry with one_page opens that document on its one page (made the first time) with no pages list.",
+  "_what": "The screens a record's page opens on, by the kind of record it is: a starter arrangement (tools/screen-arrangement starter-layouts.ts) whose entries open a Trillion screen on one thing, with inputs read from the record ({ \"from\": \"record\", \"key\" }). An entry whose value the record lacks is left out, so a page opens on the screens the record has things for, and never on an empty picker. A new kind of record, or a new screen for one, is a row here. A Write entry with one_page opens that document on its one page (made the first time) with no pages list.",
   "recording": {
     "id": "recording-page",
     "name": "Recording",

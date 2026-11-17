@@ -1,6 +1,5 @@
-// parts/record-audio/do-work/recording-on-device.ts
 //
-// PORTED FROM: parts/record-audio/show/RecordAudioPanel.tsx (its per-piece storeRecordingChunkWithRetry, capture
+// PORTED FROM: tools/record-audio/show/RecordAudioPanel.tsx (its per-piece storeRecordingChunkWithRetry, capture
 // journal with an owner lease, and recovery of journals whose lease ran out), lifted out of that panel into one module
 // any recorder screen calls, over the same store (recorded-file-store.ts).
 //

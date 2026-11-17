@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Badge, Button, Card, Container, Text } from '../../parts/ui';
-import { MediaFrame } from '../../parts/ui/show/media-frame/MediaFrame';
+import { Badge, Button, Card, Container, Text } from '../../../../ui';
+import { MediaFrame } from '../../../../ui/show/media-frame/MediaFrame';
 import { files, readJson, readListing } from './api';
 
 type NetworkSource = { id: string; kind: 'hls'; label: string; playback_url: string; clips_folder: string; connection?: string; ingest_url?: string };

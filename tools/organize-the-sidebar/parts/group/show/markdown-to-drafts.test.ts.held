@@ -3,11 +3,11 @@
 // markdown -> stays one-note-per-line), and the whole thing ROUND-TRIPS with the b67 export: import a
 // card+checklist doc, place it, re-export with boardToMarkdown, and get the same document back.
 import { describe, expect, it } from 'vitest';
-import { emptyGraph } from '@/packages/ui/show/group/group-graph';
-import type { AddressRef } from '@/packages/ui/show/group/group-graph';
-import { placeItem, readItems, boardRootRef } from '@/packages/group/read-data/group-board-model';
-import { materializeItems } from '@/packages/group/read-data/board-template-apply';
-import { boardToMarkdown, boardTreeToMarkdown } from '@/packages/group/do-work/board-markdown';
+import { emptyGraph } from '../../../../ui/show/group/group-graph';
+import type { AddressRef } from '../../../../ui/show/group/group-graph';
+import { placeItem, readItems, boardRootRef } from '../../../read-data/group-board-model';
+import { materializeItems } from '../../../read-data/board-template-apply';
+import { boardToMarkdown, boardTreeToMarkdown } from '../../../do-work/board-markdown';
 import { markdownToDrafts, markdownToBoardTree, markdownTreeToTemplateItems, looksLikeMarkdown, MAX_MARKDOWN_CARDS } from './markdown-to-drafts';
 
 const PARENT: AddressRef = { family: 'test.board', parts: { board: 'b1' } };

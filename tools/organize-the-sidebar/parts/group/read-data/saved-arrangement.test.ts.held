@@ -1,12 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { emptyGraph } from '@/packages/ui/show/group/group-graph';
-import { BOARD_TEMPLATES } from '@/packages/group/show/board-templates';
-import { collectionIndexRef, saveCollection, archiveCollection, getCollection } from '@/packages/group/read-data/collection-store';
-import { applyTemplate } from '@/packages/group/read-data/board-template-apply';
-import { addBoard, boardIndexRef, boardRootRef, itemRef, placeItem, readBoards, readItems, boardToTemplate } from '@/packages/group/read-data/group-board-model';
+import { emptyGraph } from '../../../../ui/show/group/group-graph';
+import { BOARD_TEMPLATES } from '../../../show/board-templates';
+import { collectionIndexRef, saveCollection, archiveCollection, getCollection } from '../../../read-data/collection-store';
+import { applyTemplate } from '../../../read-data/board-template-apply';
+import { addBoard, boardIndexRef, boardRootRef, itemRef, placeItem, readBoards, readItems, boardToTemplate } from '../../../read-data/group-board-model';
 import { readSavedArrangementLibrary, duplicateSavedArrangement, saveBoardAsArrangement, resolveArrangementTemplate, readArrangementLensCatalog, searchArrangements, arrangementCategories, arrangementFacetValues, axisLensRow, timelineLensRow, lensRowFromSpec, BOARD_NUMERIC_FIELDS } from './saved-arrangement';
 import type { SavedArrangement } from './saved-arrangement';
-import type { TemplateItem, BoardTemplate } from '@/packages/group/read-data/board-template-apply';
+import type { TemplateItem, BoardTemplate } from '../../../read-data/board-template-apply';
 
 function mintSeq() {
   let n = 0;

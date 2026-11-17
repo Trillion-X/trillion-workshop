@@ -34,7 +34,7 @@ Portal surface for creating a referral code and recording codes received from ot
 
 ## Dependencies
 
-**Depends on:** `@bitfield/runtime-kit` (`sendRequestToBitfieldTarget`), `@/packages/ui` (Button, Card, Container, Icon, Input, Text, ErrorBoundary, react-surface-mount), the live targets `signed-event-author.sign-event`, `signed-event-authority.sign in/list-effects/admit-event`.
+**Depends on:** `@bitfield/runtime-kit` (`sendRequestToBitfieldTarget`), `tools/ui` (Button, Card, Container, Icon, Input, Text, ErrorBoundary, react-surface-mount), the live targets `signed-event-author.sign-event`, `signed-event-authority.sign in/list-effects/admit-event`.
 
 **Depended on by:** the account portal shell (`account-shell`) via the `placeable-surface-list::main-workspace` catalog row `referrals` → package entry `referrals-portal`. No compile-time dependents.
 

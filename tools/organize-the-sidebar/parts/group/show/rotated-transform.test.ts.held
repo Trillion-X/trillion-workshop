@@ -6,7 +6,7 @@
 // Pure math — no DOM, no engine.
 
 import { describe, it, expect } from 'vitest';
-import { applyResizeGeom, type ResizeEdge } from '@/packages/ui';
+import { applyResizeGeom, type ResizeEdge } from '../../../../ui';
 import { rotateVec, resizeRotated, handleWorldPos, oppositeEdge, constrainAspectDelta, orbitPoint, type Rect, type Vec } from './rotated-transform';
 
 const R: Rect = { x: 100, y: 100, w: 200, h: 120 };

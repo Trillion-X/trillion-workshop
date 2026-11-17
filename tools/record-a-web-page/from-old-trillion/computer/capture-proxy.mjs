@@ -23,7 +23,7 @@ import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomBytes } from 'node:crypto';
-import { hostWithin } from '../parts/http-client/do-work/same-origin.mjs';
+import { hostWithin } from '../../../http-client/do-work/same-origin.mjs';
 import { makeCaptureCa } from './capture-ca.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));

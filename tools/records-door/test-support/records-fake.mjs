@@ -8,7 +8,7 @@
 // over the answers the door gives (paging, interval probes, counts), never the store's durability, history or erasure.
 //
 // The read shapes follow the door's record answers that old trillion's record engine gave tools (tag
-// old-trillion-before-worker-retire, parts/record-log/do-work/record-log-store.mjs `ids`, `scan` :2733, `readMany`):
+// old-trillion-before-worker-retire, tools/record-log/do-work/record-log-store.mjs `ids`, `scan` :2733, `readMany`):
 // - `ids(type, { prefix, before, limit })`: ids of one type, newest id first (descending), those below `before`.
 // - `scan(type, name, { equal, from, after, after_id, idFrom, limit })`: entries `{ id, values }` of a declared index in
 //   (values, id) order; `equal` fixes the leading fields, `from` starts the next field at a value, `after` (with

@@ -6,8 +6,8 @@
 // literal); a forest restarts the palette per tree.
 
 import { describe, expect, it } from 'vitest';
-import { emptyGraph } from '@/packages/ui/show/group/group-graph';
-import { boardRootRef, itemRef, placeItem, readItems } from '@/packages/group/read-data/group-board-model';
+import { emptyGraph } from '../../../../ui/show/group/group-graph';
+import { boardRootRef, itemRef, placeItem, readItems } from '../../../read-data/group-board-model';
 import { branchColorAssignments } from './batch-actions';
 
 const B = boardRootRef('mm');

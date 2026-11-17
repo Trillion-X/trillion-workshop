@@ -1,4 +1,4 @@
-// parts/sidebar/show/place-drag.tsx
+// tools/sidebar/show/place-drag.tsx
 //
 // =============================================================================
 // PURPOSE
