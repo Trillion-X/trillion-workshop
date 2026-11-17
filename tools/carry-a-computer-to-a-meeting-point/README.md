@@ -23,7 +23,7 @@ The program is kept running by the init row for the computer's kind (`tools/star
 
 ## Running it
 
-On the carried computer: `node do-work/carry-a-computer.mjs install CONFIG_FILE STATE_FOLDER`, with a configuration `{ label, way, relay_host, computer_id, local_port, credential_command, init_values? }`. `credential_command` is the vault command, by the held value's name, that writes the value only on its descriptor 3; it is never in an argument or a file the configuration names. `remove` undoes it. On the host, `tool:carry-a-computer-to-a-meeting-point` says what to run, and `tools/start-a-computer` renders it on a public computer.
+On the carried computer: `node do-work/carry-a-computer.mjs install CONFIG_FILE STATE_FOLDER`, with a configuration `{ label, way, relay_host, computer_id, local_port, credential_command, init_values?, announce? }`. `announce` `{ argv, every_seconds }` is the command that tells the meeting point whose computer is at this port (with `{remote_port}` filled): run at once and every `every_seconds` while the carrier runs, and never after it ends, so the meeting point's announcement lasts only while the computer is carried (trillion-rust src/native_entry/meeting.rs). `credential_command` is the vault command, by the held value's name, that writes the value only on its descriptor 3; it is never in an argument or a file the configuration names. `remove` undoes it. On the host, `tool:carry-a-computer-to-a-meeting-point` says what to run, and `tools/start-a-computer` renders it on a public computer.
 
 ## Dependencies
 

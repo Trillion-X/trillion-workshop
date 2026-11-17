@@ -96,6 +96,12 @@ export async function serveCarrier(config, { credential, state, have = here(), s
       const { files, argv } = renderClient(way, values, { secret, dir });
       for (const file of files) writeFileSync(join(dir, file.name), file.text, { mode: file.mode });
       const child = spawnImpl(exe, argv, { stdio: ['ignore', 'ignore', 'pipe'] });
+      // While the carrier runs, the meeting point is told whose computer is at this port (`announce`: a command the person's own
+      // sign-in runs, with {remote_port} filled), at once and every `every_seconds`, so the announcement lasts only while carried.
+      const announce = () => { if (config.announce) spawnImpl(config.announce.argv[0], config.announce.argv.slice(1).map(part => fill(part, values, 'announce')), { stdio: 'ignore' }).on?.('error', () => {}); };
+      const announcing = config.announce ? setInterval(announce, config.announce.every_seconds * 1000) : null;
+      announce();
+      child.once('exit', () => clearInterval(announcing));
       const abort = () => child.kill('SIGTERM');
       signal?.addEventListener('abort', abort, { once: true });
       let said = '';

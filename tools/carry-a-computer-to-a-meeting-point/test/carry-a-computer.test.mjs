@@ -95,6 +95,26 @@ test('a synthetic way row runs with no code change', async t => {
   assert.equal(reports[0].said, 'connection refused');
 });
 
+test('while it carries, the computer is announced to the meeting point with its port, by the command the config names', async t => {
+  const state = folder(t);
+  const synthetic = { id: 'synthetic-way', transport_kind: 'reverse_tunnel', relay_host_ref: 'relay-example', order: 1, requires_awake: true, install: { scope: 'user' }, params: {}, client: { program: { artifacts: [{ where: {}, command: '/bin/any' }] }, files: [], argv: ['--go'] } };
+  const config = { way: synthetic, relay_host: relayHost, computer_id: 'c-1', local_port: 9000, announce: { argv: ['/bin/announce', 'op', '@meeting', 'computers:announce', '{"port": {remote_port}}'], every_seconds: 0.05 } };
+  const announced = [];
+  const controller = new AbortController();
+  const spawnImpl = (exe, argv) => {
+    const child = new EventEmitter(); child.stderr = new PassThrough(); child.kill = () => {};
+    if (exe === '/bin/announce') { announced.push(argv); return child; }
+    setTimeout(() => child.emit('exit', 0), 180);
+    return child;
+  };
+  await serveCarrier(config, { credential: async () => 'S', state, spawnImpl, wait: async () => controller.abort(), signal: controller.signal });
+  assert.ok(announced.length >= 3, `announced at once and again while carried (${announced.length})`);
+  assert.deepEqual(announced[0], ['op', '@meeting', 'computers:announce', `{"port": ${portFor('c-1')}}`]);
+  const after = announced.length;
+  await new Promise(resolve => setTimeout(resolve, 150));
+  assert.equal(announced.length, after, 'no announcement once the carrier has ended');
+});
+
 test('a download is used only when it is the pinned bytes, and is kept by its BLAKE3', async t => {
   const state = folder(t);
   const bytes = new TextEncoder().encode('pretend archive');
