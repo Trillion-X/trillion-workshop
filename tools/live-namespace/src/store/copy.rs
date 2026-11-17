@@ -98,6 +98,8 @@ impl SqlStore {
             }
             counts.push((step.table, total));
         }
+        // The copied rows take their place in the store's change order, and their minted ids (`settle`).
+        SqlStore::settle(&mut *self.link.lock().map_err(|_| crate::cause!(Error::Unavailable))?)?;
         Ok(counts)
     }
 }

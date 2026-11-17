@@ -18,6 +18,9 @@
 // - A destination name that already names another file stops the carry before anything of that name changes; one
 //   that names the same file is already carried.
 // - A folder is never carried into itself, and the root folder is never carried.
+// - A move, a set-aside and a put-back keep each name's and folder's item (src/store tables.json `minted`): the value carried holds
+//   it, and a folder made at the destination for a carried folder takes the source folder's item. A copy takes none, so the store
+//   gives each copied name and folder its own.
 //
 // Key Concepts:
 // - Walk order: in each folder, its names (in name order), then each child folder's walk (in folder order), then the
@@ -34,7 +37,9 @@ use crate::{
 use serde_json::{json, Value};
 use std::time::Instant;
 
-/// One carry: from the name or folder `from` in `source` to `to` in `target`; `kept` leaves the source where it is.
+/// One carry: from the name or folder `from` in `source` to `to` in `target`; `kept` leaves the source where it is (a copy).
+/// `expected` is the version of `from`'s name or folder record the caller read: the carry is refused with a conflict when it is
+/// another, and the source's removal is made at that version.
 #[derive(Clone, Copy)]
 pub struct Carry<'a> {
     pub source: &'a Tree,
@@ -42,6 +47,7 @@ pub struct Carry<'a> {
     pub target: &'a Tree,
     pub to: &'a str,
     pub kept: bool,
+    pub expected: Option<i64>,
 }
 
 /// One step of a walk.
@@ -129,7 +135,7 @@ impl AccountFiles {
 
     /// Carry a name or a whole folder (`Carry`), at most `limit` steps after `after`.
     pub fn carry_names(&mut self, carry: Carry<'_>, after: Option<&str>, limit: Option<usize>) -> Answer<Value> {
-        let Carry { source, from, target, to, kept } = carry;
+        let Carry { source, from, target, to, kept, expected } = carry;
         if !carriable(from) || !carriable(to) {
             return Err(AccountFilesError::Invalid("from and to must be absolute names, not the root folder", crate::cause!()));
         }
@@ -140,12 +146,17 @@ impl AccountFiles {
         let mut steps = Vec::new();
         let complete = match self.get(&source.names(parent(from)), from)? {
             Some(record) => {
+                if expected.is_some_and(|expected| expected != record.version) {
+                    return Err(AccountFilesError::Records(crate::cause!(crate::store::Error::Conflict), crate::cause!()));
+                }
                 steps.push(Step::Name(record));
                 true
             }
             None => {
-                if self.get(&source.folders(parent(from)), from)?.is_none() {
-                    return Err(crate::cause!(AccountFilesError::NotFound));
+                let held = self.get(&source.folders(parent(from)), from)?.ok_or(crate::cause!(AccountFilesError::NotFound))?;
+                // A resumed carry has already changed what it carried; the version is the caller's on the first call only.
+                if after.is_none() && expected.is_some_and(|expected| expected != held.version) {
+                    return Err(AccountFilesError::Records(crate::cause!(crate::store::Error::Conflict), crate::cause!()));
                 }
                 let mut room = limit;
                 self.walk(source, from, after.filter(|after| after.starts_with(from)), &mut room, &mut steps)?
@@ -171,7 +182,7 @@ impl AccountFiles {
                 }
                 Step::Folder(folder) => {
                     let placed = format!("{to}{}", &folder[from.len()..]);
-                    self.ensure_folders(target, &placed, &request("folder"))?;
+                    self.ensure_folders(target, &placed, &request("folder"), Some(carry))?;
                     if !kept {
                         let scope = source.folders(parent(folder));
                         if let Some(held) = self.get(&scope, folder)? {
@@ -312,7 +323,7 @@ impl AccountFiles {
         let (mut retired, mut repeated) = (Vec::new(), Vec::new());
         for (name, expected, live) in current {
             if live {
-                let carry = Carry { source: &super::LIVE, from: name, target: &super::SET_ASIDE, to: name, kept: false };
+                let carry = Carry { source: &super::LIVE, from: name, target: &super::SET_ASIDE, to: name, kept: false, expected: None };
                 self.carry_names(carry, None, Some(1))
                     .map_err(|_| AccountFilesError::Invalid(super::settings::word("retire_changed"), crate::cause!()))?;
             }
@@ -398,9 +409,13 @@ impl AccountFiles {
                 value["kind"] = json!(target.name_kind);
                 value["name"] = json!(name);
                 value["named_at"] = json!(now);
+                // A copy is a new name: the store gives it its own item.
+                if let (true, Some(field), Some(fields)) = (kept, crate::store::minted_field(&scope), value.as_object_mut()) {
+                    fields.remove(field);
+                }
                 let placed = Mutation { id: name.to_owned(), expected_version, request_key: format!("{request}:placed"), deleted: false, value };
                 self.mutate(&scope, placed)?;
-                self.ensure_folders(target, parent(name), request)?;
+                self.ensure_folders(target, parent(name), request, Some(carry))?;
             }
         }
         let gone = (!kept).then_some((source.listed_in, record.id.as_str()));

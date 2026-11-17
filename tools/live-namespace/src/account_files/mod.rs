@@ -56,6 +56,7 @@ pub mod bind;
 pub mod counters;
 pub mod dav;
 pub mod dav_write;
+pub mod folder;
 pub mod moves;
 pub(crate) mod names;
 pub mod objects;
@@ -274,6 +275,16 @@ pub const WRITE_MAX_BYTES: usize = 16 * 1024 * 1024;
 /// (the empty file, a licence copied into every codebase) would rewrite an ever larger record for each new name. The
 /// largest list the hosted Worker kept was 145 names.
 pub const NAMES_LISTED: usize = 256;
+
+/// Refuse with a conflict unless the name is the version the caller read: `expected` 0 is "not there" (a removed name's own
+/// version is then the one written at), any other number is that version of a name that is there. No expectation, no check.
+fn expect_name_version(expected: Option<i64>, version: i64, there: bool) -> Answer<()> {
+    match expected {
+        Some(0) if there => Err(AccountFilesError::Records(crate::cause!(Error::Conflict), crate::cause!())),
+        Some(asked) if asked != 0 && (!there || asked != version) => Err(AccountFilesError::Records(crate::cause!(Error::Conflict), crate::cause!())),
+        _ => Ok(()),
+    }
+}
 
 /// The names scope of a folder.
 pub fn names_scope(folder: &str) -> String {
@@ -554,14 +565,20 @@ impl AccountFiles {
         Ok(Found { name, file })
     }
 
-    /// `list_files`: one page of a folder's names, and on the first page its child folders.
+    /// `list_files`: one page of a folder's names, and on the first page its child folders. With `device`, each name says
+    /// whether that device keeps it (`kept`, by its pin rules).
     pub fn list_files(
         &self,
         folder: Option<&str>,
         after: Option<&str>,
         limit: Option<usize>,
+        device: Option<&str>,
     ) -> Answer<Value> {
-        self.list_tree(&LIVE, folder, after, limit)
+        let mut listed = self.list_tree(&LIVE, folder, after, limit)?;
+        if let Some(names) = listed.get_mut("names").and_then(Value::as_array_mut) {
+            self.mark_kept(device, names)?;
+        }
+        Ok(listed)
     }
 
     /// One page of a folder's names in `tree`, and on the first page its child folders.
@@ -584,12 +601,14 @@ impl AccountFiles {
         } else {
             (Vec::new(), Map::new())
         };
+        let folder_items = self.folder_items(&tree.folders(&folder), &folders)?;
         Ok(json!({
             "collection": folder,
             "names": names,
             "next_after": page.next,
             "folders": folders,
             "folder_revisions": revisions,
+            "folder_items": folder_items,
         }))
     }
 
@@ -617,6 +636,7 @@ impl AccountFiles {
                     .map(|(_, file)| file);
                 let mut row = Map::new();
                 row.insert("name".into(), json!(record.id));
+                folder::stable_fields(record, &mut row);
                 for field in ["identity", "byte_length", "modified_at_ms", "named_at"] {
                     row.insert(
                         field.into(),
@@ -874,6 +894,7 @@ impl AccountFiles {
                     "byte_length":arrived,"spans":span_count,"span_layout":paged_spans::APPEND_LAYOUT,"span_set":upload_id,
                     "media_type":media_type
                 }),
+                changed: upload.changed,
             };
             self.read_range(&virtual_file, offset, length)?
         };
@@ -1546,6 +1567,19 @@ impl AccountFiles {
         media_type: &str,
         origins: &[(String, Origin)],
     ) -> Answer<Value> {
+        self.write_file_expecting(name, bytes, media_type, origins, None)
+    }
+
+    /// The same write. When `expected` is given it is the name's version the caller read (0: the name must not be there): a name
+    /// that is another version now is refused with a conflict before any byte is sent, and the name is written only at that version.
+    pub fn write_file_expecting(
+        &mut self,
+        name: &str,
+        bytes: &[u8],
+        media_type: &str,
+        origins: &[(String, Origin)],
+        expected: Option<i64>,
+    ) -> Answer<Value> {
         self.check_current()?;
         if !name.starts_with('/') || name.ends_with('/') || name.contains('\0') {
             return Err(AccountFilesError::Invalid(
@@ -1558,6 +1592,11 @@ impl AccountFiles {
              crate::cause!()));
         }
         let identity = format!("1f:{}", blake3::hash(bytes).to_hex());
+        let name_version = {
+            let (version, named) = self.held(&names_scope(parent(name)), name)?;
+            expect_name_version(expected, version, named.is_some())?;
+            expected.map(|_| version)
+        };
         let now = now_iso();
         let held = self.get(FILES, &identity)?;
         let already_kept = held.is_some();
@@ -1642,6 +1681,7 @@ impl AccountFiles {
             None,
             &now,
             &request("name"),
+            name_version,
         )?;
         Ok(
             json!({ "identity": identity, "name": name, "byte_length": bytes.len(), "media_type": media_type, "already_kept": already_kept }),
@@ -1650,7 +1690,9 @@ impl AccountFiles {
 
     /// Point `name` at `identity`: one name record, the previous file's names when the name moved, and folder records
     /// for folders that do not exist yet (walked up until one exists). `modified_at_ms` is when the bytes were last
-    /// changed where they came from (a file taken from a computer folder keeps its own time), else null.
+    /// changed where they came from (a file taken from a computer folder keeps its own time), else null. `name_version`, when
+    /// given, is the only version the name record is written at (the caller's compare-and-set).
+    #[allow(clippy::too_many_arguments)]
     fn place_name(
         &mut self,
         name: &str,
@@ -1659,9 +1701,11 @@ impl AccountFiles {
         modified_at_ms: Option<i64>,
         now: &str,
         request_key: &str,
+        name_version: Option<i64>,
     ) -> Answer<()> {
         let scope = names_scope(parent(name));
-        let (expected_version, held) = self.held(&scope, name)?;
+        let (version, held) = self.held(&scope, name)?;
+        let expected_version = name_version.unwrap_or(version);
         let previous = held
             .as_ref()
             .and_then(|record| text(&record.value, "file"))
@@ -1702,11 +1746,12 @@ impl AccountFiles {
                 }
             }
         }
-        self.ensure_folders(&LIVE, parent(name), request_key)
+        self.ensure_folders(&LIVE, parent(name), request_key, None)
     }
 
-    /// Folder records in `tree` for `folder` and each ancestor that has none yet (walked up until one exists).
-    fn ensure_folders(&mut self, tree: &Tree, folder: &str, request_key: &str) -> Answer<()> {
+    /// Folder records in `tree` for `folder` and each ancestor that has none yet (walked up until one exists). A folder made
+    /// for a carried folder (`carry`, a move, set-aside or put-back) takes the item of the folder it was carried from.
+    fn ensure_folders(&mut self, tree: &Tree, folder: &str, request_key: &str, carry: Option<names::Carry<'_>>) -> Answer<()> {
         let mut folder = folder.to_owned();
         while folder != "/" {
             let scope = tree.folders(parent(&folder));
@@ -1714,7 +1759,15 @@ impl AccountFiles {
             if held.is_some() {
                 break;
             }
-            let value = json!({ "kind": FOLDER_KIND, "folder": folder });
+            let mut value = json!({ "kind": FOLDER_KIND, "folder": folder });
+            if let Some(carry) = carry.filter(|carry| !carry.kept) {
+                if let Some(rest) = folder.strip_prefix(carry.to).filter(|rest| rest.is_empty() || rest.starts_with('/')) {
+                    let from = format!("{}{rest}", carry.from);
+                    if let Some(item) = self.get(&carry.source.folders(parent(&from)), &from)?.and_then(|record| record.value.get("item").cloned()) {
+                        value["item"] = item;
+                    }
+                }
+            }
             self.mutate(
                 &scope,
                 Mutation {
@@ -1803,7 +1856,27 @@ impl AccountFiles {
                 field("folder"),
                 field("after"),
                 number("limit").map(|limit| limit as usize),
+                field("device"),
             ),
+            "list_changes" => self.list_changes(
+                field("after"),
+                number("limit").map(|limit| limit as usize),
+                input.get("wait") == Some(&Value::Bool(true)),
+                field("device"),
+            ),
+            "show_item" => field("item")
+                .ok_or(AccountFilesError::Invalid("item is required", crate::cause!()))
+                .and_then(|item| self.show_item(item, field("device"))),
+            "set_pin_rule" => self.set_pin_rule(input),
+            "remove_pin_rule" => match (field("id"), input.get("expected_version").and_then(Value::as_i64)) {
+                (Some(id), Some(expected)) => self.remove_pin_rule(id, expected),
+                _ => Err(AccountFilesError::Invalid("id and expected_version are required", crate::cause!())),
+            },
+            "list_pin_rules" => self.list_pin_rules(field("device"), field("after"), number("limit").map(|limit| limit as usize)),
+            "thumbnail" => match (field("name_or_identity"), number("size")) {
+                (Some(asked), Some(size)) => self.thumbnail(asked, size),
+                _ => Err(AccountFilesError::Invalid("name_or_identity and size are required", crate::cause!())),
+            },
             "find_file" => asked().and_then(|asked| self.find_file(asked)),
             "files_summary" => self.files_summary(),
             "usage_days" => usage::days(
@@ -1876,8 +1949,11 @@ impl AccountFiles {
                 let media_type = field("media_type")
                     .unwrap_or("application/octet-stream")
                     .to_owned();
+                let expected = input.get("expected_version").map(|version| {
+                    version.as_i64().ok_or(AccountFilesError::Invalid("expected_version is a whole number", crate::cause!()))
+                });
                 let origins = self.origins()?;
-                self.write_file(name, &bytes, &media_type, &origins)
+                self.write_file_expecting(name, &bytes, &media_type, &origins, expected.transpose()?)
             })(),
             "write_file_start" => (|| {
                 let upload_id = field("upload_id")
@@ -1918,7 +1994,10 @@ impl AccountFiles {
                          crate::cause!()));
                     }
                 };
-                self.write_file_start_with_length(upload_id, name, byte_length, media_type, app)
+                let expected = input.get("expected_version").map(|version| {
+                    version.as_i64().ok_or(AccountFilesError::Invalid("expected_version is a whole number", crate::cause!()))
+                });
+                self.write_file_start_with_length(upload_id, name, byte_length, media_type, app, expected.transpose()?)
             })(),
             "write_file_piece" => (|| {
                 let upload_id = field("upload_id")
@@ -2022,6 +2101,9 @@ impl AccountFiles {
                     ),
                 };
                 let limit = number("limit").map(|limit| limit as usize);
+                let expected = input.get("expected_version").map(|version| {
+                    version.as_i64().ok_or(AccountFilesError::Invalid("expected_version is a whole number", crate::cause!()))
+                });
                 self.carry_names(
                     names::Carry {
                         source,
@@ -2029,6 +2111,7 @@ impl AccountFiles {
                         target,
                         to,
                         kept,
+                        expected: expected.transpose()?.filter(|_| !kept),
                     },
                     field("after"),
                     limit,

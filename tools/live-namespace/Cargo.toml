@@ -42,6 +42,9 @@ tokio-postgres-rustls = "=0.13.0"
 
 [dev-dependencies]
 tempfile = "3"
+# A real Postgres server for the store's tests, fetched once (its archive checked by the publisher's own checksum) and started in a
+# temporary folder by the test itself.
+postgresql_embedded = { version = "=0.20.0", default-features = false, features = ["blocking", "rustls", "theseus"] }
 
 [workspace]
 

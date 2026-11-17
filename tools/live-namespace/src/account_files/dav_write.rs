@@ -20,8 +20,8 @@
 //!   name or folder aside.
 //! - Version conflicts are the client's to state: `If-Match` (the entity tag is the file identity, as PROPFIND and GET
 //!   answer it, or `*`) and `If-None-Match` are checked against the name as it is now and refused with 412 when they
-//!   do not hold. The check and the write are two steps: a write that lands between them is not seen (the account
-//!   files have no compare-and-set of a name by its file yet), which is named as a gap in the PR that added this.
+//!   do not hold. The version of the name (or folder) read for the check is the one the write is made at (`expected`,
+//!   the store's compare-and-set), so a write that lands between the check and the write refuses this one with 412.
 //! - RFC 4918 conflicts: a PUT, MKCOL, MOVE or COPY whose parent folder does not exist is refused with 409 and makes
 //!   no folder; a MKCOL of a name that exists is 405; a MOVE or COPY onto itself or into itself is 403; `Overwrite:
 //!   F` onto an existing name is 412.
@@ -186,6 +186,8 @@ enum Carried {
     Unfinished,
     /// A name at the destination already names another file.
     Conflict,
+    /// The name changed since the request's precondition was checked.
+    Changed,
 }
 
 impl AccountFiles {
@@ -195,6 +197,14 @@ impl AccountFiles {
             return Ok(true);
         }
         Ok(self.get(&LIVE.names(parent(name)), name)?.is_some() || self.get(&LIVE.folders(parent(name)), name)?.is_some())
+    }
+
+    /// The version of the live name or folder `name` (0 when it is neither): what a precondition checked it at.
+    fn dav_version(&self, name: &str) -> Answer<i64> {
+        if let Some(named) = self.get(&LIVE.names(parent(name)), name)? {
+            return Ok(named.version);
+        }
+        Ok(self.get(&LIVE.folders(parent(name)), name)?.map_or(0, |folder| folder.version))
     }
 
     /// True when the folder `folder` exists (the root always does).
@@ -210,6 +220,7 @@ impl AccountFiles {
             let answer = match self.carry_names(carry, after.as_deref(), Some(limits.carry_step)) {
                 Ok(answer) => answer,
                 Err(AccountFilesError::Invalid(why, _)) if why.contains("already names another file") => return Ok(Carried::Conflict),
+                Err(AccountFilesError::Records(crate::store::Error::Conflict(_), _)) if carry.expected.is_some() => return Ok(Carried::Changed),
                 Err(error) => return Err(error),
             };
             let next = answer["next_after"].as_str().map(str::to_owned);
@@ -225,7 +236,7 @@ impl AccountFiles {
 
     /// Set `name` (a file name or a whole folder) aside at the same full name. A file name already set aside for
     /// another file is forgotten there first, so the newest deletion is the one kept.
-    fn dav_set_aside(&mut self, name: &str) -> Answer<Carried> {
+    fn dav_set_aside(&mut self, name: &str, expected: Option<i64>) -> Answer<Carried> {
         if let Some(named) = self.get(&LIVE.names(parent(name)), name)? {
             let older = self.get(&SET_ASIDE.names(parent(name)), name)?;
             if older.is_some_and(|older| text(&older.value, "file") != text(&named.value, "file")) {
@@ -240,7 +251,7 @@ impl AccountFiles {
                 }
             }
         }
-        self.dav_carry(Carry { source: &LIVE, from: name, target: &SET_ASIDE, to: name, kept: false })
+        self.dav_carry(Carry { source: &LIVE, from: name, target: &SET_ASIDE, to: name, kept: false, expected })
     }
 
     /// The lock that holds `name` now: its own, or one of a folder above it locked at depth infinity. None when no lock
@@ -350,6 +361,11 @@ impl AccountFiles {
         if !preconditions_hold(request, entry.as_ref()) {
             return Ok(plain(412, word("dav_precondition")));
         }
+        // The version the precondition was checked at is the one the write is made at.
+        let expected = match request.if_match.or(request.if_none_match) {
+            Some(_) => Some(self.dav_version(&name)?),
+            None => None,
+        };
         let now = now_iso();
         if method == "LOCK" || method == "UNLOCK" {
             return self.dav_lock(prefix, &method, &name, request, &now);
@@ -371,9 +387,10 @@ impl AccountFiles {
                 }
                 let media_type = request.content_type.map(str::trim).filter(|media| !media.is_empty()).unwrap_or("application/octet-stream");
                 let origins = self.origins()?;
-                let kept = match self.write_file(&name, request.body, media_type, &origins) {
+                let kept = match self.write_file_expecting(&name, request.body, media_type, &origins, expected) {
                     Ok(kept) => kept,
                     Err(AccountFilesError::Invalid(why, _)) => return Ok(plain(400, why)),
+                    Err(AccountFilesError::Records(crate::store::Error::Conflict(_), _)) if expected.is_some() => return Ok(plain(412, word("dav_precondition"))),
                     Err(error) => return Err(error),
                 };
                 let etag = format!("\"{}\"", kept["identity"].as_str().unwrap_or_default());
@@ -390,7 +407,7 @@ impl AccountFiles {
                 if !self.dav_folder_exists(parent(&name))? {
                     return Ok(plain(409, word("dav_no_parent")));
                 }
-                self.ensure_folders(&LIVE, &name, &request_key(&method, &name, &now))?;
+                self.ensure_folders(&LIVE, &name, &request_key(&method, &name, &now), None)?;
                 Ok(Response::new(201, &[], Vec::new()))
             }
             "DELETE" => {
@@ -400,13 +417,14 @@ impl AccountFiles {
                 if !self.dav_taken(&name)? {
                     return Ok(plain(404, word("dav_not_found")));
                 }
-                Ok(match self.dav_set_aside(&name)? {
+                Ok(match self.dav_set_aside(&name, expected)? {
                     Carried::Done => {
                         self.dav_drop_lock(&name, &now)?;
                         Response::new(204, &[], Vec::new())
                     }
                     Carried::Unfinished => Response::new(503, &[("retry-after", "1")], word("dav_unfinished")),
                     Carried::Conflict => plain(409, word("dav_conflict")),
+                    Carried::Changed => plain(412, word("dav_precondition")),
                 })
             }
             // COPY and MOVE.
@@ -432,18 +450,19 @@ impl AccountFiles {
                     if request.overwrite.is_some_and(|overwrite| overwrite.trim().eq_ignore_ascii_case("F")) {
                         return Ok(plain(412, word("dav_exists")));
                     }
-                    match self.dav_set_aside(&to)? {
+                    match self.dav_set_aside(&to, None)? {
                         Carried::Done => {}
                         Carried::Unfinished => return Ok(Response::new(503, &[("retry-after", "1")], word("dav_unfinished"))),
                         Carried::Conflict => return Ok(plain(409, word("dav_conflict"))),
+                        Carried::Changed => return Ok(plain(412, word("dav_precondition"))),
                     }
                 }
                 let kept = method == "COPY";
                 let carried = if kept && matches!(entry, Entry::Folder) && request.depth.map(str::trim) == Some("0") {
-                    self.ensure_folders(&LIVE, &to, &request_key(&method, &to, &now))?;
+                    self.ensure_folders(&LIVE, &to, &request_key(&method, &to, &now), None)?;
                     Carried::Done
                 } else {
-                    self.dav_carry(Carry { source: &LIVE, from: &name, target: &LIVE, to: &to, kept })?
+                    self.dav_carry(Carry { source: &LIVE, from: &name, target: &LIVE, to: &to, kept, expected: expected.filter(|_| !kept) })?
                 };
                 Ok(match carried {
                     Carried::Done => {
@@ -454,6 +473,7 @@ impl AccountFiles {
                     }
                     Carried::Unfinished => Response::new(503, &[("retry-after", "1")], word("dav_unfinished")),
                     Carried::Conflict => plain(409, word("dav_conflict")),
+                    Carried::Changed => plain(412, word("dav_precondition")),
                 })
             }
         }

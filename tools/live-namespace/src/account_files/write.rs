@@ -41,12 +41,14 @@ impl AccountFiles {
         media_type: &str,
         app: Option<&str>,
     ) -> Answer<Value> {
-        self.write_file_start_with_length(upload_id, name, Some(byte_length), media_type, app)
+        self.write_file_start_with_length(upload_id, name, Some(byte_length), media_type, app, None)
     }
 
     /// Start or resume one generic account files file write. The upload token is
     /// account-scoped and bound to a name and original length declaration. Starting
-    /// never creates a file name or reuses an arbitrary content identity.
+    /// never creates a file name or reuses an arbitrary content identity. `expected` is the
+    /// name's version the caller read (0: the name must not be there): a start that finds
+    /// another is refused with a conflict, and the finish writes the name at the version kept here.
     pub(super) fn write_file_start_with_length(
         &mut self,
         upload_id: &str,
@@ -54,6 +56,7 @@ impl AccountFiles {
         byte_length: Option<u64>,
         media_type: &str,
         app: Option<&str>,
+        expected: Option<i64>,
     ) -> Answer<Value> {
         self.expire_abandoned_upload()?;
         validate_upload_id(upload_id)?;
@@ -111,6 +114,7 @@ impl AccountFiles {
             return Err(AccountFilesError::Invalid("upload id cannot be reused", crate::cause!()));
         }
         let (name_version, name_record) = self.held(&names_scope(parent(name)), name)?;
+        super::expect_name_version(expected, name_version, name_record.is_some())?;
         let checkpoint = byte_length.map(|length| Accumulator::new(length).checkpoint());
         let stored_length = byte_length.map_or(Value::Null, |length| json!(length));
         let value = json!({
@@ -1838,7 +1842,7 @@ mod growing_tests {
         let name = "/chunked.bin";
         let content: Vec<u8> = (0..(5 * SUBTREE_BYTES + 5)).map(|index| (index % 251) as u8).collect();
         files
-            .write_file_start_with_length(upload, name, Some(content.len() as u64), "application/octet-stream", None)
+            .write_file_start_with_length(upload, name, Some(content.len() as u64), "application/octet-stream", None, None)
             .unwrap();
         let cuts = [(0, 2 * SUBTREE_BYTES), (2 * SUBTREE_BYTES, 3 * SUBTREE_BYTES), (5 * SUBTREE_BYTES, 5)];
         for (offset, length) in cuts {
@@ -1862,7 +1866,7 @@ mod growing_tests {
         // The first chunk again, in another file: the chunk is already kept, so no object is added.
         let other = "2222222222222222bbbbbbbbbbbbbbbb";
         files
-            .write_file_start_with_length(other, "/again.bin", Some(2 * SUBTREE_BYTES as u64), "application/octet-stream", None)
+            .write_file_start_with_length(other, "/again.bin", Some(2 * SUBTREE_BYTES as u64), "application/octet-stream", None, None)
             .unwrap();
         let accepted = files.write_file_piece(other, "/again.bin", 0, &content[..2 * SUBTREE_BYTES]).unwrap();
         assert_eq!(accepted["length_known"], json!(true));
@@ -1877,7 +1881,7 @@ mod growing_tests {
         let (mut files, _held) = growing_files();
         let abandoned = "5555555555555555eeeeeeeeeeeeeeee";
         let name = "/abandoned.bin";
-        files.write_file_start_with_length(abandoned, name, Some(64 * 1024), "application/octet-stream", None).unwrap();
+        files.write_file_start_with_length(abandoned, name, Some(64 * 1024), "application/octet-stream", None, None).unwrap();
         let chunk = vec![3u8; 64 * 1024];
         let spans = vec![json!({"ordinal": 0, "offset": 0, "length": chunk.len(), "chunk": Multihash::blake3(&chunk).to_code_hex()})];
         files.write_described_spans(abandoned, name, &spans).unwrap();
@@ -1887,7 +1891,7 @@ mod growing_tests {
             id: abandoned.to_owned(), expected_version: record.version, request_key: request_key(abandoned, "aged", 0),
             deleted: false, value: record.value,
         }).unwrap();
-        files.write_file_start_with_length("6666666666666666ffffffffffffffff", "/fresh.bin", Some(1), "application/octet-stream", None).unwrap();
+        files.write_file_start_with_length("6666666666666666ffffffffffffffff", "/fresh.bin", Some(1), "application/octet-stream", None, None).unwrap();
         assert_eq!(files.get(UPLOADS, abandoned).unwrap().unwrap().value["status"], json!("cancelled"));
         assert_eq!(files.read_described_spans(abandoned).unwrap()["spans"], json!([]));
     }
@@ -1900,7 +1904,7 @@ mod growing_tests {
     fn the_expiry_sweep_keeps_a_cursor_and_wraps() {
         let (mut files, _held) = growing_files();
         let abandoned = "7777777777777777aaaaaaaaaaaaaaaa";
-        files.write_file_start_with_length(abandoned, "/abandoned-cursor.bin", Some(64 * 1024), "application/octet-stream", None).unwrap();
+        files.write_file_start_with_length(abandoned, "/abandoned-cursor.bin", Some(64 * 1024), "application/octet-stream", None, None).unwrap();
         let mut record = files.get(UPLOADS, abandoned).unwrap().unwrap();
         record.value["started_at"] = json!("2026-11-01T00:00:00.000Z");
         files.mutate(UPLOADS, Mutation {
@@ -1913,9 +1917,9 @@ mod growing_tests {
             id: "expiry-cursor".to_owned(), expected_version: cursor_version, request_key: request_key("expiry-cursor", "place", 0),
             deleted: false, value: json!({"kind": "namespace-expiry-cursor", "after": "~"}),
         }).unwrap();
-        files.write_file_start_with_length("8888888888888888bbbbbbbbbbbbbbbb", "/first-start.bin", Some(1), "application/octet-stream", None).unwrap();
+        files.write_file_start_with_length("8888888888888888bbbbbbbbbbbbbbbb", "/first-start.bin", Some(1), "application/octet-stream", None, None).unwrap();
         assert_eq!(files.get(UPLOADS, abandoned).unwrap().unwrap().value["status"], json!("open"), "the first start reads nothing past the cursor");
-        files.write_file_start_with_length("9999999999999999cccccccccccccccc", "/second-start.bin", Some(1), "application/octet-stream", None).unwrap();
+        files.write_file_start_with_length("9999999999999999cccccccccccccccc", "/second-start.bin", Some(1), "application/octet-stream", None, None).unwrap();
         assert_eq!(files.get(UPLOADS, abandoned).unwrap().unwrap().value["status"], json!("cancelled"));
     }
 
@@ -1929,7 +1933,7 @@ mod growing_tests {
         let name = "/asked.bin";
         let content: Vec<u8> = (0..(2 * SUBTREE_BYTES) as usize).map(|index| (index % 239) as u8).collect();
         files
-            .write_file_start_with_length(upload, name, Some(content.len() as u64), "application/octet-stream", None)
+            .write_file_start_with_length(upload, name, Some(content.len() as u64), "application/octet-stream", None, None)
             .unwrap();
         files.write_file_piece(upload, name, 0, &content).unwrap();
         let actual = Multihash::blake3(&content).to_code_hex();
@@ -1952,7 +1956,7 @@ mod growing_tests {
         let name = "/odd-chunks.bin";
         let content: Vec<u8> = (0..172_772usize).map(|index| (index * 31 % 253) as u8).collect();
         files
-            .write_file_start_with_length(upload, name, Some(content.len() as u64), "application/octet-stream", None)
+            .write_file_start_with_length(upload, name, Some(content.len() as u64), "application/octet-stream", None, None)
             .unwrap();
         let mut offset = 0usize;
         for length in [1, SUBTREE_BYTES - 1, 1, 40_000, 100_000, 3, 0] {
@@ -1977,7 +1981,7 @@ mod growing_tests {
         let upload = "5555555555555555eeeeeeeeeeeeeeee";
         let name = "/bounded-chunks.bin";
         files
-            .write_file_start_with_length(upload, name, Some(2 * SUBTREE_BYTES as u64 + 7), "application/octet-stream", None)
+            .write_file_start_with_length(upload, name, Some(2 * SUBTREE_BYTES as u64 + 7), "application/octet-stream", None, None)
             .unwrap();
         assert!(files.write_file_piece(upload, name, 0, &vec![1u8; 2 * SUBTREE_BYTES + 8]).is_err());
         let chunk_bytes = crate::account_files::settings::settings().chunks.bytes as usize;
@@ -2006,7 +2010,7 @@ mod growing_tests {
         let name = "/fixed-layout.bin";
         let content: Vec<u8> = (0..(SUBTREE_BYTES + 9)).map(|index| index as u8).collect();
         files
-            .write_file_start_with_length(upload, name, Some(content.len() as u64), "application/octet-stream", None)
+            .write_file_start_with_length(upload, name, Some(content.len() as u64), "application/octet-stream", None, None)
             .unwrap();
         let record = files.get(UPLOADS, upload).unwrap().unwrap();
         let mut value = record.value.clone();
@@ -2064,7 +2068,7 @@ mod growing_tests {
         let (mut files, held) = growing_files();
         let upload = "ffffffffffffffffffffffffffffffff";
         let name = "/changed-page.bin";
-        files.write_file_start_with_length(upload, name, None, "application/octet-stream", None).unwrap();
+        files.write_file_start_with_length(upload, name, None, "application/octet-stream", None, None).unwrap();
         files.write_file_piece(upload, name, 0, b"ab").unwrap();
         files.write_file_piece(upload, name, 2, b"cd").unwrap();
         let page_id = paged_spans::page_id(upload, 0);
@@ -2105,7 +2109,7 @@ mod growing_tests {
         let upload = "13579bdf13579bdf13579bdf13579bdf";
         let name = "/empty.bin";
         files
-            .write_file_start_with_length(upload, name, None, "application/octet-stream", None)
+            .write_file_start_with_length(upload, name, None, "application/octet-stream", None, None)
             .unwrap();
         let result = files.write_file_finish(upload, name).unwrap();
         assert_eq!(result["byte_length"], 0);
@@ -2119,7 +2123,7 @@ mod growing_tests {
         let upload = "2468ace02468ace02468ace02468ace0";
         let name = "/malformed.bin";
         files
-            .write_file_start_with_length(upload, name, None, "application/octet-stream", None)
+            .write_file_start_with_length(upload, name, None, "application/octet-stream", None, None)
             .unwrap();
         files.write_file_piece(upload, name, 0, b"stored").unwrap();
         held.reads.store(0, Ordering::SeqCst);
@@ -2158,7 +2162,7 @@ mod growing_tests {
         let name = "/recovered.bin";
         let bytes = b"crash-safe";
         files
-            .write_file_start_with_length(upload, name, None, "application/octet-stream", None)
+            .write_file_start_with_length(upload, name, None, "application/octet-stream", None, None)
             .unwrap();
         let identity = Multihash::blake3(bytes).to_code_hex();
         let origins = files.origins().unwrap();
@@ -2203,7 +2207,7 @@ mod growing_tests {
         let name = "/replace.bin";
         let open_token = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
         files
-            .write_file_start_with_length(open_token, name, None, "application/octet-stream", None)
+            .write_file_start_with_length(open_token, name, None, "application/octet-stream", None, None)
             .unwrap();
         files.write_file_piece(open_token, name, 0, b"one").unwrap();
         let origins = files.origins().unwrap();
@@ -2227,6 +2231,7 @@ mod growing_tests {
                 name,
                 None,
                 "application/octet-stream",
+                None,
                 None,
             )
             .unwrap();
@@ -2258,7 +2263,7 @@ mod growing_tests {
             .map(|value| value as u8)
             .collect();
         files
-            .write_file_start_with_length(upload, name, None, "application/octet-stream", None)
+            .write_file_start_with_length(upload, name, None, "application/octet-stream", None, None)
             .unwrap();
         for (offset, byte) in content.iter().enumerate() {
             files

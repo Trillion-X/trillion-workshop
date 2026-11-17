@@ -146,14 +146,15 @@ fn open_sql(settings: &Settings, state: &Path) -> Result<(PathBuf, Arc<Held>, Ar
     let state = std::fs::canonicalize(state)?;
     let fields: Vec<(&str, &str, i32)> = settings.attached.iter().map(|attached| (attached.service.as_str(), attached.field.as_str(), attached.fd)).collect();
     let held = secrets::keep(Held::from_descriptors(&fields)?);
-    let link = match &settings.store {
-        Rows::Sqlite { file } => Link::sqlite(&state.join(file))?,
+    let store = match &settings.store {
+        Rows::Sqlite { file } => SqlStore::open(Link::sqlite(&state.join(file))?)?,
+        // A second connection hears every other process's commits, so a wait for a change (`list_changes`) wakes at once on any computer.
         Rows::Postgres { connection } => {
             let connection = held.plain(connection).map_err(|_| "the database connection is not attached: attach it to start the run")?;
-            Link::postgres(connection.as_str())?
+            SqlStore::open(Link::postgres(connection.as_str())?)?.hearing(Link::postgres(connection.as_str())?)?
         }
     };
-    let store = Arc::new(SqlStore::open(link)?);
+    let store = Arc::new(store);
     Ok((state, held, store))
 }
 

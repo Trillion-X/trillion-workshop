@@ -25,6 +25,10 @@ implementation, over SQLite (a file of the person's own) or Postgres (the person
 | `Rows::stamp` | `(scope) -> i64` | How many changes the scope has had |
 | `Rows::totals` | `() -> Vec<Total>` | The declared totals: files by store, names, chunks and uploads, with their bytes |
 | `Rows::search` | `(&[word], hits) -> Vec<Record>` | File rows whose names together hold every word (candidates; `account_files/words.rs` decides) |
+| `Rows::order` | `() -> i64` | The last number of the store's one change order (`ns_order`); every change takes the next inside its own transaction |
+| `Rows::changes` | `(&[prefix], after, limit) -> Page<Changed, i64>` | The rows and tombstones of some scopes whose last change is after a number, in change order; a cursor never expires |
+| `Rows::minted` | `(&[prefix], minted) -> Option<(scope, Record)>` | The live row holding a minted id (tables.json `minted`, the stable `item` of names and folders) |
+| `Rows::wait_for_order` | `(after, until) -> i64` | Holds until a change past `after` commits (this process at once; on Postgres any process, by `NOTIFY` heard on the connection `SqlStore::hearing` gives) or `until` |
 | `SqlStore::open` / `memory` | `(Link)` / `()` | Rows in a database, its tables made when they are not there / rows that live as long as the store |
 
 ## How it works
@@ -38,6 +42,13 @@ implementation, over SQLite (a file of the person's own) or Postgres (the person
 - A change that would leave the row as it is writes nothing.
 - Ids are compared as bytes in both databases (`COLLATE "C"` in Postgres), so a walk by cursor is the same everywhere.
 - Totals and word search are asked of the database when they are called, not kept: nothing to drift from the rows.
+- Every change takes the next number of one change order for the whole store (`ns_order`, its row locked to the commit, so changes commit
+  in their order) and the row or its tombstone keeps it as `changed`; `changes` walks it after a cursor. A table's `minted` column
+  (tables.json) is filled by the store from the same order for a new row, kept by a changed row and its tombstone, and carried by a value
+  that holds it (a rename).
+- Opening a store settles it: a column declared after the database was made is added (`ALTER TABLE ... ADD COLUMN`), rows with no minted id
+  get the next numbers in (scope, id) order in one statement a table, and the order starts past every row's own number. A copy settles the
+  same way when it ends.
 
 ## Copying the account owner's rows in
 

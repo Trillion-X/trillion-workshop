@@ -47,6 +47,10 @@ struct Settings {
     _facts: String,
     /// The facts kept about each file (`recent.rs` facts).
     facts: super::recent::FactsSettings,
+    #[serde(rename = "_folder")]
+    _folder: String,
+    /// What a native folder on a device reads and writes (`folder.rs`).
+    folder: super::folder::FolderSettings,
 }
 
 #[derive(Deserialize)]
@@ -197,6 +201,7 @@ impl AccountFilesDoor {
             || !settings.search.valid(&settings.operations)
             || !settings.recent.valid(&settings.operations)
             || !settings.facts.valid()
+            || !settings.folder.valid()
         {
             return Err(serde::de::Error::custom("account files door DATA refused"));
         }
@@ -249,6 +254,11 @@ impl AccountFilesDoor {
     /// The facts kept about each file.
     pub fn facts(&self) -> &super::recent::FactsSettings {
         &self.settings.facts
+    }
+
+    /// What a native folder on a device reads and writes.
+    pub fn folder(&self) -> &super::folder::FolderSettings {
+        &self.settings.folder
     }
 
     /// How often the account usage flush runs (DATA `usage.flush_seconds`).

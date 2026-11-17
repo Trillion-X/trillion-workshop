@@ -503,7 +503,7 @@ pub fn flush_rows_every(period: Duration, sink: fn(&str)) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::store::{Change, Page, Read, Record, Rows, SqlStore, Total};
+    use crate::store::{Change, Changed, Page, Read, Record, Rows, SqlStore, Total};
     use std::sync::atomic::AtomicBool;
 
     fn store() -> Store {
@@ -562,6 +562,22 @@ mod tests {
         }
         fn place(&self) -> String {
             self.rows.place()
+        }
+        fn order(&self) -> Result<i64, Error> {
+            self.gate()?;
+            self.rows.order()
+        }
+        fn changes(&self, prefixes: &[&str], after: i64, limit: usize) -> Result<Page<Changed, i64>, Error> {
+            self.gate()?;
+            self.rows.changes(prefixes, after, limit)
+        }
+        fn minted(&self, prefixes: &[&str], minted: i64) -> Result<Option<(String, Record)>, Error> {
+            self.gate()?;
+            self.rows.minted(prefixes, minted)
+        }
+        fn wait_for_order(&self, after: i64, until: std::time::Instant) -> Result<i64, Error> {
+            self.gate()?;
+            self.rows.wait_for_order(after, until)
         }
     }
 

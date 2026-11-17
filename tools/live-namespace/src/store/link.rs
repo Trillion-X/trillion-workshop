@@ -244,6 +244,18 @@ impl Link {
         }
     }
 
+    /// Wait for the next notification on a channel this Postgres connection listens on (`LISTEN`); an error when the connection
+    /// ended. A SQLite connection hears nothing and answers an error at once.
+    pub fn heard(&mut self) -> Result<(), Error> {
+        match &mut self.inner {
+            Inner::Sqlite(_) => Err(Error::Invalid("a SQLite connection hears no notifications", crate::cause!())),
+            Inner::Postgres(client) => match postgres::fallible_iterator::FallibleIterator::next(&mut client.notifications().blocking_iter()) {
+                Ok(Some(_)) => Ok(()),
+                _ => Err(crate::cause!(Error::Unavailable)),
+            },
+        }
+    }
+
     /// Open a transaction that holds the database's one writer from its first statement.
     pub fn begin(&mut self) -> Result<(), Error> {
         self.batch(match self.dialect() {

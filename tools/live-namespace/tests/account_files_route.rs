@@ -193,7 +193,7 @@ fn kept() -> (AccountFiles, Arc<Held>, Vec<u8>) {
 #[test]
 fn list_files_pages_a_folder_and_shows_child_folders_on_the_first_page() {
     let (account_files, ..) = kept();
-    let root = account_files.list_files(Some("/"), None, None).unwrap();
+    let root = account_files.list_files(Some("/"), None, None, None).unwrap();
     assert_eq!(root["names"], json!([]));
     assert_eq!(root["folders"], json!(["/Notes", "/Recordings"]));
     assert!(root["folder_revisions"]["/Notes"]
@@ -201,7 +201,7 @@ fn list_files_pages_a_folder_and_shows_child_folders_on_the_first_page() {
         .unwrap()
         .starts_with("folder:"));
     let first = account_files
-        .list_files(Some("/Notes/"), None, Some(1))
+        .list_files(Some("/Notes/"), None, Some(1), None)
         .unwrap();
     assert_eq!(first["collection"], "/Notes");
     assert_eq!(first["names"][0]["name"], "/Notes/a.txt");
@@ -211,7 +211,7 @@ fn list_files_pages_a_folder_and_shows_child_folders_on_the_first_page() {
     assert_eq!(first["names"][0]["also_at"], json!(["/Notes/b.txt"]));
     assert_eq!(first["next_after"], "/Notes/a.txt");
     let second = account_files
-        .list_files(Some("/Notes"), Some("/Notes/a.txt"), Some(1))
+        .list_files(Some("/Notes"), Some("/Notes/a.txt"), Some(1), None)
         .unwrap();
     assert_eq!(second["names"][0]["name"], "/Notes/b.txt");
     assert_eq!(second["next_after"], Value::Null);
@@ -221,7 +221,7 @@ fn list_files_pages_a_folder_and_shows_child_folders_on_the_first_page() {
         "folders come on the first page only"
     );
     let deep = account_files
-        .list_files(Some("/Recordings/club"), None, None)
+        .list_files(Some("/Recordings/club"), None, None, None)
         .unwrap();
     assert_eq!(deep["folders"], json!(["/Recordings/club/player"]));
 }
@@ -404,12 +404,12 @@ fn write_file_keeps_bytes_first_then_records_and_reuses_kept_content() {
         .unwrap();
     assert_eq!(found["origin"], "backblaze-b2");
     assert_eq!(
-        account_files.list_files(Some("/"), None, None).unwrap()["folders"],
+        account_files.list_files(Some("/"), None, None, None).unwrap()["folders"],
         json!(["/Made by tools", "/Notes", "/Recordings"])
     );
     assert_eq!(
         account_files
-            .list_files(Some("/Made by tools"), None, None)
+            .list_files(Some("/Made by tools"), None, None, None)
             .unwrap()["folders"],
         json!(["/Made by tools/2026"])
     );
@@ -1057,7 +1057,7 @@ fn call(
 
 /// Every name in `folder`, in name order.
 fn names_in(account_files: &AccountFiles, folder: &str) -> Vec<String> {
-    let page = account_files.list_files(Some(folder), None, None).unwrap();
+    let page = account_files.list_files(Some(folder), None, None, None).unwrap();
     page["names"]
         .as_array()
         .unwrap()
@@ -1086,6 +1086,10 @@ impl live_namespace::store::Rows for Counted {
     fn totals(&self) -> Result<Vec<live_namespace::store::Total>, live_namespace::store::Error> { self.rows.totals() }
     fn search(&self, words: &[String], hits: usize) -> Result<Vec<live_namespace::store::Record>, live_namespace::store::Error> { self.rows.search(words, hits) }
     fn place(&self) -> String { self.rows.place() }
+    fn order(&self) -> Result<i64, live_namespace::store::Error> { self.rows.order() }
+    fn changes(&self, prefixes: &[&str], after: i64, limit: usize) -> Result<live_namespace::store::Page<live_namespace::store::Changed, i64>, live_namespace::store::Error> { self.rows.changes(prefixes, after, limit) }
+    fn minted(&self, prefixes: &[&str], minted: i64) -> Result<Option<(String, live_namespace::store::Record)>, live_namespace::store::Error> { self.rows.minted(prefixes, minted) }
+    fn wait_for_order(&self, after: i64, until: std::time::Instant) -> Result<i64, live_namespace::store::Error> { self.rows.wait_for_order(after, until) }
 }
 
 /// Empty rows holding one origin, and the count of the changes made through them since.
@@ -1213,12 +1217,12 @@ fn move_names_carries_a_whole_folder_in_bounded_pages_and_leaves_nothing_behind(
         Err(live_namespace::account_files::AccountFilesError::NotFound(_))
     ));
     assert_eq!(
-        account_files.list_files(Some("/"), None, None).unwrap()["folders"],
+        account_files.list_files(Some("/"), None, None, None).unwrap()["folders"],
         json!(["/Archive", "/Notes"])
     );
     assert_eq!(
         account_files
-            .list_files(Some("/Archive"), None, None)
+            .list_files(Some("/Archive"), None, None, None)
             .unwrap()["folders"],
         json!(["/Archive/Recordings"])
     );
@@ -1401,7 +1405,7 @@ fn set_aside_moves_names_out_of_the_account_files_and_put_back_returns_them() {
     )
     .unwrap();
     assert_eq!(
-        account_files.list_files(Some("/"), None, None).unwrap()["folders"],
+        account_files.list_files(Some("/"), None, None, None).unwrap()["folders"],
         json!(["/Notes"])
     );
     assert_eq!(

@@ -54,6 +54,7 @@
             "the person's files-store connection (an S3-compatible store: its secret, key id, bucket, endpoint and region), each field handed to the run on the descriptor settings.json `attached` names, read from the vault by name and never printed",
             "the person's records door, when files are to be shared: its descriptor line `{ url, resource, capability }` as an attached field (settings.json `share`), with the right to write `namespace-shared-file` records and to run `tool:share-anything`",
             "the person's database: a SQLite file in the state folder, or their Postgres database's connection string (`own-rows-postgres-connection`) as an attached field, as settings.json `store` says",
+            "ffmpeg on the computer's path: the program the account files' routes DATA (`folder.thumbnails.makers`) names to make a file's thumbnail; without it `thumbnail` answers that the program is not on this computer",
             "an empty or earlier state folder in the person's home"
           ],
           "say": "This runs on the person's own computer. Run it from tools/live-namespace. Give the run the files-store connection's fields (and the database connection string, when the rows are in Postgres) on the descriptors settings.json names (a here-string of each vault value, never echoed or logged). The first run builds and makes the files. For the Finder folder, run mode dav (or serve) and connect to http://127.0.0.1:38481/ ; for an AI, run mode mcp as the AI's stdio MCP server."
