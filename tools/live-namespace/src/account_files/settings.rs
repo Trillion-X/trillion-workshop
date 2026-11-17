@@ -21,6 +21,7 @@ pub struct Settings {
     pub retire: Retire,
     pub results: Results,
     pub chunks: Chunks,
+    pub chunk_copies: super::chunk_copies::Settings,
     pub transfer: Transfer,
     pub described: Described,
     pub new_account_files: NewAccountFilesSettings,

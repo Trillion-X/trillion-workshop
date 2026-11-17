@@ -53,6 +53,7 @@
 
 pub mod account_routes;
 pub mod bind;
+pub mod chunk_copies;
 pub mod counters;
 pub mod folder;
 pub(crate) mod names;
@@ -427,6 +428,8 @@ pub struct AccountFiles {
     pub store: Store,
     account: String,
     objects: Box<dyn Objects>,
+    /// The checked copies of chunks this computer keeps (`chunk_copies.rs`), when the state folder has them.
+    copies: Option<Arc<chunk_copies::ChunkCopies>>,
     /// When a paged call (a carry of names) stops taking steps and answers where to resume.
     until: Option<Instant>,
     control: CallControl,
@@ -473,6 +476,7 @@ impl AccountFiles {
             store,
             account: account.into(),
             objects: Box::new(objects),
+            copies: None,
             until: None,
             control: CallControl::default(),
             home: None,
@@ -486,6 +490,7 @@ impl AccountFiles {
             store,
             account: account.into(),
             objects,
+            copies: None,
             until: None,
             control: CallControl::default(),
             home: None,
@@ -1582,7 +1587,7 @@ impl AccountFiles {
         // The pieces of one window are independent objects, so their reads are in flight together (as many as the window has, until the
         // store refuses one for load): a file kept as 32 KiB pages otherwise costs one store round trip per page, one after another.
         self.check_current()?;
-        let parts = self.read_pieces(&wanted)?;
+        let parts = self.read_chunks(&pieces, &chunks, &wanted)?;
         self.check_current()?;
         let mut bytes = Vec::with_capacity(capacity);
         for (part, (_, _, _, want)) in parts.into_iter().zip(&wanted) {

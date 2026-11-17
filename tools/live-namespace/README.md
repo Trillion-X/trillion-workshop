@@ -80,6 +80,7 @@ shares).
 | `src/serve/settings.rs` | Reads and checks `settings.json`. |
 | `src/lib.rs` | The library. |
 | `src/store/` | The rows (see its README): `Rows`, `SqlStore`, `Link`, `tables.json`. |
+| `src/account_files/chunk_copies.rs` | The checked copies of stored chunks kept in the state folder (`src/account_files/settings.json` `chunk_copies`), served before the store is asked (see the account files' README). |
 | `src/account_files/` | The account files, moved from trillion-rust `src/account_files` (see its README). |
 | `src/cause_book/` | The engine's refusal causes, which every error here carries. |
 | `src/host/https.rs`, `src/host/https/settings.json` | The one HTTP client the byte store's requests go through. |

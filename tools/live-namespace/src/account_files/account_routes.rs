@@ -311,6 +311,7 @@ impl AccountFilesDoor {
         control.check().map_err(|error| Failure::AccountFiles(error.into(), crate::cause!()))?;
         let control = control.counting(super::usage::Meters::global().tally(state_root, store, account));
         self.open(store, account)?
+            .with_chunk_copies(chunk_copies(state_root))
             .with_control(control)
             .stream_to(identity, max_bytes, sink)
             .map_err(|value| Failure::AccountFiles(value, crate::cause!()))
@@ -333,7 +334,7 @@ impl AccountFilesDoor {
         control.check().map_err(|error| Failure::AccountFiles(error.into(), crate::cause!()))?;
         // Every byte this call's handle writes or reads is also the account's own usage count (`usage.rs`).
         let control = control.counting(super::usage::Meters::global().tally(state_root, store, account));
-        let mut account_files = self.open(store, account)?.with_control(control);
+        let mut account_files = self.open(store, account)?.with_chunk_copies(chunk_copies(state_root)).with_control(control);
         account_files.check_current().map_err(|value| Failure::AccountFiles(value, crate::cause!()))?;
         let answer = match fits {
             Some(fits) => account_files.call_fitting(operation, input, fits),
@@ -356,4 +357,10 @@ impl AccountFilesDoor {
             .map_err(|value| Failure::AccountFiles(value, crate::cause!()))?
             .at_home(home))
     }
+}
+
+/// The checked copies of chunks kept in the state folder (`chunk_copies.rs`): the process's one set for that folder, none when the
+/// folder cannot be made (reads then go to the store).
+fn chunk_copies(state_root: &Path) -> Option<std::sync::Arc<super::chunk_copies::ChunkCopies>> {
+    super::chunk_copies::ChunkCopies::shared(&state_root.join(&super::settings::settings().chunk_copies.folder))
 }
