@@ -1,0 +1,40 @@
+{
+  "start_here": "Say to your AI: \"Add a task row called 'Call the dentist' to my database.\" It runs tool:run-sql-in-my-database.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: it runs the statement you or your AI wrote in your own database, and the only table it ever names is the one a recipe step's row output asks for.",
+  "workflows": [],
+  "tools": [
+    "tool:run-sql-in-my-database"
+  ],
+  "instructions": [
+    "1. Hold your database's connection string under the name own-rows-postgres-connection (and a SELECT-only login's under own-rows-postgres-read-connection for a share that may only read). The string is never typed into a request.",
+    "2. Say what you want in plain words. Your AI writes one SQL statement and calls tools:run with tool tool:run-sql-in-my-database, credential_name and sql (and params for $1, $2 and so on).",
+    "3. Read the answer: columns, rows and row_count, or the database's own error text. Two statements in one call are refused by the database.",
+    "4. A recipe step that keeps its output as row:<list> reaches the same tool with list, id and value and keeps the value as the row id of that table."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read two numbers",
+      "ask": "Add 2 and 3 in my database.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@workshop-tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-sql-in-my-database",
+            "input": {
+              "credential_name": "own-rows-postgres-connection",
+              "sql": "SELECT $1::int + $2::int AS total",
+              "params": [2, 3]
+            }
+          }
+        }
+      },
+      "given": "From tools/run-sql-in-my-database/test/run-sql.test.mjs ('a statement answers its columns, rows and count'): a PostgreSQL 18 server started in a temp folder, a login role that owns database p_example (made-up names).",
+      "hands_back": "{\"columns\":[\"total\"],\"rows\":[{\"total\":5}],\"row_count\":1}"
+    }
+  ],
+  "drafted_from": "tools/run-sql-in-my-database/tool-rows.json and test/run-sql.test.mjs"
+}

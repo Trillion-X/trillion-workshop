@@ -3003,6 +3003,16 @@
           "why": "That row names the guard script in the old trillion repository; this owner holds the one-checkout script moved here byte for byte, because the advancer's hook test runs it, and no other live row owns it."
         }
       ]
+    },
+    {
+      "capability": "run one SQL statement, as written, in the person's own Postgres-wire database as the login a held connection names, and keep a recipe step's row output as a row of a table there",
+      "owner": ["tools/run-sql-in-my-database/"],
+      "entry": "tools/run-sql-in-my-database/tool-rows.json",
+      "evidence": "L078 cart plan section 7.2 and C2: the extended query protocol refuses more than one command (test/run-sql.test.mjs against a real PostgreSQL 18), the connection is a held value on descriptor 3, the SELECT-only login is the read rule",
+      "distinct_from": [
+        {"job": "move one list's rows out of the account's primary store into the list's own store, a page at a time, verified row for row before the primary lets them go", "why": "that moves the engine's own list rows between engine stores; this runs the person's SQL in a database the person holds a connection to"},
+        {"job": "apply one of the person's keep rules from their own schedule", "why": "that destroys expired records through the engine; this passes one statement to the person's own database and decides nothing"}
+      ]
     }
   ]
 }
