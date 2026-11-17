@@ -163,7 +163,9 @@ export const auth = betterAuth({
   // The home origins, and every verified attached origin at request time (attached-origins.mjs).
   trustedOrigins: trustedOriginsFor(settings),
   disabledPaths: settings.disabled_paths,
-  advanced: cookieOptions(settings),
+  // The limits are kept per person, by the client address the front door forwards (the headers settings.rate_limit names, past its own
+  // addresses in settings.rate_limit.trusted_proxies); with none found every person would share one bucket per path.
+  advanced: { ...cookieOptions(settings), ipAddress: { ipAddressHeaders: settings.rate_limit.client_ip_headers, trustedProxies: settings.rate_limit.trusted_proxies } },
   // A signed-in person deletes their own user (POST /delete-user) only while settings.json delete_user.enabled is true; off by default.
   user: {
     deleteUser: { enabled: settings.delete_user?.enabled === true },

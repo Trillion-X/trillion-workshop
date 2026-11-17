@@ -117,7 +117,15 @@
     "require_verification": true
   },
   "rate_limit": {
-    "enabled": true
+    "enabled": true,
+    "client_ip_headers": [
+      "x-forwarded-for",
+      "x-real-ip"
+    ],
+    "trusted_proxies": [
+      "127.0.0.0/8",
+      "::1/128"
+    ]
   },
   "cimd": {
     "fetch_module": "@better-auth/cimd/node"

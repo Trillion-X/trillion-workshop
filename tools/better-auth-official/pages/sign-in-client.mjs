@@ -59,6 +59,16 @@ const skip = way => localStorage.setItem(`trillion-skipped-${way}`, String(Date.
 // A step that needs a signed-in person sends one who is not to sign in and back (their own request carried on).
 const signedOut = error => [401, 403].includes(error?.status);
 const toSignIn = () => go('/sign-in', { next: location.pathname + location.search });
+// The signed-in person, or null after the page has been told why not: a person with no session is sent to sign in and back, but a read that
+// failed or was refused for too many asks (a 429 from a shared limit, a 5xx) is never taken for a signed-out person, or the page would send
+// someone who is signed in back to sign in, again and again.
+async function signedInPerson(sendToSignIn = toSignIn) {
+  const read = await client.getSession();
+  if (read.data) return read.data;
+  if (read.error) { status(read.error.status === 429 ? words.too_many : words.unavailable); return null; }
+  sendToSignIn();
+  return null;
+}
 // A passkey made on this device is remembered here, so the offer is not made again where one already exists.
 const hasPasskeyHere = () => localStorage.getItem('trillion-passkey-here') === '1';
 const markPasskeyHere = () => localStorage.setItem('trillion-passkey-here', '1');
@@ -163,8 +173,8 @@ async function passkey(button) {
 
 // The link that adds a passkey on another device: a one-time link by email, which signs that device in and offers its own passkey.
 async function emailTheLink(button) {
-  const session = (await client.getSession()).data;
-  if (!session) return toSignIn();
+  const session = await signedInPerson();
+  if (!session) return;
   const { error } = await client.signIn.magicLink({ email: session.user.email, callbackURL: '/sign-in/add-passkey' });
   return status(error ? button.dataset.failed : words.link_sent);
 }
@@ -219,8 +229,8 @@ const rememberedAs = (granted, asked) => {
   return asked.every(satisfied) ? { readOnly: narrowed && asked.some(scope => drops.includes(scope) || scope in swaps) } : null;
 };
 async function consentPage() {
-  const session = await client.getSession();
-  if (!session.data) return go('/sign-in');
+  const person = await signedInPerson(() => go('/sign-in'));
+  if (!person) return;
   const id = query.get('client_id') ?? '';
   const named = await json(`${authBase}/oauth2/public-client?client_id=${encodeURIComponent(id)}`);
   const clientHost = id.startsWith('https://') ? hostOf(id) : '';
@@ -264,7 +274,7 @@ async function undo() {
 // /connected: the AIs the person allowed, what each can do, when it connected and last used, and one tap to disconnect.
 const when = iso => new Date(iso).toLocaleString();
 async function connectedPage() {
-  if (!(await client.getSession()).data) return toSignIn();
+  if (!(await signedInPerson())) return;
   const listed = await json(`${authBase}/connected`);
   const ais = listed.data?.ais ?? [];
   document.querySelector('[data-fill="none"]').hidden = ais.length > 0;
@@ -325,7 +335,7 @@ async function approvalAsked() {
   return entry ? { rule: entry[1], from: value, input: value.approve.input, id, type: read.data.type } : null;
 }
 async function approvePage() {
-  if (!(await client.getSession()).data) return toSignIn();
+  if (!(await signedInPerson())) return;
   const asked = await approvalAsked();
   if (asked === 'signed-out') return toSignIn();
   if (!asked) return show('unknown');
@@ -363,7 +373,7 @@ const humane = id => { const said = id.replace(/[-_]+/g, ' ').trim(); return sai
 const hyphenated = code => { const plain = code.replace(/[^a-z0-9]/gi, '').toUpperCase(); return plain.length > 4 ? `${plain.slice(0, 4)}-${plain.slice(4)}` : plain; };
 async function devicePage() {
   if (!deviceCode) return show('code');
-  if (!(await client.getSession()).data) return go('/sign-in', { next: location.pathname + location.search });
+  if (!(await signedInPerson(() => go('/sign-in', { next: location.pathname + location.search })))) return;
   const asked = await json(`${authBase}/device?user_code=${encodeURIComponent(deviceCode)}`);
   if (!asked.ok) { show('code'); return status(asked.data?.error === 'expired_token' ? words.code_expired : words.code_wrong); }
   if (asked.data.status !== 'pending') return deviceDone(asked.data.status === 'approved');
@@ -434,6 +444,6 @@ document.addEventListener('click', event => {
 offerPasskeysInTheEmailBox();
 nameTheAsker().catch(() => {});
 // The pages that are for a signed-in person send one who is not to sign in and come back.
-const needsSession = async () => { if (!(await client.getSession()).data) toSignIn(); };
+const needsSession = async () => { await signedInPerson(); };
 const connectPage = { '/consent': consentPage, '/connected': connectedPage, '/approve': approvePage, '/device': devicePage, '/sign-in/add-passkey': needsSession, '/sign-in/change-email': needsSession }[location.pathname];
 connectPage?.().catch(() => status(words.unavailable));

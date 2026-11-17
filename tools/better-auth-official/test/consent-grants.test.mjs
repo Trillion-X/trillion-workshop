@@ -124,3 +124,12 @@ test('Trillion\'s own programs are named in settings by their client document ad
   assert.equal(await asked(''), false);
   assert.deepEqual(JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8')).mcp.first_party_clients, [], 'the shared tool names no product: the computer that runs it does');
 });
+
+test('the limits are kept per person: the client address comes from the forwarded header past the front door\'s own addresses, so one person never uses another\'s bucket', async () => {
+  const { getIP } = await import('@better-auth/core/utils/ip');
+  const options = auth.options;
+  const ask = forwarded => getIP(new Request(`${ORIGIN}/`, { headers: { 'x-forwarded-for': forwarded } }), options);
+  assert.equal(ask('203.0.113.7'), '203.0.113.7');
+  assert.equal(ask('203.0.113.7, 127.0.0.1'), '203.0.113.7', 'the front door\'s own hop is skipped');
+  assert.equal(ask('198.51.100.9, 203.0.113.7'), '203.0.113.7', 'the hop that is not the front door\'s is the client, whatever a client wrote before it');
+});
