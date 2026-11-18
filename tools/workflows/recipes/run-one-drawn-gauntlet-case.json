@@ -6,7 +6,7 @@
         "kind": "workflow-recipe",
         "id": "workflow:run-one-drawn-gauntlet-case",
         "label": "Run one drawn gauntlet case",
-        "job": "Run one case a gauntlet's generator drew, as the real call it stands for, and keep what it answered. A gauntlet keeps its axes, formulas, drawn cases and results as tables in the person's own database (gauntlet_<name>_axes, _formulas, _cases, _results); the formula engine draws each case as a row of _cases holding its number k, its words per axis and `call`, the input of one tools:list that has no effect. When such a row is added, this run reads it, makes that list call, and writes the whole answer to the gauntlet's _results table under the same k. A split is then read from the results with the gauntlet's own property, in the database's own language.",
+        "job": "Run one case a gauntlet's generator drew, as the real call it stands for, and keep what it answered. A gauntlet keeps its axes, formulas, drawn cases and results as tables in the person's own database (gauntlet_<name>_axes, _formulas, _cases, _results); the formula engine draws each case as a row of _cases holding its number k, its words per axis and `call`, the input of one tools:list that has no effect. When such a row is added, this run reads it, makes that list call, and writes the whole answer to the gauntlet's _results table under the same k; a call the door refuses is kept the same way, as {error}, so a refusal is a result too. A split is then read from the results with the gauntlet's own property, in the database's own language.",
         "produces": "One result row per drawn case: the real answer of the call the case stands for.",
         "input_schema": {
           "type": "object",
@@ -177,6 +177,67 @@
                   ]
                 }
               }
+            },
+            {
+              "id": "write-the-refusal",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "fact.connection"
+                    }
+                  },
+                  "sql": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "read-the-case",
+                      "path": "output.rows.0.table_name"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.text_substitute",
+                        "args": {
+                          "old": "_cases",
+                          "new": "_results"
+                        }
+                      },
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "prefix": "INSERT INTO ",
+                          "suffix": " (k, answered, run_by) VALUES ($1, $2, $3) ON CONFLICT (k) DO UPDATE SET answered = EXCLUDED.answered, run_by = EXCLUDED.run_by, written_at = now()"
+                        }
+                      }
+                    ]
+                  },
+                  "params": [
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "read-the-case",
+                        "path": "output.rows.0.after.k"
+                      }
+                    },
+                    {
+                      "error": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "list",
+                          "path": "error"
+                        }
+                      }
+                    },
+                    "workflow:run-one-drawn-gauntlet-case"
+                  ]
+                }
+              }
             }
           ],
           "edges": [
@@ -189,6 +250,11 @@
               "from": "list",
               "to": "write-the-result",
               "kind": "always"
+            },
+            {
+              "from": "list",
+              "to": "write-the-refusal",
+              "kind": "on_failure"
             }
           ]
         },
@@ -218,7 +284,6 @@
         ],
         "records": {
           "runs": [
-            "tool:read-one-row-change",
             "tool:run-sql-in-my-database"
           ]
         }

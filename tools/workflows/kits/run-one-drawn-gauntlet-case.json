@@ -17,7 +17,7 @@
     "2. Draw the cases with the formula engine: the size formula (flat_map each axis to its value count, then op:core.product) and the draw formula (case k as one value per axis, index floor(k / stride) mod radix); keep both as rows of gauntlet_<name>_formulas.",
     "3. Attach record_row_change() to gauntlet_<name>_cases (CREATE TRIGGER gauntlet_<name>_cases_changes AFTER INSERT OR UPDATE OR DELETE ON gauntlet_<name>_cases FOR EACH ROW EXECUTE FUNCTION record_row_change()), with the noticer's keep-noticing-row-changes and route-each-row-change's a-row-changed on.",
     "4. Turn on this workflow's wake chosen--a-gauntlet-case-row-is-added, then insert the drawn cases as rows of gauntlet_<name>_cases.",
-    "5. Read gauntlet_<name>_results: one row per case, the whole answer of its call. A split is a result the gauntlet's property does not hold for; read it in SQL and keep each one as a row."
+    "5. Read gauntlet_<name>_results: one row per case, the whole answer of its call (or {error} when the door refused the call). A split is a result the gauntlet's property does not hold for; read it in SQL and keep each one as a row."
   ],
   "worked_examples": [
     {
