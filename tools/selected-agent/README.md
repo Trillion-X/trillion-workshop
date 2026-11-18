@@ -6,12 +6,14 @@ Which AI answers a person: `do-work/set-selected-agent.ts` sends the request tha
 
 | File | Purpose |
 |------|---------|
-| `do-work/set-selected-agent.ts` | `setSelectedAgent(agentId, definitionId?)`: the one request that keeps the choice |
-| `run/plan-selected-agent.mjs` | `planSelectedAgent({ agent_id, definition_id? })` → `{ request, automatic }`: the request `setSelectedAgent` would send, unsent (what `tool-rows.json` runs) |
-| `run/requests-kept-here.mjs` | Stands in for `#workspace-records` in the run: keeps each request instead of sending it |
-| `run/package.json` | Maps `#workspace-records` to `requests-kept-here.mjs`, for files laid under `run/` only |
-| `tool-rows.json` | The row `tool:choose-which-ai-answers-me`, with a sample run that chooses a sample AI |
+| `do-work/set-selected-agent.ts` | `setSelectedAgent(agentId, definitionId?)`: the one request that keeps the choice. Still sends to the retired slot; the screen's owner repoints it (open) |
+| `packages/selected-agent/` | The selection screen, which imports `do-work/set-selected-agent.ts` |
+| `moved-from.json`, `part.json`, `README.md` | Provenance and this file |
 
-## The row
+## The choice
 
-The row lays `do-work/` under `run/` in the run (`/opt/selected-agent/run/do-work/`), so `set-selected-agent.ts` finds `run/package.json` as its nearest package and its `#workspace-records` import reaches the stand-in. In this folder `do-work/` stays outside `run/`, so nothing that imports `set-selected-agent.ts` from here gets the stand-in instead of the workspace's own sender. The row sends nothing and changes no one's choice.
+The person's choice of AI is a row in the person's own store, kept by the recipe `workflow:choose-which-ai-answers-me` (landed by lane w33-3 as its recipe and kit; the recipe is the one this folder's tool row described). One row holds a text id, or the empty choice for automatic routing; a choice that is not text is refused in words; a read with no choice kept gives automatic.
+
+## Removed (lane w33-3b)
+
+The run harness (`run/`: `plan-selected-agent.mjs`, `requests-kept-here.mjs`, `package.json`), the tool row (`tool-rows.json`, `tool:choose-which-ai-answers-me`) and its kit (`kits/choose-which-ai-answers-me.json`, now `tools/workflows/kits/choose-which-ai-answers-me.json`). What they did: `planSelectedAgent` built the request that keeps the choice, unsent, and a stand-in for `#workspace-records` kept each request in a run. The choice is kept by the recipe above, so the request has no store to build for.
