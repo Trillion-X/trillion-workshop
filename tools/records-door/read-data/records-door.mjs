@@ -259,7 +259,7 @@ export function openBearerCall({ url, resource, capability, fetchImpl = fetch,
   return { call, callOnce };
 }
 
-function openBearerDoor({ descriptor = 3, ...options } = {}) {
+export function openBearerDoor({ descriptor = 3, ...options } = {}) {
   const { url, resource, capability, files_resource: filesResource, tools_resource: toolsResource,
     computer_actions: computerActions, protected_actions: protectedActions } = JSON.parse(readFileSync(descriptor, 'utf8'));
   return { ...openBearerCall({ ...options, url, resource, capability }),

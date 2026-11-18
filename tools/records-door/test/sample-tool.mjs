@@ -5,6 +5,13 @@ export async function countNotes({ prefix }, { door }) {
   return { count };
 }
 
+export async function keepANote({ id, n }, { door }) {
+  await door.write([{ id, type: 'note', value: { n } }]);
+  return { kept: id, seen: (await door.read('note', id)).n };
+}
+
+export const askAnother = ({ n }, { door }) => door.run('tool:made-up-other', { n });
+
 export const echo = input => ({ echoed: input });
 
 export const later = ({ at_ms }) => ({ said: 'later', wake_effects: [{ wake: { at_ms } }] });

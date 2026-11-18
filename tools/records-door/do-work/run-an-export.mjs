@@ -5,15 +5,20 @@
 //
 //   node /opt/records-door/do-work/run-an-export.mjs /opt/<folder>/read-data/<file>.mjs <export>  < input.json
 //
-// The function is called as fn(input, { door, parentActions }). Both open only on first use. `door` reads descriptor 3;
-// `parentActions` reads the row's private action descriptor (3 by default, or the literal argv --parent-actions-fd N).
-// The descriptor route carries no authority on its own: the native parent rechecks this run at the physical effect.
+// The function is called as fn(input, { door, parentActions }). `door` answers the person's rows, settings and files from
+// the values the caller gave in the input's `stored` (read-data/values-door.mjs): the engine keeps none of them, so the
+// person's AI reads them from the person's own stores and hands them in. What the run writes comes back as the answer's
+// `keep`, for the caller to keep there. Any other call (tools:run, sharing, wake) goes to the run's own door, which reads
+// descriptor 3 on first use. `parentActions` reads the row's private action descriptor (3 by default, or the literal argv
+// --parent-actions-fd N). The descriptor route carries no authority on its own: the native parent rechecks this run at
+// the physical effect.
 //
 // A function a wake started may answer `wake_effects` (the engine's wake.json `effects_field`: timed runs, writes,
 // events). The engine reads them from the top of the last line, so they are printed beside the result, not in it.
 import { text } from 'node:stream/consumers';
 import { pathToFileURL } from 'node:url';
-import { openRecordsDoor, openParentActions } from '../read-data/records-door.mjs';
+import { openBearerDoor, openParentActions } from '../read-data/records-door.mjs';
+import { valuesDoor } from '../read-data/values-door.mjs';
 
 const EFFECTS = 'wake_effects';
 const [file, name, ...options] = process.argv.slice(2);
@@ -24,13 +29,18 @@ try {
   if (!Number.isSafeInteger(parentActionsFd) || parentActionsFd < 3) throw new Error('Supply --parent-actions-fd with the row\'s declared file descriptor.');
   const fn = (await import(pathToFileURL(file).href))[name];
   if (typeof fn !== 'function') throw new Error(`${file} has no function ${name}.`);
-  let door, parentActions;
+  const { stored, ...input } = JSON.parse((await text(process.stdin)) || '{}');
+  let own, parentActions;
+  const given = valuesDoor(stored, { other: (...asked) => (own ??= openBearerDoor()).call(...asked) });
   const context = {
-    get door() { return (door ??= openRecordsDoor()); },
+    door: given.door,
     get parentActions() { return (parentActions ??= openParentActions({ descriptor: parentActionsFd })); },
   };
-  const input = JSON.parse((await text(process.stdin)) || '{}');
-  const result = await fn(input, context);
+  const answered = await fn(input, context);
+  const keep = given.keep();
+  const result = !keep.length ? answered
+    : answered && typeof answered === 'object' && !Array.isArray(answered) ? { ...answered, keep: [...(answered.keep ?? []), ...keep] }
+    : { answer: answered, keep };
   if (result && typeof result === 'object' && !Array.isArray(result) && EFFECTS in result) {
     const { [EFFECTS]: effects, ...shown } = result;
     console.log(JSON.stringify({ result: shown, [EFFECTS]: effects }));

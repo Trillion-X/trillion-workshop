@@ -699,20 +699,25 @@ function runExport(name, input, descriptor) {
   return { status: run.status, answer: JSON.parse(run.stdout.trim().split('\n').at(-1)) };
 }
 
-test('run-an-export calls the named function with the input and the door, and prints its result', async () => {
-  const records = [{ id: 'note:a1', type: 'note', value: { n: 1 } }, { id: 'note:a2', type: 'note', value: { n: 2 } }, { id: 'note:b1', type: 'note', value: { n: 3 } }];
-  const door = await startFakeDoor({ rights: [{ kind: 'note', operations: ['records:list'] }], records });
+test('run-an-export answers the door from the rows given in `stored`, and hands every write back as `keep`', () => {
+  const stored = { records: [{ id: 'note:a1', type: 'note', value: { n: 1 } }, { id: 'note:a2', type: 'note', value: { n: 2 } }, { id: 'note:b1', type: 'note', value: { n: 3 } }] };
+  assert.deepEqual(runExport('countNotes', { prefix: 'note:a', stored }), { status: 0, answer: { result: { count: 2 } } });
+  assert.deepEqual(runExport('keepANote', { id: 'note:c1', n: 4, stored }), { status: 0, answer: { result: { kept: 'note:c1', seen: 4, keep: [{ id: 'note:c1', type: 'note', value: { n: 4 } }] } } });
+  assert.deepEqual(runExport('countNotes', { prefix: 'note:' }), { status: 0, answer: { result: { count: 0 } } }, 'nothing given is nothing read');
+});
+
+test('run-an-export sends what the values do not answer to the run\'s own door', async () => {
+  const door = await startFakeDoor({ runs: ['tool:made-up-other'], toolRuns: { 'tool:made-up-other': input => ({ doubled: input.n * 2 }) } });
   try {
     const answer = await new Promise((done, fail) => {
-      const stdio = ['pipe', 'pipe', 'pipe', openSync(door.descriptor, 'r')];
-      const child = spawn(process.execPath, [driver, sample, 'countNotes'], { stdio });
+      const child = spawn(process.execPath, [driver, sample, 'askAnother'], { stdio: ['pipe', 'pipe', 'pipe', openSync(door.descriptor, 'r')] });
       let out = '';
       child.stdout.on('data', chunk => { out += chunk; });
       child.on('error', fail);
       child.on('close', status => done({ status, answer: JSON.parse(out.trim().split('\n').at(-1)) }));
-      child.stdin.end(JSON.stringify({ prefix: 'note:a' }));
+      child.stdin.end(JSON.stringify({ n: 21 }));
     });
-    assert.deepEqual(answer, { status: 0, answer: { result: { count: 2 } } });
+    assert.deepEqual(answer, { status: 0, answer: { result: { doubled: 42 } } });
   } finally { await door.close(); }
 });
 
