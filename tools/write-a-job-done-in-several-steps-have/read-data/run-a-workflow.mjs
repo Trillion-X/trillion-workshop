@@ -12,10 +12,16 @@
 //     per step, and after a step with checks the steps that judge them, with the lookups' definitions in `uses`).
 //   - An answer is given by step id; a step's checks run on the engine as ordinary steps, so a bad answer fails the
 //     run there, naming the rule and the values that break it, never judged here.
+//   - A listed workflow row runs as this tool (its row source's invoke_with): the engine hands the row's id as `row`
+//     beside the run's own fields (a wake's input, or a tools:run input), so `row` as text is a shipped recipe by id
+//     (public-recipes.mjs) and every other field is the run's input. `start_at` in that input names the step a woken
+//     run starts at: the run starts there, and a step it names that the recipe lacks is refused.
+//   - Every run of a recipe carries its kit (kitFor) in the answer, so no run starts without one.
 import { readFileSync } from 'node:fs';
 import { definitionOf } from './workflows.mjs';
 import { recipeFromRows } from '../../workflows/read-data/recipe-rows.mjs';
 import { kitFor } from '../../workflows/read-data/kit-for-a-run.mjs';
+import { publicRecipe } from '../../workflows/read-data/public-recipes.mjs';
 import { makeWorkflowDefinitionRunner } from '../../run-a-workflow-definition-on-the-workflow-engine-in-one-call/src/workflow-definition-runner.mjs';
 
 const ENGINE = new URL('../../build-engine-modules-for-web-hosts/built-stored-bytes/workflow-engine/', import.meta.url);
@@ -31,9 +37,10 @@ export async function workflowEngine() {
   return loaded;
 }
 
-/** The recipe as its payload: given as one, or made from the person's recipe row and step rows. */
+/** The recipe as its payload: given as one, a shipped recipe named by id, or made from the person's recipe row and step rows. */
 export function recipeOf({ recipe = null, row = null, steps = [] }) {
   if (recipe) return recipe;
+  if (typeof row === 'string') return publicRecipe(row);
   if (row) return recipeFromRows(row, steps);
   throw new Error('Give recipe (a recipe payload) or row with its steps (the rows the person keeps).');
 }
@@ -41,23 +48,38 @@ export function recipeOf({ recipe = null, row = null, steps = [] }) {
 /** The kit the run carries, chosen before the engine runs. */
 export const kitOf = recipe => kitFor(recipe);
 
-/** One run: { recipe | row + steps, input?, answers? } → { definition, run } where run.status is the engine's. */
+/** The recipe from the step `start_at` names on, or the recipe itself when it names none. */
+function startingAt(payload, start) {
+  if (start === undefined) return payload;
+  const at = (payload.steps ?? []).findIndex(step => step.id === start);
+  if (at < 0) throw new Error(`start_at names ${JSON.stringify(start)}, which is not a step of ${payload.id}: ${(payload.steps ?? []).map(step => step.id).join(', ')}.`);
+  return { ...payload, steps: payload.steps.slice(at) };
+}
+
+/** One run: { recipe | row + steps, input?, answers? } → { definition, run, kit } where run.status is the engine's. */
 export async function runAWorkflow({ recipe = null, row = null, steps = [], input = {}, answers = {}, partition = 'person' } = {}, { engine = workflowEngine } = {}) {
-  const payload = recipeOf({ recipe, row, steps });
+  const shipped = recipeOf({ recipe, row, steps });
+  const payload = startingAt(shipped, input?.start_at);
   const definition = definitionOf(payload);
   const runner = makeWorkflowDefinitionRunner(engine);
   const run = await runner.runWorkflowDefinition({ definitions: [definition, ...(definition.uses ?? [])], workflow_id: definition.id, input, answers, partition });
-  return { definition, run };
+  return { definition, run, kit: kitFor(shipped) };
 }
 
 /** tool:run-workflow-definition: given definitions and a workflow_id, those run as they are; given a recipe (or its row
  *  and step rows), it is made a definition first. Returns the run (status, waiting, each step's output), and the
  *  definition made when a recipe was given. */
-export async function runWorkflow({ definitions = null, workflow_id = null, recipe = null, row = null, steps = [], input = {}, answers = {}, partition = 'person' } = {}, { engine = workflowEngine } = {}) {
+export async function runWorkflow({ definitions = null, workflow_id = null, recipe = null, row = null, steps = [], input, answers = {}, partition = 'person', ...given } = {}, { engine = workflowEngine } = {}) {
+  if (Object.keys(given).length) {
+    // A listed row run as this tool: its own fields are the run's input (a wake's input, or a tools:run input).
+    if (typeof row !== 'string' || input !== undefined) throw new Error(`Only a listed workflow row's run takes fields of its own (${Object.keys(given).join(', ')}); give them as input.`);
+    input = given;
+  }
+  input ??= {};
   if (definitions) {
     if (recipe || row) throw new Error('Give definitions with a workflow_id, or a recipe (or its row and steps), not both.');
     return makeWorkflowDefinitionRunner(engine).runWorkflowDefinition({ definitions, workflow_id, input, answers, partition });
   }
-  const { definition, run } = await runAWorkflow({ recipe, row, steps, input, answers, partition }, { engine });
-  return { ...run, definition };
+  const { definition, run, kit } = await runAWorkflow({ recipe, row, steps, input, answers, partition }, { engine });
+  return { ...run, definition, kit };
 }

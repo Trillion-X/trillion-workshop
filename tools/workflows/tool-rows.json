@@ -12,7 +12,7 @@
             "file": "recipes"
           }
         },
-        "invoke_with": "tool:start-a-recipe-run"
+        "invoke_with": "tool:run-workflow-definition"
       }
     },
     {

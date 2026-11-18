@@ -16,10 +16,10 @@
         "id": "tool:run-workflow-definition",
         "label": "Run a workflow definition (workflow engine)",
         "job": "Workflow engine: run a workflow definition of steps (asks, branches, loops, parallel steps, checks) with an input, using the answers known so far, and say where it finished or which steps are waiting for an answer",
-        "description": "Give definitions (workflow-core definitions: id, name, kind \"workflow\", is_active, version, steps [{id, kind, config}], edges [{from, to, kind}]), the workflow_id to run, its input and answers keyed by step id (an ask's config.context.step_id) or ask name. Returns the run (status completed, failed or paused, each step's output) and waiting: the asks with no answer yet, each with the input the engine gave it. Call again with those answers added and the run goes on from there. Or give a recipe (or the person's record:workflow-recipe row with its record:workflow-step rows) instead of definitions: it becomes one definition, each step an ask (named \"ai\", or the tool a step runs) followed by a check step holding the step's checks, and a recipe holding its own definition runs as that definition. A check fails the run with the engine's own words, naming the value. Nothing is kept: the caller keeps the answers and calls again.",
+        "description": "Give definitions (workflow-core definitions: id, name, kind \"workflow\", is_active, version, steps [{id, kind, config}], edges [{from, to, kind}]), the workflow_id to run, its input and answers keyed by step id (an ask's config.context.step_id) or ask name. Returns the run (status completed, failed or paused, each step's output) and waiting: the asks with no answer yet, each with the input the engine gave it. Call again with those answers added and the run goes on from there. Or give a recipe (or the person's record:workflow-recipe row with its record:workflow-step rows) instead of definitions: it becomes one definition, each step an ask (named \"ai\", or the tool a step runs) followed by a check step holding the step's checks, and a recipe holding its own definition runs as that definition. A check fails the run with the engine's own words, naming the value. A listed workflow row (source:workflow-recipes) runs as this tool: given its id as row, the shipped recipe runs, the row's other fields (a wake's input) are the run's input, start_at there is the step the run starts at, and the answer carries the recipe's kit. Nothing is kept: the caller keeps the answers and calls again.",
         "input_schema": {
           "type": "object",
-          "additionalProperties": false,
+          "additionalProperties": true,
           "properties": {
             "definitions": {
               "type": "array",
@@ -49,8 +49,11 @@
               "description": "A workflow recipe (id, title, steps in order, or its own definition): made a definition by definitionOf, then run"
             },
             "row": {
-              "type": "object",
-              "description": "The person's record:workflow-recipe row, given instead of recipe, with its steps"
+              "type": [
+                "object",
+                "string"
+              ],
+              "description": "The person's record:workflow-recipe row, given instead of recipe, with its steps; or a shipped workflow row's id, which is what the engine hands when a listed workflow row runs as this tool (its row source's invoke_with). Then every field other than these is the run's input, and start_at there names the step the run starts at."
             },
             "steps": {
               "type": "array",
@@ -432,10 +435,12 @@
                   "read-data/kit-for-a-run.mjs",
                   "read-data/kit-problems.mjs",
                   "read-data/kit-words.mjs",
+                  "read-data/public-recipes.mjs",
                   "read-data/recipe-rows.mjs",
                   "read-data/sql.mjs",
                   "read-data/step-outputs.mjs",
                   "recipe-check-kinds.json",
+                  "recipes",
                   "sql"
                 ],
                 "at": "/opt/workflows"

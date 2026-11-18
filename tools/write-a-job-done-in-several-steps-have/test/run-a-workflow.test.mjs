@@ -117,3 +117,26 @@ test('a parallel loop asks every lane before it pauses, so every lane is waiting
   assert.equal(run.status, 'paused');
   assert.equal(run.waiting.length, lanes);
 });
+
+// A listed workflow row runs as this tool (source:workflow-recipes invoke_with): the engine hands the row's id as `row`
+// beside the wake's input. Every shipped wake must start its run on the engine at the step its start_at names.
+test('(w) every shipped workflow wake runs on the engine from its row id and starts at the step its start_at names, with its kit', async () => {
+  const { publicRecipes } = await import('../../workflows/read-data/public-recipes.mjs');
+  const woken = publicRecipes().flatMap(recipe => (recipe.wakes ?? []).map(wake => ({ recipe, wake })));
+  assert.ok(woken.length >= 14, `expected the shipped wakes, found ${woken.length}`);
+  for (const { recipe, wake } of woken) {
+    const run = await runWorkflow({ row: recipe.id, ...wake.input });
+    assert.notEqual(run.status, 'failed', `${recipe.id} ${wake.id}: ${run.error_message}`);
+    if (recipe.definition) continue;
+    const first = wake.input.start_at ?? recipe.steps[0].id;
+    assert.equal(run.definition.steps[0].id, first, `${recipe.id} ${wake.id}`);
+    assert.ok(run.kit && typeof run.kit === 'object', `${recipe.id} carries a kit`);
+  }
+});
+
+test('(x) a start_at that names no step is refused, and fields of its own are refused unless the row is named by id', async () => {
+  const { publicRecipes } = await import('../../workflows/read-data/public-recipes.mjs');
+  const shipped = publicRecipes().find(recipe => recipe.steps?.length);
+  await assert.rejects(runWorkflow({ row: shipped.id, start_at: 'made-up-step' }), /start_at names "made-up-step", which is not a step/);
+  await assert.rejects(runWorkflow({ recipe: shipped, start_at: 'x' }), /Only a listed workflow row's run takes fields of its own/);
+});
