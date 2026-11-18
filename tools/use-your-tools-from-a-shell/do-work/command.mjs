@@ -1609,17 +1609,26 @@ export function sendNote(answer, rules = settings) {
   return to ? fill(rules.send_note.to, { to }) : rules.send_note.any;
 }
 
-/** Where a local bridge finds this computer's engine: the address and where the key lives (never the key), rewritten whenever the key changes, so a rotated key never breaks a bridge that reads this file. */
-export function connectionOf({ origin, store, rules = settings, account = null, at = new Date().toISOString() }) {
-  const base = { schema: rules.connection.schema, origin, mcp_url: `${origin}/mcp`, account, key_source: { env: rules.env.key, where: store.where, keychain_item: rules.keychain_item, key_file: rules.key_file }, written_at: at };
-  const fill = text => text.replaceAll('{mcp_url}', base.mcp_url).replaceAll('{origin}', origin).replaceAll('{key_env}', base.key_source.env);
+/** Where a local bridge finds this computer's engine: the address and where the credential this command holds lives (never
+ *  the credential), rewritten whenever it changes, so a rotated key never breaks a bridge that reads this file. A sign-in
+ *  `login` made is held only by this command (its pass is renewed here and handed to nobody), so a recipe that sends a key
+ *  (`{key_env}` in its template) is offered only while a key is what this command holds. */
+export function connectionOf({ origin, store, credential = null, rules = settings, account = null, at = new Date().toISOString() }) {
+  const signedIn = credential?.kind === 'sign-in';
+  const keySource = signedIn ? { kind: credential.kind, where: credential.where }
+    : { kind: 'key', env: rules.env.key, where: store.where, keychain_item: rules.keychain_item, key_file: rules.key_file };
+  const base = { schema: rules.connection.schema, origin, mcp_url: `${origin}/mcp`, account, key_source: keySource, written_at: at };
+  const fill = text => text.replaceAll('{mcp_url}', base.mcp_url).replaceAll('{origin}', origin).replaceAll('{key_env}', rules.env.key);
+  const offered = rules.connection.recipes.filter(row => !(signedIn && row.template?.includes('{key_env}')));
   // The connection guide owns app commands; standalone CLI installs point to that current guide rather than ship a copied manual.
-  return { ...base, recipes: rules.connection.recipes.map(row => ({ id: row.id, label: row.label,
+  return { ...base, recipes: offered.map(row => ({ id: row.id, label: row.label,
     command: row.guide ? `Follow ${row.label}'s current connection steps: ${new URL(row.guide.path, origin).href}` : fill(row.template),
     ...(row.guide ? { guide: { ...row.guide, url: new URL(row.guide.path, origin).href } } : {}),
   })) };
 }
-const keepConnection = (context, door, account) => { context.state.keepConnection(connectionOf({ origin: door.origin, store: context.store, account })); };
+const keepConnection = (context, client, account) => {
+  context.state.keepConnection(connectionOf({ origin: client.door.origin, store: context.store, credential: client.credential, account }));
+};
 
 /** The audiences a pass names (its `aud` claim, one or a list), read without checking it: which doors it was made for. */
 export function audiencesOf(bearer) {
@@ -1666,7 +1675,7 @@ async function login(context, { again = false } = {}) {
     if (client) {
       try {
         const known = await knownAs(context, client);
-        keepConnection(context, client.door, known.account);
+        keepConnection(context, client, known.account);
         return `${signedInWords(client.credential)}${await carriedWords(context)}`;
       } catch (error) {
         // A kept credential the engine refuses is no sign-in: the person signs in again. Anything else (an engine that did not answer) is said.
@@ -1701,7 +1710,7 @@ async function login(context, { again = false } = {}) {
   }
   const client = await signedInClient(context);
   const known = await knownAs(context, client).catch(error => { throw refusedBy(error) ? new CommandError(fill(settings.words.refused_new, { why: error.why ?? error.message }), { status: 3, detail: error.detail }) : error; });
-  keepConnection(context, client.door, known.account);
+  keepConnection(context, client, known.account);
   return `${signedInWords(client.credential)}${await carriedWords(context)}`;
 }
 
@@ -1861,9 +1870,11 @@ export async function main(argv, seams = {}) {
   if (command === 'logout') return logout(context);
   if (command === 'connection') {
     const credential = await credentialFor({ env, store: context.store, grants: context.grants, fetchImpl: context.fetchImpl }).catch(() => null);
-    const kept = context.state.connection() ?? connectionOf({ origin: (doorFor({ asked: context.asked, declared: context.declared, credential, localMcp: context.localMcp() })).origin, store: context.store });
+    // Said from the credential held now; the kept file is only what a bridge reads, and is rewritten from this with --write.
+    const kept = credential === null && context.state.connection() ? context.state.connection()
+      : connectionOf({ origin: (doorFor({ asked: context.asked, declared: context.declared, credential, localMcp: context.localMcp() })).origin, store: context.store, credential });
     if (flags.write === true) context.state.keepConnection(kept);
-    return flags.json ? JSON.stringify(kept, null, 2) : [`${kept.mcp_url}  (key: ${kept.key_source.where})`, ...kept.recipes.map(row => `${row.label}: ${row.command}`)].join('\n');
+    return flags.json ? JSON.stringify(kept, null, 2) : [`${kept.mcp_url}  (${kept.key_source.kind === 'sign-in' ? 'signed in' : 'key'}: ${kept.key_source.where})`, ...kept.recipes.map(row => `${row.label}: ${row.command}`)].join('\n');
   }
   if (command === 'setup') {
     const only = flags.harness ? String(flags.harness).split(',') : null;
