@@ -12,7 +12,7 @@ import { controlShown, showListed, useShowChange } from '../../ui/show/show-rule
 import { CONTENT_HOST_ATTRIBUTE } from './content-host.ts';
 import { useBitfieldData } from '#workspace-records';
 
-import { readPlaceableSurfaces } from '../read-data/read-published-records.ts';
+import { readPlaceableSurfaces } from '../../sidebar/read-data/read-published-records.ts';
 import {
   offerableSurfaces,
   ViewerAccessRefsContext,
@@ -27,7 +27,7 @@ import {
   writeCollectionView,
   DEFAULT_COLLECTION_VIEW,
   type CollectionViewState,
-} from '../do-work/collection-view-preference.ts';
+} from '../../sidebar/do-work/collection-view-preference.ts';
 import { partitionLabelForSurfaceList, useSurfaceCollections } from './use-surface-collections.ts';
 import { callerCollectionSections } from '../read-data/caller-collection-sections.ts';
 import {
@@ -35,15 +35,15 @@ import {
   collectSurfaceIds,
   nextViewMode,
   shouldShowFullCatalog,
-} from './CollectionSections.ts';
+} from '../../sidebar/show/CollectionSections.ts';
 import { CollectionManagerRow } from './CollectionManagerRow.tsx';
 import { DesktopSidebar } from './DesktopSidebar.tsx';
 import { Text } from '../../ui/index.ts';
 import { SidebarContent, type NavItemData, type NavSectionData } from './SidebarContent.tsx';
 import { mergeSidebarSettings, type SidebarSettings } from '../read-data/sidebar-settings.ts';
 import type { SurfacePreview } from '../../ui/show/surface-preview/SurfacePreviewCard';
-import { ShowRepliesSidebarCanUse } from './ShowRepliesSidebarCanUse.tsx';
-import { ContainedSidebar } from './ContainedSidebar.tsx';
+import { ShowRepliesSidebarCanUse } from '../../sidebar/show/ShowRepliesSidebarCanUse.tsx';
+import { ContainedSidebar } from '../../sidebar/show/ContainedSidebar.tsx';
 import type { DesktopSidebarProps } from './DesktopSidebar.tsx';
 
 export interface AppSidebarProps {

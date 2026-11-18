@@ -36,17 +36,6 @@
       "found_by": "same bytes"
     },
     {
-      "from": "parts/sidebar/do-work/ask-discovered-addresses.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/organize-the-sidebar/do-work/ask-discovered-addresses.ts",
-      "source_identity": "1f:53210e1c95054ef77e362f275431fc51718d6cd3de6fbb73513d8c0d478da0dc",
-      "identity_at_move": "1f:53210e1c95054ef77e362f275431fc51718d6cd3de6fbb73513d8c0d478da0dc",
-      "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d",
-      "found_by": "same bytes",
-      "changed_after_copy": "its relative imports name their file extensions, so it loads under node --test"
-    },
-    {
       "from": "parts/group/do-work/attribute-bundle-palette.ts",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
@@ -741,15 +730,6 @@
       "changed_after_copy": "its relative imports name their file extensions, so it loads under node --test"
     },
     {
-      "from": "parts/sidebar/do-work/collection-view-preference.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/organize-the-sidebar/do-work/collection-view-preference.ts",
-      "source_identity": "1f:ef80a7da4df79ede16e6d844c05dff3813ce105c732d6169f491edeaad46c31c",
-      "identity": "1f:ef80a7da4df79ede16e6d844c05dff3813ce105c732d6169f491edeaad46c31c",
-      "found_by": "same bytes"
-    },
-    {
       "from": "parts/group/do-work/color-harmony.ts",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
@@ -959,15 +939,6 @@
       "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d",
       "found_by": "same bytes",
       "changed_after_copy": "its relative imports name their file extensions, so it loads under node --test"
-    },
-    {
-      "from": "parts/sidebar/do-work/instance-placement.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/organize-the-sidebar/do-work/instance-placement.ts",
-      "source_identity": "1f:4450a6a80ece4fc82467615912a2e572275bfe29b96ae3538e58ad439dc9eba0",
-      "identity": "1f:4450a6a80ece4fc82467615912a2e572275bfe29b96ae3538e58ad439dc9eba0",
-      "found_by": "same bytes"
     },
     {
       "from": "parts/group/do-work/label-color.ts",
@@ -1209,17 +1180,6 @@
       "to": "tools/organize-the-sidebar/do-work/treemap.ts",
       "source_identity": "1f:425a6b5baef5d664596c07653fb77e6fa32d0f427a00a1261086278b38687d80",
       "identity_at_move": "1f:425a6b5baef5d664596c07653fb77e6fa32d0f427a00a1261086278b38687d80",
-      "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d",
-      "found_by": "same bytes",
-      "changed_after_copy": "its relative imports name their file extensions, so it loads under node --test"
-    },
-    {
-      "from": "parts/sidebar/do-work/update-sidebar-placement.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/organize-the-sidebar/do-work/update-sidebar-placement.ts",
-      "source_identity": "1f:d4fb3eab17ce21e45acd9918685b8e638fc7d7cf87a5c20c12e3c38b8f15bdcf",
-      "identity_at_move": "1f:d4fb3eab17ce21e45acd9918685b8e638fc7d7cf87a5c20c12e3c38b8f15bdcf",
       "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d",
       "found_by": "same bytes",
       "changed_after_copy": "its relative imports name their file extensions, so it loads under node --test"
@@ -1894,15 +1854,6 @@
       "changed_after_copy": "its relative imports name their file extensions, so it loads under node --test"
     },
     {
-      "from": "parts/sidebar/read-data/bar-fit.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/organize-the-sidebar/read-data/bar-fit.ts",
-      "source_identity": "1f:d8c5d5ac338c8436e4288a30e65f0a698c988b14ddac574c4c0168c6101ea1b2",
-      "identity": "1f:d8c5d5ac338c8436e4288a30e65f0a698c988b14ddac574c4c0168c6101ea1b2",
-      "found_by": "same bytes"
-    },
-    {
       "from": "parts/group/read-data/board-agenda.ts",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
@@ -2487,15 +2438,6 @@
       "found_by": "same bytes"
     },
     {
-      "from": "parts/sidebar/read-data/docked-list-fit.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/organize-the-sidebar/read-data/docked-list-fit.ts",
-      "source_identity": "1f:0fb11b402a1ebc7d64d924907ea38d3a05663ad708170c04a4de4ae10f126c39",
-      "identity": "1f:0fb11b402a1ebc7d64d924907ea38d3a05663ad708170c04a4de4ae10f126c39",
-      "found_by": "same bytes"
-    },
-    {
       "from": "parts/group/read-data/duplicate-connectors.ts",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
@@ -2778,15 +2720,6 @@
       "found_by": "same bytes"
     },
     {
-      "from": "parts/sidebar/read-data/read-published-records.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/organize-the-sidebar/read-data/read-published-records.ts",
-      "source_identity": "1f:ca689bcfb2612f20ef624bd5c115a50db4ffb003bdd608ae6b98554353dfcbb9",
-      "identity": "1f:ca689bcfb2612f20ef624bd5c115a50db4ffb003bdd608ae6b98554353dfcbb9",
-      "found_by": "same bytes"
-    },
-    {
       "from": "parts/sidebar/read-data/read-sidebar-placement.ts",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
@@ -2990,15 +2923,6 @@
       "to": "tools/organize-the-sidebar/read-data/share-scope.ts",
       "source_identity": "1f:b2ad5ab831a0050828fc0220a26135da9d8b6f87fdab19b564445f444f522837",
       "identity": "1f:b2ad5ab831a0050828fc0220a26135da9d8b6f87fdab19b564445f444f522837",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "parts/sidebar/read-data/sidebar-badge-marks.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/organize-the-sidebar/read-data/sidebar-badge-marks.ts",
-      "source_identity": "1f:c152b67e9492790cc9a900bec0a9bcd0dc3df409260a98999d00137be50e49a9",
-      "identity": "1f:c152b67e9492790cc9a900bec0a9bcd0dc3df409260a98999d00137be50e49a9",
       "found_by": "same bytes"
     },
     {
@@ -3858,17 +3782,6 @@
       "changed_after_copy": "its relative imports name their file extensions, so it loads under node --test"
     },
     {
-      "from": "parts/sidebar/show/CollectionSections.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/organize-the-sidebar/show/CollectionSections.ts",
-      "source_identity": "1f:16ddaab31eeddadcedced3940def4c1d606577f03d67aa3670fcdbc47899c8d2",
-      "identity_at_move": "1f:16ddaab31eeddadcedced3940def4c1d606577f03d67aa3670fcdbc47899c8d2",
-      "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d",
-      "found_by": "same bytes",
-      "changed_after_copy": "its relative imports name their file extensions, so it loads under node --test"
-    },
-    {
       "from": "parts/group/show/color-harmony.ts",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
@@ -3930,17 +3843,6 @@
       "to": "tools/organize-the-sidebar/show/ConnectorLayer.tsx",
       "source_identity": "1f:7f6c77a8c804e21e9fa2cbbc6c8e3c4a73b4677a3a0f6756a0f4ce20239c10ba",
       "identity_at_move": "1f:7f6c77a8c804e21e9fa2cbbc6c8e3c4a73b4677a3a0f6756a0f4ce20239c10ba",
-      "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d",
-      "found_by": "same bytes",
-      "changed_after_copy": "its relative imports name their file extensions, so it loads under node --test"
-    },
-    {
-      "from": "parts/sidebar/show/ContainedSidebar.tsx",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/organize-the-sidebar/show/ContainedSidebar.tsx",
-      "source_identity": "1f:ef793eae3e35fad0ea17c415247c3e59f5c670222b11bdc4bc908e8d6c78e0b7",
-      "identity_at_move": "1f:ef793eae3e35fad0ea17c415247c3e59f5c670222b11bdc4bc908e8d6c78e0b7",
       "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d",
       "found_by": "same bytes",
       "changed_after_copy": "its relative imports name their file extensions, so it loads under node --test"
@@ -4308,17 +4210,6 @@
       "changed_after_copy": "its relative imports name their file extensions, so it loads under node --test"
     },
     {
-      "from": "parts/sidebar/show/ListShowsWhen.tsx",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/organize-the-sidebar/show/ListShowsWhen.tsx",
-      "source_identity": "1f:11665a6386c8a71381a8aee39a80a7337c1a09298c9f497c3e74506961d3de46",
-      "identity_at_move": "1f:11665a6386c8a71381a8aee39a80a7337c1a09298c9f497c3e74506961d3de46",
-      "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d",
-      "found_by": "same bytes",
-      "changed_after_copy": "its relative imports name their file extensions, so it loads under node --test"
-    },
-    {
       "from": "parts/group/show/markdown-to-drafts.ts",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
@@ -4474,17 +4365,6 @@
       "source_identity": "1f:61da6de44e0e0209bc4a972faa77765f533ba24a6ce9f0350a8e4563ebe26491",
       "identity": "1f:61da6de44e0e0209bc4a972faa77765f533ba24a6ce9f0350a8e4563ebe26491",
       "found_by": "same bytes"
-    },
-    {
-      "from": "parts/sidebar/show/place-drag.tsx",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/organize-the-sidebar/show/place-drag.tsx",
-      "source_identity": "1f:39c1e7c02de4e340ea39909be8f00d611779920d51b3e362b6f118087e3a9e6b",
-      "identity_at_move": "1f:39c1e7c02de4e340ea39909be8f00d611779920d51b3e362b6f118087e3a9e6b",
-      "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d",
-      "found_by": "same bytes",
-      "changed_after_copy": "its relative imports name their file extensions, so it loads under node --test"
     },
     {
       "from": "parts/group/show/placeable-surface-shelf.ts",
@@ -4831,28 +4711,6 @@
       "changed_after_copy": "its relative imports name their file extensions, so it loads under node --test"
     },
     {
-      "from": "parts/sidebar/show/ShowRepliesSidebarCanUse.tsx",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/organize-the-sidebar/show/ShowRepliesSidebarCanUse.tsx",
-      "source_identity": "1f:734e29d327754cca62f758a0c6d60c1297745e1bfaf746f5da2711b4f4b2bd84",
-      "identity_at_move": "1f:734e29d327754cca62f758a0c6d60c1297745e1bfaf746f5da2711b4f4b2bd84",
-      "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d",
-      "found_by": "same bytes",
-      "changed_after_copy": "its relative imports name their file extensions, so it loads under node --test"
-    },
-    {
-      "from": "parts/sidebar/show/SidebarBar.tsx",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/organize-the-sidebar/show/SidebarBar.tsx",
-      "source_identity": "1f:2341fdb861270a4a3d4b23db9ae7982ba7fcb3fe421f28411a692675d857ca01",
-      "identity_at_move": "1f:2341fdb861270a4a3d4b23db9ae7982ba7fcb3fe421f28411a692675d857ca01",
-      "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d",
-      "found_by": "same bytes",
-      "changed_after_copy": "its relative imports name their file extensions, so it loads under node --test"
-    },
-    {
       "from": "parts/sidebar/show/SidebarContent.tsx",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
@@ -5055,17 +4913,6 @@
       "to": "tools/organize-the-sidebar/show/use-surface-presence.ts",
       "source_identity": "1f:2a8f30cc863f924ba08358356191f15cf5585cfcf2e64b9cd6d4c40053c95771",
       "identity_at_move": "1f:2a8f30cc863f924ba08358356191f15cf5585cfcf2e64b9cd6d4c40053c95771",
-      "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d",
-      "found_by": "same bytes",
-      "changed_after_copy": "its relative imports name their file extensions, so it loads under node --test"
-    },
-    {
-      "from": "parts/sidebar/show/useSidebarPlacement.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/organize-the-sidebar/show/useSidebarPlacement.ts",
-      "source_identity": "1f:fcf56cdc0d4a17f5219e422831311c5631918f5ebd994aa95dfb5fde475306ee",
-      "identity_at_move": "1f:fcf56cdc0d4a17f5219e422831311c5631918f5ebd994aa95dfb5fde475306ee",
       "byte_copy_commit": "1e6f6f94996f057bdd4a4eae38bb1c1fd4e17b7d",
       "found_by": "same bytes",
       "changed_after_copy": "its relative imports name their file extensions, so it loads under node --test"

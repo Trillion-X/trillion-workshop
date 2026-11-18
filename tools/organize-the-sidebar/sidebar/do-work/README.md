@@ -13,4 +13,4 @@ Requests the sidebar sends by address. Zero membership/layout logic — ops and 
 | `collection-view-preference.ts` | ONE `sidebar-collection-view` label_hash record for the show-all/per-list toggle + collapsed flags (value is DATA, no enum). |
 
 **Depends on:** `@bitfield/runtime-kit` (target sender), `read-data/read-surface-collections` types.
-**Depended on by:** `show/AppSidebar.tsx`, `show/CollectionManagerRow.tsx`, `show/ListShowsWhen.tsx` (a list's When it shows), `src/sidebar.mjs` (the AIs' `change_sidebar`, the same ops).
+**Depended on by:** `show/AppSidebar.tsx`, `show/CollectionManagerRow.tsx`, `tools/sidebar/show/ListShowsWhen.tsx` (a list's When it shows), `src/sidebar.mjs` (the AIs' `change_sidebar`, the same ops).

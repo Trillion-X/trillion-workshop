@@ -1040,7 +1040,7 @@
     },
     {
       "from": "packages/sidebar/show/useSidebarPlacement.ts",
-      "home": "tools/organize-the-sidebar/show/useSidebarPlacement.ts",
+      "home": "tools/sidebar/show/useSidebarPlacement.ts",
       "why": "organize-the-sidebar holds this file rewritten; the old copy is not moved a second time"
     },
     {

@@ -70,8 +70,8 @@ import {
 import type { SurfaceCollection } from '../read-data/read-surface-collections.ts';
 import type { SidebarPlacementState } from '../read-data/read-sidebar-placement.ts';
 import { SIDEBAR_SWITCHES, mergeSidebarSettings, sidebarAllows, type SidebarSettings } from '../read-data/sidebar-settings.ts';
-import { SIDEBAR_BADGE_MARK_TABLE, sidebarBadgeMark, sidebarDotStatus, type SidebarBadgeMark } from '../read-data/sidebar-badge-marks.ts';
-import type { SidebarPlacementController } from './useSidebarPlacement.ts';
+import { SIDEBAR_BADGE_MARK_TABLE, sidebarBadgeMark, sidebarDotStatus, type SidebarBadgeMark } from '../../sidebar/read-data/sidebar-badge-marks.ts';
+import type { SidebarPlacementController } from '../../sidebar/show/useSidebarPlacement.ts';
 import { foldAtPatch, placeAtPatch } from '../../ui/show/dockable-placement/dockable-placement';
 import { SPACE_ROW_LOOK } from '../read-data/space-row.ts';
 import { itemContainsSelection, itemsWithinSelectionCap, sectionContainsSelection } from '../read-data/selection-visibility.ts';

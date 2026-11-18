@@ -1,7 +1,7 @@
 import type { NavItemData, NavSectionData } from '../show/SidebarContent.tsx';
 import type { SurfaceCollection } from './read-surface-collections.ts';
-import type { CollectionViewState } from '../do-work/collection-view-preference.ts';
-import { buildCollectionSections, collectSurfaceIds } from '../show/CollectionSections.ts';
+import type { CollectionViewState } from '../../sidebar/do-work/collection-view-preference.ts';
+import { buildCollectionSections, collectSurfaceIds } from '../../sidebar/show/CollectionSections.ts';
 
 /** Move caller rows into their saved lists without duplicating the source row or losing its owned outline. */
 export function callerCollectionSections(

@@ -35,9 +35,9 @@ import {
   removeSurfaceFromCollection,
   renameSurfaceCollection,
 } from '../do-work/edit-surface-collections.ts';
-import type { CollectionViewState } from '../do-work/collection-view-preference.ts';
+import type { CollectionViewState } from '../../sidebar/do-work/collection-view-preference.ts';
 // A list's "When it shows" rule editor is fetched the first time someone opens it.
-const ListShowsWhen = lazyPart(() => import('./ListShowsWhen.tsx'), module => module.ListShowsWhen);
+const ListShowsWhen = lazyPart(() => import('../../sidebar/show/ListShowsWhen.tsx'), module => module.ListShowsWhen);
 import type { NavItemData } from './SidebarContent.tsx';
 
 export interface CollectionManagerRowProps {

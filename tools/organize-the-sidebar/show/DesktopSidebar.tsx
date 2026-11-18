@@ -61,14 +61,14 @@ import {
   type SidebarPosition,
   type FloatRect,
   type SidebarPlacementController,
-} from './useSidebarPlacement.ts';
+} from '../../sidebar/show/useSidebarPlacement.ts';
 import byWidth from '../read-data/sidebar-settings-by-width.json';
 import { readSidebarWidthRows, sidebarAllows, sidebarSettingsAtWidth, SIDEBAR_SWITCHES } from '../read-data/sidebar-settings.ts';
-import { dockedListFit } from '../read-data/docked-list-fit.ts';
+import { dockedListFit } from '../../sidebar/read-data/docked-list-fit.ts';
 import { DEFAULT_SIDEBAR_PLACEMENT_STATE } from '../read-data/read-sidebar-placement.ts';
 import bar from '../read-data/sidebar-bar.json';
-import { SidebarBar, SidebarMoveGrip } from './SidebarBar.tsx';
-import { usePlaceDrag, type PlaceTarget } from './place-drag.tsx';
+import { SidebarBar, SidebarMoveGrip } from '../../sidebar/show/SidebarBar.tsx';
+import { usePlaceDrag, type PlaceTarget } from '../../sidebar/show/place-drag.tsx';
 import { claimSeam, useSeamSlot } from '../../ui/show/seam-slots';
 
 // ============================================================================

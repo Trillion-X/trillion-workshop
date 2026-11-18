@@ -29,7 +29,7 @@ import {
   type CollectionViewState,
 } from '../do-work/collection-view-preference';
 import { partitionLabelForSurfaceList, useSurfaceCollections } from './use-surface-collections';
-import { callerCollectionSections } from '../read-data/caller-collection-sections';
+import { callerCollectionSections } from '../../organize-the-sidebar/read-data/caller-collection-sections';
 import {
   buildCollectionSections,
   collectSurfaceIds,

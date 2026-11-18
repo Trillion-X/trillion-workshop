@@ -74,7 +74,7 @@ import { SIDEBAR_BADGE_MARK_TABLE, sidebarBadgeMark, sidebarDotStatus, type Side
 import type { SidebarPlacementController } from './useSidebarPlacement';
 import { foldAtPatch, placeAtPatch } from '../../ui/show/dockable-placement/dockable-placement';
 import { SPACE_ROW_LOOK } from 'trillion-workshop/tools/organize-the-sidebar/read-data/space-row.ts';
-import { itemContainsSelection, itemsWithinSelectionCap, sectionContainsSelection } from '../read-data/selection-visibility';
+import { itemContainsSelection, itemsWithinSelectionCap, sectionContainsSelection } from '../../organize-the-sidebar/read-data/selection-visibility';
 
 const SIDEBAR_COLLECTION_DRAG_MIME = 'application/x-bitfield-sidebar-collection-member+json';
 
