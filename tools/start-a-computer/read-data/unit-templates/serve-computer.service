@@ -4,17 +4,20 @@ After=network-online.target
 Wants=network-online.target
 [Service]
 # The engine (trillion-rust src/native_entry/computer.rs) serving its computer config {settings_file}. It runs the program
-# `current` names in {builds}: start-a-computer's apply builds the row's source commit on this computer and moves `current` to it.
+# `{current}` names in {builds}: start-a-computer's apply builds the row's source commit on this computer and moves that link to it.
 LimitNOFILE=1048576
 Type=simple
 User={user}
 Group={user}
 WorkingDirectory={state}
-ExecStart={builds}/current/{program} serve {settings_file}
+ExecStart={builds}/{current}/{program} serve {settings_file}
 Restart=always
 RestartSec=3
 KillSignal=SIGTERM
-TimeoutStopSec=30
+# A stop asks the engine alone to finish what it holds; the tool runs it started keep running until it ends them, and only what
+# is left when the stop time is over is killed.
+KillMode=mixed
+TimeoutStopSec={stop_seconds}
 UMask=0077
 NoNewPrivileges=true
 ProtectSystem=strict

@@ -28,6 +28,9 @@ const ROUTE = name => {
   return readFileSync(file, 'utf8').trimEnd();
 };
 const DROP_INS = { nofile: TEMPLATE('nofile.conf') };
+// The values a unit's template reads when its row gives none (read-data/settings.json `unit_defaults`): the build link it
+// runs (`current`) and how long its stop may take (`stop_seconds`).
+const UNIT_DEFAULTS = JSON.parse(readFileSync(new URL('../read-data/settings.json', import.meta.url), 'utf8')).unit_defaults;
 const SYSTEMD = '/etc/systemd/system';
 const FRONT_DOOR = name => readFileSync(new URL(`../read-data/caddy-front-door/${name}.caddy`, import.meta.url), 'utf8').trimEnd();
 
@@ -155,6 +158,44 @@ export function withReach(runs) {
   return { ...runs, units, caddy, machine };
 }
 
+/** A computer's `runs` with each unit that names `slots` made into one unit per slot, so a new release starts beside the
+ * running one and takes over only once it answers (start-a-computer's apply switches between them; plan "a deploy never drops
+ * anything"). `slots` maps each slot's name to the values that slot has of its own, each at its dotted path in the unit
+ * (`settings.listen`, `health_listen`): the port it serves on, say. Each slot's unit is the unit's name with `-<slot>` before
+ * its extension, its settings file the same, and the build it runs is `current-<slot>` in the unit's builds folder; every
+ * other value is the one unit's. Each slot unit carries `slot`: the unit it came from (`of`) and the units of every slot (`units`). */
+export function withSlots(runs) {
+  const units = [];
+  const named = (path, slot) => path.replace(/(\.[A-Za-z0-9]+)?$/, ext => `-${slot}${ext}`);
+  for (const given of runs.units ?? []) {
+    if (given.slots === undefined) { units.push(given); continue; }
+    const where = `unit ${given.unit} slots`;
+    const names = Object.keys(given.slots ?? {});
+    if (given.slots === null || typeof given.slots !== 'object' || names.length < 2 || !names.every(name => /^[a-z0-9]{1,8}$/.test(name))) {
+      throw new Error(`${where} names two or more slots, each a short word of small letters and digits, with the values that slot has of its own`);
+    }
+    const { slots, ...unit } = given;
+    const unitsOf = names.map(name => named(unit.unit, name));
+    for (const name of names) {
+      const slot = structuredClone(unit);
+      Object.assign(slot, { unit: named(unit.unit, name), current: `current-${name}`, slot: { of: unit.unit, units: unitsOf } });
+      if (typeof unit.settings_file === 'string') slot.settings_file = named(unit.settings_file, name);
+      for (const [path, value] of Object.entries(slots[name] ?? {})) {
+        const keys = path.split('.');
+        if (keys.some(key => !/^[A-Za-z0-9_]+$/.test(key)) || ['unit', 'slot', 'current'].includes(keys[0])) throw new Error(`${where} ${name} sets ${path}, which is not a value of the unit a slot may have of its own`);
+        let at = slot;
+        for (const key of keys.slice(0, -1)) {
+          if (at[key] === null || typeof at[key] !== 'object') at[key] = {};
+          at = at[key];
+        }
+        at[keys.at(-1)] = value;
+      }
+      units.push(slot);
+    }
+  }
+  return { ...runs, units };
+}
+
 /** A unit's `credentials` ({ vault_key, name, file, env? }) as its template's fields: `credential_lines`, one
  * LoadCredentialEncrypted line each, and `credential_env`, each one that names an `env` read into that variable before the
  * program starts. A credential with no `env` is read by the program itself from its credentials folder, by its name.
@@ -180,7 +221,8 @@ const withCredentials = (unit, where) => {
 };
 
 /** Every file a computer's `runs` declares: { path, text }. A unit's drop-ins are the names it lists in `drop_ins`. */
-export function renderWhatItRuns(runs, siteBlock, pages) {
+export function renderWhatItRuns(given, siteBlock, pages) {
+  const runs = withSlots(given);
   const files = [{ path: '/etc/caddy/Caddyfile', text: renderCaddy(siteBlock, runs.caddy) }];
   if (runs.caddy?.pages_root) files.push(...pageFiles(runs.caddy, pages));
   const door = runs.caddy?.front_door;
@@ -200,7 +242,7 @@ export function renderWhatItRuns(runs, siteBlock, pages) {
     const template = UNITS[unit.template];
     if (!template) throw new Error(`${where} names an unknown template ${unit.template}`);
     if (unit.workshop_commit !== undefined && !/^[0-9a-f]{40}$/.test(unit.workshop_commit)) throw new Error(`${where} workshop_commit must be a full commit id`);
-    files.push({ path: `${SYSTEMD}/${unit.unit}`, text: fill(template, withCredentials(unit, where), where) });
+    files.push({ path: `${SYSTEMD}/${unit.unit}`, text: fill(template, withCredentials({ ...UNIT_DEFAULTS, ...unit }, where), where) });
     if (unit.settings !== undefined || unit.settings_lines !== undefined) files.push(unitSettings(unit, where));
     if (unit.script !== undefined) files.push({ path: fill('{script_file}', unit, where), text: SCRIPT(unit.script) });
     if (unit.hba_lines !== undefined) files.push({ path: unit.hba_file, text: unit.hba_lines.map(line => `${line}\n`).join('') });

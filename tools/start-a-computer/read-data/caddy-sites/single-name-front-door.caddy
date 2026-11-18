@@ -3,6 +3,8 @@
 # the row's routes, and a row that names the route `engine` (engine_paths, engine_listen) sends those paths to an engine on this computer.
 {
 	admin localhost:2019
+	# A reload of this file lets calls in flight finish for this long before it ends them.
+	grace_period {{grace_period}}
 }
 
 {{door_host}} {

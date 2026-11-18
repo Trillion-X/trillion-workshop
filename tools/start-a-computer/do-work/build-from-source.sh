@@ -4,9 +4,10 @@
 # Runs as root on the machine, handed over SSH as the command's own text (`sh -c "<this file>" sh SOURCE`). The computer fetches
 # the unit's commit itself from the row's repository address into a copy it keeps at BUILDS/repository (only what the copy
 # lacks), builds the unit's program from that commit's tree as the unit's user, puts it at BUILDS/COMMIT/PROGRAM, and moves
-# BUILDS/current to COMMIT with one rename. A commit already built is not fetched or built again.
+# BUILDS/CURRENT (the link the unit runs: `current`, or a slot's `current-<slot>`) to COMMIT with one rename. A commit already
+# built is not fetched or built again.
 #
-# SOURCE is one JSON object: user, builds, repository (a git address), commit, program, output (the built file), build (the
+# SOURCE is one JSON object: user, builds, current, repository (a git address), commit, program, output (the built file), build (the
 # argv run in the tree), environment (NAME=value lines the build runs with, the toolchain's PATH among them), each already
 # filled from the computer row, and keyed with host_keys. When keyed is true, standard input holds the SSH key the person's
 # vault keeps for the repository: it goes into an ssh-agent of the unit's user for that one fetch and is never written to a
@@ -16,7 +17,7 @@ set -eu
 SOURCE=$1
 field() { printf '%s' "$SOURCE" | jq -r ".$1"; }
 user=$(field user); builds=$(field builds); commit=$(field commit); program=$(field program); output=$(field output)
-repository=$(field repository); keyed=$(field keyed)
+repository=$(field repository); keyed=$(field keyed); current=$(field current)
 at="$builds/$commit"
 # One build at a time in a builds folder: a second apply waits here, then finds the commit built by the first.
 exec 9>"$builds/.build.lock"
@@ -54,5 +55,5 @@ else
   # A key sent for a commit that is already built is read and dropped.
   cat >/dev/null
 fi
-runuser -u "$user" -- sh -c 'ln -sfn "$0" "$1/current.new" && mv -T "$1/current.new" "$1/current"' "$commit" "$builds"
+runuser -u "$user" -- sh -c 'ln -sfn "$0" "$1/$2.new" && mv -T "$1/$2.new" "$1/$2"' "$commit" "$builds" "$current"
 echo "$commit"

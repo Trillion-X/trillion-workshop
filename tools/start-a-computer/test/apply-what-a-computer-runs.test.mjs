@@ -301,3 +301,67 @@ test('a path unit that is not active is started, with nothing written', async ()
   assert.deepEqual(answer.restarted, ['example-certificate.path']);
   assert.ok(commands.some(({ command }) => command.startsWith("systemctl enable --now 'example-certificate.path'")));
 });
+
+// A unit with `slots` runs one slot at a time: a new release is built into the other slot's own link, started there, and only
+// once it answers its boot check does the slot that ran stop (and finish what it holds); a release that never answers is
+// stopped again and the slot that ran keeps serving (plan: a deploy never drops anything).
+const slotted = { ...built, units: [{ ...built.units[0], stop_seconds: 170, health: { path: '/readyz', status: 200 }, health_listen: '127.0.0.1:7199',
+  slots: { a: { 'settings.listen': '127.0.0.1:7199', health_listen: '127.0.0.1:7199' }, b: { 'settings.listen': '127.0.0.1:7198', health_listen: '127.0.0.1:7198' } } }] };
+const slotComputer = ({ active, links, answers = {} }) => {
+  const live = Object.fromEntries(renderWhatItRuns(slotted, SITE_BLOCK).map(({ path, text }) => [path, text]));
+  const base = computer(live);
+  const run = async (m, command, input) => {
+    const activeAsked = command.match(/^systemctl is-active --quiet '([^']+)'/);
+    if (activeAsked) { base.commands.push({ command }); if (active.includes(activeAsked[1])) return ''; throw Object.assign(new Error('inactive'), { code: 3 }); }
+    const link = command.match(/^readlink '[^']+\/(current[^']*)'/);
+    if (link) return links[link[1]] ?? '';
+    if (command.startsWith('pid=$(systemctl show')) return '';
+    if (command.startsWith('sh -c ')) { base.commands.push({ command, input }); return `${SOURCE_COMMIT}\n`; }
+    const health = command.match(/^curl .*'http:\/\/([^/]+)\/readyz'/);
+    if (health) { base.commands.push({ command }); return answers[health[1]] ?? '200'; }
+    return base.run(m, command, input);
+  };
+  return { run, commands: base.commands };
+};
+
+test('slots render one unit each, with its own port, settings file, build link and the row\'s stop time', () => {
+  const files = renderWhatItRuns(slotted, SITE_BLOCK);
+  const unit = name => files.find(file => file.path === `/etc/systemd/system/${name}`)?.text;
+  assert.equal(unit('example-place.service'), undefined, 'the slotted unit itself is never a unit');
+  assert.match(unit('example-place-a.service'), /^ExecStart=\/var\/lib\/example-place\/builds\/current-a\/example-engine serve \/etc\/example-place\/computer-a\.json$/m);
+  assert.match(unit('example-place-b.service'), /^ExecStart=\/var\/lib\/example-place\/builds\/current-b\/example-engine serve \/etc\/example-place\/computer-b\.json$/m);
+  assert.match(unit('example-place-b.service'), /^KillMode=mixed\nTimeoutStopSec=170$/m);
+  assert.equal(JSON.parse(files.find(file => file.path === '/etc/example-place/computer-b.json').text).listen, '127.0.0.1:7198');
+  assert.match(renderWhatItRuns(runs, SITE_BLOCK).find(file => file.path === '/etc/systemd/system/example-place.service').text, /^TimeoutStopSec=30$/m, 'a unit with no stop time keeps the default');
+  assert.throws(() => renderWhatItRuns({ ...slotted, units: [{ ...slotted.units[0], slots: { a: {} } }] }, SITE_BLOCK), /two or more slots/);
+  assert.throws(() => renderWhatItRuns({ ...slotted, units: [{ ...slotted.units[0], slots: { a: { unit: 'x' }, b: {} } }] }, SITE_BLOCK), /not a value of the unit a slot may have/);
+});
+
+test('a new release starts in the other slot, and the slot that ran stops only once it answers', async () => {
+  const { run, commands } = slotComputer({ active: ['example-place-a.service'], links: { 'current-a': 'b'.repeat(40) } });
+  assert.deepEqual(await runsDifferences(machine, slotted, run), [{ path: 'example-place.service', reason: `example-place-a.service runs ${'b'.repeat(40)}; its row builds ${SOURCE_COMMIT}` }]);
+  const answer = await applyWhatItRuns(machine, slotted, run);
+  assert.deepEqual(answer.switched, [{ to: 'example-place-b.service', from: ['example-place-a.service'] }]);
+  assert.deepEqual(answer.built, [{ unit: 'example-place-b.service', from: null, commit: SOURCE_COMMIT }]);
+  assert.equal(sourceSent(commands.find(({ command }) => command.startsWith('sh -c ')).command).current, 'current-b');
+  const at = text => commands.findIndex(({ command }) => command.startsWith(text));
+  assert.ok(at("systemctl restart 'example-place-b.service'") >= 0);
+  assert.ok(at("systemctl restart 'example-place-b.service'") < at("curl -s -o /dev/null -w '%{http_code}' -H 'Host: place.example.test' 'http://127.0.0.1:7198/readyz'"));
+  assert.ok(at("curl -s -o /dev/null -w '%{http_code}' -H 'Host: place.example.test' 'http://127.0.0.1:7198/readyz'") < at("systemctl disable --now 'example-place-a.service'"), 'the slot that ran stops only after the new one answers');
+  assert.ok(at("systemctl enable 'example-place-b.service'") >= 0, 'the new slot is the one that starts with the computer');
+  assert.equal(at("systemctl restart 'example-place-a.service'"), -1, 'the slot that ran is never restarted');
+});
+
+test('a release that never answers is stopped again, and the slot that ran keeps serving', async () => {
+  const { run, commands } = slotComputer({ active: ['example-place-a.service'], links: { 'current-a': 'b'.repeat(40) }, answers: { '127.0.0.1:7198': '502' } });
+  await assert.rejects(applyWhatItRuns(machine, slotted, run, {}, { wait: async () => {} }), /example-place-b\.service answered 502 on \/readyz, not 200, after its restart\. example-place-a\.service kept serving\./);
+  assert.ok(commands.some(({ command }) => command === "systemctl stop 'example-place-b.service'"));
+  assert.equal(commands.some(({ command }) => command.includes("'example-place-a.service'") && /disable|stop|restart/.test(command)), false);
+});
+
+test('a slot that runs its row\'s release is left alone', async () => {
+  const { run, commands } = slotComputer({ active: ['example-place-b.service'], links: { 'current-b': SOURCE_COMMIT } });
+  assert.deepEqual(await runsDifferences(machine, slotted, run), []);
+  assert.deepEqual(await applyWhatItRuns(machine, slotted, run), { written: [], restarted: [] });
+  assert.equal(commands.some(({ command }) => /^systemctl (restart|disable|enable)/.test(command)), false);
+});

@@ -1,7 +1,16 @@
 	@engine path {engine_paths}
 	handle @engine {
+		# Every slot of the engine (engine_listen) is listed; the first that answers its health page (engine_health_uri, asked
+		# every engine_health_interval) takes each call, so a release that is stopping (its health page answers 503 while it
+		# finishes what it holds) gets no new call. A connection that is refused is tried at the next slot for up to
+		# engine_try_duration; a call already sent is never sent again.
 		reverse_proxy {engine_listen} {
 			header_up Host {door_host}
 			flush_interval -1
+			lb_policy first
+			lb_try_duration {engine_try_duration}
+			health_uri {engine_health_uri}
+			health_interval {engine_health_interval}
+			health_timeout 2s
 		}
 	}

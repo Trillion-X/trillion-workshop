@@ -15,7 +15,7 @@
 // environment or the answer.
 //
 // usage: start-a-computer.mjs price REQUEST_FILE | rent REQUEST_FILE | start REQUEST_FILE | apply REQUEST_FILE | differences REQUEST_FILE | status LEASE_FILE | unit LEASE_FILE REQUEST_FILE | remove LEASE_FILE
-import { differences, renderWhatItRuns, withReach } from './render-what-a-computer-runs.mjs';
+import { differences, renderWhatItRuns, withReach, withSlots } from './render-what-a-computer-runs.mjs';
 import { fill } from './fill-fields.mjs';
 import { readFileSync, readdirSync, createReadStream } from 'node:fs';
 import { isAbsolute, dirname, relative, resolve as resolvePath } from 'node:path';
@@ -86,7 +86,7 @@ export async function runsDifferences(machine, runs, run = onMachine, deps = {})
  * name. Each database unit's `reach` is first made into the lines and files it renders (`withReach`),
  * and the answer's `runs` is that whole list, the one the apply follows. */
 export async function runsState(machine, given, run = onMachine, { pages } = {}) {
-  const runs = withReach(given), units = runs.units;
+  const runs = withSlots(withReach(given)), units = runs.units;
   const rendered = renderWhatItRuns(runs, SITE_BLOCK, pages);
   const live = {};
   for (const { path, binary } of rendered) live[path] = await readIfPresent(machine, run, path, binary);
@@ -119,16 +119,38 @@ export async function runsState(machine, given, run = onMachine, { pages } = {})
   // One whose `current` is that commit but whose running program is not `current`'s (a restart that failed, or a program
   // swapped by hand) is owed a restart: what runs is checked, never only what is on disk.
   const builds = [], stale = [];
-  for (const unit of units.filter(row => row.source)) {
+  const isActive = name => run(machine, `systemctl is-active --quiet ${q(name)} || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; });
+  const runsLink = async (unit, program) => run(machine, `pid=$(systemctl show -p MainPID --value ${q(unit.unit)}); [ "$pid" != 0 ] && [ "$(readlink -f /proc/$pid/exe)" = "$(readlink -f ${q(`${unit.builds}/${unit.current ?? 'current'}/${program}`)})" ] || exit 3`)
+    .then(() => true, error => { if (error.code === 3) return false; throw error; });
+  for (const unit of units.filter(row => row.source && !row.slot)) {
     const { commit, program } = sourceOf(unit);
     const from = (await run(machine, `readlink ${q(`${unit.builds}/current`)} || true`)).trim();
     if (from !== commit) { builds.push({ unit, from }); continue; }
-    const runsCurrent = `pid=$(systemctl show -p MainPID --value ${q(unit.unit)}); [ "$pid" != 0 ] && [ "$(readlink -f /proc/$pid/exe)" = "$(readlink -f ${q(`${unit.builds}/current/${program}`)})" ] || exit 3`;
-    if (await run(machine, runsCurrent).then(() => false, error => { if (error.code === 3) return true; throw error; })) stale.push(unit);
+    if (!await runsLink(unit, program)) stale.push(unit);
   }
   found.push(...builds.map(({ unit, from }) => ({ path: `${unit.builds}/current`, reason: `runs ${from || 'no program'}; its row builds ${unit.source.commit}` })));
   found.push(...stale.map(unit => ({ path: unit.unit, reason: `is not running ${unit.builds}/current, the build its row names` })));
-  return { runs, rendered, live, found, present, usersPresent, builds, stale };
+  // A unit with slots runs one slot at a time. It is behind when no slot runs, or the slot that runs is not running the
+  // commit its row builds; the apply then starts the release in the other slot and stops the one that ran (`switchSlots`).
+  const switches = [];
+  for (const units_ of Object.values(Object.groupBy(units.filter(row => row.slot), row => row.slot.of))) {
+    const active = [];
+    for (const unit of units_) if (await isActive(unit.unit)) active.push(unit);
+    let reason = active.length ? null : 'no slot runs';
+    for (const unit of active) {
+      if (reason) break;
+      if (!unit.source) continue;
+      const { commit, program } = sourceOf(unit);
+      const from = (await run(machine, `readlink ${q(`${unit.builds}/${unit.current}`)} || true`)).trim();
+      if (from !== commit) reason = `${unit.unit} runs ${from || 'no program'}; its row builds ${commit}`;
+      else if (!await runsLink(unit, program)) reason = `${unit.unit} is not running ${unit.builds}/${unit.current}, the build its row names`;
+    }
+    if (active.length > 1) reason ??= `${active.map(unit => unit.unit).join(' and ')} both run`;
+    const group = { of: units_[0].slot.of, units: units_, active, reason };
+    switches.push(group);
+    if (reason) found.push({ path: group.of, reason });
+  }
+  return { runs, rendered, live, found, present, usersPresent, builds, stale, switches };
 }
 
 /** A unit's `source` with its fields filled from the unit: the git `repository` address the computer fetches from (any host;
@@ -142,10 +164,11 @@ export function sourceOf(unit) {
   if (typeof source.repository !== 'string' || !/^(https:\/\/|ssh:\/\/|[A-Za-z0-9._-]+@[A-Za-z0-9.-]+:)\S+$/.test(source.repository)) throw refused(`${where} needs repository, the git address the computer fetches the commit from.`);
   if (!Array.isArray(source.build) || !source.build.length || typeof source.output !== 'string') throw refused(`${where} needs build (an argv) and output (the file the build makes).`);
   if (source.credential !== undefined && (typeof source.credential !== 'string' || !Array.isArray(source.host_keys) || !source.host_keys.length)) throw refused(`${where} credential is the vault name of an SSH key, and needs host_keys: the known_hosts lines of the repository's host.`);
-  const program = unit.program ?? unit.door_file;
+  const program = unit.program ?? unit.door_file, current = unit.current ?? 'current';
   if (!/^[A-Za-z0-9._-]+$/.test(program ?? '') || typeof unit.builds !== 'string' || !isAbsolute(unit.builds)) throw refused(`${where} needs the unit's program and its builds folder.`);
+  if (!/^current[A-Za-z0-9_-]*$/.test(current)) throw refused(`${where}: the build link a unit runs is current, or current- and a slot's name.`);
   const filled = text => fill(text, { ...unit, commit: source.commit }, where);
-  return { user: unit.user, builds: unit.builds, commit: source.commit, program, repository: source.repository, credential: source.credential ?? null,
+  return { user: unit.user, builds: unit.builds, commit: source.commit, program, current, repository: source.repository, credential: source.credential ?? null,
     host_keys: source.host_keys ?? [], output: filled(source.output), build: source.build.map(filled), environment: (source.environment ?? []).map(filled) };
 }
 
@@ -182,8 +205,15 @@ const needsHeld = unit => secretsOf(unit).length > 0 || Boolean(unit.source?.cre
  * `NAME.bak-STAMP`. `held` maps a unit's `secret_vault_key` to the value the person's vault holds under that name; the value
  * reaches the computer only on the SSH channel's standard input, sealed there by systemd-creds at the unit's `secret_file`. */
 export async function applyWhatItRuns(machine, given, run = onMachine, held = {}, deps = {}) {
-  const { runs, rendered, live, present, usersPresent, builds, stale } = await runsState(machine, given, run, deps);
+  const { runs, rendered, live, present, usersPresent, builds, stale, switches } = await runsState(machine, given, run, deps);
   const writes = rendered.filter(({ path, text }) => live[path] !== text);
+  // A file a unit reads (its settings, access file or script) changes that unit, and each unit that names it; a unit file or
+  // drop-in changes its own unit.
+  const unitsOf = path => {
+    const readers = runs.units.filter(unit => [unit.settings_file, unit.hba_file, unit.script_file].includes(path)).map(unit => unit.unit);
+    return readers.length ? readers : [path.match(/\/([^/]+\.(?:service|timer|path))(?:\.d\/[^/]+)?$/)?.[1]];
+  };
+  const slotted = new Set(runs.units.filter(unit => unit.slot).map(unit => unit.unit));
   const absent = (path, input) => run(machine, `${path} || exit 3`, input).then(() => false, error => { if (error.code === 3) return true; throw error; });
   const nodes = [...new Set(runs.units.map(unit => unit.node_bin).filter(Boolean))];
   const nodeMissing = (await Promise.all(nodes.map(bin => absent(`test -x ${q(`${bin}/node`)}`)))).includes(true);
@@ -201,19 +231,6 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
       throw refused(`${unit.unit} needs the value held under the vault name ${unit.secret_vault_key}: hand it on descriptor 5 as {"${unit.secret_vault_key}": value}, read from the person's vault.`);
     }
   }
-  // A unit file the row says is absent is a unit the computer must not run: it is stopped and disabled, and its drop-ins go
-  // with its file. A folder the row says is absent (a program an old set-up left) goes with everything in it.
-  for (const path of present) {
-    const unit = path.match(/^\/etc\/systemd\/system\/([A-Za-z0-9@._-]+\.(?:service|timer|path|socket))$/)?.[1];
-    if (unit) await run(machine, `systemctl disable --now ${q(unit)} && rm -rf -- ${q(`${path}.d`)}`);
-    await run(machine, `rm -rf -- ${q(path)}`);
-  }
-  if (present.some(path => path.startsWith('/etc/systemd/system/'))) await run(machine, 'systemctl daemon-reload');
-  // The ssh server reads its drop-ins at a reload: a removed one stops admitting its user then. A user the row says is absent
-  // is removed with its home folder.
-  if (present.some(path => path.startsWith('/etc/ssh/sshd_config.d/'))) await run(machine, 'sshd -t && systemctl reload ssh');
-  for (const user of usersPresent) await run(machine, `userdel -r ${q(user)}`);
-  const removed = present.length || usersPresent.length ? { removed: [...present, ...usersPresent.map(user => `user ${user}`)] } : {};
   // A timer or path unit the row names starts its job only while it is active: one that is not, whether it was just written
   // or stopped, is started.
   const triggersOff = [];
@@ -224,7 +241,12 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
     ...(machineData.packages ?? []).map(name => absent(`dpkg -s ${q(name)} >/dev/null 2>&1`)),
     ...(machineData.downloads ?? []).map(({ path }) => absent(`test -x ${q(path)}`)),
   ])).includes(true);
-  if (!writes.length && !missing.length && !nodeMissing && !foldersMissing && !programsMissing && !triggersOff.length && !builds.length && !stale.length && !usersPresent.length) return { written: [], restarted: [], ...removed };
+  // A unit with slots switches to its other slot when it is behind (`reason`), or when a file it reads changed or a credential
+  // it loads is sealed anew: its running slot read them at its start, so the other slot starts with them.
+  const changed = new Set([...writes.flatMap(({ path }) => unitsOf(path)), ...missing.map(unit => unit.unit)]);
+  const switching = switches.filter(group => group.reason || group.units.some(unit => changed.has(unit.unit)))
+    .map(group => ({ group, target: group.units.find(unit => !group.active.includes(unit)) ?? group.units.at(-1) }));
+  if (!writes.length && !missing.length && !nodeMissing && !foldersMissing && !programsMissing && !triggersOff.length && !builds.length && !stale.length && !usersPresent.length && !present.length && !switching.length) return { written: [], restarted: [] };
   // Set-up makes what is missing (packages, node, accounts, folders); a computer whose accounts and node all exist needs
   // none, and running it would refresh the package lists on every apply.
   const accounts = await Promise.all(runs.units.map(unit => run(machine, `getent passwd ${q(unit.user)} >/dev/null || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; })));
@@ -241,6 +263,22 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
   // A unit behind its row's source commit is built there once set-up has made its user, builds folder and toolchain.
   const built = [];
   for (const { unit, from } of builds) built.push({ unit: unit.unit, from: from || null, commit: await buildOnTheComputer(machine, unit, held, run) });
+  // A slot that takes over gets its release built into its own link (`current-<slot>`) while the running slot still serves.
+  for (const { target } of switching.filter(({ target }) => target.source)) built.push({ unit: target.unit, from: null, commit: await buildOnTheComputer(machine, target, held, run) });
+  // What the row says is absent goes only now, once every build is made, so a unit it replaces stops for the least time.
+  // A unit file the row says is absent is a unit the computer must not run: it is stopped and disabled, and its drop-ins go
+  // with its file. A folder the row says is absent (a program an old set-up left) goes with everything in it.
+  for (const path of present) {
+    const unit = path.match(/^\/etc\/systemd\/system\/([A-Za-z0-9@._-]+\.(?:service|timer|path|socket))$/)?.[1];
+    if (unit) await run(machine, `systemctl disable --now ${q(unit)} && rm -rf -- ${q(`${path}.d`)}`);
+    await run(machine, `rm -rf -- ${q(path)}`);
+  }
+  if (present.some(path => path.startsWith('/etc/systemd/system/'))) await run(machine, 'systemctl daemon-reload');
+  // The ssh server reads its drop-ins at a reload: a removed one stops admitting its user then. A user the row says is absent
+  // is removed with its home folder.
+  if (present.some(path => path.startsWith('/etc/ssh/sshd_config.d/'))) await run(machine, 'sshd -t && systemctl reload ssh');
+  for (const user of usersPresent) await run(machine, `userdel -r ${q(user)}`);
+  const removed = present.length || usersPresent.length ? { removed: [...present, ...usersPresent.map(user => `user ${user}`)] } : {};
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
   for (const { path, text, binary } of writes) {
     if (live[path] !== undefined) await run(machine, `cp -p ${q(path)} ${q(`${path}.bak-${stamp}`)}`);
@@ -261,41 +299,51 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
   // each once, in order.
   const thens = [...new Map(writes.flatMap(({ then }) => then ?? []).map(argv => [JSON.stringify(argv), argv])).values()];
   for (const argv of thens) await run(machine, argv.map(q).join(' '));
-  // A file a unit reads (its settings, access file or script) changes that unit, and each unit that names it; a unit file or
-  // drop-in changes its own unit.
-  const unitsOf = path => {
-    const readers = runs.units.filter(unit => [unit.settings_file, unit.hba_file, unit.script_file].includes(path)).map(unit => unit.unit);
-    return readers.length ? readers : [path.match(/\/([^/]+\.(?:service|timer|path))(?:\.d\/[^/]+)?$/)?.[1]];
-  };
   const builtUnits = [...builds.map(({ unit }) => unit.unit), ...stale.map(unit => unit.unit)];
-  const units = [...new Set([...writes.flatMap(({ path }) => unitsOf(path)), ...missing.map(unit => unit.unit), ...triggersOff, ...builtUnits].filter(Boolean))];
+  const units = [...new Set([...writes.flatMap(({ path }) => unitsOf(path)), ...missing.map(unit => unit.unit), ...triggersOff, ...builtUnits].filter(Boolean))]
+    .filter(unit => !slotted.has(unit));
   const running = new Set([...writes.filter(({ path }) => live[path] !== undefined).flatMap(({ path }) => unitsOf(path)),
     ...[...missing.map(unit => unit.unit), ...builtUnits].filter(name => live[`/etc/systemd/system/${name}`] !== undefined)]);
-  if (units.length) await run(machine, 'systemctl daemon-reload');
+  if (units.length || switching.length) await run(machine, 'systemctl daemon-reload');
+  // The boot check: each restarted unit must answer its own health row (`health`, `health_listen`, and the Host its request
+  // names, `health.host`), else the one the computer row
+  // names, else the tool default, on the machine itself, so a unit that starts and crashes, or a route that is not served, fails the apply instead of passing it.
+  const bootCheck = async unit => {
+    const row = runs.units.find(given => given.unit === unit) ?? {};
+    // A unit that is not an HTTP server names the command that tells it is well (`check_command`, run on the computer, exit 0).
+    if (row.check_command) return commandPasses(machine, row.check_command, { run, wait: deps.wait ?? pause, tries: 12 }, `${unit}'s check_command`);
+    const health = healthOf(row.health ?? runs.health);
+    const listen = row.health_listen ?? runs.health_listen ?? runs.caddy?.listen ?? `127.0.0.1:${runs.caddy?.port}`;
+    const status = await healthStatus(machine, { listen }, health.host ?? runs.caddy?.site_hosts?.[0] ?? '', { ...health, where: 'machine' }, { fetchImpl: undefined, wait: deps.wait ?? pause, tries: 12, run });
+    if (status !== health.status) throw Object.assign(new Error(`${unit} answered ${status ?? 'nothing'} on ${health.path}, not ${health.status}, after its restart.`), { unit, status });
+  };
+  // A switch starts the other slot, and only once it answers its boot check is it the one that starts with the computer and is
+  // the slot that ran stopped: that one stops taking calls and finishes those it holds (its stop_seconds). A slot that never
+  // answers is stopped again, and the slot that ran keeps serving.
+  const switched = [], booted = [];
+  for (const { group, target } of switching) {
+    await run(machine, `systemctl restart ${q(target.unit)}`);
+    try { await bootCheck(target.unit); }
+    catch (error) {
+      await run(machine, `systemctl stop ${q(target.unit)}`).catch(() => {});
+      throw Object.assign(error, { message: `${error.message} ${group.active.length ? `${group.active.map(unit => unit.unit).join(' and ')} kept serving.` : 'No slot of it serves.'}` });
+    }
+    booted.push(target.unit);
+    await run(machine, `systemctl enable ${q(target.unit)} >/dev/null 2>&1`);
+    const stopped = group.units.filter(unit => unit !== target);
+    for (const unit of stopped) await run(machine, `systemctl disable --now ${q(unit.unit)} >/dev/null 2>&1`);
+    switched.push({ to: target.unit, from: group.active.filter(unit => unit !== target).map(unit => unit.unit) });
+  }
   // Caddy is restarted, never only enabled, when its front-door drop-in changes: the drop-in swaps the program itself.
   for (const unit of units) {
     await run(machine, running.has(unit) || unit === 'caddy.service' ? `systemctl restart ${q(unit)}` : `systemctl enable --now ${q(unit)} >/dev/null 2>&1`);
   }
   if (writes.some(({ path }) => path === CADDYFILE) && !units.includes('caddy.service')) await run(machine, 'systemctl reload caddy');
-  // The boot check: each restarted unit must answer its own health row (`health`, `health_listen`, and the Host its request
-  // names, `health.host`), else the one the computer row
-  // names, else the tool default, on the machine itself, so a unit that starts and crashes, or a route that is not served, fails the apply instead of passing it.
-  const booted = [];
   for (const unit of units) {
-    const row = runs.units.find(given => given.unit === unit) ?? {};
-    // A unit that is not an HTTP server names the command that tells it is well (`check_command`, run on the computer, exit 0).
-    if (row.check_command) {
-      await commandPasses(machine, row.check_command, { run, wait: deps.wait ?? pause, tries: 12 }, `${unit}'s check_command`);
-      booted.push(unit);
-      continue;
-    }
-    const health = healthOf(row.health ?? runs.health);
-    const listen = row.health_listen ?? runs.health_listen ?? runs.caddy?.listen ?? `127.0.0.1:${runs.caddy?.port}`;
-    const status = await healthStatus(machine, { listen }, health.host ?? runs.caddy?.site_hosts?.[0] ?? '', { ...health, where: 'machine' }, { fetchImpl: undefined, wait: deps.wait ?? pause, tries: 12, run });
-    if (status !== health.status) throw Object.assign(new Error(`${unit} answered ${status ?? 'nothing'} on ${health.path}, not ${health.status}, after its restart.`), { unit, status });
+    await bootCheck(unit);
     booted.push(unit);
   }
-  return { written: writes.map(({ path }) => path), restarted: units, booted, ...(missing.length ? { sealed: missing.map(unit => unit.secret_name) } : {}), ...(built.length ? { built } : {}), ...removed };
+  return { written: writes.map(({ path }) => path), restarted: units, booted, ...(switched.length ? { switched } : {}), ...(missing.length ? { sealed: missing.map(unit => unit.secret_name) } : {}), ...(built.length ? { built } : {}), ...removed };
 }
 
 const CADDYFILE = '/etc/caddy/Caddyfile';

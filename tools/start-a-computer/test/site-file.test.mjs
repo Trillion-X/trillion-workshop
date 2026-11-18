@@ -166,9 +166,9 @@ test('applying a row with pages writes a binary page through base64 and reads it
 });
 
 const single = {
-  site_file: 'single-name-front-door', door_host: 'door.example.test', engine_listen: '127.0.0.1:7199', engine_paths: ['/a/*'], request_max: '4MB',
+  site_file: 'single-name-front-door', door_host: 'door.example.test', engine_listen: ['127.0.0.1:7199', '127.0.0.1:7198'], engine_paths: ['/a/*'], request_max: '4MB',
   pages_root: '/var/lib/front-door-pages', routes: ['better-auth', 'better-auth-pages', 'better-auth-discovery', 'better-auth-home'], engine_routes: ['engine'],
-  auth_port: 8792,
+  auth_port: 8792, engine_try_duration: '5s', engine_health_uri: '/readyz', engine_health_interval: '1s', grace_period: '150s',
 };
 
 test('a single-name front door renders its own name, pages, sign-in routes and engine paths, and no program, store or other host', () => {
@@ -176,7 +176,10 @@ test('a single-name front door renders its own name, pages, sign-in routes and e
   assert.equal(file.path, '/etc/caddy/Caddyfile');
   assert.doesNotMatch(file.text, /\{\{/);
   assert.match(file.text, /^door\.example\.test \{$/m);
-  assert.match(file.text, /^\t@engine path \/a\/\*\n\thandle @engine \{\n\t\treverse_proxy 127\.0\.0\.1:7199 \{\n\t\t\theader_up Host door\.example\.test$/m);
+  assert.match(file.text, /^\t\treverse_proxy 127\.0\.0\.1:7199 127\.0\.0\.1:7198 \{\n\t\t\theader_up Host door\.example\.test\n\t\t\tflush_interval -1\n\t\t\tlb_policy first\n\t\t\tlb_try_duration 5s\n\t\t\thealth_uri \/readyz\n\t\t\thealth_interval 1s\n/m,
+    'every slot of the engine is an upstream; the first that answers its health page takes each call');
+  assert.match(file.text, /^\t@engine path \/a\/\*\n\thandle @engine \{\n/m);
+  assert.match(file.text, /^\tgrace_period 150s$/m);
   assert.match(file.text, /^\thandle \/api\/auth\/\* \{\n\t\treverse_proxy 127\.0\.0\.1:8792\n\t\}$/m);
   assert.match(file.text, /^\thandle \/\.well-known\/oauth-authorization-server\* \{\n\t\treverse_proxy 127\.0\.0\.1:8792\n\t\}$/m);
   assert.doesNotMatch(file.text, /oauth-protected-resource/, 'the protected-resource document is the engine\'s, carried, never the sign-in tool\'s');
