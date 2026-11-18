@@ -935,6 +935,60 @@ export async function signInWithBrowser({ origin, resourceDoor, rules = settings
   } finally { server.close(); }
 }
 
+/** The tool-server sign-in module (command.json `connect.modules`, beside this tool in the Workshop copy), or null when it is
+ *  not here. */
+async function loadToolServerSignIn(rules = settings) {
+  for (const path of rules.connect.modules) {
+    const url = new URL(path, import.meta.url);
+    if (existsSync(url)) return import(url.href);
+  }
+  return null;
+}
+
+/** `connect ADDRESS`: signs the person in to the remote tool server at ADDRESS (an MCP server's https address) so any AI can call
+ *  its tools by that address. The sign-in module finds where the server's sign-in lives and registers this caller with this
+ *  computer's loopback answer address (RFC 8252); the person signs in at the link said here; the code that comes back is traded
+ *  by the person's engine (the trade tool keeps the tokens in their vault, so no token reaches this program); then the server's
+ *  tools are listed by its address. Answers {connected, address, tools, unavailable?}. */
+export async function connectToolServer(client, address, { rules = settings, origin = null, load = loadToolServerSignIn, open = openInBrowser, say = text => process.stderr.write(`${text}\n`), typed = typedLine } = {}) {
+  if (typeof address !== 'string' || !URL.canParse(address) || new URL(address).protocol !== 'https:') throw new CommandError(rules.words.connect_needs_address, { status: 2 });
+  const signIn = await load(rules);
+  if (!signIn) throw new CommandError(fill(rules.words.connect_unavailable, { cli: cliName() }), { status: 3 });
+  const found = await signIn.discover(address).catch(error => { throw new CommandError(error.message, { status: 4 }); });
+  const fresh = signIn.freshSignIn();
+  let resolveCallback;
+  const arrived = new Promise(resolve => { resolveCallback = resolve; });
+  const done = result => (origin ? { location: donePage(origin, result, rules) } : {});
+  const server = createServer((request, response) => {
+    const url = new URL(request.url, 'http://127.0.0.1');
+    if (url.pathname !== '/callback') { response.writeHead(404).end(); return; }
+    if (url.searchParams.get('state') !== fresh.state) { response.writeHead(origin ? 302 : 409, done('old')).end(); return; }
+    response.writeHead(origin ? 302 : 200, done(url.searchParams.get('code') ? 'done' : 'failed')).end();
+    resolveCallback(Object.fromEntries(url.searchParams));
+  });
+  await new Promise((resolve, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', resolve); });
+  const redirect = `http://127.0.0.1:${server.address().port}/callback`;
+  try {
+    const clientId = await signIn.register(found, redirect, { name: rules.site?.name ?? cliName() }).catch(error => { throw new CommandError(error.message, { status: 4 }); });
+    const link = signIn.authorizeAddress(found, clientId, redirect, fresh);
+    Promise.resolve().then(() => open(link)).catch(() => {});
+    say(fill(rules.words.open_this_link, { link }));
+    // Signed in on another device: the person pastes the address its browser ended on.
+    const pasted = typed();
+    pasted.line.then(line => {
+      const url = URL.canParse(String(line).trim()) ? new URL(String(line).trim()) : null;
+      if (url && url.searchParams.get('state') === fresh.state) resolveCallback(Object.fromEntries(url.searchParams));
+    });
+    let timer;
+    const late = new Promise((resolve, reject) => { timer = setTimeout(() => reject(new CommandError(fill(rules.words.sign_in_late, { seconds: rules.sign_in_wait_seconds }))), rules.sign_in_wait_seconds * 1000); });
+    const callback = await Promise.race([arrived, late]).finally(() => { clearTimeout(timer); pasted.stop(); });
+    const input = (() => { try { return signIn.tradeInput(found, clientId, redirect, fresh, callback); } catch (error) { throw new CommandError(error.message, { status: 4 }); } })();
+    await client.op(null, rules.engine.tools_run, { tool: signIn.TRADE_TOOL, input });
+    const listed = await client.op(null, rules.engine.tools_list, { address });
+    return { connected: found.host, address, tools: (listed?.tools ?? []).map(tool => tool.id), ...(listed?.unavailable?.length ? { unavailable: listed.unavailable } : {}) };
+  } finally { server.close(); }
+}
+
 /** Ends a sign-in this program made: its refresh token is revoked at the server's revocation endpoint, which ends the grant and
  *  every token it gave. */
 export async function endSignIn(grant, { fetchImpl = fetch } = {}) {
@@ -1232,6 +1286,7 @@ const HELP = `{cli}: see your AIs and their work, and run your {site_name}'s too
   {cli} who [--all]                                   your AIs seen lately (--all: every one): ready or away
   {cli} publish [--dry-run]                           write this AI's own record: its facts and that it was seen now
   {cli} tools | call TOOL JSON|-                      your Workshop tools, and run one by its id
+  {cli} connect ADDRESS                               sign in to a remote tool server (an MCP server's https address); then any AI calls its tools by that address
   {cli} op METHOD JSON|-                              any engine operation by its method (run_resource_operation); op --dry-run shows the request and sends nothing
   --timeout SECONDS  wait this long for one try of a call (default ${settings.retry.attempt_seconds}); a try with no answer is asked again, up to ${settings.retry.count} more times, under the same request key
   {cli} schedule list | read ID                       list wake schedules or read one with its admitted runs
@@ -1904,7 +1959,7 @@ export async function main(argv, seams = {}) {
     return '';
   }
   if (command === 'serve') return serve(context);
-  if (!WORK_COMMANDS.has(command) && !['whoami', 'tools', 'call', 'op', 'who', 'events', 'publish', 'schedule'].includes(command)) throw new CommandError(`Unknown command ${command}. Run ${cliName()} help.`, { status: 2 });
+  if (!WORK_COMMANDS.has(command) && !['whoami', 'tools', 'connect', 'call', 'op', 'who', 'events', 'publish', 'schedule'].includes(command)) throw new CommandError(`Unknown command ${command}. Run ${cliName()} help.`, { status: 2 });
   if (command === 'call' || command === 'op') {
     const known = settings.direct_calls.flags[command];
     const unknown = Object.keys(flags).find(name => !known.includes(name));
@@ -1971,6 +2026,7 @@ export async function main(argv, seams = {}) {
     return print('schedule', await schedules(client, words, { requestKey, flags, rules: settings }));
   }
   if (command === 'tools') return print('tools', { tools: await allPages(client, null, engine.tools_list, {}, 'tools') });
+  if (command === 'connect') return JSON.stringify(await connectToolServer(client, words[0], { origin: context.state.site() }), null, 2);
   if (command === 'call' || command === 'op') {
     // An answer too large for one reply is read page by page, joined and checked (opWhole) before it is printed.
     const whole = answer => (typeof answer === 'string' ? answer : JSON.stringify(answer, null, 2));

@@ -1,0 +1,60 @@
+{
+  "_what": "How the command line's connect signs a person in to a remote tool server that asks for OAuth 2.1, as the Model Context Protocol describes (do-work/sign-in-to-a-tool-server.mjs): discovery from the server's 401 challenge or its well-known documents (RFC 9728, then RFC 8414 or OpenID discovery), dynamic registration of this caller as a public client under the name the caller gives (its site's name; RFC 7591) with the loopback address the command listens on as its redirect (RFC 8252 section 7.3), PKCE S256 and the server named as the resource (RFC 8707). The code is traded by `trade_tool`, which keeps the tokens, the token address and the client id as the fields of the connection `connection_prefix` + the server's host, where the engine reads them when a tool of the server is called by its address (trillion-rust remote_mcp.rs at_address). Moved from tools/add-tool-source on Nov 18 2026, when the tool-source list was deleted (no-tool-source-list plan T6).",
+  "connection_prefix": "service_connection:tool-server:",
+  "trade_tool": "tool:trade-a-tool-servers-sign-in-code-for-its-tokens",
+  "state_bytes": 24,
+  "verifier_bytes": 32,
+  "discovery": {
+    "resource_well_known": "oauth-protected-resource",
+    "issuer_well_known": [
+      "oauth-authorization-server",
+      "openid-configuration"
+    ],
+    "authorization_servers": "authorization_servers",
+    "resource": "resource",
+    "issuer": "issuer",
+    "authorization_endpoint": "authorization_endpoint",
+    "token_endpoint": "token_endpoint",
+    "pkce_methods": "code_challenge_methods_supported",
+    "pkce_method": "S256"
+  },
+  "registration": {
+    "endpoint_field": "registration_endpoint",
+    "client_id_field": "client_id",
+    "client_name_field": "client_name",
+    "redirect_uris_field": "redirect_uris",
+    "scope_field": "scope",
+    "body": {
+      "grant_types": [
+        "authorization_code",
+        "refresh_token"
+      ],
+      "response_types": [
+        "code"
+      ],
+      "token_endpoint_auth_method": "none"
+    }
+  },
+  "probe": {
+    "_why": {
+      "timeout_ms": "10 s for each request: a server that is a server answers a first request well inside it, and the probe makes at most four. A reasoned bound, not a measured one.",
+      "max_redirects": "Three redirects are followed, each to an https address, so an address that moved once or twice still answers and none loops. A reasoned bound, not a measured one.",
+      "max_bytes": "64 KiB of an answer is read: a sign-in document or a registration answer fits with room. A reasoned bound, not a measured one."
+    },
+    "timeout_ms": 10000,
+    "max_bytes": 65536,
+    "max_redirects": 3
+  },
+  "words": {
+    "no_sign_in_document": "{host} asks for a sign-in but does not say where it is, so I cannot sign in to it.",
+    "no_issuer_document": "{host} does not publish its sign-in addresses.",
+    "issuer_mismatch": "The sign-in metadata of {host} does not identify the server that named it.",
+    "no_pkce": "{host} does not offer the sign-in protection every OAuth 2.1 client must use (PKCE S256), so I do not sign in to it.",
+    "sign_in_not_https": "The sign-in of {host} is not on https addresses, so I do not sign in to it.",
+    "no_registration": "{host} does not let a new caller register itself, so it needs a client made on its own site first.",
+    "registration_refused": "{host} refused to register this caller.",
+    "sign_in_expired": "This sign-in has expired or was already used. Nothing was saved. Connect the server again to get a new link.",
+    "sign_in_refused": "You did not finish signing in to {label}, or the server refused. Nothing was saved. Connect it again to try again.",
+    "sign_in_not_traded": "Signing in to {label} did not finish: {why} Nothing was saved. Connect it again to try again."
+  }
+}

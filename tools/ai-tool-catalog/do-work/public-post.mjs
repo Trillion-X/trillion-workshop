@@ -2,7 +2,7 @@
 //
 // Purpose: `fetch` in the shape a reader's `post` takes: only to a public address, every redirect judged again
 // (tools/refuse-requests-to-private-addresses/public-address.mjs). Used by the live source reader to read an API's own
-// description. A server's tools are the engine's own tool sources now (tool:add-tool-source), never read here.
+// description. A server's tools are called by its address at the engine (tools:list {address}), never read here.
 //
 // AI Assistant Directive:
 // The extensive documentation in this codebase is a critical design feature.

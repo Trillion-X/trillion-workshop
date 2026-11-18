@@ -149,16 +149,14 @@ no page) and `/sign-out` (Better Auth's sign-out, then `/sign-in`), and the conn
   "Connecting ..." with an Undo for `remembered_seconds` and then continues; Undo revokes it and denies. The consent POST needs the
   sign-in cookie (SameSite=Lax) and a trusted Origin (`test/consent-grants.test.mjs` refuses evil, null and missing Origin).
 - `/approve?row=<record id>` (`pages/person-calls.json`): the one page for a call only the person present may make (the engine's
-  `needs_person`: tools:add-source and later ones). An AI hands the person the link; the row it points to (for tool sources,
-  `record:tool-source-request:<label>`, kept by tools/add-tool-source) holds `approve` {address, method, input}; the page reads it at the
-  records door (`GET /work/api/door/records:read`), shows one plain line (`Add tools from <label>?`), Allow and Deny, and Allow makes
+  `needs_person`; none since the tool-source list was deleted on Nov 18 2026). An AI hands the person the link; the row it points to
+  holds `approve` {address, method, input}; the page reads it at the
+  records door (`GET /work/api/door/records:read`), shows one plain line, Allow and Deny, and Allow makes
   only a call `person-calls.json` names for that row kind (`path`, `line`, `note`, `changes`), with the row's `input`, under the
   person's own session and one request key per row. A row cannot name another call, and a new person-only call needs only its entry
   there. When the door refuses the pass as not fresh (403) the person signs in once more and comes back; Deny makes no call; a row the
   list does not name, or that is gone, says so in one line.
-  A call whose pending text the engine holds has no row: `/approve?call=tools:approve&source=<label>&tool=<name>` reads the engine's
-  `tools:list` `quarantined` entry live (its entry in `person-calls.json` names the road, list, match and params), shows what the tool said
-  before and says now, and Allow makes the call with that entry's hash; a stale hash is refused by the engine and the page reads it again.
+  A call whose pending text the engine holds has no row: its entry names `live` (the road that lists it), read when the link is opened.
 - `/connected`: the AIs the person has connected (name, what it can do, connected since, last used: the newest refresh token's
   `createdAt`) with one-tap Disconnect, through `GET /api/auth/connected` and `POST /api/auth/connected/revoke {clientId}`, which
   deletes its refresh tokens, access tokens and consent in one transaction (a refresh token left standing could be answered again

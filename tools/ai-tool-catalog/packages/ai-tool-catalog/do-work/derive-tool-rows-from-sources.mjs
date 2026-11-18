@@ -18,8 +18,8 @@
 //   node packages/ai-tool-catalog/do-work/derive-tool-rows-from-sources.mjs <records file or folder> ...
 // prints the derived row ids, unread sources and refusals for inspection.
 //
-// A remote tool server is not read here: its tools are a source of the person's own list of tool sources (tool:add-tool-source, the
-// engine's tools:add-source and remote-mcp), signed in to and refreshed there.
+// A remote tool server is not read here: any AI calls its tools by the server's address (the engine's tools:list and tools:run with
+// {address}), signed in to once by the command line's connect (tools/connect-a-service-and-seal-its-key) and refreshed by the engine.
 //
 // A source may also carry `lay_over: [{ where: { <entry field>: <value>, ... }, row: { ... } }]`: fields the source's
 // owner adds to every derived row whose entry matches all of `where` (a price the seller sets on one service's tools,

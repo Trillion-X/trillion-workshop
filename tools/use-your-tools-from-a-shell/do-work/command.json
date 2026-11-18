@@ -460,6 +460,8 @@
     "open_this_link": "If your browser did not open, open this link to sign in: {link}\nSigned in on another device? Paste here the address its browser ended on, then press Return.",
     "sign_in_waiting": "Another sign-in is already waiting in your browser. Finish it or close it, then try again.",
     "sign_in_late": "No sign-in arrived within {seconds} seconds. Run {cli} login again.",
+    "connect_needs_address": "Give the full web address of the tool server you want to sign in to, the one its maker gives for connecting an AI.",
+    "connect_unavailable": "This copy of the command cannot sign in to a tool server. Run {cli} update, then try again.",
     "browser_not_opened": "{site_name} could not open your browser. Open this link to sign in: {link}",
     "sign_in_step_failed": "Sign-in did not finish. Run {cli} login again.",
     "whoami_where": "{site_name} at: {where}",
@@ -623,6 +625,13 @@
     "done_path": "/sign-in/done",
     "redirect_port": 54718,
     "_what": "This program signs in as an OAuth client named by a Client ID Metadata Document: the address `origin` + id_path (https, at the sign-in server's own host) answers do-work/client-metadata.json with {origin} filled in by the host that serves it, listing the one loopback redirect on redirect_port. No client is registered, and no host is named here."
+  },
+  "connect": {
+    "_what": "Where `connect ADDRESS` finds the tool-server sign-in (tools/connect-a-service-and-seal-its-key/do-work/sign-in-to-a-tool-server.mjs): beside this tool in the Workshop copy the command follows, or packed with it.",
+    "modules": [
+      "packs/tools/connect-a-service-and-seal-its-key/do-work/sign-in-to-a-tool-server.mjs",
+      "../../connect-a-service-and-seal-its-key/do-work/sign-in-to-a-tool-server.mjs"
+    ]
   },
   "carry": {
     "_what": "After `login` on a computer that runs its own engine (a computer config of `computer_config_files` names where it listens), this computer is carried to the meeting point of the site this command came from, so the person reaches it from anywhere through that site: the carrier (packed from tools/carry-a-computer-to-a-meeting-point; `modules` are where it is found, packed or beside this tool in a Workshop copy) runs the way row `way`, kept running by this computer's init row under `label`, with its files in `state` under the state folder. Its key is made once by the way row and kept in the Keychain item `keychain_item` (else the 0600 file `key_file` in the state folder); the carrier reads it through `{cli} carrier-key`, which writes it on descriptor 3 only. The meeting point is told by `{cli} op` at the site (`announce`): it answers the port, certificate, ssh port and host key (`gives`), and nothing about it is kept here. The computer id is the BLAKE3 of the public key, its first 16 hex digits.",

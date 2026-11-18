@@ -220,7 +220,7 @@ test('/approve is one page for every person-only call: a line, Allow and Deny, a
   const calls = list.calls;
   assert.match(list.settle.path, /^\/work\/api\/records$/, 'an answered row is removed by a records write');
   const words = JSON.parse(readFileSync(new URL('words.json', dir), 'utf8'));
-  assert.ok(calls['tools:add-source'], 'adding a source of tools');
+  // No call needs the person present since the tool-source list was deleted (Nov 18 2026); a call added later is checked below.
   for (const [method, rule] of Object.entries(calls)) {
     assert.match(method, /^[a-z-]+:[a-z-]+$/, method);
     assert.match(rule.path, /^\/work\/api\/door\/[a-z-]+:[a-z-]+$/, `${method}'s path is a door path`);

@@ -18,8 +18,8 @@
 // row ids, unread sources and refusals for inspection. Importing this library
 // never examines another program's argv or starts a command, including when bundled.
 //
-// A remote tool server is not read here: its tools are a source of the person's own list of tool sources (tool:add-tool-source, the
-// engine's tools:add-source and remote-mcp), signed in to and refreshed there.
+// A remote tool server is not read here: any AI calls its tools by the server's address (the engine's tools:list and tools:run with
+// {address}), signed in to once by the command line's connect (tools/connect-a-service-and-seal-its-key) and refreshed by the engine.
 //
 // A source's list may also be an API's own description (`list.openapi = { url, headers?, connection?, only? }`, OpenAPI
 // 3.x or Swagger 2.0 as JSON, read by ./read-openapi.mjs): one entry per operation, carrying its method, address, query,
