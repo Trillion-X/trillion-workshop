@@ -140,6 +140,13 @@ export function checkBindings(rule, subject, index = 0) {
   return { holds: row.holds ? filled(row.holds, rule, subject) : null, wrong: filled(row.wrong, rule, subject), reads };
 }
 
+/** The values that break a rule, each as the words a refusal shows: as it is when the kind says them in words
+ *  (`wrong_is_text`), else as JSON. */
+const shown = (rule, wrong) => (byKind.get(rule.kind)?.wrong_is_text ? wrong : {
+  ...wrong,
+  transform: [...(wrong.transform ?? []), op('map_to_nodes', { item_var: '$value', template: binding({ from: 'vars', key: '$value' }, [op('stringify', { format: 'json' })]) })],
+});
+
 const binding = (select, transform) => ({ $kind: 'binding', select, ...(transform ? { transform } : {}) });
 const item = (path, transform) => binding({ from: 'vars', key: '$item', ...(path ? { path } : {}) }, transform);
 const op = (name, args) => ({ op: `op:core.${name}`, ...(args ? { args } : {}) });
@@ -163,14 +170,14 @@ export function checkSteps(subject, rules) {
   const said = binding({ from: 'steps', key: wrong, path: 'output.problems' }, [
     op('filter_where', { predicate: [op('get_path', { path: 'held' }), op('not')] }),
     op('map_to_nodes', { template: item(null, [op('concat', { values: [
-      item('says'), ' (', item('wrong', [op('map_to_nodes', { item_var: '$value', template: binding({ from: 'vars', key: '$value' }, [op('stringify', { format: 'json' })]) }), op('join', { delimiter: '; ' })]), ')',
+      item('says'), ' (', item('wrong', [op('join', { delimiter: '; ' })]), ')',
     ] })]) }),
     op('join', { delimiter: '; ' }),
   ]);
   const problems = judged.map(({ rule, wrong: values }, index) => ({
     says: rule.says ?? rule.kind,
     held: binding({ from: 'steps', key: checks, path: `output.held.${index}` }),
-    wrong: values,
+    wrong: shown(rule, values),
   }));
   return {
     steps: [
@@ -200,7 +207,7 @@ export function refusalsOf(definition, ran) {
     if (step.kind !== 'fail' || !step.id.endsWith('#refused') || ran[step.id]?.status !== 'failed') continue;
     const subject = step.id.slice(0, -'#refused'.length);
     const problems = (ran[`${subject}#wrong`]?.output?.problems ?? []).filter(problem => problem.held === false);
-    refusals.set(subject, problems.length ? problems.map(problem => `${problem.says} (${(problem.wrong ?? []).map(value => JSON.stringify(value)).join('; ')})`) : [ran[step.id].error]);
+    refusals.set(subject, problems.length ? problems.map(problem => `${problem.says} (${(problem.wrong ?? []).join('; ')})`) : [ran[step.id].error]);
   }
   return refusals;
 }

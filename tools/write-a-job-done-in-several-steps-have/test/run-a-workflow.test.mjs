@@ -104,3 +104,16 @@ test('the tool\'s kit is whole', () => {
   const kit = JSON.parse(readFileSync(new URL('../kits/run-workflow-definition.json', import.meta.url), 'utf8'));
   assert.deepEqual(kitProblems(kit, { tool: toolRow }), []);
 });
+
+test('a parallel loop asks every lane before it pauses, so every lane is waiting at once', async () => {
+  const lanes = 30;
+  const definitions = [
+    { id: 'workflow:made-up-fan', name: 'Fan', kind: 'workflow', is_active: true, version: 1,
+      steps: [{ id: 'lanes', kind: 'loop', config: { source: Array.from({ length: lanes }, (_, index) => index), item_var: 'lane', definition_id: 'workflow:made-up-lane', parallel: true, max_concurrency: lanes } }] },
+    { id: 'workflow:made-up-lane', name: 'Lane', kind: 'workflow', is_active: true, version: 1,
+      steps: [{ id: 'work', kind: 'ask', config: { name: 'agent:', input: {}, context: {} } }] },
+  ];
+  const run = await runWorkflow({ definitions, workflow_id: 'workflow:made-up-fan' });
+  assert.equal(run.status, 'paused');
+  assert.equal(run.waiting.length, lanes);
+});

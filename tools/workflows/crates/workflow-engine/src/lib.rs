@@ -527,6 +527,37 @@ mod tests {
         }
     }
 
+    /// A host that never has an answer yet and counts every ask it was given.
+    struct NotYet(Mutex<usize>);
+    #[async_trait::async_trait]
+    impl Host for NotYet {
+        async fn ask(&self, name: &str, _: Vec<u8>, context: Option<Vec<u8>>) -> Result<Vec<u8>, String> {
+            *self.0.lock().unwrap() += 1;
+            let step: Value = serde_json::from_slice(&context.unwrap_or_default()).unwrap_or(Value::Null);
+            Ok(serde_json::to_vec(&serde_json::json!({ "$kind": workflow_core::executor::context::NOT_ANSWERED_YET, "step_id": step["step_id"], "asked": name })).unwrap())
+        }
+        async fn read(&self, _: &str) -> Result<Vec<u8>, String> { Ok(b"{}".to_vec()) }
+    }
+
+    #[tokio::test]
+    async fn a_parallel_loop_asks_every_lane_before_it_pauses_and_a_sequential_one_asks_one() {
+        let lanes = |parallel: bool| -> Vec<Definition> {
+            let root = serde_json::json!({ "id": "fan", "name": "Fan", "kind": "workflow", "is_active": true, "version": 1,
+                "steps": [{ "id": "lanes", "kind": "loop", "config": { "source": (0..40).collect::<Vec<_>>(), "item_var": "lane", "definition_id": "lane", "parallel": parallel, "max_concurrency": 40 } }] });
+            let lane = serde_json::json!({ "id": "lane", "name": "Lane", "kind": "workflow", "is_active": true, "version": 1,
+                "steps": [{ "id": "work", "kind": "ask", "config": { "name": "agent:", "input": {}, "context": { "step_id": "work" } } }] });
+            vec![serde_json::from_value(root).unwrap(), serde_json::from_value(lane).unwrap()]
+        };
+        let host = Arc::new(NotYet(Mutex::new(0)));
+        let run = run_definition(lanes(true), "fan", serde_json::json!({}), "person:test", "example", host.clone()).await.expect("runs");
+        assert_eq!(run["status"], "paused", "{run}");
+        assert_eq!(*host.0.lock().unwrap(), 40, "every lane's ask is made before the loop pauses");
+        let host = Arc::new(NotYet(Mutex::new(0)));
+        let run = run_definition(lanes(false), "fan", serde_json::json!({}), "person:test", "example", host.clone()).await.expect("runs");
+        assert_eq!(run["status"], "paused", "{run}");
+        assert_eq!(*host.0.lock().unwrap(), 1, "a sequential loop waits at its first lane");
+    }
+
     fn scope_then_plan() -> Definition {
         serde_json::from_value(serde_json::json!({
             "id": "scope-then-plan", "name": "Scope then plan", "kind": "workflow", "is_active": true, "version": 1,

@@ -341,15 +341,11 @@ impl crate::domain::handlers::StepHandler for FailStepHandler {
             step.config.get("error").unwrap_or(&Value::Null),
             exec_ctx,
         )?;
-        let reason = resolved
+        let said = resolved
             .as_str()
             .map(ToOwned::to_owned)
             .unwrap_or_else(|| resolved.to_string());
-        Err(WorkflowError::ExecutionFailed {
-            reason,
-            hint: "The definition intentionally terminated after its DATA-declared failure or recovery path."
-                .to_string(),
-        })
+        Err(WorkflowError::Refused { step_id: step.id.clone(), said })
     }
 }
 
@@ -559,7 +555,6 @@ pub fn default_step_registry() -> crate::domain::handlers::StepHandlerRegistry {
 /// This is a Physics safety bound, not a Society preference.
 const DEFAULT_MAX_LOOP_ITERATIONS: i32 = 1000;
 
-#[cfg(all(feature = "native", not(target_arch = "wasm32")))]
 /// Default maximum in-flight loop iterations when `parallel` is enabled and the
 /// authored workflow does not specify a bound.
 const DEFAULT_MAX_LOOP_CONCURRENCY: usize = 8;
@@ -1214,6 +1209,8 @@ async fn execute_dag_concurrent(
                     waiting.get_or_insert(error);
                     continue;
                 }
+                // A definition that ends itself on purpose says why in its own words.
+                let refused = matches!(error, WorkflowError::Refused { .. }).then(|| error.clone());
                 let error = error.to_string();
                 let mut handled = false;
                 for (_, edge_meta) in &outgoing {
@@ -1234,6 +1231,9 @@ async fn execute_dag_concurrent(
                     }
                 }
                 if !handled {
+                    if let Some(refused) = refused {
+                        return Err(refused);
+                    }
                     return Err(WorkflowError::ExecutionFailed {
                         reason: format!("Step '{}' failed: {}", node_key, error),
                         hint: "Add a DATA-declared on_failure path when the definition owns a recovery or inverse action; otherwise fix the failing step."
@@ -1649,14 +1649,15 @@ fn is_truthy(value: &Value) -> bool {
 //     `futures::stream::buffer_unordered`. Each iteration gets its own
 //     cloned ExecutionContext with an isolated LoopState. Results are
 //     collected into indexed positions (NOT completion order) so the
-//     output array always matches the input array order. On first
-//     failure, remaining futures are dropped (cancelled) and the
-//     error propagates. `LoopConfig.max_concurrency` bounds in-flight work.
+//     output array always matches the input array order. Every iteration
+//     runs to its end; then a real failure ends the loop, else a lane still
+//     waiting pauses it, with every lane's ask already made.
+//     `LoopConfig.max_concurrency` bounds in-flight work.
 //
-//   parallel: true (WASM, cfg(not(feature = "native")))
-//     Sequential fallback — WASM is single-threaded, so sequential
-//     IS the correct platform-appropriate execution strategy. Produces
-//     identical results to the native parallel path.
+//   parallel: true (WASM too)
+//     The same bounded cooperative fanout: single-threaded is not
+//     sequential. Iterations interleave at each await, so every lane's
+//     ask is made before any answer is needed.
 // ============================================================================
 
 /// Execute a Loop-type step by iterating over a source array.
@@ -1666,14 +1667,14 @@ fn is_truthy(value: &Value) -> bool {
 /// steps (steps with parent_branch matching this step's ID) are executed.
 ///
 /// When `parallel: true` is set in the loop config, iterations execute
-/// concurrently on the native platform (cooperative async via
-/// `futures::stream::buffer_unordered`) or sequentially on WASM (platform adaptation).
+/// concurrently on every platform (cooperative async via
+/// `futures::stream::buffer_unordered`).
 ///
 /// # Parallel Execution Invariants
 ///
 /// 1. Each iteration gets its own `ExecutionContext` clone — no shared mutable state.
 /// 2. Results are indexed by position, not completion order — output[i] corresponds to input[i].
-/// 3. On first iteration failure, remaining futures are dropped (cancelled).
+/// 3. Every iteration runs to its end; a real failure then ends the loop, else a waiting lane pauses it.
 /// 4. `max_iterations` is enforced identically in both sequential and parallel modes.
 /// 5. After all iterations complete, step outputs from each iteration context are merged
 ///    back into the parent context.
@@ -1783,8 +1784,7 @@ async fn execute_loop_step(
         //
         // Decision matrix:
         //   parallel: false (any platform)  → execute_loop_sequential
-        //   parallel: true  + native        → execute_loop_parallel (concurrent via try_join_all)
-        //   parallel: true  + WASM          → execute_loop_sequential (platform adaptation)
+        //   parallel: true  (any platform)  → execute_loop_body_parallel (bounded cooperative fanout)
         if loop_config.parallel {
             execute_loop_body_parallel(exec_ctx, max_concurrency, body).await?
         } else {
@@ -1947,7 +1947,7 @@ async fn execute_loop_body_sequential(
             .await
             {
                 Ok(()) => {}
-                Err(error) if tolerate_item_errors && !deps.outside_access.run_budget().is_some_and(RunBudget::is_exhausted) => {
+                Err(error) if tolerate_item_errors && !matches!(error, WorkflowError::Waiting { .. }) && !deps.outside_access.run_budget().is_some_and(RunBudget::is_exhausted) => {
                     // DATA-owned fault isolation: this iteration failed, but the
                     // loop was configured to keep processing siblings. The item's
                     // output is an error-shaped value — machine-readable, one
@@ -2000,19 +2000,17 @@ fn tolerated_error_output(index: usize, item: &Value, error: &WorkflowError) -> 
     })
 }
 
-/// Parallel loop body — executes iterations concurrently on native, sequentially on WASM.
+/// Parallel loop body — runs iterations concurrently, on every platform.
 ///
-/// On native (`#[cfg(feature = "native")]`):
-///   Uses `futures::stream::buffer_unordered` for bounded cooperative concurrent execution.
-///   Each iteration gets its own cloned `ExecutionContext` with an isolated
-///   `LoopState`. Results are collected by index position so the output array
-///   order matches the input array order regardless of completion order.
-///   On first failure, remaining futures are dropped (cancelled).
+/// Uses `futures::stream::buffer_unordered` for bounded cooperative concurrency: up to
+/// `max_concurrency` iterations are in flight at once. Concurrency is cooperative, not threads, so a single-threaded
+/// host (WASM) interleaves the iterations at each await exactly as the DAG walker does (`FuturesUnordered`): every
+/// lane's ask is made before any answer is needed. Results are collected by index position so the output array
+/// order matches the input array order regardless of completion order.
 ///
-/// On WASM (`#[cfg(not(feature = "native"))]`):
-///   Falls back to sequential execution — WASM is single-threaded, so sequential
-///   IS the correct platform-appropriate strategy. Delegates to
-///   `execute_loop_body_sequential`.
+/// Every iteration runs to its own end. Afterwards a real failure (the lowest index) ends the loop with that error;
+/// otherwise an iteration still waiting for its answer pauses the loop (the lowest index is the step's wait), so a
+/// host sees every lane's waiting ask at once, never one per run. A wait is never tolerated as an item error.
 ///
 /// # Isolation Model
 ///
@@ -2025,29 +2023,8 @@ async fn execute_loop_body_parallel(
     max_concurrency: Option<usize>,
     body: LoopBodyExecution<'_>,
 ) -> Result<Vec<Value>, WorkflowError> {
-    // On WASM: sequential fallback — WASM is single-threaded, so sequential
-    // IS the correct platform-appropriate execution strategy.
-    #[cfg(any(not(feature = "native"), target_arch = "wasm32"))]
     {
-        let _ = max_concurrency;
-        return execute_loop_body_sequential(exec_ctx, body).await;
-    }
-
-    // On native: bounded concurrent execution via futures::stream::buffer_unordered.
-    //
-    // Each iteration:
-    //   1. Clones the parent ExecutionContext
-    //   2. Sets its own LoopState
-    //   3. Executes the action step on the cloned context
-    //   4. Returns (index, output_value, step_outputs_map) on success
-    //
-    // buffer_unordered semantics:
-    //   - Up to `max_concurrency` futures run cooperatively at once
-    //   - On first Err, remaining in-flight futures are dropped (cancelled)
-    //   - On success, results are collected independent of completion order
-    #[cfg(all(feature = "native", not(target_arch = "wasm32")))]
-    {
-        use futures::stream::{self, StreamExt, TryStreamExt};
+        use futures::stream::{self, StreamExt};
 
         let LoopBodyExecution {
             step,
@@ -2097,7 +2074,7 @@ async fn execute_loop_body_parallel(
                         .await
                         {
                             Ok(()) => {}
-                            Err(error) if tolerate_item_errors && !deps.outside_access.run_budget().is_some_and(RunBudget::is_exhausted) => {
+                            Err(error) if tolerate_item_errors && !matches!(error, WorkflowError::Waiting { .. }) && !deps.outside_access.run_budget().is_some_and(RunBudget::is_exhausted) => {
                                 // DATA-owned fault isolation: yield an error-shaped
                                 // item instead of cancelling sibling iterations.
                                 // The iteration's context delta is discarded — a
@@ -2109,11 +2086,11 @@ async fn execute_loop_body_parallel(
                                     error: Some(error.to_string()),
                                     duration_ms: 0,
                                 });
-                                return Ok::<(usize, Value, StepHandlerResult), WorkflowError>((
+                                return Ok::<(usize, Value, StepHandlerResult), (usize, WorkflowError)>((
                                     index, output, delta,
                                 ));
                             }
-                            Err(error) => return Err(error),
+                            Err(error) => return Err((index, error)),
                         }
                     }
 
@@ -2136,16 +2113,34 @@ async fn execute_loop_body_parallel(
                         },
                     );
 
-                    Ok::<(usize, Value, StepHandlerResult), WorkflowError>((index, output, delta))
+                    Ok::<(usize, Value, StepHandlerResult), (usize, WorkflowError)>((index, output, delta))
                 }
             });
 
-        // Execute bounded concurrent iterations. On first error, remaining
-        // in-flight futures are dropped and the error propagates.
-        let results: Vec<(usize, Value, StepHandlerResult)> = stream::iter(iteration_futures)
+        // Run every iteration, bounded by max_concurrency, each to its own end.
+        let mut finished: Vec<(usize, Result<(Value, StepHandlerResult), WorkflowError>)> = stream::iter(iteration_futures)
             .buffer_unordered(max_concurrency)
-            .try_collect()
-            .await?;
+            .collect::<Vec<_>>()
+            .await
+            .into_iter()
+            .map(|result| match result {
+                Ok((index, output, delta)) => (index, Ok((output, delta))),
+                Err((index, error)) => (index, Err(error)),
+            })
+            .collect();
+        finished.sort_by_key(|(index, _)| *index);
+        let failed = |waiting: bool| finished.iter().position(|(_, result)| matches!(result, Err(error) if matches!(error, WorkflowError::Waiting { .. }) == waiting));
+        if let Some(at) = failed(false).or_else(|| failed(true)) {
+            let (_, result) = finished.swap_remove(at);
+            return Err(result.err().expect("an error was found at this position"));
+        }
+        let results: Vec<(usize, Value, StepHandlerResult)> = finished
+            .into_iter()
+            .map(|(index, result)| {
+                let (output, delta) = result.expect("every error ended the loop above");
+                (index, output, delta)
+            })
+            .collect();
 
         // Collect outputs by index position (NOT completion order).
         let mut loop_outputs: Vec<Value> = vec![Value::Null; total];

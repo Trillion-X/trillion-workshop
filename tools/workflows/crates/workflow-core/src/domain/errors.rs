@@ -254,6 +254,12 @@ pub enum WorkflowError {
     #[serde(rename = "WAITING")]
     Waiting { step_id: String, detail: serde_json::Value },
 
+    /// A `fail` step ended the run on purpose: `said` is the definition's own words for why (a refused answer, a
+    /// recovery that gave up), and it is the run's whole message, never wrapped in engine words.
+    #[error("{said}")]
+    #[serde(rename = "REFUSED")]
+    Refused { step_id: String, said: String },
+
     /// Internal error (catch-all for unexpected failures).
     #[error("Internal error: {reason}. Hint: {hint}")]
     #[serde(rename = "INTERNAL")]
@@ -301,6 +307,7 @@ impl WorkflowError {
             Self::PayloadTooLarge { .. } => "FE_PAYLOAD_TOO_LARGE",
             Self::ResourcePolicyInvalid { .. } => "FE_RESOURCE_POLICY_INVALID",
             Self::Waiting { .. } => "WAITING",
+            Self::Refused { .. } => "REFUSED",
             Self::Internal { .. } => "INTERNAL",
         }
     }
@@ -343,6 +350,7 @@ impl WorkflowError {
             Self::UnknownTransform { op, .. } => op,
             Self::SystemProtected => "System definition cannot be modified",
             Self::Waiting { .. } => "The answer to this step is not there yet",
+            Self::Refused { said, .. } => said,
         }
     }
 
@@ -388,6 +396,7 @@ impl WorkflowError {
                 "Yield — orchestrator will reschedule after probe resolves"
             }
             Self::Waiting { .. } => "Run the definition again once the answer is there; earlier answers are kept by the host",
+            Self::Refused { .. } => "Run it again with what the refusal asks for",
         }
     }
 

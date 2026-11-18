@@ -1,5 +1,5 @@
 {
-  "about": "The vocabulary of recipe checks. A check is { kind, says, ...the fields its kind row names }. Adding a check kind is adding a row here: the validator reads every rule from the row. Field shapes: path = a list of keys starting at one of the roots (and reading only earlier steps); the `of` field of subset-of, covers and differs-from may also be a list of such paths, whose values are taken together, words = a non-empty list of non-empty strings, count = a whole number above 0, catalog = one of the catalogs, list = any list. A kind row's `wrong` is the binding whose value lists the values that break the rule (empty when it holds), and `holds`, when given, the binding that says whether it holds faster than `wrong` can; without `holds`, a rule holds when `wrong` is empty. In them {\"$values\": <field>, \"transform\"?} is the values at the rule's path in that field (the `this` root is the checked step's output; `values` stands in for `of` when the rule lists values instead), and {\"$fill\": <field>} is the rule's own value of that field. They are evaluated by the one shared evaluator every engine uses. A kind that has to look things up has `reads`: for each value of `each` the engine reads the address `from` builds from the value (the loop item), and {\"$read\": true, \"transform\"?} in its bindings is the list of what each read answered, a read that failed being {\"tolerated_error\": {\"item\": <the value>, ...}}.",
+  "about": "The vocabulary of recipe checks. A check is { kind, says, ...the fields its kind row names }. Adding a check kind is adding a row here: the validator reads every rule from the row. Field shapes: path = a list of keys starting at one of the roots (and reading only earlier steps); the `of` field of subset-of, covers and differs-from may also be a list of such paths, whose values are taken together, words = a non-empty list of non-empty strings, count = a whole number above 0, catalog = one of the catalogs, list = any list. A kind row's `wrong` is the binding whose value lists the values that break the rule (empty when it holds), and `holds`, when given, the binding that says whether it holds faster than `wrong` can; without `holds`, a rule holds when `wrong` is empty. In them {\"$values\": <field>, \"transform\"?} is the values at the rule's path in that field (the `this` root is the checked step's output; `values` stands in for `of` when the rule lists values instead), and {\"$fill\": <field>} is the rule's own value of that field. They are evaluated by the one shared evaluator every engine uses. A kind that has to look things up has `reads`: for each value of `each` the engine reads the address `from` builds from the value (the loop item), and {\"$read\": true, \"transform\"?} in its bindings is the list of what each read answered, a read that failed being {\"tolerated_error\": {\"item\": <the value>, ...}}. A kind whose `wrong` already says each break in words (`wrong_is_text`) is shown as it is; any other kind's values are shown as JSON.",
   "roots": [
     {
       "root": "this",
@@ -938,13 +938,118 @@
             }
           },
           {
+            "op": "op:core.map_to_nodes",
+            "args": {
+              "template": {
+                "$kind": "binding",
+                "select": {
+                  "from": "vars",
+                  "key": "$item"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.concat",
+                    "args": {
+                      "values": [
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "vars",
+                            "key": "$item"
+                          },
+                          "transform": [
+                            {
+                              "op": "op:core.stringify",
+                              "args": {
+                                "format": "json"
+                              }
+                            }
+                          ]
+                        },
+                        " says ",
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "literal",
+                            "value": {
+                              "$fill": "words"
+                            }
+                          },
+                          "transform": [
+                            {
+                              "op": "op:core.filter_where",
+                              "args": {
+                                "item_var": "$word",
+                                "predicate": [
+                                  {
+                                    "op": "op:core.coalesce",
+                                    "args": {
+                                      "values": [
+                                        {
+                                          "$kind": "binding",
+                                          "select": {
+                                            "from": "vars",
+                                            "key": "$item"
+                                          },
+                                          "transform": [
+                                            {
+                                              "op": "op:core.to_string"
+                                            },
+                                            {
+                                              "op": "op:core.lower"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  {
+                                    "op": "op:core.contains",
+                                    "args": {
+                                      "value": {
+                                        "$kind": "binding",
+                                        "select": {
+                                          "from": "vars",
+                                          "key": "$word"
+                                        },
+                                        "transform": [
+                                          {
+                                            "op": "op:core.lower"
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "op": "op:core.first"
+                            },
+                            {
+                              "op": "op:core.stringify",
+                              "args": {
+                                "format": "json"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
             "op": "op:core.take",
             "args": {
               "count": 8
             }
           }
         ]
-      }
+      },
+      "wrong_is_text": true
     },
     {
       "kind": "distinct-at-least",
