@@ -47,7 +47,7 @@ import {
   RECORDING_SESSION_INPUT,
   type RecordingCompletionReasonRefs,
   type RecordingTeleprompterSession,
-} from '../read-data/recording-session';
+} from '../../record-video-with-teleprompter/read-data/recording-session';
 import {
   createRecordVideoId,
   removeRecording,
@@ -57,11 +57,11 @@ import {
   setRecordingName,
   setRecordingSubtitle,
   type CaptureDescriptorValue,
-} from '../do-work/record-video-requests';
+} from '../../record-video-with-teleprompter/do-work/record-video-requests';
 import {
   saveRecordedFileArtifact,
   type RecordVideoSourceRef,
-} from '../do-work/recorded-file-artifact';
+} from '../../record-video-with-teleprompter/do-work/recorded-file-artifact';
 import { presentationReadinessFromObservations } from '../do-work/recording-session-from-presentation-plan.mjs';
 import {
   readRecordedFileBlob,
@@ -73,12 +73,12 @@ import {
   listCaptureJournals,
   deleteCaptureJournal,
   type LocalPlaybackFileRef,
-} from '../do-work/recorded-file-store';
+} from '../../record-video-with-teleprompter/do-work/recorded-file-store';
 import {
   decodeEnrichmentsByRecording,
   type RecordingEnrichment,
-} from '../read-data/recording-enrichment';
-import { RecordingEnrichmentPanel } from './RecordingEnrichmentPanel';
+} from '../../record-video-with-teleprompter/read-data/recording-enrichment';
+import { RecordingEnrichmentPanel } from '../../record-video-with-teleprompter/show/RecordingEnrichmentPanel';
 import {
   chooseLocalFiles,
   type LocalChosenFile,
@@ -95,7 +95,7 @@ import {
   observeBrowserMediaSetup,
   readinessObservationsFromSetup,
   type SetupObservationReport,
-} from './setup-observer';
+} from '../../record-video-with-teleprompter/show/setup-observer';
 import { CapabilityPermissionPrompt } from '../../permission-lease/show/CapabilityPermissionPrompt';
 import type { CapabilityPermissionState } from '../../permission-lease/read-data/capability-permission';
 import { AudioClipPlayer, Button, CaptionScroll, Container, Icon, InlineEditText, LiveWaveform, SegmentedControl, Text, sanitizeErrorText } from '../../ui';
@@ -132,13 +132,13 @@ import {
   pauseActiveTime,
   resumeActiveTime,
   type RecordingPhase,
-} from './recording-lifecycle';
+} from '../../record-video-with-teleprompter/show/recording-lifecycle';
 import {
   advanceSilenceStop,
   INITIAL_SILENCE_STOP_STATE,
   rootMeanSquare,
 } from './silence-stop';
-import { RECORDING_PAGE_LAYOUT_STATE_INPUT, recordingPageLayoutAddress } from '../read-data/recording-page-arrangement';
+import { RECORDING_PAGE_LAYOUT_STATE_INPUT, recordingPageLayoutAddress } from '../../record-video-with-teleprompter/read-data/recording-page-arrangement';
 import { Mic, Pause, Play, Square } from 'lucide-react';
 import { hasNativeSpeechBridge, listen as listenForWords, listeningContext, type Heard, type Listener } from '../../record-audio/show/record-in-the-browser';
 import { loopFreeWords, withoutLoops } from 'trillion-workshop/tools/record-voice-and-meetings/read-data/heard-words.mjs';

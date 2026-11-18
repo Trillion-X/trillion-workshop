@@ -11,7 +11,7 @@ import {
 import type {
   CaptureDescriptorValue,
   CaptureSourceDescriptor,
-} from '../do-work/record-video-requests';
+} from '../../record-video-with-teleprompter/do-work/record-video-requests';
 
 export const recordVideoCapabilityPermission = readCapabilityPermissionDescriptor(
   recordVideoContract,

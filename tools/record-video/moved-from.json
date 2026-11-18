@@ -34,38 +34,11 @@
     },
     {
       "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/record-video/do-work/record-video-requests.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/record-video/do-work/record-video-requests.ts",
-      "source_identity": "1f:bea5f95362cd9c8f9ac3314b4171763ddc5514a51a42e4c036af4f7bbcf7e532",
-      "identity": "1f:bea5f95362cd9c8f9ac3314b4171763ddc5514a51a42e4c036af4f7bbcf7e532",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/record-video/do-work/recorded-file-artifact.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/record-video/do-work/recorded-file-artifact.ts",
-      "source_identity": "1f:278bcce15f46e0bd66afb4c2bff20b7f5d5abc196a5dacb2e60c0abab3f2ae64",
-      "identity": "1f:278bcce15f46e0bd66afb4c2bff20b7f5d5abc196a5dacb2e60c0abab3f2ae64",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
       "from": "web/parts/record-video/do-work/recorded-file-store.test.ts",
       "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
       "to": "tools/record-video/do-work/recorded-file-store.test.ts",
       "source_identity": "1f:40b30b81cf7cc9410e90aa4af882abaafb11e7d0d9bb07d00c0df644c8551e89",
       "identity": "1f:40b30b81cf7cc9410e90aa4af882abaafb11e7d0d9bb07d00c0df644c8551e89",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/record-video/do-work/recorded-file-store.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/record-video/do-work/recorded-file-store.ts",
-      "source_identity": "1f:8fb9b33213cda900fe1b6a44904aecf13f33be097cad1c797f3a4a1246f58ef0",
-      "identity": "1f:8fb9b33213cda900fe1b6a44904aecf13f33be097cad1c797f3a4a1246f58ef0",
       "found_by": "byte copy"
     },
     {
@@ -88,38 +61,11 @@
     },
     {
       "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/record-video/read-data/recording-enrichment.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/record-video/read-data/recording-enrichment.ts",
-      "source_identity": "1f:17a36fe0dc6cf4e44392ff4293b0abfaafe6e6e809caab17b5fa7cc0a4cdd778",
-      "identity": "1f:17a36fe0dc6cf4e44392ff4293b0abfaafe6e6e809caab17b5fa7cc0a4cdd778",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/record-video/read-data/recording-page-arrangement.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/record-video/read-data/recording-page-arrangement.ts",
-      "source_identity": "1f:0a62277f615165027d93d5003f6cf5c6216eebc8f40663cee92b62146cbee79a",
-      "identity": "1f:0a62277f615165027d93d5003f6cf5c6216eebc8f40663cee92b62146cbee79a",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
       "from": "web/parts/record-video/read-data/recording-session.test.ts",
       "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
       "to": "tools/record-video/read-data/recording-session.test.ts",
       "source_identity": "1f:2d35f0d641d2f331b3ecc988c7ba6a4e04aa63e864ffa4871e82427a5ef5762b",
       "identity": "1f:2d35f0d641d2f331b3ecc988c7ba6a4e04aa63e864ffa4871e82427a5ef5762b",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/record-video/read-data/recording-session.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/record-video/read-data/recording-session.ts",
-      "source_identity": "1f:5134a3c4977a461c39b82c90b67b414bbba29d048a6c759ed18ddfcd1e5a6b74",
-      "identity": "1f:5134a3c4977a461c39b82c90b67b414bbba29d048a6c759ed18ddfcd1e5a6b74",
       "found_by": "byte copy"
     },
     {
@@ -138,15 +84,6 @@
       "to": "tools/record-video/show/RecordVideoPanel.tsx",
       "source_identity": "1f:70eb3f67d24d46f18e524d25fdb8d197720bbf950c03edc0cf0263543a3626d4",
       "identity": "1f:70eb3f67d24d46f18e524d25fdb8d197720bbf950c03edc0cf0263543a3626d4",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/record-video/show/RecordingEnrichmentPanel.tsx",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/record-video/show/RecordingEnrichmentPanel.tsx",
-      "source_identity": "1f:082a549d99d8fe97ba5bedb2d0b863bd8f2191b69c19eb89562b18a92d285ed4",
-      "identity": "1f:082a549d99d8fe97ba5bedb2d0b863bd8f2191b69c19eb89562b18a92d285ed4",
       "found_by": "byte copy"
     },
     {
@@ -205,29 +142,11 @@
     },
     {
       "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/record-video/show/recording-lifecycle.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/record-video/show/recording-lifecycle.ts",
-      "source_identity": "1f:7718716c77737f8bfb93ffcc651669c8fe632589076e86f2e55ee32e30bc89eb",
-      "identity": "1f:7718716c77737f8bfb93ffcc651669c8fe632589076e86f2e55ee32e30bc89eb",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
       "from": "web/parts/record-video/show/setup-observer.test.ts",
       "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
       "to": "tools/record-video/show/setup-observer.test.ts",
       "source_identity": "1f:2d088704a574e3fbed0c841fe0c498e68c41acd38a823987b8a5de88c8231933",
       "identity": "1f:2d088704a574e3fbed0c841fe0c498e68c41acd38a823987b8a5de88c8231933",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/record-video/show/setup-observer.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/record-video/show/setup-observer.ts",
-      "source_identity": "1f:7a0dd3333888ebbf33b2abc70d83c0f78aae45e03babc108946ffbfd423b0434",
-      "identity": "1f:7a0dd3333888ebbf33b2abc70d83c0f78aae45e03babc108946ffbfd423b0434",
       "found_by": "byte copy"
     },
     {

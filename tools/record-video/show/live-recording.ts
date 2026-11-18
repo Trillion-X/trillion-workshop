@@ -1,12 +1,12 @@
-import type { LocalPlaybackChunkRef } from '../do-work/recorded-file-store';
-import type { CaptureDescriptorValue } from '../do-work/record-video-requests';
-import type { RecordingCompletionReasonRefs, RecordingTeleprompterSession } from '../read-data/recording-session';
+import type { LocalPlaybackChunkRef } from '../../record-video-with-teleprompter/do-work/recorded-file-store';
+import type { CaptureDescriptorValue } from '../../record-video-with-teleprompter/do-work/record-video-requests';
+import type { RecordingCompletionReasonRefs, RecordingTeleprompterSession } from '../../record-video-with-teleprompter/read-data/recording-session';
 import {
   claimStop,
   type RecordingCompletionObservation,
   type RecordingPhase,
   type RecordingTiming,
-} from './recording-lifecycle';
+} from '../../record-video-with-teleprompter/show/recording-lifecycle';
 
 /**
  * The LIVE recording is owned by this module, not by any surface instance.

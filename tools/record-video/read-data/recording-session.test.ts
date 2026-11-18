@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   decodeRecordingSession,
   reachedScriptCompletion,
-} from './recording-session';
+} from '../../record-video-with-teleprompter/read-data/recording-session';
 
 describe('recording session DATA', () => {
   it('decodes final-word stopping without imposing a fallback duration', () => {

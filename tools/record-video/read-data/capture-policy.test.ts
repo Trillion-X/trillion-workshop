@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { decodeRecordingCapturePolicy } from './recording-session';
+import { decodeRecordingCapturePolicy } from '../../record-video-with-teleprompter/read-data/recording-session';
 
 describe('record-video capture policy', () => {
   it('reads scheduler-gap and journal-lease durations from DATA', () => {

@@ -7,7 +7,7 @@ import {
   readinessObservationsFromSetup,
   rootMeanSquare,
   type SetupObservationResult,
-} from './setup-observer';
+} from '../../record-video-with-teleprompter/show/setup-observer';
 
 if (typeof ImageData === 'undefined') {
   (globalThis as { ImageData?: unknown }).ImageData = class {

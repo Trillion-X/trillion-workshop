@@ -7,7 +7,7 @@ import {
   storedRecordedFileRef,
   storeRecordingChunkWithRetry,
   type CaptureJournal,
-} from './recorded-file-store';
+} from '../../record-video-with-teleprompter/do-work/recorded-file-store';
 
 const input = {
   recordingId: 'recording:test', sequence: 4, mediaType: 'video/webm',

@@ -77,39 +77,12 @@
       "found_by": "same bytes"
     },
     {
-      "from": "parts/record-video/show/RecordVideoPanel.tsx",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/record-video-with-teleprompter/show/RecordVideoPanel.tsx",
-      "source_identity": "1f:a83e294a63d239aee7ba75b5b1c48e7cd009144d438f4b84981a2348ed39fb6e",
-      "identity": "1f:a83e294a63d239aee7ba75b5b1c48e7cd009144d438f4b84981a2348ed39fb6e",
-      "found_by": "same bytes"
-    },
-    {
       "from": "parts/record-video/show/RecordingEnrichmentPanel.tsx",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
       "to": "tools/record-video-with-teleprompter/show/RecordingEnrichmentPanel.tsx",
       "source_identity": "1f:082a549d99d8fe97ba5bedb2d0b863bd8f2191b69c19eb89562b18a92d285ed4",
       "identity": "1f:082a549d99d8fe97ba5bedb2d0b863bd8f2191b69c19eb89562b18a92d285ed4",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "parts/record-video/show/browser-media-capture.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/record-video-with-teleprompter/show/browser-media-capture.ts",
-      "source_identity": "1f:0c5edfdfc4a788f1e977abdb20d2bcc181cc1f3c9e365353cd10090052ea4e6b",
-      "identity": "1f:0c5edfdfc4a788f1e977abdb20d2bcc181cc1f3c9e365353cd10090052ea4e6b",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "parts/record-video/show/live-recording.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/record-video-with-teleprompter/show/live-recording.ts",
-      "source_identity": "1f:bf9c39dcb3749bb8f3abc92c93918a8c3d939854197f2cd6be5116b4d22401bf",
-      "identity": "1f:bf9c39dcb3749bb8f3abc92c93918a8c3d939854197f2cd6be5116b4d22401bf",
       "found_by": "same bytes"
     },
     {
@@ -137,15 +110,6 @@
       "to": "tools/record-video-with-teleprompter/show/setup-observer.ts",
       "source_identity": "1f:c25c4f58094cd49ee8407d47c164522d765afcec5035ad455c2919df06830e7a",
       "identity": "1f:c25c4f58094cd49ee8407d47c164522d765afcec5035ad455c2919df06830e7a",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "parts/record-video/show/silence-stop.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/record-video-with-teleprompter/show/silence-stop.ts",
-      "source_identity": "1f:51b6e9e07221ff50938ed22210d3c2c98f7a9027cf91e2b5e8e4ce923bbd0938",
-      "identity": "1f:51b6e9e07221ff50938ed22210d3c2c98f7a9027cf91e2b5e8e4ce923bbd0938",
       "found_by": "same bytes"
     },
     {

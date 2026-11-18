@@ -18,10 +18,10 @@ That rebase supersedes the old `recorded_file` and June 16 `captured-media-sourc
 | `show/RecordVideoPanel.tsx` | The one recording screen: manual video capture plus the zero-friction founder teleprompter session, then the log-fed recordings list (play, inline rename, remove); `onRecordingSaved` is called once a recording is kept, `liveCaptureActions` shows beside the controls while recording, and the subtitle is drawn only when it says something the title does not |
 | `show/browser-media-capture.ts` | Capture API acquisition + availability diagnostics |
 | `show/mount-record-video.tsx` | Entry mount |
-| `do-work/record-video-requests.ts` | Owner-action request builders/senders |
-| `do-work/recorded-file-store.ts` | Chunk store + stored-file refs + blob rebuild |
-| `do-work/recorded-file-artifact.ts` | Process-readable artifact writes (engine write-batch) |
-| `read-data/recording-session.ts` | DATA decoder for teleprompter script text, auto-start/stop, countdown, and speech-follow alignment; every way a take ends is DATA (invariant 5): the final word within `completion_slack_words`, then `script_end_quiet_seconds` without a new word (else `completion_grace_ms`), a stop phrase (`stop_phrases`, `heardStopPhrase`) heard among the newest words that the script itself does not say, silence, or `auto_stop_seconds`; `mirror_script` draws the script mirrored |
+| `tools/record-video-with-teleprompter/do-work/record-video-requests.ts` | Owner-action request builders/senders |
+| `tools/record-video-with-teleprompter/do-work/recorded-file-store.ts` | Chunk store + stored-file refs + blob rebuild |
+| `tools/record-video-with-teleprompter/do-work/recorded-file-artifact.ts` | Process-readable artifact writes (engine write-batch) |
+| `tools/record-video-with-teleprompter/read-data/recording-session.ts` | DATA decoder for teleprompter script text, auto-start/stop, countdown, and speech-follow alignment; every way a take ends is DATA (invariant 5): the final word within `completion_slack_words`, then `script_end_quiet_seconds` without a new word (else `completion_grace_ms`), a stop phrase (`stop_phrases`, `heardStopPhrase`) heard among the newest words that the script itself does not say, silence, or `auto_stop_seconds`; `mirror_script` draws the script mirrored |
 | `RECORD-VIDEO-CONSUMER-MIGRATION-MAP.md` | Current downstream consumer map for the split record-video output and the remaining #171 admit/live step |
 
 ## Rules

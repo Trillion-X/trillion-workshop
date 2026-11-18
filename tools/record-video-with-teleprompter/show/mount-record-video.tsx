@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { RecordVideoPanel } from './RecordVideoPanel';
+import { RecordVideoPanel } from '../../record-video/show/RecordVideoPanel';
 import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../ui';
 import { registerLocalActorAdmission } from '../../ui/show/action-affordance';
 
