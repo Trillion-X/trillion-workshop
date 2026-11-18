@@ -1,5 +1,5 @@
 {
-  "_what": "Make one pursuit its own Postgres database, closed to every other login, with search by meaning. Input: {operator_credential_name, credential_name, hosts}: the vault name of the connection of whoever runs the computer (a login with CREATEROLE and CREATEDB: tools/keep-a-postgres-database-on-a-computer set-up-postgres-role.sh PG_MAKES_ROLES=yes PG_MAKES_DATABASES=yes), the vault name the pursuit's own connection is kept under, and the hosts it may go to. First the pursuit's connection is kept: the caller's own computer makes it (postgresql://<role>:<a password made there, never shown>@<the computer's database address>:5432/<database>?sslmode=verify-full, the role and database named for the pursuit; a server reached over the network takes TLS only, and sslrootcert=system breaks node-pg, which reads it as a file name) and pipes it into the vault tool, so no step's input or answer holds it. Then the operator's login runs run-sql-in-my-database's own-database recipe with that connection, which makes the role and the database it owns, closed to everyone else, the operator too. Then the pursuit's own login turns on pgvector, and makes the database's change table, row_changes, and the one trigger function record_row_change() that writes each change of a table it is attached to into it in the same transaction and wakes readers with NOTIFY row_changes (the AI attaches it to each table it makes: CREATE TRIGGER <t>_changes AFTER INSERT OR UPDATE OR DELETE ON <t> FOR EACH ROW EXECUTE FUNCTION record_row_change(); readers such as the noticer's row-changes leaf read it in commit order), (CREATE EXTENSION vector, an extension its owner may make), and reads back who it is, which database it is in and the vector version. The tables are the pursuit's: its AI makes them in SQL as its lists need them, so nothing here names a list. Used by the saved setup list's keep-data and search-by-meaning choices, once per pursuit.",
+  "_what": "Make one pursuit its own Postgres database, closed to every other login, with search by meaning. Input: {operator_credential_name, credential_name, hosts}: the vault name of the connection of whoever runs the computer (a login with CREATEROLE and CREATEDB: tools/keep-a-postgres-database-on-a-computer set-up-postgres-role.sh PG_MAKES_ROLES=yes PG_MAKES_DATABASES=yes), the vault name the pursuit's own connection is kept under, and the hosts it may go to. First the pursuit's connection is kept: the caller's own computer makes it (postgresql://<role>:<a password made there, never shown>@<the computer's database address>:5432/<database>?sslmode=verify-full, the role and database named for the pursuit; a server reached over the network takes TLS only, and sslrootcert=system breaks node-pg, which reads it as a file name) and pipes it into the vault tool, so no step's input or answer holds it. Then the operator's login runs run-sql-in-my-database's own-database recipe with that connection, which makes the role and the database it owns, closed to everyone else, the operator too. Then the pursuit's own login turns on pgvector (CREATE EXTENSION vector, an extension its owner may make), and reads back who it is, which database it is in and the vector version. The tables are the pursuit's: its AI makes them in SQL as its lists need them, so nothing here names a list. Used by the saved setup list's keep-data and search-by-meaning choices, once per pursuit. Telling changes is not part of making a database: the person runs workflow:tell-me-when-something-changes when they want their changes told.",
   "definitions": [
     {
       "id": "workflow:make-a-database-for-each-pursuit",
@@ -88,66 +88,6 @@
           }
         },
         {
-          "id": "keep-changes",
-          "kind": "ask",
-          "config": {
-            "name": "tool:run-sql-in-my-database",
-            "input": {
-              "credential_name": {
-                "$kind": "binding",
-                "select": {
-                  "from": "input",
-                  "path": "credential_name"
-                }
-              },
-              "sql": "CREATE TABLE IF NOT EXISTS row_changes (position bigserial PRIMARY KEY, txid xid8 NOT NULL DEFAULT pg_current_xact_id(), at timestamptz NOT NULL DEFAULT now(), table_name text NOT NULL, op text NOT NULL, before jsonb, after jsonb)"
-            },
-            "context": {
-              "step_id": "keep-changes"
-            }
-          }
-        },
-        {
-          "id": "keep-changes-in-commit-order",
-          "kind": "ask",
-          "config": {
-            "name": "tool:run-sql-in-my-database",
-            "input": {
-              "credential_name": {
-                "$kind": "binding",
-                "select": {
-                  "from": "input",
-                  "path": "credential_name"
-                }
-              },
-              "sql": "CREATE INDEX IF NOT EXISTS row_changes_in_commit_order ON row_changes (txid, position)"
-            },
-            "context": {
-              "step_id": "keep-changes-in-commit-order"
-            }
-          }
-        },
-        {
-          "id": "record-each-change",
-          "kind": "ask",
-          "config": {
-            "name": "tool:run-sql-in-my-database",
-            "input": {
-              "credential_name": {
-                "$kind": "binding",
-                "select": {
-                  "from": "input",
-                  "path": "credential_name"
-                }
-              },
-              "sql": "CREATE OR REPLACE FUNCTION record_row_change() RETURNS trigger LANGUAGE plpgsql AS $$ DECLARE kept bigint; BEGIN INSERT INTO row_changes (table_name, op, before, after) VALUES (TG_TABLE_NAME, TG_OP, CASE WHEN TG_OP <> 'INSERT' THEN to_jsonb(OLD) END, CASE WHEN TG_OP <> 'DELETE' THEN to_jsonb(NEW) END) RETURNING position INTO kept; PERFORM pg_notify('row_changes', kept::text); RETURN NULL; END $$"
-            },
-            "context": {
-              "step_id": "record-each-change"
-            }
-          }
-        },
-        {
           "id": "read-it-back",
           "kind": "ask",
           "config": {
@@ -181,21 +121,6 @@
         },
         {
           "from": "search-by-meaning",
-          "to": "keep-changes",
-          "kind": "always"
-        },
-        {
-          "from": "keep-changes",
-          "to": "keep-changes-in-commit-order",
-          "kind": "always"
-        },
-        {
-          "from": "keep-changes-in-commit-order",
-          "to": "record-each-change",
-          "kind": "always"
-        },
-        {
-          "from": "record-each-change",
           "to": "read-it-back",
           "kind": "always"
         }
