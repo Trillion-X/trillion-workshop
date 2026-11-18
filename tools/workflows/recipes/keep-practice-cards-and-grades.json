@@ -1,0 +1,234 @@
+{
+  "about": "workflow:keep-practice-cards-and-grades: a person's cards to get right every time (a word, a habit, a fact), each grade they give a card, and their spacing policy, kept in the person's own store. It replaces the record half of tools/practice-and-review (read-data/practice-cards.mjs, tool:practice, whose whole job except the timing was keeping cards, grades and the policy through the retired records door). When a card is due is worked out by the values-in engine in the same folder (tool:schedule-next-review and tool:list-what-is-due), which takes the grades the store returns and the policy as values (rule a-tool-is-only-what-the-store-cannot-do).",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-practice-cards-and-grades",
+        "label": "Keep practice cards and their grades",
+        "job": "Keep the person's cards (a prompt, its answer, a deck, an optional why and source), each grade they give a card as its own entry, and their spacing policy, in the person's own store: a card added again keeps its progress and refreshes its answer and why; a grade is only ever added; a removed card leaves its grades behind; and a read gives the cards with their standing folded from their grades, the cards due now, and how many are due.",
+        "produces": "The store's own card, grade and policy objects, proven on the example attempts in PostgreSQL (PGlite) and a folder of JSON files: every attempt kept, refused or answered, and every answer the same as the old tool's.",
+        "source": {
+          "from": "tools/practice-and-review/read-data/practice-cards.mjs (tool:practice) and read-data/practice-cards.json, at trillion-workshop origin/main bb8022539 before this change",
+          "note": "Only the keeping is the store's job. The card id is a stable key from the deck and the prompt: 'card:' + deck + ':' + the first 16 hex characters of the BLAKE3 hash of deck, a zero byte and prompt (the old tool's cardId, so existing cards keep their ids). A due time is never stored: it is folded from the grades each time by tool:list-what-is-due and tool:schedule-next-review, and the mastery number is computed from the state the engine returns: round(min(1, interval_days / policy.mastered_at_days) x 1000), or nothing when the policy has no mastered_at_days. The policy is the person's: it comes with the request or is kept as the policy record with the id asked for (default: 'default'); there is no default policy. The words the old tool sent back are the person's to keep: no card is 'No card <card id> is kept.'; remind says '1 card is due to practise now.', '<count> cards are due to practise now.' or 'Nothing is due to practise now.'; a due list shows 20 cards unless the request asks for a limit."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                },
+                "place": {
+                  "type": "string",
+                  "description": "Where in the store the cards are kept, when they already are"
+                }
+              }
+            },
+            "operations": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Each operation: add (prompt, answer, deck, why, source_ref), grade (card_id, grade, policy or policy_id), remove (card_id), cards (deck), due (deck, limit), remind"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the cards are already kept (kept_in, or null) and the names of the objects that already keep them, and show them.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing, make the store's own objects in its own form: a card object keyed by its card id (prompt, answer, deck, why, source_ref, added_at), a grade object that is only ever added (card id, grade word, at), and a policy object keyed by its policy id (the numbers and grade words the policy names). Keep a primary key on the card id, a check that the grade names an existing card when it is written, and no delete of a grade when its card is removed. Submit the objects made.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example attempts",
+            "do": "In a throwaway place in the same store, with the same objects, and with the policy {initial_ease 2.5, min_ease 1.3, first_interval_days 1, second_interval_days 6, lapse_below_quality 0.6, mastered_at_days 30, grade_quality {miss 0, shaky 0.6, solid 0.8, instant 1}} kept as policy 'default', run these attempts in order on the day each is given (day 0 is 2026-01-01T12:00:00Z; CARD_1 is card:sample-deck:4fd68f6ab03764f9 and CARD_2 is card:general:1212e13cd674cd15, the ids the old tool gives): [{\"day\": 0, \"operation\": \"add\", \"prompt\": \"A sample word\", \"answer\": \"Its sample meaning\", \"deck\": \"sample-deck\"}, {\"day\": 0, \"operation\": \"add\", \"prompt\": \"A sample word\", \"answer\": \"Its sample meaning, again\", \"why\": \"a note\", \"deck\": \"sample-deck\"}, {\"day\": 0, \"operation\": \"add\", \"prompt\": \"Second card\", \"answer\": \"Second meaning\"}, {\"day\": 0, \"operation\": \"add\", \"answer\": \"no prompt\"}, {\"day\": 0, \"operation\": \"add\", \"prompt\": \"Bad deck\", \"answer\": \"x\", \"deck\": \"a b\"}, {\"day\": 0, \"operation\": \"grade\", \"card_id\": \"card:general:missing\", \"grade\": \"solid\"}, {\"day\": 1, \"operation\": \"grade\", \"card_id\": \"CARD_1\", \"grade\": \"solid\"}, {\"day\": 2, \"operation\": \"grade\", \"card_id\": \"CARD_1\", \"grade\": \"miss\"}, {\"day\": 3, \"operation\": \"due\"}, {\"day\": 5, \"operation\": \"due\"}, {\"day\": 5, \"operation\": \"remind\"}, {\"day\": 5, \"operation\": \"cards\", \"deck\": \"sample-deck\"}, {\"day\": 6, \"operation\": \"grade\", \"card_id\": \"CARD_2\", \"grade\": \"shaky\"}, {\"day\": 7, \"operation\": \"remove\", \"card_id\": \"CARD_2\"}, {\"day\": 8, \"operation\": \"cards\"}]. Rules: an add needs a prompt and an answer; a deck is letters, numbers, dots, dashes and underscores; a card added again with the same deck and prompt keeps its progress and takes the new answer and why; a grade needs an existing card; a remove keeps the card's grades. The fold of the grades into each card's standing is the values-in engine's (tool:list-what-is-due with the cards as prompts, the grades as responses and the policy; tool:schedule-next-review for one grade, with the card's prior state). Submit outcomes (one per attempt, kept, refused or answered) and the answer: the read-back of each attempt's answer, with the remind sentence and the mastery shown.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answer"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "answer": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each attempt is kept, refused or answered as the intent says",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "kept",
+                    "kept",
+                    "kept",
+                    "refused",
+                    "refused",
+                    "refused",
+                    "kept",
+                    "kept",
+                    "answered",
+                    "answered",
+                    "answered",
+                    "answered",
+                    "kept",
+                    "kept",
+                    "answered"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "The store's own objects give every expected answer",
+                "path": [
+                  "this",
+                  "answer"
+                ],
+                "values": [
+                  {
+                    "add_again_kept_progress": true,
+                    "first_card_id": "card:sample-deck:4fd68f6ab03764f9",
+                    "grade_after_solid_due_at": "2026-01-03T12:00:00.000Z",
+                    "grade_after_miss_due_at": "2026-01-04T12:00:00.000Z",
+                    "mastery_after_solid_and_miss": 33,
+                    "due_count_day_3": 2,
+                    "due_count_day_5": 2,
+                    "remind_day_5": "2 cards are due to practise now.",
+                    "cards_in_deck_sample_day_5": 1,
+                    "remaining_after_remove": 1,
+                    "refused_messages": [
+                      "add needs a prompt.",
+                      "deck is made of letters, numbers, dots, dashes and underscores.",
+                      "No card card:general:missing is kept."
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's operations",
+            "do": "Run each operation in the request in order, through the store's own objects and the values-in tools: an add writes or refreshes the card and keeps its progress; a grade computes the card's next state with tool:schedule-next-review from the card's last state (folded from its grades) and the policy, then adds one grade entry; a remove deletes the card and keeps its grades; a card, due or remind read folds every card's standing with tool:list-what-is-due and answers the cards, the count and the sentence. Submit results (one per operation: the answer it gave, or the refusal's words), kept_records (the card ids and grade entries kept), and found_records (each card read back). With no operations, submit empty lists.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "results",
+                "kept_records",
+                "found_records"
+              ],
+              "properties": {
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "kept_records": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "found_records": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "subset-of",
+                "says": "Every card read back was kept",
+                "path": [
+                  "this",
+                  "found_records"
+                ],
+                "of": [
+                  "this",
+                  "kept_records"
+                ]
+              }
+            ]
+          }
+        ],
+        "erase": "On the person's request the store deletes every card with its grades, or one card with its grades; the policy is deleted only with the person's word. Nothing keeps a copy outside the store."
+      }
+    }
+  ]
+}

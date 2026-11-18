@@ -1,0 +1,106 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:keep-practice-cards-and-grades with store {\\\"where\\\": \\\"postgresql database example_me on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-me-postgres-connection\\\"} and operations [{\\\"operation\\\": \\\"add\\\", \\\"prompt\\\": \\\"A sample word\\\", \\\"answer\\\": \\\"Its sample meaning\\\", \\\"deck\\\": \\\"sample-deck\\\"}].\"",
+  "lists": [],
+  "no_lists_because": "It names no list: the cards, grades and policy are kept in the person's own store, in whatever form that store keeps things, and store says where and in which language.",
+  "workflows": [
+    "workflow:keep-practice-cards-and-grades"
+  ],
+  "tools": [
+    "tool:run-workflow-definition",
+    "tool:schedule-next-review",
+    "tool:list-what-is-due"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Keep the person's spacing policy in that store (or give it with each request). There is no default policy: a request without one is refused.",
+    "3. Say \"Run workflow:keep-practice-cards-and-grades\" with store and, when you have them, the operations to run.",
+    "4. The first run makes the store's own objects once and proves them on the example attempts: the prove step must give every expected outcome and answer, or the run stops and says which.",
+    "5. Every later run keeps the new cards and grades, and folds each card's standing from its grades with tool:list-what-is-due. Ask your AI what is due now, and it reads the store's own objects."
+  ],
+  "worked_examples": [
+    {
+      "title": "A word kept as a card in a person's own database",
+      "ask": "Keep 'A sample word' as a card with its sample meaning in the sample deck.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-practice-cards-and-grades",
+              "store": {
+                "where": "postgresql database example_me on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-me-postgres-connection"
+              },
+              "operations": [
+                {
+                  "operation": "add",
+                  "prompt": "A sample word",
+                  "answer": "Its sample meaning",
+                  "deck": "sample-deck"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "answer": {
+        "card_id": "card:sample-deck:4fd68f6ab03764f9",
+        "deck": "sample-deck",
+        "kept_progress": false
+      },
+      "workflow": "workflow:keep-practice-cards-and-grades",
+      "step": "keep",
+      "given": "The store holds no card yet, and a spacing policy is kept as the default policy.",
+      "hands_back": "card_id card:sample-deck:4fd68f6ab03764f9, deck sample-deck and kept_progress false; the card is kept in the store own card object with its answer and deck."
+    },
+    {
+      "title": "Grade a card and ask what is due",
+      "ask": "I knew that one well today. What is due now?",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-practice-cards-and-grades",
+              "store": {
+                "where": "postgresql database example_me on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-me-postgres-connection"
+              },
+              "operations": [
+                {
+                  "operation": "grade",
+                  "card_id": "card:sample-deck:4fd68f6ab03764f9",
+                  "grade": "solid"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "answer": {
+        "results": [
+          {
+            "card_id": "card:sample-deck:4fd68f6ab03764f9",
+            "grade": "solid",
+            "grade_in_policy": true,
+            "lapsed": false,
+            "due_at": "2026-01-03T12:00:00.000Z",
+            "mastery": 33
+          }
+        ]
+      },
+      "workflow": "workflow:keep-practice-cards-and-grades",
+      "step": "keep",
+      "given": "The card card:sample-deck:4fd68f6ab03764f9 is kept with no grades yet.",
+      "hands_back": "results [{card_id card:sample-deck:4fd68f6ab03764f9, grade solid, grade_in_policy true, lapsed false, due_at 2026-01-03T12:00:00.000Z, mastery 33}]; the grade is kept as one grade entry."
+    }
+  ]
+}

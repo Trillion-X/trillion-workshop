@@ -31,11 +31,6 @@
    "entry": "move-the-public-door/do-work/door-tools.mjs:22",
    "reason": "hostingProviders(door) calls records.list"
   },
-  "tool:practice": {
-   "verdict": "USES_DOOR",
-   "entry": "practice-and-review/read-data/practice-cards.mjs:62",
-   "reason": "readAll calls door.list"
-  },
   "tool:publish_site": {
    "verdict": "USES_DOOR",
    "entry": "publish-a-site-at-its-own-address/read-data/site-addresses.mjs:143",

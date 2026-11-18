@@ -6,7 +6,7 @@ The tool carries mechanism only. Every number that shapes the spacing is the per
 
 The tool keeps nothing. The caller keeps the returned `state` (or, when `prompt_id` and `schedule_id` are given, the returned `record`) with the item and hands it back as `prior`; a prior with none of the three numbers (written before scheduling) is a new item. The policy is `policy`, or the first of `rows` whose kind is `policy_kind`. A due time is folded from the grades every time, so the grades are the only record.
 
-`tool:practice` keeps the cards. It is one tool with the operations `add`, `due`, `grade`, `cards`, `remove` and `remind`, over the person's own records through the records door: a card (`record:practice-cards`), each grade given (`record:practice-grades`) and the spacing policy (`record:practice-policy`, read only). A due time is never stored: each card's standing is folded from its grades by the schedule below, so the grades are the only record. `remind` answers how many cards are due and a sentence and sends nothing; the daily reminder is a wake or a workflow that runs it and tells the person. Which record types, the default deck, the mastery scale and every sentence are DATA in `read-data/practice-cards.json`.
+The cards, the grades and the spacing policy are no longer kept by this folder. The record half of `tool:practice` (the operations `add`, `due`, `grade`, `cards`, `remove` and `remind`, over the records door) became `workflow:keep-practice-cards-and-grades` (`tools/workflows/recipes/keep-practice-cards-and-grades.json` and its kit): the person's own store keeps the cards, each grade given and the policy, and the due time is still folded from the grades each time by the schedule below. The words, the mastery number and the default deck the old tool kept as DATA in `read-data/practice-cards.json` are in that recipe's `source` and `steps`. Rule a-tool-is-only-what-the-store-cannot-do.
 
 ## Files
 
@@ -15,11 +15,8 @@ The tool keeps nothing. The caller keeps the returned `state` (or, when `prompt_
 | `read-data/review-schedule.mjs` | The engine: `checkPolicy`, `policyFromRows`, `priorFromRecord`, `scheduleNextReview` (one step of the SM-2 family), `nextScheduleRecord`, `foldReviewHistory` (a grade history, oldest first, folded through the step) and `dueQueueFromResponses`. Pure; every time is an argument. |
 | `do-work/schedule-next-review.mjs` | `tool:schedule-next-review`: the next state and due time from one grade. |
 | `do-work/list-what-is-due.mjs` | `tool:list-what-is-due`: every item with whether it is due now, when it is next due and its state, due items first. |
-| `read-data/practice-cards.mjs` | `practice`: the cards, grades, due list and reminder over the records door; the review schedule does the timing. |
-| `read-data/practice-cards.json` | The record types, the default deck and policy id, the mastery scale and the sentences. |
 | `part.json` | The engine file is public. |
 | `tool-rows.json` | The Workshop rows Trillion reads for this folder. |
-| `test/practice-cards.test.mjs` | `tool:practice` against the stand-in records door: add keeps progress, grades push a card out and a miss brings it back, mastery, cards and due and remove and remind, the policy as a record or a request and no default, refused requests, and the row's rights and packed files. |
 | `test/practice-and-review.test.mjs` | Tests for this folder, run by `npm test` at the top of the repository. |
 
 ## Key Types / Functions
@@ -72,3 +69,20 @@ Each file below is the package's own, byte for byte; `from-bitfield-packages/mov
 - 1 file: the package boundary file: record contracts, actions and surfaces for the retired package runtime (slot workflows, owner targets); not carried
 
 The receipt's `not_carried` names each path.
+
+## Moved out of this folder (rule a-tool-is-only-what-the-store-cannot-do)
+
+The record half of `tool:practice` left this folder for `workflow:keep-practice-cards-and-grades` (tools/workflows). Where each part of `read-data/practice-cards.mjs` and `practice-cards.json` lives now:
+
+| Old part | Now |
+|---|---|
+| `practice`, its operations `add`, `grade`, `remove`, `cards`, `due`, `remind` | the recipe's `operations` input and `keep` step, in the person's store |
+| `cardId` (deck and prompt, BLAKE3, 16 hex) | the recipe's `source.note`: the same id, so existing cards keep it |
+| `readAll`, `standings` (cards with grades folded into their standing) | the recipe's `look` and `keep` steps read the store, then `tool:list-what-is-due` (this folder) folds the standing |
+| `policyOf` (policy in the request, else the policy record; no default) | the recipe's `input_schema` and `source.note` |
+| `masteryOf` (`interval_days / mastered_at_days`, times 1000) | the recipe's `source.note` rule, computed from the state `tool:schedule-next-review` returns |
+| `shown` (the card answer shape) | the recipe's `prove` answer |
+| `practice-cards.json` (record types, default deck, id prefixes, mastery field and scale, due limit, sentences) | the recipe's `source.note`; the store's own names |
+| `test/practice-cards.test.mjs` | the lane proof (old module as oracle over 15 attempts, PostgreSQL (PGlite) and a JSON folder, all equal) |
+
+The scheduling (`review-schedule.mjs`, `tool:schedule-next-review`, `tool:list-what-is-due`) is unchanged.

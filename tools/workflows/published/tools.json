@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:230fa905e5583ea4a49e21e2b89eba8cbb8cb5399f75b8c8f268b46909b72cfa"
+  "blake3": "1f:922f52ba5fa08bf4d1bd977139b8b3b917e6536b9a913a461790653bde93190a"
  },
  "fields": [
   {
@@ -8441,21 +8441,6 @@
     "flags": [
      "read-only"
     ]
-   }
-  },
-  {
-   "id": "tool:practice",
-   "values": {
-    "title": "Keep cards to practise and bring them back on schedule",
-    "job": "Keep something a person wants to get right every time (a word, a habit, a fact) as a card, ask for what is due now, grade each recall and see how well it is known",
-    "description": "Operation add keeps a card { prompt, answer, why?, deck?, source_ref? } (adding the same prompt in a deck again keeps its progress and refreshes the answer and why). due { deck?, limit? } lists the cards due now. grade { card_id, grade } records one recall and answers when the card is due next, whether it lapsed and its mastery (0 to 1000, when the policy names how many days count as fully learned). cards { deck? } lists every card with where it stands. remove { card_id } stops a card coming back. remind answers how many are due and a sentence, so a wake or a workflow can tell the person; it sends nothing. Cards and grades are the person's own records; a due time is folded from the grades each time and never stored. The spacing policy (starting ease, the first two gaps, the lapse quality, the grade words and their quality) is the person's record of type record:practice-policy, or comes with the request as policy; there is no default. Ask the person the prompt, let them answer in their own words, then grade it.",
-    "status": "active",
-    "maker": "maker:practice-and-review",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "practice-and-review"
    }
   },
   {
