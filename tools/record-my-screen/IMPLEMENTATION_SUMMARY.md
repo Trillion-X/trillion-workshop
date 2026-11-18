@@ -7,7 +7,7 @@ Built a complete screen-recording capability package as a parallel to `record-au
 ## Deliverables
 
 ### 1. Core Capture Module
-**File:** `do-work/browser-screen-capture.ts`
+**File:** `tools/screen-recording/do-work/browser-screen-capture.ts`
 
 - `screenCaptureAvailability(navigator?)` — detects if getDisplayMedia is available
 - `isScreenCaptureAvailable(navigator?)` — boolean convenience wrapper
@@ -62,7 +62,7 @@ Mirrors `record-audio/record-video-requests.ts` with screen-specific modes:
 ---
 
 ### 4. Artifact Staging
-**File:** `do-work/recorded-file-artifact.ts`
+**File:** `tools/screen-recording/do-work/recorded-file-artifact.ts`
 
 Wraps `stageContentMediaFile()` from `content-media-evidence`:
 - `saveRecordedFileArtifact()` — converts Blob to File, stages to CAS, returns a `ContentMediaSourceRef`
@@ -73,7 +73,7 @@ Reuses the same pattern as record-audio/record-video.
 ---
 
 ### 5. UI Panel
-**File:** `show/ScreenRecordingPanel.tsx`
+**File:** `tools/screen-recording/show/ScreenRecordingPanel.tsx`
 
 **State Machine:**
 - `idle` → user clicks Start

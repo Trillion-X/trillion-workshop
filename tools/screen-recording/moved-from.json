@@ -39,15 +39,6 @@
       "source_identity": "1f:7d481b438966d58acbb4033138cae146580444a80aa9ce071635ea2a02cf1c61",
       "identity": "1f:7d481b438966d58acbb4033138cae146580444a80aa9ce071635ea2a02cf1c61",
       "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/screen-recording/show/mount-screen-recording.tsx",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/screen-recording/show/mount-screen-recording.tsx",
-      "source_identity": "1f:28ac73610ba1056bc6f0c382a98d527839eda2feaec33f933a26f2873399178c",
-      "identity": "1f:28ac73610ba1056bc6f0c382a98d527839eda2feaec33f933a26f2873399178c",
-      "found_by": "byte copy"
     }
   ]
 }

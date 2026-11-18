@@ -11,7 +11,7 @@
 
 import * as React from 'react';
 import { mountReactMaterial, type ReactMaterialMountArgs } from '../../ui';
-import { ScreenRecordingPanel } from './ScreenRecordingPanel';
+import { ScreenRecordingPanel } from '../../screen-recording/show/ScreenRecordingPanel';
 
 export function mount({ el, props = {} }: ReactMaterialMountArgs) {
   return mountReactMaterial(el, <ScreenRecordingPanel />, props, 'Screen recording');

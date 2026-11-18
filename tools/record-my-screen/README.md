@@ -11,18 +11,18 @@ This package mirrors the architecture of `record-audio/record-video` but for scr
 | File | Purpose |
 |---|---|
 | `things-to-store-and-run.json` | Package data: placeable surface, factflow, capability, inputs |
-| `show/ScreenRecordingPanel.tsx` | The recording surface: capture controls, elapsed time, recordings list |
+| `tools/screen-recording/show/ScreenRecordingPanel.tsx` | The recording surface: capture controls, elapsed time, recordings list |
 | `show/mount-screen-recording.tsx` | Entry mount point |
-| `do-work/browser-screen-capture.ts` | Screen capture API acquisition via getDisplayMedia + availability diagnostics |
+| `tools/screen-recording/do-work/browser-screen-capture.ts` | Screen capture API acquisition via getDisplayMedia + availability diagnostics |
 | `do-work/recorded-file-store.ts` | IndexedDB chunk storage and file reconstruction (shared pattern with record-audio/record-video) |
-| `do-work/recorded-file-artifact.ts` | Artifact staging to material evidence storage |
+| `tools/screen-recording/do-work/recorded-file-artifact.ts` | Artifact staging to material evidence storage |
 | `do-work/screen-recording-requests.ts` | Workflow action request builders/senders |
 | `do-work/rebuild-a-recording-from-chunks.mjs` | `rebuildARecordingFromChunks({ recording_id, media_type, chunks, observed_at })`: keeps the chunks through `recorded-file-store.ts` in a stand-in IndexedDB held in memory, builds the file reference and reads the recording back (what `tool-rows.json` runs; plain `node` 22 strips the store's types) |
 | `tool-rows.json` | The row `tool:rebuild-a-screen-recording-from-its-chunks`, with a sample run of three made-up chunks rebuilt into 55 bytes |
 
 ## Rules
 
-- Screen capture acquisition lives in `do-work/browser-screen-capture.ts`. The React panel must not call `navigator.mediaDevices.getDisplayMedia` directly because browser surfaces may vary in their WebAPI exposure.
+- Screen capture acquisition lives in `tools/screen-recording/do-work/browser-screen-capture.ts`. The React panel must not call `navigator.mediaDevices.getDisplayMedia` directly because browser surfaces may vary in their WebAPI exposure.
 - Recorded bytes are saved through the package-owned capture adapter, existing material evidence/source refs, and workflow owner actions. This package does not own media analysis, composition, or distribution records.
 - Saved-recording truth is canonical current-log facts shaped by generic record/action/projection descriptors. The panel lists only from the published `recordings` input. Component state never owns a saved recording.
 - Capture-API availability is host physics: the presenting shell must carry display/screen-capture usage identity. The package only feature-detects and reports honestly. If getDisplayMedia is unavailable, the panel renders a capability-gap message, not a fake UI.
