@@ -1,8 +1,9 @@
 # Every name this computer is asked for that has a folder of its own under {{pages_root}} (pages_root/<name>/, or the bare name
 # for www.<name>, which is sent on to it) is answered from that folder, read-only, with a certificate Caddy gets the first time
-# the name is asked for; a name with no folder gets no certificate. The computer's own address {{door_host}} keeps its
-# certificate (ACME profile {{certificate_profile}}) and answers 404. So this file and the computer's row name no site: a site
-# is a folder, and adding or removing one is adding or removing its folder (the request's pages_folder).
+# the name is asked for; a name with no folder gets no certificate. A request no page answers goes to the site's own program
+# when it has one: a program listening on the socket {{programs_root}}/<name>/http.sock (a unit of the computer's row, whose folder is <name>) gets it
+# whole, any method. The computer's own address {{door_host}} keeps its certificate (ACME profile {{certificate_profile}}) and
+# answers 404. So this file and the computer's row name no site: a site is a folder, and a program of its own is its folder under programs_root.
 {
 	admin localhost:2019
 	grace_period {{grace_period}}
@@ -43,17 +44,25 @@ https:// {
 	}
 	@www header_regexp Host ^www\.
 	redir @www https://{site}{uri} 308
-	@not_read not method GET HEAD
-	respond @not_read 405
-	@page file {
-		root {{pages_root}}/{site}
-		try_files {path} {path}.html {path}/index.html
+	@page {
+		method GET HEAD
+		file {
+			root {{pages_root}}/{site}
+			try_files {path} {path}.html {path}/index.html
+		}
+	}
+	@program file {
+		root {{programs_root}}
+		try_files /{site}/
 	}
 	handle @page {
 		header Cache-Control "public, max-age=300"
 		root * {{pages_root}}/{site}
 		rewrite @page {file_match.relative}
 		file_server
+	}
+	handle @program {
+		reverse_proxy unix/{{programs_root}}/{site}/http.sock
 	}
 	handle {
 		respond "Not found" 404
