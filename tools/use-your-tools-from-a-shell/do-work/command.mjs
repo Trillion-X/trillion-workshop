@@ -696,10 +696,10 @@ export function retryGap(retry, attempt, asked = null, random = Math.random) {
  * with one request_key, reused on every retry) and `whoami()` (MCP initialize: the account in result._meta). A refusal
  * names the door: 401 is the door refusing this credential, 404 is a route the door does not serve.
  */
-export function engineClient({ door, credential, fetchImpl = fetch, rules = settings, wait = pause, random = Math.random, timeoutSeconds = rules.retry.attempt_seconds } = {}) {
+export function engineClient({ door, credential, fetchImpl = fetch, rules = settings, wait = pause, random = Math.random, timeoutSeconds = rules.retry.attempt_seconds, renew = null } = {}) {
   if (!credential?.bearer) throw new CommandError(rules.words.no_credential, { status: 3 });
   const headers = { 'content-type': 'application/json', accept: 'application/json, text/event-stream', authorization: `Bearer ${credential.bearer}`, 'user-agent': `${cliName()}-cli` };
-  let next = 0;
+  let next = 0, renewed = false;
   // One try waits this many seconds (--timeout); the call itself ends only when retry.count tries are spent.
   const signal = () => AbortSignal.timeout(timeoutSeconds * 1000);
   const gap = (attempt, asked = null) => retryGap(rules.retry, attempt, asked, random);
@@ -720,6 +720,13 @@ export function engineClient({ door, credential, fetchImpl = fetch, rules = sett
         const why = failure.cause?.code ?? failure.message;
         throw door.local ? new CommandError(rules.words.not_running, { status: 4, detail: fill(rules.words.details.not_running, { mcp: door.mcp, why }) })
           : new CommandError(fill(rules.words.unreachable, { which: door.name }) + maybe, { status: 4, detail: fill(rules.words.details.unreachable, { mcp: door.mcp, why }) });
+      }
+      // A sign-in read when the command started may end while it runs (a sign-in it waits on for minutes): the door's 401 is
+      // answered by renewing it once (`renew`, the kept sign-in read again and renewed when it ends) and sending again.
+      if (response.status === 401 && renew && !renewed) {
+        renewed = true;
+        const fresh = await renew().catch(() => null);
+        if (fresh?.bearer && fresh.bearer !== credential.bearer) { credential = fresh; headers.authorization = `Bearer ${fresh.bearer}`; continue; }
       }
       if (response.status === 401) throw refused();
       if (response.status === 404) throw new CommandError(fill(rules.words.missing_route, { which: door.name }), { status: 4, detail: fill(rules.words.details.missing_route, { mcp: door.mcp, route: new URL(door.mcp).pathname }) });
@@ -1633,7 +1640,8 @@ async function signedInClient(context) {
   // The key this computer keeps goes only to this computer's local door or the address declared in {CLI}_ORIGIN; any other door gets a key the person gives for it ({CLI}_KEY).
   if (credential.kind === 'key' && credential.where !== settings.env.key && !door.local && !door.public) throw new CommandError(settings.words.kept_key_elsewhere, { status: 3 });
   const timeoutSeconds = context.flags.timeout === undefined ? undefined : timeoutOf(context.flags.timeout);
-  return engineClient({ door, credential, fetchImpl: context.fetchImpl, wait: context.wait, ...(timeoutSeconds === undefined ? {} : { timeoutSeconds }) });
+  const renew = credential.kind === 'sign-in' ? () => credentialFor({ env: context.env, store: context.store, grants: context.grants, fetchImpl: context.fetchImpl }) : null;
+  return engineClient({ door, credential, renew, fetchImpl: context.fetchImpl, wait: context.wait, ...(timeoutSeconds === undefined ? {} : { timeoutSeconds }) });
 }
 
 /** Writes this AI's own `ai` record (aiRecordOf) through the records door, conditioned on the value just read (null when
