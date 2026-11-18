@@ -17930,9 +17930,15 @@
           {
             "id": "lesson-asked",
             "on": {
-              "record": {
-                "resource": "own-records",
-                "kind": "lesson-request"
+              "fact": {
+                "kind": "row-changes",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "table_name": "lesson_request",
+                  "op": "INSERT"
+                }
               }
             },
             "budget": {
@@ -48203,9 +48209,15 @@
           {
             "id": "broad-found",
             "on": {
-              "record": {
-                "resource": "own-records",
-                "prefix": "record:broad-condition:"
+              "fact": {
+                "kind": "row-changes",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "table_name": "broad_condition",
+                  "op": "INSERT"
+                }
               }
             },
             "budget": {
@@ -57299,9 +57311,15 @@
           {
             "id": "recording-added",
             "on": {
-              "record": {
-                "resource": "own-records",
-                "kind": "recording"
+              "fact": {
+                "kind": "row-changes",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "table_name": "recording",
+                  "op": "INSERT"
+                }
               }
             },
             "budget": {

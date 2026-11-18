@@ -68,7 +68,10 @@
     "turn-notes-into-finished-content",
     "turn-one-long-recording-into-many-pieces",
     "turn-what-you-said-into-content",
-    "x-mode"
+    "x-mode",
+    "workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner",
+    "workflow:rewrite-a-broad-condition",
+    "workflow:turn-one-long-recording-into-many-pieces"
    ],
    "verified_public_mode_recipes": 10,
    "verified_public_mode_steps": 41,
