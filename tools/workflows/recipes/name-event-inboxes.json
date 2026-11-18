@@ -1,0 +1,191 @@
+{
+  "about": "workflow:name-event-inboxes: names the event inboxes a person's notices and upkeep are kept in: one inbox per notice, named notice:<the source's own event id>, so a notice that repeats is kept once, and one inbox per source for its upkeep, named upkeep:<source>. It replaces tools/name-event-inboxes (src/event-inbox-names.mjs noticeInboxName and upkeepInboxName), whose only job was the string each name is made of, with the name kept as a unique key on the person's own inbox row (rule a-tool-is-only-what-the-store-cannot-do). The folder stays until its one in-repo caller, tools/keep-outside-notices-in-an-event-inbox (read-data/event-inbox.mjs), names the workflow instead.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:name-event-inboxes",
+        "label": "Name event inboxes",
+        "job": "Name the event inboxes a person's notices and upkeep are kept in: one inbox per notice by its event id, one per source for its upkeep, each kept once in the person's own store.",
+        "produces": "The event inbox rows in the person's own store, each named once, proven on the example inboxes in three stores of different kinds, with each name kept, repeated or refused.",
+        "source": {
+          "from": "tools/name-event-inboxes (src/event-inbox-names.mjs), read on trillion-workshop origin/main; the caller tools/keep-outside-notices-in-an-event-inbox/read-data/event-inbox.mjs",
+          "note": "The names are the old ones: notice:<key> and upkeep:<source>. An empty id or source is refused. The store's unique key on the name keeps a notice's inbox once."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store",
+            "kind",
+            "key"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps the event inboxes: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                }
+              }
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "notice",
+                "upkeep"
+              ],
+              "description": "notice for one inbox per event, upkeep for one per source"
+            },
+            "key": {
+              "type": "string",
+              "description": "The source's own event id for a notice, or the source for upkeep"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read which event inboxes the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read the event inboxes already kept, each with its name. Submit where they are kept (or null) and how many are kept.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "kept"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "kept": {
+                  "type": "integer"
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own inbox rows, once",
+            "do": "When the look step found none, make the store's own objects in its own form: one row per event inbox, keyed by its name with a unique key on it, so that a notice's inbox is kept once and an upkeep inbox once per source. Grant the person's login only what the store's holder allows. Submit the names of the objects made.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the names on the example inboxes",
+            "do": "In a throwaway place in the same store, with the same objects, name these inboxes in order, each at the time given: [{\"at\": \"2026-11-18T10:00:00Z\", \"kind\": \"notice\", \"key\": \"evt-1\"}, {\"at\": \"2026-11-18T10:01:00Z\", \"kind\": \"notice\", \"key\": \"evt-1\"}, {\"at\": \"2026-11-18T10:02:00Z\", \"kind\": \"upkeep\", \"key\": \"calendar\"}, {\"at\": \"2026-11-18T10:03:00Z\", \"kind\": \"upkeep\", \"key\": \"calendar\"}, {\"at\": \"2026-11-18T10:04:00Z\", \"kind\": \"notice\", \"key\": \"\"}]. A notice inbox is named notice:<the source's own event id> and an upkeep inbox upkeep:<source>. A name that is already kept is repeated and not kept twice; an empty id or source is refused. Each must give the outcome the intent gives, and the store's own rows must give every expected answer below.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answer"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "answer": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each name is kept, repeated or refused as the intent says",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "kept",
+                    "repeated",
+                    "kept",
+                    "repeated",
+                    "refused"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "The store's own rows hold exactly the two names, in the order they were made",
+                "path": [
+                  "this",
+                  "answer"
+                ],
+                "values": [
+                  {
+                    "names": [
+                      "notice:evt-1",
+                      "upkeep:calendar"
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's inbox",
+            "do": "Name the inbox as the intent gives, keep the name through the store's own rows, and read it back. Submit outcome (kept, repeated or refused, with the store's words when refused) and the inbox's name.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcome"
+              ],
+              "properties": {
+                "outcome": {
+                  "type": "string"
+                },
+                "reason": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            },
+            "checks": []
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "drafted_from": "tools/name-event-inboxes (src/event-inbox-names.mjs) and its caller tools/keep-outside-notices-in-an-event-inbox/read-data/event-inbox.mjs",
+  "start_here": "Say to your AI: \"Run workflow:name-event-inboxes with store {\\\"where\\\": \\\"postgresql database example_me on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-me-postgres-connection\\\"}, kind \\\"notice\\\" and key \\\"evt-1\\\".\" It names the inbox for that notice in your own database, once.",
+  "lists": [],
+  "no_lists_because": "It names no list of its own: the event inboxes are kept in the person's own store, in whatever form that store keeps them, and store says where and in which language.",
+  "workflows": [
+    "workflow:name-event-inboxes"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the event inboxes are kept and how the store is spoken to.",
+    "2. Say \"Run workflow:name-event-inboxes\" with store, kind (notice or upkeep) and the key.",
+    "3. The first run makes the inbox rows once and proves the names on the example inboxes: every expected outcome and answer must match, or the run stops and says which.",
+    "4. Every later run keeps the inbox's name once and says whether it was kept, or was already there."
+  ],
+  "worked_examples": [
+    {
+      "title": "The inbox for one event notice",
+      "ask": "Name the inbox for the event evt-1.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:name-event-inboxes",
+              "store": {
+                "where": "postgresql database example_me on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-me-postgres-connection"
+              },
+              "kind": "notice",
+              "key": "evt-1"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:name-event-inboxes",
+      "step": "keep",
+      "given": "The look step found no inbox named for evt-1; the prove step matched every expected outcome and answer.",
+      "hands_back": "outcome \"kept\" and the name \"notice:evt-1\"."
+    },
+    {
+      "title": "An upkeep inbox asked for twice is kept once",
+      "ask": "Name the upkeep inbox for calendar again.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:name-event-inboxes",
+              "store": {
+                "where": "postgresql database example_me on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-me-postgres-connection"
+              },
+              "kind": "upkeep",
+              "key": "calendar"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:name-event-inboxes",
+      "step": "keep",
+      "given": "The inbox upkeep:calendar is already kept.",
+      "hands_back": "outcome \"repeated\" and the name \"upkeep:calendar\", kept once."
+    }
+  ]
+}
