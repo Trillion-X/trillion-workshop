@@ -16,6 +16,8 @@
 //      removing a secret does not revoke it at its issuer. The engine never returns the value.
 //   3. Connection names (`service-connection-…`) are refused by the engine; this tool does not second-guess that.
 //   4. One trailing newline that an `echo` or a pipe adds is removed; every other byte is the value, unchanged.
+//   5. `--hosts a.example,b.example` after the name says the only hosts the value may be sent to, and travels as the input's `hosts`.
+//      Without it the engine keeps a new value going nowhere and a replaced one keeps the hosts it had (src/secrets.rs SECRETS_PUT).
 //
 import { randomUUID } from 'node:crypto';
 import { resolve } from 'node:path';
@@ -34,13 +36,18 @@ export async function readStdin(stream = process.stdin) {
 /** The value a stdin read holds: one trailing newline removed, nothing else. */
 export const valueOf = text => (text.endsWith('\r\n') ? text.slice(0, -2) : text.endsWith('\n') ? text.slice(0, -1) : text);
 
-/** Keeps `value` under `name` through the door. Answers { name, accepted: true }. */
-export async function keepSecret({ name, value, client }) {
-  if (typeof name !== 'string' || !name) throw say('Name the secret: keep-a-secret-by-name NAME, then the value on stdin.', 2);
+/** The hosts a `--hosts` argument names: comma-separated, blanks dropped. */
+export const hostsOf = text => String(text ?? '').split(',').map(host => host.trim()).filter(Boolean);
+
+/** Keeps `value` under `name` through the door, sent only to `hosts` when they are given. Answers { name, accepted: true } and the hosts. */
+export async function keepSecret({ name, value, hosts, client }) {
+  if (typeof name !== 'string' || !name) throw say('Name the secret: keep-a-secret-by-name NAME [--hosts HOST,HOST], then the value on stdin.', 2);
   if (!value) throw say('Pipe the value on stdin; it is empty.', 2);
-  const answer = await client.op('@secrets', 'secrets:put', { name, value }, { requestKey: randomUUID() });
+  if (hosts !== undefined && !hosts.length) throw say('Name at least one host after --hosts, for example --hosts api.example.com.', 2);
+  const input = hosts ? { name, value, hosts } : { name, value };
+  const answer = await client.op('@secrets', 'secrets:put', input, { requestKey: randomUUID() });
   if (answer?.accepted !== true) throw say('The door did not accept the secret.', 3);
-  return { name, accepted: true };
+  return hosts ? { name, accepted: true, hosts } : { name, accepted: true };
 }
 
 /** What a removal says about the secret at its issuer: it was revoked there, or the issuer's state is not known. A removal that names neither is refused. */
@@ -68,8 +75,9 @@ async function main(argv, { stdin = process.stdin, print = line => process.stdou
   const credential = await credentialFor();
   const client = engineClient({ door: doorFor({ credential }), credential });
   if (removing) return print(JSON.stringify(await removeSecret({ name, issuerStatus, client })));
+  const hosts = argv[1] === '--hosts' ? hostsOf(argv[2]) : undefined;
   const value = valueOf(await readStdin(stdin));
-  print(JSON.stringify(await keepSecret({ name, value, client })));
+  print(JSON.stringify(await keepSecret({ name, value, hosts, client })));
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
