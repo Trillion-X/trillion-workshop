@@ -1,0 +1,226 @@
+{
+  "about": "workflow:query-and-change-list-rows: queries a person's list rows and changes them in the store that keeps the list: a query answers the rows that match a field's rule, and a change to a row is kept only on the revision it was read at (the store raises the revision by one), refused when the revision is stale, the row is missing, or a value is outside its field's choices. It is the store-query half of tools/query-and-change-list-rows (src/list-filters.mjs, list-row-operations.mjs, list-identity.mjs and the choice rules), whose verbs were the store's own. The formula evaluation and the aggregate arithmetic of that folder are computation and stay in its library (rule a-tool-is-only-what-the-store-cannot-do). The folder stays: about 300 files across the repository name it, so its removal needs a multi-lane repoint.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:query-and-change-list-rows",
+        "label": "Query and change list rows",
+        "job": "Find a person's list rows that match a rule, and change a row only on the revision it was read at, with its values kept to their choices, in the person's own store.",
+        "produces": "The matching rows and the kept, refused or stale changes, proven on the example rows in three stores of different kinds.",
+        "source": {
+          "from": "tools/query-and-change-list-rows (src/list-filters.mjs, src/list-row-operations.mjs, src/choice-kinds.json and src/choice-mapping.mjs), read on trillion-workshop origin/main",
+          "note": "The revision rule is the old one: a change names the revision it read, and the store refuses a change on any other. The choice check is the field's own declared choices. Formula evaluation and aggregate arithmetic are not part of this recipe."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store",
+            "list"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the list is kept: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                }
+              }
+            },
+            "list": {
+              "type": "string",
+              "description": "The list's name in the store"
+            },
+            "query": {
+              "type": "object",
+              "description": "A rule: field, and is (equal) or over (greater than)"
+            },
+            "change": {
+              "type": "object",
+              "description": "A row id, the values to set and the revision the row was read at"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read the list the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read the list's rows: each row's id, its fields and its revision (a count the store raises by one on every change). Submit where the list is kept (or null), how many rows it holds, and the fields it has.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "rows",
+                "fields"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "rows": {
+                  "type": "integer"
+                },
+                "fields": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own list rows, once",
+            "do": "When the look step found none, make the store's own objects in its own form: one row per list row with its id, its fields and a revision starting at 1 that rises by one on every change, and a check that a field's value is one of its declared choices. Grant the person's login only what the store's holder allows. Submit the names of the objects made.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the queries and changes on the example rows",
+            "do": "In a throwaway place in the same store, with the same objects, keep these rows: [{\"id\": \"a\", \"kind\": \"bread\", \"amount\": 4}, {\"id\": \"b\", \"kind\": \"bread\", \"amount\": 6.5}, {\"id\": \"c\", \"kind\": \"cake\", \"amount\": 30}] (each at revision 1, with the choices bread, cake and tart for kind). Then run these operations in order, each at the time given: [{\"at\": \"2026-11-18T10:00:00Z\", \"op\": \"query\", \"field\": \"kind\", \"is\": \"bread\"}, {\"at\": \"2026-11-18T10:01:00Z\", \"op\": \"query\", \"field\": \"amount\", \"over\": 5}, {\"at\": \"2026-11-18T10:02:00Z\", \"op\": \"change\", \"row\": \"a\", \"set\": {\"amount\": 5}, \"expected_revision\": 1}, {\"at\": \"2026-11-18T10:03:00Z\", \"op\": \"change\", \"row\": \"a\", \"set\": {\"amount\": 7}, \"expected_revision\": 1}, {\"at\": \"2026-11-18T10:04:00Z\", \"op\": \"change\", \"row\": \"z\", \"set\": {\"amount\": 1}, \"expected_revision\": 1}, {\"at\": \"2026-11-18T10:05:00Z\", \"op\": \"change\", \"row\": \"c\", \"set\": {\"kind\": \"pie\"}, \"expected_revision\": 1}, {\"at\": \"2026-11-18T10:06:00Z\", \"op\": \"change\", \"row\": \"c\", \"set\": {\"kind\": \"tart\"}, \"expected_revision\": 1}, {\"at\": \"2026-11-18T10:07:00Z\", \"op\": \"query\", \"field\": \"kind\", \"is\": \"tart\"}]. A query answers the ids of the rows that match, in the order kept. A change is kept on the revision it was read at, which the store raises by one; a change on another revision is refused with the current revision; a change to a row that does not exist is refused; a change to a value outside the field's choices is refused. Each operation must give the outcome the intent gives, and the store's own rows must give every expected answer below.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answers"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "answers": {
+                  "type": "array",
+                  "items": {}
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each operation is answered, kept or refused as the intent says",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "answered",
+                    "answered",
+                    "kept",
+                    "refused",
+                    "refused",
+                    "refused",
+                    "kept",
+                    "answered"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "Each query answers its matching rows, each kept change its new revision, and each refusal its reason",
+                "path": [
+                  "this",
+                  "answers"
+                ],
+                "values": [
+                  [
+                    [
+                      "a",
+                      "b"
+                    ],
+                    [
+                      "b",
+                      "c"
+                    ],
+                    {
+                      "revision": 2
+                    },
+                    {
+                      "reason": "expected revision 1 is not the current 2"
+                    },
+                    {
+                      "reason": "there is no row z"
+                    },
+                    {
+                      "reason": "kind must be bread, cake or tart"
+                    },
+                    {
+                      "revision": 2
+                    },
+                    [
+                      "c"
+                    ]
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's operation",
+            "do": "Run the query or change the request names through the store's own rows, and read the answer back. Submit outcome (answered, kept or refused, with the store's words when refused), and the matching row ids or the row's new revision.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcome"
+              ],
+              "properties": {
+                "outcome": {
+                  "type": "string"
+                },
+                "ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "revision": {
+                  "type": "integer"
+                },
+                "reason": {
+                  "type": "string"
+                }
+              }
+            },
+            "checks": []
+          }
+        ]
+      }
+    }
+  ]
+}
