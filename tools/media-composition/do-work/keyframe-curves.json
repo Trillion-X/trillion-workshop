@@ -1,0 +1,11 @@
+{
+  "_what": "How a keyframe span moves from its start value to its end value (keyframe-curve.mjs). A curve row is the share of the way, as a polynomial in the span fraction F (0 at the start knot, 1 at the end knot): coefficients for F^0, F^1, F^2, ... The end knot's `interp` names the row. Both the ffmpeg expression compiler (video-compose.mjs piecewiseExpr) and the numeric sampler (effect-registry.mjs sampleEnvelope) read these rows, so a new curve is a new row here and works in both.",
+  "curves": {
+    "linear": [0, 1],
+    "hold": [0],
+    "ease-in": [0, 0, 1],
+    "ease-out": [0, 2, -1],
+    "ease-in-out": [0, 0, 3, -2],
+    "smooth": [0, 0, 3, -2]
+  }
+}

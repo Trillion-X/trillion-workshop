@@ -30,6 +30,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { visualOverlayBatches } from './visual-overlay-order.mjs';
 import { chooseByThreshold } from './choose-by-threshold.mjs';
+import { curveOf, shareExpr, staysAtStart } from './keyframe-curve.mjs';
 import { resolveRenderDimensions } from './resolve-render-dimensions.mjs';
 import { channelStats, computeColorTransfer, colorMatchFilter } from './color-match.mjs';
 import { measureLoudness } from './measure-loudness.mjs';
@@ -448,23 +449,12 @@ function splitEditOffset(seg) {
 //   esc   : escape the if() commas as '\,' for UNQUOTED filtergraph option values (setpts); a
 //           single-quoted option value ('...') takes plain commas
 // Holds the first value before the first knot and the last value after the last knot. Within a span
-// the END knot's interp governs the shape: 'hold' (step), 'linear' (default), or an EASE (a cubic
-// remap of the 0..1 span fraction before the lerp: ease-in, ease-out, ease-in-out / smooth). Because
-// EVERY keyframed feature (opacity, zoom, punch-in, Ken Burns, adjustment strength) is a config of
-// this one function, easing is available to all of them from DATA with ZERO per-feature code (L069).
+// the END knot's interp names a curve row of keyframe-curves.json (keyframe-curve.mjs): the share of
+// the way from the start value to the end value as a polynomial in the 0..1 span fraction. 'hold'
+// (step), 'linear' (default) and the eases are rows. Because EVERY keyframed feature (opacity, zoom,
+// punch-in, Ken Burns, adjustment strength) is a config of this one function, every curve is available
+// to all of them from DATA with ZERO per-feature code (L069), and the numeric sampler reads the same rows.
 // An extrapolating tail (the speed ramp past its last keyframe) is an ordinary END knot, no special case.
-const PIECEWISE_INTERPS = new Set(['linear', 'hold', 'ease-in', 'ease-out', 'ease-in-out', 'smooth']);
-// A cubic (or quadratic) remap of the normalized span fraction F in [0,1]; F carries no commas so it
-// is escape-safe. Named eases are DATA presets over this seam; a novel curve is a new row here.
-function easeFrac(F, interp) {
-  switch (interp) {
-    case 'ease-in': return `(${F})*(${F})`;
-    case 'ease-out': return `(1-(1-(${F}))*(1-(${F})))`;
-    case 'ease-in-out':
-    case 'smooth': return `(${F})*(${F})*(3-2*(${F}))`;
-    default: return `(${F})`;
-  }
-}
 function piecewiseExpr(knots, { time = 'T', esc = false } = {}) {
   const pts = [...knots]
     .map((p) => ({ t: Number(p.t), value: Number(p.value), interp: p.interp ?? 'linear' }))
@@ -472,16 +462,16 @@ function piecewiseExpr(knots, { time = 'T', esc = false } = {}) {
   if (pts.length === 0) throw new Error('[video.compose] piecewise expr needs at least one knot');
   for (const p of pts) {
     if (!Number.isFinite(p.t) || !Number.isFinite(p.value)) throw new Error('[video.compose] piecewise knot needs finite t and value');
-    if (!PIECEWISE_INTERPS.has(p.interp)) throw new Error(`[video.compose] piecewise interp ${JSON.stringify(p.interp)} not in ${JSON.stringify([...PIECEWISE_INTERPS])}`);
+    curveOf(p.interp, 'video.compose');
   }
   const C = esc ? '\\,' : ',';
   const n = (x) => String(round3(x));
   const segments = pts.slice(1).map((b, i) => {
     const a = pts[i];
     const span = b.t - a.t;
-    if (b.interp === 'hold' || span <= 0) return n(a.value);
-    if (b.interp === 'linear') return `(${n(a.value)}+(${n(b.value)}-${n(a.value)})*(${time}-${n(a.t)})/${n(span)})`; // exact prior form
-    return `(${n(a.value)}+(${n(b.value)}-${n(a.value)})*${easeFrac(`(${time}-${n(a.t)})/${n(span)}`, b.interp)})`;
+    const curve = curveOf(b.interp, 'video.compose');
+    if (staysAtStart(curve) || span <= 0) return n(a.value);
+    return `(${n(a.value)}+(${n(b.value)}-${n(a.value)})*${shareExpr(curve, `(${time}-${n(a.t)})/${n(span)}`)})`;
   });
   return chooseByThreshold(time, pts.map((p) => n(p.t)), [n(pts[0].value), ...segments, n(pts[pts.length - 1].value)], C);
 }

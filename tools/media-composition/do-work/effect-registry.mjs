@@ -31,6 +31,7 @@
 // =============================================================================
 
 import { chooseByThreshold } from './choose-by-threshold.mjs';
+import { curveOf, shareAt } from './keyframe-curve.mjs';
 
 /**
  * Build the keyframe-envelope `compute` capabilities. The compositor injects its
@@ -100,10 +101,9 @@ const r3 = (x) => Math.round(Number(x) * 1000) / 1000;
 
 /**
  * Numerically sample a piecewise envelope `[{t, value, interp}]` (the SAME point shape KEYFRAME_BINDINGS
- * compiles to an ffmpeg expression) at clip-local time `t`. Mirrors piecewiseExpr's linear/hold semantics
- * but returns a NUMBER, so a compute effect's scalar param can be evaluated in JS at stepped windows.
- * Fails closed on a non-finite point or an unsupported interp (only linear/hold are numerically exact here;
- * per-frame eased curves belong to the effect_id envelope seam, which evaluates in ffmpeg).
+ * compiles to an ffmpeg expression) at clip-local time `t`. Reads the same curve rows as piecewiseExpr
+ * (keyframe-curves.json) but returns a NUMBER, so a compute effect's scalar param can be evaluated in JS at
+ * stepped windows. Fails closed on a non-finite point or an interp no curve row names.
  */
 export function sampleEnvelope(points, t) {
   const pts = (Array.isArray(points) ? points : [])
@@ -112,7 +112,7 @@ export function sampleEnvelope(points, t) {
   if (pts.length === 0) throw new Error('[effect-registry] param envelope needs at least one point');
   for (const p of pts) {
     if (!Number.isFinite(p.t) || !Number.isFinite(p.value)) throw new Error('[effect-registry] param envelope point needs finite t and value');
-    if (p.interp !== 'linear' && p.interp !== 'hold') throw new Error(`[effect-registry] param envelope interp ${JSON.stringify(p.interp)} must be 'linear' or 'hold'`);
+    curveOf(p.interp, 'effect-registry');
   }
   if (t <= pts[0].t) return pts[0].value;
   if (t >= pts[pts.length - 1].t) return pts[pts.length - 1].value;
@@ -121,8 +121,8 @@ export function sampleEnvelope(points, t) {
     const b = pts[i + 1];
     if (t >= a.t && t <= b.t) {
       const span = b.t - a.t;
-      if (b.interp === 'hold' || span <= 0) return a.value;
-      return a.value + (b.value - a.value) * ((t - a.t) / span);
+      if (span <= 0) return a.value;
+      return a.value + (b.value - a.value) * shareAt(curveOf(b.interp, 'effect-registry'), (t - a.t) / span);
     }
   }
   return pts[pts.length - 1].value;
