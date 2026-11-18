@@ -52,6 +52,7 @@ import { blake3 } from './packs/read-data/blake3.mjs';
 import { settledWrite } from './packs/read-data/settled-write.mjs';
 import { KeepRefused, keepResult, readResult } from './keep-result.mjs';
 import { localDoorAddress } from './local-door.mjs';
+import { keptFetch, startKeeper } from './keep-the-connection.mjs';
 import settings from './command.json' with { type: 'json' };
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -1917,6 +1918,13 @@ function printResult(bytes, stdout) {
 
 /** Runs one command line; answers the text to print. `seams` carries what tests replace: store, grants, state, open, env,
  *  fetchImpl, wait, place, localDoor (the local door's MCP address, or null), computerName and model. */
+/** The fetch every command sends with: through this computer's kept connection (./keep-the-connection.mjs, command.json
+ *  `kept_connection`), so a command reuses the connection the last one opened instead of opening its own. */
+export function keptConnection({ rules = settings, home = homedir() } = {}) {
+  const socket = join(expand(rules.state_folder, home), rules.kept_connection.socket);
+  return keptFetch({ socket, start: () => { mkdirSync(dirname(socket), { recursive: true, mode: 0o700 }); startKeeper({ socket, idleSeconds: rules.kept_connection.idle_seconds }); } });
+}
+
 export async function main(argv, seams = {}) {
   if (seams.site) speakFor(seams.site);
   const parsed = parseArgs(argv);
@@ -1928,7 +1936,7 @@ export async function main(argv, seams = {}) {
   const flags = parsed.flags;
   const env = seams.env ?? process.env;
   const asked = (flags.origin ?? env[settings.env.origin])?.replace(/\/$/, '') || null;
-  const context = { asked, declared: env[settings.env.origin]?.replace(/\/$/, '') || null, flags, env, rest: parsed.rest, transcriptHome: seams.transcriptHome, fetchImpl: seams.fetchImpl ?? fetch, wait: seams.wait ?? pause,
+  const context = { asked, declared: env[settings.env.origin]?.replace(/\/$/, '') || null, flags, env, rest: parsed.rest, transcriptHome: seams.transcriptHome, fetchImpl: seams.fetchImpl ?? (seams.state ? fetch : keptConnection()), wait: seams.wait ?? pause,
     store: seams.store ?? keyStore(), grants: seams.grants ?? grantStore(), state: seams.state ?? stateOf(), open: seams.open ?? null,
     localMcp: seams.localDoor ?? (() => findLocalDoor()), agentSocket: seams.agentSocket ?? (() => findAgentSocket()),
     me: agentOf({ as: flags.as ?? null, env, computerName: seams.computerName ?? computerNameOf(), ...(seams.model !== undefined ? { model: seams.model } : {}) }),

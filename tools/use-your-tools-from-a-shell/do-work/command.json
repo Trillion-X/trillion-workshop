@@ -33,6 +33,11 @@
       }
     ]
   },
+  "kept_connection": {
+    "_what": "One connection to the door, kept open by a keeper (do-work/keep-the-connection.mjs) and reused by every command on this computer, as ssh's ControlMaster with ControlPersist does: the first command starts it, later ones send through `socket` in the state folder. It leaves after `idle_seconds` with no request: the front door closes an idle connection after its own idle time (Caddy's idle_timeout, 5 minutes by default: caddyserver.com/docs/caddyfile/options#timeouts), so a keeper kept longer would hold nothing.",
+    "socket": "kept-connection.sock",
+    "idle_seconds": 300
+  },
   "held_file": "held.json",
   "client_name": "{site_name} command line",
   "scope": "openid offline_access tools:* secrets:* wake:*",
@@ -91,6 +96,7 @@
     "folder": "~/.{cli}/cli/program",
     "files": [
       "command.mjs",
+      "keep-the-connection.mjs",
       "packs/read-data/identity.mjs",
       "packs/read-data/blake3.mjs",
       "packs/read-data/settled-write.mjs",
