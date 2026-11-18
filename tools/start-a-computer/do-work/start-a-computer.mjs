@@ -471,13 +471,16 @@ export function readRequest(file) {
     delete request.computer_row_file;
   }
   // A unit's `settings_parts` names files the person keeps (a provider description) that go into its settings: each key is a
-  // dotted place in `settings`, each value a path relative to the computer row's file, whose JSON is put at that place.
+  // dotted place in `settings`, each value a path relative to the computer row's file, whose JSON is put at that place, or
+  // { file, fields } to put only those fields of it (a unit that reads a brand's name needs none of its pictures).
   for (const unit of request.computer_row?.runs?.units ?? []) {
     for (const [place, path] of Object.entries(unit.settings_parts ?? {})) {
       const keys = place.split('.'), last = keys.pop();
       const holder = keys.reduce((held, key) => held?.[key], unit.settings);
       if (!holder || typeof holder !== 'object') throw refused(`${unit.unit} settings_parts names ${place}, and its settings hold no ${keys.join('.') || 'settings'} object to put it in.`);
-      holder[last] = JSON.parse(readFileSync(resolvePath(rowHere, path), 'utf8'));
+      const part = typeof path === 'string' ? { file: path } : path;
+      const whole = JSON.parse(readFileSync(resolvePath(rowHere, part.file), 'utf8'));
+      holder[last] = Array.isArray(part.fields) ? Object.fromEntries(part.fields.filter(field => field in whole).map(field => [field, whole[field]])) : whole;
     }
     delete unit.settings_parts;
   }

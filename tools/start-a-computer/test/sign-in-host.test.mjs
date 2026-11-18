@@ -240,6 +240,17 @@ test('a unit\'s settings_parts puts a file the person keeps into its settings, r
   assert.throws(() => readRequest(join(dir, 'request.json')), /settings_parts names email\.sender/);
 });
 
+test('a settings part may take only some fields of its file, into a list item by its place', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'settings-parts-fields-'));
+  mkdirSync(join(dir, 'rows', 'brands'), { recursive: true });
+  writeFileSync(join(dir, 'rows', 'brands', 'acme.json'), JSON.stringify({ name: 'Acme', cli: 'acme', hosts: ['acme.example.test'], look_css: 'x'.repeat(50000) }));
+  const engine = { unit: 'engine.service', settings: { doors: [{ id: 'front', accepts_hosts: ['acme.example.test'] }] }, settings_parts: { 'doors.0.brand': { file: 'brands/acme.json', fields: ['name', 'cli', 'hosts', 'absent'] } } };
+  writeFileSync(join(dir, 'rows', 'computer.json'), JSON.stringify({ name: 'example-computer', runs: { units: [engine] } }));
+  writeFileSync(join(dir, 'request.json'), JSON.stringify({ computer_row_file: 'rows/computer.json' }));
+  const [read] = readRequest(join(dir, 'request.json')).computer_row.runs.units;
+  assert.deepEqual(read.settings.doors[0].brand, { name: 'Acme', cli: 'acme', hosts: ['acme.example.test'] });
+});
+
 // The vault is the original: a credential the computer holds that differs from the value now handed is sealed again and its unit
 // restarts, and one that matches is left alone.
 test('a held credential whose handed value differs from the sealed one is sealed again, and a matching one is left', async () => {
