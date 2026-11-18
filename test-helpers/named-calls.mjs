@@ -4,7 +4,8 @@
 // connect, workflow steps, kits, tool descriptions, READMEs) names three kinds of call: a door operation (`@address` with
 // a method such as `tools:run`), a tool (`tool:<id>`) and a workflow (`workflow:<id>`). A door operation answers only when
 // tools/tell-ais-how-to-act/door-calls.json lists its pair (the Workshop's statement of the door it relies on; the engine
-// confirms that list against what it answers); a tool or workflow answers only when a row of the Workshop has its id.
+// confirms that list against what it answers); a tool answers only when a row of the Workshop has its id and every right
+// its run asks for is one the door offers (else the engine withholds the row), and a workflow when a row has its id.
 // A name left behind when its owner moved or was deleted is a finding.
 //
 // Non-Negotiable Invariants:
@@ -56,11 +57,11 @@ function blobs(repo, ref, paths) {
   return texts;
 }
 
-const idsOf = (value, prefix, out) => {
-  if (Array.isArray(value)) for (const item of value) idsOf(item, prefix, out);
+const idsOf = (value, prefix, out, runs = () => true) => {
+  if (Array.isArray(value)) for (const item of value) idsOf(item, prefix, out, runs);
   else if (value && typeof value === 'object') {
-    if (typeof value.id === 'string' && value.id.startsWith(prefix) && (value.invoke || value.input_schema || value.steps || value.definition || value.definitions)) out.add(value.id.slice(prefix.length));
-    for (const item of Object.values(value)) idsOf(item, prefix, out);
+    if (typeof value.id === 'string' && value.id.startsWith(prefix) && (value.invoke || value.input_schema || value.steps || value.definition || value.definitions) && runs(value)) out.add(value.id.slice(prefix.length));
+    for (const item of Object.values(value)) idsOf(item, prefix, out, runs);
   }
   return out;
 };
@@ -71,11 +72,15 @@ export function namedCallFindings({ repo, ref = 'HEAD' } = {}) {
     .filter(path => /\.(json|md)$/.test(path) && !/(^|\/)(node_modules|test|from-an-older-version)\//.test(path));
   const texts = blobs(repo, ref, files);
   const door = parsed(texts[DOOR_CALLS] ?? 'null')?.calls ?? [];
+  // A row whose run asks for a right the door does not offer is withheld by the engine and refuses every run, so it
+  // answers nothing: each right is a held secret's, or names a pair door-calls.json lists.
+  const offered = right => 'secret' in right || (right.operations ?? []).every(method => door.some(([address, named]) => address === right.at && named === method));
+  const runs = row => (row.invoke?.records?.rights ?? []).every(offered);
   const tools = new Set(), flows = new Set();
   for (const text of Object.values(texts)) {
     if (!/"(tool|workflow):/.test(text)) continue;
     const value = parsed(text);
-    if (value) { idsOf(value, 'tool:', tools); idsOf(value, 'workflow:', flows); }
+    if (value) { idsOf(value, 'tool:', tools, runs); idsOf(value, 'workflow:', flows); }
   }
   // The published workflow view names its rows without the prefix.
   for (const text of Object.values(texts)) {
