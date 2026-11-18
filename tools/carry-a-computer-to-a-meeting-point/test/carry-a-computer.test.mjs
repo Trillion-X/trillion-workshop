@@ -9,7 +9,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
-import { WAYS, ensureProgram, makeKey, installCarrier, pickArtifact, portFor, removeCarrier, renderClient, renderMeetingPoint, serveCarrier, valuesFor } from '../do-work/carry-a-computer.mjs';
+import { WAYS, copyCarrier, ensureProgram, makeKey, installCarrier, pickArtifact, portFor, removeCarrier, renderClient, renderMeetingPoint, serveCarrier, valuesFor } from '../do-work/carry-a-computer.mjs';
 
 const relayHost = { id: 'relay-example', hostname: 'relay.example.test', params: { control_port: 2333, ssh_port: 22, host_key: 'ssh-ed25519 AAAAEXAMPLE' } };
 const way = id => WAYS.find(row => row.id === id);
@@ -269,4 +269,19 @@ test('a way that makes its own key makes one in a private folder that is gone af
   assert.match(made.public, /^ssh-ed25519 [A-Za-z0-9+/=]+ carrier$/);
   assert.deepEqual(spawnSync('ls', [join(state, 'run')], { encoding: 'utf8' }).stdout, '', 'nothing is left behind');
   assert.throws(() => makeKey(way('frp'), { state }), /makes no key/);
+});
+
+test('a carrier copy made again replaces an earlier copy whose files and folders are read-only', () => {
+  const state = mkdtempSync(join(tmpdir(), 'carrier-copy-'));
+  try {
+    const entry = copyCarrier(state);
+    const lock = path => spawnSync('chmod', ['-R', 'a-w', path]);
+    lock(join(state, 'carrier'));
+    assert.equal(copyCarrier(state), entry);
+    assert.ok(existsSync(entry));
+    assert.ok(!existsSync(join(state, 'carrier.next')) && !existsSync(join(state, 'carrier.before')));
+  } finally {
+    spawnSync('chmod', ['-R', 'u+w', state]);
+    rmSync(state, { recursive: true, force: true });
+  }
 });

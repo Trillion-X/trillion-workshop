@@ -5,7 +5,7 @@
 // (read-data/ways.json); this file is the one runner for every row. It names no program, no operating system and no host:
 // each is a row, and a new way is a new row. The meeting-point side port of a computer is a stable hash of its id.
 import { execFileSync, spawn } from 'node:child_process';
-import { chmodSync, cpSync, existsSync, realpathSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, cpSync, existsSync, realpathSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { homedir, userInfo } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -194,15 +194,31 @@ export function renderMeetingPoint({ way, relay_host: relayHost, computers, valu
   return { steps, argv: (way.server.argv ?? []).map(part => at(part, base, 'argument')), program: way.server.program ?? null };
 }
 
+/** Removes a carrier copy, whose folders may have come read-only: each folder is made writable by its owner first. */
+function removeCopy(folder) {
+  if (!existsSync(folder)) return;
+  const open = path => { chmodSync(path, 0o700); for (const entry of readdirSync(path, { withFileTypes: true })) if (entry.isDirectory()) open(join(path, entry.name)); };
+  open(folder);
+  rmSync(folder, { recursive: true, force: true });
+}
+
 const copyInto = (source, target) => { mkdirSync(dirname(target), { recursive: true }); cpSync(source, target, { recursive: true }); };
 
-/** Puts the files a running carrier needs in <state>/carrier (same layout as the Workshop's tools/ folder). */
+/** Puts the files a running carrier needs in <state>/carrier (same layout as the Workshop's tools/ folder). The copy is made
+ *  whole in a fresh folder beside it and then takes its name, so an earlier copy's files, which come read-only from the engine's
+ *  installed Workshop copy, are never written over (that refused a reinstall with EACCES on Nov 18 2026), and a running carrier
+ *  never reads a half-made copy. */
 export function copyCarrier(state) {
   const tools = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
   const target = join(state, 'carrier');
-  for (const path of [...CARRIER_FILES.tools, ...CARRIER_FILES.tool_folders]) copyInto(join(tools, path), join(target, 'tools', path));
+  const fresh = `${target}.next`, before = `${target}.before`;
+  for (const old of [fresh, before]) removeCopy(old);
+  for (const path of [...CARRIER_FILES.tools, ...CARRIER_FILES.tool_folders]) copyInto(join(tools, path), join(fresh, 'tools', path));
   const module = dirname(fileURLToPath(import.meta.resolve(`${CARRIER_FILES.module.name}/blake3.js`)));
-  for (const file of CARRIER_FILES.module.files) copyInto(join(module, file), join(target, 'node_modules', CARRIER_FILES.module.name, file));
+  for (const file of CARRIER_FILES.module.files) copyInto(join(module, file), join(fresh, 'node_modules', CARRIER_FILES.module.name, file));
+  if (existsSync(target)) renameSync(target, before);
+  renameSync(fresh, target);
+  removeCopy(before);
   return join(target, 'tools', 'carry-a-computer-to-a-meeting-point', 'do-work', 'carry-a-computer.mjs');
 }
 
