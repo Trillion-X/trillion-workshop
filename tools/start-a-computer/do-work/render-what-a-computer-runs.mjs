@@ -55,11 +55,35 @@ const pageFiles = (caddy, pages) => {
 const SIGN_IN_ROUTES = JSON.parse(readFileSync(new URL('../../better-auth-official/pages/routes.json', import.meta.url), 'utf8'));
 const signInPaths = () => [...new Set([...SIGN_IN_ROUTES.routes.map(({ path }) => path), SIGN_IN_ROUTES.assets_path.replace(/\/$/, '')])]
   .flatMap(path => [path, `${path}/*`]);
-/** A Caddy route file filled from the row's caddy fields; the sign-in pages' paths are the tool's own. */
+/** A Caddy route file filled from the row's caddy fields; the sign-in pages' paths are the tool's own, and each pool the
+ * row names (`pools`) is the field `<pool>_proxy`. */
 const routeText = (name, caddy, where) => {
   if (caddy.auth_page_paths !== undefined) throw new Error(`${where}: caddy.auth_page_paths is gone; the sign-in paths are the tool's own pages/routes.json`);
-  return fill(ROUTE(name), { ...caddy, auth_page_paths: signInPaths() }, where);
+  return fill(ROUTE(name), { ...caddy, ...poolFields(caddy), auth_page_paths: signInPaths() }, where);
 };
+
+// A pool (caddy.pools: { <name>: { listen, health_uri, health_interval, try_duration, lines? } }) is every slot of one
+// program: Caddy sends each call to the first that answers its health page, so a slot that is stopping (its health page
+// answers 503 while it finishes what it holds) gets no new call, and a refused connection is tried at the next slot for up
+// to try_duration. A call already sent is never sent again. `lines` are the pool's own reverse_proxy lines (a Host header).
+const POOL = readFileSync(new URL('../read-data/caddy-routes/pool.fragment', import.meta.url), 'utf8').trimEnd();
+const poolFields = caddy => Object.fromEntries(Object.entries(caddy.pools ?? {}).map(([name, pool]) => {
+  const where = `caddy.pools ${name}`;
+  if (!/^[a-z0-9_]+$/.test(name) || !Array.isArray(pool?.listen) || !pool.listen.length) throw new Error(`${where} needs listen: every slot's address`);
+  const lines = (pool.lines ?? []).map(line => `\t\t\t${fill(line, caddy, where)}\n`).join('');
+  return [`${name}_proxy`, fill(POOL, { ...pool, lines }, where)];
+}));
+
+// An inner door (caddy.inner_doors: [{ listen, pool }]) is a loopback address Caddy holds for the programs on this computer
+// (the engine's call to the sign-in tool's own listener), sent to that pool's slots, so a program that calls it never
+// follows a slot switch.
+const innerDoors = caddy => (caddy.inner_doors ?? []).map(({ listen, pool }, at) => {
+  const where = `caddy.inner_doors ${at}`;
+  if (!/^127\.0\.0\.1:[0-9]+$/.test(listen ?? '')) throw new Error(`${where} listens on a loopback address only`);
+  const proxy = poolFields(caddy)[`${pool}_proxy`];
+  if (!proxy) throw new Error(`${where} names no pool of caddy.pools`);
+  return `\nhttp://${listen} {\n\tbind 127.0.0.1\n\t${proxy.trim()}\n}\n`;
+}).join('');
 
 /** The Caddy site file: one site block per name, each with the row's port. `siteBlock` is the wrapper the set-up tool
  * uses, with {SITE} and {PORT} still to fill. The row's own routes (caddy.routes) go first inside each block. */
@@ -223,7 +247,7 @@ const withCredentials = (unit, where) => {
 /** Every file a computer's `runs` declares: { path, text }. A unit's drop-ins are the names it lists in `drop_ins`. */
 export function renderWhatItRuns(given, siteBlock, pages) {
   const runs = withSlots(given);
-  const files = [{ path: '/etc/caddy/Caddyfile', text: renderCaddy(siteBlock, runs.caddy) }];
+  const files = [{ path: '/etc/caddy/Caddyfile', text: renderCaddy(siteBlock, runs.caddy) + innerDoors(runs.caddy ?? {}) }];
   if (runs.caddy?.pages_root) files.push(...pageFiles(runs.caddy, pages));
   const door = runs.caddy?.front_door;
   if (door) files.push({ path: `${SYSTEMD}/caddy.service.d/front-door.conf`, text: fill(TEMPLATE('caddy-front-door.conf'), door, 'caddy.front_door') });

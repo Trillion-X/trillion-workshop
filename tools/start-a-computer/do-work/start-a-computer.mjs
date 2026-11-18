@@ -317,7 +317,10 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
     if (row.check_command) return commandPasses(machine, row.check_command, { run, wait: deps.wait ?? pause, tries: 12 }, `${unit}'s check_command`);
     const health = healthOf(row.health ?? runs.health);
     const listen = row.health_listen ?? runs.health_listen ?? runs.caddy?.listen ?? `127.0.0.1:${runs.caddy?.port}`;
-    const status = await healthStatus(machine, { listen }, health.host ?? runs.caddy?.site_hosts?.[0] ?? '', { ...health, where: 'machine' }, { fetchImpl: undefined, wait: deps.wait ?? pause, tries: 12, run });
+    // A unit whose first start is long (a slot fetching and installing its own copy) names how long its health may take to
+    // answer (`health.wait_seconds`); it is asked every 5 s.
+    const tries = Math.max(1, Math.ceil((health.wait_seconds ?? 60) / 5));
+    const status = await healthStatus(machine, { listen }, health.host ?? runs.caddy?.site_hosts?.[0] ?? '', { ...health, where: 'machine' }, { fetchImpl: undefined, wait: deps.wait ?? pause, tries, run });
     if (status !== health.status) throw Object.assign(new Error(`${unit} answered ${status ?? 'nothing'} on ${health.path}, not ${health.status}, after its restart.`), { unit, status });
   };
   // A switch starts the other slot, and only once it answers its boot check is it the one that starts with the computer and is

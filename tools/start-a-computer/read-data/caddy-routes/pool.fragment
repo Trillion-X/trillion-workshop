@@ -1,0 +1,7 @@
+reverse_proxy {listen} {
+{lines}			lb_policy first
+			lb_try_duration {try_duration}
+			health_uri {health_uri}
+			health_interval {health_interval}
+			health_timeout 2s
+		}

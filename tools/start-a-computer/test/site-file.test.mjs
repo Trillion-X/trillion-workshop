@@ -24,7 +24,7 @@ const caddy = {
   door_upstream: 'https://127.0.0.1:9443', door_transport_routes: ['door-over-tls'], door_host: 'door.example.test',
   engine_listen: '127.0.0.1:18789', request_max: '4MB', forwarder_paths: ['/mcp', '/sign-up', '/a/*'],
   pages_root: '/var/lib/front-door-pages', downloads_root: '/var/lib/public-downloads', download_default: '/download/App.dmg',
-  routes: ['better-auth'], auth_port: 8792, binary: '/opt/caddy/current/caddy', storage_env: '/etc/caddy/storage.env',
+  routes: ['better-auth'], pools: { auth: { listen: ['127.0.0.1:8792'], health_uri: '/readyz', health_interval: '1s', try_duration: '5s' } }, binary: '/opt/caddy/current/caddy', storage_env: '/etc/caddy/storage.env',
 };
 
 test('a caddy row that names a site file renders that whole file from the row, with its routes in their place', () => {
@@ -33,19 +33,19 @@ test('a caddy row that names a site file renders that whole file from the row, w
   assert.doesNotMatch(file.text, /\{\{/);
   assert.match(file.text, /^door\.example\.test \{$/m);
   assert.match(file.text, /^\t@forwarder path \/mcp \/sign-up \/a\/\*$/m);
-  assert.match(file.text, /^\thandle \/api\/auth\/\* \{\n\t\treverse_proxy 127\.0\.0\.1:8792\n\t\}$/m);
+  assert.match(file.text, /^\thandle \/api\/auth\/\* \{\n\t\treverse_proxy 127\.0\.0\.1:8792 \{\n\t\t\tlb_policy first\n[\s\S]*?\n\t\t\}\n\t\}$/m);
   assert.doesNotMatch(file.text, /oauth-authorization-server\* \{/, 'discovery stays with the engine unless the row names better-auth-discovery');
   for (const own of ['{args[0]}', '{client_ip}', '{host}', '{uri}', '{$CADDY_STORAGE_PASSWORD}']) assert.ok(file.text.includes(own), `Caddy's ${own} is left as it is`);
   const lines = file.text.split('\n').length, templateLines = TEMPLATE.split('\n').length;
-  assert.equal(lines, templateLines + 1, 'the routes slot grows by two (the route block is three lines) and the empty every-name slot line goes');
+  assert.equal(lines, templateLines + 7, 'the routes slot grows by eight (the route block is nine lines with its pool) and the empty every-name slot line goes');
 });
 
 test('every other name\'s routes (every_name_routes) go first in the on-demand block, so an attached name reaches the sign-in tool', () => {
   const [file] = renderWhatItRuns({ caddy: { ...caddy, every_name_routes: ['better-auth'] }, units: [] }, SITE_BLOCK, PAGES);
   const onDemand = file.text.slice(file.text.indexOf('\nhttps:// {') + 1);
-  assert.match(onDemand, /^https:\/\/ \{\n\ttls \{\n\t\ton_demand\n\t\}\n\thandle \/api\/auth\/\* \{\n\t\treverse_proxy 127\.0\.0\.1:8792\n\t\}\n/);
+  assert.match(onDemand, /^https:\/\/ \{\n\ttls \{\n\t\ton_demand\n\t\}\n\thandle \/api\/auth\/\* \{\n\t\treverse_proxy 127\.0\.0\.1:8792 \{\n\t\t\tlb_policy first\n[\s\S]*?\n\t\t\}\n\t\}\n/);
   const [home] = renderWhatItRuns({ caddy: { ...caddy, routes: ['better-auth', 'better-auth-webauthn'] }, units: [] }, SITE_BLOCK, PAGES);
-  assert.match(home.text, /^door\.example\.test \{[\s\S]*\thandle \/\.well-known\/webauthn \{\n\t\treverse_proxy 127\.0\.0\.1:8792\n\t\}[\s\S]*\nhttps:\/\/ \{/m);
+  assert.match(home.text, /^door\.example\.test \{[\s\S]*\thandle \/\.well-known\/webauthn \{\n\t\treverse_proxy 127\.0\.0\.1:8792 \{\n\t\t\tlb_policy first\n[\s\S]*?\n\t\t\}\n\t\}[\s\S]*\nhttps:\/\/ \{/m);
 });
 
 test('a routes slot the row leaves empty is no line at all, so a row without every_name_routes renders the file as before', () => {
@@ -103,7 +103,7 @@ test('better-auth-pages sends the sign-in tool every address its own routes file
   const listed = JSON.parse(readFileSync(new URL('../../better-auth-official/pages/routes.json', import.meta.url), 'utf8')).routes.map(({ path }) => path);
   for (const path of listed) assert.ok(matcher.includes(path) && matcher.includes(`${path}/*`), path);
   for (const path of ['/connected', '/consent', '/device', '/sign-in']) assert.ok(matcher.includes(path), `${path} is routed to the tool`);
-  assert.match(file.text, /\n\thandle @better_auth_pages \{\n\t\treverse_proxy 127\.0\.0\.1:8792\n\t\}/);
+  assert.match(file.text, /\n\thandle @better_auth_pages \{\n\t\treverse_proxy 127\.0\.0\.1:8792 \{\n\t\t\tlb_policy first\n[\s\S]*?\n\t\t\}\n\t\}/);
   assert.throws(() => renderWhatItRuns({ caddy: { ...caddy, routes: ['better-auth-pages'], auth_page_paths: ['/sign-in'] }, units: [] }, SITE_BLOCK, PAGES), /auth_page_paths is gone/);
 });
 
@@ -166,9 +166,10 @@ test('applying a row with pages writes a binary page through base64 and reads it
 });
 
 const single = {
-  site_file: 'single-name-front-door', door_host: 'door.example.test', engine_listen: ['127.0.0.1:7199', '127.0.0.1:7198'], engine_paths: ['/a/*'], request_max: '4MB',
+  site_file: 'single-name-front-door', door_host: 'door.example.test', engine_paths: ['/a/*'], request_max: '4MB',
   pages_root: '/var/lib/front-door-pages', routes: ['better-auth', 'better-auth-pages', 'better-auth-discovery', 'better-auth-home'], engine_routes: ['engine'],
-  auth_port: 8792, engine_try_duration: '5s', engine_health_uri: '/readyz', engine_health_interval: '1s', grace_period: '150s',
+  grace_period: '150s', pools: { auth: { listen: ['127.0.0.1:8792'], health_uri: '/readyz', health_interval: '1s', try_duration: '5s' },
+    engine: { listen: ['127.0.0.1:7199', '127.0.0.1:7198'], health_uri: '/readyz', health_interval: '1s', try_duration: '5s', lines: ['header_up Host {door_host}', 'flush_interval -1'] } },
 };
 
 test('a single-name front door renders its own name, pages, sign-in routes and engine paths, and no program, store or other host', () => {
@@ -180,8 +181,8 @@ test('a single-name front door renders its own name, pages, sign-in routes and e
     'every slot of the engine is an upstream; the first that answers its health page takes each call');
   assert.match(file.text, /^\t@engine path \/a\/\*\n\thandle @engine \{\n/m);
   assert.match(file.text, /^\tgrace_period 150s$/m);
-  assert.match(file.text, /^\thandle \/api\/auth\/\* \{\n\t\treverse_proxy 127\.0\.0\.1:8792\n\t\}$/m);
-  assert.match(file.text, /^\thandle \/\.well-known\/oauth-authorization-server\* \{\n\t\treverse_proxy 127\.0\.0\.1:8792\n\t\}$/m);
+  assert.match(file.text, /^\thandle \/api\/auth\/\* \{\n\t\treverse_proxy 127\.0\.0\.1:8792 \{\n\t\t\tlb_policy first\n[\s\S]*?\n\t\t\}\n\t\}$/m);
+  assert.match(file.text, /^\thandle \/\.well-known\/oauth-authorization-server\* \{\n\t\treverse_proxy 127\.0\.0\.1:8792 \{\n\t\t\tlb_policy first\n[\s\S]*?\n\t\t\}\n\t\}$/m);
   assert.doesNotMatch(file.text, /oauth-protected-resource/, 'the protected-resource document is the engine\'s, carried, never the sign-in tool\'s');
   assert.match(file.text, /^\thandle \/ \{\n\t\tredir \* \/sign-in 302\n\t\}$/m);
   assert.doesNotMatch(file.text, /storage|on_demand|forwarder|old_site|trusted_proxies|tls_server_name/);

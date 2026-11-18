@@ -61,7 +61,7 @@ test('differences name a missing file and a changed file, and match when equal',
 // A computer whose runs row names the better-auth unit and route serves sign-in: the unit runs official Better Auth from
 // the Workshop tool folder with its settings from the row, the secret by vault key only, and Caddy sends the auth paths to it.
 const withSignIn = {
-  caddy: { ...runs.caddy, routes: ['better-auth', 'better-auth-discovery'], auth_port: 7201 },
+  caddy: { ...runs.caddy, routes: ['better-auth', 'better-auth-discovery'], pools: { auth: { listen: ['127.0.0.1:7201'], health_uri: '/readyz', health_interval: '1s', try_duration: '5s' } } },
   units: [...runs.units, {
     unit: 'example-sign-in.service', template: 'serve-better-auth', description: 'Example sign-in', user: 'example-sign-in',
     workshop: '/var/lib/example-sign-in/trillion-workshop', repository: 'https://github.com/Trillion-X/trillion-workshop.git',
@@ -98,8 +98,8 @@ test('a row that names the better-auth unit renders it, its settings file and th
   const [caddy] = files;
   for (const host of withSignIn.caddy.site_hosts) {
     const block = caddy.text.slice(caddy.text.indexOf(`${host} {`));
-    assert.match(block, /^\thandle \/api\/auth\/\* \{\n\t\treverse_proxy 127\.0\.0\.1:7201\n\t\}$/m);
-    assert.match(block, /^\thandle \/\.well-known\/oauth-authorization-server\* \{\n\t\treverse_proxy 127\.0\.0\.1:7201\n\t\}$/m);
+    assert.match(block, /^\thandle \/api\/auth\/\* \{\n\t\treverse_proxy 127\.0\.0\.1:7201 \{\n\t\t\tlb_policy first\n[\s\S]*?\n\t\t\}\n\t\}$/m);
+    assert.match(block, /^\thandle \/\.well-known\/oauth-authorization-server\* \{\n\t\treverse_proxy 127\.0\.0\.1:7201 \{\n\t\t\tlb_policy first\n[\s\S]*?\n\t\t\}\n\t\}$/m);
     assert.ok(block.indexOf('handle /api/auth/*') < block.indexOf('reverse_proxy 127.0.0.1:7199'), 'the auth routes sit inside the block, before the catch-all');
   }
 });
@@ -107,8 +107,8 @@ test('a row that names the better-auth unit renders it, its settings file and th
 test('a row without the route renders no auth routes; an unknown route or a route field the row omits is refused', () => {
   assert.doesNotMatch(renderWhatItRuns(runs, SITE_BLOCK)[0].text, /api\/auth/);
   assert.throws(() => renderWhatItRuns({ ...withSignIn, caddy: { ...withSignIn.caddy, routes: ['nope'] } }, SITE_BLOCK), /unknown route nope/);
-  const { auth_port, ...noPort } = withSignIn.caddy;
-  assert.throws(() => renderWhatItRuns({ ...withSignIn, caddy: noPort }, SITE_BLOCK), /caddy route better-auth needs auth_port/);
+  const { pools, ...noPort } = withSignIn.caddy;
+  assert.throws(() => renderWhatItRuns({ ...withSignIn, caddy: noPort }, SITE_BLOCK), /caddy route better-auth needs auth_proxy/);
   const { secret_file, ...noSecret } = withSignIn.units[1];
   assert.throws(() => renderWhatItRuns({ ...withSignIn, units: [runs.units[0], noSecret] }, SITE_BLOCK), /needs secret_file/);
   const { settings_file, ...noSettingsFile } = withSignIn.units[1];
@@ -266,4 +266,12 @@ test('every script the Workshop keeps for units is valid shell', async () => {
   const names = readdirSync(folder).filter(name => name.endsWith('.sh'));
   assert.ok(names.length >= 3);
   for (const name of names) assert.equal(spawnSync('sh', ['-n', new URL(name, folder).pathname]).status, 0, name);
+});
+
+test('an inner door is a loopback address Caddy holds for programs on this computer, sent to every slot of a pool', () => {
+  const pools = { internal: { listen: ['127.0.0.1:8794', '127.0.0.1:8795'], health_uri: '/readyz', health_interval: '1s', try_duration: '5s' } };
+  const [caddy] = renderWhatItRuns({ ...runs, caddy: { ...runs.caddy, pools, inner_doors: [{ listen: '127.0.0.1:8793', pool: 'internal' }] } }, SITE_BLOCK);
+  assert.match(caddy.text, /\nhttp:\/\/127\.0\.0\.1:8793 \{\n\tbind 127\.0\.0\.1\n\treverse_proxy 127\.0\.0\.1:8794 127\.0\.0\.1:8795 \{\n\t\t\tlb_policy first\n/);
+  assert.throws(() => renderWhatItRuns({ ...runs, caddy: { ...runs.caddy, pools, inner_doors: [{ listen: '0.0.0.0:8793', pool: 'internal' }] } }, SITE_BLOCK), /loopback address only/);
+  assert.throws(() => renderWhatItRuns({ ...runs, caddy: { ...runs.caddy, pools, inner_doors: [{ listen: '127.0.0.1:8793', pool: 'none' }] } }, SITE_BLOCK), /names no pool/);
 });

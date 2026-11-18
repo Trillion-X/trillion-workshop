@@ -122,7 +122,7 @@ const computer = (live, { accounts = true } = {}) => {
 };
 
 const machine = { address: '192.0.2.9', ssh: { known_hosts: '/dev/null' } };
-const runsFor = unit => ({ caddy: { site_hosts: ['place.example.test'], port: 7199, routes: ['better-auth'], auth_port: 7201 }, units: [unit], unmanaged: [] });
+const runsFor = unit => ({ caddy: { site_hosts: ['place.example.test'], port: 7199, routes: ['better-auth'], pools: { auth: { listen: ['127.0.0.1:7201'], health_uri: '/readyz', health_interval: '1s', try_duration: '5s' } } }, units: [unit], unmanaged: [] });
 
 test('the sign-in unit loads its secret sealed for the computer, by the name the row gives, and holds no value', () => {
   const unit = signInUnit('');
