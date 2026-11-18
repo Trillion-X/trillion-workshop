@@ -10,9 +10,10 @@ export function createInteractions(settings, consent) {
 //   Every visit, click and use of Trillion, admitted and counted the same way wherever it happened (example.com, a
 //   public page, the app in a browser, the Mac, the iPhone or the extension, an AI's tool call). A page sends batches
 //   of self-describing events; this module checks each against its kind's row (records/interactions.json), keeps only
-//   the facts that row names, fills the facts the Worker knows itself, and hands them to the interaction log
-//   (src/interaction-log.mjs, its own store), never to a person's store. It also writes the page script, draws the
-//   operator's Visitors screen answer from what the log read, and holds the visitor sketch.
+//   the facts that row names, fills the facts the Worker knows itself, and returns what the store must keep
+//   (interactionsToKeep; workflow:keep-anonymous-interaction-counts keeps it in the operator's own store). It also writes
+//   the page script, draws the operator's Visitors screen answer from the reads its caller passes in, and holds the visitor
+//   sketch's arithmetic (it keeps no sketch itself).
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. No kind, dimension, surface, step or path rule is named in code: each is a row of records/interactions.json.
@@ -243,17 +244,15 @@ function shardOf(address, agent, shards = settings.shards) {
   return Number.parseInt(makeHashCodeHexFromBytes(new TextEncoder().encode(`${text(address)}\n${text(agent)}`)).slice(3, 5), 16) % shards;
 }
 
-/** The interaction log a shard is kept in. */
-const interactionLog = (env, shard = 0) => env.interactionLog(shard);
-
-/** Counts events the Worker itself saw (never awaited by what the person waits for; a failure is logged, not thrown).
- *  `visitor` ({ address, agent }) is who saw them, when a kind counts visitors (the visitor mark a price was shown to).
- *  An event the telemetry gate withheld (serverEvent's null) is not counted. */
-async function noteInteractions(env, given, visitor = null) {
+/**
+ * The events the Worker itself saw, as the keep the caller makes: { shard, events, visitor }, or null when nothing is kept.
+ * `visitor` ({ address, agent }) is who saw them, when a kind counts visitors (the visitor mark a price was shown to).
+ * An event the telemetry gate withheld (serverEvent's null) is not kept. The store keeps it (workflow:keep-anonymous-interaction-counts).
+ */
+function interactionsToKeep(given, visitor = null) {
   const events = given.filter(Boolean);
-  if (!env?.interactionLog || !events.length) return;
-  try { await interactionLog(env, visitor ? shardOf(visitor.address, visitor.agent) : 0).keep({ events, visitor }); }
-  catch (error) { console.error('interactions not counted:', String(error?.message ?? error)); }
+  if (!events.length) return null;
+  return { shard: visitor ? shardOf(visitor.address, visitor.agent) : 0, events, visitor };
 }
 
 /** The hours from `days` days ago (at most `most_read_days`) to this hour, as the log reads them. */
@@ -262,10 +261,8 @@ function readRange(days = settings.read_days, now = Date.now()) {
   return { since: `${new Date(now - (kept - 1) * 86_400_000).toISOString().slice(0, 10)}T00`, until: new Date(now).toISOString().slice(0, 13) };
 }
 
-/** Every shard read over `range`; [] where this service keeps no interaction log. */
-const readInteractions = (env, range) => (env?.interactionLog
-  ? Promise.all(Array.from({ length: Math.max(1, settings.shards) }, (_, shard) => interactionLog(env, shard).read(range)))
-  : Promise.resolve([]));
+/** What to read over `range`: one request per shard. The caller reads each from the store and passes the reads to the answers. */
+const readRequests = range => Array.from({ length: Math.max(1, settings.shards) }, (_, shard) => ({ shard, range }));
 
 /** Different visitors per value of `by` among a kind's visitor scopes matching `where` (facts), over every shard. */
 function visitorsBy(reads, { kind, where = {}, by }) {
@@ -667,5 +664,5 @@ function pageAnswer(reads, { surface, path, since, until }) {
   return { view: settings.screen.inside_view, items: top(clicks, 200), depths: [...depths.values()].sort((a, b) => parseInt(a.depth, 10) - parseInt(b.depth, 10)), since, until };
 }
 
-return { INTERACTIONS, INTERACTION_CONSENT, anonymousKind, withheldPurposes, chooseConsent, consentAnswer, consentCookie, kindOf, surfaceOf, cutPath, deviceOf, isRobot, asksNotToTrack, referrerHost, hourOf, admitPageBatch, serverEvent, countKey, countsVisitors, SKETCH_BITS, emptySketch, sketchAdd, sketchMerge, sketchCount, visitorHash, shardOf, interactionLog, noteInteractions, readRange, readInteractions, visitorsBy, eventsBy, funnelFacts, capturePage, captureScript, interactionsAnswer, pageAnswer };
+return { INTERACTIONS, INTERACTION_CONSENT, anonymousKind, withheldPurposes, chooseConsent, consentAnswer, consentCookie, kindOf, surfaceOf, cutPath, deviceOf, isRobot, asksNotToTrack, referrerHost, hourOf, admitPageBatch, serverEvent, countKey, countsVisitors, SKETCH_BITS, emptySketch, sketchAdd, sketchMerge, sketchCount, visitorHash, shardOf, interactionsToKeep, readRange, readRequests, visitorsBy, eventsBy, funnelFacts, capturePage, captureScript, interactionsAnswer, pageAnswer };
 }

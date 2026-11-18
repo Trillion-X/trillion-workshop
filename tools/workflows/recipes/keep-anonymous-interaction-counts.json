@@ -1,0 +1,240 @@
+{
+  "about": "workflow:keep-anonymous-interaction-counts: keeps each admitted anonymous event as a count per hour, surface, kind and facts, and each visitor scope's registers (a visitor is never kept, only the registers of a hash), in the operator's own store. Counts and registers only go up, and the read gives the counts and the visitor counts for a range. It replaces the interaction log calls of tools/see-customers-and-their-journeys/read-data/interactions.mjs (noteInteractions and readInteractions, which kept and read through an interaction log that was never in this folder). The admission, the visitor arithmetic and the answers stay in the tool (rule a-tool-is-only-what-the-store-cannot-do).",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-anonymous-interaction-counts",
+        "label": "Keep anonymous interaction counts",
+        "job": "Keep how often each kind of anonymous use happened, per hour, surface and the facts a kind keeps, and how many different visitors each scope had (a visitor is kept only as registers of a hash, never as an address or a browser), in the operator's own store; read the counts and visitor scopes back for a range. A count only goes up; nothing is removed.",
+        "produces": "The store's own count and register objects, proven on the example keeps in two kinds of store, every count and visitor count checked, and each run's counts kept and read back.",
+        "source": {
+          "from": "the owner, 2026-11-18 about 2:35 PM CST, and the W3.2b lane brief: the interaction log keeps counts and sketches; a tool keeps no count, the store does",
+          "note": "Ported from the retired Worker's src/interactions.mjs (source commit b6ae0ebf815f2f5271eed34e6e023c7e1767ec04, see source-map.json); the log that kept it (src/interaction-log.mjs) was never in this folder. The events, their facts and the visitor arithmetic (the day-keyed hash, the register sketch, its merge and its count) stay in tools/see-customers-and-their-journeys/read-data/interactions.mjs, which takes values in and hands values back. The shard split is the store's own choice, not a rule: a store that keeps one table has one shard."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store",
+            "events"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the operator keeps the counts: the store's own address, as the operator's store row names it"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses for that store, when it needs one"
+                },
+                "place": {
+                  "type": "string",
+                  "description": "Where in the store the counts are kept, when the operator has a place for them already"
+                }
+              }
+            },
+            "events": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Keeps to make this run, each {events: [admitted events: hour, surface, kind, dims], visitor: null or {address, agent}}, in order. Visitor marks are hashed by the tool; the address and agent are never stored"
+            },
+            "read": {
+              "type": "object",
+              "description": "{since, until}: the hours to read back"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit kept_in (where the counts are kept, or null) and objects (the names of the objects that already answer each question below).",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found no such objects, make them in the store's own form: (1) a count table keyed by hour, surface, kind and the event's facts, where a count only ever goes up and nothing is removed; (2) a register table keyed by a visitor scope and a register number, where a register only ever goes up (the larger value is kept, so a merge is a maximum); (3) a read that returns the counts and each scope's registers for a range of hours. The store never keeps an address, a browser, a cookie or an id of a visitor: only the registers the tool computes from their hash. Grant only what the store needs for these.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example keeps",
+            "do": "In a throwaway place in the same store, with the same objects, keep these in order, each through the store's own objects, the tool computing each visitor's registers: [{\"id\": \"k1\", \"events\": [{\"hour\": \"2026-11-17T09\", \"surface\": \"app\", \"kind\": \"page_view\", \"dims\": {\"path\": \"/decisions\", \"shell\": \"mac\", \"device\": \"computer\", \"country\": \"GB\"}}, {\"hour\": \"2026-11-17T09\", \"surface\": \"app\", \"kind\": \"page_view\", \"dims\": {\"path\": \"/decisions\", \"shell\": \"mac\", \"device\": \"computer\", \"country\": \"GB\"}}, {\"hour\": \"2026-11-17T10\", \"surface\": \"mcp\", \"kind\": \"tool_run\", \"dims\": {\"tool\": \"x\", \"client\": \"chatgpt\"}}], \"visitor\": null}, {\"id\": \"k2\", \"events\": [{\"hour\": \"2026-11-17T09\", \"surface\": \"app\", \"kind\": \"page_view\", \"dims\": {\"path\": \"/\", \"shell\": \"mac\", \"device\": \"computer\", \"country\": \"GB\"}}], \"visitor\": {\"address\": \"203.0.113.7\", \"agent\": \"Mozilla/5.0 (Macintosh) Safari\"}}, {\"id\": \"k3\", \"events\": [{\"hour\": \"2026-11-17T11\", \"surface\": \"app\", \"kind\": \"page_view\", \"dims\": {\"path\": \"/decisions\", \"shell\": \"mac\", \"device\": \"computer\", \"country\": \"GB\"}}], \"visitor\": {\"address\": \"203.0.113.8\", \"agent\": \"Mozilla/5.0 (iPhone) Safari\"}}, {\"id\": \"k4\", \"events\": [{\"hour\": \"2026-11-17T11\", \"surface\": \"app\", \"kind\": \"page_view\", \"dims\": {\"path\": \"/decisions\", \"shell\": \"mac\", \"device\": \"computer\", \"country\": \"GB\"}}], \"visitor\": {\"address\": \"203.0.113.7\", \"agent\": \"Mozilla/5.0 (Macintosh) Safari\"}}] Then read every count and every visitor scope's registers back, compute each scope's visitor count with the tool, and try each probe ([{\"id\": \"p1\", \"op\": \"lower-register\"}, {\"id\": \"p2\", \"op\": \"remove-count\"}]). Submit totals, visitor_scopes and probes (unchanged or changed; removed or refused).",
+            "submit": {
+              "type": "object"
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Every example count and every visitor count is the expected one, and the store refuses every probe that would lower a count or remove one",
+                "path": [
+                  "this",
+                  "answer"
+                ],
+                "values": [
+                  {
+                    "probes": {
+                      "p1": "unchanged",
+                      "p2": "refused"
+                    },
+                    "totals": [
+                      {
+                        "dims": "{\"path\":\"/\",\"shell\":\"mac\",\"device\":\"computer\",\"country\":\"GB\"}",
+                        "hour": "2026-11-17T09",
+                        "kind": "page_view",
+                        "n": 1,
+                        "surface": "app"
+                      },
+                      {
+                        "dims": "{\"path\":\"/decisions\",\"shell\":\"mac\",\"device\":\"computer\",\"country\":\"GB\"}",
+                        "hour": "2026-11-17T09",
+                        "kind": "page_view",
+                        "n": 2,
+                        "surface": "app"
+                      },
+                      {
+                        "dims": "{\"tool\":\"x\",\"client\":\"chatgpt\"}",
+                        "hour": "2026-11-17T10",
+                        "kind": "tool_run",
+                        "n": 1,
+                        "surface": "mcp"
+                      },
+                      {
+                        "dims": "{\"path\":\"/decisions\",\"shell\":\"mac\",\"device\":\"computer\",\"country\":\"GB\"}",
+                        "hour": "2026-11-17T11",
+                        "kind": "page_view",
+                        "n": 2,
+                        "surface": "app"
+                      }
+                    ],
+                    "visitor_scopes": [
+                      {
+                        "kind": "page_view",
+                        "scope": {
+                          "country": "GB",
+                          "device": "computer",
+                          "path": "/",
+                          "shell": "mac"
+                        },
+                        "surface": "app",
+                        "visitors": 1
+                      },
+                      {
+                        "kind": "page_view",
+                        "scope": {
+                          "country": "GB",
+                          "device": "computer",
+                          "path": "/decisions",
+                          "shell": "mac"
+                        },
+                        "surface": "app",
+                        "visitors": 2
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's counts",
+            "do": "For each event the Worker admitted (the keep the tool returns): add one to its count in the count table, under the key of its hour, surface, kind and facts; when the keep carries a visitor, the tool computes the visitor's registers for each event's scope from the day key, and the store takes the larger value for every register. Then read the counts and visitor scopes for the range asked. Submit kept (the number of counts added), scopes_updated, kept_keys (the count keys added) and found_keys (the count keys read back for the range).",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept",
+                "scopes_updated",
+                "kept_keys",
+                "found_keys"
+              ],
+              "properties": {
+                "kept": {
+                  "type": "number"
+                },
+                "scopes_updated": {
+                  "type": "number"
+                },
+                "kept_keys": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "found_keys": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "subset-of",
+                "says": "Every count kept is read back",
+                "path": [
+                  "this",
+                  "kept_keys"
+                ],
+                "of": [
+                  "this",
+                  "found_keys"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

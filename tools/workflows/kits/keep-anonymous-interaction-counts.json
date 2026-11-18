@@ -1,0 +1,70 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:keep-anonymous-interaction-counts with store {\\\"where\\\": \\\"postgresql database example_me on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-me-postgres-connection\\\"} and the events of one page visit.\"",
+  "lists": [],
+  "no_lists_because": "It names no list: the counts and registers are kept in the operator's own store, in whatever form that store keeps things, and store says where and in which language.",
+  "workflows": [
+    "workflow:keep-anonymous-interaction-counts"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:keep-anonymous-interaction-counts\" with store and the events to keep, admitted by the tool first.",
+    "3. The first run makes the store's own objects once and proves them on the example keeps and probes: the prove step must give every expected answer, or the run stops and says which.",
+    "4. Every later run keeps the new counts and visitor registers, and reads the counts for the range from the store's own objects."
+  ],
+  "worked_examples": [
+    {
+      "title": "One page visit kept in a person's own database, with its visitor mark",
+      "ask": "Keep this page visit from one visitor.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-anonymous-interaction-counts",
+              "store": {
+                "where": "postgresql database example_me on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-me-postgres-connection"
+              },
+              "events": [
+                {
+                  "events": [
+                    {
+                      "hour": "2026-11-17T09",
+                      "surface": "app",
+                      "kind": "page_view",
+                      "dims": {
+                        "path": "/",
+                        "shell": "mac",
+                        "device": "computer",
+                        "country": "GB"
+                      }
+                    }
+                  ],
+                  "visitor": {
+                    "address": "203.0.113.7",
+                    "agent": "Mozilla/5.0 (Macintosh) Safari"
+                  }
+                }
+              ],
+              "read": {
+                "since": "2026-11-17T00",
+                "until": "2026-11-17T23"
+              }
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-anonymous-interaction-counts",
+      "step": "keep",
+      "given": "The look step found the count and register objects already kept in the example database from the prove step.",
+      "hands_back": "kept 1; scopes_updated 1; found: the page's count of 1 for the hour and the visitor scope with 1 visitor"
+    }
+  ]
+}
