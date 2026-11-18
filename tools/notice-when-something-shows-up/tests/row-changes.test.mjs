@@ -43,6 +43,15 @@ test('it declares its fields and reads its settings, refusing a table name that 
   assert.match(readSql('row_changes'), /ORDER BY txid, position/);
 });
 
+test('a change is told as where, place and change: INSERT is added, UPDATE changed, DELETE removed', async () => {
+  const stand = client([change(9, 3, 'INSERT'), change(10, 1, 'UPDATE'), change(10, 2, 'DELETE')]);
+  const { done, told } = await run(stand, { stopAfter: 3 });
+  await done;
+  assert.deepEqual(told.map(item => [item.detail.where, item.detail.place, item.detail.change]),
+    [['p_made_up', 'notes', 'added'], ['p_made_up', 'notes', 'changed'], ['p_made_up', 'notes', 'removed']]);
+  assert.deepEqual(told[0].observed_identity, { where: 'p_made_up', place: 'notes' });
+});
+
 test('each committed change is told once, in transaction order, under its own key', async () => {
   const stand = client([change(10, 2), change(9, 3), change(10, 1)]);
   const { done, told } = await run(stand, { stopAfter: 3 });

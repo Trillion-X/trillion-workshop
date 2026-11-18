@@ -401,7 +401,7 @@ test("a change fact names where it happened and carries the change when it fits,
   const rows = JSON.parse(readFileSync(new URL("../tool-rows.json", import.meta.url), "utf8"));
   const wake = rows.records[0].payload.wakes.find(w => w.id === "keep-noticing-row-changes");
   const waiter = wake.input.waiters[0];
-  const transition = { condition: "became-reachable", observed_identity: {}, detail: { database: "d", table_name: "post", op: "INSERT", at: "2026-11-18T00:00:00.000Z", key: "d:7:3", before: null, after: null, txid: "7", position: "3" } };
+  const transition = { condition: "became-reachable", observed_identity: {}, detail: { where: "d", place: "post", change: "added", at: "2026-11-18T00:00:00.000Z", key: "d:7:3", before: null, after: null } };
   const scope = buildScope(readWaiterRow(waiter), transition, { observedAt: "2026-11-18T00:00:00.000Z", sequence: 1, matched: [], connection: wake.input.credential_name });
   const payload = selectPayload(waiter.emitted_record.change_kind, waiter.emitted_record.payload_fields, scope);
   assert.equal(payload.where, "own-rows-postgres-connection");

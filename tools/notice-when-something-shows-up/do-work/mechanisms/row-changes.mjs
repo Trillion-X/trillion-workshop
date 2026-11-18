@@ -39,6 +39,8 @@ export const MECHANISM_REF = "package::notice-when-something-shows-up::mechanism
 const NAME = /^[a-z_][a-z0-9_]*$/;
 // A told fact holds at most 1,024 bytes a field (the engine's fact inbox, src/wake/host-events.json); a value longer than this is left out.
 export const CARRIED_BYTES = 1000;
+// A change's kind in the fact's own words: the store's INSERT, UPDATE and DELETE become added, changed and removed.
+export const changeOf = (op) => ({ INSERT: "added", UPDATE: "changed", DELETE: "removed" })[op] ?? String(op).toLowerCase();
 export const carried = (value) => {
   if (value === null || value === undefined) return null;
   const text = typeof value === "string" ? value : JSON.stringify(value);
@@ -48,7 +50,7 @@ export const carried = (value) => {
 export function describeMechanism() {
   return {
     mechanism_ref: MECHANISM_REF,
-    detail_fields: ["database", "table_name", "op", "at", "key", "before", "after", "txid", "position"],
+    detail_fields: ["where", "place", "change", "at", "key", "before", "after"],
     conditions: ["became-reachable"],
   };
 }
@@ -111,12 +113,12 @@ export async function watchForTransitions(settings, handlers) {
         const next = { after: { txid: change.txid, position: change.position } };
         const told = await handlers.onTransition({
           condition: "became-reachable",
-          observed_identity: { database: change.database, table_name: change.table_name },
+          observed_identity: { where: change.database, place: change.table_name },
           event_key: `${change.database}:${change.txid}:${change.position}`,
           state: next,
-          detail: { database: change.database, table_name: change.table_name, op: change.op, at: new Date(change.at).toISOString(),
+          detail: { where: change.database, place: change.table_name, change: changeOf(change.op), at: new Date(change.at).toISOString(),
             key: `${change.database}:${change.txid}:${change.position}`,
-            before: carried(change.before), after: carried(change.after), txid: change.txid, position: change.position },
+            before: carried(change.before), after: carried(change.after) },
         });
         if (told === false) { refused = true; break; }
         state = next;

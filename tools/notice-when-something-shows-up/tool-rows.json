@@ -479,16 +479,16 @@
                     "look_again_why": "NOTIFY wakes it at once; the reread catches a notice lost while it was not listening."
                   },
                   "emitted_record": {
-                    "change_kind": "row-changes",
-                    "address_label": "database::row-changes",
+                    "change_kind": "something-changed",
+                    "address_label": "where::something-changed",
                     "path_labels": [
                       "current-item",
-                      "row-changes"
+                      "something-changed"
                     ],
                     "payload_fields": [
                       "where",
-                      "table_name",
-                      "op",
+                      "place",
+                      "change",
                       "at",
                       "key",
                       "before",
