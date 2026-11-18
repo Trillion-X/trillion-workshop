@@ -159,7 +159,7 @@
             "step": "apply-the-reward-rule",
             "undecided": "facts.referral_reward was empty, so no reward words existed.",
             "chosen": "Submitted a blocker and wrote no reward row; the owner writes the reward in the facts row.",
-            "evidence": "records:read on record:business-setup:facts showed referral_reward empty.",
+            "evidence": "record:business-setup:facts in the person's own store showed referral_reward empty.",
             "status": "open"
           }
         }
@@ -211,7 +211,7 @@
       "workflow": "workflow:retention-and-referral",
       "step": "apply-the-reward-rule",
       "given": "Read from the workflow:retention-and-referral row (tools/workflows/recipes/workflows.json), step apply-the-reward-rule: facts.referral_reward is \"A free loaf for every 3 friends who buy\", count-referrals answered referrals 4 and rewards_due 1 for the buyer account acct-sam, and today is 2026-11-13.",
-      "hands_back": "{\"reward_row\":\"record:reward:acct-sam-2026-11-13\"}: the step wrote that row at @own-records with {\"account\":\"acct-sam\",\"reward\":\"A free loaf for every 3 friends who buy\",\"due\":1,\"status\":\"due\"} and read it back with records:read."
+      "hands_back": "{\"reward_row\":\"record:reward:acct-sam-2026-11-13\"}: the step kept that row in the person's own store with {\"account\":\"acct-sam\",\"reward\":\"A free loaf for every 3 friends who buy\",\"due\":1,\"status\":\"due\"} and read it back from the person's own store."
     },
     {
       "title": "No reward words yet: the stage stops instead of inventing one",
@@ -239,7 +239,7 @@
   "pour": {
     "tool": "tool:pour-example-rows-into-my-list",
     "least_coverage": 0.8,
-    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "how": "Name the list you already keep for the same job and read its fields and row type from your own store. Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the example rows to keep beside your own.",
     "example": {
       "kit_list": "list:business-setup-checklist",
       "into": {

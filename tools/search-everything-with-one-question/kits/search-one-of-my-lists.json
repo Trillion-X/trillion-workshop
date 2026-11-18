@@ -2,7 +2,7 @@
   "drafted_from": "tool:search-one-of-my-lists's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Find the rows of one of my lists that hold the words I ask, best match first, however far down the list they are\", with {\"question\":\"launch plan\",\"type\":\"record:note\"}. It runs tool:search-one-of-my-lists and answers {\"question\":\"launch plan\",\"terms\":[\"launch\",\"plan\"],\"results\":[{\"start\":0,\"end\":0,\"id\":\"record:note:plan-7\",\"source\":\"trillion\",\"type\":\"record:note\",\"record\":\"note:plan-7\",\"found_in\":[\"written\"],\"address\":{\"resource\":\"@own-records\",\"operation\":\"records:read\",\"input\":{\"id\":\"note:plan-7\",\"type\":\"record:note\"}},\"score\":0.01639,\"places\":[{\"place\":\"written\",\"label\":\"Notes and text\",\"said\":null ...",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows ([object Object]) through the records door.",
+  "no_lists_because": "It names no list of yours: it takes its input and the rows of yours it is given (of the kind the request names), and keeps nothing.",
   "workflows": [],
   "tools": [
     "tool:search-one-of-my-lists",
@@ -11,8 +11,8 @@
   "instructions": [
     "1. Say to your AI: \"Find the rows of one of my lists that hold the words I ask, best match first, however far down the list they are\", and give it question (The person's question or the words to find); type (The kind of record (the list) to search; this run's right is filled from it).",
     "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:search-one-of-my-lists and its input (the worked example shows one).",
-    "3. Read what comes back: Searches the records of one kind (one list) with one question through the records door's word index, which every write feeds: the rows holding every asked word, best first, each with said (the words around the match), score and address (the records:read that opens it).",
-    "4. It reads and writes only its own rows through the records door: [object Object] (records:search)."
+    "3. Read what comes back: Searches the records of one kind (one list) with one question in the person's own store's word index, which every write feeds: the rows holding every asked word, best first, each with said (the words around the match), score and the row's id (its row in the person's own store).",
+    "4. It is given only the rows of the kind the request names (reads)."
   ],
   "worked_examples": [
     {

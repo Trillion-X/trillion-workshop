@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:see-a-pursuit-through-the-lens row in tool-rows.json, do-work/see-a-pursuit-through-the-lens.mjs, src/pursuit-lens.mjs, read-data/see-a-pursuit-through-the-lens.json and test/see-a-pursuit-through-the-lens.test.mjs; list:pursuit-lens fields read with records:read by the caller",
+  "drafted_from": "tool:see-a-pursuit-through-the-lens row in tool-rows.json, do-work/see-a-pursuit-through-the-lens.mjs, src/pursuit-lens.mjs, read-data/see-a-pursuit-through-the-lens.json and test/see-a-pursuit-through-the-lens.test.mjs; list:pursuit-lens fields read from the person's own store by the caller",
   "start_here": "Say to your AI: \"Tell me how to look at what I am pursuing through my pursuit lens, the short paragraph and the full setup with every part and its rows.\" Your AI reads your lens rows from your lists, hands them to tool:see-a-pursuit-through-the-lens and gets the paragraph every AI reads when it connects and the setup.",
   "lists": [
     {
@@ -68,7 +68,7 @@
   "pour": {
     "tool": "tool:pour-example-rows-into-my-list",
     "least_coverage": 0.8,
-    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "how": "Name the list you already keep for the same job and read its fields and row type from your own store. Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the example rows to keep beside your own.",
     "example": {
       "kit_list": "list:pursuit-lens",
       "into": {

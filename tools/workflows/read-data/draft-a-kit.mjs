@@ -33,7 +33,9 @@ function needsOf(schema) {
 
 // `{cli}`: the name the person's AI app gave their own site's server (its command word); a shared kit names no site.
 const runCall = (tool, input) => ({ server: '{cli}', tool: 'run_resource_operation', input: { address: '@tools', method: 'tools:run', input: { tool, input } } });
-const rightsOf = tool => [tool.invoke?.records?.rights ?? []].flat().filter(object);
+// What a tool reads and makes of the person's own things: the rights its run asks the door for, then the ones it is given
+// as values (its `stored` list, tools/records-door/read-data/values-door.mjs).
+const rightsOf = tool => [...[tool.invoke?.records?.rights ?? []].flat(), ...[tool.stored ?? []].flat()].filter(object);
 
 // How the person (or their AI) runs a tool: through the door, or on their own computer from the commands its row gives.
 function runLine(tool) {
@@ -59,8 +61,10 @@ function toolDraft(tool, observed = []) {
   const rowRights = rights.filter(right => right.kind ?? right.prefix);
   const fileRights = rights.filter(right => right.files);
   const writesRows = rowRights.some(right => [right.operations ?? []].flat().some(operation => /write/.test(operation)));
-  const kindsOf = list => [...new Set(list.map(right => right.kind ?? right.prefix))].join(', ');
-  const opsOf = right => [right.operations ?? []].flat().join(', ');
+  // A kind the request fills in (`{ fill: ... }`) is named as that.
+  const kindOf = right => (typeof (right.kind ?? right.prefix) === 'string' ? right.kind ?? right.prefix : 'the kind the request names');
+  const kindsOf = list => [...new Set(list.map(kindOf))].join(', ');
+  const opsOf = right => ([right.operations ?? []].flat().some(operation => /write/.test(operation)) ? 'reads and makes' : 'reads');
   return {
     start_here: seen
       ? `Say to your AI: "${first(tool.job)}", with ${compact(seen.sample.input, OBSERVE.input_chars)}. It runs ${tool.id} and answers ${compact(seen.answer, OBSERVE.input_chars)}`
@@ -69,12 +73,12 @@ function toolDraft(tool, observed = []) {
       `1. Say to your AI: "${first(tool.job)}", and give it ${needs.length ? needs.join('; ') : 'nothing more: every input is optional'}.`,
       runLine(tool),
       `3. Read what comes back: ${words(tool.output_schema?.description) || first(tool.description) || first(tool.job)}`,
-      ...(rowRights.length ? [`4. It ${writesRows ? 'reads and writes' : 'only reads'} only its own rows through the records door: ${rowRights.map(right => `${right.kind ?? right.prefix} (${opsOf(right)})`).join('; ')}.`] : []),
-      ...(fileRights.length ? [`${rowRights.length ? 5 : 4}. It reaches only these places in the person's files: ${fileRights.map(right => `${right.files} (${opsOf(right)})`).join('; ')}.`] : []),
+      ...(rowRights.length ? [`4. It is given only these rows of the person's, read by the AI from the person's own store: ${rowRights.map(right => `${kindOf(right)} (${opsOf(right)})`).join('; ')}${writesRows ? '; the rows it makes come back under keep, for the AI to keep there' : ''}.`] : []),
+      ...(fileRights.length ? [`${rowRights.length ? 5 : 4}. It is given only these of the person's files: ${fileRights.map(right => `${right.files} (${opsOf(right)})`).join('; ')}.`] : []),
     ],
     examples,
     no_lists_because: rowRights.length
-      ? `It names no list of yours: it takes its input and ${writesRows ? 'keeps' : 'only reads'} its own rows (${kindsOf(rowRights)}) through the records door${writesRows ? '' : ', and keeps nothing'}.`
+      ? `It names no list of yours: it takes its input and the rows of yours it is given (${kindsOf(rowRights)})${writesRows ? ', and answers the rows it makes for your AI to keep' : ', and keeps nothing'}.`
       : 'It names no list of yours: it takes its input and answers, and keeps no row.',
     gap: examples.length ? null : `No real run can be shown: ${(tool.verify ?? []).some(entry => entry?.kind === 'sample-run') ? 'none of its sample runs ended well here and none says what its answer contains' : 'it has no sample run (verify, kind sample-run)'}.`,
     workflows: itemNames({ tool }).workflows, tools: [tool.id, ...itemNames({ tool }).tools],
@@ -92,7 +96,7 @@ function recipeDraft(recipe, observedByTool = new Map()) {
     if (!seen || examples.length >= OBSERVE.most_runs) continue;
     examples.push({ title: `Step ${step.id}: ${step.title ?? step.id}`, ask: `Run ${recipe.id}.`, mcp: runCall(toolId, seen.sample.input), workflow: recipe.id, step: step.id, given: givenOf(seen.sample), hands_back: handsBackOf(seen) });
   }
-  const writesRows = JSON.stringify(steps).includes('records:write');
+  const writesRows = /records:write|in the person's own store/.test(JSON.stringify(steps));
   return {
     start_here: needs.length ? null : `Say to your AI: "Run ${recipe.id}." It ${lower(first(recipe.job))}`,
     instructions: [
@@ -105,7 +109,7 @@ function recipeDraft(recipe, observedByTool = new Map()) {
     gap: [
       ...(needs.length ? [`start_here needs real values for its input: ${needs.join('; ')}.`] : []),
       ...(examples.length ? [] : ['No real run of a step can be shown: no step runs a tool (run_tool) whose own sample run ended well here.']),
-      ...(writesRows ? ['Its steps write rows (records:write) but the kit cannot name those lists with fields and example rows from the recipe alone.'] : []),
+      ...(writesRows ? ['Its steps keep rows in the person\'s own store, but the kit cannot name those lists with fields and example rows from the recipe alone.'] : []),
     ].join(' ') || null,
     workflows: [recipe.id, ...names.workflows], tools: [...new Set(['tool:run-workflow-definition', ...names.tools])],
   };
@@ -115,7 +119,7 @@ function recipeDraft(recipe, observedByTool = new Map()) {
 function pourFor(list) {
   return {
     tool: 'tool:pour-example-rows-into-my-list', least_coverage: 0.8,
-    how: 'Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.',
+    how: 'Name the list you already keep for the same job and read its fields and row type from your own store. Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the example rows to keep beside your own.',
     example: { kit_list: list.list, into: { list: `list:my-${list.list.slice(5)}`, row_type: list.row_type, fields: list.fields.map(({ id, label }) => ({ id, label })) } },
   };
 }

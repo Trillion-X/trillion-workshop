@@ -115,7 +115,7 @@
     "1. Say to your AI: \"Make labelled examples for calibrating a small model from which options of a piece a person picked or rejected, and the lines they named\", and give it films (The pieces: { name, gate, decisions, files, units }).",
     "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:make-examples-from-picks and its input (the worked example shows one).",
     "3. Read what comes back: Give films (each piece: name, gate (its pick settings: picked_verdicts and pick_labels with spec_globs using {option}, and optionally words, exclude, rejected_lines, text_keys, spoken_lead_s), decisions (its pick rows: option_id, verdict, lines, reason_verbatim; the last row of an option governs), files (the piece's file paths) and units ({ <spec path>: [{ text, kind, context }] }, the lines of each spec read so far)), and optionally rulings with real and needs (a text ruled directly is left out: the ruling wins), bad_label and rejected (the pattern a rejecting verdict matches, default ^rejected).",
-    "4. It reads and writes only its own rows through the records door: record:setting (records:read)."
+    "4. It is given only these rows of the person's, read by the AI from the person's own store: record:setting (reads); the rows it makes come back under keep, for the AI to keep there."
   ],
   "worked_examples": [
     {
@@ -173,7 +173,7 @@
   "pour": {
     "tool": "tool:pour-example-rows-into-my-list",
     "least_coverage": 0.8,
-    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "how": "Name the list you already keep for the same job and read its fields and row type from your own store. Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the example rows to keep beside your own.",
     "example": {
       "kit_list": "list:settings",
       "into": {

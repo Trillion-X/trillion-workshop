@@ -182,7 +182,7 @@
    "list:content-pieces"
   ]
  },
- "pour_into_my_list": "The lists here are definitions; pour rows into a list you already keep with tool:pour-example-rows-into-my-list. To make one of your workflows fire for a kind of part, write its row with a fires_when list (records:write at @own-records); to change when an installed workflow fires, write a row of yours with only {recipe, fires_when}.",
+ "pour_into_my_list": "The lists here are definitions; pour rows into a list you already keep with tool:pour-example-rows-into-my-list. To make one of your workflows fire for a kind of part, write its row with a fires_when list; to change when an installed workflow fires, write a row of yours with only {recipe, fires_when}.",
  "check": "The recipes in recipes/workflows.json for these three ids pass recipeProblems with no tool gaps.",
  "waiting_to_publish": [],
  "waiting_to_publish_why": "None: the branches are no longer named here. Every workflow the person has (their own rows, for example an inbox workflow kept only in their account) and every workflow the Workshop installs is a candidate, chosen by the conditions on its own row.",

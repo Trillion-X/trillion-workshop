@@ -201,7 +201,7 @@
   ],
   "instructions": [
     "1. Pour the example rows into your own settings list (see pour), put the manuscript, the Word template and the output folder in the book's settings JSON, and set source_blake3 to the BLAKE3 of the manuscript bytes. For current prose also name checks_branch and keep the example check rows in your checks list.",
-    "2. Say \"Export my book rye-cookbook to Word\". The AI reads the row with tools:list and your settings row with records:read, writes {\"book_id\":\"rye-cookbook\",\"settings_record\":<that row, { id, type, value }>} to a request file and runs the row's run command from the Workshop checkout with your records door.",
+    "2. Say \"Export my book rye-cookbook to Word\". The AI reads the row with tools:list and your settings row from the person's own store, writes {\"book_id\":\"rye-cookbook\",\"settings_record\":<that row, { id, type, value }>} to a request file and runs the row's run command from the Workshop checkout.",
     "3. Read the last line, {\"result\": ...}. status exported names the Word file; blocked gives the reason (changed source bytes, the checks failed or ask reading questions, missing writing evidence). Answer reading questions in answers and run again.",
     "4. After an export render the Word file to PDF and run verify_book_against_its_source.py as the row says; passing proves coverage only, never author approval."
   ],
@@ -227,7 +227,7 @@
   "pour": {
     "tool": "tool:pour-example-rows-into-my-list",
     "least_coverage": 0.8,
-    "how": "Name the settings list you already keep and its fields. The tool matches the kit's fields to yours by id, label or alike name, refuses under least_coverage, and otherwise answers the records:write that adds the example rows, leaving yours untouched.",
+    "how": "Name the settings list you already keep and its fields. The tool matches the kit's fields to yours by id, label or alike name, refuses under least_coverage, and otherwise answers the example rows to add, leaving yours untouched.",
     "example": {
       "kit_list": "list:settings",
       "into": {

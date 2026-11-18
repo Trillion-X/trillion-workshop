@@ -310,14 +310,14 @@
       },
       "workflow": "workflow:run-a-course-from-list-rows",
       "step": "write-the-lessons",
-      "given": "Read from the step in tools/workflows/recipes/workflows.json: it writes one record:lesson row per day with records:write at @own-records ({\"day\":n,\"subject\":...,\"text\":...,\"article_url\":...}), each text ending with {{unsubscribeUrl}} and {{mailingAddress}}. Synthetic subjects: \"Day 1: Flour, water, salt\", through \"Day 5: Your first sell-out Saturday\".",
+      "given": "Read from the step in tools/workflows/recipes/workflows.json: it writes one record:lesson row per day in the person's own store ({\"day\":n,\"subject\":...,\"text\":...,\"article_url\":...}), each text ending with {{unsubscribeUrl}} and {{mailingAddress}}. Synthetic subjects: \"Day 1: Flour, water, salt\", through \"Day 5: Your first sell-out Saturday\".",
       "hands_back": "{\"lessons\":[{\"id\":\"record:lesson:five-day-start-1\",\"day\":1},{\"id\":\"record:lesson:five-day-start-2\",\"day\":2},{\"id\":\"record:lesson:five-day-start-3\",\"day\":3},{\"id\":\"record:lesson:five-day-start-4\",\"day\":4},{\"id\":\"record:lesson:five-day-start-5\",\"day\":5}]}"
     }
   ],
   "pour": {
     "tool": "tool:pour-example-rows-into-my-list",
     "least_coverage": 0.8,
-    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "how": "Name the list you already keep for the same job and read its fields and row type from your own store. Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the example rows to keep beside your own.",
     "example": {
       "kit_list": "list:business-setup-checklist",
       "into": {

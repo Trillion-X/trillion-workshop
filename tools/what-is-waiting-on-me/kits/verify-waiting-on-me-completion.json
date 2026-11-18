@@ -9,7 +9,7 @@
     "tool:finish-what-is-waiting-on-me"
   ],
   "instructions": [
-    "1. Use the ids and request_key a tool:finish-what-is-waiting-on-me call used, and read those records again with records:read at @own-records.",
+    "1. Use the ids and request_key a tool:finish-what-is-waiting-on-me call used, and read those records again from the person's own store.",
     "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:verify-waiting-on-me-completion and { ids, request_key, records }.",
     "3. Read completed: the ids whose current record shows the completion; a different command under the same key is refused as original_command_conflict."
   ],

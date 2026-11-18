@@ -24,6 +24,7 @@ import { writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const DOOR_CALLS = 'tools/tell-ais-how-to-act/door-calls.json';
+const HOST_TOOLS = 'tools/workflows/host-tools.json';
 // A door call is a family:verb (or family.verb) written where a call is: a `method` or `operation` field, a right's
 // `operations`, right after an address, or in words ("call X", "with X", "X at @address"). A row id (`record:x:y`), a
 // file name or a tool or workflow id is never one. In words a dotted name is a call only in a family the door names
@@ -92,6 +93,8 @@ export function namedCallFindings({ repo, ref = 'HEAD' } = {}) {
     const value = parsed(text);
     if (value) { idsOf(value, 'tool:', tools, runs); idsOf(value, 'workflow:', flows); }
   }
+  // A tool the host offers the person's AI itself is answered there, as the recipe check reads it (tools/workflows/host-tools.json).
+  for (const { tool } of parsed(texts[HOST_TOOLS] ?? 'null')?.tools ?? []) if (typeof tool === 'string' && tool.startsWith('tool:')) tools.add(tool.slice('tool:'.length));
   // The published workflow view names its rows without the prefix.
   for (const text of Object.values(texts)) {
     const value = parsed(text);

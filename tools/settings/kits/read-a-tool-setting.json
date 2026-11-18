@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:read-a-tool-setting row in tools/settings/tool-rows.json, do-work/read_setting.py, read-data/settings.py and test/test_settings.py; list:settings read with records:read",
+  "drafted_from": "tool:read-a-tool-setting row in tools/settings/tool-rows.json, do-work/read_setting.py, read-data/settings.py and test/test_settings.py; list:settings read from the person's own store",
   "start_here": "Say to your AI: \"Read the settings I keep for the make-a-sample tool: try piece p1 first, then film f1, then my account, and tell me which row it used.\" It takes the rows from your list:settings and answers the settings of the most specific scope that has an active row.",
   "lists": [
     {
@@ -30,9 +30,9 @@
   ],
   "instructions": [
     "1. Pour the example setting rows into the list you keep tool settings in (see pour), or make list:settings from them; each row's id is record:setting:<workshop-folder>~<scope_kind>~<scope_id>.",
-    "2. Say \"Read my settings for <tool>\" and name the scopes to try, most specific first (piece, film, person, account); your AI reads the rows with records:read or records:list on list:settings, writes them to a file, and runs `python3 -I trillion-workshop/tools/settings/do-work/read_setting.py < request.json`.",
+    "2. Say \"Read my settings for <tool>\" and name the scopes to try, most specific first (piece, film, person, account); your AI reads the rows of list:settings from the person's own store, writes them to a file, and runs `python3 -I trillion-workshop/tools/settings/do-work/read_setting.py < request.json`.",
     "3. Read the last line {\"result\": {found, id, settings}}: found true gives the id of the row used and its settings parsed; found false gives the default you passed. A retired row, a row written for another tool or a request with two rows and no scope is refused with what to fix (exit 2).",
-    "4. To write a setting, run it with {\"make\": {folder, scope_kind, scope_id, settings, name, tool, from}, \"with_list\": true}: the answer is the records:write input, and the settings are kept as sorted JSON text."
+    "4. To write a setting, run it with {\"make\": {folder, scope_kind, scope_id, settings, name, tool, from}, \"with_list\": true}: the answer is the rows to keep in the person's own store, and the settings are kept as sorted JSON text."
   ],
   "worked_examples": [
     {
@@ -56,7 +56,7 @@
   "pour": {
     "tool": "tool:pour-example-rows-into-my-list",
     "least_coverage": 0.8,
-    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "how": "Name the list you already keep for the same job and read its fields and row type from your own store. Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the example rows to keep beside your own.",
     "example": {
       "kit_list": "list:settings",
       "into": {

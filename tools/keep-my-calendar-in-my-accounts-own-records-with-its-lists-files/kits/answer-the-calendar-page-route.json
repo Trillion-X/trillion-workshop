@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:answer-the-calendar-page-route row in tool-rows.json, src/calendar-route.mjs, src/native-calendar-owner.mjs and test/calendar-route.test.mjs; list:calendar-tasks read with records:read; the example answer was produced by running answerTheCalendarRoute against the test's in-memory records door",
+  "drafted_from": "tool:answer-the-calendar-page-route row in tool-rows.json, src/calendar-route.mjs, src/native-calendar-owner.mjs and test/calendar-route.test.mjs; list:calendar-tasks read from the person's own store; the example answer was produced by running answerTheCalendarRoute against the test's in-memory rows",
   "start_here": "Say to your AI: \"Add a 15 minute task called Water the sample ferns to my calendar tasks, then show me my calendar tasks.\" It calls the calendar page route twice, a POST to /calendar/tasks and a GET, and reads the task back from your own records.",
   "lists": [
     {
@@ -263,14 +263,14 @@
           }
         }
       },
-      "given": "From tools/keep-my-calendar-in-my-accounts-own-records-with-its-lists-files/test/calendar-route.test.mjs (the same first test): the account has no calendar tasks yet. The answer below was produced by running src/calendar-route.mjs against that test's in-memory records door.",
+      "given": "From tools/keep-my-calendar-in-my-accounts-own-records-with-its-lists-files/test/calendar-route.test.mjs (the same first test): the account has no calendar tasks yet. The answer below was produced by running src/calendar-route.mjs against that test's in-memory rows.",
       "hands_back": "{status: 200, body: {task: {id: \"calendar-fern-1\", title: \"Water the sample ferns\", duration_minutes: 15, status: \"To do\", description: \"\", labels: [], priority: null, due: null, starts_at: null, ends_at: null, may_move: true, may_cancel: false, created_at: <the time of the run>, ...}, kept: false, undo: {action: \"restore\", rows: [{task_id: \"calendar-fern-1\", remove: true}]}}}; the record record:calendar-task:calendar-fern-1 is kept and list:calendar-tasks is made once. A following GET /calendar/tasks answers {status: 200, body: {list_id: \"calendar-tasks\", tasks: [that task], collections: [], page: {complete: true, next_cursor: null}, ...}}. POST /calendar/availability answers {status: 404, body: {error: \"Not found\"}}."
     }
   ],
   "pour": {
     "tool": "tool:pour-example-rows-into-my-list",
     "least_coverage": 0.8,
-    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "how": "Name the list you already keep for the same job and read its fields and row type from your own store. Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the example rows to keep beside your own.",
     "example": {
       "kit_list": "list:calendar-tasks",
       "into": {

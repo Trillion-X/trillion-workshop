@@ -157,7 +157,7 @@
   "pour": {
     "tool": "tool:pour-example-rows-into-my-list",
     "least_coverage": 0.8,
-    "how": "Name the settings list you already keep and read it with records:read (its fields and row type). The tool matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example settings rows beside your own.",
+    "how": "Name the settings list you already keep and read its fields and row type from your own store. The tool matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the example settings rows to keep beside your own.",
     "example": {
       "kit_list": "list:settings",
       "into": {

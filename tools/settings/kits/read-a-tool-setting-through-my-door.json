@@ -115,8 +115,8 @@
   "instructions": [
     "1. Say to your AI: \"Read the settings I keep for one of my tools from my list:settings, trying the most specific scope first\", and give it settings_prefix (record:setting:<workshop-folder>~ : the tool whose rows to read.); scopes ([[scope_kind, scope_id], ...], most specific first, e.g.).",
     "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:read-a-tool-setting-through-my-door and its input (the worked example shows one).",
-    "3. Read what comes back: Reads the person's list:settings rows for one Workshop tool through their records door at run time (records:read of record:setting:<folder>~<scope_kind>~<scope_id> for each scope given, most specific first) and answers the settings of the first row found, or found false when none is there.",
-    "4. It reads and writes only its own rows through the records door: record:setting (records:read)."
+    "3. Read what comes back: Reads the person's list:settings rows for one Workshop tool, given at run time (record:setting:<folder>~<scope_kind>~<scope_id> for each scope given, most specific first) and answers the settings of the first row found, or found false when none is there.",
+    "4. It is given only these rows of the person's, read by the AI from the person's own store: record:setting (reads); the rows it makes come back under keep, for the AI to keep there."
   ],
   "worked_examples": [
     {
@@ -153,7 +153,7 @@
   "pour": {
     "tool": "tool:pour-example-rows-into-my-list",
     "least_coverage": 0.8,
-    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "how": "Name the list you already keep for the same job and read its fields and row type from your own store. Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the example rows to keep beside your own.",
     "example": {
       "kit_list": "list:settings",
       "into": {

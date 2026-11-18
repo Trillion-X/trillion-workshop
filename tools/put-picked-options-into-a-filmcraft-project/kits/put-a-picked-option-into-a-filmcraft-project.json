@@ -134,14 +134,14 @@
           }
         }
       },
-      "given": "From tools/put-picked-options-into-a-filmcraft-project/test/pick-gate.test.mjs, run for real on its made-up film with the stand-in records door and stand-in filmcraft-cli: the person's stand on 'Option  A' is agree. The AI runs `python3 tools/put-picked-options-into-a-filmcraft-project/do-work/pick_gate.py --film /films/film-one apply \"option a\" --project /films/film-one/filmcraft/cut.fcproj --ops /films/film-one/ops.jsonl` (the same option typed another way is the same option). For `apply cp1-c1`, which has no stand, it exits 1.",
+      "given": "From tools/put-picked-options-into-a-filmcraft-project/test/pick-gate.test.mjs, run for real on its made-up film with the stand-in rows and stand-in filmcraft-cli: the person's stand on 'Option  A' is agree. The AI runs `python3 tools/put-picked-options-into-a-filmcraft-project/do-work/pick_gate.py --film /films/film-one apply \"option a\" --project /films/film-one/filmcraft/cut.fcproj --ops /films/film-one/ops.jsonl` (the same option typed another way is the same option). For `apply cp1-c1`, which has no stand, it exits 1.",
       "hands_back": "Exit 0, filmcraft-cli ran `--project /films/film-one/filmcraft/cut.fcproj --save run /films/film-one/ops.jsonl`, and one line was appended to applied.jsonl: {\"option_id\":\"option a\",\"verdict\":\"agree\",\"verdict_decision_id\":\"stance:film-option:1f:4959070c...\",\"project\":\"/films/film-one/filmcraft/cut.fcproj\",\"protected\":true,\"ops_file\":\"/films/film-one/ops.jsonl\",\"ops_hash\":\"blake3:5a78ee24...\",\"exit\":0}. `check \"option a\"` printed `picked: option a (agree) decision stance:film-option:1f:4959070c...`. For cp1-c1 stderr says: pick-gate: REFUSED. Option 'cp1-c1' has no stand kept; only the person's own pick lets it into a protected project. A 'recommended' flag is not a pick. and nothing ran."
     }
   ],
   "pour": {
     "tool": "tool:pour-example-rows-into-my-list",
     "least_coverage": 0.8,
-    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "how": "Name the list you already keep for the same job and read its fields and row type from your own store. Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the example rows to keep beside your own.",
     "example": {
       "kit_list": "list:settings",
       "into": {

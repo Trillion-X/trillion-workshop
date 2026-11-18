@@ -117,7 +117,7 @@
     "3. Read the verdict first (CHECK: PASS or FAIL), then each fixed word deleted, replaced or added with its line, and each slot that is empty, unsourced or still holds the original's value.",
     "4. Exit 1 means a dimension missed its threshold: that is a finding, not a failure to run. Fix the rewrite, or pass a deliberate change back in an exceptions file with a reason (--exceptions FILE).",
     "5. After a pass, move events tied to the words with tool:re-time-events-tied-to-words.",
-    "6. Optional: if you keep your own dimensions registry as a row of list:settings, read that row with records:read, write it to a file and add --settings-record FILE to the command."
+    "6. Optional: if you keep your own dimensions registry as a row of list:settings, read that row from the person's own store, write it to a file and add --settings-record FILE to the command."
   ],
   "worked_examples": [
     {
@@ -141,7 +141,7 @@
   "pour": {
     "tool": "tool:pour-example-rows-into-my-list",
     "least_coverage": 0.8,
-    "how": "Name the list you already keep for tool settings and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and list:settings as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "how": "Name the list you already keep for tool settings and read its fields and row type from your own store. Run tool:pour-example-rows-into-my-list with that list as into and list:settings as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the example rows to keep beside your own.",
     "example": {
       "kit_list": "list:settings",
       "into": {
