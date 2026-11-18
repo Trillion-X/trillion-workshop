@@ -40,7 +40,7 @@ import type { ChromeVisibilityMap } from '../read-data/chrome-visibility';
 import { createBrowserLocalDestinationRef } from './surface-intent-destination-ref';
 import { readSurfaceIntentReaderConfig, ViewerAccessRefsProvider } from '../../ui/show/placeable-surface-intent';
 import { ArrangementHostDataContext, LayoutOwnerProviderView, type ArrangementHostData } from './screen-arrangement-context';
-import { CompanionMounts } from './CompanionMounts';
+import { CompanionMounts } from '../../arrange-screens-in-panes/show/CompanionMounts';
 import { readAlwaysMountCompanions } from '../read-data/always-mount-companions';
 import { validateApplicationLayoutState } from '../read-data/application-layout-state-contribution';
 import type { LayoutState } from '../read-data/layout-types';

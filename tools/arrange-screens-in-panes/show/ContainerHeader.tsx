@@ -58,8 +58,8 @@ function tabRecordKind(tab: { metadata?: Record<string, unknown> }): React.React
   if (!value || typeof value.kind !== 'string' || !value.kind) return undefined
   return <RecordKindMark kind={value.kind} detail={typeof value.detail === 'string' ? value.detail : undefined}/>
 }
-import { tabRegion, containerRegion } from '../read-data/region-address'
-import { nodeRefAttr } from './node-menu-controller'
+import { tabRegion, containerRegion } from '../../screen-arrangement/read-data/region-address'
+import { nodeRefAttr } from '../../screen-arrangement/show/node-menu-controller'
 import {
   historyBack,
   historyForward,
@@ -69,7 +69,7 @@ import {
   canHistoryBack,
   canHistoryForward,
   getNodeHistory,
-} from '../do-work/node-history-operations'
+} from '../../screen-arrangement/do-work/node-history-operations'
 import { MoreHorizontal } from 'lucide-react'
 import { PositionCompass } from '../../ui/show/dockable-placement'
 import { Container } from '../../ui/show/container'
@@ -85,23 +85,23 @@ import {
   PendingMoveContext,
   PlaceableSurfaceListAddressContext,
   TabDragContext,
-} from './screen-arrangement-context'
-import { EmptyContainerSourcesContext } from './empty-container-sources'
+} from '../../screen-arrangement/show/screen-arrangement-context'
+import { EmptyContainerSourcesContext } from '../../screen-arrangement/show/empty-container-sources'
 import { useMarkSession } from '../../addressed-marks/show/MarkSessionContext'
-import { PANE_AREA, WHOLE_SCREEN_AREA } from './mark-targets'
+import { PANE_AREA, WHOLE_SCREEN_AREA } from '../../screen-arrangement/show/mark-targets'
 import { startPointing } from '../../ui/show/point-at-anything'
-import { FloatingWindowContext } from './floating-window-context'
-import { OverlayWindowContext } from './OverlayArranger'
-import type { PlaceableSurfaceRecord } from '../read-data/read-published-records'
+import { FloatingWindowContext } from '../../screen-arrangement/show/floating-window-context'
+import { OverlayWindowContext } from '../../screen-arrangement/show/OverlayArranger'
+import type { PlaceableSurfaceRecord } from '../../screen-arrangement/read-data/read-published-records'
 import { EMPTY_TAB_TITLE, newEmptyTab, type OverlayLayout, type TabMeta } from '../read-data/layout-types'
-import { visibleTabIds } from '../read-data/surface-visibility'
-import { LocalSurfaceVisibilityContext } from './embedded-surface-content'
-import { regionZoneVisible, zoneControl } from '../read-data/region-chrome'
+import { visibleTabIds } from '../../screen-arrangement/read-data/surface-visibility'
+import { LocalSurfaceVisibilityContext } from '../../screen-arrangement/show/embedded-surface-content'
+import { regionZoneVisible, zoneControl } from '../../screen-arrangement/read-data/region-chrome'
 import { controlShown, useShowChange } from '../../ui/show/show-rules/show-of'
 import ArrangementSurfaceControl from './ArrangementSurfaceControl'
-import { LayoutPicker } from './LayoutPicker'
+import { LayoutPicker } from '../../screen-arrangement/show/LayoutPicker'
 import { surfaceShownByTab, tabWithCurrentSurfaceLabel } from './placeable-surface-tab'
-import { placeableSurfaceTabForFiles } from './placeable-surface-drag'
+import { placeableSurfaceTabForFiles } from '../../screen-arrangement/show/placeable-surface-drag'
 import { TAB_BAR_PLACEMENT_DEFAULT, TAB_BAR_VIEWS, readTabBarView, writeTabBarView } from '../read-data/tab-bar-placement'
 import { prewarmPackageEntryBytes } from '../../ui/show/placeable-surface-host'
 import { selectDockIsVertical, type DockablePlacementController } from '../../ui/show/dockable-placement/dockable-placement'

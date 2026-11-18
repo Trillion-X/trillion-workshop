@@ -28,7 +28,7 @@
 
 import * as React from 'react';
 import { Button, Container, ErrorBoundary, SegmentedControl, Text } from '../../../../ui';
-import { useFocusContainerWhile } from '../../../../screen-arrangement/show/use-focus-container-while';
+import { useFocusContainerWhile } from '../../../../arrange-screens-in-panes/show/use-focus-container-while';
 import { ScreenState, useScreenLoad } from '../../../../ui/show/screen-state';
 import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
 import { RecordVideoPanel } from '../../../../record-video/show/RecordVideoPanel';

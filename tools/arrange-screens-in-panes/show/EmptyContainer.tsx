@@ -46,26 +46,26 @@ import { PickerTile } from '../../ui/show/picker-tile/PickerTile';
 import { Text } from '../../ui/show/text';
 import {
   type PlaceableSurfaceRecord,
-} from '../read-data/read-published-records';
-import { readInitialArrangementState } from '../read-data/read-initial-arrangement';
+} from '../../screen-arrangement/read-data/read-published-records';
+import { readInitialArrangementState } from '../../screen-arrangement/read-data/read-initial-arrangement';
 import {
   LayoutActionsContext,
   LayoutStateContext,
   PlaceableSurfaceListAddressContext,
   VisiblePlaceableSurfaceIdsContext,
-} from './screen-arrangement-context';
+} from '../../screen-arrangement/show/screen-arrangement-context';
 import { filterByVisiblePlaceableSurfaceIds } from '../../ui/show/browsing-surface-presentation-value/browsing-surface-presentation-value';
 import { tabForPlaceableSurface, tabShowsPlaceableSurface, tabWithId } from './placeable-surface-tab';
 import { packageEntryBytesAddressLabel } from '../../ui/show/placeable-surface-host';
 import { sendRequestToBitfieldTarget } from '#workspace-records';
-import { listsPresentHere } from '../read-data/read-tab-collections';
-import { SurfaceFolderTile } from './SurfaceFolderTile';
-import { LayoutPicker } from './LayoutPicker';
-import { openIntentCatalogRef, readOpenIntentRows, type OpenIntentRow } from '../read-data/read-open-intents';
+import { listsPresentHere } from '../../screen-arrangement/read-data/read-tab-collections';
+import { SurfaceFolderTile } from '../../screen-arrangement/show/SurfaceFolderTile';
+import { LayoutPicker } from '../../screen-arrangement/show/LayoutPicker';
+import { openIntentCatalogRef, readOpenIntentRows, type OpenIntentRow } from '../../screen-arrangement/read-data/read-open-intents';
 import { createSurfaceCollection } from '../../sidebar/do-work/edit-surface-collections';
 import { partitionLabelForSurfaceList, useSurfaceCollections } from '../../sidebar/show/use-surface-collections';
 import { ComponentMaterialSurface } from './ComponentMaterialSurface';
-import { EmptyContainerSourcesContext, useStartSurfaceForEmptyTab } from './empty-container-sources';
+import { EmptyContainerSourcesContext, useStartSurfaceForEmptyTab } from '../../screen-arrangement/show/empty-container-sources';
 import { controlShown, showListed, useShowChange } from '../../ui/show/show-rules/show-of';
 
 import { errorWords } from '../../ui/show/safe-error-card/sanitize-error-text';

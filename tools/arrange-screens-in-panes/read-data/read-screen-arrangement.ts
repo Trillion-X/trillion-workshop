@@ -66,7 +66,7 @@ import {
   layoutStateIdentity,
   layoutStateWriteRefused,
 } from "../do-work/save-layout-state";
-import { readProjectedRows } from "./read-projected-rows";
+import { readProjectedRows } from "../../screen-arrangement/read-data/read-projected-rows";
 import { normalizeTabBarPlacement, normalizeTabBarView } from './tab-bar-placement';
 
 export { readLayoutStateChangedCells } from "../do-work/save-layout-state";

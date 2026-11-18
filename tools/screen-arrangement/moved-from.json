@@ -339,24 +339,6 @@
     },
     {
       "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/screen-arrangement/show/CompanionMounts.tsx",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/screen-arrangement/show/CompanionMounts.tsx",
-      "source_identity": "1f:b94476abbe59e62a8967108784fdd36d7a33dd6e51bcf38e71c6769de2db32e6",
-      "identity": "1f:b94476abbe59e62a8967108784fdd36d7a33dd6e51bcf38e71c6769de2db32e6",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/screen-arrangement/show/ComponentMaterialSurface.tsx",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/screen-arrangement/show/ComponentMaterialSurface.tsx",
-      "source_identity": "1f:dff377197655b9fe141f35f81de4cf5fb9f5828080ebef0f6509acf153be4825",
-      "identity": "1f:dff377197655b9fe141f35f81de4cf5fb9f5828080ebef0f6509acf153be4825",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
       "from": "web/parts/screen-arrangement/show/ContainerHeader.tsx",
       "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
       "to": "tools/screen-arrangement/show/ContainerHeader.tsx",
@@ -794,15 +776,6 @@
       "to": "tools/screen-arrangement/show/tab-canvas-presentation.tsx",
       "source_identity": "1f:c52608c2badd2b573b3602849cd19e4f25c8b7aef0fa04ef240a569533effbde",
       "identity": "1f:c52608c2badd2b573b3602849cd19e4f25c8b7aef0fa04ef240a569533effbde",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/screen-arrangement/show/use-focus-container-while.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/screen-arrangement/show/use-focus-container-while.ts",
-      "source_identity": "1f:d3a71034f5dc6c90b88727d6d43d4fb2778f892502557883c7ba08cb907521ef",
-      "identity": "1f:d3a71034f5dc6c90b88727d6d43d4fb2778f892502557883c7ba08cb907521ef",
       "found_by": "byte copy"
     },
     {

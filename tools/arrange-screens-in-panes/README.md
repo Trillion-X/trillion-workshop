@@ -4,7 +4,7 @@ Mounted tabs receive `surface_instance_ref` derived from the durable layout pers
 
 ## Configurable controls in Trillion
 
-`show/ArrangedContents.tsx` supplies caller-owned shared controls to the existing
+`tools/screen-arrangement/show/ArrangedContents.tsx` supplies caller-owned shared controls to the existing
 embedded arrangement through an exact-ID local surface catalog. The caller keeps
 its records, callbacks, validation and copy; the arrangement keeps placement in
 the account's ordinary layout record. Both screens and controls therefore use
@@ -30,7 +30,7 @@ The `thing-to-put-on-screen/` source is package-owned code. It asks generic Runt
 | `layout-library.json` | DATA: the layouts' kept-library row (`tools/make-screen-layouts-and-controls/parts/group/read-data/kept-library.ts`): the index group of their categories, the category and member address families and id prefixes, how many Recent shows. |
 | `kept-layouts.json` | DATA: how many arrangements the Layouts picker keeps by itself (`keep_at_most`). |
 | `switch-layout-past-edge.json` | DATA: scrolling past the arrangement's edge to the next or previous layout (`least_motion_px`, `pause_between_switches_ms`, `edge_tolerance_px`). |
-| `pane-sizes.json` | DATA, every person's starting pane sizes (`defaults`) plus the TuningPanel `sections` the Panes settings draw: how small a pane can be dragged (`drag_minimum_px`, 20), the size its screen is still laid out at (`content_minimum_width_px` × `content_minimum_height_px`, 320×240; the sidebar's docked fit keeps the work this wide), how far its cut edges fade (`cut_fade_px`), the share a new split takes (`new_pane_share_percent`), and snapping (`snap_on`, `snap_points_percent`, `snap_within_px`, `snap_ease_ms`); read by `read-data/pane-sizes.ts`, where the person's own choice wins key by key. |
+| `pane-sizes.json` | DATA, every person's starting pane sizes (`defaults`) plus the TuningPanel `sections` the Panes settings draw: how small a pane can be dragged (`drag_minimum_px`, 20), the size its screen is still laid out at (`content_minimum_width_px` × `content_minimum_height_px`, 320×240; the sidebar's docked fit keeps the work this wide), how far its cut edges fade (`cut_fade_px`), the share a new split takes (`new_pane_share_percent`), and snapping (`snap_on`, `snap_points_percent`, `snap_within_px`, `snap_ease_ms`); read by `tools/screen-arrangement/read-data/pane-sizes.ts`, where the person's own choice wins key by key. |
 | `.bitfield-entry-scope/` | Generated entry-scope adapter files used when building the package-owned screen entry. |
 | `entry-read-scope-packages.json` / `entry-to-package-data-map.json` | Package-owned read-scope metadata and exhaustive source mapping for registered package entries. |
 | `show/` | Browser React source for the screen-arrangement entry. |

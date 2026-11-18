@@ -36,7 +36,7 @@
 // =============================================================================
 
 import type { LayoutState, SplitTreeNode, TabMeta } from './layout-types'
-import type { PlaceableSurfaceRecord } from './read-published-records'
+import type { PlaceableSurfaceRecord } from '../../screen-arrangement/read-data/read-published-records'
 import { normalizeLayoutState } from './read-screen-arrangement'
 import { tabForPlaceableSurface } from '../show/placeable-surface-tab'
 import { KEPT_KEY } from '../../ui/show/placement-kept/placement-kept'

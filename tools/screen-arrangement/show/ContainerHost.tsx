@@ -33,7 +33,7 @@ import { lazyPart } from '../../ui/show/load-later/later';
 import { surfaceInputWithDestination } from './surface-placement';
 import { LayoutActionsContext, LayoutStateContext, LayoutPersistenceIdentityContext, PendingCloseContext } from './screen-arrangement-context'
 import ContainerHeader from './ContainerHeader'
-import { ComponentMaterialSurface } from './ComponentMaterialSurface'
+import { ComponentMaterialSurface } from '../../arrange-screens-in-panes/show/ComponentMaterialSurface'
 import { regionZoneVisible, regionIsImmersive, toggleRegionImmersive } from '../read-data/region-chrome'
 import { useShowChange } from '../../ui/show/show-rules/show-of'
 import { EmptyContainer } from './EmptyContainer'

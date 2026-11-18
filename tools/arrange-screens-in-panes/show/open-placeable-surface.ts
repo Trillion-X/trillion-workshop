@@ -1,13 +1,13 @@
-import type { LayoutActions } from '../do-work/layout-operations';
+import type { LayoutActions } from '../../screen-arrangement/do-work/layout-operations';
 import type { LayoutState, SplitTreeNode, TabMeta, TiledLayout } from '../read-data/layout-types';
-import type { PlaceableSurfaceRecord } from '../read-data/read-published-records';
-import { readInitialArrangementState } from '../read-data/read-initial-arrangement';
-import { placeTabInOverlay } from '../read-data/place-tab-in-overlay';
+import type { PlaceableSurfaceRecord } from '../../screen-arrangement/read-data/read-published-records';
+import { readInitialArrangementState } from '../../screen-arrangement/read-data/read-initial-arrangement';
+import { placeTabInOverlay } from '../../screen-arrangement/read-data/place-tab-in-overlay';
 import { viewportIsNarrow } from '../../ui/show/use-narrow-viewport/useNarrowViewport';
 import {
   readPlaceableSurfacePayloadFromUnknown,
   readPlaceableSurfaceTabFromPayload,
-} from './placeable-surface-drag';
+} from '../../screen-arrangement/show/placeable-surface-drag';
 import {
   isEmptySurfaceTab,
   sameValue,

@@ -53,7 +53,7 @@
 import { codeFailureNotice, lazyPart } from '../../../../ui/show/load-later/later';
 import { CodeLoadFailure, loadCode, whenOnline } from '../../../../ui/show/load-later/load-code';
 import * as React from 'react';
-import { useFocusContainerWhile } from '../../../../screen-arrangement/show/use-focus-container-while';
+import { useFocusContainerWhile } from '../../../../arrange-screens-in-panes/show/use-focus-container-while';
 import { Button, CaptionScroll, CaptureControl, Card, Container, RecordingBar, SchemaValueView, SegmentedControl, Select, SelectItem, SelectPopup, SelectTrigger, SelectValue, Text, Textarea, type CaptureControlState } from '../../../../ui';
 import { CopyButton } from '../../../../ui/show/copy-button/CopyButton';
 import { ListenHere } from './listen-here';

@@ -18,8 +18,8 @@ import { ExpandableTabs } from '../../ui/show/expandable-tabs'
 import { DragReorderList } from '../../ui/show/drag-reorder-list/DragReorderList'
 import { DotPlacementMap } from '../../ui/show/canvas-minimap'
 import { FadingScrollList } from '../../ui/show/placement-history'
-import { LayoutActionsContext, LayoutStateContext } from './screen-arrangement-context'
-import { arrangementViewport } from '../do-work/layout-operations'
+import { LayoutActionsContext, LayoutStateContext } from '../../screen-arrangement/show/screen-arrangement-context'
+import { arrangementViewport } from '../../screen-arrangement/do-work/layout-operations'
 import type { ArrangementLayer } from '../read-data/layout-types'
 import {
   PLACEMENT_MODES, SAVED_PLACEMENTS_KEY, arrangementLayers, RECENT_PLACEMENTS_KEY,

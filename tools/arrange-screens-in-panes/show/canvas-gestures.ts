@@ -17,7 +17,7 @@
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
-import { clampArrangementZoom } from './arrangement-zoom'
+import { clampArrangementZoom } from '../../screen-arrangement/show/arrangement-zoom'
 import { isLockedAt } from '../../ui/show/locked-region'
 
 type ZoomReader = () => number

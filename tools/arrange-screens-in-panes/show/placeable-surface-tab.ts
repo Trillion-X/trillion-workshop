@@ -1,4 +1,4 @@
-import type { PlaceableSurfaceRecord } from '../read-data/read-published-records';
+import type { PlaceableSurfaceRecord } from '../../screen-arrangement/read-data/read-published-records';
 import { EMPTY_TAB_TITLE, type PackageEntryReference, type TabMeta } from '../read-data/layout-types';
 
 function makeTabId(seed: string | null): string {

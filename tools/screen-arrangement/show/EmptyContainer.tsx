@@ -64,7 +64,7 @@ import { LayoutPicker } from './LayoutPicker';
 import { openIntentCatalogRef, readOpenIntentRows, type OpenIntentRow } from '../read-data/read-open-intents';
 import { createSurfaceCollection } from '../../sidebar/do-work/edit-surface-collections';
 import { partitionLabelForSurfaceList, useSurfaceCollections } from '../../sidebar/show/use-surface-collections';
-import { ComponentMaterialSurface } from './ComponentMaterialSurface';
+import { ComponentMaterialSurface } from '../../arrange-screens-in-panes/show/ComponentMaterialSurface';
 import { EmptyContainerSourcesContext, useStartSurfaceForEmptyTab } from './empty-container-sources';
 import { controlShown, showListed, useShowChange } from '../../ui/show/show-rules/show-of';
 

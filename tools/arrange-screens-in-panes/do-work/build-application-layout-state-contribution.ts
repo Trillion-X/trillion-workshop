@@ -1,4 +1,4 @@
-import { buildApplicationLayoutStateContribution } from '../read-data/application-layout-state-contribution';
+import { buildApplicationLayoutStateContribution } from '../../screen-arrangement/read-data/application-layout-state-contribution';
 import { defaultLayoutState } from '../read-data/read-screen-arrangement';
 
 type Plain = Record<string, unknown>;

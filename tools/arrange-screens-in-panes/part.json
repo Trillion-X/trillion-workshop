@@ -12,23 +12,11 @@
   },
   "public": [
     "read-data/starter-layouts.ts",
-    "show/surface-placement.ts",
-    "show/FloatingPanel.tsx",
-    "show/visual-layer-subject-resolver.ts",
-    "do-work/read-canonical-artifact-object-url.ts",
-    "show/mount-floating-panel.tsx",
-    "show/mount-screen-arrangement.tsx",
     "show/use-focus-container-while.ts",
-    "show/split-tree-constraints.ts",
-    "show/EmbeddedScreenArrangement.tsx",
-    "show/ArrangedContents.tsx",
     "read-data/read-screen-arrangement.ts",
-    "read-data/layout-library.ts",
-    "show/PaneSizeSettings.tsx",
-    "show/behind-the-panes.tsx",
-    "show/arrangement-lock.tsx"
+    "read-data/layout-library.ts"
   ],
-  "controls_what": "The controls this part draws, each a show-rules `control` (tools/ui/show/show-rules show-of.ts controlShown): every chrome zone is the control `arrangement.<zone>` (read-data/region-chrome.ts zoneControl), so a rule hides it for a person the way a layout's chrome map hides it for a layout. Each part of an empty pane is `arrangement.empty.<part>` (show/EmptyContainer.tsx); hidden, `arrangement.header.tabs.position` keeps the tabs on their default edge.",
+  "controls_what": "The controls this part draws, each a show-rules `control` (tools/ui/show/show-rules show-of.ts controlShown): every chrome zone is the control `arrangement.<zone>` (tools/screen-arrangement/read-data/region-chrome.ts zoneControl), so a rule hides it for a person the way a layout's chrome map hides it for a layout. Each part of an empty pane is `arrangement.empty.<part>` (show/EmptyContainer.tsx); hidden, `arrangement.header.tabs.position` keeps the tabs on their default edge.",
   "controls": [
     { "id": "arrangement", "label": "Everything around the screens" },
     { "id": "arrangement.header", "label": "The bar above a screen" },

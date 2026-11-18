@@ -43,7 +43,7 @@ import {
   OfferedSurfacesContext,
   ArrangementHostDataContext,
   type FrameEdge,
-} from './screen-arrangement-context'
+} from '../../screen-arrangement/show/screen-arrangement-context'
 import { tabsToCloseForCatalog } from './placeable-surface-tab'
 import { ViewerAccessRefsContext, replayPendingPlaceableSurfaceIntents } from '../../ui/show/placeable-surface-intent'
 import { MarkSessionProvider, useMarkSession } from '../../addressed-marks/show/MarkSessionContext'
@@ -58,23 +58,23 @@ import {
   WHOLE_SCREEN_AREA,
   createArrangementPointerSpaceResolver,
   frameMarkTarget,
-} from './mark-targets'
+} from '../../screen-arrangement/show/mark-targets'
 import SplitTreeArranger, { type SurfacePlacementPayload } from './SplitTreeArranger'
-import type { FreeformPlacementPayload } from './FreeformArranger'
+import type { FreeformPlacementPayload } from '../../screen-arrangement/show/FreeformArranger'
 // A canvas (floating windows on a pannable graph) is fetched the first time a layer is laid out as one.
-const FreeformArranger = lazyPart(() => import('./FreeformArranger'), module => module.default)
-import { ArrangementSection } from './ArrangementSection'
-import OverlayArranger from './OverlayArranger'
-import ContainerHost from './ContainerHost'
-import { ContainerSlot, StableContainerContent } from './stable-container-content'
-import { LocalSurfaceVisibilityContext } from './embedded-surface-content'
-import { containerIsVisible } from '../read-data/surface-visibility'
-import { PLACEABLE_SURFACE_MIME, readPlaceableSurfaceTabOrAdmitEntry } from './placeable-surface-drag'
+const FreeformArranger = lazyPart(() => import('../../screen-arrangement/show/FreeformArranger'), module => module.default)
+import { ArrangementSection } from '../../screen-arrangement/show/ArrangementSection'
+import OverlayArranger from '../../screen-arrangement/show/OverlayArranger'
+import ContainerHost from '../../screen-arrangement/show/ContainerHost'
+import { ContainerSlot, StableContainerContent } from '../../screen-arrangement/show/stable-container-content'
+import { LocalSurfaceVisibilityContext } from '../../screen-arrangement/show/embedded-surface-content'
+import { containerIsVisible } from '../../screen-arrangement/read-data/surface-visibility'
+import { PLACEABLE_SURFACE_MIME, readPlaceableSurfaceTabOrAdmitEntry } from '../../screen-arrangement/show/placeable-surface-drag'
 import {
   readPlaceableSurfacesWithInputOverrides,
   readPublishedRecords,
   surfaceInputOverridesReadInput,
-} from '../read-data/read-published-records'
+} from '../../screen-arrangement/read-data/read-published-records'
 import { offerableSurfaces } from '../../ui/show/placeable-surface-intent/placeable-surface-record'
 import { createPlaceableSurfaceOpener, placeableSurfacePayloadOpens } from './open-placeable-surface'
 
@@ -82,27 +82,27 @@ import { createPlaceableSurfaceOpener, placeableSurfacePayloadOpens } from './op
 // that reads its data before opening, short enough that a later open from elsewhere is not placed beside it.
 const PANE_GESTURE_OPEN_WINDOW_MS = 4000
 import { RegionDropRouter } from '../../ui/show/region-drop-intent/RegionDropRouter'
-import { buildRegionDropIntents, isOverStage } from './region-drop-intents'
+import { buildRegionDropIntents, isOverStage } from '../../screen-arrangement/show/region-drop-intents'
 import { cn } from '../../ui/show/cn'
 import { FocusOverlay } from '../../ui/show/focus-overlay/FocusOverlay'
 import { Container } from '../../ui/show/container';
 import { VisualLayerStack, createCapabilityMap, builtinVisualLayerCapabilities } from '../../ui/show/visual-layer-stack';
 import { AddressedSurfaceIntentReader, AddressedSurfaceIntentRecipient, surfaceIntentMatchesCatalogPayload, type SurfaceIntentReaderConfig } from '../../ui/show/placeable-surface-intent'
-import { surfaceRegion, regionAddressKey } from '../read-data/region-address'
-import { hasImmersiveRegion, clearImmersiveRegions } from '../read-data/region-chrome'
-import { useNodeMenuController, NodeMenuContext, nodeMenuContextHandler, nodeRefAttr } from './node-menu-controller'
-import { removeOverlayWindow } from '../read-data/place-tab-in-overlay'
-import { useVisualLayerSubjectResolver, appendRegionLayer } from './visual-layer-runtime'
+import { surfaceRegion, regionAddressKey } from '../../screen-arrangement/read-data/region-address'
+import { hasImmersiveRegion, clearImmersiveRegions } from '../../screen-arrangement/read-data/region-chrome'
+import { useNodeMenuController, NodeMenuContext, nodeMenuContextHandler, nodeRefAttr } from '../../screen-arrangement/show/node-menu-controller'
+import { removeOverlayWindow } from '../../screen-arrangement/read-data/place-tab-in-overlay'
+import { useVisualLayerSubjectResolver, appendRegionLayer } from '../../screen-arrangement/show/visual-layer-runtime'
 import type {
   TiledLayout,
   FloatingLayout,
   OverlayLayout,
 } from '../read-data/layout-types'
 import { usableLayerId } from '../read-data/read-screen-arrangement'
-import { OpenAskedLayout } from './open-asked-layout'
-import { InsideArrangement, NestedArrangement, TakeBehindPanesAsks } from './behind-the-panes'
+import { OpenAskedLayout } from '../../screen-arrangement/show/open-asked-layout'
+import { InsideArrangement, NestedArrangement, TakeBehindPanesAsks } from '../../screen-arrangement/show/behind-the-panes'
 import { setPageBackdrop, usePageBackdrop } from '../../ui/show/page-backdrop'
-import { PublishShownArrangement } from './publish-shown-arrangement'
+import { PublishShownArrangement } from '../../screen-arrangement/show/publish-shown-arrangement'
 import { type SurfaceMode, baseGeometryForSurface } from '../read-data/surface-modes'
 
 // The drawing toolbar's code is fetched the first time it is drawn, never with the page.

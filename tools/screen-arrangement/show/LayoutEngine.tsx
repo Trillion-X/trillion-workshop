@@ -31,7 +31,7 @@
 import { createPortal } from 'react-dom'
 import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react'
 import { lazyPart } from '../../ui/show/load-later/later';
-import { SCREEN_ARRANGEMENT_FOCUS_REQUEST } from './use-focus-container-while'
+import { SCREEN_ARRANGEMENT_FOCUS_REQUEST } from '../../arrange-screens-in-panes/show/use-focus-container-while'
 import { useBitfieldData, readRecordAt, subscribe } from '#workspace-records'
 import {
   DragContext,
