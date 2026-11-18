@@ -113,3 +113,17 @@ test('a screen someone else made asks before it acts, and a thrown script says s
     assert.equal(await broken.frame().textContent('button'), 'Fix');
   } finally { await browser.close(); }
 });
+
+test('opened as a page, the answer in the address fragment is shown as text', async () => {
+  const browser = await chromium.launch();
+  try {
+    const html = page({ ...words, fragment_answer: 'v' });
+    const tab = await browser.newPage();
+    const file = join(folder, 'as-page.html');
+    writeFileSync(file, html);
+    const answer = Buffer.from(JSON.stringify({ dinners: ['soup'] })).toString('base64url');
+    await tab.goto(`file://${file}#v=${answer}`);
+    await tab.waitForTimeout(200);
+    assert.match(await tab.textContent('#screen'), /soup/);
+  } finally { await browser.close(); }
+});

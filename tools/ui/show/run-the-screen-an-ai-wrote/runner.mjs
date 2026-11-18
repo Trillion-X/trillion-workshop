@@ -113,7 +113,9 @@ export function runScreens(win, { connect, words = {} }) {
   }
 
   async function tryInOrder(error = null) {
-    for (const name of (error ? words.fix_order : null) ?? words.order ?? []) {
+    // Outside an app (a page of its own) no request can be made, so none is tried.
+    const order = win.parent === win ? [] : (error ? words.fix_order : null) ?? words.order ?? [];
+    for (const name of order) {
       const request = words[name];
       if (!request) continue;
       const values = { for_operation: forOperation(), answer: JSON.stringify(answer), error, code };
@@ -145,6 +147,18 @@ export function runScreens(win, { connect, words = {} }) {
     said.append(fix);
     host.before(said);
   });
+
+  // Opened as a page (an answer's link, outside any app), the answer comes in the address's fragment, under the name the
+  // words give (`fragment_answer`), as base64url JSON. With no app there is nothing to ask, so the answer is shown as text.
+  const carried = words.fragment_answer && new URLSearchParams(win.location.hash.slice(1)).get(words.fragment_answer);
+  if (carried) {
+    try {
+      const json = new TextDecoder().decode(Uint8Array.from(win.atob(carried.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0)));
+      call = { whole: true };
+      tried = true;
+      onToolResult({ structuredContent: JSON.parse(json), content: [] }).then(() => tryInOrder());
+    } catch { host.textContent = words.unreadable ?? 'This link holds no answer that can be read.'; }
+  }
 
   return { app, current: () => ({ code, answer, madeBy }) };
 }

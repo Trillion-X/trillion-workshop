@@ -41,6 +41,7 @@ The page knows no person, database or tool. The owner's words say:
 | `chat_maker` | What a screen the call itself carried is called as a maker. Default `ai:chat`. |
 | `asks`, `allow`, `fix` | The page's own three phrases. |
 | `css` | Styles the page carries, such as the owner's look. |
+| `fragment_answer` | When the page is opened as a page (an answer's link, outside any app), the name of the address fragment field holding the answer as base64url JSON. It is shown as text, since no request can be made without an app. |
 
 `for_operation` is the call's address, method and `input.tool` joined by spaces. The next answer of the same operation finds the screen kept for it.
 
