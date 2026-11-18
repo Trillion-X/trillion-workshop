@@ -116,8 +116,8 @@
   "instructions": [
     "1. Pour the two example setting rows into your own settings list (see pour), then fill the film's row: record:setting:put-picked-options-into-a-filmcraft-project~film~<film folder name> with protected_projects and allowed_option_folders.",
     "2. Keep your own stand on the option with tool:keep-where-you-stand, in your own words (agree is the stand that counts by default).",
-    "3. Say what you said in start_here. Your AI reads the row with tools:list, runs `pick_gate.py --film <film> check <option>` and shows what it printed.",
-    "4. Only when check says picked does it run `pick_gate.py --film <film> apply <option> --project <project> --ops <ops>`; read the line it appended to the film's apply log. A refusal means you have not picked the option: nothing was changed."
+    "3. Say what you said in start_here. Your AI reads the row with tools:list, writes the film's settings row and the stance rows on its options, read from your store, to a file, runs `pick_gate.py --film <film> --stored <file> check <option>` and shows what it printed.",
+    "4. Only when check says picked does it run `pick_gate.py --film <film> --stored <file> apply <option> --project <project> --ops <ops>`; read the line it appended to the film's apply log. A refusal means you have not picked the option: nothing was changed."
   ],
   "worked_examples": [
     {
@@ -134,7 +134,7 @@
           }
         }
       },
-      "given": "From tools/put-picked-options-into-a-filmcraft-project/test/pick-gate.test.mjs, run for real on its made-up film with the stand-in rows and stand-in filmcraft-cli: the person's stand on 'Option  A' is agree. The AI runs `python3 tools/put-picked-options-into-a-filmcraft-project/do-work/pick_gate.py --film /films/film-one apply \"option a\" --project /films/film-one/filmcraft/cut.fcproj --ops /films/film-one/ops.jsonl` (the same option typed another way is the same option). For `apply cp1-c1`, which has no stand, it exits 1.",
+      "given": "From tools/put-picked-options-into-a-filmcraft-project/test/pick-gate.test.mjs, run for real on its made-up film with the stand-in rows and stand-in filmcraft-cli: the person's stand on 'Option  A' is agree. The AI runs `python3 tools/put-picked-options-into-a-filmcraft-project/do-work/pick_gate.py --film /films/film-one --stored /films/film-one/stored.json apply \"option a\" --project /films/film-one/filmcraft/cut.fcproj --ops /films/film-one/ops.jsonl` (the same option typed another way is the same option). For `apply cp1-c1`, which has no stand, it exits 1.",
       "hands_back": "Exit 0, filmcraft-cli ran `--project /films/film-one/filmcraft/cut.fcproj --save run /films/film-one/ops.jsonl`, and one line was appended to applied.jsonl: {\"option_id\":\"option a\",\"verdict\":\"agree\",\"verdict_decision_id\":\"stance:film-option:1f:4959070c...\",\"project\":\"/films/film-one/filmcraft/cut.fcproj\",\"protected\":true,\"ops_file\":\"/films/film-one/ops.jsonl\",\"ops_hash\":\"blake3:5a78ee24...\",\"exit\":0}. `check \"option a\"` printed `picked: option a (agree) decision stance:film-option:1f:4959070c...`. For cp1-c1 stderr says: pick-gate: REFUSED. Option 'cp1-c1' has no stand kept; only the person's own pick lets it into a protected project. A 'recommended' flag is not a pick. and nothing ran."
     }
   ],

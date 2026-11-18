@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:93f1bc07d34ecdc10fb81c14b4313b869283bbb7c32d5b0dfcba451c9486e5fc"
+  "blake3": "1f:a45ebac92e95e20bdbb74a059cf6a336262973b9b46b4345d33aedbf29f13abe"
  },
  "fields": [
   {
@@ -9060,7 +9060,7 @@
    "values": {
     "title": "Put the option I picked into my FilmCraft project (runs on your computer)",
     "job": "Put an option I picked for my film into my protected FilmCraft project, and refuse any option I have not picked myself",
-    "description": "Reads, through the person's own records (the trillion command), the film's settings row (list:settings, record:setting:put-picked-options-into-a-filmcraft-project~film~<film folder name>, or the id --settings-record names: the protected project patterns, the option folders agents may edit freely, which stands count as a pick, the option kind and its text fold, the filmcraft-cli command and the apply log), laid over the script's defaults by tools/settings, and the person's stand on each option (the stance records tool:keep-where-you-stand keeps, named by tools/where-a-person-stands' own code). check says whether the option is picked: only the person's own stand that is one of picked_stances counts, the newest stand wins, and a recommended flag, a brief or a review note never counts. rows lists where the person stands on every option of the kind. apply checks, then runs `filmcraft-cli --project P --save run OPS` headless on the project (never the live app's control port; --print shows the command and runs nothing) and appends what it did to the film's apply log. The ops file must be inside the film's folder. It reads the records itself, so a file handed to it cannot stand in for the person. A refusal says why on standard error and exits 1.",
+    "description": "Reads, from the rows the person's AI read from their own store and handed over as --stored (JSON {records}), the film's settings row (list:settings, record:setting:put-picked-options-into-a-filmcraft-project~film~<film folder name>, or the id --settings-record names: the protected project patterns, the option folders agents may edit freely, which stands count as a pick, the option kind and its text fold, the filmcraft-cli command and the apply log), laid over the script's defaults by tools/settings, and the person's stand on each option (the stance records tool:keep-where-you-stand keeps, named by tools/where-a-person-stands' own code). check says whether the option is picked: only the person's own stand that is one of picked_stances counts, the newest stand wins, and a recommended flag, a brief or a review note never counts. rows lists where the person stands on every option of the kind. apply checks, then runs `filmcraft-cli --project P --save run OPS` headless on the project (never the live app's control port; --print shows the command and runs nothing) and appends what it did to the film's apply log. The ops file must be inside the film's folder. A stand missing from the rows is no stand; a stand is a row the person's AI keeps, so the rows must be handed over exactly as the store holds them. A refusal says why on standard error and exits 1.",
     "status": "active",
     "maker": "maker:put-picked-options-into-a-filmcraft-project",
     "licence_class": "licence:maker-own",
@@ -13980,25 +13980,6 @@
     ],
     "listed_on": "2026-11-04T00:00:00Z",
     "folder": "record-video-with-teleprompter",
-    "flags": [
-     "read-only"
-    ]
-   }
-  },
-  {
-   "id": "tool:turn-a-tool-into-live-controls",
-   "values": {
-    "title": "Turn a tool into live controls",
-    "job": "Turn a tool's inputs into the live controls a person moves, and check the values they moved into the input the tool would run with",
-    "description": "Give descriptor (a tool's descriptor: input_schema.properties, and its controls DATA if it has any), and optionally bind (the subject inputs: what is changed, such as a file, set once and never drawn as a control) and values ({ control key: value } as moved). Answers controls (made-controls.mjs controlRows: tool_id, label, about, subject, settings as tuning-panel rows with widget, min, max, step, options and default_value, suggested, preview, commit, result, runs) and, when bind or values are given, input: the subject bindings and every control not left at its neutral value, each checked against its row and the tool's schema. It refuses a descriptor with no input_schema.properties, controls DATA naming an input the schema does not hold, and a value outside its range or not one of its choices, saying which control and why. It reads only what it is given and writes nothing. It never runs the tool, saves an interface, keeps a person's place, draws the preview beside the controls or keeps undo and redo: those are the app's controls screen and the account's records.",
-    "status": "active",
-    "maker": "maker:tweak-live-controls",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "listed_on": "2026-11-04T00:00:00Z",
-    "folder": "tweak-live-controls",
     "flags": [
      "read-only"
     ]

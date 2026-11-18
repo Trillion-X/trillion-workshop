@@ -1,4 +1,4 @@
-// pick_gate.py against a throwaway film, a stand-in records door (stand-in-engine.mjs) and a stand-in filmcraft-cli:
+// pick_gate.py against a throwaway film, the rows read from a made-up store (--stored) and a stand-in filmcraft-cli:
 // it refuses without the person's own pick, applies with one, and logs what it did. Made-up films, options and words.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -13,8 +13,6 @@ import { artifactRef, foldWith } from '../../where-a-person-stands/do-work/artif
 const here = dirname(fileURLToPath(import.meta.url));
 const TOOL = join(here, '..', 'do-work', 'pick_gate.py');
 const BRIDGE = join(here, '..', 'do-work', 'stance-id-from-stdin.mjs');
-const STAND_IN = join(here, 'stand-in-engine.mjs');
-chmodSync(STAND_IN, 0o755);
 
 const FOLD = { lowercase: true, collapse_space: true };
 const settingId = film => `record:setting:put-picked-options-into-a-filmcraft-project~film~${film}`;
@@ -41,11 +39,9 @@ function world(records = []) {
   writeFileSync(cli, `#!/bin/sh\necho "$@" >> ${film}/cli-calls.txt\n`);
   chmodSync(cli, 0o755);
   const settings = settingsFor(cli);
-  const door = join(film, 'door.json');
+  const door = join(film, 'stored.json');
   writeFileSync(door, JSON.stringify({ records: [settingRow('film-one', settings), ...records] }));
-  const run = (...args) => spawnSync('python3', [TOOL, '--film', film, ...args], {
-    encoding: 'utf8', env: { ...process.env, TRILLION_BIN: STAND_IN, STAND_IN_RECORDS: door },
-  });
+  const run = (...args) => spawnSync('python3', [TOOL, '--film', film, '--stored', door, ...args], { encoding: 'utf8' });
   const apply = (option, project = join(film, 'filmcraft', 'cut.fcproj')) => run('apply', option, '--project', project, '--ops', join(film, 'ops.jsonl'));
   return { film, settings, run, apply, door };
 }
@@ -166,11 +162,13 @@ test('a settings row that lacks a needed setting is refused, naming it', () => {
   assert.match(result.stderr, /lack protected_projects/);
 });
 
-test('a door that cannot be reached is a refusal, not a pick', () => {
+test('rows that cannot be read are a refusal, not a pick', () => {
   const { film } = world([stand('a', 'agree')]);
-  const result = spawnSync('python3', [TOOL, '--film', film, 'check', 'a'], { encoding: 'utf8', env: { ...process.env, TRILLION_BIN: join(film, 'no-such-command') } });
-  assert.equal(result.status, 1);
-  assert.match(result.stderr, /could not read the person's records/);
+  for (const stored of [join(film, 'no-such-file.json'), join(film, 'ops.jsonl')]) {
+    const result = spawnSync('python3', [TOOL, '--film', film, '--stored', stored, 'check', 'a'], { encoding: 'utf8' });
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /--stored must be a JSON file/);
+  }
 });
 
 test('the bridge names each option\'s stance record as tools/where-a-person-stands does', () => {

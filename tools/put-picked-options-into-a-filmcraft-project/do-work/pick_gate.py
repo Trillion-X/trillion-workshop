@@ -8,7 +8,7 @@ Purpose
     changes a protected project: `apply` refuses unless the person's stand on the option is a pick, then runs the
     option's FilmCraft ops headless on the project and logs what it did.
 
-Commands
+Commands (each takes --stored FILE first)
     check <option-id>        exit 0 only if the latest decision for the option is picked
     rows                     print the latest decision of every option as JSON (the one reader of the decisions; the copy gate's pick labels use it)
     apply <option-id> --project P --ops FILE [--print]
@@ -16,18 +16,21 @@ Commands
                              exact command and runs nothing. Never uses the live app's control port.
 
 Where the settings and the decisions live
-    The settings are the film's row of the person's list:settings, record:setting:put-picked-options-into-a-filmcraft-
-    project~film~<film folder name> (or the id --settings-record names), read through the person's records door
-    (`trillion op @own-records`, TRILLION_BIN names another) and laid over DEFAULTS by tools/settings request_settings.
+    In the person's own store, which their AI reads and hands this script as --stored FILE: JSON {records: [{id, type,
+    value}]} holding the film's settings row (type record:setting, id record:setting:put-picked-options-into-a-filmcraft-
+    project~film~<film folder name>, or the id --settings-record names), laid over DEFAULTS by tools/settings
+    request_settings, and the person's stance rows on the film's options (type stance, ids starting stance:<option_kind>:).
     A pick is the person's stance record on the option (tools/where-a-person-stands): one record per option, its id and
     the option's identity made by that folder's own code through do-work/stance-id-from-stdin.mjs. Every read goes
-    through option_decisions(); nothing here writes a decision: tool:keep-where-you-stand keeps a stand, after
-    checking the person's words in their source.
+    through option_decisions(); nothing here writes a decision: tool:keep-where-you-stand makes a stand, after
+    checking the person's words in their source. A stand is a row the person's AI keeps, so nothing here can tell one
+    the person took from one an AI wrote: the rows must be handed over exactly as the store holds them.
 
 Non-negotiable invariants
     1. Only a stand of the person's own (by: person) that is one of picked_stances counts. A candidate's
        "recommended" flag, a review note and a brief never count.
     2. The latest stand for an option wins, so a later disagree, or a stand taken back, withdraws a pick.
+       A stand missing from --stored is no stand.
     3. The live app's control port is never contacted from here.
 """
 from __future__ import annotations
@@ -49,27 +52,28 @@ TOOL = "tool:put-a-picked-option-into-a-filmcraft-project"
 DEFAULTS = {"picked_stances": ["agree"], "option_kind": "film-option", "option_fold": {"collapse_space": True},
             "filmcraft_cli": "filmcraft-cli", "apply_log": "pick-gate-applied.jsonl"}
 NEEDED = ("protected_projects", "allowed_option_folders", "picked_stances", "option_kind", "option_fold", "filmcraft_cli", "apply_log")
-TRILLION = os.environ.get("TRILLION_BIN", "trillion")
 STANCE_IDS = HERE / "stance-id-from-stdin.mjs"
 
 
-def door(method: str, body: dict) -> dict:
-    """One operation of the person's own records door, answered as JSON."""
+def load_stored(path: str) -> list[dict]:
+    """The rows the person's AI read from their store: {records: [{id, type, value}]}."""
     try:
-        done = subprocess.run([TRILLION, "op", "@own-records", method, json.dumps(body)], capture_output=True, text=True)
-    except OSError as problem:
-        done = subprocess.CompletedProcess([], 127, "", str(problem))
-    if done.returncode:
-        sys.exit(f"pick-gate: could not read the person's records through `{TRILLION}`: {(done.stderr or done.stdout).strip()[:300]}. "
-                 "Pick-gate reads the stands itself, so a file you hand it cannot stand in for them.")
-    return json.loads(done.stdout)
+        records = json.loads(Path(path).expanduser().read_text())["records"]
+        assert isinstance(records, list) and all(isinstance(r, dict) and isinstance(r.get("id"), str) for r in records)
+    except (OSError, ValueError, KeyError, TypeError, AssertionError) as problem:
+        sys.exit(f"pick-gate: --stored must be a JSON file {{records: [{{id, type, value}}]}} of the rows read from the person's store ({problem})")
+    return records
 
 
-def load_config(film: Path, record_id: str | None = None) -> dict:
+def stored_row(stored: list[dict], record_id: str, kind: str) -> dict:
+    return next((r for r in stored if r["id"] == record_id and r.get("type") == kind), {"id": record_id, "type": kind, "value": None})
+
+
+def load_config(film: Path, stored: list[dict], record_id: str | None = None) -> dict:
     record_id = record_id or settings_reader.setting_id(FOLDER, "film", film.name)
-    record = door("records:read", {"id": record_id, "type": settings_reader.RECORD_TYPE})
+    record = stored_row(stored, record_id, settings_reader.RECORD_TYPE)
     if record.get("value") is None:
-        sys.exit(f"pick-gate: no {record_id} in the person's list:settings; write the film's settings row first")
+        sys.exit(f"pick-gate: no {record_id} in --stored; read the film's settings row from the person's store (or write it there first)")
     try:
         cfg = settings_reader.request_settings({"settings_record": {**record, "id": record_id}}, DEFAULTS, folder=FOLDER, tool=TOOL)
     except settings_reader.SettingError as problem:
@@ -100,13 +104,7 @@ def decision_of(option_id: str, record: dict | None, ref: dict) -> dict:
 
 def option_decisions(film: Path, cfg: dict) -> dict[str, dict]:
     """The latest decision of every option: {option_id: {decision_id, option_id, verdict, reason_verbatim, source, at}}. The one reader."""
-    records, after = [], None
-    while True:
-        page = door("records:list", {"type": "stance", "prefix": f"stance:{cfg['option_kind']}:", "limit": 200, **({"after": after} if after else {})})
-        records += page["records"]
-        after = page.get("next")
-        if after is None:
-            break
+    records = [r for r in cfg["stored"] if r.get("type") == "stance" and r["id"].startswith(f"stance:{cfg['option_kind']}:")]
     texts = [r["value"]["text"] for r in records if isinstance((r.get("value") or {}).get("text"), str) and r["value"].get("kind") == cfg["option_kind"]]
     refs = stance_ids(cfg, texts) if texts else {}
     latest = {}
@@ -119,7 +117,7 @@ def option_decisions(film: Path, cfg: dict) -> dict[str, dict]:
 
 def latest_verdict(film: Path, cfg: dict, option_id: str) -> dict | None:
     ref = stance_ids(cfg, [option_id])[option_id]
-    record = door("records:read", {"id": ref["id"], "type": "stance"})
+    record = stored_row(cfg["stored"], ref["id"], "stance")
     row = decision_of(option_id, record, ref)
     return row if row["verdict"] is not None else None
 
@@ -182,6 +180,7 @@ def cmd_apply(args, film, cfg) -> int:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--film", default=os.environ.get("PICK_GATE_FILM"), help="the film's folder; its name picks the settings row")
+    parser.add_argument("--stored", required=True, help="JSON {records: [...]}: the film's settings row and the stance rows on its options, read from the person's store")
     parser.add_argument("--settings-record", help="the id of the film's list:settings row, when it is not the one the folder name gives")
     sub = parser.add_subparsers(dest="cmd", required=True)
     sub.add_parser("check").add_argument("option_id")
@@ -195,7 +194,8 @@ def main() -> int:
     if not args.film:
         sys.exit("pick-gate: pass --film <the film's folder> or set PICK_GATE_FILM")
     film = Path(args.film).expanduser().resolve()
-    cfg = load_config(film, args.settings_record)
+    stored = load_stored(args.stored)
+    cfg = {**load_config(film, stored, args.settings_record), "stored": stored}
     return {"check": cmd_check, "rows": cmd_rows, "apply": cmd_apply}[args.cmd](args, film, cfg)
 
 

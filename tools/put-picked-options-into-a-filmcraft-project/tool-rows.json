@@ -220,7 +220,7 @@
         "label": "Put the option I picked into my FilmCraft project (runs on your computer)",
         "status": "active",
         "job": "Put an option I picked for my film into my protected FilmCraft project, and refuse any option I have not picked myself",
-        "description": "Reads, through the person's own records (the trillion command), the film's settings row (list:settings, record:setting:put-picked-options-into-a-filmcraft-project~film~<film folder name>, or the id --settings-record names: the protected project patterns, the option folders agents may edit freely, which stands count as a pick, the option kind and its text fold, the filmcraft-cli command and the apply log), laid over the script's defaults by tools/settings, and the person's stand on each option (the stance records tool:keep-where-you-stand keeps, named by tools/where-a-person-stands' own code). check says whether the option is picked: only the person's own stand that is one of picked_stances counts, the newest stand wins, and a recommended flag, a brief or a review note never counts. rows lists where the person stands on every option of the kind. apply checks, then runs `filmcraft-cli --project P --save run OPS` headless on the project (never the live app's control port; --print shows the command and runs nothing) and appends what it did to the film's apply log. The ops file must be inside the film's folder. It reads the records itself, so a file handed to it cannot stand in for the person. A refusal says why on standard error and exits 1.",
+        "description": "Reads, from the rows the person's AI read from their own store and handed over as --stored (JSON {records}), the film's settings row (list:settings, record:setting:put-picked-options-into-a-filmcraft-project~film~<film folder name>, or the id --settings-record names: the protected project patterns, the option folders agents may edit freely, which stands count as a pick, the option kind and its text fold, the filmcraft-cli command and the apply log), laid over the script's defaults by tools/settings, and the person's stand on each option (the stance records tool:keep-where-you-stand keeps, named by tools/where-a-person-stands' own code). check says whether the option is picked: only the person's own stand that is one of picked_stances counts, the newest stand wins, and a recommended flag, a brief or a review note never counts. rows lists where the person stands on every option of the kind. apply checks, then runs `filmcraft-cli --project P --save run OPS` headless on the project (never the live app's control port; --print shows the command and runs nothing) and appends what it did to the film's apply log. The ops file must be inside the film's folder. A stand missing from the rows is no stand; a stand is a row the person's AI keeps, so the rows must be handed over exactly as the store holds them. A refusal says why on standard error and exits 1.",
         "input_schema": {
           "type": "object",
           "properties": {
@@ -243,13 +243,18 @@
             "settings_record": {
               "type": "string",
               "description": "Optional: the id of the film's list:settings row when it is not record:setting:put-picked-options-into-a-filmcraft-project~film~<film folder name>; put after --settings-record in the command."
+            },
+            "stored_file": {
+              "type": "string",
+              "description": "A JSON file {records: [{id, type, value}]} holding what was read from the person's store: the film's settings row (type record:setting) and the stance rows on its options (type stance, ids starting stance:<option kind>:), exactly as stored; put where {stored_file} is in the command."
             }
           },
           "required": [
             "film",
             "option",
             "project",
-            "ops"
+            "ops",
+            "stored_file"
           ]
         },
         "output_schema": {
@@ -257,32 +262,19 @@
           "description": "check prints the picked decision; rows prints a JSON list of decisions {decision_id, option_id, verdict (the stand), reason_verbatim, source, at}; apply prints filmcraft-cli's own output and appends {at, option_id, verdict_decision_id, verdict, project, protected, ops_file, ops_hash, exit, stdout_tail, stderr_tail} to the apply log; --print prints the command. A refusal exits 1."
         },
         "invoke": {
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "record:setting",
-                "operations": [
-                  "records:read"
-                ]
-              }
-            ]
-          },
           "kind": "on-your-computer",
           "get_it": [
             "clone the Workshop repository (package.json repository.url)",
             "npm ci (tools/where-a-person-stands hashes with @noble/hashes)",
-            "python3 -m pip install -U blake3",
-            "install trillion (the person's command line) and sign in once with `trillion setup`"
+            "python3 -m pip install -U blake3"
           ],
-          "run": "python3 tools/put-picked-options-into-a-filmcraft-project/do-work/pick_gate.py --film {film} apply {option} --project {project} --ops {ops}",
+          "run": "python3 tools/put-picked-options-into-a-filmcraft-project/do-work/pick_gate.py --film {film} --stored {stored_file} apply {option} --project {project} --ops {ops}",
           "needs": [
             "python3 with blake3",
             "node",
-            "trillion",
             "filmcraft-cli"
           ],
-          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Never write the stand yourself and never hand it a file of stands: use tool:keep-where-you-stand with the person's own words and their source, and only after the person said them. Run check first (`--film {film} check {option}`); say what it printed. Run apply only for an option check passed. If apply refuses, tell the person the option is not picked and that only their own agree puts it in the project; do not edit the project another way.",
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Never write the stand yourself and never hand it a file of stands: use tool:keep-where-you-stand with the person's own words and their source, and only after the person said them. Read the film's settings row and its options' stance rows from the person's store and write them, as stored, to the --stored file. Run check first (`--film {film} --stored {stored_file} check {option}`); say what it printed. Run apply only for an option check passed. If apply refuses, tell the person the option is not picked and that only their own agree puts it in the project; do not edit the project another way.",
           "files": {
             "package_files": [
               {
@@ -348,6 +340,21 @@
             "kind": "needs-a-machine",
             "requires": "the person's computer with filmcraft-cli installed, the film's folder with its FilmCraft project and ops file, and the trillion command signed in to the person's own records",
             "proved_on": null
+          }
+        ],
+        "stored": [
+          {
+            "kind": "record:setting",
+            "operations": [
+              "records:read"
+            ]
+          },
+          {
+            "kind": "stance",
+            "prefix": "stance:",
+            "operations": [
+              "records:read"
+            ]
           }
         ]
       }
