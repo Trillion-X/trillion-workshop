@@ -117,3 +117,22 @@ test('a unit that names prepare is made by its program\'s own module: its files 
   await assert.rejects(withPrepared({ ...runs, units: [{ ...unit, prepare: 'tools/start-a-computer/do-work/fill-fields.mjs' }] }), /exports no prepare/);
   await assert.rejects(withPrepared({ ...runs, units: [unit], machine: { firewall_allow: null } }), /firewall is kept by another program/);
 });
+
+// A program the row builds from its own source commit, run by an interpreter, with its held values as sealed credentials and
+// its own folder under /run that a web server's group may read (a site's program on a socket there).
+test('serve-a-built-program renders the built program, its interpreter, its credentials and its /run folder', () => {
+  const unit = {
+    unit: 'example-site.service', template: 'tools/start-a-computer/read-data/unit-templates/serve-a-built-program.service',
+    description: 'Example site program', user: 'example-site', group: 'example-web', state: '/var/lib/example-site',
+    builds: '/var/lib/example-site/builds', program: 'serve.mjs', interpreter: '/opt/node/bin/node', runtime_directory: 'sites/place.example.test',
+    environment: ['SOCKET=/run/sites/place.example.test/http.sock'], writable: '/var/lib/example-site',
+    credentials: [{ name: 'store', file: '/etc/credstore.encrypted/example-site-store' }],
+  };
+  const [file] = renderWhatItRuns({ units: [unit] });
+  assert.equal(file.path, '/etc/systemd/system/example-site.service');
+  assert.doesNotMatch(file.text, /\{[a-z_]+\}/);
+  assert.match(file.text, /^ExecStart=\/opt\/node\/bin\/node \/var\/lib\/example-site\/builds\/current\/serve\.mjs$/m);
+  assert.match(file.text, /^LoadCredentialEncrypted=store:\/etc\/credstore\.encrypted\/example-site-store$/m);
+  assert.match(file.text, /^RuntimeDirectory=sites\/place\.example\.test$/m);
+  assert.match(file.text, /^Group=example-web$/m);
+});
