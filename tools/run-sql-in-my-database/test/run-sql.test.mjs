@@ -49,14 +49,12 @@ test('the row mounts one held connection by the name the input gives and reaches
   assert.equal(row.id, 'tool:run-sql-in-my-database');
   assert.deepEqual(row.invoke.local_doors, ['own-rows-postgres']);
   assert.ok(!row.invoke.internet);
-  assert.deepEqual(row.invoke.credential_mounts.map(mount => [mount.secret_name, mount.fd, mount.only_when.input, mount.only_when.equals]), [
-    ['own-rows-postgres-connection', 3, 'credential_name', 'own-rows-postgres-connection'],
-    ['own-rows-postgres-read-connection', 3, 'credential_name', 'own-rows-postgres-read-connection'],
-    ['own-rows-postgres-read-connection', 4, 'role_credential_name', 'own-rows-postgres-read-connection'],
-  ]);
-  const mounted = input => row.invoke.credential_mounts.filter(mount => mount.only_when.input === input).map(mount => mount.secret_name);
-  assert.deepEqual(row.input_schema.properties.credential_name.enum, mounted('credential_name'));
-  assert.deepEqual(row.input_schema.properties.role_credential_name.enum, mounted('role_credential_name'));
+  assert.deepEqual(row.invoke.credential_mounts, [
+    { secret_name_from_input: 'credential_name', fd: 3 },
+    { secret_name_from_input: 'role_credential_name', fd: 4, only_when: { input: 'role_credential_name', present: true } },
+  ], 'the vault name is the person\'s, given in the run: the row lists none');
+  assert.equal(row.input_schema.properties.credential_name.enum, undefined);
+  assert.equal(row.input_schema.properties.role_credential_name.enum, undefined);
   assert.ok(row.invoke.files.package_files[0].paths.includes('read-data'), 'the recipes are packed with the program');
 });
 

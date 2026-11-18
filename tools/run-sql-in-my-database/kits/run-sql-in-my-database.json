@@ -7,10 +7,10 @@
     "tool:run-sql-in-my-database"
   ],
   "instructions": [
-    "1. Hold your database's connection string under the name own-rows-postgres-connection (and a SELECT-only login's under own-rows-postgres-read-connection for a share that may only read). The string is never typed into a request.",
+    "1. Hold your database's connection string in your vault under a name of your choosing, such as my-database-connection (and a SELECT-only login's under another, such as my-database-read-connection for a share that may only read). The string is never typed into a request.",
     "2. Say what you want in plain words. Your AI writes one SQL statement and calls tools:run with tool tool:run-sql-in-my-database, credential_name and sql (and params for $1, $2 and so on).",
     "3. Read the answer: columns, rows and row_count, or the database's own error text. Two statements in one call are refused by the database.",
-    "4. To let someone only read, ask for a read-only login: tool:run-sql-in-my-database with credential_name own-rows-postgres-connection and recipe {name: read-only, action: create} plus role_credential_name (a standing login whose connection you hold under that name) or recipe.valid_until (a minted login that stops working then; its connection is answered once). recipe {action: drop} takes it away."
+    "4. To let someone only read, ask for a read-only login: tool:run-sql-in-my-database with credential_name my-database-connection and recipe {name: read-only, action: create} plus role_credential_name (a standing login whose connection you hold under that name) or recipe.valid_until (a minted login that stops working then; its connection is answered once). recipe {action: drop} takes it away."
   ],
   "worked_examples": [
     {
