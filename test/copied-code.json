@@ -1,0 +1,4 @@
+{
+ "_what": "How many code files under tools/ are copies of code another tool holds (test-helpers/copied-code.mjs): each file past the first of a group whose code, imports set aside, is the same. It may only go down: test/one-owner-for-each-piece-of-code.test.mjs fails when it is higher and names the groups the files changed since this was written are in. Delete a copy and import the owner (named in its part.json), then rewrite this with `node test-helpers/copied-code.mjs <ref> --write`; the outcome is 0.",
+ "total": 655
+}

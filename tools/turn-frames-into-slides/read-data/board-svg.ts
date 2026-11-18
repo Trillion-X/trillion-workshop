@@ -32,19 +32,19 @@
 
 import type { BoardItem } from './group-board-model.ts';
 import { itemIsConnector } from './group-board-model.ts';
-import { finiteCoord } from './finite-coord.ts';
+import { finiteCoord } from '../../organize-the-sidebar/read-data/finite-coord.ts';
 import { connectorLabelOf, type RelationKindSpec } from './relation-kind-catalog.ts';
 import { presentationFrameOf } from './board-frames.ts';
-import { arrowheadById, type ArrowheadShape } from './arrowhead-catalog.ts';
+import { arrowheadById, type ArrowheadShape } from '../../organize-the-sidebar/do-work/arrowhead-catalog.ts';
 import { readFrameBorder } from './frame-border.ts';
-import { svgItemTransform, svgCropImageRect, svgImageFilter } from './board-svg-transforms.ts';
+import { svgItemTransform, svgCropImageRect, svgImageFilter } from '../../organize-the-sidebar/show/board-svg-transforms.ts';
 import {
   connectorPath,
   readConnectorAnchor,
   readWaypoints,
   type ConnectorRect,
-} from './connector-geometry.ts';
-import { strokePathD, hashSeed, resolveStroke, arrowheadPoints, type Point } from './stroke-style.ts';
+} from '../../organize-the-sidebar/do-work/connector-geometry.ts';
+import { strokePathD, hashSeed, resolveStroke, arrowheadPoints, type Point } from '../../organize-the-sidebar/show/stroke-style.ts';
 
 /** The default export font stack (the old hardcoded literal, now a fallback DATA value). */
 const DEFAULT_EXPORT_FONT = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";

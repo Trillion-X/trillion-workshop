@@ -30,8 +30,8 @@
 
 import type { GroupGraph, AddressRef } from './group-graph.ts';
 import { readItems, placeItem, itemIsConnector, type BoardItem } from './group-board-model.ts';
-import { selectionBounds, type Rect } from './group-resize.ts';
-import { finiteCoord } from './finite-coord.ts';
+import { selectionBounds, type Rect } from '../../organize-the-sidebar/do-work/group-resize.ts';
+import { finiteCoord } from '../../organize-the-sidebar/read-data/finite-coord.ts';
 
 /** `Math.max` over an array WITHOUT spreading it — `Math.max(...arr)` RangeErrors past the JS argument
  *  limit, so tidying a frame holding hundreds of thousands of items crashed. Reduce is O(n)-safe. */
