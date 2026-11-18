@@ -107,6 +107,45 @@ test('a file reached through a .ts program is packed, and only where a relative 
   assert.deepEqual(fixtureFindings({ package: 'other', paths: ['read-data'], at: '/opt/other' }), ['missing-relative-import tools/shared/read-data/go.mjs']);
 });
 
+// A row may pin a package itself (invoke.packages: name, version and fetched archive). The engine fetches it, but a bare import
+// finds it only where a package_files entry lays it, /opt/node_modules/<name>; a pinned package laid nowhere is a program that
+// starts and then fails "Cannot find package" the first time it imports it.
+test('every package a tool row pins in invoke.packages is laid at /opt/node_modules/<name>', () => {
+  const unlaid = [];
+  for (const tool of readdirSync(join(repo, 'tools'), { withFileTypes: true }).filter(entry => entry.isDirectory())) {
+    const file = join(repo, 'tools', tool.name, 'tool-rows.json');
+    if (!existsSync(file)) continue;
+    for (const { payload } of JSON.parse(readFileSync(file, 'utf8')).records ?? []) {
+      const invoke = payload?.invoke ?? {};
+      const entries = [invoke.files?.package_files ?? []].flat();
+      for (const name of Object.keys(invoke.packages ?? {})) {
+        if (!entries.some(entry => (entry.packages ?? []).includes(name) && entry.at === `/opt/node_modules/${name}`)) unlaid.push(`${payload.id}: ${name}`);
+      }
+    }
+  }
+  assert.deepEqual(unlaid, [], `\n${unlaid.join('\n')}\n\nAdd { packages: [name], at: /opt/node_modules/<name> } to the row's invoke.files.package_files.`);
+});
+
+test('a bare import of a package the row pins counts as declared only where the row lays it', () => {
+  const findings = laid => {
+    const folder = mkdtempSync(join(tmpdir(), 'tool-row-imports-pinned-'));
+    const write = (file, text) => { mkdirSync(dirname(join(folder, file)), { recursive: true }); writeFileSync(join(folder, file), text); };
+    const files = [{ package: 'user', paths: ['do-work'], at: '/opt/user' }, ...(laid ? [{ packages: ['pg'], at: '/opt/node_modules/pg' }] : [])];
+    const row = { kind: 'ai-tool-descriptor', id: 'tool:user', status: 'live', invoke: { argv: ['node', '/opt/user/do-work/run.mjs'], packages: { pg: { version: '8.23.1' } }, files: { package_files: files } } };
+    write('tools/user/tool-rows.json', JSON.stringify({ records: [{ payload: row }] }));
+    write('tools/user/do-work/run.mjs', "const { default: pg } = await import('pg');\nexport { pg };\n");
+    write('test-helpers/tool-row-imports.json', JSON.stringify({ provided_by_the_system: [] }));
+    write('package-lock.json', JSON.stringify({ packages: {} }));
+    const git = args => execFileSync('git', ['-C', folder, ...args], { env: { ...process.env, GIT_AUTHOR_NAME: 'check', GIT_AUTHOR_EMAIL: 'check@example.test', GIT_COMMITTER_NAME: 'check', GIT_COMMITTER_EMAIL: 'check@example.test' } }).toString().trim();
+    git(['init', '-q']);
+    git(['add', '-A']);
+    git(['commit', '-q', '-m', 'fixture']);
+    return toolRowFindings({ repo: folder, ref: 'HEAD' }).results.flatMap(r => r.findings).filter(f => f.kind === 'bare-import-not-declared').map(f => f.spec);
+  };
+  assert.deepEqual(findings(true), []);
+  assert.deepEqual(findings(false), ['pg']);
+});
+
 // The same shape one place over: a tool's part.json names the files other code reaches, `exports` by name and `public` as a list, and
 // an entry whose file is gone names something that loads nothing. Every entry names a file (or, for `<name>/*`, a folder) the tool holds.
 test('every part.json export and public entry names a file or folder its tool holds', () => {

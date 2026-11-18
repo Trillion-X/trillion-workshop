@@ -135,7 +135,8 @@ function coverageOf(entries) {
   const covers = []; // {pkg, rel, at}
   const modules = new Set();
   for (const e of entries) {
-    if (e.packages) { for (const key of e.packages) if (key.startsWith(MODULES) && !key.slice(MODULES.length).includes(MODULES)) modules.add(key.slice(MODULES.length)); continue; }
+    // A package the row pins itself (invoke.packages, by name) resolves a bare import when its entry lays it at /opt/node_modules/<name>.
+    if (e.packages) { for (const key of e.packages) { if (key.startsWith(MODULES) && !key.slice(MODULES.length).includes(MODULES)) modules.add(key.slice(MODULES.length)); else if (e.at === `/opt/${MODULES}${key}`) modules.add(key); } continue; }
     if (!e.package || !e.at) continue;
     for (const p of e.paths || []) covers.push({ pkg: e.package, rel: p.replace(/\/$/, ''), at: e.at });
   }
