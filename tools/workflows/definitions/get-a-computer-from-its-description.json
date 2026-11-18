@@ -1,0 +1,100 @@
+{
+  "_what": "Rent a computer and make it run what its description says. Input: {request_file}, the start request the person keeps (machine.provider and machine.placement name the machine to rent, computer_row_file the description of what it runs; see tools/start-a-computer/README.md). The price is read first and the person approves paying it each month before anything is rented; then start-a-computer rents the machine, sets it up and reports its health. A computer the person already runs needs no workflow: tool:start-a-computer with a request naming machine.address is the whole job.",
+  "definitions": [
+    {
+      "id": "workflow:get-a-computer-from-its-description",
+      "name": "Get a computer from its description",
+      "kind": "workflow",
+      "is_active": true,
+      "version": 1,
+      "steps": [
+        {
+          "id": "read-the-price",
+          "kind": "ask",
+          "config": {
+            "name": "tool:read-a-computer-price",
+            "input": {
+              "request_file": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input",
+                  "path": "request_file"
+                }
+              }
+            },
+            "context": {
+              "step_id": "read-the-price"
+            }
+          }
+        },
+        {
+          "id": "approve-the-price",
+          "kind": "ask",
+          "config": {
+            "name": "person",
+            "input": {
+              "price": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "read-the-price",
+                  "path": "output.price"
+                }
+              },
+              "terms": {
+                "$kind": "binding",
+                "select": {
+                  "from": "steps",
+                  "key": "read-the-price",
+                  "path": "output.terms_url"
+                }
+              },
+              "then": "Say yes to rent this machine and pay this price each month, or no to stop."
+            },
+            "context": {
+              "step_id": "approve-the-price"
+            }
+          }
+        },
+        {
+          "id": "start-the-computer",
+          "kind": "ask",
+          "config": {
+            "name": "tool:start-a-computer",
+            "input": {
+              "request_file": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input",
+                  "path": "request_file"
+                }
+              }
+            },
+            "context": {
+              "step_id": "start-the-computer"
+            }
+          }
+        }
+      ],
+      "edges": [
+        {
+          "from": "read-the-price",
+          "to": "approve-the-price",
+          "kind": "always"
+        },
+        {
+          "from": "approve-the-price",
+          "to": "start-the-computer",
+          "kind": "on_result",
+          "config": {
+            "$kind": "binding",
+            "select": {
+              "from": "input",
+              "path": "output.yes"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
