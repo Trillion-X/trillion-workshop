@@ -163,3 +163,12 @@ test('a finished run leads with its outcome and its result, never its own plumbi
   assert.ok(texts.includes('Channel label') && texts.includes('Contact id'), 'labels are sentence case');
   assert.equal(ids.length, 1, 'the id the record repeats is said once, inside the record');
 });
+
+test('dates are drawn in words, their time with the offset written', () => {
+  const { texts, rules } = accepted({ subject: 'Call the bank', due: '2026-11-20', at: '2026-11-18T05:40:00-06:00', sent: '2026-11-18T11:40:00Z', code: '2026-13-45x' });
+  assert.ok(texts.includes('Nov 20, 2026'));
+  assert.ok(texts.includes('Nov 18, 2026, 05:40 -06:00'));
+  assert.ok(texts.includes('Nov 18, 2026, 11:40 UTC'));
+  assert.ok(texts.includes('2026-13-45x'), 'not a date: drawn as written');
+  assert.equal(rules.filter(rule => rule === 'a-date').length, 3);
+});

@@ -24,6 +24,18 @@ import defaults from './view-of-a-value.json' with { type: 'json' };
 import declared from '../../../build-a-screen-from-patches/read-data/declared-props.json' with { type: 'json' };
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+// An ISO 8601 date, or a date and time with its offset (RFC 3339), as an answer writes one.
+const DATE = /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::\d{2}(?:\.\d+)?)?(Z|[+-]\d{2}:?\d{2})?)?$/;
+
+/** A date in words, from the words' month names: the date as written, and its time with the offset it was written in
+ * (a pure function knows no viewer's zone, so it converts nothing). */
+function dateWords(text, settings) {
+  const [, year, month, day, hour, minute, offset] = text.match(DATE);
+  const name = settings.words.months?.[Number(month) - 1];
+  if (!name || Number(day) < 1 || Number(day) > 31) return text;
+  const date = say(settings.words.date, { month: name, day: Number(day), year });
+  return hour === undefined ? date : say(settings.words.date_time, { date, time: `${hour}:${minute}`, offset: offset === 'Z' ? 'UTC' : offset ?? '' }).trim();
+}
 const kindOf = value => (value === null || value === undefined ? 'null' : Array.isArray(value) ? 'array' : typeof value);
 const say = (template, values = {}) => String(template).replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));
 
@@ -118,6 +130,7 @@ export function factsOf(value, schema, settings = defaults) {
     has_range: object(schema) && Number.isFinite(schema.minimum) && Number.isFinite(schema.maximum),
     media: typeof value === 'string' && /^(image|video|audio)\//.test(object(schema) ? String(schema.contentMediaType ?? '') : ''),
     runnable: runOf(value, settings) !== null,
+    date: typeof value === 'string' && DATE.test(value),
     identifier: typeof value === 'string' && settings.identifier_shapes.some(shape => new RegExp(shape, 'i').test(value)),
     wraps_result: object(value) && object(value[settings.runs.result_field]) && Object.entries(value).every(([key, field]) => key === settings.runs.result_field || !object(field) && !Array.isArray(field)),
   };
@@ -230,6 +243,7 @@ function propValue(given, here, settings, whole = false) {
   if (given.$choices) return object(here.schema) && Array.isArray(here.schema.enum) ? here.schema.enum.slice(0, 24).map(choice => ({ id: String(choice), label: labelOf(choice) })) : undefined;
   if (given.$title) return titleOf(here.value, settings);
   if (given.$text) return words(here.value, settings);
+  if (given.$date) return typeof here.value === 'string' && DATE.test(here.value) ? dateWords(here.value, settings) : words(here.value, settings);
   if (given.$label) return here.label ?? '';
   if (given.$count) return Array.isArray(here.value) ? here.value.length : object(here.value) ? Object.keys(here.value).length : 1;
   if (typeof given.$words === 'string') return settings.words[given.$words] ?? '';

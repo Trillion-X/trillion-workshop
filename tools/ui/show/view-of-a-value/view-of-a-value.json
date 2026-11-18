@@ -1,5 +1,5 @@
 {
-  "_what": "How any value is drawn as a screen of shared parts (project.mjs). `rules` are tried in order; the first whose `when` holds for the value draws it with its `draw` template. A `when` names facts of the value's own shape (project.mjs `factsOf`: kind, count, items_kind, has_title, empty, is_error, has_range, media) and the value each must have (`*_lte`/`*_gte` bound a number). A `draw` template is an element of tools/ui/declared-props.json with `props` whose values may read the value: {\"$at\": \"/pointer\"} a field, {\"$title\": true} its title (the first of `title_fields` it has), {\"$text\": true} the value as words, {\"$words\": \"key\"} a word below, {\"$label\": true} the field's name in words, {\"$count\": true} how many items it holds. `children` are templates, or {\"each_item\": template} once per item of a list, or {\"each_field\": template} once per field of an object (its value is {key, value}), or {\"$view\": \"/pointer\"} the value at that pointer drawn by these same rules (so any nesting is drawn with no rule naming it). The last rule holds for every value, so nothing is left undrawn. `title_fields` and `hidden_fields` are DATA: a person's lens may narrow them. `limits` bound one screen (the parts screen's own limits are tools/build-a-screen-from-patches/read-data/screen-spec.json). An answer that says how to run something (`runs`: its `run` {address, method, input, fill} and its `input_schema`, at the pointers named there; the engine's tools:list {tool} answers them) holds the fact `runnable`: its row draws one control per input ({\"each_input\": template}, the control chosen by `input_rules`, tried in order against facts of that input's schema: kind, has_enum, has_range, long), each bound to the screen's state under `runs.state_at` ({\"$bind\": true}; {\"$choices\": true} is its enum as tiles), and a row's `requests` declares the screen's requests from the value (here `run`, the answer's own), which a button's `on` names. `lens_precedence` orders who a lens row was set by, the winner first (project.mjs `lensFor`), and `lens_fields` are the fields a lens may set (each narrows, invariant 5). `identifier_shapes` are the shapes of a machine identifier (a prefixed or bare UUID, a hash), drawn quietly (fact `identifier`); `runs.result_field` names the field of a finished run's answer that holds its result (fact `wraps_result`: that field is a record and every other field is plain), drawn as the outcome first and the result, the run's own plain fields left out. `hide_repeated`: a record's plain field whose value one of its own records also holds is drawn once, inside that record.",
+  "_what": "How any value is drawn as a screen of shared parts (project.mjs). `rules` are tried in order; the first whose `when` holds for the value draws it with its `draw` template. A `when` names facts of the value's own shape (project.mjs `factsOf`: kind, count, items_kind, has_title, empty, is_error, has_range, media) and the value each must have (`*_lte`/`*_gte` bound a number). A `draw` template is an element of tools/ui/declared-props.json with `props` whose values may read the value: {\"$at\": \"/pointer\"} a field, {\"$title\": true} its title (the first of `title_fields` it has), {\"$text\": true} the value as words, {\"$words\": \"key\"} a word below, {\"$label\": true} the field's name in words, {\"$count\": true} how many items it holds. `children` are templates, or {\"each_item\": template} once per item of a list, or {\"each_field\": template} once per field of an object (its value is {key, value}), or {\"$view\": \"/pointer\"} the value at that pointer drawn by these same rules (so any nesting is drawn with no rule naming it). The last rule holds for every value, so nothing is left undrawn. `title_fields` and `hidden_fields` are DATA: a person's lens may narrow them. `limits` bound one screen (the parts screen's own limits are tools/build-a-screen-from-patches/read-data/screen-spec.json). An answer that says how to run something (`runs`: its `run` {address, method, input, fill} and its `input_schema`, at the pointers named there; the engine's tools:list {tool} answers them) holds the fact `runnable`: its row draws one control per input ({\"each_input\": template}, the control chosen by `input_rules`, tried in order against facts of that input's schema: kind, has_enum, has_range, long), each bound to the screen's state under `runs.state_at` ({\"$bind\": true}; {\"$choices\": true} is its enum as tiles), and a row's `requests` declares the screen's requests from the value (here `run`, the answer's own), which a button's `on` names. `lens_precedence` orders who a lens row was set by, the winner first (project.mjs `lensFor`), and `lens_fields` are the fields a lens may set (each narrows, invariant 5). `identifier_shapes` are the shapes of a machine identifier (a prefixed or bare UUID, a hash), drawn quietly (fact `identifier`); `runs.result_field` names the field of a finished run's answer that holds its result (fact `wraps_result`: that field is a record and every other field is plain), drawn as the outcome first and the result, the run's own plain fields left out. `hide_repeated`: a record's plain field whose value one of its own records also holds is drawn once, inside that record. A date (fact `date`: ISO 8601 or RFC 3339) is drawn in words ({\"$date\": true}: `words.date` and `words.date_time` with `words.months`), its time with the offset it was written in, never converted.",
   "title_fields": [
     "title",
     "name",
@@ -25,7 +25,23 @@
     "no": "No",
     "none": "None",
     "run": "Run",
-    "done": "Done"
+    "done": "Done",
+    "months": [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec"
+    ],
+    "date": "{month} {day}, {year}",
+    "date_time": "{date}, {time} {offset}"
   },
   "rules": [
     {
@@ -402,6 +418,22 @@
             }
           }
         ]
+      }
+    },
+    {
+      "id": "a-date",
+      "when": {
+        "kind": "string",
+        "date": true
+      },
+      "draw": {
+        "type": "Text",
+        "props": {
+          "text": {
+            "$date": true
+          },
+          "variant": "body"
+        }
       }
     },
     {
