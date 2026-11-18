@@ -1,0 +1,58 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:keep-where-the-person-stands-on-a-record with store {\\\"where\\\": \\\"postgresql database example_shop on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-shop-postgres-connection\\\"} and stands [{\\\"record\\\": \\\"message:m1\\\", \\\"stance\\\": \\\"agree\\\", \\\"answered_by\\\": \\\"person\\\"}].\"",
+  "lists": [],
+  "no_lists_because": "It names no list: the stands are kept in the person's own store, in whatever form that store keeps things, and store says where and in which language.",
+  "workflows": [
+    "workflow:keep-where-the-person-stands-on-a-record"
+  ],
+  "tools": [
+    "tool:run-workflow-definition",
+    "tool:hand-a-job-to-an-ai"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:keep-where-the-person-stands-on-a-record\" with store and the stands to keep. Ask the person first, and send answered_by \"person\" only with what they said.",
+    "3. The first run makes the store's own objects once and proves them on the example attempts: every attempt must be kept, repeated or refused as the intent says, or the run stops and says which.",
+    "4. Every later run keeps the new stands through those objects and reads each one back. A disagreement with a decision opens it for a corrected one and hands one AI its job, once."
+  ],
+  "worked_examples": [
+    {
+      "title": "A message agreed with, then taken back",
+      "ask": "I agree with the message m1. Actually take that back.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-where-the-person-stands-on-a-record",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "stands": [
+                {
+                  "record": "message:m1",
+                  "stance": "agree",
+                  "answered_by": "person"
+                },
+                {
+                  "record": "message:m1",
+                  "stance": null,
+                  "answered_by": "person"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-where-the-person-stands-on-a-record",
+      "step": "keep",
+      "given": "The look step found the stands kept in the store's own objects, made by an earlier run.",
+      "hands_back": "kept_records [\"message:m1\"] for the agree and the taking back, refused [] and found_records [\"message:m1\"] with stance null and its earlier agree kept as history."
+    }
+  ]
+}

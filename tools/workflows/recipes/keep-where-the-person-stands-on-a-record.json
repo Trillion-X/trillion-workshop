@@ -1,0 +1,239 @@
+{
+  "about": "workflow:keep-where-the-person-stands-on-a-record: the person's own stand on one of their own records, kept in the person's store with its history; a disagreement with a decision reopens it and hands one AI its job. It replaces tools/record-where-i-stand-on-one-of-my-records-agree/src/record-stance.mjs, whose whole job except the hand-off was keeping stands in the retired record store (rule a-tool-is-only-what-the-store-cannot-do).",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-where-the-person-stands-on-a-record",
+        "label": "Keep where the person stands on a record",
+        "job": "Keep the person's own stand (agree or disagree, with their words why) on one of their own records in the person's own store, keep every earlier stand as history, and when they disagree with a decision, open it for a corrected decision and hand one AI the job of making it, once.",
+        "produces": "The store's own objects for stands, proven on the example attempts, and each new stand kept or refused and read back; a disagreement with a decision opens it for a corrected one and hands one AI its job.",
+        "source": {
+          "from": "tools/record-where-i-stand-on-one-of-my-records-agree (src/record-stance.mjs, ported from the decision engine's record-stance owner), read on trillion-workshop origin/main aea60ccfd1",
+          "note": "Only the record keeping is the store's job (one stand per record, its history, refusals). The reopening of a decision and the hand-off of its job reach outside the store: they use the decision owner's own tools (tool:start-a-decision, tool:make-the-decision) and tool:hand-a-job-to-an-ai, never a tool of this recipe. The stance words and the hand-off text are the ones the old owner read from src/record-stance.json (agree: \"You agree with this.\", disagree: \"You disagree with this.\", reopens decision)."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                },
+                "place": {
+                  "type": "string",
+                  "description": "Where in the store the stands are kept, when they already are"
+                }
+              }
+            },
+            "stands": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Stands to keep this run, each {record, stance (agree, disagree or null to take it back), why (optional), answered_by (must be \"person\"), by, at (optional)}"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the stands are already kept (kept_in, or null) and the names of the objects that already keep them and show them.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing, make the store's own objects in its own form, so that the store itself refuses what the intent refuses wherever it can (keys, checks, triggers): one current stand per record, and a history of every earlier stand of that record, newest last. Kept per stand: the record it is about (a decision case id, a pursuit id, a message id, a file name or identity, or tool:<tool id>), the stance (agree or disagree, or none when taken back), why (optional, up to 2000 characters, kept exactly as given), by, at (a date and time), and for a decision the decision_generation it was taken on. Grant only what the store's holder allows the person's login. Who may: only the person (answered_by \"person\"); an AI may keep a stand only after asking the person and only with answered_by \"person\". A record that is not one of the person's own records is refused. Submit the names of the objects made, or the ones the look step found.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example attempts",
+            "do": "In a throwaway place in the same store, with the same objects, keep these attempts in order, each through the store's own objects, with the decision decision:d1 decided at decision_generation 1 before the first attempt: [{\"record\": \"decision:d1\", \"stance\": \"agree\", \"answered_by\": \"person\", \"by\": \"person\", \"at\": \"2026-11-10T10:00:00Z\"}, {\"record\": \"decision:d1\", \"stance\": \"agree\", \"answered_by\": \"person\", \"by\": \"person\"}, {\"record\": \"decision:d1\", \"stance\": \"disagree\", \"why\": \"the cost is wrong\", \"answered_by\": \"person\", \"by\": \"person\", \"at\": \"2026-11-11T10:00:00Z\"}, {\"record\": \"decision:d1\", \"stance\": \"disagree\", \"why\": \"the cost is wrong\", \"answered_by\": \"person\", \"by\": \"person\"}, {\"record\": \"message:m1\", \"stance\": \"agree\", \"answered_by\": \"person\", \"by\": \"person\", \"at\": \"2026-11-12T10:00:00Z\"}, {\"record\": \"message:m1\", \"stance\": \"maybe\", \"answered_by\": \"person\", \"by\": \"person\"}, {\"record\": \"message:m1\", \"stance\": \"agree\", \"answered_by\": \"ai\", \"by\": \"ai\"}, {\"record\": \"other-person:x1\", \"stance\": \"disagree\", \"answered_by\": \"person\", \"by\": \"person\"}, {\"record\": \"message:m1\", \"stance\": null, \"answered_by\": \"person\", \"by\": \"person\"}, {\"record\": \"message:m1\", \"stance\": null, \"answered_by\": \"person\", \"by\": \"person\"}]. Rules: a stance other than agree, disagree or null is refused. answered_by other than \"person\" is refused. A record that is not the person's own is refused. A stand the same as the current one (same stance, same why, same by) is repeated and changes nothing, unless the decision was decided again since that stand was taken: then it is a new stand on the new decision. A stand taken on a decision keeps the decision's generation as it is at that time. The same stand with a different why or by replaces them and keeps the first time; the earlier one is kept as history. A different stand keeps the earlier one as history and takes the new time. null takes the stand back: the stand stays in the history; a null on a record with no stand is repeated. A disagreement with a decision that is decided at its current generation opens the decision for a corrected decision (generation plus one, decision_state open) and hands one AI the job once: \"The person disagrees with the decision {case_id} ({goal}), which chose: {chosen}. In their words: \\\"{why}\\\". Read it, add what they said as evidence, decide again, then say what was done for {case_id}.\" A disagreement with a decision that is open for a corrected decision (not decided again yet) and is the same as the current stand is repeated. Then remove the throwaway place. Submit outcomes (one of kept, repeated, refused per attempt, in order) and answer: for decision:d1 its stance, why, decision_generation, decision_state, reopened_to, jobs_handed and earlier_stances (oldest first), for message:m1 its stance and earlier_stances, and kept_count.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answer"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "answer": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each attempt is kept, repeated or refused as the intent says",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "kept",
+                    "repeated",
+                    "kept",
+                    "repeated",
+                    "kept",
+                    "refused",
+                    "refused",
+                    "refused",
+                    "kept",
+                    "repeated"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "The store's own objects give every expected answer",
+                "path": [
+                  "this",
+                  "answer"
+                ],
+                "values": [
+                  {
+                    "decision:d1": {
+                      "stance": "disagree",
+                      "why": "the cost is wrong",
+                      "decision_generation": 1,
+                      "decision_state": "open",
+                      "reopened_to": 2,
+                      "jobs_handed": 1,
+                      "earlier_stances": [
+                        "agree"
+                      ]
+                    },
+                    "message:m1": {
+                      "stance": null,
+                      "earlier_stances": [
+                        "agree"
+                      ]
+                    },
+                    "kept_count": 4
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's stands",
+            "do": "Keep each item of stands through the store's own objects, in order, and read every kept record back. A kept stand on a decision the person disagrees with reopens it and hands one AI the job once (the prove step's text, filled from the decision's goal, its chosen option and the person's why, or \"no reason given\"). Submit kept_records (kept or repeated, by record), refused (each refused stand's record and the store's own words for why), jobs_handed (the ids of the AI jobs handed this run) and found_records (each record's stance read back). With no stands, submit empty lists.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_records",
+                "refused",
+                "jobs_handed",
+                "found_records"
+              ],
+              "properties": {
+                "kept_records": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "refused": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "jobs_handed": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "found_records": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "subset-of",
+                "says": "Every record kept is read back",
+                "path": [
+                  "this",
+                  "kept_records"
+                ],
+                "of": [
+                  "this",
+                  "found_records"
+                ]
+              }
+            ]
+          }
+        ],
+        "erase": "On the person's request the store deletes every version of the stand on that record, its history included; a job already handed to an AI is that AI's own record and is ended with its own tool (tool:end-a-decision for a decision's job)."
+      }
+    }
+  ]
+}

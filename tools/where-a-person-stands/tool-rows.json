@@ -475,7 +475,7 @@
         "earlier": "objects",
         "correction": "object"
        },
-       "_read_by": "src/record-stance.mjs: the person's stand, its history and durable correction recovery"
+       "_read_by": "workflow:keep-where-the-person-stands-on-a-record: the person's stand, its history and durable correction recovery"
       },
       {
        "type": "private-response",
