@@ -11,7 +11,7 @@ async function readJson(path) {
   return JSON.parse(await readFile(path, 'utf8'));
 }
 
-test('JSCore-compatible entry consumes same projection and owner-action carrier', async () => {
+test('JSCore-compatible entry consumes same projection and stand request carrier', async () => {
   const descriptors = await readJson(join(packageRoot, 'data/ranked-review-descriptors.json'));
   const fixtures = await readJson(join(packageRoot, 'fixtures/ranked-review-fixtures.json'));
   const result = consumeRankedReviewForJsCore({
@@ -22,8 +22,8 @@ test('JSCore-compatible entry consumes same projection and owner-action carrier'
   });
 
   assert.equal(result.projection.rows.length, 2);
-  assert.equal(result.request.target, 'slot::workflow');
-  assert.equal(result.request.payload.input.actor_ref, 'actor.ios');
+  // The action names no stance, so no stand request is built; the retired stand request carrier is gone.
+  assert.equal(result.request, null);
 });
 
 test('JSCore-compatible entry keeps empty state as projection data', async () => {

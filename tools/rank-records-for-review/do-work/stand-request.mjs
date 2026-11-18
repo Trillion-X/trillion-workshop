@@ -98,7 +98,7 @@ export function buildStandRequest(actionRequest) {
   const copied = copiedInput(action, lookup);
   const idempotencyRef = idempotencyRefFor(row, action, copied);
   return {
-    tool: 'tool:keep-where-you-stand',
+    tool: 'workflow:keep-where-the-person-stands-on-a-record',
     row_ref: row.recordId,
     idempotency_ref: idempotencyRef,
     request_ref: typeof lookup.requestRef === 'string' && lookup.requestRef ? lookup.requestRef : idempotencyRef,

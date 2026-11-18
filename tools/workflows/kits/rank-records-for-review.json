@@ -1,0 +1,69 @@
+{
+  "drafted_from": "tool:rank-records-for-review's own row and the old kit's sample runs (kits/rank-records-for-review.json), read on origin/main bb8022539c",
+  "start_here": "Say to your AI: \"Put my records in the order I should review them, using this descriptor: {\\\"id\\\": \\\"sample.review\\\", \\\"source\\\": {\\\"address\\\": \\\"sample.review.records\\\"}, \\\"fields\\\": [{\\\"id\\\": \\\"primary\\\", \\\"path\\\": [\\\"title\\\"]}], \\\"standKind\\\": \\\"suggestion\\\", \\\"standView\\\": {\\\"record\\\": [\\\"record_ref\\\"]}}\", with store {\\\"where\\\": \\\"postgresql database example_shop on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-shop-postgres-connection\\\"}.\"",
+  "lists": [],
+  "no_lists_because": "It names no list: the records and stands are the person's own rows, in whatever form their store keeps them.",
+  "workflows": [
+    "workflow:rank-records-for-review",
+    "workflow:keep-where-the-person-stands-on-a-record"
+  ],
+  "tools": [
+    "tool:run-workflow-definition",
+    "tool:accept-or-pass-on-a-ranked-record",
+    "tool:hand-a-job-to-an-ai"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:rank-records-for-review\" with store and the descriptor. Ask the person which fields they want shown.",
+    "3. The first run makes the view once and proves the order on the example records; every attempt must come out as the prove step says, or the run stops and says which.",
+    "4. To accept or pass a row, build the request with tool:accept-or-pass-on-a-ranked-record and run workflow:keep-where-the-person-stands-on-a-record with its input, once per act."
+  ],
+  "worked_examples": [
+    {
+      "title": "Rank a sample list",
+      "ask": "Put the sample review records in the order I should review them.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:rank-records-for-review",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "descriptor": {
+                "id": "sample.review",
+                "source": {
+                  "address": "sample.review.records"
+                },
+                "fields": [
+                  {
+                    "id": "primary",
+                    "path": [
+                      "title"
+                    ]
+                  }
+                ],
+                "standKind": "suggestion",
+                "standView": {
+                  "record": [
+                    "record_ref"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "workflow": "workflow:rank-records-for-review",
+      "step": "keep",
+      "given": "The example records r1 (rank 2), r2 (rank 1, agreed), r3 (no rank) and r4 (rank 1), with r4's stand taken back.",
+      "hands_back": "rows [r2 (rank 1, stand \"agree\"), r4 (rank 1, stand null), r1 (rank 2, stand null), r3 (rank null, stand null)] and counts for four records."
+    }
+  ]
+}

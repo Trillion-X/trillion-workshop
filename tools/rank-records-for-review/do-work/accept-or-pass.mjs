@@ -3,7 +3,7 @@
 // tool:accept-or-pass-on-a-ranked-record: one JSON request on standard input,
 //   { descriptor, record, action_id, input?, related?, stands? }
 // folds the one record with the descriptor, takes the named action on its row, and prints
-// { result: { tool: "tool:keep-where-you-stand", row_ref, idempotency_ref, request_ref, unchanged, input } } on the last
+// { result: { tool: "workflow:keep-where-the-person-stands-on-a-record", row_ref, idempotency_ref, request_ref, unchanged, input } } on the last
 // line: the request that keeps the person's accept or pass as their stand (`input` is what that tool takes; the refs
 // and `unchanged` are for the caller, who does not run it again for a ref it has run or when `unchanged` is true).
 // It writes nothing. A record the descriptor does not show, an unknown or disabled action, or a copy

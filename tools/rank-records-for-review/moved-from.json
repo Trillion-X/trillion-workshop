@@ -1,5 +1,5 @@
 {
-  "about": "Files moved here from the retired bitfield-packages repository, byte for byte, at the commit named on each file. Each file names its source path and commit and the BLAKE3 identity of its source bytes and of its bytes here. The files keep the package layout; their imports are as the package wrote them.",
+  "about": "Files moved here from the retired bitfield-packages repository, byte for byte, at the commit named on each file. Each file names its source path and commit and the BLAKE3 identity of its source bytes and of its bytes here. The files keep the package layout; their imports are as the package wrote them. Files removed by the recipe landing (workflow:rank-records-for-review, the ranking tool and the old engine transport) are no longer here.",
   "source": "bitfield-packages",
   "package": "trillion-workshop",
   "calls": [],
@@ -10,20 +10,6 @@
       "to": "tools/rank-records-for-review/data/ranked-review-descriptors.json",
       "source_identity": "1f:2ebb34dd6d4c61ec7254901bbf6762187a1b987c9a143f1321b67b2f2f95db53",
       "identity": "1f:2ebb34dd6d4c61ec7254901bbf6762187a1b987c9a143f1321b67b2f2f95db53"
-    },
-    {
-      "from": "packages/suggested-match/do-work/owner-action-request.js",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/rank-records-for-review/do-work/owner-action-request.js",
-      "source_identity": "1f:3289a7864700acd62df432aac61aef8ae9bbfcf228a7af25e74c4d5493a2586b",
-      "identity": "1f:3289a7864700acd62df432aac61aef8ae9bbfcf228a7af25e74c4d5493a2586b"
-    },
-    {
-      "from": "packages/suggested-match/do-work/refresh-request-descriptor.js",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/rank-records-for-review/do-work/refresh-request-descriptor.js",
-      "source_identity": "1f:37215b82fb9c9f575ee6376aa716f0f9e5c40ce8c9a499290a12990ca8051ef2",
-      "identity": "1f:37215b82fb9c9f575ee6376aa716f0f9e5c40ce8c9a499290a12990ca8051ef2"
     },
     {
       "from": "packages/suggested-match/ios-jscore/suggested-match-jscore.js",
@@ -45,13 +31,6 @@
       "to": "tools/rank-records-for-review/read-data/ranked-record-review-projection.js",
       "source_identity": "1f:fd5d19bdc382a45b5cf985251e2853f2af43309458505e2947632932b0a3ba88",
       "identity": "1f:fd5d19bdc382a45b5cf985251e2853f2af43309458505e2947632932b0a3ba88"
-    },
-    {
-      "from": "packages/suggested-match/things-to-store-and-run.json",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/rank-records-for-review/things-to-store-and-run.json",
-      "source_identity": "1f:267551463ca6670604ddaaef5b84fa9eeb73f59a1594f773cf2556fd47c49319",
-      "identity": "1f:267551463ca6670604ddaaef5b84fa9eeb73f59a1594f773cf2556fd47c49319"
     },
     {
       "from": "packages/suggested-match/fixtures/ranked-review-fixtures.json",

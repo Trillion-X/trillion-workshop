@@ -1,0 +1,202 @@
+{
+  "about": "workflow:rank-records-for-review: Put a person's records in the order they should review them: the rows the descriptor keeps (its filters), each with the fields the person chose, its related answers, the status keys and actions the de",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:rank-records-for-review",
+        "label": "Rank records for review, with the fields chosen and where the person stands",
+        "job": "Put a person's records in the order they should review them: the rows the descriptor keeps (its filters), each with the fields the person chose, its related answers, the status keys and actions the descriptor names, and the person's newest stand on it (none when the newest version takes the stand back). Rows come smallest rank first, then by record ref; a record with no rank comes last with rank null. The same records always give the same order.",
+        "produces": "The ranked rows, the counts (kept, left out, ranked) and each row's newest stand, read from the store's own rows.",
+        "source": {
+          "from": "tools/rank-records-for-review (read-data/rank-records-for-review.mjs, the pure fold; kits/rank-records-for-review.json), read on trillion-workshop origin/main bb8022539c",
+          "note": "The descriptor (id, source, fields, standKind, standView, filters, relationships, actions) is the person's DATA and is given in the request; the recipe names no domain. A stand is the person's accept or pass: the newest version of a stand of the descriptor's kind on the record's view, and a version that takes the stand back means none; an older stand in the history is never revived. Accepting or passing is not done here: the row's actions run through the stand recipe workflow:keep-where-the-person-stands-on-a-record, with the request tool:accept-or-pass-on-a-ranked-record builds (values only)."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store",
+            "descriptor"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string"
+                },
+                "language": {
+                  "type": "string"
+                },
+                "credential_name": {
+                  "type": "string"
+                }
+              }
+            },
+            "descriptor": {
+              "type": "object",
+              "required": [
+                "id",
+                "source",
+                "fields",
+                "standView",
+                "standKind"
+              ],
+              "description": "The person's descriptor: id; source {address}; fields [{id, path, role?, display?}]; standKind (one word); standView {key: path}; optional filters, relationships, status keys and actions"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the records named by the descriptor's source address are kept (kept_in, or null), where the stands are kept, and whether the descriptor's fields are all present in that store.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "stands_kept_in",
+                "fields_present"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "stands_kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "fields_present": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own view, once",
+            "do": "When the look step found nothing, make one view in the store's own form over the records of the descriptor's source, that carries the descriptor's fields and the rank, and a second view that gives each record its newest stand of the descriptor's kind on its view (the stand's version time, stance and why; taken-back versions give none). Make no copy of the words of a record beyond the fields the descriptor shows. Submit the names of the objects made, or the ones the look step found.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the order on the example records",
+            "do": "In a throwaway place in the same store, with example records r1 (rank 2, title 'B'), r2 (rank 1, title 'A'), r3 (no rank, title 'C') and r4 (rank 1, title 'D'), with a stand on r2 of the descriptor's kind (agree, newest), a stand on r4 that is taken back as the newest version, and a stand on r1 of another kind, read the rows: the order is r2, r4, r1, r3 (rank 1 by record ref, then rank 2, then the record with no rank last with rank null); r2 shows its agree stand; r4 and r1 and r3 show no stand. Submit the rows in order with rank and stand.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "rows"
+              ],
+              "properties": {
+                "rows": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "record",
+                      "rank"
+                    ],
+                    "properties": {
+                      "record": {
+                        "type": "string"
+                      },
+                      "rank": {
+                        "type": [
+                          "integer",
+                          "null"
+                        ]
+                      },
+                      "stand": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "keep",
+            "title": "Answer the ranked rows",
+            "do": "Read the rows of the descriptor's source that its filters keep, in the order rank then record ref, with null ranks last; for each row, the fields the descriptor shows, its related answers, its status keys and its actions, and its newest stand on its view. Submit rows (in order, each with record, rank, shown values, stand or null, and actions), and counts (kept, left out, ranked).",
+            "submit": {
+              "type": "object",
+              "required": [
+                "rows",
+                "counts"
+              ],
+              "properties": {
+                "rows": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "record",
+                      "rank"
+                    ],
+                    "properties": {
+                      "record": {
+                        "type": "string"
+                      },
+                      "rank": {
+                        "type": [
+                          "integer",
+                          "null"
+                        ]
+                      },
+                      "stand": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "actions": {
+                        "type": "array",
+                        "items": {
+                          "type": "object"
+                        }
+                      }
+                    }
+                  }
+                },
+                "counts": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": []
+          }
+        ],
+        "erase": "Nothing is kept by a ranking; the view follows the rows it reads, and a stand is erased only with its own record."
+      }
+    }
+  ]
+}

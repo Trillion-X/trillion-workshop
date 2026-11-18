@@ -145,7 +145,7 @@ async function firstAction(index = 0) {
 test('accept builds a keep-where-you-stand request on the row\'s view, with the person\'s words from the input', async () => {
   const { row, action } = await firstAction();
   const request = buildStandRequest({ ...action, lookup: { row, input: { why: 'Yes, these belong together.' } } });
-  assert.equal(request.tool, 'tool:keep-where-you-stand');
+  assert.equal(request.tool, 'workflow:keep-where-the-person-stands-on-a-record');
   assert.deepEqual(request.input, { kind: 'suggestion', view: { record: 'record.alpha', candidates: ['record.beta'] },
     stance: 'agree', answered_by: 'person', why: 'Yes, these belong together.' });
   assert.equal(request.row_ref, 'record.alpha');
