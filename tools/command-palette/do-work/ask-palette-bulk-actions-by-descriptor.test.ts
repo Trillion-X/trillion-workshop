@@ -10,7 +10,7 @@ import {
   readPaletteBulkActionDescriptorsFromReply,
   runPaletteBulkAction,
   type PaletteBulkActionDescriptor,
-} from './ask-palette-bulk-actions-by-descriptor';
+} from '../../find-anything-from-one-box/do-work/ask-palette-bulk-actions-by-descriptor';
 
 const sendRequestToBitfieldTarget = vi.fn();
 

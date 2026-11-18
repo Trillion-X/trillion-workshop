@@ -14,7 +14,7 @@ import {
   askAllPaletteSourcesByText,
   mapDispatchItemToPaletteRow,
   type PaletteSourceDescriptor,
-} from './ask-palette-sources-by-text';
+} from '../../find-anything-from-one-box/do-work/ask-palette-sources-by-text';
 
 vi.mock('#workspace-records', () => ({
   sendRequestToBitfieldTarget: vi.fn(),

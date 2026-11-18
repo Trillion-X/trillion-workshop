@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {matchRanges} from './match-ranges.ts';
+import {matchRanges} from '../../find-anything-from-one-box/show/match-ranges.ts';
 
 test('maps lowercase expansion back to its original UTF-16 character', () => {
   assert.deepEqual(matchRanges('i', 'İ'), [[0, 0]]);

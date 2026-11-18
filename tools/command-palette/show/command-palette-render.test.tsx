@@ -10,7 +10,7 @@ import { render } from '@testing-library/react';
 import React from 'react';
 import { CommandPalette } from './CommandPalette';
 import type { PaletteSearchResult } from './palette-types';
-import { readPaletteResultsFromReplies } from './read-palette-results';
+import { readPaletteResultsFromReplies } from '../../find-anything-from-one-box/show/read-palette-results';
 
 describe('CommandPalette - Render State Matrix', () => {
   // Test data

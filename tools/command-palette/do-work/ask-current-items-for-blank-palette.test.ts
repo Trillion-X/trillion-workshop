@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   askCurrentItemsForBlankPalette,
   makeListCurrentItemsRequest,
-} from './ask-current-items-ranked-by-text';
+} from '../../find-anything-from-one-box/do-work/ask-current-items-ranked-by-text';
 
 vi.mock('#workspace-records', () => ({ sendRequestToBitfieldTarget: vi.fn() }));
 import { sendRequestToBitfieldTarget } from '#workspace-records';

@@ -30,23 +30,23 @@ import { CommandPalette, type CommandPaletteFrameProps } from './CommandPalette'
 import { LoadingOverlay } from '../../ui/show/loading-overlay/LoadingOverlay';
 import {
   askCurrentItemsForBlankPalette,
-} from '../do-work/ask-current-items-ranked-by-text';
+} from '../../find-anything-from-one-box/do-work/ask-current-items-ranked-by-text';
 import {
   askAllPaletteSourcesByText,
   askPaletteSourceDescriptors,
   type PaletteSourceDescriptor,
-} from '../do-work/ask-palette-sources-by-text';
+} from '../../find-anything-from-one-box/do-work/ask-palette-sources-by-text';
 import {
   askPaletteBulkActionDescriptors,
   runPaletteBulkAction,
   type PaletteBulkActionDescriptor,
-} from '../do-work/ask-palette-bulk-actions-by-descriptor';
+} from '../../find-anything-from-one-box/do-work/ask-palette-bulk-actions-by-descriptor';
 import {
   runSelectedPaletteResult,
-} from '../do-work/run-selected-palette-result';
+} from '../../find-anything-from-one-box/do-work/run-selected-palette-result';
 import {
   readPaletteResultsFromReplies,
-} from './read-palette-results';
+} from '../../find-anything-from-one-box/show/read-palette-results';
 import type {
   PaletteSearchResult,
 } from './palette-types';

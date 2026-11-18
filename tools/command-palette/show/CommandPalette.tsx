@@ -28,8 +28,8 @@
 // =============================================================================
 
 import React, { useEffect, useRef, Fragment } from 'react';
-import { groupResults } from './read-palette-results';
-import { matchRanges } from './match-ranges';
+import { groupResults } from '../../find-anything-from-one-box/show/read-palette-results';
+import { matchRanges } from '../../find-anything-from-one-box/show/match-ranges';
 import type { PaletteSearchResult } from './palette-types';
 import { Button } from '../../ui/show/button';
 import { BulkSelectBar } from '../../ui/show/bulk-select-bar/BulkSelectBar';
