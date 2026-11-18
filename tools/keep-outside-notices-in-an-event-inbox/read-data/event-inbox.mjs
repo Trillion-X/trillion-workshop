@@ -19,7 +19,8 @@
 //   an upkeep row it was never asked for here lets it go at its next alarm.
 // - A source may also name upkeep (`tend`: for payments, keeping Stripe's prices in step with the offer rows), run at
 //   most once an hour when asked (tend) and kept running hourly by the alarm once asked, whatever store is busy.
-import { noticeInboxName } from '../../name-event-inboxes/src/event-inbox-names.mjs';
+// The name of a notice's inbox is the one workflow:name-event-inboxes keeps: notice:<the source's own event id>.
+const noticeInboxName = key => `notice:${key}`;
 
 const TEND_EVERY_MS = 60 * 60 * 1000;
 const FIRST_WAIT_MS = 3 * 1000;
