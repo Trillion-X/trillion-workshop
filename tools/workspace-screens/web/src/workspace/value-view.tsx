@@ -17,10 +17,13 @@
 //   4. Every answer is drawn, a refusal too (the door's `{code, outcome}`, drawn by the rows' own error row).
 //   5. A press sends only what the answer on the screen offered (project.mjs invariant 6), through the one tool, each with
 //      a fresh request key, and its answer is drawn in place: an answer is a screen, and a press's answer is the next one.
+//   7. Lens rows (the person's saved choices of what to show, project.mjs `lensFor`) are read once, through the request
+//      the view's own document names in its words (`lenses`: {address, method, input, rows_at}), the person's data, never
+//      this code: an answer draws at once and draws again when they arrive; a read that fails leaves the answer as drawn.
 //   6. Opened as a page (the door's `answer_link`), it draws the answer the address's fragment holds and offers no press.
 
 import { connectToAiApp } from '../../../../ui/show/ai-app-bridge/ai-app-bridge.mjs';
-import { projectValue } from '../../../../ui/show/view-of-a-value/project.mjs';
+import { lensFor, projectValue } from '../../../../ui/show/view-of-a-value/project.mjs';
 import { mountPartsScreen, type PartsScreenHandle, type PartsSpec } from './parts-screen';
 
 const HOST_ID = 'value-view';
@@ -55,9 +58,35 @@ function onlyOffered(spec: PartsSpec): PartsSpec {
   return { ...spec, elements };
 }
 
+// What the view's document says (its words JSON beside the host element): here, where its lens rows are read from.
+const said = (() => { try { return JSON.parse(document.getElementById(`${HOST_ID}-words`)?.textContent || '{}'); } catch { return {}; } })();
+let lensRows: unknown[] = [];
+let lensesAsked = false;
+let shown: { value: unknown; isError: boolean; canRun: boolean } | null = null;
+
+/** The value at a JSON Pointer of `value`. */
+const pointer = (value: unknown, at: string) => at.split('/').slice(1).map(step => step.replace(/~1/g, '/').replace(/~0/g, '~'))
+  .reduce<unknown>((here, step) => (here && typeof here === 'object' ? (here as Record<string, unknown>)[step] : undefined), value);
+
+/** Reads the person's lens rows once, through the app as the person, then draws the shown answer again with them. */
+function readLenses() {
+  const asked = said.lenses as (Offer & { rows_at?: string }) | undefined;
+  if (lensesAsked || !asked || typeof asked.address !== 'string' || typeof asked.method !== 'string') return;
+  lensesAsked = true;
+  app.callTool('run_resource_operation', { address: asked.address, method: asked.method, request_key: requestKey(), input: asked.input ?? {} })
+    .then(answer => {
+      const rows = pointer(answer, asked.rows_at ?? '');
+      if (!Array.isArray(rows) || !rows.length) return;
+      lensRows = rows;
+      if (shown) show(shown.value, shown.isError, shown.canRun);
+    }, () => { /* no lens rows: the answer stays as drawn */ });
+}
+
 /** Draws one answer, and keeps what it offers to run (nothing, where nothing can run: `canRun` false). */
 function show(value: unknown, isError = false, canRun = true) {
-  const drawn = projectValue(isError && typeof value === 'string' ? { error: {}, message: value } : value);
+  shown = { value, isError, canRun };
+  const answer = isError && typeof value === 'string' ? { error: {}, message: value } : value;
+  const drawn = projectValue(answer, { lens: lensFor(answer, lensRows) });
   offered = canRun ? drawn.requests : {};
   screen ??= mountPartsScreen(content, { call: (name, input) => press(name, input) });
   screen.requests(offered);
@@ -84,6 +113,7 @@ const app = connectToAiApp(window, {
   onToolResult: ({ structuredContent, content: blocks, isError }) => {
     // An answer with no structured value is drawn from its words.
     show(structuredContent ?? (blocks as { text?: string }[]).map(block => block?.text).filter(Boolean).join('\n'), isError);
+    readLenses();
   },
 });
 new ResizeObserver(() => app.reportSize()).observe(content);
