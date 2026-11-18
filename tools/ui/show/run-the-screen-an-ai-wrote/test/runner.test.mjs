@@ -28,7 +28,7 @@ const f = document.getElementById('f');
 window.addEventListener('message', async event => {
   const m = event.data; if (!m || m.jsonrpc !== '2.0') return;
   const reply = result => f.contentWindow.postMessage({ jsonrpc: '2.0', id: m.id, result }, '*');
-  if (m.method === 'ui/initialize') reply({ protocolVersion: '2026-01-26', hostContext: { displayMode: 'inline' } });
+  if (m.method === 'ui/initialize') reply({ protocolVersion: '2026-01-26', hostContext: { displayMode: 'inline', theme: 'dark' } });
   if (m.method === 'tools/call') { window.calls.push(m.params); reply(await window.door(m.params)); }
 });
 window.say = (method, params) => f.contentWindow.postMessage({ jsonrpc: '2.0', method, params }, '*');
@@ -69,7 +69,21 @@ test('code paints while it is typed, runs once whole, and its press runs through
     const run = (await one.calls()).find(call => call.arguments.method === 'records:read');
     assert.equal(run.name, 'run_resource_operation');
     assert.match(run.arguments.request_key, /^[0-9a-f]{32}$/);
+    assert.equal(await one.frame().evaluate(() => document.documentElement.style.colorScheme), 'dark', 'the page follows the app\'s dark theme');
     assert.deepEqual(one.errors, []);
+  } finally { await browser.close(); }
+});
+
+test('a request of the page\'s own that the app refuses is said on the screen, never dropped', async () => {
+  const browser = await chromium.launch();
+  try {
+    const keepWords = { ...words, keep: { address: '@tools', method: 'tools:run', input: { sql: 'insert', params: ['{id}'] } } };
+    const refused = await app(browser, keepWords, () => ({ isError: true, content: [{ type: 'text', text: 'The person has not allowed this.' }] }));
+    await refused.say('ui/notifications/tool-input', { arguments: { ...callArgs, screen: '<p id="s">shown</p>' } });
+    await refused.say('ui/notifications/tool-result', { structuredContent: {}, content: [] });
+    await refused.tab.waitForTimeout(200);
+    assert.equal(await refused.frame().textContent('#s'), 'shown');
+    assert.match(await refused.frame().textContent('body'), /This screen was not kept: The person has not allowed this\./);
   } finally { await browser.close(); }
 });
 

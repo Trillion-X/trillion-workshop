@@ -19,6 +19,9 @@
 //   and waits for a press. It is a different function, not a flag the code could change.
 // - A screen the call carried is kept, once per distinct code (its BLAKE3), through the words' `keep` request; so is one a
 //   request marked `keep_what_it_wrote` answered.
+// - A request of the page's own that is refused (keeping a screen, reading a kept one) says so above the screen, in the
+//   app's words; nothing the page asks fails silently.
+// - The page follows the app's light or dark theme (`color-scheme`), so the code's default colors are readable in either.
 // - A script that throws shows its words above the screen, with one press that asks for a new version, through the
 //   words' `fix_order` (else `order`), given the error and the code that threw.
 // - Nothing here branches on what an answer, a screen or an operation is.
@@ -33,6 +36,10 @@ export function runScreens(win, { connect, words = {} }) {
   let code = null, ran = null, wanted = null, call = null, answer = null, text = '', madeBy = null, tried = false;
   const hearers = new Set();
   const app = connect({ onToolInput, onToolResult, content: host });
+  // The app's theme, as it says it (`theme` in its host context): the page and the code drawn in it follow it, so default
+  // text is never dark on a dark app. Until it says, the device's own preference.
+  doc.documentElement.style.colorScheme = 'light dark';
+  app.onPlacement?.(context => { if (context?.theme === 'light' || context?.theme === 'dark') doc.documentElement.style.colorScheme = context.theme; });
   const requestKey = () => bytesToHex(win.crypto.getRandomValues(new Uint8Array(16)));
   const send = (address, method, input) => app.callTool('run_resource_operation', { address, method, request_key: requestKey(), input: input ?? {} });
   // A request the words name, with each "{name}" string in it given its value.
@@ -52,18 +59,22 @@ export function runScreens(win, { connect, words = {} }) {
     };
   }
 
-  // The one line this page itself says: a call a screen not the person's own wants to make, and the press that lets it.
-  function ask(what) {
-    return new Promise(resolve => {
-      const line = doc.createElement('p');
+  // A line this page itself says above the screen, with an optional press.
+  function say(text, pressWords = null, onPress = null) {
+    const line = doc.createElement('p');
+    line.textContent = `${text} `;
+    if (pressWords) {
       const press = doc.createElement('button');
-      line.textContent = `${words.asks ?? 'This screen wants to run'} ${what}. `;
-      press.textContent = words.allow ?? 'Allow';
-      press.onclick = () => { line.remove(); resolve(); };
+      press.textContent = pressWords;
+      press.onclick = () => { line.remove(); onPress(); };
       line.append(press);
-      host.before(line);
-    });
+    }
+    host.before(line);
+    app.reportSize();
   }
+
+  // A call a screen not the person's own wants to make, and the press that lets it.
+  const ask = what => new Promise(resolve => say(`${words.asks ?? 'This screen wants to run'} ${what}.`, words.allow ?? 'Allow', resolve));
 
   function paint() {
     wanted = null;
@@ -109,7 +120,7 @@ export function runScreens(win, { connect, words = {} }) {
     const id = bytesToHex(blake3(new TextEncoder().encode(kept)));
     if (keep.done?.has(id)) return;
     (keep.done ??= new Set()).add(id);
-    await send(words.keep.address, words.keep.method, asked(words.keep, { id, for_operation: forOperation(), code: kept, made_by: madeBy })).catch(() => {});
+    await send(words.keep.address, words.keep.method, asked(words.keep, { id, for_operation: forOperation(), code: kept, made_by: madeBy })).catch(error => say(`${words.not_kept ?? 'This screen was not kept:'} ${error?.message ?? error}`));
   }
 
   async function tryInOrder(error = null) {
@@ -119,7 +130,10 @@ export function runScreens(win, { connect, words = {} }) {
       const request = words[name];
       if (!request) continue;
       const values = { for_operation: forOperation(), answer: JSON.stringify(answer), error, code };
-      const found = await send(request.address, request.method, asked(request, values)).then(reply => at(reply, request.code_at), () => null);
+      const found = await send(request.address, request.method, asked(request, values)).then(reply => at(reply, request.code_at), error => {
+        say(`${words.not_found ?? 'A kept screen could not be read:'} ${error?.message ?? error}`);
+        return null;
+      });
       const row = Array.isArray(found) ? found[0] : found;
       const written = typeof row === 'string' ? row : row?.code;
       if (typeof written === 'string' && written.trim()) {
@@ -138,15 +152,9 @@ export function runScreens(win, { connect, words = {} }) {
     }
   }
 
-  win.addEventListener('error', event => {
-    const said = doc.createElement('p');
-    const fix = doc.createElement('button');
-    said.textContent = `${event.message} `;
-    fix.textContent = words.fix ?? 'Fix';
-    fix.onclick = () => { said.remove(); const broken = code; code = null; ran = null; tryInOrder(`${event.message}\n\n${broken}`); };
-    said.append(fix);
-    host.before(said);
-  });
+  win.addEventListener('error', event => say(event.message, words.fix ?? 'Fix', () => {
+    const broken = code; code = null; ran = null; tryInOrder(`${event.message}\n\n${broken}`);
+  }));
 
   // Opened as a page (an answer's link, outside any app), the answer comes in the address's fragment, under the name the
   // words give (`fragment_answer`), as base64url JSON. With no app there is nothing to ask, so the answer is shown as text.
