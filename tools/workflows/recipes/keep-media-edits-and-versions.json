@@ -1,0 +1,69 @@
+{
+  "about": "workflow:keep-media-edits-and-versions: a media edit's command log, its snapshot and each recording's versions, kept in the person's own store so a tab closed mid-edit loses nothing and each version beside the untouched original is kept until the person removes it. It replaces the store calls of tools/keep-the-media-editors-open-session-its-published (src/work-media-session.mjs: the facts edit, log, snapshot and versions, read and written through the person's store), whose whole job was keeping these records (rule a-tool-is-only-what-the-store-cannot-do). Reducing a command to the edit's state, judging a version (canPublish, publish, default, remove) and measuring track alignment stay values in, values out in media-composition and in the folder's handler.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-media-edits-and-versions",
+        "label": "Keep media edits and their versions",
+        "job": "Keep each media edit's command log and snapshot in the person's store, a command kept once per sequence number, a snapshot replacing the log before it, and each recording's versions state kept whole as the latest; read back the edit's snapshot, the commands after it and each recording's versions.",
+        "produces": "The store's own objects for edit logs, snapshots and versions, proven on the example attempts, and each command, snapshot or versions state kept, repeated or refused and read back.",
+        "source": {
+          "from": "tools/keep-the-media-editors-open-session-its-published/src/work-media-session.mjs (the factStore of the edit log: append, putSnapshot, latestSnapshot, entriesAfter; the versions facts read and set by the route), read on trillion-workshop origin/main",
+          "note": "Only the keeping is the store's job: the log of commands (one entry per sequence number), the snapshot that ends the log, and the versions state of each recording (one current state). The state of an edit is replayed by the reducer in media-composition (a values-in function), never by the store."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": ["store"],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": ["where", "language"],
+              "properties": {
+                "where": {"type": "string", "description": "Where the person keeps these things: the store's own address"},
+                "language": {"type": "string", "description": "How that store is spoken to, in its own terms"},
+                "credential_name": {"type": "string", "description": "The vault name of the login the run uses, when it needs one"},
+                "place": {"type": "string", "description": "Where in the store these are kept, when they already are"}
+              }
+            },
+            "writes": {"type": "array", "items": {"type": "object"}, "description": "Writes to keep, each {kind: command, edit_id, seq, command} or {kind: snapshot, edit_id, seq, state} or {kind: versions, recording_id, state}"}
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the edits are already kept (kept_in, or null) and the names of the objects that already keep them, and show them.",
+            "submit": {"type": "object", "required": ["kept_in", "objects"], "properties": {"kept_in": {"type": ["string", "null"]}, "objects": {"type": "array", "items": {"type": "string"}}}},
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing, make the store's own objects in its own form: command entries (edit_id and seq unique, the command as its own JSON value), snapshots (one per edit, its seq and state; keeping a snapshot removes the command entries at or before its seq), and versions (one current state per recording_id, replaced whole). Grant only what the store's holder allows the login. Submit the names of the objects made, or the ones the look step found.",
+            "submit": {"type": "object", "required": ["objects"], "properties": {"objects": {"type": "array", "items": {"type": "string"}}}},
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example attempts",
+            "do": "In a throwaway place in the same store, with the same objects, keep these attempts in order, each through the store's own objects. The example attempts, in order: [{\"kind\": \"command\", \"edit_id\": \"e1\", \"seq\": 1, \"command\": {\"type\": \"set\", \"path\": [\"title\"], \"value\": \"A\"}}, {\"kind\": \"command\", \"edit_id\": \"e1\", \"seq\": 2, \"command\": {\"type\": \"set\", \"path\": [\"title\"], \"value\": \"B\"}}, {\"kind\": \"command\", \"edit_id\": \"e1\", \"seq\": 2, \"command\": {\"type\": \"set\", \"path\": [\"title\"], \"value\": \"B\"}}, {\"kind\": \"snapshot\", \"edit_id\": \"e1\", \"seq\": 2, \"state\": {\"title\": \"B\"}}, {\"kind\": \"command\", \"edit_id\": \"e1\", \"seq\": 3, \"command\": {\"type\": \"set\", \"path\": [\"title\"], \"value\": \"C\"}}, {\"kind\": \"versions\", \"recording_id\": \"r1\", \"state\": {\"versions\": [\"V1\"]}}, {\"kind\": \"versions\", \"recording_id\": \"r1\", \"state\": {\"versions\": [\"V1\"]}}, {\"kind\": \"versions\", \"recording_id\": \"r1\", \"state\": {\"versions\": [\"V1\", \"V2\"]}}, {\"kind\": \"command\", \"edit_id\": \"e1\", \"seq\": 3, \"command\": {\"type\": \"set\", \"path\": [\"title\"], \"value\": \"D\"}}]. Rules: a command whose edit_id and seq are kept with the same command is repeated and writes nothing; with a different command it is refused (\"This sequence number already holds another command.\"). A snapshot is kept whole and removes the command entries at or before its seq. A versions state equal to the one kept is repeated; another replaces it. Then answer: for e1, snapshot_seq (the seq of the kept snapshot, or null), log_after_snapshot (the seqs of the command entries kept after it, in order), for r1 its versions (the kept state's list), and kept_count (the number of attempts kept). Then remove the throwaway place. Submit outcomes (one of kept, repeated or refused per attempt, in order, with the refusal's words for a refused one) and answer.",
+            "submit": {"type": "object", "required": ["outcomes", "answer"], "properties": {"outcomes": {"type": "array", "items": {"type": "string"}}, "answer": {"type": "object"}}},
+            "checks": [
+              {"kind": "covers", "says": "Each attempt is kept, repeated or refused as the intent says", "path": ["this", "outcomes"], "values": [["kept", "kept", "repeated", "kept", "kept", "kept", "repeated", "kept", "refused"]]},
+              {"kind": "covers", "says": "The store's own objects give every expected answer", "path": ["this", "answer"], "values": [{"snapshot_seq": 2, "log_after_snapshot": [3], "versions": ["V1", "V2"], "kept_count": 6}]}
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's commands, snapshots and versions",
+            "do": "Keep each item of writes, in order, through the store's own objects, and read every kept object back. Submit kept (each item kept or repeated), refused (each refused item and the store's own words for why) and found (each edit's snapshot_seq and log_after_snapshot, and each recording's versions, read back). With no writes, submit empty lists.",
+            "submit": {"type": "object", "required": ["kept", "refused", "found"], "properties": {"kept": {"type": "array", "items": {"type": "string"}}, "refused": {"type": "array", "items": {"type": "object"}}, "found": {"type": "object"}}},
+            "checks": []
+          }
+        ],
+        "erase": "On the person's request the store deletes an edit's commands and snapshot, or a recording's versions; the media itself is not kept here."
+      }
+    }
+  ]
+}
