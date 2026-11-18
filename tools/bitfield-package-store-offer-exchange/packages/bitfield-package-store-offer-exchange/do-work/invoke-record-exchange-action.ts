@@ -1,5 +1,5 @@
-import type { ExchangeAction, ExchangeRelationship, RuleResult } from '../read-data/read-record-exchange-projection';
-import { isRecordMap } from '../read-data/read-record-exchange-projection';
+import type { ExchangeAction, ExchangeRelationship, RuleResult } from '../../../../browse-and-publish-what-my-ai-can-use/packages/bitfield-package-store-offer-exchange/read-data/read-record-exchange-projection';
+import { isRecordMap } from '../../../../browse-and-publish-what-my-ai-can-use/packages/bitfield-package-store-offer-exchange/read-data/read-record-exchange-projection';
 import { buildOwnerActionIntent, type OwnerActionIntent } from './build-owner-action-intent';
 
 export interface InvokeRecordExchangeActionInput {

@@ -21,7 +21,7 @@ runtime primitives.
 - `data/record-exchange-descriptors.json` declares the open descriptor families.
 - `data/record-exchange-fixtures.json` carries example facts, including one
   package-store example and one unrelated exchange example.
-- `read-data/read-record-exchange-projection.ts` builds a generic projection from
+- `tools/browse-and-publish-what-my-ai-can-use/packages/bitfield-package-store-offer-exchange/read-data/read-record-exchange-projection.ts` builds a generic projection from
   descriptors and facts.
 - `do-work/build-owner-action-intent.ts` builds owner-action intent payloads from
   action descriptors and explicit inputs.

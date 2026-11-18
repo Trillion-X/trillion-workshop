@@ -82,13 +82,6 @@
       "identity": "1f:7ae67390e19f763dae1df41d8022b64bf24232d17fc78d70e9c1a91fec114906"
     },
     {
-      "from": "packages/bitfield-package-store-offer-exchange/read-data/read-record-exchange-projection.ts",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/bitfield-package-store-offer-exchange/packages/bitfield-package-store-offer-exchange/read-data/read-record-exchange-projection.ts",
-      "source_identity": "1f:68c25f9fef4894ca299f7283e224a3a7ca6f6632d8cf0b671ff9bd05cf66f55a",
-      "identity": "1f:68c25f9fef4894ca299f7283e224a3a7ca6f6632d8cf0b671ff9bd05cf66f55a"
-    },
-    {
       "from": "packages/bitfield-package-store-offer-exchange/read-data/README.md",
       "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
       "to": "tools/bitfield-package-store-offer-exchange/packages/bitfield-package-store-offer-exchange/read-data/README.md",
@@ -118,20 +111,6 @@
       "to": "tools/bitfield-package-store-offer-exchange/packages/bitfield-package-store-offer-exchange/show-ios-jscore/README.md",
       "source_identity": "1f:a77f7c207d5e3f538d20ec8fa77accd9bbc8bb4926a06e74019c70488759f01a",
       "identity": "1f:a77f7c207d5e3f538d20ec8fa77accd9bbc8bb4926a06e74019c70488759f01a"
-    },
-    {
-      "from": "packages/bitfield-package-store-offer-exchange/show/map-record-exchange-projection.ts",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/bitfield-package-store-offer-exchange/packages/bitfield-package-store-offer-exchange/show/map-record-exchange-projection.ts",
-      "source_identity": "1f:ec66e50cfe08266dc741d84b9d63594c45449eadf27921daaf7a66955fda055d",
-      "identity": "1f:ec66e50cfe08266dc741d84b9d63594c45449eadf27921daaf7a66955fda055d"
-    },
-    {
-      "from": "packages/bitfield-package-store-offer-exchange/show/offer-setup-surface-descriptor.ts",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/bitfield-package-store-offer-exchange/packages/bitfield-package-store-offer-exchange/show/offer-setup-surface-descriptor.ts",
-      "source_identity": "1f:adab42ac439c26cf246385bfcd2bd30f67fcaf5e22ef2651d44f1fb868cbca49",
-      "identity": "1f:adab42ac439c26cf246385bfcd2bd30f67fcaf5e22ef2651d44f1fb868cbca49"
     },
     {
       "from": "packages/bitfield-package-store-offer-exchange/show/README.md",
