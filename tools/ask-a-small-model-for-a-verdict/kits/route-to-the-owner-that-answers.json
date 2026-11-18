@@ -21,7 +21,6 @@
         "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@tools",
           "method": "tools:list",
           "input": {
             "tool": "tool:route-to-the-owner-that-answers"

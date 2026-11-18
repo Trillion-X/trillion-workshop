@@ -21,7 +21,6 @@
         "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:cut-and-caption",
@@ -89,7 +88,6 @@
         "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:cut-and-caption",

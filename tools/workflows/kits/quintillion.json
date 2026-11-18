@@ -135,7 +135,6 @@
         "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:run-workflow-definition",
@@ -167,7 +166,6 @@
         "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:run-workflow-definition",

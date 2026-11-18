@@ -21,7 +21,6 @@
         "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@tools",
           "method": "tools:list",
           "input": {
             "tool": "tool:list-clips-that-are-parts-of-a-series"

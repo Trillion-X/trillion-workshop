@@ -22,7 +22,6 @@
         "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@tools",
           "method": "tools:list",
           "input": {
             "tool": "tool:set-up-account-hooks-in-an-ai-app-on-this-computer"

@@ -124,7 +124,6 @@
         "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:pull-a-time-window-from-a-stored-camera-file",
@@ -148,7 +147,6 @@
         "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:pull-a-time-window-from-a-stored-camera-file",

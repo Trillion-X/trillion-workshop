@@ -125,7 +125,6 @@
         "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:find-a-spoken-passage-in-word-times",
@@ -148,7 +147,6 @@
         "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:find-a-spoken-passage-in-word-times",

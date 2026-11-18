@@ -126,7 +126,6 @@
         "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@tools",
           "method": "tools:list",
           "input": {
             "tool": "tool:check-every-claim-against-its-facts-and-sources"

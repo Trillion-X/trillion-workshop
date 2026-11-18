@@ -465,7 +465,6 @@
         "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:watch-my-sources",
@@ -491,7 +490,6 @@
         "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@tools",
           "method": "tools:run",
           "input": {
             "tool": "tool:watch-my-sources",

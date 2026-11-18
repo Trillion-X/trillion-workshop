@@ -21,7 +21,6 @@
         "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@tools",
           "method": "tools:list",
           "input": {
             "tool": "tool:keep-my-account-in-your-instructions"
@@ -38,7 +37,6 @@
         "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@tools",
           "method": "tools:list",
           "input": {
             "tool": "tool:keep-my-account-in-your-instructions"

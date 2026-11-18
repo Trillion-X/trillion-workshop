@@ -30,7 +30,6 @@
     "accept": "application/json, text/event-stream, application/octet-stream"
   },
   "files": {
-    "address": "@tools",
     "method": "tools:run",
     "input": {
       "tool": "tool:your-files",
@@ -46,7 +45,6 @@
     }
   },
   "this_computer": {
-    "address": "@tools",
     "method": "tools:run",
     "input": {
       "tool": "tool:your-files",

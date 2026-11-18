@@ -130,7 +130,6 @@
         "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@tools",
           "method": "tools:list",
           "input": {
             "tool": "tool:say-a-narration-line-in-a-cloned-voice-model"

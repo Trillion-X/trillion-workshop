@@ -126,7 +126,6 @@
         "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@tools",
           "method": "tools:list",
           "input": {
             "tool": "tool:turn-caption-quotes-into-analysis-device-rows"
@@ -143,7 +142,6 @@
         "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@tools",
           "method": "tools:list",
           "input": {
             "tool": "tool:turn-caption-quotes-into-analysis-device-rows"

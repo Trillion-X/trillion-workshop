@@ -127,7 +127,6 @@
         "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
-          "address": "@tools",
           "method": "tools:list",
           "input": {
             "tool": "tool:put-a-picked-option-into-a-filmcraft-project"

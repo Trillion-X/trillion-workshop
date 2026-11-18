@@ -74,7 +74,6 @@
     "waiting": "pending"
   },
   "approve": {
-    "address": "@tools",
     "method": "tools:add-source"
   },
   "label": {
