@@ -1,0 +1,207 @@
+{
+  "about": "workflow:claim-a-public-name: claims a public name (a share link's address, a published page's address) in the person's own store, so that a name is held by one claimant at a time: a chosen name is claimed when it is free or already the claimant's, and refused as taken otherwise; an automatic name takes its base when free, else the first free candidate, else is refused. A name must be lowercase letters, digits and hyphens and must not look like a long hexadecimal code. It replaces the claim step of tools/give-shared-things-readable-names (src/readable-names.mjs claimPublicName and nameFromWords), whose holder check was the caller's own name list. The random words a secret name or a suffix is made of stay in that folder: making random words from a word list is computing what the store cannot hold (rule a-tool-is-only-what-the-store-cannot-do). The folder stays, because its importers in the other repository still name it.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:claim-a-public-name",
+        "label": "Claim a public name",
+        "job": "Claim a public name for a person in their own store, so that each name is held by one claimant at a time: a chosen name when it is free or theirs, otherwise the first free name from the thing's own words, and never a name that is not readable.",
+        "produces": "A public name held by one claimant in the person's own store, proven on the example claims in three stores of different kinds, with each claim claimed or refused.",
+        "source": {
+          "from": "tools/give-shared-things-readable-names (src/readable-names.mjs: claimPublicName, nameFromWords, LOOKS_LIKE_CODE), read on trillion-workshop origin/main",
+          "note": "The rule for every namespace is the old one. The random suffixes and the random fallback are the tool's, handed in as candidates; the store only holds and refuses. A claim whose candidates are all taken is refused, never given an unchecked name."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store",
+            "claim",
+            "by"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps the public names: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                }
+              }
+            },
+            "claim": {
+              "type": "string",
+              "description": "The name chosen, or the thing's own base words"
+            },
+            "chosen": {
+              "type": "boolean",
+              "description": "true when the person chose the exact name"
+            },
+            "by": {
+              "type": "string",
+              "description": "The claimant's id"
+            },
+            "candidates": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "The automatic alternatives in the order to try, made by the tool that owns the random words"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read which public names the store already holds",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read the public names already held, each with the claimant that holds it. Submit where the names are kept (or null) and how many are held.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "held"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "held": {
+                  "type": "integer"
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own name list, once",
+            "do": "When the look step found none, make the store's own objects in its own form: one row per public name, keyed by the name itself with a unique key on it, so the store itself refuses a second claim of a name held by someone else; each row names its claimant. Grant the person's login only what the store's holder allows. Submit the names of the objects made.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the claims on the example names",
+            "do": "In a throwaway place in the same store, with the same objects, make these claims in order, each at the time given: [{\"at\": \"2026-11-18T10:00:00Z\", \"claim\": \"ledger-club\", \"chosen\": true, \"by\": \"a\"}, {\"at\": \"2026-11-18T10:01:00Z\", \"claim\": \"ledger-club\", \"chosen\": true, \"by\": \"b\"}, {\"at\": \"2026-11-18T10:02:00Z\", \"claim\": \"ledger-club\", \"chosen\": true, \"by\": \"a\"}, {\"at\": \"2026-11-18T10:03:00Z\", \"claim\": \"ledger\", \"chosen\": false, \"by\": \"b\", \"candidates\": [\"ledger-apple\", \"ledger-bread\"]}, {\"at\": \"2026-11-18T10:04:00Z\", \"claim\": \"ledger\", \"chosen\": false, \"by\": \"c\", \"candidates\": [\"ledger-apple\", \"ledger-bread\"]}, {\"at\": \"2026-11-18T10:05:00Z\", \"claim\": \"ledger\", \"chosen\": false, \"by\": \"d\", \"candidates\": [\"ledger-apple\"]}, {\"at\": \"2026-11-18T10:06:00Z\", \"claim\": \"Ledger Club\", \"chosen\": true, \"by\": \"e\"}]. A chosen name is claimed when it is free or already the claimant's, and refused as taken otherwise. An automatic name is the base when it is free or already the claimant's; otherwise the first free candidate in the order given; otherwise refused as having no free name. A name that does not match lowercase letters, digits and hyphens, or that looks like a long hexadecimal code, is refused as not a name. Each claim must give the outcome the intent gives, and the store's own name list must give every expected answer below.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answer"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "answer": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each claim is claimed or refused as the intent says",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "claimed",
+                    "refused",
+                    "claimed",
+                    "claimed",
+                    "claimed",
+                    "refused",
+                    "refused"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "The store's own name list holds each name for its claimant, and nothing else",
+                "path": [
+                  "this",
+                  "answer"
+                ],
+                "values": [
+                  {
+                    "held": {
+                      "ledger-club": "a",
+                      "ledger": "b",
+                      "ledger-apple": "c"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's claim",
+            "do": "Claim the name as given, through the store's own name list, and read it back. Submit outcome (claimed, or refused with the store's words), the name the claim holds, and its claimant.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcome"
+              ],
+              "properties": {
+                "outcome": {
+                  "type": "string"
+                },
+                "reason": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "claimant": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            },
+            "checks": []
+          }
+        ]
+      }
+    }
+  ]
+}

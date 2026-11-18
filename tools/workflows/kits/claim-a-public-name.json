@@ -1,0 +1,78 @@
+{
+  "drafted_from": "tools/give-shared-things-readable-names (src/readable-names.mjs claimPublicName and nameFromWords; src/readable-names.json pattern)",
+  "start_here": "Say to your AI: \"Run workflow:claim-a-public-name with store {\\\"where\\\": \\\"postgresql database example_me on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-me-postgres-connection\\\"}, claim \\\"ledger-club\\\", chosen true and by \\\"a\\\".\" It holds the name ledger-club for you in your own database, or tells you it is taken.",
+  "lists": [],
+  "no_lists_because": "It names no list of its own: the public names are held in the person's own store, in whatever form that store keeps them, and store says where and in which language.",
+  "workflows": [
+    "workflow:claim-a-public-name"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the public names are kept and how the store is spoken to.",
+    "2. Say \"Run workflow:claim-a-public-name\" with store, the name, whether you chose it exactly, the claimant's id and any candidates the tool made.",
+    "3. The first run makes the name list once and proves the claims on the example names: every expected outcome and answer must match, or the run stops and says which.",
+    "4. Every later run holds the name for its claimant when it is free or theirs, and otherwise refuses it or takes the first free candidate."
+  ],
+  "worked_examples": [
+    {
+      "title": "Hold the name ledger-club for me",
+      "ask": "Give my club the address ledger-club.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:claim-a-public-name",
+              "store": {
+                "where": "postgresql database example_me on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-me-postgres-connection"
+              },
+              "claim": "ledger-club",
+              "chosen": true,
+              "by": "a"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:claim-a-public-name",
+      "step": "keep",
+      "given": "The look step found the name free; the prove step matched every expected outcome and answer.",
+      "hands_back": "outcome \"claimed\", the name \"ledger-club\" held by the claimant \"a\"."
+    },
+    {
+      "title": "A name someone else holds is refused",
+      "ask": "Give my club the address ledger-club, for claimant b.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:claim-a-public-name",
+              "store": {
+                "where": "postgresql database example_me on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-me-postgres-connection"
+              },
+              "claim": "ledger-club",
+              "chosen": true,
+              "by": "b"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:claim-a-public-name",
+      "step": "keep",
+      "given": "The name ledger-club is already held by the claimant a.",
+      "hands_back": "outcome \"refused\" with the reason \"taken\"; the name is not changed."
+    }
+  ]
+}
