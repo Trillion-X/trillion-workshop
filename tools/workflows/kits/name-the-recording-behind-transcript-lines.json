@@ -1,0 +1,78 @@
+{
+  "drafted_from": "tools/name-the-recording-behind-transcript-lines (do-work/name_recording.py, test/test_name_recording.py, tool-rows.json)",
+  "start_here": "Say to your AI: \"Run workflow:name-the-recording-behind-transcript-lines with store {\\\"where\\\": \\\"postgresql database example_me on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-me-postgres-connection\\\"} and ranges [\\\"12-40\\\", \\\"90-95\\\"].\" It tells you which recording lines 12 to 40 and 90 to 95 come from, and where in it.",
+  "lists": [],
+  "no_lists_because": "It names no list of its own: the archive windows are the person's own rows in their own store, in whatever form that store keeps them, and store says where and in which language.",
+  "workflows": [
+    "workflow:name-the-recording-behind-transcript-lines"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the archive windows are kept and how the store is spoken to.",
+    "2. Say \"Run workflow:name-the-recording-behind-transcript-lines\" with store and the line ranges, each first-last.",
+    "3. The first run makes the window rows once and proves the lookup on the example windows: every expected answer must match, or the run stops and says which.",
+    "4. Every later run names the recording and first words of each window that overlaps each range you give, and says which ranges overlap none."
+  ],
+  "worked_examples": [
+    {
+      "title": "Which recording lines 12 to 40 come from",
+      "ask": "Lines 12 to 40 of my transcript archive: which recording is that?",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:name-the-recording-behind-transcript-lines",
+              "store": {
+                "where": "postgresql database example_me on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-me-postgres-connection"
+              },
+              "ranges": [
+                "12-40"
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:name-the-recording-behind-transcript-lines",
+      "step": "keep",
+      "given": "The look step found the archive windows kept in the person's database; the prove step matched every expected answer.",
+      "hands_back": "Three windows: h1 of Harbour talk lines 1 to 50, m1 of Market walk lines 1 to 30, and m2 of Market walk lines 31 to 60, each with its first words."
+    },
+    {
+      "title": "A range that starts after it ends is refused",
+      "ask": "Lines 9 to 3.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:name-the-recording-behind-transcript-lines",
+              "store": {
+                "where": "postgresql database example_me on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-me-postgres-connection"
+              },
+              "ranges": [
+                "9-3"
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:name-the-recording-behind-transcript-lines",
+      "step": "keep",
+      "given": "The range ends before it starts.",
+      "hands_back": "Refused: the range 9-3 ends before it starts, so write the smaller line number first, for example 3-9."
+    }
+  ]
+}

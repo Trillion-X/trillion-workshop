@@ -1,0 +1,237 @@
+{
+  "about": "workflow:name-the-recording-behind-transcript-lines: names the recording behind a stretch of lines in a transcript archive: each archive window that overlaps the cited line range, with its recording's title, its own line span and its first words, so the passage can be found in the person's media. It replaces tools/name-the-recording-behind-transcript-lines (do-work/name_recording.py, which read an archive index JSON file from the folder the person let it read): the archive windows are rows the person's store keeps, and an overlap is a range query over them (rule a-tool-is-only-what-the-store-cannot-do). The preview length and the default archive are the person's settings rows, handed in by the AI that reads them.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:name-the-recording-behind-transcript-lines",
+        "label": "Name the recording behind transcript lines",
+        "job": "Name the recording behind a cited line range of a transcript archive: every archive window overlapping the range, with its recording's title, its line span and its first words, and the ranges that overlap no window.",
+        "produces": "The overlapping windows for each cited range, read from the store's own rows, proven on the example windows in three stores of different kinds, with each range answered or refused.",
+        "source": {
+          "from": "tools/name-the-recording-behind-transcript-lines (do-work/name_recording.py, test/test_name_recording.py), read on trillion-workshop origin/main; ports/name-recording.json",
+          "note": "The overlap rule and the printed line are the old tool's: a window overlaps a range when it starts on or before the range's last line and ends on or after its first. A bad range is refused with what to write instead. Nothing here reads a file on the computer: the windows are the person's own rows."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store",
+            "ranges"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps the archive windows: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                }
+              }
+            },
+            "ranges": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Line ranges, each first-last, for example 120-180"
+            },
+            "archive": {
+              "type": "string",
+              "description": "The archive the windows belong to, when the store keeps more than one"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read the archive windows the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read the archive windows already kept for the recording: each window's id, recording title, first and last line and text. Submit where they are kept (or null) and how many windows were read.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "windows_read"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "windows_read": {
+                  "type": "integer"
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own window rows, once",
+            "do": "When the look step found none, make the store's own objects in its own form: one row per archive window, keyed by its id, holding the recording title, the first and last line and the text, with an index on the line span so a range is found without reading every window. Grant the person's login only what the store's holder allows. Submit the names of the objects made.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the lookup on the example windows",
+            "do": "In a throwaway place in the same store, with the same objects, keep these windows: [{\"id\": \"h1\", \"recording\": \"Harbour talk\", \"start_line\": 1, \"end_line\": 50, \"text\": \"Welcome to the harbour\"}, {\"id\": \"h2\", \"recording\": \"Harbour talk\", \"start_line\": 51, \"end_line\": 100, \"text\": \"The boats leave at dawn\"}, {\"id\": \"m1\", \"recording\": \"Market walk\", \"start_line\": 1, \"end_line\": 30, \"text\": \"Bread first\"}, {\"id\": \"m2\", \"recording\": \"Market walk\", \"start_line\": 31, \"end_line\": 60, \"text\": \"Then the fish stalls\"}]. Then ask for each range in order: [\"12-40\", \"90-95\", \"200-210\", \"9-3\", \"abc\"]. A range is first-last with first not after last, each a whole number, and anything else is refused with what a range looks like. A window overlaps a range when it starts on or before the range's last line and ends on or after its first. Each range must give the outcome the intent gives, and the store's own rows must give every expected answer below.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answers"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "answers": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each range is answered or refused as the intent says",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "answered",
+                    "answered",
+                    "answered",
+                    "refused",
+                    "refused"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "Each answered range gives the overlapping windows with their recording, their line span and their first words, and a range that overlaps no window is listed as not found",
+                "path": [
+                  "this",
+                  "answers"
+                ],
+                "values": [
+                  [
+                    {
+                      "matches": [
+                        {
+                          "id": "h1",
+                          "recording": "Harbour talk",
+                          "span": [
+                            1,
+                            50
+                          ],
+                          "preview": "Welcome to the harbour"
+                        },
+                        {
+                          "id": "m1",
+                          "recording": "Market walk",
+                          "span": [
+                            1,
+                            30
+                          ],
+                          "preview": "Bread first"
+                        },
+                        {
+                          "id": "m2",
+                          "recording": "Market walk",
+                          "span": [
+                            31,
+                            60
+                          ],
+                          "preview": "Then the fish stalls"
+                        }
+                      ]
+                    },
+                    {
+                      "matches": [
+                        {
+                          "id": "h2",
+                          "recording": "Harbour talk",
+                          "span": [
+                            51,
+                            100
+                          ],
+                          "preview": "The boats leave at dawn"
+                        }
+                      ]
+                    },
+                    {
+                      "not_found": [
+                        "200-210"
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's lookup",
+            "do": "Ask the store for the windows that overlap the ranges the request names, and read the answer back. Submit, for each range, its matches (window id, recording title, span and first words) or its refusal in the store's words, and the ranges not found.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "results"
+              ],
+              "properties": {
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "not_found": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          }
+        ]
+      }
+    }
+  ]
+}
