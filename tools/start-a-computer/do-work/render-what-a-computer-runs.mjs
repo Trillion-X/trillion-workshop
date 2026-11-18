@@ -82,7 +82,9 @@ const innerDoors = caddy => (caddy.inner_doors ?? []).map(({ listen, pool }, at)
   if (!/^127\.0\.0\.1:[0-9]+$/.test(listen ?? '')) throw new Error(`${where} listens on a loopback address only`);
   const proxy = poolFields(caddy)[`${pool}_proxy`];
   if (!proxy) throw new Error(`${where} names no pool of caddy.pools`);
-  return `\nhttp://${listen} {\n\tbind 127.0.0.1\n\t${proxy.trim()}\n}\n`;
+  // The site is the port alone (`http://:<port>`), so a call with any Host reaches the pool: a site named by its address
+  // would answer a call naming another Host with Caddy's empty 200, and a health check through it would pass on nothing.
+  return `\nhttp://:${listen.split(':')[1]} {\n\tbind 127.0.0.1\n\t${proxy.trim()}\n}\n`;
 }).join('');
 
 /** The Caddy site file: one site block per name, each with the row's port. `siteBlock` is the wrapper the set-up tool

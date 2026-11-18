@@ -271,7 +271,7 @@ test('every script the Workshop keeps for units is valid shell', async () => {
 test('an inner door is a loopback address Caddy holds for programs on this computer, sent to every slot of a pool', () => {
   const pools = { internal: { listen: ['127.0.0.1:8794', '127.0.0.1:8795'], health_uri: '/readyz', health_interval: '1s', try_duration: '5s' } };
   const [caddy] = renderWhatItRuns({ ...runs, caddy: { ...runs.caddy, pools, inner_doors: [{ listen: '127.0.0.1:8793', pool: 'internal' }] } }, SITE_BLOCK);
-  assert.match(caddy.text, /\nhttp:\/\/127\.0\.0\.1:8793 \{\n\tbind 127\.0\.0\.1\n\treverse_proxy 127\.0\.0\.1:8794 127\.0\.0\.1:8795 \{\n\t\t\tlb_policy first\n/);
+  assert.match(caddy.text, /\nhttp:\/\/:8793 \{\n\tbind 127\.0\.0\.1\n\treverse_proxy 127\.0\.0\.1:8794 127\.0\.0\.1:8795 \{\n\t\t\tlb_policy first\n/);
   assert.throws(() => renderWhatItRuns({ ...runs, caddy: { ...runs.caddy, pools, inner_doors: [{ listen: '0.0.0.0:8793', pool: 'internal' }] } }, SITE_BLOCK), /loopback address only/);
   assert.throws(() => renderWhatItRuns({ ...runs, caddy: { ...runs.caddy, pools, inner_doors: [{ listen: '127.0.0.1:8793', pool: 'none' }] } }, SITE_BLOCK), /names no pool/);
 });
