@@ -42,7 +42,7 @@
       "workflow": "workflow:route-each-row-change",
       "step": "start-each",
       "given": "The noticer told row-changes {database p_x, table_name lesson_request, op INSERT, position 42, connection watched-database-connection}; read-the-change read the row at position 42 ({\"id\":7,\"topic\":\"tides\"}), and the chooser kept that part with the explainer-video workflow's condition \"a lesson_request row is added\".",
-      "hands_back": "One wake:arrive of source workflow-chosen with event_id \"p_x:901:42:workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner:a lesson_request row is added\" and payload {\"workflow\":\"workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner\",\"condition\":\"a lesson_request row is added\",\"database\":\"p_x\",\"table_name\":\"lesson_request\",\"op\":\"INSERT\",\"position\":\"42\",\"connection\":\"watched-database-connection\"}; that workflow's own wake then starts it at plan-the-lesson."
+      "hands_back": "One wake:arrive of kind workflow-chosen with event_id \"p_x:901:42:workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner:a lesson_request row is added\" and payload {\"workflow\":\"workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner\",\"condition\":\"a lesson_request row is added\",\"database\":\"p_x\",\"table_name\":\"lesson_request\",\"op\":\"INSERT\",\"position\":\"42\",\"connection\":\"watched-database-connection\"}; that workflow's own wake then starts it at plan-the-lesson."
     }
   ]
 }

@@ -169,7 +169,7 @@
                   "config": {
                     "name": "wake:arrive",
                     "input": {
-                      "source": "workflow-chosen",
+                      "kind": "workflow-chosen",
                       "event_id": {
                         "$kind": "binding",
                         "select": {
