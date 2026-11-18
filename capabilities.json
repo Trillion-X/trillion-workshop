@@ -1603,8 +1603,8 @@
     },
     {
       "capability": "track reservations and the capacity left",
-      "owner": ["tools/reservations/"],
-      "entry": "tools/reservations/tool-rows.json",
+      "owner": ["tools/workflows/recipes/hold-places-in-a-finite-pool.json"],
+      "entry": "tools/workflows/recipes/hold-places-in-a-finite-pool.json",
       "evidence": "reservation-tracker: reservation status changes and capacity ledger; the original capacity-ledger.ts (with its dispatcher applyCapacityLedgerOperation), reservation-tracker.ts (with the operation-record feed) and their two tests moved byte for byte from bitfield-packages d926b7adb8ca24159ee64f47e7d9cae254f5b641 (receipt tools/reservations/moved-from.json); the package manifest things-to-store-and-run.json stays in the source, held",
       "source_still_in": {"repo_kind": "retired bitfield-packages repository", "paths": ["bitfield-packages/packages/reservation-tracker/"]}
     },

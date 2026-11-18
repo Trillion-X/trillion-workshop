@@ -1,0 +1,111 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:hold-places-in-a-finite-pool with store {\\\"where\\\": \\\"postgresql database example_shop on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-shop-postgres-connection\\\"} and step hold on ledger ledger:p for subject person:sample-a with key sample-hold-a.\"",
+  "lists": [],
+  "no_lists_because": "It names no list: the ledgers, holds and waitlist are kept in the person's own store, in whatever form that store keeps things, and store says where and in which language.",
+  "workflows": [
+    "workflow:hold-places-in-a-finite-pool"
+  ],
+  "tools": [
+    "tool:run-workflow-definition",
+    "tool:hand-a-job-to-an-ai"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:hold-places-in-a-finite-pool\" with store, the step (open, hold, join_waitlist, release, expire, read or sort), the ledger, the subject and the idempotency key. Ask the person before you hold a place for someone they have not named.",
+    "3. The first run makes the store's own objects once and proves them on the example attempts; every attempt must come out as the prove step says, or the run stops and says which.",
+    "4. Every later run changes the ledger in one transaction through those objects and reads it back."
+  ],
+  "worked_examples": [
+    {
+      "title": "A place held, then the same key again",
+      "ask": "Hold a place for person:sample-a on the sample class, with key sample-hold-a.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:hold-places-in-a-finite-pool",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "step": "hold",
+              "ledger_id": "ledger:p",
+              "subject_ref": "person:sample-a",
+              "unit_class": "general",
+              "idempotency_key": "sample-hold-a"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:hold-places-in-a-finite-pool",
+      "step": "keep",
+      "given": "ledger:p has total 2 and no holds yet.",
+      "hands_back": "outcome \"held\", kept true, sequence 1; the same key again answers outcome \"held\" with the same hold id \"ledger:p:hold:1\", kept false, sequence 1."
+    },
+    {
+      "title": "A full class goes to the waitlist",
+      "ask": "Hold a place for person:sample-c when every place is taken.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:hold-places-in-a-finite-pool",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "step": "hold",
+              "ledger_id": "ledger:p",
+              "subject_ref": "person:sample-c",
+              "unit_class": "general",
+              "idempotency_key": "sample-hold-c"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:hold-places-in-a-finite-pool",
+      "step": "keep",
+      "given": "ledger:p has two confirmed general holds.",
+      "hands_back": "outcome \"waitlisted\", kept true, id \"ledger:p:waitlist:2\" at rank 1, sequence 2."
+    },
+    {
+      "title": "A release promotes the next waiting entry",
+      "ask": "Release the place of person:sample-a.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:hold-places-in-a-finite-pool",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "step": "release",
+              "ledger_id": "ledger:p",
+              "subject_ref": "person:sample-a"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:hold-places-in-a-finite-pool",
+      "step": "keep",
+      "given": "person:sample-c waits at rank 1 on ledger:p.",
+      "hands_back": "outcome \"released\", the waiting entry promoted: \"promoted\" \"person:sample-c\" into a confirmed hold, sequence 4."
+    }
+  ]
+}

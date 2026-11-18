@@ -1,0 +1,259 @@
+{
+  "about": "workflow:hold-places-in-a-finite-pool: Keep a finite pool of interchangeable places (seats, rooms, slots, bays, licences) on one capacity ledger in the person's own store: a hold is confirmed when the class has room and waitlisted when it ",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:hold-places-in-a-finite-pool",
+        "label": "Hold places in a finite pool, with a waitlist and promotion on release",
+        "job": "Keep a finite pool of interchangeable places (seats, rooms, slots, bays, licences) on one capacity ledger in the person's own store: a hold is confirmed when the class has room and waitlisted when it does not; a repeated idempotency key finds its own hold or entry and changes nothing; a named class has its reserved places and an unnamed class shares what is left; a release or an expiry promotes the next waiting entry in rank order; a read gives the person's reservations sorted by status.",
+        "produces": "The store's own ledger, hold, and waitlist objects, proven on the example attempts, and each hold, waitlist join, release, expiry or read kept, repeated, refused or answered.",
+        "source": {
+          "from": "tools/reservations (do-work/capacity-ledger.ts, do-work/reservations.mjs, read-data/reservation-tracker.ts, read-data/reservations.ts), read on trillion-workshop origin/main bb8022539c; moved from bitfield-packages packages/reservation-tracker",
+          "note": "The rules are the old steps': idempotency is read from the record (a hold or an entry carries the key that made it); a class's reserved places are data in the ledger's capacity policy, the reserved places in total never exceed the capacity; time is an input (the run's clock; expiry is given as seconds from now), never read inside the store's rules; each change moves the ledger's sequence by one. Which person may act and the words shown to people stay with the person's tools. The stance on who holds attention, attention_order, is the person's own list, not this recipe's."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string"
+                },
+                "language": {
+                  "type": "string"
+                },
+                "credential_name": {
+                  "type": "string"
+                }
+              }
+            },
+            "step": {
+              "type": "string",
+              "enum": [
+                "open",
+                "hold",
+                "join_waitlist",
+                "release",
+                "expire",
+                "read",
+                "sort"
+              ],
+              "description": "What the run does"
+            },
+            "ledger_id": {
+              "type": "string"
+            },
+            "subject_ref": {
+              "type": "string"
+            },
+            "unit_class": {
+              "type": "string",
+              "description": "A class name the caller invents; unnamed draws on the unreserved remainder"
+            },
+            "idempotency_key": {
+              "type": "string"
+            },
+            "expires_in_seconds": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "description": "Seconds from the run's clock, or null for no expiry"
+            },
+            "capacity_policy": {
+              "type": "object",
+              "properties": {
+                "total": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "reserved_by_class": {
+                  "type": "object"
+                }
+              },
+              "required": [
+                "total"
+              ]
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the ledgers are kept (kept_in, or null) and the names of the objects that keep them, and whether the ledger_id named exists.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects",
+                "ledger_exists"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "ledger_exists": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing, make the store's own objects in its own form, so the store itself refuses what the intent refuses wherever it can: a ledger table (ledger id as key, scope, total, reserved places per class as JSON, its state, its sequence), a hold table (ledger id and hold id as key, subject, unit class, state confirmed, released or expired, expiry time or null, the idempotency key, held time, released time, and the waitlist entry promoted from or null), and a waitlist table (ledger id and entry id as key, subject, unit class, rank, reason, promotion and notification preferences as JSON, idempotency key, state waiting or promoted, joined time, promoted time and promoted hold id). Put a unique key on (ledger id, idempotency key) in both the hold and the waitlist table, and a check that the reserved places in total never exceed the total. Every change to one ledger runs in one store transaction that locks the ledger row first. Grant only what the store's holder allows the person's login. Submit the names of the objects made, or the ones the look step found.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example attempts",
+            "do": "In a throwaway place in the same store, with the same objects, open a ledger ledger:p with total 2, reserved places {\"member\": 1} and sequence 0, then make these attempts in order, each in one transaction. The run clock is 09:00:00Z for attempts 1 to 7 and 09:20:00Z for attempt 8. Attempts: 1) hold for subject a, unit class general, key k-a, expires_in 900 (confirmed, sequence 1); 2) hold for subject a, key k-a again (repeated, sequence 1); 3) hold for subject b, unit class member, key k-b, expires_in 1200 (confirmed, sequence 2); 4) hold for subject c, class general, key k-c (no place left for general, so waitlisted at rank 1, sequence 3); 5) hold for subject c, key k-c again (repeated, rank 1, sequence 3); 6) release the hold of subject a (released, and the waiting entry k-c is promoted into a confirmed general hold, sequence 5); 7) hold for subject d, class general, key k-d (waitlisted at rank 2, sequence 6); 8) expire at 09:20:00Z (the hold of subject b expires at 09:20 and becomes expired, sequence 7; the waiting entry d is class general and no general place is free, so nothing is promoted); 9) read the ledger (confirmed: c; expired: b; released: a; waiting: d at rank 2; sequence 7). Rules: a general place is the total less the reserved places, shared with other classes; a member place is the member reservation; rank is one more than the highest rank the ledger has given. Submit each attempt as outcome (held, waitlisted, repeated, released, expired, promoted, read) with its id and its sequence after it.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "attempts",
+                "final_sequence"
+              ],
+              "properties": {
+                "attempts": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "attempt",
+                      "outcome"
+                    ],
+                    "properties": {
+                      "attempt": {
+                        "type": "integer"
+                      },
+                      "outcome": {
+                        "type": "string",
+                        "enum": [
+                          "held",
+                          "waitlisted",
+                          "repeated",
+                          "released",
+                          "expired",
+                          "promoted",
+                          "read",
+                          "refused"
+                        ]
+                      },
+                      "id": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "sequence": {
+                        "type": [
+                          "integer",
+                          "null"
+                        ]
+                      },
+                      "why": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    }
+                  }
+                },
+                "final_sequence": {
+                  "type": "integer"
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's changes and answers",
+            "do": "Run the one step the input names, through the store's own objects, inside one transaction on the ledger: open, hold (a repeated key answers its own hold or entry and changes nothing; a class with room is confirmed; otherwise the entry is waitlisted at the next rank), join_waitlist (same key rule), release (the hold becomes released and the next waiting entry in rank order is promoted if a place is free), expire (every confirmed hold whose expiry is at or before the run's clock becomes expired, and waiting entries are promoted in rank order into the freed places), read (the ledger as it is) and sort (the person's reservations ordered by the attention order they keep). Read the ledger back after each change. Submit outcome, id, sequence, kept (true when it changed the store), and found (the ledger read back).",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcome",
+                "sequence",
+                "kept",
+                "found"
+              ],
+              "properties": {
+                "outcome": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "sequence": {
+                  "type": "integer"
+                },
+                "kept": {
+                  "type": "boolean"
+                },
+                "found": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "subset-of",
+                "says": "A changed ledger is read back at its new sequence",
+                "path": [
+                  "this",
+                  "sequence"
+                ],
+                "of": [
+                  "this",
+                  "found",
+                  "sequence"
+                ]
+              }
+            ]
+          }
+        ],
+        "erase": "On the person's request the store deletes one ledger with its holds and waitlist entries; a hold already used by a running job stays with that job until it ends, and the store says so."
+      }
+    }
+  ]
+}
