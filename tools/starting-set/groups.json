@@ -114,7 +114,6 @@
   "tool:copy-a-site",
   "tool:disconnect-service",
   "tool:drives",
-  "tool:evaluate-rules-over-records",
   "tool:fill-a-list-from-a-feed",
   "tool:hold-to-it",
   "tool:inspiration",

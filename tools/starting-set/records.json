@@ -13,7 +13,6 @@
   "tool:copy-a-site",
   "tool:disconnect-service",
   "tool:drives",
-  "tool:evaluate-rules-over-records",
   "tool:fill-a-list-from-a-feed",
   "tool:hold-to-it",
   "tool:inspiration",
@@ -1117,11 +1116,6 @@
      "kind": "tool",
      "id": "tool:edit-local-image",
      "version": "1f:d4600ac0dcb4c6252677364eeabf9c26f82899797f930714df376298b0cb08c6"
-    },
-    {
-     "kind": "tool",
-     "id": "tool:evaluate-rules-over-records",
-     "version": "1f:838ba9279f4f339a0a37436de1f3c7ca8375c5f821d9b6564802e91f14ee5071"
     },
     {
      "kind": "tool",
@@ -2488,15 +2482,6 @@
    "description": "Runs a composition-ast binding through the same formula evaluator used for list rows; the caller supplies the entire context.",
    "source": "engine",
    "core": true
-  },
-  {
-   "kind": "tool",
-   "id": "tool:evaluate-rules-over-records",
-   "version": "1f:838ba9279f4f339a0a37436de1f3c7ca8375c5f821d9b6564802e91f14ee5071",
-   "title": "Check rules against changed records (trigger engine)",
-   "description": "Give rules (each with a match_condition over the changed record, read as change.<field> and envelope.address_text, and a dispatch: target plus output_template) and the records that changed ({address, path?, value} or {address, removed: tru…",
-   "source": "engine",
-   "configuration": "trillion-work"
   },
   {
    "kind": "tool",

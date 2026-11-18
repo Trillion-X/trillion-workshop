@@ -14,12 +14,11 @@ const cacheRule = fileURLToPath(new URL('../../process-session/do-work/computer-
 const TOOL = 'tools/build-engine-modules-for-web-hosts';
 const CRATES = 'tools/made-up-crates/crates';
 const BUILD = `${TOOL}/build`;
-const names = ['http-client', 'workflow-engine', 'trigger-engine-web', 'screen-arrangement', 'composition-engine'];
+const names = ['http-client', 'workflow-engine', 'screen-arrangement', 'composition-engine'];
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
 const files = {
   'held-values': ['http_client.js', 'http_client_bg.wasm'],
   'workflow-engine': ['workflow_engine.js', 'workflow_engine_bg.wasm'],
-  'trigger-engine': ['trigger_engine_web.js', 'trigger_engine_web_bg.wasm'],
   'screen-arrangement': ['screen_arrangement.js', 'screen_arrangement_bg.wasm'],
   'composition-engine': ['composition_engine.wasm', 'composition_engine.js', 'composition_engine_bg.wasm'],
 };

@@ -10,7 +10,7 @@ export const BUILD_TOOL = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 export const TOOLS = dirname(BUILD_TOOL);
 export const WORKSHOP = dirname(TOOLS);
 // Each compiled module the Workers load and the folder under dist/ it goes in, beside the bundle: the locked box's two,
-// and the engines that run in the engines Worker as Workshop tools: the workflow engine, the trigger engine and the
+// and the engines that run in the engines Worker as Workshop tools: the workflow engine and the
 // formula evaluator. A row names a crate to build, or `copy_from`, a folder of a tool's built module that is already the
 // one copy (tools/formula-engine, built by build-formula-evaluator.mjs). The app's release checks put them in dist/
 // (prepareCompiledModules), each beside the bundle of the Worker that uploads it.
@@ -20,7 +20,6 @@ export const COMPILED_MODULES = [
   { crate: 'http-client', cargoArgs: ['--no-default-features'], folder: 'held-values', worker: 'main' },
   { copy_from: join(TOOLS, 'browse-and-upload-my-files/built-stored-bytes/content-chunks'), folder: 'content-chunks', worker: 'main' },
   { crate: 'workflow-engine', folder: 'workflow-engine', worker: 'engines' },
-  { crate: 'trigger-engine-web', folder: 'trigger-engine', worker: 'engines' },
   { copy_from: join(TOOLS, 'formula-engine/built-stored-bytes/evaluate-over-rows'), folder: 'formula-engine', worker: 'engines', workers: ['main', 'engines'] },
 ];
 // Loaded by the page, not the Worker. A row naming a `target` is a slot built for that

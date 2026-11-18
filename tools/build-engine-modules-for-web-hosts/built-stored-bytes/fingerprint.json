@@ -6,8 +6,6 @@
     "composition-scene-renderer/crates/state-graph",
     "http-client/crates/http-client",
     "refuse-requests-to-private-addresses/crates/ssrf-policy",
-    "run-my-rules-over-the-records-that-changed-and-send/crates/trigger-engine",
-    "run-my-rules-over-the-records-that-changed-and-send/crates/trigger-engine-web",
     "screen-arrangement/crates/screen-arrangement",
     "shared-code/crates/composition-ast",
     "shared-code/crates/execution-types",
@@ -25,8 +23,8 @@
     "workflows/crates/workflow-engine"
   ],
   "source_files": [],
-  "fingerprint": "81b9b8bc40c106c408bb9ef09b2db33154311d5733856da601e189cef1c3a063",
+  "fingerprint": "d07bed26518fcffccc39b840beaf3515482625293665e726e43abf0e2696105b",
   "workspace_commits": {
-    "../../trillion-rust/crates": "711442884e01c08dc814dceda275ce2a2b8863ed"
+    "../../trillion-rust/crates": "3078dac32ceb7f87d43aefccc8fd3d8c10855466"
   }
 }

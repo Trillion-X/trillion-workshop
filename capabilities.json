@@ -1368,12 +1368,6 @@
       "source_still_in": {"repo_kind": "retired bitfield-packages repository", "paths": ["bitfield-packages/packages/formula-engine/"]}
     },
     {
-      "capability": "run a person's rules over the records that changed and send out what the rules call for, and keep the Rust rule, trigger and binding crates that decide which rules a change sets off",
-      "owner": ["tools/run-my-rules-over-the-records-that-changed-and-send/"],
-      "entry": "tools/run-my-rules-over-the-records-that-changed-and-send/part.json",
-      "evidence": "tools/run-my-rules-over-the-records-that-changed-and-send/README.md:3 runs my rules over the records that changed and sends out whatever the rules call for; the trigger crates and rule_bindings that moved beside it from the engine's src/rule_bindings and crates/trigger-* are named in each folder's moved-from.json"
-    },
-    {
       "capability": "map sales funnels and offers, and run price experiments with live conversion measures",
       "owner": ["tools/funnels-and-offers/", "tools/funnels-screen/funnel-offer-graph/"],
       "entry": "tools/funnels-and-offers/tool-rows.json",

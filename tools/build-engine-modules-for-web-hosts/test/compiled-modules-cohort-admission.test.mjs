@@ -15,7 +15,9 @@ const cacheRule = fileURLToPath(new URL('../../process-session/do-work/computer-
 const TOOL = 'tools/build-engine-modules-for-web-hosts';
 const CRATES = 'tools/made-up-crates/crates';
 const BUILD = `${TOOL}/build`;
-const crateNames = ['http-client', 'workflow-engine', 'trigger-engine-web', 'screen-arrangement', 'composition-engine'];
+const crateNames = ['http-client', 'workflow-engine', 'screen-arrangement', 'composition-engine'];
+// One build runs the compiler once for each crate row and once more, so a count follows the rows (never a fixed number).
+const perBuild = crateNames.length + 1;
 const wasm = Buffer.from([0, 97, 115, 109, 1, 0, 0, 0]);
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -195,7 +197,7 @@ test('declared package DATA participates in ordinary compiled-module freshness w
     const stale = await f.run(['--input-type=module', '-e', `import assert from 'node:assert/strict';import{committedModulesCurrent}from'./${BUILD}/compiled-modules.mjs';assert.equal(await committedModulesCurrent(),false);`], { FAKE_METADATA_FAIL: '1' }).ended;
     assert.equal(stale.code, 0, stale.output);
     const rebuilt = await f.run(undefined, { FAKE_GENERATION: 'B' }).ended; assert.equal(rebuilt.code, 0, rebuilt.output);
-    assert.equal(f.log().length, 12, 'only changing declared package DATA causes the ordinary owner to compile again');
+    assert.equal(f.log().length, 2 * perBuild, 'only changing declared package DATA causes the ordinary owner to compile again');
     assert.notEqual(JSON.parse(readFileSync(join(f.built, 'fingerprint.json'), 'utf8')).fingerprint, original.fingerprint);
     assert.match(readFileSync(join(f.built, 'workflow-engine/workflow_engine.js'), 'utf8'), /"B"/);
   } finally { await f.done(); }
@@ -260,7 +262,7 @@ test('ordinary builder restores omitted or undeclared app DATA receipt entries i
     const tamper = `import{readFileSync,writeFileSync}from'node:fs';import{BUILT_CRATES_FOLDER}from'./${BUILD}/compiled-modules.mjs';const path=BUILT_CRATES_FOLDER+'/fingerprint.json',value=JSON.parse(readFileSync(path));value.source_files=[];writeFileSync(path,JSON.stringify(value));`;
     const changed = await f.run(['--input-type=module','-e',tamper]).ended;assert.equal(changed.code,0,changed.output);
     const rebuild = await f.run(undefined,{FAKE_GENERATION:'B'}).ended;assert.equal(rebuild.code,0,rebuild.output);
-    assert.equal(f.log().length,12,'declared app DATA cannot be waived by a retained empty input list');
+    assert.equal(f.log().length, 2 * perBuild,'declared app DATA cannot be waived by a retained empty input list');
     assert.deepEqual(JSON.parse(readFileSync(join(f.built,'fingerprint.json'),'utf8')).source_files,['package.json']);
     assert.equal(readFileSync(join(f.built,'fingerprint.json'),'utf8'),old,'restoring the same declared inputs restores the same source identity');
     assert.match(readFileSync(join(f.built,'workflow-engine/workflow_engine.js'),'utf8'),/"B"/);
@@ -268,7 +270,7 @@ test('ordinary builder restores omitted or undeclared app DATA receipt entries i
     const extra = tamper.replace('value.source_files=[]','value.source_files=["package.json","extra.json"]');
     const extraStamp = await f.run(['--input-type=module','-e',extra]).ended;assert.equal(extraStamp.code,0,extraStamp.output);
     const declared = await f.run(undefined,{FAKE_GENERATION:'C'}).ended;assert.equal(declared.code,0,declared.output);
-    assert.equal(f.log().length,18,'a retained but undeclared input cannot replace the declared app DATA list');
+    assert.equal(f.log().length, 3 * perBuild,'a retained but undeclared input cannot replace the declared app DATA list');
     assert.deepEqual(JSON.parse(readFileSync(join(f.built,'fingerprint.json'),'utf8')).source_files,['package.json']);
     assert.match(readFileSync(join(f.built,'workflow-engine/workflow_engine.js'),'utf8'),/"C"/);
   } finally { await f.done(); }
@@ -306,7 +308,7 @@ test('changed compiler path configuration invalidates and rebuilds the ordinary 
     const rebuilt = await f.run(undefined, { FAKE_GENERATION: 'B' }).ended;
     assert.equal(rebuilt.code, 0, rebuilt.output);
     assert.notEqual(JSON.parse(readFileSync(join(f.built, 'fingerprint.json'), 'utf8')).fingerprint, previous.fingerprint);
-    assert.equal(f.log().length, 12, 'the normal owner recompiles after only compiler configuration changed');
+    assert.equal(f.log().length, 2 * perBuild, 'the normal owner recompiles after only compiler configuration changed');
     assert.match(readFileSync(join(f.built, 'workflow-engine/workflow_engine.js'), 'utf8'), /"B"/);
   } finally { await f.done(); }
 });
