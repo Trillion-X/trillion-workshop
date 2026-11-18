@@ -297,6 +297,7 @@
           ],
           "runs": [
             "tool:choose-the-workflows-that-fire",
+            "tool:read-one-row-change",
             "tool:run-sql-in-my-database"
           ]
         }

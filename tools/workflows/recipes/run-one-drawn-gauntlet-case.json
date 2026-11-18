@@ -218,6 +218,7 @@
         ],
         "records": {
           "runs": [
+            "tool:read-one-row-change",
             "tool:run-sql-in-my-database"
           ]
         }

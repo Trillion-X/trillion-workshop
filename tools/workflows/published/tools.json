@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:2eb04685b36fd174a5a826dc054327cde48ab307f476613edb2769e1893723e9"
+  "blake3": "1f:9f18acfcbc143dd4acc86e9abd0d62b8d192c2ff112764ef29a63497ee13f394"
  },
  "fields": [
   {
@@ -9990,6 +9990,21 @@
     "flags": [
      "read-only"
     ]
+   }
+  },
+  {
+   "id": "tool:read-one-row-change",
+   "values": {
+    "title": "Read one change in my database",
+    "job": "read one change a database recorded (what table, what happened, the row before and after) by its position, so a run woken by the change has the row itself",
+    "description": "Give the vault name of the database's connection and the change's position (the row-changes fact names both: connection and position). It answers that one change of the database's change table, row_changes, which its own setup made (workflow:make-a-database-for-each-pursuit): {columns, rows: [{table_name, op, before, after}], row_count}. It runs only that one read, so a workflow may hold it without being able to run any other SQL.",
+    "status": "active",
+    "maker": "maker:run-sql-in-my-database",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "run-sql-in-my-database"
    }
   },
   {

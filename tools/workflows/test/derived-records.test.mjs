@@ -46,3 +46,9 @@ test('a tools:run step naming a server by its address adds that server\'s tool b
   ] } };
   assert.deepEqual(recordsOf(recipe), { runs: ['mcp.example.test/search', 'tool:made-up-c'] });
 });
+
+test('a workflow a pointing fact wakes may run the tool that reads what the fact points at', () => {
+  const recipe = { id: 'workflow:made-up', steps: [{ id: 'first', do: 'x' }], fires_when: [{ label: 'A row is added', state: 'On' }] };
+  assert.deepEqual(recordsOf(recipe), { runs: ['tool:read-one-row-change'] });
+  assert.equal(recordsOf({ ...recipe, fires_when: [] }), null);
+});

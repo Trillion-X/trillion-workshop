@@ -5,7 +5,8 @@
 //   - `records`: the rights a run of the row holds when its tool takes them from the row (trillion-rust from_listed_row):
 //     `runs`, every tool id a step asks and every tool a tools:run step names with values given in the step (a server's
 //     tool keyed `<host>/<tool>`), and `rights`, one per ask the run's door answers (ask-rights.json) whose input names
-//     what it is over with a value given in the step. A row with neither holds none.
+//     what it is over with a value given in the step, and the tool that reads the whole value of a fact a wake of the row
+//     hears (fact-values.json). A row with neither holds none.
 //   - the wakes of its conditions: one per fires_when condition that is not off, on the fact the choosing run tells
 //     (branches/fires-when.json chosen_wake), matching this workflow and that condition, with the condition's input.
 // Every other wake the row declares is kept as written. Nothing here names a workflow, a tool or a condition.
@@ -16,6 +17,7 @@ import { definitionOf } from '../../write-a-job-done-in-several-steps-have/read-
 const read = name => JSON.parse(readFileSync(new URL(name, import.meta.url), 'utf8'));
 const FIRES_WHEN = read('../branches/fires-when.json');
 const ASK_RIGHTS = read('../ask-rights.json').asks;
+const FACT_VALUES = read('../fact-values.json').kinds;
 const TOOL = /^tool:[a-z0-9][a-z0-9-]*$/;
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const parsed = value => (typeof value === 'string' ? JSON.parse(value) : value);
@@ -37,6 +39,11 @@ function asksOf(definition) {
 export function recordsOf(recipe) {
   const asks = asksOf(definitionOf(recipe));
   const runs = new Set(asks.map(ask => ask.name).filter(name => TOOL.test(name)));
+  // A wake on a fact that only points at its value starts the run with that value read first (fact-values.json).
+  for (const wake of [...(recipe.wakes ?? []), ...chosenWakesOf(recipe)]) {
+    const fetched = FACT_VALUES[wake?.on?.fact?.kind];
+    if (fetched) runs.add(fetched.tool);
+  }
   const rights = [];
   for (const { name, input } of asks) {
     const right = ASK_RIGHTS[name];

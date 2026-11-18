@@ -261,3 +261,25 @@ test('with HTTPS_PROXY the statement goes through a CONNECT tunnel to the databa
   }
 });
 
+
+// tool:read-one-row-change runs the same command with its statement fixed: one read of the change table by position.
+test('tool:read-one-row-change reads one change by its position and runs nothing else', async () => {
+  const reader = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload).find(payload => payload.id === 'tool:read-one-row-change');
+  assert.deepEqual(reader.invoke.argv, row.invoke.argv);
+  assert.deepEqual(reader.invoke.credential_mounts, [{ secret_name_from_input: 'credential_name', fd: 3 }]);
+  assert.deepEqual(Object.keys(reader.input_schema.properties).sort(), ['credential_name', 'position']);
+  const own = new pg.Client({ connectionString: ownerConnection });
+  await own.connect();
+  await own.query('CREATE TABLE row_changes (position bigserial PRIMARY KEY, txid xid8 NOT NULL DEFAULT pg_current_xact_id(), at timestamptz NOT NULL DEFAULT now(), table_name text NOT NULL, op text NOT NULL, before jsonb, after jsonb)');
+  await own.query(`INSERT INTO row_changes (table_name, op, after) VALUES ('lesson_request', 'INSERT', '{"topic": "how tides work"}')`);
+  await own.end();
+  // The engine fills the row's stdin: every {fill} leaf from the input, everything else as written (trillion-rust fill.rs).
+  const fill = (template, input) => Array.isArray(template) ? template.map(item => fill(item, input))
+    : template && typeof template === 'object' ? (template.fill ? input[template.fill.field] : Object.fromEntries(Object.entries(template).map(([key, value]) => [key, fill(value, input)])))
+    : template;
+  const ran = await runCommand(ownerConnection, fill(reader.invoke.stdin, { credential_name: 'own-rows-postgres-connection', position: '1' }));
+  assert.equal(ran.code, 0, ran.err);
+  assert.deepEqual(JSON.parse(ran.out).rows, [{ table_name: 'lesson_request', op: 'INSERT', before: null, after: { topic: 'how tides work' } }]);
+  const sneaked = await runCommand(ownerConnection, fill(reader.invoke.stdin, { position: '1; DROP TABLE tasks' }));
+  assert.equal(sneaked.code, 1, 'a position is a value, never SQL');
+});

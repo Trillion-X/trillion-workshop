@@ -1,0 +1,40 @@
+{
+  "start_here": "Say to your AI: \"What changed at position 4 in my database?\" It runs tool:read-one-row-change.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: it reads one row of the change table your database already keeps (row_changes, made by workflow:make-a-database-for-each-pursuit).",
+  "workflows": [
+    "workflow:make-a-database-for-each-pursuit",
+    "workflow:route-each-row-change"
+  ],
+  "tools": [
+    "tool:read-one-row-change"
+  ],
+  "instructions": [
+    "1. Your database records each change of a table you attached record_row_change() to in its row_changes table, and the noticer tells each one as a row-changes fact naming its connection and position.",
+    "2. A workflow woken by a change gets the change's row as input.change before its first step: tool:run-workflow-definition runs this tool with the fact's connection and position.",
+    "3. To read one yourself, call tools:run with tool tool:read-one-row-change, credential_name (your database connection's vault name) and position. It answers {columns, rows: [{table_name, op, before, after}], row_count}; no other SQL runs."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read the change a lesson request made",
+      "ask": "What changed at position 4 in my database?",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "run_resource_operation",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-one-row-change",
+            "input": {
+              "credential_name": "own-rows-postgres-connection",
+              "position": "4"
+            }
+          }
+        }
+      },
+      "given": "A made-up database whose lesson_request table has record_row_change() attached, after one insert (the live walk of 2026-11-18 inserted such a row at position 4).",
+      "hands_back": "{\"columns\":[\"table_name\",\"op\",\"before\",\"after\"],\"rows\":[{\"table_name\":\"lesson_request\",\"op\":\"INSERT\",\"before\":null,\"after\":{\"id\":1,\"topic\":\"how tides work\",\"learner\":\"a made-up learner\"}}],\"row_count\":1}"
+    }
+  ],
+  "drafted_from": "tools/run-sql-in-my-database/tool-rows.json (tool:read-one-row-change)"
+}

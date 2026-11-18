@@ -20,7 +20,11 @@
 //   - The tool is runAsTheTool: its stdin is { run: the call's input, woken_by: the waking fact } (the row's invoke fills
 //     woken_by from the engine's task, cause.detail, which only a wake's run has). A woken run's input gains `fact`, the
 //     fact's payload, so a step binds {from: input, path: fact.<field>}; when later facts were folded into it, `folded`
-//     (how many) and `last` (the last one's payload). A run nothing woke is given its input unchanged.
+//     (how many) and `last` (the last one's payload). A run nothing woke is given its input unchanged. A fact of a kind
+//     workflows/fact-values.json names only points at its value (a row change names its database and position, never the
+//     row), so its tool runs first through the run's door and the run is given its answer's first row as input[into]
+//     (input.change: {table_name, op, before, after}); when the run may not start that tool the input goes without it, and
+//     a read that ran and failed fails the run.
 //   - An ask named by a tool id (tool:...) is answered in the same call by running that tool through the run's own door
 //     (door.run), and an ask named by a door method a step may ask (workflows/ask-rights.json: wake:arrive, tools:list,
 //     tools:run with a server's address) by that operation (door.operation), its input the door's whole input and its
@@ -79,6 +83,7 @@ function startingAt(payload, start) {
 
 const TOOL = /^tool:[a-z0-9][a-z0-9-]*$/;
 const DOOR_ASKS = JSON.parse(readFileSync(new URL('../../workflows/ask-rights.json', import.meta.url), 'utf8')).asks;
+const FACT_VALUES = JSON.parse(readFileSync(new URL('../../workflows/fact-values.json', import.meta.url), 'utf8')).kinds;
 const decoder = new TextDecoder();
 const encoder = new TextEncoder();
 const valueOf = bytes => (bytes === undefined || bytes === null || !bytes.length ? {} : JSON.parse(decoder.decode(bytes)));
@@ -151,10 +156,31 @@ export async function runWorkflow({ definitions = null, workflow_id = null, reci
   return { ...run, definition, kit };
 }
 
+/** The whole value a waking fact points at, read by its kind's tool (fact-values.json): { into, row } or null. */
+async function factValue(wokenBy, door) {
+  const fetched = FACT_VALUES[wokenBy?.kind];
+  const payload = wokenBy?.payload;
+  if (!fetched || !door || typeof door.run !== 'function' || !payload || typeof payload !== 'object') return null;
+  const input = {};
+  for (const [field, from] of Object.entries(fetched.input)) {
+    if (typeof payload[from] !== 'string' || !payload[from]) return null;
+    input[field] = payload[from];
+  }
+  try {
+    const answer = await door.run(fetched.tool, input, { key: `fact-value:${wokenBy.event_id ?? ''}` });
+    return { into: fetched.into, row: answer?.rows?.[0] ?? null };
+  } catch (error) {
+    if (error?.outcome === 'committed') throw error;
+    return null;
+  }
+}
+
 /** tool:run-workflow-definition as the engine calls it: { run, woken_by? } → runWorkflow(run), the waking fact in its input. */
 export async function runAsTheTool({ run = {}, woken_by = null } = {}, options = {}) {
   if (!woken_by || typeof woken_by !== 'object' || woken_by.payload === undefined) return runWorkflow(run, options);
   const woken = { fact: woken_by.payload, ...(woken_by.coalesced > 0 ? { folded: woken_by.coalesced, last: woken_by.last?.payload ?? null } : {}) };
+  const value = await factValue(woken_by, options.door);
+  if (value) woken[value.into] = value.row;
   const listed = typeof run.row === 'string' && run.input === undefined;
   return runWorkflow(listed ? { ...run, ...woken } : { ...run, input: { ...(run.input ?? {}), ...woken } }, options);
 }
