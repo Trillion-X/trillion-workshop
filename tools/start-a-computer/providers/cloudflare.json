@@ -1,0 +1,182 @@
+{
+  "what_this_is": "A provider description for tools/start-a-computer: the calls sent to this provider (`requests`), the credential named by vault handle (`vault_key`, never its value), and which request does each job. Name this file in a request's machine.provider (or name.provider for a name record). Its zone, record and binding parts also drive tools/move-the-public-door: a hostname cutover with rollback, and a name kept on the healthy computers.",
+  "id": "cloudflare",
+  "name": "Cloudflare DNS",
+  "base": "https://api.cloudflare.com/client/v4",
+  "auth": {
+    "header": "authorization",
+    "prefix": "Bearer "
+  },
+  "vault_key": "cloudflare-api-token",
+  "error_code_at": "errors.0.code",
+  "requests": {
+    "find_zone": {
+      "notes": "The zone with one exact name. Reads only.",
+      "url": "https://api.cloudflare.com/client/v4/zones?name={zone}",
+      "method": "GET"
+    },
+    "find_record": {
+      "notes": "The A records with one exact name. Reads only.",
+      "url": "https://api.cloudflare.com/client/v4/zones/{zone_id}/dns_records?type=A&name={host_name}",
+      "method": "GET"
+    },
+    "create_record": {
+      "notes": "Point one name at the machine, unproxied, so the machine answers its own certificate.",
+      "url": "https://api.cloudflare.com/client/v4/zones/{zone_id}/dns_records",
+      "method": "POST",
+      "body_template": {
+        "type": "A",
+        "name": "{host_name}",
+        "content": "{address}",
+        "ttl": 60,
+        "proxied": false,
+        "comment": "{lease_label_key} {name}"
+      }
+    },
+    "read_record": {
+      "notes": "One record. Read it before removing it.",
+      "url": "https://api.cloudflare.com/client/v4/zones/{zone_id}/dns_records/{record_id}",
+      "method": "GET"
+    },
+    "delete_record": {
+      "notes": "Remove one record.",
+      "url": "https://api.cloudflare.com/client/v4/zones/{zone_id}/dns_records/{record_id}",
+      "method": "DELETE"
+    },
+    "list_routes": {
+      "notes": "The Worker routes of one zone. Reads only; a cutover checks they did not change.",
+      "url": "https://api.cloudflare.com/client/v4/zones/{zone_id}/workers/routes",
+      "method": "GET"
+    },
+    "list_records": {
+      "notes": "Every record of one zone, a page at a time. Reads only.",
+      "url": "https://api.cloudflare.com/client/v4/zones/{zone_id}/dns_records?per_page=100&page={page}",
+      "method": "GET"
+    },
+    "update_record": {
+      "notes": "Change one record to the body given.",
+      "url": "https://api.cloudflare.com/client/v4/zones/{zone_id}/dns_records/{record_id}",
+      "method": "PATCH",
+      "body_template": "{record_body}"
+    },
+    "create_record_given": {
+      "notes": "Make one record from the body given.",
+      "url": "https://api.cloudflare.com/client/v4/zones/{zone_id}/dns_records",
+      "method": "POST",
+      "body_template": "{record_body}"
+    },
+    "list_bindings": {
+      "notes": "The Worker custom domains of one account. Reads only.",
+      "url": "https://api.cloudflare.com/client/v4/accounts/{account_id}/workers/domains",
+      "method": "GET"
+    },
+    "attach_binding": {
+      "notes": "Attach one Worker custom domain from the body given.",
+      "url": "https://api.cloudflare.com/client/v4/accounts/{account_id}/workers/domains",
+      "method": "PUT",
+      "body_template": "{binding_body}"
+    },
+    "detach_binding": {
+      "notes": "Detach one Worker custom domain.",
+      "url": "https://api.cloudflare.com/client/v4/accounts/{account_id}/workers/domains/{binding_id}",
+      "method": "DELETE"
+    }
+  },
+  "zone": {
+    "find": "find_zone",
+    "list_at": "result",
+    "id_is": "zone_id",
+    "id_pattern": "^[0-9a-f]{32}$",
+    "id_at": "id",
+    "account_at": "account.id",
+    "guards": [
+      {
+        "request": "list_routes",
+        "list_at": "result"
+      }
+    ]
+  },
+  "record": {
+    "find": "find_record",
+    "list_at": "result",
+    "create": "create_record",
+    "created_at": "result",
+    "read": "read_record",
+    "found_at": "result",
+    "remove": "delete_record",
+    "id_is": "record_id",
+    "id_pattern": "^[0-9a-f]{32}$",
+    "id_at": "id",
+    "owner_at": "comment",
+    "owner_is": "{lease_label_key} {name}",
+    "address_at": "content",
+    "list": "list_records",
+    "pages_at": "result_info.total_pages",
+    "update": "update_record",
+    "create_given": "create_record_given",
+    "name_at": "name",
+    "type_at": "type",
+    "content_at": "content",
+    "address_types": [
+      "A",
+      "AAAA",
+      "CNAME"
+    ],
+    "editable_types": [
+      "A",
+      "CNAME"
+    ],
+    "fields": [
+      "id",
+      "type",
+      "name",
+      "content",
+      "ttl",
+      "proxied",
+      "priority",
+      "data",
+      "settings",
+      "comment",
+      "tags"
+    ],
+    "desired": {
+      "type": "A",
+      "name": "{host_name}",
+      "content": "{address}",
+      "ttl": 60,
+      "proxied": false
+    },
+    "read_only_at": "meta.read_only",
+    "binding_at": "meta.origin_worker_id"
+  },
+  "lease_label_key": "place-lease",
+  "ok_at": "success",
+  "binding": {
+    "list": "list_bindings",
+    "list_at": "result",
+    "create": "attach_binding",
+    "remove": "detach_binding",
+    "id_is": "binding_id",
+    "id_pattern": "^[a-f0-9]{32,64}$",
+    "id_at": "id",
+    "host_at": "hostname",
+    "fields": [
+      "hostname",
+      "service",
+      "environment",
+      "zone_id",
+      "enabled",
+      "previews_enabled"
+    ],
+    "restore_fields": [
+      "hostname",
+      "service",
+      "zone_id",
+      "enabled",
+      "previews_enabled"
+    ],
+    "require": {
+      "environment": "production"
+    }
+  }
+}

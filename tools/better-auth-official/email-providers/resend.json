@@ -1,0 +1,28 @@
+{
+  "what_this_is": "An email provider description for the sign-in tool (trillion-workshop tools/better-auth-official, settings email.sender): the one request that sends a message, the credential its auth header carries named by vault handle (`vault_key`, never its value; the sign-in unit loads it as a sealed credential of that name), where an accepted answer holds the message id and where a refusal holds its reason. A computer row names this file in its sign-in unit's settings_parts (tools/better-auth-official/email-providers/resend.json); another provider is another file and no code change. Which domain sends is the sender's own: its DNS signs for it (resend._domainkey TXT, the send. subdomain's SPF and MX), and the address is the computer row's settings email.from.",
+  "id": "resend",
+  "name": "Resend",
+  "vault_key": "resend-api-key",
+  "request": {
+    "url": "https://api.resend.com/emails",
+    "method": "POST",
+    "headers": {
+      "accept": "application/json",
+      "content-type": "application/json"
+    },
+    "auth": {
+      "header": "authorization",
+      "prefix": "Bearer "
+    },
+    "body": {
+      "from": "{from}",
+      "to": ["{to}"],
+      "subject": "{subject}",
+      "text": "{text}",
+      "html": "{html}"
+    },
+    "timeout_ms": 15000
+  },
+  "message_id_at": "id",
+  "error_at": "message"
+}

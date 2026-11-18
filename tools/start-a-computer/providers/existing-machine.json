@@ -1,0 +1,11 @@
+{
+  "what_this_is": "A provider description for tools/start-a-computer: the calls sent to this provider (`requests`), the credential named by vault handle (`vault_key`, never its value), and which request does each job. Name this file in a request's machine.provider (or name.provider for a name record).",
+  "id": "existing-machine",
+  "name": "A Linux machine you already run, over SSH",
+  "notes": "Set placement.address to the machine's public IPv4 and placement.monthly_price_cents to what it costs you, if anything. Starting adopts that address; removing forgets it and never touches the machine.",
+  "base": null,
+  "placement": {
+    "address": null,
+    "monthly_price_cents": null
+  }
+}

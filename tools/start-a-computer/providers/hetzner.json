@@ -1,0 +1,133 @@
+{
+  "what_this_is": "A provider description for tools/start-a-computer: the calls sent to this provider (`requests`), the credential named by vault handle (`vault_key`, never its value), and which request does each job. Name this file in a request's machine.provider (or name.provider for a name record).",
+  "id": "hetzner",
+  "name": "Hetzner Cloud",
+  "base": "https://api.hetzner.cloud/v1",
+  "auth": {
+    "header": "authorization",
+    "prefix": "Bearer "
+  },
+  "vault_key": "hetzner-api-token",
+  "error_code_at": "error.code",
+  "placement": {
+    "size": "cx23",
+    "location": "hel1",
+    "image": "ubuntu-24.04"
+  },
+  "fill": {
+    "server_type": "{size}",
+    "key_name": "{name}-access",
+    "labels": {
+      "{lease_label_key}": "{name}"
+    }
+  },
+  "requests": {
+    "find_servers_by_name": {
+      "notes": "The servers with one exact name, with labels and public address. Reads only.",
+      "url": "https://api.hetzner.cloud/v1/servers?name={name}",
+      "method": "GET"
+    },
+    "create_server": {
+      "notes": "Rent one server. Billed from the moment it exists, so look for one with the name first.",
+      "url": "https://api.hetzner.cloud/v1/servers",
+      "method": "POST",
+      "body_template": {
+        "name": "{name}",
+        "server_type": "{server_type}",
+        "location": "{location}",
+        "image": "{image}",
+        "ssh_keys": [
+          "{ssh_key_id}"
+        ],
+        "labels": "{labels}",
+        "public_net": {
+          "enable_ipv4": true,
+          "enable_ipv6": true
+        },
+        "user_data": "{first_boot}"
+      }
+    },
+    "read_server": {
+      "notes": "One server with its labels and address. Read it before removing it.",
+      "url": "https://api.hetzner.cloud/v1/servers/{server_id}",
+      "method": "GET"
+    },
+    "delete_server": {
+      "notes": "Remove one server and its disk; it cannot be undone.",
+      "url": "https://api.hetzner.cloud/v1/servers/{server_id}",
+      "method": "DELETE"
+    },
+    "find_ssh_key_by_fingerprint": {
+      "notes": "The stored SSH key with one exact fingerprint, if any. Reads only.",
+      "url": "https://api.hetzner.cloud/v1/ssh_keys?fingerprint={fingerprint}",
+      "method": "GET"
+    },
+    "add_ssh_key": {
+      "notes": "Store one public SSH key for new servers.",
+      "url": "https://api.hetzner.cloud/v1/ssh_keys",
+      "method": "POST",
+      "body_template": {
+        "name": "{key_name}",
+        "public_key": "{public_key}",
+        "labels": "{labels}"
+      }
+    },
+    "read_ssh_key": {
+      "notes": "One stored SSH key with its labels.",
+      "url": "https://api.hetzner.cloud/v1/ssh_keys/{ssh_key_id}",
+      "method": "GET"
+    },
+    "delete_ssh_key": {
+      "notes": "Remove one stored SSH key; servers already made keep it.",
+      "url": "https://api.hetzner.cloud/v1/ssh_keys/{ssh_key_id}",
+      "method": "DELETE"
+    },
+    "read_size_price": {
+      "notes": "One server type with its price in every location. Reads only.",
+      "url": "https://api.hetzner.cloud/v1/server_types?name={size}",
+      "method": "GET"
+    }
+  },
+  "host": {
+    "find": "find_servers_by_name",
+    "list_at": "servers",
+    "create": "create_server",
+    "created_at": "server",
+    "read": "read_server",
+    "found_at": "server",
+    "remove": "delete_server",
+    "id_is": "server_id",
+    "id_pattern": "^[0-9]+$",
+    "owner_at": "labels.{lease_label_key}",
+    "address_at": "public_net.ipv4.ip",
+    "state_at": "status"
+  },
+  "access_key": {
+    "find": "find_ssh_key_by_fingerprint",
+    "list_at": "ssh_keys",
+    "create": "add_ssh_key",
+    "read": "read_ssh_key",
+    "found_at": "ssh_key",
+    "remove": "delete_ssh_key",
+    "id_is": "ssh_key_id",
+    "id_pattern": "^[0-9]+$",
+    "id_at": "ssh_key.id",
+    "owner_at": "labels.{lease_label_key}"
+  },
+  "price": {
+    "read": "read_size_price",
+    "list_at": "server_types.0.prices",
+    "location_at": "location",
+    "monthly_at": "price_monthly.gross",
+    "currency": "EUR"
+  },
+  "lease_label_key": "place-lease",
+  "fingerprint": {
+    "hash": "md5",
+    "encoding": "colon-hex"
+  },
+  "first_boot": {
+    "format": "cloud-init"
+  },
+  "terms_url": "https://www.hetzner.com/legal/terms-and-conditions"
+}
