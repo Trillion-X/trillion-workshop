@@ -170,6 +170,7 @@ export function definitionOf(row) {
   if (row.definition) {
     return {
       ...shell, edges: row.definition.edges ?? [],
+      ...(Array.isArray(row.definition.uses) ? { uses: row.definition.uses } : {}),
       steps: row.definition.steps.map(step => (step.kind === 'ask' ? { ...step, config: { ...step.config, context: { ...(object(step.config.context) ? step.config.context : {}), step_id: step.id } } } : step)),
     };
   }

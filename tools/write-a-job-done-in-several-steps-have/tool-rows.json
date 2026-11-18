@@ -108,7 +108,7 @@
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/workflows/do-work/run-a-function.mjs",
+            "/opt/records-door/do-work/run-an-export.mjs",
             "/opt/write-a-job-done-in-several-steps-have/read-data/run-a-workflow.mjs",
             "runAsTheTool"
           ],
@@ -337,9 +337,11 @@
               {
                 "package": "records-door",
                 "paths": [
+                  "do-work/run-an-export.mjs",
                   "read-data/byte-pages.mjs",
                   "read-data/records-door.mjs",
-                  "read-data/settled-write.mjs"
+                  "read-data/settled-write.mjs",
+                  "read-data/values-door.mjs"
                 ],
                 "at": "/opt/records-door"
               },
@@ -425,7 +427,6 @@
               {
                 "package": "workflows",
                 "paths": [
-                  "do-work/run-a-function.mjs",
                   "kit-observe.json",
                   "kit-template.json",
                   "kits",

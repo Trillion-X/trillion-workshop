@@ -21,7 +21,14 @@
 //     woken_by from the engine's task, cause.detail, which only a wake's run has). A woken run's input gains `fact`, the
 //     fact's payload, so a step binds {from: input, path: fact.<field>}; when later facts were folded into it, `folded`
 //     (how many) and `last` (the last one's payload). A run nothing woke is given its input unchanged.
+//   - An ask named by a tool id (tool:...) is answered in the same call by running that tool through the run's own door
+//     (door.run), keyed by the step and the BLAKE3 of what it asks, so a retried run repeats no tool. An answer already
+//     given for the step wins. When the tool did not run (the run holds no door, or no right to start it), the ask waits
+//     like any other, with the door's words as `why`; a tool that ran and failed fails the run. Every other ask (the
+//     person, an AI, an agent, a door method) waits, as it does with no door.
 import { readFileSync } from 'node:fs';
+import { blake3 } from '@noble/hashes/blake3.js';
+import { bytesToHex } from '@noble/hashes/utils.js';
 import { definitionOf } from './workflows.mjs';
 import { recipeFromRows } from '../../workflows/read-data/recipe-rows.mjs';
 import { kitFor } from '../../workflows/read-data/kit-for-a-run.mjs';
@@ -60,20 +67,56 @@ function startingAt(payload, start) {
   return { ...payload, steps: payload.steps.slice(at) };
 }
 
+const TOOL = /^tool:[a-z0-9][a-z0-9-]*$/;
+const decoder = new TextDecoder();
+const encoder = new TextEncoder();
+const valueOf = bytes => (bytes === undefined || bytes === null || !bytes.length ? {} : JSON.parse(decoder.decode(bytes)));
+const text = value => encoder.encode(JSON.stringify(value));
+
+/** The engine's host when the run has a door: answers given win, tool asks run through the door, the rest wait. Returns
+ *  { host, waiting } (waiting fills as the engine asks). With no door it is null, and the runner's own hostless asks apply. */
+function toolHost(door, answers) {
+  if (!door || typeof door.run !== 'function') return null;
+  const waiting = [];
+  const wait = (step, name, payload, why) => {
+    waiting.push({ step_id: step, asks: name, input: payload, ...(why ? { why } : {}) });
+    return text({ $kind: 'not-answered-yet', step_id: step });
+  };
+  const host = {
+    async ask(name, payloadBytes, contextBytes) {
+      const step = valueOf(contextBytes).step_id ?? name;
+      if (Object.hasOwn(answers, step)) return text(answers[step]);
+      if (Object.hasOwn(answers, name)) return text(answers[name]);
+      const payload = valueOf(payloadBytes);
+      if (!TOOL.test(name)) return wait(step, name, payload);
+      try {
+        return text(await door.run(name, payload, { key: `${step}:${bytesToHex(blake3(payloadBytes ?? new Uint8Array()))}` }));
+      } catch (error) {
+        if (error?.outcome === 'committed') throw error;
+        return wait(step, name, payload, String(error?.message ?? error));
+      }
+    },
+    async read(from) { throw new Error(`Nothing here answers a read of ${from}; give the value as an answer instead.`); },
+  };
+  return { host, waiting };
+}
+
 /** One run: { recipe | row + steps, input?, answers? } → { definition, run, kit } where run.status is the engine's. */
-export async function runAWorkflow({ recipe = null, row = null, steps = [], input = {}, answers = {}, partition = 'person' } = {}, { engine = workflowEngine } = {}) {
+export async function runAWorkflow({ recipe = null, row = null, steps = [], input = {}, answers = {}, partition = 'person' } = {}, { engine = workflowEngine, door = null } = {}) {
   const shipped = recipeOf({ recipe, row, steps });
   const payload = startingAt(shipped, input?.start_at);
   const definition = definitionOf(payload);
   const runner = makeWorkflowDefinitionRunner(engine);
-  const run = await runner.runWorkflowDefinition({ definitions: [definition, ...(definition.uses ?? [])], workflow_id: definition.id, input, answers, partition });
+  const asked = { definitions: [definition, ...(definition.uses ?? [])], workflow_id: definition.id, input, answers, partition };
+  const hosted = toolHost(door, answers ?? {});
+  const run = hosted ? { ...(await runner.runWorkflowDefinition(asked, hosted.host)), waiting: hosted.waiting } : await runner.runWorkflowDefinition(asked);
   return { definition, run, kit: kitFor(shipped) };
 }
 
 /** tool:run-workflow-definition: given definitions and a workflow_id, those run as they are; given a recipe (or its row
  *  and step rows), it is made a definition first. Returns the run (status, waiting, each step's output), and the
  *  definition made when a recipe was given. */
-export async function runWorkflow({ definitions = null, workflow_id = null, recipe = null, row = null, steps = [], input, answers = {}, partition = 'person', ...given } = {}, { engine = workflowEngine } = {}) {
+export async function runWorkflow({ definitions = null, workflow_id = null, recipe = null, row = null, steps = [], input, answers = {}, partition = 'person', ...given } = {}, { engine = workflowEngine, door = null } = {}) {
   if (Object.keys(given).length) {
     // A listed row run as this tool: its own fields are the run's input (a wake's input, or a tools:run input).
     if (typeof row !== 'string' || input !== undefined) throw new Error(`Only a listed workflow row's run takes fields of its own (${Object.keys(given).join(', ')}); give them as input.`);
@@ -82,9 +125,12 @@ export async function runWorkflow({ definitions = null, workflow_id = null, reci
   input ??= {};
   if (definitions) {
     if (recipe || row) throw new Error('Give definitions with a workflow_id, or a recipe (or its row and steps), not both.');
-    return makeWorkflowDefinitionRunner(engine).runWorkflowDefinition({ definitions, workflow_id, input, answers, partition });
+    const asked = { definitions, workflow_id, input, answers, partition };
+    const hosted = toolHost(door, answers ?? {});
+    return hosted ? { ...(await makeWorkflowDefinitionRunner(engine).runWorkflowDefinition(asked, hosted.host)), waiting: hosted.waiting }
+      : makeWorkflowDefinitionRunner(engine).runWorkflowDefinition(asked);
   }
-  const { definition, run, kit } = await runAWorkflow({ recipe, row, steps, input, answers, partition }, { engine });
+  const { definition, run, kit } = await runAWorkflow({ recipe, row, steps, input, answers, partition }, { engine, door });
   return { ...run, definition, kit };
 }
 

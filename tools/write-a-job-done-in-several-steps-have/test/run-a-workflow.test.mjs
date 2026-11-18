@@ -71,6 +71,7 @@ const toolRow = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta
 test('the tool row runs its sample runs through runAsTheTool, as definitions and as a recipe', async () => {
   assert.equal(toolRow.id, 'tool:run-workflow-definition');
   assert.equal(toolRow.invoke.argv.at(-1), 'runAsTheTool');
+  assert.ok(toolRow.invoke.argv.includes('/opt/records-door/do-work/run-an-export.mjs'), 'it runs through run-an-export, which hands the run its door');
   for (const sample of toolRow.verify) {
     const result = await runAsTheTool({ run: sample.input }, {});
     assert.equal(result.status, 'paused');
@@ -96,7 +97,14 @@ test('the tool row packs every file its module imports', () => {
       if (path && existsSync(path)) walk(path);
     }
   };
-  walk(fileURLToPath(new URL('../read-data/run-a-workflow.mjs', import.meta.url)));
+  // Every module the command names, where the row packs it, and what each imports.
+  const placed = toolRow.invoke.files.package_files.filter(item => item.package && item.at);
+  const modules = toolRow.invoke.argv.flatMap(word => {
+    const item = placed.find(item => typeof word === 'string' && word.startsWith(`${item.at}/`));
+    return item ? [resolve(root, item.package, word.slice(item.at.length + 1))] : [];
+  });
+  assert.equal(modules.length, 2, 'the command names its runner and the module it runs');
+  modules.forEach(walk);
   assert.ok(seen.size > 2);
 });
 
@@ -159,4 +167,45 @@ test('(y) a woken run is given the fact that woke it as input.fact, and folded f
   assert.deepEqual([folded.waiting[0].input.position, folded.waiting[0].input.folded, folded.waiting[0].input.last], ['3', 2, '5']);
   const direct = await runAsTheTool({ run: { recipe } });
   assert.equal(direct.waiting?.[0]?.input?.position ?? null, null);
+});
+
+// A tool ask runs through the run's door in the same call; an answer given wins; a tool the run may not start waits.
+test('(z) a tool ask runs through the door, keyed by step and what it asks; other asks wait; a refused tool waits with why', async () => {
+  const bind = path => ({ $kind: 'binding', select: { from: 'input', path } });
+  const definition = {
+    id: 'workflow:made-up-two-tools', name: 'Two tools', kind: 'workflow', is_active: true, version: 1,
+    steps: [
+      { id: 'count', kind: 'ask', config: { name: 'tool:made-up-count', input: { words: bind('words') }, context: { step_id: 'count' } } },
+      { id: 'judge', kind: 'ask', config: { name: 'ai', input: {}, context: { step_id: 'judge' } } },
+    ],
+    edges: [{ from: 'count', to: 'judge', kind: 'always' }],
+  };
+  const calls = [];
+  const door = { async run(tool, input, { key }) { calls.push({ tool, input, key }); return { count: input.words.length }; } };
+  const ran = await runAsTheTool({ run: { definitions: [definition], workflow_id: definition.id, input: { words: ['a', 'b'] } } }, { door });
+  assert.equal(ran.status, 'paused');
+  assert.deepEqual(ran.waiting.map(item => item.step_id), ['judge']);
+  assert.equal(calls.length, 1);
+  assert.deepEqual(calls[0].input, { words: ['a', 'b'] });
+  assert.match(calls[0].key, /^count:[0-9a-f]{64}$/);
+  const again = await runAsTheTool({ run: { definitions: [definition], workflow_id: definition.id, input: { words: ['a', 'b'] } } }, { door });
+  assert.equal(calls[1].key, calls[0].key, 'the same ask is the same key, so the engine runs it once');
+  await runAsTheTool({ run: { definitions: [definition], workflow_id: definition.id, input: { words: ['a', 'b'] }, answers: { count: { count: 9 } } } }, { door });
+  assert.equal(calls.length, 2, 'an answer given for the step wins over running the tool');
+  const refusing = { async run() { throw Object.assign(new Error('This run may not start tool:made-up-count.'), { code: 'rpc_error', outcome: 'unknown' }); } };
+  const held = await runAsTheTool({ run: { definitions: [definition], workflow_id: definition.id, input: { words: [] } } }, { door: refusing });
+  assert.deepEqual(held.waiting.map(item => [item.step_id, item.why]), [['count', 'This run may not start tool:made-up-count.']]);
+  const failing = { async run() { throw Object.assign(new Error('tool:made-up-count did not finish: boom'), { code: 'tool_run_failed', outcome: 'committed' }); } };
+  const failed = await runAsTheTool({ run: { definitions: [definition], workflow_id: definition.id, input: { words: [] } } }, { door: failing });
+  assert.equal(failed.status, 'failed');
+  assert.match(failed.error_message, /Step 'count' failed: .*did not finish: boom/);
+  assert.ok(again);
+});
+
+test('a recipe holding its own definition keeps the definitions it uses, so its loops and actions find them', async () => {
+  const child = { id: 'workflow:made-up-child', name: 'Child', kind: 'workflow', is_active: true, version: 1, edges: [],
+    steps: [{ id: 'say', kind: 'ask', config: { name: 'person', input: {}, context: { step_id: 'say' } } }] };
+  const { definitionOf } = await import('../read-data/workflows.mjs');
+  const made = definitionOf({ id: 'workflow:made-up-parent', label: 'Parent', definition: { id: 'workflow:made-up-parent', version: 1, steps: [], edges: [], uses: [child] } });
+  assert.deepEqual(made.uses, [child]);
 });
