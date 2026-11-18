@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflows:public",
   "list": "workflows",
-  "blake3": "ab138ae8aefa93df30c4f5de92d41b2bd29a01ee27f3bb936639d7b4358a58e1",
+  "blake3": "b8a33d585c278f017f277c45d49e836581c233d28e9b1fe6fa3b8df1fa4ebbeb",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",

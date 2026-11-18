@@ -3,16 +3,12 @@
   "lists": [],
   "no_lists_because": "It keeps no list of its own: what it finds and makes comes back in the run, and its steps keep it wherever the person keeps the pursuit's rows.",
   "workflows": [
-    "workflow:cambrian-mode",
     "workflow:describe-what-happens-before-naming-it",
-    "workflow:infinity",
     "workflow:make-it-once-for-everyone",
     "workflow:method-contact-reality",
     "workflow:method-test-a-design-against-every-case",
-    "workflow:quintillion",
     "workflow:start-from-the-persons-own-work",
-    "workflow:turn-something-shared-into-what-you-can-use",
-    "workflow:x-mode"
+    "workflow:turn-something-shared-into-what-you-can-use"
   ],
   "tools": [
     "tool:gate-a-piece-against-a-checklist",
