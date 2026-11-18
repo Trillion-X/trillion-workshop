@@ -268,7 +268,7 @@
               "funnel_id"
             ]
           ],
-          "_read_by": "src/commercial-events.mjs commercialEventsFor: exact-funnel event pages, without enumerating unrelated account history; old records join through bounded background index work"
+          "_read_by": "workflow:keep-commercial-events-once: the person's own store keeps the events with its own index on funnel_id (the retired src/commercial-events.mjs commercialEventsFor read this index of the retired record store)"
         }
       ],
       "_what_moved": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it."

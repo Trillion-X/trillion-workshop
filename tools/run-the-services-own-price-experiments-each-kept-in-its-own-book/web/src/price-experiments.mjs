@@ -7,7 +7,7 @@
 //   (src/price-experiments.json `kinds`). Trillion's own plan prices are kept in the service's book (src/record-book.mjs,
 //   src/book-handlers.mjs) and published to the Worker's payment config (src/payment.mjs); anyone else tests prices of
 //   their own offers the same way, through tool:run-price-experiments. Every moment (a person shown a price, a payment, a refund) is a commercial event
-//   (src/commercial-events.mjs), so the funnel graph that names the experiment's funnel_id counts it at whatever stage
+//   kept in the person's own store by workflow:keep-commercial-events-once, so the funnel graph that names the experiment's funnel_id counts it at whatever stage
 //   that graph's DATA says, and a settled experiment's winner is the price the graph shows at its node.
 //
 // NON-NEGOTIABLE INVARIANTS

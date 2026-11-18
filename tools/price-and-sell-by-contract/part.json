@@ -1,10 +1,4 @@
 {
-  "exports": {
-    "commercial-events": "src/commercial-events.mjs"
-  },
-  "imported_by": [
-    "Trillion-X/trillion"
-  ],
   "public": [
     "read-data/billing-pricing-controls.mjs",
     "read-data/usage-pricing-controls.mjs"
