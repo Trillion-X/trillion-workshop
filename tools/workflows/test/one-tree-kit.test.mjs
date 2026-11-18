@@ -78,9 +78,12 @@ test('every condition a published workflow carries is one the formulas engine ev
   }
 });
 
-test('the trunk carries one daily wake, chooses from every workflow, heals into workflow rows and passes the run-wide agents override', () => {
+test('the trunk carries one daily wake, chooses from every workflow, heals into workflow rows and passes the run-wide agents override', async () => {
   const recipe = byId.get('workflow:grow-the-one-tree');
-  assert.deepEqual(recipe.wakes.map(wake => [wake.id, wake.input.start_at]), [['daily', 'learn-and-prune']]);
+  // Its own wake is the daily one; every other is a wake its conditions make (read-data/derived-records.mjs).
+  const { chosenWakesOf } = await import('../read-data/derived-records.mjs');
+  const made = new Set(chosenWakesOf(recipe).map(wake => wake.id));
+  assert.deepEqual(recipe.wakes.filter(wake => !made.has(wake.id)).map(wake => [wake.id, wake.input.start_at]), [['daily', 'learn-and-prune']]);
   const stepOf = id => recipe.steps.find(step => step.id === id);
   assert.match(stepOf('choose-branches').do, /tool:choose-the-workflows-that-fire/);
   assert.match(stepOf('choose-branches').do, /tool:filter-rows-by-rules/);

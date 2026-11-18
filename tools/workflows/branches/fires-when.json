@@ -4,5 +4,18 @@
   "off_states": [
     "Off"
   ],
-  "label": "Fires when (JSON list of conditions)"
+  "label": "Fires when (JSON list of conditions)",
+  "chosen_wake": {
+    "_what": "The wake each condition gets, made from the condition when recipes are published (read-data/derived-records.mjs), never written by hand: when tool:choose-the-workflows-that-fire chooses a workflow for a part, the run that chose tells a fact of `kind` naming {workflow, condition} (workflow:route-each-row-change does, for each change in a person's database), and the chosen workflow starts from its own wake, under the switch the person made for it and the rights its own row names. The wake's input is the condition's own `input`, and starts at the workflow's first step when that names none. A condition whose state is an off state gets no wake.",
+    "kind": "workflow-chosen",
+    "from": [
+      "run"
+    ],
+    "id_start": "chosen--",
+    "budget": {
+      "steps": 10,
+      "wall_ms": 900000
+    },
+    "budget_from": "the wake broad-found had on workflow:rewrite-a-broad-condition before its condition moved into fires_when (Workshop 5f85980f0); a condition's own `budget` replaces it."
+  }
 }

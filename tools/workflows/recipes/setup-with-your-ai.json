@@ -576,7 +576,12 @@
               }
             ]
           }
-        ]
+        ],
+        "records": {
+          "runs": [
+            "tool:who-does-each-step"
+          ]
+        }
       }
     }
   ]

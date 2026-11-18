@@ -22,10 +22,12 @@
 //     fact's payload, so a step binds {from: input, path: fact.<field>}; when later facts were folded into it, `folded`
 //     (how many) and `last` (the last one's payload). A run nothing woke is given its input unchanged.
 //   - An ask named by a tool id (tool:...) is answered in the same call by running that tool through the run's own door
-//     (door.run), keyed by the step and the BLAKE3 of what it asks, so a retried run repeats no tool. An answer already
-//     given for the step wins. When the tool did not run (the run holds no door, or no right to start it), the ask waits
-//     like any other, with the door's words as `why`; a tool that ran and failed fails the run. Every other ask (the
-//     person, an AI, an agent, a door method) waits, as it does with no door.
+//     (door.run), and an ask named by a door method a step may ask (workflows/ask-rights.json: wake:arrive) by that
+//     operation (door.operation); each is keyed by the step and the BLAKE3 of what it asks, so a retried run repeats
+//     nothing. An answer already given for the step wins. When the call did not happen (the run holds no door, or no
+//     right to it), the ask waits like any other, with the door's words as `why`; a call that ran and failed fails the
+//     run. Every other ask (the person, an AI, an agent) waits, as it does with no door. The rights a run holds are its
+//     workflow row's own `records` (workflows/read-data/derived-records.mjs), which the engine hands it.
 import { readFileSync } from 'node:fs';
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
@@ -75,6 +77,7 @@ function startingAt(payload, start) {
 }
 
 const TOOL = /^tool:[a-z0-9][a-z0-9-]*$/;
+const DOOR_ASKS = JSON.parse(readFileSync(new URL('../../workflows/ask-rights.json', import.meta.url), 'utf8')).asks;
 const decoder = new TextDecoder();
 const encoder = new TextEncoder();
 const valueOf = bytes => (bytes === undefined || bytes === null || !bytes.length ? {} : JSON.parse(decoder.decode(bytes)));
@@ -95,9 +98,10 @@ function toolHost(door, answers) {
       if (Object.hasOwn(answers, step)) return text(answers[step]);
       if (Object.hasOwn(answers, name)) return text(answers[name]);
       const payload = valueOf(payloadBytes);
-      if (!TOOL.test(name)) return wait(step, name, payload);
+      const asked = TOOL.test(name) ? 'run' : Object.hasOwn(DOOR_ASKS, name) && typeof door.operation === 'function' ? 'operation' : null;
+      if (!asked) return wait(step, name, payload);
       try {
-        return text(await door.run(name, payload, { key: `${step}:${bytesToHex(blake3(payloadBytes ?? new Uint8Array()))}` }));
+        return text(await door[asked](name, payload, { key: `${step}:${bytesToHex(blake3(payloadBytes ?? new Uint8Array()))}` }));
       } catch (error) {
         if (error?.outcome === 'committed') throw error;
         return wait(step, name, payload, String(error?.message ?? error));

@@ -513,6 +513,11 @@ export function recordsDoorFromCall(call, { filesResource, resource, toolsResour
     async sharing(method, input, { key } = {}) {
       return call(method, input, key, resource);
     },
+    // One operation the run's door answers by its method (a workflow step's door ask, such as wake:arrive), for a right
+    // the row declares; the engine finds the method's owner and holds the call to the run's rights.
+    async operation(method, input, { key } = {}) {
+      return call(method, input, key, resource);
+    },
     // One operation on the person's Namespace files (list_files, read_file, find_file ...), at the files resource the run
     // was handed when its row declares a `files` right; a run handed none is refused before anything is sent.
     async files(method, input, { key } = {}) {

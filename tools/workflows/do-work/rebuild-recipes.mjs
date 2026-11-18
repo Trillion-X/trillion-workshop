@@ -11,6 +11,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { applyWorkflowRowUpdates, recipesFromViews } from '../read-data/recipe-rows.mjs';
+import { withDerivedRecords } from '../read-data/derived-records.mjs';
 
 const PUBLISHED = new URL('../published/', import.meta.url);
 const TARGET = new URL('../recipes/workflows.json', import.meta.url);
@@ -21,7 +22,8 @@ export function rebuiltRecipesText(published = PUBLISHED) {
   const view = name => JSON.parse(readFileSync(new URL(name, published), 'utf8'));
   const workflows = view('workflows.json');
   const steps = view('workflow-steps.json');
-  const recipes = recipesFromViews(workflows, steps);
+  // A recipe's rights and its conditions' wakes are made from the rest of it (read-data/derived-records.mjs).
+  const recipes = recipesFromViews(workflows, steps).map(withDerivedRecords);
   const pending = workflows.source?.local_update_status === 'pending-account-row-sync';
   const pendingIds = workflows.source?.account_row_sync?.workflow_ids ?? [];
   const about = pending

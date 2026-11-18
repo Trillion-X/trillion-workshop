@@ -425,6 +425,30 @@
               "record:workflow-recipe:answer-commenters-with-videos"
             ]
           }
+        ],
+        "wakes": [
+          {
+            "id": "chosen--a-watched-account-has-new-posts-with-comments",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:answer-commenters-with-videos",
+                  "condition": "a watched account has new posts with comments"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "set-watched-accounts"
+            }
+          }
         ]
       }
     },
@@ -838,7 +862,38 @@
               "workflow:answer-comments-and-messages"
             ]
           }
-        ]
+        ],
+        "wakes": [
+          {
+            "id": "chosen--a-post-offers-a-workshop-kit-to-anyone-who-comments-a-keyword",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:answer-comments-and-messages",
+                  "condition": "a post offers a Workshop kit to anyone who comments a keyword"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "read-facts"
+            }
+          }
+        ],
+        "records": {
+          "runs": [
+            "tool:check-copy",
+            "tool:expand-a-reply-template",
+            "tool:pull-my-instagram-messages"
+          ]
+        }
       }
     },
     {
@@ -1112,6 +1167,31 @@
                 "says": "Verified item count does not exceed extracted source items"
               }
             ]
+          }
+        ],
+        "produces": "The author's framework kept as private data for their AI, every question, exercise and source citation in order, checked against the source.",
+        "wakes": [
+          {
+            "id": "chosen--someone-has-an-author-s-book-notes-or-conversation-to-turn-into-a-framework",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:bring-in-a-framework",
+                  "condition": "someone has an author's book, notes or conversation to turn into a framework"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "sources"
+            }
           }
         ]
       }
@@ -1617,6 +1697,31 @@
                 "says": "Every tool listed was really saved"
               }
             ]
+          }
+        ],
+        "produces": "Each process, skill or tool the person already had and the marketplace lacked, brought in as a workflow or a tool that keeps running where it lives.",
+        "wakes": [
+          {
+            "id": "chosen--someone-has-processes-skills-checklists-or-tools-on-a-computer-or-agent-to-bring-in",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:bring-in-my-processes",
+                  "condition": "someone has processes, skills, checklists or tools on a computer or agent to bring in"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "inventory"
+            }
           }
         ]
       }
@@ -2464,6 +2569,30 @@
               }
             ]
           }
+        ],
+        "wakes": [
+          {
+            "id": "chosen--someone-wants-a-best-x-for-y-comparison-that-answer-engines-cite",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:build-a-best-x-for-y-comparison",
+                  "condition": "someone wants a best-X-for-Y comparison that answer engines cite"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "scope"
+            }
+          }
         ]
       }
     },
@@ -2889,7 +3018,38 @@
               "workflow:build-the-landing-page"
             ]
           }
-        ]
+        ],
+        "wakes": [
+          {
+            "id": "chosen--someone-wants-a-landing-page-written-published-and-given-a-domain",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:build-the-landing-page",
+                  "condition": "someone wants a landing page written, published and given a domain"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "read-facts"
+            }
+          }
+        ],
+        "records": {
+          "runs": [
+            "tool:check-copy",
+            "tool:copy-a-site",
+            "tool:critique-a-public-page"
+          ]
+        }
       }
     },
     {
@@ -3023,6 +3183,31 @@
                   "type": "string"
                 }
               }
+            }
+          }
+        ],
+        "produces": "One order placed through the person's own account after their tap, with its price, and delivery or a pickup on their route.",
+        "wakes": [
+          {
+            "id": "chosen--a-plan-needs-supplies-or-gear-bought-and-delivered-or-ready-for-pickup",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:buy-and-deliver",
+                  "condition": "a plan needs supplies or gear bought and delivered or ready for pickup"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "find"
             }
           }
         ]
@@ -3240,6 +3425,31 @@
                   "minLength": 20
                 }
               }
+            }
+          }
+        ],
+        "produces": "A note on the decision saying which areas of the person's map it serves, lives, leaves out or takes from, and a better version when there is one.",
+        "wakes": [
+          {
+            "id": "chosen--someone-has-a-decision-to-make-and-wants-it-weighed-against-their-life-areas",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:check-a-decision-against-your-map",
+                  "condition": "someone has a decision to make and wants it weighed against their life areas"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "read"
             }
           }
         ]
@@ -3521,6 +3731,31 @@
                   "type": "string"
                 }
               }
+            }
+          }
+        ],
+        "produces": "One combined answer: what holds and how many answers support it, what is still disputed and why, and what none of them established.",
+        "wakes": [
+          {
+            "id": "chosen--several-answers-to-the-same-question-exist-and-must-become-one",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:combine-several-ai-answers",
+                  "condition": "several answers to the same question exist and must become one"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "collect"
             }
           }
         ]
@@ -4007,6 +4242,30 @@
               }
             ]
           }
+        ],
+        "wakes": [
+          {
+            "id": "chosen--someone-wants-all-their-ais-to-share-one-memory-list",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:connect-every-ai-to-one-memory-list",
+                  "condition": "someone wants all their AIs to share one memory list"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "the-list"
+            }
+          }
         ]
       }
     },
@@ -4264,6 +4523,31 @@
                   "type": "string"
                 }
               }
+            }
+          }
+        ],
+        "produces": "A description of what happens in observable terms, each requirement sorted into observed, assumed or inherited, then candidate dimensions and a name derived from it.",
+        "wakes": [
+          {
+            "id": "chosen--a-subject-is-not-yet-understood-and-must-be-observed-before-its-dimensions-or-goals-are-set",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:describe-what-happens-before-naming-it",
+                  "condition": "a subject is not yet understood and must be observed before its dimensions or goals are set"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "observe"
             }
           }
         ]
@@ -4875,7 +5159,38 @@
               }
             }
           }
-        ]
+        ],
+        "produces": "Each step only the person can do, kept as one fully explained row, and the oldest one opened on their screen.",
+        "wakes": [
+          {
+            "id": "chosen--a-step-only-the-person-can-do-a-device-in-their-hand-a-payment-a-signature-a-decision-between-their-own-rules",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:file-what-needs-the-person",
+                  "condition": "a step only the person can do: a device in their hand, a payment, a signature, a decision between their own rules"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "steps"
+            }
+          }
+        ],
+        "records": {
+          "runs": [
+            "tool:take-me-there",
+            "tool:who-does-each-step"
+          ]
+        }
       }
     },
     {
@@ -5000,6 +5315,28 @@
             },
             "input": {
               "start_at": "map-niche"
+            }
+          },
+          {
+            "id": "chosen--someone-wants-to-know-which-short-video-formats-sell-an-app-in-its-category",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:find-and-test-the-short-video-formats-that-sell-your-app",
+                  "condition": "someone wants to know which short-video formats sell an app in its category"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "scope"
             }
           }
         ],
@@ -6237,6 +6574,31 @@
               }
             ]
           }
+        ],
+        "produces": "Timed rows of what is seen and heard in the recording, linked to its file, and source-linked drafts made from the useful moments.",
+        "wakes": [
+          {
+            "id": "chosen--someone-has-a-recording-and-wants-its-useful-moments-found",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:find-moments-in-a-recording",
+                  "condition": "someone has a recording and wants its useful moments found"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "inspect"
+            }
+          }
         ]
       }
     },
@@ -6441,6 +6803,31 @@
                 "says": "Only the parts laid beside the map are kept"
               }
             ]
+          }
+        ],
+        "produces": "The person's own map of their life in their list, each area in their words.",
+        "wakes": [
+          {
+            "id": "chosen--someone-s-own-way-of-dividing-their-life-is-needed-before-a-default-map-is-used",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:find-their-own-map",
+                  "condition": "someone's own way of dividing their life is needed before a default map is used"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "look"
+            }
           }
         ]
       }
@@ -6775,6 +7162,31 @@
               }
             }
           }
+        ],
+        "produces": "Rows of unexplored areas in the person's list, each matched to what they are in a position to explore.",
+        "wakes": [
+          {
+            "id": "chosen--a-seed-names-a-niche-or-a-gap-in-a-market-worth-exploring",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:find-unexplored-ground",
+                  "condition": "a seed names a niche, or a gap in a market worth exploring"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "person"
+            }
+          }
         ]
       }
     },
@@ -7046,6 +7458,31 @@
               }
             ]
           }
+        ],
+        "produces": "Each area of the person's map no pursuit touches, answered from their own words: an existing pursuit that lives it, or a new one.",
+        "wakes": [
+          {
+            "id": "chosen--someone-asks-which-areas-of-life-their-pursuits-ignore",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:find-what-your-pursuits-leave-out",
+                  "condition": "someone asks which areas of life their pursuits ignore"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "read"
+            }
+          }
         ]
       }
     },
@@ -7314,6 +7751,31 @@
                 "says": "The next stage to watch is one of the ladder"
               }
             ]
+          }
+        ],
+        "produces": "The stage where the path to a lasting result breaks, the fix made there, and what is seen at that stage after the fix.",
+        "wakes": [
+          {
+            "id": "chosen--a-person-team-ai-or-system-keeps-failing-to-get-a-result",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:find-where-the-steward-ladder-breaks",
+                  "condition": "a person, team, AI or system keeps failing to get a result"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "stages"
+            }
           }
         ]
       }
@@ -8006,6 +8468,31 @@
               }
             ]
           }
+        ],
+        "produces": "One meaningful first result the customer reached, checked independently.",
+        "wakes": [
+          {
+            "id": "chosen--when-a-customer-arrives",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:first-win",
+                  "condition": "when a customer arrives"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "goal"
+            }
+          }
         ]
       }
     },
@@ -8697,6 +9184,31 @@
               }
             ]
           }
+        ],
+        "produces": "Every dependency and commitment carried to a checked outcome, each still open item with an owner and a way to recover.",
+        "wakes": [
+          {
+            "id": "chosen--when-something-is-promised",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:follow-through",
+                  "condition": "when something is promised"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "state"
+            }
+          }
         ]
       }
     },
@@ -8817,6 +9329,28 @@
             "budget": {
               "steps": 40,
               "wall_ms": 1800000
+            },
+            "input": {
+              "start_at": "read-engagement"
+            }
+          },
+          {
+            "id": "chosen--people-commented-replied-or-signed-up-from-the-person-s-posts",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:follow-up-with-people-who-engaged",
+                  "condition": "people commented, replied or signed up from the person's posts"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
             },
             "input": {
               "start_at": "read-engagement"
@@ -9883,6 +10417,30 @@
                   "const": true
                 }
               }
+            }
+          }
+        ],
+        "wakes": [
+          {
+            "id": "chosen--someone-wants-their-site-found-in-search-and-answer-engines",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:get-found-in-search-and-answer-engines",
+                  "condition": "someone wants their site found in search and answer engines"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "list-pages"
             }
           }
         ]
@@ -11643,6 +12201,31 @@
               }
             ]
           }
+        ],
+        "produces": "Five chosen subreddits with their rules recorded, a warmed-up account, and each post the person approved, confirmed live.",
+        "wakes": [
+          {
+            "id": "chosen--someone-wants-to-grow-on-reddit-for-a-product-without-selling-at-first",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:grow-on-reddit-without-selling-first",
+                  "condition": "someone wants to grow on Reddit for a product without selling at first"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "account"
+            }
+          }
         ]
       }
     },
@@ -11806,6 +12389,28 @@
             },
             "input": {
               "start_at": "learn-and-prune"
+            }
+          },
+          {
+            "id": "chosen--a-seed-such-as-a-thought-note-email-or-finding-arrives-and-needs-a-tree-of-tasks-and-workflows",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:grow-the-one-tree",
+                  "condition": "a seed such as a thought, note, email or finding arrives and needs a tree of tasks and workflows"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "plant-the-seed"
             }
           }
         ],
@@ -12706,6 +13311,31 @@
             "state": "Off",
             "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words. Retired 2026-11-13: it kept most parts of four ordinary seeds no one aimed (rewritten in place by lane every-workflow-is-a-branch)."
           }
+        ],
+        "produces": "The thing that arrived handed to one of the person's AIs with its job in plain words and everything it needs.",
+        "wakes": [
+          {
+            "id": "chosen--an-item-asks-for-work-that-another-ai-should-take",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:hand-to-an-agent",
+                  "condition": "an item asks for work that another AI should take"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "handle"
+            }
+          }
         ]
       }
     },
@@ -12775,6 +13405,28 @@
             "budget": {
               "steps": 60,
               "wall_ms": 1800000
+            },
+            "input": {
+              "start_at": "read-setup"
+            }
+          },
+          {
+            "id": "chosen--the-seed-is-or-produces-a-thread-that-needs-an-answer",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:handle-every-inbox-daily",
+                  "condition": "the seed is, or produces, a thread that needs an answer"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
             },
             "input": {
               "start_at": "read-setup"
@@ -13291,6 +13943,31 @@
               }
             }
           }
+        ],
+        "produces": "One booking with a nearby person or employee after the person's tap, with its price, and a check that they did the step.",
+        "wakes": [
+          {
+            "id": "chosen--a-step-needs-someone-physically-present-such-as-an-errand-or-task",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:hire-help-for-a-step",
+                  "condition": "a step needs someone physically present, such as an errand or task"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "task"
+            }
+          }
         ]
       }
     },
@@ -13469,6 +14146,31 @@
                   "minLength": 3
                 }
               }
+            }
+          }
+        ],
+        "produces": "Every agreement found put on the calendars of the people who made it, and after each meeting who kept it.",
+        "wakes": [
+          {
+            "id": "chosen--agreements-were-made-in-a-meeting-message-or-transcript-and-need-to-be-tracked",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:hold-us-to-it",
+                  "condition": "agreements were made in a meeting, message or transcript and need to be tracked"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "find"
             }
           }
         ]
@@ -14274,6 +14976,31 @@
               }
             ]
           }
+        ],
+        "produces": "The next improvement made and checked against what was observed, or a clean stop with the reason.",
+        "wakes": [
+          {
+            "id": "chosen--after-every-pass-its-continue-step-registers-the-wake",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:infinity",
+                  "condition": "after every pass; its continue step registers the wake"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "baseline"
+            }
+          }
         ]
       }
     },
@@ -14392,6 +15119,28 @@
             "budget": {
               "steps": 10,
               "wall_ms": 600000
+            },
+            "input": {
+              "start_at": "read-release"
+            }
+          },
+          {
+            "id": "chosen--something-shipped-from-the-seed",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:keep-a-changelog-from-what-shipped",
+                  "condition": "something shipped from the seed"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
             },
             "input": {
               "start_at": "read-release"
@@ -15195,6 +15944,31 @@
                 "says": "Every completed requirement cites evidence kept in this step. A citation is not independent verification of its claim."
               }
             ]
+          }
+        ],
+        "produces": "A customer's result kept working: each meaningful change found, each regression repaired and checked.",
+        "wakes": [
+          {
+            "id": "chosen--after-a-result-is-proven",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:keep-it-working",
+                  "condition": "after a result is proven"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "health"
+            }
           }
         ]
       }
@@ -16154,6 +16928,31 @@
               }
             }
           }
+        ],
+        "produces": "Each fact found about the person's people, customers or things, kept as a row of the list it belongs to.",
+        "wakes": [
+          {
+            "id": "chosen--someone-asks-to-look-up-the-people-customers-or-things-they-work-with",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:keep-what-you-find-in-lists",
+                  "condition": "someone asks to look up the people, customers or things they work with"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "read"
+            }
+          }
         ]
       }
     },
@@ -16370,7 +17169,37 @@
               }
             }
           }
-        ]
+        ],
+        "produces": "The one thing that moves the person's pursuits most, done as far as an AI can, and opened on their screen with a walkthrough of what is left.",
+        "wakes": [
+          {
+            "id": "chosen--the-person-asks-what-to-do-next-or-what-needs-them-most",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:lead-me-to-it",
+                  "condition": "the person asks what to do next or what needs them most"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "pick"
+            }
+          }
+        ],
+        "records": {
+          "runs": [
+            "tool:take-me-there"
+          ]
+        }
       }
     },
     {
@@ -16750,6 +17579,31 @@
               }
             ]
           }
+        ],
+        "produces": "The person's private, editable profile, each fact tied to its source and quote, and questions only about conflicts or gaps.",
+        "wakes": [
+          {
+            "id": "chosen--a-new-fact-about-the-person-arrives-or-their-profile-needs-building-or-refreshing",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:learn-the-person",
+                  "condition": "a new fact about the person arrives, or their profile needs building or refreshing"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "read"
+            }
+          }
         ]
       }
     },
@@ -17035,7 +17889,36 @@
               "workflow:legal-pages-and-support"
             ]
           }
-        ]
+        ],
+        "wakes": [
+          {
+            "id": "chosen--a-site-needs-terms-privacy-and-refund-pages-and-a-support-address",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:legal-pages-and-support",
+                  "condition": "a site needs terms, privacy and refund pages and a support address"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "read-facts"
+            }
+          }
+        ],
+        "records": {
+          "runs": [
+            "tool:write-legal-documents"
+          ]
+        }
       }
     },
     {
@@ -17233,6 +18116,31 @@
                   "minLength": 3
                 }
               }
+            }
+          }
+        ],
+        "produces": "One locked-in work session on the needle mover, the practice done in it, and the next session booked.",
+        "wakes": [
+          {
+            "id": "chosen--someone-asks-for-a-focused-work-session-on-the-one-thing-that-moves-the-needle",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:lock-in",
+                  "condition": "someone asks for a focused work session on the one thing that moves the needle"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "before"
             }
           }
         ]
@@ -17846,6 +18754,30 @@
                   }
                 }
               }
+            }
+          }
+        ],
+        "wakes": [
+          {
+            "id": "chosen--someone-needs-a-brand-book-with-a-pitch-deck-and-sales-decks",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:make-a-brand-book-and-decks",
+                  "condition": "someone needs a brand book with a pitch deck and sales decks"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "brand"
             }
           }
         ]
@@ -18565,6 +19497,52 @@
               }
             }
           }
+        ],
+        "wakes": [
+          {
+            "id": "chosen--someone-wants-an-explainer-video-on-a-topic-for-one-described-learner",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner",
+                  "condition": "someone wants an explainer video on a topic for one described learner"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "plan-the-lesson"
+            }
+          },
+          {
+            "id": "chosen--a-lesson-request-row-is-added",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner",
+                  "condition": "a lesson_request row is added"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "plan-the-lesson"
+            }
+          }
         ]
       }
     },
@@ -18901,6 +19879,31 @@
                 "says": "The answer names the tool or workflow everyone now gets"
               }
             ]
+          }
+        ],
+        "produces": "The feature, tool, page or design built in one pass, and an answer saying what changed and what already existed.",
+        "wakes": [
+          {
+            "id": "chosen--someone-asks-for-a-feature-tool-page-footer-email-look-or-design",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:make-it-once-for-everyone",
+                  "condition": "someone asks for a feature, tool, page, footer, email look or design"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "raw-material"
+            }
           }
         ]
       }
@@ -19592,6 +20595,31 @@
                 "says": "Every completed requirement cites evidence kept in this step. A citation is not independent verification of its claim."
               }
             ]
+          }
+        ],
+        "produces": "Changes to search, answer engine, social and live performance, and their observed outcomes.",
+        "wakes": [
+          {
+            "id": "chosen--after-publication",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:make-it-perform",
+                  "condition": "after publication"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "discover"
+            }
           }
         ]
       }
@@ -22857,6 +23885,31 @@
               }
             ]
           }
+        ],
+        "produces": "One published piece of content, and its numbers read back at 1, 7 and 28 days with what they taught.",
+        "wakes": [
+          {
+            "id": "chosen--someone-wants-one-video-talk-carousel-post-or-article-made-from-audience-to-publish",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:make-one-piece-of-content-from-audience-to-publish",
+                  "condition": "someone wants one video, talk, carousel, post or article made from audience to publish"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "read-records"
+            }
+          }
         ]
       }
     },
@@ -23426,7 +24479,43 @@
               "workflow:make-short-videos-from-footage"
             ]
           }
-        ]
+        ],
+        "wakes": [
+          {
+            "id": "chosen--someone-has-recorded-footage-and-wants-short-vertical-captioned-videos",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:make-short-videos-from-footage",
+                  "condition": "someone has recorded footage and wants short vertical captioned videos"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "read-facts"
+            }
+          }
+        ],
+        "records": {
+          "runs": [
+            "tool:check-against-a-persons-rules-and-verdicts",
+            "tool:cut-and-caption",
+            "tool:find-silence",
+            "tool:list-my-recordings-and-media",
+            "tool:pick-cover-frame",
+            "tool:reframe-video",
+            "tool:render-an-edit",
+            "tool:suggest-media-cuts"
+          ]
+        }
       }
     },
     {
@@ -23743,6 +24832,30 @@
             "part_of": [
               "record:workflow-recipe:make-the-piece-without-waiting-for-the-person"
             ]
+          }
+        ],
+        "wakes": [
+          {
+            "id": "chosen--a-waiting-step-is-past-its-due-time",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:make-the-piece-without-waiting-for-the-person",
+                  "condition": "a waiting step is past its due time"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "read-the-piece"
+            }
           }
         ]
       }
@@ -24083,7 +25196,39 @@
               "workflow:manage-member-billing"
             ]
           }
-        ]
+        ],
+        "wakes": [
+          {
+            "id": "chosen--a-member-asks-to-cancel-see-offers-or-billing-or-ended-subscriptions-need-handling",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:manage-member-billing",
+                  "condition": "a member asks to cancel, see offers or billing, or ended subscriptions need handling"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "read-facts"
+            }
+          }
+        ],
+        "records": {
+          "runs": [
+            "tool:cancel-a-stripe-subscription",
+            "tool:count-a-paid-installment-in-stripe",
+            "tool:list-ended-stripe-subscriptions",
+            "tool:tag-a-stripe-subscription"
+          ]
+        }
       }
     },
     {
@@ -24391,7 +25536,38 @@
               "workflow:measure-the-funnel-and-set-a-baseline"
             ]
           }
-        ]
+        ],
+        "wakes": [
+          {
+            "id": "chosen--someone-wants-funnel-counts-by-stage-and-source-with-a-baseline",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:measure-the-funnel-and-set-a-baseline",
+                  "condition": "someone wants funnel counts by stage and source with a baseline"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "read-facts"
+            }
+          }
+        ],
+        "records": {
+          "runs": [
+            "tool:break-down-visits-and-sales",
+            "tool:draft-a-funnel",
+            "tool:measure-funnel-stages"
+          ]
+        }
       }
     },
     {
@@ -24679,6 +25855,31 @@
                   "description": "What that workflow changed in the design or the build"
                 }
               }
+            }
+          }
+        ],
+        "produces": "A product people reach, use and pay for, built and named from the research, the constraints and the tested design.",
+        "wakes": [
+          {
+            "id": "chosen--someone-wants-a-product-that-people-reach-use-and-pay-for",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:method-build-a-product",
+                  "condition": "someone wants a product that people reach, use and pay for"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "research-plan-build"
             }
           }
         ]
@@ -25062,6 +26263,31 @@
               }
             }
           }
+        ],
+        "produces": "The capability as a real running product with a generic mechanism, and proof that it worked.",
+        "wakes": [
+          {
+            "id": "chosen--someone-asks-for-a-capability-built-as-the-real-working-product-not-a-demo",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:method-build-the-real-thing",
+                  "condition": "someone asks for a capability built as the real working product, not a demo"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "outcome"
+            }
+          }
         ]
       }
     },
@@ -25250,6 +26476,31 @@
                   "description": "What that workflow changed in the design or the build"
                 }
               }
+            }
+          }
+        ],
+        "produces": "The code change done in one pass and proven on the real running path.",
+        "wakes": [
+          {
+            "id": "chosen--someone-asks-to-change-or-fix-code",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:method-change-code",
+                  "condition": "someone asks to change or fix code"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "name-question-delete"
             }
           }
         ]
@@ -25577,6 +26828,31 @@
               }
             }
           }
+        ],
+        "produces": "The decision, design or test held to what really happens, with proof that it worked.",
+        "wakes": [
+          {
+            "id": "chosen--a-decision-design-or-test-rests-on-assumed-limits-that-should-be-checked-against-reality",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:method-contact-reality",
+                  "condition": "a decision, design or test rests on assumed limits that should be checked against reality"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "alignment"
+            }
+          }
         ]
       }
     },
@@ -25815,6 +27091,31 @@
                   "description": "What that workflow changed in the design or the build"
                 }
               }
+            }
+          }
+        ],
+        "produces": "A feature designed from the request to the working result, tested against every case.",
+        "wakes": [
+          {
+            "id": "chosen--someone-asks-to-design-a-new-feature-or-capability",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:method-design-a-feature",
+                  "condition": "someone asks to design a new feature or capability"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "name-question-delete"
             }
           }
         ]
@@ -26062,6 +27363,31 @@
                   }
                 }
               }
+            }
+          }
+        ],
+        "produces": "The full result on the first pass, every claim checked against what is there.",
+        "wakes": [
+          {
+            "id": "chosen--someone-asks-for-the-work-done-fully-and-correctly-in-one-pass",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:method-do-it-completely",
+                  "condition": "someone asks for the work done fully and correctly in one pass"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "delete"
             }
           }
         ]
@@ -26625,6 +27951,31 @@
                   }
                 }
               }
+            }
+          }
+        ],
+        "produces": "Every hard constraint the design must meet, and the ones that together leave only the right design.",
+        "wakes": [
+          {
+            "id": "chosen--a-design-needs-its-hard-constraints-found-so-only-one-right-answer-is-left",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:method-find-the-constraints",
+                  "condition": "a design needs its hard constraints found so only one right answer is left"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "outcome"
             }
           }
         ]
@@ -27316,6 +28667,31 @@
               }
             }
           }
+        ],
+        "produces": "The decision, plan or claim after the method's hardest questions: each claim attacked, every voice heard, the least obvious insights named.",
+        "wakes": [
+          {
+            "id": "chosen--a-decision-plan-or-claim-needs-the-hardest-scrutiny",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:method-hold-to-the-hardest-test",
+                  "condition": "a decision, plan or claim needs the hardest scrutiny"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "alignment"
+            }
+          }
         ]
       }
     },
@@ -27843,6 +29219,31 @@
               }
             }
           }
+        ],
+        "produces": "The change named, its assumptions questioned, what is not needed deleted, and proof that it worked.",
+        "wakes": [
+          {
+            "id": "chosen--someone-asks-to-build-or-change-something-and-its-assumptions-should-be-questioned-first",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:method-name-question-delete",
+                  "condition": "someone asks to build or change something and its assumptions should be questioned first"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "outcome"
+            }
+          }
         ]
       }
     },
@@ -28023,6 +29424,53 @@
                   }
                 }
               }
+            }
+          }
+        ],
+        "produces": "Plain names for each part, field, screen and message, each one pointed to in the real result.",
+        "wakes": [
+          {
+            "id": "chosen--parts-fields-screens-or-messages-have-unclear-names",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:method-name-things-by-what-they-do",
+                  "condition": "parts, fields, screens or messages have unclear names"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "naming"
+            }
+          },
+          {
+            "id": "chosen--someone-asks-for-a-name-for-a-product-project-part-or-screen",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:method-name-things-by-what-they-do",
+                  "condition": "someone asks for a name for a product, project, part or screen"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "naming"
             }
           }
         ]
@@ -28564,6 +30012,31 @@
               }
             }
           }
+        ],
+        "produces": "A short plan only when it helps, and the smallest useful change chosen and checked.",
+        "wakes": [
+          {
+            "id": "chosen--someone-asks-for-a-change-where-a-short-plan-may-or-may-not-help-before-doing-it",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:method-plan-only-what-helps",
+                  "condition": "someone asks for a change where a short plan may or may not help before doing it"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "outcome"
+            }
+          }
         ]
       }
     },
@@ -28848,6 +30321,31 @@
                   }
                 }
               }
+            }
+          }
+        ],
+        "produces": "Research across the field, a plan from it, and the real working result.",
+        "wakes": [
+          {
+            "id": "chosen--someone-asks-to-research-a-capability-plan-it-and-build-it-end-to-end",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:method-research-plan-build",
+                  "condition": "someone asks to research a capability, plan it and build it end to end"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "baseline"
             }
           }
         ]
@@ -29202,6 +30700,31 @@
                   }
                 }
               }
+            }
+          }
+        ],
+        "produces": "One finished story, post, article, talk or script, told as a real change.",
+        "wakes": [
+          {
+            "id": "chosen--someone-wants-a-story-post-article-talk-or-script-that-changes-the-reader",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:method-tell-a-story",
+                  "condition": "someone wants a story, post, article, talk or script that changes the reader"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "story-change"
             }
           }
         ]
@@ -29945,6 +31468,31 @@
               }
             }
           }
+        ],
+        "produces": "The design tested from outside its box: the building block it is a case of, what it gives for free, and how it holds for every case.",
+        "wakes": [
+          {
+            "id": "chosen--someone-proposes-a-design-or-feature-to-test-against-every-case-it-will-meet",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:method-test-a-design-against-every-case",
+                  "condition": "someone proposes a design or feature to test against every case it will meet"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "outcome"
+            }
+          }
         ]
       }
     },
@@ -30319,7 +31867,40 @@
               "workflow:onboard-new-buyers-in-five-days"
             ]
           }
-        ]
+        ],
+        "wakes": [
+          {
+            "id": "chosen--a-new-buyer-needs-the-five-day-onboarding-course",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:onboard-new-buyers-in-five-days",
+                  "condition": "a new buyer needs the five-day onboarding course"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "read-facts"
+            }
+          }
+        ],
+        "records": {
+          "runs": [
+            "tool:add-a-customer",
+            "tool:record-a-customer-step",
+            "tool:see-where-each-customer-is",
+            "tool:send-due-email-lessons",
+            "tool:sign-someone-up-for-an-email-course"
+          ]
+        }
       }
     },
     {
@@ -30446,6 +32027,28 @@
             "budget": {
               "steps": 60,
               "wall_ms": 3600000
+            },
+            "input": {
+              "start_at": "read-launches"
+            }
+          },
+          {
+            "id": "chosen--a-competitor-or-market-launch-appears-on-a-watched-launch-place",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:out-launch-a-new-launch",
+                  "condition": "a competitor or market launch appears on a watched launch place"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
             },
             "input": {
               "start_at": "read-launches"
@@ -31920,6 +33523,53 @@
               }
             ]
           }
+        ],
+        "produces": "Individually useful, truthful outreach to relevant people through suitable channels, and replies to real signals.",
+        "wakes": [
+          {
+            "id": "chosen--when-a-piece-answers-a-named-person-s-question",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:personalized-reach-out",
+                  "condition": "when a piece answers a named person's question"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "fit"
+            }
+          },
+          {
+            "id": "chosen--a-named-person-needs-to-be-told-something-that-changed",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:personalized-reach-out",
+                  "condition": "a named person needs to be told something that changed"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "fit"
+            }
+          }
         ]
       }
     },
@@ -32817,6 +34467,31 @@
               }
             }
           }
+        ],
+        "produces": "A list of everything the old home let a person do and see, each checked in the new home, and every missing one brought back.",
+        "wakes": [
+          {
+            "id": "chosen--a-screen-app-or-feature-is-moving-to-a-new-home-and-nothing-may-be-lost",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:port-without-losing-anything",
+                  "condition": "a screen, app or feature is moving to a new home and nothing may be lost"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "inventory"
+            }
+          }
         ]
       }
     },
@@ -33115,6 +34790,31 @@
               }
             ]
           }
+        ],
+        "produces": "A hypothesis, a minimal real-world experiment run, and the opportunity updated from what customers actually did.",
+        "wakes": [
+          {
+            "id": "chosen--a-finding-describes-a-tool-app-or-service-worth-making",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:possibility-to-proof",
+                  "condition": "a finding describes a tool, app or service worth making"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "first-principles"
+            }
+          }
         ]
       }
     },
@@ -33232,6 +34932,28 @@
             "budget": {
               "steps": 40,
               "wall_ms": 1800000
+            },
+            "input": {
+              "start_at": "read-week"
+            }
+          },
+          {
+            "id": "chosen--the-week-ended-and-a-public-build-in-public-update-is-due",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:post-a-weekly-build-in-public-update",
+                  "condition": "the week ended and a public build-in-public update is due"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
             },
             "input": {
               "start_at": "read-week"
@@ -34068,7 +35790,38 @@
               "workflow:post-on-social-channels-on-a-schedule"
             ]
           }
-        ]
+        ],
+        "wakes": [
+          {
+            "id": "chosen--a-business-wants-a-week-of-scheduled-posts-for-its-social-channels",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:post-on-social-channels-on-a-schedule",
+                  "condition": "a business wants a week of scheduled posts for its social channels"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "read-facts"
+            }
+          }
+        ],
+        "records": {
+          "runs": [
+            "tool:check-against-a-persons-rules-and-verdicts",
+            "tool:draft-a-post",
+            "tool:set-a-post-to-go-at-its-time"
+          ]
+        }
       }
     },
     {
@@ -34225,6 +35978,31 @@
                   "type": "string"
                 }
               }
+            }
+          }
+        ],
+        "produces": "One print order placed after the person's tap, with its price, and pickup on their route or delivery.",
+        "wakes": [
+          {
+            "id": "chosen--someone-needs-a-file-printed-at-a-shop-and-picked-up-or-delivered",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:print-and-deliver",
+                  "condition": "someone needs a file printed at a shop and picked up or delivered"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "choose"
             }
           }
         ]
@@ -34541,7 +36319,39 @@
               "workflow:prove-the-launch-on-the-real-url"
             ]
           }
-        ]
+        ],
+        "wakes": [
+          {
+            "id": "chosen--a-page-has-launched-and-its-live-address-must-be-checked-for-search-answer-engines-and-device-widths",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:prove-the-launch-on-the-real-url",
+                  "condition": "a page has launched and its live address must be checked for search, answer engines and device widths"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "read-facts"
+            }
+          }
+        ],
+        "records": {
+          "runs": [
+            "tool:check-a-page-for-search-and-answer-engines",
+            "tool:check-given-pages-at-every-width",
+            "tool:measure-a-checklist",
+            "tool:read-public-web-page"
+          ]
+        }
       }
     },
     {
@@ -34912,7 +36722,38 @@
               "workflow:publish-articles-and-newsletter-on-a-cadence"
             ]
           }
-        ]
+        ],
+        "wakes": [
+          {
+            "id": "chosen--someone-wants-a-week-of-dated-articles-and-a-newsletter-published-on-a-cadence",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:publish-articles-and-newsletter-on-a-cadence",
+                  "condition": "someone wants a week of dated articles and a newsletter published on a cadence"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "read-facts"
+            }
+          }
+        ],
+        "records": {
+          "runs": [
+            "tool:check-copy",
+            "tool:draft-a-post",
+            "tool:send-a-post"
+          ]
+        }
       }
     },
     {
@@ -35050,6 +36891,28 @@
             "input": {
               "start_at": "open-the-pursuit",
               "request": "Monthly check: run the money-in-order workflow again for the open money pursuit."
+            }
+          },
+          {
+            "id": "chosen--someone-raises-a-vague-money-matter-such-as-a-past-due-bill-debt-refund-or-unused-subscription",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:put-a-households-money-in-order",
+                  "condition": "someone raises a vague money matter such as a past-due bill, debt, refund or unused subscription"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "open-the-pursuit"
             }
           }
         ],
@@ -36406,6 +38269,31 @@
               }
             ]
           }
+        ],
+        "produces": "A real, accessible offer or experience, and a check that the people it is for can reach it.",
+        "wakes": [
+          {
+            "id": "chosen--when-something-worth-releasing-is-ready",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:put-it-in-the-world",
+                  "condition": "when something worth releasing is ready"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "reuse"
+            }
+          }
         ]
       }
     },
@@ -36582,6 +38470,31 @@
                   "minLength": 10
                 }
               }
+            }
+          }
+        ],
+        "produces": "The part moved to the owner of its job, everything that used it updated, and the old place deleted.",
+        "wakes": [
+          {
+            "id": "chosen--a-file-folder-setting-feature-or-tool-seems-to-live-in-the-wrong-place",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:put-it-where-it-belongs",
+                  "condition": "a file, folder, setting, feature or tool seems to live in the wrong place"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "job"
             }
           }
         ]
@@ -36842,6 +38755,31 @@
                   "type": "string"
                 }
               }
+            }
+          }
+        ],
+        "produces": "The belief checked: the decision it changes, every limit it assumes with where it came from, and the evidence for and against.",
+        "wakes": [
+          {
+            "id": "chosen--someone-states-a-broad-belief-strategy-or-claim-to-be-checked",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:question-the-belief-until-it-holds",
+                  "condition": "someone states a broad belief, strategy or claim to be checked"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "state"
             }
           }
         ]
@@ -37958,6 +39896,31 @@
                 "says": "Every completed requirement cites evidence kept in this step. A citation is not independent verification of its claim."
               }
             ]
+          }
+        ],
+        "produces": "The best checked outcome for a real customer, made from research, creation, distribution, follow-through and improvement.",
+        "wakes": [
+          {
+            "id": "chosen--someone-asks-for-research-creation-distribution-and-customer-follow-through-composed-into-one-verified-outcome",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:quintillion",
+                  "condition": "someone asks for research, creation, distribution and customer follow-through composed into one verified outcome"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "customer"
+            }
           }
         ]
       }
@@ -39257,6 +41220,30 @@
                 ]
               }
             ]
+          }
+        ],
+        "wakes": [
+          {
+            "id": "chosen--someone-wants-to-reach-companies-whose-job-post-stayed-open-for-weeks",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:reach-companies-with-a-long-open-job-post",
+                  "condition": "someone wants to reach companies whose job post stayed open for weeks"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "find"
+            }
           }
         ]
       }
@@ -40778,6 +42765,30 @@
               }
             ]
           }
+        ],
+        "wakes": [
+          {
+            "id": "chosen--someone-wants-to-reach-local-businesses-of-one-kind-in-a-zip-code",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:reach-local-businesses-by-zip-code",
+                  "condition": "someone wants to reach local businesses of one kind in a zip code"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "identity"
+            }
+          }
         ]
       }
     },
@@ -42143,6 +44154,31 @@
               }
             ]
           }
+        ],
+        "produces": "Real situations, jobs and recurring friction found, and one worthwhile outcome selected to improve.",
+        "wakes": [
+          {
+            "id": "chosen--at-the-start-of-a-pursuit-and-when-new-evidence-arrives",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:real-life-cases",
+                  "condition": "at the start of a pursuit and when new evidence arrives"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "case"
+            }
+          }
         ]
       }
     },
@@ -42479,7 +44515,37 @@
               "workflow:recover-failed-payments-and-win-back"
             ]
           }
-        ]
+        ],
+        "wakes": [
+          {
+            "id": "chosen--payments-failed-or-buyers-churned-and-need-recovery-emails",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:recover-failed-payments-and-win-back",
+                  "condition": "payments failed or buyers churned and need recovery emails"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "read-facts"
+            }
+          }
+        ],
+        "records": {
+          "runs": [
+            "tool:list-ended-stripe-subscriptions",
+            "tool:send-an-email"
+          ]
+        }
       }
     },
     {
@@ -42849,6 +44915,31 @@
                   "type": "string"
                 }
               }
+            }
+          }
+        ],
+        "produces": "A short brief on the person's goal from public sources, and the insight shared with their community only when they approve.",
+        "wakes": [
+          {
+            "id": "chosen--someone-wants-to-be-kept-current-on-a-goal-or-subject-through-researched-briefings",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:research-brief-and-study",
+                  "condition": "someone wants to be kept current on a goal or subject through researched briefings"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "research"
             }
           }
         ]
@@ -43287,6 +45378,31 @@
               }
             }
           }
+        ],
+        "produces": "What people, companies and research say about the subject, and the least obvious insights from it.",
+        "wakes": [
+          {
+            "id": "chosen--a-seed-makes-a-claim-or-asks-a-question-that-needs-looking-into",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:research-what-everyone-says",
+                  "condition": "a seed makes a claim, or asks a question that needs looking into"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "people"
+            }
+          }
         ]
       }
     },
@@ -43680,7 +45796,40 @@
               "workflow:retention-and-referral"
             ]
           }
-        ]
+        ],
+        "wakes": [
+          {
+            "id": "chosen--buyers-have-gone-quiet-or-someone-wants-referral-codes-and-rewards",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:retention-and-referral",
+                  "condition": "buyers have gone quiet or someone wants referral codes and rewards"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "read-facts"
+            }
+          }
+        ],
+        "records": {
+          "runs": [
+            "tool:make-a-referral-code",
+            "tool:run-workflow-definition",
+            "tool:see-where-each-customer-is",
+            "tool:withdraw-a-referral-code",
+            "tool:work-out-referral-codes"
+          ]
+        }
       }
     },
     {
@@ -48190,6 +50339,30 @@
               }
             }
           }
+        ],
+        "wakes": [
+          {
+            "id": "chosen--someone-names-a-company-product-app-or-creator-and-asks-how-it-grew",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:reverse-engineer-how-something-grows",
+                  "condition": "someone names a company, product, app or creator and asks how it grew"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "setup"
+            }
+          }
         ]
       }
     },
@@ -48314,6 +50487,31 @@
                   "type": "string"
                 }
               }
+            }
+          }
+        ],
+        "wakes": [
+          {
+            "id": "chosen--a-broad-condition-row-is-added",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:rewrite-a-broad-condition",
+                  "condition": "a broad_condition row is added"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "rewrite",
+              "arrival_source": "record:arrival-sources:broad-conditions-waiting"
             }
           }
         ]
@@ -48568,7 +50766,37 @@
               "workflow:run-a-community"
             ]
           }
-        ]
+        ],
+        "wakes": [
+          {
+            "id": "chosen--someone-wants-a-community-created-matched-and-answered",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:run-a-community",
+                  "condition": "someone wants a community created, matched and answered"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "read-facts"
+            }
+          }
+        ],
+        "records": {
+          "runs": [
+            "tool:advance-a-community-matchmaker",
+            "tool:answer-in-a-community"
+          ]
+        }
       }
     },
     {
@@ -48946,7 +51174,39 @@
               "workflow:run-a-course-from-list-rows"
             ]
           }
-        ]
+        ],
+        "wakes": [
+          {
+            "id": "chosen--someone-wants-a-lesson-by-lesson-email-course-run",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:run-a-course-from-list-rows",
+                  "condition": "someone wants a lesson-by-lesson email course run"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "read-facts"
+            }
+          }
+        ],
+        "records": {
+          "runs": [
+            "tool:check-copy",
+            "tool:send-due-email-lessons",
+            "tool:sign-someone-up-for-an-email-course",
+            "tool:work-out-where-a-learner-stands"
+          ]
+        }
       }
     },
     {
@@ -50280,6 +52540,30 @@
               }
             ]
           }
+        ],
+        "wakes": [
+          {
+            "id": "chosen--someone-wants-a-linkedin-posting-system-from-their-posts-transcripts-and-buyer-questions",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:run-a-linkedin-content-system",
+                  "condition": "someone wants a LinkedIn posting system from their posts, transcripts and buyer questions"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "voice-sources"
+            }
+          }
         ]
       }
     },
@@ -51516,6 +53800,31 @@
               }
             }
           }
+        ],
+        "produces": "The same abilities in the same order on every device, each drawn in that device's own native controls.",
+        "wakes": [
+          {
+            "id": "chosen--someone-wants-a-feature-to-work-the-same-on-phone-browser-and-computer",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:same-abilities-each-device-its-own-look",
+                  "condition": "someone wants a feature to work the same on phone, browser and computer"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "abilities"
+            }
+          }
         ]
       }
     },
@@ -51902,6 +54211,31 @@
               }
             ]
           }
+        ],
+        "produces": "An answer with every claim labelled known since a date, new finding or re-checked, each linked to where it is held.",
+        "wakes": [
+          {
+            "id": "chosen--someone-asks-what-exists-was-decided-or-was-found",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:say-if-it-is-known-new-or-rechecked",
+                  "condition": "someone asks what exists, was decided or was found"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "read"
+            }
+          }
         ]
       }
     },
@@ -52059,6 +54393,31 @@
               }
             }
           }
+        ],
+        "produces": "One offer of something the pursuit already makes, tested at two or more prices.",
+        "wakes": [
+          {
+            "id": "chosen--someone-wants-to-sell-something-a-pursuit-already-produces-such-as-footage-notes-a-method-or-a-tool",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:sell-what-the-pursuit-makes",
+                  "condition": "someone wants to sell something a pursuit already produces such as footage, notes, a method or a tool"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "find"
+            }
+          }
         ]
       }
     },
@@ -52193,7 +54552,7 @@
         },
         "fires_when": [
           {
-            "label": "someone wants to run a whole business, from funnel to after-sale, on Trillion",
+            "label": "someone wants to run a whole business, from funnel to after-sale, on their own account",
             "condition": {
               "fields": [
                 {
@@ -53468,7 +55827,37 @@
               "workflow:set-up-a-business-on-the-account"
             ]
           }
-        ]
+        ],
+        "wakes": [
+          {
+            "id": "chosen--someone-wants-to-run-a-whole-business-from-funnel-to-after-sale-on-their-own-account",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:set-up-a-business-on-the-account",
+                  "condition": "someone wants to run a whole business, from funnel to after-sale, on their own account"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "write-the-business-facts"
+            }
+          }
+        ],
+        "records": {
+          "runs": [
+            "tool:measure-a-checklist",
+            "tool:run-workflow-definition"
+          ]
+        }
       }
     },
     {
@@ -53731,6 +56120,30 @@
                   }
                 }
               }
+            }
+          }
+        ],
+        "wakes": [
+          {
+            "id": "chosen--a-new-or-existing-repository-should-have-its-rules-checked-at-every-edit-commit-and-push",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:set-up-a-checked-repository",
+                  "condition": "a new or existing repository should have its rules checked at every edit, commit and push"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "read-the-repository"
             }
           }
         ]
@@ -54019,7 +56432,38 @@
               "workflow:set-up-brand-and-branded-emails"
             ]
           }
-        ]
+        ],
+        "wakes": [
+          {
+            "id": "chosen--a-business-needs-its-brand-resolved-and-branded-email-tested-from-a-verified-domain",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:set-up-brand-and-branded-emails",
+                  "condition": "a business needs its brand resolved and branded email tested from a verified domain"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "read-facts"
+            }
+          }
+        ],
+        "records": {
+          "runs": [
+            "tool:resolve-a-brand",
+            "tool:run-workflow-definition",
+            "tool:send-an-email"
+          ]
+        }
       }
     },
     {
@@ -54564,7 +57008,41 @@
               "workflow:set-up-business-accounts-and-connections"
             ]
           }
-        ]
+        ],
+        "wakes": [
+          {
+            "id": "chosen--a-business-needs-its-stripe-social-email-and-domain-accounts-checked-and-connected",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:set-up-business-accounts-and-connections",
+                  "condition": "a business needs its Stripe, social, email and domain accounts checked and connected"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "read-facts"
+            }
+          }
+        ],
+        "records": {
+          "runs": [
+            "tool:add-an-email-sending-domain",
+            "tool:check-a-connection",
+            "tool:check-an-email-sending-domain",
+            "tool:list-every-connection",
+            "tool:make-a-sending-key",
+            "tool:set-up-someone-i-pay-in-stripe"
+          ]
+        }
       }
     },
     {
@@ -55114,6 +57592,31 @@
               }
             ]
           }
+        ],
+        "produces": "The plan, design or advice built on the person's own work and the frameworks that fit, each cited.",
+        "wakes": [
+          {
+            "id": "chosen--someone-asks-to-plan-design-or-get-advice-for-something-such-as-a-week-season-launch-trip-screen-or-logo",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:start-from-the-persons-own-work",
+                  "condition": "someone asks to plan, design or get advice for something such as a week, season, launch, trip, screen or logo"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "search"
+            }
+          }
         ]
       }
     },
@@ -55459,7 +57962,38 @@
               "workflow:take-payments-with-stripe"
             ]
           }
-        ]
+        ],
+        "wakes": [
+          {
+            "id": "chosen--someone-wants-to-start-taking-payments-through-stripe-for-their-offers",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:take-payments-with-stripe",
+                  "condition": "someone wants to start taking payments through Stripe for their offers"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "read-facts"
+            }
+          }
+        ],
+        "records": {
+          "runs": [
+            "tool:find-a-completed-stripe-checkout",
+            "tool:set-up-stripe-payment-links",
+            "tool:start-a-stripe-checkout-that-pays-someone-else"
+          ]
+        }
       }
     },
     {
@@ -55543,7 +58077,12 @@
               }
             }
           }
-        ]
+        ],
+        "records": {
+          "runs": [
+            "tool:what-is-waiting-on-me"
+          ]
+        }
       }
     },
     {
@@ -56011,6 +58550,31 @@
               }
             }
           }
+        ],
+        "produces": "One row in the person's Findings list: the claim as they said it, the strongest case for and against, and the result.",
+        "wakes": [
+          {
+            "id": "chosen--someone-states-a-claim-noticed-fact-or-ai-conclusion-that-should-be-questioned-and-tested",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:test-a-finding",
+                  "condition": "someone states a claim, noticed fact or AI conclusion that should be questioned and tested"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "capture"
+            }
+          }
         ]
       }
     },
@@ -56400,6 +58964,31 @@
               }
             ]
           }
+        ],
+        "produces": "Price and A/B tests run on the page, versions shown per visitor, and each change settled with the person's yes.",
+        "wakes": [
+          {
+            "id": "chosen--someone-wants-to-test-prices-or-versions-of-a-page-or-a-page-that-changes-per-visitor",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:test-prices-and-change-a-page-for-each-visitor",
+                  "condition": "someone wants to test prices or versions of a page, or a page that changes per visitor"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "write-the-versions"
+            }
+          }
         ]
       }
     },
@@ -56669,6 +59258,31 @@
                 "says": "The root is a stage of the chain"
               }
             ]
+          }
+        ],
+        "produces": "The deepest stage of the person's chain the subject rests on, and what to change so it reaches the chain's last stage.",
+        "wakes": [
+          {
+            "id": "chosen--someone-asks-to-trace-a-feature-decision-claim-or-plan-back-to-first-principles",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:trace-to-first-principles",
+                  "condition": "someone asks to trace a feature, decision, claim or plan back to first principles"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "read"
+            }
           }
         ]
       }
@@ -57000,6 +59614,31 @@
               }
             ]
           }
+        ],
+        "produces": "Each correction named in the person's words, its cause found, the fix applied everywhere it touches, and kept as a workflow.",
+        "wakes": [
+          {
+            "id": "chosen--someone-corrects-how-the-ai-worked-and-the-fix-must-reach-every-workflow",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:turn-a-correction-into-workflows",
+                  "condition": "someone corrects how the AI worked and the fix must reach every workflow"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "name"
+            }
+          }
         ]
       }
     },
@@ -57298,6 +59937,31 @@
               }
             ]
           }
+        ],
+        "produces": "One finished piece in one of the person's formats, passed by the copy judge and kept as a draft.",
+        "wakes": [
+          {
+            "id": "chosen--someone-has-notes-a-recording-or-a-principle-and-wants-a-finished-post-thread-newsletter-article-script-or-talk",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:turn-notes-into-finished-content",
+                  "condition": "someone has notes, a recording or a principle and wants a finished post, thread, newsletter, article, script or talk"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "own-work"
+            }
+          }
         ]
       }
     },
@@ -57365,6 +60029,50 @@
             "budget": {
               "steps": 80,
               "wall_ms": 3600000
+            },
+            "input": {
+              "start_at": "find-new"
+            }
+          },
+          {
+            "id": "chosen--a-long-unused-recording-exists-and-should-be-cut-into-many-pieces",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:turn-one-long-recording-into-many-pieces",
+                  "condition": "a long unused recording exists and should be cut into many pieces"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "find-new"
+            }
+          },
+          {
+            "id": "chosen--a-recording-row-is-added",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:turn-one-long-recording-into-many-pieces",
+                  "condition": "a recording row is added"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
             },
             "input": {
               "start_at": "find-new"
@@ -59010,6 +61718,31 @@
                 "says": "At least one reviewer is named"
               }
             ]
+          }
+        ],
+        "produces": "A facts-only plan document from research across the industry, audited by an independent reviewer.",
+        "wakes": [
+          {
+            "id": "chosen--someone-asks-to-research-a-weak-or-missing-capability-and-plan-it",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:turn-research-into-a-plan",
+                  "condition": "someone asks to research a weak or missing capability and plan it"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "scope"
+            }
           }
         ]
       }
@@ -60861,6 +63594,31 @@
               }
             ]
           }
+        ],
+        "produces": "A decision on whether what the person said is content, the principles in it written up, and each fed back into the product.",
+        "wakes": [
+          {
+            "id": "chosen--the-person-s-own-words-hold-an-idea-for-content-or-a-way-of-working-worth-writing-down",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:turn-what-you-said-into-content",
+                  "condition": "the person's own words hold an idea for content, or a way of working worth writing down"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "worth"
+            }
+          }
         ]
       }
     },
@@ -60976,6 +63734,28 @@
             },
             "input": {
               "start_at": "weekly"
+            }
+          },
+          {
+            "id": "chosen--someone-has-a-consumer-app-idea-built-on-a-daily-problem-and-wants-to-validate-and-launch-it-as-a-subscription",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:validate-and-launch-a-subscription-app",
+                  "condition": "someone has a consumer app idea built on a daily problem and wants to validate and launch it as a subscription"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "money-proof"
             }
           }
         ],
@@ -61855,6 +64635,31 @@
               }
             ]
           }
+        ],
+        "produces": "The areas of the person's map the pursuit serves or lives, each with evidence in their words, kept on the pursuit.",
+        "wakes": [
+          {
+            "id": "chosen--someone-asks-where-a-goal-or-pursuit-fits-in-the-areas-of-their-life",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:walk-a-pursuit-through-your-map",
+                  "condition": "someone asks where a goal or pursuit fits in the areas of their life"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "read"
+            }
+          }
         ]
       }
     },
@@ -62298,6 +65103,31 @@
               }
             }
           }
+        ],
+        "produces": "The person's answers to a framework, each with its source and confidence, and questions only where the evidence cannot answer.",
+        "wakes": [
+          {
+            "id": "chosen--someone-asks-to-work-through-an-author-s-framework-or-book-method-for-themselves",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:work-through-a-framework",
+                  "condition": "someone asks to work through an author's framework or book method for themselves"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "read"
+            }
+          }
         ]
       }
     },
@@ -62520,6 +65350,31 @@
                   "type": "boolean"
                 }
               }
+            }
+          }
+        ],
+        "produces": "A research prompt that tests the requester's question in their own words without the writer's expected answer.",
+        "wakes": [
+          {
+            "id": "chosen--someone-wants-a-research-prompt-written-for-an-ai-or-person-that-does-not-lead-toward-an-expected-answer",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:write-a-research-prompt-without-the-answer-in-it",
+                  "condition": "someone wants a research prompt written for an AI or person that does not lead toward an expected answer"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "goal"
             }
           }
         ]
@@ -62772,6 +65627,31 @@
                 "says": "The judge was run"
               }
             ]
+          }
+        ],
+        "produces": "Plain, true, warm copy, passed by the copy judge before anyone reads it.",
+        "wakes": [
+          {
+            "id": "chosen--someone-asks-for-copy-a-reader-will-see-such-as-a-tour-notice-error-button-landing-section-email-or-post",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:write-product-words",
+                  "condition": "someone asks for copy a reader will see, such as a tour, notice, error, button, landing section, email or post"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "facts"
+            }
           }
         ]
       }
@@ -66089,6 +68969,31 @@
                 "says": "Every completed requirement cites evidence kept in this step. A citation is not independent verification of its claim."
               }
             ]
+          }
+        ],
+        "produces": "The authorized objective done to the full standard, with checked evidence, and its lesson kept.",
+        "wakes": [
+          {
+            "id": "chosen--someone-gives-an-authorized-objective-that-needs-the-full-execution-standard-with-checked-evidence",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:x-mode",
+                  "condition": "someone gives an authorized objective that needs the full execution standard with checked evidence"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "scope"
+            }
           }
         ]
       }

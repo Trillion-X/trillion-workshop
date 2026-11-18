@@ -221,3 +221,14 @@ test('a recipe holding its own definition starts at its first step, the one its 
   await assert.rejects(runWorkflow({ recipe, input: { start_at: 'second' } }), /starts at its first step, "first"/);
 });
 
+
+test('a door ask a step may name (wake:arrive) runs as that door operation; the tool row takes its rights from the workflow row', async () => {
+  assert.deepEqual(toolRow.invoke.records, { fd: 3, from_listed_row: true });
+  const definition = { id: 'workflow:made-up-teller', name: 'Teller', kind: 'workflow', is_active: true, version: 1, edges: [],
+    steps: [{ id: 'tell', kind: 'ask', config: { name: 'wake:arrive', input: { kind: 'made-up', event_id: 'e', payload: {} }, context: { step_id: 'tell' } } }] };
+  const calls = [];
+  const door = { run() { throw new Error('not a tool'); }, async operation(method, input, { key }) { calls.push([method, input.kind, key.split(':')[0]]); return { kept: true }; } };
+  const ran = await runAsTheTool({ run: { definitions: [definition], workflow_id: definition.id } }, { door });
+  assert.equal(ran.status, 'completed');
+  assert.deepEqual(calls, [['wake:arrive', 'made-up', 'tell']]);
+});

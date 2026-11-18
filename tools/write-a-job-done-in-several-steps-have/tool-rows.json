@@ -112,6 +112,7 @@
             "/opt/write-a-job-done-in-several-steps-have/read-data/run-a-workflow.mjs",
             "runAsTheTool"
           ],
+          "records": { "fd": 3, "from_listed_row": true },
           "stdin": {
             "run": { "fill": { "from": "input" } },
             "woken_by": { "fill": { "from": "task", "field": "cause.detail" } }
@@ -427,6 +428,7 @@
               {
                 "package": "workflows",
                 "paths": [
+                  "ask-rights.json",
                   "kit-observe.json",
                   "kit-template.json",
                   "kits",

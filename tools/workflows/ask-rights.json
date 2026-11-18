@@ -1,0 +1,9 @@
+{
+  "_what": "The asks a workflow step may name that the run's own door answers, and which right each needs, so a workflow row's `records` (the rights its runs hold when tool:run-workflow-definition takes them from the row, trillion-rust from_listed_row) is made from its steps (read-data/derived-records.mjs). `at` is where the right is held and `id_from` the field of the ask's input that names what it is over; an ask whose input names it with a value given in the step (not a binding) gets the right, one naming it from the run's input gets none and waits for the person's AI. A tool:... ask needs only the tool's id in `runs`. Every other ask (ai, agent:..., the person) waits.",
+  "asks": {
+    "wake:arrive": {
+      "at": "@own-records",
+      "id_from": "kind"
+    }
+  }
+}

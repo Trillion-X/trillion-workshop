@@ -284,6 +284,21 @@
               "edges": []
             }
           ]
+        },
+        "records": {
+          "rights": [
+            {
+              "at": "@own-records",
+              "id": "workflow-chosen",
+              "operations": [
+                "wake:arrive"
+              ]
+            }
+          ],
+          "runs": [
+            "tool:choose-the-workflows-that-fire",
+            "tool:run-sql-in-my-database"
+          ]
         }
       }
     }

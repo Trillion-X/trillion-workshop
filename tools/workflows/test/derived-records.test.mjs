@@ -1,0 +1,35 @@
+// The rights a workflow row holds and the wakes of its conditions are made from the rest of the row
+// (read-data/derived-records.mjs): every shipped recipe holds exactly what it makes, so neither is written by hand.
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { publicRecipes } from '../read-data/public-recipes.mjs';
+import { recordsOf, chosenWakesOf, withDerivedRecords } from '../read-data/derived-records.mjs';
+
+test('every shipped recipe holds the rights and condition wakes its own steps and conditions make', () => {
+  const off = publicRecipes().filter(recipe => JSON.stringify(withDerivedRecords(recipe)) !== JSON.stringify(recipe)).map(recipe => recipe.id);
+  assert.deepEqual(off, [], 'run do-work/rebuild-recipes.mjs (or derive the hand-made recipe files again)');
+});
+
+test('a row runs the tools its steps ask and tells only a fact kind a step names as a value', () => {
+  const step = (id, name, input = {}) => ({ id, kind: 'ask', config: { name, input, context: { step_id: id } } });
+  const recipe = { id: 'workflow:made-up', label: 'Made up', definition: { id: 'workflow:made-up', version: 1, edges: [], steps: [
+    step('a', 'tool:made-up-b'), step('b', 'tool:made-up-a'), step('c', 'tool:made-up-a'), step('d', 'ai'),
+    step('e', 'wake:arrive', { kind: 'made-up-fact', event_id: 'x', payload: {} }),
+    step('f', 'wake:arrive', { kind: { $kind: 'binding', select: { from: 'input', path: 'kind' } } }),
+  ] } };
+  assert.deepEqual(recordsOf(recipe), { rights: [{ at: '@own-records', id: 'made-up-fact', operations: ['wake:arrive'] }], runs: ['tool:made-up-a', 'tool:made-up-b'] });
+  assert.equal(recordsOf({ ...recipe, definition: { ...recipe.definition, steps: [step('d', 'ai')] } }), null);
+});
+
+test('each condition that is not off gets one wake on the chosen fact, with its own input', () => {
+  const recipe = { id: 'workflow:made-up', steps: [{ id: 'first' }], fires_when: [
+    { label: 'A row is added', state: 'On', input: { start_at: 'first', why: 'x' } },
+    { label: 'Turned off', state: 'Off' },
+    { label: 'No input', state: 'On' }] };
+  const wakes = chosenWakesOf(recipe);
+  assert.deepEqual(wakes.map(wake => [wake.id, wake.on.fact.match, wake.input]), [
+    ['chosen--a-row-is-added', { workflow: 'workflow:made-up', condition: 'A row is added' }, { start_at: 'first', why: 'x' }],
+    ['chosen--no-input', { workflow: 'workflow:made-up', condition: 'No input' }, { start_at: 'first' }]]);
+  const again = withDerivedRecords({ ...recipe, wakes: [{ id: 'kept' }, { id: 'chosen--gone' }] });
+  assert.deepEqual(again.wakes.map(wake => wake.id), ['kept', 'chosen--a-row-is-added', 'chosen--no-input']);
+});

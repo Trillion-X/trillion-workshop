@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflows:public",
   "list": "workflows",
-  "blake3": "ec7231d22ccbbda7da34826d092c0980a7ed19c237b150e44ecf00f172dd6796",
+  "blake3": "ddb228219e6d54e0fdd7454de96c7cd667aa20425b10fd1eb5051c36497e7bef",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
@@ -16,95 +16,45 @@
    "workflow_ids": [
     "answer-commenters-with-videos",
     "answer-comments-and-messages",
+    "bring-in-a-framework",
+    "bring-in-my-processes",
     "build-a-best-x-for-y-comparison",
     "build-the-landing-page",
+    "buy-and-deliver",
+    "check-a-decision-against-your-map",
+    "combine-several-ai-answers",
+    "describe-what-happens-before-naming-it",
     "file-what-needs-the-person",
+    "find-moments-in-a-recording",
+    "find-their-own-map",
     "find-unexplored-ground",
+    "find-what-your-pursuits-leave-out",
+    "find-where-the-steward-ladder-breaks",
     "first-win",
     "follow-through",
     "follow-up-with-people-who-engaged",
     "give-paid-buyers-access",
+    "grow-on-reddit-without-selling-first",
     "grow-the-one-tree",
+    "hand-to-an-agent",
     "handle-every-inbox-daily",
+    "hire-help-for-a-step",
+    "hold-us-to-it",
     "infinity",
     "keep-a-changelog-from-what-shipped",
     "keep-it-working",
+    "keep-what-you-find-in-lists",
+    "lead-me-to-it",
+    "learn-the-person",
     "legal-pages-and-support",
+    "lock-in",
+    "make-it-once-for-everyone",
     "make-it-perform",
     "make-one-piece-of-content-from-audience-to-publish",
     "make-short-videos-from-footage",
     "make-the-piece-without-waiting-for-the-person",
     "manage-member-billing",
     "measure-the-funnel-and-set-a-baseline",
-    "method-build-a-product",
-    "method-change-code",
-    "method-design-a-feature",
-    "onboard-new-buyers-in-five-days",
-    "out-launch-a-new-launch",
-    "personalized-reach-out",
-    "possibility-to-proof",
-    "post-on-social-channels-on-a-schedule",
-    "prove-the-launch-on-the-real-url",
-    "publish-articles-and-newsletter-on-a-cadence",
-    "put-a-households-money-in-order",
-    "put-it-in-the-world",
-    "quintillion",
-    "reach-companies-with-a-long-open-job-post",
-    "reach-local-businesses-by-zip-code",
-    "real-life-cases",
-    "recover-failed-payments-and-win-back",
-    "refresh-measurement-coverage",
-    "research-what-everyone-says",
-    "retention-and-referral",
-    "rewrite-a-broad-condition",
-    "run-a-community",
-    "run-a-course-from-list-rows",
-    "run-a-linkedin-content-system",
-    "set-up-a-business-on-the-account",
-    "set-up-brand-and-branded-emails",
-    "set-up-business-accounts-and-connections",
-    "set-up-your-checks",
-    "take-payments-with-stripe",
-    "turn-notes-into-finished-content",
-    "turn-one-long-recording-into-many-pieces",
-    "turn-what-you-said-into-content",
-    "x-mode",
-    "workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner",
-    "workflow:rewrite-a-broad-condition",
-    "workflow:turn-one-long-recording-into-many-pieces"
-   ],
-   "verified_public_mode_recipes": 10,
-   "verified_public_mode_steps": 41,
-   "canonical_workflow_ids": [
-    "bring-in-a-framework",
-    "bring-in-my-processes",
-    "build-a-best-x-for-y-comparison",
-    "buy-and-deliver",
-    "check-a-decision-against-your-map",
-    "combine-several-ai-answers",
-    "connect-every-ai-to-one-memory-list",
-    "describe-what-happens-before-naming-it",
-    "file-what-needs-the-person",
-    "find-and-test-the-short-video-formats-that-sell-your-app",
-    "find-moments-in-a-recording",
-    "find-their-own-map",
-    "find-unexplored-ground",
-    "find-what-your-pursuits-leave-out",
-    "find-where-the-steward-ladder-breaks",
-    "get-found-in-search-and-answer-engines",
-    "grow-on-reddit-without-selling-first",
-    "hand-to-an-agent",
-    "hire-help-for-a-step",
-    "hold-us-to-it",
-    "keep-pages-cited-by-answer-engines",
-    "keep-what-you-find-in-lists",
-    "lead-me-to-it",
-    "learn-the-person",
-    "lock-in",
-    "make-a-brand-book-and-decks",
-    "make-a-personalised-explainer-video-on-any-topic-for-a-learner",
-    "make-it-once-for-everyone",
-    "make-one-piece-of-content-from-audience-to-publish",
     "method-build-a-product",
     "method-build-the-real-thing",
     "method-change-code",
@@ -119,36 +69,75 @@
     "method-research-plan-build",
     "method-tell-a-story",
     "method-test-a-design-against-every-case",
+    "onboard-new-buyers-in-five-days",
+    "out-launch-a-new-launch",
+    "personalized-reach-out",
     "port-without-losing-anything",
-    "post-a-weekly-build-in-public-update",
+    "possibility-to-proof",
+    "post-on-social-channels-on-a-schedule",
     "print-and-deliver",
+    "prove-the-launch-on-the-real-url",
+    "publish-articles-and-newsletter-on-a-cadence",
+    "put-a-households-money-in-order",
+    "put-it-in-the-world",
     "put-it-where-it-belongs",
     "question-the-belief-until-it-holds",
     "quintillion",
     "reach-companies-with-a-long-open-job-post",
     "reach-local-businesses-by-zip-code",
+    "real-life-cases",
+    "recover-failed-payments-and-win-back",
+    "refresh-measurement-coverage",
     "research-brief-and-study",
     "research-what-everyone-says",
-    "reverse-engineer-how-something-grows",
+    "retention-and-referral",
+    "rewrite-a-broad-condition",
+    "run-a-community",
+    "run-a-course-from-list-rows",
     "run-a-linkedin-content-system",
     "same-abilities-each-device-its-own-look",
     "say-if-it-is-known-new-or-rechecked",
     "sell-what-the-pursuit-makes",
-    "set-up-a-checked-repository",
+    "set-up-a-business-on-the-account",
+    "set-up-brand-and-branded-emails",
+    "set-up-business-accounts-and-connections",
+    "set-up-your-checks",
     "start-from-the-persons-own-work",
+    "take-payments-with-stripe",
     "test-a-finding",
     "test-prices-and-change-a-page-for-each-visitor",
     "trace-to-first-principles",
-    "x-mode",
     "turn-a-correction-into-workflows",
     "turn-notes-into-finished-content",
+    "turn-one-long-recording-into-many-pieces",
     "turn-research-into-a-plan",
     "turn-what-you-said-into-content",
-    "validate-and-launch-a-subscription-app",
     "walk-a-pursuit-through-your-map",
     "work-through-a-framework",
+    "workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner",
+    "workflow:rewrite-a-broad-condition",
+    "workflow:turn-one-long-recording-into-many-pieces",
     "write-a-research-prompt-without-the-answer-in-it",
-    "write-product-words"
+    "write-product-words",
+    "x-mode"
+   ],
+   "verified_public_mode_recipes": 10,
+   "verified_public_mode_steps": 41,
+   "canonical_workflow_ids": [
+    "build-a-best-x-for-y-comparison",
+    "connect-every-ai-to-one-memory-list",
+    "find-and-test-the-short-video-formats-that-sell-your-app",
+    "get-found-in-search-and-answer-engines",
+    "keep-pages-cited-by-answer-engines",
+    "make-a-brand-book-and-decks",
+    "make-a-personalised-explainer-video-on-any-topic-for-a-learner",
+    "post-a-weekly-build-in-public-update",
+    "reach-companies-with-a-long-open-job-post",
+    "reach-local-businesses-by-zip-code",
+    "reverse-engineer-how-something-grows",
+    "run-a-linkedin-content-system",
+    "set-up-a-checked-repository",
+    "validate-and-launch-a-subscription-app"
    ]
   }
  },
@@ -226,7 +215,8 @@
     "recipe": "workflow:bring-in-a-framework",
     "source": "{\"from\":\"a method a person repeated across their work\"}",
     "title": "Bring in a framework",
-    "fires_when": "[{\"label\": \"someone has an author's book, notes or conversation to turn into a framework\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"framework-request\", \"shared-material\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone has an author's book, notes or conversation to turn into a framework\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"framework-request\", \"shared-material\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "The author's framework kept as private data for their AI, every question, exercise and source citation in order, checked against the source."
    }
   },
   {
@@ -240,7 +230,8 @@
     "recipe": "workflow:bring-in-my-processes",
     "source": "{\"from\":\"the product's own behaviour\"}",
     "title": "Bring in my processes and tools",
-    "fires_when": "[{\"label\": \"someone has processes, skills, checklists or tools on a computer or agent to bring in\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"process-to-document\", \"skill-request\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone has processes, skills, checklists or tools on a computer or agent to bring in\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"process-to-document\", \"skill-request\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "Each process, skill or tool the person already had and the marketplace lacked, brought in as a workflow or a tool that keeps running where it lives."
    }
   },
   {
@@ -254,7 +245,8 @@
     "recipe": "workflow:buy-and-deliver",
     "source": "{\"from\":\"the product's own behaviour\",\"note\":\"Orders go through the person's own accounts, after one tap with the price.\"}",
     "title": "Buy and deliver",
-    "fires_when": "[{\"label\": \"a plan needs supplies or gear bought and delivered or ready for pickup\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"purchase-request\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"a plan needs supplies or gear bought and delivered or ready for pickup\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"purchase-request\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "One order placed through the person's own account after their tap, with its price, and delivery or a pickup on their route."
    }
   },
   {
@@ -268,7 +260,8 @@
     "recipe": "workflow:check-a-decision-against-your-map",
     "source": "{\"from\":\"a method a person repeated across their work\"}",
     "title": "Check a decision against your map",
-    "fires_when": "[{\"label\": \"someone has a decision to make and wants it weighed against their life areas\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"decision-to-make\", \"life-map-question\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone has a decision to make and wants it weighed against their life areas\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"decision-to-make\", \"life-map-question\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "A note on the decision saying which areas of the person's map it serves, lives, leaves out or takes from, and a better version when there is one."
    }
   },
   {
@@ -282,7 +275,8 @@
     "recipe": "workflow:combine-several-ai-answers",
     "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"Several different answers become one checked meta-analysis. Nothing here names a subject, field or person.\"}",
     "title": "Combine several answers to one question into one answer",
-    "fires_when": "[{\"label\": \"several answers to the same question exist and must become one\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"research-question\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"several answers to the same question exist and must become one\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"research-question\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "One combined answer: what holds and how many answers support it, what is still disputed and why, and what none of them established."
    }
   },
   {
@@ -296,7 +290,8 @@
     "recipe": "workflow:describe-what-happens-before-naming-it",
     "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"Familiar concepts are conclusions to investigate, not premises to inherit; show the derivation; force no framework the evidence does not justify. Nothing here names a subject, field or person.\"}",
     "title": "Describe what happens before you name it",
-    "fires_when": "[{\"label\": \"a subject is not yet understood and must be observed before its dimensions or goals are set\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"research-question\", \"first-principles-question\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"a subject is not yet understood and must be observed before its dimensions or goals are set\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"research-question\", \"first-principles-question\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "A description of what happens in observable terms, each requirement sorted into observed, assumed or inherited, then candidate dimensions and a name derived from it."
    }
   },
   {
@@ -310,7 +305,8 @@
     "recipe": "workflow:file-what-needs-the-person",
     "source": "{\"from\":\"the product's own behaviour\",\"note\":\"Any sentence that has the person doing something becomes a row first, so it reaches every device, explains itself and gets louder until it is done, instead of sitting in one chat. Every plan passes through this before a person sees it. It also holds the earlier workflow \\\"Do it for me\\\", which had the same first three steps. Names tools that no tool in the Workshop offers yet: tool:take-me-there, tool:what-can-my-account-do, tool:what-is-waiting-on-me, tool:who-does-each-step.\"}",
     "title": "File what needs the person",
-    "fires_when": "[{\"label\": \"a step only the person can do: a device in their hand, a payment, a signature, a decision between their own rules\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"only-the-person-can-do\"]}}]}}, \"made_by\": \"rewritten\", \"state\": \"On\", \"evidence\": \"Rewritten on 2026-11-13 (lane every-workflow-is-a-branch): the earlier condition kept 13 or 14 of 14 parts of four ordinary seeds no one aimed, so it said nothing about which work a part is; the condition now requires the one situation this workflow is for.\"}, {\"label\": \"a sentence or plan has the person doing something\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"person-task\"]}}]}}, \"made_by\": \"derived\", \"state\": \"Off\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words. Retired 2026-11-13: it kept most parts of four ordinary seeds no one aimed (rewritten in place by lane every-workflow-is-a-branch).\"}]"
+    "fires_when": "[{\"label\": \"a step only the person can do: a device in their hand, a payment, a signature, a decision between their own rules\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"only-the-person-can-do\"]}}]}}, \"made_by\": \"rewritten\", \"state\": \"On\", \"evidence\": \"Rewritten on 2026-11-13 (lane every-workflow-is-a-branch): the earlier condition kept 13 or 14 of 14 parts of four ordinary seeds no one aimed, so it said nothing about which work a part is; the condition now requires the one situation this workflow is for.\"}, {\"label\": \"a sentence or plan has the person doing something\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"person-task\"]}}]}}, \"made_by\": \"derived\", \"state\": \"Off\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words. Retired 2026-11-13: it kept most parts of four ordinary seeds no one aimed (rewritten in place by lane every-workflow-is-a-branch).\"}]",
+    "produces": "Each step only the person can do, kept as one fully explained row, and the oldest one opened on their screen."
    }
   },
   {
@@ -340,7 +336,8 @@
     "recipe": "workflow:find-moments-in-a-recording",
     "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"Names tools that no tool in the Workshop offers yet: tool:find-action-moments, tool:find-scene-changes, tool:pick-cover-frame, tool:who-is-in-this.\"}",
     "title": "Find useful moments in a recording",
-    "fires_when": "[{\"label\": \"someone has a recording and wants its useful moments found\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"long-recording\", \"content-idea\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone has a recording and wants its useful moments found\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"long-recording\", \"content-idea\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "Timed rows of what is seen and heard in the recording, linked to its file, and source-linked drafts made from the useful moments."
    }
   },
   {
@@ -354,7 +351,8 @@
     "recipe": "workflow:find-their-own-map",
     "source": "{\"from\":\"a method a person repeated across their work\"}",
     "title": "Find a person's own map of their life",
-    "fires_when": "[{\"label\": \"someone's own way of dividing their life is needed before a default map is used\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"life-map-question\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone's own way of dividing their life is needed before a default map is used\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"life-map-question\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "The person's own map of their life in their list, each area in their words."
    }
   },
   {
@@ -368,7 +366,8 @@
     "recipe": "workflow:find-unexplored-ground",
     "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"Nothing here names a subject, field or person: a bakery, a clinic, a coaching method and a book run the same steps.\"}",
     "title": "Find unexplored ground that fits you",
-    "fires_when": "[{\"label\": \"a seed names a niche, or a gap in a market worth exploring\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"niche\", \"market-gap\"]}}]}}, \"made_by\": \"rewritten\", \"state\": \"On\", \"evidence\": \"Rewritten on 2026-11-13 (lane every-workflow-is-a-branch): the earlier condition kept 13 or 14 of 14 parts of four ordinary seeds no one aimed, so it said nothing about which work a part is; the condition now requires the one situation this workflow is for.\"}, {\"label\": \"a seed names a field or niche\", \"condition\": {\"fields\": [{\"id\": \"niches\", \"kind\": \"tags\", \"path\": [\"niches\"]}, {\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"or\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"niches\", \"operator\": \"is_not_empty\"}, {\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"niche\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"Off\", \"evidence\": \"Moved onto this workflow's own row from list tree-branches row record:tree-branches:find-unexplored-ground and list tree-branch-conditions row record:tree-branch-conditions:find-unexplored-ground--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch). Retired 2026-11-13: it kept most parts of four ordinary seeds no one aimed (rewritten in place by lane every-workflow-is-a-branch).\"}]"
+    "fires_when": "[{\"label\": \"a seed names a niche, or a gap in a market worth exploring\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"niche\", \"market-gap\"]}}]}}, \"made_by\": \"rewritten\", \"state\": \"On\", \"evidence\": \"Rewritten on 2026-11-13 (lane every-workflow-is-a-branch): the earlier condition kept 13 or 14 of 14 parts of four ordinary seeds no one aimed, so it said nothing about which work a part is; the condition now requires the one situation this workflow is for.\"}, {\"label\": \"a seed names a field or niche\", \"condition\": {\"fields\": [{\"id\": \"niches\", \"kind\": \"tags\", \"path\": [\"niches\"]}, {\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"or\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"niches\", \"operator\": \"is_not_empty\"}, {\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"niche\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"Off\", \"evidence\": \"Moved onto this workflow's own row from list tree-branches row record:tree-branches:find-unexplored-ground and list tree-branch-conditions row record:tree-branch-conditions:find-unexplored-ground--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch). Retired 2026-11-13: it kept most parts of four ordinary seeds no one aimed (rewritten in place by lane every-workflow-is-a-branch).\"}]",
+    "produces": "Rows of unexplored areas in the person's list, each matched to what they are in a position to explore."
    }
   },
   {
@@ -382,7 +381,8 @@
     "recipe": "workflow:find-what-your-pursuits-leave-out",
     "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"Runs on any person's own map.\"}",
     "title": "Find what your pursuits leave out",
-    "fires_when": "[{\"label\": \"someone asks which areas of life their pursuits ignore\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"life-map-question\", \"framework-request\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone asks which areas of life their pursuits ignore\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"life-map-question\", \"framework-request\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "Each area of the person's map no pursuit touches, answered from their own words: an existing pursuit that lives it, or a new one."
    }
   },
   {
@@ -396,7 +396,8 @@
     "recipe": "workflow:find-where-the-steward-ladder-breaks",
     "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"Nothing here names a person, product or field: an athlete, a sales team, an AI agent and a delivery route run the same steps.\"}",
     "title": "Find where the steward ladder breaks",
-    "fires_when": "[{\"label\": \"a person, team, AI or system keeps failing to get a result\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"process-complaint\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"a person, team, AI or system keeps failing to get a result\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"process-complaint\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "The stage where the path to a lasting result breaks, the fix made there, and what is seen at that stage after the fix."
    }
   },
   {
@@ -410,7 +411,8 @@
     "recipe": "workflow:first-win",
     "source": "{\"from\":\"Previously published execution-mode definition, restored into the current account workflow owner\",\"mode_id\":\"mode:first-win\",\"version\":1,\"aliases\":[\"First Win Mode\",\"Get the first customer result\"],\"by_default\":false,\"source_owner\":\"quintillion-mode-records.json before removal after account publication\",\"restoration\":\"Original stage instructions and requirement schemas retained. Source references and private quotations remain in the private recovery evidence. Existing runs retain their original identities and definitions.\",\"current_route\":\"Named legacy operations are resolved through the current account capability owner. Source incorporation is reused for applicable outside/shared material, never forced on unrelated work.\"}",
     "title": "First Win Mode",
-    "fires_when": "[{\"label\": \"when a customer arrives\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"customer-arrived\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Moved onto this workflow's own row from list tree-branches row record:tree-branches:first-win and list tree-branch-conditions row record:tree-branch-conditions:first-win--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch).\"}]"
+    "fires_when": "[{\"label\": \"when a customer arrives\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"customer-arrived\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Moved onto this workflow's own row from list tree-branches row record:tree-branches:first-win and list tree-branch-conditions row record:tree-branch-conditions:first-win--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch).\"}]",
+    "produces": "One meaningful first result the customer reached, checked independently."
    }
   },
   {
@@ -424,7 +426,8 @@
     "recipe": "workflow:follow-through",
     "source": "{\"from\":\"Previously published execution-mode definition, restored into the current account workflow owner\",\"mode_id\":\"mode:follow-through\",\"version\":1,\"aliases\":[\"Follow Through Mode\",\"Finish the chain\"],\"by_default\":false,\"source_owner\":\"quintillion-mode-records.json before removal after account publication\",\"restoration\":\"Original stage instructions and requirement schemas retained. Source references and private quotations remain in the private recovery evidence. Existing runs retain their original identities and definitions.\",\"current_route\":\"Named legacy operations are resolved through the current account capability owner. Source incorporation is reused for applicable outside/shared material, never forced on unrelated work.\"}",
     "title": "Follow Through Mode",
-    "fires_when": "[{\"label\": \"when something is promised\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"promise\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Moved onto this workflow's own row from list tree-branches row record:tree-branches:follow-through and list tree-branch-conditions row record:tree-branch-conditions:follow-through--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch).\"}]"
+    "fires_when": "[{\"label\": \"when something is promised\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"promise\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Moved onto this workflow's own row from list tree-branches row record:tree-branches:follow-through and list tree-branch-conditions row record:tree-branch-conditions:follow-through--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch).\"}]",
+    "produces": "Every dependency and commitment carried to a checked outcome, each still open item with an owner and a way to recover."
    }
   },
   {
@@ -482,7 +485,8 @@
     "recipe": "workflow:grow-on-reddit-without-selling-first",
     "source": "{\"from\":\"X post\",\"author\":\"Nicholas Dulait\",\"url\":\"https://x.com/NicholasDulait/status/2115756883050918215\",\"name\":\"Nicholas Dulait, X post of 2026-10-29: warm up a Reddit account for 3 days before the first post\",\"note\":\"His claims, not checked here: 10 of his 12 Reddit posts went over 50K views, and the best one reached 168K. His method has 5 steps: (1) create the account with an email that is a few months old, (2) hide profile activity (Settings > Profile > Content and activity > Hide all), (3) reach at least 10 karma, (4) pick 5 subreddits that Google ranks for your best keywords, not by size, (5) for 3 days leave 1 useful comment in each of the 5 subreddits on a post from the last few hours that is gaining traction (15 comments, no self-promotion), then read every rule in the sidebar before each post. Steps 3, 4 and 5 and the rules reading are the steps of this workflow. NOT ADOPTED, with the reason: (1) using a months-old email so the account is not flagged as spam is evading spam detection, so this workflow does not use an email's age to get past a spam filter; (2) hiding profile activity so other Redditors cannot see the account is marketing conceals commercial intent, so this workflow leaves the profile as it is. The honest version is in the post steps: disclose the person's affiliation with the product wherever a subreddit's rules or Reddit's content policy require it.\"}",
     "title": "Grow on Reddit without selling for the first 3 days",
-    "fires_when": "[{\"label\": \"someone wants to grow on Reddit for a product without selling at first\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"social-growth\", \"keyword-offer-post\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone wants to grow on Reddit for a product without selling at first\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"social-growth\", \"keyword-offer-post\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "Five chosen subreddits with their rules recorded, a warmed-up account, and each post the person approved, confirmed live."
    }
   },
   {
@@ -496,7 +500,8 @@
     "recipe": "workflow:hire-help-for-a-step",
     "source": "{\"from\":\"the product's own behaviour\",\"note\":\"Hiring goes through real accounts in the person's name; the AI never pretends to be a person and shows the cost first. Names tools that no tool in the Workshop offers yet: tool:hold-to-it, tool:send-an-email.\"}",
     "title": "Hire help for a step",
-    "fires_when": "[{\"label\": \"a step needs someone physically present, such as an errand or task\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"purchase-request\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"a step needs someone physically present, such as an errand or task\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"purchase-request\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "One booking with a nearby person or employee after the person's tap, with its price, and a check that they did the step."
    }
   },
   {
@@ -510,7 +515,8 @@
     "recipe": "workflow:hold-us-to-it",
     "source": "{\"from\":\"the product's own behaviour\",\"note\":\"A group agrees to an idea (a daily meeting, say) and nothing happens: agreeing and then not doing it is the failure this workflow ends. Runs through tool:hold-to-it; the person's own AI reads the words and no model is paid for by the host. Names tools that no tool in the Workshop offers yet: tool:hold-to-it.\"}",
     "title": "Hold us to it",
-    "fires_when": "[{\"label\": \"agreements were made in a meeting, message or transcript and need to be tracked\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"promise\", \"meeting-notes\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"agreements were made in a meeting, message or transcript and need to be tracked\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"promise\", \"meeting-notes\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "Every agreement found put on the calendars of the people who made it, and after each meeting who kept it."
    }
   },
   {
@@ -524,7 +530,8 @@
     "recipe": "workflow:infinity",
     "source": "{\"from\":\"Previously published execution-mode definition, restored into the current account workflow owner\",\"mode_id\":\"mode:infinity\",\"version\":3,\"aliases\":[\"Infinity Mode\",\"Infinite Mode\",\"Keep expanding\"],\"by_default\":false,\"source_owner\":\"quintillion-mode-records.json before removal after account publication\",\"restoration\":\"Original stage instructions and requirement schemas retained. Source references and private quotations remain in the private recovery evidence. Existing runs retain their original identities and definitions.\",\"current_route\":\"Named legacy operations are resolved through the current account capability owner. Source incorporation is reused for applicable outside/shared material, never forced on unrelated work.\"}",
     "title": "Infinity Mode",
-    "fires_when": "[{\"label\": \"after every pass; its continue step registers the wake\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"pass-finished\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Moved onto this workflow's own row from list tree-branches row record:tree-branches:infinity and list tree-branch-conditions row record:tree-branch-conditions:infinity--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch).\"}]"
+    "fires_when": "[{\"label\": \"after every pass; its continue step registers the wake\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"pass-finished\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Moved onto this workflow's own row from list tree-branches row record:tree-branches:infinity and list tree-branch-conditions row record:tree-branch-conditions:infinity--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch).\"}]",
+    "produces": "The next improvement made and checked against what was observed, or a clean stop with the reason."
    }
   },
   {
@@ -554,7 +561,8 @@
     "recipe": "workflow:keep-it-working",
     "source": "{\"from\":\"Previously published execution-mode definition, restored into the current account workflow owner\",\"mode_id\":\"mode:keep-it-working\",\"version\":1,\"aliases\":[\"Keep It Working Mode\",\"Maintain the result\"],\"by_default\":false,\"source_owner\":\"quintillion-mode-records.json before removal after account publication\",\"restoration\":\"Original stage instructions and requirement schemas retained. Source references and private quotations remain in the private recovery evidence. Existing runs retain their original identities and definitions.\",\"current_route\":\"Named legacy operations are resolved through the current account capability owner. Source incorporation is reused for applicable outside/shared material, never forced on unrelated work.\"}",
     "title": "Keep It Working Mode",
-    "fires_when": "[{\"label\": \"after a result is proven\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"result-proven\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Moved onto this workflow's own row from list tree-branches row record:tree-branches:keep-it-working and list tree-branch-conditions row record:tree-branch-conditions:keep-it-working--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch).\"}]"
+    "fires_when": "[{\"label\": \"after a result is proven\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"result-proven\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Moved onto this workflow's own row from list tree-branches row record:tree-branches:keep-it-working and list tree-branch-conditions row record:tree-branch-conditions:keep-it-working--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch).\"}]",
+    "produces": "A customer's result kept working: each meaningful change found, each regression repaired and checked."
    }
   },
   {
@@ -583,7 +591,8 @@
     "recipe": "workflow:keep-what-you-find-in-lists",
     "source": "{\"from\":\"the product's own behaviour\"}",
     "title": "Keep what you find in the person's lists",
-    "fires_when": "[{\"label\": \"someone asks to look up the people, customers or things they work with\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"research-question\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone asks to look up the people, customers or things they work with\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"research-question\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "Each fact found about the person's people, customers or things, kept as a row of the list it belongs to."
    }
   },
   {
@@ -597,7 +606,8 @@
     "recipe": "workflow:lead-me-to-it",
     "source": "{\"from\":\"the product's own behaviour\",\"note\":\"The person is led by the hand: never only told what to do. The last step runs tool:take-me-there. Names tools that no tool in the Workshop offers yet: tool:take-me-there, tool:what-is-waiting-on-me.\"}",
     "title": "Lead the person to the one thing that needs them",
-    "fires_when": "[{\"label\": \"the person asks what to do next or what needs them most\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"what-next-question\", \"pursuit-start\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"the person asks what to do next or what needs them most\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"what-next-question\", \"pursuit-start\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "The one thing that moves the person's pursuits most, done as far as an AI can, and opened on their screen with a walkthrough of what is left."
    }
   },
   {
@@ -611,7 +621,8 @@
     "recipe": "workflow:learn-the-person",
     "source": "{\"from\":\"the product's own behaviour\",\"note\":\"Use this account's sources for identity and facts. A machine username or folder name is never identity evidence.\"}",
     "title": "Learn about this person",
-    "fires_when": "[{\"label\": \"a new fact about the person arrives, or their profile needs building or refreshing\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"notes\", \"framework-request\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"a new fact about the person arrives, or their profile needs building or refreshing\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"notes\", \"framework-request\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "The person's private, editable profile, each fact tied to its source and quote, and questions only about conflicts or gaps."
    }
   },
   {
@@ -625,7 +636,8 @@
     "recipe": "workflow:lock-in",
     "source": "{\"from\":\"the product's own behaviour\",\"note\":\"A lock-in protocol run before, during and after a session, from the person's main pursuit and calendar, with focus on, distracting apps closed and spaced practice after. Runs through tool:hold-a-device-quiet, tool:focus, tool:practice and tool:hold-to-it; the person's own AI does the reading. Names tools that no tool in the Workshop offers yet: tool:focus, tool:hold-a-device-quiet, tool:hold-to-it, tool:practice, tool:release-a-device.\"}",
     "title": "Lock in",
-    "fires_when": "[{\"label\": \"someone asks for a focused work session on the one thing that moves the needle\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"focus-session-request\"]}}]}}, \"made_by\": \"rewritten\", \"state\": \"On\", \"evidence\": \"Rewritten on 2026-11-13 (lane every-workflow-is-a-branch): the earlier condition kept 13 or 14 of 14 parts of four ordinary seeds no one aimed, so it said nothing about which work a part is; the condition now requires the one situation this workflow is for.\"}, {\"label\": \"someone wants a focused work session on the needle mover\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"person-task\"]}}]}}, \"made_by\": \"derived\", \"state\": \"Off\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words. Retired 2026-11-13: it kept most parts of four ordinary seeds no one aimed (rewritten in place by lane every-workflow-is-a-branch).\"}]"
+    "fires_when": "[{\"label\": \"someone asks for a focused work session on the one thing that moves the needle\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"focus-session-request\"]}}]}}, \"made_by\": \"rewritten\", \"state\": \"On\", \"evidence\": \"Rewritten on 2026-11-13 (lane every-workflow-is-a-branch): the earlier condition kept 13 or 14 of 14 parts of four ordinary seeds no one aimed, so it said nothing about which work a part is; the condition now requires the one situation this workflow is for.\"}, {\"label\": \"someone wants a focused work session on the needle mover\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"person-task\"]}}]}}, \"made_by\": \"derived\", \"state\": \"Off\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words. Retired 2026-11-13: it kept most parts of four ordinary seeds no one aimed (rewritten in place by lane every-workflow-is-a-branch).\"}]",
+    "produces": "One locked-in work session on the needle mover, the practice done in it, and the next session booked."
    }
   },
   {
@@ -668,7 +680,8 @@
     "recipe": "workflow:make-it-once-for-everyone",
     "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"Nothing here names a person, product or field: a bakery owner asking for a loyalty card, a coach asking for a drill sheet and a founder asking for an email footer run the same steps.\"}",
     "title": "Build a feature, tool or page once, for everyone",
-    "fires_when": "[{\"label\": \"someone asks for a feature, tool, page, footer, email look or design\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"feature-request\", \"design-request\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone asks for a feature, tool, page, footer, email look or design\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"feature-request\", \"design-request\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "The feature, tool, page or design built in one pass, and an answer saying what changed and what already existed."
    }
   },
   {
@@ -682,7 +695,8 @@
     "recipe": "workflow:make-it-perform",
     "source": "{\"from\":\"Previously published execution-mode definition, restored into the current account workflow owner\",\"mode_id\":\"mode:make-it-perform\",\"version\":1,\"aliases\":[\"Make It Perform Mode\",\"Improve discovery and performance\"],\"by_default\":false,\"source_owner\":\"quintillion-mode-records.json before removal after account publication\",\"restoration\":\"Original stage instructions and requirement schemas retained. Source references and private quotations remain in the private recovery evidence. Existing runs retain their original identities and definitions.\",\"current_route\":\"Named legacy operations are resolved through the current account capability owner. Source incorporation is reused for applicable outside/shared material, never forced on unrelated work.\"}",
     "title": "Make It Perform Mode",
-    "fires_when": "[{\"label\": \"after publication\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"published\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Moved onto this workflow's own row from list tree-branches row record:tree-branches:make-it-perform and list tree-branch-conditions row record:tree-branch-conditions:make-it-perform--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch).\"}]"
+    "fires_when": "[{\"label\": \"after publication\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"published\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Moved onto this workflow's own row from list tree-branches row record:tree-branches:make-it-perform and list tree-branch-conditions row record:tree-branch-conditions:make-it-perform--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch).\"}]",
+    "produces": "Changes to search, answer engine, social and live performance, and their observed outcomes."
    }
   },
   {
@@ -696,7 +710,8 @@
     "recipe": "workflow:make-one-piece-of-content-from-audience-to-publish",
     "source": "{\"from\":\"the common stages of producing one piece of content (audience, idea, format, packaging, script, filming, sound, edit, review, publishing, readback), in the order that puts the audience and the idea before any editing\",\"note\":\"The order and the rules are generic: research before the idea, the person's own recorded words before new lines, a source for every line, opening variants tested against each other, one decision per speech passage (use as recorded, remaster, or re-voice the same words), checks before the person is shown anything, readback at 1, 7 and 28 days with a written lesson. Purpose comes first because work judged only by demand numbers drifts away from what the person set out to do; so the person's purpose record is the first input, its tests are answered by every plan step, and demand ranks only what passed. Everything specific to a person (audience frameworks and bucket names, rubrics, pass marks, word lists, edit rules, title structures, formats, channels, tool settings) is an input read from their records at run time, never part of this recipe. A person's own checklist runs through the workflows checklist gate.\"}",
     "title": "Make one piece of content from audience to publish",
-    "fires_when": "[{\"label\": \"someone wants one video, talk, carousel, post or article made from audience to publish\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"content-idea\", \"video-request\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone wants one video, talk, carousel, post or article made from audience to publish\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"content-idea\", \"video-request\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "One published piece of content, and its numbers read back at 1, 7 and 28 days with what they taught."
    }
   },
   {
@@ -721,7 +736,8 @@
     "recipe": "workflow:method-build-a-product",
     "source": "{\"from\":\"a decision method\"}",
     "title": "Build a product",
-    "fires_when": "[{\"label\": \"someone wants a product that people reach, use and pay for\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"product-idea\", \"business-idea\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone wants a product that people reach, use and pay for\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"product-idea\", \"business-idea\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "A product people reach, use and pay for, built and named from the research, the constraints and the tested design."
    }
   },
   {
@@ -735,7 +751,8 @@
     "recipe": "workflow:method-build-the-real-thing",
     "source": "{\"from\":\"a decision method\"}",
     "title": "Build the real thing people use, not a demo",
-    "fires_when": "[{\"label\": \"someone asks for a capability built as the real working product, not a demo\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"feature-request\", \"product-idea\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone asks for a capability built as the real working product, not a demo\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"feature-request\", \"product-idea\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "The capability as a real running product with a generic mechanism, and proof that it worked."
    }
   },
   {
@@ -756,7 +773,8 @@
     "recipe": "workflow:method-change-code",
     "source": "{\"from\":\"a decision method\"}",
     "title": "Change code",
-    "fires_when": "[{\"label\": \"someone asks to change or fix code\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"code-change\", \"bug-report\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone asks to change or fix code\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"code-change\", \"bug-report\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "The code change done in one pass and proven on the real running path."
    }
   },
   {
@@ -770,7 +788,8 @@
     "recipe": "workflow:method-contact-reality",
     "source": "{\"from\":\"a decision method\"}",
     "title": "Make contact with reality",
-    "fires_when": "[{\"label\": \"a decision, design or test rests on assumed limits that should be checked against reality\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"decision-to-make\", \"claim\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"a decision, design or test rests on assumed limits that should be checked against reality\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"decision-to-make\", \"claim\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "The decision, design or test held to what really happens, with proof that it worked."
    }
   },
   {
@@ -793,7 +812,8 @@
     "recipe": "workflow:method-design-a-feature",
     "source": "{\"from\":\"a decision method\"}",
     "title": "Design a feature",
-    "fires_when": "[{\"label\": \"someone asks to design a new feature or capability\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"feature-request\", \"design-request\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone asks to design a new feature or capability\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"feature-request\", \"design-request\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "A feature designed from the request to the working result, tested against every case."
    }
   },
   {
@@ -807,7 +827,8 @@
     "recipe": "workflow:method-do-it-completely",
     "source": "{\"from\":\"a decision method\"}",
     "title": "Do it completely and correctly the first time",
-    "fires_when": "[{\"label\": \"someone asks for the work done fully and correctly in one pass\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"objective-request\", \"rule-to-enforce\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone asks for the work done fully and correctly in one pass\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"objective-request\", \"rule-to-enforce\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "The full result on the first pass, every claim checked against what is there."
    }
   },
   {
@@ -821,7 +842,8 @@
     "recipe": "workflow:method-find-the-constraints",
     "source": "{\"from\":\"a decision method\"}",
     "title": "Find the constraints that leave one right answer",
-    "fires_when": "[{\"label\": \"a design needs its hard constraints found so only one right answer is left\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"design-request\", \"architecture-question\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"a design needs its hard constraints found so only one right answer is left\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"design-request\", \"architecture-question\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "Every hard constraint the design must meet, and the ones that together leave only the right design."
    }
   },
   {
@@ -835,7 +857,8 @@
     "recipe": "workflow:method-hold-to-the-hardest-test",
     "source": "{\"from\":\"a decision method\",\"note\":\"Names a tool that no tool in the Workshop offers yet: tool:who-does-each-step.\"}",
     "title": "Hold any plan to the hardest test",
-    "fires_when": "[{\"label\": \"a decision, plan or claim needs the hardest scrutiny\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"decision-to-make\", \"claim\", \"plan-request\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"a decision, plan or claim needs the hardest scrutiny\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"decision-to-make\", \"claim\", \"plan-request\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "The decision, plan or claim after the method's hardest questions: each claim attacked, every voice heard, the least obvious insights named."
    }
   },
   {
@@ -849,7 +872,8 @@
     "recipe": "workflow:method-name-question-delete",
     "source": "{\"from\":\"a decision method\"}",
     "title": "Name the change, question it, delete, then simplify",
-    "fires_when": "[{\"label\": \"someone asks to build or change something and its assumptions should be questioned first\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"feature-request\", \"code-change\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone asks to build or change something and its assumptions should be questioned first\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"feature-request\", \"code-change\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "The change named, its assumptions questioned, what is not needed deleted, and proof that it worked."
    }
   },
   {
@@ -863,7 +887,8 @@
     "recipe": "workflow:method-name-things-by-what-they-do",
     "source": "{\"from\":\"a decision method\"}",
     "title": "Name things by what they do",
-    "fires_when": "[{\"label\":\"parts, fields, screens or messages have unclear names\",\"condition\":{\"fields\":[{\"id\":\"kinds\",\"kind\":\"tags\",\"path\":[\"kinds\"]}],\"tree\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"kinds\",\"operator\":\"has_any_of\",\"params\":{\"values\":[\"design-request\"]}}]}},\"made_by\":\"derived\",\"state\":\"On\",\"evidence\":\"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"},{\"label\":\"someone asks for a name for a product, project, part or screen\",\"condition\":{\"fields\":[{\"id\":\"kinds\",\"kind\":\"tags\",\"path\":[\"kinds\"]}],\"tree\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"kinds\",\"operator\":\"has_any_of\",\"params\":{\"values\":[\"naming-request\"]}}]}},\"made_by\":\"ai-judgment\",\"state\":\"On\",\"evidence\":\"Item 3 of the item of record:calendar-task:the-one-tree-has-a-fallback-and-specific-reply-and-task-conditions, lane every-workflow-is-a-branch, Nov 14 2026: the part \\\"the app side project needs a name ... something short\\\" ranked this workflow 6th of 10, behind workflows that only matched app-idea, and a fresh AI picked it.\"}]"
+    "fires_when": "[{\"label\":\"parts, fields, screens or messages have unclear names\",\"condition\":{\"fields\":[{\"id\":\"kinds\",\"kind\":\"tags\",\"path\":[\"kinds\"]}],\"tree\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"kinds\",\"operator\":\"has_any_of\",\"params\":{\"values\":[\"design-request\"]}}]}},\"made_by\":\"derived\",\"state\":\"On\",\"evidence\":\"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"},{\"label\":\"someone asks for a name for a product, project, part or screen\",\"condition\":{\"fields\":[{\"id\":\"kinds\",\"kind\":\"tags\",\"path\":[\"kinds\"]}],\"tree\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"kinds\",\"operator\":\"has_any_of\",\"params\":{\"values\":[\"naming-request\"]}}]}},\"made_by\":\"ai-judgment\",\"state\":\"On\",\"evidence\":\"Item 3 of the item of record:calendar-task:the-one-tree-has-a-fallback-and-specific-reply-and-task-conditions, lane every-workflow-is-a-branch, Nov 14 2026: the part \\\"the app side project needs a name ... something short\\\" ranked this workflow 6th of 10, behind workflows that only matched app-idea, and a fresh AI picked it.\"}]",
+    "produces": "Plain names for each part, field, screen and message, each one pointed to in the real result."
    }
   },
   {
@@ -877,7 +902,8 @@
     "recipe": "workflow:method-plan-only-what-helps",
     "source": "{\"from\":\"a decision method\"}",
     "title": "Write only the plan that helps, then do it",
-    "fires_when": "[{\"label\": \"someone asks for a change where a short plan may or may not help before doing it\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"plan-request\", \"feature-request\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone asks for a change where a short plan may or may not help before doing it\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"plan-request\", \"feature-request\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "A short plan only when it helps, and the smallest useful change chosen and checked."
    }
   },
   {
@@ -891,7 +917,8 @@
     "recipe": "workflow:method-research-plan-build",
     "source": "{\"from\":\"a decision method\"}",
     "title": "Research the field, then plan and build it end to end",
-    "fires_when": "[{\"label\": \"someone asks to research a capability, plan it and build it end to end\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"capability-gap\", \"plan-request\", \"feature-request\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone asks to research a capability, plan it and build it end to end\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"capability-gap\", \"plan-request\", \"feature-request\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "Research across the field, a plan from it, and the real working result."
    }
   },
   {
@@ -905,7 +932,8 @@
     "recipe": "workflow:method-tell-a-story",
     "source": "{\"from\":\"a decision method\"}",
     "title": "Tell a story that changes the reader",
-    "fires_when": "[{\"label\": \"someone wants a story, post, article, talk or script that changes the reader\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"content-idea\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone wants a story, post, article, talk or script that changes the reader\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"content-idea\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "One finished story, post, article, talk or script, told as a real change."
    }
   },
   {
@@ -919,7 +947,8 @@
     "recipe": "workflow:method-test-a-design-against-every-case",
     "source": "{\"from\":\"a decision method\"}",
     "title": "Test a design against every case it will meet",
-    "fires_when": "[{\"label\": \"someone proposes a design or feature to test against every case it will meet\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"design-request\", \"decision-to-make\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone proposes a design or feature to test against every case it will meet\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"design-request\", \"decision-to-make\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "The design tested from outside its box: the building block it is a case of, what it gives for free, and how it holds for every case."
    }
   },
   {
@@ -933,7 +962,8 @@
     "recipe": "workflow:personalized-reach-out",
     "source": "{\"from\":\"Previously published execution-mode definition, restored into the current account workflow owner\",\"mode_id\":\"mode:personalized-reach-out\",\"version\":1,\"aliases\":[\"Personalized Reach Out Mode\",\"Reach the right people\"],\"by_default\":false,\"source_owner\":\"quintillion-mode-records.json before removal after account publication\",\"restoration\":\"Original stage instructions and requirement schemas retained. Source references and private quotations remain in the private recovery evidence. Existing runs retain their original identities and definitions.\",\"current_route\":\"Named legacy operations are resolved through the current account capability owner. Source incorporation is reused for applicable outside/shared material, never forced on unrelated work.\"}",
     "title": "Personalized Reach Out Mode",
-    "fires_when": "[{\"label\":\"when a piece answers a named person's question\",\"condition\":{\"fields\":[{\"id\":\"kinds\",\"kind\":\"tags\",\"path\":[\"kinds\"]},{\"id\":\"people\",\"kind\":\"tags\",\"path\":[\"people\"]}],\"tree\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"kinds\",\"operator\":\"has_any_of\",\"params\":{\"values\":[\"answer\"]}},{\"kind\":\"rule\",\"field\":\"people\",\"operator\":\"is_not_empty\"}]}},\"made_by\":\"fires_when\",\"state\":\"On\",\"evidence\":\"Moved onto this workflow's own row from list tree-branches row record:tree-branches:personalized-reach-out and list tree-branch-conditions row record:tree-branch-conditions:personalized-reach-out--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch).\"},{\"label\":\"a named person needs to be told something that changed\",\"condition\":{\"fields\":[{\"id\":\"kinds\",\"kind\":\"tags\",\"path\":[\"kinds\"]}],\"tree\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"kinds\",\"operator\":\"has_any_of\",\"params\":{\"values\":[\"notify-a-person\"]}}]}},\"made_by\":\"ai-judgment\",\"state\":\"On\",\"evidence\":\"Item 1 of the item of record:calendar-task:the-one-tree-has-a-fallback-and-specific-reply-and-task-conditions, lane every-workflow-is-a-branch, Nov 14 2026: the part \\\"Priya needs to know about the Thursday clinic being moved\\\" matched nothing on a blank account; this workflow delivers useful words to a named person through a connected channel.\"}]"
+    "fires_when": "[{\"label\":\"when a piece answers a named person's question\",\"condition\":{\"fields\":[{\"id\":\"kinds\",\"kind\":\"tags\",\"path\":[\"kinds\"]},{\"id\":\"people\",\"kind\":\"tags\",\"path\":[\"people\"]}],\"tree\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"kinds\",\"operator\":\"has_any_of\",\"params\":{\"values\":[\"answer\"]}},{\"kind\":\"rule\",\"field\":\"people\",\"operator\":\"is_not_empty\"}]}},\"made_by\":\"fires_when\",\"state\":\"On\",\"evidence\":\"Moved onto this workflow's own row from list tree-branches row record:tree-branches:personalized-reach-out and list tree-branch-conditions row record:tree-branch-conditions:personalized-reach-out--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch).\"},{\"label\":\"a named person needs to be told something that changed\",\"condition\":{\"fields\":[{\"id\":\"kinds\",\"kind\":\"tags\",\"path\":[\"kinds\"]}],\"tree\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"kinds\",\"operator\":\"has_any_of\",\"params\":{\"values\":[\"notify-a-person\"]}}]}},\"made_by\":\"ai-judgment\",\"state\":\"On\",\"evidence\":\"Item 1 of the item of record:calendar-task:the-one-tree-has-a-fallback-and-specific-reply-and-task-conditions, lane every-workflow-is-a-branch, Nov 14 2026: the part \\\"Priya needs to know about the Thursday clinic being moved\\\" matched nothing on a blank account; this workflow delivers useful words to a named person through a connected channel.\"}]",
+    "produces": "Individually useful, truthful outreach to relevant people through suitable channels, and replies to real signals."
    }
   },
   {
@@ -962,7 +992,8 @@
     "recipe": "workflow:port-without-losing-anything",
     "source": "{\"from\":\"a person's request\"}",
     "title": "Port a screen without losing anything",
-    "fires_when": "[{\"label\": \"a screen, app or feature is moving to a new home and nothing may be lost\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"design-request\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"a screen, app or feature is moving to a new home and nothing may be lost\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"design-request\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "A list of everything the old home let a person do and see, each checked in the new home, and every missing one brought back."
    }
   },
   {
@@ -976,7 +1007,8 @@
     "recipe": "workflow:possibility-to-proof",
     "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"Test against real data and real outcomes, with test cost driven toward zero and depth kept. Nothing here names a subject, field or person.\"}",
     "title": "Turn a possibility into reality evidence",
-    "fires_when": "[{\"label\": \"a finding describes a tool, app or service worth making\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"tool-idea\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Moved onto this workflow's own row from list tree-branches row record:tree-branches:possibility-to-proof and list tree-branch-conditions row record:tree-branch-conditions:possibility-to-proof--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch).\"}]"
+    "fires_when": "[{\"label\": \"a finding describes a tool, app or service worth making\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"tool-idea\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Moved onto this workflow's own row from list tree-branches row record:tree-branches:possibility-to-proof and list tree-branch-conditions row record:tree-branch-conditions:possibility-to-proof--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch).\"}]",
+    "produces": "A hypothesis, a minimal real-world experiment run, and the opportunity updated from what customers actually did."
    }
   },
   {
@@ -1006,7 +1038,8 @@
     "recipe": "workflow:print-and-deliver",
     "source": "{\"from\":\"the product's own behaviour\",\"note\":\"Prints are ordered through a real account in the person's name, with the price shown before the first order. Names tools that no tool in the Workshop offers yet: tool:find-nearest-places, tool:route-buttons, tool:who-does-each-step.\"}",
     "title": "Print and deliver",
-    "fires_when": "[{\"label\": \"someone needs a file printed at a shop and picked up or delivered\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"purchase-request\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone needs a file printed at a shop and picked up or delivered\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"purchase-request\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "One print order placed after the person's tap, with its price, and pickup on their route or delivery."
    }
   },
   {
@@ -1020,7 +1053,8 @@
     "recipe": "workflow:put-it-in-the-world",
     "source": "{\"from\":\"Previously published execution-mode definition, restored into the current account workflow owner\",\"mode_id\":\"mode:put-it-in-the-world\",\"version\":1,\"aliases\":[\"Put It in the World Mode\",\"Launch the useful thing\"],\"by_default\":false,\"source_owner\":\"quintillion-mode-records.json before removal after account publication\",\"restoration\":\"Original stage instructions and requirement schemas retained. Source references and private quotations remain in the private recovery evidence. Existing runs retain their original identities and definitions.\",\"current_route\":\"Named legacy operations are resolved through the current account capability owner. Source incorporation is reused for applicable outside/shared material, never forced on unrelated work.\"}",
     "title": "Put It in the World Mode",
-    "fires_when": "[{\"label\": \"when something worth releasing is ready\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"ready-to-release\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Moved onto this workflow's own row from list tree-branches row record:tree-branches:put-it-in-the-world and list tree-branch-conditions row record:tree-branch-conditions:put-it-in-the-world--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch).\"}]"
+    "fires_when": "[{\"label\": \"when something worth releasing is ready\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"ready-to-release\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Moved onto this workflow's own row from list tree-branches row record:tree-branches:put-it-in-the-world and list tree-branch-conditions row record:tree-branch-conditions:put-it-in-the-world--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch).\"}]",
+    "produces": "A real, accessible offer or experience, and a check that the people it is for can reach it."
    }
   },
   {
@@ -1034,7 +1068,8 @@
     "recipe": "workflow:put-it-where-it-belongs",
     "source": "{\"from\":\"a person's request\"}",
     "title": "Put it where it belongs, not where it is",
-    "fires_when": "[{\"label\": \"a file, folder, setting, feature or tool seems to live in the wrong place\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"misplaced-part\", \"architecture-question\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"a file, folder, setting, feature or tool seems to live in the wrong place\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"misplaced-part\", \"architecture-question\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "The part moved to the owner of its job, everything that used it updated, and the old place deleted."
    }
   },
   {
@@ -1048,7 +1083,8 @@
     "recipe": "workflow:question-the-belief-until-it-holds",
     "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"Do not impose assumed limits on the possibility space before investigating it; recursively improve the method, not only apply it. Nothing here names a subject, field or person.\"}",
     "title": "Question the belief until it holds",
-    "fires_when": "[{\"label\": \"someone states a broad belief, strategy or claim to be checked\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"claim\", \"decision-to-make\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone states a broad belief, strategy or claim to be checked\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"claim\", \"decision-to-make\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "The belief checked: the decision it changes, every limit it assumes with where it came from, and the evidence for and against."
    }
   },
   {
@@ -1062,7 +1098,8 @@
     "recipe": "workflow:quintillion",
     "source": "{\"from\":\"Previously published execution-mode definition, restored into the current account workflow owner\",\"mode_id\":\"mode:quintillion\",\"version\":3,\"aliases\":[\"Quintillion Mode\",\"Quintillion\"],\"by_default\":false,\"source_owner\":\"quintillion-mode-records.json before removal after account publication\",\"restoration\":\"Original stage instructions and requirement schemas retained. Source references and private quotations remain in the private recovery evidence. Existing runs retain their original identities and definitions.\",\"current_route\":\"Named legacy operations are resolved through the current account capability owner. Source incorporation is reused for applicable outside/shared material, never forced on unrelated work.\"}",
     "title": "Quintillion Mode",
-    "fires_when": "[{\"label\": \"someone asks for research, creation, distribution and customer follow-through composed into one verified outcome\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"objective-request\", \"business-idea\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone asks for research, creation, distribution and customer follow-through composed into one verified outcome\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"objective-request\", \"business-idea\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "The best checked outcome for a real customer, made from research, creation, distribution, follow-through and improvement."
    }
   },
   {
@@ -1091,7 +1128,8 @@
     "recipe": "workflow:real-life-cases",
     "source": "{\"from\":\"Previously published execution-mode definition, restored into the current account workflow owner\",\"mode_id\":\"mode:real-life-cases\",\"version\":1,\"aliases\":[\"Real Life Cases Mode\",\"Find real cases\"],\"by_default\":false,\"source_owner\":\"quintillion-mode-records.json before removal after account publication\",\"restoration\":\"Original stage instructions and requirement schemas retained. Source references and private quotations remain in the private recovery evidence. Existing runs retain their original identities and definitions.\",\"current_route\":\"Named legacy operations are resolved through the current account capability owner. Source incorporation is reused for applicable outside/shared material, never forced on unrelated work.\"}",
     "title": "Real Life Cases Mode",
-    "fires_when": "[{\"label\": \"at the start of a pursuit and when new evidence arrives\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"pursuit-start\", \"new-evidence\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Moved onto this workflow's own row from list tree-branches row record:tree-branches:real-life-cases and list tree-branch-conditions row record:tree-branch-conditions:real-life-cases--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch).\"}]"
+    "fires_when": "[{\"label\": \"at the start of a pursuit and when new evidence arrives\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"pursuit-start\", \"new-evidence\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Moved onto this workflow's own row from list tree-branches row record:tree-branches:real-life-cases and list tree-branch-conditions row record:tree-branch-conditions:real-life-cases--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch).\"}]",
+    "produces": "Real situations, jobs and recurring friction found, and one worthwhile outcome selected to improve."
    }
   },
   {
@@ -1105,7 +1143,8 @@
     "recipe": "workflow:research-brief-and-study",
     "source": "{\"from\":\"a person's request\",\"note\":\"Study follows a recall-then-one-insight loop; every claim carries an exact quote because checkable sources are what make a claim trustworthy.\"}",
     "title": "Research, brief and study",
-    "fires_when": "[{\"label\": \"someone wants to be kept current on a goal or subject through researched briefings\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"research-question\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone wants to be kept current on a goal or subject through researched briefings\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"research-question\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "A short brief on the person's goal from public sources, and the insight shared with their community only when they approve."
    }
   },
   {
@@ -1119,7 +1158,8 @@
     "recipe": "workflow:research-what-everyone-says",
     "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"Nothing here names a subject, field or person: a bakery, a clinic, a coaching method and a book run the same steps.\"}",
     "title": "Research what everyone says, then see past it",
-    "fires_when": "[{\"label\": \"a seed makes a claim, or asks a question that needs looking into\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"claim\", \"research-question\"]}}]}}, \"made_by\": \"rewritten\", \"state\": \"On\", \"evidence\": \"Rewritten on 2026-11-13 (lane every-workflow-is-a-branch): the earlier condition kept 13 or 14 of 14 parts of four ordinary seeds no one aimed, so it said nothing about which work a part is; the condition now requires the one situation this workflow is for.\"}, {\"label\": \"a seed makes a claim or names a subject\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}, {\"id\": \"subjects\", \"kind\": \"tags\", \"path\": [\"subjects\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"or\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"claim\"]}}, {\"kind\": \"rule\", \"field\": \"subjects\", \"operator\": \"is_not_empty\"}]}}, \"made_by\": \"fires_when\", \"state\": \"Off\", \"evidence\": \"Moved onto this workflow's own row from list tree-branches row record:tree-branches:research-what-everyone-says and list tree-branch-conditions row record:tree-branch-conditions:research-what-everyone-says--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch). Retired 2026-11-13: it kept most parts of four ordinary seeds no one aimed (rewritten in place by lane every-workflow-is-a-branch).\"}]"
+    "fires_when": "[{\"label\": \"a seed makes a claim, or asks a question that needs looking into\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"claim\", \"research-question\"]}}]}}, \"made_by\": \"rewritten\", \"state\": \"On\", \"evidence\": \"Rewritten on 2026-11-13 (lane every-workflow-is-a-branch): the earlier condition kept 13 or 14 of 14 parts of four ordinary seeds no one aimed, so it said nothing about which work a part is; the condition now requires the one situation this workflow is for.\"}, {\"label\": \"a seed makes a claim or names a subject\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}, {\"id\": \"subjects\", \"kind\": \"tags\", \"path\": [\"subjects\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"or\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"claim\"]}}, {\"kind\": \"rule\", \"field\": \"subjects\", \"operator\": \"is_not_empty\"}]}}, \"made_by\": \"fires_when\", \"state\": \"Off\", \"evidence\": \"Moved onto this workflow's own row from list tree-branches row record:tree-branches:research-what-everyone-says and list tree-branch-conditions row record:tree-branch-conditions:research-what-everyone-says--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch). Retired 2026-11-13: it kept most parts of four ordinary seeds no one aimed (rewritten in place by lane every-workflow-is-a-branch).\"}]",
+    "produces": "What people, companies and research say about the subject, and the least obvious insights from it."
    }
   },
   {
@@ -1163,7 +1203,8 @@
     "recipe": "workflow:same-abilities-each-device-its-own-look",
     "source": "{\"from\":\"a person's request\"}",
     "title": "Same abilities on every device, each in its own look",
-    "fires_when": "[{\"label\": \"someone wants a feature to work the same on phone, browser and computer\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"feature-request\", \"design-request\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone wants a feature to work the same on phone, browser and computer\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"feature-request\", \"design-request\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "The same abilities in the same order on every device, each drawn in that device's own native controls."
    }
   },
   {
@@ -1177,7 +1218,8 @@
     "recipe": "workflow:say-if-it-is-known-new-or-rechecked",
     "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"Nothing here names a person, product or place: a lawyer checking precedent, a researcher checking prior work and an AI checking a codebase run the same steps.\"}",
     "title": "Say whether it is known, new or re-checked",
-    "fires_when": "[{\"label\": \"someone asks what exists, was decided or was found\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"research-question\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone asks what exists, was decided or was found\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"research-question\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "An answer with every claim labelled known since a date, new finding or re-checked, each linked to where it is held."
    }
   },
   {
@@ -1191,7 +1233,8 @@
     "recipe": "workflow:sell-what-the-pursuit-makes",
     "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"Nothing here names a subject, field or person: a bakery, a clinic, a coaching method and a book run the same steps. Every tool it names is in the Workshop.\"}",
     "title": "Sell what your pursuit already makes",
-    "fires_when": "[{\"label\": \"someone wants to sell something a pursuit already produces such as footage, notes, a method or a tool\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"product-idea\", \"pursuit-start\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone wants to sell something a pursuit already produces such as footage, notes, a method or a tool\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"product-idea\", \"pursuit-start\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "One offer of something the pursuit already makes, tested at two or more prices."
    }
   },
   {
@@ -1220,7 +1263,8 @@
     "recipe": "workflow:start-from-the-persons-own-work",
     "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"Nothing here names a person, product or framework: a coach planning a season from their own drills, a founder designing from their own principles and a writer outlining from their own notes run the same steps.\"}",
     "title": "Plan, design or advise from the person's own work",
-    "fires_when": "[{\"label\": \"someone asks to plan, design or get advice for something such as a week, season, launch, trip, screen or logo\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"plan-request\", \"design-request\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone asks to plan, design or get advice for something such as a week, season, launch, trip, screen or logo\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"plan-request\", \"design-request\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "The plan, design or advice built on the person's own work and the frameworks that fit, each cited."
    }
   },
   {
@@ -1247,7 +1291,8 @@
     "recipe": "workflow:test-a-finding",
     "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"Nothing here names a subject, field or person: a coach's hunch, a customer complaint, a lab result and a philosophy all run the same steps. The list and its columns are data the workflow makes on first run; another list can be named in the input.\"}",
     "title": "Test what you noticed",
-    "fires_when": "[{\"label\": \"someone states a claim, noticed fact or AI conclusion that should be questioned and tested\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"claim\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone states a claim, noticed fact or AI conclusion that should be questioned and tested\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"claim\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "One row in the person's Findings list: the claim as they said it, the strongest case for and against, and the result."
    }
   },
   {
@@ -1261,7 +1306,8 @@
     "recipe": "workflow:test-prices-and-change-a-page-for-each-visitor",
     "source": "{\"from\":\"Workshop tools\",\"name\":\"tools/run-experiments (choose what a visitor sees, read results, credit outcomes) and tools/traffic-attribution (tracked links, visits and sales by source)\",\"note\":\"Built from the tools' own rows. NOT ADOPTED, with the reason: (1) showing two visitors different prices for the same thing at the same moment without saying the price is being tested, where a place's consumer rules forbid it, so the person names the places the test runs in and the page states the price each visitor will be charged before they pay; (2) reading facts about a visitor that the person has no right to, so a rule reads only facts the person's own tracking and enrichment tools recorded, under the trust names the person lists; (3) changing a live price or a live page without the person's yes, so every change is a draft until the person approves it.\"}",
     "title": "Test prices and change a page for each visitor",
-    "fires_when": "[{\"label\":\"someone wants price tests or A/B tests on a page, or a page that changes per visitor\",\"condition\":{\"fields\":[{\"id\":\"kinds\",\"kind\":\"tags\",\"path\":[\"kinds\"]}],\"tree\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"kinds\",\"operator\":\"has_any_of\",\"params\":{\"values\":[\"pricing-question\",\"landing-page-request\"]}}]}},\"made_by\":\"derived\",\"state\":\"Off\",\"evidence\":\"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words. Off since 2026-11-14: pricing-question also tags a customer asking what something costs (\\\"is the 10 session pack still 480\\\" ranked this workflow first in the 5:59 AM CST scratch rerun), which wants an answer, not a price test; replaced by the condition on price-test-request.\"},{\"label\":\"someone wants to test prices or versions of a page, or a page that changes per visitor\",\"condition\":{\"fields\":[{\"id\":\"kinds\",\"kind\":\"tags\",\"path\":[\"kinds\"]}],\"tree\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"kinds\",\"operator\":\"has_any_of\",\"params\":{\"values\":[\"price-test-request\",\"landing-page-request\"]}}]}},\"made_by\":\"broad-rewrite\",\"state\":\"On\",\"evidence\":\"Item 2 of the item of record:calendar-task:the-one-tree-has-a-fallback-and-specific-reply-and-task-conditions, lane every-workflow-is-a-branch, Nov 14 2026: the earlier condition held pricing-question, which a customer question about a price also carries.\"}]"
+    "fires_when": "[{\"label\":\"someone wants price tests or A/B tests on a page, or a page that changes per visitor\",\"condition\":{\"fields\":[{\"id\":\"kinds\",\"kind\":\"tags\",\"path\":[\"kinds\"]}],\"tree\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"kinds\",\"operator\":\"has_any_of\",\"params\":{\"values\":[\"pricing-question\",\"landing-page-request\"]}}]}},\"made_by\":\"derived\",\"state\":\"Off\",\"evidence\":\"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words. Off since 2026-11-14: pricing-question also tags a customer asking what something costs (\\\"is the 10 session pack still 480\\\" ranked this workflow first in the 5:59 AM CST scratch rerun), which wants an answer, not a price test; replaced by the condition on price-test-request.\"},{\"label\":\"someone wants to test prices or versions of a page, or a page that changes per visitor\",\"condition\":{\"fields\":[{\"id\":\"kinds\",\"kind\":\"tags\",\"path\":[\"kinds\"]}],\"tree\":{\"kind\":\"group\",\"combinator\":\"and\",\"negate\":false,\"rules\":[{\"kind\":\"rule\",\"field\":\"kinds\",\"operator\":\"has_any_of\",\"params\":{\"values\":[\"price-test-request\",\"landing-page-request\"]}}]}},\"made_by\":\"broad-rewrite\",\"state\":\"On\",\"evidence\":\"Item 2 of the item of record:calendar-task:the-one-tree-has-a-fallback-and-specific-reply-and-task-conditions, lane every-workflow-is-a-branch, Nov 14 2026: the earlier condition held pricing-question, which a customer question about a price also carries.\"}]",
+    "produces": "Price and A/B tests run on the page, versions shown per visitor, and each change settled with the person's yes."
    }
   },
   {
@@ -1275,7 +1321,8 @@
     "recipe": "workflow:trace-to-first-principles",
     "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"The chain is data: the person's own framework file, so someone else's chain (the scientific method, OODA, a coach's model) runs the same steps. workflow:bring-in-a-framework turns a written chain into such a file.\"}",
     "title": "Trace something back to first principles",
-    "fires_when": "[{\"label\": \"someone asks to trace a feature, decision, claim or plan back to first principles\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"first-principles-question\", \"decision-to-make\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone asks to trace a feature, decision, claim or plan back to first principles\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"first-principles-question\", \"decision-to-make\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "The deepest stage of the person's chain the subject rests on, and what to change so it reaches the chain's last stage."
    }
   },
   {
@@ -1289,7 +1336,8 @@
     "recipe": "workflow:x-mode",
     "source": "{\"from\":\"Previously published execution-mode definition, restored into the current account workflow owner\",\"version\":7,\"aliases\":[\"Hardcore mode\",\"Hard-core Mode\"],\"by_default\":true,\"source_owner\":\"execution-mode-records.json\",\"restoration\":\"Original stage behavior retained; legacy requirement field labels were migrated consistently with their schema checks and app-specific examples generalized. Full original definitions, aliases, source references and private quotations remain in private recovery evidence. Existing runs retain their original identities and definitions.\"}",
     "title": "Trillion X mode",
-    "fires_when": "[{\"label\": \"someone gives an authorized objective that needs the full execution standard with checked evidence\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"objective-request\", \"plan-request\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone gives an authorized objective that needs the full execution standard with checked evidence\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"objective-request\", \"plan-request\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "The authorized objective done to the full standard, with checked evidence, and its lesson kept."
    }
   },
   {
@@ -1306,7 +1354,8 @@
     "recipe": "workflow:turn-a-correction-into-workflows",
     "source": "{\"from\":\"the product's own behaviour\"}",
     "title": "Turn a correction into workflows",
-    "fires_when": "[{\"label\": \"someone corrects how the AI worked and the fix must reach every workflow\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"correction\", \"process-complaint\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone corrects how the AI worked and the fix must reach every workflow\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"correction\", \"process-complaint\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "Each correction named in the person's words, its cause found, the fix applied everywhere it touches, and kept as a workflow."
    }
   },
   {
@@ -1320,7 +1369,8 @@
     "recipe": "workflow:turn-notes-into-finished-content",
     "source": "{\"from\":\"a person's request\",\"note\":\"Nothing here names a person, pursuit, platform or product. Names tools that no tool in the Workshop offers yet: tool:check-copy.\"}",
     "title": "Turn notes into finished content",
-    "fires_when": "[{\"label\": \"someone has notes, a recording or a principle and wants a finished post, thread, newsletter, article, script or talk\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"content-idea\", \"notes\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone has notes, a recording or a principle and wants a finished post, thread, newsletter, article, script or talk\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"content-idea\", \"notes\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "One finished piece in one of the person's formats, passed by the copy judge and kept as a draft."
    }
   },
   {
@@ -1350,7 +1400,8 @@
     "recipe": "workflow:turn-research-into-a-plan",
     "source": "{\"from\":\"an agent skill\",\"note\":\"Its phases 0 to 6 are these steps, with phase 2's seventh lane as the per-system step.\"}",
     "title": "Turn research into a plan",
-    "fires_when": "[{\"label\": \"someone asks to research a weak or missing capability and plan it\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"capability-gap\", \"plan-request\", \"research-question\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone asks to research a weak or missing capability and plan it\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"capability-gap\", \"plan-request\", \"research-question\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "A facts-only plan document from research across the industry, audited by an independent reviewer."
    }
   },
   {
@@ -1379,7 +1430,8 @@
     "recipe": "workflow:turn-what-you-said-into-content",
     "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"Nothing here names a person, pursuit, platform or product: a coach's voice note, a founder's chat message and a teacher's lecture run the same steps.\"}",
     "title": "Turn what you said into content and better workflows",
-    "fires_when": "[{\"label\": \"the person's own words hold an idea for content, or a way of working worth writing down\", \"condition\": {\"fields\": [{\"id\": \"own_words\", \"kind\": \"boolean\", \"path\": [\"own_words\"]}, {\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"own_words\", \"operator\": \"is_true\"}, {\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"content-idea\", \"process-to-document\"]}}]}}, \"made_by\": \"rewritten\", \"state\": \"On\", \"evidence\": \"Rewritten on 2026-11-13 (lane every-workflow-is-a-branch): \\\"the seed is the person's own words\\\" kept 7 of 10 parts of three ordinary seeds no one aimed; the condition now also requires an idea for content or a way of working.\"}, {\"label\": \"the seed is the person's own words\", \"condition\": {\"fields\": [{\"id\": \"own_words\", \"kind\": \"boolean\", \"path\": [\"own_words\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"own_words\", \"operator\": \"is_true\"}]}}, \"made_by\": \"fires_when\", \"state\": \"Off\", \"evidence\": \"Moved onto this workflow's own row from list tree-branches row record:tree-branches:turn-what-you-said-into-content and list tree-branch-conditions row record:tree-branch-conditions:turn-what-you-said-into-content--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch). Retired 2026-11-13: it kept most parts of four ordinary seeds no one aimed (rewritten in place by lane every-workflow-is-a-branch).\"}]"
+    "fires_when": "[{\"label\": \"the person's own words hold an idea for content, or a way of working worth writing down\", \"condition\": {\"fields\": [{\"id\": \"own_words\", \"kind\": \"boolean\", \"path\": [\"own_words\"]}, {\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"own_words\", \"operator\": \"is_true\"}, {\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"content-idea\", \"process-to-document\"]}}]}}, \"made_by\": \"rewritten\", \"state\": \"On\", \"evidence\": \"Rewritten on 2026-11-13 (lane every-workflow-is-a-branch): \\\"the seed is the person's own words\\\" kept 7 of 10 parts of three ordinary seeds no one aimed; the condition now also requires an idea for content or a way of working.\"}, {\"label\": \"the seed is the person's own words\", \"condition\": {\"fields\": [{\"id\": \"own_words\", \"kind\": \"boolean\", \"path\": [\"own_words\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"own_words\", \"operator\": \"is_true\"}]}}, \"made_by\": \"fires_when\", \"state\": \"Off\", \"evidence\": \"Moved onto this workflow's own row from list tree-branches row record:tree-branches:turn-what-you-said-into-content and list tree-branch-conditions row record:tree-branch-conditions:turn-what-you-said-into-content--from-fires-when (lane one-tree-any-input), 2026-11-13, when every workflow became a candidate branch (lane every-workflow-is-a-branch). Retired 2026-11-13: it kept most parts of four ordinary seeds no one aimed (rewritten in place by lane every-workflow-is-a-branch).\"}]",
+    "produces": "A decision on whether what the person said is content, the principles in it written up, and each fed back into the product."
    }
   },
   {
@@ -1409,7 +1461,8 @@
     "recipe": "workflow:walk-a-pursuit-through-your-map",
     "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"A person who keeps a different map runs the same steps on theirs.\"}",
     "title": "Walk a pursuit through your map",
-    "fires_when": "[{\"label\": \"someone asks where a goal or pursuit fits in the areas of their life\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"life-map-question\", \"pursuit-start\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone asks where a goal or pursuit fits in the areas of their life\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"life-map-question\", \"pursuit-start\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "The areas of the person's map the pursuit serves or lives, each with evidence in their words, kept on the pursuit."
    }
   },
   {
@@ -1423,7 +1476,8 @@
     "recipe": "workflow:work-through-a-framework",
     "source": "{\"from\":\"a method a person repeated across their work\"}",
     "title": "Work through a framework",
-    "fires_when": "[{\"label\": \"someone asks to work through an author's framework or book method for themselves\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"framework-request\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone asks to work through an author's framework or book method for themselves\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"framework-request\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "The person's answers to a framework, each with its source and confidence, and questions only where the evidence cannot answer."
    }
   },
   {
@@ -1437,7 +1491,8 @@
     "recipe": "workflow:write-a-research-prompt-without-the-answer-in-it",
     "source": "{\"from\":\"a method a person repeated across their work\",\"note\":\"did you taint my prompts with your subjective opinion. Nothing here names a subject, field or person.\"}",
     "title": "Write a research prompt without the answer in it",
-    "fires_when": "[{\"label\": \"someone wants a research prompt written for an AI or person that does not lead toward an expected answer\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"research-question\", \"prompt-request\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone wants a research prompt written for an AI or person that does not lead toward an expected answer\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"research-question\", \"prompt-request\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "A research prompt that tests the requester's question in their own words without the writer's expected answer."
    }
   },
   {
@@ -1451,7 +1506,8 @@
     "recipe": "workflow:write-product-words",
     "source": "{\"from\":\"the product's own behaviour\",\"note\":\"Names tools that no tool in the Workshop offers yet: tool:check-copy.\"}",
     "title": "Write product words people enjoy reading",
-    "fires_when": "[{\"label\": \"someone asks for copy a reader will see, such as a tour, notice, error, button, landing section, email or post\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"content-idea\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone asks for copy a reader will see, such as a tour, notice, error, button, landing section, email or post\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"content-idea\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]",
+    "produces": "Plain, true, warm copy, passed by the copy judge before anyone reads it."
    }
   },
   {
@@ -1781,7 +1837,7 @@
     "recipe": "workflow:set-up-a-business-on-the-account",
     "source": "{\"from\": \"business-on-the-account meta-workflow, generic and public\", \"note\": \"Synthetic example data only. Stage recipes: recipes/business-on-the-account-*.json. Reused live workflows: workflow:get-found-in-search-and-answer-engines, workflow:test-prices-and-change-a-page-for-each-visitor, workflow:give-paid-buyers-access, make-a-brand-book-and-decks, follow-up-with-people-who-engaged. Tools named in the stages that the live catalog lacks: resolve-a-brand (source-only); no live tool for: YouTube connection check, DM reply sending, support inbox, community creation, referral reward store, testimonials, send-follow-up-emails-after-sign-up, billing page for one purchase, dunning retry schedule (set in Stripe). The first instance is the person's own list, not this repository.\"}",
     "title": "Set up a business to run entirely on Trillion",
-    "fires_when": "[{\"label\": \"someone wants to run a whole business, from funnel to after-sale, on Trillion\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"business-setup\", \"business-idea\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
+    "fires_when": "[{\"label\": \"someone wants to run a whole business, from funnel to after-sale, on their own account\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"business-setup\", \"business-idea\"]}}]}}, \"made_by\": \"derived\", \"state\": \"On\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words.\"}]"
    }
   },
   {
@@ -1901,7 +1957,8 @@
     "job": "Hand something that just arrived or was asked for (a note, a voice memo, an email, a message, a comment, a button pressed in the app) to one of the person's AIs, with the job in plain words and every detail of what arrived; the AI named in to_agent takes it, or whichever takes it first when none is named, and what that AI did is kept as the result. One item (once_per) is handed off once, however many rules or runs hand it.",
     "recipe": "workflow:hand-to-an-agent",
     "title": "Hand it to one of your AIs",
-    "fires_when": "[{\"label\": \"an item asks for work that another AI should take\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"for-another-ai\"]}}]}}, \"made_by\": \"rewritten\", \"state\": \"On\", \"evidence\": \"Rewritten on 2026-11-13 (lane every-workflow-is-a-branch): the earlier condition kept 13 or 14 of 14 parts of four ordinary seeds no one aimed, so it said nothing about which work a part is; the condition now requires the one situation this workflow is for.\"}, {\"label\": \"an item arrives that another AI should take, such as a note, memo, email, message or comment\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"person-task\"]}}]}}, \"made_by\": \"derived\", \"state\": \"Off\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words. Retired 2026-11-13: it kept most parts of four ordinary seeds no one aimed (rewritten in place by lane every-workflow-is-a-branch).\"}]"
+    "fires_when": "[{\"label\": \"an item asks for work that another AI should take\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"for-another-ai\"]}}]}}, \"made_by\": \"rewritten\", \"state\": \"On\", \"evidence\": \"Rewritten on 2026-11-13 (lane every-workflow-is-a-branch): the earlier condition kept 13 or 14 of 14 parts of four ordinary seeds no one aimed, so it said nothing about which work a part is; the condition now requires the one situation this workflow is for.\"}, {\"label\": \"an item arrives that another AI should take, such as a note, memo, email, message or comment\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"person-task\"]}}]}}, \"made_by\": \"derived\", \"state\": \"Off\", \"evidence\": \"Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words. Retired 2026-11-13: it kept most parts of four ordinary seeds no one aimed (rewritten in place by lane every-workflow-is-a-branch).\"}]",
+    "produces": "The thing that arrived handed to one of the person's AIs with its job in plain words and everything it needs."
    }
   },
   {
