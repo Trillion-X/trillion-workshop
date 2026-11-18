@@ -1,9 +1,0 @@
-{
-  "about": "DATA for tools/place-pursuits-on-a-life-map: every refusal's words. The tool keeps nothing and reads nothing: the starter map (settings), the person's own map rows (map_rows) and their pursuits (pursuits) are its input.",
-  "words": {
-    "no_settings": "Hand in settings: the starter map ({ areas: [...], list: { id, label, title_field, fields }, words: { ... } }).",
-    "bad_pursuits": "pursuits is a list of { title, areas: [area id] }; read the person's pursuit records and hand them in.",
-    "bad_settings": "settings is the starter map: { areas: [...], list: { id, label, title_field, fields }, words: { ... } }.",
-    "bad_map_rows": "map_rows is the list of rows of the person's own map list: [{ id, title?, values }]."
-  }
-}

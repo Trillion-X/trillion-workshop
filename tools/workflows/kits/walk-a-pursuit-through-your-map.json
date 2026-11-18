@@ -140,7 +140,7 @@
       },
       "workflow": "workflow:walk-a-pursuit-through-your-map",
       "step": "keep",
-      "given": "From tools/place-pursuits-on-a-life-map/test/place-pursuits-on-a-life-map.test.mjs: the map has areas garden, beds, paths and compost; the pursuit Grow beans names the areas beds and nowhere, and the kept areas are only [\"beds\"] (an id that is not on the map is dropped, a repeated one is kept once). In that test Walk daily is placed on paths, so compost is the one non-optional leaf nothing tends.",
+      "given": "From the prove step of workflow:place-pursuits-on-a-life-map: the map has areas garden, beds, paths and compost; the pursuit Grow beans names the areas beds and nowhere, and the kept areas are only [\"beds\"] (an id that is not on the map is dropped, a repeated one is kept once). In that test Walk daily is placed on paths, so compost is the one non-optional leaf nothing tends.",
       "hands_back": "{\"pursuit_id\":\"pursuit:grow-beans\",\"areas\":[\"beds\"]}. Reading the map again shows Beds with the pursuit Grow beans and Compost as an area nothing you do tends."
     }
   ],
@@ -178,5 +178,5 @@
       }
     }
   },
-  "drafted_from": "workflow:walk-a-pursuit-through-your-map row, list:your-map definition and tools/place-pursuits-on-a-life-map/test/place-pursuits-on-a-life-map.test.mjs"
+  "drafted_from": "workflow:walk-a-pursuit-through-your-map row, list:your-map definition and workflow:place-pursuits-on-a-life-map (its prove step)"
 }
