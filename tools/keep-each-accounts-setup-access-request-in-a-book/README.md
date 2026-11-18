@@ -1,5 +1,5 @@
 # tools/keep-each-accounts-setup-access-request-in-a-book/
 
-Keep each account's setup access request in a book of its own, so preparing and fulfilling it reaches only that request.
+The one-book-per-request keeping is now `workflow:keep-each-accounts-setup-access-request-in-a-book` (`tools/workflows/recipes/keep-each-accounts-setup-access-request-in-a-book.json`, kit beside it). Its proof is in the lane that landed it (commit 9aebe8023).
 
-This folder has no row yet. Its old Trillion files are in `from-an-older-version/`: the bytes of tag `old-trillion-before-worker-retire`, under their old paths. `from-an-older-version/README.md` says which load here and which are held until what they import is here. Wiring them into a row is adapting them, in a commit that names `moved-from.json`.
+The held old Trillion files (`from-an-older-version/src/setup-access-records.mjs.held` and its test) were removed here: nothing imported them, and they are kept at tag `old-trillion-before-worker-retire` under their old paths, named in `moved-from.json`.
