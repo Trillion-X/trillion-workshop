@@ -60,7 +60,8 @@ export function calendarInviteFile(input: CalendarInviteInput): string {
     `UID:${input.uid}`,
     `DTSTAMP:${utc(input.now_ms)}`,
     `DTSTART:${utc(input.start_ms)}`,
-    `DTEND:${utc(input.end_ms)}`,
+    // RFC 5545 3.6.1: an event with no duration has DTSTART only, so a zero-length event writes no DTEND.
+    ...(input.end_ms === input.start_ms ? [] : [`DTEND:${utc(input.end_ms)}`]),
     `SUMMARY:${text(input.summary)}`,
     ...(input.description ? [`DESCRIPTION:${text(input.description)}`] : []),
     ...(input.location ? [`LOCATION:${text(input.location)}`] : []),

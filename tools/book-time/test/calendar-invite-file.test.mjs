@@ -46,3 +46,10 @@ test('a cancel keeps the uid, raises the sequence, and carries no reminders', ()
   assert.ok(file.includes('UID:booking-1@example.test'));
   assert.ok(!file.includes('VALARM'));
 });
+
+test('a zero-length event has DTSTART only: no DTEND and no DURATION', () => {
+  const file = calendarInviteFile({ ...base, end_ms: base.start_ms });
+  const lines = file.replace(/\r\n /g, '').split('\r\n');
+  assert.ok(lines.includes('DTSTART:20260812T150000Z'));
+  assert.equal(lines.some(line => line.startsWith('DTEND:') || line.startsWith('DURATION:')), false);
+});
