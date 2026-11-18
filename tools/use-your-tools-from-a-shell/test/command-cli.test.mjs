@@ -750,6 +750,14 @@ test('a refused engine call names the step that refused it: the message ends wit
     && error.answer.cause === 'src/x.rs:118:36:Error::Invalid#abc' && /Cause: src\/x\.rs:118:36:Error::Invalid#abc$/.test(error.detail));
 });
 
+test('a refused call says the engine\'s own words for its code, and this command\'s words only when the engine sends none', async () => {
+  const refusedWith = structuredContent => engineClient({ door: doorAt('http://127.0.0.1:9/mcp', { local: true }), credential: keyCredential, rules: quick, wait: noWait,
+    fetchImpl: async () => new Response(JSON.stringify({ jsonrpc: '2.0', id: 1, result: { isError: true, content: [{ type: 'text', text: 'refused' }], structuredContent } }), { status: 200, headers: { 'content-type': 'application/json' } }) });
+  const told = 'This answer is 70000 bytes; one answer may be at most 65536.';
+  await assert.rejects(refusedWith({ code: 'tools_run_answer_too_large', outcome: 'unknown', detail: told }).op('@tools', 'tools:run', {}), error => error.message.startsWith(told));
+  await assert.rejects(refusedWith({ code: 'tools_run_answer_too_large', outcome: 'unknown' }).op('@tools', 'tools:run', {}), error => !error.message.startsWith(told) && error.code === 'tools_run_answer_too_large');
+});
+
 test('a refused call names the request key it was sent under, so the caller can quote it', async () => {
   const reply = { jsonrpc: '2.0', id: 1, result: { isError: true, content: [{ type: 'text', text: 'refused' }],
     structuredContent: { code: 'original_input_refused', outcome: 'not_started' } } };

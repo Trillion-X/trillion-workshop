@@ -744,7 +744,9 @@ export function engineClient({ door, credential, fetchImpl = fetch, rules = sett
       // The engine names the step that refused in `cause` (file, line, and the error); the message names the door and the code.
       const cause = typeof answer?.cause === 'string' ? ` Cause: ${answer.cause}` : '';
       const said = words ? fill(words, { which: door.name, code, tool: args?.input?.tool ?? name }) : null;
-      throw Object.assign(new CommandError(error.message ?? answer?.text ?? said ?? fill(rules.words.refused_code, { which: door.name }), { answer, detail: `${fill(rules.words.details.refused_code, { mcp: door.mcp, tool: name, code: code ?? 'no code' })}${cause}` }), { code });
+      // The engine's own words for its code (`detail`, its words.json) come first; this command's table is for an engine that sends none.
+      const told = typeof answer?.detail === 'string' && answer.detail ? answer.detail : null;
+      throw Object.assign(new CommandError(error.message ?? told ?? said ?? answer?.text ?? fill(rules.words.refused_code, { which: door.name }), { answer, detail: `${fill(rules.words.details.refused_code, { mcp: door.mcp, tool: name, code: code ?? 'no code' })}${cause}` }), { code });
     }
   }
   const op = (address, method, input = {}, { idempotent = false, requestKey = randomUUID() } = {}) =>
