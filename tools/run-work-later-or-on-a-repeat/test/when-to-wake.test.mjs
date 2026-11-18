@@ -103,3 +103,28 @@ test('one-off actions: due once their window opens, gone once a receipt names th
   assert.deepEqual(done.scheduled_due, []);
   assert.throws(() => whenToWake({ now: 'soon' }), /not a time/);
 });
+
+test('resume_from_ms: a schedule first seen now starts from now, and a caller keeping only states from its last proof stays bounded', () => {
+  const daily = { ...mondayReview, schedule_id: 'schedule:daily', start_local_date: '2020-01-01', cadence: { unit: 'day' } };
+  const from = Date.parse('2026-03-05T12:00:00Z');
+  const first = whenToWake({ now: from, schedules: [daily], resume_from_ms: from });
+  assert.deepEqual(first.recurring_due, [], 'six years of past days are not caught up');
+  assert.equal(first.next_wake_at, '2026-03-05T14:00:00.000Z', 'its first time from now: 09:00 New York that day');
+  // Each day: run what is due, keep only that proof, and move resume_from_ms to its start.
+  let resume = from;
+  let states = [];
+  const ran = [];
+  for (const now of ['2026-03-05T14:00:00Z', '2026-03-06T14:00:00Z', '2026-03-07T14:00:00Z', '2026-03-08T13:00:00Z']) {
+    const answer = whenToWake({ now, schedules: [daily], occurrence_states: states, resume_from_ms: resume });
+    for (const occurrence of answer.recurring_due) {
+      ran.push(occurrence.start);
+      states = [proven(occurrence.occurrence_key, occurrence.start)];
+      resume = Date.parse(occurrence.start);
+    }
+  }
+  assert.deepEqual(ran, ['2026-03-05T14:00:00.000Z', '2026-03-06T14:00:00.000Z', '2026-03-07T14:00:00.000Z', '2026-03-08T13:00:00.000Z'],
+    '09:00 New York on both sides of the clock change, one state kept');
+  // Asleep for three days: each day missed is still due, earliest first, as without resume_from_ms.
+  const late = whenToWake({ now: '2026-03-12T15:00:00Z', schedules: [daily], occurrence_states: states, resume_from_ms: resume });
+  assert.deepEqual(late.recurring_due.map(occurrence => occurrence.start), ['2026-03-09T13:00:00.000Z']);
+});

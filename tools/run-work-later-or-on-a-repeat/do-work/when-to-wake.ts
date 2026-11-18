@@ -32,6 +32,8 @@ export interface WakeInput {
   readonly actions?: readonly Record<string, unknown>[];
   readonly receipts?: readonly Record<string, unknown>[];
   readonly max_calendar_scan_days?: number;
+  // Occurrences starting before this count as passed (materializeRecurringWindows `resume_from_ms`).
+  readonly resume_from_ms?: number;
   // How fires are spread (spread-fires.ts); without it nothing moves.
   readonly spread?: SpreadConfig | null;
 }
@@ -48,6 +50,7 @@ export function whenToWake(input: WakeInput) {
     occurrence_states: list(input.occurrence_states),
     max_calendar_scan_days: input.max_calendar_scan_days,
     now_ms: nowMs,
+    resume_from_ms: input.resume_from_ms,
   });
   // With a spread config, a recurring occurrence starts a share of its interval later (spread-fires.ts); the one-off
   // windows below are moved only earlier. The reductions then see the spread times, so due and next wake agree.
@@ -72,6 +75,7 @@ export function whenToWake(input: WakeInput) {
         ],
         max_calendar_scan_days: input.max_calendar_scan_days,
         now_ms: nowMs,
+        resume_from_ms: input.resume_from_ms,
       }).active_occurrences.map(spreadStart)
     : activeOccurrences;
   const ahead: number[] = afterDue

@@ -1,6 +1,6 @@
 {
   "drafted_from": "tool:notice-when-something-shows-up's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Keep watching for things outside (a stretch of time passing, a drive attached or removed, files someone finished putting in a place, a delivery over the network) and tell the person's engine one fact each time, so any tool whose wake hears that kind of fact starts\", with {\"waiters\":[{\"kind\":\"notice-when-something-shows-up.waiter-descriptor\",\"id\":\"waiter:elapsed-time\",\"is_active\":true,\"mechanism_capability_ref\":\"package::notice-when-something-shows-up::mechanism::elapsed-time\",\"mechanism_leaf\":\"elapsed-time.mjs\",\"mechanism_settings\":{\"interval_seconds\":1,\"every\":\"second\"},\"emitted_record\":{\"change_kind\":\"clock-tick\",\"address_label\":\"clock::tick\" .... It runs tool:notice-when-something-shows-up and answers {\"told\":[{\"kind\":\"due-time\",\"event_id\":\"clock::due@1794986795000\",\"payload\":{\"due_ms\":\"1794986795000\",\"missed\":\"0\",\"observed_at\":\"2026-11-18T07:26:35.001Z\"}},{\"kind\":\"clock-tick\",\"event_id\":\"clock::tick#1794986794748#0\",\"payload\":{\"iso_time\":\"2026-11-18T07:26:35.750Z\",\"epoch_ms\":\"1794986795750\",\"counter\":\"0\",\"every\":\"second\"}},{\"kind\":\"due-time\",\"event_id\":\"clock::due@1794986796000\" ...",
+  "start_here": "Say to your AI: \"Keep watching for things outside (a stretch of time passing, a drive attached or removed, files someone finished putting in a place, a delivery over the network) and tell the person's engine one fact each time, so any tool whose wake hears that kind of fact starts\", with {\"waiters\":[{\"kind\":\"notice-when-something-shows-up.waiter-descriptor\",\"id\":\"waiter:elapsed-time\",\"is_active\":true,\"mechanism_capability_ref\":\"package::notice-when-something-shows-up::mechanism::elapsed-time\",\"mechanism_leaf\":\"elapsed-time.mjs\",\"mechanism_settings\":{\"interval_seconds\":1,\"every\":\"second\"},\"emitted_record\":{\"change_kind\":\"clock-tick\",\"address_label\":\"clock::tick\" .... It runs tool:notice-when-something-shows-up and answers {\"told\":[{\"kind\":\"due-time\",\"event_id\":\"clock::due@sample-reminder#send\",\"payload\":{\"start\":\"2026-11-18T00:00:00Z\",\"record_id\":\"sample-reminder\",\"operation\":\"send\"}},{\"kind\":\"clock-tick\",\"event_id\":\"clock::tick#1794988668154#0\",\"payload\":{\"iso_time\":\"2026-11-18T07:57:49.186Z\",\"epoch_ms\":\"1794988669186\",\"counter\":\"0\",\"every\":\"second\"}},{\"kind\":\"clock-tick\",\"event_id\":\"clock::tick#1794988668154#1\" ...",
   "lists": [],
   "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
@@ -61,8 +61,21 @@
                   "mechanism_capability_ref": "package::notice-when-something-shows-up::mechanism::due-time",
                   "mechanism_leaf": "due-time.mjs",
                   "mechanism_settings": {
-                    "every_ms": 1000,
-                    "from_ms": 0
+                    "time_windows": [
+                      {
+                        "record_id": "sample-reminder",
+                        "due_at": "2026-11-18T00:00:00Z"
+                      }
+                    ],
+                    "actions": [
+                      {
+                        "record_id": "sample-reminder",
+                        "action_id": "send",
+                        "dispatch": {
+                          "name": "wake:arrive"
+                        }
+                      }
+                    ]
                   },
                   "emitted_record": {
                     "change_kind": "due-time",
@@ -72,13 +85,14 @@
                       "due-time"
                     ],
                     "payload_fields": [
-                      "due_ms",
-                      "missed",
-                      "observed_at"
+                      "schedule_id",
+                      "start",
+                      "record_id",
+                      "operation"
                     ]
                   },
                   "candidate_identity_feed": null,
-                  "why": "A due time told as a fact, once per due time (the engine admits one fact per event id, and the id is the due instant), the newest only after a sleep with how many it missed. A person's own waiter names its own every_ms, from_ms and zone, or an at_ms; a tool hears it with a wake {fact: {kind: due-time, from: [run]}}."
+                  "why": "What timed-action says is due (tools/run-work-later-or-on-a-repeat whenToWake), told as a fact once per occurrence: its settings are timed-action's own rows (schedules; time_windows and actions). A tool hears a schedule with a wake {fact: {kind: due-time, from: [run], match: {schedule_id}}}, a one-off with match {record_id}."
                 }
               ],
               "for_seconds": 3.5
@@ -87,7 +101,7 @@
         }
       },
       "given": "The input {\"waiters\":[{\"kind\":\"notice-when-something-shows-up.waiter-descriptor\",\"id\":\"waiter:elapsed-time\",\"is_active\":true,\"mechanism_capability_ref\":\"package::notice-when-something-shows-up::mechanism::elapsed-time\",\"mechanism_leaf\":\"elapsed-time.mjs\",\"mechanism_settings\":{\"interval_seconds\":1,\"every\":\"second\"},\"emitted_record\":{\"change_kind\":\"clock-tick\",\"address_label\":\"clock::tick\" ....",
-      "hands_back": "It answered {\"told\":[{\"kind\":\"due-time\",\"event_id\":\"clock::due@1794986795000\",\"payload\":{\"due_ms\":\"1794986795000\",\"missed\":\"0\",\"observed_at\":\"2026-11-18T07:26:35.001Z\"}},{\"kind\":\"clock-tick\",\"event_id\":\"clock::tick#1794986794748#0\",\"payload\":{\"iso_time\":\"2026-11-18T07:26:35.750Z\",\"epoch_ms\":\"1794986795750\",\"counter\":\"0\",\"every\":\"second\"}},{\"kind\":\"due-time\",\"event_id\":\"clock::due@1794986796000\",\"payload\":{\"due_ms\":\"1794986796000\",\"missed\":\"0\",\"observed_at\":\"2026-11-18T07:26:36.001Z\"}},{\"kind\":\"clock-tick\",\"event_id\":\"clock::tick#1794986794748#1\",\"payload\":{\"iso_time\":\"2026-11-18T07:26:36.754Z\",\"epoch_ms\":\"1794986796754\",\"counter\":\"1\",\"every\":\"second\"}},{\"kind\":\"due-time\" ...."
+      "hands_back": "It answered {\"told\":[{\"kind\":\"due-time\",\"event_id\":\"clock::due@sample-reminder#send\",\"payload\":{\"start\":\"2026-11-18T00:00:00Z\",\"record_id\":\"sample-reminder\",\"operation\":\"send\"}},{\"kind\":\"clock-tick\",\"event_id\":\"clock::tick#1794988668154#0\",\"payload\":{\"iso_time\":\"2026-11-18T07:57:49.186Z\",\"epoch_ms\":\"1794988669186\",\"counter\":\"0\",\"every\":\"second\"}},{\"kind\":\"clock-tick\",\"event_id\":\"clock::tick#1794988668154#1\",\"payload\":{\"iso_time\":\"2026-11-18T07:57:50.189Z\",\"epoch_ms\":\"1794988670189\",\"counter\":\"1\",\"every\":\"second\"}},{\"kind\":\"clock-tick\",\"event_id\":\"clock::tick#1794988668154#2\",\"payload\":{\"iso_time\":\"2026-11-18T07:57:51.193Z\",\"epoch_ms\":\"1794988671193\",\"counter\":\"2\",\"every\":\"second\"}}],\"refused\":[]}."
     }
   ]
 }

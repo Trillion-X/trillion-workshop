@@ -164,7 +164,7 @@
           "trillion-workshop/selected-agent",
           "trillion-workshop/send-messages",
           "trillion-workshop/send-requests-to-an-engine",
-          "trillion-workshop/send-to-trillion-from-my-browser",
+          "trillion-workshop/send-from-my-browser",
           "trillion-workshop/serialized-content",
           "trillion-workshop/set-up-my-account",
           "trillion-workshop/set-up-my-devices-and-cameras",
@@ -279,6 +279,10 @@
             },
             "max_calendar_scan_days": {
               "type": "integer"
+            },
+            "resume_from_ms": {
+              "type": "number",
+              "description": "Occurrences starting before this instant (epoch ms) count as passed: keep only the states from the last occurrence you proved and move this to its start, and the state stays bounded; a schedule first seen now starts from now"
             }
           }
         },
@@ -582,7 +586,7 @@
           "trillion-workshop/selected-agent",
           "trillion-workshop/send-messages",
           "trillion-workshop/send-requests-to-an-engine",
-          "trillion-workshop/send-to-trillion-from-my-browser",
+          "trillion-workshop/send-from-my-browser",
           "trillion-workshop/serialized-content",
           "trillion-workshop/set-up-my-account",
           "trillion-workshop/set-up-my-devices-and-cameras",

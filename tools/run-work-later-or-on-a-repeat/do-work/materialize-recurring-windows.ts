@@ -76,6 +76,11 @@ export interface RecurringMaterializationInput {
   // The current instant. A schedule that repeats within the day passes over an unproven time whose next time has
   // also already come, so a schedule that was asleep runs once on waking instead of once for every time it missed.
   readonly now_ms?: number;
+  // Nothing starting before this instant is due or needs a state: those occurrences count as passed. A caller that
+  // keeps only the states at or after the last occurrence it proved (and moves this to that occurrence's start) holds
+  // a bounded state however long a schedule runs, and a schedule first seen now starts at its first time from now
+  // instead of catching up on every time since start_local_date. The scan starts the day before it, in the zone.
+  readonly resume_from_ms?: number;
 }
 
 export interface RecurringWindowPlanInput {
@@ -140,6 +145,13 @@ function requestedTimes(schedule: RecurringWindowSchedule): string[] {
   return times;
 }
 
+// Whole civil days from date `from` to date `to` (YYYY-MM-DD), negative when `to` is earlier.
+function civilDaysBetween(from: string, to: string): number {
+  const a = parseDate(from)!;
+  const b = parseDate(to)!;
+  return Math.round((Date.UTC(b.year, b.month - 1, b.day) - Date.UTC(a.year, a.month - 1, a.day)) / DAY_MS);
+}
+
 function isCandidateDate(schedule: RecurringWindowSchedule, date: string, offsetDays: number): boolean {
   if (stepMinutes(schedule) !== null) return true;
   const interval = schedule.cadence.interval ?? 1;
@@ -195,6 +207,7 @@ export function materializeRecurringWindows(input: RecurringMaterializationInput
     ? Math.min(input.max_calendar_scan_days!, MAX_CALENDAR_SCAN_DAYS)
     : MAX_CALENDAR_SCAN_DAYS;
   const nowMs = Number.isFinite(input.now_ms) ? input.now_ms! : null;
+  const resumeFromMs = Number.isFinite(input.resume_from_ms) ? input.resume_from_ms! : null;
   const scheduleIdCounts = new Map<string, number>();
   for (const schedule of schedules) if (text(schedule?.schedule_id)) scheduleIdCounts.set(schedule.schedule_id, (scheduleIdCounts.get(schedule.schedule_id) ?? 0) + 1);
   const stateByKey = new Map<string, RecurringOccurrenceState[]>();
@@ -221,7 +234,10 @@ export function materializeRecurringWindows(input: RecurringMaterializationInput
     const times = requestedTimes(schedule);
     const step = stepMinutes(schedule);
     let selected = false;
-    for (let offsetDays = 0; offsetDays < maxDays && !selected; offsetDays += 1) {
+    // Scanning starts the day before resume_from_ms in the schedule's zone (or at start_local_date when that is later).
+    const resumeDate = resumeFromMs === null ? null : localParts(resumeFromMs, schedule.timezone).date;
+    const firstOffset = resumeDate === null ? 0 : Math.max(0, civilDaysBetween(schedule.start_local_date, resumeDate) - 1);
+    for (let offsetDays = firstOffset; offsetDays < firstOffset + maxDays && !selected; offsetDays += 1) {
       const date = addCivilDays(schedule.start_local_date, offsetDays);
       if (!isCandidateDate(schedule, date, offsetDays)) continue;
       for (const requestedTime of times) {
@@ -250,11 +266,14 @@ export function materializeRecurringWindows(input: RecurringMaterializationInput
         });
         // A fold configured as both is one logical local window with two branches:
         // do not advance past either until every branch has owner outcome proof.
-        if (candidates.every((candidate) => (stateByKey.get(candidate.key) ?? []).some(ownerOutcomeProven))) continue;
+        // A candidate is passed when its owner proved it, or it starts before resume_from_ms.
+        const passed = (candidate: { start: { instant_ms: number }; key: string }) =>
+          (stateByKey.get(candidate.key) ?? []).some(ownerOutcomeProven) || (resumeFromMs !== null && candidate.start.instant_ms < resumeFromMs);
+        if (candidates.every(passed)) continue;
         if (step !== null && nowMs !== null && candidates.every((candidate) => candidate.start.instant_ms + step * 60_000 <= nowMs)) continue;
         for (const candidate of candidates) {
           const statesForOccurrence = stateByKey.get(candidate.key) ?? [];
-          if (statesForOccurrence.some(ownerOutcomeProven)) continue;
+          if (passed(candidate)) continue;
           const committed = statesForOccurrence.some(materializationCommitted);
           const occurrence = {
             occurrence_key: candidate.key,

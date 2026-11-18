@@ -73,6 +73,29 @@
                   "read-data"
                 ],
                 "at": "/opt/wall-time"
+              },
+              {
+                "package": "run-work-later-or-on-a-repeat",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/run-work-later-or-on-a-repeat"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
               }
             ]
           },
@@ -173,8 +196,33 @@
                   "mechanism_capability_ref": "package::notice-when-something-shows-up::mechanism::due-time",
                   "mechanism_leaf": "due-time.mjs",
                   "mechanism_settings": {
-                    "every_ms": 3600000,
-                    "from_ms": 0
+                    "schedules": [
+                      {
+                        "schedule_id": "schedule:every-hour",
+                        "source_generation": 1,
+                        "schedule_revision": 1,
+                        "timezone": "UTC",
+                        "start_local_date": "2026-11-18",
+                        "cadence": {
+                          "unit": "hour"
+                        },
+                        "local_window": {
+                          "start": "00:00",
+                          "duration_minutes": 5
+                        },
+                        "action": {
+                          "operation": "tell-the-engine",
+                          "owner_ref": "wake:arrive",
+                          "owner_dispatch": {
+                            "name": "wake:arrive",
+                            "input": {}
+                          },
+                          "completion": {
+                            "mode": "synchronous-owner-return"
+                          }
+                        }
+                      }
+                    ]
                   },
                   "emitted_record": {
                     "change_kind": "due-time",
@@ -184,13 +232,14 @@
                       "due-time"
                     ],
                     "payload_fields": [
-                      "due_ms",
-                      "missed",
-                      "observed_at"
+                      "schedule_id",
+                      "start",
+                      "record_id",
+                      "operation"
                     ]
                   },
                   "candidate_identity_feed": null,
-                  "why": "A due time told as a fact, once per due time (the engine admits one fact per event id, and the id is the due instant), the newest only after a sleep with how many it missed. A person's own waiter names its own every_ms, from_ms and zone, or an at_ms; a tool hears it with a wake {fact: {kind: due-time, from: [run]}}."
+                  "why": "What timed-action says is due (tools/run-work-later-or-on-a-repeat whenToWake), told as a fact once per occurrence: its settings are timed-action's own rows (schedules; time_windows and actions). A tool hears a schedule with a wake {fact: {kind: due-time, from: [run], match: {schedule_id}}}, a one-off with match {record_id}."
                 }
               ]
             }
@@ -251,8 +300,21 @@
                   "mechanism_capability_ref": "package::notice-when-something-shows-up::mechanism::due-time",
                   "mechanism_leaf": "due-time.mjs",
                   "mechanism_settings": {
-                    "every_ms": 1000,
-                    "from_ms": 0
+                    "time_windows": [
+                      {
+                        "record_id": "sample-reminder",
+                        "due_at": "2026-11-18T00:00:00Z"
+                      }
+                    ],
+                    "actions": [
+                      {
+                        "record_id": "sample-reminder",
+                        "action_id": "send",
+                        "dispatch": {
+                          "name": "wake:arrive"
+                        }
+                      }
+                    ]
                   },
                   "emitted_record": {
                     "change_kind": "due-time",
@@ -262,13 +324,14 @@
                       "due-time"
                     ],
                     "payload_fields": [
-                      "due_ms",
-                      "missed",
-                      "observed_at"
+                      "schedule_id",
+                      "start",
+                      "record_id",
+                      "operation"
                     ]
                   },
                   "candidate_identity_feed": null,
-                  "why": "A due time told as a fact, once per due time (the engine admits one fact per event id, and the id is the due instant), the newest only after a sleep with how many it missed. A person's own waiter names its own every_ms, from_ms and zone, or an at_ms; a tool hears it with a wake {fact: {kind: due-time, from: [run]}}."
+                  "why": "What timed-action says is due (tools/run-work-later-or-on-a-repeat whenToWake), told as a fact once per occurrence: its settings are timed-action's own rows (schedules; time_windows and actions). A tool hears a schedule with a wake {fact: {kind: due-time, from: [run], match: {schedule_id}}}, a one-off with match {record_id}."
                 }
               ],
               "for_seconds": 3.5
