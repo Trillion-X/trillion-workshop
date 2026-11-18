@@ -1,0 +1,108 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:keep-community-space-records with store {\\\"where\\\": \\\"postgresql database example_me on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-me-postgres-connection\\\"} and the space operations for the Starting community.\"",
+  "lists": [],
+  "no_lists_because": "It names no list: the space's rows are kept in the person's own store, in whatever form that store keeps things, and store says where and in which language.",
+  "workflows": [
+    "workflow:keep-community-space-records"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:keep-community-space-records\" with store, the labels, the operations and the reads.",
+    "3. The first run makes the store's own objects once and proves them on the example operations, reads and probes: the prove step must give every expected answer, or the run stops and says which.",
+    "4. Every later run writes each operation as one batch on the revisions it read, and answers each read from the rows the store holds."
+  ],
+  "worked_examples": [
+    {
+      "title": "A community's members and whether one of them may be in it",
+      "ask": "Put a second member into the Starting community and say whether member relay-member may be in it.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-community-space-records",
+              "store": {
+                "where": "postgresql database example_me on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-me-postgres-connection"
+              },
+              "labels": {
+                "community": {
+                  "joined_by": "rules",
+                  "configuration": {
+                    "title": "Starting",
+                    "join": [
+                      {
+                        "free": true
+                      }
+                    ],
+                    "spaces": {
+                      "events": "members"
+                    }
+                  }
+                }
+              },
+              "operations": [
+                {
+                  "id": "o5",
+                  "op": "member-type",
+                  "writes": [
+                    {
+                      "type": "own_member_type",
+                      "id": "space-1:coach",
+                      "value": {
+                        "space_id": "space-1",
+                        "type_id": "coach",
+                        "label": "Coach",
+                        "inherits": []
+                      }
+                    }
+                  ]
+                },
+                {
+                  "id": "o6",
+                  "op": "join-with-guard",
+                  "writes": [
+                    {
+                      "type": "member",
+                      "id": "space-1:relay-two",
+                      "value": {
+                        "membership_id": "space-1",
+                        "relay": "relay-two",
+                        "role": "member",
+                        "state": "member",
+                        "changed_at": "2026-01-06T00:00:00.000Z"
+                      }
+                    }
+                  ],
+                  "guards": [
+                    {
+                      "type": "member",
+                      "id": "space-1:relay-member"
+                    }
+                  ]
+                }
+              ],
+              "reads": [
+                {
+                  "community": "space-1",
+                  "relay": "relay-member"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-community-space-records",
+      "step": "keep",
+      "given": "The look step found the space's objects already kept in the example database from the prove step; the membership and the member row of relay-member are there.",
+      "hands_back": "results: the join batch of relay-two written with the guard of relay-member; found_ids: the rows read back; decision for relay-member: an invitation-only community needs evidence the store does not hold, so the answer is unavailable (503), never a no"
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 // Original event HTTP clauses, freshly adapted only after normal baseline
 // 64fecded. The separately archived preliminary draft is not source evidence.
 import { nativeCommunityEvents } from '../read-data/community-events.mjs';
-import { createCommunityMemberships } from '../read-data/community-memberships.mjs';
+import { communityOf, joinedByRules, checkedMemberDecision, memberDecision, isMemberNow } from '../read-data/community-access.mjs';
 // HELD: nativeSpacePermissions from the declared space-permissions public owner.
 // HELD: mailSettings from the maintained sender owner's public read-only API.
 
@@ -96,6 +96,44 @@ export async function nativeCommunityResponse(response) {
 }
 
 /**
+ * The community reads the event owner and the permission owners ask for, over the rows the caller reads from the
+ * person's store (`records`: read(id), community(id), member(eventId, relay), members(eventId), events(parentId),
+ * putEvents(rows), putMember(row), removeEvent(id), transaction(fn)). The decisions are read-data/community-access.mjs.
+ */
+export function communityAccessOver(records, { labels, acceptedInvitation } = {}) {
+  const chainOf = async id => {
+    const chain = [];
+    const seen = new Set();
+    for (let row = await records.read(id); ; row = row.parent_id ? await records.read(row.parent_id) : null) {
+      chain.push(row);
+      if (!row || !row.parent_id || seen.has(row.id)) break;
+      seen.add(row.id);
+    }
+    return chain;
+  };
+  const readCommunity = async id => {
+    const membership = await records.read(id);
+    if (!membership) throw fail('No pursuit with that id.', 404, 'community_not_found');
+    const configRow = await records.community(id);
+    return communityOf({ membership, configRow, joinedByRules: joinedByRules(await chainOf(id), labels), labels });
+  };
+  const memberOf = (spaceId, relay) => records.member(spaceId, relay);
+  const activeMember = async (community, relay, holds = [], options = {}) => (await memberDecision({
+    community, relay, holds, member: await memberOf(community.id, relay), acceptedInvitation: options.acceptedInvitation ?? acceptedInvitation,
+  })).allowed;
+  const checkedMember = async (id, relay, holds = [], options = {}) => {
+    const community = await readCommunity(id);
+    return checkedMemberDecision({ community, relay, holds, member: await memberOf(id, relay), acceptedInvitation: options.acceptedInvitation ?? acceptedInvitation });
+  };
+  return Object.freeze({
+    read: id => records.read(id), events: parentId => records.events(parentId), member: memberOf, members: eventId => records.members(eventId),
+    putEvents: rows => records.putEvents(rows), putMember: row => records.putMember(row), removeEvent: id => records.removeEvent(id),
+    transaction: fn => records.transaction(fn), readCommunity, activeMember, checkedMember, joinedByRules: id => chainOf(id).then(chain => joinedByRules(chain, labels)),
+    isMemberNow: async (id, relay) => isMemberNow(await memberOf(id, relay)),
+  });
+}
+
+/**
  * Assemble real shared owners for one native run. Runtime callbacks are required
  * adapters supplied by their current owners, never functions from input/DATA.
  * resolveIdentity returns holds:null for unknown paid evidence, not an invented
@@ -103,21 +141,18 @@ export async function nativeCommunityResponse(response) {
  * The native CLI/catalogue binding remains held until those owners are available.
  */
 export async function createCommunityEventRoute({
-  door, task, model, membership_labels, current, resolveIdentity,
+  records, resource, task, membership_labels, current, resolveIdentity,
   permissionOptions, spaces, spaceChanged, tellEventCalendars, tellMembersOfMeetingChange,
-  calendarUidDomain, newId,
+  calendarUidDomain, newId, acceptedInvitation, mailSettings,
 } = {}) {
   const context = nativeCommunityTask(task);
-  if (!door || typeof door.resource !== 'string' || !door.resource)
-    throw fail('The current records-door resource is unavailable.', 503, 'community_resource_unavailable');
+  if (!records || typeof resource !== 'string' || !resource)
+    throw fail('The current space records and their resource are unavailable.', 503, 'community_resource_unavailable');
   if ([current, resolveIdentity, permissionOptions, spaces, spaceChanged,
     tellEventCalendars, tellMembersOfMeetingChange, newId].some(fn => typeof fn !== 'function')
     || typeof calendarUidDomain !== 'string' || !calendarUidDomain || /[\r\n]/.test(calendarUidDomain))
     throw fail('The current community runtime bindings are unavailable.', 503, 'community_bindings_unavailable');
-  const resource = door.resource;
-  const memberships = createCommunityMemberships({
-    door, model, membership_labels, requestKey: () => context.request_key,
-  });
+  const memberships = communityAccessOver(records, { labels: membership_labels, acceptedInvitation });
   let snapshot;
   const refresh = async (operation, input) => {
     const admitted = await current(operation, input);
@@ -126,7 +161,7 @@ export async function createCommunityEventRoute({
     // Identity withheld by native admission stays absent; no account fallback
     // or private holdings lookup is performed for an undisclosed actor.
     const identity = context.actor
-      ? await resolveIdentity({ context, door, memberships })
+      ? await resolveIdentity({ context, records, memberships })
       : { relay: null, holds: null };
     if (!object(identity) || !(identity.relay === null || typeof identity.relay === 'string' && identity.relay)
       || !(identity.holds === null || Array.isArray(identity.holds))
@@ -174,7 +209,7 @@ export async function createCommunityEventRoute({
       const name = community.config.owner_name ?? community.config.title;
       if (typeof community.config.mail?.reply_to === 'string' && community.config.mail.reply_to.trim())
         return { name, email: community.config.mail.reply_to };
-      const settings = await mailSettings(door, undefined, { initialize: false });
+      const settings = await mailSettings(records, undefined, { initialize: false });
       if (typeof settings?.from?.email !== 'string' || !settings.from.email.trim())
         throw fail('The account has no current calendar organizer.', 503, 'community_organizer_unavailable');
       return { name, email: settings.from.email };

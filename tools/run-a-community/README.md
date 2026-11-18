@@ -8,7 +8,7 @@ This owner keeps the community tool definitions and the shared event actions. An
 
 `workflow:keep-community-events-and-rsvps` keeps the events and RSVPs in the space's own store: one batch per operation, each row written only on the revision it was read at, a full event refusing a new going, and an RSVP leaving only with its event. `read-data/community-event-records.mjs` decides which rows a step writes, with which revision, and reads no store. Its proof (`node --test tools/run-a-community/test/community-event-records.test.mjs` covers the rules) is in the lane notes, not here.
 
-The adapter over the records door (`read-data/community-memberships.mjs`), the event owner's store calls and the route's door use are the next family to convert (they still read the door).
+The space records (community configuration, rules, member types, members) are kept by `workflow:keep-community-space-records` in the person's own store. `read-data/community-access.mjs` decides who may be in a community and what it is, from the rows the caller reads, and answers yes or no with the reason (or unavailable, never a no). `do-work/community-event-route.mjs` (`communityAccessOver`) reads those rows from the caller's records. The former records-door adapter (`community-memberships.mjs`) is removed.
 
 ## Event actions
 
@@ -23,7 +23,6 @@ The adapter over the records door (`read-data/community-memberships.mjs`), the e
 | `rsvp` | Records going or declined, checking active membership and capacity. |
 | `eventFile` | Produces a calendar file through the shared invitation exporter. |
 
-`read-data/community-memberships.mjs` adapts the current records door to the existing membership fields. Its declared DATA bindings name record kinds and physical ids. Each adapter keeps its own transaction scope, so nested work on another records door cannot reuse the first door's cached rows or staged writes. A transaction stages its changes, then writes the event revision, RSVP changes, and captured authorization rows in one conditional batch. An unknown read is an error, never confirmed absence. Invitation callbacks must return a boolean: true proves acceptance, false denies, and any other result is unavailable evidence.
 
 Permission decisions belong to the existing space-permissions owner. Checked membership and event permission callbacks must return an explicit grant or the actual matching community. Denied, unavailable, malformed, and unrelated results do not authorize a change.
 

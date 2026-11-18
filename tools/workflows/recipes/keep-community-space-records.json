@@ -1,0 +1,352 @@
+{
+  "about": "workflow:keep-community-space-records: keeps a community's membership row, saved configuration, rules, member types and members in the space's own store, every write whole, on the revision it was read at, with a rule row created only once. It replaces the records-door adapter of tools/run-a-community (read-data/community-memberships.mjs: the reads, list, writes, nested transactions, compare-and-swap and the rule defaults), whose decisions are now read-data/community-access.mjs values. Old home: the retired source's src/calendar.json /community/events routes and the community membership methods at source commit b6ae0ebf815f2f5271eed34e6e023c7e1767ec04 (rule a-tool-is-only-what-the-store-cannot-do).",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-community-space-records",
+        "label": "Keep community space records",
+        "job": "Keep a community's membership row, saved configuration, rules, member types and members in the space's own store, each write whole and only on the revision it was read at, a rule row created only once, and read the space back so anyone can see who may be in it and why.",
+        "produces": "The store's own space objects, proven on the example operations, reads and probes in three kinds of store, and each run's space rows kept, refused and read back.",
+        "source": {
+          "from": "the owner, 2026-11-18, and the W3.2b lane brief: run-a-community's records-door adapter kept the space's rows; a tool keeps no record, the store does",
+          "note": "Ported from the retired Worker's community membership adapter (source commit b6ae0ebf815f2f5271eed34e6e023c7e1767ec04; see tools/run-a-community/source-baselines and src/community-membership-record-model.json for the record kinds and their identities). Who may be in a community (join rules, paid access, invitation evidence) stays in the tool as values: tools/run-a-community/read-data/community-access.mjs."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store",
+            "operations"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the space is kept: the store's own address, as the person's store row names it"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses for that store, when it needs one"
+                },
+                "place": {
+                  "type": "string",
+                  "description": "Where in the store the spaces are kept, when the person has a place for them already"
+                }
+              }
+            },
+            "labels": {
+              "type": "object",
+              "description": "The label DATA (membership_labels: joined_by and the default configuration per label)"
+            },
+            "operations": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Each operation: writes [{type, id, value, expected_revision?}], guards [{type, id}] (optional), in order"
+            },
+            "reads": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Each read: {community, relay} for a yes or no on who may be in it"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit kept_in (where the spaces are kept, or null) and objects (the names of the objects that already answer each question below).",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found no such objects, make them in the store's own form: (1) one table of space rows (the community's membership row, its saved configuration, its rules, its member types, and its members), each row with a revision the store increments on every change; (2) a rule that a write names the revision it was read at, or that it is new (absent) and that a row that exists is never created again; (3) a rule that a batch is whole or not at all, and that a guard row must still hold the revision it was read at in the same batch; (4) a read of one space's rows. Grant only what the store needs for these.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example operations",
+            "do": "In a throwaway place in the same store, with the same objects, run these operations in order, each through the store's own objects: [{\"id\": \"o1\", \"op\": \"seed\", \"writes\": [{\"type\": \"membership\", \"id\": \"space-1\", \"value\": {\"id\": \"space-1\", \"label\": \"community\", \"title\": \"A community\", \"created_by\": \"relay-owner\", \"created_at\": \"2026-01-01T00:00:00.000Z\"}}, {\"type\": \"member\", \"id\": \"space-1:relay-member\", \"value\": {\"membership_id\": \"space-1\", \"relay\": \"relay-member\", \"role\": \"member\", \"state\": \"member\", \"changed_at\": \"2026-01-01T00:00:00.000Z\"}}]}, {\"id\": \"o2\", \"op\": \"save-config\", \"writes\": [{\"type\": \"community\", \"id\": \"space-1\", \"value\": {\"id\": \"space-1\", \"config\": {\"join\": [{\"invited\": true}], \"spaces\": {\"events\": \"members\"}}, \"created_at\": \"2026-01-02T00:00:00.000Z\", \"updated_at\": \"2026-01-03T00:00:00.000Z\"}}]}, {\"id\": \"o3\", \"op\": \"ensure-rules\", \"writes\": [{\"type\": \"rules\", \"id\": \"space-1\", \"value\": {\"id\": \"space-1\", \"rules\": \"Be kind\", \"changed_at\": \"2026-01-01T00:00:00.000Z\"}}]}, {\"id\": \"o4\", \"op\": \"ensure-rules-again\", \"writes\": [{\"type\": \"rules\", \"id\": \"space-1\", \"value\": {\"id\": \"space-1\", \"rules\": \"Other\", \"changed_at\": \"2026-01-05T00:00:00.000Z\"}, \"expected_revision\": null}]}, {\"id\": \"o5\", \"op\": \"member-type\", \"writes\": [{\"type\": \"own_member_type\", \"id\": \"space-1:coach\", \"value\": {\"space_id\": \"space-1\", \"type_id\": \"coach\", \"label\": \"Coach\", \"inherits\": []}}]}, {\"id\": \"o6\", \"op\": \"join-with-guard\", \"writes\": [{\"type\": \"member\", \"id\": \"space-1:relay-two\", \"value\": {\"membership_id\": \"space-1\", \"relay\": \"relay-two\", \"role\": \"member\", \"state\": \"member\", \"changed_at\": \"2026-01-06T00:00:00.000Z\"}}], \"guards\": [{\"type\": \"member\", \"id\": \"space-1:relay-member\"}]}, {\"id\": \"o7\", \"op\": \"stale-config\", \"writes\": [{\"type\": \"community\", \"id\": \"space-1\", \"value\": {\"id\": \"space-1\", \"config\": {\"join\": [{\"free\": true}]}, \"created_at\": \"2026-01-02T00:00:00.000Z\", \"updated_at\": \"2026-01-07T00:00:00.000Z\"}, \"expected_revision\": 0}]}] Then read the space's rows and the decisions the planning values give for each read ([{\"id\": \"r1\", \"community\": \"space-1\", \"relay\": \"relay-member\"}, {\"id\": \"r2\", \"community\": \"space-1\", \"relay\": \"relay-two\"}, {\"id\": \"r3\", \"community\": \"space-1\", \"relay\": \"relay-absent\"}]), and try each probe ([{\"id\": \"p1\", \"op\": \"insert-existing-membership\", \"id_of\": \"space-1\"}, {\"id\": \"p2\", \"op\": \"guard-moved\", \"id_of\": \"space-1:relay-member\"}]). Submit results, refusals (each operation refused and the store's words), rows (every row read back, with its revision), community, decisions, and probes (refused or changed).",
+            "submit": {
+              "type": "object"
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Every example operation is kept or refused as the intent says, every probe is refused, and the store's own objects give every expected answer",
+                "path": [
+                  "this",
+                  "answer"
+                ],
+                "values": [
+                  {
+                    "community": {
+                      "config": {
+                        "join": [
+                          {
+                            "invited": true
+                          }
+                        ],
+                        "spaces": {
+                          "events": "members"
+                        },
+                        "title": "A community"
+                      },
+                      "created_at": "2026-01-02T00:00:00.000Z",
+                      "id": "space-1",
+                      "joined_by_rules": true,
+                      "label": "community",
+                      "owner_relay": "relay-owner",
+                      "updated_at": "2026-01-03T00:00:00.000Z"
+                    },
+                    "decisions": {
+                      "decisions": {
+                        "r1": {
+                          "error": "accepted_invitation_evidence_unavailable",
+                          "status": 503
+                        },
+                        "r2": {
+                          "error": "accepted_invitation_evidence_unavailable",
+                          "status": 503
+                        },
+                        "r3": {
+                          "allowed": false,
+                          "reason": "not_a_member_now"
+                        }
+                      },
+                      "member_types": [
+                        {
+                          "inherits": [],
+                          "label": "Coach",
+                          "space_id": "space-1",
+                          "type_id": "coach"
+                        }
+                      ],
+                      "rules": {
+                        "changed_at": "2026-01-01T00:00:00.000Z",
+                        "id": "space-1",
+                        "rules": "Be kind"
+                      }
+                    },
+                    "probes": {
+                      "p1": "refused",
+                      "p2": "refused"
+                    },
+                    "refusals": {
+                      "o4": "row already exists",
+                      "o7": "revision changed"
+                    },
+                    "results": {
+                      "o1": {
+                        "wrote": [
+                          "space-membership#space-1",
+                          "space-member#space-1:relay-member"
+                        ]
+                      },
+                      "o2": {
+                        "wrote": [
+                          "space-community-config#space-1"
+                        ]
+                      },
+                      "o3": {
+                        "wrote": [
+                          "space-rules#space-1"
+                        ]
+                      },
+                      "o5": {
+                        "wrote": [
+                          "space-member-type#space-1:coach"
+                        ]
+                      },
+                      "o6": {
+                        "wrote": [
+                          "space-member#space-1:relay-two"
+                        ]
+                      }
+                    },
+                    "rows": [
+                      {
+                        "key": "space-community-config#space-1",
+                        "revision": 1,
+                        "value": {
+                          "config": {
+                            "join": [
+                              {
+                                "invited": true
+                              }
+                            ],
+                            "spaces": {
+                              "events": "members"
+                            }
+                          },
+                          "created_at": "2026-01-02T00:00:00.000Z",
+                          "id": "space-1",
+                          "updated_at": "2026-01-03T00:00:00.000Z"
+                        }
+                      },
+                      {
+                        "key": "space-member#space-1:relay-member",
+                        "revision": 1,
+                        "value": {
+                          "changed_at": "2026-01-01T00:00:00.000Z",
+                          "membership_id": "space-1",
+                          "relay": "relay-member",
+                          "role": "member",
+                          "state": "member"
+                        }
+                      },
+                      {
+                        "key": "space-member#space-1:relay-two",
+                        "revision": 1,
+                        "value": {
+                          "changed_at": "2026-01-06T00:00:00.000Z",
+                          "membership_id": "space-1",
+                          "relay": "relay-two",
+                          "role": "member",
+                          "state": "member"
+                        }
+                      },
+                      {
+                        "key": "space-member-type#space-1:coach",
+                        "revision": 1,
+                        "value": {
+                          "inherits": [],
+                          "label": "Coach",
+                          "space_id": "space-1",
+                          "type_id": "coach"
+                        }
+                      },
+                      {
+                        "key": "space-membership#space-1",
+                        "revision": 1,
+                        "value": {
+                          "created_at": "2026-01-01T00:00:00.000Z",
+                          "created_by": "relay-owner",
+                          "id": "space-1",
+                          "label": "community",
+                          "title": "A community"
+                        }
+                      },
+                      {
+                        "key": "space-rules#space-1",
+                        "revision": 1,
+                        "value": {
+                          "changed_at": "2026-01-01T00:00:00.000Z",
+                          "id": "space-1",
+                          "rules": "Be kind"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's operations",
+            "do": "For each operation: read the rows it touches, make the batch with each row's revision as read (absent rows as new), write the batch whole and refuse when the store refuses; for a read, give the decision the values in the community-access rules and say whether the person may act and why. Submit results, refused, kept_ids (the rows written), found_ids (every row read back).",
+            "submit": {
+              "type": "object",
+              "required": [
+                "results",
+                "refused",
+                "kept_ids",
+                "found_ids"
+              ],
+              "properties": {
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "refused": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "kept_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "found_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "subset-of",
+                "says": "Every row written is read back",
+                "path": [
+                  "this",
+                  "kept_ids"
+                ],
+                "of": [
+                  "this",
+                  "found_ids"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
