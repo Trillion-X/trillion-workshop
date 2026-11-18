@@ -9,6 +9,7 @@ import { migrateStore, refuseWhileLegacyWaits } from './store.mjs';
 import { pageAnswer } from './pages.mjs';
 import { relatedOrigins } from './attached-origins.mjs';
 import { serveInternal } from './internal-verify.mjs';
+import { readiness, stopWithoutDropping } from './stop-without-dropping.mjs';
 
 // Every start makes or updates the tables for the options it runs, one process at a time (store.mjs), before it answers anything.
 await migrateStore(auth, pool);
@@ -17,7 +18,8 @@ await refuseWhileLegacyWaits(settings, pool);
 const handler = toNodeHandler(auth);
 const ours = url => url.startsWith(`${settings.base_path}/`) || url.startsWith('/.well-known/');
 
-createServer(async (request, response) => {
+const server = createServer(async (request, response) => {
+  if (readiness(request, response)) return;
   const url = request.url ?? '';
   if (url === '/.well-known/webauthn' && request.method === 'GET') {
     return relatedOrigins(settings).then(body => response.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'max-age=300' }).end(JSON.stringify(body)));
@@ -31,6 +33,9 @@ createServer(async (request, response) => {
 });
 
 // The computer's own side: the engine's API key check (internal-verify.mjs), on a listener Caddy never reaches.
-if (settings.internal) {
-  serveInternal(auth, settings.internal, settings.credential_standing).on('listening', () => console.log(`better-auth internal on ${settings.internal.host}:${settings.internal.port}`));
-}
+const internal = settings.internal
+  ? serveInternal(auth, settings.internal, settings.credential_standing).on('listening', () => console.log(`better-auth internal on ${settings.internal.host}:${settings.internal.port}`))
+  : null;
+
+// A deploy starts the next release beside this one; this one finishes what it holds before it ends.
+stopWithoutDropping([server, internal].filter(Boolean), settings.stop, () => pool.end());
