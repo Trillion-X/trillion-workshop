@@ -163,30 +163,28 @@ test('a send whose outcome is not known is not sent again by itself, only with r
   });
 });
 
-// The person's files as the run's door answers them: one made-up picture, read a page at a time or shared as a link.
+// The address the caller made of the post's file where the person keeps it: one made-up picture, answered in pieces.
 const PICTURE = new Uint8Array(Array.from({ length: 700 }, (_, at) => at % 251));
 const SHARE_URL = 'https://files.example.test/bucket/people/p/files/sample-file?X-Amz-Signature=made-up';
 function files({ gone = false, page = 256 } = {}) {
   const asked = [];
-  const answer = async (operation, input) => {
-    asked.push({ operation, input });
-    if (gone) throw Object.assign(new Error('No file with that name or identity is in your namespace.'), { code: 'namespace_not_found' });
-    if (operation === 'share_file') return { url: SHARE_URL, identity: 'sample-file', media_type: 'image/jpeg', byte_length: PICTURE.length, expires_at: '2026-01-02T06:00:00.000Z' };
-    const bytes = PICTURE.subarray(input.offset, Math.min(input.offset + Math.min(input.length, page), PICTURE.length));
-    return { identity: 'sample-file', media_type: 'image/png', byte_length: PICTURE.length, offset: input.offset, bytes_returned: bytes.length, encoding: 'base64', content: Buffer.from(bytes).toString('base64') };
+  const answer = async url => {
+    asked.push(url);
+    if (gone) return new Response('not found', { status: 404 });
+    let at = 0;
+    const body = new ReadableStream({ pull(controller) { if (at >= PICTURE.length) return controller.close(); controller.enqueue(PICTURE.slice(at, at + page)); at += page; } });
+    return new Response(body, { status: 200, headers: { 'content-type': 'image/png', 'content-length': String(PICTURE.length) } });
   };
   return { asked, answer };
 }
-const withFiles = (door, held) => ({ ...door, files: held.answer });
 const pictured = post({ media: { identity: 'sample-file', name: '/Posts/a.png', media_type: 'image/png', byte_length: PICTURE.length } });
 
-test('a place that takes a file only whole is handed its bytes, read from the person\'s files a page at a time', async () => {
+test('a place that takes a file only whole is handed its bytes, streamed from the address given', async () => {
   const stand = place({ data: { id: '9001', text: 'A short post', media_id_string: '7001', media_id: '7001' }, media_id_string: '7001' });
   const held = files({ page: 256 });
   await withDoor([pictured, connection], async door => {
-    await sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT }, { door: withFiles(door, held), send: stand.send, held: () => VALUE });
-    assert.deepEqual(held.asked.map(item => [item.operation, item.input.offset]), [['read_file', 0], ['read_file', 256], ['read_file', 512]]);
-    assert.ok(held.asked.every(item => item.input.name_or_identity === 'sample-file'));
+    await sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT, media_url: SHARE_URL }, { door, fetchMedia: held.answer, send: stand.send, held: () => VALUE });
+    assert.deepEqual(held.asked, [SHARE_URL]);
     assert.ok(stand.sent.every(request => new URL(request.url).hostname === 'api.x.com'), 'the file goes only to the place');
     const upload = stand.sent.find(request => request.body instanceof FormData || (request.body && typeof request.body.get === 'function'));
     assert.ok(upload, 'the picture was uploaded to the place');
@@ -195,28 +193,31 @@ test('a place that takes a file only whole is handed its bytes, read from the pe
   });
 });
 
-test('a place that fetches a file from an address is given a share of it, never the file', async () => {
+test('a place that fetches a file from an address is given the address, never the file', async () => {
   const instagram = 'service_connection:instagram:second';
   const record = { id: `connection:${encodeURIComponent(instagram)}`, type: 'connection', value: { connection_id: instagram, vendor: 'instagram', plain: { ig_user_id: '1000000002' }, held: ['access_token'] } };
   const stand = place({ id: '17890000000000001', status_code: 'FINISHED' });
   const held = files();
   await withDoor([post({ destinations: [instagram], media: { identity: 'sample-file', media_type: 'image/jpeg' } }), record], async door => {
-    const sent = await sendAPost({ post_id: 'post:p1', place: 'instagram', account_id: instagram }, { door: withFiles(door, held), send: stand.send, held: () => VALUE });
+    const sent = await sendAPost({ post_id: 'post:p1', place: 'instagram', account_id: instagram, media_url: SHARE_URL }, { door, fetchMedia: held.answer, send: stand.send, held: () => VALUE });
     assert.equal(sent.status, 'posted', sent.said);
-    assert.deepEqual(held.asked, [{ operation: 'share_file', input: { name_or_identity: 'sample-file', seconds: 21600 } }]);
+    assert.deepEqual(held.asked, [], 'the place fetches it; this run does not');
     assert.ok(stand.sent.length > 0);
     assert.ok(stand.sent.some(request => decodeURIComponent(`${request.url} ${request.body ?? ''}`).includes(SHARE_URL)), 'the place is handed the share');
     assert.ok(stand.sent.every(request => ['graph.instagram.com', 'graph.facebook.com'].includes(new URL(request.url).hostname)));
   });
 });
 
-test('a post whose file is gone from the person\'s files is refused before anything leaves, in plain words', async () => {
+test('a post whose file is gone, or that came with no address of its file, is refused before anything leaves, in plain words', async () => {
   const stand = place();
   await withDoor([pictured, connection], async (door, fake) => {
-    const sent = await sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT }, { door: withFiles(door, files({ gone: true })), send: stand.send, held: () => VALUE });
+    const sent = await sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT, media_url: SHARE_URL }, { door, fetchMedia: files({ gone: true }).answer, send: stand.send, held: () => VALUE });
     assert.equal(stand.sent.length, 0);
     assert.equal(fake.kept.get('post:p1').value.deliveries[ACCOUNT].status, 'failed');
     assert.match(sent.said, /no longer in your files, so nothing was sent to X/);
+    const unaddressed = await sendAPost({ post_id: 'post:p1', place: 'x', account_id: ACCOUNT }, { door, send: stand.send, held: () => VALUE });
+    assert.equal(stand.sent.length, 0);
+    assert.match(unaddressed.said, /no address of it was given, so nothing was sent to X/);
   });
 });
 
@@ -230,9 +231,10 @@ test('a run told one place for another place\'s account sends nothing and writes
   });
 });
 
-test('the send row may share and read the person\'s files, and nothing else of them', () => {
-  const filesRights = rightsOf(rowOf(rows, 'tool:send-a-post')).filter(right => 'files' in right);
-  assert.deepEqual(filesRights, [{ files: '/', operations: ['share_file', 'read_file'] }]);
+test('the send row reads none of the person\'s files: a post\'s file comes as the address the caller gives', () => {
+  const row = rowOf(rows, 'tool:send-a-post');
+  assert.deepEqual(rightsOf(row).filter(right => 'files' in right), []);
+  assert.equal(row.input_schema.properties.media_url.type, 'string');
 });
 
 test('a held value never goes to a host the place does not list, and a redirect carrying one is not followed', async () => {

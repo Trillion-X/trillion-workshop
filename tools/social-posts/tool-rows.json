@@ -3878,11 +3878,16 @@
         "id": "tool:send-each-post-at-its-time",
         "label": "Send each post at its time",
         "job": "When the person's posts change, set each post that is set to go at its time to be sent then, to each of its destinations, by that place's send row",
-        "description": "Runs on its own once the person switches on its wake (at-its-time): each time their posts change, it reads the changed posts, and for each one set to go at its time (tool:set-a-post-to-go-at-its-time) it sets one run of tool:send-a-post (told the destination's place) per destination still to be sent, at the post's scheduled_for. That run sends only while the post is still set to go as it was then, so a post taken back, changed or set again sends nothing at the old time. It sends nothing itself, polls nothing and keeps nothing. Its rights are the ones the sends it sets need (the person's posts and connections to read, and their files); it writes no record, and each send answers the post it ends as `keep`. Returns set (each post, destination, send row and time), left_out (each send not set, with why) and said.",
+        "description": "Runs on its own once the person switches on its wake (at-its-time): each time their posts change, it reads the changed posts, and for each one set to go at its time (tool:set-a-post-to-go-at-its-time) it sets one run of tool:send-a-post (told the destination's place) per destination still to be sent, at the post's scheduled_for. That run sends only while the post is still set to go as it was then, so a post taken back, changed or set again sends nothing at the old time. It sends nothing itself, polls nothing and keeps nothing. It reads the person's posts and connections from the rows it is given as `stored`, writes no record, and each send answers the post it ends as `keep`. A wake that fires with no caller gives it no rows, so it finds no post; until a wake can hand a run the person's rows (a named gap), an AI runs it with them. A send it sets for a post with a file needs that file's address at the post's time, which no wake makes now (the same gap). Returns set (each post, destination, send row and time), left_out (each send not set, with why) and said.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
-          "properties": {}
+          "properties": {
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of post, connection, as this row's `stored` lists. What is not given is not there."
+            }
+          }
         },
         "output_schema": {
           "type": "object",
@@ -4013,30 +4018,6 @@
                 "from": "task"
               }
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "post",
-                "operations": [
-                  "records:read"
-                ]
-              },
-              {
-                "kind": "connection",
-                "operations": [
-                  "records:read"
-                ]
-              },
-              {
-                "files": "/",
-                "operations": [
-                  "share_file",
-                  "read_file"
-                ]
-              }
-            ]
           }
         },
         "provenance": {
@@ -4050,7 +4031,21 @@
             "contains": "nothing was set"
           }
         ],
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "stored": [
+          {
+            "kind": "post",
+            "operations": [
+              "records:read"
+            ]
+          },
+          {
+            "kind": "connection",
+            "operations": [
+              "records:read"
+            ]
+          }
+        ]
       }
     },
     {
@@ -7616,7 +7611,7 @@
         "id": "tool:send-a-post",
         "label": "Send a post",
         "job": "Send one of the person's approved posts to one of their accounts at a place once its time has come, and answer where it went as the post to keep",
-        "description": "Give post_id (an approved or scheduled post whose time has come), place (the slug of one of the places in read-data/post-places.json, as tool:list-post-destinations names them) and account_id (one of the post's destinations: a connection of that place's kind, service_connection:<vendor> or service_connection:<vendor>:<account>). The engine hands this run only that account's held values, chosen by place; they reach only that place's hosts, as each request leaves. A destination the post carries as not known is never sent again by itself: give resend: true only after looking at the place. This run reads the post and the connection through the records door (the person's wake runs it at the post's time) and stores nothing: the post as it ends (each destination's outcome) comes back under `keep`, and the place gets an idempotency key made from the post, the account and the attempt. A destination that already has the post is not sent it again. A post with a file hands the place that file from the person's files: a share it streams (a signed link that expires) or the file's bytes streamed to it, never a copy kept here. Returns post_id, status, post (with each destination's status, url and error in plain words), said and keep. This posts publicly on the person's account: run it only with the person's yes for this post.",
+        "description": "Give post_id (an approved or scheduled post whose time has come), place (the slug of one of the places in read-data/post-places.json, as tool:list-post-destinations names them) and account_id (one of the post's destinations: a connection of that place's kind, service_connection:<vendor> or service_connection:<vendor>:<account>). The engine hands this run only that account's held values, chosen by place; they reach only that place's hosts, as each request leaves. A destination the post carries as not known is never sent again by itself: give resend: true only after looking at the place. This run reads the post and the connection from the rows it is given as `stored` and stores nothing: the post as it ends (each destination's outcome) comes back under `keep`, and the place gets an idempotency key made from the post, the account and the attempt. A destination that already has the post is not sent it again. A post with a file needs media_url, an address the caller made of that file where the person keeps it (a share such as a signed link, valid until the place has fetched it): the place is handed that address, or the bytes streamed from it, never a copy kept here; with no address, nothing is sent. Returns post_id, status, post (with each destination's status, url and error in plain words), said and keep. This posts publicly on the person's account: run it only with the person's yes for this post.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -7645,6 +7640,14 @@
             "armed_at": {
               "type": "string",
               "description": "Given by the post's own wake (tool:send-each-post-at-its-time) when it runs this at the post's time: the armed_at the post was set with. Nothing is sent once the post no longer carries it"
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of post, connection, as this row's `stored` lists. What is not given is not there."
+            },
+            "media_url": {
+              "type": "string",
+              "description": "For a post with a file: an https address of that file made where the person keeps it (a share such as a signed link, which ranges), valid until the place has fetched it"
             }
           }
         },
@@ -7759,30 +7762,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "post",
-                "operations": [
-                  "records:read"
-                ]
-              },
-              {
-                "kind": "connection",
-                "operations": [
-                  "records:read"
-                ]
-              },
-              {
-                "files": "/",
-                "operations": [
-                  "share_file",
-                  "read_file"
-                ]
-              }
-            ]
           },
           "by_input": {
             "input": "place",
@@ -8105,7 +8084,21 @@
             ]
           }
         ],
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "stored": [
+          {
+            "kind": "post",
+            "operations": [
+              "records:read"
+            ]
+          },
+          {
+            "kind": "connection",
+            "operations": [
+              "records:read"
+            ]
+          }
+        ]
       }
     },
     {

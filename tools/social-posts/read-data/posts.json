@@ -152,10 +152,9 @@
     }
   ],
   "media": {
-    "_what": "How a post's file reaches a place (read-data/send-a-post.mjs). A place that fetches the file from an address (media_from address) is handed a share of it from the person's files, valid share_seconds, which the place streams. A place that takes the bytes (media_from bytes) is streamed them from the person's files, read_bytes at a time. words are what is said when the file cannot be handed over: gone when the person's files no longer hold it, unreachable when their files could not answer.",
-    "share_seconds": 21600,
-    "read_bytes": 262144,
+    "_what": "How a post's file reaches a place (read-data/send-a-post.mjs): from media_url, the address the caller made of it where the person keeps it. A place that fetches the file from an address (media_from address) is handed that address. A place that takes the bytes (media_from stream or whole) is streamed them from it. words are what is said when the file cannot be handed over: no_address when the post has a file and no address was given, gone when the address answers that the file is not there, unreachable when it could not answer.",
     "words": {
+      "no_address": "This post has a video or picture, but no address of it was given, so nothing was sent to {platform}. Make a share of the file where you keep it and give it as media_url.",
       "gone": "This post's video or picture is no longer in your files, so nothing was sent to {platform}. Choose one that is.",
       "unreachable": "Your files could not hand {platform} the post's file right now ({code}), so nothing was sent. Send it again shortly."
     }

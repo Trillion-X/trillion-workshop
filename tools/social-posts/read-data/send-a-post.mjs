@@ -186,57 +186,52 @@ function overall(post) {
   return 'scheduled';
 }
 
-// What the place is given of the post's file, from the person's own files through the run's door (its files right):
-// a place that fetches from an address gets a share of the file (share_file: a signed URL it streams, whole or by
-// range, until it expires); a place that takes the bytes gets a stream of them, read from the person's files a page
-// at a time (read_file), so no copy of the file is ever kept here. A file the person's files no longer hold, or files
-// that cannot answer, refuse the send before anything leaves.
-async function mediaFor(post, place, door) {
+// What the place is given of the post's file: the address the caller made of it where the person keeps it (media_url,
+// a share such as a signed link, which ranges). A place that fetches from an address is handed that address; a place
+// that takes the bytes is streamed them from it as they arrive, so no copy of the file is ever kept here. No address,
+// an address that answers that the file is gone, or one that cannot answer, refuses the send before anything leaves.
+async function mediaFor(post, place, mediaUrl, fetchMedia) {
   if (!post.media) return null;
   const said = (key, values = {}) => new Refused(fillWords(settings.media.words[key], { platform: place.label, ...values }));
-  const asked = async (operation, input) => {
-    try {
-      return await door.files(operation, input);
-    } catch (error) {
-      if (error?.code === 'namespace_not_found') throw said('gone');
-      throw said('unreachable', { code: error?.code ?? 'refused' });
-    }
-  };
-  const identity = post.media.identity;
+  if (!/^https:\/\//.test(mediaUrl ?? '')) throw said('no_address');
   const mediaType = post.media.media_type ?? 'application/octet-stream';
   const kind = mediaType.startsWith('image/') ? 'image' : mediaType.startsWith('video/') ? 'video' : 'document';
   if (place.media_from === 'stream' || place.media_from === 'whole') {
-    const first = await asked('read_file', { name_or_identity: identity, offset: 0, length: settings.media.read_bytes });
-    const size = first.byte_length;
-    const open = () => {
-      let offset = 0;
-      let page = first;
+    let answer;
+    try { answer = await fetchMedia(mediaUrl); } catch (error) { throw said('unreachable', { code: error?.code ?? error?.name ?? 'refused' }); }
+    if (answer.status === 404 || answer.status === 410) throw said('gone');
+    if (!answer.ok || !answer.body) throw said('unreachable', { code: String(answer.status) });
+    const size = Number(answer.headers.get('content-length') ?? post.media.byte_length);
+    const facts = { kind, mimeType: answer.headers.get('content-type') ?? mediaType, byteSize: size, ...(post.media.name ? { filename: post.media.name.split('/').pop() } : {}) };
+    // The first open streams the answer already asked for; a later open (a place's uploader starting over) asks again.
+    let fresh = answer.body;
+    const again = () => {
+      let reader;
       return new ReadableStream({
         async pull(controller) {
-          if (offset >= size) return controller.close();
-          if (!page) page = await asked('read_file', { name_or_identity: identity, offset, length: settings.media.read_bytes });
-          const bytes = page.encoding === 'base64' ? Buffer.from(page.content, 'base64') : new TextEncoder().encode(page.content);
-          page = null;
-          if (bytes.length === 0) return controller.error(said('unreachable', { code: 'file_ended_early' }));
-          offset += bytes.length;
-          controller.enqueue(new Uint8Array(bytes));
+          if (!reader) {
+            const asked = await fetchMedia(mediaUrl).catch(() => null);
+            if (!asked?.ok || !asked.body) return controller.error(said('unreachable', { code: String(asked?.status ?? 'refused') }));
+            reader = asked.body.getReader();
+          }
+          const { done, value } = await reader.read();
+          if (done) controller.close(); else controller.enqueue(value);
         },
       });
     };
-    const facts = { kind, mimeType: first.media_type ?? mediaType, byteSize: size, ...(post.media.name ? { filename: post.media.name.split('/').pop() } : {}) };
-    if (place.media_from === 'stream') return { ...facts, source: { kind: 'stream', open, fingerprint: first.identity } };
+    const open = () => { const body = fresh ?? again(); fresh = null; return body; };
+    if (place.media_from === 'stream') return { ...facts, source: { kind: 'stream', open, fingerprint: post.media.identity } };
     // A place whose uploader takes the file only as one piece is handed it whole, read through the same stream.
-    const blob = await new Response(open()).blob();
-    return { ...facts, source: { kind: 'blob', blob: new Blob([blob], { type: facts.mimeType }), fingerprint: first.identity } };
+    const blob = await answer.blob();
+    return { ...facts, source: { kind: 'blob', blob: new Blob([blob], { type: facts.mimeType }), fingerprint: post.media.identity } };
   }
-  const shared = await asked('share_file', { name_or_identity: identity, seconds: settings.media.share_seconds });
-  return { kind, mimeType: shared.media_type ?? mediaType, byteSize: shared.byte_length, source: { kind: 'https-url', url: shared.url } };
+  return { kind, mimeType: mediaType, byteSize: post.media.byte_length, source: { kind: 'https-url', url: mediaUrl } };
 }
 
 /** tool:send-a-post: sends the post to one destination once its time has come, and answers the outcome as the post to keep. Run
  *  at the post's time by its wake, it is told the armed_at the post was set with, and sends nothing once the post no
  *  longer carries it (taken back, changed, set again or gone). */
-export async function sendAPost({ post_id: postId, place: placeSlug, account_id: accountId, resend = false, armed_at: armedAt } = {}, { door, now = () => new Date(), send = fetch, held = null, publishers = PUBLISHERS }) {
+export async function sendAPost({ post_id: postId, place: placeSlug, account_id: accountId, resend = false, armed_at: armedAt, media_url: mediaUrl } = {}, { door, now = () => new Date(), send = fetch, fetchMedia = fetch, held = null, publishers = PUBLISHERS }) {
   if (typeof postId !== 'string' || !postId.trim() || typeof accountId !== 'string' || !accountId.trim()) throw new Error('Give post_id and account_id (one of the post\'s destinations).');
   if (typeof placeSlug !== 'string' || !placeSlug.trim()) throw new Error('Give place (the slug of the place account_id belongs to).');
   const original = await door.readRecord(TYPE, postId.trim());
@@ -274,7 +269,7 @@ export async function sendAPost({ post_id: postId, place: placeSlug, account_id:
   }
   try {
     const { social, account } = publisherFor(place, connection, { held: held ?? heldFromDescriptors(place), send, publishers });
-    const media = await mediaFor(post, place, door);
+    const media = await mediaFor(post, place, mediaUrl, fetchMedia);
     const chosen = { ...(place.default_settings ?? {}), ...(post.settings_by_platform?.[place.platform] ?? {}) };
     // Until the place answers, the outcome is not known: a send that is cut off answers nothing, and the caller's post
     // still says what it said.

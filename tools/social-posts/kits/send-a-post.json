@@ -2,7 +2,7 @@
   "drafted_from": "tool:send-a-post's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
   "start_here": "Say to your AI: \"Send one of the person's approved posts to one of their accounts at a place once its time has come, and answer where it went as the post to keep\", with {\"post_id\":\"post:sample-1\",\"place\":\"x\",\"account_id\":\"service_connection:x:sample\"}. It runs tool:send-a-post and answers {\"post_id\":\"post:sample-1\",\"status\":\"partial\",\"post\":{\"post_id\":\"post:sample-1\",\"status\":\"partial\",\"approval_values\":{\"caption\":\"A made-up sample post.\",\"media\":null,\"caption_by_platform\":{},\"settings_by_platform\":{},\"destinations\":[\"service_connection:x:sample\"],\"link\":null,\"scheduled_for\":\"2026-11-02T12:00:00.000Z\",\"time_zone\":null,\"source\":null,\"format_id\":null,\"reaches\":null},\"media\":null ...",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and only reads its own rows (post, connection) through the records door, and keeps nothing.",
+  "no_lists_because": "It names no list of yours: it takes its input and the rows of yours it is given (post, connection), and keeps nothing.",
   "workflows": [],
   "tools": [
     "tool:send-a-post",
@@ -15,8 +15,7 @@
     "1. Say to your AI: \"Send one of the person's approved posts to one of their accounts at a place once its time has come, and answer where it went as the post to keep\", and give it post_id (A post_id from tool:draft-a-post or tool:read-post-calendar); place (The place to send to: the slug of a row of read-data/post-places.json (its id without post-place:).); account_id (One of the post's destinations).",
     "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:send-a-post and its input (the worked example shows one).",
     "3. Read what comes back: Give post_id (an approved or scheduled post whose time has come), place (the slug of one of the places in read-data/post-places.json, as tool:list-post-destinations names them) and account_id (one of the post's destinations: a connection of that place's kind, service_connection:<vendor> or service_connection:<vendor>:<account>).",
-    "4. It only reads only its own rows through the records door: post (records:read); connection (records:read).",
-    "5. It reaches only these places in the person's files: / (share_file, read_file)."
+    "4. It is given only these rows of the person's, read by the AI from the person's own store: post (reads); connection (reads)."
   ],
   "worked_examples": [
     {
