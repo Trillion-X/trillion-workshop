@@ -14,4 +14,4 @@ Moved here byte for byte from Trillion-X/trillion by `tools/move-code-between-tr
 
 ## Dependencies
 
-**Depends on:** `@noble/hashes` (BLAKE3); the caller's `keep` is `tools/remember-which-tool-was-chosen-for-a-job`'s `toolChoiceKeep`.
+**Depends on:** `@noble/hashes` (BLAKE3); the caller's `keep` is the 30-day keep and 24-hour refresh of `workflow:remember-which-tool-was-chosen-for-a-job` (`tools/workflows/recipes/remember-which-tool-was-chosen-for-a-job.json`), which replaced `tools/remember-which-tool-was-chosen-for-a-job`'s `toolChoiceKeep`.

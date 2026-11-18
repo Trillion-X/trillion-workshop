@@ -1,0 +1,228 @@
+{
+  "about": "workflow:remember-which-tool-was-chosen-for-a-job: keep, for each job, the tools an AI was offered for it and the one run, as the person's own training pairs, in the person's own store, and drop a choice that has not been offered or chosen from for a set number of days, from the store's own keys, checks and sweeps. It replaces the record-store half of tools/remember-which-tool-was-chosen-for-a-job (src/tool-choices.mjs and src/tool-choice-keep.mjs, whose whole job was keeping these choices in the retired record store). Pooling a content-free choice set to others stays in that folder's values-in, values-out tool, because it reaches outside the store (rule a-tool-is-only-what-the-store-cannot-do).",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:remember-which-tool-was-chosen-for-a-job",
+        "label": "Remember which tool was chosen for a job",
+        "job": "Keep, for each job, the tools offered for it and the one run, as the person's own training pairs, and drop a choice nobody has offered or chosen from for keep_days, from the store's own objects.",
+        "produces": "The store's own objects for tool choices, proven on the example attempts, and each offer or run kept, repeated or refused and read back, and each old choice dropped by the sweep.",
+        "source": {
+          "from": "the owner, 2026-11-18 about 10:57 and 11:01 AM CST: a tool whose whole job is keeping records is a shortcut of what an AI does anyway",
+          "note": "No tool keeps or reads the choices: the run speaks to the person's store in its own language. The store's own keys, checks and sweep hold the rules the intent below states. Keep time is 30 days, offering or choosing again writes the time at most every 24 hours, and the sweep drops a choice whose time is older than 30 days. A choice set pooled to others is not part of this recipe; it stays with the values-in, values-out tool in that folder."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                },
+                "place": {
+                  "type": "string",
+                  "description": "Where in the store the choices are kept, when they already are"
+                }
+              }
+            },
+            "offers": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Finds this run: each job and the candidates offered for it, as the intent below describes"
+            },
+            "runs": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Runs this run: each job, the tool run for it and the run's state, as the intent below describes"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where tool choices are already kept (kept_in, or null) and the names of the objects that already keep and show them.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing, make the store's own objects in its own form, so that the store itself refuses what the intent refuses wherever it can (keys, checks), with an index on each choice's time for the sweep. Grant only what the store's holder allows the person's login. Choice, kept once per job, keyed by the job's own text (trimmed, up to 2000 characters): the candidates offered (each tool's id and its label and job text), chosen_id (null until a run), chosen_index (the position of that tool among the candidates, null until a run), outcome and execution_state (the run's state, null until a run) and the time it was last offered or chosen from (at). Keeping an offer: an offer with a job and fewer than two candidates keeps nothing. An offer whose candidates are the ones kept for that job already writes nothing. Offered candidates that differ from the kept ones replace them and clear the chosen tool. Its time is written again only when at least 24 hours have passed since the last write. Keeping a run: a run whose job has no offer kept is refused. A run whose tool is not among the candidates kept for its job is refused. A run of the tool already chosen for that job writes nothing. Any other run marks that tool chosen, with its position and its state, and stamps the time. The sweep: a choice whose time is more than 30 days old is dropped, and nothing else is.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example attempts",
+            "do": "In a throwaway place in the same store, with the same objects, keep these attempts in order, each through the store's own objects, each at the time given: [{\"at\": \"2026-11-01T10:00:00Z\", \"offer\": {\"job\": \"keep the rows that match\", \"candidates\": [{\"tool_id\": \"tool:a\", \"label\": \"A\", \"job\": \"does a\"}, {\"tool_id\": \"tool:b\", \"label\": \"B\", \"job\": \"does b\"}]}}, {\"at\": \"2026-11-01T10:05:00Z\", \"offer\": {\"job\": \"keep the rows that match\", \"candidates\": [{\"tool_id\": \"tool:a\", \"label\": \"A\", \"job\": \"does a\"}, {\"tool_id\": \"tool:b\", \"label\": \"B\", \"job\": \"does b\"}]}}, {\"at\": \"2026-11-01T10:10:00Z\", \"run\": {\"job\": \"keep the rows that match\", \"tool_id\": \"tool:b\", \"state\": \"completed\"}}, {\"at\": \"2026-11-01T10:11:00Z\", \"run\": {\"job\": \"keep the rows that match\", \"tool_id\": \"tool:b\", \"state\": \"completed\"}}, {\"at\": \"2026-11-01T10:12:00Z\", \"run\": {\"job\": \"keep the rows that match\", \"tool_id\": \"tool:c\", \"state\": \"completed\"}}, {\"at\": \"2026-11-01T10:13:00Z\", \"run\": {\"job\": \"a job nobody was offered\", \"tool_id\": \"tool:a\", \"state\": \"completed\"}}, {\"at\": \"2026-11-20T10:00:00Z\", \"offer\": {\"job\": \"book a room\", \"candidates\": [{\"tool_id\": \"tool:x\", \"label\": \"X\", \"job\": \"books x\"}, {\"tool_id\": \"tool:y\", \"label\": \"Y\", \"job\": \"books y\"}]}}, {\"at\": \"2026-11-02T10:00:00Z\", \"offer\": {\"job\": \"keep the rows that match\", \"candidates\": [{\"tool_id\": \"tool:a\", \"label\": \"A\", \"job\": \"does a\"}, {\"tool_id\": \"tool:b\", \"label\": \"B\", \"job\": \"does b\"}, {\"tool_id\": \"tool:d\", \"label\": \"D\", \"job\": \"does d\"}]}}, {\"at\": \"2026-11-02T10:05:00Z\", \"run\": {\"job\": \"keep the rows that match\", \"tool_id\": \"tool:d\", \"state\": \"completed\"}}, {\"at\": \"2026-11-20T10:30:00Z\", \"offer\": {\"job\": \"book a room\", \"candidates\": [{\"tool_id\": \"tool:x\", \"label\": \"X\", \"job\": \"books x\"}, {\"tool_id\": \"tool:y\", \"label\": \"Y\", \"job\": \"books y\"}]}}, {\"at\": \"2026-12-03T00:00:00Z\", \"sweep\": true}]. Each attempt must give the outcome the intent gives, and the store's own objects must give every expected answer below.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answer"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "answer": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each attempt is kept, repeated, refused or swept as the intent says",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "kept",
+                    "repeated",
+                    "kept",
+                    "repeated",
+                    "refused",
+                    "refused",
+                    "kept",
+                    "kept",
+                    "kept",
+                    "repeated",
+                    "dropped 1"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "The store's own objects give every expected answer",
+                "path": [
+                  "this",
+                  "answer"
+                ],
+                "values": [
+                  {
+                    "choices_kept": 1,
+                    "job": "book a room",
+                    "candidates": [
+                      "tool:x",
+                      "tool:y"
+                    ],
+                    "chosen_id": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's offers and runs",
+            "do": "Keep each item of offers in order, then each item of runs in order, through the store's own objects, and read every kept job back. Submit kept_ids (each job kept or repeated), refused (each refused item's job and the store's own words for why) and found_ids. With no offers and no runs, submit three empty lists.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_ids",
+                "refused",
+                "found_ids"
+              ],
+              "properties": {
+                "kept_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "refused": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "found_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "subset-of",
+                "says": "Every choice kept is read back",
+                "path": [
+                  "this",
+                  "kept_ids"
+                ],
+                "of": [
+                  "this",
+                  "found_ids"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:remember-which-tool-was-chosen-for-a-job with store {\\\"where\\\": \\\"postgresql database example_shop on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-shop-postgres-connection\\\"} and offers [{\\\"job\\\": \\\"keep the rows that match\\\", \\\"candidates\\\": [{\\\"tool_id\\\": \\\"tool:a\\\", \\\"label\\\": \\\"A\\\", \\\"job\\\": \\\"does a\\\"}, {\\\"tool_id\\\": \\\"tool:b\\\", \\\"label\\\": \\\"B\\\", \\\"job\\\": \\\"does b\\\"}]}] and runs [{\\\"job\\\": \\\"keep the rows that match\\\", \\\"tool_id\\\": \\\"tool:b\\\", \\\"state\\\": \\\"completed\\\"}].\"",
+  "lists": [],
+  "no_lists_because": "It names no list: the tool choices are kept in the person's own store, in whatever form that store keeps things, and store says where and in which language.",
+  "workflows": [
+    "workflow:remember-which-tool-was-chosen-for-a-job"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:remember-which-tool-was-chosen-for-a-job\" with store, and the offers and runs to keep.",
+    "3. The first run makes the store's own objects once and proves them on the example attempts: every attempt must give the outcome the intent says, or the run stops and says which.",
+    "4. Every later run keeps the new offers and runs through those objects; a run of a tool that was not offered for its job is refused with the store's own words, and the sweep drops a choice nobody has offered or chosen from for 30 days."
+  ],
+  "worked_examples": [
+    {
+      "title": "The tool an AI ran for a job is remembered",
+      "ask": "Remember that for keeping the rows that match I was offered A and B and ran B.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:remember-which-tool-was-chosen-for-a-job",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "offers": [
+                {
+                  "job": "keep the rows that match",
+                  "candidates": [
+                    {
+                      "tool_id": "tool:a",
+                      "label": "A",
+                      "job": "does a"
+                    },
+                    {
+                      "tool_id": "tool:b",
+                      "label": "B",
+                      "job": "does b"
+                    }
+                  ]
+                }
+              ],
+              "runs": [
+                {
+                  "job": "keep the rows that match",
+                  "tool_id": "tool:b",
+                  "state": "completed"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:remember-which-tool-was-chosen-for-a-job",
+      "step": "keep",
+      "given": "The look step found the choices kept in the table tool_choice with its keep function, made by an earlier run.",
+      "hands_back": "kept_ids [\"keep the rows that match\"], refused [] and found_ids [\"keep the rows that match\"]; the choice reads chosen_id tool:b at chosen_index 1, and asking again with the same offer writes nothing."
+    }
+  ]
+}
