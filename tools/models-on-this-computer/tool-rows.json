@@ -269,6 +269,7 @@
         "invoke": {
           "kind": "computer",
           "capabilities": [],
+          "local_doors": ["local-model-server"],
           "workdir": "/opt/models-on-this-computer",
           "stdout": "json",
           "argv": [
@@ -598,6 +599,7 @@
         "invoke": {
           "kind": "computer",
           "capabilities": [],
+          "local_doors": ["local-model-server"],
           "workdir": "/opt/models-on-this-computer",
           "stdout": "json",
           "argv": [
