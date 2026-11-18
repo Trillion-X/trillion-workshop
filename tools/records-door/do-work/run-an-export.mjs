@@ -29,15 +29,18 @@ try {
   if (!Number.isSafeInteger(parentActionsFd) || parentActionsFd < 3) throw new Error('Supply --parent-actions-fd with the row\'s declared file descriptor.');
   const fn = (await import(pathToFileURL(file).href))[name];
   if (typeof fn !== 'function') throw new Error(`${file} has no function ${name}.`);
-  const { stored, ...input } = JSON.parse((await text(process.stdin)) || '{}');
+  // `stored` is in the run's input, at the top or under `input` when the row's stdin is { input, task }.
+  const given = JSON.parse((await text(process.stdin)) || '{}');
+  const nested = given && typeof given.input === 'object' && given.input !== null && !Array.isArray(given.input) && 'stored' in given.input;
+  const { stored, ...input } = nested ? { stored: given.input.stored, ...given, input: Object.fromEntries(Object.entries(given.input).filter(([name]) => name !== 'stored')) } : given;
   let own, parentActions;
-  const given = valuesDoor(stored, { other: (...asked) => (own ??= openBearerDoor()).call(...asked) });
+  const values = valuesDoor(stored, { other: (...asked) => (own ??= openBearerDoor()).call(...asked) });
   const context = {
-    door: given.door,
+    door: values.door,
     get parentActions() { return (parentActions ??= openParentActions({ descriptor: parentActionsFd })); },
   };
   const answered = await fn(input, context);
-  const keep = given.keep();
+  const keep = values.keep();
   const result = !keep.length ? answered
     : answered && typeof answered === 'object' && !Array.isArray(answered) ? { ...answered, keep: [...(answered.keep ?? []), ...keep] }
     : { answer: answered, keep };

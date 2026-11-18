@@ -58,14 +58,16 @@ test('browser notice delivery uses the same held signing key returned for enroll
 
 const device = { id: 'notification-device:1234', type: 'notification-device', value: { device_id: '1234', route: 'apns', address: 'a'.repeat(64), label: 'My iPhone', app: 'com.example.app', environment: 'sandbox', can_show: 'allowed', added_at: '2026-10-31T18:00:00Z' } };
 
-test('device registration validates addresses, keeps a stable opaque identity, and never returns the push token', async () => {
+test('device registration validates addresses, keeps a stable opaque identity, and says the push token only in the row it keeps', async () => {
   const register = row('tool:register-my-notification-device');
   const token = 'b'.repeat(64);
   const first = await answerOf(register, { route: 'apns', address: token, app: 'com.example.app', environment: 'sandbox', can_show: 'allowed' });
   assert.equal(first.status, 0, first.error);
   assert.equal(first.result.changed, true);
   assert.equal(first.result.devices[0].address, undefined);
-  assert.equal(JSON.stringify(first.result).includes(token), false);
+  const { keep, ...said } = first.result;
+  assert.equal(JSON.stringify(said).includes(token), false, 'the answer apart from the row to keep never holds the token');
+  assert.deepEqual(keep.map(item => item.type), ['notification-device']);
   const saved = first.kept.find(item => item.type === 'notification-device');
   assert.equal(saved.value.address, token);
   assert.match(saved.value.device_id, /^1f[a-f0-9]{64}$/);
@@ -95,7 +97,8 @@ test('Live Activity registration keeps an opaque idempotent token and removes it
   assert.equal(first.status, 0, first.error);
   assert.equal(first.result.kept, true);
   assert.equal(first.result.ended, false);
-  assert.equal(JSON.stringify(first.result).includes(token), false);
+  const { keep: _rows, ...shown } = first.result;
+  assert.equal(JSON.stringify(shown).includes(token), false, 'the answer apart from the row to keep never holds the token');
   const record = first.kept.find(item => item.type === 'notification-live-activity');
   assert.equal(record.value.token, token);
   const again = await answerOf(rowTool, { board_key: 'running', token, app: 'com.example.app', environment: 'sandbox' }, { records: first.kept });

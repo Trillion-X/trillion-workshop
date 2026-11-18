@@ -230,8 +230,12 @@ export async function runRow(row, sampleInput, sample = {}) {
         .replace(/\{model_endpoint\}/g, whole => modelServer?.endpoint ?? whole)
       : Array.isArray(value) ? value.map(placedGrants)
       : value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).map(([key, item]) => [key, placedGrants(item)])) : value);
-    const input = placedGrants(sampleInput);
     const { records = [], door_files: doorFiles = {}, replies = [], held = {}, files = [], laid_files: laidFiles = [], stand_in_programs: standIns = {}, doorOptions = {} } = placedGrants(sample);
+    // The sample's seeded rows, files and settings are the person's own stores: the run is given them as `stored`
+    // (tools/records-door/read-data/values-door.mjs), the way the person's AI gives what it read from them.
+    const stored = { records, files: doorFiles, workspace: doorOptions.workspaceRecords ?? {} };
+    const seeded = records.length || Object.keys(stored.files).length || Object.keys(stored.workspace).length;
+    const input = seeded && sampleInput && typeof sampleInput === 'object' && !('stored' in sampleInput) ? { ...placedGrants(sampleInput), stored } : placedGrants(sampleInput);
     // A packed file the sample replaces for this run (a settings file naming a program by a path a stand-in cannot
     // take): only a file the row itself packs, at its path under the folder that stands for `/`.
     for (const file of laidFiles) {
@@ -330,7 +334,8 @@ export async function runRow(row, sampleInput, sample = {}) {
       child.on('error', fail);
       child.on('close', code => {
         clearTimeout(timer);
-        done({ code, stdout, stderr, last: lastJsonLine(stdout), kept: fake ? [...fake.kept.values()] : [], calls: fake?.calls ?? [], runs: fake?.runsStarted ?? [], unanswered: outside?.unanswered ?? [] });
+        const last = lastJsonLine(stdout);
+        done({ code, stdout, stderr, last, kept: keptAfter(records, last?.result?.keep, fake), calls: fake?.calls ?? [], runs: fake?.runsStarted ?? [], unanswered: outside?.unanswered ?? [] });
       });
       child.stdin.on('error', () => {});
       child.stdin.end(stdin === undefined ? '' : typeof stdin === 'string' ? stdin : JSON.stringify(stdin));
@@ -343,6 +348,15 @@ export async function runRow(row, sampleInput, sample = {}) {
     rmSync(there, { recursive: true, force: true });
     if (heldFolder) rmSync(heldFolder, { recursive: true, force: true });
   }
+}
+
+// What the person's stores hold after a run: the seeded rows with the rows the run answered in `keep` applied (a null
+// value removes), or what the stand-in door holds when the run wrote through it.
+function keptAfter(records, keep, fake) {
+  if (fake && fake.kept.size && !Array.isArray(keep)) return [...fake.kept.values()];
+  const held = new Map(records.map(record => [record.id, record]));
+  for (const item of Array.isArray(keep) ? keep : []) if (typeof item?.id === 'string') item.value === null ? held.delete(item.id) : held.set(item.id, { id: item.id, type: item.type, value: item.value });
+  return [...held.values()];
 }
 
 /** The row with this id in a tool-rows.json file. */

@@ -73,7 +73,7 @@ test('choosing keeps the option, says what it replaced, and choosing it again ch
   assert.match(kept(first, 'notification-choice:order-alerts').value.at, /^\d{4}-\d\d-\d\dT/);
   const again = await answerOf(chooseRow, { setting: 'order-alerts', choice: 'every-order' }, { records: [setting(options), chosen('every-order')] });
   assert.equal(again.result.changed, false);
-  assert.equal(again.calls.filter(call => call.method === 'records:write').length, 0);
+  assert.equal(again.result.keep, undefined, 'the same event again gives nothing to keep');
 });
 
 test('a choice that is not an option is refused, and a setting that is missing or has no options says so and nothing is written', async () => {
@@ -94,23 +94,24 @@ test('a choice that is not an option is refused, and a setting that is missing o
   assert.match(blank.error, /Say what to choose/);
 });
 
-test('an operation without the declared write right is refused by the records door', async () => {
-  const denied = { ...chooseRow, invoke: { ...chooseRow.invoke, records: { ...chooseRow.invoke.records, rights: [] } } };
-  const answer = await answerOf(denied, { setting: 'order-alerts', choice: 'every-order' }, { records: [setting(options)] });
-  assert.equal(answer.status, 1);
-  assert.match(answer.error, /may not reach those records/i);
-  assert.equal(answer.kept.some(record => record.type === 'notification-choice'), false);
+test('a choice is answered as a row to keep: the run writes nothing anywhere itself', async () => {
+  const answer = await answerOf(chooseRow, { setting: 'order-alerts', choice: 'every-order' }, { records: [setting(options)] });
+  assert.equal(answer.status, 0, answer.error);
+  assert.deepEqual(answer.result.keep.map(item => [item.id, item.type]), [['notification-choice:order-alerts', 'notification-choice']]);
+  assert.equal(answer.calls.length, 0, 'nothing is sent to any door: the caller keeps the row where the person keeps it');
 });
 
 test('an event is recorded as given, delivers nothing, and the same event again changes nothing', async () => {
   const first = await answerOf(recordRow, event('n1'));
   assert.equal(first.status, 0, first.error);
-  assert.deepEqual(first.result, { notification_id: 'n1', recorded: true, said: 'n1 is recorded for 1 audience; nothing was delivered.' });
+  const { keep, ...said } = first.result;
+  assert.deepEqual(said, { notification_id: 'n1', recorded: true, said: 'n1 is recorded for 1 audience; nothing was delivered.' });
+  assert.deepEqual(keep.map(item => item.id), ['notification-event:n1']);
   assert.deepEqual(kept(first, 'notification-event:n1').value, event('n1'));
   assert.equal(kept(first, 'notification-event:n1').type, 'notification-event');
   const again = await answerOf(recordRow, event('n1'), { records: first.kept });
   assert.deepEqual(again.result, { notification_id: 'n1', recorded: false, said: 'n1 was already recorded.' });
-  assert.equal(again.calls.filter(call => call.method === 'records:write').length, 0);
+  assert.equal(again.result.keep, undefined, 'the same event again gives nothing to keep');
   const reordered = Object.fromEntries(Object.entries(event('n1')).reverse());
   assert.equal((await answerOf(recordRow, reordered, { records: first.kept })).result.recorded, false);
 });
