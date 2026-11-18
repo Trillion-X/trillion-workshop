@@ -10,11 +10,11 @@
 //
 // A day is observed only once it is closed (before the current UTC day), so an observation never has to change: a row
 // still counting is refused, never observed twice. A day with no row is no observation, never zero.
-import { readFileSync } from 'node:fs';
 import { keepResourceUsageObservation } from './resource-usage.mjs';
 import { rational, exactAmount, divideAmounts, subtractAmounts, compareAmounts } from '../read-data/resource-usage.mjs';
 
-const meters = JSON.parse(readFileSync(new URL('../read-data/usage-meters.json', import.meta.url), 'utf8'));
+// Imported, not read by path at load, so a program that bundles take-payments (one file, no read-data folder beside it) has it.
+import meters from '../read-data/usage-meters.json' with { type: 'json' };
 const DAY = /^\d{4}-\d\d-\d\d$/;
 const MOST_DAYS = 400;
 
