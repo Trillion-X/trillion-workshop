@@ -196,7 +196,7 @@ describe('the rows as the container runs them', () => {
     assert.equal(run.status, 0, run.error);
     assert.deepEqual({ status: run.result.status, already_saved: run.result.already_saved }, { status: 'interest_saved', already_saved: false });
     assert.deepEqual(run.result.keep.map(record => record.type), ['email-course-interest']);
-    assert.deepEqual(run.kept ?? [], [], 'nothing was written to any store');
+    assert.deepEqual(run.kept, run.result.keep.map(({ id, type, value }) => ({ id, type, value })), 'only what the run answers to keep is kept, by the caller');
   });
 
   it('tool:who-agreed-to-get-which-emails reads them from the rows handed in through the real command', async () => {

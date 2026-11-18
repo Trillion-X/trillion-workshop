@@ -84,7 +84,7 @@ test('~~~ fences a block as ``` does, as CommonMark defines a fence: the same ch
 
 test('tool:split-a-document-into-pieces answers the pieces of its text and keeps nothing; a request with neither text nor name is refused', async () => {
   const row = JSON.parse(readFileSync(resolve(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload).find(item => item.id === 'tool:split-a-document-into-pieces');
-  assert.deepEqual(row.invoke.records.rights, [{ files: '/', operations: ['read_file'] }], 'the row holds no right over the person\'s rows');
+  assert.deepEqual(row.stored, [{ files: '/', operations: ['read_file'] }], 'the row is given no rows of the person\'s');
   const ran = await runRow(row, { text: '## Made-up\n\n- one\n- two\n', file: 'made-up.md' }, {});
   assert.equal(ran.code, 0, ran.stdout + ran.stderr);
   const answer = ran.last.result;

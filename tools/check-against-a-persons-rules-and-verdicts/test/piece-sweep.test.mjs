@@ -120,9 +120,10 @@ test('an answer too large for one door message comes in pages: every file once o
   assert.throws(() => coverage(pieces, [], { file: 'no-such.md' }), /No piece row names the file no-such.md/);
 });
 
-test('tool:check-every-piece-is-covered may only list check rows, and answers its seeded sample', async () => {
+test('tool:check-every-piece-is-covered is given only check rows, and answers its seeded sample', async () => {
   const row = rows.find(item => item.id === 'tool:check-every-piece-is-covered');
-  assert.deepEqual(row.invoke.records.rights, [{ kind: 'record:check', operations: ['records:list'] }]);
+  assert.deepEqual(row.stored, [{ kind: 'record:check', operations: ['records:list'] }]);
+  assert.equal(row.invoke.records, undefined, 'the run asks the door for nothing');
   const sample = row.verify.find(item => item.records);
   const ran = await runRow(row, sample.input, { records: sample.records });
   assert.equal(ran.code, 0, ran.stderr ?? ran.stdout);

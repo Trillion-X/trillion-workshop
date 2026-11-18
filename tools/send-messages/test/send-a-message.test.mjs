@@ -22,7 +22,6 @@ import { MessageRejectedError } from '../read-data/check-message-headers.ts';
 import { buildSendInvocation, isTccDenial } from '../read-data/render-a-send.ts';
 import { MessageBlockedError, heldKeys, providerOf, providers, runAdapter, sendMessage } from '../do-work/send-a-message.mjs';
 import { SHIPPED } from '../do-work/mail-sender.mjs';
-import { startFakeDoor } from 'trillion-workshop/tools/records-door/test/fake-door.mjs';
 import { mountsFor, mountsOf } from './mounts-for.test.mjs';
 
 const folder = fileURLToPath(new URL('..', import.meta.url));
@@ -376,14 +375,12 @@ describe('the keys and the rows', () => {
     assert.deepEqual(heldKeys(provider, descriptor => (descriptor === 4 ? 'key-id' : (() => { throw new Error('closed'); })())), { AWS_ACCESS_KEY_ID: 'key-id', AWS_SECRET_ACCESS_KEY: '' });
   });
 
-  it('the email command takes the key from a private descriptor after the records door\'s, and it appears nowhere else', async () => {
+  it('the email command takes the key from a private descriptor, and it appears nowhere else', async () => {
     const log = join(work, 'cli-requests.jsonl');
     writeFileSync(log, '');
     const keyFile = join(work, 'key');
     writeFileSync(keyFile, 'test-key-descriptor');
-    const door = await startFakeDoor({ rights: rows.find(item => item.id === 'tool:send-an-email').invoke.records.rights });
-    after(() => door.close());
-    const stdio = ['pipe', 'pipe', 'pipe', openSync(door.descriptor, 'r'), openSync(keyFile, 'r')];
+    const stdio = ['pipe', 'pipe', 'pipe', 'ignore', openSync(keyFile, 'r')];
     const child = spawn(process.execPath, [join(folder, 'do-work', 'mail-sender.mjs'), 'resend'], {
       stdio, env: { ...process.env, NODE_OPTIONS: `--import=${stub}`, STUB_LOG: log, STUB_REPLY: '{"status":200,"body":"{\\"id\\":\\"m9\\"}"}' },
     });

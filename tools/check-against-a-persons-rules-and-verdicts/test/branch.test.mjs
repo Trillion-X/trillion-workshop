@@ -127,9 +127,9 @@ test('an unknown branch, a missing check list, a list of another row type, and r
   await assert.rejects(checkABranch({ branch: 'made-up-base', rules: [{ id: 'x', words: ['x'] }], units: [{ text: 'x', kind: 'line' }] }, memoryDoor()), /not both/);
 });
 
-test('the row may read, and only read, the Checks list (its branches among its rows), lists and every check list row type it allows', () => {
+test('the row is given, and only reads, the Checks list (its branches among its rows), lists and every check list row type it allows', () => {
   const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
-  const rights = rows.find(row => row.id === 'tool:check-against-a-persons-rules-and-verdicts').invoke.records.rights;
+  const rights = rows.find(row => row.id === 'tool:check-against-a-persons-rules-and-verdicts').stored;
   const kinds = [SETTINGS_OF_BRANCH.check_type, ...SETTINGS_OF_BRANCH.check_list_row_types.map(type => `record:${type}`)];
   assert.deepEqual(rights.map(right => right.kind).sort(), [...kinds, SETTINGS_OF_BRANCH.list_type].sort());
   for (const right of rights) assert.deepEqual(right.operations, right.kind === SETTINGS_OF_BRANCH.list_type ? ['records:read'] : ['records:list']);

@@ -427,6 +427,10 @@
       "answers": {
        "type": "object",
        "description": "A model's answers by question id: { option: probability }"
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of record:check, list, record:writing-voice, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -564,29 +568,6 @@
     },
     "invoke": {
      "kind": "container",
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "record:check",
-        "operations": [
-         "records:list"
-        ]
-       },
-       {
-        "kind": "list",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "record:writing-voice",
-        "operations": [
-         "records:list"
-        ]
-       }
-      ]
-     },
      "files": {
       "package_files": [
        {
@@ -893,6 +874,26 @@
       "output_selector": "$.results[0].breaks[0].rule",
       "contains": "made-up-note"
      }
+    ],
+    "stored": [
+      {
+        "kind": "record:check",
+        "operations": [
+          "records:list"
+        ]
+      },
+      {
+        "kind": "list",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "record:writing-voice",
+        "operations": [
+          "records:list"
+        ]
+      }
     ]
    }
   },
@@ -1266,6 +1267,7 @@
         "paths": [
          "read-data/byte-pages.mjs",
          "read-data/records-door.mjs",
+         "read-data/values-door.mjs",
          "read-data/settled-write.mjs",
          "read-data/stdio-mcp-door.mjs",
          "read-data/read-many.mjs",
@@ -1977,6 +1979,7 @@
         "paths": [
          "read-data/byte-pages.mjs",
          "read-data/records-door.mjs",
+         "read-data/values-door.mjs",
          "read-data/settled-write.mjs",
          "read-data/stdio-mcp-door.mjs",
          "read-data/read-many.mjs",
@@ -2355,6 +2358,10 @@
        "minimum": 2000,
        "maximum": 28000,
        "description": "The most bytes of JSON the answer takes (28000 when left out)"
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: files: {name: text or {base64}} under /, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -2510,17 +2517,6 @@
        }
       ]
      },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "files": "/",
-        "operations": [
-         "read_file"
-        ]
-       }
-      ]
-     },
      "workdir": "/opt/check-against-a-persons-rules-and-verdicts",
      "internet": false,
      "stdout": "json",
@@ -2571,6 +2567,14 @@
       "output_selector": "$.file",
       "contains": "made-up.md"
      }
+    ],
+    "stored": [
+      {
+        "files": "/",
+        "operations": [
+          "read_file"
+        ]
+      }
     ]
    }
   },
@@ -2805,6 +2809,10 @@
        "minimum": 2000,
        "maximum": 28000,
        "description": "The most bytes of JSON the answer takes (28000 when left out)"
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of record:check, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -2923,17 +2931,6 @@
     },
     "invoke": {
      "kind": "container",
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "record:check",
-        "operations": [
-         "records:list"
-        ]
-       }
-      ]
-     },
      "files": {
       "package_files": [
        {
@@ -3148,6 +3145,14 @@
       "output_selector": "$.files[0].uncovered[0].id",
       "contains": "piece-dddddddddddddddddddddddd"
      }
+    ],
+    "stored": [
+      {
+        "kind": "record:check",
+        "operations": [
+          "records:list"
+        ]
+      }
     ]
    }
   },
@@ -3478,6 +3483,10 @@
       },
       "questions_after": {
        "type": "string"
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of record:check, list, record:writing-voice, record:setting (ids starting record:setting:check-against-a-persons-rules-and-verdicts~), as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -3526,36 +3535,6 @@
     },
     "invoke": {
      "kind": "container",
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "record:check",
-        "operations": [
-         "records:list"
-        ]
-       },
-       {
-        "kind": "list",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "record:writing-voice",
-        "operations": [
-         "records:list"
-        ]
-       },
-       {
-        "kind": "record:setting",
-        "prefix": "record:setting:check-against-a-persons-rules-and-verdicts~",
-        "operations": [
-         "records:read"
-        ]
-       }
-      ]
-     },
      "files": {
       "package_files": [
        {
@@ -3750,6 +3729,33 @@
       "output_selector": "$.results[0].breaks[0].rule",
       "contains": "no-sparkle"
      }
+    ],
+    "stored": [
+      {
+        "kind": "record:check",
+        "operations": [
+          "records:list"
+        ]
+      },
+      {
+        "kind": "list",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "record:writing-voice",
+        "operations": [
+          "records:list"
+        ]
+      },
+      {
+        "kind": "record:setting",
+        "prefix": "record:setting:check-against-a-persons-rules-and-verdicts~",
+        "operations": [
+          "records:read"
+        ]
+      }
     ]
    }
   }

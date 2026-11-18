@@ -208,28 +208,6 @@ test('a read login the superuser made is dropped by the owner\'s recipe once the
   assert.deepEqual(await roles(), []);
 });
 
-// The login of whoever runs a computer (CREATEROLE and CREATEDB, as set-up-postgres-role.sh PG_MAKES_ROLES=yes
-// PG_MAKES_DATABASES=yes makes it) makes a pursuit's login and its database as SQL, and cannot open that database itself.
-test('own-database: the operator makes a login and the database it owns, closed to everyone else, the operator too, and drops both', async () => {
-  const admin = new pg.Client({ ...ADMIN, database: 'postgres' });
-  await admin.connect();
-  await admin.query("CREATE ROLE p_example_operator LOGIN CREATEROLE CREATEDB PASSWORD 'made-up-operator-pw'");
-  await admin.query('CREATE DATABASE p_example_operator OWNER p_example_operator');
-  await admin.end();
-  const operator = `postgres://p_example_operator:made-up-operator-pw@127.0.0.1:${PORT}/p_example_operator`;
-  const pursuit = `postgres://p_example_pursuit:made-up-pursuit-pw@127.0.0.1:${PORT}/p_example_pursuit`;
-  await assert.rejects(runSql({ connection: operator, input: { recipe: { name: 'own-database', action: 'create', valid_until: '2099-01-01T00:00:00Z' } } }), /names the held role connection's database: give role_credential_name/);
-  const made = await runSql({ connection: operator, roleConnection: pursuit, input: { recipe: { name: 'own-database', action: 'create' } } });
-  assert.deepEqual(made.rows, [{ role: 'p_example_pursuit', recipe: 'own-database', action: 'create', valid_until: 'infinity' }]);
-  await runSql({ connection: pursuit, input: { sql: 'CREATE TABLE notes (id int)' } });
-  assert.deepEqual((await runSql({ connection: pursuit, input: { sql: 'SELECT current_user AS u, current_database() AS d' } })).rows, [{ u: 'p_example_pursuit', d: 'p_example_pursuit' }]);
-  await assert.rejects(runSql({ connection: pursuit.replace('p_example_pursuit:made-up-pursuit-pw', 'p_example_operator:made-up-operator-pw'), input: { sql: 'SELECT 1' } }), /permission denied for database "p_example_pursuit"/);
-  await assert.rejects(runSql({ connection: pursuit.replace('p_example_pursuit:made-up-pursuit-pw', `${OWNER}:${OWNER_PW}`), input: { sql: 'SELECT 1' } }), /permission denied for database "p_example_pursuit"/);
-  assert.deepEqual((await runSql({ connection: operator, input: { sql: "SELECT pg_has_role('p_example_pursuit', 'SET') AS can_set, pg_has_role('p_example_pursuit', 'USAGE') AS inherits" } })).rows, [{ can_set: false, inherits: false }]);
-  await runSql({ connection: operator, roleConnection: pursuit, input: { recipe: { name: 'own-database', action: 'drop' } } });
-  assert.deepEqual((await runSql({ connection: operator, input: { sql: "SELECT (SELECT count(*)::int FROM pg_database WHERE datname = 'p_example_pursuit') AS dbs, (SELECT count(*)::int FROM pg_roles WHERE rolname = 'p_example_pursuit') AS roles" } })).rows, [{ dbs: 0, roles: 0 }]);
-});
-
 // A sandboxed run reaches its database by address through the run's own proxy (HTTPS_PROXY): one CONNECT tunnel per connection.
 // A stand-in proxy here opens a tunnel to the test server, notes what was asked, and refuses when told to, as the engine's does
 // for a host the held value may not go to.

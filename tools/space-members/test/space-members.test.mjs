@@ -107,7 +107,7 @@ test('a member chooses the name they show and the row comes back under keep; a s
   assert.equal(named.result.keep.length, 1);
   assert.equal(named.result.keep[0].id, rowId('member', 'sample-club', OWNER));
   assert.equal(named.result.keep[0].value.name, 'Sample Owner');
-  assert.equal(named.kept.length, 0, 'the run stored nothing');
+  assert.deepEqual(named.kept, named.result.keep.map(({ id, type, value }) => ({ id, type, value })), 'only what the run answers to keep is kept, by the caller');
   const stranger = await run(naming, { space: 'sample-club', subject: BO, name: 'Bo' }, records);
   assert.notEqual(stranger.status, 0);
 });

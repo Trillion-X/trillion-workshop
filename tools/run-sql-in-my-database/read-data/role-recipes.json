@@ -1,5 +1,5 @@
 {
-  "_what": "Role recipes: the SQL that makes a login of a kind in the person's own database, gives it its rights, and takes it away. Each statement is a format() string of the server's own (%1$I the role, %2$L its password, %3$L the time it stops working, %4$I the database the connection names, %5$I the database the held role connection names), filled by the server so no value is ever spliced into SQL text here. The owner login runs them (it needs CREATEROLE: tools/start-a-computer set-up-postgres-role.sh PG_MAKES_ROLES=yes), in one transaction, so a recipe makes all of a role or none of it, unless it says in_one_transaction false (Postgres makes and drops a database only outside a transaction block; its statements then run one by one on one connection). Standing: valid until infinity, the password the person holds under a name. Minted: a made-up password and a VALID UNTIL time; the answer hands the login once.",
+  "_what": "Role recipes: the SQL that makes a login of a kind in the person's own database, gives it its rights, and takes it away. Each statement is a format() string of the server's own (%1$I the role, %2$L its password, %3$L the time it stops working, %4$I the database the connection names), filled by the server so no value is ever spliced into SQL text here. The owner login runs them (it needs CREATEROLE: tools/start-a-computer set-up-postgres-role.sh PG_MAKES_ROLES=yes), in one transaction, so a recipe makes all of a role or none of it. Standing: valid until infinity, the password the person holds under a name. Minted: a made-up password and a VALID UNTIL time; the answer hands the login once.",
   "recipes": {
     "read-only": {
       "_what": "A login that may connect to the owner's database and read every table of its public schema, the ones there now and the ones the owner makes later, and may do nothing else: a share that may only read.",
@@ -15,26 +15,6 @@
         "REVOKE SELECT ON ALL TABLES IN SCHEMA public FROM %1$I",
         "REVOKE USAGE ON SCHEMA public FROM %1$I",
         "REVOKE CONNECT ON DATABASE %4$I FROM %1$I",
-        "DROP ROLE %1$I"
-      ]
-    },
-    "own-database": {
-      "_what": "A login and a database it owns, made by the login of whoever runs the computer (CREATEROLE and CREATEDB: set-up-postgres-role.sh PG_MAKES_ROLES=yes PG_MAKES_DATABASES=yes): each pursuit's own database, closed to every other login, the operator's too, so the computer's row names no pursuit. The role, its password and its database are the held role connection's (role_credential_name), which only its owner holds. Postgres lets a login make a database another role owns, or act for that owner, only while it may SET ROLE to it, so the operator takes that right for these statements and gives it back; it stays the role's admin, which lets it reset a lost password.",
-      "in_one_transaction": false,
-      "create": [
-        "CREATE ROLE %1$I LOGIN PASSWORD %2$L",
-        "GRANT %1$I TO CURRENT_USER WITH SET TRUE, INHERIT FALSE",
-        "CREATE DATABASE %5$I OWNER %1$I",
-        "SET ROLE %1$I",
-        "REVOKE ALL ON DATABASE %5$I FROM PUBLIC",
-        "RESET ROLE",
-        "REVOKE SET OPTION FOR %1$I FROM CURRENT_USER"
-      ],
-      "drop": [
-        "GRANT %1$I TO CURRENT_USER WITH SET TRUE, INHERIT FALSE",
-        "SET ROLE %1$I",
-        "DROP DATABASE IF EXISTS %5$I",
-        "RESET ROLE",
         "DROP ROLE %1$I"
       ]
     }

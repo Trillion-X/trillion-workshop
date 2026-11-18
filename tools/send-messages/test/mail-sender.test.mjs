@@ -10,7 +10,6 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { rowOf } from '../../../test-helpers/run-a-row.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
-import lookRows from '../../screen-looks/tool-rows.json' with { type: 'json' };
 import { REJECTED, SHIPPED, bindingFor, mailSender, mailSettings, sendAnEmail } from '../do-work/mail-sender.mjs';
 import { rowsHandedIn } from '../read-data/rows-handed-in.mjs';
 import { providerOf } from '../do-work/send-a-message.mjs';
@@ -211,18 +210,18 @@ describe('the mail row and the email rows', () => {
 
   it('the row of tool:send-an-email declares no mail-settings, mail-sent or mail-day records and answers keep', () => {
     const row = rowOf(rows, 'tool:send-an-email');
-    assert.deepEqual(row.invoke.records.rights.filter(right => right.kind !== '@own-records'), []);
+    assert.equal(row.invoke.records, undefined, 'the run asks the door for nothing');
+    assert.deepEqual(row.stored.filter(right => right.kind !== '@own-records'), []);
     for (const field of ['mail_settings', 'mail_sent', 'mail_day']) assert.ok(row.input_schema.properties[field], field);
     assert.ok(row.output_schema.properties.keep);
   });
 
-  it('each email row runs the mail rules with its keys after the door\'s descriptor', () => {
+  it('each email row runs the mail rules with its keys on their own descriptors', () => {
     for (const id of ['tool:send-an-email']) {
       const row = rowOf(rows, id);
       assert.equal(row.invoke.argv[1], '/opt/send-messages/do-work/mail-sender.mjs', id);
-      // The worn look every email is drawn in is read with exactly the rights tool:read-current-worn-look holds.
-      assert.deepEqual(row.invoke.records.rights.filter(right => right.kind === '@own-records'), rowOf(lookRows, 'tool:read-current-worn-look').invoke.records.rights, id);
-      assert.equal(row.invoke.records.fd, 3, id);
+      // The worn look every email is drawn in is given as the settings its stored list names.
+      assert.deepEqual(row.stored.map(right => right.id), ['screen-look', 'screen-look-own-themes', 'workspace-preference:screen-look-over-time', 'workspace-preference:where-looks-apply'], id);
       assert.ok(row.invoke.credential_mounts.every(mount => mount.fd >= 4), id);
       assert.equal(row.input_schema.properties.from, undefined, `${id}: the request never chooses the sender`);
     }

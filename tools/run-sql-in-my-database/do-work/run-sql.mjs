@@ -15,8 +15,6 @@
 // valid_until? } }. `create` with a held role connection (role_credential_name, handed on descriptor 4) makes that standing
 // login with the password the person holds; `create` with valid_until and no held one mints a login that stops working then,
 // and answers it once; `drop` takes a role away. Every value goes into the recipe's SQL through the server's own format().
-// A recipe runs in one transaction unless it says `in_one_transaction: false`: Postgres runs CREATE DATABASE and DROP
-// DATABASE only outside a transaction block, so such a recipe's statements run one by one on the same connection.
 import { randomBytes } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -83,23 +81,19 @@ const recipeLogin = (shape, roleConnection) => {
   return { role: shape.role ?? `${shape.name.replace(/[^a-z0-9]/g, '_')}_${randomBytes(6).toString('hex')}`, password: randomBytes(24).toString('hex'), validUntil: shape.validUntil, minted: true };
 };
 
-// One recipe action, in one transaction unless the recipe says otherwise: each statement is filled by the server's format()
-// and then run. %4$I is the database the connection names; %5$I the one the held role connection names.
+// One recipe action in one transaction: each statement is filled by the server's format() and then run.
 const runRecipe = async (client, shape, connection, roleConnection) => {
   const login = recipeLogin(shape, roleConnection);
   const database = new URL(connection).pathname.slice(1);
-  const roleDatabase = roleConnection ? new URL(roleConnection).pathname.slice(1) : '';
-  const recipe = RECIPES[shape.name], together = recipe.in_one_transaction !== false;
-  if (!roleDatabase && recipe[shape.action].some(template => template.includes('%5$'))) throw new Error(`The ${shape.name} recipe names the held role connection's database: give role_credential_name.`);
-  if (together) await runOne(client, 'BEGIN');
+  await runOne(client, 'BEGIN');
   try {
-    for (const template of recipe[shape.action]) {
-      const { rows: [{ statement }] } = await runOne(client, 'SELECT format($1, $2::text, $3::text, $4::text, $5::text, $6::text) AS statement', [template, login.role, login.password, login.validUntil, database, roleDatabase]);
+    for (const template of RECIPES[shape.name][shape.action]) {
+      const { rows: [{ statement }] } = await runOne(client, 'SELECT format($1, $2::text, $3::text, $4::text, $5::text) AS statement', [template, login.role, login.password, login.validUntil, database]);
       await runOne(client, statement);
     }
-    if (together) await runOne(client, 'COMMIT');
+    await runOne(client, 'COMMIT');
   } catch (error) {
-    if (together) await runOne(client, 'ROLLBACK').catch(() => {});
+    await runOne(client, 'ROLLBACK').catch(() => {});
     throw error;
   }
   const row = { role: login.role, recipe: shape.name, action: shape.action, valid_until: shape.action === 'create' ? login.validUntil : null };

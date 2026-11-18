@@ -1,7 +1,7 @@
 // tools/send-messages/test/read-the-worn-email-look.test.mjs
 //
-// The look every email is drawn in is the person's worn screen look, read through their workspace door
-// (do-work/read-the-worn-email-look.mjs) with exactly the rights the email rows hold. The older owner read the
+// The look every email is drawn in is the person's worn screen look, given to the run as its `stored` settings
+// (do-work/read-the-worn-email-look.mjs over records-door/read-data/values-door.mjs), the labels the email row's `stored` lists. The older owner read the
 // operator's published brand from a Worker (src/mail-sender.mjs currentPalette over readBrandPresentationWithin); its
 // tests "the sent email uses the worn dark look ..." and "an email whose brand cannot be read is not sent ..." are run
 // here with the look coming from the person's own records. The last test runs an email row's own command with a
@@ -13,10 +13,6 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { after, describe, it } from 'node:test';
-import { openRecordsDoor } from 'trillion-workshop/tools/records-door/read-data/records-door.mjs';
-import { startFakeDoor } from 'trillion-workshop/tools/records-door/test/fake-door.mjs';
-import { rowOf } from '../../../test-helpers/run-a-row.mjs';
-import rows from '../tool-rows.json' with { type: 'json' };
 import { SHIPPED, mailSender } from '../do-work/mail-sender.mjs';
 import { rowsHandedIn } from '../read-data/rows-handed-in.mjs';
 import { wornLookReader } from '../do-work/read-the-worn-email-look.mjs';
@@ -26,26 +22,21 @@ import { resolveScreenLookPalette } from '../../screen-looks/read-data/resolve-s
 const folder = fileURLToPath(new URL('..', import.meta.url));
 const stub = fileURLToPath(new URL('./stub-fetch.mjs', import.meta.url));
 const work = mkdtempSync(join(tmpdir(), 'worn-email-look-test-'));
-const doors = [];
-after(() => Promise.all(doors.map(fake => fake.close())).then(() => rmSync(work, { recursive: true, force: true })));
+after(() => rmSync(work, { recursive: true, force: true }));
 
-const rights = rowOf(rows, 'tool:send-an-email').invoke.records.rights;
 const settingsWith = () => ({ ...structuredClone(SHIPPED), from: { email: 'hello@example.com', name: 'Example' }, owner: 'owner@example.com' });
 // A dark look the account can wear, from the shipped looks (its ground is black).
 const darkId = EMAIL_LOOK.looks.themes.map(row => row.payload).find(look => resolveScreenLookPalette(look)['--bg-primary'] === '#000000').id;
 
-// A sender over a stand-in door holding `workspaceRecords` (the person's screen-look records), reading its look through
-// that door; `binding.sends` is what the provider was given.
-async function senderOver(workspaceRecords = {}, change = door => door) {
-  const fake = await startFakeDoor({ rights, workspaceRecords });
-  doors.push(fake);
-  const door = change(openRecordsDoor({ descriptor: fake.descriptor }));
+// A sender given `workspaceRecords` (the person's screen-look settings), reading its look from them; `binding.sends` is
+// what the provider was given.
+async function senderOver(workspaceRecords = {}, options = {}) {
   const sends = [];
   const binding = { send: async composed => { sends.push(composed); return { messageId: `m${sends.length}` }; } };
-  return { sends, sender: mailSender({ row: settingsWith(), door: rowsHandedIn([]), binding, provider: 'resend', readLook: wornLookReader(door) }) };
+  return { sends, sender: mailSender({ row: settingsWith(), door: rowsHandedIn([]), binding, provider: 'resend', readLook: wornLookReader(workspaceRecords, options) }) };
 }
 
-describe('the email wears the person\'s worn look, read through their records door', () => {
+describe('the email wears the person\'s worn look, read from the settings it is given', () => {
   it('the sent email uses the worn dark look, shared button depth and the look\'s own faces', async () => {
     const { sends, sender } = await senderOver({ 'screen-look': [{ name: darkId }] });
     const result = await sender.sendWrittenEmail({ to: 'dark-proof@example.org', subject: 'Worn look', markdown: 'A message.', action: { label: 'Open', href: 'https://example.com/' } });
@@ -67,7 +58,7 @@ describe('the email wears the person\'s worn look, read through their records do
   });
 
   it('an email whose look cannot be read is not sent in other colours', async () => {
-    const { sends, sender } = await senderOver({}, door => ({ ...door, readWorkspace: async () => { throw new Error('the look owner is busy'); } }));
+    const { sends, sender } = await senderOver({}, { read: async () => { throw new Error('the look owner is busy'); } });
     const errors = console.error;
     console.error = () => {};
     let refused;
@@ -83,15 +74,13 @@ describe('the email wears the person\'s worn look, read through their records do
     writeFileSync(log, '');
     const keyFile = join(work, 'key');
     writeFileSync(keyFile, 'test-key-sign-in');
-    const door = await startFakeDoor({ rights, workspaceRecords: { 'screen-look': [{ name: darkId }] } });
-    doors.push(door);
     const child = spawn(process.execPath, [join(folder, 'do-work', 'mail-sender.mjs'), 'resend'], {
-      stdio: ['pipe', 'pipe', 'pipe', openSync(door.descriptor, 'r'), openSync(keyFile, 'r')],
+      stdio: ['pipe', 'pipe', 'pipe', 'ignore', openSync(keyFile, 'r')],
       env: { ...process.env, NODE_OPTIONS: `--import=${stub}`, STUB_LOG: log, STUB_REPLY: '{"status":200,"body":"{\\"id\\":\\"m-sign-in\\"}"}' },
     });
     let out = '';
     child.stdout.on('data', chunk => { out += chunk; });
-    child.stdin.end(JSON.stringify({ mail_settings: settingsWith(), to: 'reader@example.com', from: 'Example Sign In <signin@example.com>', subject: 'Your code: 246810', text: 'Your sign-in code is 246810.', idempotencyKey: 'sign-in:reader@example.com:1' }));
+    child.stdin.end(JSON.stringify({ stored: { workspace: { 'screen-look': [{ name: darkId }] } }, mail_settings: settingsWith(), to: 'reader@example.com', from: 'Example Sign In <signin@example.com>', subject: 'Your code: 246810', text: 'Your sign-in code is 246810.', idempotencyKey: 'sign-in:reader@example.com:1' }));
     await new Promise(done => child.on('close', done));
     const answer = JSON.parse(out.trim().split('\n').at(-1)).result;
     assert.equal(answer.sent[0].messageId, 'm-sign-in');
@@ -99,7 +88,7 @@ describe('the email wears the person\'s worn look, read through their records do
     const body = JSON.parse(request.body);
     assert.match(body.html, /^<!doctype html>/);
     assert.match(body.html, /Your sign-in code is 246810\./);
-    assert.match(body.html, /background:#000000/, 'drawn in the worn look, read through the door');
+    assert.match(body.html, /background:#000000/, 'drawn in the worn look it was given');
     assert.match(body.text, /^Your sign-in code is 246810\./);
     assert.equal(request.headers['idempotency-key'], 'sign-in:reader@example.com:1');
     assert.equal(body.from, 'Example <hello@example.com>', 'the sender is the mail row\'s, never the request\'s');

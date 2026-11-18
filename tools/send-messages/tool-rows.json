@@ -237,7 +237,11 @@
             "variables": { "type": "object" },
             "message": { "type": "object" },
             "headers": { "type": "object" },
-            "idempotencyKey": { "type": "string" }
+            "idempotencyKey": { "type": "string" },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: workspace: {label: value} for screen-look, screen-look-own-themes, workspace-preference:screen-look-over-time, workspace-preference:where-looks-apply, as this row's `stored` lists. What is not given is not there."
+            }
           }
         },
         "output_schema": {
@@ -358,15 +362,6 @@
               }
             ]
           },
-          "records": {
-            "fd": 3,
-            "rights": [
-              { "kind": "@own-records", "id": "screen-look", "operations": ["workspace:read"] },
-              { "kind": "@own-records", "id": "screen-look-own-themes", "operations": ["workspace:read"] },
-              { "kind": "@own-records", "id": "workspace-preference:screen-look-over-time", "operations": ["workspace:read"] },
-              { "kind": "@own-records", "id": "workspace-preference:where-looks-apply", "operations": ["workspace:read"] }
-            ]
-          },
           "credential_mounts": [
             { "secret_name": "resend-api-key", "fd": 4, "only_when": { "input": "provider", "equals": "resend" } },
             { "secret_name": "amazon-ses-access-key-id", "fd": 4, "only_when": { "input": "provider", "equals": "amazon-ses" } },
@@ -425,7 +420,37 @@
               "_read_by": "src/sent.mjs: a bounded sent-time page with stable record-id ties; retained records join through existing index maintenance"
             }
           ]
-        }
+        },
+        "stored": [
+          {
+            "kind": "@own-records",
+            "id": "screen-look",
+            "operations": [
+              "workspace:read"
+            ]
+          },
+          {
+            "kind": "@own-records",
+            "id": "screen-look-own-themes",
+            "operations": [
+              "workspace:read"
+            ]
+          },
+          {
+            "kind": "@own-records",
+            "id": "workspace-preference:screen-look-over-time",
+            "operations": [
+              "workspace:read"
+            ]
+          },
+          {
+            "kind": "@own-records",
+            "id": "workspace-preference:where-looks-apply",
+            "operations": [
+              "workspace:read"
+            ]
+          }
+        ]
       }
     },
     {
