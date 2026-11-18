@@ -10,11 +10,12 @@ Runs one SQL statement, as written, in a person's own Postgres-wire database and
 |------|---------|
 | `do-work/run-sql.mjs` | The process `tool:run-sql-in-my-database` runs: reads the request on stdin, the connection string on descriptor 3 and a recipe's standing role connection on descriptor 4, sends one prepared statement (or a role recipe's statements in one transaction) and prints the answer. |
 | `read-data/role-recipes.json` | The role recipes: per kind of login, the `create` and `drop` statements as the server's own `format()` strings (`%1$I` role, `%2$L` password, `%3$L` valid until, `%4$I` database). `read-only` is a share that may only read. A new kind is one entry. |
-| `tool-rows.json` | The Workshop row: input and output schemas, `credential_mounts` (the connection held under the name `credential_name` gives, on descriptor 3, and a recipe's standing role connection under the name `role_credential_name` gives, on descriptor 4), `local_doors` (`own-rows-postgres`) and the pinned npm tarballs of `pg` 8.23.1 and its twelve dependencies (`invoke.packages`, each with its BLAKE3), placed under `/opt/node_modules`. |
+| `do-work/through-the-run-proxy.mjs` | pg's `stream`: a CONNECT tunnel through the run's proxy to the database's address. |
+| `tool-rows.json` | The Workshop row: input and output schemas, `credential_mounts` (the connection held under the name `credential_name` gives, on descriptor 3, and a recipe's standing role connection under the name `role_credential_name` gives, on descriptor 4), `internet: true` (the run's proxy only) and the pinned npm tarballs of `pg` 8.23.1 and its twelve dependencies (`invoke.packages`, each with its BLAKE3), placed under `/opt/node_modules`. |
 | `kits/run-sql-in-my-database.json` | Start here and a worked example. |
 | `package.json`, `package-lock.json` | The tests' own packages: `pg` pinned to the version the row pins, and `embedded-postgres` (a real PostgreSQL 18 started in a temp folder, no sudo). |
 | `part.json` | Nothing here is imported by other code. |
-| `test/run-sql.test.mjs` | 14 tests against a real server: one statement, two refused, the SELECT-only login cannot write, the timeout, the refused login without its password, the command as the engine runs it, and the role recipes (a standing read-only login made from the held role connection and dropped, a minted one that stops at its time, all or nothing in one transaction, and a login the superuser made dropped once the owner is its admin). |
+| `test/run-sql.test.mjs` | 15 tests against a real server: one statement, two refused, the SELECT-only login cannot write, the timeout, the refused login without its password, the command as the engine runs it, and the role recipes (a standing read-only login made from the held role connection and dropped, a minted one that stops at its time, all or nothing in one transaction, and a login the superuser made dropped once the owner is its admin). |
 
 ## Key Types / Functions
 
@@ -30,11 +31,11 @@ Runs one SQL statement, as written, in a person's own Postgres-wire database and
 - **Read-only** is the login's rule. credential_name is the vault name the person saved a connection under (the row lists none: the engine mounts the value held under the name the run gives), a login that may write or one that may only read; the second is a role granted SELECT only. The tool has no read-only flag.
 - **Role recipes.** A read role exists only when a recipe makes one; no computer makes it by default. The owner login runs the recipe (it needs CREATEROLE, given by `tools/start-a-computer` `set-up-postgres-role.sh` with `PG_MAKES_ROLES=yes`), every statement filled by the server's `format()` and all of them in one transaction. A standing login takes its role and password from the held connection named by `role_credential_name` (descriptor 4) and is never answered; a minted one gets a made-up password and `VALID UNTIL`, and its connection is answered once. `drop` revokes what `create` granted and drops the role.
 - **No added layer.** No shape, list name or record type: the SQL goes through as written. The tool makes no table and names none: a list is a table the person's AI makes in the database's own language.
-- **Reach.** The process runs sandboxed and reaches only loopback ports the computer reports by name; the row names `own-rows-postgres`. A computer that runs the database (or the end of a tunnel to it) reports `own-rows-postgres` in its `local_ports`. A database on another host is reachable only through such a tunnel end.
+- **Reach.** The process runs sandboxed with internet:true, so it reaches the network only through the run's own loopback proxy (HTTPS_PROXY). Each connection is one CONNECT tunnel to the host and port the connection string names (do-work/through-the-run-proxy.mjs), and the engine opens it only to a host every value the run holds may go to (the vault entry's `hosts`). The database's own TLS runs inside the tunnel, checked against its name (`sslmode=verify-full`). The row names no local port and no host.
 - The connection string is never in the request, argv, a file or the environment, and no answer or error holds it.
 
 ## Dependencies
 
-**Depends on:** `pg` 8.23.1 (MIT), the engine's `credential_mounts`, `local_doors` and `packages` rows.
+**Depends on:** `pg` 8.23.1 (MIT), the engine's `credential_mounts`, its run proxy and `packages` rows.
 
 **Depended on by:** nothing in the Workshop imports it; a person's AI calls it, or uses the database directly.

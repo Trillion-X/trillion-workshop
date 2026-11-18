@@ -1,7 +1,7 @@
 {
   "kind": "package-set-records",
   "record_set": "run-sql-in-my-database-tool-rows",
-  "what_this_is": "The Workshop row that runs one SQL statement in the person's own Postgres-wire database and answers its columns and rows, or that database's own error text. It is the PostgreSQL kit's own tool (tools/keep-a-postgres-database-on-a-computer). The connection string is the person's held value, under the name the run gives, handed to the one process on a private pipe (credential_mounts fd 3).",
+  "what_this_is": "The Workshop row that runs one SQL statement in the person's own Postgres-wire database and answers its columns and rows, or that database's own error text. It is the PostgreSQL kit's own tool (tools/keep-a-postgres-database-on-a-computer). The connection string is the person's held value, under the name the run gives, handed to the one process on a private pipe (credential_mounts fd 3). The process reaches the database by its address through the run's own proxy, which opens only a host the held value may go to.",
   "records": [
     {
       "payload": {
@@ -118,10 +118,7 @@
         },
         "invoke": {
           "kind": "container",
-          "internet": false,
-          "local_doors": [
-            "own-rows-postgres"
-          ],
+          "internet": true,
           "workdir": "/opt/run-sql-in-my-database",
           "stdout": "json",
           "argv": [

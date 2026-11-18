@@ -19,6 +19,7 @@ import { randomBytes } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import pg from 'pg';
+import { throughProxy } from './through-the-run-proxy.mjs';
 
 const CONNECTION_DESCRIPTOR = 3;
 const ROLE_CONNECTION_DESCRIPTOR = 4;
@@ -122,7 +123,9 @@ export async function runSql({ connection, roleConnection = '', input, connect =
 }
 
 async function connectTo(connection, statementTimeout) {
-  const client = new pg.Client({ connectionString: connection, ...(statementTimeout ? { statement_timeout: statementTimeout } : {}) });
+  // A run the engine sandboxes reaches its database by address through the run's own proxy (through-the-run-proxy.mjs).
+  const proxy = process.env.HTTPS_PROXY;
+  const client = new pg.Client({ connectionString: connection, ...(proxy ? { stream: throughProxy(proxy) } : {}), ...(statementTimeout ? { statement_timeout: statementTimeout } : {}) });
   await client.connect();
   return client;
 }

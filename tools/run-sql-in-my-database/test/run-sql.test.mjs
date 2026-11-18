@@ -2,6 +2,7 @@ import test, { before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { mkdtempSync, readFileSync } from 'node:fs';
+import net from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -45,10 +46,10 @@ before(async () => {
 
 after(async () => { await server.stop(); });
 
-test('the row mounts one held connection by the name the input gives and reaches only the local port it names', () => {
+test('the row mounts one held connection by the name the input gives and reaches the network only through the run\'s proxy', () => {
   assert.equal(row.id, 'tool:run-sql-in-my-database');
-  assert.deepEqual(row.invoke.local_doors, ['own-rows-postgres']);
-  assert.ok(!row.invoke.internet);
+  assert.equal(row.invoke.local_doors, undefined, 'no local port: a database is reached by its address');
+  assert.equal(row.invoke.internet, true);
   assert.deepEqual(row.invoke.credential_mounts, [
     { secret_name_from_input: 'credential_name', fd: 3 },
     { secret_name_from_input: 'role_credential_name', fd: 4, only_when: { input: 'role_credential_name', present: true } },
@@ -206,3 +207,35 @@ test('a read login the superuser made is dropped by the owner\'s recipe once the
   await runSql({ connection: ownerConnection, input: drop });
   assert.deepEqual(await roles(), []);
 });
+
+// A sandboxed run reaches its database by address through the run's own proxy (HTTPS_PROXY): one CONNECT tunnel per connection.
+// A stand-in proxy here opens a tunnel to the test server, notes what was asked, and refuses when told to, as the engine's does
+// for a host the held value may not go to.
+test('with HTTPS_PROXY the statement goes through a CONNECT tunnel to the database\'s address, and a refused tunnel says so', async () => {
+  const asked = [];
+  let refuse = false;
+  const proxy = net.createServer(client => {
+    client.once('data', head => {
+      const target = head.toString('latin1').split(' ')[1];
+      asked.push(target);
+      if (refuse) return client.end('HTTP/1.1 403 Forbidden\r\n\r\n');
+      const [host, port] = target.split(':');
+      const server = net.connect(Number(port), host, () => { client.write('HTTP/1.1 200 Connection established\r\n\r\n'); client.pipe(server).pipe(client); });
+      server.on('error', () => client.destroy());
+    });
+  });
+  await new Promise(done => proxy.listen(0, '127.0.0.1', done));
+  const before = process.env.HTTPS_PROXY;
+  process.env.HTTPS_PROXY = `http://127.0.0.1:${proxy.address().port}`;
+  try {
+    const answer = await runSql({ connection: ownerConnection, input: { sql: 'SELECT $1::text AS word', params: ['through'] } });
+    assert.deepEqual(answer.rows, [{ word: 'through' }]);
+    assert.deepEqual(asked, [`127.0.0.1:${PORT}`], 'the tunnel is to the address the connection string names');
+    refuse = true;
+    await assert.rejects(runSql({ connection: ownerConnection, input: { sql: 'SELECT 1' } }), /the run's proxy did not open 127\.0\.0\.1:\d+ \(answered 403\)/);
+  } finally {
+    if (before === undefined) delete process.env.HTTPS_PROXY; else process.env.HTTPS_PROXY = before;
+    proxy.close();
+  }
+});
+
