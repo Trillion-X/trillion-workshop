@@ -70,3 +70,9 @@ test('the carrier runs the program as it was invoked, so it signs in under the s
     assert.equal(config.announce.argv[1], '/home/someone/.local/bin/example', 'never the program file under its own name (command.mjs)');
   } finally { process.argv[1] = invoked; }
 });
+
+test('the brand is filled into every part of the settings, so no part a person or an AI reads keeps a raw {cli}', () => {
+  const text = JSON.stringify(settings);
+  for (const token of ['{cli}', '{CLI}', '{brand}']) assert.ok(!text.includes(token), `a part still holds ${token}`);
+  assert.match(settings.connection.recipes.find(row => row.id === 'cli').template, /^example setup/);
+});

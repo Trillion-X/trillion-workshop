@@ -70,6 +70,17 @@ test('the install line puts the site\'s command on PATH and names its site; run 
     assert.match(help.stdout, /acmeco login/);
     assert.ok(!/example/i.test(help.stdout), 'the installed command speaks only for its brand');
     assert.equal((await install(origin, home, path)).status, 0, 'a second install replaces the first');
+    // Another site whose brand chose the same command word: it would take this one's link and state, so nothing changes.
+    const otherPages = mkdtempSync(join(tmpdir(), 'other-site-'));
+    const otherServer = await serve(otherPages);
+    try {
+      const otherOrigin = `http://127.0.0.1:${otherServer.address().port}`;
+      writeSitePages(otherOrigin, BRAND, otherPages);
+      const refused = await install(otherOrigin, home, path);
+      assert.equal(refused.status, 1);
+      assert.match(refused.stdout, new RegExp(`acmeco on this computer is already the command of ${origin}`));
+      assert.equal(JSON.parse(readFileSync(join(home, '.acmeco/cli', settings.site_file), 'utf8')).origin, origin, 'the first site keeps its command');
+    } finally { otherServer.close(); }
   } finally { server.close(); }
 });
 

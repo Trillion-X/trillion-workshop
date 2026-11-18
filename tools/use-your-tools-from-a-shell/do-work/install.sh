@@ -15,6 +15,9 @@
 #      PATH, and the person is told to open a new terminal.
 #   3. A file at the link that this install did not make is never overwritten.
 #   4. Needs only sh, curl and Node.js 22 or newer; without Node.js it says where to get it and changes nothing.
+#   5. A command word is one site's on a computer: two sites whose brands chose the same word would share its link on PATH
+#      and its state folder, so an install from another site than the one this command came from changes nothing and
+#      says so.
 set -eu
 
 origin='{origin}'
@@ -23,6 +26,14 @@ cli='{cli}'
 program_file='{program}'
 home_state="$HOME/.$cli/cli"
 program="$home_state/program"
+
+if [ -f "$home_state/site.json" ]; then
+  installed_from=$(sed -n 's/^ *"origin": *"\([^"]*\)".*/\1/p' "$home_state/site.json" | head -n 1)
+  if [ -n "$installed_from" ] && [ "$installed_from" != "$origin" ]; then
+    echo "$cli on this computer is already the command of $installed_from, and this install is from $origin. Nothing was changed."
+    exit 1
+  fi
+fi
 
 major=$(node -p 'process.versions.node.split(".")[0]' 2>/dev/null || echo 0)
 if [ "$major" -lt 22 ]; then

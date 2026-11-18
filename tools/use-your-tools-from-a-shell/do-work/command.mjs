@@ -1204,8 +1204,8 @@ export function speakFor(brand, rules = settings) {
   const filled = value => (typeof value === 'string' ? fill(value, values)
     : Array.isArray(value) ? value.map(filled)
     : value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).map(([name, child]) => [name, filled(child)])) : value);
-  for (const part of ['words', 'send_note', 'keep', 'who', 'ag_ui', 'state_folder', 'install', 'env', 'keychain_item', 'keychain_account', 'key_file',
-    'client_name', 'skill_name', 'skills', 'mac_app', 'computer_config_files', 'grant', 'carry', 'update']) rules[part] = filled(rules[part]);
+  // Every part, never a list of parts: a part left off a list keeps a raw {cli} in what a person or an AI reads.
+  for (const part of Object.keys(rules)) rules[part] = filled(rules[part]);
   rules.brand = brand;
 }
 
