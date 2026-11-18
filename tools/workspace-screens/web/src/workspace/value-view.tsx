@@ -17,10 +17,11 @@
 //   4. Every answer is drawn, a refusal too (the door's `{code, outcome}`, drawn by the rows' own error row).
 //   5. A press sends only what the answer on the screen offered (project.mjs invariant 6), through the one tool, each with
 //      a fresh request key, and its answer is drawn in place: an answer is a screen, and a press's answer is the next one.
+//   6. Opened as a page (the door's `answer_link`), it draws the answer the address's fragment holds and offers no press.
 
 import { connectToAiApp } from '../../../../ui/show/ai-app-bridge/ai-app-bridge.mjs';
 import { projectValue } from '../../../../ui/show/view-of-a-value/project.mjs';
-import { mountPartsScreen, type PartsScreenHandle } from './parts-screen';
+import { mountPartsScreen, type PartsScreenHandle, type PartsSpec } from './parts-screen';
 
 const HOST_ID = 'value-view';
 const content = document.getElementById(HOST_ID) as HTMLElement;
@@ -44,13 +45,23 @@ function filled(offer: Offer, input: unknown): Record<string, unknown> {
   return whole;
 }
 
-/** Draws one answer, and keeps what it offers to run. */
-function show(value: unknown, isError = false) {
+/** The spec with every element left out whose press names a request not offered (and its key from its holder). */
+function onlyOffered(spec: PartsSpec): PartsSpec {
+  const gone = new Set(Object.entries(spec.elements).filter(([, element]) => Object.values(element.on ?? {}).flat()
+    .some(binding => binding.action !== 'setState' && !Object.hasOwn(offered, binding.action))).map(([key]) => key));
+  if (!gone.size) return spec;
+  const elements = Object.fromEntries(Object.entries(spec.elements).filter(([key]) => !gone.has(key))
+    .map(([key, element]) => [key, element.children ? { ...element, children: element.children.filter(child => !gone.has(child)) } : element]));
+  return { ...spec, elements };
+}
+
+/** Draws one answer, and keeps what it offers to run (nothing, where nothing can run: `canRun` false). */
+function show(value: unknown, isError = false, canRun = true) {
   const drawn = projectValue(isError && typeof value === 'string' ? { error: {}, message: value } : value);
-  offered = drawn.requests;
+  offered = canRun ? drawn.requests : {};
   screen ??= mountPartsScreen(content, { call: (name, input) => press(name, input) });
   screen.requests(offered);
-  screen.show(drawn.spec);
+  screen.show(onlyOffered(drawn.spec));
   requestAnimationFrame(() => app.reportSize());
 }
 
@@ -72,3 +83,18 @@ const app = connectToAiApp(window, {
   },
 });
 new ResizeObserver(() => app.reportSize()).observe(content);
+
+// Opened as a page, not in an app's frame: the answer is the address's fragment (`#v=` and the answer's JSON in
+// base64url, the door's `answer_link`), which the browser never sends. A page holds no one's connection, so what the
+// answer offers to run is not offered here.
+if (window.parent === window) {
+  const given = new URLSearchParams(location.hash.slice(1)).get('v');
+  if (given) {
+    try {
+      const bytes = Uint8Array.from(atob(given.replace(/-/g, '+').replace(/_/g, '/')), letter => letter.charCodeAt(0));
+      show(JSON.parse(new TextDecoder().decode(bytes)), false, false);
+    } catch {
+      show({ error: {}, message: 'This address does not hold an answer that can be drawn.' });
+    }
+  }
+}
