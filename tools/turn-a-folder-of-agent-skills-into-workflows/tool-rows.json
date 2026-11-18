@@ -323,7 +323,6 @@
                   "read-data/fires-when.mjs",
                   "branches",
                   "read-data/wake-problems.mjs",
-                  "read-data/sql.mjs",
                   "recipe-check-kinds.json",
                   "host-tools.json",
                   "recipe-wake-causes.json"

@@ -1,5 +1,5 @@
 {
- "about": "What a finding's citations are resolved against, as DATA. A `cites-resolve` check names one resolver here; the resolver's `kind` is one of three ways of looking something up (file-line, commit, row), its `pattern` finds the citations in a text, and `roots` names the repositories by the name a citation starts with. A root lists its `sources` in the order they are tried: `{folder, ref}` is a checkout on the computer running the check (read with git at the ref), `{files}` is a folder of the person's own files holding a copy of the source (read through the files door, so a run in a container with a files right reads it too). The copy folder holds `.source-copy.json` ({ref, copied_at}), the files at their paths, and `.commit-dates.json` ({ <commit hash>: <ISO date> }). A root with no source available here makes the check unevaluated, never passed. A `row` resolver lists the `tables` it may read, each with the prefix a citation starts with and whether the row id is what follows the prefix. Adding a repository, a copy folder or a table is adding a row here.",
+ "about": "What a finding's citations are resolved against, as DATA. A `cites-resolve` check names one resolver here; the resolver's `kind` is one of two ways of looking something up (file-line, commit), its `pattern` finds the citations in a text, and `roots` names the repositories by the name a citation starts with. A root lists its `sources` in the order they are tried: `{folder, ref}` is a checkout on the computer running the check (read with git at the ref), `{files}` is a folder of the person's own files holding a copy of the source (read through the files door, so a run in a container with a files right reads it too). The copy folder holds `.source-copy.json` ({ref, copied_at}), the files at their paths, and `.commit-dates.json` ({ <commit hash>: <ISO date> }). A root with no source available here makes the check unevaluated, never passed. Adding a repository or a copy folder is adding a row here.",
  "resolvers": [
   {
    "resolver": "code-line",
@@ -82,34 +82,6 @@
      ]
     }
    }
-  },
-  {
-   "resolver": "rows",
-   "kind": "row",
-   "pattern": "\\b(?:ai-job|calendar-task|workflow-step|workflow-recipe):[A-Za-z0-9:_#.-]*[A-Za-z0-9_]",
-   "meaning": "A row id in a table of the person's own database; the row must exist.",
-   "tables": [
-    {
-     "prefix": "ai-job:",
-     "table": "ai_job",
-     "strip_prefix": false
-    },
-    {
-     "prefix": "calendar-task:",
-     "table": "calendar_task",
-     "strip_prefix": true
-    },
-    {
-     "prefix": "workflow-step:",
-     "table": "workflow_step",
-     "strip_prefix": true
-    },
-    {
-     "prefix": "workflow-recipe:",
-     "table": "workflow_recipe",
-     "strip_prefix": true
-    }
-   ]
   }
  ]
 }

@@ -1,6 +1,6 @@
 # tools/ask-questions-sort-answers-follow-up/
 
-Asks people questions and decides from their answers. It owns what a form is (its questions and the question types), how a form's answers are checked, how answers are scored into a segment with its follow-up, and what a form's answers decide. Eight Workshop tools run in the deployed tool container. `tool:make-quiz-questions`, `tool:check-form-answers`, `tool:score-answers-and-pick-segment` work from their input. The other five keep their rows in the person's own Postgres with plain SQL (no records door, no layer between the AI and the database; the pattern is `tools/workflows/README.md`, "Keeping rows in SQL"): `tool:save-a-form` keeps a form as a row of `question_sequence`, `tool:submit-form-answers` checks answers against that form and keeps the answer facts, the decision and each after-saved hand-off together in one transaction, and `tool:read-form-results`, `tool:read-answer-progress` and `tool:read-latest-answers-as-lines` read them back. Ported from bitfield-packages `packages/ask-questions-sort-answers-follow-up`; nothing here is imported by the Worker.
+Asks people questions and decides from their answers. It owns what a form is (its questions and the question types), how a form's answers are checked, how answers are scored into a segment with its follow-up, and what a form's answers decide. Eight Workshop tools run in the deployed tool container. `tool:make-quiz-questions`, `tool:check-form-answers`, `tool:score-answers-and-pick-segment` work from their input. The other five are functions of their input too: each is given the person's form rows it reads as `rows` ({ id, type, value }, read by the caller from wherever the person keeps them) and answers the rows it makes as `keep`, which the caller writes to the person's own database. None reaches a database. `tool:save-a-form` answers a form as one `question-sequence` row; `tool:submit-form-answers` answers the answer facts, the segment decision and one owner-action request per hand-off, together; `tool:read-form-results`, `tool:read-answer-progress` and `tool:read-latest-answers-as-lines` read the rows they are given.
 
 Other folders that take answers from people (a request form, a booking form) import the form checker from here (`do-work/check-answers.mjs`, `read-data/*`, listed in `part.json`) instead of keeping their own, so a form's shape and the checking of its answers have one home.
 
@@ -28,8 +28,7 @@ Marked: **copied** from the package unchanged but for its import paths, **change
 | `read-data/synthesis-answer-lines.ts` | The latest answers as prose lines, each labelled with its question. | copied |
 | `read-data/synthesis-result.ts` | Keys and reads a saved synthesis result by (form, key). | copied |
 | `read-data/record-rows.ts` | `KeptRow`, `RecordWrite`, and `payloadRows`: kept rows as the payload-wrapped rows the readers take. | seam |
-| `read-data/kept-rows.mjs`, `data/record-tables.json` | `readRows(sql, kind, { id, formId, respondentId })` and `keepRows(sql, rows)`: the one place the form tools touch SQL; the table of each kind is DATA. | seam |
-| `sql/001..010-*.sql` | One `create ... if not exists` statement each: the tables `question_sequence`, `answer_fact`, `segment_assignment`, `score_rule`, `segment_rule`, `follow_up_sequence`, `owner_action_request`, with `form_id`, `respondent_id` and `status` as columns generated from the value, and their indexes. The entry makes them with `--sql /opt/ask-questions-sort-answers-follow-up/sql` before each run. | seam |
+| `read-data/kept-rows.mjs` | `givenRows(input)` and `readRows(rows, kind, { id, formId, respondentId })`: the rows a call is given, checked, and those of one kind matching the value's `formId` and `respondentId`, by id order. |
 | `do-work/answer-fact-writes.ts` | One answer-fact record per answered question (`answer-fact:<form>:<respondent>[:submission:<id>]:<question>`). | changed: a kept row `{ id, type, value }` where the package built an engine write-batch entry |
 | `do-work/segment-assignment-writes.ts` | The decision as one segment-assignment record. | changed: as above |
 | `do-work/process-submission.ts` | `buildProcessSubmission`: the answers, the decision and the selected follow-up, to be written together. | changed: `writes` for the engine `request`; the sender is gone |
@@ -38,23 +37,23 @@ Marked: **copied** from the package unchanged but for its import paths, **change
 | `do-work/generate-questions.mjs` | Fill-in-the-blank questions from text. | seam (before this port) |
 | `do-work/check-answers.mjs` | The form answer check's command, and `registry`/`checkAnswers` for other tools. | seam; `registry` exported by this port |
 | `do-work/score-answers-and-pick-a-segment.mjs` | The scoring command. | seam (before this port) |
-| `do-work/form-tools.mjs` | The five form tools: `saveForm`, `submitFormAnswers`, `readFormResults`, `readAnswerProgress`, `readAnswerLines`; each is `fn({ input }, { sql })` and keeps and reads its rows in the person's Postgres. | seam |
+| `do-work/form-tools.mjs` | The five form tools: `saveForm`, `submitFormAnswers`, `readFormResults`, `readAnswerProgress`, `readAnswerLines`; each is `fn(input)`, given `rows` and answering `keep`. | seam |
 | `data/question-types.json` | The question-type rows (text, long text, number, rating, choice, evidence reference) with their rules and coercion. | seam (before this port) |
 | `records.json` | The three container-only tool rows. | seam |
-| `tool-rows.json` | Lists `records.json` into the Workshop and holds the five form rows (each mounts the held connection `own-rows-postgres-connection` on descriptor 3 and reaches the local door `own-rows-postgres`). | seam |
-| `test/` | 26 test files carried from the package (see below) and `form-tools.test.mjs`, which runs the five tools against a real PostgreSQL server (`startDatabase({ sqlFolders })` of `tools/workflows/test-helpers/rows-in-sql.mjs`) and each shipped row as the engine runs it. | carried and seam |
+| `tool-rows.json` | Lists `records.json` into the Workshop and holds the five form rows (each runs on `tools/workflows/do-work/run-a-function.mjs`, with no door and no held value). | seam |
+| `test/` | 26 test files carried from the package (see below) and `form-tools.test.mjs`, which runs the five tools over one stand-in for the person's rows (given as `rows`, taking each `keep`) and each shipped row as the engine runs it. | carried and seam |
 
-## Tables the form tools keep
+## Rows the form tools make and read
 
-One table per kind; `id` is the row's name, `value` its jsonb, `updated_at` when it was kept. Written by the tool named; read by the tools named.
+One kind per row (`type`); `id` is the row's name and `value` the row. Made by the tool named (answered as `keep`); read by the tools named (given as `rows`).
 
-| Table (kind) | Kept by | Read by |
+| Kind | Made by | Read by |
 |------|-------------|------------------------|
-| `question_sequence` (`question-sequence`, a form) | save-a-form | submit-form-answers, read-latest-answers-as-lines |
-| `answer_fact` | submit-form-answers | read-answer-progress, read-latest-answers-as-lines |
-| `segment_assignment` | submit-form-answers | read-form-results |
-| `owner_action_request` | submit-form-answers, one per question whose `afterSaved` names an owner and action | its owner |
-| `score_rule`, `segment_rule`, `follow_up_sequence` | the person (rows that decide the segment; plain SQL, e.g. `tool:run-sql-in-my-database`) | submit-form-answers |
+| `question-sequence` (a form) | save-a-form | submit-form-answers, read-latest-answers-as-lines |
+| `answer-fact` | submit-form-answers | read-answer-progress, read-latest-answers-as-lines |
+| `segment-assignment` | submit-form-answers | read-form-results |
+| `owner-action-request` | submit-form-answers, one per question whose `afterSaved` names an owner and action | its owner |
+| `score-rule`, `segment-rule`, `follow-up-sequence` | the person (rows that decide the segment, kept in their own database) | submit-form-answers |
 
 ## Key Types / Functions
 
@@ -70,8 +69,8 @@ One table per kind; `id` is the row's name, `value` its jsonb, `updated_at` when
 ## Invariants
 
 - No question type, weight, threshold or segment is named in code: each is a row the caller or `data/question-types.json` supplies.
-- A refused submission answers the first answer to fix and keeps nothing; an accepted one keeps its answer facts, decision and hand-off requests in one transaction.
-- No tool here is handed a records door; each reaches only the local port the computer reports as `own-rows-postgres`.
+- A refused submission answers the first answer to fix and nothing to keep; an accepted one answers its answer facts, decision and hand-off requests together in `keep`, for the caller to write together.
+- No tool here is handed a records door, a database or a held value; each is a function of its input.
 
 ## Left behind
 
@@ -82,6 +81,6 @@ One table per kind; `id` is the row's name, `value` its jsonb, `updated_at` when
 
 ## Dependencies
 
-**Depends on:** Node 24 in the tool container; `tools/workflows/do-work/run-with-sql.mjs` with its `read-data/sql.mjs`, `read-data/with-sql.mjs` and `sql/`, which run each form tool's export with `sql`; the pinned `pg` libraries (as `tool:run-sql-in-my-database` pins them); `tools/query-and-change-list-rows/src/list-aggregates.mjs` and `tools/formula-engine`, which the scoring and results readers import.
+**Depends on:** Node 24 in the tool container; `tools/workflows/do-work/run-a-function.mjs`, which runs each form tool's export with its input; `tools/query-and-change-list-rows/src/list-aggregates.mjs` and `tools/formula-engine`, which the scoring and results readers import.
 
 **Depended on by:** Trillion's deploy (it reads `tool-rows.json` and bundles the files a row names), the Workshop's container executor, Trillion's `test/business-tools.test.mjs`, and the folders that import the form checker through `part.json`.

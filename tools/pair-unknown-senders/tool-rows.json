@@ -216,7 +216,7 @@
         "listed_on": "2026-11-03T12:00:00Z",
         "label": "Give an unknown sender a pairing code",
         "job": "Hold a message from a sender the person has not paired yet and give that sender a short code the person can approve",
-        "description": "Give source_id (the event source the message came in on) and sender (the sender's own id on that source). Returns { paired: true } when the sender is already paired; otherwise code (8 characters with no 0, O, 1 or I), expires_at (an hour from now) and said. Asking again for the same sender gives the same code; a source with 3 codes waiting gives no more ({ full: true, said }).",
+        "description": "Give source_id (the event source the message came in on) and sender (the sender's own id on that source). Returns { paired: true } when the sender is already paired; otherwise code (8 characters with no 0, O, 1 or I), expires_at (an hour from now) and said. Asking again for the same sender gives the same code; a source with 3 codes waiting gives no more ({ full: true, said }). It reaches no database: give the pairing facts the person keeps as facts, and keep what the answer's keep lists.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -232,6 +232,10 @@
             "sender": {
               "type": "string",
               "minLength": 1
+            },
+            "facts": {
+              "type": "object",
+              "description": "The pairing facts the person keeps, by name (pairing-waiting:<source>:<code> and pairing-paired:<source>:<sender>), read by the caller from wherever the person keeps them. Left out, none are kept yet."
             }
           }
         },
@@ -252,55 +256,40 @@
             },
             "said": {
               "type": "string"
+            },
+            "keep": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "value"
+                ]
+              },
+              "description": "The facts this call wrote, to keep in the person's own database (the newest value per name is current)"
             }
           }
         },
         "invoke": {
           "kind": "container",
           "internet": false,
-          "local_doors": [
-            "own-rows-postgres"
-          ],
           "argv": [
             "node",
-            "/opt/workflows/do-work/run-with-sql.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/pair-unknown-senders/read-data/pairing-tools.mjs",
             "requestPairing"
           ],
           "stdin": {
-            "input": {
-              "fill": {
-                "from": "input"
-              }
-            },
-            "task": {
-              "fill": {
-                "from": "task"
-              }
+            "fill": {
+              "from": "input"
             }
           },
-          "credential_mounts": [
-            {
-              "secret_name": "own-rows-postgres-connection",
-              "fd": 3
-            }
-          ],
           "files": {
             "package_files": [
               {
                 "package": "workflows",
                 "paths": [
-                  "do-work/run-with-sql.mjs",
-                  "read-data/sql.mjs",
-                  "read-data/with-sql.mjs"
-                ],
-                "at": "/opt/workflows"
-              },
-              {
-                "package": "pair-unknown-senders",
-                "paths": [
-                  "sql/100-sender-pairing.sql",
-                  "sql/101-sender-pairing-source.sql"
+                  "do-work/run-a-function.mjs"
                 ],
                 "at": "/opt/workflows"
               },
@@ -312,231 +301,8 @@
                   "read-data/sender-pairing.json"
                 ],
                 "at": "/opt/pair-unknown-senders"
-              },
-              {
-                "packages": [
-                  "pg"
-                ],
-                "at": "/opt/node_modules/pg"
-              },
-              {
-                "packages": [
-                  "pg-connection-string"
-                ],
-                "at": "/opt/node_modules/pg-connection-string"
-              },
-              {
-                "packages": [
-                  "pg-pool"
-                ],
-                "at": "/opt/node_modules/pg-pool"
-              },
-              {
-                "packages": [
-                  "pg-protocol"
-                ],
-                "at": "/opt/node_modules/pg-protocol"
-              },
-              {
-                "packages": [
-                  "pg-types"
-                ],
-                "at": "/opt/node_modules/pg-types"
-              },
-              {
-                "packages": [
-                  "pg-int8"
-                ],
-                "at": "/opt/node_modules/pg-int8"
-              },
-              {
-                "packages": [
-                  "postgres-array"
-                ],
-                "at": "/opt/node_modules/postgres-array"
-              },
-              {
-                "packages": [
-                  "postgres-bytea"
-                ],
-                "at": "/opt/node_modules/postgres-bytea"
-              },
-              {
-                "packages": [
-                  "postgres-date"
-                ],
-                "at": "/opt/node_modules/postgres-date"
-              },
-              {
-                "packages": [
-                  "postgres-interval"
-                ],
-                "at": "/opt/node_modules/postgres-interval"
-              },
-              {
-                "packages": [
-                  "xtend"
-                ],
-                "at": "/opt/node_modules/xtend"
-              },
-              {
-                "packages": [
-                  "pgpass"
-                ],
-                "at": "/opt/node_modules/pgpass"
-              },
-              {
-                "packages": [
-                  "split2"
-                ],
-                "at": "/opt/node_modules/split2"
               }
             ]
-          },
-          "packages": {
-            "pg": {
-              "version": "8.23.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg/-/pg-8.23.1.tgz",
-                  "blake3": "d9fa473dbb66d6ebb3f9ed639504645825d90f0e581940545e394b97d540b827",
-                  "checked_against": "https://registry.npmjs.org/pg/8.23.1"
-                }
-              }
-            },
-            "pg-connection-string": {
-              "version": "2.14.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.1.tgz",
-                  "blake3": "3ebf322e73fbb3789b12506529485c3d34d2e0b496fa8b57ae0237dbfd605965",
-                  "checked_against": "https://registry.npmjs.org/pg-connection-string/2.14.1"
-                }
-              }
-            },
-            "pg-pool": {
-              "version": "3.14.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz",
-                  "blake3": "936d28ee7461005bc3b8fdb2003e6333a7079d654e21fa3f83fb85f1fe08cd1e",
-                  "checked_against": "https://registry.npmjs.org/pg-pool/3.14.0"
-                }
-              }
-            },
-            "pg-protocol": {
-              "version": "1.16.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.16.1.tgz",
-                  "blake3": "3604bc8340c62cb2451d63bf49496831fcf157a0da3c759f3794f64223a4bbb4",
-                  "checked_against": "https://registry.npmjs.org/pg-protocol/1.16.1"
-                }
-              }
-            },
-            "pg-types": {
-              "version": "2.2.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz",
-                  "blake3": "6c9524b7c592b94d3aad0399acf47ddf22c1eb53a24b9ae3ab14d4180a572945",
-                  "checked_against": "https://registry.npmjs.org/pg-types/2.2.0"
-                }
-              }
-            },
-            "pg-int8": {
-              "version": "1.0.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz",
-                  "blake3": "8f4971d42324eae73a49354f8e120dce0a6a95e159316a753558fc4644512efa",
-                  "checked_against": "https://registry.npmjs.org/pg-int8/1.0.1"
-                }
-              }
-            },
-            "postgres-array": {
-              "version": "2.0.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz",
-                  "blake3": "71fc338a8920999897cbaf581dc843d4ff3a910fe478f863b12c8a5da3dc0836",
-                  "checked_against": "https://registry.npmjs.org/postgres-array/2.0.0"
-                }
-              }
-            },
-            "postgres-bytea": {
-              "version": "1.0.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz",
-                  "blake3": "d1b058156ca51001e64ebe0efea72ef9befe365ba66b4731f5b591052f060553",
-                  "checked_against": "https://registry.npmjs.org/postgres-bytea/1.0.1"
-                }
-              }
-            },
-            "postgres-date": {
-              "version": "1.0.7",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz",
-                  "blake3": "005396786ab1c87c62c9f2422040e90711000bdf26d3d673e1073b9972e1a079",
-                  "checked_against": "https://registry.npmjs.org/postgres-date/1.0.7"
-                }
-              }
-            },
-            "postgres-interval": {
-              "version": "1.2.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz",
-                  "blake3": "24a6078fab15e22e6ffc864acab92746d6bfcb0ee9569b0c2bed3d1fc12856f2",
-                  "checked_against": "https://registry.npmjs.org/postgres-interval/1.2.0"
-                }
-              }
-            },
-            "xtend": {
-              "version": "4.0.2",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz",
-                  "blake3": "3ac366571ec5d13e6beb846cd1eeb69193d47d833a19f6cada5ccdd0fcb0a8be",
-                  "checked_against": "https://registry.npmjs.org/xtend/4.0.2"
-                }
-              }
-            },
-            "pgpass": {
-              "version": "1.0.5",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz",
-                  "blake3": "d0f6f693abc27625c5ef62c1e75aa91cf0cf2769f74908bbdc541f748ad67a2d",
-                  "checked_against": "https://registry.npmjs.org/pgpass/1.0.5"
-                }
-              }
-            },
-            "split2": {
-              "version": "4.2.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz",
-                  "blake3": "5e0899c8843b75de6d7326c029931a636b3d19e854d05e53967ffde6d6b92005",
-                  "checked_against": "https://registry.npmjs.org/split2/4.2.0"
-                }
-              }
-            }
           }
         },
         "result_selector": "$.result",
@@ -545,9 +311,11 @@
         },
         "verify": [
           {
-            "kind": "needs-a-machine",
-            "requires": "a Postgres-wire server on the local port the computer reports as own-rows-postgres, with its connection string held as own-rows-postgres-connection",
-            "proved_on": "2026-11-17"
+            "kind": "sample-run",
+            "input": {
+              "source_id": "events:sample",
+              "sender": "sender-one"
+            }
           }
         ]
       }
@@ -768,7 +536,7 @@
         "listed_on": "2026-11-03T12:00:00Z",
         "label": "Approve a pairing code",
         "job": "Let a waiting sender's messages through by approving the pairing code they were given",
-        "description": "Give code (case and spaces do not matter) and, optionally, source_id. A code works once, only before it expires, and only for the source it was issued for. Returns source_id, sender and said; an unknown, used or expired code is refused with what to do.",
+        "description": "Give code (case and spaces do not matter) and, optionally, source_id. A code works once, only before it expires, and only for the source it was issued for. Returns source_id, sender and said; an unknown, used or expired code is refused with what to do. It reaches no database: give the pairing facts the person keeps as facts, and keep what the answer's keep lists.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -782,6 +550,10 @@
             },
             "source_id": {
               "type": "string"
+            },
+            "facts": {
+              "type": "object",
+              "description": "The pairing facts the person keeps, by name (pairing-waiting:<source>:<code> and pairing-paired:<source>:<sender>), read by the caller from wherever the person keeps them. Left out, none are kept yet."
             }
           }
         },
@@ -801,55 +573,40 @@
             },
             "said": {
               "type": "string"
+            },
+            "keep": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "value"
+                ]
+              },
+              "description": "The facts this call wrote, to keep in the person's own database (the newest value per name is current)"
             }
           }
         },
         "invoke": {
           "kind": "container",
           "internet": false,
-          "local_doors": [
-            "own-rows-postgres"
-          ],
           "argv": [
             "node",
-            "/opt/workflows/do-work/run-with-sql.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/pair-unknown-senders/read-data/pairing-tools.mjs",
             "approvePairing"
           ],
           "stdin": {
-            "input": {
-              "fill": {
-                "from": "input"
-              }
-            },
-            "task": {
-              "fill": {
-                "from": "task"
-              }
+            "fill": {
+              "from": "input"
             }
           },
-          "credential_mounts": [
-            {
-              "secret_name": "own-rows-postgres-connection",
-              "fd": 3
-            }
-          ],
           "files": {
             "package_files": [
               {
                 "package": "workflows",
                 "paths": [
-                  "do-work/run-with-sql.mjs",
-                  "read-data/sql.mjs",
-                  "read-data/with-sql.mjs"
-                ],
-                "at": "/opt/workflows"
-              },
-              {
-                "package": "pair-unknown-senders",
-                "paths": [
-                  "sql/100-sender-pairing.sql",
-                  "sql/101-sender-pairing-source.sql"
+                  "do-work/run-a-function.mjs"
                 ],
                 "at": "/opt/workflows"
               },
@@ -861,231 +618,8 @@
                   "read-data/sender-pairing.json"
                 ],
                 "at": "/opt/pair-unknown-senders"
-              },
-              {
-                "packages": [
-                  "pg"
-                ],
-                "at": "/opt/node_modules/pg"
-              },
-              {
-                "packages": [
-                  "pg-connection-string"
-                ],
-                "at": "/opt/node_modules/pg-connection-string"
-              },
-              {
-                "packages": [
-                  "pg-pool"
-                ],
-                "at": "/opt/node_modules/pg-pool"
-              },
-              {
-                "packages": [
-                  "pg-protocol"
-                ],
-                "at": "/opt/node_modules/pg-protocol"
-              },
-              {
-                "packages": [
-                  "pg-types"
-                ],
-                "at": "/opt/node_modules/pg-types"
-              },
-              {
-                "packages": [
-                  "pg-int8"
-                ],
-                "at": "/opt/node_modules/pg-int8"
-              },
-              {
-                "packages": [
-                  "postgres-array"
-                ],
-                "at": "/opt/node_modules/postgres-array"
-              },
-              {
-                "packages": [
-                  "postgres-bytea"
-                ],
-                "at": "/opt/node_modules/postgres-bytea"
-              },
-              {
-                "packages": [
-                  "postgres-date"
-                ],
-                "at": "/opt/node_modules/postgres-date"
-              },
-              {
-                "packages": [
-                  "postgres-interval"
-                ],
-                "at": "/opt/node_modules/postgres-interval"
-              },
-              {
-                "packages": [
-                  "xtend"
-                ],
-                "at": "/opt/node_modules/xtend"
-              },
-              {
-                "packages": [
-                  "pgpass"
-                ],
-                "at": "/opt/node_modules/pgpass"
-              },
-              {
-                "packages": [
-                  "split2"
-                ],
-                "at": "/opt/node_modules/split2"
               }
             ]
-          },
-          "packages": {
-            "pg": {
-              "version": "8.23.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg/-/pg-8.23.1.tgz",
-                  "blake3": "d9fa473dbb66d6ebb3f9ed639504645825d90f0e581940545e394b97d540b827",
-                  "checked_against": "https://registry.npmjs.org/pg/8.23.1"
-                }
-              }
-            },
-            "pg-connection-string": {
-              "version": "2.14.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.1.tgz",
-                  "blake3": "3ebf322e73fbb3789b12506529485c3d34d2e0b496fa8b57ae0237dbfd605965",
-                  "checked_against": "https://registry.npmjs.org/pg-connection-string/2.14.1"
-                }
-              }
-            },
-            "pg-pool": {
-              "version": "3.14.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz",
-                  "blake3": "936d28ee7461005bc3b8fdb2003e6333a7079d654e21fa3f83fb85f1fe08cd1e",
-                  "checked_against": "https://registry.npmjs.org/pg-pool/3.14.0"
-                }
-              }
-            },
-            "pg-protocol": {
-              "version": "1.16.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.16.1.tgz",
-                  "blake3": "3604bc8340c62cb2451d63bf49496831fcf157a0da3c759f3794f64223a4bbb4",
-                  "checked_against": "https://registry.npmjs.org/pg-protocol/1.16.1"
-                }
-              }
-            },
-            "pg-types": {
-              "version": "2.2.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz",
-                  "blake3": "6c9524b7c592b94d3aad0399acf47ddf22c1eb53a24b9ae3ab14d4180a572945",
-                  "checked_against": "https://registry.npmjs.org/pg-types/2.2.0"
-                }
-              }
-            },
-            "pg-int8": {
-              "version": "1.0.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz",
-                  "blake3": "8f4971d42324eae73a49354f8e120dce0a6a95e159316a753558fc4644512efa",
-                  "checked_against": "https://registry.npmjs.org/pg-int8/1.0.1"
-                }
-              }
-            },
-            "postgres-array": {
-              "version": "2.0.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz",
-                  "blake3": "71fc338a8920999897cbaf581dc843d4ff3a910fe478f863b12c8a5da3dc0836",
-                  "checked_against": "https://registry.npmjs.org/postgres-array/2.0.0"
-                }
-              }
-            },
-            "postgres-bytea": {
-              "version": "1.0.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz",
-                  "blake3": "d1b058156ca51001e64ebe0efea72ef9befe365ba66b4731f5b591052f060553",
-                  "checked_against": "https://registry.npmjs.org/postgres-bytea/1.0.1"
-                }
-              }
-            },
-            "postgres-date": {
-              "version": "1.0.7",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz",
-                  "blake3": "005396786ab1c87c62c9f2422040e90711000bdf26d3d673e1073b9972e1a079",
-                  "checked_against": "https://registry.npmjs.org/postgres-date/1.0.7"
-                }
-              }
-            },
-            "postgres-interval": {
-              "version": "1.2.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz",
-                  "blake3": "24a6078fab15e22e6ffc864acab92746d6bfcb0ee9569b0c2bed3d1fc12856f2",
-                  "checked_against": "https://registry.npmjs.org/postgres-interval/1.2.0"
-                }
-              }
-            },
-            "xtend": {
-              "version": "4.0.2",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz",
-                  "blake3": "3ac366571ec5d13e6beb846cd1eeb69193d47d833a19f6cada5ccdd0fcb0a8be",
-                  "checked_against": "https://registry.npmjs.org/xtend/4.0.2"
-                }
-              }
-            },
-            "pgpass": {
-              "version": "1.0.5",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz",
-                  "blake3": "d0f6f693abc27625c5ef62c1e75aa91cf0cf2769f74908bbdc541f748ad67a2d",
-                  "checked_against": "https://registry.npmjs.org/pgpass/1.0.5"
-                }
-              }
-            },
-            "split2": {
-              "version": "4.2.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz",
-                  "blake3": "5e0899c8843b75de6d7326c029931a636b3d19e854d05e53967ffde6d6b92005",
-                  "checked_against": "https://registry.npmjs.org/split2/4.2.0"
-                }
-              }
-            }
           }
         },
         "result_selector": "$.result",
@@ -1094,9 +628,19 @@
         },
         "verify": [
           {
-            "kind": "needs-a-machine",
-            "requires": "a Postgres-wire server on the local port the computer reports as own-rows-postgres, with its connection string held as own-rows-postgres-connection",
-            "proved_on": "2026-11-17"
+            "kind": "sample-run",
+            "input": {
+              "code": "ab23 cd45",
+              "source_id": "events:sample",
+              "facts": {
+                "pairing-waiting:events:sample:AB23CD45": {
+                  "source_id": "events:sample",
+                  "sender": "Ada Example",
+                  "code": "AB23CD45",
+                  "expires_at": "2099-01-01T00:00:00.000Z"
+                }
+              }
+            }
           }
         ]
       }
@@ -1317,7 +861,7 @@
         "listed_on": "2026-11-03T12:00:00Z",
         "label": "Unpair a sender",
         "job": "Stop letting a paired sender's messages through, so they are unknown again",
-        "description": "Give source_id and sender. The sender is no longer paired for that source; their next message gets a new code. Returns source_id, sender and said.",
+        "description": "Give source_id and sender. The sender is no longer paired for that source; their next message gets a new code. Returns source_id, sender and said. It reaches no database: give the pairing facts the person keeps as facts, and keep what the answer's keep lists.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -1333,6 +877,10 @@
             "sender": {
               "type": "string",
               "minLength": 1
+            },
+            "facts": {
+              "type": "object",
+              "description": "The pairing facts the person keeps, by name (pairing-waiting:<source>:<code> and pairing-paired:<source>:<sender>), read by the caller from wherever the person keeps them. Left out, none are kept yet."
             }
           }
         },
@@ -1352,55 +900,40 @@
             },
             "said": {
               "type": "string"
+            },
+            "keep": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "value"
+                ]
+              },
+              "description": "The facts this call wrote, to keep in the person's own database (the newest value per name is current)"
             }
           }
         },
         "invoke": {
           "kind": "container",
           "internet": false,
-          "local_doors": [
-            "own-rows-postgres"
-          ],
           "argv": [
             "node",
-            "/opt/workflows/do-work/run-with-sql.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/pair-unknown-senders/read-data/pairing-tools.mjs",
             "revokePairing"
           ],
           "stdin": {
-            "input": {
-              "fill": {
-                "from": "input"
-              }
-            },
-            "task": {
-              "fill": {
-                "from": "task"
-              }
+            "fill": {
+              "from": "input"
             }
           },
-          "credential_mounts": [
-            {
-              "secret_name": "own-rows-postgres-connection",
-              "fd": 3
-            }
-          ],
           "files": {
             "package_files": [
               {
                 "package": "workflows",
                 "paths": [
-                  "do-work/run-with-sql.mjs",
-                  "read-data/sql.mjs",
-                  "read-data/with-sql.mjs"
-                ],
-                "at": "/opt/workflows"
-              },
-              {
-                "package": "pair-unknown-senders",
-                "paths": [
-                  "sql/100-sender-pairing.sql",
-                  "sql/101-sender-pairing-source.sql"
+                  "do-work/run-a-function.mjs"
                 ],
                 "at": "/opt/workflows"
               },
@@ -1412,231 +945,8 @@
                   "read-data/sender-pairing.json"
                 ],
                 "at": "/opt/pair-unknown-senders"
-              },
-              {
-                "packages": [
-                  "pg"
-                ],
-                "at": "/opt/node_modules/pg"
-              },
-              {
-                "packages": [
-                  "pg-connection-string"
-                ],
-                "at": "/opt/node_modules/pg-connection-string"
-              },
-              {
-                "packages": [
-                  "pg-pool"
-                ],
-                "at": "/opt/node_modules/pg-pool"
-              },
-              {
-                "packages": [
-                  "pg-protocol"
-                ],
-                "at": "/opt/node_modules/pg-protocol"
-              },
-              {
-                "packages": [
-                  "pg-types"
-                ],
-                "at": "/opt/node_modules/pg-types"
-              },
-              {
-                "packages": [
-                  "pg-int8"
-                ],
-                "at": "/opt/node_modules/pg-int8"
-              },
-              {
-                "packages": [
-                  "postgres-array"
-                ],
-                "at": "/opt/node_modules/postgres-array"
-              },
-              {
-                "packages": [
-                  "postgres-bytea"
-                ],
-                "at": "/opt/node_modules/postgres-bytea"
-              },
-              {
-                "packages": [
-                  "postgres-date"
-                ],
-                "at": "/opt/node_modules/postgres-date"
-              },
-              {
-                "packages": [
-                  "postgres-interval"
-                ],
-                "at": "/opt/node_modules/postgres-interval"
-              },
-              {
-                "packages": [
-                  "xtend"
-                ],
-                "at": "/opt/node_modules/xtend"
-              },
-              {
-                "packages": [
-                  "pgpass"
-                ],
-                "at": "/opt/node_modules/pgpass"
-              },
-              {
-                "packages": [
-                  "split2"
-                ],
-                "at": "/opt/node_modules/split2"
               }
             ]
-          },
-          "packages": {
-            "pg": {
-              "version": "8.23.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg/-/pg-8.23.1.tgz",
-                  "blake3": "d9fa473dbb66d6ebb3f9ed639504645825d90f0e581940545e394b97d540b827",
-                  "checked_against": "https://registry.npmjs.org/pg/8.23.1"
-                }
-              }
-            },
-            "pg-connection-string": {
-              "version": "2.14.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.1.tgz",
-                  "blake3": "3ebf322e73fbb3789b12506529485c3d34d2e0b496fa8b57ae0237dbfd605965",
-                  "checked_against": "https://registry.npmjs.org/pg-connection-string/2.14.1"
-                }
-              }
-            },
-            "pg-pool": {
-              "version": "3.14.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz",
-                  "blake3": "936d28ee7461005bc3b8fdb2003e6333a7079d654e21fa3f83fb85f1fe08cd1e",
-                  "checked_against": "https://registry.npmjs.org/pg-pool/3.14.0"
-                }
-              }
-            },
-            "pg-protocol": {
-              "version": "1.16.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.16.1.tgz",
-                  "blake3": "3604bc8340c62cb2451d63bf49496831fcf157a0da3c759f3794f64223a4bbb4",
-                  "checked_against": "https://registry.npmjs.org/pg-protocol/1.16.1"
-                }
-              }
-            },
-            "pg-types": {
-              "version": "2.2.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz",
-                  "blake3": "6c9524b7c592b94d3aad0399acf47ddf22c1eb53a24b9ae3ab14d4180a572945",
-                  "checked_against": "https://registry.npmjs.org/pg-types/2.2.0"
-                }
-              }
-            },
-            "pg-int8": {
-              "version": "1.0.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz",
-                  "blake3": "8f4971d42324eae73a49354f8e120dce0a6a95e159316a753558fc4644512efa",
-                  "checked_against": "https://registry.npmjs.org/pg-int8/1.0.1"
-                }
-              }
-            },
-            "postgres-array": {
-              "version": "2.0.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz",
-                  "blake3": "71fc338a8920999897cbaf581dc843d4ff3a910fe478f863b12c8a5da3dc0836",
-                  "checked_against": "https://registry.npmjs.org/postgres-array/2.0.0"
-                }
-              }
-            },
-            "postgres-bytea": {
-              "version": "1.0.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz",
-                  "blake3": "d1b058156ca51001e64ebe0efea72ef9befe365ba66b4731f5b591052f060553",
-                  "checked_against": "https://registry.npmjs.org/postgres-bytea/1.0.1"
-                }
-              }
-            },
-            "postgres-date": {
-              "version": "1.0.7",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz",
-                  "blake3": "005396786ab1c87c62c9f2422040e90711000bdf26d3d673e1073b9972e1a079",
-                  "checked_against": "https://registry.npmjs.org/postgres-date/1.0.7"
-                }
-              }
-            },
-            "postgres-interval": {
-              "version": "1.2.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz",
-                  "blake3": "24a6078fab15e22e6ffc864acab92746d6bfcb0ee9569b0c2bed3d1fc12856f2",
-                  "checked_against": "https://registry.npmjs.org/postgres-interval/1.2.0"
-                }
-              }
-            },
-            "xtend": {
-              "version": "4.0.2",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz",
-                  "blake3": "3ac366571ec5d13e6beb846cd1eeb69193d47d833a19f6cada5ccdd0fcb0a8be",
-                  "checked_against": "https://registry.npmjs.org/xtend/4.0.2"
-                }
-              }
-            },
-            "pgpass": {
-              "version": "1.0.5",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz",
-                  "blake3": "d0f6f693abc27625c5ef62c1e75aa91cf0cf2769f74908bbdc541f748ad67a2d",
-                  "checked_against": "https://registry.npmjs.org/pgpass/1.0.5"
-                }
-              }
-            },
-            "split2": {
-              "version": "4.2.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz",
-                  "blake3": "5e0899c8843b75de6d7326c029931a636b3d19e854d05e53967ffde6d6b92005",
-                  "checked_against": "https://registry.npmjs.org/split2/4.2.0"
-                }
-              }
-            }
           }
         },
         "result_selector": "$.result",
@@ -1645,9 +955,18 @@
         },
         "verify": [
           {
-            "kind": "needs-a-machine",
-            "requires": "a Postgres-wire server on the local port the computer reports as own-rows-postgres, with its connection string held as own-rows-postgres-connection",
-            "proved_on": "2026-11-17"
+            "kind": "sample-run",
+            "input": {
+              "source_id": "events:sample",
+              "sender": "Ada Example",
+              "facts": {
+                "pairing-paired:events:sample:Ada Example": {
+                  "source_id": "events:sample",
+                  "sender": "Ada Example",
+                  "paired_at": "2026-11-14T00:00:00.000Z"
+                }
+              }
+            }
           }
         ]
       }
@@ -1869,7 +1188,7 @@
         "listed_on": "2026-11-03T12:00:00Z",
         "label": "Paired senders and waiting codes",
         "job": "List which senders are paired and which pairing codes are waiting, for one source or all",
-        "description": "Optional source_id narrows to one source. With source_id and sender, also answers is_paired for that sender. Returns waiting [{ source_id, sender, code, expires_at }] (expired codes left out) and paired [{ source_id, sender, paired_at }]. It changes nothing.",
+        "description": "Optional source_id narrows to one source. With source_id and sender, also answers is_paired for that sender. Returns waiting [{ source_id, sender, code, expires_at }] (expired codes left out) and paired [{ source_id, sender, paired_at }]. It changes nothing. It reaches no database: give the pairing facts the person keeps as facts, and keep what the answer's keep lists.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -1879,6 +1198,10 @@
             },
             "sender": {
               "type": "string"
+            },
+            "facts": {
+              "type": "object",
+              "description": "The pairing facts the person keeps, by name (pairing-waiting:<source>:<code> and pairing-paired:<source>:<sender>), read by the caller from wherever the person keeps them. Left out, none are kept yet."
             }
           }
         },
@@ -1897,55 +1220,40 @@
             },
             "is_paired": {
               "type": "boolean"
+            },
+            "keep": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "value"
+                ]
+              },
+              "description": "The facts this call wrote, to keep in the person's own database (the newest value per name is current)"
             }
           }
         },
         "invoke": {
           "kind": "container",
           "internet": false,
-          "local_doors": [
-            "own-rows-postgres"
-          ],
           "argv": [
             "node",
-            "/opt/workflows/do-work/run-with-sql.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/pair-unknown-senders/read-data/pairing-tools.mjs",
             "listPairing"
           ],
           "stdin": {
-            "input": {
-              "fill": {
-                "from": "input"
-              }
-            },
-            "task": {
-              "fill": {
-                "from": "task"
-              }
+            "fill": {
+              "from": "input"
             }
           },
-          "credential_mounts": [
-            {
-              "secret_name": "own-rows-postgres-connection",
-              "fd": 3
-            }
-          ],
           "files": {
             "package_files": [
               {
                 "package": "workflows",
                 "paths": [
-                  "do-work/run-with-sql.mjs",
-                  "read-data/sql.mjs",
-                  "read-data/with-sql.mjs"
-                ],
-                "at": "/opt/workflows"
-              },
-              {
-                "package": "pair-unknown-senders",
-                "paths": [
-                  "sql/100-sender-pairing.sql",
-                  "sql/101-sender-pairing-source.sql"
+                  "do-work/run-a-function.mjs"
                 ],
                 "at": "/opt/workflows"
               },
@@ -1957,231 +1265,8 @@
                   "read-data/sender-pairing.json"
                 ],
                 "at": "/opt/pair-unknown-senders"
-              },
-              {
-                "packages": [
-                  "pg"
-                ],
-                "at": "/opt/node_modules/pg"
-              },
-              {
-                "packages": [
-                  "pg-connection-string"
-                ],
-                "at": "/opt/node_modules/pg-connection-string"
-              },
-              {
-                "packages": [
-                  "pg-pool"
-                ],
-                "at": "/opt/node_modules/pg-pool"
-              },
-              {
-                "packages": [
-                  "pg-protocol"
-                ],
-                "at": "/opt/node_modules/pg-protocol"
-              },
-              {
-                "packages": [
-                  "pg-types"
-                ],
-                "at": "/opt/node_modules/pg-types"
-              },
-              {
-                "packages": [
-                  "pg-int8"
-                ],
-                "at": "/opt/node_modules/pg-int8"
-              },
-              {
-                "packages": [
-                  "postgres-array"
-                ],
-                "at": "/opt/node_modules/postgres-array"
-              },
-              {
-                "packages": [
-                  "postgres-bytea"
-                ],
-                "at": "/opt/node_modules/postgres-bytea"
-              },
-              {
-                "packages": [
-                  "postgres-date"
-                ],
-                "at": "/opt/node_modules/postgres-date"
-              },
-              {
-                "packages": [
-                  "postgres-interval"
-                ],
-                "at": "/opt/node_modules/postgres-interval"
-              },
-              {
-                "packages": [
-                  "xtend"
-                ],
-                "at": "/opt/node_modules/xtend"
-              },
-              {
-                "packages": [
-                  "pgpass"
-                ],
-                "at": "/opt/node_modules/pgpass"
-              },
-              {
-                "packages": [
-                  "split2"
-                ],
-                "at": "/opt/node_modules/split2"
               }
             ]
-          },
-          "packages": {
-            "pg": {
-              "version": "8.23.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg/-/pg-8.23.1.tgz",
-                  "blake3": "d9fa473dbb66d6ebb3f9ed639504645825d90f0e581940545e394b97d540b827",
-                  "checked_against": "https://registry.npmjs.org/pg/8.23.1"
-                }
-              }
-            },
-            "pg-connection-string": {
-              "version": "2.14.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.1.tgz",
-                  "blake3": "3ebf322e73fbb3789b12506529485c3d34d2e0b496fa8b57ae0237dbfd605965",
-                  "checked_against": "https://registry.npmjs.org/pg-connection-string/2.14.1"
-                }
-              }
-            },
-            "pg-pool": {
-              "version": "3.14.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz",
-                  "blake3": "936d28ee7461005bc3b8fdb2003e6333a7079d654e21fa3f83fb85f1fe08cd1e",
-                  "checked_against": "https://registry.npmjs.org/pg-pool/3.14.0"
-                }
-              }
-            },
-            "pg-protocol": {
-              "version": "1.16.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.16.1.tgz",
-                  "blake3": "3604bc8340c62cb2451d63bf49496831fcf157a0da3c759f3794f64223a4bbb4",
-                  "checked_against": "https://registry.npmjs.org/pg-protocol/1.16.1"
-                }
-              }
-            },
-            "pg-types": {
-              "version": "2.2.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz",
-                  "blake3": "6c9524b7c592b94d3aad0399acf47ddf22c1eb53a24b9ae3ab14d4180a572945",
-                  "checked_against": "https://registry.npmjs.org/pg-types/2.2.0"
-                }
-              }
-            },
-            "pg-int8": {
-              "version": "1.0.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz",
-                  "blake3": "8f4971d42324eae73a49354f8e120dce0a6a95e159316a753558fc4644512efa",
-                  "checked_against": "https://registry.npmjs.org/pg-int8/1.0.1"
-                }
-              }
-            },
-            "postgres-array": {
-              "version": "2.0.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz",
-                  "blake3": "71fc338a8920999897cbaf581dc843d4ff3a910fe478f863b12c8a5da3dc0836",
-                  "checked_against": "https://registry.npmjs.org/postgres-array/2.0.0"
-                }
-              }
-            },
-            "postgres-bytea": {
-              "version": "1.0.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz",
-                  "blake3": "d1b058156ca51001e64ebe0efea72ef9befe365ba66b4731f5b591052f060553",
-                  "checked_against": "https://registry.npmjs.org/postgres-bytea/1.0.1"
-                }
-              }
-            },
-            "postgres-date": {
-              "version": "1.0.7",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz",
-                  "blake3": "005396786ab1c87c62c9f2422040e90711000bdf26d3d673e1073b9972e1a079",
-                  "checked_against": "https://registry.npmjs.org/postgres-date/1.0.7"
-                }
-              }
-            },
-            "postgres-interval": {
-              "version": "1.2.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz",
-                  "blake3": "24a6078fab15e22e6ffc864acab92746d6bfcb0ee9569b0c2bed3d1fc12856f2",
-                  "checked_against": "https://registry.npmjs.org/postgres-interval/1.2.0"
-                }
-              }
-            },
-            "xtend": {
-              "version": "4.0.2",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz",
-                  "blake3": "3ac366571ec5d13e6beb846cd1eeb69193d47d833a19f6cada5ccdd0fcb0a8be",
-                  "checked_against": "https://registry.npmjs.org/xtend/4.0.2"
-                }
-              }
-            },
-            "pgpass": {
-              "version": "1.0.5",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz",
-                  "blake3": "d0f6f693abc27625c5ef62c1e75aa91cf0cf2769f74908bbdc541f748ad67a2d",
-                  "checked_against": "https://registry.npmjs.org/pgpass/1.0.5"
-                }
-              }
-            },
-            "split2": {
-              "version": "4.2.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz",
-                  "blake3": "5e0899c8843b75de6d7326c029931a636b3d19e854d05e53967ffde6d6b92005",
-                  "checked_against": "https://registry.npmjs.org/split2/4.2.0"
-                }
-              }
-            }
           }
         },
         "result_selector": "$.result",
@@ -2190,9 +1275,16 @@
         },
         "verify": [
           {
-            "kind": "needs-a-machine",
-            "requires": "a Postgres-wire server on the local port the computer reports as own-rows-postgres, with its connection string held as own-rows-postgres-connection",
-            "proved_on": "2026-11-17"
+            "kind": "sample-run",
+            "input": {
+              "facts": {
+                "pairing-paired:events:sample:Ada Example": {
+                  "source_id": "events:sample",
+                  "sender": "Ada Example",
+                  "paired_at": "2026-11-14T00:00:00.000Z"
+                }
+              }
+            }
           }
         ]
       }

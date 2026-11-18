@@ -1,8 +1,8 @@
 {
   "drafted_from": "tool:unpair-a-sender's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Stop letting a paired sender's messages through, so they are unknown again\", with {\"source_id\":\"events:sample\",\"sender\":\"sender-one\"}. It runs tool:unpair-a-sender and answers {\"source_id\":\"events:sample\",\"sender\":\"sender-one\",\"said\":\"sender-one is no longer paired for events:sample.\"}",
+  "start_here": "Say to your AI: \"Stop letting a paired sender's messages through, so they are unknown again\", with {\"source_id\":\"events:sample\",\"sender\":\"Ada Example\",\"facts\":{\"pairing-paired:events:sample:Ada Example\":{\"source_id\":\"events:sample\",\"sender\":\"Ada Example\",\"paired_at\":\"2026-11-14T00:00:00.000Z\"}}}. It runs tool:unpair-a-sender and answers {\"source_id\":\"events:sample\",\"sender\":\"Ada Example\",\"said\":\"Ada Example is no longer paired for events:sample.\",\"keep\":[{\"name\":\"pairing-paired:events:sample:Ada Example\",\"value\":{\"source_id\":\"events:sample\",\"sender\":\"Ada Example\",\"removed\":true,\"at\":\"2026-11-18T09:23:34.308Z\"}}]}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (the table sender_pairing) in your own database.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:unpair-a-sender"
@@ -10,8 +10,7 @@
   "instructions": [
     "1. Say to your AI: \"Stop letting a paired sender's messages through, so they are unknown again\", and give it source_id; sender.",
     "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:unpair-a-sender and its input (the worked example shows one).",
-    "3. Read what comes back: Give source_id and sender.",
-    "4. It reaches only your own database, with the connection string you hold as own-rows-postgres-connection: it reads and writes the table sender_pairing."
+    "3. Read what comes back: Give source_id and sender."
   ],
   "worked_examples": [
     {
@@ -27,13 +26,20 @@
             "tool": "tool:unpair-a-sender",
             "input": {
               "source_id": "events:sample",
-              "sender": "sender-one"
+              "sender": "Ada Example",
+              "facts": {
+                "pairing-paired:events:sample:Ada Example": {
+                  "source_id": "events:sample",
+                  "sender": "Ada Example",
+                  "paired_at": "2026-11-14T00:00:00.000Z"
+                }
+              }
             }
           }
         }
       },
-      "given": "The input {\"source_id\":\"events:sample\",\"sender\":\"sender-one\"}.",
-      "hands_back": "It answered {\"source_id\":\"events:sample\",\"sender\":\"sender-one\",\"said\":\"sender-one is no longer paired for events:sample.\"}, and kept pairing-paired:events:sample:sender-one."
+      "given": "The input {\"source_id\":\"events:sample\",\"sender\":\"Ada Example\",\"facts\":{\"pairing-paired:events:sample:Ada Example\":{\"source_id\":\"events:sample\",\"sender\":\"Ada Example\",\"paired_at\":\"2026-11-14T00:00:00.000Z\"}}}.",
+      "hands_back": "It answered {\"source_id\":\"events:sample\",\"sender\":\"Ada Example\",\"said\":\"Ada Example is no longer paired for events:sample.\",\"keep\":[{\"name\":\"pairing-paired:events:sample:Ada Example\",\"value\":{\"source_id\":\"events:sample\",\"sender\":\"Ada Example\",\"removed\":true,\"at\":\"2026-11-18T09:23:34.308Z\"}}]}."
     }
   ]
 }

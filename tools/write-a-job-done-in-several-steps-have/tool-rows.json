@@ -436,10 +436,8 @@
                   "read-data/kit-words.mjs",
                   "read-data/public-recipes.mjs",
                   "read-data/recipe-rows.mjs",
-                  "read-data/sql.mjs",
                   "recipe-check-kinds.json",
-                  "recipes",
-                  "sql"
+                  "recipes"
                 ],
                 "at": "/opt/workflows"
               },

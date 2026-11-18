@@ -1,1 +1,0 @@
-create table if not exists ai_job (id text primary key, status text generated always as (value ->> 'status') stored not null, value jsonb not null, created_at timestamptz not null default now(), updated_at timestamptz not null default now())

@@ -7,8 +7,9 @@
 // --redraft also re-drafts a kit the drafter wrote (drafted_from) or still marked draft (draft: true) when the new draft is whole, so an older draft
 // whose example only described its answer now shows the answer the tool really gave. A kit a person wrote is never touched.
 //
-//   node tools/workflows/do-work/draft-kits.mjs [--write] [--redraft] [--batch N] [--gaps FILE]
-//     without --write nothing is written; --batch N takes the first N whole drafts in list order (all when left out)
+//   node tools/workflows/do-work/draft-kits.mjs [--write] [--redraft] [--only ID,ID] [--batch N] [--gaps FILE]
+//     without --write nothing is written; --batch N takes the first N whole drafts in list order (all when left out);
+//     --only re-drafts just the named items whose kit the drafter wrote (after a change to their rows), and no other
 
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
@@ -22,6 +23,7 @@ const flag = name => { const at = argv.indexOf(name); return at < 0 ? null : arg
 const write = argv.includes('--write');
 const redraft = argv.includes('--redraft');
 const batch = flag('--batch') ? Number(flag('--batch')) : Infinity;
+const only = flag('--only') ? new Set(flag('--only').split(',').filter(Boolean)) : null;
 
 const owed = JSON.parse(readFileSync(OWED_FILE, 'utf8'));
 const all = items();
@@ -33,8 +35,9 @@ const keptLists = new Map();
 for (const entry of all.filter(item => item.problems !== null)) for (const list of JSON.parse(readFileSync(entry.file, 'utf8')).lists ?? []) if (!keptLists.has(list.list)) keptLists.set(list.list, list);
 for (const list of JSON.parse(readFileSync(new URL('../kit-lists.json', import.meta.url), 'utf8')).lists) if (!keptLists.has(list.list)) keptLists.set(list.list, list);
 // The items on the list first, then any item with no kit that landed without one.
-const chosen = [...new Set([...owed.workflows, ...owed.tools, ...all.filter(item => item.problems === null).map(item => item.id)])].map(id => byId.get(id)).filter(item => item && item.problems === null);
-if (redraft) chosen.push(...all.filter(item => !chosen.includes(item) && existsSync(item.file) && isDraft(item)));
+const chosen = only ? [] : [...new Set([...owed.workflows, ...owed.tools, ...all.filter(item => item.problems === null).map(item => item.id)])].map(id => byId.get(id)).filter(item => item && item.problems === null);
+if (redraft || only) chosen.push(...all.filter(item => !chosen.includes(item) && existsSync(item.file) && isDraft(item) && (!only || only.has(item.id))));
+if (only) for (const id of only) if (!chosen.some(item => item.id === id)) throw new Error(`--only names ${id}, which is not an item whose kit the drafter wrote.`);
 
 // Each tool's samples run once: the chosen tools and every tool a chosen workflow's steps run.
 const toRun = new Map();
@@ -50,7 +53,7 @@ const gaps = [];
 for (const item of chosen) {
   const { kit, problems } = draftKit({ [item.kind === 'tool' ? 'tool' : 'recipe']: item.item, known, keptLists, observed: item.kind === 'tool' ? observed.get(item.id) : observed });
   const owing = item.problems === null;
-  if (problems.length) { if (owing) gaps.push({ id: item.id, kind: item.kind, problems }); continue; }
+  if (problems.length) { if (owing || only) gaps.push({ id: item.id, kind: item.kind, problems }); continue; }
   if (owing && done.length >= batch) continue;
   (owing ? done : redrafted).push(item.id);
   if (write) {
@@ -66,4 +69,4 @@ if (write) {
 }
 if (flag('--gaps')) writeFileSync(flag('--gaps'), `${JSON.stringify(gaps, null, 1)}\n`);
 const left = owed.workflows.length + owed.tools.length - (write ? 0 : done.filter(id => owed.workflows.includes(id) || owed.tools.includes(id)).length);
-console.log(`Drafted ${done.length} new kit${done.length === 1 ? '' : 's'}${redraft ? ` and re-drafted ${redrafted.length}` : ''}${write ? '' : ' (nothing written: add --write)'}. ${gaps.length} item${gaps.length === 1 ? '' : 's'} have a gap the item's own rows cannot fill. ${left} item${left === 1 ? '' : 's'} still have no kit.`);
+console.log(`Drafted ${done.length} new kit${done.length === 1 ? '' : 's'}${redraft || only ? ` and re-drafted ${redrafted.length}` : ''}${write ? '' : ' (nothing written: add --write)'}. ${gaps.length} item${gaps.length === 1 ? '' : 's'} have a gap the item's own rows cannot fill. ${left} item${left === 1 ? '' : 's'} still have no kit.`);

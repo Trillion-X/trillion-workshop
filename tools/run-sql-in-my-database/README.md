@@ -19,13 +19,13 @@ Runs one SQL statement, as written, in a person's own Postgres-wire database and
 | Name | Signature / Shape | Role |
 |------|-------------------|------|
 | `runSql` | `({ connection, roleConnection?, input, connect? }) => Promise<{ columns, rows, row_count }>` | Runs the request as the connection's login and always closes the connection. |
-| `shapeOf` | `(input) => { kind: 'sql' \| 'row' \| 'recipe', ... }` | The three request shapes: `{ sql, params? }`, `{ list, id, value }` and `{ recipe: { name, action, role?, valid_until? } }`. |
+| `shapeOf` | `(input) => { kind: 'sql' \| 'recipe', ... }` | The two request shapes: `{ sql, params? }` and `{ recipe: { name, action, role?, valid_until? } }`. |
 | `sayWithout` | `(error, ...connections) => string` | A failure's text with each connection string and its password removed. |
 
 ## Design
 
 - **One statement** is the protocol's rule: every statement is a named prepared statement (extended query protocol), and the server refuses text holding more than one command (`cannot insert multiple commands into a prepared statement`). No parser here.
-- **Read-only** is the login's rule. The cart line names `own-rows-postgres-connection`, or `own-rows-postgres-read-connection` for a share that may only read; the second is a role granted SELECT only. The tool has no read-only flag.
+- **Read-only** is the login's rule. credential_name is `own-rows-postgres-connection`, or `own-rows-postgres-read-connection` for a share that may only read; the second is a role granted SELECT only. The tool has no read-only flag.
 - **Role recipes.** A read role exists only when a recipe makes one; no computer makes it by default. The owner login runs the recipe (it needs CREATEROLE, given by `tools/start-a-computer` `set-up-postgres-role.sh` with `PG_MAKES_ROLES=yes`), every statement filled by the server's `format()` and all of them in one transaction. A standing login takes its role and password from the held connection named by `role_credential_name` (descriptor 4) and is never answered; a minted one gets a made-up password and `VALID UNTIL`, and its connection is answered once. `drop` revokes what `create` granted and drops the role.
 - **No added layer.** No shape, list name or record type: the SQL goes through as written. The step-output upsert is the only table the tool names, and only because the runner asks for `row:<list>`: `(id text primary key, value jsonb, updated_at timestamptz)`, made when missing, the list name quoted as an identifier.
 - **Reach.** The process runs sandboxed and reaches only loopback ports the computer reports by name; the row names `own-rows-postgres`. A computer that runs the database (or the end of a tunnel to it) reports `own-rows-postgres` in its `local_ports`. A database on another host is reachable only through such a tunnel end.
@@ -35,4 +35,4 @@ Runs one SQL statement, as written, in a person's own Postgres-wire database and
 
 **Depends on:** `pg` 8.23.1 (MIT), the engine's `credential_mounts`, `local_doors` and `packages` rows.
 
-**Depended on by:** `tools/workflows/arrivals/step-outputs.json` (`keepers.row`).
+**Depended on by:** nothing in the Workshop imports it; a person's AI calls it, or uses the database directly.

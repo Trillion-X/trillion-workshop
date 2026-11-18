@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:6587b6c325908b012f83672078ed221bcf684dbdba36580273c8f6fb40637a4c"
+  "blake3": "1f:142f9fb533d4a885002e2abb0177c2da56de3fd5cba63c093e9b69a9c798bf2a"
  },
  "fields": [
   {
@@ -682,7 +682,7 @@
    "values": {
     "title": "Approve a pairing code",
     "job": "Let a waiting sender's messages through by approving the pairing code they were given",
-    "description": "Give code (case and spaces do not matter) and, optionally, source_id. A code works once, only before it expires, and only for the source it was issued for. Returns source_id, sender and said; an unknown, used or expired code is refused with what to do.",
+    "description": "Give code (case and spaces do not matter) and, optionally, source_id. A code works once, only before it expires, and only for the source it was issued for. Returns source_id, sender and said; an unknown, used or expired code is refused with what to do. It reaches no database: give the pairing facts the person keeps as facts, and keep what the answer's keep lists.",
     "status": "active",
     "maker": "maker:pair-unknown-senders",
     "licence_class": "licence:maker-own",
@@ -6154,7 +6154,7 @@
    "values": {
     "title": "Paired senders and waiting codes",
     "job": "List which senders are paired and which pairing codes are waiting, for one source or all",
-    "description": "Optional source_id narrows to one source. With source_id and sender, also answers is_paired for that sender. Returns waiting [{ source_id, sender, code, expires_at }] (expired codes left out) and paired [{ source_id, sender, paired_at }]. It changes nothing.",
+    "description": "Optional source_id narrows to one source. With source_id and sender, also answers is_paired for that sender. Returns waiting [{ source_id, sender, code, expires_at }] (expired codes left out) and paired [{ source_id, sender, paired_at }]. It changes nothing. It reaches no database: give the pairing facts the person keeps as facts, and keep what the answer's keep lists.",
     "status": "active",
     "maker": "maker:pair-unknown-senders",
     "licence_class": "licence:maker-own",
@@ -8090,7 +8090,7 @@
    "values": {
     "title": "Give an unknown sender a pairing code",
     "job": "Hold a message from a sender the person has not paired yet and give that sender a short code the person can approve",
-    "description": "Give source_id (the event source the message came in on) and sender (the sender's own id on that source). Returns { paired: true } when the sender is already paired; otherwise code (8 characters with no 0, O, 1 or I), expires_at (an hour from now) and said. Asking again for the same sender gives the same code; a source with 3 codes waiting gives no more ({ full: true, said }).",
+    "description": "Give source_id (the event source the message came in on) and sender (the sender's own id on that source). Returns { paired: true } when the sender is already paired; otherwise code (8 characters with no 0, O, 1 or I), expires_at (an hour from now) and said. Asking again for the same sender gives the same code; a source with 3 codes waiting gives no more ({ full: true, said }). It reaches no database: give the pairing facts the person keeps as facts, and keep what the answer's keep lists.",
     "status": "active",
     "maker": "maker:pair-unknown-senders",
     "licence_class": "licence:maker-own",
@@ -9606,7 +9606,7 @@
    "values": {
     "title": "Answers over time",
     "job": "Show one person's answers to a form across every time they answered, in order, and the trend of one numeric answer, from the answer facts in the database",
-    "description": "Give form_id, respondent_id and field_map (the name you want for each answer, to its questionId), and optionally trend_field (which mapped answer to chart; default the first that is numeric). The answer facts are read from the table answer_fact. Returns one row per time answered, oldest first, with the mapped answers and when; the numeric series for the trend; the latest row; and the count. A person who has not answered gets no rows.",
+    "description": "Give form_id, respondent_id and field_map (the name you want for each answer, to its questionId), and optionally trend_field (which mapped answer to chart; default the first that is numeric). The answer facts are read from the table answer_fact. Returns one row per time answered, oldest first, with the mapped answers and when; the numeric series for the trend; the latest row; and the count. A person who has not answered gets no rows. It reaches no database: give the person's form rows it reads as rows.",
     "status": "active",
     "maker": "maker:ask-questions-sort-answers-follow-up",
     "licence_class": "licence:maker-own",
@@ -9669,7 +9669,7 @@
    "values": {
     "title": "Read my current screen look",
     "job": "Read this person's current worn screen look, look rules and day plan as the device token payload native screens draw",
-    "description": "Reads this person's current worn screen look and returns the token payload native screens draw: every wearable look, the look now (including a scheduled blend), upcoming changes for twelve hours, and when to read again. `app_data` is the calling app owner's current look DATA: its starting look and themes, plan anchors/presets, and rule facts. Those values are supplied at runtime, never chosen by this generic reader. time_zone is required and must be an IANA zone. host, device, device_id and place are the facts this native screen says about itself; only saved rules matching those facts select another look. A missing personal choice uses `app_data.looks.start_with`. A workspace refusal or unverified answer is an error, never an empty record. Returns `{ worn, worn_record, now, ahead, looks, read_again_at }` in the DeviceLooks token format.",
+    "description": "Reads this person's current worn screen look and returns the token payload native screens draw: every wearable look, the look now (including a scheduled blend), upcoming changes for twelve hours, and when to read again. `app_data` is the calling app owner's current look DATA: its starting look and themes, plan anchors/presets, and rule facts. Those values are supplied at runtime, never chosen by this generic reader. time_zone is required and must be an IANA zone. host, device, device_id and place are the facts this native screen says about itself; only saved rules matching those facts select another look. The person's own saved values (the worn choice, own themes, look-over-time plan and look rules) come in `saved`, read by the caller from wherever the person keeps them; it reaches no database. A missing personal choice uses `app_data.looks.start_with`. Returns `{ worn, worn_record, now, ahead, looks, read_again_at }` in the DeviceLooks token format.",
     "status": "active",
     "maker": "maker:screen-looks",
     "licence_class": "licence:maker-own",
@@ -9733,7 +9733,7 @@
    "values": {
     "title": "Form results",
     "job": "Show who answered a form, the score each earned and the segment each was sorted into, with a count per segment, from the segment assignments in the database",
-    "description": "Give optionally a form_id to see one form, or nothing to see every form in the table segment_assignment. Returns rows (respondentId, formId, segmentId, score, decidedAt), newest decision first, and a summary with the total and a count per segment. No assignments gives an empty list, never an invented one.",
+    "description": "Give optionally a form_id to see one form, or nothing to see every form in the table segment_assignment. Returns rows (respondentId, formId, segmentId, score, decidedAt), newest decision first, and a summary with the total and a count per segment. No assignments gives an empty list, never an invented one. It reaches no database: give the person's form rows it reads as rows.",
     "status": "active",
     "maker": "maker:ask-questions-sort-answers-follow-up",
     "licence_class": "licence:maker-own",
@@ -9814,7 +9814,7 @@
    "values": {
     "title": "Latest answers as lines",
     "job": "Give the latest answers to a form as plain lines, each starting with the question it answers, ready to hand to a writer or a summary, from the database",
-    "description": "Give form_id and optionally respondent_id. The form is read from the table question_sequence and its answers from answer_fact. Returns lines: the most recent time the form was answered, one \"Question: answer\" line per non-empty answer (the bare answer when the question's label is not known).",
+    "description": "Give form_id and optionally respondent_id. The form is read from the table question_sequence and its answers from answer_fact. Returns lines: the most recent time the form was answered, one \"Question: answer\" line per non-empty answer (the bare answer when the question's label is not known). It reaches no database: give the person's form rows it reads as rows.",
     "status": "active",
     "maker": "maker:ask-questions-sort-answers-follow-up",
     "licence_class": "licence:maker-own",
@@ -11572,7 +11572,7 @@
    "values": {
     "title": "Run SQL in my database",
     "job": "Run one SQL statement in my own database and see its rows, or keep a step output as a row in it",
-    "description": "Runs exactly one SQL statement as written (sql, with params for $1, $2 and so on) in the person's own database, as the login the connection string names: the server refuses text holding more than one command, and a login that may only read (the read connection) cannot write, because the database says so. Give credential_name, the held name of the connection (own-rows-postgres-connection, or own-rows-postgres-read-connection for a share that may only read), and optionally statement_timeout_ms from the cart line. Answers columns, rows and row_count, or the database's own error text. It adds no shape, no list names and no record types. With recipe instead of sql it runs a role recipe (read-data/role-recipes.json, the SQL that makes, grants and takes away a kind of login) as the owner login, in one transaction: create with role_credential_name makes that standing login with the password the person holds under that name; create with recipe.valid_until mints a login that stops working then and answers its connection once; drop takes a role away. The step-outputs runner calls it with list, id and value instead of sql: that keeps value as the row id in the table named list, made as (id text primary key, value jsonb, updated_at timestamptz) when it is missing. The connection may name any server that speaks the Postgres wire protocol that this computer reaches on a local port it reports as own-rows-postgres.",
+    "description": "Runs exactly one SQL statement as written (sql, with params for $1, $2 and so on) in the person's own database, as the login the connection string names: the server refuses text holding more than one command, and a login that may only read (the read connection) cannot write, because the database says so. Give credential_name, the held name of the connection (own-rows-postgres-connection, or own-rows-postgres-read-connection for a share that may only read), and optionally statement_timeout_ms. Answers columns, rows and row_count, or the database's own error text. It adds no shape, no list names and no record types. With recipe instead of sql it runs a role recipe (read-data/role-recipes.json, the SQL that makes, grants and takes away a kind of login) as the owner login, in one transaction: create with role_credential_name makes that standing login with the password the person holds under that name; create with recipe.valid_until mints a login that stops working then and answers its connection once; drop takes a role away. The connection may name any server that speaks the Postgres wire protocol that this computer reaches on a local port it reports as own-rows-postgres.",
     "status": "active",
     "maker": "maker:run-sql-in-my-database",
     "licence_class": "licence:maker-own",
@@ -11617,7 +11617,7 @@
    "values": {
     "title": "Make a form record",
     "job": "Check a form, a list of questions people answer, and keep it in the person's own database, so it can be asked and its answers checked",
-    "description": "Give a form_id, an optional title and presentation, and the questions. Each question needs a questionId and a questionTypeId (a row in the question-type list: text, long text, number, rating, choice, a reference to a file) and may carry a label, required, options, its own validation rules laid over its type's, and an afterSaved hand-off naming an owner and an action. The form is kept as one row of the table question_sequence (the same form_id replaces the same row) and answered with how many questions it holds.",
+    "description": "Give a form_id, an optional title and presentation, and the questions. Each question needs a questionId and a questionTypeId (a row in the question-type list: text, long text, number, rating, choice, a reference to a file) and may carry a label, required, options, its own validation rules laid over its type's, and an afterSaved hand-off naming an owner and an action. The form is kept as one row of the table question_sequence (the same form_id replaces the same row) and answered with how many questions it holds. It reaches no database: it answers the row to keep as keep.",
     "status": "active",
     "maker": "maker:ask-questions-sort-answers-follow-up",
     "licence_class": "licence:maker-own",
@@ -13355,7 +13355,7 @@
    "values": {
     "title": "Check and decide form answers",
     "job": "Check a person's answers against a form kept in the database and, when they are all valid, keep them with the score and segment they earn and any follow-up the form hands to its owner",
-    "description": "Give form_id, respondent_id and answers (questionId to value). The form is read from the table question_sequence (make it with save-a-form) and the rules that decide the segment from the tables score_rule, segment_rule and follow_up_sequence. Optionally submission_id (for a form answered again and again, so each time has its own rows) and answered_at. The answers are checked against the form as check-form-answers does. If any is invalid the first to fix is returned and nothing is kept. Otherwise one transaction keeps an answer fact for each answer the form asks about (table answer_fact), one segment assignment (segment_assignment) and one request row for each question whose afterSaved names an owner and action, with the answers filled into its input (owner_action_request), and the tool answers the decision (score and segment), the segment's follow-up sequence and the rows kept.",
+    "description": "Give form_id, respondent_id and answers (questionId to value). The form is read from the table question_sequence (make it with save-a-form) and the rules that decide the segment from the tables score_rule, segment_rule and follow_up_sequence. Optionally submission_id (for a form answered again and again, so each time has its own rows) and answered_at. The answers are checked against the form as check-form-answers does. If any is invalid the first to fix is returned and nothing is kept. Otherwise one transaction keeps an answer fact for each answer the form asks about (table answer_fact), one segment assignment (segment_assignment) and one request row for each question whose afterSaved names an owner and action, with the answers filled into its input (owner_action_request), and the tool answers the decision (score and segment), the segment's follow-up sequence and the rows kept. It reaches no database: give the person's form rows it reads as rows, and keep the rows the answer lists in keep.",
     "status": "active",
     "maker": "maker:ask-questions-sort-answers-follow-up",
     "licence_class": "licence:maker-own",
@@ -14089,7 +14089,7 @@
    "values": {
     "title": "Unpair a sender",
     "job": "Stop letting a paired sender's messages through, so they are unknown again",
-    "description": "Give source_id and sender. The sender is no longer paired for that source; their next message gets a new code. Returns source_id, sender and said.",
+    "description": "Give source_id and sender. The sender is no longer paired for that source; their next message gets a new code. Returns source_id, sender and said. It reaches no database: give the pairing facts the person keeps as facts, and keep what the answer's keep lists.",
     "status": "active",
     "maker": "maker:pair-unknown-senders",
     "licence_class": "licence:maker-own",

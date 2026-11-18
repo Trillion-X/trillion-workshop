@@ -1,6 +1,6 @@
-// Reads the current screen look from this person's own database and carries the resolved token payload to native screens.
-// The four rows of the table workspace_record it names (sql/001-workspace-record.sql) and the app-owned DATA passed in the
-// request are the only sources of the answer.
+// Resolves the person's current screen look into the token payload native screens draw. It reaches no database: the caller
+// reads the person's four look values from wherever they keep them and hands them in as `saved` (by name), beside the
+// app-owned DATA; those are the only sources of the answer.
 import { readFileSync } from 'node:fs';
 import operators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json' with { type: 'json' };
 import { resolveScreenLookPalette, resolveScreenLookButton } from '../read-data/resolve-screen-look-palette.js';
@@ -113,18 +113,20 @@ function responseLook(look, palette) {
   return deviceLook(look, palette, resolveScreenLookButton(look));
 }
 
+/** The names of the person's saved look values the caller hands in as `saved`, given the app owner's DATA. */
+export const SAVED_NAMES = appData => [WORN, OWN, `workspace-preference:${appData?.look_over_time?.record_key ?? PLAN_KEY}`, `workspace-preference:${appData?.where_looks_apply?.record_key ?? RULES_KEY}`];
+
 /** Read the complete account device look payload. `now` is injectable for tests; production uses this host's clock. */
-export async function readCurrentWornLook(input = {}, { sql, now = () => new Date() } = {}) {
-  if (typeof sql !== 'function') throw new Error('The person\'s database is unavailable.');
+export async function readCurrentWornLook(input = {}, { now = () => new Date() } = {}) {
+  const saved = input.saved ?? {};
+  if (!saved || typeof saved !== 'object' || Array.isArray(saved)) throw new Error(`saved must be an object of the person's saved look values by name (${SAVED_NAMES(input.app_data).join(', ')}); a value left out reads as not saved.`);
   const { appLooks, startWith, planSettings, ruleSettings } = appDataOf(input);
   const zone = input.time_zone === undefined || input.time_zone === null || input.time_zone === '' ? 'UTC' : timeZoneName(input.time_zone);
   if (!zone) throw new Error(`${String(input.time_zone)} is not a time zone; use one like America/Los_Angeles.`);
   const planLabel = `workspace-preference:${planSettings.record_key}`;
   const rulesLabel = `workspace-preference:${ruleSettings.record_key}`;
-  // One statement reads the four rows by id; a row that is not there is left out and reads as null.
-  const rows = await sql('select id, value from workspace_record where id = any($1::text[])', [[WORN, OWN, planLabel, rulesLabel]]);
-  const values = new Map(rows.map(row => [row.id, row.value]));
-  const valueAt = label => values.get(label) ?? null;
+  // A value the caller did not hand in is one the person never saved, and reads as null.
+  const valueAt = label => (Object.hasOwn(saved, label) ? saved[label] ?? null : null);
   const wornRows = valueAt(WORN);
   const ownRows = valueAt(OWN);
   const planRecord = valueAt(planLabel);

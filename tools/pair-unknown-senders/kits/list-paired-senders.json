@@ -1,8 +1,8 @@
 {
   "drafted_from": "tool:list-paired-senders's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"List which senders are paired and which pairing codes are waiting, for one source or all\", with {}. It runs tool:list-paired-senders and answers {\"waiting\":[],\"paired\":[]}",
+  "start_here": "Say to your AI: \"List which senders are paired and which pairing codes are waiting, for one source or all\", with {\"facts\":{\"pairing-paired:events:sample:Ada Example\":{\"source_id\":\"events:sample\",\"sender\":\"Ada Example\",\"paired_at\":\"2026-11-14T00:00:00.000Z\"}}}. It runs tool:list-paired-senders and answers {\"waiting\":[],\"paired\":[{\"source_id\":\"events:sample\",\"sender\":\"Ada Example\",\"paired_at\":\"2026-11-14T00:00:00.000Z\"}],\"keep\":[]}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (the table sender_pairing) in your own database.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:list-paired-senders"
@@ -10,8 +10,7 @@
   "instructions": [
     "1. Say to your AI: \"List which senders are paired and which pairing codes are waiting, for one source or all\", and give it nothing more: every input is optional.",
     "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:list-paired-senders and its input (the worked example shows one).",
-    "3. Read what comes back: Optional source_id narrows to one source.",
-    "4. It reaches only your own database, with the connection string you hold as own-rows-postgres-connection: it reads and writes the table sender_pairing."
+    "3. Read what comes back: Optional source_id narrows to one source."
   ],
   "worked_examples": [
     {
@@ -25,12 +24,20 @@
           "method": "tools:run",
           "input": {
             "tool": "tool:list-paired-senders",
-            "input": {}
+            "input": {
+              "facts": {
+                "pairing-paired:events:sample:Ada Example": {
+                  "source_id": "events:sample",
+                  "sender": "Ada Example",
+                  "paired_at": "2026-11-14T00:00:00.000Z"
+                }
+              }
+            }
           }
         }
       },
-      "given": "The input {}.",
-      "hands_back": "It answered {\"waiting\":[],\"paired\":[]}."
+      "given": "The input {\"facts\":{\"pairing-paired:events:sample:Ada Example\":{\"source_id\":\"events:sample\",\"sender\":\"Ada Example\",\"paired_at\":\"2026-11-14T00:00:00.000Z\"}}}.",
+      "hands_back": "It answered {\"waiting\":[],\"paired\":[{\"source_id\":\"events:sample\",\"sender\":\"Ada Example\",\"paired_at\":\"2026-11-14T00:00:00.000Z\"}],\"keep\":[]}."
     }
   ]
 }

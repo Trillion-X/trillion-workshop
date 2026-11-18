@@ -1,21 +1,20 @@
 {
-  "drafted_from": "tool:submit-form-answers's own row (its words and input schema) and what its tool answered when run against a real PostgreSQL server (test/form-tools.test.mjs); read it before relying on it",
-  "start_here": "Say to your AI: \"Check a person's answers against a form kept in the database and, when they are all valid, keep them with the score and segment they earn and any follow-up the form hands to its owner\", with {\"form_id\":\"sample-intake\",\"respondent_id\":\"respondent-1\",\"answers\":{\"budget\":\"2000\"},\"answered_at\":\"2026-06-26T00:00:00Z\"}. It runs tool:submit-form-answers and answers {\"accepted\":true,\"decision\":{\"score\":0,\"breakdown\":{},\"byLabel\":{},\"segmentId\":null},\"follow_up\":null,\"records\":[{\"id\":\"answer-fact:sample-intake:respondent-1:budget\",\"type\":\"answer-fact\",\"value\":{\"kind\":\"answer-fact\",\"formId\":\"sample-intake\",\"respondentId\":\"respondent-1\",\"questionId\":\"budget\",\"value\":2000,\"answered_at\":\"2026-06-26T00:00:00Z\"}},{\"id\":\"segment-assignment:sample-intake:respondent-1\",\"type\":\"segment-assignment\",\"value\":{\"kind\":\"segment-assignment\",\"formId\":\"sample-intake\",\"respondentId\":\"respondent-1\",\"segmentId\":null,\"score\":0,\"breakdown\":{},\"byLabel\":{},\"decided_at\":\"2026-06-26T00:00:00Z\"}}],\"action_requests\":[],\"ignored\":[]}",
+  "drafted_from": "tool:submit-form-answers's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Check a person's answers against a form kept in the database and, when they are all valid, keep them with the score and segment they earn and any follow-up the form hands to its owner\", with {\"form_id\":\"sample-intake\",\"respondent_id\":\"respondent-1\",\"answers\":{\"budget\":\"2000\"},\"answered_at\":\"2026-06-26T00:00:00Z\",\"rows\":[{\"id\":\"question-sequence:sample-intake\",\"type\":\"question-sequence\",\"value\":{\"kind\":\"question-sequence\",\"formId\":\"sample-intake\",\"title\":\"Sample intake\",\"questions\":[{\"questionId\":\"budget\",\"questionTypeId\":\"number\",\"label\":\"Budget\"}]}}]}. It runs tool:submit-form-answers and answers {\"accepted\":true,\"keep\":[{\"id\":\"answer-fact:sample-intake:respondent-1:budget\",\"type\":\"answer-fact\",\"value\":{\"kind\":\"answer-fact\",\"formId\":\"sample-intake\",\"respondentId\":\"respondent-1\",\"questionId\":\"budget\",\"value\":2000,\"answered_at\":\"2026-06-26T00:00:00Z\"}},{\"id\":\"segment-assignment:sample-intake:respondent-1\",\"type\":\"segment-assignment\",\"value\":{\"kind\":\"segment-assignment\" ...",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it keeps its rows in tables of your own database, reached only on the local port your computer reports as own-rows-postgres.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:submit-form-answers"
   ],
   "instructions": [
-    "1. Say to your AI: \"Check a person's answers against a form kept in the database and, when they are all valid, keep them with the score and segment they earn and any follow-up the form hands to its owner\", and give it form_id (the saved form to answer); respondent_id (who is answering; answers of one respondent group together); answers (each question's answer, keyed by questionId).",
+    "1. Say to your AI: \"Check a person's answers against a form kept in the database and, when they are all valid, keep them with the score and segment they earn and any follow-up the form hands to its owner\", and give it form_id (The saved form to answer); respondent_id (Who is answering; answers of one respondent group together); answers (Each question's answer, keyed by questionId).",
     "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:submit-form-answers and its input (the worked example shows one).",
-    "3. Read what comes back: If any is invalid the first to fix is returned and nothing is kept. Otherwise one transaction keeps an answer fact for each answer the form asks about (table answer_fact), one segment assignment (segment_assignment) and one request row for each question whose afterSaved names an owner and action, with the answers filled into its input (owner_action_request), and the tool answers the decision (score and segment), the segment's follow-up sequence and the rows kept.",
-    "4. It keeps its rows in tables of your own database, reached only on the local port your computer reports as own-rows-postgres."
+    "3. Read what comes back: Give form_id, respondent_id and answers (questionId to value)."
   ],
   "worked_examples": [
     {
-      "title": "Check and decide a form's answers on its own sample",
+      "title": "Check and decide form answers on its own sample",
       "ask": "Check a person's answers against a form kept in the database and, when they are all valid, keep them with the score and segment they earn and any follow-up the form hands to its owner",
       "mcp": {
         "server": "{cli}",
@@ -31,13 +30,31 @@
               "answers": {
                 "budget": "2000"
               },
-              "answered_at": "2026-06-26T00:00:00Z"
+              "answered_at": "2026-06-26T00:00:00Z",
+              "rows": [
+                {
+                  "id": "question-sequence:sample-intake",
+                  "type": "question-sequence",
+                  "value": {
+                    "kind": "question-sequence",
+                    "formId": "sample-intake",
+                    "title": "Sample intake",
+                    "questions": [
+                      {
+                        "questionId": "budget",
+                        "questionTypeId": "number",
+                        "label": "Budget"
+                      }
+                    ]
+                  }
+                }
+              ]
             }
           }
         }
       },
-      "given": "The input {\"form_id\":\"sample-intake\",\"respondent_id\":\"respondent-1\",\"answers\":{\"budget\":\"2000\"},\"answered_at\":\"2026-06-26T00:00:00Z\"} (the form was saved first with save-a-form, and the rules that decide the segment, if any, are rows of your score_rule, segment_rule and follow_up_sequence tables).",
-      "hands_back": "It answered {\"accepted\":true,\"decision\":{\"score\":0,\"breakdown\":{},\"byLabel\":{},\"segmentId\":null},\"follow_up\":null,\"records\":[{\"id\":\"answer-fact:sample-intake:respondent-1:budget\",\"type\":\"answer-fact\",\"value\":{\"kind\":\"answer-fact\",\"formId\":\"sample-intake\",\"respondentId\":\"respondent-1\",\"questionId\":\"budget\",\"value\":2000,\"answered_at\":\"2026-06-26T00:00:00Z\"}},{\"id\":\"segment-assignment:sample-intake:respondent-1\",\"type\":\"segment-assignment\",\"value\":{\"kind\":\"segment-assignment\",\"formId\":\"sample-intake\",\"respondentId\":\"respondent-1\",\"segmentId\":null,\"score\":0,\"breakdown\":{},\"byLabel\":{},\"decided_at\":\"2026-06-26T00:00:00Z\"}}],\"action_requests\":[],\"ignored\":[]}."
+      "given": "The input {\"form_id\":\"sample-intake\",\"respondent_id\":\"respondent-1\",\"answers\":{\"budget\":\"2000\"},\"answered_at\":\"2026-06-26T00:00:00Z\",\"rows\":[{\"id\":\"question-sequence:sample-intake\",\"type\":\"question-sequence\",\"value\":{\"kind\":\"question-sequence\",\"formId\":\"sample-intake\",\"title\":\"Sample intake\",\"questions\":[{\"questionId\":\"budget\",\"questionTypeId\":\"number\",\"label\":\"Budget\"}]}}]}.",
+      "hands_back": "It answered {\"accepted\":true,\"keep\":[{\"id\":\"answer-fact:sample-intake:respondent-1:budget\",\"type\":\"answer-fact\",\"value\":{\"kind\":\"answer-fact\",\"formId\":\"sample-intake\",\"respondentId\":\"respondent-1\",\"questionId\":\"budget\",\"value\":2000,\"answered_at\":\"2026-06-26T00:00:00Z\"}},{\"id\":\"segment-assignment:sample-intake:respondent-1\",\"type\":\"segment-assignment\",\"value\":{\"kind\":\"segment-assignment\",\"formId\":\"sample-intake\",\"respondentId\":\"respondent-1\",\"segmentId\":null,\"score\":0,\"breakdown\":{},\"byLabel\":{},\"decided_at\":\"2026-06-26T00:00:00Z\"}}],\"decision\":{\"score\":0,\"breakdown\":{},\"byLabel\":{},\"segmentId\":null},\"follow_up\":null,\"records\":[{\"id\":\"answer-fact:sample-intake:respondent-1:budget\",\"type\":\"answer-fact\" ...."
     }
   ]
 }

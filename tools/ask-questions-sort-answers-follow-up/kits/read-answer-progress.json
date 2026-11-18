@@ -1,17 +1,16 @@
 {
-  "drafted_from": "tool:read-answer-progress's own row (its words and input schema) and what its tool answered when run against a real PostgreSQL server (test/form-tools.test.mjs); read it before relying on it",
-  "start_here": "Say to your AI: \"Show one person's answers to a form across every time they answered, in order, and the trend of one numeric answer, from the answer facts in the database\", with {\"form_id\":\"sample-intake\",\"respondent_id\":\"respondent-1\",\"field_map\":{\"budget\":\"budget\"}}. It runs tool:read-answer-progress and answers {\"rows\":[{\"id\":\"session-1\",\"label\":\"2026-06-26T00:00:00Z\",\"fields\":{\"budget\":2000,\"answeredAt\":\"2026-06-26T00:00:00Z\"}}],\"trend\":{\"field\":\"budget\",\"points\":[2000]},\"latest\":{\"budget\":2000,\"answeredAt\":\"2026-06-26T00:00:00Z\"},\"count\":1}",
+  "drafted_from": "tool:read-answer-progress's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Show one person's answers to a form across every time they answered, in order, and the trend of one numeric answer, from the answer facts in the database\", with {\"form_id\":\"sample-intake\",\"respondent_id\":\"respondent-1\",\"field_map\":{\"budget\":\"budget\"},\"rows\":[{\"id\":\"answer-fact:sample-intake:respondent-1:budget\",\"type\":\"answer-fact\",\"value\":{\"kind\":\"answer-fact\",\"formId\":\"sample-intake\",\"respondentId\":\"respondent-1\",\"questionId\":\"budget\",\"value\":2000,\"answered_at\":\"2026-06-26T00:00:00Z\"}}]}. It runs tool:read-answer-progress and answers {\"rows\":[{\"id\":\"session-1\",\"label\":\"2026-06-26T00:00:00Z\",\"fields\":{\"budget\":2000,\"answeredAt\":\"2026-06-26T00:00:00Z\"}}],\"trend\":{\"field\":\"budget\",\"points\":[2000]},\"latest\":{\"budget\":2000,\"answeredAt\":\"2026-06-26T00:00:00Z\"},\"count\":1}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it keeps its rows in tables of your own database, reached only on the local port your computer reports as own-rows-postgres.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:read-answer-progress"
   ],
   "instructions": [
-    "1. Say to your AI: \"Show one person's answers to a form across every time they answered, in order, and the trend of one numeric answer, from the answer facts in the database\", and give it form_id; respondent_id; field_map (the name you want for each answer, to its questionId).",
+    "1. Say to your AI: \"Show one person's answers to a form across every time they answered, in order, and the trend of one numeric answer, from the answer facts in the database\", and give it form_id (The form); respondent_id (The person whose answers to read); field_map (Output field name to questionId).",
     "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:read-answer-progress and its input (the worked example shows one).",
-    "3. Read what comes back: Returns one row per time answered, oldest first, with the mapped answers and when; the numeric series for the trend; the latest row; and the count. A person who has not answered gets no rows.",
-    "4. It keeps its rows in tables of your own database, reached only on the local port your computer reports as own-rows-postgres."
+    "3. Read what comes back: Give form_id, respondent_id and field_map (the name you want for each answer, to its questionId), and optionally trend_field (which mapped answer to chart; default the first that is numeric)."
   ],
   "worked_examples": [
     {
@@ -30,12 +29,26 @@
               "respondent_id": "respondent-1",
               "field_map": {
                 "budget": "budget"
-              }
+              },
+              "rows": [
+                {
+                  "id": "answer-fact:sample-intake:respondent-1:budget",
+                  "type": "answer-fact",
+                  "value": {
+                    "kind": "answer-fact",
+                    "formId": "sample-intake",
+                    "respondentId": "respondent-1",
+                    "questionId": "budget",
+                    "value": 2000,
+                    "answered_at": "2026-06-26T00:00:00Z"
+                  }
+                }
+              ]
             }
           }
         }
       },
-      "given": "The input {\"form_id\":\"sample-intake\",\"respondent_id\":\"respondent-1\",\"field_map\":{\"budget\":\"budget\"}} (after the sample form was answered once).",
+      "given": "The input {\"form_id\":\"sample-intake\",\"respondent_id\":\"respondent-1\",\"field_map\":{\"budget\":\"budget\"},\"rows\":[{\"id\":\"answer-fact:sample-intake:respondent-1:budget\",\"type\":\"answer-fact\",\"value\":{\"kind\":\"answer-fact\",\"formId\":\"sample-intake\",\"respondentId\":\"respondent-1\",\"questionId\":\"budget\",\"value\":2000,\"answered_at\":\"2026-06-26T00:00:00Z\"}}]}.",
       "hands_back": "It answered {\"rows\":[{\"id\":\"session-1\",\"label\":\"2026-06-26T00:00:00Z\",\"fields\":{\"budget\":2000,\"answeredAt\":\"2026-06-26T00:00:00Z\"}}],\"trend\":{\"field\":\"budget\",\"points\":[2000]},\"latest\":{\"budget\":2000,\"answeredAt\":\"2026-06-26T00:00:00Z\"},\"count\":1}."
     }
   ]

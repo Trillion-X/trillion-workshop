@@ -1,1 +1,0 @@
-create table if not exists owner_action_request (id text primary key, value jsonb not null, form_id text generated always as (value->>'formId') stored, respondent_id text generated always as (value->>'respondentId') stored, status text generated always as (value->>'status') stored, updated_at timestamptz not null default now())

@@ -1,8 +1,8 @@
 {
   "drafted_from": "tool:approve-a-pairing-code's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Let a waiting sender's messages through by approving the pairing code they were given\", with {\"code\":\"ab23 cd45\",\"source_id\":\"events:sample\"}. It runs tool:approve-a-pairing-code and answers {\"source_id\":\"events:sample\",\"sender\":\"Ada Example\",\"said\":\"Ada Example is paired for events:sample.\"}",
+  "start_here": "Say to your AI: \"Let a waiting sender's messages through by approving the pairing code they were given\", with {\"code\":\"ab23 cd45\",\"source_id\":\"events:sample\",\"facts\":{\"pairing-waiting:events:sample:AB23CD45\":{\"source_id\":\"events:sample\",\"sender\":\"Ada Example\",\"code\":\"AB23CD45\",\"expires_at\":\"2099-01-01T00:00:00.000Z\"}}}. It runs tool:approve-a-pairing-code and answers {\"source_id\":\"events:sample\",\"sender\":\"Ada Example\",\"said\":\"Ada Example is paired for events:sample.\",\"keep\":[{\"name\":\"pairing-paired:events:sample:Ada Example\",\"value\":{\"source_id\":\"events:sample\",\"sender\":\"Ada Example\",\"paired_at\":\"2026-11-18T09:23:34.308Z\"}},{\"name\":\"pairing-waiting:events:sample:AB23CD45\",\"value\":{\"source_id\":\"events:sample\",\"sender\":\"Ada Example\",\"code\":\"AB23CD45\" ...",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (the table sender_pairing) in your own database.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:approve-a-pairing-code"
@@ -10,8 +10,7 @@
   "instructions": [
     "1. Say to your AI: \"Let a waiting sender's messages through by approving the pairing code they were given\", and give it code.",
     "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:approve-a-pairing-code and its input (the worked example shows one).",
-    "3. Read what comes back: Give code (case and spaces do not matter) and, optionally, source_id.",
-    "4. It reaches only your own database, with the connection string you hold as own-rows-postgres-connection: it reads and writes the table sender_pairing."
+    "3. Read what comes back: Give code (case and spaces do not matter) and, optionally, source_id."
   ],
   "worked_examples": [
     {
@@ -27,13 +26,21 @@
             "tool": "tool:approve-a-pairing-code",
             "input": {
               "code": "ab23 cd45",
-              "source_id": "events:sample"
+              "source_id": "events:sample",
+              "facts": {
+                "pairing-waiting:events:sample:AB23CD45": {
+                  "source_id": "events:sample",
+                  "sender": "Ada Example",
+                  "code": "AB23CD45",
+                  "expires_at": "2099-01-01T00:00:00.000Z"
+                }
+              }
             }
           }
         }
       },
-      "given": "The input {\"code\":\"ab23 cd45\",\"source_id\":\"events:sample\"}, with 1 example row (sender-pairing) already kept.",
-      "hands_back": "It answered {\"source_id\":\"events:sample\",\"sender\":\"Ada Example\",\"said\":\"Ada Example is paired for events:sample.\"}, and kept pairing-paired:events:sample:Ada Example."
+      "given": "The input {\"code\":\"ab23 cd45\",\"source_id\":\"events:sample\",\"facts\":{\"pairing-waiting:events:sample:AB23CD45\":{\"source_id\":\"events:sample\",\"sender\":\"Ada Example\",\"code\":\"AB23CD45\",\"expires_at\":\"2099-01-01T00:00:00.000Z\"}}}.",
+      "hands_back": "It answered {\"source_id\":\"events:sample\",\"sender\":\"Ada Example\",\"said\":\"Ada Example is paired for events:sample.\",\"keep\":[{\"name\":\"pairing-paired:events:sample:Ada Example\",\"value\":{\"source_id\":\"events:sample\",\"sender\":\"Ada Example\",\"paired_at\":\"2026-11-18T09:23:34.308Z\"}},{\"name\":\"pairing-waiting:events:sample:AB23CD45\",\"value\":{\"source_id\":\"events:sample\",\"sender\":\"Ada Example\",\"code\":\"AB23CD45\",\"expires_at\":\"2099-01-01T00:00:00.000Z\",\"removed\":true}}]}."
     }
   ]
 }

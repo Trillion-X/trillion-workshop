@@ -8,7 +8,7 @@
   "quote": "Every job of old trillion ends as a Workshop tool; a Workshop tool reaches the person's records through the records door."
  },
  "mode": "NO_PRIOR_OWNER",
- "job": "pair an unknown sender, approve a pairing code, unpair a sender and list paired senders, keeping the pairing facts as rows of the table sender_pairing in the person's own Postgres",
+ "job": "pair an unknown sender, approve a pairing code, unpair a sender and list paired senders, over the pairing facts the caller gives, answering the facts to keep",
  "sources": [],
  "targets": [
   {
@@ -29,14 +29,14 @@
  "proof": {
   "search": {
    "phrasings": [
-    "pair an unknown sender, approve a pairing code, unpair a sender and list paired senders, keeping the pairing facts as rows of the table sender_pairing in the person's own Postgres",
-    "pair an unknown sender in the person's own database",
+    "pair an unknown sender, approve a pairing code, unpair a sender and list paired senders, over the pairing facts the caller gives, answering the facts to keep",
+    "pair an unknown sender from the facts the person keeps",
     "approve a pairing code",
-    "pairing facts over the person's own database"
+    "pairing facts given and kept by the caller"
    ],
    "capability_rows": [],
    "code_patterns": [
-    "factsOver",
+    "factsFrom",
     "pairingFor"
    ],
    "repositories": [

@@ -1,7 +1,6 @@
-import test, { after, before } from 'node:test';
+import test from 'node:test';
 import assert from 'node:assert/strict';
-import { rowOf } from '../../../test-helpers/run-a-row.mjs';
-import { keep, runRowIn, startDatabase } from '../../workflows/test-helpers/rows-in-sql.mjs';
+import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import { readCurrentWornLook } from '../do-work/read-current-worn-look.mjs';
 import { timeZoneName } from '../read-data/look-time-zone.js';
 import rows from '../tool-rows.json' with { type: 'json' };
@@ -31,28 +30,15 @@ const appData = {
   },
 };
 
-let db;
-before(async () => { db = await startDatabase({ sqlFolders: [new URL('../sql/', import.meta.url).pathname] }); });
-after(async () => { await db.stop(); });
+// The person's saved look values (name -> value) as the caller hands them in: read from wherever the person keeps them.
+const saved = (values = new Map()) => ({ saved: Object.fromEntries(values) });
 
-// The person's database holding exactly these rows of workspace_record (id -> value), as the tool's own sql/ makes the table.
-async function database(values = new Map(), calls = []) {
-  await db.sql('delete from workspace_record');
-  for (const [id, value] of values) await keep(db.sql, 'workspace_record', id, value);
-  return { sql: async (text, params) => { calls.push(params?.[0]); return db.sql(text, params); } };
-}
-
-test('reads the four declared rows of workspace_record and returns the native device token shape', async () => {
-  const calls = [];
-  const result = await readCurrentWornLook({ time_zone: 'UTC', host: 'mac', device: 'computer', app_data: appData }, {
-    ...await database(new Map([
-      ['screen-look', [{ name: 'dusk' }]],
-      ['workspace-preference:screen-look-over-time', { on: false, points: [] }],
-      ['workspace-preference:where-looks-apply', { rules: [] }],
-    ]), calls),
-    now: fixed,
-  });
-  assert.deepEqual(calls, [['screen-look', 'screen-look-own-themes', 'workspace-preference:screen-look-over-time', 'workspace-preference:where-looks-apply']], 'the four ids are read in one statement');
+test('reads the four saved values it is handed and returns the native device token shape', async () => {
+  const result = await readCurrentWornLook({ time_zone: 'UTC', host: 'mac', device: 'computer', app_data: appData, ...saved(new Map([
+    ['screen-look', [{ name: 'dusk' }]],
+    ['workspace-preference:screen-look-over-time', { on: false, points: [] }],
+    ['workspace-preference:where-looks-apply', { rules: [] }],
+  ])) }, { now: fixed });
   assert.equal(result.worn, 'dusk');
   assert.equal(result.worn_record.payload.id, 'dusk');
   assert.equal(result.now.look_id, 'dusk');
@@ -64,25 +50,22 @@ test('reads the four declared rows of workspace_record and returns the native de
   ].sort());
 });
 
-test('an absent choice uses the caller DATA starting look, while an unavailable database remains an error', async () => {
-  const result = await readCurrentWornLook({ time_zone: 'UTC', app_data: appData }, { ...await database(), now: fixed });
+test('an absent choice uses the caller DATA starting look, and saved values that are not an object are refused', async () => {
+  const result = await readCurrentWornLook({ time_zone: 'UTC', app_data: appData }, { now: fixed });
   assert.equal(result.worn, 'harbor');
   assert.equal(result.now.look_id, 'harbor');
-
-  const unavailable = async () => { throw new Error('The database cannot be reached right now.'); };
-  await assert.rejects(readCurrentWornLook({ time_zone: 'UTC', app_data: appData }, { sql: unavailable, now: fixed }), /database cannot be reached/);
-  await assert.rejects(readCurrentWornLook({ time_zone: 'UTC', app_data: appData }, { now: fixed }), /database is unavailable/);
+  await assert.rejects(readCurrentWornLook({ time_zone: 'UTC', app_data: appData, saved: [] }, { now: fixed }), /saved must be an object/);
 });
 
 test('missing or inconsistent app DATA is unavailable, never replaced with a shipped default', async () => {
-  await assert.rejects(readCurrentWornLook({ time_zone: 'UTC' }, { ...await database(), now: fixed }), /app_data.looks/);
+  await assert.rejects(readCurrentWornLook({ time_zone: 'UTC', ...saved() }, { now: fixed }), /app_data.looks/);
   const badStart = structuredClone(appData);
   badStart.looks.start_with = 'missing-look';
-  await assert.rejects(readCurrentWornLook({ time_zone: 'UTC', app_data: badStart }, { ...await database(), now: fixed }), /must name one of its app-owned looks/);
+  await assert.rejects(readCurrentWornLook({ time_zone: 'UTC', app_data: badStart, ...saved() }, { now: fixed }), /must name one of its app-owned looks/);
 });
 
 test('a stored null is the same as no row, never a shipped default', async () => {
-  const result = await readCurrentWornLook({ time_zone: 'UTC', app_data: appData }, { ...await database(new Map([['screen-look', null], ['screen-look-own-themes', null]])), now: fixed });
+  const result = await readCurrentWornLook({ time_zone: 'UTC', app_data: appData, ...saved(new Map([['screen-look', null], ['screen-look-own-themes', null]])) }, { now: fixed });
   assert.equal(result.worn, 'harbor');
 });
 
@@ -91,8 +74,8 @@ test('a matching host rule pins its look and a nonmatching earlier rule does not
     { id: 'phone-only', look_id: 'harbor', when: { kind: 'group', combinator: 'and', rules: [{ kind: 'rule', field: 'device', operator: 'is_any_of', params: { values: ['phone'] } }] } },
     { id: 'mac-rule', look_id: 'dusk', when: { kind: 'group', combinator: 'and', rules: [{ kind: 'rule', field: 'host', operator: 'is_any_of', params: { values: ['mac'] } }] } },
   ] };
-  const door = await database(new Map([['workspace-preference:where-looks-apply', record]]));
-  const result = await readCurrentWornLook({ time_zone: 'UTC', host: 'mac', device: 'computer', app_data: appData }, { ...door, now: fixed });
+  const door = saved(new Map([['workspace-preference:where-looks-apply', record]]));
+  const result = await readCurrentWornLook({ time_zone: 'UTC', host: 'mac', device: 'computer', app_data: appData, ...door }, { now: fixed });
   assert.equal(result.worn, 'dusk');
   assert.equal(result.now.look_id, 'dusk');
   assert.equal(result.read_again_at, null);
@@ -100,10 +83,10 @@ test('a matching host rule pins its look and a nonmatching earlier rule does not
 
 test('a time-only rule needs a screen fact before it can override the everywhere look', async () => {
   const record = { rules: [{ id: 'evening', look_id: 'dusk', when: { kind: 'group', combinator: 'and', rules: [{ kind: 'rule', field: 'hour', operator: 'is_between', params: { min: 11, max: 13 } }] } }] };
-  const door = await database(new Map([['workspace-preference:where-looks-apply', record]]));
-  const noFacts = await readCurrentWornLook({ time_zone: 'UTC', app_data: appData }, { ...door, now: fixed });
+  const door = saved(new Map([['workspace-preference:where-looks-apply', record]]));
+  const noFacts = await readCurrentWornLook({ time_zone: 'UTC', app_data: appData, ...door }, { now: fixed });
   assert.equal(noFacts.worn, 'harbor');
-  const withHost = await readCurrentWornLook({ time_zone: 'UTC', host: 'mac', app_data: appData }, { ...door, now: fixed });
+  const withHost = await readCurrentWornLook({ time_zone: 'UTC', host: 'mac', app_data: appData, ...door }, { now: fixed });
   assert.equal(withHost.worn, 'dusk');
 });
 
@@ -112,8 +95,8 @@ test('a current schedule blends look tokens, returns ahead changes and asks agai
     { at: { clock: '11:00' }, look: 'harbor' },
     { at: { clock: '13:00' }, look: 'dusk' },
   ] };
-  const door = await database(new Map([['workspace-preference:screen-look-over-time', plan]]));
-  const result = await readCurrentWornLook({ time_zone: 'UTC', app_data: appData }, { ...door, now: fixed });
+  const door = saved(new Map([['workspace-preference:screen-look-over-time', plan]]));
+  const result = await readCurrentWornLook({ time_zone: 'UTC', app_data: appData, ...door }, { now: fixed });
   assert.equal(result.worn, 'harbor');
   assert.equal(result.now.look_id, 'dusk');
   assert.notDeepEqual(result.now.colors['accent-primary'], result.looks.find(look => look.look_id === 'harbor').colors['accent-primary']);
@@ -122,7 +105,7 @@ test('a current schedule blends look tokens, returns ahead changes and asks agai
 });
 
 test('refuses an invalid device time zone', async () => {
-  await assert.rejects(readCurrentWornLook({ time_zone: 'not/a-zone', app_data: appData }, { ...await database(), now: fixed }), /not a time zone/);
+  await assert.rejects(readCurrentWornLook({ time_zone: 'not/a-zone', app_data: appData, ...saved() }, { now: fixed }), /not a time zone/);
 });
 
 test('screen-look zones use wall-time canonical spelling and rejection rules', () => {
@@ -136,12 +119,13 @@ test('screen-look zones use wall-time canonical spelling and rejection rules', (
   assert.ok(packed.some(item => item.package === 'wall-time' && item.paths.includes('read-data')), 'the native bundle carries the imported shared owner');
 });
 
-test('the shipped row run as the engine runs it reads the person\'s database and returns its full device contract', async () => {
+test('the shipped row run as the engine runs it reaches no database and returns its full device contract', async () => {
   const row = rowOf(rows, 'tool:read-current-worn-look');
-  await database(new Map([['screen-look', [{ name: 'dusk' }]]]));
-  const answer = await runRowIn(row, { time_zone: 'UTC', app_data: appData }, { connection: db.connection });
-  assert.equal(answer.code, 0, answer.stderr + answer.out);
-  const { result } = answer.last;
+  assert.equal(row.invoke.local_doors, undefined, 'no database door');
+  assert.equal(row.invoke.credential_mounts, undefined, 'no held connection');
+  const answer = await answerOf(row, { time_zone: 'UTC', app_data: appData, ...saved(new Map([['screen-look', [{ name: 'dusk' }]]])) });
+  assert.equal(answer.status, 0, answer.error);
+  const { result } = answer;
   assert.equal(result.worn, 'dusk');
   assert.ok(Array.isArray(result.ahead));
   assert.ok(Array.isArray(result.looks));

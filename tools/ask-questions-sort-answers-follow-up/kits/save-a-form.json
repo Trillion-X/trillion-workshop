@@ -1,17 +1,16 @@
 {
-  "drafted_from": "tool:save-a-form's own row (its words and input schema) and what its tool answered when run against a real PostgreSQL server (test/form-tools.test.mjs); read it before relying on it",
-  "start_here": "Say to your AI: \"Check a form, a list of questions people answer, and keep it in the person's own database, so it can be asked and its answers checked\", with {\"form_id\":\"sample-intake\",\"title\":\"Sample intake\",\"questions\":[{\"questionId\":\"budget\",\"questionTypeId\":\"number\",\"label\":\"Budget\"}]}. It runs tool:save-a-form and answers {\"form_id\":\"sample-intake\",\"record_id\":\"question-sequence:sample-intake\",\"question_count\":1,\"record\":{\"id\":\"question-sequence:sample-intake\",\"type\":\"question-sequence\",\"value\":{\"kind\":\"question-sequence\",\"formId\":\"sample-intake\",\"title\":\"Sample intake\",\"questions\":[{\"questionId\":\"budget\",\"questionTypeId\":\"number\",\"label\":\"Budget\"}]}}}",
+  "drafted_from": "tool:save-a-form's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Check a form, a list of questions people answer, and keep it in the person's own database, so it can be asked and its answers checked\", with {\"form_id\":\"sample-intake\",\"title\":\"Sample intake\",\"questions\":[{\"questionId\":\"budget\",\"questionTypeId\":\"number\",\"label\":\"Budget\"}]}. It runs tool:save-a-form and answers {\"form_id\":\"sample-intake\",\"record_id\":\"question-sequence:sample-intake\",\"question_count\":1,\"record\":{\"id\":\"question-sequence:sample-intake\",\"type\":\"question-sequence\",\"value\":{\"kind\":\"question-sequence\",\"formId\":\"sample-intake\",\"title\":\"Sample intake\",\"questions\":[{\"questionId\":\"budget\",\"questionTypeId\":\"number\",\"label\":\"Budget\"}]}},\"keep\":[{\"id\":\"question-sequence:sample-intake\" ...",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it keeps its rows in tables of your own database, reached only on the local port your computer reports as own-rows-postgres.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:save-a-form"
   ],
   "instructions": [
-    "1. Say to your AI: \"Check a form, a list of questions people answer, and keep it in the person's own database, so it can be asked and its answers checked\", and give it form_id (the form's name, kept in the row id); questions (the questions, in order).",
+    "1. Say to your AI: \"Check a form, a list of questions people answer, and keep it in the person's own database, so it can be asked and its answers checked\", and give it form_id (The form's name, kept in the record id); questions (The questions, in order).",
     "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:save-a-form and its input (the worked example shows one).",
-    "3. Read what comes back: Each question needs a questionId and a questionTypeId (a row in the question-type list: text, long text, number, rating, choice, a reference to a file) and may carry a label, required, options, its own validation rules laid over its type's, and an afterSaved hand-off naming an owner and an action. The form is kept as one row of the table question_sequence (the same form_id replaces the same row) and answered with how many questions it holds.",
-    "4. It keeps its rows in tables of your own database, reached only on the local port your computer reports as own-rows-postgres."
+    "3. Read what comes back: Give a form_id, an optional title and presentation, and the questions."
   ],
   "worked_examples": [
     {
@@ -40,7 +39,7 @@
         }
       },
       "given": "The input {\"form_id\":\"sample-intake\",\"title\":\"Sample intake\",\"questions\":[{\"questionId\":\"budget\",\"questionTypeId\":\"number\",\"label\":\"Budget\"}]}.",
-      "hands_back": "It answered {\"form_id\":\"sample-intake\",\"record_id\":\"question-sequence:sample-intake\",\"question_count\":1,\"record\":{\"id\":\"question-sequence:sample-intake\",\"type\":\"question-sequence\",\"value\":{\"kind\":\"question-sequence\",\"formId\":\"sample-intake\",\"title\":\"Sample intake\",\"questions\":[{\"questionId\":\"budget\",\"questionTypeId\":\"number\",\"label\":\"Budget\"}]}}}."
+      "hands_back": "It answered {\"form_id\":\"sample-intake\",\"record_id\":\"question-sequence:sample-intake\",\"question_count\":1,\"record\":{\"id\":\"question-sequence:sample-intake\",\"type\":\"question-sequence\",\"value\":{\"kind\":\"question-sequence\",\"formId\":\"sample-intake\",\"title\":\"Sample intake\",\"questions\":[{\"questionId\":\"budget\",\"questionTypeId\":\"number\",\"label\":\"Budget\"}]}},\"keep\":[{\"id\":\"question-sequence:sample-intake\",\"type\":\"question-sequence\",\"value\":{\"kind\":\"question-sequence\",\"formId\":\"sample-intake\",\"title\":\"Sample intake\",\"questions\":[{\"questionId\":\"budget\",\"questionTypeId\":\"number\",\"label\":\"Budget\"}]}}]}."
     }
   ]
 }

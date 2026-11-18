@@ -1,17 +1,16 @@
 {
-  "drafted_from": "tool:read-latest-answers-as-lines's own row (its words and input schema) and what its tool answered when run against a real PostgreSQL server (test/form-tools.test.mjs); read it before relying on it",
-  "start_here": "Say to your AI: \"Give the latest answers to a form as plain lines, each starting with the question it answers, ready to hand to a writer or a summary, from the database\", with {\"form_id\":\"sample-intake\",\"respondent_id\":\"respondent-1\"}. It runs tool:read-latest-answers-as-lines and answers {\"lines\":[\"Budget: 2000\"]}",
+  "drafted_from": "tool:read-latest-answers-as-lines's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Give the latest answers to a form as plain lines, each starting with the question it answers, ready to hand to a writer or a summary, from the database\", with {\"form_id\":\"sample-intake\",\"respondent_id\":\"respondent-1\",\"rows\":[{\"id\":\"question-sequence:sample-intake\",\"type\":\"question-sequence\",\"value\":{\"kind\":\"question-sequence\",\"formId\":\"sample-intake\",\"title\":\"Sample intake\",\"questions\":[{\"questionId\":\"budget\",\"questionTypeId\":\"number\",\"label\":\"Budget\"}]}},{\"id\":\"answer-fact:sample-intake:respondent-1:budget\",\"type\":\"answer-fact\" .... It runs tool:read-latest-answers-as-lines and answers {\"lines\":[\"Budget: 2000\"]}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it keeps its rows in tables of your own database, reached only on the local port your computer reports as own-rows-postgres.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:read-latest-answers-as-lines"
   ],
   "instructions": [
-    "1. Say to your AI: \"Give the latest answers to a form as plain lines, each starting with the question it answers, ready to hand to a writer or a summary, from the database\", and give it form_id (the form), and optionally respondent_id.",
+    "1. Say to your AI: \"Give the latest answers to a form as plain lines, each starting with the question it answers, ready to hand to a writer or a summary, from the database\", and give it form_id (The form).",
     "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:read-latest-answers-as-lines and its input (the worked example shows one).",
-    "3. Read what comes back: The form is read from the table question_sequence and its answers from answer_fact. Returns lines: the most recent time the form was answered, one \"Question: answer\" line per non-empty answer (the bare answer when the question's label is not known).",
-    "4. It keeps its rows in tables of your own database, reached only on the local port your computer reports as own-rows-postgres."
+    "3. Read what comes back: Give form_id and optionally respondent_id."
   ],
   "worked_examples": [
     {
@@ -27,12 +26,42 @@
             "tool": "tool:read-latest-answers-as-lines",
             "input": {
               "form_id": "sample-intake",
-              "respondent_id": "respondent-1"
+              "respondent_id": "respondent-1",
+              "rows": [
+                {
+                  "id": "question-sequence:sample-intake",
+                  "type": "question-sequence",
+                  "value": {
+                    "kind": "question-sequence",
+                    "formId": "sample-intake",
+                    "title": "Sample intake",
+                    "questions": [
+                      {
+                        "questionId": "budget",
+                        "questionTypeId": "number",
+                        "label": "Budget"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "answer-fact:sample-intake:respondent-1:budget",
+                  "type": "answer-fact",
+                  "value": {
+                    "kind": "answer-fact",
+                    "formId": "sample-intake",
+                    "respondentId": "respondent-1",
+                    "questionId": "budget",
+                    "value": 2000,
+                    "answered_at": "2026-06-26T00:00:00Z"
+                  }
+                }
+              ]
             }
           }
         }
       },
-      "given": "The input {\"form_id\":\"sample-intake\",\"respondent_id\":\"respondent-1\"} (after the sample form was answered once).",
+      "given": "The input {\"form_id\":\"sample-intake\",\"respondent_id\":\"respondent-1\",\"rows\":[{\"id\":\"question-sequence:sample-intake\",\"type\":\"question-sequence\",\"value\":{\"kind\":\"question-sequence\",\"formId\":\"sample-intake\",\"title\":\"Sample intake\",\"questions\":[{\"questionId\":\"budget\",\"questionTypeId\":\"number\",\"label\":\"Budget\"}]}},{\"id\":\"answer-fact:sample-intake:respondent-1:budget\",\"type\":\"answer-fact\" ....",
       "hands_back": "It answered {\"lines\":[\"Budget: 2000\"]}."
     }
   ]

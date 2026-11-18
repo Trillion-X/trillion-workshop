@@ -1,8 +1,8 @@
 {
   "drafted_from": "tool:pair-an-unknown-sender's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Hold a message from a sender the person has not paired yet and give that sender a short code the person can approve\", with {\"source_id\":\"events:sample\",\"sender\":\"sender-one\"}. It runs tool:pair-an-unknown-sender and answers {\"code\":\"H2BMNFA2\",\"expires_at\":\"2026-11-14T01:50:34.724Z\",\"said\":\"sender-one is not paired yet. Their code is H2BMNFA2 until 2026-11-14T01:50:34.724Z; approve it to let their messages through.\"}",
+  "start_here": "Say to your AI: \"Hold a message from a sender the person has not paired yet and give that sender a short code the person can approve\", with {\"source_id\":\"events:sample\",\"sender\":\"sender-one\"}. It runs tool:pair-an-unknown-sender and answers {\"code\":\"JLYRNJ3A\",\"expires_at\":\"2026-11-18T10:23:34.308Z\",\"said\":\"sender-one is not paired yet. Their code is JLYRNJ3A until 2026-11-18T10:23:34.308Z; approve it to let their messages through.\",\"keep\":[{\"name\":\"pairing-waiting:events:sample:JLYRNJ3A\",\"value\":{\"source_id\":\"events:sample\",\"sender\":\"sender-one\",\"code\":\"JLYRNJ3A\",\"expires_at\":\"2026-11-18T10:23:34.308Z\"}}]}",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows (the table sender_pairing) in your own database.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:pair-an-unknown-sender"
@@ -10,8 +10,7 @@
   "instructions": [
     "1. Say to your AI: \"Hold a message from a sender the person has not paired yet and give that sender a short code the person can approve\", and give it source_id; sender.",
     "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:pair-an-unknown-sender and its input (the worked example shows one).",
-    "3. Read what comes back: Give source_id (the event source the message came in on) and sender (the sender's own id on that source).",
-    "4. It reaches only your own database, with the connection string you hold as own-rows-postgres-connection: it reads and writes the table sender_pairing."
+    "3. Read what comes back: Give source_id (the event source the message came in on) and sender (the sender's own id on that source)."
   ],
   "worked_examples": [
     {
@@ -33,7 +32,7 @@
         }
       },
       "given": "The input {\"source_id\":\"events:sample\",\"sender\":\"sender-one\"}.",
-      "hands_back": "It answered {\"code\":\"H2BMNFA2\",\"expires_at\":\"2026-11-14T01:50:34.724Z\",\"said\":\"sender-one is not paired yet. Their code is H2BMNFA2 until 2026-11-14T01:50:34.724Z; approve it to let their messages through.\"}, and kept pairing-waiting:events:sample:H2BMNFA2."
+      "hands_back": "It answered {\"code\":\"JLYRNJ3A\",\"expires_at\":\"2026-11-18T10:23:34.308Z\",\"said\":\"sender-one is not paired yet. Their code is JLYRNJ3A until 2026-11-18T10:23:34.308Z; approve it to let their messages through.\",\"keep\":[{\"name\":\"pairing-waiting:events:sample:JLYRNJ3A\",\"value\":{\"source_id\":\"events:sample\",\"sender\":\"sender-one\",\"code\":\"JLYRNJ3A\",\"expires_at\":\"2026-11-18T10:23:34.308Z\"}}]}."
     }
   ]
 }

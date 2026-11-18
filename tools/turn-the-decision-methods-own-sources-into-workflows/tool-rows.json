@@ -470,7 +470,6 @@
                   "read-data/check-bindings.mjs",
                   "read-data/wake-problems.mjs",
                   "read-data/fires-when.mjs",
-                  "read-data/sql.mjs",
                   "branches/fires-when.json",
                   "read-data/step-anatomy.json",
                   "recipe-check-kinds.json",

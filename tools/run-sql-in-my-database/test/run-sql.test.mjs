@@ -98,24 +98,6 @@ test('the read login reads and cannot write, create or drop: the database refuse
   assert.deepEqual(read.rows, [{ id: 't1', title: 'Ada Example' }]);
   await assert.rejects(runSql({ connection: readerConnection, input: { sql: "INSERT INTO tasks VALUES ('x', 'y')" } }), /permission denied for table tasks/);
   await assert.rejects(runSql({ connection: readerConnection, input: { sql: 'CREATE TABLE made_by_reader (a int)' } }), /permission denied for schema public/);
-  await assert.rejects(runSql({ connection: readerConnection, input: { list: 'reader-rows', id: 'a', value: { n: 1 } } }), /permission denied/);
-});
-
-test('a step output is an upsert into the table named list, made when missing, and a second one replaces the value', async () => {
-  const handed = { store: 'postgres://held-by-name', credential_name: 'own-rows-postgres-connection', list: 'task-rows', id: 'run-1:step-2:result', value: { title: 'Ada Example', done: false } };
-  const first = await runSql({ connection: ownerConnection, input: handed });
-  assert.equal(first.row_count, 1);
-  await runSql({ connection: ownerConnection, input: { ...handed, value: { title: 'Ada Example', done: true } } });
-  const kept = await runSql({ connection: ownerConnection, input: { sql: 'SELECT id, value, updated_at IS NOT NULL AS stamped FROM "task-rows"' } });
-  assert.deepEqual(kept.rows, [{ id: 'run-1:step-2:result', value: { title: 'Ada Example', done: true }, stamped: true }]);
-  const columns = await runSql({ connection: ownerConnection, input: { sql: "SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'task-rows' ORDER BY ordinal_position" } });
-  assert.deepEqual(columns.rows.map(column => [column.column_name, column.data_type]), [['id', 'text'], ['value', 'jsonb'], ['updated_at', 'timestamp with time zone']]);
-});
-
-test('a list name is quoted as an identifier, never run as SQL', async () => {
-  await runSql({ connection: ownerConnection, input: { list: 'x"; DROP TABLE tasks; --', id: 'a', value: 1 } });
-  const still = await runSql({ connection: ownerConnection, input: { sql: 'SELECT count(*)::int AS n FROM tasks' } });
-  assert.equal(still.rows[0].n, 1);
 });
 
 test('statement_timeout_ms cuts a long statement with the database\'s own text', async () => {
@@ -125,14 +107,13 @@ test('statement_timeout_ms cuts a long statement with the database\'s own text',
 
 test('a request that is neither shape, or both, or has no connection, is refused before any connection', () => {
   assert.throws(() => shapeOf({}), /Give sql/);
-  assert.throws(() => shapeOf({ sql: 'SELECT 1', list: 'a', id: 'b', value: 1 }), /Give one of/);
   assert.throws(() => shapeOf({ sql: 'SELECT 1', recipe: { name: 'read-only', action: 'create' } }), /Give one of/);
   assert.throws(() => shapeOf({ recipe: { name: 'no-such-recipe', action: 'create' } }), /recipe.name must be one of read-only/);
   assert.throws(() => shapeOf({ recipe: { name: 'read-only', action: 'alter' } }), /create or drop/);
   assert.throws(() => shapeOf({ recipe: { name: 'read-only', action: 'create', valid_until: 'soon' } }), /must be a time/);
   assert.throws(() => shapeOf({ sql: '  ' }), /statement as text/);
   assert.throws(() => shapeOf({ sql: 'SELECT 1', params: 'x' }), /list of values/);
-  assert.throws(() => shapeOf({ list: 'a', id: 'b' }), /list and id as text and a value/);
+  assert.throws(() => shapeOf({ list: 'a', id: 'b', value: 1 }), /Give sql/, 'a tool-made table of rows is not a shape: a list is a table the person makes');
   return assert.rejects(runSql({ connection: '', input: { sql: 'SELECT 1' } }), /No database connection/);
 });
 

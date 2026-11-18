@@ -1,8 +1,8 @@
 {
   "drafted_from": "tool:read-current-worn-look's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Read this person's current worn screen look, look rules and day plan as the device token payload native screens draw\", with {\"time_zone\":\"UTC\",\"host\":\"mac\",\"device\":\"computer\",\"app_data\":{\"looks\":{\"start_with\":\"harbor\",\"themes\":[{\"address\":\"look:harbor\",\"payload\":{\"kind\":\"screen-look-editable-theme\",\"id\":\"harbor\",\"name\":\"Harbor\",\"tokens\":[{\"key\":\"accent-primary\",\"kind\":\"color\",\"value\":\"#247b70\",\"css_variable\":\"--accent-primary\"}]}},{\"address\":\"look:dusk\",\"payload\":{\"kind\":\"screen-look-editable-theme\",\"id\":\"dusk\" .... It runs tool:read-current-worn-look and answers {\"worn\":\"harbor\",\"worn_record\":{\"address\":\"package::screen-look::published-record::editable-theme::harbor\",\"payload\":{\"kind\":\"screen-look-editable-theme\",\"id\":\"harbor\",\"name\":\"Harbor\",\"tokens\":[{\"key\":\"accent-primary\",\"kind\":\"color\",\"value\":\"#247b70\",\"css_variable\":\"--accent-primary\"}]}},\"now\":{\"look_id\":\"harbor\",\"name\":\"Harbor\",\"colors\":{\"surface-1\":[0.1137,0.1373,0.1961,1],\"surface-2\":[0.1373 ...",
+  "start_here": "Say to your AI: \"Read this person's current worn screen look, look rules and day plan as the device token payload native screens draw\", with {\"time_zone\":\"UTC\",\"host\":\"mac\",\"device\":\"computer\",\"app_data\":{\"looks\":{\"start_with\":\"harbor\",\"themes\":[{\"address\":\"look:harbor\",\"payload\":{\"kind\":\"screen-look-editable-theme\",\"id\":\"harbor\",\"name\":\"Harbor\",\"tokens\":[{\"key\":\"accent-primary\",\"kind\":\"color\",\"value\":\"#247b70\",\"css_variable\":\"--accent-primary\"}]}},{\"address\":\"look:dusk\",\"payload\":{\"kind\":\"screen-look-editable-theme\",\"id\":\"dusk\" .... It runs tool:read-current-worn-look and answers {\"worn\":\"dusk\",\"worn_record\":{\"address\":\"package::screen-look::published-record::editable-theme::dusk\",\"payload\":{\"kind\":\"screen-look-editable-theme\",\"id\":\"dusk\",\"name\":\"Dusk\",\"tokens\":[{\"key\":\"accent-primary\",\"kind\":\"color\",\"value\":\"#7b4f92\",\"css_variable\":\"--accent-primary\"}]}},\"now\":{\"look_id\":\"dusk\",\"name\":\"Dusk\",\"colors\":{\"surface-1\":[0.1137,0.1373,0.1961,1],\"surface-2\":[0.1373,0.1647,0.2196 ...",
   "lists": [],
-  "no_lists_because": "It names no list of yours: it takes its input and reads its own rows from the table workspace_record of your own database.",
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
   "tools": [
     "tool:read-current-worn-look"
@@ -10,8 +10,7 @@
   "instructions": [
     "1. Say to your AI: \"Read this person's current worn screen look, look rules and day plan as the device token payload native screens draw\", and give it time_zone (The native device's IANA time zone, such as America/Denver); app_data.",
     "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:read-current-worn-look and its input (the worked example shows one).",
-    "3. Read what comes back: Reads this person's current worn screen look and returns the token payload native screens draw: every wearable look, the look now (including a scheduled blend), upcoming changes for twelve hours, and when to read again.",
-    "4. It reads only four rows of the table workspace_record in your own database (the worn look, your own themes, the day plan and the look rules) with plain SQL; it writes nothing."
+    "3. Read what comes back: Reads this person's current worn screen look and returns the token payload native screens draw: every wearable look, the look now (including a scheduled blend), upcoming changes for twelve hours, and when to read again."
   ],
   "worked_examples": [
     {
@@ -113,13 +112,20 @@
                     }
                   ]
                 }
+              },
+              "saved": {
+                "screen-look": [
+                  {
+                    "name": "dusk"
+                  }
+                ]
               }
             }
           }
         }
       },
       "given": "The input {\"time_zone\":\"UTC\",\"host\":\"mac\",\"device\":\"computer\",\"app_data\":{\"looks\":{\"start_with\":\"harbor\",\"themes\":[{\"address\":\"look:harbor\",\"payload\":{\"kind\":\"screen-look-editable-theme\",\"id\":\"harbor\",\"name\":\"Harbor\",\"tokens\":[{\"key\":\"accent-primary\",\"kind\":\"color\",\"value\":\"#247b70\",\"css_variable\":\"--accent-primary\"}]}},{\"address\":\"look:dusk\",\"payload\":{\"kind\":\"screen-look-editable-theme\",\"id\":\"dusk\" ....",
-      "hands_back": "It answered {\"worn\":\"harbor\",\"worn_record\":{\"address\":\"package::screen-look::published-record::editable-theme::harbor\",\"payload\":{\"kind\":\"screen-look-editable-theme\",\"id\":\"harbor\",\"name\":\"Harbor\",\"tokens\":[{\"key\":\"accent-primary\",\"kind\":\"color\",\"value\":\"#247b70\",\"css_variable\":\"--accent-primary\"}]}},\"now\":{\"look_id\":\"harbor\",\"name\":\"Harbor\",\"colors\":{\"surface-1\":[0.1137,0.1373,0.1961,1],\"surface-2\":[0.1373,0.1647,0.2196,1],\"surface-3\":[0.1647,0.1922,0.2431,1],\"surface-edge\":[0.9725,0.9804,0.9882,0.08],\"shadow-tint\":[0,0,0,1],\"focus-ring-color\":[0.9725,0.9804,0.9882,0.9],\"focus-ring-glow\":[0.1412,0.4824,0.4392,0.22],\"focus-ring-danger-color\":[0.8627,0.149,0.149,0.9],\"border-focus\":[0.9725,0.9804,0.9882 ...."
+      "hands_back": "It answered {\"worn\":\"dusk\",\"worn_record\":{\"address\":\"package::screen-look::published-record::editable-theme::dusk\",\"payload\":{\"kind\":\"screen-look-editable-theme\",\"id\":\"dusk\",\"name\":\"Dusk\",\"tokens\":[{\"key\":\"accent-primary\",\"kind\":\"color\",\"value\":\"#7b4f92\",\"css_variable\":\"--accent-primary\"}]}},\"now\":{\"look_id\":\"dusk\",\"name\":\"Dusk\",\"colors\":{\"surface-1\":[0.1137,0.1373,0.1961,1],\"surface-2\":[0.1373,0.1647,0.2196,1],\"surface-3\":[0.1647,0.1922,0.2431,1],\"surface-edge\":[0.9725,0.9804,0.9882,0.08],\"shadow-tint\":[0,0,0,1],\"focus-ring-color\":[0.9725,0.9804,0.9882,0.9],\"focus-ring-glow\":[0.4824,0.3098,0.5725,0.22],\"focus-ring-danger-color\":[0.8627,0.149,0.149,0.9],\"border-focus\":[0.9725,0.9804,0.9882,0.9] ...."
     }
   ]
 }

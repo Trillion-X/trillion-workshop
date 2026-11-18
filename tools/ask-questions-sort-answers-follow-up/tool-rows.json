@@ -363,7 +363,7 @@
         "id": "tool:save-a-form",
         "label": "Make a form record",
         "job": "Check a form, a list of questions people answer, and keep it in the person's own database, so it can be asked and its answers checked",
-        "description": "Give a form_id, an optional title and presentation, and the questions. Each question needs a questionId and a questionTypeId (a row in the question-type list: text, long text, number, rating, choice, a reference to a file) and may carry a label, required, options, its own validation rules laid over its type's, and an afterSaved hand-off naming an owner and an action. The form is kept as one row of the table question_sequence (the same form_id replaces the same row) and answered with how many questions it holds.",
+        "description": "Give a form_id, an optional title and presentation, and the questions. Each question needs a questionId and a questionTypeId (a row in the question-type list: text, long text, number, rating, choice, a reference to a file) and may carry a label, required, options, its own validation rules laid over its type's, and an afterSaved hand-off naming an owner and an action. The form is kept as one row of the table question_sequence (the same form_id replaces the same row) and answered with how many questions it holds. It reaches no database: it answers the row to keep as keep.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -420,35 +420,30 @@
             "record": {
               "type": "object",
               "description": "The question-sequence row kept: id, type and value"
+            },
+            "keep": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "The rows this call made, {id, type, value}, for the caller to keep in the person's own database"
             }
           }
         },
         "invoke": {
           "kind": "container",
           "internet": false,
-          "local_doors": [
-            "own-rows-postgres"
-          ],
           "workdir": "/opt/ask-questions-sort-answers-follow-up",
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/workflows/do-work/run-with-sql.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/ask-questions-sort-answers-follow-up/do-work/form-tools.mjs",
-            "saveForm",
-            "--sql",
-            "/opt/ask-questions-sort-answers-follow-up/sql"
+            "saveForm"
           ],
           "stdin": {
-            "input": {
-              "fill": {
-                "from": "input"
-              }
-            },
-            "task": {
-              "fill": {
-                "from": "task"
-              }
+            "fill": {
+              "from": "input"
             }
           },
           "files": {
@@ -458,18 +453,14 @@
                 "paths": [
                   "do-work",
                   "read-data",
-                  "data",
-                  "sql"
+                  "data"
                 ],
                 "at": "/opt/ask-questions-sort-answers-follow-up"
               },
               {
                 "package": "workflows",
                 "paths": [
-                  "do-work/run-with-sql.mjs",
-                  "read-data/sql.mjs",
-                  "read-data/with-sql.mjs",
-                  "sql"
+                  "do-work/run-a-function.mjs"
                 ],
                 "at": "/opt/workflows"
               },
@@ -494,238 +485,9 @@
                   "built-stored-bytes"
                 ],
                 "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
-              },
-              {
-                "packages": [
-                  "pg"
-                ],
-                "at": "/opt/node_modules/pg"
-              },
-              {
-                "packages": [
-                  "pg-connection-string"
-                ],
-                "at": "/opt/node_modules/pg-connection-string"
-              },
-              {
-                "packages": [
-                  "pg-pool"
-                ],
-                "at": "/opt/node_modules/pg-pool"
-              },
-              {
-                "packages": [
-                  "pg-protocol"
-                ],
-                "at": "/opt/node_modules/pg-protocol"
-              },
-              {
-                "packages": [
-                  "pg-types"
-                ],
-                "at": "/opt/node_modules/pg-types"
-              },
-              {
-                "packages": [
-                  "pg-int8"
-                ],
-                "at": "/opt/node_modules/pg-int8"
-              },
-              {
-                "packages": [
-                  "postgres-array"
-                ],
-                "at": "/opt/node_modules/postgres-array"
-              },
-              {
-                "packages": [
-                  "postgres-bytea"
-                ],
-                "at": "/opt/node_modules/postgres-bytea"
-              },
-              {
-                "packages": [
-                  "postgres-date"
-                ],
-                "at": "/opt/node_modules/postgres-date"
-              },
-              {
-                "packages": [
-                  "postgres-interval"
-                ],
-                "at": "/opt/node_modules/postgres-interval"
-              },
-              {
-                "packages": [
-                  "xtend"
-                ],
-                "at": "/opt/node_modules/xtend"
-              },
-              {
-                "packages": [
-                  "pgpass"
-                ],
-                "at": "/opt/node_modules/pgpass"
-              },
-              {
-                "packages": [
-                  "split2"
-                ],
-                "at": "/opt/node_modules/split2"
               }
             ]
-          },
-          "packages": {
-            "pg": {
-              "version": "8.23.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg/-/pg-8.23.1.tgz",
-                  "blake3": "d9fa473dbb66d6ebb3f9ed639504645825d90f0e581940545e394b97d540b827",
-                  "checked_against": "https://registry.npmjs.org/pg/8.23.1"
-                }
-              }
-            },
-            "pg-connection-string": {
-              "version": "2.14.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.1.tgz",
-                  "blake3": "3ebf322e73fbb3789b12506529485c3d34d2e0b496fa8b57ae0237dbfd605965",
-                  "checked_against": "https://registry.npmjs.org/pg-connection-string/2.14.1"
-                }
-              }
-            },
-            "pg-pool": {
-              "version": "3.14.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz",
-                  "blake3": "936d28ee7461005bc3b8fdb2003e6333a7079d654e21fa3f83fb85f1fe08cd1e",
-                  "checked_against": "https://registry.npmjs.org/pg-pool/3.14.0"
-                }
-              }
-            },
-            "pg-protocol": {
-              "version": "1.16.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.16.1.tgz",
-                  "blake3": "3604bc8340c62cb2451d63bf49496831fcf157a0da3c759f3794f64223a4bbb4",
-                  "checked_against": "https://registry.npmjs.org/pg-protocol/1.16.1"
-                }
-              }
-            },
-            "pg-types": {
-              "version": "2.2.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz",
-                  "blake3": "6c9524b7c592b94d3aad0399acf47ddf22c1eb53a24b9ae3ab14d4180a572945",
-                  "checked_against": "https://registry.npmjs.org/pg-types/2.2.0"
-                }
-              }
-            },
-            "pg-int8": {
-              "version": "1.0.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz",
-                  "blake3": "8f4971d42324eae73a49354f8e120dce0a6a95e159316a753558fc4644512efa",
-                  "checked_against": "https://registry.npmjs.org/pg-int8/1.0.1"
-                }
-              }
-            },
-            "postgres-array": {
-              "version": "2.0.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz",
-                  "blake3": "71fc338a8920999897cbaf581dc843d4ff3a910fe478f863b12c8a5da3dc0836",
-                  "checked_against": "https://registry.npmjs.org/postgres-array/2.0.0"
-                }
-              }
-            },
-            "postgres-bytea": {
-              "version": "1.0.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz",
-                  "blake3": "d1b058156ca51001e64ebe0efea72ef9befe365ba66b4731f5b591052f060553",
-                  "checked_against": "https://registry.npmjs.org/postgres-bytea/1.0.1"
-                }
-              }
-            },
-            "postgres-date": {
-              "version": "1.0.7",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz",
-                  "blake3": "005396786ab1c87c62c9f2422040e90711000bdf26d3d673e1073b9972e1a079",
-                  "checked_against": "https://registry.npmjs.org/postgres-date/1.0.7"
-                }
-              }
-            },
-            "postgres-interval": {
-              "version": "1.2.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz",
-                  "blake3": "24a6078fab15e22e6ffc864acab92746d6bfcb0ee9569b0c2bed3d1fc12856f2",
-                  "checked_against": "https://registry.npmjs.org/postgres-interval/1.2.0"
-                }
-              }
-            },
-            "xtend": {
-              "version": "4.0.2",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz",
-                  "blake3": "3ac366571ec5d13e6beb846cd1eeb69193d47d833a19f6cada5ccdd0fcb0a8be",
-                  "checked_against": "https://registry.npmjs.org/xtend/4.0.2"
-                }
-              }
-            },
-            "pgpass": {
-              "version": "1.0.5",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz",
-                  "blake3": "d0f6f693abc27625c5ef62c1e75aa91cf0cf2769f74908bbdc541f748ad67a2d",
-                  "checked_against": "https://registry.npmjs.org/pgpass/1.0.5"
-                }
-              }
-            },
-            "split2": {
-              "version": "4.2.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz",
-                  "blake3": "5e0899c8843b75de6d7326c029931a636b3d19e854d05e53967ffde6d6b92005",
-                  "checked_against": "https://registry.npmjs.org/split2/4.2.0"
-                }
-              }
-            }
-          },
-          "credential_mounts": [
-            {
-              "secret_name": "own-rows-postgres-connection",
-              "fd": 3
-            }
-          ]
+          }
         },
         "provenance": {
           "source": "bitfield-packages packages/ask-questions-sort-answers-follow-up (its record builders and readers); the tools keep their rows in the person's own Postgres with plain SQL"
@@ -733,9 +495,18 @@
         "result_selector": "$.result",
         "verify": [
           {
-            "kind": "needs-a-machine",
-            "requires": "a Postgres-wire server on the local port the computer reports as own-rows-postgres, with its connection string held as own-rows-postgres-connection",
-            "proved_on": "2026-11-17"
+            "kind": "sample-run",
+            "input": {
+              "form_id": "sample-intake",
+              "title": "Sample intake",
+              "questions": [
+                {
+                  "questionId": "budget",
+                  "questionTypeId": "number",
+                  "label": "Budget"
+                }
+              ]
+            }
           }
         ]
       }
@@ -963,7 +734,7 @@
         "id": "tool:submit-form-answers",
         "label": "Check and decide form answers",
         "job": "Check a person's answers against a form kept in the database and, when they are all valid, keep them with the score and segment they earn and any follow-up the form hands to its owner",
-        "description": "Give form_id, respondent_id and answers (questionId to value). The form is read from the table question_sequence (make it with save-a-form) and the rules that decide the segment from the tables score_rule, segment_rule and follow_up_sequence. Optionally submission_id (for a form answered again and again, so each time has its own rows) and answered_at. The answers are checked against the form as check-form-answers does. If any is invalid the first to fix is returned and nothing is kept. Otherwise one transaction keeps an answer fact for each answer the form asks about (table answer_fact), one segment assignment (segment_assignment) and one request row for each question whose afterSaved names an owner and action, with the answers filled into its input (owner_action_request), and the tool answers the decision (score and segment), the segment's follow-up sequence and the rows kept.",
+        "description": "Give form_id, respondent_id and answers (questionId to value). The form is read from the table question_sequence (make it with save-a-form) and the rules that decide the segment from the tables score_rule, segment_rule and follow_up_sequence. Optionally submission_id (for a form answered again and again, so each time has its own rows) and answered_at. The answers are checked against the form as check-form-answers does. If any is invalid the first to fix is returned and nothing is kept. Otherwise one transaction keeps an answer fact for each answer the form asks about (table answer_fact), one segment assignment (segment_assignment) and one request row for each question whose afterSaved names an owner and action, with the answers filled into its input (owner_action_request), and the tool answers the decision (score and segment), the segment's follow-up sequence and the rows kept. It reaches no database: give the person's form rows it reads as rows, and keep the rows the answer lists in keep.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -995,6 +766,18 @@
               "type": "string",
               "format": "date-time",
               "description": "When they answered (default: now)"
+            },
+            "rows": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "type",
+                  "value"
+                ]
+              },
+              "description": "The person's form rows this call reads ({id, type, value}, type the row's kind: question-sequence, answer-fact, segment-assignment, score-rule, segment-rule, follow-up-sequence), read by the caller from wherever the person keeps them"
             }
           }
         },
@@ -1051,35 +834,30 @@
                 }
               },
               "description": "The rows the answers made and kept: answer facts, the segment assignment, owner action requests"
+            },
+            "keep": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "The rows this call made, {id, type, value}, for the caller to keep in the person's own database"
             }
           }
         },
         "invoke": {
           "kind": "container",
           "internet": false,
-          "local_doors": [
-            "own-rows-postgres"
-          ],
           "workdir": "/opt/ask-questions-sort-answers-follow-up",
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/workflows/do-work/run-with-sql.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/ask-questions-sort-answers-follow-up/do-work/form-tools.mjs",
-            "submitFormAnswers",
-            "--sql",
-            "/opt/ask-questions-sort-answers-follow-up/sql"
+            "submitFormAnswers"
           ],
           "stdin": {
-            "input": {
-              "fill": {
-                "from": "input"
-              }
-            },
-            "task": {
-              "fill": {
-                "from": "task"
-              }
+            "fill": {
+              "from": "input"
             }
           },
           "files": {
@@ -1089,18 +867,14 @@
                 "paths": [
                   "do-work",
                   "read-data",
-                  "data",
-                  "sql"
+                  "data"
                 ],
                 "at": "/opt/ask-questions-sort-answers-follow-up"
               },
               {
                 "package": "workflows",
                 "paths": [
-                  "do-work/run-with-sql.mjs",
-                  "read-data/sql.mjs",
-                  "read-data/with-sql.mjs",
-                  "sql"
+                  "do-work/run-a-function.mjs"
                 ],
                 "at": "/opt/workflows"
               },
@@ -1125,238 +899,9 @@
                   "built-stored-bytes"
                 ],
                 "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
-              },
-              {
-                "packages": [
-                  "pg"
-                ],
-                "at": "/opt/node_modules/pg"
-              },
-              {
-                "packages": [
-                  "pg-connection-string"
-                ],
-                "at": "/opt/node_modules/pg-connection-string"
-              },
-              {
-                "packages": [
-                  "pg-pool"
-                ],
-                "at": "/opt/node_modules/pg-pool"
-              },
-              {
-                "packages": [
-                  "pg-protocol"
-                ],
-                "at": "/opt/node_modules/pg-protocol"
-              },
-              {
-                "packages": [
-                  "pg-types"
-                ],
-                "at": "/opt/node_modules/pg-types"
-              },
-              {
-                "packages": [
-                  "pg-int8"
-                ],
-                "at": "/opt/node_modules/pg-int8"
-              },
-              {
-                "packages": [
-                  "postgres-array"
-                ],
-                "at": "/opt/node_modules/postgres-array"
-              },
-              {
-                "packages": [
-                  "postgres-bytea"
-                ],
-                "at": "/opt/node_modules/postgres-bytea"
-              },
-              {
-                "packages": [
-                  "postgres-date"
-                ],
-                "at": "/opt/node_modules/postgres-date"
-              },
-              {
-                "packages": [
-                  "postgres-interval"
-                ],
-                "at": "/opt/node_modules/postgres-interval"
-              },
-              {
-                "packages": [
-                  "xtend"
-                ],
-                "at": "/opt/node_modules/xtend"
-              },
-              {
-                "packages": [
-                  "pgpass"
-                ],
-                "at": "/opt/node_modules/pgpass"
-              },
-              {
-                "packages": [
-                  "split2"
-                ],
-                "at": "/opt/node_modules/split2"
               }
             ]
-          },
-          "packages": {
-            "pg": {
-              "version": "8.23.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg/-/pg-8.23.1.tgz",
-                  "blake3": "d9fa473dbb66d6ebb3f9ed639504645825d90f0e581940545e394b97d540b827",
-                  "checked_against": "https://registry.npmjs.org/pg/8.23.1"
-                }
-              }
-            },
-            "pg-connection-string": {
-              "version": "2.14.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.1.tgz",
-                  "blake3": "3ebf322e73fbb3789b12506529485c3d34d2e0b496fa8b57ae0237dbfd605965",
-                  "checked_against": "https://registry.npmjs.org/pg-connection-string/2.14.1"
-                }
-              }
-            },
-            "pg-pool": {
-              "version": "3.14.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz",
-                  "blake3": "936d28ee7461005bc3b8fdb2003e6333a7079d654e21fa3f83fb85f1fe08cd1e",
-                  "checked_against": "https://registry.npmjs.org/pg-pool/3.14.0"
-                }
-              }
-            },
-            "pg-protocol": {
-              "version": "1.16.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.16.1.tgz",
-                  "blake3": "3604bc8340c62cb2451d63bf49496831fcf157a0da3c759f3794f64223a4bbb4",
-                  "checked_against": "https://registry.npmjs.org/pg-protocol/1.16.1"
-                }
-              }
-            },
-            "pg-types": {
-              "version": "2.2.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz",
-                  "blake3": "6c9524b7c592b94d3aad0399acf47ddf22c1eb53a24b9ae3ab14d4180a572945",
-                  "checked_against": "https://registry.npmjs.org/pg-types/2.2.0"
-                }
-              }
-            },
-            "pg-int8": {
-              "version": "1.0.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz",
-                  "blake3": "8f4971d42324eae73a49354f8e120dce0a6a95e159316a753558fc4644512efa",
-                  "checked_against": "https://registry.npmjs.org/pg-int8/1.0.1"
-                }
-              }
-            },
-            "postgres-array": {
-              "version": "2.0.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz",
-                  "blake3": "71fc338a8920999897cbaf581dc843d4ff3a910fe478f863b12c8a5da3dc0836",
-                  "checked_against": "https://registry.npmjs.org/postgres-array/2.0.0"
-                }
-              }
-            },
-            "postgres-bytea": {
-              "version": "1.0.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz",
-                  "blake3": "d1b058156ca51001e64ebe0efea72ef9befe365ba66b4731f5b591052f060553",
-                  "checked_against": "https://registry.npmjs.org/postgres-bytea/1.0.1"
-                }
-              }
-            },
-            "postgres-date": {
-              "version": "1.0.7",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz",
-                  "blake3": "005396786ab1c87c62c9f2422040e90711000bdf26d3d673e1073b9972e1a079",
-                  "checked_against": "https://registry.npmjs.org/postgres-date/1.0.7"
-                }
-              }
-            },
-            "postgres-interval": {
-              "version": "1.2.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz",
-                  "blake3": "24a6078fab15e22e6ffc864acab92746d6bfcb0ee9569b0c2bed3d1fc12856f2",
-                  "checked_against": "https://registry.npmjs.org/postgres-interval/1.2.0"
-                }
-              }
-            },
-            "xtend": {
-              "version": "4.0.2",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz",
-                  "blake3": "3ac366571ec5d13e6beb846cd1eeb69193d47d833a19f6cada5ccdd0fcb0a8be",
-                  "checked_against": "https://registry.npmjs.org/xtend/4.0.2"
-                }
-              }
-            },
-            "pgpass": {
-              "version": "1.0.5",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz",
-                  "blake3": "d0f6f693abc27625c5ef62c1e75aa91cf0cf2769f74908bbdc541f748ad67a2d",
-                  "checked_against": "https://registry.npmjs.org/pgpass/1.0.5"
-                }
-              }
-            },
-            "split2": {
-              "version": "4.2.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz",
-                  "blake3": "5e0899c8843b75de6d7326c029931a636b3d19e854d05e53967ffde6d6b92005",
-                  "checked_against": "https://registry.npmjs.org/split2/4.2.0"
-                }
-              }
-            }
-          },
-          "credential_mounts": [
-            {
-              "secret_name": "own-rows-postgres-connection",
-              "fd": 3
-            }
-          ]
+          }
         },
         "provenance": {
           "source": "bitfield-packages packages/ask-questions-sort-answers-follow-up (its record builders and readers); the tools keep their rows in the person's own Postgres with plain SQL"
@@ -1364,9 +909,33 @@
         "result_selector": "$.result",
         "verify": [
           {
-            "kind": "needs-a-machine",
-            "requires": "a Postgres-wire server on the local port the computer reports as own-rows-postgres, with its connection string held as own-rows-postgres-connection",
-            "proved_on": "2026-11-17"
+            "kind": "sample-run",
+            "input": {
+              "form_id": "sample-intake",
+              "respondent_id": "respondent-1",
+              "answers": {
+                "budget": "2000"
+              },
+              "answered_at": "2026-06-26T00:00:00Z",
+              "rows": [
+                {
+                  "id": "question-sequence:sample-intake",
+                  "type": "question-sequence",
+                  "value": {
+                    "kind": "question-sequence",
+                    "formId": "sample-intake",
+                    "title": "Sample intake",
+                    "questions": [
+                      {
+                        "questionId": "budget",
+                        "questionTypeId": "number",
+                        "label": "Budget"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
           }
         ]
       }
@@ -1594,7 +1163,7 @@
         "id": "tool:read-form-results",
         "label": "Form results",
         "job": "Show who answered a form, the score each earned and the segment each was sorted into, with a count per segment, from the segment assignments in the database",
-        "description": "Give optionally a form_id to see one form, or nothing to see every form in the table segment_assignment. Returns rows (respondentId, formId, segmentId, score, decidedAt), newest decision first, and a summary with the total and a count per segment. No assignments gives an empty list, never an invented one.",
+        "description": "Give optionally a form_id to see one form, or nothing to see every form in the table segment_assignment. Returns rows (respondentId, formId, segmentId, score, decidedAt), newest decision first, and a summary with the total and a count per segment. No assignments gives an empty list, never an invented one. It reaches no database: give the person's form rows it reads as rows.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -1602,6 +1171,18 @@
             "form_id": {
               "type": "string",
               "description": "Only this form"
+            },
+            "rows": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "type",
+                  "value"
+                ]
+              },
+              "description": "The person's form rows this call reads ({id, type, value}, type the row's kind: question-sequence, answer-fact, segment-assignment, score-rule, segment-rule, follow-up-sequence), read by the caller from wherever the person keeps them"
             }
           }
         },
@@ -1623,29 +1204,17 @@
         "invoke": {
           "kind": "container",
           "internet": false,
-          "local_doors": [
-            "own-rows-postgres"
-          ],
           "workdir": "/opt/ask-questions-sort-answers-follow-up",
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/workflows/do-work/run-with-sql.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/ask-questions-sort-answers-follow-up/do-work/form-tools.mjs",
-            "readFormResults",
-            "--sql",
-            "/opt/ask-questions-sort-answers-follow-up/sql"
+            "readFormResults"
           ],
           "stdin": {
-            "input": {
-              "fill": {
-                "from": "input"
-              }
-            },
-            "task": {
-              "fill": {
-                "from": "task"
-              }
+            "fill": {
+              "from": "input"
             }
           },
           "files": {
@@ -1655,18 +1224,14 @@
                 "paths": [
                   "do-work",
                   "read-data",
-                  "data",
-                  "sql"
+                  "data"
                 ],
                 "at": "/opt/ask-questions-sort-answers-follow-up"
               },
               {
                 "package": "workflows",
                 "paths": [
-                  "do-work/run-with-sql.mjs",
-                  "read-data/sql.mjs",
-                  "read-data/with-sql.mjs",
-                  "sql"
+                  "do-work/run-a-function.mjs"
                 ],
                 "at": "/opt/workflows"
               },
@@ -1691,250 +1256,37 @@
                   "built-stored-bytes"
                 ],
                 "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
-              },
-              {
-                "packages": [
-                  "pg"
-                ],
-                "at": "/opt/node_modules/pg"
-              },
-              {
-                "packages": [
-                  "pg-connection-string"
-                ],
-                "at": "/opt/node_modules/pg-connection-string"
-              },
-              {
-                "packages": [
-                  "pg-pool"
-                ],
-                "at": "/opt/node_modules/pg-pool"
-              },
-              {
-                "packages": [
-                  "pg-protocol"
-                ],
-                "at": "/opt/node_modules/pg-protocol"
-              },
-              {
-                "packages": [
-                  "pg-types"
-                ],
-                "at": "/opt/node_modules/pg-types"
-              },
-              {
-                "packages": [
-                  "pg-int8"
-                ],
-                "at": "/opt/node_modules/pg-int8"
-              },
-              {
-                "packages": [
-                  "postgres-array"
-                ],
-                "at": "/opt/node_modules/postgres-array"
-              },
-              {
-                "packages": [
-                  "postgres-bytea"
-                ],
-                "at": "/opt/node_modules/postgres-bytea"
-              },
-              {
-                "packages": [
-                  "postgres-date"
-                ],
-                "at": "/opt/node_modules/postgres-date"
-              },
-              {
-                "packages": [
-                  "postgres-interval"
-                ],
-                "at": "/opt/node_modules/postgres-interval"
-              },
-              {
-                "packages": [
-                  "xtend"
-                ],
-                "at": "/opt/node_modules/xtend"
-              },
-              {
-                "packages": [
-                  "pgpass"
-                ],
-                "at": "/opt/node_modules/pgpass"
-              },
-              {
-                "packages": [
-                  "split2"
-                ],
-                "at": "/opt/node_modules/split2"
               }
             ]
-          },
-          "packages": {
-            "pg": {
-              "version": "8.23.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg/-/pg-8.23.1.tgz",
-                  "blake3": "d9fa473dbb66d6ebb3f9ed639504645825d90f0e581940545e394b97d540b827",
-                  "checked_against": "https://registry.npmjs.org/pg/8.23.1"
-                }
-              }
-            },
-            "pg-connection-string": {
-              "version": "2.14.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.1.tgz",
-                  "blake3": "3ebf322e73fbb3789b12506529485c3d34d2e0b496fa8b57ae0237dbfd605965",
-                  "checked_against": "https://registry.npmjs.org/pg-connection-string/2.14.1"
-                }
-              }
-            },
-            "pg-pool": {
-              "version": "3.14.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz",
-                  "blake3": "936d28ee7461005bc3b8fdb2003e6333a7079d654e21fa3f83fb85f1fe08cd1e",
-                  "checked_against": "https://registry.npmjs.org/pg-pool/3.14.0"
-                }
-              }
-            },
-            "pg-protocol": {
-              "version": "1.16.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.16.1.tgz",
-                  "blake3": "3604bc8340c62cb2451d63bf49496831fcf157a0da3c759f3794f64223a4bbb4",
-                  "checked_against": "https://registry.npmjs.org/pg-protocol/1.16.1"
-                }
-              }
-            },
-            "pg-types": {
-              "version": "2.2.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz",
-                  "blake3": "6c9524b7c592b94d3aad0399acf47ddf22c1eb53a24b9ae3ab14d4180a572945",
-                  "checked_against": "https://registry.npmjs.org/pg-types/2.2.0"
-                }
-              }
-            },
-            "pg-int8": {
-              "version": "1.0.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz",
-                  "blake3": "8f4971d42324eae73a49354f8e120dce0a6a95e159316a753558fc4644512efa",
-                  "checked_against": "https://registry.npmjs.org/pg-int8/1.0.1"
-                }
-              }
-            },
-            "postgres-array": {
-              "version": "2.0.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz",
-                  "blake3": "71fc338a8920999897cbaf581dc843d4ff3a910fe478f863b12c8a5da3dc0836",
-                  "checked_against": "https://registry.npmjs.org/postgres-array/2.0.0"
-                }
-              }
-            },
-            "postgres-bytea": {
-              "version": "1.0.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz",
-                  "blake3": "d1b058156ca51001e64ebe0efea72ef9befe365ba66b4731f5b591052f060553",
-                  "checked_against": "https://registry.npmjs.org/postgres-bytea/1.0.1"
-                }
-              }
-            },
-            "postgres-date": {
-              "version": "1.0.7",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz",
-                  "blake3": "005396786ab1c87c62c9f2422040e90711000bdf26d3d673e1073b9972e1a079",
-                  "checked_against": "https://registry.npmjs.org/postgres-date/1.0.7"
-                }
-              }
-            },
-            "postgres-interval": {
-              "version": "1.2.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz",
-                  "blake3": "24a6078fab15e22e6ffc864acab92746d6bfcb0ee9569b0c2bed3d1fc12856f2",
-                  "checked_against": "https://registry.npmjs.org/postgres-interval/1.2.0"
-                }
-              }
-            },
-            "xtend": {
-              "version": "4.0.2",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz",
-                  "blake3": "3ac366571ec5d13e6beb846cd1eeb69193d47d833a19f6cada5ccdd0fcb0a8be",
-                  "checked_against": "https://registry.npmjs.org/xtend/4.0.2"
-                }
-              }
-            },
-            "pgpass": {
-              "version": "1.0.5",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz",
-                  "blake3": "d0f6f693abc27625c5ef62c1e75aa91cf0cf2769f74908bbdc541f748ad67a2d",
-                  "checked_against": "https://registry.npmjs.org/pgpass/1.0.5"
-                }
-              }
-            },
-            "split2": {
-              "version": "4.2.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz",
-                  "blake3": "5e0899c8843b75de6d7326c029931a636b3d19e854d05e53967ffde6d6b92005",
-                  "checked_against": "https://registry.npmjs.org/split2/4.2.0"
-                }
-              }
-            }
-          },
-          "credential_mounts": [
-            {
-              "secret_name": "own-rows-postgres-connection",
-              "fd": 3
-            }
-          ]
+          }
         },
         "provenance": {
           "source": "bitfield-packages packages/ask-questions-sort-answers-follow-up (its record builders and readers); the tools keep their rows in the person's own Postgres with plain SQL"
         },
+        "result_selector": "$.result",
         "verify": [
           {
-            "kind": "needs-a-machine",
-            "requires": "a Postgres-wire server on the local port the computer reports as own-rows-postgres, with its connection string held as own-rows-postgres-connection",
-            "proved_on": "2026-11-17"
+            "kind": "sample-run",
+            "input": {
+              "rows": [
+                {
+                  "id": "segment-assignment:sample-intake:respondent-1",
+                  "type": "segment-assignment",
+                  "value": {
+                    "kind": "segment-assignment",
+                    "formId": "sample-intake",
+                    "respondentId": "respondent-1",
+                    "segmentId": null,
+                    "score": 0,
+                    "breakdown": {},
+                    "byLabel": {},
+                    "decided_at": "2026-06-26T00:00:00Z"
+                  }
+                }
+              ]
+            }
           }
-        ],
-        "result_selector": "$.result"
+        ]
       }
     },
     {
@@ -2160,7 +1512,7 @@
         "id": "tool:read-answer-progress",
         "label": "Answers over time",
         "job": "Show one person's answers to a form across every time they answered, in order, and the trend of one numeric answer, from the answer facts in the database",
-        "description": "Give form_id, respondent_id and field_map (the name you want for each answer, to its questionId), and optionally trend_field (which mapped answer to chart; default the first that is numeric). The answer facts are read from the table answer_fact. Returns one row per time answered, oldest first, with the mapped answers and when; the numeric series for the trend; the latest row; and the count. A person who has not answered gets no rows.",
+        "description": "Give form_id, respondent_id and field_map (the name you want for each answer, to its questionId), and optionally trend_field (which mapped answer to chart; default the first that is numeric). The answer facts are read from the table answer_fact. Returns one row per time answered, oldest first, with the mapped answers and when; the numeric series for the trend; the latest row; and the count. A person who has not answered gets no rows. It reaches no database: give the person's form rows it reads as rows.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -2187,6 +1539,18 @@
             "trend_field": {
               "type": "string",
               "description": "Which output field to chart"
+            },
+            "rows": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "type",
+                  "value"
+                ]
+              },
+              "description": "The person's form rows this call reads ({id, type, value}, type the row's kind: question-sequence, answer-fact, segment-assignment, score-rule, segment-rule, follow-up-sequence), read by the caller from wherever the person keeps them"
             }
           }
         },
@@ -2222,29 +1586,17 @@
         "invoke": {
           "kind": "container",
           "internet": false,
-          "local_doors": [
-            "own-rows-postgres"
-          ],
           "workdir": "/opt/ask-questions-sort-answers-follow-up",
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/workflows/do-work/run-with-sql.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/ask-questions-sort-answers-follow-up/do-work/form-tools.mjs",
-            "readAnswerProgress",
-            "--sql",
-            "/opt/ask-questions-sort-answers-follow-up/sql"
+            "readAnswerProgress"
           ],
           "stdin": {
-            "input": {
-              "fill": {
-                "from": "input"
-              }
-            },
-            "task": {
-              "fill": {
-                "from": "task"
-              }
+            "fill": {
+              "from": "input"
             }
           },
           "files": {
@@ -2254,18 +1606,14 @@
                 "paths": [
                   "do-work",
                   "read-data",
-                  "data",
-                  "sql"
+                  "data"
                 ],
                 "at": "/opt/ask-questions-sort-answers-follow-up"
               },
               {
                 "package": "workflows",
                 "paths": [
-                  "do-work/run-with-sql.mjs",
-                  "read-data/sql.mjs",
-                  "read-data/with-sql.mjs",
-                  "sql"
+                  "do-work/run-a-function.mjs"
                 ],
                 "at": "/opt/workflows"
               },
@@ -2290,238 +1638,9 @@
                   "built-stored-bytes"
                 ],
                 "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
-              },
-              {
-                "packages": [
-                  "pg"
-                ],
-                "at": "/opt/node_modules/pg"
-              },
-              {
-                "packages": [
-                  "pg-connection-string"
-                ],
-                "at": "/opt/node_modules/pg-connection-string"
-              },
-              {
-                "packages": [
-                  "pg-pool"
-                ],
-                "at": "/opt/node_modules/pg-pool"
-              },
-              {
-                "packages": [
-                  "pg-protocol"
-                ],
-                "at": "/opt/node_modules/pg-protocol"
-              },
-              {
-                "packages": [
-                  "pg-types"
-                ],
-                "at": "/opt/node_modules/pg-types"
-              },
-              {
-                "packages": [
-                  "pg-int8"
-                ],
-                "at": "/opt/node_modules/pg-int8"
-              },
-              {
-                "packages": [
-                  "postgres-array"
-                ],
-                "at": "/opt/node_modules/postgres-array"
-              },
-              {
-                "packages": [
-                  "postgres-bytea"
-                ],
-                "at": "/opt/node_modules/postgres-bytea"
-              },
-              {
-                "packages": [
-                  "postgres-date"
-                ],
-                "at": "/opt/node_modules/postgres-date"
-              },
-              {
-                "packages": [
-                  "postgres-interval"
-                ],
-                "at": "/opt/node_modules/postgres-interval"
-              },
-              {
-                "packages": [
-                  "xtend"
-                ],
-                "at": "/opt/node_modules/xtend"
-              },
-              {
-                "packages": [
-                  "pgpass"
-                ],
-                "at": "/opt/node_modules/pgpass"
-              },
-              {
-                "packages": [
-                  "split2"
-                ],
-                "at": "/opt/node_modules/split2"
               }
             ]
-          },
-          "packages": {
-            "pg": {
-              "version": "8.23.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg/-/pg-8.23.1.tgz",
-                  "blake3": "d9fa473dbb66d6ebb3f9ed639504645825d90f0e581940545e394b97d540b827",
-                  "checked_against": "https://registry.npmjs.org/pg/8.23.1"
-                }
-              }
-            },
-            "pg-connection-string": {
-              "version": "2.14.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.1.tgz",
-                  "blake3": "3ebf322e73fbb3789b12506529485c3d34d2e0b496fa8b57ae0237dbfd605965",
-                  "checked_against": "https://registry.npmjs.org/pg-connection-string/2.14.1"
-                }
-              }
-            },
-            "pg-pool": {
-              "version": "3.14.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz",
-                  "blake3": "936d28ee7461005bc3b8fdb2003e6333a7079d654e21fa3f83fb85f1fe08cd1e",
-                  "checked_against": "https://registry.npmjs.org/pg-pool/3.14.0"
-                }
-              }
-            },
-            "pg-protocol": {
-              "version": "1.16.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.16.1.tgz",
-                  "blake3": "3604bc8340c62cb2451d63bf49496831fcf157a0da3c759f3794f64223a4bbb4",
-                  "checked_against": "https://registry.npmjs.org/pg-protocol/1.16.1"
-                }
-              }
-            },
-            "pg-types": {
-              "version": "2.2.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz",
-                  "blake3": "6c9524b7c592b94d3aad0399acf47ddf22c1eb53a24b9ae3ab14d4180a572945",
-                  "checked_against": "https://registry.npmjs.org/pg-types/2.2.0"
-                }
-              }
-            },
-            "pg-int8": {
-              "version": "1.0.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz",
-                  "blake3": "8f4971d42324eae73a49354f8e120dce0a6a95e159316a753558fc4644512efa",
-                  "checked_against": "https://registry.npmjs.org/pg-int8/1.0.1"
-                }
-              }
-            },
-            "postgres-array": {
-              "version": "2.0.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz",
-                  "blake3": "71fc338a8920999897cbaf581dc843d4ff3a910fe478f863b12c8a5da3dc0836",
-                  "checked_against": "https://registry.npmjs.org/postgres-array/2.0.0"
-                }
-              }
-            },
-            "postgres-bytea": {
-              "version": "1.0.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz",
-                  "blake3": "d1b058156ca51001e64ebe0efea72ef9befe365ba66b4731f5b591052f060553",
-                  "checked_against": "https://registry.npmjs.org/postgres-bytea/1.0.1"
-                }
-              }
-            },
-            "postgres-date": {
-              "version": "1.0.7",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz",
-                  "blake3": "005396786ab1c87c62c9f2422040e90711000bdf26d3d673e1073b9972e1a079",
-                  "checked_against": "https://registry.npmjs.org/postgres-date/1.0.7"
-                }
-              }
-            },
-            "postgres-interval": {
-              "version": "1.2.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz",
-                  "blake3": "24a6078fab15e22e6ffc864acab92746d6bfcb0ee9569b0c2bed3d1fc12856f2",
-                  "checked_against": "https://registry.npmjs.org/postgres-interval/1.2.0"
-                }
-              }
-            },
-            "xtend": {
-              "version": "4.0.2",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz",
-                  "blake3": "3ac366571ec5d13e6beb846cd1eeb69193d47d833a19f6cada5ccdd0fcb0a8be",
-                  "checked_against": "https://registry.npmjs.org/xtend/4.0.2"
-                }
-              }
-            },
-            "pgpass": {
-              "version": "1.0.5",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz",
-                  "blake3": "d0f6f693abc27625c5ef62c1e75aa91cf0cf2769f74908bbdc541f748ad67a2d",
-                  "checked_against": "https://registry.npmjs.org/pgpass/1.0.5"
-                }
-              }
-            },
-            "split2": {
-              "version": "4.2.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz",
-                  "blake3": "5e0899c8843b75de6d7326c029931a636b3d19e854d05e53967ffde6d6b92005",
-                  "checked_against": "https://registry.npmjs.org/split2/4.2.0"
-                }
-              }
-            }
-          },
-          "credential_mounts": [
-            {
-              "secret_name": "own-rows-postgres-connection",
-              "fd": 3
-            }
-          ]
+          }
         },
         "provenance": {
           "source": "bitfield-packages packages/ask-questions-sort-answers-follow-up (its record builders and readers); the tools keep their rows in the person's own Postgres with plain SQL"
@@ -2529,9 +1648,28 @@
         "result_selector": "$.result",
         "verify": [
           {
-            "kind": "needs-a-machine",
-            "requires": "a Postgres-wire server on the local port the computer reports as own-rows-postgres, with its connection string held as own-rows-postgres-connection",
-            "proved_on": "2026-11-17"
+            "kind": "sample-run",
+            "input": {
+              "form_id": "sample-intake",
+              "respondent_id": "respondent-1",
+              "field_map": {
+                "budget": "budget"
+              },
+              "rows": [
+                {
+                  "id": "answer-fact:sample-intake:respondent-1:budget",
+                  "type": "answer-fact",
+                  "value": {
+                    "kind": "answer-fact",
+                    "formId": "sample-intake",
+                    "respondentId": "respondent-1",
+                    "questionId": "budget",
+                    "value": 2000,
+                    "answered_at": "2026-06-26T00:00:00Z"
+                  }
+                }
+              ]
+            }
           }
         ]
       }
@@ -2759,7 +1897,7 @@
         "id": "tool:read-latest-answers-as-lines",
         "label": "Latest answers as lines",
         "job": "Give the latest answers to a form as plain lines, each starting with the question it answers, ready to hand to a writer or a summary, from the database",
-        "description": "Give form_id and optionally respondent_id. The form is read from the table question_sequence and its answers from answer_fact. Returns lines: the most recent time the form was answered, one \"Question: answer\" line per non-empty answer (the bare answer when the question's label is not known).",
+        "description": "Give form_id and optionally respondent_id. The form is read from the table question_sequence and its answers from answer_fact. Returns lines: the most recent time the form was answered, one \"Question: answer\" line per non-empty answer (the bare answer when the question's label is not known). It reaches no database: give the person's form rows it reads as rows.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -2775,6 +1913,18 @@
             "respondent_id": {
               "type": "string",
               "description": "Only this person's answers"
+            },
+            "rows": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "type",
+                  "value"
+                ]
+              },
+              "description": "The person's form rows this call reads ({id, type, value}, type the row's kind: question-sequence, answer-fact, segment-assignment, score-rule, segment-rule, follow-up-sequence), read by the caller from wherever the person keeps them"
             }
           }
         },
@@ -2795,29 +1945,17 @@
         "invoke": {
           "kind": "container",
           "internet": false,
-          "local_doors": [
-            "own-rows-postgres"
-          ],
           "workdir": "/opt/ask-questions-sort-answers-follow-up",
           "stdout": "json",
           "argv": [
             "node",
-            "/opt/workflows/do-work/run-with-sql.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/ask-questions-sort-answers-follow-up/do-work/form-tools.mjs",
-            "readAnswerLines",
-            "--sql",
-            "/opt/ask-questions-sort-answers-follow-up/sql"
+            "readAnswerLines"
           ],
           "stdin": {
-            "input": {
-              "fill": {
-                "from": "input"
-              }
-            },
-            "task": {
-              "fill": {
-                "from": "task"
-              }
+            "fill": {
+              "from": "input"
             }
           },
           "files": {
@@ -2827,18 +1965,14 @@
                 "paths": [
                   "do-work",
                   "read-data",
-                  "data",
-                  "sql"
+                  "data"
                 ],
                 "at": "/opt/ask-questions-sort-answers-follow-up"
               },
               {
                 "package": "workflows",
                 "paths": [
-                  "do-work/run-with-sql.mjs",
-                  "read-data/sql.mjs",
-                  "read-data/with-sql.mjs",
-                  "sql"
+                  "do-work/run-a-function.mjs"
                 ],
                 "at": "/opt/workflows"
               },
@@ -2863,238 +1997,9 @@
                   "built-stored-bytes"
                 ],
                 "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
-              },
-              {
-                "packages": [
-                  "pg"
-                ],
-                "at": "/opt/node_modules/pg"
-              },
-              {
-                "packages": [
-                  "pg-connection-string"
-                ],
-                "at": "/opt/node_modules/pg-connection-string"
-              },
-              {
-                "packages": [
-                  "pg-pool"
-                ],
-                "at": "/opt/node_modules/pg-pool"
-              },
-              {
-                "packages": [
-                  "pg-protocol"
-                ],
-                "at": "/opt/node_modules/pg-protocol"
-              },
-              {
-                "packages": [
-                  "pg-types"
-                ],
-                "at": "/opt/node_modules/pg-types"
-              },
-              {
-                "packages": [
-                  "pg-int8"
-                ],
-                "at": "/opt/node_modules/pg-int8"
-              },
-              {
-                "packages": [
-                  "postgres-array"
-                ],
-                "at": "/opt/node_modules/postgres-array"
-              },
-              {
-                "packages": [
-                  "postgres-bytea"
-                ],
-                "at": "/opt/node_modules/postgres-bytea"
-              },
-              {
-                "packages": [
-                  "postgres-date"
-                ],
-                "at": "/opt/node_modules/postgres-date"
-              },
-              {
-                "packages": [
-                  "postgres-interval"
-                ],
-                "at": "/opt/node_modules/postgres-interval"
-              },
-              {
-                "packages": [
-                  "xtend"
-                ],
-                "at": "/opt/node_modules/xtend"
-              },
-              {
-                "packages": [
-                  "pgpass"
-                ],
-                "at": "/opt/node_modules/pgpass"
-              },
-              {
-                "packages": [
-                  "split2"
-                ],
-                "at": "/opt/node_modules/split2"
               }
             ]
-          },
-          "packages": {
-            "pg": {
-              "version": "8.23.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg/-/pg-8.23.1.tgz",
-                  "blake3": "d9fa473dbb66d6ebb3f9ed639504645825d90f0e581940545e394b97d540b827",
-                  "checked_against": "https://registry.npmjs.org/pg/8.23.1"
-                }
-              }
-            },
-            "pg-connection-string": {
-              "version": "2.14.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.1.tgz",
-                  "blake3": "3ebf322e73fbb3789b12506529485c3d34d2e0b496fa8b57ae0237dbfd605965",
-                  "checked_against": "https://registry.npmjs.org/pg-connection-string/2.14.1"
-                }
-              }
-            },
-            "pg-pool": {
-              "version": "3.14.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz",
-                  "blake3": "936d28ee7461005bc3b8fdb2003e6333a7079d654e21fa3f83fb85f1fe08cd1e",
-                  "checked_against": "https://registry.npmjs.org/pg-pool/3.14.0"
-                }
-              }
-            },
-            "pg-protocol": {
-              "version": "1.16.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.16.1.tgz",
-                  "blake3": "3604bc8340c62cb2451d63bf49496831fcf157a0da3c759f3794f64223a4bbb4",
-                  "checked_against": "https://registry.npmjs.org/pg-protocol/1.16.1"
-                }
-              }
-            },
-            "pg-types": {
-              "version": "2.2.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz",
-                  "blake3": "6c9524b7c592b94d3aad0399acf47ddf22c1eb53a24b9ae3ab14d4180a572945",
-                  "checked_against": "https://registry.npmjs.org/pg-types/2.2.0"
-                }
-              }
-            },
-            "pg-int8": {
-              "version": "1.0.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz",
-                  "blake3": "8f4971d42324eae73a49354f8e120dce0a6a95e159316a753558fc4644512efa",
-                  "checked_against": "https://registry.npmjs.org/pg-int8/1.0.1"
-                }
-              }
-            },
-            "postgres-array": {
-              "version": "2.0.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz",
-                  "blake3": "71fc338a8920999897cbaf581dc843d4ff3a910fe478f863b12c8a5da3dc0836",
-                  "checked_against": "https://registry.npmjs.org/postgres-array/2.0.0"
-                }
-              }
-            },
-            "postgres-bytea": {
-              "version": "1.0.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz",
-                  "blake3": "d1b058156ca51001e64ebe0efea72ef9befe365ba66b4731f5b591052f060553",
-                  "checked_against": "https://registry.npmjs.org/postgres-bytea/1.0.1"
-                }
-              }
-            },
-            "postgres-date": {
-              "version": "1.0.7",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz",
-                  "blake3": "005396786ab1c87c62c9f2422040e90711000bdf26d3d673e1073b9972e1a079",
-                  "checked_against": "https://registry.npmjs.org/postgres-date/1.0.7"
-                }
-              }
-            },
-            "postgres-interval": {
-              "version": "1.2.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz",
-                  "blake3": "24a6078fab15e22e6ffc864acab92746d6bfcb0ee9569b0c2bed3d1fc12856f2",
-                  "checked_against": "https://registry.npmjs.org/postgres-interval/1.2.0"
-                }
-              }
-            },
-            "xtend": {
-              "version": "4.0.2",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz",
-                  "blake3": "3ac366571ec5d13e6beb846cd1eeb69193d47d833a19f6cada5ccdd0fcb0a8be",
-                  "checked_against": "https://registry.npmjs.org/xtend/4.0.2"
-                }
-              }
-            },
-            "pgpass": {
-              "version": "1.0.5",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz",
-                  "blake3": "d0f6f693abc27625c5ef62c1e75aa91cf0cf2769f74908bbdc541f748ad67a2d",
-                  "checked_against": "https://registry.npmjs.org/pgpass/1.0.5"
-                }
-              }
-            },
-            "split2": {
-              "version": "4.2.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz",
-                  "blake3": "5e0899c8843b75de6d7326c029931a636b3d19e854d05e53967ffde6d6b92005",
-                  "checked_against": "https://registry.npmjs.org/split2/4.2.0"
-                }
-              }
-            }
-          },
-          "credential_mounts": [
-            {
-              "secret_name": "own-rows-postgres-connection",
-              "fd": 3
-            }
-          ]
+          }
         },
         "provenance": {
           "source": "bitfield-packages packages/ask-questions-sort-answers-follow-up (its record builders and readers); the tools keep their rows in the person's own Postgres with plain SQL"
@@ -3102,9 +2007,41 @@
         "result_selector": "$.result",
         "verify": [
           {
-            "kind": "needs-a-machine",
-            "requires": "a Postgres-wire server on the local port the computer reports as own-rows-postgres, with its connection string held as own-rows-postgres-connection",
-            "proved_on": "2026-11-17"
+            "kind": "sample-run",
+            "input": {
+              "form_id": "sample-intake",
+              "respondent_id": "respondent-1",
+              "rows": [
+                {
+                  "id": "question-sequence:sample-intake",
+                  "type": "question-sequence",
+                  "value": {
+                    "kind": "question-sequence",
+                    "formId": "sample-intake",
+                    "title": "Sample intake",
+                    "questions": [
+                      {
+                        "questionId": "budget",
+                        "questionTypeId": "number",
+                        "label": "Budget"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "id": "answer-fact:sample-intake:respondent-1:budget",
+                  "type": "answer-fact",
+                  "value": {
+                    "kind": "answer-fact",
+                    "formId": "sample-intake",
+                    "respondentId": "respondent-1",
+                    "questionId": "budget",
+                    "value": 2000,
+                    "answered_at": "2026-06-26T00:00:00Z"
+                  }
+                }
+              ]
+            }
           }
         ]
       }

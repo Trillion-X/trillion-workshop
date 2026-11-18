@@ -1,17 +1,15 @@
 // Unknown-sender pairing (read-data/sender-pairing.mjs, moved from Trillion-X/trillion test/sender-pairing.test.mjs): an event rule naming paired_senders holds an unknown sender's event and gives
 // them a short code; approving the code pairs them; the cap, expiry, repeat and revoke rules hold. The first test is trillion's own, over facts in a Map;
-// the others keep the facts in the table sender_pairing of a real PostgreSQL server and run the shipped rows as the engine runs them.
-import test, { after, before, beforeEach } from 'node:test';
+// the others hand the facts in as values and keep what each answer says to keep, running the shipped rows as the engine runs them.
+import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { makeSenderPairing } from '../read-data/sender-pairing.mjs';
-import { factsOver } from '../read-data/pairing-tools.mjs';
-import { applySqlFiles, sqlFiles } from '../../workflows/read-data/sql.mjs';
-import { runRowIn, startDatabase } from '../../workflows/test-helpers/rows-in-sql.mjs';
+import { factsFrom } from '../read-data/pairing-tools.mjs';
+import { answerOf } from '../../../test-helpers/run-a-row.mjs';
 
 const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
 const rowOf = id => rows.find(row => row.id === id);
-const own = new URL('../sql/', import.meta.url);
 const CODE = /^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{8}$/;
 
 const kept = facts => ({
@@ -44,15 +42,10 @@ async function theCapAndExpiry(facts) {
 
 test('a code is 8 unambiguous characters, repeats for the same sender, is capped per source, expires, and works once', () => theCapAndExpiry(kept(new Map())));
 
-let db;
-before(async () => { db = await startDatabase(); });
-after(async () => { await db.stop(); });
-beforeEach(async () => { await db.reset(); await applySqlFiles(db.sql, sqlFiles(own)); });
+test('the same rules hold over given facts, and every write is gathered to keep', () => theCapAndExpiry(factsFrom({})));
 
-test('the same rules hold over the facts kept in the table sender_pairing', () => theCapAndExpiry(factsOver(db.sql)));
-
-test('a fact is one row per name: a name written again is replaced, a prefix lists only its own names, and a prefix with % or _ is plain text', async () => {
-  const facts = factsOver(db.sql);
+test('a fact is one value per name: a name written again is replaced, a prefix lists only its own names, and a prefix with % or _ is plain text', async () => {
+  const facts = factsFrom({});
   await facts.write('pairing-waiting:events:a:AAAAAAAA', { source_id: 'events:a', sender: 'ana', code: 'AAAAAAAA' });
   await facts.write('pairing-waiting:events:a:AAAAAAAA', { source_id: 'events:a', sender: 'ana', code: 'AAAAAAAA', removed: true });
   await facts.write('pairing-waiting:events_a:BBBBBBBB', { source_id: 'events_a', sender: 'bo', code: 'BBBBBBBB' });
@@ -60,42 +53,48 @@ test('a fact is one row per name: a name written again is replaced, a prefix lis
   assert.equal(await facts.read('pairing-waiting:nothing'), null);
   assert.deepEqual((await facts.list('pairing-waiting:events_a:')).map(value => value.sender), ['bo']);
   assert.deepEqual((await facts.list('pairing-waiting:events%')), []);
-  assert.deepEqual((await db.sql('select source_id from sender_pairing order by id')).map(row => row.source_id), ['events:a', 'events_a']);
+  assert.deepEqual([...facts.kept.keys()], ['pairing-waiting:events:a:AAAAAAAA', 'pairing-waiting:events_a:BBBBBBBB']);
+  assert.throws(() => factsFrom([]), /facts must be an object/);
 });
 
-const run = (id, input) => runRowIn(rowOf(id), { input, task: { request_key: `${id}-key` } }, { connection: db.connection });
+// The person's kept facts across calls: each call is given them and they take what its answer says to keep.
+const held = {};
+const run = async (id, input) => {
+  const answer = await answerOf(rowOf(id), { ...input, facts: structuredClone(held) });
+  for (const { name, value } of answer.result?.keep ?? []) held[name] = value;
+  return answer;
+};
 
-test('the rows keep the pairing in the person\'s own database: request, repeat, approve, list, revoke', async () => {
+test('the rows keep nothing themselves: request, repeat, approve, list, revoke, with the facts handed in and kept by the caller', async () => {
   const first = await run('tool:pair-an-unknown-sender', { source_id: 'events:a', sender: 'sender-one' });
-  assert.equal(first.code, 0, first.stderr);
-  assert.match(first.last.result.code, CODE);
-  assert.match(first.last.result.said, /sender-one is not paired yet/);
-  assert.deepEqual((await db.sql('select id from sender_pairing')).map(row => row.id), [`pairing-waiting:events:a:${first.last.result.code}`]);
+  assert.equal(first.status, 0, first.error);
+  assert.match(first.result.code, CODE);
+  assert.match(first.result.said, /sender-one is not paired yet/);
+  assert.deepEqual(Object.keys(held), [`pairing-waiting:events:a:${first.result.code}`]);
   const again = await run('tool:pair-an-unknown-sender', { source_id: 'events:a', sender: 'sender-one' });
-  assert.equal(again.last.result.code, first.last.result.code, 'asking again makes no second code');
-  assert.equal((await db.sql('select id from sender_pairing')).length, 1);
-  const approved = await run('tool:approve-a-pairing-code', { code: first.last.result.code.toLowerCase() });
-  assert.equal(approved.last.result.sender, 'sender-one');
+  assert.equal(again.result.code, first.result.code, 'asking again makes no second code');
+  assert.deepEqual(again.result.keep, [], 'and keeps nothing new');
+  const approved = await run('tool:approve-a-pairing-code', { code: first.result.code.toLowerCase() });
+  assert.equal(approved.result.sender, 'sender-one');
   const listed = await run('tool:list-paired-senders', { source_id: 'events:a', sender: 'sender-one' });
-  assert.deepEqual(listed.last.result.waiting, []);
-  assert.deepEqual(listed.last.result.paired.map(row => row.sender), ['sender-one']);
-  assert.equal(listed.last.result.is_paired, true);
-  const twice = await run('tool:approve-a-pairing-code', { code: first.last.result.code });
-  assert.match(twice.last.error, /No waiting pairing code/);
+  assert.deepEqual(listed.result.waiting, []);
+  assert.deepEqual(listed.result.paired.map(row => row.sender), ['sender-one']);
+  assert.equal(listed.result.is_paired, true);
+  const twice = await run('tool:approve-a-pairing-code', { code: first.result.code });
+  assert.match(twice.error, /No waiting pairing code/);
   const revoked = await run('tool:unpair-a-sender', { source_id: 'events:a', sender: 'sender-one' });
-  assert.match(revoked.last.result.said, /no longer paired/);
+  assert.match(revoked.result.said, /no longer paired/);
   const after = await run('tool:list-paired-senders', { source_id: 'events:a', sender: 'sender-one' });
-  assert.equal(after.last.result.is_paired, false);
+  assert.equal(after.result.is_paired, false);
 });
 
-test('each row has the one SQL shape: the held connection on descriptor 3, the one local door, no internet, no records right, and the files it imports', () => {
+test('each row reaches nothing: no database door, no held value, no internet, no records right, and only the files it imports', () => {
   assert.equal(rows.filter(row => row.kind === 'ai-tool-descriptor').length, 4);
   for (const row of rows) {
     assert.equal(row.invoke.internet, false, row.id);
-    assert.deepEqual(row.invoke.local_doors, ['own-rows-postgres'], row.id);
-    assert.deepEqual(row.invoke.credential_mounts, [{ secret_name: 'own-rows-postgres-connection', fd: 3 }], row.id);
+    assert.equal(row.invoke.local_doors, undefined, row.id);
+    assert.equal(row.invoke.credential_mounts, undefined, row.id);
     assert.equal(row.invoke.records, undefined, row.id);
-    assert.equal(row.invoke.files.package_files.some(spec => spec.package === 'records-door'), false, row.id);
-    assert.deepEqual(row.verify.map(item => item.kind), ['needs-a-machine'], row.id);
+    assert.equal(row.invoke.packages, undefined, row.id);
   }
 });
