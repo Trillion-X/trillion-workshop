@@ -19,11 +19,6 @@
     },
     {
       "type": "stored_bytes",
-      "name": "request-ai-agent-profile-update",
-      "source_path": "do-work/request-ai-agent-profile-update.ts"
-    },
-    {
-      "type": "stored_bytes",
       "name": "validate-ai-agent-profile",
       "source_path": "do-work/validate-ai-agent-profile.ts"
     },
