@@ -86,6 +86,13 @@
                 "at": "/opt/run-work-later-or-on-a-repeat"
               },
               {
+                "package": "run-sql-in-my-database",
+                "paths": [
+                  "do-work/through-the-run-proxy.mjs"
+                ],
+                "at": "/opt/run-sql-in-my-database"
+              },
+              {
                 "packages": [
                   "node_modules/@noble/hashes"
                 ],

@@ -59,9 +59,17 @@ export const readSql = (table) => `SELECT position::text AS position, txid::text
   WHERE txid < pg_snapshot_xmin(pg_current_snapshot()) AND ($1::xid8 IS NULL OR (txid, position) > ($1::xid8, $2::bigint))
   ORDER BY txid, position LIMIT $3`;
 
+// A run the engine sandboxes reaches the database only through the run's own proxy, which the engine names in HTTPS_PROXY:
+// a direct connect is refused (EPERM). The tunnel is run-sql-in-my-database's, laid beside this tool by the row.
+export async function clientOptions(connection, proxy = process.env.HTTPS_PROXY) {
+  if (!proxy) return { connectionString: connection };
+  const { throughProxy } = await import("../../../run-sql-in-my-database/do-work/through-the-run-proxy.mjs");
+  return { connectionString: connection, stream: throughProxy(proxy) };
+}
+
 async function connectWithPg(connection) {
   const { default: pg } = await import("pg");
-  const client = new pg.Client({ connectionString: connection });
+  const client = new pg.Client(await clientOptions(connection));
   await client.connect();
   return client;
 }

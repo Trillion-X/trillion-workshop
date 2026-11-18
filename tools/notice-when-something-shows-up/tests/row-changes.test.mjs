@@ -2,7 +2,7 @@
 // again, the kept place resumed after a restart, a NOTIFY waking it before look_again. Made-up rows.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { describeMechanism, readSettings, readSql, watchForTransitions } from '../do-work/mechanisms/row-changes.mjs';
+import { clientOptions, describeMechanism, readSettings, readSql, watchForTransitions } from '../do-work/mechanisms/row-changes.mjs';
 
 const change = (txid, position, op = 'INSERT') => ({ database: 'p_made_up', txid: String(txid), position: String(position), at: '2026-11-18T14:00:00Z', table_name: 'notes', op, before: null, after: { id: position } });
 // A stand-in client: answers each read with the committed changes after the place asked, and can announce on a channel.
@@ -82,4 +82,21 @@ test('a NOTIFY on its channel reads at once instead of waiting', async () => {
   stand.notify('row_changes');
   await done;
   assert.deepEqual(told.map(item => item.event_key), ['p_made_up:5:5']);
+});
+
+test("a sandboxed run reaches the database only through the run's proxy: each connection is one CONNECT to the database's host and port", async () => {
+  const { createServer } = await import("node:net");
+  const asked = [];
+  const proxy = createServer((socket) => socket.once("data", (chunk) => { asked.push(chunk.toString("latin1").split("\r\n")[0]); socket.end("HTTP/1.1 403 Forbidden\r\n\r\n"); }));
+  await new Promise((resolve) => proxy.listen(0, "127.0.0.1", resolve));
+  try {
+    assert.deepEqual(await clientOptions("postgres://db.example.test:5432/rows", undefined), { connectionString: "postgres://db.example.test:5432/rows" });
+    const options = await clientOptions("postgres://db.example.test:5432/rows", `http://127.0.0.1:${proxy.address().port}`);
+    const tunnel = options.stream().connect(5432, "db.example.test");
+    const refused = await new Promise((resolve) => tunnel.once("error", resolve));
+    assert.match(refused.message, /the run's proxy did not open db\.example\.test:5432 \(answered 403\)/);
+    assert.deepEqual(asked, ["CONNECT db.example.test:5432 HTTP/1.1"]);
+  } finally {
+    proxy.close();
+  }
 });
