@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Switch one of my show-rule presets on or off\", and give it use: { type, on }.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:switch-a-kept-show-type and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:switch-a-kept-show-type and its input (the worked example shows one).",
     "3. Read what comes back: Switches a type you keep on or off (use: { type, on }); only types you keep can be on, and a type applies only while it is on.",
     "4. It only reads the show-rules setting it is given and keeps nothing: the answer's keep is the record for your own write."
   ],
@@ -19,7 +19,7 @@
       "ask": "Switch one of my show-rule presets on or off",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

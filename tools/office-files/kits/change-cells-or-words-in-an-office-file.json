@@ -20,7 +20,7 @@
       "ask": "In /work/budget.xlsx change the price text to $100/month bundle and make the 999 in the formula say n/a, writing /work/budget-new.xlsx.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

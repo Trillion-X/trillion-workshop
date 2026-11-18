@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Work out what a buyer would pay for one of my offers and one of its prices: what is due today, what repeats and when, with a trial, a per-unit count, a code or an amount they choose\", and give it checkoutAttemptId; checkoutStartedAt; offerId; priceOptionId.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:price-a-sale and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:price-a-sale and its input (the worked example shows one).",
     "3. Read what comes back: Give offers (your offer rows), offerId, priceOptionId, checkoutAttemptId and checkoutStartedAt, and optionally adjustments (your code-adjustment rows), suggestions (your suggested-amount rows), checkoutCode, unitCount, customerSelectedAmountCents or chargeDimensions."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Work out what a buyer would pay for one of my offers and one of its prices: what is due today, what repeats and when, with a trial, a per-unit count, a code or an amount they choose",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

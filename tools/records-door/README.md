@@ -30,7 +30,7 @@ A row asks for the door in its invoke, with one rights item per record kind:
   read_file `{ name_or_identity, offset?, length? }` answers one part of a file's bytes). A run handed no files right is
   refused before anything is sent (`no_files`).
 - Without `"internet": true` the run can reach only the door's loopback port.
-- Operations (`run_resource_operation` at `@own-records`):
+- Operations (`do_one_thing_in_my_account` at `@own-records`):
   - `records:read { id, type }` gives `{ id, type, value }`. value is null when the record is absent or of another kind.
   - `workspace:read { selection: { labels: [...], prefixes: [] } }` reads the exact selected workspace labels through the
     existing selected-account reader and answers its HTTP result envelope (`status`, `content_type`, `text`). The run

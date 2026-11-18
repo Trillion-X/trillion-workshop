@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Record, for a short bounded time, what the person does on their Mac (clicks, typing, shortcuts, with the app and the control each was in) and give it back as a draft workflow in words an AI can keep after the person has looked at it\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:record-a-demonstration and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:record-a-demonstration and its input (the worked example shows one).",
     "3. Read what comes back: Give seconds (1 to 300; 30 when left out)."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Record, for a short bounded time, what the person does on their Mac (clicks, typing, shortcuts, with the app and the control each was in) and give it back as a draft workflow in words an AI can keep after the person has looked at it",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -12,7 +12,7 @@
   ],
   "instructions": [
     "1. Do not run this by hand: tool:connect-an-account-by-signing-in-to-the-service runs it for you at the sign-in callback, after you open the sign-in address it gave you. Start that tool first (its kit shows the call) and keep the connection_id it answers: service_connection:facebook-messenger:7d3c88e1 is the shape.",
-    "2. To run this step alone, the AI calls run_resource_operation at @tools with method tools:run, tool tool:trade-a-short-facebook-token-for-a-long-one and the input the worked example shows (the connection by its handle only).",
+    "2. To run this step alone, the AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:trade-a-short-facebook-token-for-a-long-one and the input the worked example shows (the connection by its handle only).",
     "3. Read what comes back: the service's reply with every kept token already replaced by the word [held]. The 60-day user token now sits in the vault as the connection's user_access_token field.",
     "4. A refusal (a used-up code, a wrong callback address) is shown as the service's own error; nothing is kept, so start the sign-in again for a new link."
   ],
@@ -22,7 +22,7 @@
       "ask": "Trade a short Facebook token for the 60-day one for service_connection:facebook-messenger:7d3c88e1.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

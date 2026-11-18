@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Offer to connect a service when words I wrote link to one I have not connected\", and give it text; tools.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:suggest-connections-from-links and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:suggest-connections-from-links and its input (the worked example shows one).",
     "3. Read what comes back: Give text (the words to read links from, with or without https://) and tools (the connection rows, each { id, invoke: { provider, connects: { domain } } }), and connected (providers already connected, left out of the answer)."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Offer to connect a service when words I wrote link to one I have not connected",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

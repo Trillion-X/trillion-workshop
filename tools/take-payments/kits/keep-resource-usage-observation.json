@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Check an attributed measured source attempt, or its unknown outcome, and answer it exact, with a correcting event that points at the earlier one instead of rewriting history\", and give it observation.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:keep-resource-usage-observation and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:keep-resource-usage-observation and its input (the worked example shows one).",
     "3. Read what comes back: record_id; observation, as the worked example shows.",
     "4. It reads no rows and keeps nothing: keep the observation it answers wherever you keep your own history, and give it back to settle-shared-resource-cost."
   ],
@@ -19,7 +19,7 @@
       "ask": "Check an attributed measured source attempt, or its unknown outcome, and answer it exact, with a correcting event that points at the earlier one instead of rewriting history",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Pair a community's members on its cadence without anyone asking: start a round when it is due, close it at its deadline, make introductions everyone said yes to, and follow up the ones nobody acted on\", and give it community_id (The community whose matchmaker runs: its settings are the match-community record of this id.).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:advance-a-community-matchmaker and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:advance-a-community-matchmaker and its input (the worked example shows one).",
     "3. Read what comes back: The wake target of a community's matchmaker; a person declares it as their own wake (a wake-declaration record with tool tool:advance-a-community-matchmaker, a time repeat, and input { community_id }).",
     "4. It reads and keeps no records: your AI reads the community's records from a store and hands them in as `records`, and puts the answer's `write` (each changed record with the value it expected) in the store."
   ],
@@ -20,7 +20,7 @@
       "ask": "Pair a community's members on its cadence without anyone asking: start a round when it is due, close it at its deadline, make introductions everyone said yes to, and follow up the ones nobody acted on",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

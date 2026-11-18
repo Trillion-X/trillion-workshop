@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Make a Stripe hosted checkout whose money goes to a person I pay, with my fee kept back\", and give it offer_id; price_option_id; payer_ref; success_url; cancel_url.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:start-a-stripe-checkout-that-pays-someone-else and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:start-a-stripe-checkout-that-pays-someone-else and its input (the worked example shows one).",
     "3. Read what comes back: Give offers (your offer rows), offer_id, price_option_id, payer_ref, payee_account (their Stripe account id), fee ({ percent }), success_url and cancel_url."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Make a Stripe hosted checkout whose money goes to a person I pay, with my fee kept back",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

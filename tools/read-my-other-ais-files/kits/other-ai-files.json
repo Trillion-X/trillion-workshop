@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Read the instructions, commands, skills and MCP servers the person already keeps for their other AI apps (Claude Code, Codex, Cursor, Claude Desktop, Gemini CLI, Windsurf), in place, without copying them\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:other-ai-files and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:other-ai-files and its input (the worked example shows one).",
     "3. Read what comes back: Lists every entry the rows of read-data/other-ai-files.json name that exists under the folder the person granted (their home folder), as source/kind/name with its app label and size and no contents; `source` and `kind` narrow the list."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Read the instructions, commands, skills and MCP servers the person already keeps for their other AI apps (Claude Code, Codex, Cursor, Claude Desktop, Gemini CLI, Windsurf), in place, without copying them",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

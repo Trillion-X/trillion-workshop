@@ -61,7 +61,7 @@ test('only lists that name a row type are offered, labelled by their label or th
     'an unavailable or malformed list read is not presented as an empty account');
   const asked = [];
   const read = await readLists(async (name, args) => { asked.push([name, args.method]); return answer; });
-  assert.deepEqual(asked, [['run_resource_operation', 'records:list']]);
+  assert.deepEqual(asked, [['do_one_thing_in_my_account', 'records:list']]);
   assert.equal(read.length, 2);
   await assert.rejects(readLists(async () => { throw new Error('Trillion is busy'); }), /busy/);
 });

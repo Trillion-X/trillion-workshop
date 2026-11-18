@@ -36,7 +36,7 @@ files declares a `files` rights item and calls `door.files(...)`. No engine chan
 ## What a person outside the Mac can do with a file today
 
 - **Through their AI**: an AI signed in to the person's door (at any computer that can reach it) calls
-  `run_resource_operation` at `@namespace`. It can put a file in with `write_file` (small) or
+  `do_one_thing_in_my_account` at `@namespace`. It can put a file in with `write_file` (small) or
   `write_file_start` / `write_file_piece` / `write_file_finish` (any size, in pieces), and get one out with
   `read_file` (exact byte ranges) or `show_file`.
 - **Through a Workshop tool**: any row that declares a `files` right does the same within the folder it names.

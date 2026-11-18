@@ -7,7 +7,7 @@
 //   The command: any AI that can run a shell (Claude Code, Codex, Cursor, Gemini CLI, opencode, a script) sees
 //   the person's AIs and their AI jobs, hands and takes work, lists and runs Workshop tools and runs any engine
 //   operation, with no MCP connection of its own. Every command is ONE call of the engine's one MCP tool,
-//   run_resource_operation {address, method, request_key, input} (command.json `engine`), at the account's door: the Mac
+//   do_one_thing_in_my_account {address, method, request_key, input} (command.json `engine`), at the account's door: the Mac
 //   app's local door when this computer has one (./local-door.mjs), else the address given (--origin or {CLI}_ORIGIN). The engine's own
 //   checks and the Workshop work tools (tools/hand-work-to-ais) decide; nothing here decides, stores or routes work.
 //
@@ -25,7 +25,7 @@
 //                                         (replay-recorded-writes.mjs)
 //
 // Non-negotiable invariants
-//   1. One road: run_resource_operation over MCP JSON-RPC at the door. The only other addresses are the public origin's
+//   1. One road: do_one_thing_in_my_account over MCP JSON-RPC at the door. The only other addresses are the public origin's
 //      own sign-in (OAuth, at the endpoints its /.well-known documents name), used by login and to renew the sign-in it kept.
 //   2. The credential is the account's existing key (the Keychain item the site's Mac app keeps, else a 0600 file, else
 //      {CLI}_KEY) or the sign-in login kept. It is read into memory only, never printed, never put in a command line
@@ -692,7 +692,7 @@ export function retryGap(retry, attempt, asked = null, random = Math.random) {
 }
 
 /**
- * One account's door: `rpc(method, params)`, `tool(name, args)`, `op(address, method, input)` (one run_resource_operation
+ * One account's door: `rpc(method, params)`, `tool(name, args)`, `op(address, method, input)` (one do_one_thing_in_my_account
  * with one request_key, reused on every retry) and `whoami()` (MCP initialize: the account in result._meta). A refusal
  * names the door: 401 is the door refusing this credential, 404 is a route the door does not serve.
  */
@@ -1294,7 +1294,7 @@ const HELP = `{cli}: see your AIs and their work, and run your {site_name}'s too
   {cli} publish [--dry-run]                           write this AI's own record: its facts and that it was seen now
   {cli} tools | call TOOL JSON|-                      your Workshop tools, and run one by its id
   {cli} connect ADDRESS                               sign in to a remote tool server (an MCP server's https address); then any AI calls its tools by that address
-  {cli} op METHOD JSON|-                              any engine operation by its method (run_resource_operation); op --dry-run shows the request and sends nothing
+  {cli} op METHOD JSON|-                              any engine operation by its method (do_one_thing_in_my_account); op --dry-run shows the request and sends nothing
   --timeout SECONDS  wait this long for one try of a call (default ${settings.retry.attempt_seconds}); a try with no answer is asked again, up to ${settings.retry.count} more times, under the same request key
   {cli} schedule list | read ID                       list wake schedules or read one with its admitted runs
   {cli} schedule at ID TOOL WAKE_ID TIME BUDGET_JSON INPUT_JSON | repeat ID TOOL WAKE_ID EVERY_MS BUDGET_JSON INPUT_JSON [--from TIME]   create one

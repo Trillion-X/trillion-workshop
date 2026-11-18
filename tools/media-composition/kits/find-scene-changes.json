@@ -10,7 +10,7 @@
   "instructions": [
     "1. Find your video's identity in your files: 1f: then 64 hex.",
     "2. Say \"Find the scene changes in this video\" with that identity. Add threshold (0.01 to 1, default 0.3): a higher threshold finds fewer, harder cuts.",
-    "3. The AI calls run_resource_operation at @tools with method tools:run and tool tool:find-scene-changes. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
+    "3. The AI calls do_one_thing_in_my_account at @tools with method tools:run and tool tool:find-scene-changes. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
     "4. Read result.cuts (seconds, the very first frame is never counted) and result.count. Cut the video at those times, or raise the threshold if there are too many."
   ],
   "worked_examples": [
@@ -19,7 +19,7 @@
       "ask": "Find the cuts in my video.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {
@@ -38,7 +38,7 @@
       "ask": "Only find the hardest cuts, threshold 0.9.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

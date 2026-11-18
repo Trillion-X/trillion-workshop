@@ -19,7 +19,7 @@
       "ask": "Build the training rows for my two writing rules plain-words and said-aloud, holding the test lines out first.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

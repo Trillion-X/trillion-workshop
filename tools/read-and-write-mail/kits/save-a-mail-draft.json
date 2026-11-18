@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Connect your mail account in your Workshop connections and note its handle, like service_connection:google-account:sam-bakery; the provider is the id in read-data/mail-providers.json that account is on (gmail for it).",
-    "2. Say to your AI: \"Save a draft to alex@example.com saying thanks for the invoice.\" and let it call run_resource_operation at @tools with method tools:run, tool tool:save-a-mail-draft and the input {\"provider\":\"gmail\",\"connection\":{\"connection_id\":\"service_connection:google-account:sam-bakery\"},\"from\":\"sam@example.com\",\"to\":\"alex@example.com\",\"subject\":\"Re: Invoice 1042\",\"text\":\"Thanks, Alex.\"}.",
+    "2. Say to your AI: \"Save a draft to alex@example.com saying thanks for the invoice.\" and let it call do_one_thing_in_my_account at @tools with method tools:run, tool tool:save-a-mail-draft and the input {\"provider\":\"gmail\",\"connection\":{\"connection_id\":\"service_connection:google-account:sam-bakery\"},\"from\":\"sam@example.com\",\"to\":\"alex@example.com\",\"subject\":\"Re: Invoice 1042\",\"text\":\"Thanks, Alex.\"}.",
     "3. Read what comes back: the draft id to send or change, nothing was sent.",
     "4. A provider that does not offer the job says so in words and nothing is sent."
   ],
@@ -20,7 +20,7 @@
       "ask": "Save a draft to alex@example.com saying thanks for the invoice.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

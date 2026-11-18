@@ -33,7 +33,7 @@
       "ask": "Find companies whose job post has been open three weeks or more and who might need my help.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

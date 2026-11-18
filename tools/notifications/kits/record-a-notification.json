@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Record one notification event for the audience the caller names, so it is kept and can be read back; nothing is delivered\", and give it notification_id; kind; audience_refs; conversation_ref; privacy_class; title; body; occurred_at; source_refs; proof_refs.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:record-a-notification and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:record-a-notification and its input (the worked example shows one).",
     "3. Read what comes back: Pass the event: notification_id, kind, conversation_ref, privacy_class, title, body, occurred_at (words) and audience_refs, source_refs, proof_refs (each at least one reference).",
     "4. It reads and writes only its own rows through the records door: notification-event (records:read, records:write); notification-event-rules (records:read)."
   ],
@@ -19,7 +19,7 @@
       "ask": "Record one notification event for the audience the caller names, so it is kept and can be read back; nothing is delivered",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

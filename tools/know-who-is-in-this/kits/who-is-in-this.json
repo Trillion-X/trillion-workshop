@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Name who said each stretch of a call or recording, from the voices of people who agreed to be known\", and give it file (The recording (audio or video), by identity in your files); segments (The transcript's timed stretches, in seconds, in order).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:who-is-in-this and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:who-is-in-this and its input (the worked example shows one).",
     "3. Read what comes back: Takes a recording and its transcript (the timed stretches tools/audio-transcription gives) and answers each turn with who said it: the person's name when one enrolled person is clearly the closest voice; every person it could be when two are too close to tell, so a guess is never made silently; otherwise an unknown voice with a number that stays the same for the whole listening, across every recording of it."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Name who said each stretch of a call or recording, from the voices of people who agreed to be known",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

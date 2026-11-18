@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Check that a value has enough independent support before my AI acts on it\", and give it checks; need (How many optional checks must have passed).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:check-corroboration and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:check-corroboration and its input (the worked example shows one).",
     "3. Read what comes back: Takes named checks (each passed or not, some required) and how many of the optional ones must agree."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Check that a value has enough independent support before my AI acts on it",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

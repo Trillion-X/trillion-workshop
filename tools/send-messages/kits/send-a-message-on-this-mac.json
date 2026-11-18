@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Send a message to one person or a list from the Messages app on the person's own Mac\", and give it text.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:send-a-message-on-this-mac and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:send-a-message-on-this-mac and its input (the worked example shows one).",
     "3. Read what comes back: Give recipients (phone numbers or Apple ids Messages knows; to for one) and text."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Send a message to one person or a list from the Messages app on the person's own Mac",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

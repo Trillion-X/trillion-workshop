@@ -22,7 +22,7 @@
       "ask": "Turn my board's frames into slides.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {
@@ -38,7 +38,7 @@
       "ask": "Make just the second-body slide.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Decide whether a guided-tour step has met its advance condition: tapped next, touched the highlighted thing, answered, watched enough of a video, waited long enough, finished an embedded form, or a fact someone looked up has the right value\", and give it condition ({ op, args?).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:check-if-a-tour-step-may-advance and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:check-if-a-tour-step-may-advance and its input (the worked example shows one).",
     "3. Read what comes back: Give the step's advance condition ({ op, args }) and what is known now (signals: next_tapped, target_interacted, answer, media_ratio from 0 to 1, elapsed_ms, surface_completion_refs, owner_readbacks keyed by the fact's ref)."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Decide whether a guided-tour step has met its advance condition: tapped next, touched the highlighted thing, answered, watched enough of a video, waited long enough, finished an embedded form, or a fact someone looked up has the right value",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

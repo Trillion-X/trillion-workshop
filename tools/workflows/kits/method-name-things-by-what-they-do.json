@@ -21,7 +21,7 @@
       "ask": "Run workflow:method-name-things-by-what-they-do: name the screens and messages of a bakery's pre-order page.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

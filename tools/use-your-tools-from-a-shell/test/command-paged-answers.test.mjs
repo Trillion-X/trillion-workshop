@@ -29,7 +29,7 @@ const bigAnswer = () => {
 };
 
 /**
- * A fake door that answers run_resource_operation and pages any answer over `pageBytes`. `shape(page, args)` may change a
+ * A fake door that answers do_one_thing_in_my_account and pages any answer over `pageBytes`. `shape(page, args)` may change a
  * page before it is sent; `status(call)` may answer an HTTP status instead; `hash` is the BLAKE3 the door names. Every
  * call is kept in `seen`.
  */

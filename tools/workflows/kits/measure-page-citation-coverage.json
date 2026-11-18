@@ -20,7 +20,7 @@
       "ask": "Run tool:measure-page-citation-coverage for https://example.com/a on engine-one and engine-two with these recorded answers.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

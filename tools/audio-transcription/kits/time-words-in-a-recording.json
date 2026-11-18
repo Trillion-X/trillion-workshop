@@ -19,7 +19,7 @@
       "ask": "Time the words of recording.mp4 from 2.5 to 3.25 seconds with the small Whisper model.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

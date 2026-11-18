@@ -1,7 +1,7 @@
 // tools/read-a-list-view/read-data/door.mjs
 //
 // Purpose: the person's own door, as readListView and refreshRowSources use it (read, list, run, write), reached
-// from their own computer: one JSON-RPC `tools/call` of `run_resource_operation` per operation, POSTed to the door's
+// from their own computer: one JSON-RPC `tools/call` of `do_one_thing_in_my_account` per operation, POSTed to the door's
 // MCP address with the person's key as the Bearer token (the same transport as tools/export-records-as-list-rows'
 // record_write_send.py). A tool the config lists in `local_tools` runs here, on the person's computer, instead.
 //
@@ -115,7 +115,7 @@ export async function openDoor(config, { keyOf = credentialKey, signal } = {}) {
       step += 1;
       const again = attempt < BUSY_RETRIES;
       const body = JSON.stringify({ jsonrpc: '2.0', id: step, method: 'tools/call',
-        params: { name: 'run_resource_operation', arguments: { address, method, request_key, input } } });
+        params: { name: 'do_one_thing_in_my_account', arguments: { address, method, request_key, input } } });
       let response, text;
       try {
         response = await fetch(transport.url, { method: 'POST', body, ...(signal ? { signal } : {}), headers: {

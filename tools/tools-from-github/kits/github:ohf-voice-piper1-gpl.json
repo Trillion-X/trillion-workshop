@@ -8,7 +8,7 @@
     "tool:github:ohf-voice-piper1-gpl"
   ],
   "instructions": [
-    "1. Say to your AI: \"Use piper1-gpl on Welcome to our bakery. We open at seven.\". It reads the row with run_resource_operation at @tools, method tools:list, input {tool: \"tool:github:ohf-voice-piper1-gpl\"}.",
+    "1. Say to your AI: \"Use piper1-gpl on Welcome to our bakery. We open at seven.\". It reads the row with do_one_thing_in_my_account at @tools, method tools:list, input {tool: \"tool:github:ohf-voice-piper1-gpl\"}.",
     "2. It checks that python are on your computer, and if piper1-gpl is missing it runs the get_it steps: git clone https://github.com/OHF-Voice/piper1-gpl.git ; pip install piper-tts ; python3 -m piper.download_voices en_US-lessac-medium.",
     "3. It runs the row's command with your file in place of {input} and where the result goes in place of {output}: python3 -m piper -m en_US-lessac-medium -f welcome.wav -- 'Welcome to our bakery. We open at seven.'",
     "4. Read what it shows you and open the result. Trillion runs none of this; it all happens on your own computer."
@@ -19,7 +19,7 @@
       "ask": "Use piper1-gpl on Welcome to our bakery. We open at seven..",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

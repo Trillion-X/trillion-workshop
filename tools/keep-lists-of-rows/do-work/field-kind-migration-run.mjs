@@ -78,7 +78,7 @@ async function doorOnce(method, input, requestKey) {
       jsonrpc: '2.0',
       id: 1,
       method: 'tools/call',
-      params: { name: 'run_resource_operation', arguments: { address: '@own-records', method, request_key: requestKey, input } },
+      params: { name: 'do_one_thing_in_my_account', arguments: { address: '@own-records', method, request_key: requestKey, input } },
     }),
   });
   const body = await response.json();

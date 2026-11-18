@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Dismiss the tours waiting for me without showing them\", and give it the records it works over: every input is optional.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:dismiss-waiting-tours and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:dismiss-waiting-tours and its input (the worked example shows one).",
     "3. Read what comes back: Marks waiting tours seen without showing them: every waiting tour, or those named in tour_ids, in one move of your tour progress record (the move closing a tour makes), so none starts by itself again; each can still be shown by name.",
     "4. It has no records door and keeps nothing: it works over the records you hand in (own_tours, progress, show_rules), read from the store that holds them."
   ],
@@ -19,7 +19,7 @@
       "ask": "Dismiss the tours waiting for me without showing them",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

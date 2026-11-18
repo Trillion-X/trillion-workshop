@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Say which value each field of my rows keeps when several sources offered one, who set it, and why the others lost: what I typed beats my rules, my rules beat imported sources, and those beat an AI's guess, with the AI's reasons and confidence kept beside its value\", and give it offers.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:settle-field-values and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:settle-field-values and its input (the worked example shows one).",
     "3. Read what comes back: Takes offers, each a value for one field of one row with its source (kind, by, at, confidence) and optionally its basis (reasoning, citations)."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Say which value each field of my rows keeps when several sources offered one, who set it, and why the others lost: what I typed beats my rules, my rules beat imported sources, and those beat an AI's guess, with the AI's reasons and confidence kept beside its value",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

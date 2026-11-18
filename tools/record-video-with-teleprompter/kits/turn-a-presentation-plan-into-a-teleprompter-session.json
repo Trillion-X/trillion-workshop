@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Turn a written video presentation plan into the recording session the camera screen runs: the teleprompter script sentence by sentence, the countdown, when to stop on silence, on the final word or on a stop phrase, and whether it may start by itself\", and give it plan.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:turn-a-presentation-plan-into-a-teleprompter-session and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:turn-a-presentation-plan-into-a-teleprompter-session and its input (the worked example shows one).",
     "3. Read what comes back: Give plan (one compiled video presentation plan: id, title, medium video, execution.adapter capture.video, beats each with delivery speak and text, no open acquisitions, and the execution settings: countdown_seconds, auto_stop_seconds, silence_stop_seconds, silence_threshold_rms, minimum_speech_ms, stop_on_final_word, completion_grace_ms, completion_slack_words, script_end_quiet_seconds, stop_phrases, mirror_script, speech_language, follow_speech, allow_manual_nudge, completion_label), and optionally readiness (the setup pass's result for this plan), authorization (a grant: plan_id, authorized, authorized_at_ms, grant_until_ms) and nowMs (epoch milliseconds; the run's clock when left out)."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Turn a written video presentation plan into the recording session the camera screen runs: the teleprompter script sentence by sentence, the countdown, when to stop on silence, on the final word or on a stop phrase, and whether it may start by itself",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

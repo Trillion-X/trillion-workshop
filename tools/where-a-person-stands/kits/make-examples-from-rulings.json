@@ -255,7 +255,7 @@
       "ask": "Make examples from my rulings and the lines I said, leaving out the trained lines.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

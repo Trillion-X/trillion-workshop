@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Keep a rule about when something shows, hides or stays quiet for me, or switch a starting rule off or on\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:keep-a-show-rule and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:keep-a-show-rule and its input (the worked example shows one).",
     "3. Read what comes back: Keeps one rule in your show-rules record (rule; one with the id of a rule you keep changes it), or switches a starting rule off or on (starting: { id, on }).",
     "4. It reads and writes only its own rows through the records door: @own-records (workspace:read)."
   ],
@@ -19,7 +19,7 @@
       "ask": "Keep a rule about when something shows, hides or stays quiet for me, or switch a starting rule off or on",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

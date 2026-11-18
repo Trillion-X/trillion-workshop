@@ -25,7 +25,7 @@ A kit field matches, in this order: the map, the same id, the same label (case, 
 
 ## Answer
 
-`{ poured, coverage, matched: [{ kit_field, your_field, by }], unmatched, left_out, rows, write, says }`. `write` is `{ address: "@own-records", method: "records:write", input: { records } }`, ready for `run_resource_operation`; row ids are `<row_type>:kit-<example id>`, so a second pour of the same rows is left out.
+`{ poured, coverage, matched: [{ kit_field, your_field, by }], unmatched, left_out, rows, write, says }`. `write` is `{ address: "@own-records", method: "records:write", input: { records } }`, ready for `do_one_thing_in_my_account`; row ids are `<row_type>:kit-<example id>`, so a second pour of the same rows is left out.
 
 ## Run the tests
 

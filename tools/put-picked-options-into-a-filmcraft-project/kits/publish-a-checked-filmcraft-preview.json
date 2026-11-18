@@ -125,7 +125,7 @@
       "ask": "Publish option x05-r4-1's preview and then put it in my watch folder.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

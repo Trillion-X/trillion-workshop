@@ -8,7 +8,7 @@
     "tool:github:facebookresearch-demucs"
   ],
   "instructions": [
-    "1. Say to your AI: \"Use demucs on song.mp3\". It reads the row with run_resource_operation at @tools, method tools:list, input {tool: \"tool:github:facebookresearch-demucs\"}.",
+    "1. Say to your AI: \"Use demucs on song.mp3\". It reads the row with do_one_thing_in_my_account at @tools, method tools:list, input {tool: \"tool:github:facebookresearch-demucs\"}.",
     "2. It checks that python, ffmpeg are on your computer, and if demucs is missing it runs the get_it steps: git clone https://github.com/facebookresearch/demucs.git ; python3 -m pip install -U demucs.",
     "3. It runs the row's command with your file in place of {input}: demucs --two-stems=vocals song.mp3",
     "4. Read what it shows you and open the result. Trillion runs none of this; it all happens on your own computer."
@@ -19,7 +19,7 @@
       "ask": "Use demucs on song.mp3.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

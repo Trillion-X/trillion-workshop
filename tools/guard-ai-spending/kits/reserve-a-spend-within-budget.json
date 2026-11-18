@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Before my AI spends money, check the spend against my budget and reserve it, or refuse it\", and give it spend_authority_ref (The person's spend authority to spend from, like \"spend-authority:research\"); operation_ref (What the money is for, like \"operation:buy-a-report\"); estimated_cost (Whole cents).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:reserve-a-spend-within-budget and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:reserve-a-spend-within-budget and its input (the worked example shows one).",
     "3. Read what comes back: Checks one spend (whole cents) against the person's spend authority: it must be turned on and active, and stay inside the daily limit and the per-spend limit.",
     "4. It only reads the person's own rows through the records door (spend-authority, spend-budget-reservation) and writes none: the answer's `write` holds the check and the reservation for your AI to put in a store."
   ],
@@ -19,7 +19,7 @@
       "ask": "Before my AI spends money, check the spend against my budget and reserve it, or refuse it",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

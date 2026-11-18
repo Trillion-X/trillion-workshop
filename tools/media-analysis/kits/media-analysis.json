@@ -19,7 +19,7 @@
       "ask": "Which of my talks is about baking bread in the morning?",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

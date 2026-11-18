@@ -53,7 +53,7 @@ export function openStdioRecordsDoor({ argv, resource = '@own-records', files_re
   async function once(method, input, request_key, address) {
     let answer;
     for (let attempt = 0; ; attempt++) {
-      answer = await request({ method: 'tools/call', params: { name: 'run_resource_operation', arguments: { address, method, request_key: requestKeyForEngine(request_key), input } } });
+      answer = await request({ method: 'tools/call', params: { name: 'do_one_thing_in_my_account', arguments: { address, method, request_key: requestKeyForEngine(request_key), input } } });
       const failure = answer.result?.isError ? answer.result.structuredContent : null;
       if (attempt >= 5 || !(failure?.code === 'selected_owner_unavailable' || failure?.outcome === 'unknown')) break;
       await new Promise(resolve => setTimeout(resolve, 200 * 2 ** attempt));

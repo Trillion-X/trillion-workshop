@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Make a referral code that earns what my referral reward rules give, and give back the event to save\", and give it rules (the person's referral reward rule rows); referrer (The account that shares the code); target (The sale attribute and the value a sale must have to earn this code).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:make-a-referral-code and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:make-a-referral-code and its input (the worked example shows one).",
     "3. Read what comes back: Makes a short readable code (letters and digits, no I, L, O or U, so it survives being read aloud) or checks the one you chose, and gives back the event that makes it live once the person saves it.",
     "4. It reads and keeps nothing: it works from your request and answers its whole result; you keep any row it hands back."
   ],
@@ -19,7 +19,7 @@
       "ask": "Make a referral code that earns what my referral reward rules give, and give back the event to save",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

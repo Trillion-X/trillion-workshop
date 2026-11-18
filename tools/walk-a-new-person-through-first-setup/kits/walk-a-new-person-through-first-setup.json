@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Walk a new person through first setup: the apps to install on their devices, the AIs to connect, and the one saved run that resumes where they stopped\", and give it origin (The service address the setup files are served from (an https address serves the harness files)).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:walk-a-new-person-through-first-setup and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:walk-a-new-person-through-first-setup and its input (the worked example shows one).",
     "3. Read what comes back: Give the setup plan for one person's account from what the caller reads and hands over: the saved setup run and what it does next (its next calls, the workflow's steps), the access prerequisites still open, what the account already has (pursuits, connections, profile, devices), the computers it can reach and their tool cards, the person's pursuit lens and the entry point they came from."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Walk a new person through first setup: the apps to install on their devices, the AIs to connect, and the one saved run that resumes where they stopped",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

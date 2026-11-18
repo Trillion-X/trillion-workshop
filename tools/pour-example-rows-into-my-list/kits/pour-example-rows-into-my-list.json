@@ -9,7 +9,7 @@
   "instructions": [
     "1. Pick the kit list to pour: an item's kit.lists entry (tools/workflows/recipes/workflows.json for a workflow, a tool row's kit for a tool).",
     "2. Read your own list that does the same job from your own store: its fields and row type go in into; the ids of its rows go in already_there.",
-    "3. Run this tool. When it says poured, send its write with run_resource_operation; when it says the match is under 80%, map the fields it names in field_map or make the kit's own list instead."
+    "3. Run this tool. When it says poured, send its write with do_one_thing_in_my_account; when it says the match is under 80%, map the fields it names in field_map or make the kit's own list instead."
   ],
   "worked_examples": [
     {
@@ -17,7 +17,7 @@
       "ask": "Put the example reply templates into my saved replies list.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Take a person to the thing that needs them: give the screen to open on one waiting card, the arrangement that puts it beside what the caller names, the walkthrough that points at the card's own control and the notice that links to both, or say in plain words that nothing is waiting there or it opens outside their places\", and give it thing; waiting (The answer of tool:what-is-waiting-on-me); screens.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:take-me-there and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:take-me-there and its input (the worked example shows one).",
     "3. Read what comes back: Give thing (a card id from the answer of tool:what-is-waiting-on-me, or a batch section's key, batch: and the section id), waiting (that answer: { sections: [{ cards }] } or { cards }, a card { id, source?, title?, action?, address?, points_at?"
   ],
   "worked_examples": [
@@ -19,7 +19,7 @@
       "ask": "Take a person to the thing that needs them: give the screen to open on one waiting card, the arrangement that puts it beside what the caller names, the walkthrough that points at the card's own control and the notice that links to both, or say in plain words that nothing is waiting there or it opens outside their places",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

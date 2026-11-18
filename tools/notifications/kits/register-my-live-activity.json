@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Keep this iPhone Live Activity token so this account can update or end it\", and give it board_key; token; app.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:register-my-live-activity and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:register-my-live-activity and its input (the worked example shows one).",
     "3. Read what comes back: Pass board_key, the activity push token, app bundle id and environment.",
     "4. It reads and writes only its own rows through the records door: notification-live-activity (records:read, records:list, records:write)."
   ],
@@ -19,7 +19,7 @@
       "ask": "Keep this iPhone Live Activity token so this account can update or end it",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -19,7 +19,7 @@
       "ask": "Follow my treg call 0123456789abcdef0123456789abcdef and give me the result.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

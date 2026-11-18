@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Say which builds of the Trillion page may keep working, so an open tab the store moved past shows a reload screen\", and give it path (The page route after /work/api: /client-version); method.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:answer-which-page-builds-may-keep-working and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:answer-which-page-builds-may-keep-working and its input (the worked example shows one).",
     "3. Read what comes back: The page route GET /client-version: answers { minimum_generation, lock_out_before } from the minimum-version DATA this tool carries (src/client-version.json), as old trillion's Worker answered it."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Say which builds of the Trillion page may keep working, so an open tab the store moved past shows a reload screen",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

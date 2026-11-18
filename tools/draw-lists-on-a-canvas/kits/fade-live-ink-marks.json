@@ -13,7 +13,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Work out how visible each ink mark drawn live on a canvas or screen is at a given instant, so live marks fade instead of piling up, and when each is gone\", and give it now; fade; marks.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:fade-live-ink-marks and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:fade-live-ink-marks and its input (the worked example shows one).",
     "3. Read what comes back: Give now (the instant to look at, an ISO time or milliseconds since the epoch), fade ({ hold_ms, fade_ms }: how long a mark is fully seen, then how long it takes to go) and marks ([{ ref, created_at?"
   ],
   "worked_examples": [
@@ -22,7 +22,7 @@
       "ask": "Work out how visible each ink mark drawn live on a canvas or screen is at a given instant, so live marks fade instead of piling up, and when each is gone",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

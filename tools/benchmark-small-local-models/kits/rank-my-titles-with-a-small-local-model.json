@@ -126,7 +126,7 @@
       "ask": "Rank my title ideas: would a viewer click this?",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

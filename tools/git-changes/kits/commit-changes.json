@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Commit what is chosen for the next commit in a project on the person's computer, with a message\", and give it folder; message.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:commit-changes and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:commit-changes and its input (the worked example shows one).",
     "3. Read what comes back: Give folder (the full path of the project folder the person has let this tool use) and message (what this commit says)."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Commit what is chosen for the next commit in a project on the person's computer, with a message",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

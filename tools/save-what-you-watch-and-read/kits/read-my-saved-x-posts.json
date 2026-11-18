@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Read the posts I bookmarked or liked on X, newest first, with their full words, links and quoted posts\", and give it which (Which saved posts to read.); account (Which of the person's X connections to read with, by its id (service_connection:x, or service_connection:x:<account>).).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:read-my-saved-x-posts and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:read-my-saved-x-posts and its input (the worked example shows one).",
     "3. Read what comes back: Reads the posts the person bookmarked or liked on X through X's API with the access token of their connected X account, newest first: each post's full words, who wrote it, when, its pictures, every real link it carries (not the short t.co form) and the post it quotes."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Read the posts I bookmarked or liked on X, newest first, with their full words, links and quoted posts",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Turn what was gathered about a creator or a topic (video words, page text) into the instruction the person's AI writes a profile from\", and give it subject_ref; instruction (What the writer is to look for, in the person's words).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:write-a-profile-request and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:write-a-profile-request and its input (the worked example shows one).",
     "3. Read what comes back: Give subject_ref (who or what is profiled), instruction (the person's own words on what to look for; they come before the material) and either material (one text) or evidence ([{ id, text }], for example one video's words each)."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Turn what was gathered about a creator or a topic (video words, page text) into the instruction the person's AI writes a profile from",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

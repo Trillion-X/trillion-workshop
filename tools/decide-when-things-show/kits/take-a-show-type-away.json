@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Take away a preset of show rules I keep\", and give it remove_type (The id of a type you keep).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:take-a-show-type-away and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:take-a-show-type-away and its input (the worked example shows one).",
     "3. Read what comes back: Takes one type you keep out of your show-rules record (remove_type), and switches it off.",
     "4. It reads and writes only its own rows through the records door: @own-records (workspace:read)."
   ],
@@ -19,7 +19,7 @@
       "ask": "Take away a preset of show rules I keep",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

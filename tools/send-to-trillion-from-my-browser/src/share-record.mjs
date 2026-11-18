@@ -2,7 +2,7 @@
 //
 // PURPOSE
 //   What one send from the browser becomes: ONE record of the person's own, written through the one door (the
-//   run_resource_operation tool, method records:write at @own-records), the same record the iPhone Share sheet writes
+//   do_one_thing_in_my_account tool, method records:write at @own-records), the same record the iPhone Share sheet writes
 //   (ios/Shared/ShareRecord.swift). With no list picked it is a `shared` record and Trillion files it
 //   (the Workshop recipe turn-something-shared-into-what-you-can-use wakes on that kind); with a list picked it is a row
 //   of that list (`record:<row_type>:<key>`), its title in the list's title field. The lists offered are the person's own
@@ -13,7 +13,7 @@
 //   2. Nothing here names a list, a site or a kind of row; a list is offered when its record says its row type.
 //   3. This file imports nothing, so the popup, the worker and the tests all load it.
 
-const DOOR = { tool: 'run_resource_operation', address: '@own-records', write: 'records:write', list: 'records:list' };
+const DOOR = { tool: 'do_one_thing_in_my_account', address: '@own-records', write: 'records:write', list: 'records:list' };
 /** The most lists one read asks for: every list a person may keep (lists_per_person). */
 const MOST_LISTS = 500;
 const TITLE_CHARS = 120;

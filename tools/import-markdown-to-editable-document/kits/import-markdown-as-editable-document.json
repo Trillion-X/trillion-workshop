@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Turn Markdown into the editable document scene tree, keeping its headings, lists, tables, code and source spans\", and give it markdown (The UTF-8 Markdown document text).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:import-markdown-as-editable-document and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:import-markdown-as-editable-document and its input (the worked example shows one).",
     "3. Read what comes back: Provide Markdown text for a bounded result, or use the file adapter with a folder grant for a large editable tree."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Turn Markdown into the editable document scene tree, keeping its headings, lists, tables, code and source spans",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

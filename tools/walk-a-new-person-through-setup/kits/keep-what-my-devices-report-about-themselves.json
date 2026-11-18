@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Keep the facts a new person's devices report about themselves (which cameras a computer sees, whether a phone's switches are on), each report replacing that device's facts, so a setup checklist can tick itself from them\", and give it reports.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:keep-what-my-devices-report-about-themselves and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:keep-what-my-devices-report-about-themselves and its input (the worked example shows one).",
     "3. Read what comes back: Give reports (each { device, facts: { name: text }, and device_id, source and generation together for a device that reports from several sources }), devices (the devices the last run answered; omit the first time) and optionally now (an ISO time stamped on what changes)."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Keep the facts a new person's devices report about themselves (which cameras a computer sees, whether a phone's switches are on), each report replacing that device's facts, so a setup checklist can tick itself from them",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -21,7 +21,7 @@
       "ask": "Run workflow:possibility-to-proof: a weekly sourdough box that small cafes pre-order.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

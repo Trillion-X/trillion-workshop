@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Read everything one of the person's records is connected to: its relations by side and role in order, everything that happened with it and when they were last in touch, and the records a few steps away\", and give it records (your relation and activity rows); id (A record id, or me).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:read-the-graph-around-a-record and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:read-the-graph-around-a-record and its input (the worked example shows one).",
     "3. Read what comes back: Give any record id (or me).",
     "4. It reads and keeps nothing: it works from the rows in your request and answers its whole result."
   ],
@@ -19,7 +19,7 @@
       "ask": "Read everything one of the person's records is connected to: its relations by side and role in order, everything that happened with it and when they were last in touch, and the records a few steps away",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

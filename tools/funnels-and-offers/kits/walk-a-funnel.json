@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Read a sales funnel's offers and see the price a buyer is shown and where an outcome such as buying or declining takes them next\", and give it graphs (funnel-graph records: { id, entry_node }); nodes (funnel-node records: { id, entry?, offer: { amount_cents, name }, transitions: [{ on, to }] }).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:walk-a-funnel and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:walk-a-funnel and its input (the worked example shows one).",
     "3. Read what comes back: Reads the funnel records a person keeps: the funnel graph, its offer nodes (each with an offer, a price and the outcomes that move a buyer on), and the price experiments run on them."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Read a sales funnel's offers and see the price a buyer is shown and where an outcome such as buying or declining takes them next",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -336,7 +336,7 @@ export async function readRecord(id, { url = localDoorAddress(), key = requireAc
   const response = await request(url, {
     method: 'POST',
     headers: { 'content-type': 'application/json', accept: 'application/json, text/event-stream', authorization: `Bearer ${key}` },
-    body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'run_resource_operation', arguments: {
+    body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'do_one_thing_in_my_account', arguments: {
       address: '@own-records', method: 'records:read', request_key: `read-cloud-sessions:brief:${id}`, input: { id, type } } } }),
     signal: AbortSignal.timeout(15000),
   });

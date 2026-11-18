@@ -11,7 +11,7 @@
   ],
   "instructions": [
     "1. Say what you want to find: question (at most 500 characters), and optionally type to keep only one kind of record, limit 1 to 200, places (said, seen, name, written), sources (trillion, files) or index_ids.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:search-everything-with-one-question and that input; picture indexes are asked through tool:words-as-picture-vector when the question needs a picture model.",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:search-everything-with-one-question and that input; picture indexes are asked through tool:words-as-picture-vector when the question needs a picture model.",
     "3. Read result {question, terms, results, unavailable, pending}: answer from each result's said and cite it by its address (records:read for a record, find_file for a file).",
     "4. unavailable names a place that could not answer and why, pending one still working: ask again in a few seconds."
   ],
@@ -21,7 +21,7 @@
       "ask": "Search everything I keep for merlinfalcon.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

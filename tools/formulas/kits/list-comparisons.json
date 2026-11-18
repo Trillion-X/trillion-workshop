@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"List the comparisons and the all-of and any-of groups a rule can use, for one kind of field or every kind\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:list-comparisons and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:list-comparisons and its input (the worked example shows one).",
     "3. Read what comes back: Answers each comparison's id, its label, what it takes (nothing, one value, a list of values, words, text, a day or a range) and the field kinds that offer it, the group combinators, and the field kinds known."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "List the comparisons and the all-of and any-of groups a rule can use, for one kind of field or every kind",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

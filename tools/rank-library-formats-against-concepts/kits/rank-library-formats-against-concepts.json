@@ -113,7 +113,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"For every idea I could make a video of, find which of the formats in my library suit it best, and record the best few per idea with why\", and give it step.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:rank-library-formats-against-concepts and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:rank-library-formats-against-concepts and its input (the worked example shows one).",
     "3. Read what comes back: Two steps.",
     "4. It is given only these rows of the person's, read by the AI from the person's own store: record:setting (reads); the rows it makes come back under keep, for the AI to keep there."
   ],
@@ -123,7 +123,7 @@
       "ask": "For every idea I could make a video of, find which of the formats in my library suit it best, and record the best few per idea with why",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {
@@ -149,7 +149,7 @@
       "ask": "For every idea I could make a video of, find which of the formats in my library suit it best, and record the best few per idea with why",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

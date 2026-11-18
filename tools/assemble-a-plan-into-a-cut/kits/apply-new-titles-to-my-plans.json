@@ -19,7 +19,7 @@
       "ask": "Apply the new titles to my plans and fix the cards.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

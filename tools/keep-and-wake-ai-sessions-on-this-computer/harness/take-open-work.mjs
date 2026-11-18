@@ -961,7 +961,7 @@ export function accountCaller(origin, key, { backoff_seconds = readSettings().bu
   };
   // The same direct /mcp route the keychain bridge carries, with keys confined to the Authorization header.
   call.resource = async (address, method, input, request_key = randomUUID()) => {
-    const message = { jsonrpc: '2.0', id: request_key, method: 'tools/call', params: { name: 'run_resource_operation', arguments: { address, method, input, request_key } } };
+    const message = { jsonrpc: '2.0', id: request_key, method: 'tools/call', params: { name: 'do_one_thing_in_my_account', arguments: { address, method, input, request_key } } };
     for (let attempt = 0; ; attempt += 1) {
       const response = await send(`${origin.replace(/\/$/, '')}/mcp`, { method: 'POST', headers: { 'content-type': 'application/json', accept: 'application/json', authorization: `Bearer ${key}` }, body: JSON.stringify(message) });
       const reply = await response.json().catch(() => null);

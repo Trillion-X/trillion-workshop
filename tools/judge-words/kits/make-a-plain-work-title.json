@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Give a piece of work a short plain title from its own words, so a person sees what it is at a glance\", and give it job (The work's own words).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:make-a-plain-work-title and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:make-a-plain-work-title and its input (the worked example shows one).",
     "3. Read what comes back: Give the job's words (job), and optionally the title someone already said (said) and the words to show when the job holds no sentence a person reads (fallback)."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Give a piece of work a short plain title from its own words, so a person sees what it is at a glance",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {
@@ -37,7 +37,7 @@
       "ask": "Give a piece of work a short plain title from its own words, so a person sees what it is at a glance",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

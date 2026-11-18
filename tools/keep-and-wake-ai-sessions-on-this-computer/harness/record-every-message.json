@@ -4,7 +4,7 @@
   "executions_path": "/mcp",
   "execution_ingestion": {
     "_what": "Automatic source observations use the current hook owner and protected journal. The server verifies an actual transcript occurrence and registered source; ordinary record writes cannot forge journal receipts. No manual import or claimed native identity qualifies.",
-    "tool": "run_resource_operation",
+    "tool": "do_one_thing_in_my_account",
     "resource": "@harness-hooks",
     "operation": "hooks:receive",
     "event": "Stop",

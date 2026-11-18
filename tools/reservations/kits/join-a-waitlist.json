@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Put someone on the waitlist for a class or table without trying to hold a place first\", and give it ledger (the capacity ledger you hold); subject_ref; idempotency_key; reason.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:join-a-waitlist and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:join-a-waitlist and its input (the worked example shows one).",
     "3. Read what comes back: Adds a subject to the end of a capacity ledger's waitlist with a reason, even when places are free.",
     "4. It reads and keeps nothing: it works from your request and answers its whole result; you keep the ledger it answers."
   ],
@@ -19,7 +19,7 @@
       "ask": "Put someone on the waitlist for a class or table without trying to hold a place first",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -7,7 +7,7 @@
     "receive_operation": "sharing.receive",
     "types_field": "types",
     "door_path": "/mcp",
-    "door_tool": "run_resource_operation",
+    "door_tool": "do_one_thing_in_my_account",
     "most_given": 32,
     "most_answer_bytes": 1048576,
     "wait_seconds": 2,

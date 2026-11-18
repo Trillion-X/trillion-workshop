@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Score a lead's or respondent's answers with your rules and pick their segment and follow-up, such as hot, warm or not ready\", and give it answers (Each question id to the answer); score_rules; segment_rules.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:score-answers-and-pick-segment and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:score-answers-and-pick-segment and its input (the worked example shows one).",
     "3. Read what comes back: Adds up points for each answer by your rules (a value worth points, at least or at most a number, equal to a value, long enough, answered at all, one of a list), keeps subtotals under labels you name, picks the segment whose starting score the total reaches, and returns that segment's title, meaning, next step and follow-up steps."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Score a lead's or respondent's answers with your rules and pick their segment and follow-up, such as hot, warm or not ready",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

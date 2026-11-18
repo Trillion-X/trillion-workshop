@@ -19,7 +19,7 @@
       "ask": "Find a clip of boats at sunrise in my media folder.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

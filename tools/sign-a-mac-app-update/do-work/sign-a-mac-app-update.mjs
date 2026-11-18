@@ -64,7 +64,7 @@ export async function signRecordText({ payload, door, fetchImpl = fetch }) {
     jsonrpc: '2.0',
     id: 1,
     method: 'tools/call',
-    params: { name: 'run_resource_operation', arguments: { address: '@secrets', method: OPERATION, request_key: `sign:${randomUUID()}`, input: { name: KEY_NAME, payload } } },
+    params: { name: 'do_one_thing_in_my_account', arguments: { address: '@secrets', method: OPERATION, request_key: `sign:${randomUUID()}`, input: { name: KEY_NAME, payload } } },
   });
   const response = await fetchImpl(door.url, {
     method: 'POST',

@@ -51,6 +51,7 @@ async function app(browser, words, door) {
 const words = { order: ['kept'], kept: { address: '@tools', method: 'tools:run', input: { sql: 'select code', params: ['{for_operation}'] }, code_at: '/rows' }, mine: ['ai:chat'] };
 const screen = '<h1 id="t">Three dinners</h1><button id="b">Pick</button><p id="a"></p><script>door.onAnswer(a => { document.getElementById("a").textContent = a.dinners.join(", "); }); document.getElementById("b").onclick = () => door.run("@own-records", "records:read", { id: "dinner:1" }).then(r => { document.getElementById("a").textContent = "picked " + r.id; });</script>';
 const callArgs = { address: '@own-records', method: 'records:list', request_key: 'k', input: {} };
+const RUN = 'do_one_thing_in_my_account';
 
 test('code paints while it is typed, runs once whole, and its press runs through the door as the person', async () => {
   const browser = await chromium.launch();
@@ -67,7 +68,7 @@ test('code paints while it is typed, runs once whole, and its press runs through
     await one.tab.waitForTimeout(150);
     assert.equal(await one.frame().textContent('#a'), 'picked dinner:1', 'the press drew the door\'s answer');
     const run = (await one.calls()).find(call => call.arguments.method === 'records:read');
-    assert.equal(run.name, 'run_resource_operation');
+    assert.equal(run.name, RUN);
     assert.match(run.arguments.request_key, /^[0-9a-f]{32}$/);
     assert.equal(await one.frame().evaluate(() => document.documentElement.style.colorScheme), 'dark', 'the page follows the app\'s dark theme');
     assert.deepEqual(one.errors, []);
@@ -125,6 +126,18 @@ test('a screen someone else made asks before it acts, and a thrown script says s
     await broken.tab.waitForTimeout(150);
     assert.match(await broken.frame().textContent('body'), /nothere is not defined/);
     assert.equal(await broken.frame().textContent('button'), 'Fix');
+  } finally { await browser.close(); }
+});
+
+test('a show tool\'s call hands the screen the answer it carries, and the page wears the owner\'s look', async () => {
+  const browser = await chromium.launch();
+  try {
+    const shown = await app(browser, { ...words, css: ':root{--bg-primary:rgb(1, 2, 3)}' });
+    await shown.say('ui/notifications/tool-input', { arguments: { address: '@tools', method: 'tools:list', answer: { tools: ['a', 'b'] }, screen: '<p id="n"></p><script>door.onAnswer(a => { document.getElementById("n").textContent = a.tools.length; });</script>' } });
+    await shown.say('ui/notifications/tool-result', { content: [{ type: 'text', text: 'Shown to the person.' }] });
+    await shown.tab.waitForTimeout(200);
+    assert.equal(await shown.frame().textContent('#n'), '2', 'the answer came with the call');
+    assert.equal(await shown.frame().evaluate(() => getComputedStyle(document.body).backgroundColor), 'rgb(1, 2, 3)');
   } finally { await browser.close(); }
 });
 

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Make a tool's description say in words what its read-only, destructive, idempotent and open-world hints say\", and give it tool.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:say-a-tools-hints-in-its-description and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:say-a-tools-hints-in-its-description and its input (the worked example shows one).",
     "3. Read what comes back: Give tool (an MCP tool entry with description and annotations: readOnlyHint, destructiveHint, idempotentHint, openWorldHint)."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Make a tool's description say in words what its read-only, destructive, idempotent and open-world hints say",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Put the records I prepared into my account so a re-run writes nothing: read what my account holds, send only what differs (or, when I keep edited rows, only what it lacks), in small commands, and stop at the first refusal\", and give it payload (The whole result object returned by tool:build-records-to-write, including commands.); target_type (The one target record type this run is granted to read and write; the run right is filled from this field.); target_prefix (The target record id prefix this run is granted to read and write; the run right is filled from this field.).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:put-records-into-my-account and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:put-records-into-my-account and its input (the worked example shows one).",
     "3. Read what comes back: Takes the result of tool:build-records-to-write directly.",
     "4. It reads and writes only its own rows through the records door: [object Object] (records:list, records:write)."
   ],
@@ -20,7 +20,7 @@
       "ask": "Put the records I prepared into my account so a re-run writes nothing: read what my account holds, send only what differs (or, when I keep edited rows, only what it lacks), in small commands, and stop at the first refusal",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Show how far bringing in my conversations has got: for each source, files done, conversations and messages kept, and whether it stopped\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:show-how-far-my-conversation-import-is and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:show-how-far-my-conversation-import-is and its input (the worked example shows one).",
     "3. Read what comes back: Reads the import's cursor rows (conversation-import-cursor) through the records door and answers, per source, the files seen and done, conversations kept, messages added and already kept, files the messages carried that were not copied, its state (done, more, stopped) and when it last moved.",
     "4. It reads and writes only its own rows through the records door: conversation-import-cursor (records:list)."
   ],
@@ -19,7 +19,7 @@
       "ask": "Show how far bringing in my conversations has got: for each source, files done, conversations and messages kept, and whether it stopped",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

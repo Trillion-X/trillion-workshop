@@ -123,7 +123,7 @@
       "ask": "Decide which of my Instagram messages the reply rules answer now.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

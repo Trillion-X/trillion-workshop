@@ -29,7 +29,7 @@ globalThis.fetch = async (_url, init = {}) => {
   const body = JSON.parse(rawBody);
   const args = body.params?.arguments;
   assert.equal(body.method, 'tools/call');
-  assert.equal(body.params?.name, 'run_resource_operation');
+  assert.equal(body.params?.name, 'do_one_thing_in_my_account');
   assert.equal(args?.address, '@namespace');
   assert.ok(new TextEncoder().encode(rawBody).byteLength <= FILE_UPLOAD_MCP_MAX_BYTES, 'one resource operation fits the native MCP request bound');
   transportCalls.push({ rawBody, args, authorization: init.headers?.authorization });
@@ -113,7 +113,7 @@ test('fileKeeper sends the exact addressed MCP envelope and retries a lost piece
   assert.equal(pieces[0].rawBody, pieces[1].rawBody, 'the serialized MCP request is byte-for-byte identical on retry');
   assert.equal(pieces[0].args.request_key, pieces[1].args.request_key, 'the same native request key is reused');
   assert.deepEqual(JSON.parse(pieces[0].rawBody), {
-    jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'run_resource_operation', arguments: pieces[0].args },
+    jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'do_one_thing_in_my_account', arguments: pieces[0].args },
   });
   assert.equal(pieces[0].args.address, '@namespace');
   assert.equal(pieces[0].args.method, 'write_file_piece');

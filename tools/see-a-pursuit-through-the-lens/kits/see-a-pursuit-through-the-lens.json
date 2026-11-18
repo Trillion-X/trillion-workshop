@@ -27,7 +27,7 @@
   ],
   "instructions": [
     "1. Pour the example lens rows into the list you keep interview or discovery prompts in (see pour), or make list:pursuit-lens from them; keep the lens's opening, parts and closing in your content settings row; your AI reads both and hands the whole lens in.",
-    "2. Say \"How should an AI look at what I pursue?\"; your AI calls run_resource_operation at @tools with method tools:run and tool tool:see-a-pursuit-through-the-lens, with lens {opening, parts, closing, rows} and answer paragraph, setup or both (the default).",
+    "2. Say \"How should an AI look at what I pursue?\"; your AI calls do_one_thing_in_my_account at @tools with method tools:run and tool tool:see-a-pursuit-through-the-lens, with lens {opening, parts, closing, rows} and answer paragraph, setup or both (the default).",
     "3. Read the answer: paragraph is the opening, each part in one sentence and the closing; setup holds every part with each row's look_for and ask_or_do, the joining interview rows (those marked joining_interview) and where its answers are kept; joining_interview_file names that file.",
     "4. It reads and writes nothing; with no lens handed in it says what to hand in."
   ],
@@ -37,7 +37,7 @@
       "ask": "Give me the paragraph an AI should read to look at what a gardener pursues.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

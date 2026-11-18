@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Read the same rows on an accrual basis (by the date each row is due) and on a cash basis (by the date of each allocation to it) for a period, each figure naming its basis and the rows behind it\", and give it action; list_id (The list in the request: the source (or the lines, or the row's list) when the body leaves its own list_id out.); lists (The lists the action names, as the caller read them from a store: each { id, row_type, fields, ...the list's own definition, rows: [{ id, values }] } with every row the action reads.).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:report-on-accrual-or-cash and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:report-on-accrual-or-cash and its input (the worked example shows one).",
     "3. Read what comes back: action basis takes targets { amount_field, date_field }, allocations { list_id }, from, to and basis (accrual, cash or both; the list's saved report_basis, else both, when left out)."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Read the same rows on an accrual basis (by the date each row is due) and on a cash basis (by the date of each allocation to it) for a period, each figure naming its basis and the rows behind it",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

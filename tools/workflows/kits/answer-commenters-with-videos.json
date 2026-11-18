@@ -312,7 +312,7 @@
       "ask": "Answer the commenters on @ExampleChannel with videos, at most 5.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

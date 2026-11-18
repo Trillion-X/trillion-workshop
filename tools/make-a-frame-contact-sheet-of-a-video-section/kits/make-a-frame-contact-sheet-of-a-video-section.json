@@ -19,7 +19,7 @@
       "ask": "Show me what happens from 10 to 50 seconds of https://video.example/watch/abc as one picture.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

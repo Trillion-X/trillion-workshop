@@ -21,7 +21,7 @@
       "ask": "Research how customers can find their past orders without asking us, and give me a plan of facts.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

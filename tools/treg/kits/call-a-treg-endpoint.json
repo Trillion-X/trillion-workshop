@@ -21,7 +21,7 @@
       "ask": "Generate a short kite video with treg, spend at most a dollar.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

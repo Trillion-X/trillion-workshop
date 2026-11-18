@@ -19,7 +19,7 @@
       "ask": "Write my message models for the apps and the web from models.json.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {
@@ -35,7 +35,7 @@
       "ask": "I added a pinned field to Notice; are the models current?",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

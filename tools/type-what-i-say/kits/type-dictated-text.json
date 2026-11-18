@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Put dictated text where the person's cursor is as one clipboard transaction (save, write, paste, restore, verify), never pasting over a clipboard it cannot put back, and note the dictation in their bounded history\", and give it text.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:type-dictated-text and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:type-dictated-text and its input (the worked example shows one).",
     "3. Read what comes back: Give text (cleaned by tool:dictate) and entry_id and context.app when known."
   ],
   "worked_examples": [
@@ -19,7 +19,7 @@
       "ask": "Put dictated text where the person's cursor is as one clipboard transaction (save, write, paste, restore, verify), never pasting over a clipboard it cannot put back, and note the dictation in their bounded history",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

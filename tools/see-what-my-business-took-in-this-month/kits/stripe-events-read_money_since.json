@@ -20,7 +20,7 @@
       "ask": "List the money that moved on my Stripe account since October 1, 2026, newest first.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

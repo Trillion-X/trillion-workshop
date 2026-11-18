@@ -19,7 +19,7 @@
       "ask": "In /work/square.mp4 follow the white square I pointed at one second in, for seconds 0 to 3.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {
@@ -35,7 +35,7 @@
       "ask": "Follow the square for seconds 0 to 45.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Turn a person's accept or pass on one suggestion in a review list into the request that keeps it as their stand, in their own words\", and give it descriptor (The same descriptor the ranking used); record (The one record the person acted on); action_id (The id of the descriptor action the person took).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:accept-or-pass-on-a-ranked-record and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:accept-or-pass-on-a-ranked-record and its input (the worked example shows one).",
     "3. Read what comes back: Give the same descriptor and the one record, the id of the action the person took (the descriptor says which stance each action keeps: accept is agree, pass is disagree) and what the person said."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Turn a person's accept or pass on one suggestion in a review list into the request that keeps it as their stand, in their own words",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

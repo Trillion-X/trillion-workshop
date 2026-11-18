@@ -34,13 +34,13 @@ const keptIds = found => Object.fromEntries(found.kept.map(entry => [entry.recor
 test('a succeeded records:write is kept, in each shape and road', async () => {
   const found = await inventory({
     '/t/a.jsonl': [
-      call('c1', 'mcp__account__run_resource_operation', operation([row('note:1', { text: 'one' })]), 1),
+      call('c1', 'mcp__account__do_one_thing_in_my_account', operation([row('note:1', { text: 'one' })]), 1),
       result('c1', [{ type: 'text', text: '{"changed":true,"write_count":1}' }], 2),
       call('c2', 'Bash', { command: `example op @own-records records:write '${JSON.stringify({ records: [row('note:2', { text: 'two' })] })}' --json` }, 3),
       result('c2', '{\n  "changed": true,\n  "write_count": 1\n}', 4),
     ],
     '/t/b.jsonl': [
-      item(5, { type: 'McpToolCall', id: 'exec-1', server: 'account', tool: 'run_resource_operation', status: 'completed', arguments: operation([row('note:3', { text: 'three' })]), result: { structuredContent: { changed: true, write_count: 1 }, isError: false } }),
+      item(5, { type: 'McpToolCall', id: 'exec-1', server: 'account', tool: 'do_one_thing_in_my_account', status: 'completed', arguments: operation([row('note:3', { text: 'three' })]), result: { structuredContent: { changed: true, write_count: 1 }, isError: false } }),
       item(6, { type: 'CommandExecution', id: 'exec-2', cwd: 'file:///work', exit_code: 0, command: ['/bin/zsh', '-lc', `example op @own-records records:write - <<'EOF'\n{"records":[{"id":"note:4","type":"note","value":{"text":"four"}}]}\nEOF`], aggregated_output: '{\n  "changed": true,\n  "write_count": 1\n}' }),
     ],
   });
@@ -52,16 +52,16 @@ test('a succeeded records:write is kept, in each shape and road', async () => {
 test('a refused or unanswered call is skipped and listed, never kept', async () => {
   const found = await inventory({
     '/t/a.jsonl': [
-      call('c1', 'mcp__account__run_resource_operation', operation([row('note:1', { text: 'refused' })]), 1),
+      call('c1', 'mcp__account__do_one_thing_in_my_account', operation([row('note:1', { text: 'refused' })]), 1),
       result('c1', 'The resource operation was refused.', 2, true),
       call('c2', 'Bash', { command: `example op @own-records records:write '{"records":[{"id":"note:2","type":"note","value":{}}]}' 2>&1 | head -3` }, 3),
       result('c2', 'The local door refused records:write.', 4),
       call('c3', 'Bash', { command: `example op @own-records records:write '{"records":[{"id":"note:3","type":"note","value":{}}]}' > /tmp/out.json` }, 5),
       result('c3', '', 6),
-      call('c4', 'mcp__account__run_resource_operation', operation([row('note:4', {})]), 7),
+      call('c4', 'mcp__account__do_one_thing_in_my_account', operation([row('note:4', {})]), 7),
     ],
     '/t/b.jsonl': [
-      item(8, { type: 'McpToolCall', id: 'exec-1', tool: 'run_resource_operation', status: 'failed', arguments: operation([row('note:5', {})]), result: { content: [{ type: 'text', text: 'refused' }], isError: true } }),
+      item(8, { type: 'McpToolCall', id: 'exec-1', tool: 'do_one_thing_in_my_account', status: 'failed', arguments: operation([row('note:5', {})]), result: { content: [{ type: 'text', text: 'refused' }], isError: true } }),
       item(9, { type: 'CommandExecution', id: 'exec-2', exit_code: 3, command: ['/bin/zsh', '-lc', `example op @own-records records:write '{"records":[{"id":"note:6","type":"note","value":{}}]}'`], aggregated_output: 'refused' }),
     ],
   });
@@ -72,7 +72,7 @@ test('a refused or unanswered call is skipped and listed, never kept', async () 
 });
 
 test('the newest write of a record wins by the time of its call, whichever file holds it, and conflicts are listed', async () => {
-  const write = (id, minutes, value) => [call(id, 'mcp__account__run_resource_operation', operation([row('note:1', value)]), minutes), result(id, '{"changed":true}', minutes + 1)];
+  const write = (id, minutes, value) => [call(id, 'mcp__account__do_one_thing_in_my_account', operation([row('note:1', value)]), minutes), result(id, '{"changed":true}', minutes + 1)];
   const found = await inventory({ '/t/a.jsonl': [...write('c1', 30, { text: 'newest' })], '/t/b.jsonl': [...write('c2', 10, { text: 'older' }), ...write('c3', 20, { text: 'middle' })] });
   assert.deepEqual(keptIds(found), { 'note:1': { text: 'newest' } });
   assert.equal(found.conflicts.length, 1);
@@ -82,8 +82,8 @@ test('the newest write of a record wins by the time of its call, whichever file 
 
 test('a null value is a removal, carried as the newest write', async () => {
   const found = await inventory({ '/t/a.jsonl': [
-    call('c1', 'mcp__account__run_resource_operation', operation([row('note:1', { text: 'made' }), row('note:2', { text: 'kept' })]), 1), result('c1', '{"changed":true}', 2),
-    call('c2', 'mcp__account__run_resource_operation', operation([{ id: 'note:1', type: 'note', value: null }]), 3), result('c2', '{"changed":true}', 4),
+    call('c1', 'mcp__account__do_one_thing_in_my_account', operation([row('note:1', { text: 'made' }), row('note:2', { text: 'kept' })]), 1), result('c1', '{"changed":true}', 2),
+    call('c2', 'mcp__account__do_one_thing_in_my_account', operation([{ id: 'note:1', type: 'note', value: null }]), 3), result('c2', '{"changed":true}', 4),
   ] });
   assert.deepEqual(keptIds(found), { 'note:1': null, 'note:2': { text: 'kept' } });
   assert.deepEqual(found.types.note, { records: 1, removals: 1, first: found.types.note.first, last: found.types.note.last });
@@ -145,7 +145,7 @@ test('a record whose newest value looks like a credential is listed by id and ke
   assert.equal(credentialLike({ about: `the key starts sk_live_${'A1'.repeat(12)}` }), true);
   assert.equal(credentialLike({ about: 'an api_key is a secret that is never written into notes' }), false);
   const found = await inventory({ '/t/a.jsonl': [
-    call('c1', 'mcp__account__run_resource_operation', operation([row('connection:1', { client_secret: 'Z'.repeat(40) }, 'connection'), row('note:1', { text: 'plain' })]), 1),
+    call('c1', 'mcp__account__do_one_thing_in_my_account', operation([row('connection:1', { client_secret: 'Z'.repeat(40) }, 'connection'), row('note:1', { text: 'plain' })]), 1),
     result('c1', '{"changed":true}', 2),
   ] });
   assert.deepEqual(keptIds(found), { 'note:1': { text: 'plain' } });
@@ -153,7 +153,7 @@ test('a record whose newest value looks like a credential is listed by id and ke
 });
 
 test('a call carried again by a resumed session is read once', async () => {
-  const lines = [call('c1', 'mcp__account__run_resource_operation', operation([row('note:1', { text: 'one' })]), 1), result('c1', '{"changed":true}', 2)];
+  const lines = [call('c1', 'mcp__account__do_one_thing_in_my_account', operation([row('note:1', { text: 'one' })]), 1), result('c1', '{"changed":true}', 2)];
   const found = await inventory({ '/t/a.jsonl': lines, '/t/b.jsonl': lines });
   assert.equal(found.counts.calls_kept, 1);
   assert.equal(found.counts.repeated_calls, 1);
@@ -166,8 +166,8 @@ test('the dry run writes the inventory folder and nothing else; writing it back 
   const env = { [named.home_variable]: join(home, 'elsewhere') };
   const transcripts = join(home, 'elsewhere', 'projects');
   const records = Array.from({ length: 300 }, (_, at) => row(`note:${String(at).padStart(3, '0')}`, { text: `row ${at}` }));
-  const lines = [call('c1', 'mcp__account__run_resource_operation', operation(records.slice(0, 256)), 1), result('c1', '{"changed":true}', 2),
-    call('c2', 'mcp__account__run_resource_operation', operation([...records.slice(256), { id: 'gone:1', type: 'gone', value: null }]), 3), result('c2', '{"changed":true}', 4)];
+  const lines = [call('c1', 'mcp__account__do_one_thing_in_my_account', operation(records.slice(0, 256)), 1), result('c1', '{"changed":true}', 2),
+    call('c2', 'mcp__account__do_one_thing_in_my_account', operation([...records.slice(256), { id: 'gone:1', type: 'gone', value: null }]), 3), result('c2', '{"changed":true}', 4)];
   mkdirSync(join(transcripts, 'project'), { recursive: true });
   writeFileSync(join(transcripts, 'project', 's.jsonl'), `${lines.join('\n')}\n`);
   const summary = await dryRun({ host, home, env, since: '2026-01-25T00:00:00Z', folder: out });

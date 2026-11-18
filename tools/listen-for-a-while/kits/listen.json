@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Turn listening on or off on this person's computer, or say whether it is on: while on, everything said near the computer is heard, split into moments, each part named by who said it, and sent to the person's AIs as it is said\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:listen and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:listen and its input (the worked example shows one).",
     "3. Read what comes back: Runs on the person's computer."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Turn listening on or off on this person's computer, or say whether it is on: while on, everything said near the computer is heard, split into moments, each part named by who said it, and sent to the person's AIs as it is said",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

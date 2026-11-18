@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Connect your mail account in your Workshop connections and note its handle, like service_connection:google-account:sam-bakery; the provider is the id in read-data/mail-providers.json that account is on (gmail for it).",
-    "2. Say to your AI: \"Read my draft r-7301442210.\" and let it call run_resource_operation at @tools with method tools:run, tool tool:read-a-mail-draft and the input {\"provider\":\"gmail\",\"connection\":{\"connection_id\":\"service_connection:google-account:sam-bakery\"},\"draft_id\":\"r-7301442210\"}.",
+    "2. Say to your AI: \"Read my draft r-7301442210.\" and let it call do_one_thing_in_my_account at @tools with method tools:run, tool tool:read-a-mail-draft and the input {\"provider\":\"gmail\",\"connection\":{\"connection_id\":\"service_connection:google-account:sam-bakery\"},\"draft_id\":\"r-7301442210\"}.",
     "3. Read what comes back: the draft as a neutral message, needs_original says whether a plain-text edit would lose anything.",
     "4. A provider that does not offer the job says so in words and nothing is sent."
   ],
@@ -20,7 +20,7 @@
       "ask": "Read my draft r-7301442210.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

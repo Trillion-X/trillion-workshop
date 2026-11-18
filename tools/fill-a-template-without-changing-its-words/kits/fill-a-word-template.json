@@ -126,7 +126,7 @@
       "ask": "Fill my template with 52 loaves from my Monday log.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

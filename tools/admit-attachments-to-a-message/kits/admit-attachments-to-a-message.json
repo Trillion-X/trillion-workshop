@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Decide how many of the files sent with a message are accepted, and which limit stopped the rest, in words to show the person\", and give it files.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:admit-attachments-to-a-message and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:admit-attachments-to-a-message and its input (the worked example shows one).",
     "3. Read what comes back: Give files ([{ name, size }] in the order offered), and when wanted limits ({ per_turn_cap, absolute_bytes, max_bytes, binding_words }; defaults from src/attachment-admission.json), daily ({ remaining, resets_at } when the plan keeps a daily count) and now (milliseconds)."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Decide how many of the files sent with a message are accepted, and which limit stopped the rest, in words to show the person",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

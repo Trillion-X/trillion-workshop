@@ -19,7 +19,7 @@
       "ask": "End the shares I let people run my tools by, once the end I gave each has passed, so none stays open past its time",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

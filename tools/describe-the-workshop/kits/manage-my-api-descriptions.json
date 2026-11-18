@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"List the API descriptions my tools come from, add an API description for my account, edit it or remove it\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:manage-my-api-descriptions and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:manage-my-api-descriptions and its input (the worked example shows one).",
     "3. Read what comes back: An empty request lists current default sources and this account's own sources.",
     "4. It reads and writes only its own rows through the records door: tool-source (records:read, records:list, records:write); tool-source-change (records:read, records:write)."
   ],
@@ -19,7 +19,7 @@
       "ask": "List the API descriptions my tools come from, add an API description for my account, edit it or remove it",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

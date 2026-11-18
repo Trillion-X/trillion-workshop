@@ -8,7 +8,7 @@
     "tool:github:govijr-fix-storage"
   ],
   "instructions": [
-    "1. Say to your AI: \"Show me what is filling my Mac's disk.\" It reads the row with run_resource_operation at @tools, method tools:list, input {tool: \"tool:github:govijr-fix-storage\"}.",
+    "1. Say to your AI: \"Show me what is filling my Mac's disk.\" It reads the row with do_one_thing_in_my_account at @tools, method tools:list, input {tool: \"tool:github:govijr-fix-storage\"}.",
     "2. It checks that git, Node.js and macOS are on your computer, and if fix-storage is missing it runs the get_it steps: git clone https://github.com/govijr/fix-storage.git ; cd fix-storage ; npm install.",
     "3. It runs the row's command: npm start",
     "4. Read what it shows you. Trillion runs none of this; it all happens on your own computer."
@@ -19,7 +19,7 @@
       "ask": "Show me what is filling my Mac's disk.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

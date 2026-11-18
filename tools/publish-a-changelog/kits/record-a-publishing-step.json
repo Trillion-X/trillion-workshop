@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Record a step on the finished work waiting to be published: change a field, link its proof, add a receipt that it was sent, correct it, or hand an action to whatever tool does it\", and give it graph (The queue as data, with its records and receipts so far); steps (The steps to record, in order).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:record-a-publishing-step and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:record-a-publishing-step and its input (the worked example shows one).",
     "3. Read what comes back: Give graph (the queue as data; its actions are the person's own) and steps."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Record a step on the finished work waiting to be published: change a field, link its proof, add a receipt that it was sent, correct it, or hand an action to whatever tool does it",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

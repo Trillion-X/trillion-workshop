@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Set up how many places there are for a class, table, room or any limited thing, so my AI can hold them one by one\", and give it ledger_id (The ledger's id, like \"ledger:saturday-class\"); scope_ref (What the places are for, like \"scope:saturday-class\"); total (How many places there are).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:open-a-capacity-ledger and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:open-a-capacity-ledger and its input (the worked example shows one).",
     "3. Read what comes back: Opens one capacity ledger: the total number of places, and optionally how many are kept back for a named class (members, guests, VIP).",
     "4. It reads and keeps nothing: it works from your request and answers its whole result; you keep the ledger it answers."
   ],
@@ -19,7 +19,7 @@
       "ask": "Set up how many places there are for a class, table, room or any limited thing, so my AI can hold them one by one",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

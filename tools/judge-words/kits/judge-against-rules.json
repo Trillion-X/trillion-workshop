@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Check words, a plan or anything else someone made against the rules a person set, and say what breaks which rule, why, and what to do instead\", and give it rules (The rules, one row each).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:judge-against-rules and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:judge-against-rules and its input (the worked example shows one).",
     "3. Read what comes back: The one judge every check uses, with rules only: the caller hands in the rule rows (tool:check-against-a-persons-rules-and-verdicts is the same judge with the person's verdicts and stands, or reading their check rows by branch)."
   ],
   "worked_examples": [
@@ -19,7 +19,7 @@
       "ask": "Check words, a plan or anything else someone made against the rules a person set, and say what breaks which rule, why, and what to do instead",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {
@@ -77,7 +77,7 @@
       "ask": "Check words, a plan or anything else someone made against the rules a person set, and say what breaks which rule, why, and what to do instead",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

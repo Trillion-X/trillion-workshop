@@ -11,7 +11,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Work out taking back a post that is waiting for its time and that nothing was sent for, and answer it as a draft that goes nowhere\", and give it post_id (A post_id from tool:draft-a-post or tool:read-post-calendar); records (The records the ask reads, as the caller read them from a store ({ id, type, value }): the post (type post) and the person's connection records (type connection).).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:take-back-a-post and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:take-back-a-post and its input (the worked example shows one).",
     "3. Read what comes back: Give post_id of a scheduled post nothing was sent for."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
       "ask": "Work out taking back a post that is waiting for its time and that nothing was sent for, and answer it as a draft that goes nowhere",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

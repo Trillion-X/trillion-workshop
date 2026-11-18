@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Ask the same set of questions about every one of these lines or records, all at once, with my classifier model\", and give it model (the model's value: `classifier` names the family (questions-first-decider) and `weights` says where they are ({\"folder\"} or {\"hugging_face\": {\"repo\", \"revision\"}}), made ready on this Mac by tool:get-a-classifier-ready-on-this-mac); questions ({question id: {type: choice|score|noul, instructions, criteria?}}); settings (layout, dtype, tokens_per_batch, max_state_tokens); states (a list of {id?, state}). Your AI reads them from your lists first.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:answer-questions-about-many-states and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:answer-questions-about-many-states and its input (the worked example shows one).",
     "3. Read what comes back: {\"result\": {\"status\", \"states_done\", \"states\", \"classifier_answers_as\", \"seconds\", \"answers\": [{\"index\", \"id\"?, \"answers\"}]}} or {\"error\": \"what to change\"}.",
     "4. It reads and writes nothing in your records; its answer is the whole result."
   ],
@@ -20,7 +20,7 @@
       "ask": "Ask the same set of questions about every one of these lines or records, all at once, with my classifier model",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -11,7 +11,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Work out queuing an approved post for immediate sending through each destination's existing send row and answer the post row to keep\", and give it post_id (A post_id from tool:draft-a-post or tool:read-post-calendar); expected_values (The complete approval_values from the post as reviewed); records (The records the ask reads, as the caller read them from a store ({ id, type, value }): the post (type post) and the person's connection records (type connection).).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:publish-a-post-now and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:publish-a-post-now and its input (the worked example shows one).",
     "3. Read what comes back: Give post_id and expected_values (the complete approval_values snapshot reviewed for this action)."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
       "ask": "Work out queuing an approved post for immediate sending through each destination's existing send row and answer the post row to keep",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

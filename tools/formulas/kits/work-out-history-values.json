@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Work out, from the values a field of a row has held over time, the value it held at a moment, the value before the current one, since when it holds it, how long it spent holding a value and whether it ever held one\", and give it kept; fields; now_ms.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:work-out-history-values and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:work-out-history-values and its input (the worked example shows one).",
     "3. Read what comes back: Send kept (the row, with _history: { <field id>: { cut, steps: [{ v, at, by?, via?"
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Work out, from the values a field of a row has held over time, the value it held at a moment, the value before the current one, since when it holds it, how long it spent holding a value and whether it ever held one",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

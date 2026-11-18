@@ -26,7 +26,7 @@
       "ask": "Run workflow:method-change-code for the request: fix the bug where the order total shows twice the price when a discount code is applied.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

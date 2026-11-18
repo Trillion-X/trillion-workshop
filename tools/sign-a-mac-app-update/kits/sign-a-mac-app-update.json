@@ -10,7 +10,7 @@
   "instructions": [
     "1. Keep the Ed25519 release key in your vault under the name mac-app-update-signing-key and grant this tool the program-start capability it asks for.",
     "2. Build the update record's signed lines (version lines, the download address and the file's checksum) and join them with newlines, at most 65536 characters.",
-    "3. Say \"Sign this update record\"; your AI calls run_resource_operation at @tools with method tools:run, tool tool:sign-a-mac-app-update and input {payload}.",
+    "3. Say \"Sign this update record\"; your AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:sign-a-mac-app-update and input {payload}.",
     "4. Read the answer {name: \"mac-app-update-signing-key\", signature_base64}: a 64 byte Ed25519 signature as 88 base64 characters; put it in the update record as the app reads it. An empty or oversized payload is refused before any call, and a refused vault answers without echoing the run's capability."
   ],
   "worked_examples": [
@@ -19,7 +19,7 @@
       "ask": "Sign this Mac app update record with my release key.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Keep a preset of show rules I can switch on, or change one I keep\", and give it type (A kept type (a preset): { id, label, inherits?, rules }, id lowercase words joined by hyphens).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:keep-a-show-type and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:keep-a-show-type and its input (the worked example shows one).",
     "3. Read what comes back: Keeps one type (a preset: { id, label, inherits?, rules }) in your show-rules record; one with the id of a type you keep changes it.",
     "4. It reads and writes only its own rows through the records door: @own-records (workspace:read)."
   ],
@@ -19,7 +19,7 @@
       "ask": "Keep a preset of show rules I can switch on, or change one I keep",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

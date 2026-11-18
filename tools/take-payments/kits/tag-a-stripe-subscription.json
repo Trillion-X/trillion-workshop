@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Add notes (metadata) to a buyer Stripe subscription without changing the ones already there\", and give it subscription_id; metadata.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:tag-a-stripe-subscription and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:tag-a-stripe-subscription and its input (the worked example shows one).",
     "3. Read what comes back: Give subscription_id and metadata (text values)."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Add notes (metadata) to a buyer Stripe subscription without changing the ones already there",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

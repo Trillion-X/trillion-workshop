@@ -20,7 +20,7 @@
       "ask": "Show me the property names my presentation runtime exposes for a slide, a shape's text and speaker notes.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

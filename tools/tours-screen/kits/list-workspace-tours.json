@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Show me every tour in my workspace and which ones I have finished\", and give it the records it works over: every input is optional.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:list-workspace-tours and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:list-workspace-tours and its input (the worked example shows one).",
     "3. Read what comes back: Reads the tours your AIs wrote (guided-overlay::own-walkthroughs) and your tour progress, with the app's own tours when the caller passes them as tours, and answers each tour in its order: tour_id, title, summary, steps, finished, the event that starts it by name (start_event), when the change it shows landed (changed_at) and whether it is one of your own.",
     "4. It has no records door and keeps nothing: it works over the records you hand in (own_tours, progress, show_rules), read from the store that holds them."
   ],
@@ -19,7 +19,7 @@
       "ask": "Show me every tour in my workspace and which ones I have finished",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

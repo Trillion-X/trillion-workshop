@@ -19,7 +19,7 @@
       "ask": "Make a LUT for my Orchard camera's log footage, small, 9 points a side.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

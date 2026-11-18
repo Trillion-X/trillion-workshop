@@ -10,7 +10,7 @@
   "instructions": [
     "1. Find the identities in your files of the video to change (video) and of the video whose colour to copy (match_to).",
     "2. Say \"Match this video's colour to that one\". Add match_at, the seconds into match_to to take its colour from (default 0).",
-    "3. The AI calls run_resource_operation at @tools with method tools:run and tool tool:match-colour. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
+    "3. The AI calls do_one_thing_in_my_account at @tools with method tools:run and tool tool:match-colour. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
     "4. Read result (duration_seconds, width, height, bytes) and files.video, the matched video in your files at its own size and length. To grade it further, run tool:grade-a-video on that new video."
   ],
   "worked_examples": [
@@ -19,7 +19,7 @@
       "ask": "Make this clip match the colour of my main camera at 8 seconds in.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

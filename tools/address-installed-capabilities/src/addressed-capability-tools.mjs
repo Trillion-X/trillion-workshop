@@ -106,7 +106,7 @@ export const addressedCapabilityTools = call => [
     run: ({ action, ...input }) => post(call, action, input),
   },
   {
-    name: 'run_resource_operation',
+    name: 'do_one_thing_in_my_account',
     description: 'Run an installed method using an opaque address or a resource binding id. Use address with resource:create to create independent project/work state, then invoke its installed methods. Keep request_key for safe retries. Binding execution and wait_seconds are optional owner controls; directly addressed operation controls belong in input.',
     inputSchema: objectSchema({
       id: { ...id, description: 'The resource binding id.' },
@@ -136,5 +136,5 @@ export const addressedCapabilityAnnotations = {
   read_capabilities: { title: 'List capability descriptors', readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   resolve_capability: { title: 'Resolve a capability', readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   manage_resource_bindings: { title: 'Manage resource bindings', readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
-  run_resource_operation: { title: 'Run a resource operation', readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
+  do_one_thing_in_my_account: { title: 'Run a resource operation', readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
 };

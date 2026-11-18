@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Hold a place for someone, or put them on the waitlist when every place is taken\", and give it ledger (the capacity ledger you hold); subject_ref (Who the place is for, like \"person:ana\"); idempotency_key (The same key for the same request sent again).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:hold-a-place and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:hold-a-place and its input (the worked example shows one).",
     "3. Read what comes back: Holds one place on a capacity ledger for a subject, or adds them to the waitlist when their class has no place left.",
     "4. It reads and keeps nothing: it works from your request and answers its whole result; you keep the ledger it answers."
   ],
@@ -19,7 +19,7 @@
       "ask": "Hold a place for someone, or put them on the waitlist when every place is taken",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

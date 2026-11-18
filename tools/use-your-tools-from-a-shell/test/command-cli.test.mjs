@@ -28,7 +28,7 @@ const quick = { ...settings, retry: { ...settings.retry, count: 3, first_seconds
 const noWait = async () => {};
 const noGrants = { where: 'test sign-in', read: () => null, write: () => {}, forget: () => {} };
 
-// A stand-in engine door: /mcp answers initialize with the account in _meta, and run_resource_operation from `ops`
+// A stand-in engine door: /mcp answers initialize with the account in _meta, and do_one_thing_in_my_account from `ops`
 // (a function per "address method"); /oauth/* and /authorize from `oauth`. Bearers in `bearers` are admitted.
 async function fakeDoor({ ops = {}, oauth = null, sse = false, bearers = [KEY], status = null, holdsAddedOnly = false, why = null } = {}) {
   const calls = [];

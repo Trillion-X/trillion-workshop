@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Edit a recording's transcript the way the transcript reader does: name a speaker or take the name back, split a passage before a chosen word, and write the passages as plain words to copy or export\", and give it passages.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:edit-a-transcript and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:edit-a-transcript and its input (the worked example shows one).",
     "3. Read what comes back: Give passages ([{ start, end, text, speaker?, speaker_was?, words?"
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Edit a recording's transcript the way the transcript reader does: name a speaker or take the name back, split a passage before a chosen word, and write the passages as plain words to copy or export",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

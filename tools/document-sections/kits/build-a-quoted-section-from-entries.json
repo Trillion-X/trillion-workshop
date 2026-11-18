@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Write one markdown section out of a list of entries (what people said or wrote), keeping every entry's words exactly as they came in\", and give it heading (The section heading; written as a second-level heading unless it already starts with #); sources.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:build-a-quoted-section-from-entries and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:build-a-quoted-section-from-entries and its input (the worked example shows one).",
     "3. Read what comes back: Give a heading and one or more sources, each a JSON document holding a list of entries."
   ],
   "worked_examples": [
@@ -19,7 +19,7 @@
       "ask": "Write one markdown section out of a list of entries (what people said or wrote), keeping every entry's words exactly as they came in",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Add a requested item to a work tree, keeping who asked for it and in which message, without adding it twice\", and give it tree (The work as a tree: { id, title, states?, children: [ { id, title, state?, verified_by?, blocked_by?, through?, children?); item.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:add-work-item and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:add-work-item and its input (the worked example shows one).",
     "3. Read what comes back: Adds one item someone asked for to a work tree, under a branch or at the top, with the checks that will show it is done."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Add a requested item to a work tree, keeping who asked for it and in which message, without adding it twice",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Hold an output back, and give the person's own support resources instead, when its risk is too high or unknown\", and give it threshold.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:hold-back-on-risk and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:hold-back-on-risk and its input (the worked example shows one).",
     "3. Read what comes back: Takes a risk assessment (was it run, the risk from 0 to 1 or null, categories) and the person's threshold."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Hold an output back, and give the person's own support resources instead, when its risk is too high or unknown",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

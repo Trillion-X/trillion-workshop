@@ -196,7 +196,7 @@
       "ask": "Sam referred friends; apply my reward rule for Sam today.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {
@@ -217,7 +217,7 @@
       "ask": "Apply my reward rule for Sam today.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

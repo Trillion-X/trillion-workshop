@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Share one of my show-rule presets with people so they see Trillion that way\", and give it type (The id of a type you keep); principal (The person or account); grant (Where the type's share is kept: sharing:show-types-shared:<type id> (see-when-things-show names it for each type as grant)).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:share-a-kept-show-type and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:share-a-kept-show-type and its input (the worked example shows one).",
     "3. Read what comes back: Shares a type you keep with one person or account (principal), as the Account visibility screen does: answers two records to keep, in order, the preset's copy show-types-shared:<id> = { label, types } (the preset with every preset it inherits) and its grant sharing:<that label> = { record, people: [{ principal, key_blake3 }], changed_at }.",
     "4. It reads and writes only its own rows through the records door: @own-records (workspace:read); @own-records (workspace:read)."
   ],
@@ -19,7 +19,7 @@
       "ask": "Share one of my show-rule presets with people so they see Trillion that way",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Give the latest answers to a form as plain lines, each starting with the question it answers, ready to hand to a writer or a summary, from the database\", and give it form_id (The form).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:read-latest-answers-as-lines and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:read-latest-answers-as-lines and its input (the worked example shows one).",
     "3. Read what comes back: Give form_id and optionally respondent_id."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Give the latest answers to a form as plain lines, each starting with the question it answers, ready to hand to a writer or a summary, from the database",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

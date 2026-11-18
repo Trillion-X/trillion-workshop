@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"List a person's recordings and the videos, sounds and pictures their tools made or they saved, newest first, each with what is known about it, as the Media screen shows a page\", and give it files.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:list-my-recordings-and-media and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:list-my-recordings-and-media and its input (the worked example shows one).",
     "3. Read what comes back: Give files ([{ name, identity, byte_length?, modified_at_ms?"
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "List a person's recordings and the videos, sounds and pictures their tools made or they saved, newest first, each with what is known about it, as the Media screen shows a page",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -113,7 +113,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Write a draft script for each of my product's capabilities in each video format I picked: the format's own lines filled with the capability's words, the word count of every line against the format's measured budget, the shots, the filming notes, and every fact still missing listed with what would fill it\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:generate-fill-scripts-for-formats and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:generate-fill-scripts-for-formats and its input (the worked example shows one).",
     "3. Read what comes back: Takes one request: formats (each with its template: lines with a measured word budget and seconds, slots with their pictures, shoot and reuse notes, an optional note, and which words count: all words, or only quoted on-screen words), capabilities (the person's own words for each, any fields), the saved catalog listing of each capability (title, job, steps), the page layout, and optionally an index page."
   ],
   "worked_examples": [
@@ -122,7 +122,7 @@
       "ask": "Write a draft script for each of my product's capabilities in each video format I picked: the format's own lines filled with the capability's words, the word count of every line against the format's measured budget, the shots, the filming notes, and every fact still missing listed with what would fill it",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

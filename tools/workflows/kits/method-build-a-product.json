@@ -30,7 +30,7 @@
       "ask": "Run workflow:method-build-a-product for the request: let customers of a small bakery pre-order a weekend box from the website.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

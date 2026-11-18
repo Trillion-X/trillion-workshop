@@ -111,7 +111,7 @@ export function pour(input) {
     poured: rows.length > 0, coverage, matched: matchedList, unmatched, left_out, rows,
     write: rows.length ? { address: '@own-records', method: 'records:write', input: { records } } : null,
     says: rows.length
-      ? `${rows.length} example row${rows.length === 1 ? '' : 's'} ready for ${into.list} (${Math.round(coverage * 100)}% of the kit's fields matched${unmatched.length ? `; left out: ${unmatched.join(', ')}` : ''}). Send write with run_resource_operation to add them; your own rows are not touched.`
+      ? `${rows.length} example row${rows.length === 1 ? '' : 's'} ready for ${into.list} (${Math.round(coverage * 100)}% of the kit's fields matched${unmatched.length ? `; left out: ${unmatched.join(', ')}` : ''}). Send write with do_one_thing_in_my_account to add them; your own rows are not touched.`
       : `Every example row is already in ${into.list}; nothing to pour.`,
   };
 }

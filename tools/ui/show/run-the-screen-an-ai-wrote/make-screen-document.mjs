@@ -12,6 +12,9 @@ const [wordsFile, out] = process.argv.slice(2);
 if (!wordsFile || !out) throw new Error('Give the owner words file and the page to write: node make-screen-document.mjs <words.json> <out.html>');
 const words = JSON.parse(readFileSync(wordsFile, 'utf8'));
 const bundled = await build({ entryPoints: [join(here, 'boot.mjs')], bundle: true, format: 'iife', minify: true, write: false, logLevel: 'warning' });
-const page = aiAppViewDocument({ hostId: words.host ?? 'screen', wordsId: 'screen-words', words: { title: words.title ?? 'Screen', ...words }, inlineScript: bundled.outputFiles[0].text, inlineCss: words.css ?? null });
+// The page wears the owner's look whatever the code draws: its own background, text and type are the look's (the words'
+// `css`, such as look.css, names them), so a screen that sets none still looks like the rest of the owner's screens.
+const wearsTheLook = 'html,body{margin:0;background:var(--bg-primary,Canvas);color:var(--text-primary,CanvasText);font-family:var(--font-primary,system-ui)}';
+const page = aiAppViewDocument({ hostId: words.host ?? 'screen', wordsId: 'screen-words', words: { title: words.title ?? 'Screen', ...words }, inlineScript: bundled.outputFiles[0].text, inlineCss: `${words.css ?? ''}\n${wearsTheLook}` });
 writeFileSync(out, page);
 process.stdout.write(`wrote ${out}: ${page.length} bytes\n`);

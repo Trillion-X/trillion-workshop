@@ -19,7 +19,7 @@
       "ask": "Pin these 5 frames and make review pages of 2.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

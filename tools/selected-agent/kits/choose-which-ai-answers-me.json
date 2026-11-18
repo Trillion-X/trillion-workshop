@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Make the request that sets which AI answers a person, or sends them back to automatic routing, as the selected-agent part sends it to the workflow slot, without sending it\", and give it agent_id (The AI that should answer, or \"\" for automatic routing.).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:choose-which-ai-answers-me and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:choose-which-ai-answers-me and its input (the worked example shows one).",
     "3. Read what comes back: Give agent_id: the AI that should answer the person, or \"\" to go back to automatic routing (and, rarely, definition_id: the workflow definition that keeps the choice, action:update-selected-agent when left out)."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Make the request that sets which AI answers a person, or sends them back to automatic routing, as the selected-agent part sends it to the workflow slot, without sending it",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

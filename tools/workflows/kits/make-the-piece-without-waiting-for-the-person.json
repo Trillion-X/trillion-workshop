@@ -241,7 +241,7 @@
       "ask": "The training video is waiting on my voiceover; don't wait past Saturday 9 am.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

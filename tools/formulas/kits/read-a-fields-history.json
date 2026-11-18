@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Read one field's history of one row as lines a person reads: each value it held, from when until when, who changed it and by which road\", and give it list; field_id; kept.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:read-a-fields-history and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:read-a-fields-history and its input (the worked example shows one).",
     "3. Read what comes back: Send list ({ id, fields }, the field naming keeps_history: true), row_id, field_id and kept (the row, with its _history)."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Read one field's history of one row as lines a person reads: each value it held, from when until when, who changed it and by which road",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -27,7 +27,7 @@
    "ask": "Follow up with the people who engaged with my posts this week.",
    "mcp": {
     "server": "{cli}",
-    "tool": "run_resource_operation",
+    "tool": "do_one_thing_in_my_account",
     "input": {
      "method": "tools:run",
      "input": {

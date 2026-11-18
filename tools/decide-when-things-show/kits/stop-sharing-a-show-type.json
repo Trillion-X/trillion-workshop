@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Stop sharing one of my show-rule presets with someone\", and give it type (The id of a type you keep); principal (The person or account); grant (Where the type's share is kept: sharing:show-types-shared:<type id> (see-when-things-show names it for each type as grant)).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:stop-sharing-a-show-type and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:stop-sharing-a-show-type and its input (the worked example shows one).",
     "3. Read what comes back: Takes one person or account out of a shared type's grant (sharing:show-types-shared:<id>), so their share key reads nothing any more; the others it is shared with keep reading it.",
     "4. It reads and writes only its own rows through the records door: @own-records (workspace:read)."
   ],
@@ -19,7 +19,7 @@
       "ask": "Stop sharing one of my show-rule presets with someone",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Keep one request that arrived, as decided, and ask the owner who should act on it\", and give it request; decision.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:take-a-request and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:take-a-request and its input (the worked example shows one).",
     "3. Read what comes back: request is what arrived: request_id, source_ref, atom_ref, text, origin_ref, optionally message_ref, content_revision and at.",
     "4. It reads and writes only its own rows through the records door: intake-origins (records:read); intake-owner (records:read); intake-request (records:read, records:write); owner-action-request (records:read, records:write)."
   ],
@@ -19,7 +19,7 @@
       "ask": "Keep one request that arrived, as decided, and ask the owner who should act on it",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

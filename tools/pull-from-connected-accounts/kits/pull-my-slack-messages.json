@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Pull the messages from the Slack channels my bot is in\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:pull-my-slack-messages and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:pull-my-slack-messages and its input (the worked example shows one).",
     "3. Read what comes back: Reads the public channels the bot is a member of, only the messages newer than the last pull (the cursor is the newest message time seen, and moves only when no request failed), and answers them folded into held: a message pulled twice appears once and an edited message replaces the older copy. Channels the bot has not joined cannot be read.",
     "4. It reads and writes no rows: the new or changed conversations and items are in the answer, and held.cursor is what to hand back next time."
   ],
@@ -19,7 +19,7 @@
       "ask": "Pull the messages from the Slack channels my bot is in",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

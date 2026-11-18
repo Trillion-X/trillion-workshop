@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Work out how to settle a record two of my devices changed apart: keep one version, keep both, or keep a merged one\", and give it id (The record kept apart, as the read names it); keep; thing_type (The kind of record whose versions to read or settle (one kind per call; other_kinds names the rest)).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:settle-two-versions and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:settle-two-versions and its input (the worked example shows one).",
     "3. Read what comes back: Reads and keeps nothing. Works out what you chose for one record kept apart (id, from see-if-my-copies-are-in-step): keep one (side, the id of the version to keep), both (each other version is kept as a record of its own, named after it with -kept- and a number that no record in records holds yet), or merged (value, the merged record). thing_type is the kind of the record; records are the kept-apart record and the records it names, as you read them. Answers writes: the chosen record first and the kept versions removed after it, for you to keep in one write, each standing on the record as it was handed in (expected, null for a record nobody had), so every copy takes it like any change.",
     "4. It reads and writes no rows: everything it works from is in the request."
   ],
@@ -19,7 +19,7 @@
       "ask": "Work out how to settle a record two of my devices changed apart: keep one version, keep both, or keep a merged one",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

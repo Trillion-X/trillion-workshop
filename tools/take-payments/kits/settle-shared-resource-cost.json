@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Allocate one verified supplier invoice among its attributed excess users under purchased limits, with separate platform expense, explicit funding gaps and exact subcent amounts; answers the settlement and every allocation and sends nothing to a payment provider\", and give it settlement_id; settlement_key; invoice; payers.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:settle-shared-resource-cost and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:settle-shared-resource-cost and its input (the worked example shows one).",
     "3. Read what comes back: record_id; settlement; allocations, as the worked example shows.",
     "4. It reads no rows and keeps nothing: keep the settlement and allocations it answers, and give them back as previous to correct-resource-usage-settlement or as settlement to report-resource-usage."
   ],
@@ -19,7 +19,7 @@
       "ask": "Allocate one verified supplier invoice among its attributed excess users under purchased limits, with separate platform expense, explicit funding gaps and exact subcent amounts; answers the settlement and every allocation and sends nothing to a payment provider",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

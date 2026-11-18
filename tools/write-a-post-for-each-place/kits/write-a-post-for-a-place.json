@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Write one message for a pull request thread, a merge request note, a chat or a post from the same blocks, using only what that place can show\", and give it blocks.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:write-a-post-for-a-place and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:write-a-post-for-a-place and its input (the worked example shows one).",
     "3. Read what comes back: Give blocks (heading, paragraph, code, list, checklist, image with an optional dark_url, collapsible holding more blocks) and exactly one of surface (github_comment, gitlab_note, bitbucket_comment or plain_message), capability (a record with html, collapsibles, checkboxes, dialect 'markdown' or 'plain', max_chars or null, theme { strategy 'picture', 'suffix' or 'single' } and unproven) or place (a post place whose format may carry caption_max_characters and source)."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Write one message for a pull request thread, a merge request note, a chat or a post from the same blocks, using only what that place can show",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

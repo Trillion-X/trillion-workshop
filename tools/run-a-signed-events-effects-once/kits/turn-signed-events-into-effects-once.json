@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Turn signed events into the effects their installed rules name, each effect once, from a verifier answer given in the input, and list a subject's effects from a reader answer given in the input, showing every call that would be sent\", and give it op; descriptor_ref; replies.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:turn-signed-events-into-effects-once and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:turn-signed-events-into-effects-once and its input (the worked example shows one).",
     "3. Read what comes back: Runs the signed-event-effects targets with no transport."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Turn signed events into the effects their installed rules name, each effect once, from a verifier answer given in the input, and list a subject's effects from a reader answer given in the input, showing every call that would be sent",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

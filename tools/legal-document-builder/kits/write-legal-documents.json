@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Write a business's terms of service, privacy policy, refund policy or waiver from its facts\", and give it documents (Which documents to write); facts (The business's facts by name (business_legal_name, service_name, site_url, contact_email, service_description, has_accounts, has_paid_offers, has_subscriptions, uses_ai, has_physical_activity, serves_minors, governing_law_state, ...).).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:write-legal-documents and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:write-legal-documents and its input (the worked example shows one).",
     "3. Read what comes back: Assembles each document you ask for from a library of forty clauses, choosing the clauses the business's facts call for (accounts, paid offers, subscriptions, AI, physical activity, minors) and filling in its name, address, contact and policies."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Write a business's terms of service, privacy policy, refund policy or waiver from its facts",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

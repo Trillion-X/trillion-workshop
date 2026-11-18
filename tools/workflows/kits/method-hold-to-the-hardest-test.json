@@ -28,7 +28,7 @@
       "ask": "Run workflow:method-hold-to-the-hardest-test: decide the monthly price of an ordering app for small bakeries.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

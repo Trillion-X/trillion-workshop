@@ -70,7 +70,7 @@
     {
       "title": "A customer's swap request becomes a task and a draft",
       "ask": "Run my inbox now.",
-      "mcp": { "server": "{cli}", "tool": "run_resource_operation", "input": { "address": "@tools", "method": "tools:run", "input": { "tool": "tool:run-workflow-definition", "input": { "row": "workflow:handle-every-inbox-daily", "start_at": "read-setup" } } } },
+      "mcp": { "server": "{cli}", "tool": "do_one_thing_in_my_account", "input": { "address": "@tools", "method": "tools:run", "input": { "tool": "tool:run-workflow-definition", "input": { "row": "workflow:handle-every-inbox-daily", "start_at": "read-setup" } } } },
       "workflow": "workflow:handle-every-inbox-daily",
       "step": "file-what-needs-the-person",
       "given": "triage decided gmail-thread:example-thread-1 (\"Can we swap Saturday 9am to Sunday afternoon?\", from a parent) as customer, target_ref pursuit:example-shop, confidence 0.9.",

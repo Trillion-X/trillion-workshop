@@ -11,7 +11,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Prepare sign-ups and payments to send back to Meta Ads and Google Ads\", and give it project; visits (First-touch visits: one per visitor, with the click ids they arrived with); conversions (What each visitor did: outcome, time, value, email or phone); destinations (Where conversions go, each turned on with its account and which outcome is which event).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:prepare-ad-conversions and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:prepare-ad-conversions and its input (the worked example shows one).",
     "3. Read what comes back: the sends, each a connection tool (tool:meta-ads-send-conversion-events or tool:google-ads-send-conversions) with its exact input, and the conversions skipped with why. Email and phone are hashed; the plain values never appear. Run each send's tool with its input."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
       "ask": "Prepare sign-ups and payments to send back to Meta Ads and Google Ads",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

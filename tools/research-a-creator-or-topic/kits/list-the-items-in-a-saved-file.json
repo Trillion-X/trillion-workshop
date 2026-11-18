@@ -19,7 +19,7 @@
       "ask": "Read my saved list in bookmarks.json into items to research.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

@@ -19,7 +19,7 @@
       "ask": "Read the poses of the people in /work/serve.mp4 with my pose model.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {
@@ -35,7 +35,7 @@
       "ask": "Read the poses in /work/none.mp4.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

@@ -20,7 +20,7 @@
       "ask": "Line up my swing track with the coach's and write the alignment.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

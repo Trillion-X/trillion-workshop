@@ -289,7 +289,7 @@ async function verifyRunSession(tokens, expectedAccount, response = null) {
 /** Runs one tool on the account and returns what it answered; a refusal is thrown in words a person may read (`refusal`). */
 export async function tool(name, args = {}, expectedAccount = null, { replayTransportOnce = false, expectedSessionId = null } = {}) {
   const replay = replayTransportOnce === true;
-  const fenceSession = replay || expectedSessionId || name === 'run_resource_operation';
+  const fenceSession = replay || expectedSessionId || name === 'do_one_thing_in_my_account';
   const initiatingTokens = fenceSession ? await local.get('tokens') : null;
   if (expectedSessionId && initiatingTokens?.session_id !== expectedSessionId) throw new SignInNeeded();
   const body = JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name, arguments: args } });
@@ -343,7 +343,7 @@ export function runResourceOperation(address, method, input, { requestKey, expec
       || typeof requestKey !== 'string' || !requestKey) {
     throw new TypeError('A resource address, operation, object input and request key are required.');
   }
-  return tool('run_resource_operation', {
+  return tool('do_one_thing_in_my_account', {
     address, method, request_key: requestKey, input,
   }, expectedAccount, { replayTransportOnce: replayTransportOnce === true, expectedSessionId }).then(answer => {
     if (!answer || typeof answer !== 'object' || Array.isArray(answer) || answer.error || answer.isError) {
@@ -359,7 +359,7 @@ export function runWorkshopTool(toolId, input, { requestKey, expectedAccount = n
       || typeof requestKey !== 'string' || !requestKey) {
     throw new TypeError('A Marketplace tool, object input and request key are required.');
   }
-  return tool('run_resource_operation', {
+  return tool('do_one_thing_in_my_account', {
     address: '@tools', method: 'tools:run', request_key: requestKey, input: { tool: toolId, input },
   }, expectedAccount, { replayTransportOnce: true }).then(answer => {
     const failure = typeof answer?.error === 'string' ? answer.error

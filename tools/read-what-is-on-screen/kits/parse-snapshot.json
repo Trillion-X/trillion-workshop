@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Turn the accessibility elements of one app's window ({ role, label }) into fields through that app's declarative parser row, with emails, card numbers and tokens removed before anything is returned\", and give it elements.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:parse-snapshot and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:parse-snapshot and its input (the worked example shows one).",
     "3. Read what comes back: Give app (its name) and elements ([{ role, label }], as the Mac app's reader takes them)."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Turn the accessibility elements of one app's window ({ role, label }) into fields through that app's declarative parser row, with emails, card numbers and tokens removed before anything is returned",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

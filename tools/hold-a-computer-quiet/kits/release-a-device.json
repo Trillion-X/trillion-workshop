@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"End a hold on the person's computer now: apps can open again and Focus turns off\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:release-a-device and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:release-a-device and its input (the worked example shows one).",
     "3. Read what comes back: Give id to end one hold, or nothing to end every hold."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "End a hold on the person's computer now: apps can open again and Focus turns off",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

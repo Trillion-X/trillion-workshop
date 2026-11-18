@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Make Stripe hold one lasting payment link for every priced option of my offers, with the buyer plan page and my discount codes\", and give it owner; after_payment_url.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:set-up-stripe-payment-links and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:set-up-stripe-payment-links and its input (the worked example shows one).",
     "3. Read what comes back: Give owner (a name that marks the Stripe objects as yours) and after_payment_url (where a buyer lands after paying: an offer row with post_purchase_route_path lands at that path under it, any other at its root)."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Make Stripe hold one lasting payment link for every priced option of my offers, with the buyer plan page and my discount codes",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

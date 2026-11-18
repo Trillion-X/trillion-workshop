@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"See how much of a body of work is really finished, which items were said done with no proof, and what is blocked\", and give it tree (The work as a tree: { id, title, states?, children: [ { id, title, state?, verified_by?, blocked_by?, through?, children?).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:roll-up-work-completion and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:roll-up-work-completion and its input (the worked example shows one).",
     "3. Read what comes back: Counts a work tree from its items' states: an item marked done with nothing anyone can check is counted apart as said done, never as finished, and a percentage typed into the tree is refused rather than trusted."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "See how much of a body of work is really finished, which items were said done with no proof, and what is blocked",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

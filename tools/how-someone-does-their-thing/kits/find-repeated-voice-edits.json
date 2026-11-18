@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Find the word changes a person keeps making to drafts written for them\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:find-repeated-voice-edits and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:find-repeated-voice-edits and its input (the worked example shows one).",
     "3. Read what comes back: Counts, over the person's kept edits (kind narrows them), the words removed, added or replaced, each once per draft, and returns the changes found in at least min_distinct_drafts different drafts (3 when left out, never below 2), each with an example edit_id.",
     "4. It reads and writes no rows: the edits are in the request."
   ],
@@ -20,7 +20,7 @@
       "ask": "Find the word changes a person keeps making to drafts written for them",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

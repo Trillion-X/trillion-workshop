@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Fill a screen's inputs from the words a person typed, such as timer 25 min or lunch with Ruth tomorrow at 1, by each input's format, choices or type, with no model\", and give it schema; words.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:fill-screen-inputs-from-words and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:fill-screen-inputs-from-words and its input (the worked example shows one).",
     "3. Read what comes back: Give schema (the screen's input schema, { properties }), words, and now (the device's time, ISO) for words like tomorrow or in 20 minutes; used ([[start, end]]) are the spans of the words that picked the screen, which are not values; choices names labels for enum values."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Fill a screen's inputs from the words a person typed, such as timer 25 min or lunch with Ruth tomorrow at 1, by each input's format, choices or type, with no model",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

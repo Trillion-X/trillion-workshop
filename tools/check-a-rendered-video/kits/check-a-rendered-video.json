@@ -124,7 +124,7 @@
       "ask": "Check my finished video /work/film.mp4 against my limits and tell me every FAIL and WARN.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

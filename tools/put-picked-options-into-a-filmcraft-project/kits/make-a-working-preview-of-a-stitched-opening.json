@@ -124,7 +124,7 @@
       "ask": "Show me the commands for a working preview of option x00-r8-1 from my cut render.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

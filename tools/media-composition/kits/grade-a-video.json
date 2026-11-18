@@ -10,7 +10,7 @@
   "instructions": [
     "1. Find your video's identity in your files: 1f: then 64 hex.",
     "2. Say \"Grade this video\" with any of: looks (named looks applied in order, such as golden-hour, vhs, film-grain, soft-glow), brightness (-0.5 to 0.5), contrast (0.5 to 1.5), saturation (0 to 2), exposure (-2 to 2), warmth (-1 to 1), vibrance (-1 to 1), or match_to and match_at to match another video's colour first.",
-    "3. The AI calls run_resource_operation at @tools with method tools:run and tool tool:grade-a-video. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
+    "3. The AI calls do_one_thing_in_my_account at @tools with method tools:run and tool tool:grade-a-video. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
     "4. Read result.looks (the looks actually applied) and files.video, the graded video in your files at its own size and length. A look that needs a grade file the account has not supplied (such as teal-and-orange) stops with a message saying so; the other looks still render."
   ],
   "worked_examples": [
@@ -19,7 +19,7 @@
       "ask": "Give my video a golden hour look with grain, slightly warmer and brighter.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {
@@ -45,7 +45,7 @@
       "ask": "Give my video the teal and orange look.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

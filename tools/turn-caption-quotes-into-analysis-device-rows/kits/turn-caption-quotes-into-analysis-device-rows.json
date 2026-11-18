@@ -124,7 +124,7 @@
       "ask": "Check my garden-tips device rows against the captions and write the tables.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {
@@ -140,7 +140,7 @@
       "ask": "Check my garden-tips rows again; I changed a quote.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

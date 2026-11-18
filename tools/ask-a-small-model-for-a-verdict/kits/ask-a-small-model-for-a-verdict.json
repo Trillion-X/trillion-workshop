@@ -20,7 +20,7 @@
       "ask": "Does this note say the order is ready without saying it was checked?",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

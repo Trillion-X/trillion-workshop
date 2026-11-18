@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Sort the tabs a person pinned in their browser into folders by rules they wrote, keep every tab and a backup of the file, and undo it\", and give it file (The sidebar file's plain name inside the granted folder).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:organize-saved-browser-tabs and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:organize-saved-browser-tabs and its input (the worked example shows one).",
     "3. Read what comes back: Works on the browser's sidebar file (the Arc layout) inside the folder the person granted for change; close the browser first, because it rewrites the file while it runs."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Sort the tabs a person pinned in their browser into folders by rules they wrote, keep every tab and a backup of the file, and undo it",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

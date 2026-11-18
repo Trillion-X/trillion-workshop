@@ -19,7 +19,7 @@
       "ask": "Read the TestFlight routes of com.example.sample for the group Members.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

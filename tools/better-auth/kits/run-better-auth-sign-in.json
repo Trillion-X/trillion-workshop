@@ -8,7 +8,7 @@
     "tool:run-better-auth-sign-in"
   ],
   "instructions": [
-    "1. The AI reads the row with run_resource_operation at @tools, tools:list { tool: \"tool:run-better-auth-sign-in\" } and clones https://github.com/Trillion-X/trillion-workshop.git on your computer.",
+    "1. The AI reads the row with do_one_thing_in_my_account at @tools, tools:list { tool: \"tool:run-better-auth-sign-in\" } and clones https://github.com/Trillion-X/trillion-workshop.git on your computer.",
     "2. Edit trillion-workshop/tools/better-auth/settings.json for your port, base_url, issuer, audience, passkey origin and database file; set BETTER_AUTH_SECRET from your vault by name (32+ random characters, never printed) and RUST_ICU_MAJOR_VERSION_NUMBER=78 with RUST_ICU_LINK_SEARCH_DIR at ICU 78's lib folder (brew install icu4c@78).",
     "3. Run cargo run --release --quiet --manifest-path trillion-workshop/tools/better-auth/Cargo.toml --target-dir /tmp/better-auth-build -- trillion-workshop/tools/better-auth/settings.json; the first build takes a few minutes.",
     "4. Check GET {base_url}/api/auth/ok answers {\"ok\":true}; sign up with POST /api/auth/sign-up/email, get a JWT with GET /api/auth/token (cookie or Authorization: Bearer) and give verifiers {base_url}/api/auth/jwks."
@@ -19,7 +19,7 @@
       "ask": "Start my sign-in server and make a test account for Sam.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

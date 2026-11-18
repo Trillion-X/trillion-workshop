@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Check whether a file an AI is about to write belongs on disk or in the person's Trillion lists, and say which list and which records:write call keeps it instead\", and give it rules; call.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:check-where-work-is-kept and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:check-where-work-is-kept and its input (the worked example shows one).",
     "3. Read what comes back: Give rules ({ source_repositories: [owner/name], scratch?: '.git/scratch', new_files_refused?: [{ why, pattern, except?, list?"
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Check whether a file an AI is about to write belongs on disk or in the person's Trillion lists, and say which list and which records:write call keeps it instead",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

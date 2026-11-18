@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Check a progress or results screen description before publishing it: it must not ship made-up numbers, ranks, bars or percents before the owner has worked them out\", and give it descriptor (The destination descriptor to check).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:check-a-destination-is-honest and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:check-a-destination-is-honest and its input (the worked example shows one).",
     "3. Read what comes back: Give a destination descriptor and, if you want, refuse_keys: keys that may not appear anywhere in it."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Check a progress or results screen description before publishing it: it must not ship made-up numbers, ranks, bars or percents before the owner has worked them out",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

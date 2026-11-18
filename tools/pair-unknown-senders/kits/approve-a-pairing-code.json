@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Let a waiting sender's messages through by approving the pairing code they were given\", and give it code.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:approve-a-pairing-code and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:approve-a-pairing-code and its input (the worked example shows one).",
     "3. Read what comes back: Give code (case and spaces do not matter) and, optionally, source_id."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Let a waiting sender's messages through by approving the pairing code they were given",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

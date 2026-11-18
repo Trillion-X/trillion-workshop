@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Break down visitors, leads and sales by where they came from (source, campaign or any tracked field), with conversion rates and revenue\", and give it project; visits.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:break-down-visits-and-sales and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:break-down-visits-and-sales and its input (the worked example shows one).",
     "3. Read what comes back: Counts each visitor once by their first visit, then gives one row per source (or campaign, or any field the visits carry): visitors, each outcome you track (leads, purchases, sign-ups) with its rate, and revenue and revenue per visitor when conversions carry a value."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Break down visitors, leads and sales by where they came from (source, campaign or any tracked field), with conversion rates and revenue",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

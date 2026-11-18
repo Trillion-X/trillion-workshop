@@ -17,7 +17,7 @@
       "ask": "Measure how fast this shared video starts, 3 samples.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

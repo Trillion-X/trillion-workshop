@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Enumerate a bounded set of future recurrence slots from generic schedule data, including local-time daylight-saving policies and explicit coverage.\", and give it now (Explicit replay-stable time: ISO text or epoch milliseconds.); schedules (Generic timed-action recurrence schedule DATA, including timezone, cadence, local window, DST policies, and owner dispatch.); max_occurrences_per_schedule (Maximum future occurrence rows returned for each valid schedule.).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:plan-recurring-windows and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:plan-recurring-windows and its input (the worked example shows one).",
     "3. Read what comes back: Give an explicit replay-stable now, recurring schedules, and max_occurrences_per_schedule."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Enumerate a bounded set of future recurrence slots from generic schedule data, including local-time daylight-saving policies and explicit coverage.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

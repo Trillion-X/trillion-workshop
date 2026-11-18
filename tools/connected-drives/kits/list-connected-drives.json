@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"List the drives connected to this person's computer: each drive's name, where it is mounted, its size and free space, its kind (USB, disk image, internal) and whether it can be ejected\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:list-connected-drives and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:list-connected-drives and its input (the worked example shows one).",
     "3. Read what comes back: Runs on the person's computer with the drives they granted it to see."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "List the drives connected to this person's computer: each drive's name, where it is mounted, its size and free space, its kind (USB, disk image, internal) and whether it can be ejected",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

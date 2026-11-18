@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Make someone else's words safe to quote into what an AI reads, so hidden characters or a fake tag cannot sneak instructions in\", and give it text.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:quote-untrusted-words and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:quote-untrusted-words and its input (the worked example shows one).",
     "3. Read what comes back: Give text (another party's words: mail, an imported chat, a web page, a title) and, optionally, max (the most code points the quote may hold, ellipsis included; 8000 when left out)."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Make someone else's words safe to quote into what an AI reads, so hidden characters or a fake tag cannot sneak instructions in",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Show everything my account runs on its own (schedules, record changes, incoming events): what each waits for, whether it is on, its last and next run, which ones should have run and did not, and a switch to turn each off or on\", and give it now_ms (The engine's time now, in milliseconds); wakes (The causes the tool rows declare: [{tool, id, on, budget}]).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:see-what-runs-on-its-own and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:see-what-runs-on-its-own and its input (the worked example shows one).",
     "3. Read what comes back: Give now_ms, wakes (the causes tool rows declare: [{tool, id, on, budget}]), book (the engine's wake book record, or null) and, optionally, stamps (each watched resource's newest change stamp) and late_after_ms."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Show everything my account runs on its own (schedules, record changes, incoming events): what each waits for, whether it is on, its last and next run, which ones should have run and did not, and a switch to turn each off or on",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

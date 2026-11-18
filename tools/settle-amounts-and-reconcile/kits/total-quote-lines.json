@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Total the lines of a quote or invoice in order, where each percent line names the base it multiplies (the line above, the lines since the last subtotal, or all above) and a subtotal line resets that base\", and give it action; list_id (The list in the request: the source (or the lines, or the row's list) when the body leaves its own list_id out.); lists (The lists the action names, as the caller read them from a store: each { id, row_type, fields, ...the list's own definition, rows: [{ id, values }] } with every row the action reads.).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:total-quote-lines and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:total-quote-lines and its input (the worked example shows one).",
     "3. Read what comes back: action totals takes lines { kind_field?, value_field?, base_field?, order_field?"
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Total the lines of a quote or invoice in order, where each percent line names the base it multiplies (the line above, the lines since the last subtotal, or all above) and a subtotal line resets that base",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -21,7 +21,7 @@
       "ask": "Read my transcript file /Transcripts/day1.srt into timed words.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

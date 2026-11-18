@@ -21,7 +21,7 @@
       "ask": "Show me the timeline of my plan chain-fixture, then build the cut.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

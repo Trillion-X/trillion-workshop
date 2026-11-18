@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Keep what I know about a prospect as one row of my prospect list: what a finder found, the researched profile, a status I move it through, and my notes\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:keep-a-prospect and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:keep-a-prospect and its input (the worked example shows one).",
     "3. Read what comes back: One row per prospect, under the key you give; keeping it again writes over the same row and leaves the fields you keep by hand.",
     "4. It reads and keeps nothing: it works from your request and answers its whole result; you keep any row it answers."
   ],
@@ -19,7 +19,7 @@
       "ask": "Keep what I know about a prospect as one row of my prospect list: what a finder found, the researched profile, a status I move it through, and my notes",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

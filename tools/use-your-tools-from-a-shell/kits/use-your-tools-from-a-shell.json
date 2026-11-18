@@ -19,7 +19,7 @@
       "ask": "Hand the job 'Fix the build' to any of my AIs.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {
@@ -35,7 +35,7 @@
       "ask": "What Workshop tools can I run from the shell?",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

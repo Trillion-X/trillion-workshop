@@ -10,7 +10,7 @@
   "instructions": [
     "1. Find your video's identity in your files: 1f: then 64 hex.",
     "2. Say \"Find the silence in this video\" with that identity. Optional: threshold_db (quieter than this is silence, default -30), min_silence_seconds (default 0.5), pad_seconds (sound kept around each kept stretch, default 0.05).",
-    "3. The AI calls run_resource_operation at @tools with method tools:run and tool tool:find-silence. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
+    "3. The AI calls do_one_thing_in_my_account at @tools with method tools:run and tool tool:find-silence. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
     "4. Read result.silences (start and end) and result.keep (in and out): cut the keep stretches together to remove the pauses."
   ],
   "worked_examples": [
@@ -19,7 +19,7 @@
       "ask": "Find the silent parts of my video.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {
@@ -38,7 +38,7 @@
       "ask": "Only count pauses longer than a second, keep no extra sound around them.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

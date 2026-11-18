@@ -20,7 +20,7 @@
       "ask": "Read the Internet Archive item example-tennis-film-1952.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

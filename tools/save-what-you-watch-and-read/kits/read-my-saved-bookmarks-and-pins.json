@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Read the bookmarks or pins a person saved on a social site (an export file of X bookmarks or Pinterest pins and boards) from a folder they chose, and give each saved item with its words, author and time, ready to be kept and found like anything else they read\", and give it file (The export, a path inside the granted folder).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:read-my-saved-bookmarks-and-pins and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:read-my-saved-bookmarks-and-pins and its input (the worked example shows one).",
     "3. Read what comes back: Runs on the person's computer over the folder they granted it to read, and reads only inside it."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Read the bookmarks or pins a person saved on a social site (an export file of X bookmarks or Pinterest pins and boards) from a folder they chose, and give each saved item with its words, author and time, ready to be kept and found like anything else they read",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

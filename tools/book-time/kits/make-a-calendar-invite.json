@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Make an invitation file that any mail client turns into a calendar event, or into a cancellation\", and give it uid (The event's own id; keep it for updates and the cancel); start (Start instant); end (End instant); summary; organizer.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:make-a-calendar-invite and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:make-a-calendar-invite and its input (the worked example shows one).",
     "3. Read what comes back: Writes a standard calendar file (.ics): a request that creates or updates an event, or a cancel that removes it."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Make an invitation file that any mail client turns into a calendar event, or into a cancellation",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

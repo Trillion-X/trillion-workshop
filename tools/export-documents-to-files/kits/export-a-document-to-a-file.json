@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Turn one document made of headings, words, lists, tables, graphs, calendar events and pictures into a file in the format asked for, and give the file back\", and give it document (The document: { title?, blocks }.); format (The id of a format, such as pdf, docx, xlsx, csv, markdown, txt, html, svg).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:export-a-document-to-a-file and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:export-a-document-to-a-file and its input (the worked example shows one).",
     "3. Read what comes back: Give the document and the id of a format."
   ],
   "worked_examples": [
@@ -19,7 +19,7 @@
       "ask": "Turn one document made of headings, words, lists, tables, graphs, calendar events and pictures into a file in the format asked for, and give the file back",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {
@@ -60,7 +60,7 @@
       "ask": "Turn one document made of headings, words, lists, tables, graphs, calendar events and pictures into a file in the format asked for, and give the file back",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

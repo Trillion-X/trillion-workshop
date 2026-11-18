@@ -20,7 +20,7 @@
       "ask": "Search Freesound for a soft tick under one second.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

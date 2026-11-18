@@ -34,7 +34,7 @@
       "ask": "Run choose the next move that matters most, and do it for teaching people to hit a Federer-style forehand.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

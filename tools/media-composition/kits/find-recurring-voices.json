@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Group recurring voices across audio and video files, keep stable voice clusters, and show which files contain the same speaker\", and give it files (One to twenty audio or video file identities from your Files).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:find-recurring-voices and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:find-recurring-voices and its input (the worked example shows one).",
     "3. Read what comes back: Uses a public CAM++ speaker model on speech windows from your selected files."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Group recurring voices across audio and video files, keep stable voice clusters, and show which files contain the same speaker",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

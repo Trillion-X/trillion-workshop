@@ -98,7 +98,7 @@ export function engineCarrier({ door, waiters, fetchImpl = fetch, say = line => 
   /** One door operation `method` with `input`: the response and the call's result. */
   async function operate(method, input, requestKey) {
     calls += 1;
-    const body = JSON.stringify({ jsonrpc: '2.0', id: calls, method: 'tools/call', params: { name: 'run_resource_operation',
+    const body = JSON.stringify({ jsonrpc: '2.0', id: calls, method: 'tools/call', params: { name: 'do_one_thing_in_my_account',
       arguments: { address: door.resource ?? '@own-records', method, request_key: requestKey, input } } });
     const response = await fetchImpl(door.url, { method: 'POST', body, headers: { authorization: `Bearer ${door.capability}`,
       'content-type': 'application/json', accept: 'application/json, text/event-stream', 'mcp-protocol-version': '2025-06-18' } });

@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Keep one of a notification setting's options as this person's choice\", and give it setting; choice.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:choose-my-notification-choice and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:choose-my-notification-choice and its input (the worked example shows one).",
     "3. Read what comes back: setting is the setting's name and choice one option id from tool:my-notification-choice.",
     "4. It reads and writes only its own rows through the records door: notification-setting (records:read); notification-choice (records:read, records:write)."
   ],
@@ -20,7 +20,7 @@
       "ask": "Keep one of a notification setting's options as this person's choice",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

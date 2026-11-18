@@ -12,7 +12,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Give a buyer a short-lived link to a file they paid for, and refuse anyone who has not paid\", and give it object_key (The file the buyer asks for, like \"chapter-one.pdf\"); subject (The account the door verified from the buyer's session, named the way your access rules name a buyer; empty for no session).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:give-a-buyer-a-paid-file-link and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:give-a-buyer-a-paid-file-link and its input (the worked example shows one).",
     "3. Read what comes back: Takes the file's paid-file row and answers grant with a link that expires (the row's ttl_seconds, else 3600), only when the subject is a verified account and holds any of the file's required access refs now (worked out as tool:see-who-holds-paid-access works it out).",
     "4. It reads and writes no records: the rows it works from come in the request, and the answer is the whole result."
   ],
@@ -22,7 +22,7 @@
       "ask": "Give a buyer a short-lived link to a file they paid for, and refuse anyone who has not paid",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

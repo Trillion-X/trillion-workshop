@@ -14,7 +14,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Tell me whether my setup still has to be finished before anything else opens, and which one thing I must do now\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:see-what-holds-me and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:see-what-holds-me and its input (the worked example shows one).",
     "3. Read what comes back: Reads your setup steps (record:setup-steps rows, or the Get started answer you send as setup), your must-do list (record:waiting-on-you rows) and your hold setting, and answers cover { covered, key }: true while any required step is not done (the page draws only setup until then), null when nothing says, and key, the name your gate row gives the cover (required-setup when it gives none, so a missing key never leaves everything open).",
     "4. It reads and writes no rows: everything it works from is in the request."
   ],
@@ -24,7 +24,7 @@
       "ask": "Tell me whether my setup still has to be finished before anything else opens, and which one thing I must do now",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

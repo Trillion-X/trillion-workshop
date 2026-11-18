@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Place the orders of my trading policy at my broker's paper account\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:place-paper-orders-from-a-trading-policy and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:place-paper-orders-from-a-trading-policy and its input (the worked example shows one).",
     "3. Read what comes back: Give policy (its version, its orders, and its own limits: risk.max_order_notional, risk.max_daily_notional and risk.day_time_zone; risk.allowed_symbols, when given, is the only symbols it may trade), routes (how your broker takes an order, each route with mode \"paper\") and prices for market orders.",
     "4. It has no records door and keeps nothing: earlier trade-order and trade-day-spend records come in the request as records, and the records it would write come back in the answer for the AI to keep in the store that holds them."
   ],
@@ -19,7 +19,7 @@
       "ask": "Place the orders of my trading policy at my broker's paper account",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Set the one thing I must do aside with a reason, hand it back to my AIs, choose what turning the hold off costs me, ask to turn it off, or turn it back on\", and give it change; request_key (Names this one change).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:change-what-holds-me and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:change-what-holds-me and its input (the worked example shows one).",
     "3. Read what comes back: Changes your hold setting (setting:needs_you_hold) by your hold rules: set-aside needs a reason of the rules' length and lasts the rules' minutes, a few times a day; hand-back gives the rest of the thing to your AIs by one of the rules' ways and leaves the hold; choose-stake picks what turning off costs, in force once the stake before it has run its delay; turn-off takes effect only after the stake's delay and comes back by itself; turn-on is at once.",
     "4. It reads and writes no rows: the setting and rules are in the request."
   ],
@@ -19,7 +19,7 @@
       "ask": "Set the one thing I must do aside with a reason, hand it back to my AIs, choose what turning the hold off costs me, ask to turn it off, or turn it back on",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

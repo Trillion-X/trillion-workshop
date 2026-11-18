@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Add things to my groups, lists or collections, move and reorder them, put some into a new group inside, take a group apart, or bring a whole folder tree in as groups\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:change-my-groups and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:change-my-groups and its input (the worked example shows one).",
     "3. Read what comes back: A group is any list of addresses (records, pages, people, other groups) in an order; a member whose address is a group nests that group.",
     "4. It reads and writes only its own rows through the records door: group (records:read, records:write)."
   ],
@@ -19,7 +19,7 @@
       "ask": "Add things to my groups, lists or collections, move and reorder them, put some into a new group inside, take a group apart, or bring a whole folder tree in as groups",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

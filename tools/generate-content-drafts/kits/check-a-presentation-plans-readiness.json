@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Check a compiled presentation plan against available capabilities and fresh observations before authorization\", and give it plan; capabilities; observations.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:check-a-presentation-plans-readiness and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:check-a-presentation-plans-readiness and its input (the worked example shows one).",
     "3. Read what comes back: Give plan, capabilities (an array of available capability names), observations (keyed by requirement key, each with value, method and observed_at_ms), and optionally now_ms."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Check a compiled presentation plan against available capabilities and fresh observations before authorization",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

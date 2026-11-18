@@ -15,7 +15,7 @@
     {
       "title": "One take checked word by word",
       "ask": "Which words in my voice take sound wrong?",
-      "mcp": {"server": "{cli}", "tool": "run_resource_operation", "input": {"address": "@tools", "method": "tools:list", "input": {"tool": "tool:find-glitches-in-a-generated-voice-take"}}},
+      "mcp": {"server": "{cli}", "tool": "do_one_thing_in_my_account", "input": {"address": "@tools", "method": "tools:list", "input": {"tool": "tool:find-glitches-in-a-generated-voice-take"}}},
       "given": "A text-to-speech take /Work/demo/take.wav and its whisper word times /Work/demo/take.words.json.",
       "hands_back": "The last line printed: {\"result\": {\"qc\": \"/Work/demo/take.qc.json\", \"words\": <count>, \"flagged\": <count>}} (draft: the counts of a real run are not yet put in)."
     }

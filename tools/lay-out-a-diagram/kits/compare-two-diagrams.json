@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Tell me what changed between two versions of a diagram: boxes and arrows added, removed or changed, and what changed on each\", and give it before; after.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:compare-two-diagrams and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:compare-two-diagrams and its input (the worked example shows one).",
     "3. Read what comes back: Takes a before and an after, each with boxes (an id, and optionally a label, a size, a lane and a style) and arrows (from, to, an optional id and label)."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Tell me what changed between two versions of a diagram: boxes and arrows added, removed or changed, and what changed on each",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -9,8 +9,9 @@
 // Invariants
 // - The code is put into the page as it grows, at most once per animation frame, with its scripts inert; once the call's
 //   input is whole, the code is put in once more and its scripts run, once.
-// - Before any script runs, `window[words.api_name ?? 'door']` is { answer, onAnswer(fn), run(address, method, input), size() }. `run`
-//   is the door's one tool through the app, as the person who connected it, with a fresh 128-bit request key; it
+// - Before any script runs, `window[words.api_name ?? 'door']` is { answer, onAnswer(fn), run(address, method, input), size() }.
+//   `answer` is the result's structured answer, else the `answer` the call itself carried (a show tool's). `run`
+//   is the door's one tool (the words' `run_tool`) through the app, as the person who connected it, with a fresh 128-bit request key; it
 //   resolves with the door's answer or rejects with the door's words. Nothing else of ours reaches the code.
 // - When the call carried no code, the screens to try come in the order the page's own words give (`order`): each a
 //   request the words name, run as the person. The first that answers code is run. When none does, the answer's own
@@ -41,7 +42,8 @@ export function runScreens(win, { connect, words = {} }) {
   doc.documentElement.style.colorScheme = 'light dark';
   app.onPlacement?.(context => { if (context?.theme === 'light' || context?.theme === 'dark') doc.documentElement.style.colorScheme = context.theme; });
   const requestKey = () => bytesToHex(win.crypto.getRandomValues(new Uint8Array(16)));
-  const send = (address, method, input) => app.callTool('run_resource_operation', { address, method, request_key: requestKey(), input: input ?? {} });
+  // The door's one tool, by the name the owner's words give (`run_tool`).
+  const send = (address, method, input) => app.callTool(words.run_tool ?? 'do_one_thing_in_my_account', { address, method, request_key: requestKey(), input: input ?? {} });
   // A request the words name, with each "{name}" string in it given its value.
   const asked = (request, values) => JSON.parse(JSON.stringify(request.input ?? {}), (_, value) =>
     typeof value === 'string' && /^\{\w+\}$/.test(value) ? values[value.slice(1, -1)] ?? null : value);
@@ -103,14 +105,21 @@ export function runScreens(win, { connect, words = {} }) {
 
   function onToolInput(args, { partial }) {
     call = { ...args, whole: !partial };
+    // A call that carries the answer it shows (a show tool's `answer`) hands it over with its arguments.
+    if (!partial && 'answer' in args) setAnswer(args.answer);
     if (typeof args.screen === 'string') show(args.screen, words.chat_maker ?? 'ai:chat');
     else if (!partial) soon();
   }
 
-  async function onToolResult(result) {
-    answer = result.structuredContent ?? null;
-    text = (result.content ?? []).filter(block => typeof block?.text === 'string').map(block => block.text).join('\n');
+  function setAnswer(next) {
+    answer = next ?? null;
     for (const hear of hearers) hear(answer);
+  }
+
+  async function onToolResult(result) {
+    // The answer is the result's own structured answer, else the one the call carried.
+    if (result.structuredContent != null || !(call && 'answer' in call)) setAnswer(result.structuredContent);
+    text = (result.content ?? []).filter(block => typeof block?.text === 'string').map(block => block.text).join('\n');
     if (code !== null && madeBy === (words.chat_maker ?? 'ai:chat') && !result.isError) keep(code);
     if (code === null && !tried) { tried = true; await tryInOrder(); }
   }

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Find which places on my computer (notes, voice memos, messages, mail, calendar, photos, downloads, AI apps, browsers) are there for Trillion to read, and which need a switch turned on first\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:look-for-the-places-on-this-computer and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:look-for-the-places-on-this-computer and its input (the worked example shows one).",
     "3. Read what comes back: One look under the folder the person granted for reading (their home folder), checking each place the computer's place rows list by whether it is there and whether it may be opened, never what it holds."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Find which places on my computer (notes, voice memos, messages, mail, calendar, photos, downloads, AI apps, browsers) are there for Trillion to read, and which need a switch turned on first",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -196,7 +196,7 @@
       "hands_back": "{\"counts\":[{\"stage\":\"visit\",\"count\":40},{\"stage\":\"checkout\",\"count\":6},{\"stage\":\"paid\",\"count\":2,\"amount_cents\":2400},{\"stage\":\"opened\",\"count\":2}]}",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

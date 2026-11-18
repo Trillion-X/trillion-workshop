@@ -9,14 +9,14 @@
   "instructions": [
     "1. Make the list the feed fills (for example list:sample-feed with a title field) or pick one you keep.",
     "2. Say \"Fill my list from this feed\" and give the feed address and which field of an entry goes in each of the list's fields (values, as $.field paths).",
-    "3. The AI calls run_resource_operation at @tools with method tools:run, tool tool:fill-a-list-from-a-feed and that input; read which rows were added and which were already there.",
+    "3. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:fill-a-list-from-a-feed and that input; read which rows were added and which were already there.",
     "4. Run it again later: entries already in the list are left as you edited them, unless you add \"update_existing\": true."
   ],
   "worked_examples": [
     {
       "title": "One JSON feed entry becomes one row",
       "ask": "Fill my sample-feed list from https://feeds.example/news.",
-      "mcp": {"server": "{cli}", "tool": "run_resource_operation", "input": {"address": "@tools", "method": "tools:run", "input": {"tool": "tool:fill-a-list-from-a-feed", "input": {"list_id": "sample-feed", "row_kind": "record:sample-feed", "feed": "https://feeds.example/news", "values": {"title": "$.title"}}}}},
+      "mcp": {"server": "{cli}", "tool": "do_one_thing_in_my_account", "input": {"address": "@tools", "method": "tools:run", "input": {"tool": "tool:fill-a-list-from-a-feed", "input": {"list_id": "sample-feed", "row_kind": "record:sample-feed", "feed": "https://feeds.example/news", "values": {"title": "$.title"}}}}},
       "given": "The list list:sample-feed with one text field title, and a JSON feed at https://feeds.example/news answering {\"rows\": [{\"id\": \"entry\", \"title\": \"Sample entry\"}]}.",
       "hands_back": "The list gets one record:sample-feed row with title \"Sample entry\" (draft: the exact answer of a real run is not yet put in)."
     }

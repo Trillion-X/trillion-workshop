@@ -184,7 +184,7 @@
       "ask": "Import my chat export /exports/bread.json from my files.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

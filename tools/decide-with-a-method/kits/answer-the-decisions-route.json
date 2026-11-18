@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Answer the Trillion page route GET /work/api/decisions: the Decisions screen's rows, as old Trillion answered them\", and give it path (The route after /work/api); method.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:answer-the-decisions-route and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:answer-the-decisions-route and its input (the worked example shows one).",
     "3. Read what comes back: A page route tool: the engine runs it for the page's account with { path, method, query, body, browser } and answers the page with { status, body }.",
     "4. It reads and writes only its own rows through the records door: decision (records:read, records:list); decision-revision (records:read); decision-step (records:read); decision-evidence (records:read); decision-answered-step (records:read); decision-option (records:read); decision-candidate (records:read); decision-report (records:read); decision-carried-out (records:read); decision-history (records:read); decision-cited-pursuit (records:read); decision-method (records:read); decision-part (records:read); decision-refs (records:read); pursuit (records:read, records:list); record-scope (records:read); record-stance (records:read); plan (records:list); record:check (records:list); setting (records:list)."
   ],
@@ -20,7 +20,7 @@
       "ask": "Answer the Trillion page route GET /work/api/decisions: the Decisions screen's rows, as old Trillion answered them",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

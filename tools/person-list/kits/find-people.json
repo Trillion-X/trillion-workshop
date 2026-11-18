@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Search a list of people or contacts by name, company or any other field, and show each match with a name and details\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:find-people and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:find-people and its input (the worked example shows one).",
     "3. Read what comes back: Give the people (any records with an id), in records or as a JSON file from your files, and what to search for."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Search a list of people or contacts by name, company or any other field, and show each match with a name and details",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Connect your mail account in your Workshop connections and note its handle, like service_connection:google-account:sam-bakery; the provider is the id in read-data/mail-providers.json that account is on (gmail for it).",
-    "2. Say to your AI: \"Set my signature to Sam, Sam's Bakery.\" and let it call run_resource_operation at @tools with method tools:run, tool tool:set-a-mail-signature and the input {\"provider\":\"gmail\",\"connection\":{\"connection_id\":\"service_connection:google-account:sam-bakery\"},\"address\":\"sam@example.com\",\"signature\":\"Sam<br>Sam's Bakery\"}.",
+    "2. Say to your AI: \"Set my signature to Sam, Sam's Bakery.\" and let it call do_one_thing_in_my_account at @tools with method tools:run, tool tool:set-a-mail-signature and the input {\"provider\":\"gmail\",\"connection\":{\"connection_id\":\"service_connection:google-account:sam-bakery\"},\"address\":\"sam@example.com\",\"signature\":\"Sam<br>Sam's Bakery\"}.",
     "3. Read what comes back: what the provider saved.",
     "4. A provider that does not offer the job says so in words and nothing is sent."
   ],
@@ -20,7 +20,7 @@
       "ask": "Set my signature to Sam, Sam's Bakery.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

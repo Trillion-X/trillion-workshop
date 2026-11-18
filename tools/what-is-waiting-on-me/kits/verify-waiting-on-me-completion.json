@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Use the ids and request_key a tool:finish-what-is-waiting-on-me call used, and read those records again from the person's own store.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:verify-waiting-on-me-completion and { ids, request_key, records }.",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:verify-waiting-on-me-completion and { ids, request_key, records }.",
     "3. Read completed: the ids whose current record shows the completion; a different command under the same key is refused as original_command_conflict."
   ],
   "worked_examples": [
@@ -19,7 +19,7 @@
       "ask": "Did marking the form done really stick?",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

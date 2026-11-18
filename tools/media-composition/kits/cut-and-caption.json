@@ -10,7 +10,7 @@
   "instructions": [
     "1. Find your video's identity and exact length in bytes in your files, and the start and end in seconds of the stretch to keep (tool:find-action-moments or tool:find-silence can name one).",
     "2. Say \"Cut this stretch and caption it\" with files, from and to. Add transcript (timed words for the whole video, or for the clip alone with transcript_from set to the clip's start) and a style; without a transcript it only cuts.",
-    "3. The AI calls run_resource_operation at @tools with method tools:run and tool tool:cut-and-caption. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
+    "3. The AI calls do_one_thing_in_my_account at @tools with method tools:run and tool tool:cut-and-caption. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
     "4. Read result.duration_seconds, result.captions and files.video, the clip in your files."
   ],
   "worked_examples": [
@@ -19,7 +19,7 @@
       "ask": "Cut 3.5 to 6 seconds of my video and caption it.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {
@@ -86,7 +86,7 @@
       "ask": "Just cut 1 to 3 seconds out of my video.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

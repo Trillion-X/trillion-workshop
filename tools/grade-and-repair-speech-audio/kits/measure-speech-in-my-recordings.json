@@ -20,7 +20,7 @@
       "ask": "Measure the speech in my three spans so I can choose what counts as good.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

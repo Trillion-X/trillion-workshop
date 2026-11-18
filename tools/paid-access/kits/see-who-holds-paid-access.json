@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Work out which paid access one buyer holds right now: what they bought, what renewed, what ended or was refunded, and what I gave them by hand\", and give it subject (The buyer, the way your access rules name a buyer (the starter rules: their email address)).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:see-who-holds-paid-access and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:see-who-holds-paid-access and its input (the worked example shows one).",
     "3. Read what comes back: Folds the buyer's payment events (the payment-event rows you hand in) through your access-effect-rule rows into effects, folds those into purchase episodes (a purchase starts one, a renewal keeps it, a cancellation or refund ends it) and answers the access refs of the offers they hold now, with every offer that asks for no money held by everyone, plus the access-grant rows you hand in for them (a gift, a pass with an end date).",
     "4. It reads and writes no records: the rows it works from come in the request, and the answer is the whole result."
   ],
@@ -19,7 +19,7 @@
       "ask": "Work out which paid access one buyer holds right now: what they bought, what renewed, what ended or was refunded, and what I gave them by hand",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

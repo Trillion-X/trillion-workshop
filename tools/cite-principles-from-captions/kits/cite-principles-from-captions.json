@@ -123,7 +123,7 @@
       "ask": "Build a corpus from my folder of captions at ./captions with my views table ./views.tsv.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {
@@ -139,7 +139,7 @@
       "ask": "At what second does vidA1 say \"The secret is patience\"?",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

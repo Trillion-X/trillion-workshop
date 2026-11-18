@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Before words go to a model that is not on the person's computer, check on the computer whether they hold personal data (email addresses, phone numbers, card numbers that pass the checksum, IBANs, national ids, and by a model on the computer a name with an address or health details), and offer the person the choice: send as it is, do it on this computer only, or keep it back\", and give it text.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:check-personal-data and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:check-personal-data and its input (the worked example shows one).",
     "3. Read what comes back: Give text, and model ({ endpoint, model, timeout_seconds } of a model served on this computer) to also ask the model questions.",
     "4. It reads no rows and keeps nothing: it answers from its input and the rules that ship with it."
   ],
@@ -19,7 +19,7 @@
       "ask": "Before words go to a model that is not on the person's computer, check on the computer whether they hold personal data (email addresses, phone numbers, card numbers that pass the checksum, IBANs, national ids, and by a model on the computer a name with an address or health details), and offer the person the choice: send as it is, do it on this computer only, or keep it back",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

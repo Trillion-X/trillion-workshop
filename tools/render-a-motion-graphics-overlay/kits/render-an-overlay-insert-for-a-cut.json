@@ -115,7 +115,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Make everything I need to cut a narrated correction into my film: the overlay, the narrator voice and the music and sound stem lined up with it, freeze frames from the camera clip and from my graded export, and a preview with a few seconds of my cut before and after, after checking its claims\", and give it assets (The folder the look's relative file names (faces, textures, recordings) are read from); out (The folder the overlay, sound, timeline and the render's scratch are written to).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:render-an-overlay-insert-for-a-cut and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:render-an-overlay-insert-for-a-cut and its input (the worked example shows one).",
     "3. Read what comes back: For each shot (a spec with plate {source, frame}, graded_frame {export, cut_frame}, cut_insert_s and optional preview_before_end_s / preview_after_start_s), first runs tool:check-every-claim-against-its-facts-and-sources on it and refuses a shot whose claims fail; then writes into out/<shot id>/: <id>-overlay-prores4444.mov (ProRes 4444 with alpha), <id>-narrator.wav (the voice padded so 0 s is the overlay's first frame), <id>-sfx-music.wav (the music bed from the look's recipe.sound.music and every placed sound effect, same alignment), <id>-plate-slog3-prores422hq.mov (the camera frame held, ungraded), <id>-plate-graded-prores422hq.mov (the same moment from the graded export, held, to sit above the editor's adjustment layer), <id>-preview.mp4 (3 s of the graded export, the insert, 3 s after) and <id>-timeline.json.",
     "4. It reads and keeps nothing: it works from the rows in your request and answers its whole result."
   ],
@@ -125,7 +125,7 @@
       "ask": "Make everything I need to cut a narrated correction into my film: the overlay, the narrator voice and the music and sound stem lined up with it, freeze frames from the camera clip and from my graded export, and a preview with a few seconds of my cut before and after, after checking its claims",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

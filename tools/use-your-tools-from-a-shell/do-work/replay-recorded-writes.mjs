@@ -3,7 +3,7 @@
 // Purpose
 //   `records replay-from-transcripts`: brings back the account rows AIs wrote, from the AIs' own transcripts on this
 //   computer. Every records:write call a transcript holds whose own result says it succeeded gives its records: an MCP
-//   run_resource_operation call, or a shell `<program> op @own-records records:write ARG` whose ARG is literal text, a
+//   do_one_thing_in_my_account call, or a shell `<program> op @own-records records:write ARG` whose ARG is literal text, a
 //   heredoc, a here-string, `echo`/`printf`/`cat FILE` piped in, or a FILE (`"$(cat FILE)"`, `- < FILE`) that the
 //   transcript itself wrote or that is unchanged on disk since the call answered. The newest write of each record id
 //   wins (the transcript's time of the call); a null value is a removal.

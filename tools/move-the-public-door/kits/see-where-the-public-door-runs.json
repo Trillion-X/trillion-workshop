@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"See where my public door runs now and which hosting services it can move between\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:see-where-the-public-door-runs and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:see-where-the-public-door-runs and its input (the worked example shows one).",
     "3. Read what comes back: Reads the person's Service connections list and answers where their public door runs now (its hosting row, its address and what proves it) and each hosting row with whether the door can move there and why not. It never reads or shows a key and changes nothing.",
     "4. It reads and writes only its own rows through the records door: record:service-connection (records:list)."
   ],
@@ -19,7 +19,7 @@
       "ask": "See where my public door runs now and which hosting and DNS services it can move between",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

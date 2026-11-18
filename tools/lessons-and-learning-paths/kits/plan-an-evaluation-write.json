@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Accept the result of judging a learner's work on a step: the receipt to keep and the learner's next progress state, without applying one twice\", and give it receipt.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:plan-an-evaluation-write and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:plan-an-evaluation-write and its input (the worked example shows one).",
     "3. Read what comes back: Give the evaluation receipt, the learner's current progress state (leave out if none) and the revision you expect it to be at, and the receipt already stored under that evaluation id if there is one."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Accept the result of judging a learner's work on a step: the receipt to keep and the learner's next progress state, without applying one twice",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

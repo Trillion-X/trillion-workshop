@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Decide whether a person should get a nudge now, honouring their opt-out and a rate limit\", and give it context; risk_threshold.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:decide-a-nudge and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:decide-a-nudge and its input (the worked example shows one).",
     "3. Read what comes back: Takes a person's context (a risk number, whether the rate limit still allows a nudge, whether they opted out) and the person's threshold, tone and framing."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Decide whether a person should get a nudge now, honouring their opt-out and a rate limit",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

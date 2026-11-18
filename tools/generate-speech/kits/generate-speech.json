@@ -19,7 +19,7 @@
       "ask": "Make speech of \"Fresh bread at seven.\" with the voice program on this computer.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

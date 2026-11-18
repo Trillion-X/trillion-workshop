@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Choose a content style manually or from ordered rules for the supplied media shape\", and give it shape; rules.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:choose-a-content-style and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:choose-a-content-style and its input (the worked example shows one).",
     "3. Read what comes back: Give shape (the available input properties), rules (the rules document), optionally mode (manual or rule), and definition for manual selection."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Choose a content style manually or from ordered rules for the supplied media shape",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

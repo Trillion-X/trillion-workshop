@@ -10,7 +10,7 @@
   "instructions": [
     "1. Find the video's identity in your files, a clear picture of each person who agreed to be filmed (yourself included) and, for the sound, a recording of each of them speaking for ten seconds or more.",
     "2. Say \"Blur everyone who has not agreed\" with video, agreed (the pictures) and agreed_voices (the recordings), and name for what to call the copy. With no agreed pictures every face is blurred; with no agreed voices every word is silenced. Raise match or voice_match to blur or silence more.",
-    "3. The AI calls run_resource_operation at @tools with method tools:run and tool tool:blur-faces-not-agreed. It runs on the tool's own computer with no network. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
+    "3. The AI calls do_one_thing_in_my_account at @tools with method tools:run and tool tool:blur-faces-not-agreed. It runs on the tool's own computer with no network. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
     "4. Read result: faces seen, blurred, kept, agreed_faces, pictures_without_a_face (an agreed picture where no face was found: replace it), silenced and silenced_seconds. The copy is files.video, kept under Made by tools; the original is never changed."
   ],
   "worked_examples": [
@@ -19,7 +19,7 @@
       "ask": "Make a copy of my street practice video with every face blurred.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

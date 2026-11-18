@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"List every completed Stripe checkout since a time, payment links included, so each buyer can be followed up once\", and give it created_after_unix.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:list-completed-stripe-checkouts and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:list-completed-stripe-checkouts and its input (the worked example shows one).",
     "3. Read what comes back: Give created_after_unix, and offer_id to keep one offer."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "List every completed Stripe checkout since a time, payment links included, so each buyer can be followed up once",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

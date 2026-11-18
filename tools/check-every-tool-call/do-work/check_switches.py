@@ -98,7 +98,7 @@ def list_page(rules: dict, key: str, kind: dict, after) -> dict:
         payload["where"] = kind["where"]
     if after:
         payload["after"] = after
-    body = {"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "run_resource_operation", "arguments": {
+    body = {"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "do_one_thing_in_my_account", "arguments": {
         "address": door["address"], "method": door["method"],
         "request_key": "check-switches:%s:%s" % (kind["type"], uuid.uuid4().hex), "input": payload}}}
     request = urllib.request.Request(door_url(rules), data=json.dumps(body).encode(), method="POST", headers={

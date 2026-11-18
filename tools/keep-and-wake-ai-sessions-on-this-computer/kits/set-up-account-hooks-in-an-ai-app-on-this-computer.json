@@ -20,7 +20,7 @@
       "ask": "Inspect whether Trillion's hooks are set up in Claude Code on this computer.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

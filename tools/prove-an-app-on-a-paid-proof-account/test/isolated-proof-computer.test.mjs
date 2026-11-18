@@ -39,7 +39,7 @@ test('actual Rust HTTPS Computer and Chromium bind one synthetic account, then v
     // A fresh private account's current own-records read reaches the actual owner with the browser-created key.
     const response = await fixture.request(`${account.accountOrigin}/mcp`, {
       method: 'POST', headers: { authorization: `Bearer ${account.key}`, 'content-type': 'application/json', accept: 'application/json, text/event-stream' },
-      body: JSON.stringify({ jsonrpc: '2.0', id: 2, method: 'tools/call', params: { name: 'run_resource_operation', arguments: {
+      body: JSON.stringify({ jsonrpc: '2.0', id: 2, method: 'tools/call', params: { name: 'do_one_thing_in_my_account', arguments: {
         address: '@own-records', method: 'records:read', request_key: 'isolated-browser-empty-record', input: { id: 'synthetic-empty-note' },
       } } }),
     });

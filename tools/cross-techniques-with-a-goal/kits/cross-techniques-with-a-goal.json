@@ -20,7 +20,7 @@
       "ask": "Which of my kept techniques would work for a sales page for a budgeting app?",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

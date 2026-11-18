@@ -19,7 +19,7 @@
       "ask": "Run the command line inside my Zorblet app: render --out \"a file with spaces.mp4\".",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

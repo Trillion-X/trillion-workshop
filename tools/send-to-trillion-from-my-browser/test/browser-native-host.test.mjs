@@ -121,7 +121,7 @@ test('the extension asks the computer only with the optional permission, and say
 });
 
 // The engine door (extension/native-host/engine-door.mjs): an action that needs the person's Trillion asks the local
-// engine at 127.0.0.1 with MCP tools/call run_resource_operation, the port from the engine's adoption descriptor and the
+// engine at 127.0.0.1 with MCP tools/call do_one_thing_in_my_account, the port from the engine's adoption descriptor and the
 // key from the Mac app's key store (here a stand-in reader with a made-up key).
 const FIXTURE_KEY = 'fixture-door-key-0123456789abcdef';
 const door = { adoption_file: '~/Support/Trillion/local-runtime.json', keychain_item: 'fixture-item', path: '/mcp',
@@ -164,7 +164,7 @@ test('a door action asks the local engine for its DATA-named operation with the 
     assert.equal(call.url, '/mcp');
     assert.equal(call.headers.authorization, `Bearer ${FIXTURE_KEY}`);
     assert.equal(call.headers['mcp-protocol-version'], '2026-07-28');
-    assert.deepEqual(call.body, { jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'run_resource_operation',
+    assert.deepEqual(call.body, { jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'do_one_thing_in_my_account',
       arguments: { address: '@fixture-files', method: 'state:read', request_key: 'fixture-request-1', input: { folder: 'fixture' } } } },
       'the address and method are the row\'s, never the message\'s');
     // A door action is still only answered for the pinned extension and when its host lists it.

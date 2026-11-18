@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Eject one drive connected to this person's computer safely, so it can be unplugged\", and give it mount (Where the drive is mounted on the computer, as tool:list-connected-drives lists it, like /Volumes/Drive).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:media-eject and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:media-eject and its input (the worked example shows one).",
     "3. Read what comes back: Runs on the person's computer.",
     "4. It reads and writes only its own rows through the records door: undefined (find_file)."
   ],
@@ -20,7 +20,7 @@
       "ask": "Eject one drive connected to this person's computer safely, so it can be unplugged",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

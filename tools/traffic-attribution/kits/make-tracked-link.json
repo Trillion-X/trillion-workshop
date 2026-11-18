@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Make a tracked link with UTM fields for a post, ad, email or bio, so visits and sales can be traced to it\", and give it destination (The web page the link opens); project (Your name for what is being promoted, letters, numbers, dots, dashes or underscores); source (Where the link is posted, like instagram or newsletter); campaign.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:make-tracked-link and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:make-tracked-link and its input (the worked example shows one).",
     "3. Read what comes back: Adds the project, source and campaign (and optionally the medium and a content tag for one post) to a web address as UTM fields, replacing any already there."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Make a tracked link with UTM fields for a post, ad, email or bio, so visits and sales can be traced to it",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

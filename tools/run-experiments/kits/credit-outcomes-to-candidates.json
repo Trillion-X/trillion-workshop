@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Join who saw which version with who bought, signed up or clicked, so each version's results can be read\", and give it join ({ entity_type: 'attribution-join', join_id, assignment: { observer_key_path, candidate_key_path, where?); assignments; outcomes; at (The ISO time stamped on every observation).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:credit-outcomes-to-candidates and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:credit-outcomes-to-candidates and its input (the worked example shows one).",
     "3. Read what comes back: Takes two lists of records (which visitor was assigned which candidate, and which outcomes each visitor produced) and a join that names the fields of each, and returns one observation per visitor, outcome and candidate with how many times it happened and the value it carried."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Join who saw which version with who bought, signed up or clicked, so each version's results can be read",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

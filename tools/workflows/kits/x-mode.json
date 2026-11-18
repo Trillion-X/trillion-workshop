@@ -28,7 +28,7 @@
       "ask": "Let customers cancel a subscription from the order page, order page only, no price or email changes.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

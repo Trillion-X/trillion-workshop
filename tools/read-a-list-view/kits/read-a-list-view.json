@@ -19,7 +19,7 @@
       "ask": "Refresh my chores list from its recipes source.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

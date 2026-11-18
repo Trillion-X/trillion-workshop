@@ -53,7 +53,7 @@
       {
         "title": "A price question gets the price reply",
         "ask": "Answer my new Instagram messages.",
-        "mcp": { "server": "{cli}", "tool": "run_resource_operation", "input": { "address": "@tools", "method": "tools:run", "input": { "tool": "tool:run-workflow-definition", "input": { "row": "workflow:answer-comments-and-messages" } } } },
+        "mcp": { "server": "{cli}", "tool": "do_one_thing_in_my_account", "input": { "address": "@tools", "method": "tools:run", "input": { "tool": "tool:run-workflow-definition", "input": { "row": "workflow:answer-comments-and-messages" } } } },
         "workflow": "workflow:answer-comments-and-messages",
         "step": "pick-a-template",
         "given": "A message from Sam: \"how much is it?\"",

@@ -19,7 +19,7 @@
       "ask": "Write the web page for my rye loaf record from envelope.json to page.html.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

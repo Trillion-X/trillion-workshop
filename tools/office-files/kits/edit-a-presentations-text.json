@@ -20,7 +20,7 @@
       "ask": "Change the harbour tour title, set slide 1's notes, reword slide 2, delete slide 3 and put slide 2 first.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

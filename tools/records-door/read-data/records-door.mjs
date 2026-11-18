@@ -5,7 +5,7 @@
 // { url, capability, secrets_resource?, tools_resource? } (trillion-rust account_rights/run_capability.rs). Each right
 // names its own address (`at`), so the descriptor names none: a call that names no address goes to @own-records, the
 // address a right names when it names no other; a descriptor that does name `resource` (an older engine, a test) is
-// kept. Every call is one `run_resource_operation` at that address, sent to the door's loopback address with the
+// kept. Every call is one `do_one_thing_in_my_account` at that address, sent to the door's loopback address with the
 // capability as its bearer. The capability is never printed, logged or returned.
 //
 //   const door = openRecordsDoor();                       reads descriptor 3
@@ -190,7 +190,7 @@ export function openBearerCall({ url, resource, capability, fetchImpl = fetch,
   async function callOnce(method, input, key, address, retryTransport = false, retryBusy = true) {
     // Keep the existing boolean call interface for injected clients and byte-page consumers.
     const policy = retryTransport ? READ : EFFECT;
-    const body = JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'run_resource_operation', arguments: { address, method, request_key: requestKeyOf(key), input } } });
+    const body = JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'do_one_thing_in_my_account', arguments: { address, method, request_key: requestKeyOf(key), input } } });
     if (signal?.aborted) throw interrupted('not_started');
     for (let attempt = 0; ; attempt += 1) {
       if (signal?.aborted) throw interrupted('unknown');

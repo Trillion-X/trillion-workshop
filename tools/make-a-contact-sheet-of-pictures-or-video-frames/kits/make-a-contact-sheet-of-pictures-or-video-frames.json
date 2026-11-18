@@ -19,7 +19,7 @@
       "ask": "Make a contact sheet of my four cake photos, three to a row.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

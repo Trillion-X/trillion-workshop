@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Give a held place back, and offer it to the next person on the waitlist\", and give it ledger (the capacity ledger you hold); idempotency_key.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:release-a-place and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:release-a-place and its input (the worked example shows one).",
     "3. Read what comes back: Releases one confirmed hold, named by its hold id or by its subject, and by default promotes the first waiting entry that fits the freed place.",
     "4. It reads and keeps nothing: it works from your request and answers its whole result; you keep the ledger it answers."
   ],
@@ -19,7 +19,7 @@
       "ask": "Give a held place back, and offer it to the next person on the waitlist",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

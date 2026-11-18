@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Pull the posts I bookmarked on X\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:pull-my-x-bookmarks and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:pull-my-x-bookmarks and its input (the worked example shows one).",
     "3. Read what comes back: Reads your bookmarks (newest first; needs a token with the bookmark.read, tweet.read and users.read scopes) and answers each. It stops at the first page held already (held), so a pull after the first reads only what is new, and a bookmark pulled twice appears once.",
     "4. It reads and writes no rows: the new or changed conversations and items are in the answer, and held.cursor is what to hand back next time."
   ],
@@ -19,7 +19,7 @@
       "ask": "Pull the posts I bookmarked on X",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

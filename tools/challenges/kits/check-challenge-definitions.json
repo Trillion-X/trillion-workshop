@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Check my time-boxed challenge definitions are complete before I enroll anyone in them\", and give it definitions (The challenge definition records to check).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:check-challenge-definitions and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:check-challenge-definitions and its input (the worked example shows one).",
     "3. Read what comes back: Takes a list of challenge definitions and checks each one: its kind, id and label, the window it runs (a unit and a positive length, any unit), the reference to the rule that scores who fits, the reference to the content it walks through, the lowest score that joins, and an optional objective reference."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Check my time-boxed challenge definitions are complete before I enroll anyone in them",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

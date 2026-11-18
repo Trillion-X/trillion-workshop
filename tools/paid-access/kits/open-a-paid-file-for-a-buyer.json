@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Check, each time a buyer opens a paid file link, that they still hold access, and say which sealed bytes to stream\", and give it token (The last part of the link the buyer opened); subject (The account the door verified from the presenting session, named the way your access rules name a buyer).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:open-a-paid-file-for-a-buyer and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:open-a-paid-file-for-a-buyer and its input (the worked example shows one).",
     "3. Read what comes back: For a link's token and the account presenting it: refuses a malformed or expired token, then checks the file's paid-file row against what the presenter holds now, so a refund or an ended subscription stops the very next open and a link passed to someone else does not open.",
     "4. It reads and writes no records: the rows it works from come in the request, and the answer is the whole result."
   ],
@@ -20,7 +20,7 @@
       "ask": "Check, each time a buyer opens a paid file link, that they still hold access, and say which sealed bytes to stream",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

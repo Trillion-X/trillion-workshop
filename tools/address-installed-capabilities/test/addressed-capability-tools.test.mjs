@@ -84,7 +84,7 @@ test('the MCP tools use the same endpoint actions and preserve open method input
   await byName.manage_capabilities.run({ action: 'save', descriptor: { id: 'cap' }, expected_revision: null });
   await byName.resolve_capability.run({ requirements: { custom: { key: 'value' } } });
   const operation = { nested: ['preserve'], optional: null };
-  await byName.run_resource_operation.run({ id: 'binding', method: 'provider-added-method', input: operation, request_key: 'same-key', execution: { place: 'customer' } });
+  await byName.do_one_thing_in_my_account.run({ id: 'binding', method: 'provider-added-method', input: operation, request_key: 'same-key', execution: { place: 'customer' } });
   assert.deepEqual(calls, [
     ['/capabilities', { descriptor: { id: 'cap' }, expected_revision: null, action: 'save' }, 'POST'],
     ['/capabilities', { requirements: { custom: { key: 'value' } }, action: 'resolve' }, 'POST'],
@@ -95,15 +95,15 @@ test('the MCP tools use the same endpoint actions and preserve open method input
     ['resolve', { requirements: { custom: { key: 'value' } } }],
     ['run', { id: 'binding', method: 'provider-added-method', input: operation, request_key: 'same-key', execution: { place: 'customer' } }],
   ]);
-  assert.equal(byName.run_resource_operation.inputSchema.properties.method.enum, undefined);
-  assert.deepEqual(addressedCapabilityAnnotations.run_resource_operation, { title: 'Run a resource operation', readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true });
+  assert.equal(byName.do_one_thing_in_my_account.inputSchema.properties.method.enum, undefined);
+  assert.deepEqual(addressedCapabilityAnnotations.do_one_thing_in_my_account, { title: 'Run a resource operation', readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true });
   assert.equal(addressedCapabilityAnnotations.read_capabilities.readOnlyHint, true);
 });
 
 
 test('the same MCP operation tool preserves an independent address, installed method and retry identity', async () => {
   const calls = [];
-  const tool = addressedCapabilityTools(async (...args) => { calls.push(args); return { created: true }; }).find(row => row.name === 'run_resource_operation');
+  const tool = addressedCapabilityTools(async (...args) => { calls.push(args); return { created: true }; }).find(row => row.name === 'do_one_thing_in_my_account');
   const result = await tool.run({ address: 'project:client/foo', method: 'resource:create', input: { name: 'Client work' }, request_key: 'same-create' });
   assert.deepEqual(result, { created: true });
   assert.deepEqual(calls, [['/resources/project%3Aclient%2Ffoo/command', { operation: 'resource:create', input: { name: 'Client work' }, request_key: 'same-create' }, 'POST']]);
@@ -114,7 +114,7 @@ test('the same MCP operation tool preserves an independent address, installed me
 
 test('a caller request key over the engine bound reaches the engine as its identity, the same on every retry', async () => {
   const calls = [];
-  const tool = addressedCapabilityTools(async (...args) => { calls.push(args); return { created: true }; }).find(row => row.name === 'run_resource_operation');
+  const tool = addressedCapabilityTools(async (...args) => { calls.push(args); return { created: true }; }).find(row => row.name === 'do_one_thing_in_my_account');
   const long = 'retry-'.repeat(60);
   await tool.run({ address: 'project:client/foo', method: 'resource:create', input: {}, request_key: long });
   await tool.run({ address: 'project:client/foo', method: 'resource:create', input: {}, request_key: long });

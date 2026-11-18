@@ -19,7 +19,7 @@
       "ask": "Rank my hits folder for \"a low hit\" and find the cleanest trim of the best one.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

@@ -7,7 +7,7 @@
   "suffix": ".jsonl",
   "walk_depth": 4,
   "line_needle": "records:write",
-  "write": { "address": "@own-records", "method": "records:write", "tool_suffix": "run_resource_operation" },
+  "write": { "address": "@own-records", "method": "records:write", "tool_suffix": "do_one_thing_in_my_account" },
   "shapes": {
     "message_parts": {
       "time_path": ["timestamp"],

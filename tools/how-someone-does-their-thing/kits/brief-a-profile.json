@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Work out how a person or creator does their thing, such as their style or voice, from what they have made or said\", and give it profile_ref (The name the profile record will be kept under); subject_ref (Whose way of doing the thing this is); subject_records (What the subject made or said, read from their records).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:brief-a-profile and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:brief-a-profile and its input (the worked example shows one).",
     "3. Read what comes back: Give the profile's name, the subject's name and the subject's own records (what they made or said)."
   ],
   "worked_examples": [
@@ -19,7 +19,7 @@
       "ask": "Work out how a person or creator does their thing, such as their style or voice, from what they have made or said",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Work out where a person is in a guided tour, walkthrough, spotlight or branching quiz after they start, go on, answer, go back, jump to a step or restart\", and give it tour (The tour record: entry_step and steps (each with an id, and optionally a branch_map)); action.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:step-through-a-guided-tour and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:step-through-a-guided-tour and its input (the worked example shows one).",
     "3. Read what comes back: Give the tour (an ordered list of steps with an entry step; a step may route by the person's answer with a branch_map of by_answer routes and a default_next) and one action: start or restart, advance (with the person's answer when the step asks one), back, or jump (with step_id)."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Work out where a person is in a guided tour, walkthrough, spotlight or branching quiz after they start, go on, answer, go back, jump to a step or restart",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

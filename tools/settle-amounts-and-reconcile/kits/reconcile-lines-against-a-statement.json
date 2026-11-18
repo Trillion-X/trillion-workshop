@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Work out closing a set of cleared lines against a statement with any difference explained in words, answer a receipt of each close, find lines changed or removed after they were closed, and answer the undo of the last close\", and give it action; list_id (The list in the request: the source (or the lines, or the row's list) when the body leaves its own list_id out.); lists (The lists the action names, as the caller read them from a store: each { id, row_type, fields, ...the list's own definition, rows: [{ id, values }] } with every row the action reads.).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:reconcile-lines-against-a-statement and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:reconcile-lines-against-a-statement and its input (the worked example shows one).",
     "3. Read what comes back: action close takes lines { amount_field, closed_in_field?"
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Work out closing a set of cleared lines against a statement with any difference explained in words, answer a receipt of each close, find lines changed or removed after they were closed, and answer the undo of the last close",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

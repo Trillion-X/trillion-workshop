@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"List, read only, the instruction files, slash commands and skills other AI apps keep on the person's computer, each with its text, so the person can bring them in as saved instructions\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:read-ai-setups and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:read-ai-setups and its input (the worked example shows one).",
     "3. Read what comes back: Give sources (ids from read-data/ai-setups.json: claude-instructions, claude-commands, claude-skills, codex-instructions, codex-prompts, cursor-rules) to read only those; all are read when left out."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "List, read only, the instruction files, slash commands and skills other AI apps keep on the person's computer, each with its text, so the person can bring them in as saved instructions",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

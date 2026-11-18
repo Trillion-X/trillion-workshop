@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Work out which of my offers to show a buyer given what they already hold, with my upsell and already-owns rules\", and give it held_access_refs.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:show-which-offers-a-buyer-may-see and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:show-which-offers-a-buyer-may-see and its input (the worked example shows one).",
     "3. Read what comes back: Give offers and rules (your offer and eligibility rows, read by your AI from its store; an offer with no rule is always shown) and held_access_refs (what the buyer holds now)."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Work out which of my offers to show a buyer given what they already hold, with my upsell and already-owns rules",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

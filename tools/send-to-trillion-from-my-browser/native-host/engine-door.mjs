@@ -2,7 +2,7 @@
 //
 // PURPOSE
 //   How the native messaging host (browser-native-host.mjs) asks the person's own Trillion: one MCP JSON-RPC
-//   `tools/call` of `run_resource_operation` at the engine's door on this computer (http://127.0.0.1:<port>/mcp), the
+//   `tools/call` of `do_one_thing_in_my_account` at the engine's door on this computer (http://127.0.0.1:<port>/mcp), the
 //   port the engine the Mac app starts was adopted on (its private descriptor, `engine_door.adoption_file`), signed with
 //   the account key the Mac app's own key store keeps (this Mac's Keychain item `engine_door.keychain_item`, read through
 //   /usr/bin/security exactly as macos/App/ComputerReader.swift reads it).
@@ -61,14 +61,14 @@ export async function askDoor({ door, address, method, input = {}, requestKey = 
   const key = await readKey(door);
   if (!goodKey(key)) throw new Error('Trillion on this computer is not signed in.');
   const body = JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: {
-    name: 'run_resource_operation', arguments: { address, method, request_key: requestKey, input } } });
+    name: 'do_one_thing_in_my_account', arguments: { address, method, request_key: requestKey, input } } });
   if (Buffer.byteLength(body) > door.most_request_bytes) throw new Error('The request is too large for Trillion.');
   let response, text;
   try {
     response = await fetch(`http://127.0.0.1:${port}${door.path}`, {
       method: 'POST', redirect: 'error', signal: AbortSignal.timeout(door.timeout_seconds * 1000),
       headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json', accept: 'application/json, text/event-stream',
-        'cache-control': 'no-store', 'mcp-protocol-version': door.protocol_version, 'mcp-method': 'tools/call', 'mcp-name': 'run_resource_operation' },
+        'cache-control': 'no-store', 'mcp-protocol-version': door.protocol_version, 'mcp-method': 'tools/call', 'mcp-name': 'do_one_thing_in_my_account' },
       body,
     });
     text = await response.text();

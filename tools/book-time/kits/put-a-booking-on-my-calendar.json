@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Make the event for a booking on my own calendar and invite the people booked\", and give it title; start_local (Wall-clock start in the zone, like 2026-08-12T09:00); end_local; timezone.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:put-a-booking-on-my-calendar and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:put-a-booking-on-my-calendar and its input (the worked example shows one).",
     "3. Read what comes back: Makes one event on the person's own Google calendar, with the person's own calendar account (the held value calendar-account), and has Google invite the attendees."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Make the event for a booking on my own calendar and invite the people booked",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

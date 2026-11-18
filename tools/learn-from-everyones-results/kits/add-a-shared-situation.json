@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Keep one situation a person made safe to show strangers, with its meaning, so others can learn how similar decisions turned out\", and give it entry (The shared words: at most 16 fields, each words or a list of words); embedding (The meaning of the shared situation).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:add-a-shared-situation and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:add-a-shared-situation and its input (the worked example shows one).",
     "3. Read what comes back: the situation id and the checked row (record) to keep.",
     "4. It reads and writes no rows: the checked row (record) comes back for your AI to keep."
   ],
@@ -20,7 +20,7 @@
       "ask": "Keep one situation a person made safe to show strangers, with its meaning, so others can learn how similar decisions turned out",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

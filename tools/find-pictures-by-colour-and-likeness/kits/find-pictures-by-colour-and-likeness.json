@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Find my pictures by a colour I type or name, or find pictures like one I pick\", and give it rows.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:find-pictures-by-colour-and-likeness and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:find-pictures-by-colour-and-likeness and its input (the worked example shows one).",
     "3. Read what comes back: Give rows (the pictures' facts: [{ id, palette: ['#rrggbb', ...], embedding?"
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Find my pictures by a colour I type or name, or find pictures like one I pick",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -19,7 +19,7 @@
       "ask": "Find my clips that are parts of a series in a.jsonl and b.jsonl.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Turn my account's own usage day rows (stored bytes, work time, source bytes the person's files program counted) into one usage observation per billed resource for each closed day, ready to settle\", and give it payer_id; day_from; day_to; today; settlement_keys; usage_days.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:observe-live-usage and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:observe-live-usage and its input (the worked example shows one).",
     "3. Read what comes back: observations; quantities; missing_days, as the worked example shows.",
     "4. It reads only the usage day rows it is given (as the person's files program answers them with usage_days) and keeps nothing: keep the observations it answers and give them to settle-shared-resource-cost."
   ],
@@ -19,7 +19,7 @@
       "ask": "Turn my account's own usage day rows (stored bytes, work time, source bytes the person's files program counted) into one usage observation per billed resource for each closed day, ready to settle",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

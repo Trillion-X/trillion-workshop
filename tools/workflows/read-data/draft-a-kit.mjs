@@ -32,16 +32,16 @@ function needsOf(schema) {
 }
 
 // `{cli}`: the name the person's AI app gave their own site's server (its command word); a shared kit names no site.
-const runCall = (tool, input) => ({ server: '{cli}', tool: 'run_resource_operation', input: { method: 'tools:run', input: { tool, input } } });
+const runCall = (tool, input) => ({ server: '{cli}', tool: 'do_one_thing_in_my_account', input: { method: 'tools:run', input: { tool, input } } });
 // What a tool reads and makes of the person's own things: the rights its run asks the door for, then the ones it is given
 // as values (its `stored` list, tools/records-door/read-data/values-door.mjs).
 const rightsOf = tool => [...[tool.invoke?.records?.rights ?? []].flat(), ...[tool.stored ?? []].flat()].filter(object);
 
 // How the person (or their AI) runs a tool: through the door, or on their own computer from the commands its row gives.
 function runLine(tool) {
-  if (tool.invoke?.kind !== 'on-your-computer') return `2. The AI calls run_resource_operation at @tools with method tools:run, tool ${tool.id} and its input (the worked example shows one).`;
+  if (tool.invoke?.kind !== 'on-your-computer') return `2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool ${tool.id} and its input (the worked example shows one).`;
   const getIt = [tool.invoke.get_it ?? []].flat();
-  return `2. It runs on your own computer: the AI reads how with run_resource_operation at @tools, tools:list { tool: "${tool.id}" }${getIt.length ? `, gets it with ${getIt.join('; ')}` : ''}, then runs ${tool.invoke.run ?? 'its run command'}.`;
+  return `2. It runs on your own computer: the AI reads how with do_one_thing_in_my_account at @tools, tools:list { tool: "${tool.id}" }${getIt.length ? `, gets it with ${getIt.join('; ')}` : ''}, then runs ${tool.invoke.run ?? 'its run command'}.`;
 }
 
 function toolDraft(tool, observed = []) {

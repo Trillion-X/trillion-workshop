@@ -21,7 +21,7 @@
       "ask": "Does the sign-up at front.example work end to end?",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

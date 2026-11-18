@@ -20,7 +20,7 @@
       "ask": "Render my two-cell film at 0, 1 and 1.5 seconds.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

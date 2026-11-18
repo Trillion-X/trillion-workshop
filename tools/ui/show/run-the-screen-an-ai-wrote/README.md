@@ -19,7 +19,7 @@ The `screen` field is laid on the door's one tool by the door owner's row (trill
 
 | Member | What it is |
 |--------|------------|
-| `answer` | The call's answer (`structuredContent`), null until it arrives. |
+| `answer` | The call's answer: the result's `structuredContent`, else the `answer` the call itself carried (a show tool's, which runs nothing and carries nothing back). Null until either arrives. |
 | `onAnswer(fn)` | `fn` hears the answer now if it is here, and each new one. Answers what stops hearing. |
 | `run(address, method, input)` | The door's one tool, through the app, as the person who connected it, with a fresh 128-bit request key. It resolves with the door's answer, or rejects with the door's own words. |
 | `size()` | Tells the app the height the page needs. |
@@ -38,6 +38,7 @@ The page knows no person, database or tool. The owner's words say:
 | `keep` | The request that keeps a screen: given `{id}` (the code's BLAKE3), `{for_operation}`, `{code}` and `{made_by}`. |
 | `mine` | The makers whose screens act without asking, such as `ai:chat`. A screen by anyone else asks before each run. |
 | `api_name` | The name the code finds its members under. Default `door`. |
+| `run_tool` | The door's one tool, which `run` calls. Default `do_one_thing_in_my_account`. |
 | `chat_maker` | What a screen the call itself carried is called as a maker. Default `ai:chat`. |
 | `asks`, `allow`, `fix`, `not_kept`, `not_found` | The page's own phrases. |
 | `css` | Styles the page carries, such as the owner's look. |
@@ -52,6 +53,7 @@ The page knows no person, database or tool. The owner's words say:
 - A screen someone else made gets a `run` that waits for the person's press: a different function, not a flag the code could change.
 - A thrown script shows its words above the screen, with one Fix press.
 - A request of the page's own that the app refuses (keeping a screen, reading a kept one) is said above the screen in the app's words; nothing fails silently.
+- The page wears the owner's look (the words' `css`) for its own background, text and type, so a screen that sets none still matches.
 - The page follows the app's light or dark theme (`color-scheme` from the app's `theme`), so the code's default colors read in either.
 
 ## Run the tests

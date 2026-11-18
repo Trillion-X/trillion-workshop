@@ -20,7 +20,7 @@
       "ask": "Write a sign-in code message for sam@example.com as a row of my sign-in-code list.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

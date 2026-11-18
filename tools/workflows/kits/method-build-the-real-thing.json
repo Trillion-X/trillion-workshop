@@ -19,7 +19,7 @@
       "ask": "Run workflow:method-build-the-real-thing for the request: let a bakery owner offer a pre-order box that customers pay for online.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -164,7 +164,7 @@
       "ask": "Check the title 'A sparkle of zorblax' against my made-up-post branch.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {
@@ -189,7 +189,7 @@
       "ask": "Check the titles 'Zorblax rising' and 'A sparkle of calm' with the rule no-sparkle and my verdict on the first.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -125,7 +125,7 @@
       "ask": "Mix the soundtrack for my sample film from its cue sheet.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

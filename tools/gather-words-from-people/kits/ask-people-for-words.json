@@ -156,7 +156,7 @@
       "ask": "Ask Sam Example and Bo Sample for their own words about cake order cake-2026.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Take the card ids from tool:read-what-is-waiting-on-me, read those records from the person's own store, and pick a fresh request_key.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:finish-what-is-waiting-on-me and { ids, request_key, records }.",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:finish-what-is-waiting-on-me and { ids, request_key, records }.",
     "3. Read completed and changed, and keep write in the person's own store; a record that already carries the key answers changed 0 and an empty write.",
     "4. Read the records again and confirm with tool:verify-waiting-on-me-completion and the same ids and request_key."
   ],
@@ -20,7 +20,7 @@
       "ask": "I signed the form; mark it done.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

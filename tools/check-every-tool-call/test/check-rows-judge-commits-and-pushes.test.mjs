@@ -68,7 +68,7 @@ test('added lines of a diff are one text unit each, with the file and the line t
 });
 
 test('a tool call that writes a check row whose fixtures do not hold is refused; one whose fixtures hold is not', () => {
-  const write = row => ({ tool_name: 'mcp__made_up__run_resource_operation', tool_input: { method: 'records:put', input: { id: `record:check:${row.id}`, value: row } } });
+  const write = row => ({ tool_name: 'mcp__made_up__do_one_thing_in_my_account', tool_input: { method: 'records:put', input: { id: `record:check:${row.id}`, value: row } } });
   const bad = judgeACall({ rows: [], event: write({ ...WORD, fixtures: { pass: ['the zorblax line'], refuse: ['a plain line'] } }), kind: 'tool-call' });
   assert.equal(bad.code, 2);
   assert.match(bad.refused.join('\n'), /writes a check row whose fixtures do not hold[\s\S]*made-up-no-zorblax[\s\S]*pass "the zorblax line": refused/);

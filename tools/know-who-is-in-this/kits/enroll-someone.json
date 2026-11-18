@@ -15,7 +15,7 @@
     {
       "title": "Enrol one voice from a recording",
       "ask": "Teach my computer Sam's voice.",
-      "mcp": {"server": "{cli}", "tool": "run_resource_operation", "input": {"address": "@tools", "method": "tools:run", "input": {"tool": "tool:enroll-someone", "input": {"name": "Sam Example", "kind": "voice", "consent": "Sam said yes in the 3 Oct standup", "path": "/Work/demo/sam.wav"}}}},
+      "mcp": {"server": "{cli}", "tool": "do_one_thing_in_my_account", "input": {"address": "@tools", "method": "tools:run", "input": {"tool": "tool:enroll-someone", "input": {"name": "Sam Example", "kind": "voice", "consent": "Sam said yes in the 3 Oct standup", "path": "/Work/demo/sam.wav"}}}},
       "given": "A recording /Work/demo/sam.wav of Sam Example speaking, and Sam's spoken consent.",
       "hands_back": "Sam Example's voice print is kept on the computer with the consent words \"Sam said yes in the 3 Oct standup\" (draft: the exact answer of a real run is not yet put in)."
     }

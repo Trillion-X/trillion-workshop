@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Run tool:answer-the-message-page-routes\", and give it path, method.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:answer-the-message-page-routes and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:answer-the-message-page-routes and its input (the worked example shows one).",
     "3. Read what comes back: The answer's $.status contains \"200\"."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Run tool:answer-the-message-page-routes.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

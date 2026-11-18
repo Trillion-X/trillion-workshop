@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Find the screens of my app and what a person can do on each, so journeys can be written to check it\", and give it app_url.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:map-an-apps-screens-and-controls and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:map-an-apps-screens-and-controls and its input (the worked example shows one).",
     "3. Read what comes back: Opens the app at app_url in a headless Chromium on the person's own computer and follows its links within the same origin, at most most_screens screens (20 at most)."
   ],
   "worked_examples": [
@@ -19,7 +19,7 @@
       "ask": "Find the screens of my app and what a person can do on each, so journeys can be written to check it",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

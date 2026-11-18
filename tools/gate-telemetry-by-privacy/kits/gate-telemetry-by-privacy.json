@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Say whether a telemetry sink may send or keep anything about a page or event, from how private the page that was served is\", and give it surface; path.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:gate-telemetry-by-privacy and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:gate-telemetry-by-privacy and its input (the worked example shows one).",
     "3. Read what comes back: Give surface (site, public-page, elsewhere, app or service) and path of the served page, optionally declared (the privacy class its handler declared) and sink (page_script, page_events, client_health or server_events)."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Say whether a telemetry sink may send or keep anything about a page or event, from how private the page that was served is",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

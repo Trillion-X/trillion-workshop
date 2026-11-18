@@ -21,7 +21,7 @@
         "read": {
           "resource": "@own-records",
           "operation": "instructions:read",
-          "more": "The rest of these instructions: run_resource_operation with resource @own-records, operation instructions:read and input {\"after\": {order}} (request_key any unique text); repeat with the answer's `next` until it is null."
+          "more": "The rest of these instructions: do_one_thing_in_my_account with resource @own-records, operation instructions:read and input {\"after\": {order}} (request_key any unique text); repeat with the answer's `next` until it is null."
         }
       }
     },
@@ -70,7 +70,7 @@
         "kind": "ai-instruction",
         "id": "decide-first",
         "order": 10,
-        "text": "Use run_resource_operation({method,request_key,input}): tools:list ({tool:ID}), tools:run/read/cancel, secrets:put/remove/sign/generate/names, wake:*, sharing.*. More of these: address @own-records, method instructions:read."
+        "text": "Use do_one_thing_in_my_account({method,request_key,input}): tools:list ({tool:ID}), tools:run/read/cancel, secrets:put/remove/sign/generate/names, wake:*, sharing.*. More of these: address @own-records, method instructions:read."
       }
     },
     {
@@ -97,7 +97,7 @@
         "kind": "ai-instruction",
         "id": "current-resource-tool-entrypoint",
         "order": 35,
-        "text": "run_resource_operation input is {method,request_key,input}; the door finds each method's owner. tools:list input {after?,runs_here?} returns {tools:[{id,label,job,runs_here}],next}; tools:list {tool:ID} returns that row's {id,label,job,description,input_schema,output_schema,runs_here}. Run it with tools:run input {tool:ID,input:{...}} and a fresh request_key; reuse that key for retries. The person's data is theirs: their rows, lists and files are in their own stores (a database, a file store, the services they use), reached with the connections kept in their vault, in each store's own language; this site keeps none of it, and a list is a table or a saved view there. A tool is given what it reads of theirs in its input's `stored` (as its row's `stored` lists) and answers what it made under `keep`: keep those where the person keeps them. The person may keep rows that change what you are told (setting:ai-instruction:<row id>: a row switched off, its own text, order or reach, or a rule of their own): read them from their store when you start and apply them over these. Use the live schema; preserve lessons, context and original payload provenance."
+        "text": "do_one_thing_in_my_account input is {method,request_key,input}; the door finds each method's owner. tools:list input {after?,runs_here?} returns {tools:[{id,label,job,runs_here}],next}; tools:list {tool:ID} returns that row's {id,label,job,description,input_schema,output_schema,runs_here}. Run it with tools:run input {tool:ID,input:{...}} and a fresh request_key; reuse that key for retries. The person's data is theirs: their rows, lists and files are in their own stores (a database, a file store, the services they use), reached with the connections kept in their vault, in each store's own language; this site keeps none of it, and a list is a table or a saved view there. A tool is given what it reads of theirs in its input's `stored` (as its row's `stored` lists) and answers what it made under `keep`: keep those where the person keeps them. The person may keep rows that change what you are told (setting:ai-instruction:<row id>: a row switched off, its own text, order or reach, or a rule of their own): read them from their store when you start and apply them over these. Use the live schema; preserve lessons, context and original payload provenance."
       }
     },
     {

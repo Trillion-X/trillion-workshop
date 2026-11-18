@@ -198,7 +198,7 @@
       "ask": "Run workflow:onboard-new-buyers-in-five-days for the buyer Sam who paid and agreed to the course emails.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Work out which ink marks are showing on one page, picture or other space, after later marks hid, restyled, reordered, copied or merged earlier ones\", and give it operations (The mark operation rows).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:see-the-ink-marks-on-a-space and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:see-the-ink-marks-on-a-space and its input (the worked example shows one).",
     "3. Read what comes back: Give the mark operations (every drawing step ever recorded, in any space), the mark styles they name and the space to look at."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Work out which ink marks are showing on one page, picture or other space, after later marks hid, restyled, reordered, copied or merged earlier ones",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

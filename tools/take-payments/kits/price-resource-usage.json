@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Price measured resource costs from my versioned resource, plan and client rules or purchased snapshots, and keep one total with expandable detail without charging rollups twice\", and give it at.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:price-resource-usage and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:price-resource-usage and its input (the worked example shows one).",
     "3. Read what comes back: , as the worked example shows.",
     "4. It reads no rows and keeps nothing: it prices from the rules in your request and answers the terms or the priced tree."
   ],
@@ -19,7 +19,7 @@
       "ask": "Price measured resource costs from my versioned resource, plan and client rules or purchased snapshots, and keep one total with expandable detail without charging rollups twice",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

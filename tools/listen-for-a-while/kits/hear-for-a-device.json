@@ -12,7 +12,7 @@
  ],
  "instructions": [
   "1. Put the recording in your files (the door finds it by name) and have a ggml Whisper model file and the whisper-cli and ffmpeg programs on the computer that will hear it; enrol the voices you want named with tool:enrol-a-voice-or-face first.",
-  "2. Say \"Hear the recording <file> that my <device> made at <time>\" with the model path; your AI calls run_resource_operation at @tools with method tools:run and tool tool:hear-for-a-device (file, device and model_path are required; at, listening, voice_prints, voice_session, recording_rules, recording_facts, listening_switch and transcriber are optional).",
+  "2. Say \"Hear the recording <file> that my <device> made at <time>\" with the model path; your AI calls do_one_thing_in_my_account at @tools with method tools:run and tool tool:hear-for-a-device (file, device and model_path are required; at, listening, voice_prints, voice_session, recording_rules, recording_facts, listening_switch and transcriber are optional).",
   "3. Read the answer: pieces and turns count what was heard, and `heard` holds one heard row per turn; let_go and blocked say when a recording rule or a pause let the piece go unheard; leaves and stays list what leaves this computer and what stays. The tool keeps nothing: keep `heard` where you keep such things.",
   "4. Use the same listening name and hand back the answer's `voice_session` to continue an earlier listening so unknown voices keep their numbers (voice-1 stays voice-1)."
  ],
@@ -22,7 +22,7 @@
    "ask": "Hear the recording my Phone made at noon on 31 October and tell me who said what.",
    "mcp": {
     "server": "{cli}",
-    "tool": "run_resource_operation",
+    "tool": "do_one_thing_in_my_account",
     "input": {
      "method": "tools:run",
      "input": {

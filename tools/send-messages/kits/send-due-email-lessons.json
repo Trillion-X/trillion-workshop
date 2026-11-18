@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Send each email-course lesson whose time has come to the people still signed up, once each, and retry a failed one later\", and give it provider.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:send-due-email-lessons and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:send-due-email-lessons and its input (the worked example shows one).",
     "3. Read what comes back: Give records (the person's queue, subscription, token and contact rows, read from their store), optional limit (up to 50 per run), provider (the id of the email provider row in read-data/message-providers.json that the person's email connection is) and region when that row asks for one. Finds the queued lessons whose time has passed, sends each to a subscriber who is still signed up and has not had it, works out the subscription's sent mark and the queue entry's removal, and answers them in keep for the caller to write. A failed send queues its own retry (up to three, each later than the last). Answers results [{ lesson_index, status: sent, already-sent, unsubscribed or failed, why? }] and said.",
     "4. It keeps nothing and has no records door: it works over the rows you hand in (records) and answers the rows to keep (keep), each with the row it expected, for your AI to write to your store."
   ],
@@ -19,7 +19,7 @@
       "ask": "Send each email-course lesson whose time has come to the people still signed up, once each, and retry a failed one later",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Report exact reconciled usage once to its purchased subscription, and answer the retained fractional carry and, when the outcome is unknown, the frozen report to retry or reconcile\", and give it seller_connection; agreement; payer_id; settlement.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:report-resource-usage and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:report-resource-usage and its input (the worked example shows one).",
     "3. Read what comes back: report_id; state; payer_id; currency; cash_amount; payment_state; report; cash; applied, as the worked example shows.",
     "4. It reads no rows and keeps nothing: it sends one invoice item to your own Stripe account with your key, and answers the next cash and applied state to keep and, if the outcome is unknown, the frozen report to give back as prior_report."
   ],
@@ -19,7 +19,7 @@
       "ask": "Report exact reconciled usage once to its purchased subscription, and answer the retained fractional carry and, when the outcome is unknown, the frozen report to retry or reconcile",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

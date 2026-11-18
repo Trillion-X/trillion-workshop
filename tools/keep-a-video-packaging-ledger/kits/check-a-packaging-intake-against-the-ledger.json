@@ -20,7 +20,7 @@
       "ask": "Check that the two videos I just added under ch-example-videos are in my packaging ledger.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

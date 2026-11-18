@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Give a record the label of the first of my rules that holds: each rule has clauses over facts read from the record (is present, is absent, at least, at most, equals), and I get the rule's key, label, tone and severity, or none\", and give it facts; rules; record.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:classify-a-record and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:classify-a-record and its input (the worked example shows one).",
     "3. Read what comes back: Takes a record, the facts to read from it (a key, a path, and how to read it: present, as a number, as an age in seconds up to now_ms, or as it is) and rules in order (a key, a label, an optional tone and severity, and clauses over facts)."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Give a record the label of the first of my rules that holds: each rule has clauses over facts read from the record (is present, is absent, at least, at most, equals), and I get the rule's key, label, tone and severity, or none",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

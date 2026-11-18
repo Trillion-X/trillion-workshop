@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Put one named section into a markdown document without repeating it: replace the section with the same heading, or add it at the end\", and give it document_text (The whole markdown document); section_text (The section to place, starting with its own heading line).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:place-a-section-in-a-markdown-document and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:place-a-section-in-a-markdown-document and its input (the worked example shows one).",
     "3. Read what comes back: Give the whole markdown document as text and the section as text."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Put one named section into a markdown document without repeating it: replace the section with the same heading, or add it at the end",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

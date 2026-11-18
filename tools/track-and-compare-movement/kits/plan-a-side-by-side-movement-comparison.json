@@ -21,7 +21,7 @@
       "ask": "Plan a side by side video of a.mp4 and b.mp4 with a full pass and a slow pass.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Scheduler: from recurring schedules (every day or week at a local time in a time zone, daylight saving handled) and one-off timed actions, work out what is due to run now and the next time to run\", and give it now (The time to work from: ISO text or epoch milliseconds).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:when-to-run-next and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:when-to-run-next and its input (the worked example shows one).",
     "3. Read what comes back: Give now plus schedules (schedule_id, timezone as an IANA name, start_local_date, cadence {unit: day | week, interval?, weekdays?: 0=Sunday..6}, local_window {start: HH:MM, duration_minutes}, dst {gap: skip | next-valid, fold: earlier | later | both}, action with its owner_dispatch) and their occurrence_states, and/or one-off time_windows, actions and receipts."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Scheduler: from recurring schedules (every day or week at a local time in a time zone, daylight saving handled) and one-off timed actions, work out what is due to run now and the next time to run",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

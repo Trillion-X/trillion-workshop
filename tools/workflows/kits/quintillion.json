@@ -133,7 +133,7 @@
       "ask": "Run Quintillion for the bakery: get them to 30 weekend pre-orders a week.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {
@@ -164,7 +164,7 @@
       "ask": "Did it work?",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

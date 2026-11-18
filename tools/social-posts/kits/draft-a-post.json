@@ -12,7 +12,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Work out a post as a draft for the person to look at (its words, its video or picture, where it goes and when) and answer the post row to keep\", and give it records (The records the ask reads, as the caller read them from a store ({ id, type, value }): the post (type post) and the person's connection records (type connection).).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:draft-a-post and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:draft-a-post and its input (the worked example shows one).",
     "3. Read what comes back: Give caption (the words), media (the file as the person's files list it: { identity, name?, media_type?, byte_length?"
   ],
   "worked_examples": [
@@ -21,7 +21,7 @@
       "ask": "Work out a post as a draft for the person to look at (its words, its video or picture, where it goes and when) and answer the post row to keep",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

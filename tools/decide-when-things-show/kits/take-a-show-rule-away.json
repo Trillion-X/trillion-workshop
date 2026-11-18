@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Take away one of my show rules\", and give it id (A rule id from see-when-things-show).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:take-a-show-rule-away and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:take-a-show-rule-away and its input (the worked example shows one).",
     "3. Read what comes back: Takes one rule out of your show-rules record by its id (from see-when-things-show); a starting rule is switched off instead.",
     "4. It reads and writes only its own rows through the records door: @own-records (workspace:read)."
   ],
@@ -19,7 +19,7 @@
       "ask": "Take away one of my show rules",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

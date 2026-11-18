@@ -75,7 +75,7 @@ function standIn(options = {}) {
     assert.equal(init.headers.cookie, undefined);
     assert.equal(init.redirect, 'error');
     const body = JSON.parse(init.body);
-    assert.equal(body.params.name, 'run_resource_operation');
+    assert.equal(body.params.name, 'do_one_thing_in_my_account');
     assert.deepEqual({ ...body.params.arguments, request_key: 'redacted' }, {
       address: '@sign-in', method: 'sign-in:principal', request_key: 'redacted', input: {},
     });

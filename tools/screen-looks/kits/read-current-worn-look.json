@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Read this person's current worn screen look, look rules and day plan as the device token payload native screens draw\", and give it time_zone (The native device's IANA time zone, such as America/Denver); app_data.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:read-current-worn-look and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:read-current-worn-look and its input (the worked example shows one).",
     "3. Read what comes back: Reads this person's current worn screen look and returns the token payload native screens draw: every wearable look, the look now (including a scheduled blend), upcoming changes for twelve hours, and when to read again."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Read this person's current worn screen look, look rules and day plan as the device token payload native screens draw",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Read the rows of one of my methods, a saved view over my method rows, a page at a time, each row with how strictly an answer to it is checked\", and give it method (The id of the saved view that is the method).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:read-a-method and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:read-a-method and its input (the worked example shows one).",
     "3. Read what comes back: A method is a saved view over the person's method rows (their files and the sections of their files, each row whole): the view's rules keep the rows, its sort orders them, and any mix of rows is a method.",
     "4. It reads and writes only its own rows through the records door: list (records:read); list-view (records:read); record:method-row (records:list)."
   ],
@@ -20,7 +20,7 @@
       "ask": "Read the rows of one of my methods, a saved view over my method rows, a page at a time, each row with how strictly an answer to it is checked",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

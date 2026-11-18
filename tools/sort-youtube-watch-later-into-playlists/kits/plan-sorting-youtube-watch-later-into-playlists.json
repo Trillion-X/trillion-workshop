@@ -113,7 +113,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Sort my YouTube Watch Later into playlists: plan which playlist each video goes in\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:plan-sorting-youtube-watch-later-into-playlists and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:plan-sorting-youtube-watch-later-into-playlists and its input (the worked example shows one).",
     "3. Read what comes back: Places each video of one or more channels' Watch Later into the playlists the person's sort settings name, and writes nothing to YouTube."
   ],
   "worked_examples": [
@@ -122,7 +122,7 @@
       "ask": "Sort my YouTube Watch Later into playlists: plan which playlist each video goes in",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

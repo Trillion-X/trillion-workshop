@@ -23,7 +23,7 @@ async function admittedPrincipal(origin, key, request, timeoutMs) {
     method: 'POST', signal: AbortSignal.timeout(timeoutMs), redirect: 'error',
     headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json', accept: 'application/json, text/event-stream' },
     body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: {
-      name: 'run_resource_operation', arguments: {
+      name: 'do_one_thing_in_my_account', arguments: {
         address: '@sign-in', method: 'sign-in:principal', request_key: `proof-principal-${randomUUID()}`, input: {},
       },
     } }),

@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Rebuild the answer a screen should show from the answer it holds and the changes it was sent\", and give it answer.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:apply-a-view-patch and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:apply-a-view-patch and its input (the worked example shows one).",
     "3. Read what comes back: Give answer (what tool:make-a-view-patch returned: whole with text, or with patch) and previous, the JSON text the screen holds."
   ],
   "worked_examples": [
@@ -19,7 +19,7 @@
       "ask": "Rebuild the answer a screen should show from the answer it holds and the changes it was sent",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

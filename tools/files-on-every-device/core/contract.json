@@ -9,7 +9,7 @@
       "id": "$request",
       "method": "tools/call",
       "params": {
-        "name": "run_resource_operation",
+        "name": "do_one_thing_in_my_account",
         "arguments": {
           "address": "$address",
           "method": "$method",

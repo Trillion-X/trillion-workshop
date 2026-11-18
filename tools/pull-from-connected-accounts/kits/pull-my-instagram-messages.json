@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Pull the direct messages of my Instagram professional account\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:pull-my-instagram-messages and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:pull-my-instagram-messages and its input (the worked example shows one).",
     "3. Read what comes back: Reads the conversations of the Instagram professional account the token belongs to (through the Instagram messaging API, not by logging in as a person) and the newest messages of each, and answers them. Each conversation carries the service's own description of it (its participants) in source. A message pulled twice appears once.",
     "4. It reads and writes no rows: the new or changed conversations and items are in the answer, and held.cursor is what to hand back next time."
   ],
@@ -19,7 +19,7 @@
       "ask": "Pull the direct messages of my Instagram professional account",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

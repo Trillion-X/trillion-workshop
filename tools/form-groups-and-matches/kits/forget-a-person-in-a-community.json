@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Erase a person from a community's matching: what they told it, every match naming them, their asks, answers and jobs, and their place and scores on other members' shortlists and score jobs\", and give it community_id (The community whose matchmaker runs: its settings are the match-community record of this id.); person.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:forget-a-person-in-a-community and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:forget-a-person-in-a-community and its input (the worked example shows one).",
     "3. Read what comes back: Removes the member record, every match naming the person with its one-to-one group, answers and jobs, their own asks and jobs, and takes them and the scores of them out of other members' asks and waiting score jobs.",
     "4. It reads and keeps no records: your AI reads the community's records from a store and hands them in as `records`, and puts the answer's `write` (each changed record with the value it expected) in the store."
   ],
@@ -19,7 +19,7 @@
       "ask": "Erase a person from a community's matching: what they told it, every match naming them, their asks, answers and jobs, and their place and scores on other members' shortlists and score jobs",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

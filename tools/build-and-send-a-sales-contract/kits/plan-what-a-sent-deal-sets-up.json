@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Turn a sales contract's follow-ups into the rules and schedules that run them once the deal is sent: a paid follow-up for this deal only, a dated one at its time, with the deal's own words filled in\", and give it contract; follow_ups.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:plan-what-a-sent-deal-sets-up and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:plan-what-a-sent-deal-sets-up and its input (the worked example shows one).",
     "3. Read what comes back: Give contract ({ id, name } of the deal being sent), facts ({ to, contract_name, contract_id, address }: contract_name and contract_id default to the contract's) and follow_ups (each { label, on: \"paid\" | { once_at }, then: { tool_id | workflow_id, input } })."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Turn a sales contract's follow-ups into the rules and schedules that run them once the deal is sent: a paid follow-up for this deal only, a dated one at its time, with the deal's own words filled in",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Keep something a person wants to get right every time (a word, a habit, a fact) as a card, ask for what is due now, grade each recall and see how well it is known\", and give it operation.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:practice and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:practice and its input (the worked example shows one).",
     "3. Read what comes back: add: { card_id, deck, kept_progress }; grade: { card_id, prompt, grade, grade_in_policy, lapsed, due_at, mastery }; due: { due_count, cards }; cards: { cards }; remove: { card_id, removed }; remind: { due_count, said }",
     "4. It reads and writes only its own rows through the records door: record:practice-cards (records:read, records:list, records:write); record:practice-grades (records:read, records:list, records:write); record:practice-policy (records:read)."
   ],
@@ -19,7 +19,7 @@
       "ask": "Keep something a person wants to get right every time (a word, a habit, a fact) as a card, ask for what is due now, grade each recall and see how well it is known",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

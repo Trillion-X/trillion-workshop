@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Find the rows of one of my lists that hold the words I ask, best match first, however far down the list they are\", and give it question (The person's question or the words to find); type (The kind of record (the list) to search; this run's right is filled from it).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:search-one-of-my-lists and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:search-one-of-my-lists and its input (the worked example shows one).",
     "3. Read what comes back: Searches the records of one kind (one list) with one question in the person's own store's word index, which every write feeds: the rows holding every asked word, best first, each with said (the words around the match), score and the row's id (its row in the person's own store).",
     "4. It is given only the rows of the kind the request names (reads)."
   ],
@@ -20,7 +20,7 @@
       "ask": "Find the rows of one of my lists that hold the words I ask, best match first, however far down the list they are",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Sum what visitors did on each version of an experiment and work out the rate that decides the winner\", and give it address (The surface the experiment ran on); facts ([{ path: ['candidate', 'outcome', metric, candidate_id], value: number }]).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:read-experiment-results and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:read-experiment-results and its input (the worked example shows one).",
     "3. Read what comes back: Takes the recorded outcome facts for one experiment (views, clicks, conversions or any metric you track, per candidate version) and returns each version's totals."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Sum what visitors did on each version of an experiment and work out the rate that decides the winner",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -12,7 +12,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Answer the page's one search (GET /work/api/search) over every list, record and file name I keep\", and give it path (The route after /work/api (/search)); method.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:answer-the-search-page-route and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:answer-the-search-page-route and its input (the worked example shows one).",
     "3. Read what comes back: The page's GET /work/api/search, run by the engine for the page's account (workshop-routes): the request's { path, method, query } in, { status, body } out, where body is the one search's answer (searchEverything) for query q, with places, sources and matches as comma lists and limit (1..200) as old src/search.mjs searchOptions read them.",
     "4. It is given only rows of every kind and the names of the person's files (reads)."
   ],
@@ -22,7 +22,7 @@
       "ask": "Answer the page's one search (GET /work/api/search) over every list, record and file name I keep",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Plan a match against an opponent: gather what the trusted notes say about both sides into the brief a plan is written from, then check and record the plan that was written\", and give it operation (What to do); plan_shape (How many strategies, and how many tactics in each, the plan has).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:prepare-a-match-plan and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:prepare-a-match-plan and its input (the worked example shows one).",
     "3. Read what comes back: Calls no model: the AI that reads the brief writes the plan."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Plan a match against an opponent: gather what the trusted notes say about both sides into the brief a plan is written from, then check and record the plan that was written",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

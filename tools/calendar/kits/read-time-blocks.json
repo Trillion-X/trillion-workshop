@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Turn any records that have a start and an end (bookings, scheduled work, reservations, events) into one ordered list of time blocks, and say which rows could not be shown\", and give it lenses (time-block-lens records: { kind: 'time-block-lens', lens_id, input_address, owner_ref, owner_label?, selectors: { identity, start, end, title?, all_day?, timezone?, color?, state?, lane?); feeds (The rows each lens reads, by the lens's input_address: a list of records or of lists of cells.).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:read-time-blocks and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:read-time-blocks and its input (the worked example shows one).",
     "3. Read what comes back: Reads each kind of record through a lens the person wrote: which field is the identity, the start, the end, the title, the colour, the state, and which fields point at other records."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Turn any records that have a start and an end (bookings, scheduled work, reservations, events) into one ordered list of time blocks, and say which rows could not be shown",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

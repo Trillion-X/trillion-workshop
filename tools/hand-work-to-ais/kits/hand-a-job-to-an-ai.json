@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Give a job to another of my AIs (a named one, or any of them) so it is waiting for that AI to take\", and give it as (The sending AI's record id); job (What the AI is to do, in plain words).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:hand-a-job-to-an-ai and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:hand-a-job-to-an-ai and its input (the worked example shows one).",
     "3. Read what comes back: Writes one ai-job record, id ai-job:<key>, status waiting, holding the job in plain words, who sent it (`as`), the AI it is for (`to`, an ai record id; left out, any AI may take it), its priority (0 to 9, higher first; read-data/ai-work.json default_priority when left out), what done looks like (`outcome`) and when it was sent.",
     "4. It reads and writes only its own rows through the records door: ai (records:read); ai-job (records:read, records:write)."
   ],
@@ -19,7 +19,7 @@
       "ask": "Give a job to another of my AIs (a named one, or any of them) so it is waiting for that AI to take",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

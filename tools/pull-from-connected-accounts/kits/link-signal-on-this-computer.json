@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Link my Signal account to this computer so my messages can be read here\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:link-signal-on-this-computer and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:link-signal-on-this-computer and its input (the worked example shows one).",
     "3. Read what comes back: Links this computer to your Signal account as one of its devices, once, so tool:read-my-signal-messages-on-this-computer can read your messages here."
   ],
   "worked_examples": [
@@ -19,7 +19,7 @@
       "ask": "Link my Signal account to this computer so my messages can be read here",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

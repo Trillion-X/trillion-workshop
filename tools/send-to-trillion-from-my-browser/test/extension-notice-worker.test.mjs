@@ -50,7 +50,7 @@ globalThis.fetch = async (url, init = {}) => {
   if (!target.endsWith('/mcp')) return Response.json({});
   const body = JSON.parse(init.body);
   if (body.method === 'initialize') return Response.json({ jsonrpc: '2.0', id: body.id, result: { _meta: { 'ai.gettrillion/account': { account_id: 'account-a' } } } });
-  assert.equal(body.params.name, 'run_resource_operation');
+  assert.equal(body.params.name, 'do_one_thing_in_my_account');
   const operation = body.params.arguments;
   assert.equal(operation.address, '@tools');
   assert.equal(operation.method, 'tools:run');

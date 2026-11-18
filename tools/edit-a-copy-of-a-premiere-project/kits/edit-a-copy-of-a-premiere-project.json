@@ -20,7 +20,7 @@
       "ask": "Cut 00:00:02:00 to 00:00:04:00 out of my project and put the A002 clip from seconds 10 to 12 first.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Keep watching for things outside (a stretch of time passing, a drive attached or removed, files someone finished putting in a place, a delivery over the network) and tell the person's engine one fact each time, so any tool whose wake hears that kind of fact starts\", and give it waiters.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:notice-when-something-shows-up and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:notice-when-something-shows-up and its input (the worked example shows one).",
     "3. Read what comes back: Give waiters: the standing orders the noticer keeps (notice-when-something-shows-up.waiter-descriptor rows, each naming one mechanism in do-work/mechanisms, its settings and the kind of fact it emits)."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Keep watching for things outside (a stretch of time passing, a drive attached or removed, files someone finished putting in a place, a delivery over the network) and tell the person's engine one fact each time, so any tool whose wake hears that kind of fact starts",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

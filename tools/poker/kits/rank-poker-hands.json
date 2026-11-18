@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Rank poker hands against a board of community cards and say which hand wins\", and give it board (The community cards, for example [\"AS\",\"7D\",\"9C\"]); hands.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:rank-poker-hands and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:rank-poker-hands and its input (the worked example shows one).",
     "3. Read what comes back: Give the community cards (none to five) and each player's own cards (up to two), every card as its rank then its suit: ranks 2 to 9, T, J, Q, K, A and suits S, H, D, C, for example AS or TD."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Rank poker hands against a board of community cards and say which hand wins",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

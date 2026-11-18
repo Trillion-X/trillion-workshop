@@ -20,7 +20,7 @@
       "ask": "I changed one row in my written checklist. Does the checklist file still match it?",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

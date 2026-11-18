@@ -11,7 +11,7 @@
  ],
  "instructions": [
   "1. Say to your AI: \"Listen in on a meeting or a room until a time I give, and tell me each person's turn\", and give it until (When to stop listening, as a time (for example 2026-10-31T15:30:00-06:00)); model_path (The ggml Whisper model file on this computer); and, read by your AI from where it keeps them, voice_prints, recording_rules, listening_switch and transcriber when they exist.",
-  "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:listen-for-a-while and its input (the worked example shows one).",
+  "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:listen-for-a-while and its input (the worked example shows one).",
   "3. Read what comes back: one heard row per turn in `heard`, the counts of pieces, turns, let_go and left_out, `heard_until`, `voice_session` (hand it back as voice_session in the next run of this listening), and what leaves this computer and what stays. The tool keeps nothing; keep `heard` where you keep such things.",
   "4. It reads and writes no row and no file."
  ],
@@ -21,7 +21,7 @@
    "ask": "Listen in on a meeting or a room until a time I give, and tell me each person's turn",
    "mcp": {
     "server": "{cli}",
-    "tool": "run_resource_operation",
+    "tool": "do_one_thing_in_my_account",
     "input": {
      "method": "tools:run",
      "input": {

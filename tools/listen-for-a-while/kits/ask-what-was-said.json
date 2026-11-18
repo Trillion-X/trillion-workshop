@@ -9,7 +9,7 @@
  ],
  "instructions": [
   "1. Say to your AI: \"Tell me what was said in a listening since I last asked\", and give it listening (The listening's name), heard (the listening's heard rows, as your AI read them), captions (the state the last answer gave) and cursor (the last answer's cursor).",
-  "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:ask-what-was-said and its input (the worked example shows one).",
+  "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:ask-what-was-said and its input (the worked example shows one).",
   "3. Read what comes back: Answers the turns of a listening (`heard`) after `cursor` (what this conversation was last given), with the captions' corrections applied (`captions`), and the cursor to hand in next time so each turn is given once. It keeps nothing: the new state is in the answer.",
   "4. It reads and writes no row and no file; keep the answer's `cursor` where you keep such things, and hand it back next time."
  ],
@@ -19,7 +19,7 @@
    "ask": "Tell me what was said in a listening since I last asked",
    "mcp": {
     "server": "{cli}",
-    "tool": "run_resource_operation",
+    "tool": "do_one_thing_in_my_account",
     "input": {
      "method": "tools:run",
      "input": {

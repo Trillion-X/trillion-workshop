@@ -492,7 +492,7 @@ class Door(Pantry):
 
 
 class McpDoor(unittest.TestCase):
-    """The mcp transport against a made-up door on a loopback port: run_resource_operation as JSON-RPC tools/call, the key from the
+    """The mcp transport against a made-up door on a loopback port: do_one_thing_in_my_account as JSON-RPC tools/call, the key from the
     credential handle as the Bearer token, a streamed answer read from its last data line."""
 
     KEY = 'made-up-key-0123456789'
@@ -577,7 +577,7 @@ class McpDoor(unittest.TestCase):
         self.assertEqual([r['id'] for r in records], sorted(self.records))
         call = self.seen[0]
         self.assertEqual(call['auth'], f'Bearer {self.KEY}')
-        self.assertEqual((call['body']['method'], call['body']['params']['name']), ('tools/call', 'run_resource_operation'))
+        self.assertEqual((call['body']['method'], call['body']['params']['name']), ('tools/call', 'do_one_thing_in_my_account'))
         self.assertEqual(call['body']['params']['arguments']['address'], '@made-up')
         self.assertFalse(any(self.KEY in path.read_text() for path in self.tmp.rglob('*') if path.is_file()), 'the key is never written')
 

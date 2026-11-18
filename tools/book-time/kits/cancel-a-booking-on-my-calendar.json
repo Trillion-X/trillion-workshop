@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Remove a booking's event from my own calendar\", and give it event_id.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:cancel-a-booking-on-my-calendar and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:cancel-a-booking-on-my-calendar and its input (the worked example shows one).",
     "3. Read what comes back: Deletes one event from the person's own Google calendar, with the person's own calendar account (the held value calendar-account); Google tells the attendees."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Remove a booking's event from my own calendar",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

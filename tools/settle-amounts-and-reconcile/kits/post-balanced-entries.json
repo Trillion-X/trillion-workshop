@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Check an entry of signed lines adds to zero and answer it to keep, once per entry id, answer its undo as a new entry with every line negated, and list every entry in the lists that does not add to zero\", and give it action; list_id (The list in the request: the source (or the lines, or the row's list) when the body leaves its own list_id out.); lists (The lists the action names, as the caller read them from a store: each { id, row_type, fields, ...the list's own definition, rows: [{ id, values }] } with every row the action reads.).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:post-balanced-entries and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:post-balanced-entries and its input (the worked example shows one).",
     "3. Read what comes back: action post takes lines { amount_field, group_field }, entry_id and rows [{ values }] (two or more); lines that do not add to zero are refused and nothing is answered to keep; the same entry_id posts once."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Check an entry of signed lines adds to zero and answer it to keep, once per entry id, answer its undo as a new entry with every line negated, and list every entry in the lists that does not add to zero",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

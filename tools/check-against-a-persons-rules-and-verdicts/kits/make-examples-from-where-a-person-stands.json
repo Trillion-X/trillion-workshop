@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Turn the verdicts a person already gave into good and bad examples, to tune a model that answers their reading rules\", and give it verdict_rules (The person's rule document: rows (judge-words rule rows; a row with part reads a part of a thing as another kind; a row with ask is a reading row a model answers), fold (how two texts are one text), stage.default (review or final), stance_rule and novel (the ids and words of the findings their stands and silence make) and agree_clears.rules (the generic rules their agree clears)).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:make-examples-from-where-a-person-stands and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:make-examples-from-where-a-person-stands and its input (the worked example shows one).",
     "3. Read what comes back: Give the person's rule document (verdict_rules) and their stands."
   ],
   "worked_examples": [
@@ -19,7 +19,7 @@
       "ask": "Turn the verdicts a person already gave into good and bad examples, to tune a model that answers their reading rules",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Remove the server and SSH key one of my public door's host leases rented, and only those\", and give it lease (The lease an earlier answer of rent-a-host-for-the-public-door gave.); hosting (The value of the person's hosting row in the Service connections list (record:service-connection): the row the lease was rented from. The run mounts the key held under its rents_a_host.vault_key.).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:release-a-host-of-the-public-door and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:release-a-host-of-the-public-door and its input (the worked example shows one).",
     "3. Read what comes back: Removes the exact server and SSH key the lease handed in as `lease` names, through the requests of the hosting row it was rented from (handed in as `hosting`), after reading each one back and checking it still carries this lease's label, and answers the removed lease. It keeps nothing: the person's AI stores the answered lease. A server relabelled to someone else is left untouched. Handed a lease already removed, it answers the removed lease. A box the person already runs is only forgotten, never touched. The hosting key comes from the vault by the row's vault name and is never shown.",
     "4. It reads and writes no list: it takes its rows as input and answers its result, which your AI stores."
   ],
@@ -19,7 +19,7 @@
       "ask": "Remove the server and SSH key one of my public door's host leases rented, and only those",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

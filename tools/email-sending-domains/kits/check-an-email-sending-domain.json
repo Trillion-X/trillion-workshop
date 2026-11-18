@@ -19,7 +19,7 @@
       "ask": "Ask Resend to check domain 4dd369bc-aa82-4ff3-97de-514ae3000ee0 again.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

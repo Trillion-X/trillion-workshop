@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Remove one saved example this person no longer wants\", and give it id.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:remove-a-saved-example and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:remove-a-saved-example and its input (the worked example shows one).",
     "3. Read what comes back: id is the example's id from tool:list-saved-examples.",
     "4. It reads and writes only its own rows through the records door: saved-example (records:read, records:write)."
   ],
@@ -20,7 +20,7 @@
       "ask": "Remove one saved example this person no longer wants",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

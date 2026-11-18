@@ -22,7 +22,7 @@
    "ask": "Hire someone to photograph the shelf at the market.",
    "mcp": {
     "server": "{cli}",
-    "tool": "run_resource_operation",
+    "tool": "do_one_thing_in_my_account",
     "input": {
      "method": "tools:run",
      "input": {

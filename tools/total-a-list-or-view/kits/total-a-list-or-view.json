@@ -94,7 +94,7 @@
   "instructions": [
     "1. Have a list of rows with a number field, or pour the five example orders into the list you already keep for sales (see pour), or make list:orders from them.",
     "2. Say which list and what to add up, for example: \"Count my orders and sum the amount, for each kind.\" The AI needs the list's id (list:orders) and its row type (record:order, the list's row_type with record: in front).",
-    "3. The AI reads the list, its rows and (for a view) its saved views from the store that holds them, then calls run_resource_operation at @tools with method tools:run, tool tool:total-a-list-or-view and {list_id, type, records: [{id, type, value}], measures: [{op, field?}], group_by?, view_id?}. op is count, filled, distinct, sum, average, median, min or max; every op but count, filled and distinct needs a number field.",
+    "3. The AI reads the list, its rows and (for a view) its saved views from the store that holds them, then calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:total-a-list-or-view and {list_id, type, records: [{id, type, value}], measures: [{op, field?}], group_by?, view_id?}. op is count, filled, distinct, sum, average, median, min or max; every op but count, filled and distinct needs a number field.",
     "4. Read the answer: rows_counted, complete (false means it stopped before the end, so the total is partial), measures, and with group_by one entry in groups for each value. With view_id only the rows that saved view keeps are totalled. A refusal says what to ask instead."
   ],
   "worked_examples": [
@@ -103,7 +103,7 @@
       "ask": "How many orders do I have and what do they add up to?",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {
@@ -208,7 +208,7 @@
       "ask": "Add up the amount for each kind of order.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {
@@ -314,7 +314,7 @@
       "ask": "What is the total of my Bread only view?",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

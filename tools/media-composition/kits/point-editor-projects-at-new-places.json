@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"On the person's own computer, point their Premiere Pro projects and DaVinci Resolve's open project at clips that moved to a new place, such as their Trillion files connected as a drive\", and give it moves (Each moved clip or folder: its old full path and its new full path).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:point-editor-projects-at-new-places and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:point-editor-projects-at-new-places and its input (the worked example shows one).",
     "3. Read what comes back: Runs on the computer where the editors are."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "On the person's own computer, point their Premiere Pro projects and DaVinci Resolve's open project at clips that moved to a new place, such as their Trillion files connected as a drive",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

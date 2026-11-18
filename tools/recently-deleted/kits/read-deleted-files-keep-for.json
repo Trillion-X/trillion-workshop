@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Read how many days this person's Recently Deleted and Archived keep things before they move on\", and give it keep_for, your own choice from setting:keep_for (optional: left out, the defaults answer).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:read-deleted-files-keep-for and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:read-deleted-files-keep-for and its input (the worked example shows one).",
     "3. Read what comes back: Takes no input.",
     "4. It reads and keeps nothing: it works from your request and answers its whole result."
   ],
@@ -19,7 +19,7 @@
       "ask": "Read how many days this person's Recently Deleted and Archived keep things before they move on",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

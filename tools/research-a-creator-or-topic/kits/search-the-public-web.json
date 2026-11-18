@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Search the public web for a creator, a topic or a question, and get back at most ten results with the address each one cites\", and give it query (What to search for).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:search-the-public-web and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:search-the-public-web and its input (the worked example shows one).",
     "3. Read what comes back: Sends one query (1 to 500 characters) to a public web search and reads the one results page."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Search the public web for a creator, a topic or a question, and get back at most ten results with the address each one cites",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

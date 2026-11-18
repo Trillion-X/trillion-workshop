@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Find the nearest stores or places of a brand or name around a start, each with route buttons\", and give it name (A brand or place name); near (An address or place name as words, or { lat, lon }, or { address }).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:find-nearest-places and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:find-nearest-places and its input (the worked example shows one).",
     "3. Read what comes back: Give name (a brand or a place name) and near (an address or place name as words, or { lat, lon }), and optionally radius_km, most and mode."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Find the nearest stores or places of a brand or name around a start, each with route buttons",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

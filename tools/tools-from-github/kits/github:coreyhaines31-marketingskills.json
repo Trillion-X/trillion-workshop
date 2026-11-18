@@ -8,7 +8,7 @@
     "tool:github:coreyhaines31-marketingskills"
   ],
   "instructions": [
-    "1. Say to your AI: \"Use marketingskills on example.com\". It reads the row with run_resource_operation at @tools, method tools:list, input {tool: \"tool:github:coreyhaines31-marketingskills\"}.",
+    "1. Say to your AI: \"Use marketingskills on example.com\". It reads the row with do_one_thing_in_my_account at @tools, method tools:list, input {tool: \"tool:github:coreyhaines31-marketingskills\"}.",
     "2. It checks that git, node 18 or later are on your computer, and if marketingskills is missing it runs the get_it steps: git clone https://github.com/coreyhaines31/marketingskills.git ; cd marketingskills.",
     "3. It runs the row's command with your file in place of {input}: node skills/reverse-engineer-marketing/scripts/teardown.mjs example.com",
     "4. Read what it shows you and open the result. Trillion runs none of this; it all happens on your own computer."
@@ -19,7 +19,7 @@
       "ask": "Use marketingskills on example.com.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

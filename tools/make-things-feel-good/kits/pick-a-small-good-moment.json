@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Pick the small good moment to play when something good happens or a phrase is typed: its words and motion, from the moment rows I give, so once-only moments play once and the words change each time\", and give it moments.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:pick-a-small-good-moment and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:pick-a-small-good-moment and its input (the worked example shows one).",
     "3. Read what comes back: Give moments (the moment rows, tried in order: each { id, on: { event_kind, match?, starts_with?"
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Pick the small good moment to play when something good happens or a phrase is typed: its words and motion, from the moment rows I give, so once-only moments play once and the words change each time",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

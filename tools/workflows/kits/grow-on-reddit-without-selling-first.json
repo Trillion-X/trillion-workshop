@@ -22,7 +22,7 @@
    "ask": "Warm up my Reddit account before I post.",
    "mcp": {
     "server": "{cli}",
-    "tool": "run_resource_operation",
+    "tool": "do_one_thing_in_my_account",
     "input": {
      "method": "tools:run",
      "input": {

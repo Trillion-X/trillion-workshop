@@ -64,7 +64,7 @@
       "hands_back": "{\"checked\":[{\"id\":\"title-1\",\"kind\":\"title\",\"status\":\"passed\"},{\"id\":\"beat-2\",\"kind\":\"script line\",\"status\":\"passed\"}],\"rewrites\":[{\"id\":\"beat-2\",\"before\":\"You will never fail again\",\"after\":\"Most new bakers get the bake right by the second morning\",\"rule\":\"no promise the material cannot keep\"}]}",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

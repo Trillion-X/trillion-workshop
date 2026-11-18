@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Find the files under a folder the person chose that are new or have changed since the last look, matched by a pattern, without reading what they mean, so a folder of saved things can be followed\", and give it source_ref (What to call this source).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:find-new-or-changed-files and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:find-new-or-changed-files and its input (the worked example shows one).",
     "3. Read what comes back: Runs on the person's computer over the folder they granted it to read, and reads only inside it; a link that leads out of the folder is skipped and named in skipped, never followed."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Find the files under a folder the person chose that are new or have changed since the last look, matched by a pattern, without reading what they mean, so a folder of saved things can be followed",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

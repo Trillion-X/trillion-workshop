@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Pause, resume or stop one long file job on this person's computer drives (a copy or a move), optionally resuming it at a chosen time\", and give it id; action (A control tool:media-work lists for this job, like pause, resume or stop).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:media-work-control and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:media-work-control and its input (the worked example shows one).",
     "3. Read what comes back: Runs on the person's computer.",
     "4. It reads and writes only its own rows through the records door: undefined (find_file)."
   ],
@@ -20,7 +20,7 @@
       "ask": "Pause, resume or stop one long file job on this person's computer drives (a copy or a move), optionally resuming it at a chosen time",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

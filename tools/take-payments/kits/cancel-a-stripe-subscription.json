@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Cancel a buyer Stripe subscription now, or at the end of what they have paid for\", and give it subscription_id.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:cancel-a-stripe-subscription and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:cancel-a-stripe-subscription and its input (the worked example shows one).",
     "3. Read what comes back: Give subscription_id, and at_period_end: true to keep the paid period running and stop the next renewal."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Cancel a buyer Stripe subscription now, or at the end of what they have paid for",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -19,7 +19,7 @@
       "ask": "Show me what changes in my Cursor config if you add the Trillion connection, and do not write anything until I say yes.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

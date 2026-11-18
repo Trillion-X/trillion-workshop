@@ -17,7 +17,7 @@ test('an unreachable account keeps the send, and each retry uses the same reques
   const keys = [];
   let up = false;
   const tool = async (name, given) => {
-    assert.equal(name, 'run_resource_operation');
+    assert.equal(name, 'do_one_thing_in_my_account');
     keys.push(given.request_key);
     if (!up) throw new Unreachable();
     return { changed: 1 };

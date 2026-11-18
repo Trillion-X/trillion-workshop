@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Turn my draft of a gathering into its session, its catalog entry, the places to open and the link people will use\", and give it idempotency_key (A retained 128-bit hexadecimal id (32 hex characters) the caller allocated); host_group_ref (The existing group that owns the event); event_label; focus_label; public_summary; detail_intro; schedule_intent; primary_starts_at (Local time like 2026-09-12T09:00); primary_ends_at; time_zone (IANA zone, like America/Chicago); mode (The organizer's own word, like online or in person); visibility (The organizer's own word, like public or members only); capacity; host_origin (https://host, no path); workflow_definition_ref.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:plan-an-event and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:plan-an-event and its input (the worked example shows one).",
     "3. Read what comes back: Checks an organizer's draft (a retained 128-bit hex id, the owning group, labels in any language, a primary time and an optional alternate in the zone given, a place, a mode and a visibility word the organizer chooses, a capacity of 1 to 1,000,000, the host's web address and the workflow to run) and answers the session, the catalog entry that offers it, the capacity ledger to open for its places (the input of tool:open-a-capacity-ledger), and the preview and share addresses."
   ],
   "worked_examples": [
@@ -19,7 +19,7 @@
       "ask": "Turn my draft of a gathering into its session, its catalog entry, the places to open and the link people will use",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

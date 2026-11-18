@@ -192,7 +192,7 @@
       "ask": "Write and publish the legal pages for Harbor Coaching from my saved facts.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

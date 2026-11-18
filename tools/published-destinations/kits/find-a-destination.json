@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Find the destination screen an owner has published (a progress page, a results page) among saved records, for one person or subject, and read it safely\", and give it rows (Records shaped {record, payload}); ref (The destination's own ref).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:find-a-destination and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:find-a-destination and its input (the worked example shows one).",
     "3. Read what comes back: Give rows (records shaped {record, payload}, the payload being the decoded destination-descriptor), the destination's ref and, when the descriptor is for one subject, that subject_ref."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Find the destination screen an owner has published (a progress page, a results page) among saved records, for one person or subject, and read it safely",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

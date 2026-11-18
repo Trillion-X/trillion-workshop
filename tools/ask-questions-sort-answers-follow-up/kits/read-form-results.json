@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Show who answered a form, the score each earned and the segment each was sorted into, with a count per segment, from the segment assignments in the database\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:read-form-results and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:read-form-results and its input (the worked example shows one).",
     "3. Read what comes back: Give optionally a form_id to see one form, or nothing to see every form in the table segment_assignment."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Show who answered a form, the score each earned and the segment each was sorted into, with a count per segment, from the segment assignments in the database",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

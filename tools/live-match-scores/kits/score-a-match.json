@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Keep the score of a match (tennis, pickleball, padel or any game whose scoring a person writes as a rule): start a match, give a point to a side, undo the last point, type in a score, and link a match to a tournament, schedule, bracket, standings or leaderboard\", and give it operation (What to do).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:score-a-match and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:score-a-match and its input (the worked example shows one).",
     "3. Read what comes back: Every answer is records for the caller to write; nothing is kept here."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Keep the score of a match (tennis, pickleball, padel or any game whose scoring a person writes as a rule): start a match, give a point to a side, undo the last point, type in a score, and link a match to a tournament, schedule, bracket, standings or leaderboard",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

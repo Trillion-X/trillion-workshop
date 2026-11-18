@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Read a usage report and distinguish provider acceptance from actual payment collection\", and give it report_id.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:read-resource-usage-report and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:read-resource-usage-report and its input (the worked example shows one).",
     "3. Read what comes back: Read a usage report and distinguish provider acceptance from actual payment collection",
     "4. It reads and writes only its own rows through the records door: resource-usage-settlement (records:read, records:list); resource-usage-settlement-version (records:read, records:list); resource-usage-allocation (records:read, records:list); usage-billing-agreement (records:read, records:list); resource-usage-cash (records:read, records:list); resource-usage-applied-source (records:read, records:list); resource-usage-provider-report (records:read, records:list)."
   ],
@@ -19,7 +19,7 @@
       "ask": "Read a usage report and distinguish provider acceptance from actual payment collection",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

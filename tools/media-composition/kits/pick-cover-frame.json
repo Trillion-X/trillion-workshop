@@ -10,7 +10,7 @@
   "instructions": [
     "1. Find your video's identity in your files: 1f: then 64 hex.",
     "2. Say \"Pick a cover frame for this video\". Add at (seconds) to use the frame at that time instead of choosing, and width in pixels (default the video's own).",
-    "3. The AI calls run_resource_operation at @tools with method tools:run and tool tool:pick-cover-frame. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
+    "3. The AI calls do_one_thing_in_my_account at @tools with method tools:run and tool tool:pick-cover-frame. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
     "4. Read result.time (which second was chosen), result.chosen_by and files.picture, the JPEG saved in your files."
   ],
   "worked_examples": [
@@ -19,7 +19,7 @@
       "ask": "Pick the best cover frame of my video, 160 pixels wide.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {
@@ -39,7 +39,7 @@
       "ask": "Use the frame at 3.5 seconds as the cover.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

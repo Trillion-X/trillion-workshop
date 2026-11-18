@@ -113,7 +113,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Tell me the exact seconds a passage I quote starts and ends in a recording, read a recording's words back as timed sentences, or keep its word times in the one file shape my plans cut from\", and give it step.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:find-a-spoken-passage-in-word-times and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:find-a-spoken-passage-in-word-times and its input (the worked example shows one).",
     "3. Read what comes back: Works on a recording's word-time file (a words list of {text, start, end}, the {t, start, end} words the transcription tool writes, or Whisper's segments with words), in the folder the person let this tool change.",
     "4. It is given only these rows of the person's, read by the AI from the person's own store: record:setting (reads); the rows it makes come back under keep, for the AI to keep there."
   ],
@@ -123,7 +123,7 @@
       "ask": "Tell me the exact seconds a passage I quote starts and ends in a recording, read a recording's words back as timed sentences, or keep its word times in the one file shape my plans cut from",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {
@@ -145,7 +145,7 @@
       "ask": "Tell me the exact seconds a passage I quote starts and ends in a recording, read a recording's words back as timed sentences, or keep its word times in the one file shape my plans cut from",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Make the requests the Mac's local files target gets when a person chooses files on their computer or saves a copy back, and read what the picker answered into the files chosen, without touching any computer\", and give it operation.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:plan-choosing-and-saving-files-on-my-computer and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:plan-choosing-and-saving-files-on-my-computer and its input (the worked example shows one).",
     "3. Read what comes back: Give operation choose with picker_reply (what the picker answered: { cancelled?, files: [{ path, name, byte_length, content_type, bytes_base64?"
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Make the requests the Mac's local files target gets when a person chooses files on their computer or saves a copy back, and read what the picker answered into the files chosen, without touching any computer",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {
@@ -41,7 +41,7 @@
       "ask": "Make the requests the Mac's local files target gets when a person chooses files on their computer or saves a copy back, and read what the picker answered into the files chosen, without touching any computer",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

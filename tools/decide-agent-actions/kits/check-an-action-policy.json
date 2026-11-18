@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Check my AI action policy before I rely on it: rules it cannot evaluate, unknown behaviours, repeated ids and rules that can never decide because an earlier rule always does\", and give it fields; policy.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:check-an-action-policy and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:check-an-action-policy and its input (the worked example shows one).",
     "3. Read what comes back: Takes the fields the policy rules may read from an action and the policy (rules in order, each with an id, an optional `when` rule tree and a `then`)."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Check my AI action policy before I rely on it: rules it cannot evaluate, unknown behaviours, repeated ids and rules that can never decide because an earlier rule always does",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

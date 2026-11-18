@@ -8,14 +8,14 @@
   "tools": ["tool:list-a-repositorys-place-inputs"],
   "instructions": [
     "1. Grant the tool read access to the repository folder (the read-a-folder grant).",
-    "2. Say \"List the inputs this repository needs\". The AI calls run_resource_operation at @tools with method tools:run, tool tool:list-a-repositorys-place-inputs and {}.",
+    "2. Say \"List the inputs this repository needs\". The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:list-a-repositorys-place-inputs and {}.",
     "3. Read inputs: each name, the tracked files that read it, whether it is a run switch and whether it is set here; values are never shown."
   ],
   "worked_examples": [
     {
       "title": "Inputs of one granted repository",
       "ask": "Which environment inputs does /Work/demo-repo need?",
-      "mcp": {"server": "{cli}", "tool": "run_resource_operation", "input": {"address": "@tools", "method": "tools:run", "input": {"tool": "tool:list-a-repositorys-place-inputs", "input": {}}}},
+      "mcp": {"server": "{cli}", "tool": "do_one_thing_in_my_account", "input": {"address": "@tools", "method": "tools:run", "input": {"tool": "tool:list-a-repositorys-place-inputs", "input": {}}}},
       "given": "A granted folder /Work/demo-repo whose tracked code reads one named input.",
       "hands_back": "{\"inputs\": [{\"name\": \"DEMO_TOKEN\", \"files\": [\"src/run.mjs\"], \"run_switch\": false, \"set\": false}]} (draft: the values of a real run are not yet put in)."
     }

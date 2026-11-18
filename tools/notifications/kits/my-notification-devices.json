@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"List the devices registered to show or read my notices\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:my-notification-devices and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:my-notification-devices and its input (the worked example shows one).",
     "3. Read what comes back: Returns each registered device by opaque device_id, route, label and status.",
     "4. It reads and writes only its own rows through the records door: notification-device (records:list)."
   ],
@@ -19,7 +19,7 @@
       "ask": "List the devices registered to show or read my notices",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

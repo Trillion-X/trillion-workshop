@@ -11,7 +11,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Show how each of this person's published posts did in each place it went: that place's own counts, the visitors its link brought and what they bought\", and give it records (The person's post records, as the caller read them from a store ({ id, type: 'post', value }).).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:see-how-each-post-did and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:see-how-each-post-did and its input (the worked example shows one).",
     "3. Read what comes back: Give observations (each place's own counts for a post, read with that place's tools: { post_id, account_id, metrics: { name: number }, observed_at } or { platform_post_id, account_id?, metrics }), visits and conversions (as tool:break-down-visits-and-sales takes them: { visitor, project?, signals: { utm_content, ..."
   ],
   "worked_examples": [
@@ -20,7 +20,7 @@
       "ask": "Show how each of this person's published posts did in each place it went: that place's own counts, the visitors its link brought and what they bought",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

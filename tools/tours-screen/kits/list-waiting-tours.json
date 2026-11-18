@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Show me the tours waiting to start by themselves, and which my show rules are holding\", and give it the records it works over: every input is optional.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:list-waiting-tours and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:list-waiting-tours and its input (the worked example shows one).",
     "3. Read what comes back: Every tour that would start by itself on an event (opening Trillion, by default), with the facts your show rules decide it over (reason, urgency, hours since one like it) and how your show-rules record leaves it now: held, the rules holding it (held_by) and until when.",
     "4. It has no records door and keeps nothing: it works over the records you hand in (own_tours, progress, show_rules), read from the store that holds them."
   ],
@@ -19,7 +19,7 @@
       "ask": "Show me the tours waiting to start by themselves, and which my show rules are holding",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

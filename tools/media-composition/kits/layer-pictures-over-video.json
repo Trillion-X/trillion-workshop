@@ -10,7 +10,7 @@
   "instructions": [
     "1. Find the identities in your files of the video and of each picture or b-roll clip (logo, photo, picture-in-picture).",
     "2. Say \"Lay this logo over the video\" with video and pictures, back to front: each is {file, start (seconds into the video), optional to, x and y (0 to 1, where its centre sits), size (its width as a share of the frame, default 0.3), opacity, fade_in, fade_out, kind, from, label}.",
-    "3. The AI calls run_resource_operation at @tools with method tools:run and tool tool:layer-pictures-over-video. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
+    "3. The AI calls do_one_thing_in_my_account at @tools with method tools:run and tool tool:layer-pictures-over-video. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
     "4. Read result (duration_seconds, bytes, pictures: how many were laid) and files.video, the new video in your files."
   ],
   "worked_examples": [
@@ -19,7 +19,7 @@
       "ask": "Put my logo in the top right from second 1 to 4.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

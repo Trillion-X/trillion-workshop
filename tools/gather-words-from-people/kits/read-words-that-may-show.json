@@ -157,7 +157,7 @@
       "ask": "Read the words on list:praise that I may show.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

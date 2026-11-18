@@ -6,7 +6,7 @@ operation names:
 
   transport         how each operation reaches the door:
                     { "kind": "mcp", "url": "<the door's MCP address>", "credential": { "keychain_item": "<name>" } | { "key_file": "<path>" } }:
-                      one JSON-RPC `tools/call` of `run_resource_operation` per operation, POSTed to the door, with the key the
+                      one JSON-RPC `tools/call` of `do_one_thing_in_my_account` per operation, POSTed to the door, with the key the
                       credential handle names as the Bearer token. The config names the handle, never the key: the key is read
                       from the computer's keychain (the `security` program) or from the key file the person names (any place)
                       when the door is opened, held in memory, sent only in the Authorization
@@ -186,7 +186,7 @@ class Door:
 
     def post(self, arguments: dict, method: str) -> dict:
         # UTF-8 and compact, so the request is the size command_bytes bounded (escaped non-ASCII would be up to six times bigger).
-        body = json.dumps({'jsonrpc': '2.0', 'id': self.steps, 'method': 'tools/call', 'params': {'name': 'run_resource_operation', 'arguments': arguments}},
+        body = json.dumps({'jsonrpc': '2.0', 'id': self.steps, 'method': 'tools/call', 'params': {'name': 'do_one_thing_in_my_account', 'arguments': arguments}},
                           ensure_ascii=False, separators=(',', ':')).encode('utf-8')
         request = urllib.request.Request(self.transport['url'], data=body, method='POST', headers={
             'Authorization': f'Bearer {self.key}', 'Content-Type': 'application/json',

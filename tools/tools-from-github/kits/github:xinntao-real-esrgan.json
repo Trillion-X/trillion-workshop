@@ -8,7 +8,7 @@
     "tool:github:xinntao-real-esrgan"
   ],
   "instructions": [
-    "1. Say to your AI: \"Use Real-ESRGAN on logo-small.png\". It reads the row with run_resource_operation at @tools, method tools:list, input {tool: \"tool:github:xinntao-real-esrgan\"}.",
+    "1. Say to your AI: \"Use Real-ESRGAN on logo-small.png\". It reads the row with do_one_thing_in_my_account at @tools, method tools:list, input {tool: \"tool:github:xinntao-real-esrgan\"}.",
     "2. It checks that nothing else is on your computer, and if Real-ESRGAN is missing it runs the get_it steps: git clone https://github.com/xinntao/Real-ESRGAN.git ; download realesrgan-ncnn-vulkan for your system from the repository's releases.",
     "3. It runs the row's command with your file in place of {input} and where the result goes in place of {output}: ./realesrgan-ncnn-vulkan -i logo-small.png -o logo-big.png -n realesrgan-x4plus",
     "4. Read what it shows you and open the result. Trillion runs none of this; it all happens on your own computer."
@@ -19,7 +19,7 @@
       "ask": "Use Real-ESRGAN on logo-small.png.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

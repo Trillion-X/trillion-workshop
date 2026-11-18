@@ -21,7 +21,7 @@
       "ask": "Run workflow:method-test-a-design-against-every-case: add a reorder button to a bakery's order history page.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

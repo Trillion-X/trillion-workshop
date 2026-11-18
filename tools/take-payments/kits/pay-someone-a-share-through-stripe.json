@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Pay a share of what I took on to a person I pay, out of my own Stripe balance\", and give it amount_cents; currency; destination; confirm_moves_money.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:pay-someone-a-share-through-stripe and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:pay-someone-a-share-through-stripe and its input (the worked example shows one).",
     "3. Read what comes back: This pays real money out."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Pay a share of what I took on to a person I pay, out of my own Stripe balance",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

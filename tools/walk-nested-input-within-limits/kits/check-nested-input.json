@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Check an untrusted nested value (an imported document, pasted rich text, list row values from an AI) before it is rendered or stored: refuse it in plain words when it is nested deeper than 100 levels, holds more than 100,000 values, or refers back to itself\", and give it value (The nested value to check).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:check-nested-input and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:check-nested-input and its input (the worked example shows one).",
     "3. Read what comes back: Give value (any JSON) and, optionally, limits ({ max_depth, max_nodes }) tighter than the defaults."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Check an untrusted nested value (an imported document, pasted rich text, list row values from an AI) before it is rendered or stored: refuse it in plain words when it is nested deeper than 100 levels, holds more than 100,000 values, or refers back to itself",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Recover an unknown usage charge by reading the exact provider invoice item without sending it again\", and give it seller_connection; report; provider_invoice_item_id.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:reconcile-resource-usage-report and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:reconcile-resource-usage-report and its input (the worked example shows one).",
     "3. Read what comes back: report_id; state; payer_id; currency; cash_amount; payment_state; report; cash; applied, as the worked example shows.",
     "4. It reads no rows and keeps nothing: it reads the one provider invoice item with your own Stripe key, sends nothing, and answers the next cash and applied state to keep."
   ],
@@ -19,7 +19,7 @@
       "ask": "Recover an unknown usage charge by reading the exact provider invoice item without sending it again",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

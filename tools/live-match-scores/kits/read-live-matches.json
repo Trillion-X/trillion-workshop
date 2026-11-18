@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Show the current score of live matches for the scorer and for spectators, and a board of matches with their schedule, bracket, standings and leaderboard\", and give it rows (The records, each as { payload } or the record itself).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:read-live-matches and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:read-live-matches and its input (the worked example shows one).",
     "3. Read what comes back: Give the records of the matches (match records, score events, context links and board rows) and get every match, newest first."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Show the current score of live matches for the scorer and for spectators, and a board of matches with their schedule, bracket, standings and leaderboard",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

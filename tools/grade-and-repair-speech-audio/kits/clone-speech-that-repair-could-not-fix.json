@@ -22,7 +22,7 @@
       "ask": "Re-voice the spans that repair could not fix, from the reference I picked.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

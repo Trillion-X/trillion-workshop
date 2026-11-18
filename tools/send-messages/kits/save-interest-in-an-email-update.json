@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Keep the consent of a person who asked for one email if a course becomes available, without sending anything\", and give it email; consent; course.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:save-interest-in-an-email-update and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:save-interest-in-an-email-update and its input (the worked example shows one).",
     "3. Read what comes back: Give email, consent (true only when the person agreed in the words of course.consent_text) and course ({ id, public_origin as an https site root, consent_text, consent_version, capture_only: true }) and source (optional). Works out the address's pending row with the words, version, time and source of the agreement and answers it in keep for the caller to write (records: the person's email-course-interest rows). Sends nothing, queues nothing; saving the same agreement again changes nothing. Answers { status: interest_saved, already_saved }.",
     "4. It keeps nothing and has no records door: it works over the rows you hand in (records) and answers the rows to keep (keep), each with the row it expected, for your AI to write to your store."
   ],
@@ -19,7 +19,7 @@
       "ask": "Keep the consent of a person who asked for one email if a course becomes available, without sending anything",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

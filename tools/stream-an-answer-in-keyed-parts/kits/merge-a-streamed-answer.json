@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Merge the events of a streamed answer into keyed parts: text that appends, sources and related questions as parts of their own, patches to parts already sent, and a snapshot to pick up an interrupted stream\", and give it events.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:merge-a-streamed-answer and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:merge-a-streamed-answer and its input (the worked example shows one).",
     "3. Read what comes back: Give events, each { seq, type, key?, ..."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Merge the events of a streamed answer into keyed parts: text that appends, sources and related questions as parts of their own, patches to parts already sent, and a snapshot to pick up an interrupted stream",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

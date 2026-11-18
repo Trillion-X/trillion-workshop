@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Sort the clips, recent files, formats, saved examples and prepared posts handed in into the named rows of inspiration cards, marking which clips can start a new edit\", and give it sources.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:sort-inspiration-clips-into-card-rows and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:sort-inspiration-clips-into-card-rows and its input (the worked example shows one).",
     "3. Read what comes back: Give sources: { source name: the answer it gives } for any of pick ({ pick: { clips, title?, reason?"
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Sort the clips, recent files, formats, saved examples and prepared posts handed in into the named rows of inspiration cards, marking which clips can start a new edit",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

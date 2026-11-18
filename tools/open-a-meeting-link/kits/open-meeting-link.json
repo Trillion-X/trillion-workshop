@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Have the meeting app installed on a Mac that has /usr/bin/open and the app registered for the link's scheme (for example zoommtg).",
-    "2. Say \"Open this meeting link\" with the link; your AI calls run_resource_operation at @tools with method tools:run, tool tool:open-meeting-link and input {link}. Use tool:read-meeting-link first if you only want to see what the link would do.",
+    "2. Say \"Open this meeting link\" with the link; your AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:open-meeting-link and input {link}. Use tool:read-meeting-link first if you only want to see what the link would do.",
     "3. Read the answer: opened true with route, action and redacted (the link with secret values hidden), or a refusal that says why the host, action or a parameter was not allowed; a refused link is never opened.",
     "4. Never paste the passcode into notes or logs: the answer shows the link only in redacted form."
   ],
@@ -20,7 +20,7 @@
       "ask": "Open this meeting link: zoommtg://zoom.us/join?confno=123456789&pwd=hunter2",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Plan how recording every camera and microphone without end is cut into clock-aligned pieces that line up across devices: when each input's pieces begin and end, what each is named, which day folder it goes in, and the list that ties them together\", and give it started_at; until; inputs.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:plan-clock-aligned-recording-pieces and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:plan-clock-aligned-recording-pieces and its input (the worked example shows one).",
     "3. Read what comes back: Give started_at and until (ISO times), segment_seconds (piece length, 300 when left out), folder (Recordings when left out), inputs ([{ label, kind: camera | microphone, extension?, with_sound?"
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Plan how recording every camera and microphone without end is cut into clock-aligned pieces that line up across devices: when each input's pieces begin and end, what each is named, which day folder it goes in, and the list that ties them together",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

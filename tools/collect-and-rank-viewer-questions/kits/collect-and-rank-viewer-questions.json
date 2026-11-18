@@ -128,7 +128,7 @@
       "ask": "Find the questions my viewers really ask in the posts and comments saved in ./viewer-questions.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

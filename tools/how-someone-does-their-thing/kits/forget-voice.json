@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Forget part of what is kept about how this person writes\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:forget-voice and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:forget-voice and its input (the worked example shows one).",
     "3. Read what comes back: Forgets one profile (profile_id from tool:read-voice), one edit (edit_id from tool:read-voice), or every edit (all_edits true, with kind to forget only one kind's).",
     "4. It reads and writes only its own rows through the records door: voice-profile (records:read, records:write); voice-edit (records:read, records:list, records:write)."
   ],
@@ -20,7 +20,7 @@
       "ask": "Forget part of what is kept about how this person writes",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

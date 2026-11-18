@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Connect your PostgREST service (a Supabase project is one) so a service connection such as service_connection:supabase holds its service key; the key is never part of the request.",
-    "2. Say which table and which rows; your AI calls run_resource_operation at @tools with method tools:run, tool tool:read-rows-from-a-rest-service and input {account_id, project_url, table, select, filters, order, limit, offset}.",
+    "2. Say which table and which rows; your AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:read-rows-from-a-rest-service and input {account_id, project_url, table, select, filters, order, limit, offset}.",
     "3. Read the answer {rows, count, total}: count is the rows in this page (limit at most 1000), total the whole table's matching rows when the service reports it; ask again with offset to read the next page.",
     "4. Filters are column to \"operator.value\" with eq, neq, gt, gte, lt, lte, like, ilike, is or in; a refused key (401 or 403) means connect the service again; the key goes only to a project under supabase.co."
   ],
@@ -19,7 +19,7 @@
       "ask": "Read the first 5 active rows of members in my project, columns id and name.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Hand one prompt (an issue, a task) to a coding AI app the person already has on their computer, such as Claude Code or Codex\", and give it app (The app's id from read-data/open-in-ai.json (for example claude-code or codex)); prompt (The prompt to open).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:open-in-ai and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:open-in-ai and its input (the worked example shows one).",
     "3. Read what comes back: Opens the prompt in the app named by `app`, one of the rows of read-data/open-in-ai.json (the rows are the allowlist; an app not in them is refused)."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Hand one prompt (an issue, a task) to a coding AI app the person already has on their computer, such as Claude Code or Codex",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

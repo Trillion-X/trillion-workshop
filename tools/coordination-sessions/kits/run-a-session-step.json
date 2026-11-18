@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Create, change, reschedule, fork, merge, cancel, supersede, confirm, close or ask feedback of a gathering I organize, keeping who came from where\", and give it operation (create, update, reschedule, fork, merge, cancel, supersede, confirm, record_no_show, close or request_feedback).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:run-a-session-step and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:run-a-session-step and its input (the worked example shows one).",
     "3. Read what comes back: Applies one named step to a coordination session and answers the next session (or, for supersede, the old one and its successor)."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Create, change, reschedule, fork, merge, cancel, supersede, confirm, close or ask feedback of a gathering I organize, keeping who came from where",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

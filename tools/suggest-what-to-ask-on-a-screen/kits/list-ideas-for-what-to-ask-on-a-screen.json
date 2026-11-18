@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Show the written ideas for what to ask an AI on one screen, each with the request a Do this for me button would hand over\", and give it screen.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:list-ideas-for-what-to-ask-on-a-screen and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:list-ideas-for-what-to-ask-on-a-screen and its input (the worked example shows one).",
     "3. Read what comes back: Give screen (a screen key: calendar, marketplace, home, files, spaces and the others in workspace/examples.json)."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Show the written ideas for what to ask an AI on one screen, each with the request a Do this for me button would hand over",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

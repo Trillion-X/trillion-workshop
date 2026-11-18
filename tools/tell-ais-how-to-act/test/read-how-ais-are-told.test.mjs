@@ -40,8 +40,8 @@ test('every fill record is used, every need is a fill, and no row writes the pro
 test('the first three rows fit in 512 characters', () => {
   const opening = instructionRows().slice(0, 3).map(item => item.text).join(' ');
   assert.ok(opening.length <= 512, `${opening.length} characters`);
-  assert.match(opening, /run_resource_operation/);
-  assert.match(opening, /run_resource_operation\(\{method,request_key,input\}\)/);
+  assert.match(opening, /do_one_thing_in_my_account/);
+  assert.match(opening, /do_one_thing_in_my_account\(\{method,request_key,input\}\)/);
   assert.match(opening, /tools:list.*tools:run.*secrets:put\/remove\/sign.*wake:\*.*sharing\.\*/);
   assert.match(opening, /address @own-records, method instructions:read/);
   assert.match(opening, /Old names.*not call IDs/);

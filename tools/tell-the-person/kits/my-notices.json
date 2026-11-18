@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"List what Trillion told this person, newest first: each notice with every way it went (sent, waiting its turn, turned off or unavailable) and the surface the person saw it on\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:my-notices and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:my-notices and its input (the worked example shows one).",
     "3. Read what comes back: Optional limit (up to 100, default 20) and kind (only notices of that kind, such as take-me-there).",
     "4. It reads and writes only its own rows through the records door: told-the-person (records:list)."
   ],
@@ -19,7 +19,7 @@
       "ask": "List what Trillion told this person, newest first: each notice with every way it went (sent, waiting its turn, turned off or unavailable) and the surface the person saw it on",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

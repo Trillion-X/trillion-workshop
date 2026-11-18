@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Answer the Media page: check an edit of my recordings and answer it\", and give it path (The page route after /work/api: /media/edit); method.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:answer-the-media-page and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:answer-the-media-page and its input (the worked example shows one).",
     "3. Read what comes back: The Media page's routes, answered by old trillion's src/work-media.mjs handleWorkMedia: GET /media/edit?id= answers the `edit` handed in (null when none); POST /media/edit { id, title, clips, ratio?, captions?, textOverlays?, edl?, panels?, file?",
     "4. It reads none of the person's things: the edit comes in the request, and the files it used come back as file_uses, for the AI to record on the person's Recent."
   ],
@@ -19,7 +19,7 @@
       "ask": "Answer the Media page: check an edit of my recordings and answer it",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -13,7 +13,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Send one of the person's approved posts to one of their accounts at a place once its time has come, and answer where it went as the post to keep\", and give it post_id (A post_id from tool:draft-a-post or tool:read-post-calendar); place (The place to send to: the slug of a row of read-data/post-places.json (its id without post-place:).); account_id (One of the post's destinations).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:send-a-post and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:send-a-post and its input (the worked example shows one).",
     "3. Read what comes back: Give post_id (an approved or scheduled post whose time has come), place (the slug of one of the places in read-data/post-places.json, as tool:list-post-destinations names them) and account_id (one of the post's destinations: a connection of that place's kind, service_connection:<vendor> or service_connection:<vendor>:<account>).",
     "4. It is given only these rows of the person's, read by the AI from the person's own store: post (reads); connection (reads)."
   ],
@@ -23,7 +23,7 @@
       "ask": "Send one of the person's approved posts to one of their accounts at a place once its time has come, and answer where it went as the post to keep",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

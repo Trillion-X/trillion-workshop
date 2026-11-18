@@ -15,7 +15,7 @@
     {
       "title": "Two edit plans become one spans file",
       "ask": "Make the spans file from my two edit plans.",
-      "mcp": {"server": "{cli}", "tool": "run_resource_operation", "input": {"address": "@tools", "method": "tools:list", "input": {"tool": "tool:list-the-speech-in-my-edit-plans-to-grade"}}},
+      "mcp": {"server": "{cli}", "tool": "do_one_thing_in_my_account", "input": {"address": "@tools", "method": "tools:list", "input": {"tool": "tool:list-the-speech-in-my-edit-plans-to-grade"}}},
       "given": "A plans folder /Work/demo/plans with two edit plans and a word file <clip>.words.json for each clip in /Work/demo/words.",
       "hands_back": "The last line printed: {\"result\": {\"spans\": \"/Work/demo/spans.json\", \"count\": <cuts>, \"plans\": 2}} (draft: the count of a real run is not yet put in)."
     }

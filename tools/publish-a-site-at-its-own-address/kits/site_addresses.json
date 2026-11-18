@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"List the addresses my published websites answer at\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:site_addresses and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:site_addresses and its input (the worked example shows one).",
     "3. Read what comes back: Every address your sites answer at: each host, its https address, the installation it shows, and for an earlier name the address it sends visitors on to.",
     "4. It reads and writes only its own rows through the records door: undefined (list_files, find_file, read_file)."
   ],
@@ -19,7 +19,7 @@
       "ask": "List the addresses my published websites answer at",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

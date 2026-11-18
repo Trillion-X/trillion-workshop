@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Send a text message, to one number or a list, through the text provider I connected\", and give it provider; from; account_sid.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:send-a-text and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:send-a-text and its input (the worked example shows one).",
     "3. Read what comes back: Give recipients (phone numbers with country code; to for one), provider (the id of the text provider row in read-data/message-providers.json that the person's text connection is), the settings that row asks for (for twilio-sms: from, a number on the account, and account_sid, the account's id) and text (or subject when there is no text)."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Send a text message, to one number or a list, through the text provider I connected",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

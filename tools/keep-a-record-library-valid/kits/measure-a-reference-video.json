@@ -19,7 +19,7 @@
       "ask": "Measure ref/launch-teaser.mp4 so I can learn from it.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

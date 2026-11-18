@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Keep what a list of mine says true: set it up for review (an owner, a review state and a check-again date on each row, and views of what needs review), and mark rows verified, outdated or asking to be checked, or name their owner\", and give it list_id; row_kind (The record kind of the list's rows: record:<the list's row_type>); action.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:review-rows-of-a-list and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:review-rows-of-a-list and its input (the worked example shows one).",
     "3. Read what comes back: Give list_id (one of the person's lists), row_kind (record:<its row_type>, the records its rows are) and action.",
     "4. It reads and writes only its own rows through the records door: list (records:read, records:write); [object Object] (records:read, records:list, records:write)."
   ],
@@ -19,7 +19,7 @@
       "ask": "Keep what a list of mine says true: set it up for review (an owner, a review state and a check-again date on each row, and views of what needs review), and mark rows verified, outdated or asking to be checked, or name their owner",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

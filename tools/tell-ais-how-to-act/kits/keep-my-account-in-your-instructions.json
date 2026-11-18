@@ -19,7 +19,7 @@
       "ask": "Put Trillion's standing instructions into ChatGPT for me.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {
@@ -35,7 +35,7 @@
       "ask": "Is Trillion in my Codex instructions yet?",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

@@ -233,7 +233,7 @@
   ],
   "instructions": [
     "1. Pour the example tasks into the task list you already keep (see pour), or let the first call make list:calendar-tasks for you: a read makes the calendar's starting lists once when they are missing and keeps no task.",
-    "2. Say what you want done on the calendar; your AI calls run_resource_operation at @tools with method tools:run, tool tool:answer-the-calendar-page-route and input {path, method, query, body}: GET /calendar reads the sources, GET and POST /calendar/tasks read and change tasks (action create, schedule, complete and the others the owner knows).",
+    "2. Say what you want done on the calendar; your AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:answer-the-calendar-page-route and input {path, method, query, body}: GET /calendar reads the sources, GET and POST /calendar/tasks read and change tasks (action create, schedule, complete and the others the owner knows).",
     "3. Read the answer {status, body}: 200 with the owner's body (the task and an undo for a create, the tasks list for a read), or the owner's refusal in its words with its status; every write is conditional on what was read, so a record changed meanwhile is never written over.",
     "4. /calendar/actions and /calendar/availability answer 404 here; sources only another route or a connected calendar tool can read (meetings, posts) are said unread in the calendar's own words."
   ],
@@ -243,7 +243,7 @@
       "ask": "Add a 15 minute task called Water the sample ferns to my calendar, then list my tasks.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -19,7 +19,7 @@
       "ask": "Check that clips/flat.mp4 moves as much as clips/reference.mp4, end card at 5 seconds.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

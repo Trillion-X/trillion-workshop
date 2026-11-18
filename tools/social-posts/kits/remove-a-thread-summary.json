@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Remove the summary kept of this conversation\", and give it conversation_id (The conversation's id, as the messages it is in show it).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:remove-a-thread-summary and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:remove-a-thread-summary and its input (the worked example shows one).",
     "3. Read what comes back: Give conversation_id (and app).",
     "4. It reads and writes only its own rows through the records door: thread-summary (records:read, records:list, records:write)."
   ],
@@ -19,7 +19,7 @@
       "ask": "Remove the summary kept of this conversation",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

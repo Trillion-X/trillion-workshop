@@ -124,7 +124,7 @@
       "ask": "Check every claim in my three shots against my facts and sources.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

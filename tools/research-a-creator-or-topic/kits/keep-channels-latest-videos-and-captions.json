@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"List the newest videos of each channel, tab or playlist I name and keep each new video's captions with the times they are said, its description and, if I ask, its top comments, without downloading any video\", and give it seeds (Channels (@handle, channel id or link), links to a channel's tab, or playlist links; or { seed, id, newest }: id is the row this seed updates when rows are one per seed (no rows.id needed when every seed has one), newest is how many of this seed's videos to keep); newest (How many of each seed's newest videos to keep; left out only when every seed carries its own newest); caption_languages (Caption languages in the order wanted, as the site writes them (* for any ending, for example en.*)).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:keep-channels-latest-videos-and-captions and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:keep-channels-latest-videos-and-captions and its input (the worked example shows one).",
     "3. Read what comes back: For each seed (a channel's @handle, id or link, a link to one of its tabs such as /shorts, or a playlist link) lists the newest `newest` videos with yt-dlp on this computer, then fetches the captions (in the first of caption_languages the video has; json3, else WebVTT), the site's description and, with also [\"comments\"], the top comments_per_video comments of every listed video not in skip_ids.",
     "4. It reads and keeps nothing: it works from your request and answers its whole result; you keep any row it answers."
   ],
@@ -19,7 +19,7 @@
       "ask": "List the newest videos of each channel, tab or playlist I name and keep each new video's captions with the times they are said, its description and, if I ask, its top comments, without downloading any video",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Get my question classifier model ready to run on my Mac\", and give it model (The model's value, read from your list: `classifier` names the family (questions-first-decider) and `weights` says where its weights are ({\"folder\": a folder on this Mac} or {\"hugging_face\": {\"repo\", \"revision\"}} with a pinned revision).).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:get-a-classifier-ready-on-this-mac and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:get-a-classifier-ready-on-this-mac and its input (the worked example shows one).",
     "3. Read what comes back: {\"result\": {\"classifier\", \"identity\", \"files\": [{\"name\", \"bytes\", \"blake3\"}], \"ready\"}} or {\"error\": \"what to change\"}.",
     "4. It reads and writes nothing in your records; its answer is the whole result."
   ],
@@ -19,7 +19,7 @@
       "ask": "Get my question classifier model ready to run on my Mac",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

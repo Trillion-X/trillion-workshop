@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Ask a command-line MCP server one request the way the web gateway answers a caller with no session: start it in a working folder of its own, initialize it, ask, and stop it\", and give it cli; request.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:ask-a-command-line-mcp-server-once and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:ask-a-command-line-mcp-server-once and its input (the worked example shows one).",
     "3. Read what comes back: Makes the gateway (do-work/gateway.mjs createGateway) for the one stdio MCP server the input names (cli, args, env) and hands it one POST /<app>/mcp with no session id, in this process: no port is opened."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Ask a command-line MCP server one request the way the web gateway answers a caller with no session: start it in a working folder of its own, initialize it, ask, and stop it",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

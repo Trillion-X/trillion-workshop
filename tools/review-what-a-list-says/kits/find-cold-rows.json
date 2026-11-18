@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"List the rows of a list that nobody uses any more, so they can be cleaned up, leaving out rows a person verified and whose review is still current\", and give it list; rows.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:find-cold-rows and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:find-cold-rows and its input (the worked example shows one).",
     "3. Read what comes back: Give list ({ id, title_field, fields }), rows ([{ id, title, values }]) and heats ({ <row id>: { heat, at } }, the use-heat records kept for the rows)."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "List the rows of a list that nobody uses any more, so they can be cleaned up, leaving out rows a person verified and whose review is still current",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

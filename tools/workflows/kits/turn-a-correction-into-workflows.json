@@ -22,7 +22,7 @@
       "ask": "Here is my correction: you wrote the reply in a hurry and never checked it against my saved replies, and you left the price out of every one.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

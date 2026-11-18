@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Work out a booking's new record for confirming, cancelling, completing or marking a no-show, only in the ways a booking may move\", and give it booking (the record to move); to (The new status, like confirmed or cancelled).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:change-a-booking-status and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:change-a-booking-status and its input (the worked example shows one).",
     "3. Read what comes back: Answers the booking record moved to a new status: waiting bookings can be confirmed or cancelled, a confirmed one can be completed, marked no-show or cancelled, and a finished one never moves."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Work out a booking's new record for confirming, cancelling, completing or marking a no-show, only in the ways a booking may move",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Remove one of my saved snippets\", and give it snippet_id (A snippet_id from tool:find-snippets).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:remove-a-snippet and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:remove-a-snippet and its input (the worked example shows one).",
     "3. Read what comes back: Give snippet_id (from tool:find-snippets).",
     "4. It reads and writes only its own rows through the records door: snippet (records:read, records:list, records:write)."
   ],
@@ -20,7 +20,7 @@
       "ask": "Remove one of my saved snippets",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

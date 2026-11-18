@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Ask an owner to run an action with what a form, a check or a person supplied, once\", and give it action; context.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:hand-a-request-to-its-owner and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:hand-a-request-to-its-owner and its input (the worked example shows one).",
     "3. Read what comes back: action names the owner and what is asked: owner, action_ref (or action_refs, one request each), optionally id, a fixed input, and copy rows { key, from } or { key, value } where from reads request.<field>, answers.<field> or fields.<field> of the context.",
     "4. It reads and writes only its own rows through the records door: owner-action-request (records:read, records:write)."
   ],
@@ -19,7 +19,7 @@
       "ask": "Ask an owner to run an action with what a form, a check or a person supplied, once",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

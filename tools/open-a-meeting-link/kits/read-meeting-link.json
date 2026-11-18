@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Read a meeting link through the declared meeting-app routes: which app it is for, what it asks (join, start, schedule, launch) and its parameters, with the host checked first and secret parameters hidden\", and give it link (A meeting link: a deep link (such as zoommtg://...) or a web address).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:read-meeting-link and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:read-meeting-link and its input (the worked example shows one).",
     "3. Read what comes back: Give link."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Read a meeting link through the declared meeting-app routes: which app it is for, what it asks (join, start, schedule, launch) and its parameters, with the host checked first and secret parameters hidden",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

@@ -26,7 +26,7 @@
       "ask": "Print 40 copies of menu-poster.pdf at 11 x 17 on my way to Sample Avenue.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

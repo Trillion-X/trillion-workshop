@@ -10,7 +10,7 @@
   "instructions": [
     "1. Find your video's identity in your files (find_file or list_files): 1f: then 64 hex.",
     "2. Say \"Find the action moments in this video\" with that identity. Add from and to (seconds) to search only one stretch, and count (1 to 50, default 5) for how many moments you want.",
-    "3. The AI calls run_resource_operation at @tools with method tools:run and tool tool:find-action-moments. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
+    "3. The AI calls do_one_thing_in_my_account at @tools with method tools:run and tool tool:find-action-moments. The door runs it in a container and answers {\"result\": {...}}; an error comes back as {\"error\": \"what to change\"}.",
     "4. Read result.moments (each has time, strength 0 to 1, sound, motion) and result.best.time, the single strongest moment; hand those times to a cut or slow-motion tool such as tool:change-speed-over-a-range."
   ],
   "worked_examples": [
@@ -19,7 +19,7 @@
       "ask": "Find the three strongest moments in my rally video.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {
@@ -39,7 +39,7 @@
       "ask": "Find the two best moments between 10 and 26 seconds.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

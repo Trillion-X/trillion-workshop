@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Lay out one person's profile page from their record: name, fields with values, related lists such as their activity or deals, and the actions that apply\", and give it layout (What the profile shows); sources (The records the layout reads, by name, like {\"record\": {...}, \"activity\": {...}}).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:lay-out-a-profile and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:lay-out-a-profile and its input (the worked example shows one).",
     "3. Read what comes back: Give layout (what the profile shows: surfaceId; identity {titlePath, subtitlePath, fallbackTitle}; fields [{id, label, sourceId, valuePath, fallbackValue, editable, visibleWhen}]; relationships [{id, label, sourceId, itemPath, fields [{key, path}], emptyLabel}]; actions [{id, label, enabled, intent, visibleWhen}]) and sources (the records it reads by name; record is read when a field names none)."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Lay out one person's profile page from their record: name, fields with values, related lists such as their activity or deals, and the actions that apply",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

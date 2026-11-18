@@ -14,7 +14,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Gather what my account's setup is made of and draw the Get started screen from it\", and give it account_id (The page's own account).",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:read-setup and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:read-setup and its input (the worked example shows one).",
     "3. Read what comes back: The one read of the Get started screen (tool:get-started).",
     "4. It is given only these rows of the person's, read by the AI from the person's own store: the setting show-rules (reads); the setting setup-context (reads)."
   ],
@@ -24,7 +24,7 @@
       "ask": "Gather what my account's setup is made of and draw the Get started screen from it",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

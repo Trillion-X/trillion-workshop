@@ -21,7 +21,7 @@
   "account_host": "127.0.0.1",
   "account_path": "/mcp",
   "protocol_version": "2025-06-18",
-  "tool": "run_resource_operation",
+  "tool": "do_one_thing_in_my_account",
   "most_executions": 100
  },
  "session": {

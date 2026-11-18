@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"List the people my voice and face prints can name, without their voice or face numbers\", and give it nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:people-listening-can-name and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:people-listening-can-name and its input (the worked example shows one).",
     "3. Read what comes back: Reads the person's voice-print and face-print records on this computer and lists each person once: their name, whether they are the person, how many voice and face samples they have and the consent words they gave.",
     "4. It reads and writes only its own rows through the records door: voice-print (records:list); face-print (records:list)."
   ],
@@ -19,7 +19,7 @@
       "ask": "List the people my voice and face prints can name, without their voice or face numbers",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

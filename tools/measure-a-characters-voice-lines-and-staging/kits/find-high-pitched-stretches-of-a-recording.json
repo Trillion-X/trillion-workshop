@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Clone the repository https://github.com/Trillion-X/trillion-workshop and check the needs listed on the row (python 3 and its libraries, ffmpeg where named).",
-    "2. Your AI reads the row with run_resource_operation at @tools, method tools:list and input {\"tool\":\"tool:find-high-pitched-stretches-of-a-recording\"}, saves your settings row (records:read record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>) to a file and puts it in the request as settings_record, or passes settings.",
+    "2. Your AI reads the row with do_one_thing_in_my_account at @tools, method tools:list and input {\"tool\":\"tool:find-high-pitched-stretches-of-a-recording\"}, saves your settings row (records:read record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>) to a file and puts it in the request as settings_record, or passes settings.",
     "3. It runs: python3 -I trillion-workshop/tools/measure-a-characters-voice-lines-and-staging/do-work/find_voice_by_pitch.py < REQUEST.json. REQUEST.json holds audio (one recording), out_dir and your band as settings or settings_record.",
     "4. Run show/show_runs.py <out_dir>/<id>.json <captions.json3> to see each run with its caption words, then say which runs are the character; pitch alone also catches every other high voice, so use tool:find-when-a-character-speaks to tell them apart."
   ],
@@ -20,7 +20,7 @@
       "ask": "Find the high-pitched stretches in vid-a.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

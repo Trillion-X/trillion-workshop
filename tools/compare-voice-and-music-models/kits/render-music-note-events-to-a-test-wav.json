@@ -19,7 +19,7 @@
       "ask": "Turn these note events into a WAV I can measure.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

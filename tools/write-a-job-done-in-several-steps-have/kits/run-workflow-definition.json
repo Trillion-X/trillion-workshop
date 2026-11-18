@@ -19,7 +19,7 @@
       "ask": "Run my bake recipe with allowed flours rye and wheat.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {
@@ -45,7 +45,7 @@
       "ask": "Go on with flours rye and sawdust, and the bake done.",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

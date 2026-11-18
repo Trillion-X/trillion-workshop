@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Find how two of the person's records connect through relations and things that happened, or what several records all relate to and who else shares it\", and give it records (your relation and activity rows); nothing more: every input is optional.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:find-how-records-connect and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:find-how-records-connect and its input (the worked example shows one).",
     "3. Read what comes back: With from and to: the paths between them, shortest first, each at most max_length steps (default 4, at most 6), each step one relation or one record to an activity it took part in, with the relation or activity it goes through and the role.",
     "4. It reads and keeps nothing: it works from the rows in your request and answers its whole result."
   ],
@@ -19,7 +19,7 @@
       "ask": "Find how two of the person's records connect through relations and things that happened, or what several records all relate to and who else shares it",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

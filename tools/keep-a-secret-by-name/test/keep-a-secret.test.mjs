@@ -25,7 +25,7 @@ test('a secret goes to secrets:put in the request body, under its name, and the 
   assert.deepEqual(answer, { name: 'synthetic-push-secret', accepted: true });
   const [sent] = bodies;
   const call = sent.params.arguments;
-  assert.equal(sent.params.name, 'run_resource_operation');
+  assert.equal(sent.params.name, 'do_one_thing_in_my_account');
   assert.equal(call.address, '@secrets');
   assert.equal(call.method, 'secrets:put');
   assert.deepEqual(call.input, { name: 'synthetic-push-secret', value: 'synthetic-value-7f3a' });

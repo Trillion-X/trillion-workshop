@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Make a test subscription in Stripe test mode and open its billing page, to see the billing page comes back before a real buyer needs it\", and give it product_name; amount_cents; return_url.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:rehearse-a-billing-page-in-stripe-test-mode and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:rehearse-a-billing-page-in-stripe-test-mode and its input (the worked example shows one).",
     "3. Read what comes back: Give product_name, amount_cents and return_url (an https address the billing page returns to)."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Make a test subscription in Stripe test mode and open its billing page, to see the billing page comes back before a real buyer needs it",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

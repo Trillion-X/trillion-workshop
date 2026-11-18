@@ -10,7 +10,7 @@
   ],
   "instructions": [
     "1. Connect your mail account in your Workshop connections and note its handle, like service_connection:google-account:sam-bakery; the provider is the id in read-data/mail-providers.json that account is on (gmail for it).",
-    "2. Say to your AI: \"Which addresses can I send as?\" and let it call run_resource_operation at @tools with method tools:run, tool tool:list-send-as-addresses and the input {\"provider\":\"gmail\",\"connection\":{\"connection_id\":\"service_connection:google-account:sam-bakery\"}}.",
+    "2. Say to your AI: \"Which addresses can I send as?\" and let it call do_one_thing_in_my_account at @tools with method tools:run, tool tool:list-send-as-addresses and the input {\"provider\":\"gmail\",\"connection\":{\"connection_id\":\"service_connection:google-account:sam-bakery\"}}.",
     "3. Read what comes back: each address, whether it is primary, and the signature held for it.",
     "4. A provider that does not offer the job says so in words and nothing is sent."
   ],
@@ -20,7 +20,7 @@
       "ask": "Which addresses can I send as?",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {

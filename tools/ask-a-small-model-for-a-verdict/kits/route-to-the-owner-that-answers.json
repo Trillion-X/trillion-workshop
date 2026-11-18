@@ -19,7 +19,7 @@
       "ask": "Where do I look for who sells flour near the shop?",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:list",
           "input": {

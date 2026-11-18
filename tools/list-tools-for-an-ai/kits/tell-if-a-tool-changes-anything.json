@@ -9,7 +9,7 @@
   ],
   "instructions": [
     "1. Say to your AI: \"Tell whether a tool only reads or changes things, from its own operation name\", and give it tool.",
-    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:tell-if-a-tool-changes-anything and its input (the worked example shows one).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:tell-if-a-tool-changes-anything and its input (the worked example shows one).",
     "3. Read what comes back: Give tool (a tool descriptor: id, and optionally read_only and invoke.action)."
   ],
   "worked_examples": [
@@ -18,7 +18,7 @@
       "ask": "Tell whether a tool only reads or changes things, from its own operation name",
       "mcp": {
         "server": "{cli}",
-        "tool": "run_resource_operation",
+        "tool": "do_one_thing_in_my_account",
         "input": {
           "method": "tools:run",
           "input": {
