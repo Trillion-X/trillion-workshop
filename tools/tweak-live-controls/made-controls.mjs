@@ -30,6 +30,8 @@
 //       commit: { label, busy_label, done_label }, result: { file: "<output path to the kept file>" } }
 
 import { failureOf } from './failure.mjs';
+import { holds } from '../ui/show/view-of-a-value/project.mjs';
+import controlRules from './control-rules.json' with { type: 'json' };
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const withoutDefaults = value => Array.isArray(value) ? value.map(withoutDefaults) : object(value) ? Object.fromEntries(Object.entries(value).filter(([key]) => key !== 'default').map(([key, one]) => [key, withoutDefaults(one)])) : value;
@@ -130,26 +132,44 @@ export function requiredControlSubjects(rows) {
   return rows.subject.filter(name => required.has(name));
 }
 
-/** One control row from one input schema property, or null when a person cannot set it by hand. */
-function derivedRow(name, field) {
+/** The facts of one input's schema that control-rules.json rows name. */
+function fieldFacts(field) {
   const types = typesOf(field);
-  const base = { key: name, label: text(field?.title) || words(name) };
-  if ((types.includes('number') || types.includes('integer')) && Number.isFinite(field.minimum) && Number.isFinite(field.maximum)) {
-    const span = field.maximum - field.minimum;
-    const step = types.includes('integer') ? 1 : Math.pow(10, Math.floor(Math.log10(span / 100 || 1)));
-    return { ...base, widget: 'slider', integer: types.includes('integer'), ...(Array.isArray(field.enum) ? { options: field.enum.map(value => ({ value: String(value), label: words(String(value)) })) } : {}), min: field.minimum, max: field.maximum, step, ...(field.default !== undefined ? { default_value: field.default } : {}) };
-  }
-  if (types.includes('number') || types.includes('integer')) return { ...base, widget: 'number', integer: types.includes('integer'), ...(Array.isArray(field.enum) ? { options: field.enum.map(value => ({ value: String(value), label: words(String(value)) })) } : {}), ...(Number.isFinite(field.minimum) ? { min: field.minimum } : {}), ...(Number.isFinite(field.maximum) ? { max: field.maximum } : {}) };
-  if (types.includes('boolean')) return { ...base, widget: 'toggle', default_value: field.default ?? false };
-  if (Array.isArray(field?.enum) && field.enum.length) return { ...base, widget: field.enum.length <= 6 ? 'choices' : 'select', options: field.enum.filter(value => value !== null).map(value => ({ value: String(value), label: words(String(value)) })) };
-  if (types.includes('array') && Array.isArray(field?.items?.enum)) return {
-    ...base,
-    widget: 'many',
-    options: field.items.enum.map(value => ({ value: String(value), label: words(String(value)) })),
-    ...(Array.isArray(field.default) ? { default_value: field.default.map(value => String(value)) } : {}),
+  const choices = Array.isArray(field?.enum) ? field.enum : [];
+  return {
+    numeric: types.includes('number') || types.includes('integer'),
+    integer: types.includes('integer'),
+    has_range: Number.isFinite(field?.minimum) && Number.isFinite(field?.maximum),
+    has_enum: choices.length > 0,
+    enum_count: choices.length,
+    boolean: types.includes('boolean'),
+    items_enum: types.includes('array') && Array.isArray(field?.items?.enum),
+    words: types.includes('string') || (Array.isArray(field?.anyOf) && field.anyOf.some(one => typesOf(one).includes('string'))),
   };
-  if (types.includes('string') || Array.isArray(field?.anyOf) && field.anyOf.some(one => typesOf(one).includes('string'))) return { ...base, widget: 'words' };
-  return null;
+}
+
+const choicesOf = list => list.filter(value => value !== null).map(value => ({ value: String(value), label: words(String(value)) }));
+
+/** What one name of a rule's `with` adds to the row (control-rules.json). */
+const CARRIED = {
+  integer: (field, facts) => ({ integer: facts.integer }),
+  options: field => (Array.isArray(field.enum) ? { options: choicesOf(field.enum) } : {}),
+  item_options: field => ({ options: choicesOf(field.items.enum) }),
+  range: field => ({ ...(Number.isFinite(field.minimum) ? { min: field.minimum } : {}), ...(Number.isFinite(field.maximum) ? { max: field.maximum } : {}) }),
+  step: (field, facts) => ({ step: facts.integer ? 1 : Math.pow(10, Math.floor(Math.log10((field.maximum - field.minimum) / 100 || 1))) }),
+  default: field => (field.default !== undefined ? { default_value: Array.isArray(field.default) ? field.default.map(value => String(value)) : field.default } : {}),
+  default_or_false: field => ({ default_value: field.default ?? false }),
+};
+
+/** One control row from one input schema property, or null when a person cannot set it by hand: the widget is the first
+ * row of control-rules.json whose facts hold. */
+function derivedRow(name, field) {
+  const facts = fieldFacts(field);
+  const rule = controlRules.rules.find(one => holds(one.when, facts));
+  if (!rule) return null;
+  const row = { key: name, label: text(field?.title) || words(name), widget: rule.widget };
+  for (const carried of rule.with) Object.assign(row, CARRIED[carried](field, facts));
+  return row;
 }
 
 /**
