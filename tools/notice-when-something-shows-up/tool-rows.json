@@ -399,11 +399,12 @@
                       "op",
                       "at",
                       "txid",
-                      "position"
+                      "position",
+                      "connection"
                     ]
                   },
                   "candidate_identity_feed": null,
-                  "why": "Each change of a table the person's AI attached record_row_change() to, in the database whose connection the person keeps under watched-database-connection (made by workflow:make-a-database-for-each-pursuit), told once in commit order. A tool hears it with a wake {fact: {kind: row-changes, from: [run], match: {table_name}}}."
+                  "why": "Each change of a table the person's AI attached record_row_change() to, in the database whose connection the person keeps under watched-database-connection (made by workflow:make-a-database-for-each-pursuit), told once in commit order. The fact names where the change is, never the row: the engine admits at most 8 text fields of 1,024 bytes each, so a reader takes before and after from the change table at `position`, through the vault name in `connection`. A tool hears it with a wake {fact: {kind: row-changes, from: [run], match: {table_name}}}."
                 }
               ]
             }

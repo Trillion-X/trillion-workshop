@@ -336,8 +336,10 @@ export function selectPayload(changeKind, payloadFields, scope) {
 /** Assemble the value scope one transition makes available to a projection.
  *
  *  Owner fields are written last so a mechanism can never shadow one even if
- *  the contract check above were somehow bypassed. */
-export function buildScope(declared, transition, { observedAt, sequence, matched }) {
+ *  the contract check above were somehow bypassed. `connection` is the vault
+ *  name the run was given for what it watches (null when none), so a fact can
+ *  name where a reader finds what the fact is too small to carry. */
+export function buildScope(declared, transition, { observedAt, sequence, matched, connection = null }) {
   return {
     ...(transition?.detail ?? {}),
     waiter_ref: declared.waiter_ref,
@@ -346,6 +348,7 @@ export function buildScope(declared, transition, { observedAt, sequence, matched
     observed_identity: transition?.observed_identity ?? {},
     matched_source_refs: matched,
     sequence,
+    connection,
   };
 }
 
@@ -481,6 +484,7 @@ export async function runResidentEmitter({
   signal,
   nowMs = () => Date.now(),
   onRefusal,
+  connection = null,
 } = {}) {
   const waiterPathLabels = (env.BITFIELD_ARRIVAL_WAITER_PATH
     || "packages,notice-when-something-shows-up,waiter-descriptor")
@@ -514,6 +518,7 @@ export async function runResidentEmitter({
       resolved,
       signal,
       nowMs,
+      connection,
       onWriteOutcome(ok) {
         if (ok) consecutiveFailures = 0;
         else consecutiveFailures += 1;
@@ -575,7 +580,7 @@ async function recordRefusal(carrier, row, error, nowMs) {
   }
 }
 
-async function startWaiter({ carrier, resolved, signal, nowMs, onWriteOutcome }) {
+async function startWaiter({ carrier, resolved, signal, nowMs, onWriteOutcome, connection }) {
   const { declared, mechanism } = resolved;
   const emitted = declared.emitted_record;
 
@@ -616,7 +621,7 @@ async function startWaiter({ carrier, resolved, signal, nowMs, onWriteOutcome })
     async onTransition(transition) {
       const observedAt = nextObservedAt(nowMs(), previousObservedAt);
       const matched = matchedSourceRefs(transition?.observed_identity, candidates);
-      const scope = buildScope(declared, transition, { observedAt, sequence, matched });
+      const scope = buildScope(declared, transition, { observedAt, sequence, matched, connection });
       let payload;
       try {
         payload = selectPayload(emitted.change_kind, emitted.payload_fields, scope);

@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:8377d33cd2f5cfa9bf3b16b6a790f361d45a990576a845f4a273bacddfadde5e"
+  "blake3": "1f:6078f2df9f7720737510de3559c99a12107e7b4ab2ddc37ecea7978988dd5fe0"
  },
  "fields": [
   {
@@ -3436,22 +3436,6 @@
      "placement:small-container"
     ],
     "folder": "train-and-evaluate-a-writing-voice-classifier"
-   }
-  },
-  {
-   "id": "tool:evaluate-rules-over-records",
-   "values": {
-    "title": "Check rules against changed records (trigger engine)",
-    "job": "Trigger engine: when something happens to a record (it is added, changed or removed) and a rule's condition holds, say what the rule sends, and to which tool, workflow or target, for every matching rule",
-    "description": "Give rules (each with a match_condition over the changed record, read as change.<field> and envelope.address_text, and a dispatch: target plus output_template) and the records that changed ({address, path?, value} or {address, removed: true}). Returns fires: every send the rules made, with its target and the payload filled from the record, plus the engine's outcome records and any failures. Rules only see changes given after them, so a rule never fires for the past. Nothing is sent; the caller runs each fire.",
-    "status": "active",
-    "maker": "maker:trillion",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "listed_on": "2026-09-28T17:54:38Z",
-    "folder": "run-my-rules-over-the-records-that-changed-and-send"
    }
   },
   {

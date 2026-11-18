@@ -156,7 +156,9 @@ if (startedAsProgram) {
     if (Number.isFinite(seconds) && seconds > 0) setTimeout(() => controller.abort(), seconds * 1000);
     // Its own lines are each fact told; with for_seconds the last line is the whole answer.
     const carrier = engineCarrier({ door: readDoor(), waiters, keep: keptFolderOf(), say: line => process.stderr.write(`${line}\n`) });
-    await runResidentEmitter({ carrier, signal: controller.signal });
+    // The vault name the run reads its watched thing with; a fact may name it so a reader fetches what the fact cannot hold.
+    const connection = typeof input.credential_name === 'string' && input.credential_name ? input.credential_name : null;
+    await runResidentEmitter({ carrier, signal: controller.signal, connection });
     console.log(JSON.stringify({ result: carrier.answer }));
   } catch (error) {
     console.log(JSON.stringify({ error: error.message }));
