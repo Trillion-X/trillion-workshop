@@ -73,8 +73,10 @@ export interface RecurringMaterializationInput {
   // Bounded defence against an untrusted historical schedule with every previous
   // occurrence proven. The reducer fails closed instead of doing unbounded work.
   readonly max_calendar_scan_days?: number;
-  // The current instant. A schedule that repeats within the day passes over an unproven time whose next time has
-  // also already come, so a schedule that was asleep runs once on waking instead of once for every time it missed.
+  // The current instant. Every schedule passes over an unproven time whose next time has also already come, so a
+  // schedule that was asleep runs once on waking, for its latest time, instead of once for every time it missed; that
+  // occurrence's missed_before counts the times passed over since missed_since (the first one counted: the scan bound
+  // keeps the count to the last max_calendar_scan_days before now).
   readonly now_ms?: number;
   // Nothing starting before this instant is due or needs a state: those occurrences count as passed. A caller that
   // keeps only the states at or after the last occurrence it proved (and moves this to that occurrence's start) holds
@@ -239,9 +241,14 @@ export function materializeRecurringWindows(input: RecurringMaterializationInput
     // The earliest time not yet passed, held until a later one shows whether it has also come; and how many were passed over.
     let held: { candidates: Array<{ start: { instant_ms: number; resolved: CivilDateTime; fold: string }; resolvedEnd: CivilDateTime; key: string }>; requestedStart: CivilDateTime; requestedEnd: CivilDateTime } | null = null;
     let missed = 0;
+    let missedSince: string | null = null;
     // Scanning starts the day before resume_from_ms in the schedule's zone (or at start_local_date when that is later).
+    // Given now_ms, it starts no earlier than the scan bound allows before now: every earlier time would be passed over,
+    // so the latest time that has come is always reached, and missed_since says from when the passed-over ones were counted.
     const resumeDate = resumeFromMs === null ? null : localParts(resumeFromMs, schedule.timezone).date;
-    const firstOffset = resumeDate === null ? 0 : Math.max(0, civilDaysBetween(schedule.start_local_date, resumeDate) - 1);
+    const nowOffset = nowMs === null ? null : civilDaysBetween(schedule.start_local_date, localParts(nowMs, schedule.timezone).date);
+    const firstOffset = Math.max(0, resumeDate === null ? 0 : civilDaysBetween(schedule.start_local_date, resumeDate) - 1,
+      nowOffset === null ? 0 : nowOffset - maxDays + 2);
     for (let offsetDays = firstOffset; offsetDays < firstOffset + maxDays && !selected; offsetDays += 1) {
       const date = addCivilDays(schedule.start_local_date, offsetDays);
       if (!isCandidateDate(schedule, date, offsetDays)) continue;
@@ -277,6 +284,7 @@ export function materializeRecurringWindows(input: RecurringMaterializationInput
         // every time it missed. One already dispatched (committed) is never passed over.
         if (held !== null) {
           if (nowMs !== null && candidates.some((candidate) => candidate.start.instant_ms <= nowMs)) {
+            missedSince ??= new Date(Math.min(...held.candidates.map((candidate) => candidate.start.instant_ms))).toISOString();
             held = { candidates, requestedStart, requestedEnd };
             missed += 1;
             continue;
@@ -309,6 +317,7 @@ export function materializeRecurringWindows(input: RecurringMaterializationInput
           end: new Date(candidate.start.instant_ms + schedule.local_window.duration_minutes * 60_000).toISOString(),
           action: schedule.action,
           missed_before: missed,
+          missed_since: missedSince,
         };
         if (!committed) {
           materializations.push({

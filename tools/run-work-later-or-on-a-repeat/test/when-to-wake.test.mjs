@@ -148,3 +148,14 @@ test('any cadence asleep for a year runs once on waking and says how many times 
     assert.deepEqual(onTime.recurring_due.map(occurrence => [occurrence.start, occurrence.missed_before]), [[next, 0]], `${schedule.schedule_id} on time misses none`);
   }
 });
+
+test('asked with no resume point, a schedule begun decades ago is due at its latest time, not where the scan bound ends', () => {
+  const daily = { source_generation: 1, schedule_revision: 1, timezone: 'UTC', start_local_date: '1970-01-01', action: mondayReview.action,
+    schedule_id: 'schedule:since-1970', cadence: { unit: 'day' }, local_window: { start: '14:00', duration_minutes: 1 } };
+  const asked = whenToWake({ now: '2026-11-18T11:00:00Z', schedules: [daily] });
+  const [due] = asked.recurring_due;
+  assert.equal(asked.recurring_due.length, 1);
+  assert.equal(due.start, '2026-11-17T14:00:00.000Z', 'the latest time that has come');
+  assert.ok(due.missed_before > 4000 && Date.parse(due.missed_since) < Date.parse(due.start), `${due.missed_before} since ${due.missed_since}`);
+  assert.equal(asked.next_wake_at ?? null, null);
+});
