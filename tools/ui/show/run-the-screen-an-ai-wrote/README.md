@@ -21,7 +21,7 @@ The `screen` field is laid on the door's one tool by the door owner's row (trill
 |--------|------------|
 | `answer` | The call's answer: the result's `structuredContent`, else the `answer` the call itself carried (a show tool's, which runs nothing and carries nothing back). Null until either arrives. |
 | `onAnswer(fn)` | `fn` hears the answer now if it is here, and each new one. Answers what stops hearing. |
-| `run(address, method, input)` | The door's one tool, through the app, as the person who connected it, with a fresh 128-bit request key. It resolves with the door's answer, or rejects with the door's own words. |
+| `run(method, input)` | The door's one tool, through the app, as the person who connected it, with a fresh 128-bit request key. The call names only its method (`tools:list`); the door finds the owner that answers it. It resolves with the door's answer, or rejects with the door's own words, which are also said above the screen. |
 | `size()` | Tells the app the height the page needs. |
 
 The code may link the look every page of the owner starts with, at the owner's `look.css` (the workspace build writes it), or carry its own.
@@ -34,17 +34,17 @@ The page knows no person, database or tool. The owner's words say:
 |-------|--------------|
 | `order` | The names of the requests to try, in order, when a call carried no code. |
 | `fix_order` | The same, when a screen threw and the person pressed Fix (the error and the code that threw are given). Absent: `order`. |
-| `<name>` | One request: `{ address, method, input, code_at, keep_what_it_wrote? }`. `input` may hold `"{for_operation}"`, `"{answer}"`, `"{error}"`, `"{code}"` strings, each replaced by its value. `code_at` is the JSON Pointer in the answer where the code is, as text or as rows of `{code, made_by}`. |
+| `<name>` | One request: `{ method, input, code_at, keep_what_it_wrote? }`. `input` may hold `"{for_operation}"`, `"{answer}"`, `"{error}"`, `"{code}"` strings, each replaced by its value. `code_at` is the JSON Pointer in the answer where the code is, as text or as rows of `{code, made_by}`. |
 | `keep` | The request that keeps a screen: given `{id}` (the code's BLAKE3), `{for_operation}`, `{code}` and `{made_by}`. |
 | `mine` | The makers whose screens act without asking, such as `ai:chat`. A screen by anyone else asks before each run. |
 | `api_name` | The name the code finds its members under. Default `door`. |
 | `run_tool` | The door's one tool, which `run` calls. Default `do_one_thing_in_my_account`. |
 | `chat_maker` | What a screen the call itself carried is called as a maker. Default `ai:chat`. |
-| `asks`, `allow`, `fix`, `not_kept`, `not_found` | The page's own phrases. |
+| `asks`, `allow`, `fix`, `not_kept`, `not_found`, `refused` | The page's own phrases. |
 | `css` | Styles the page carries, such as the owner's look. |
 | `fragment_answer` | When the page is opened as a page (an answer's link, outside any app), the name of the address fragment field holding the answer as base64url JSON. It is shown as text, since no request can be made without an app. |
 
-`for_operation` is the call's address, method and `input.tool` joined by spaces. The next answer of the same operation finds the screen kept for it.
+`for_operation` is the call's method and `input.tool` joined by a space. The next answer of the same operation finds the screen kept for it.
 
 ## Invariants
 

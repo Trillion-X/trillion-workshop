@@ -15,6 +15,8 @@ const bundled = await build({ entryPoints: [join(here, 'boot.mjs')], bundle: tru
 // The page wears the owner's look whatever the code draws: its own background, text and type are the look's (the words'
 // `css`, such as look.css, names them), so a screen that sets none still looks like the rest of the owner's screens.
 const wearsTheLook = 'html,body{margin:0;background:var(--bg-primary,Canvas);color:var(--text-primary,CanvasText);font-family:var(--font-primary,system-ui)}';
-const page = aiAppViewDocument({ hostId: words.host ?? 'screen', wordsId: 'screen-words', words: { title: words.title ?? 'Screen', ...words }, inlineScript: bundled.outputFiles[0].text, inlineCss: `${words.css ?? ''}\n${wearsTheLook}` });
+// The words go in as JSON without `css`, which the page already carries as its style.
+const { css: _css, ...said } = words;
+const page = aiAppViewDocument({ hostId: words.host ?? 'screen', wordsId: 'screen-words', words: { title: words.title ?? 'Screen', ...said }, inlineScript: bundled.outputFiles[0].text, inlineCss: `${words.css ?? ''}\n${wearsTheLook}` });
 writeFileSync(out, page);
 process.stdout.write(`wrote ${out}: ${page.length} bytes\n`);

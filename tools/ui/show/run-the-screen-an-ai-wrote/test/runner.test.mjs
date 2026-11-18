@@ -48,9 +48,9 @@ async function app(browser, words, door) {
   return { tab, frame, errors, say: (method, params) => tab.evaluate(([m, p]) => window.say(m, p), [method, params]), calls: () => tab.evaluate(() => window.calls) };
 }
 
-const words = { order: ['kept'], kept: { address: '@tools', method: 'tools:run', input: { sql: 'select code', params: ['{for_operation}'] }, code_at: '/rows' }, mine: ['ai:chat'] };
-const screen = '<h1 id="t">Three dinners</h1><button id="b">Pick</button><p id="a"></p><script>door.onAnswer(a => { document.getElementById("a").textContent = a.dinners.join(", "); }); document.getElementById("b").onclick = () => door.run("@own-records", "records:read", { id: "dinner:1" }).then(r => { document.getElementById("a").textContent = "picked " + r.id; });</script>';
-const callArgs = { address: '@own-records', method: 'records:list', request_key: 'k', input: {} };
+const words = { order: ['kept'], kept: { method: 'tools:run', input: { sql: 'select code', params: ['{for_operation}'] }, code_at: '/rows' }, mine: ['ai:chat'] };
+const screen = '<h1 id="t">Three dinners</h1><button id="b">Pick</button><p id="a"></p><script>door.onAnswer(a => { document.getElementById("a").textContent = a.dinners.join(", "); }); document.getElementById("b").onclick = () => door.run("records:read", { id: "dinner:1" }).then(r => { document.getElementById("a").textContent = "picked " + r.id; });</script>';
+const callArgs = { method: 'records:list', request_key: 'k', input: {} };
 const RUN = 'do_one_thing_in_my_account';
 
 test('code paints while it is typed, runs once whole, and its press runs through the door as the person', async () => {
@@ -78,13 +78,29 @@ test('code paints while it is typed, runs once whole, and its press runs through
 test('a request of the page\'s own that the app refuses is said on the screen, never dropped', async () => {
   const browser = await chromium.launch();
   try {
-    const keepWords = { ...words, keep: { address: '@tools', method: 'tools:run', input: { sql: 'insert', params: ['{id}'] } } };
+    const keepWords = { ...words, keep: { method: 'tools:run', input: { sql: 'insert', params: ['{id}'] } } };
     const refused = await app(browser, keepWords, () => ({ isError: true, content: [{ type: 'text', text: 'The person has not allowed this.' }] }));
     await refused.say('ui/notifications/tool-input', { arguments: { ...callArgs, screen: '<p id="s">shown</p>' } });
     await refused.say('ui/notifications/tool-result', { structuredContent: {}, content: [] });
     await refused.tab.waitForTimeout(200);
     assert.equal(await refused.frame().textContent('#s'), 'shown');
     assert.match(await refused.frame().textContent('body'), /This screen was not kept: The person has not allowed this\./);
+  } finally { await browser.close(); }
+});
+
+test('a run the door refuses is said on the screen and still rejects to the code, and names only its method', async () => {
+  const browser = await chromium.launch();
+  try {
+    const refused = await app(browser, words, () => ({ isError: true, content: [{ type: 'text', text: 'No owner here answers this.' }] }));
+    const code = '<button id="b">Load</button><p id="n">waiting</p><script>document.getElementById("b").onclick = () => door.run("tools:list", {}).catch(() => { document.getElementById("n").textContent = "handled"; });</script>';
+    await refused.say('ui/notifications/tool-input', { arguments: { ...callArgs, screen: code } });
+    await refused.tab.waitForTimeout(150);
+    await refused.frame().click('#b');
+    await refused.tab.waitForTimeout(150);
+    assert.match(await refused.frame().textContent('body'), /This did not work: No owner here answers this\./);
+    assert.equal(await refused.frame().textContent('#n'), 'handled', 'the code still hears the refusal');
+    const sent = (await refused.calls()).find(call => call.arguments.method === 'tools:list');
+    assert.deepEqual(Object.keys(sent.arguments).sort(), ['input', 'method', 'request_key'], 'a call names its method, never an address');
   } finally { await browser.close(); }
 });
 
@@ -96,7 +112,7 @@ test('a call with no code opens the kept screen; with none kept, the answer is t
     await kept.say('ui/notifications/tool-result', { structuredContent: { dinners: [] }, content: [{ type: 'text', text: 'no dinners' }] });
     await kept.tab.waitForTimeout(200);
     assert.equal(await kept.frame().textContent('#k'), 'kept one');
-    assert.deepEqual((await kept.calls())[0].arguments.input.params, ['@own-records records:list'], 'asked for the screen kept for this operation');
+    assert.deepEqual((await kept.calls())[0].arguments.input.params, ['records:list'], 'asked for the screen kept for this operation');
     const none = await app(browser, words, () => ({ structuredContent: { rows: [] }, content: [] }));
     await none.say('ui/notifications/tool-input', { arguments: callArgs });
     await none.say('ui/notifications/tool-result', { structuredContent: { dinners: [] }, content: [{ type: 'text', text: 'no dinners' }] });
@@ -109,7 +125,7 @@ test('a screen someone else made asks before it acts, and a thrown script says s
   const browser = await chromium.launch();
   try {
     const shared = await app(browser, words, params => params.arguments.input.sql
-      ? { structuredContent: { rows: [{ code: '<button id="b">Go</button><script>document.getElementById("b").onclick = () => door.run("@x", "x:delete", {});</script>', made_by: 'shared:someone' }] }, content: [] }
+      ? { structuredContent: { rows: [{ code: '<button id="b">Go</button><script>document.getElementById("b").onclick = () => door.run("x:delete", {});</script>', made_by: 'shared:someone' }] }, content: [] }
       : { structuredContent: { done: true }, content: [] });
     await shared.say('ui/notifications/tool-input', { arguments: callArgs });
     await shared.say('ui/notifications/tool-result', { structuredContent: {}, content: [] });
@@ -117,7 +133,7 @@ test('a screen someone else made asks before it acts, and a thrown script says s
     await shared.frame().click('#b');
     await shared.tab.waitForTimeout(100);
     assert.equal((await shared.calls()).filter(call => call.arguments.method === 'x:delete').length, 0, 'nothing ran before the press');
-    assert.match(await shared.frame().textContent('body'), /wants to run @x x:delete/);
+    assert.match(await shared.frame().textContent('body'), /wants to run x:delete/);
     await shared.frame().click('text=Allow');
     await shared.tab.waitForTimeout(100);
     assert.equal((await shared.calls()).filter(call => call.arguments.method === 'x:delete').length, 1);
@@ -133,7 +149,7 @@ test('a show tool\'s call hands the screen the answer it carries, and the page w
   const browser = await chromium.launch();
   try {
     const shown = await app(browser, { ...words, css: ':root{--bg-primary:rgb(1, 2, 3)}' });
-    await shown.say('ui/notifications/tool-input', { arguments: { address: '@tools', method: 'tools:list', answer: { tools: ['a', 'b'] }, screen: '<p id="n"></p><script>door.onAnswer(a => { document.getElementById("n").textContent = a.tools.length; });</script>' } });
+    await shown.say('ui/notifications/tool-input', { arguments: { method: 'tools:list', answer: { tools: ['a', 'b'] }, screen: '<p id="n"></p><script>door.onAnswer(a => { document.getElementById("n").textContent = a.tools.length; });</script>' } });
     await shown.say('ui/notifications/tool-result', { content: [{ type: 'text', text: 'Shown to the person.' }] });
     await shown.tab.waitForTimeout(200);
     assert.equal(await shown.frame().textContent('#n'), '2', 'the answer came with the call');
@@ -147,7 +163,7 @@ test('in an app that holds the call before the page starts (ChatGPT: window.open
     const tab = await browser.newPage();
     const errors = [];
     tab.on('pageerror', error => errors.push(error.message));
-    const html = page(words).replace('<head>', `<head><script>window.openai = { toolInput: { address: '@tools', method: 'tools:list', answer: { n: 2 }, screen: '<p id="n"></p><script>door.onAnswer(a => { document.getElementById("n").textContent = a.n; });<\\/script>' }, toolOutput: null };</script>`);
+    const html = page(words).replace('<head>', `<head><script>window.openai = { toolInput: { method: 'tools:list', answer: { n: 2 }, screen: '<p id="n"></p><script>door.onAnswer(a => { document.getElementById("n").textContent = a.n; });<\\/script>' }, toolOutput: null };</script>`);
     const file = join(folder, 'held.html');
     writeFileSync(file, html);
     await tab.goto(`file://${file}`);

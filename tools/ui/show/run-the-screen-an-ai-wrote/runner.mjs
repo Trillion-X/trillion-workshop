@@ -9,10 +9,12 @@
 // Invariants
 // - The code is put into the page as it grows, at most once per animation frame, with its scripts inert; once the call's
 //   input is whole, the code is put in once more and its scripts run, once.
-// - Before any script runs, `window[words.api_name ?? 'door']` is { answer, onAnswer(fn), run(address, method, input), size() }.
+// - Before any script runs, `window[words.api_name ?? 'door']` is { answer, onAnswer(fn), run(method, input), size() }.
 //   `answer` is the result's structured answer, else the `answer` the call itself carried (a show tool's). `run`
 //   is the door's one tool (the words' `run_tool`) through the app, as the person who connected it, with a fresh 128-bit request key; it
-//   resolves with the door's answer or rejects with the door's words. Nothing else of ours reaches the code.
+//   resolves with the door's answer or rejects with the door's words, which are also said above the screen, so a call
+//   the door refuses never looks like an empty answer. A call names only its method: the door finds the owner that
+//   answers it. Nothing else of ours reaches the code.
 // - When the call carried no code, the screens to try come in the order the page's own words give (`order`): each a
 //   request the words name, run as the person. The first that answers code is run. When none does, the answer's own
 //   text is shown as text.
@@ -43,16 +45,21 @@ export function runScreens(win, { connect, words = {} }) {
   app.onPlacement?.(context => { if (context?.theme === 'light' || context?.theme === 'dark') doc.documentElement.style.colorScheme = context.theme; });
   const requestKey = () => bytesToHex(win.crypto.getRandomValues(new Uint8Array(16)));
   // The door's one tool, by the name the owner's words give (`run_tool`).
-  const send = (address, method, input) => app.callTool(words.run_tool ?? 'do_one_thing_in_my_account', { address, method, request_key: requestKey(), input: input ?? {} });
+  const send = (method, input) => app.callTool(words.run_tool ?? 'do_one_thing_in_my_account', { method, request_key: requestKey(), input: input ?? {} });
   // A request the words name, with each "{name}" string in it given its value.
   const asked = (request, values) => JSON.parse(JSON.stringify(request.input ?? {}), (_, value) =>
     typeof value === 'string' && /^\{\w+\}$/.test(value) ? values[value.slice(1, -1)] ?? null : value);
   const at = (value, pointer = '') => pointer.split('/').slice(1).reduce((here, step) => here?.[step], value);
-  const forOperation = () => call ? [call.address ?? call.resource, call.method ?? call.operation, call.input?.tool ?? ''].join(' ').trim() : '';
+  const forOperation = () => call ? [call.method ?? call.operation, call.input?.tool ?? ''].join(' ').trim() : '';
 
   function apiFor(maker) {
     const own = (words.mine ?? []).includes(maker);
-    const run = own ? send : (address, method, input) => ask(`${address} ${method}`).then(() => send(address, method, input));
+    const allowed = own ? send : (method, input) => ask(method).then(() => send(method, input));
+    // What the door refuses is said where the person looks, and still rejects for the code to handle.
+    const run = (method, input) => allowed(method, input).catch(error => {
+      say(`${words.refused ?? 'This did not work:'} ${error?.message ?? error}`);
+      throw error;
+    });
     return {
       get answer() { return answer; },
       onAnswer(hear) { hearers.add(hear); if (answer !== null) hear(answer); return () => hearers.delete(hear); },
@@ -129,7 +136,7 @@ export function runScreens(win, { connect, words = {} }) {
     const id = bytesToHex(blake3(new TextEncoder().encode(kept)));
     if (keep.done?.has(id)) return;
     (keep.done ??= new Set()).add(id);
-    await send(words.keep.address, words.keep.method, asked(words.keep, { id, for_operation: forOperation(), code: kept, made_by: madeBy })).catch(error => say(`${words.not_kept ?? 'This screen was not kept:'} ${error?.message ?? error}`));
+    await send(words.keep.method, asked(words.keep, { id, for_operation: forOperation(), code: kept, made_by: madeBy })).catch(error => say(`${words.not_kept ?? 'This screen was not kept:'} ${error?.message ?? error}`));
   }
 
   async function tryInOrder(error = null) {
@@ -139,7 +146,7 @@ export function runScreens(win, { connect, words = {} }) {
       const request = words[name];
       if (!request) continue;
       const values = { for_operation: forOperation(), answer: JSON.stringify(answer), error, code };
-      const found = await send(request.address, request.method, asked(request, values)).then(reply => at(reply, request.code_at), error => {
+      const found = await send(request.method, asked(request, values)).then(reply => at(reply, request.code_at), error => {
         say(`${words.not_found ?? 'A kept screen could not be read:'} ${error?.message ?? error}`);
         return null;
       });
