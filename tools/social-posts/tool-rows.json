@@ -3918,9 +3918,12 @@
           {
             "id": "at-its-time",
             "on": {
-              "record": {
-                "resource": "own-records",
-                "kind": "post"
+              "fact": {
+                "kind": "row-changes",
+                "from": ["run"],
+                "match": {
+                  "table_name": "post"
+                }
               }
             },
             "budget": {

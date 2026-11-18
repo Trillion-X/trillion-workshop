@@ -246,8 +246,8 @@
           }
         },
         "wakes": [
-          { "id": "a-grant-changed", "on": { "record": { "resource": "own-records", "kind": "sharing" } }, "budget": { "steps": 1, "wall_ms": 300000 } },
-          { "id": "a-list-changed", "on": { "record": { "resource": "own-records", "kind": "list" } }, "budget": { "steps": 1, "wall_ms": 300000 } }
+          { "id": "a-grant-changed", "on": { "fact": { "kind": "row-changes", "from": ["run"], "match": { "table_name": "sharing" } } }, "budget": { "steps": 1, "wall_ms": 300000 } },
+          { "id": "a-list-changed", "on": { "fact": { "kind": "row-changes", "from": ["run"], "match": { "table_name": "list" } } }, "budget": { "steps": 1, "wall_ms": 300000 } }
         ],
         "invoke": {
           "kind": "computer",
