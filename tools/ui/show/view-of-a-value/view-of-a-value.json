@@ -227,8 +227,10 @@
                   "each_field": {
                     "type": "Container",
                     "props": {
-                      "layout": "vertical",
-                      "gap": "xs"
+                      "layout": "horizontal",
+                      "gap": "sm",
+                      "justifyContent": "between",
+                      "alignItems": "center"
                     },
                     "children": [
                       {
@@ -298,7 +300,8 @@
       "draw": {
         "type": "Container",
         "props": {
-          "layout": "flow",
+          "layout": "horizontal",
+          "wrap": true,
           "gap": "xs"
         },
         "children": [
