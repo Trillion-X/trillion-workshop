@@ -18,18 +18,18 @@
     {
       "change": "an entry {\"id\":7,\"topic\":\"tides\"} added to lesson-requests",
       "expected_fact": {
-        "kind": "row-changes",
+        "kind": "something-changed",
         "where": "<input.store.where>",
-        "table_name": "lesson-requests",
-        "op": "INSERT",
+        "place": "lesson-requests",
+        "change": "added",
         "after": "{\"id\":7,\"topic\":\"tides\"}"
       }
     },
     {
       "change": "the same entry's topic changed to \"moon tides\"",
       "expected_fact": {
-        "kind": "row-changes",
-        "table_name": "lesson-requests",
+        "kind": "something-changed",
+        "place": "lesson-requests",
         "op": "UPDATE",
         "before": "{\"id\":7,\"topic\":\"tides\"}",
         "after": "{\"id\":7,\"topic\":\"moon tides\"}"
@@ -38,8 +38,8 @@
     {
       "change": "the entry removed",
       "expected_fact": {
-        "kind": "row-changes",
-        "table_name": "lesson-requests",
+        "kind": "something-changed",
+        "place": "lesson-requests",
         "op": "DELETE",
         "before": "{\"id\":7,\"topic\":\"moon tides\"}"
       }
@@ -47,9 +47,9 @@
     {
       "change": "an entry whose text is 5,000 characters added",
       "expected_fact": {
-        "kind": "row-changes",
-        "table_name": "lesson-requests",
-        "op": "INSERT",
+        "kind": "something-changed",
+        "place": "lesson-requests",
+        "change": "added",
         "after": "left out: it does not fit; a run reads it by key"
       }
     },

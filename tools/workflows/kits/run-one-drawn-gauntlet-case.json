@@ -36,8 +36,8 @@
                 "workflow": "workflow:run-one-drawn-gauntlet-case",
                 "condition": "a drawn gauntlet case is added",
                 "where": "my-store-connection",
-                "table_name": "gauntlet_example_cases",
-                "op": "INSERT",
+                "place": "gauntlet_example_cases",
+                "change": "added",
                 "key": "ex:59",
                 "after": "{\"k\":59,\"call\":{\"address\":\"https://127.0.0.1/mcp\",\"runs_here\":false},\"drawn_by\":\"draw formula\"}"
               }
@@ -47,7 +47,7 @@
       },
       "workflow": "workflow:run-one-drawn-gauntlet-case",
       "step": "keep-the-result",
-      "given": "The store told a change of the example gauntlet's cases: op INSERT, key ex:59, after {\"k\":59,\"call\":{\"address\":\"https://127.0.0.1/mcp\",\"runs_here\":false},\"drawn_by\":\"draw formula\"}; route-each-row-change chose this workflow for it.",
+      "given": "The store told a change of the example gauntlet's cases: change added, key ex:59, after {\"k\":59,\"call\":{\"address\":\"https://127.0.0.1/mcp\",\"runs_here\":false},\"drawn_by\":\"draw formula\"}; route-each-row-change chose this workflow for it.",
       "hands_back": "The answer kept beside case 59 in the example gauntlet's results: k 59, answered {\"tools\": [], \"next\": null, \"unavailable\": [{\"source\": \"127.0.0.1\", \"unreachable\": \"The server did not answer: The address must be a public site, not this computer or a private network.\"}]}, run_by \"workflow:run-one-drawn-gauntlet-case\"; the step submits {k: 59, kept: true}."
     }
   ]

@@ -14,9 +14,9 @@
     "tool:choose-the-workflows-that-fire"
   ],
   "instructions": [
-    "1. Have the person's store tell its changes as row-changes facts {where, table_name, op, at, key, before, after}: run workflow:tell-me-when-something-changes for the store and the things to watch. In a Postgres database made by workflow:make-a-database-for-each-pursuit, the person's own choice can be record_row_change() on the table and tool:notice-when-something-shows-up's wake keep-noticing-row-changes.",
+    "1. Have the person's store tell its changes as something-changed facts {where, place, change, at, key, before, after}: run workflow:tell-me-when-something-changes for the store and the things to watch. In a Postgres database made by workflow:make-a-database-for-each-pursuit, the person's own choice can be record_row_change() on the table and tool:notice-when-something-shows-up's wake keep-noticing-row-changes.",
     "2. Turn on this workflow's wake a-row-changed.",
-    "3. Give a workflow a fires_when condition over the change's table_name and op (fields of kind choice, rule is_any_of), or over fields of before or after, and, in its input, the step it starts at; turn on that workflow's own workflow-chosen wake.",
+    "3. Give a workflow a fires_when condition over the change's place and change (fields of kind choice, rule is_any_of), or over fields of before or after, and, in its input, the step it starts at; turn on that workflow's own workflow-chosen wake.",
     "4. Add an entry and read the run of this workflow: it is woken with the change, names the workflows chosen, and tells each one; each chosen workflow then runs from its own wake."
   ],
   "worked_examples": [
@@ -34,8 +34,8 @@
               "row": "workflow:route-each-row-change",
               "fact": {
                 "where": "own-rows-postgres-connection",
-                "table_name": "lesson_request",
-                "op": "INSERT",
+                "place": "lesson_request",
+                "change": "added",
                 "at": "2026-11-18T17:00:00Z",
                 "key": "p_x:901:42",
                 "after": "{\"id\":7,\"topic\":\"tides\"}"
@@ -46,8 +46,8 @@
       },
       "workflow": "workflow:route-each-row-change",
       "step": "start-each",
-      "given": "The store told row-changes {where own-rows-postgres-connection, table_name lesson_request, op INSERT, key p_x:901:42, after {\"id\":7,\"topic\":\"tides\"}}; the run made that one part, and the chooser kept it with the explainer-video workflow's condition \"a lesson_request row is added\".",
-      "hands_back": "One wake:arrive of kind workflow-chosen with event_id \"p_x:901:42:workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner:a lesson_request row is added\" and payload {\"workflow\":\"workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner\",\"condition\":\"a lesson_request row is added\",\"where\":\"own-rows-postgres-connection\",\"table_name\":\"lesson_request\",\"op\":\"INSERT\",\"key\":\"p_x:901:42\",\"after\":\"{\\\"id\\\":7,\\\"topic\\\":\\\"tides\\\"}\"}; that workflow's own wake then starts it at plan-the-lesson."
+      "given": "The store told something-changed {where own-rows-postgres-connection, place lesson_request, change added, key p_x:901:42, after {\"id\":7,\"topic\":\"tides\"}}; the run made that one part, and the chooser kept it with the explainer-video workflow's condition \"a lesson_request row is added\".",
+      "hands_back": "One wake:arrive of kind workflow-chosen with event_id \"p_x:901:42:workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner:a lesson_request row is added\" and payload {\"workflow\":\"workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner\",\"condition\":\"a lesson_request row is added\",\"where\":\"own-rows-postgres-connection\",\"place\":\"lesson_request\",\"change\":\"added\",\"key\":\"p_x:901:42\",\"after\":\"{\\\"id\\\":7,\\\"topic\\\":\\\"tides\\\"}\"}; that workflow's own wake then starts it at plan-the-lesson."
     }
   ]
 }
