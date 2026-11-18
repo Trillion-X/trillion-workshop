@@ -13,5 +13,14 @@
   "most_door_bytes": 300,
   "most_credential_bytes": 64,
   "most_slots": 24,
-  "most_pointers_per_slot": 12
+  "most_pointers_per_slot": 12,
+  "steps": {
+    "_what": "The words of each setup step a cart's parts render to (do-work/setup-steps-from-a-cart.mjs). One step per tool and one per slot: the slot's first pointer is the part it takes, the rest are its alternatives in order. A step's words are these templates filled from the pointer's own fields ({slot}, {id}, {door}, {speaks}, {label}, {credential}) and nothing else, so no step is written by hand and no slot, vendor or store is named here.",
+    "tool": "Install {id}.",
+    "tool_unavailable": "{id} is not installable here, so this cart's step for it waits.",
+    "part": "{slot}: use {id} at {door}, which speaks {speaks}.",
+    "credential": "Keep its key in your vault under the name {credential}; the key is never written in a row.",
+    "part_unavailable": "{slot}: {id} needs {label}, which is not installable here, so this step waits.",
+    "alternatives": "To use another, swap {slot} to one of: {alternatives}."
+  }
 }

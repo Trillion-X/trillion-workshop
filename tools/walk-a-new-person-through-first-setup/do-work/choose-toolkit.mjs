@@ -6,11 +6,13 @@
 //
 //   toolkit row   { id, type: 'record:toolkit', value: { title?, description?, tools: ['tool:...', ...], default?: true,
 //                   stack?: { slot: [pointer, ...] } } }   (the stack and its pointers: toolkit-stack.mjs)
-//   choice        { toolkit: the id of an offered toolkit row, drop?: [tool ids], add?: [tool ids] }
+//   choice        { toolkit: the id of an offered toolkit row, drop?: [tool ids], add?: [tool ids],
+//                   swap?: { slot: [pointer, ...] } }   any part swapped: each named slot takes these pointers instead (a slot
+//                   the toolkit lacks is added); checked as a stack is (toolkit-stack.mjs), and no slot name is known here
 //   default       the one offered row marked `default: true` is the cart of a person who picks nothing (fillCart)
 //   known_tools   optional: every tool id the caller can install; an added id outside it is refused
 
-import { readToolkitStack } from './toolkit-stack.mjs';
+import { readStack, readToolkitStack } from './toolkit-stack.mjs';
 
 const TOOL_ID = /^tool:\S+$/;
 const TOOLKIT_TYPE = 'record:toolkit';
@@ -76,7 +78,11 @@ export function chooseToolkit({ toolkits, choice, knownTools = null }) {
   }
   const kept = toolkit.tools.filter(id => !drop.includes(id));
   const added = add.filter(id => !kept.includes(id));
-  return { toolkit: toolkit.id, tools: [...kept, ...added], dropped: drop, added, ...(toolkit.stack ? { stack: toolkit.stack } : {}) };
+  // Any part is swapped as tools are: the named slots take the chosen pointers, the others stay as the toolkit has them.
+  const swap = choice.swap === undefined ? {} : readStack(choice.swap, 'swap');
+  const swapped = Object.keys(swap);
+  const stack = toolkit.stack || swapped.length ? readStack({ ...(toolkit.stack ?? {}), ...swap }, `${toolkit.id} with its swaps`) : null;
+  return { toolkit: toolkit.id, tools: [...kept, ...added], dropped: drop, added, ...(swapped.length ? { swapped } : {}), ...(stack ? { stack } : {}) };
 }
 
 /** The cart first setup fills for a new account: the person's choice when they made one, else the one toolkit marked default,

@@ -6,6 +6,7 @@ import { instructionParagraph } from '../../shared-code/src/server-instruction-p
 import { setupInstalls } from './setup-installs.mjs';
 import { lensForSetup } from '../../see-a-pursuit-through-the-lens/src/pursuit-lens.mjs';
 import { chooseToolkit, fillCart, offeredToolkits, TOOLKITS_READ } from './choose-toolkit.mjs';
+import { setupSteps } from './setup-steps-from-a-cart.mjs';
 
 const callFor = (tool, args = {}) => ({ tool, arguments: args });
 const uniqueCalls = calls => [...new Map(calls.map(call => [JSON.stringify([call.tool, call.arguments]), call])).values()];
@@ -16,12 +17,14 @@ export function setupInstructions() {
 
 // What first setup offers from the toolkit rows: every row, the person's choice answered as tool ids, and the cart a new account is
 // filled with: the choice, else the toolkit marked default as it stands (a person who picks nothing still gets a working cart).
+// The cart carries its setup steps, rendered from its own parts (setup-steps-from-a-cart.mjs), never written by hand.
 function toolkitsFor({ toolkits, toolkitChoice, knownTools }) {
   const offered = offeredToolkits(toolkits);
+  const cart = toolkitChoice || offered.some(row => row.default) ? fillCart({ toolkits, choice: toolkitChoice, knownTools }) : null;
   return {
     offered,
     ...(toolkitChoice ? { choice: chooseToolkit({ toolkits, choice: toolkitChoice, knownTools }) } : {}),
-    ...(toolkitChoice || offered.some(row => row.default) ? { cart: fillCart({ toolkits, choice: toolkitChoice, knownTools }) } : {}),
+    ...(cart ? { cart: { ...cart, steps: setupSteps(cart, { available: knownTools }) } } : {}),
   };
 }
 
