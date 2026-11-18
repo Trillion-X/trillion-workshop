@@ -53,7 +53,7 @@
             },
             "credential_name": {
               "type": "string",
-              "description": "The vault name of a database connection (postgresql://…?sslmode=verify-full) a row-changes waiter reads, handed to the run on descriptor 4; only that connection's hosts are reached."
+              "description": "The vault name of what a waiter reads with, handed to the run on descriptor 4: a database connection a row-changes waiter reads, a key a service-lists waiter asks a service's list with, or a signing secret a signed-service-calls waiter checks calls with. Only that credential's hosts are reached."
             }
           },
           "required": [
@@ -238,6 +238,13 @@
               {
                 "at": "@own-records",
                 "id": "row-changes",
+                "operations": [
+                  "wake:arrive"
+                ]
+              },
+              {
+                "at": "@own-records",
+                "id": "something-changed",
                 "operations": [
                   "wake:arrive"
                 ]
