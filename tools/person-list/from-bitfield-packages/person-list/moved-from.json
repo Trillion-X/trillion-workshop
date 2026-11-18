@@ -93,13 +93,6 @@
       "to": "tools/person-list/from-bitfield-packages/person-list/tests/person-list-surface.test.mjs",
       "source_identity": "1f:76c5e0c00081125e69ab1e262cd69a5182760acdf808b156579c11f1ed5ea59b",
       "identity": "1f:76c5e0c00081125e69ab1e262cd69a5182760acdf808b156579c11f1ed5ea59b"
-    },
-    {
-      "from": "packages/person-list/things-to-store-and-run.json",
-      "commit": "7229c0c1d5311ff11cc55bb6ccf31843fe305b83",
-      "to": "tools/person-list/from-bitfield-packages/person-list/things-to-store-and-run.json",
-      "source_identity": "1f:4b4527e431e13d0034d8ac950d995abcc9f67b59ec89d106f2719d61b1d3b350",
-      "identity": "1f:4b4527e431e13d0034d8ac950d995abcc9f67b59ec89d106f2719d61b1d3b350"
     }
   ],
   "held": {
