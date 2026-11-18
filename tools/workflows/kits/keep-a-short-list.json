@@ -1,0 +1,66 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:keep-a-short-list with store {\\\"where\\\": \\\"postgresql database example_shop on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-shop-postgres-connection\\\"}, list \\\"news\\\", indexed_fields [\\\"kind\\\"] and items [{\\\"seq\\\": 1, \\\"kind\\\": \\\"a\\\", \\\"text\\\": \\\"x\\\"}, {\\\"seq\\\": 2, \\\"kind\\\": \\\"b\\\", \\\"text\\\": \\\"y\\\"}].\"",
+  "lists": [],
+  "no_lists_because": "It names no list: the short list is kept in the person's own store, in whatever form that store keeps things, and store says where and in which language.",
+  "workflows": [
+    "workflow:keep-a-short-list"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:keep-a-short-list\" with store, the list's name, its indexed_fields and the whole list as it should now be.",
+    "3. The first run makes the store's own objects once and proves them on the example attempts: every attempt must give the outcome the intent says, or the run stops and says which.",
+    "4. Every later run writes only what changed: a new or changed item, a removed one, and the head when the order or the counts changed; the same list again writes nothing."
+  ],
+  "worked_examples": [
+    {
+      "title": "A short news list kept, then one item added",
+      "ask": "Keep my news list with these two items, then add a third.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-a-short-list",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "list": "news",
+              "indexed_fields": [
+                "kind"
+              ],
+              "items": [
+                {
+                  "seq": 1,
+                  "kind": "a",
+                  "text": "x"
+                },
+                {
+                  "seq": 2,
+                  "kind": "b",
+                  "text": "y"
+                },
+                {
+                  "seq": 3,
+                  "kind": "a",
+                  "text": "w"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-a-short-list",
+      "step": "keep",
+      "given": "The look step found the list kept in the tables short_list_head and short_list_item with their keys, made by an earlier run.",
+      "hands_back": "kept_ids [\"news\"], refused [] and found_ids [\"news\"]; only item 3 and the head are written, and the counts read kind a 2, kind b 1."
+    }
+  ]
+}
