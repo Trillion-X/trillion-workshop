@@ -31,6 +31,8 @@ A site that names `site_file` gets that whole file from `sites/`, each `{{field}
 - `grace_period` is how long a reload lets calls in flight finish.
 - It logs one JSON line per request to the journal: the method, the address without the query, the status and the duration. Every header, client address, cookie and query value is removed, so a sign-in attempt is visible without keeping anything private.
 
+`site_file: "certificate-only"` keeps the certificate of one name or IP address (`door_host`) with the ACME profile `certificate_profile` and serves nothing (every request is 404), for another program on the computer that reads the certificate and key from Caddy's storage, such as a database server's TLS listener (its unit's `files_read_at_start`, restarted by a `watch-a-file` path when Caddy renews). Let's Encrypt issues an IP address only the `shortlived` profile.
+
 ## Routes and pools
 
 A site names each route by path, like a unit's template: a file the program it sends to publishes (a relative path inside the Workshop, or an absolute path of the person's own), filled from the site's fields. A route that is a module (`.mjs`) answers its text from `route()`, so a program that computes its route from its own data keeps that data. This kit names no route of its own:

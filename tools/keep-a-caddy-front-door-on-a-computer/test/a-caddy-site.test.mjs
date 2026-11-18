@@ -121,3 +121,10 @@ test('every page the request hands in lands under pages_root, byte for byte, bin
   const { pages_root, ...noRoot } = single;
   await assert.rejects(siteFile(noRoot), /needs pages_root/);
 });
+
+test('a certificate-only site keeps the certificate of its name or address with its profile and serves nothing', async () => {
+  const file = await siteFile({ site_file: 'certificate-only', door_host: '192.0.2.10', certificate_profile: 'shortlived', grace_period: '5s' });
+  assert.match(file.text, /^192\.0\.2\.10 \{\n\ttls \{\n\t\tissuer acme \{\n\t\t\tprofile shortlived\n\t\t\}\n\t\}\n\trespond 404\n\}$/m);
+  assert.doesNotMatch(file.text, /\{\{|reverse_proxy|file_server/);
+  await assert.rejects(siteFile({ site_file: 'certificate-only', door_host: '192.0.2.10', grace_period: '5s' }), /certificate_profile/);
+});

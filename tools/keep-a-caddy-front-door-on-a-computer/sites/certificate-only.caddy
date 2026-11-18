@@ -1,0 +1,17 @@
+# A certificate for {{door_host}} (a name, or an IP address) and nothing served: Caddy keeps the certificate in its own storage,
+# renews it and answers every request with 404, so another program on this computer (a database server, say) reads the
+# certificate and key from there. The certificate's ACME profile is {{certificate_profile}} (an IP address takes only Let's
+# Encrypt's shortlived profile, about six days, renewed by Caddy in time).
+{
+	admin localhost:2019
+	grace_period {{grace_period}}
+}
+
+{{door_host}} {
+	tls {
+		issuer acme {
+			profile {{certificate_profile}}
+		}
+	}
+	respond 404
+}
