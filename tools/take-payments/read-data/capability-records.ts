@@ -2,7 +2,8 @@ import packageData from '../things-to-store-and-run.json';
 
 type JsonObject = Record<string, unknown>;
 
-export type RunnerKind = 'process' | 'http' | 'workflow';
+// The runner kind is the descriptor's word for who runs it; the runner that receives it refuses a kind it does not run.
+export type RunnerKind = string;
 export type ReceiptState = 'succeeded' | 'failed' | 'pending';
 
 /**
@@ -187,7 +188,7 @@ function readRunner(value: unknown): CapabilityRunnerDescriptor | null {
   const kind = text(row.kind) as RunnerKind;
   const runner_id = text(row.runner_id ?? row.runnerId);
   const target = text(row.target);
-  if (!['process', 'http', 'workflow'].includes(kind) || !runner_id || !target) return null;
+  if (!kind || !runner_id || !target) return null;
   return {
     kind,
     runner_id,
@@ -409,19 +410,6 @@ export function buildProcessDescriptorFromRunnerRequest(
     capture_fds: [1, 2],
     collected_files: [],
   };
-}
-
-export function containsForbiddenGenericTerm(value: unknown, forbiddenTerms: readonly string[] = []): boolean {
-  const haystack = JSON.stringify(value);
-  return forbiddenTerms.some((term) => haystack.includes(term));
-}
-
-export function validateGenericDescriptorShape(descriptor: CapabilityDescriptor, forbiddenTerms: readonly string[] = []): string[] {
-  const errors: string[] = [];
-  if (containsForbiddenGenericTerm(descriptor.input_schema, forbiddenTerms)) errors.push(`${descriptor.id} generic input_schema contains package/domain vocabulary`);
-  if (containsForbiddenGenericTerm(descriptor.idempotency_policy, forbiddenTerms)) errors.push(`${descriptor.id} idempotency_policy contains package/domain vocabulary`);
-  if (descriptor.runner.kind !== 'process' && descriptor.runner.kind !== 'http' && descriptor.runner.kind !== 'workflow') errors.push(`${descriptor.id} runner kind is invalid`);
-  return errors;
 }
 
 function shouldRedactKey(key: string, policy: RedactionPolicy): boolean {

@@ -165,13 +165,6 @@
       "identity": "1f:89cc055baf4411cec1a8fb2de6da9d0567dad29306eab219f7d14faa4526852d"
     },
     {
-      "from": "packages/stripe-payment-provider/read-data/capability-descriptors.ts",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/take-payments/read-data/capability-descriptors.ts",
-      "source_identity": "1f:f905c8b8db0885da9d5cf49d853528a68a34de508e35d87d701cad202fa08661",
-      "identity": "1f:f905c8b8db0885da9d5cf49d853528a68a34de508e35d87d701cad202fa08661"
-    },
-    {
       "from": "packages/stripe-payment-provider/read-data/capability-invocations.ts",
       "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
       "to": "tools/take-payments/read-data/capability-invocations.ts",
