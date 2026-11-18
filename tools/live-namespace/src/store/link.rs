@@ -125,7 +125,12 @@ impl Link {
 
     /// The person's Postgres database, from the connection string the engine attached to the run (`postgresql://user:password@host:port/database`).
     /// Only a database on this computer's own loopback may be reached without encryption.
+    /// In a run the engine keeps in its sandbox (HTTPS_PROXY naming the engine's loopback proxy), any other database is reached through it.
     pub fn postgres(connection: &str) -> Result<Self, Error> {
+        // libpq's sslmode=verify-ca and verify-full (what a connection string for a database reached over the internet names) are not
+        // values the client reads; its TLS here always checks the certificate's chain and the database's name, which is verify-full, so
+        // both are read as `require`.
+        let connection = connection.replace("sslmode=verify-full", "sslmode=require").replace("sslmode=verify-ca", "sslmode=require");
         let mut config: postgres::Config = connection.parse().map_err(|_| Error::Invalid("the database connection is not a Postgres connection string", crate::cause!()))?;
         // The server's own error text can carry the connection string's parts; none of it is kept.
         config.application_name("live-namespace");
@@ -148,7 +153,12 @@ impl Link {
                 .map_err(unavailable)?
                 .with_root_certificates(store)
                 .with_no_client_auth();
-            config.connect(tokio_postgres_rustls::MakeRustlsConnect::new(tls)).map_err(unavailable)?
+            let tls = tokio_postgres_rustls::MakeRustlsConnect::new(tls);
+            // A run the engine keeps in its sandbox reaches the database only through the run's proxy (through_the_run_proxy.rs).
+            match crate::https::engine_proxy(std::env::var("HTTPS_PROXY").ok().as_deref()) {
+                Some(proxy) => super::through_the_run_proxy::through_proxy(&config, proxy).map_err(unavailable)?.connect(tls).map_err(unavailable)?,
+                None => config.connect(tls).map_err(unavailable)?,
+            }
         };
         Ok(Self { inner: Inner::Postgres(Box::new(client)), place })
     }
@@ -324,6 +334,12 @@ mod tests {
             numbered(Dialect::Postgres, sql, &params),
             "SELECT id FROM ns_name WHERE scope = CAST($1 AS TEXT) AND version > CAST($2 AS BIGINT) AND file IS NOT CAST($3 AS TEXT)"
         );
+    }
+
+    #[test]
+    fn a_connection_string_naming_libpqs_verify_full_is_read_not_refused() {
+        // Port 1 on loopback answers nothing: the string was read, and only the connection failed.
+        assert!(matches!(Link::postgres("postgresql://someone:pw@127.0.0.1:1/rows?sslmode=verify-full"), Err(Error::Unavailable(..))));
     }
 
     #[test]

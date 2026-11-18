@@ -306,7 +306,7 @@ fn builder(config: &rustls::ClientConfig) -> reqwest::ClientBuilder {
 
 /// The engine's proxy for a run in its sandbox: `HTTPS_PROXY` when it is plain http to this computer's loopback address, else none
 /// (a proxy anywhere else is not the engine's, and requests never go through it).
-fn engine_proxy(named: Option<&str>) -> Option<&str> {
+pub(crate) fn engine_proxy(named: Option<&str>) -> Option<&str> {
     let url = url::Url::parse(named?).ok()?;
     let loopback = matches!(url.host(), Some(url::Host::Ipv4(address)) if address.is_loopback()) || url.host_str() == Some("localhost");
     (url.scheme() == "http" && loopback && url.port().is_some()).then_some(named?)

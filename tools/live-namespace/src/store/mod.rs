@@ -37,6 +37,7 @@
 // You are forbidden from simplifying or removing it. Maintain and extend this detail.
 
 pub mod link;
+mod through_the_run_proxy;
 
 use link::{Cell, Dialect, Link};
 use serde::{Deserialize, Serialize};

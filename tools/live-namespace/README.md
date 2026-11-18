@@ -26,7 +26,7 @@ the declared totals, and a word search of the file names. `SqlStore` is the one 
 same statements. Which one is the run's `settings.json` `store`: `{"sqlite": {"file": NAME}}` is a SQLite file of that name in the
 state folder (for a person with no database, and for tests) and `{"postgres": {"connection": NAME}}` is the person's own
 Postgres database (the shipped setting, with `own-rows-postgres-connection` attached on descriptor 8), `NAME` the held name of the attached field that holds its connection string (`own-rows-postgres-connection`, the
-credential the person's run-sql tool uses for the same database, reached on the loopback port the computer reports as `own-rows-postgres`).
+credential the person's run-sql tool uses for the same database, reached by its address; in a run the engine keeps in its sandbox, through the run's proxy, src/store/through_the_run_proxy.rs).
 The credential is an attached descriptor like the byte store's, never an argument and never in a file. A database off this computer is
 reached only encrypted. The Postgres side shares every statement with the SQLite side: the store's tests run on it too, when
 `NAMESPACE_POSTGRES_TEST_CONNECTION` holds the connection string of a throwaway database (each test gets a schema of its own).
@@ -82,7 +82,7 @@ shares).
 | `Cargo.lock` | The resolved versions of this program. |
 | `settings.json` | One run's settings: account name, where the rows are kept, key prefix, call time, attached connection fields. |
 | `mcp-tools.json` | Each MCP tool: name, description, input schema. |
-| `tool-rows.json` | The Workshop row `tool:your-files`: the session the engine keeps open and reaches by calls (`session.calls`, the computer's own `live-namespace` program, the credentials mounted by name, the local door `own-rows-postgres`). |
+| `tool-rows.json` | The Workshop row `tool:your-files`: the session the engine keeps open and reaches by calls (`session.calls`, the computer's own `live-namespace` program, the credentials mounted by name, `internet` for the byte store and the database, each reached through the run's proxy). |
 | `kits/your-files.json` | The kit that row ships with. |
 | `moved-from.json` | Each moved file's source path, commit and identities, and what was left behind. |
 | `part.json` | The files the app imports from this folder. |

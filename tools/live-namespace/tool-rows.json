@@ -252,9 +252,6 @@
           },
           "kept_folder": true,
           "internet": true,
-          "local_doors": [
-            "own-rows-postgres"
-          ],
           "credential_mounts": [
             {
               "secret_name": "files-store-secret",
