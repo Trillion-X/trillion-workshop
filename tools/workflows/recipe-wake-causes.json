@@ -1,14 +1,13 @@
 {
-  "about": "What a recipe's `wakes` list may say, copied from what the engine's wake primitive accepts, so a recipe that passes here is a wake the engine takes. The engine reads `wakes` from every Workshop row, a listed recipe row included, and a Workshop row's wake is off until the person switches it on; one malformed item refuses every row's wakes, which is why each is checked here before it ships. A wake is { id, on: { <one cause>: { ...its fields } }, budget: { <dimension>: whole number }, input: { start_at: <step id>, ...input_schema fields } }: exactly the engine's declaration, nothing added. `start_at` in its input is the step a woken run starts at. Adding a cause is adding a row to `causes` once the engine takes it; a field shape is one of text (a non-empty string), zone (an IANA time zone name the time zone database knows; a repeat in a zone keeps its wall-clock time), whole (a whole number from 0), positive (a whole number above 0) or strings (an object whose values are strings). A field may carry its own `refusal` words. A field's `in` names a list in this file its value must be one of; `keys_in` names an object in this file whose entry under the value of field `by` lists the keys allowed; `only_with` names a field that must be present for this one to be. The budget must hold at least `least_budget` (the engine's run cost plus its reserved run time, below which a firing is never funded) and at most the ledger its cause draws from (a firing above it is never funded either).",
+  "about": "What a recipe's `wakes` list may say, copied from what the engine's wake primitive accepts, so a recipe that passes here is a wake the engine takes. The engine reads `wakes` from every Workshop row, a listed recipe row included, and a Workshop row's wake is off until the person switches it on; one malformed item refuses every row's wakes, which is why each is checked here before it ships. A wake is { id, on: { <one cause>: { ...its fields } }, budget: { <dimension>: whole number }, input: { start_at: <step id>, ...input_schema fields } }: exactly the engine's declaration, nothing added. `start_at` in its input is the step a woken run starts at. Adding a cause is adding a row to `causes` once the engine takes it; a field shape is one of text (a non-empty string), texts (a non-empty list of non-empty strings), zone (an IANA time zone name the time zone database knows; a repeat in a zone keeps its wall-clock time), whole (a whole number from 0), positive (a whole number above 0), strings (an object whose values are strings), flag (true or false) or object (any object, kept as written). A cause's `draws` names the ledger its budget comes from, or {by, ledgers, otherwise}: the ledger each value of field `by` names (for a fact, who told it), else `otherwise`; a wake's budget must fit every ledger its values may draw from. A field may carry its own `refusal` words. A field's `in` names a list in this file its value (each item of a texts value) must be one of; `keys_in` names an object in this file whose entry under the value of field `by` lists the keys allowed; `only_with` names a field that must be present for this one to be. The budget must hold at least `least_budget` (the engine's run cost plus its reserved run time, below which a firing is never funded) and at most the ledger its cause draws from (a firing above it is never funded either).",
   "engine": {
-    "commit": "b1be4f3",
+    "commit": "d3fbcac50",
     "read_from": [
-      "src/wake.rs: enum On (record, time, arrival, host_event; deny_unknown_fields) and Waker::declared (record resource not the wake book, time at_ms or every_ms above 0 with from_ms and zone only beside every_ms and a zone the time zone database does not name refused, arrival source non-empty, host_event match values strings, budget keys only ledger dimensions, input an object, ids unique per row)",
+      "src/wake.rs: enum On (time, running, fact; deny_unknown_fields) and Waker::declared (time at_ms or every_ms above 0 with from_ms and zone only beside every_ms and a zone the time zone database does not name refused; fact kind and from non-empty, from naming the tellers computer, run and sender (COMPUTER, RUN, SENDER), match fields equal to the fact's payload, fold true or false, watch kept as written and never read; budget keys only ledger dimensions, input an object, ids unique per row)",
+      "src/wake/wake.json: draws (time from work; a fact by its teller, draws.facts run: work, else arrival: inbound)",
       "src/wake/workshop_runner.rs: WAKES_FIELD, the row field the engine reads wakes from",
       "product/wake.json: ledgers, draws, run_cost, wall_dimension, max_wakes",
-      "product/tool-runs.json: deadline_ms (the time reserved for every run)",
-      "product/host-events.json: kinds and their payload fields",
-      "src/storage/record_store_resources.json: own-records, the resource a person's records live in"
+      "product/tool-runs.json: deadline_ms (the time reserved for every run)"
     ]
   },
   "field": "wakes",
@@ -20,24 +19,8 @@
     "work": { "steps": 2000, "wall_ms": 14400000 },
     "inbound": { "steps": 500, "wall_ms": 3600000 }
   },
-  "resources": ["own-records"],
-  "host_events": {
-    "app-opened": ["bundle_id"],
-    "app-quit": ["bundle_id"],
-    "volume-mounted": ["volume_name", "volume_path"],
-    "volume-unmounted": ["volume_name", "volume_path"]
-  },
+  "tellers": ["computer", "run", "sender"],
   "causes": [
-    {
-      "cause": "record",
-      "meaning": "A record of the person's changes: of one kind, or whose id starts with prefix, in the resource named.",
-      "draws": "work",
-      "fields": [
-        { "field": "resource", "shape": "text", "required": true, "in": "resources" },
-        { "field": "kind", "shape": "text" },
-        { "field": "prefix", "shape": "text" }
-      ]
-    },
     {
       "cause": "time",
       "meaning": "A time comes: once at at_ms, or every every_ms counted from from_ms (0 when absent); with a zone, from_ms's wall-clock time in that zone moved by every_ms of wall-clock time, so a daylight saving change keeps it. A missed slot fires once.",
@@ -51,20 +34,21 @@
       "exactly_one_of": ["at_ms", "every_ms"]
     },
     {
-      "cause": "arrival",
-      "meaning": "Something arrives from the source named (an incoming event, or another run's arrive effect).",
-      "draws": "inbound",
-      "fields": [
-        { "field": "source", "shape": "text", "required": true }
-      ]
+      "cause": "running",
+      "meaning": "Keep the tool's program running while the wake is on: one cause starts it as a kept-open session, and switching the wake off ends it.",
+      "draws": "work",
+      "fields": []
     },
     {
-      "cause": "host_event",
-      "meaning": "The computer reports something of a declared kind, whose payload equals every field of match.",
-      "draws": "inbound",
+      "cause": "fact",
+      "meaning": "A fact of this kind, told by one of the tellers in from (computer: the computer the engine runs on; run: one of the person's tool runs, such as the noticer's due times; sender: anyone else at the door), whose payload equals every field of match. fold folds a burst into the cause not yet started. watch is what the wake asks a teller to watch for, in the teller's own DATA (for due-time, timed-action schedule rows); the engine keeps it with the wake and lists it.",
+      "draws": { "by": "from", "ledgers": { "run": "work" }, "otherwise": "inbound" },
       "fields": [
-        { "field": "kind", "shape": "text", "required": true, "in": "host_events" },
-        { "field": "match", "shape": "strings", "keys_in": "host_events", "by": "kind" }
+        { "field": "kind", "shape": "text", "required": true },
+        { "field": "from", "shape": "texts", "required": true, "in": "tellers" },
+        { "field": "match", "shape": "strings" },
+        { "field": "fold", "shape": "flag" },
+        { "field": "watch", "shape": "object" }
       ]
     }
   ]

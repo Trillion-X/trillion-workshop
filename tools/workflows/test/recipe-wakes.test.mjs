@@ -20,9 +20,9 @@ test('a recipe with no wake, and one with a well-formed wake of every cause, has
   assert.deepEqual(recipeProblems(recipe([
     weekly,
     { id: 'once', on: { time: { at_ms: 1800000000000 } }, budget: { steps: 1, wall_ms: 120000 }, input: { start_at: 'first', size: 3 } },
-    { id: 'new-note', on: { record: { resource: 'own-records', kind: 'note' } }, budget: { steps: 5, wall_ms: 600000 }, input: { start_at: 'first' } },
-    { id: 'shared', on: { arrival: { source: 'share-sheet' } }, budget: { steps: 5, wall_ms: 600000 }, input: { start_at: 'first' } },
-    { id: 'drive', on: { host_event: { kind: 'volume-mounted', match: { volume_name: 'CARD' } } }, budget: { steps: 5, wall_ms: 600000 }, input: { start_at: 'first' } },
+    { id: 'keep', on: { running: {} }, budget: { steps: 1, wall_ms: 120000 }, input: { start_at: 'first' } },
+    { id: 'due', on: { fact: { kind: 'due-time', from: ['run'], match: { schedule_id: 'schedule:weekly' }, watch: { schedules: [{ schedule_id: 'schedule:weekly' }] } } }, budget: { steps: 900, wall_ms: 600000 }, input: { start_at: 'weekly' } },
+    { id: 'drive', on: { fact: { kind: 'volume-mounted', from: ['computer'], match: { volume_name: 'CARD' }, fold: true } }, budget: { steps: 5, wall_ms: 600000 }, input: { start_at: 'first' } },
   ])), []);
 });
 
@@ -47,21 +47,28 @@ test('a repeat may keep its wall-clock time in a known time zone; an unknown zon
 });
 
 test('a cause the engine does not take, two causes, an unknown field and an extra wake key are refused', () => {
-  assert.match(wakeProblems([{ ...weekly, on: { cron: { at: 'monday' } } }], context)[0], /on must name exactly one cause: record, time, arrival, host_event/);
+  assert.match(wakeProblems([{ ...weekly, on: { cron: { at: 'monday' } } }], context)[0], /on must name exactly one cause: time, running, fact/);
+  assert.match(wakeProblems([{ ...weekly, on: { record: { resource: 'own-records' } } }], context)[0], /exactly one cause/, 'a cause the engine dropped is refused');
   assert.match(wakeProblems([{ ...weekly, on: { time: { every_ms: 1 }, arrival: { source: 'x' } } }], context)[0], /exactly one cause/);
   assert.deepEqual(wakeProblems([{ ...weekly, on: { time: { every_ms: 604800000, weekday: 'monday' } } }], context), ['wakes[0].on.time.weekday is not a field of a time cause; it takes at_ms, every_ms, from_ms, zone.']);
   assert.deepEqual(wakeProblems([{ ...weekly, starts: 'weekly' }], context), ['wakes[0].starts is not part of a wake; it takes id, on, budget, input.']);
 });
 
-test('a record wake watches only a resource the person\'s records live in, and a host event matches only fields its kind reports', () => {
-  assert.deepEqual(wakeProblems([{ ...weekly, on: { record: { resource: 'wake-book' } } }], context), ['wakes[0].on.record.resource must be one of: own-records.']);
-  assert.deepEqual(wakeProblems([{ ...weekly, on: { host_event: { kind: 'app-opened', match: { volume_name: 'CARD' } } } }], context), ['wakes[0].on.host_event.match.volume_name is not a field app-opened reports; it reports bundle_id.']);
-  assert.deepEqual(wakeProblems([{ ...weekly, on: { host_event: { kind: 'screen-locked' } } }], context), ['wakes[0].on.host_event.kind must be one of: app-opened, app-quit, volume-mounted, volume-unmounted.']);
+test('a fact names a kind and who may tell it, from the engine\'s tellers only', () => {
+  const fact = (fields) => [{ ...weekly, on: { fact: fields } }];
+  assert.deepEqual(wakeProblems(fact({ kind: 'due-time', from: ['run'] }), context), []);
+  assert.deepEqual(wakeProblems(fact({ kind: 'due-time', from: ['the-neighbour'] }), context), ['wakes[0].on.fact.from must be one of: computer, run, sender.']);
+  assert.deepEqual(wakeProblems(fact({ kind: 'due-time', from: [] }), context), ['wakes[0].on.fact.from must be texts.']);
+  assert.deepEqual(wakeProblems(fact({ from: ['run'] }), context), ['wakes[0].on.fact.kind is required.']);
+  assert.deepEqual(wakeProblems(fact({ kind: 'due-time', from: ['run'], fold: 'yes' }), context), ['wakes[0].on.fact.fold must be flag.']);
 });
 
 test('a budget below what a run needs, above its ledger, or in an unknown dimension is refused', () => {
   assert.deepEqual(wakeProblems([{ ...weekly, budget: { steps: 1 } }], context), ['wakes[0].budget.wall_ms must be at least 120000, or no firing is ever funded.']);
-  assert.deepEqual(wakeProblems([{ ...weekly, on: { arrival: { source: 'x' } }, budget: { steps: 600, wall_ms: 120000 } }], context), ['wakes[0].budget.steps must be at most 500, the inbound ledger for a whole period.']);
+  const told = (from) => [{ ...weekly, on: { fact: { kind: 'x', from } }, budget: { steps: 600, wall_ms: 120000 } }];
+  assert.deepEqual(wakeProblems(told(['sender']), context), ['wakes[0].budget.steps must be at most 500, the inbound ledger for a whole period.']);
+  assert.deepEqual(wakeProblems(told(['run']), context), [], 'what the person\'s own tools tell draws from work');
+  assert.deepEqual(wakeProblems(told(['run', 'computer']), context), ['wakes[0].budget.steps must be at most 500, the inbound ledger for a whole period.'], 'it must fit every ledger it may draw from');
   assert.deepEqual(wakeProblems([{ ...weekly, budget: { ...weekly.budget, dollars: 5 } }], context), ['wakes[0].budget.dollars is not a budget dimension; they are steps, wall_ms.']);
 });
 

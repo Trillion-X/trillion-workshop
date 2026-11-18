@@ -611,6 +611,8 @@ async function startWaiter({ carrier, resolved, signal, nowMs, onWriteOutcome })
     // keep more before anything is told: a mechanism's own memory, never a second store.
     state: current?.state ?? null,
     keepState: (state) => carrier.keepState?.(emitted.address_label, state),
+    // Which switched-on wakes hear a kind of fact, as the engine lists them (a carrier over the engine's door).
+    listening: (kind) => (carrier.listening ? carrier.listening(kind) : Promise.resolve([])),
     async onTransition(transition) {
       const observedAt = nextObservedAt(nowMs(), previousObservedAt);
       const matched = matchedSourceRefs(transition?.observed_identity, candidates);

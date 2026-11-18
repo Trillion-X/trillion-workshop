@@ -20,6 +20,8 @@
 //   only after the engine accepted the fact. A restarted waiter resumes from it (its sequence, a repeat's next due
 //   time). Without one they are kept in memory for this run alone.
 // - One line per fact told goes to standard error, so the session's output says what was told and what was refused.
+// - A mechanism may ask which switched-on wakes hear a kind of fact (`listening`, the door's `wake:list`, a right
+//   {at, id: <kind>, operations: ["wake:list"]}): the due-time leaf watches the schedules those wakes name in `watch`.
 // - Kept open (its wake `running`), it watches until it is stopped. Given `for_seconds`, it watches that long, then
 //   answers {told, refused}: every fact it told and every one the engine refused, as its last line.
 //
@@ -32,6 +34,7 @@ import { runResidentEmitter } from './emit-arrival-fact.mjs';
 
 const DESCRIPTOR_FD = 3;
 const ARRIVE = 'wake:arrive';
+const LIST = 'wake:list';
 /** The most payload fields one fact carries (the engine's fact inbox, trillion-rust src/wake/host-events.json max_fields). */
 const MOST_FIELDS = 8;
 
@@ -92,15 +95,19 @@ export function engineCarrier({ door, waiters, fetchImpl = fetch, say = line => 
     renameSync(`${file}.new`, file);
   }
   const answer = { told: [], refused: [] };
-  async function arrive(fact) {
+  /** One door operation `method` with `input`: the response and the call's result. */
+  async function operate(method, input, requestKey) {
     calls += 1;
     const body = JSON.stringify({ jsonrpc: '2.0', id: calls, method: 'tools/call', params: { name: 'run_resource_operation',
-      arguments: { address: door.resource ?? '@own-records', method: ARRIVE, request_key: `fact:${fact.event_id}`, input: fact } } });
+      arguments: { address: door.resource ?? '@own-records', method, request_key: requestKey, input } } });
     const response = await fetchImpl(door.url, { method: 'POST', body, headers: { authorization: `Bearer ${door.capability}`,
       'content-type': 'application/json', accept: 'application/json, text/event-stream', 'mcp-protocol-version': '2025-06-18' } });
     const raw = await response.text();
     const json = raw.trim().startsWith('{') ? raw : raw.split('\n').filter(line => line.startsWith('data:')).map(line => line.slice(5).trim()).join('');
-    const result = JSON.parse(json || '{}').result ?? {};
+    return { response, result: JSON.parse(json || '{}').result ?? {} };
+  }
+  async function arrive(fact) {
+    const { response, result } = await operate(ARRIVE, fact, `fact:${fact.event_id}`);
     if (!response.ok || result.isError) {
       const why = result.structuredContent?.detail ?? result.structuredContent?.code ?? `HTTP ${response.status}`;
       say(JSON.stringify({ refused: fact.kind, event_id: fact.event_id, why }));
@@ -121,6 +128,16 @@ export function engineCarrier({ door, waiters, fetchImpl = fetch, say = line => 
       await arrive(factOf(record, eventId));
       const state = record.state === undefined ? kept(record.addressLabel)?.state ?? null : record.state;
       remember(record.addressLabel, { payload: record.payload, state });
+    },
+    /** The switched-on wakes that hear facts of `kind` (wake:list), each as the engine lists it. */
+    async listening(kind) {
+      const { response, result } = await operate(LIST, { kind }, `list:${kind}:${Date.now()}`);
+      if (!response.ok || result.isError) {
+        const why = result.structuredContent?.detail ?? result.structuredContent?.code ?? `HTTP ${response.status}`;
+        throw new Error(`the engine did not list the wakes that hear ${kind}: ${why}`);
+      }
+      const wakes = result.structuredContent?.wakes ?? [];
+      return wakes.filter(wake => wake.switched_on === true);
     },
     async keepState(addressLabel, state) {
       remember(addressLabel, { payload: kept(addressLabel)?.payload ?? null, state });

@@ -41,10 +41,47 @@
           {
             "id": "nightly",
             "on": {
-              "time": {
-                "every_ms": 86400000,
-                "from_ms": 10800000,
-                "zone": "America/Chicago"
+              "fact": {
+                "kind": "due-time",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "schedule_id": "schedule:workflow:serve-content-ideas-each-morning:nightly"
+                },
+                "watch": {
+                  "schedules": [
+                    {
+                      "schedule_id": "schedule:workflow:serve-content-ideas-each-morning:nightly",
+                      "source_generation": 1,
+                      "schedule_revision": 1,
+                      "timezone": "America/Chicago",
+                      "start_local_date": "1969-12-31",
+                      "local_window": {
+                        "start": "21:00",
+                        "duration_minutes": 1
+                      },
+                      "dst": {
+                        "gap": "next-valid",
+                        "fold": "earlier"
+                      },
+                      "action": {
+                        "operation": "tell-the-engine",
+                        "owner_ref": "workflow:serve-content-ideas-each-morning",
+                        "owner_dispatch": {
+                          "name": "workflow:serve-content-ideas-each-morning",
+                          "input": {}
+                        },
+                        "completion": {
+                          "mode": "synchronous-owner-return"
+                        }
+                      },
+                      "cadence": {
+                        "unit": "day"
+                      }
+                    }
+                  ]
+                }
               }
             },
             "budget": {

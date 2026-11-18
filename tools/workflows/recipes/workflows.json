@@ -4948,9 +4948,50 @@
           {
             "id": "monday",
             "on": {
-              "time": {
-                "every_ms": 604800000,
-                "from_ms": 378000000
+              "fact": {
+                "kind": "due-time",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "schedule_id": "schedule:workflow:find-and-test-the-short-video-formats-that-sell-your-app:monday"
+                },
+                "watch": {
+                  "schedules": [
+                    {
+                      "schedule_id": "schedule:workflow:find-and-test-the-short-video-formats-that-sell-your-app:monday",
+                      "source_generation": 1,
+                      "schedule_revision": 1,
+                      "timezone": "UTC",
+                      "start_local_date": "1970-01-05",
+                      "local_window": {
+                        "start": "09:00",
+                        "duration_minutes": 1
+                      },
+                      "dst": {
+                        "gap": "next-valid",
+                        "fold": "earlier"
+                      },
+                      "action": {
+                        "operation": "tell-the-engine",
+                        "owner_ref": "workflow:find-and-test-the-short-video-formats-that-sell-your-app",
+                        "owner_dispatch": {
+                          "name": "workflow:find-and-test-the-short-video-formats-that-sell-your-app",
+                          "input": {}
+                        },
+                        "completion": {
+                          "mode": "synchronous-owner-return"
+                        }
+                      },
+                      "cadence": {
+                        "unit": "week",
+                        "weekdays": [
+                          1
+                        ]
+                      }
+                    }
+                  ]
+                }
               }
             },
             "budget": {
@@ -8727,9 +8768,50 @@
           {
             "id": "thursday",
             "on": {
-              "time": {
-                "every_ms": 604800000,
-                "from_ms": 32400000
+              "fact": {
+                "kind": "due-time",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "schedule_id": "schedule:workflow:follow-up-with-people-who-engaged:thursday"
+                },
+                "watch": {
+                  "schedules": [
+                    {
+                      "schedule_id": "schedule:workflow:follow-up-with-people-who-engaged:thursday",
+                      "source_generation": 1,
+                      "schedule_revision": 1,
+                      "timezone": "UTC",
+                      "start_local_date": "1970-01-01",
+                      "local_window": {
+                        "start": "09:00",
+                        "duration_minutes": 1
+                      },
+                      "dst": {
+                        "gap": "next-valid",
+                        "fold": "earlier"
+                      },
+                      "action": {
+                        "operation": "tell-the-engine",
+                        "owner_ref": "workflow:follow-up-with-people-who-engaged",
+                        "owner_dispatch": {
+                          "name": "workflow:follow-up-with-people-who-engaged",
+                          "input": {}
+                        },
+                        "completion": {
+                          "mode": "synchronous-owner-return"
+                        }
+                      },
+                      "cadence": {
+                        "unit": "week",
+                        "weekdays": [
+                          4
+                        ]
+                      }
+                    }
+                  ]
+                }
               }
             },
             "budget": {
@@ -11675,9 +11757,47 @@
           {
             "id": "daily",
             "on": {
-              "time": {
-                "every_ms": 86400000,
-                "from_ms": 50400000
+              "fact": {
+                "kind": "due-time",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "schedule_id": "schedule:workflow:grow-the-one-tree:daily"
+                },
+                "watch": {
+                  "schedules": [
+                    {
+                      "schedule_id": "schedule:workflow:grow-the-one-tree:daily",
+                      "source_generation": 1,
+                      "schedule_revision": 1,
+                      "timezone": "UTC",
+                      "start_local_date": "1970-01-01",
+                      "local_window": {
+                        "start": "14:00",
+                        "duration_minutes": 1
+                      },
+                      "dst": {
+                        "gap": "next-valid",
+                        "fold": "earlier"
+                      },
+                      "action": {
+                        "operation": "tell-the-engine",
+                        "owner_ref": "workflow:grow-the-one-tree",
+                        "owner_dispatch": {
+                          "name": "workflow:grow-the-one-tree",
+                          "input": {}
+                        },
+                        "completion": {
+                          "mode": "synchronous-owner-return"
+                        }
+                      },
+                      "cadence": {
+                        "unit": "day"
+                      }
+                    }
+                  ]
+                }
               }
             },
             "budget": {
@@ -12609,10 +12729,47 @@
           {
             "id": "every-morning",
             "on": {
-              "time": {
-                "every_ms": 86400000,
-                "from_ms": 28800000,
-                "zone": "America/Chicago"
+              "fact": {
+                "kind": "due-time",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "schedule_id": "schedule:workflow:handle-every-inbox-daily:every-morning"
+                },
+                "watch": {
+                  "schedules": [
+                    {
+                      "schedule_id": "schedule:workflow:handle-every-inbox-daily:every-morning",
+                      "source_generation": 1,
+                      "schedule_revision": 1,
+                      "timezone": "America/Chicago",
+                      "start_local_date": "1970-01-01",
+                      "local_window": {
+                        "start": "02:00",
+                        "duration_minutes": 1
+                      },
+                      "dst": {
+                        "gap": "next-valid",
+                        "fold": "earlier"
+                      },
+                      "action": {
+                        "operation": "tell-the-engine",
+                        "owner_ref": "workflow:handle-every-inbox-daily",
+                        "owner_dispatch": {
+                          "name": "workflow:handle-every-inbox-daily",
+                          "input": {}
+                        },
+                        "completion": {
+                          "mode": "synchronous-owner-return"
+                        }
+                      },
+                      "cadence": {
+                        "unit": "day"
+                      }
+                    }
+                  ]
+                }
               }
             },
             "budget": {
@@ -14189,9 +14346,47 @@
           {
             "id": "hourly",
             "on": {
-              "time": {
-                "every_ms": 3600000,
-                "from_ms": 0
+              "fact": {
+                "kind": "due-time",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "schedule_id": "schedule:workflow:keep-a-changelog-from-what-shipped:hourly"
+                },
+                "watch": {
+                  "schedules": [
+                    {
+                      "schedule_id": "schedule:workflow:keep-a-changelog-from-what-shipped:hourly",
+                      "source_generation": 1,
+                      "schedule_revision": 1,
+                      "timezone": "UTC",
+                      "start_local_date": "1970-01-01",
+                      "local_window": {
+                        "start": "00:00",
+                        "duration_minutes": 1
+                      },
+                      "dst": {
+                        "gap": "next-valid",
+                        "fold": "earlier"
+                      },
+                      "action": {
+                        "operation": "tell-the-engine",
+                        "owner_ref": "workflow:keep-a-changelog-from-what-shipped",
+                        "owner_dispatch": {
+                          "name": "workflow:keep-a-changelog-from-what-shipped",
+                          "input": {}
+                        },
+                        "completion": {
+                          "mode": "synchronous-owner-return"
+                        }
+                      },
+                      "cadence": {
+                        "unit": "hour"
+                      }
+                    }
+                  ]
+                }
               }
             },
             "budget": {
@@ -15089,8 +15284,48 @@
           {
             "id": "quarterly",
             "on": {
-              "time": {
-                "every_ms": 7776000000
+              "fact": {
+                "kind": "due-time",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "schedule_id": "schedule:workflow:keep-pages-cited-by-answer-engines:quarterly"
+                },
+                "watch": {
+                  "schedules": [
+                    {
+                      "schedule_id": "schedule:workflow:keep-pages-cited-by-answer-engines:quarterly",
+                      "source_generation": 1,
+                      "schedule_revision": 1,
+                      "timezone": "UTC",
+                      "start_local_date": "1970-01-01",
+                      "local_window": {
+                        "start": "00:00",
+                        "duration_minutes": 1
+                      },
+                      "dst": {
+                        "gap": "next-valid",
+                        "fold": "earlier"
+                      },
+                      "action": {
+                        "operation": "tell-the-engine",
+                        "owner_ref": "workflow:keep-pages-cited-by-answer-engines",
+                        "owner_dispatch": {
+                          "name": "workflow:keep-pages-cited-by-answer-engines",
+                          "input": {}
+                        },
+                        "completion": {
+                          "mode": "synchronous-owner-return"
+                        }
+                      },
+                      "cadence": {
+                        "unit": "day",
+                        "interval": 90
+                      }
+                    }
+                  ]
+                }
               }
             },
             "budget": {
@@ -30129,9 +30364,47 @@
           {
             "id": "hourly",
             "on": {
-              "time": {
-                "every_ms": 3600000,
-                "from_ms": 0
+              "fact": {
+                "kind": "due-time",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "schedule_id": "schedule:workflow:out-launch-a-new-launch:hourly"
+                },
+                "watch": {
+                  "schedules": [
+                    {
+                      "schedule_id": "schedule:workflow:out-launch-a-new-launch:hourly",
+                      "source_generation": 1,
+                      "schedule_revision": 1,
+                      "timezone": "UTC",
+                      "start_local_date": "1970-01-01",
+                      "local_window": {
+                        "start": "00:00",
+                        "duration_minutes": 1
+                      },
+                      "dst": {
+                        "gap": "next-valid",
+                        "fold": "earlier"
+                      },
+                      "action": {
+                        "operation": "tell-the-engine",
+                        "owner_ref": "workflow:out-launch-a-new-launch",
+                        "owner_dispatch": {
+                          "name": "workflow:out-launch-a-new-launch",
+                          "input": {}
+                        },
+                        "completion": {
+                          "mode": "synchronous-owner-return"
+                        }
+                      },
+                      "cadence": {
+                        "unit": "hour"
+                      }
+                    }
+                  ]
+                }
               }
             },
             "budget": {
@@ -32874,9 +33147,50 @@
           {
             "id": "friday",
             "on": {
-              "time": {
-                "every_ms": 604800000,
-                "from_ms": 144000000
+              "fact": {
+                "kind": "due-time",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "schedule_id": "schedule:workflow:post-a-weekly-build-in-public-update:friday"
+                },
+                "watch": {
+                  "schedules": [
+                    {
+                      "schedule_id": "schedule:workflow:post-a-weekly-build-in-public-update:friday",
+                      "source_generation": 1,
+                      "schedule_revision": 1,
+                      "timezone": "UTC",
+                      "start_local_date": "1970-01-02",
+                      "local_window": {
+                        "start": "16:00",
+                        "duration_minutes": 1
+                      },
+                      "dst": {
+                        "gap": "next-valid",
+                        "fold": "earlier"
+                      },
+                      "action": {
+                        "operation": "tell-the-engine",
+                        "owner_ref": "workflow:post-a-weekly-build-in-public-update",
+                        "owner_dispatch": {
+                          "name": "workflow:post-a-weekly-build-in-public-update",
+                          "input": {}
+                        },
+                        "completion": {
+                          "mode": "synchronous-owner-return"
+                        }
+                      },
+                      "cadence": {
+                        "unit": "week",
+                        "weekdays": [
+                          5
+                        ]
+                      }
+                    }
+                  ]
+                }
               }
             },
             "budget": {
@@ -34649,9 +34963,48 @@
           {
             "id": "monthly-check",
             "on": {
-              "time": {
-                "from_ms": 1796083200000,
-                "every_ms": 2592000000
+              "fact": {
+                "kind": "due-time",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "schedule_id": "schedule:workflow:put-a-households-money-in-order:monthly-check"
+                },
+                "watch": {
+                  "schedules": [
+                    {
+                      "schedule_id": "schedule:workflow:put-a-households-money-in-order:monthly-check",
+                      "source_generation": 1,
+                      "schedule_revision": 1,
+                      "timezone": "UTC",
+                      "start_local_date": "2026-12-01",
+                      "local_window": {
+                        "start": "00:00",
+                        "duration_minutes": 1
+                      },
+                      "dst": {
+                        "gap": "next-valid",
+                        "fold": "earlier"
+                      },
+                      "action": {
+                        "operation": "tell-the-engine",
+                        "owner_ref": "workflow:put-a-households-money-in-order",
+                        "owner_dispatch": {
+                          "name": "workflow:put-a-households-money-in-order",
+                          "input": {}
+                        },
+                        "completion": {
+                          "mode": "synchronous-owner-return"
+                        }
+                      },
+                      "cadence": {
+                        "unit": "day",
+                        "interval": 30
+                      }
+                    }
+                  ]
+                }
               }
             },
             "budget": {
@@ -60245,8 +60598,11 @@
           {
             "id": "card-inserted",
             "on": {
-              "host_event": {
-                "kind": "volume-mounted"
+              "fact": {
+                "kind": "volume-mounted",
+                "from": [
+                  "computer"
+                ]
               }
             },
             "budget": {
@@ -63773,9 +64129,50 @@
           {
             "id": "monday",
             "on": {
-              "time": {
-                "every_ms": 604800000,
-                "from_ms": 378000000
+              "fact": {
+                "kind": "due-time",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "schedule_id": "schedule:workflow:validate-and-launch-a-subscription-app:monday"
+                },
+                "watch": {
+                  "schedules": [
+                    {
+                      "schedule_id": "schedule:workflow:validate-and-launch-a-subscription-app:monday",
+                      "source_generation": 1,
+                      "schedule_revision": 1,
+                      "timezone": "UTC",
+                      "start_local_date": "1970-01-05",
+                      "local_window": {
+                        "start": "09:00",
+                        "duration_minutes": 1
+                      },
+                      "dst": {
+                        "gap": "next-valid",
+                        "fold": "earlier"
+                      },
+                      "action": {
+                        "operation": "tell-the-engine",
+                        "owner_ref": "workflow:validate-and-launch-a-subscription-app",
+                        "owner_dispatch": {
+                          "name": "workflow:validate-and-launch-a-subscription-app",
+                          "input": {}
+                        },
+                        "completion": {
+                          "mode": "synchronous-owner-return"
+                        }
+                      },
+                      "cadence": {
+                        "unit": "week",
+                        "weekdays": [
+                          1
+                        ]
+                      }
+                    }
+                  ]
+                }
               }
             },
             "budget": {

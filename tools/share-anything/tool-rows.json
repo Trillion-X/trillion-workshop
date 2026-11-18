@@ -1026,13 +1026,7 @@
           }
         ],
         "wakes": [
-          {
-            "id": "check-unused-grants",
-            "on": {
-              "time": {
-                "every_ms": 3600000
-              }
-            },
+          {"id": "check-unused-grants", "on": {"fact":{"kind":"due-time","from":["run"],"match":{"schedule_id":"schedule:tool:end-shares-whose-condition-failed:check-unused-grants"},"watch":{"schedules":[{"schedule_id":"schedule:tool:end-shares-whose-condition-failed:check-unused-grants","source_generation":1,"schedule_revision":1,"timezone":"UTC","start_local_date":"1970-01-01","local_window":{"start":"00:00","duration_minutes":1},"dst":{"gap":"next-valid","fold":"earlier"},"action":{"operation":"tell-the-engine","owner_ref":"tool:end-shares-whose-condition-failed","owner_dispatch":{"name":"tool:end-shares-whose-condition-failed","input":{}},"completion":{"mode":"synchronous-owner-return"}},"cadence":{"unit":"hour"}}]}}},
             "budget": {
               "steps": 1,
               "wall_ms": 120000

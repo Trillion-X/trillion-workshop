@@ -142,7 +142,8 @@
                 "at": "@own-records",
                 "id": "due-time",
                 "operations": [
-                  "wake:arrive"
+                  "wake:arrive",
+                  "wake:list"
                 ]
               }
             ]
@@ -196,33 +197,11 @@
                   "mechanism_capability_ref": "package::notice-when-something-shows-up::mechanism::due-time",
                   "mechanism_leaf": "due-time.mjs",
                   "mechanism_settings": {
-                    "schedules": [
-                      {
-                        "schedule_id": "schedule:every-hour",
-                        "source_generation": 1,
-                        "schedule_revision": 1,
-                        "timezone": "UTC",
-                        "start_local_date": "2026-11-18",
-                        "cadence": {
-                          "unit": "hour"
-                        },
-                        "local_window": {
-                          "start": "00:00",
-                          "duration_minutes": 5
-                        },
-                        "action": {
-                          "operation": "tell-the-engine",
-                          "owner_ref": "wake:arrive",
-                          "owner_dispatch": {
-                            "name": "wake:arrive",
-                            "input": {}
-                          },
-                          "completion": {
-                            "mode": "synchronous-owner-return"
-                          }
-                        }
-                      }
-                    ]
+                    "from_wakes": {
+                      "kind": "due-time"
+                    },
+                    "look_again_seconds": 60,
+                    "look_again_why": "A wake switched on since the last look is watched within a minute; reading the list is one door call a minute."
                   },
                   "emitted_record": {
                     "change_kind": "due-time",
@@ -239,7 +218,7 @@
                     ]
                   },
                   "candidate_identity_feed": null,
-                  "why": "What timed-action says is due (tools/run-work-later-or-on-a-repeat whenToWake), told as a fact once per occurrence: its settings are timed-action's own rows (schedules; time_windows and actions). A tool hears a schedule with a wake {fact: {kind: due-time, from: [run], match: {schedule_id}}}, a one-off with match {record_id}."
+                  "why": "What timed-action says is due (tools/run-work-later-or-on-a-repeat whenToWake), told as a fact once per occurrence. The schedules are the ones the switched-on wakes that hear due-time ask for in their watch (wake:list), so each lives once, on the row that wants it: a tool hears its own with a wake {fact: {kind: due-time, from: [run], match: {schedule_id}, watch: {schedules: [...]}}}."
                 }
               ]
             }

@@ -19,7 +19,7 @@ const schedule = (fields) => ({ schedule_id: 'schedule:review', source_generatio
   start_local_date: '2020-01-06', cadence: { unit: 'week', weekdays: [1] }, local_window: { start: '09:00', duration_minutes: 30 }, action, ...fields });
 
 /** Watch `settings` from `start` (ISO), each wait jumping to the next of `jumps`; told transitions answer `answers` in turn. */
-async function watch(settings, { start, jumps, state = null, answers = [] }) {
+async function watch(settings, { start, jumps, state = null, answers = [], listening }) {
   let now = Date.parse(start);
   const told = [];
   const kept = [];
@@ -35,6 +35,7 @@ async function watch(settings, { start, jumps, state = null, answers = [] }) {
     },
     keepState: async (value) => { kept.push(value); },
     say: (line) => said.push(line),
+    listening: listening ? (kind) => listening(kind, now) : undefined,
     onTransition: async (transition) => {
       told.push(transition);
       return answers.length > 0 ? answers.shift() : true;
@@ -44,6 +45,8 @@ async function watch(settings, { start, jumps, state = null, answers = [] }) {
 }
 
 const starts = (told) => told.map((fact) => fact.detail.start);
+/** A wake as wake:list answers it, hearing due-time and asking `watch`. */
+const listener = (watch, switched_on = true) => ({ tool: 'workflow:daily', id: 'daily', switched_on, on: { fact: { kind: 'due-time', from: ['run'], match: { schedule_id: watch.schedules?.[0]?.schedule_id }, watch } } });
 
 test('a schedule first seen starts at its first time from now, and Monday 09:00 New York holds across the clock change', async () => {
   const { told, kept } = await watch({ schedules: [schedule()] },
@@ -135,4 +138,30 @@ test('the engine carrier names a fact by its event key and keeps the waiter stat
   const restarted = engineCarrier({ door, waiters: [], fetchImpl, say: () => {}, keep });
   assert.deepEqual((await restarted.readCurrent('clock::due')).state, { first_seen_ms: 1, schedules: {}, receipts: [] });
   assert.equal(await restarted.readCurrent('nothing::here'), null);
+});
+
+test('from_wakes: the schedules switched-on wakes ask for are watched, each once, and one switched on later starts then', async () => {
+  const daily = schedule({ schedule_id: 'schedule:daily-14', cadence: { unit: 'day' }, local_window: { start: '14:00', duration_minutes: 1 }, timezone: 'UTC' });
+  const hourly = schedule({ schedule_id: 'schedule:hourly', cadence: { unit: 'hour' }, local_window: { start: '00:00', duration_minutes: 1 }, timezone: 'UTC' });
+  const asked = [];
+  const listening = async (kind, now) => {
+    asked.push(kind);
+    // The hourly wake is switched on at 15:30; two wakes ask for the same daily schedule.
+    const wakes = [listener({ schedules: [daily] }), listener({ schedules: [daily] })];
+    return now >= Date.parse('2026-03-02T15:30:00Z') ? [...wakes, listener({ schedules: [hourly] })] : wakes;
+  };
+  const { told } = await watch({ from_wakes: { kind: 'due-time' }, look_again_seconds: 3600 },
+    { start: '2026-03-02T12:00:00Z', jumps: ['2026-03-02T13:00:00Z', '2026-03-02T14:00:00Z', '2026-03-02T15:30:00Z', '2026-03-02T16:00:00Z'], listening });
+  assert.ok(asked.every((kind) => kind === 'due-time'));
+  assert.deepEqual(told.map((fact) => [fact.detail.schedule_id, fact.detail.start]), [
+    ['schedule:daily-14', '2026-03-02T14:00:00.000Z'],
+    ['schedule:hourly', '2026-03-02T16:00:00.000Z'],
+  ], 'the daily schedule once, and the hourly one from when its wake was switched on, not the times before');
+});
+
+test('from_wakes: a wake the engine could not list is said once, and the leaf keeps looking', async () => {
+  const { told, said } = await watch({ from_wakes: { kind: 'due-time' }, look_again_seconds: 60 },
+    { start: '2026-03-02T12:00:00Z', jumps: ['2026-03-02T12:01:00Z', '2026-03-02T12:02:00Z'], listening: async () => { throw new Error('the door said no'); } });
+  assert.equal(told.length, 0);
+  assert.deepEqual(said, ['due-time: the door said no']);
 });

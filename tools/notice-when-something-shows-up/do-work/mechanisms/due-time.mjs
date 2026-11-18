@@ -20,6 +20,12 @@
  *   - time_windows, actions: one-off actions; heard by match {record_id}.
  *   - retry_seconds: how long to wait before asking again after a fact the
  *     engine did not take (60 when left out). The occurrence stays due meanwhile.
+ *   - from_wakes: {kind}: also watch what each switched-on wake that hears facts
+ *     of `kind` asks for in its `watch` ({schedules?, time_windows?, actions?},
+ *     trillion-rust src/wake.rs `On::Fact`), read at the door's wake:list. Each
+ *     schedule then lives once, on the row whose wake wants it.
+ *   - look_again_seconds: with from_wakes, the longest wait before the wakes are
+ *     read again, so a wake switched on later is watched (60 when left out).
  *
  * Non-negotiable invariants
  *   - Exactly once. Each occurrence is told under its own event key (timed-
@@ -29,8 +35,9 @@
  *   - An occurrence counts as done only once the engine took its fact: the fact
  *     is timed-action's owner proof. A refused tell leaves it due.
  *   - A schedule first seen starts at its first time from now (timed-action
- *     `resume_from_ms`, set when the waiter first runs), never catching up on
- *     every time since its start_local_date.
+ *     `resume_from_ms`, set when the leaf first sees that schedule, so one a
+ *     wake switched on later starts then), never catching up on every time
+ *     since its start_local_date.
  *   - The state stays bounded however long a schedule runs: per schedule, only
  *     the proof of its last told occurrence and resume_from_ms at that
  *     occurrence's start; per one-off, only the receipts of actions still named.
@@ -56,19 +63,36 @@ export function describeMechanism() {
   };
 }
 
+const rows = (value) => (Array.isArray(value) ? value : []);
+const seconds = (value, otherwise) => (Number.isFinite(Number(value)) && Number(value) > 0 ? Number(value) : otherwise) * 1000;
+
 /** The settings as timed-action's input parts, or null when they name nothing to wait for. */
 export function readSettings(settings = {}) {
-  const rows = (value) => (Array.isArray(value) ? value : []);
   const schedules = rows(settings.schedules);
   const actions = rows(settings.actions);
-  if (schedules.length === 0 && actions.length === 0) return null;
-  const retry = Number(settings.retry_seconds);
+  const fromWakes = typeof settings.from_wakes?.kind === "string" && settings.from_wakes.kind !== "" ? settings.from_wakes.kind : null;
+  if (schedules.length === 0 && actions.length === 0 && fromWakes === null) return null;
   return {
     schedules,
     time_windows: rows(settings.time_windows),
     actions,
     spread: settings.spread ?? null,
-    retry_ms: (Number.isFinite(retry) && retry > 0 ? retry : 60) * 1000,
+    retry_ms: seconds(settings.retry_seconds, 60),
+    from_wakes: fromWakes,
+    look_again_ms: seconds(settings.look_again_seconds, 60),
+  };
+}
+
+/** The rule with what the listening wakes ask to be watched (each wake's `watch`) added; a schedule or action two
+ *  wakes name the same way is watched once. */
+export function withListeners(rule, wakes) {
+  const once = (list) => [...new Map(list.map((row) => [JSON.stringify(row), row])).values()];
+  const watched = wakes.map((wake) => wake?.on?.fact?.watch ?? {});
+  return {
+    ...rule,
+    schedules: once([...rule.schedules, ...watched.flatMap((watch) => rows(watch.schedules))]),
+    time_windows: once([...rule.time_windows, ...watched.flatMap((watch) => rows(watch.time_windows))]),
+    actions: once([...rule.actions, ...watched.flatMap((watch) => rows(watch.actions))]),
   };
 }
 
@@ -120,10 +144,11 @@ function provenOneOff(state, rule, fire) {
  * @param {()=>number} [handlers.nowMs] injected clock, for tests
  * @param {(ms:number, signal:AbortSignal)=>Promise<void>} [handlers.sleep] injected sleep, for tests
  * @param {(line:string)=>void} [handlers.say] where a rejected schedule is said (standard error)
+ * @param {(kind:string)=>Promise<object[]>} [handlers.listening] the switched-on wakes that hear facts of a kind
  */
 export async function watchForTransitions(settings, handlers) {
-  const rule = readSettings(settings);
-  if (rule === null) throw new Error("due-time settings name no schedules and no actions (timed-action's own rows)");
+  const own = readSettings(settings);
+  if (own === null) throw new Error("due-time settings name no schedules, no actions and no from_wakes (timed-action's own rows)");
   const nowMs = handlers.nowMs ?? (() => Date.now());
   const sleep = handlers.sleep ?? defaultSleep;
   const signal = handlers.signal;
@@ -135,14 +160,34 @@ export async function watchForTransitions(settings, handlers) {
     await keepState(state);
   }
   const said = new Set();
+  const tellOnce = (line) => {
+    if (!said.has(line)) say(line);
+    said.add(line);
+  };
+  const listening = handlers.listening ?? (async () => []);
+  let listeners = [];
 
   while (!signal?.aborted) {
+    if (own.from_wakes !== null) {
+      try {
+        listeners = await listening(own.from_wakes);
+      } catch (error) {
+        tellOnce(`due-time: ${error?.message ?? error}`);
+      }
+    }
+    const rule = withListeners(own, listeners);
     const now = nowMs();
+    // A schedule seen for the first time (a wake switched on since) starts at its first time from now, kept before
+    // anything of it is told.
+    const fresh = rule.schedules.filter((schedule) => typeof schedule?.schedule_id === "string" && !state.schedules[schedule.schedule_id]);
+    if (fresh.length > 0) {
+      const added = Object.fromEntries(fresh.map((schedule) => [schedule.schedule_id, { resume_from_ms: now, proofs: [] }]));
+      state = { ...state, schedules: { ...state.schedules, ...added } };
+      await keepState(state);
+    }
     const due = dueAt(rule, state, now);
     for (const rejected of due.rejected) {
-      const line = `due-time: timed-action refused schedule ${rejected.schedule_id}: ${rejected.reason}`;
-      if (!said.has(line)) say(line);
-      said.add(line);
+      tellOnce(`due-time: timed-action refused schedule ${rejected.schedule_id}: ${rejected.reason}`);
     }
     let refused = false;
     const observedAt = new Date(now).toISOString();
@@ -165,7 +210,8 @@ export async function watchForTransitions(settings, handlers) {
       else state = next;
     }
     if (due.recurring.length + due.oneOff.length > 0 && !refused) continue; // what was told may have made the next due
-    const until = refused ? now + rule.retry_ms : due.next_ms;
+    let until = refused ? now + rule.retry_ms : due.next_ms;
+    if (own.from_wakes !== null) until = Math.min(until ?? Infinity, now + own.look_again_ms);
     await waitUntil(until, { nowMs, sleep, signal });
   }
 }

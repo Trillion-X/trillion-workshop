@@ -18,6 +18,9 @@ const knownZone = value => {
 // The closed set of JSON value forms a cause field may take.
 const SHAPES = {
   text: value => typeof value === 'string' && value.length > 0,
+  texts: value => Array.isArray(value) && value.length > 0 && value.every(item => typeof item === 'string' && item.length > 0),
+  flag: value => typeof value === 'boolean',
+  object,
   zone: value => typeof value === 'string' && value.length > 0 && knownZone(value),
   whole,
   positive: value => Number.isInteger(value) && value > 0,
@@ -40,7 +43,7 @@ function causeProblems(row, fields, where, vocabulary) {
     const at = `${where}.${field.field}`;
     if (value === undefined) { if (field.required) problems.push(`${at} is required.`); continue; }
     if (!SHAPES[field.shape](value)) { problems.push(`${at} ${field.refusal ?? `must be ${field.shape}.`}`); continue; }
-    if (field.in && !listed(vocabulary, field.in).includes(value)) problems.push(`${at} must be one of: ${listed(vocabulary, field.in).join(', ')}.`);
+    if (field.in && ![value].flat().every(item => listed(vocabulary, field.in).includes(item))) problems.push(`${at} must be one of: ${listed(vocabulary, field.in).join(', ')}.`);
     if (field.only_with && fields[field.only_with] === undefined) problems.push(`${at} is taken only beside ${field.only_with}.`);
     if (field.keys_in) {
       const allowed = vocabulary[field.keys_in]?.[fields[field.by]] ?? [];
@@ -51,9 +54,19 @@ function causeProblems(row, fields, where, vocabulary) {
   return problems;
 }
 
+// The ledgers a wake's budget may be drawn from: its cause's `draws`, or for a cause that draws by a field (a fact, by
+// who told it) the ledger each value of that field names, else `otherwise`.
+function ledgersOf(row, fields) {
+  const draws = row?.draws;
+  if (typeof draws === 'string') return [draws];
+  if (!object(draws)) return [];
+  const values = [fields?.[draws.by]].flat().filter(value => value !== undefined);
+  return [...new Set(values.map(value => draws.ledgers?.[value] ?? draws.otherwise))];
+}
+
 // Every problem with a budget: only ledger dimensions, whole numbers, at least the least budget a run needs and at most
-// the ledger its cause draws from.
-function budgetProblems(budget, where, ledger, vocabulary) {
+// every ledger its cause may draw from.
+function budgetProblems(budget, where, ledgers, vocabulary) {
   if (!object(budget)) return [`${where} must be an object of dimension: whole number.`];
   const problems = [];
   const dimensions = Object.keys(vocabulary.least_budget);
@@ -63,8 +76,10 @@ function budgetProblems(budget, where, ledger, vocabulary) {
   }
   for (const [dimension, least] of Object.entries(vocabulary.least_budget)) {
     if ((budget[dimension] ?? 0) < least) problems.push(`${where}.${dimension} must be at least ${least}, or no firing is ever funded.`);
-    const most = vocabulary.ledgers[ledger]?.[dimension];
-    if (most !== undefined && budget[dimension] > most) problems.push(`${where}.${dimension} must be at most ${most}, the ${ledger} ledger for a whole period.`);
+    for (const ledger of ledgers) {
+      const most = vocabulary.ledgers[ledger]?.[dimension];
+      if (most !== undefined && budget[dimension] > most) problems.push(`${where}.${dimension} must be at most ${most}, the ${ledger} ledger for a whole period.`);
+    }
   }
   return problems;
 }
@@ -90,7 +105,7 @@ export function wakeProblems(wakes, { stepIds, inputFields }, vocabulary = WAKE_
     if (!row) problems.push(`${where}.on must name exactly one cause: ${[...causes.keys()].join(', ')}.`);
     else if (!object(wake.on[row.cause])) problems.push(`${where}.on.${row.cause} must be an object of its fields.`);
     else problems.push(...causeProblems(row, wake.on[row.cause], `${where}.on.${row.cause}`, vocabulary));
-    problems.push(...budgetProblems(wake.budget, `${where}.budget`, row?.draws, vocabulary));
+    problems.push(...budgetProblems(wake.budget, `${where}.budget`, ledgersOf(row, object(wake.on) ? wake.on[row?.cause] : undefined), vocabulary));
     if (!object(wake.input)) { problems.push(`${where}.input must be an object holding ${vocabulary.start_field}.`); return; }
     if (!stepIds.includes(wake.input[vocabulary.start_field])) problems.push(`${where}.input.${vocabulary.start_field} must name a step of this recipe: ${stepIds.join(', ')}.`);
     for (const key of Object.keys(wake.input)) if (key !== vocabulary.start_field && !inputFields.includes(key)) problems.push(`${where}.input.${key} is not a field of this recipe's input_schema.`);
