@@ -1,0 +1,197 @@
+{
+  "about": "workflow:list-what-my-ais-sent-out: keeps, in the person's own store, every thing their AIs sent out in the world (an email, post, comment, direct message, reply or order) that one of the AIs or a tool recorded, and lists them newest first, a page at a time. It replaces tools/list-everything-my-ais-sent-out-in-the-world (src/sent-tools.mjs: the list_sent and record_sent tools, whose whole job was reading and keeping the /sent records of the retired record store). The kinds that say how each record reads and where it opens are DATA in tools/keep-and-wake-ai-sessions-on-this-computer/records/sent-kinds.json and are not moved (rule a-tool-is-only-what-the-store-cannot-do).",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:list-what-my-ais-sent-out",
+        "label": "List what my AIs sent out",
+        "job": "Keep each thing an AI sent out for the person by a road that did not keep it itself, with the exact words, to whom, when, by which tool and provider, and the open link when there is one, once per id; and list what was sent, newest first, a page at a time, with the next page's cursor.",
+        "produces": "The store's own sent object, proven on the example sends in the store, each record kept, repeated or refused and read back, and each list page answered in order.",
+        "source": {
+          "from": "tools/list-everything-my-ais-sent-out-in-the-world (src/sent-tools.mjs, list_sent and record_sent), read on the workshop repository's origin/main; the old source is the /sent route of the old store",
+          "note": "The tools checked and shaped nothing; the store route decided. The recipe keeps the same fields the tool's record_sent schema names. The kind rows (label, view, open link) stay in tools/keep-and-wake-ai-sessions-on-this-computer/records/sent-kinds.json and are read as DATA when a list is shown."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store",
+            "operation"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                },
+                "place": {
+                  "type": "string",
+                  "description": "Where in the store the sent records are kept, when they already are"
+                }
+              }
+            },
+            "operation": {
+              "type": "string",
+              "enum": [
+                "list",
+                "record"
+              ]
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "description": "For list: how many, default 50"
+            },
+            "before": {
+              "type": "object",
+              "description": "For list: the next_page of the page before, { value, id }"
+            },
+            "sent": {
+              "type": "object",
+              "required": [
+                "kind",
+                "to",
+                "body_markdown"
+              ],
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "description": "One of the kinds in records/sent-kinds.json"
+                },
+                "to": {
+                  "description": "Who or where it went: a text or a list of texts"
+                },
+                "body_markdown": {
+                  "type": "string",
+                  "description": "The exact words that were sent"
+                },
+                "subject": { "type": "string" },
+                "sent_at": { "type": "string", "description": "A date and time" },
+                "from": { "type": "string" },
+                "reply_to": { "type": "string" },
+                "preheader": { "type": "string" },
+                "provider": { "type": "string" },
+                "provider_id": { "type": "string" },
+                "provider_account": { "type": "string", "description": "Observed in source evidence; never guessed from the recorder" },
+                "execution_ref": { "type": "string" },
+                "origin": { "type": "string", "enum": ["real", "synthetic", "unknown"] },
+                "open_url": { "type": "string" },
+                "body_html": { "type": "string" },
+                "body_text": { "type": "string" },
+                "id": { "type": "string", "description": "Its id in the sent list; a new one when left out" },
+                "task_id": { "type": "string" },
+                "tool_id": { "type": "string" }
+              }
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the sent records are kept (kept_in, or null) and the names of the objects that already keep them, and show them.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own object, once",
+            "do": "When the look step found nothing, make one object in the store's own form: sent (id, kind, to, subject, body_markdown, body_html, body_text, sent_at, from, reply_to, preheader, provider, provider_id, provider_account, execution_ref, origin, open_url, task_id, tool_id, recorder, recorded_at), primary key id. The kind must be one of the kinds in records/sent-kinds.json; origin is real, synthetic or unknown; to is kept as a list of texts. Grant only what the store's holder allows the person's login. Submit the name of the object made, or the one the look step found.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the object on the example sends",
+            "do": "In a throwaway place in the same store, with the same object, do these in order: record {id: \"sent:e1\", kind: \"email\", to: [\"sam@example.com\"], subject: \"Your order\", body_markdown: \"Thanks, it ships Monday.\", sent_at: \"2026-11-10T10:00:00Z\", origin: \"real\", tool_id: \"the sending tool's id\"}; record {id: \"sent:p1\", kind: \"post\", to: [\"the public feed\"], body_markdown: \"New: the note index.\", sent_at: \"2026-11-11T10:00:00Z\", origin: \"real\"}; record sent:e1 again with the same body (repeated); record sent:e1 with a changed body (refused: a sent record is never rewritten); record {id: \"sent:x1\", kind: \"telegram\"} (refused: not one of the kinds); list with limit 1; list with limit 1 and the before of the first page; list with no limit. Rules: a record with an id that is kept is repeated when its words are the same and refused when they differ; to is kept as a list; the list is newest first by sent_at, then id; a page's next_page is { value: its last sent_at, id: its last id }. Then remove the throwaway place. Submit outcomes (kept, repeated or refused, in order) and answers: the first page (limit 1) is sent:p1 with next_page {value: 2026-11-11T10:00:00Z, id: sent:p1}; the page after it, read with that before, is sent:e1 with no next page; the full list is sent:p1 then sent:e1.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answers"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "answers": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "keep",
+            "title": "Keep each run through that object",
+            "do": "For record: check the kind against records/sent-kinds.json, keep the record with its id (a new id when none is given), and repeat it when a kept record has the same words, refuse it when the words differ. For list: read the page newest first from the cursor, limit at most 200, and submit each record with its kind's label, view and open link from records/sent-kinds.json (a record's own open_url always wins over the template). Submit the outcome and the rows read back.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcome"
+              ],
+              "properties": {
+                "outcome": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": []
+          }
+        ],
+        "erase": "On the person's request the store deletes the sent records named, or all of them. Each record is the person's own record of what was sent."
+      }
+    }
+  ]
+}

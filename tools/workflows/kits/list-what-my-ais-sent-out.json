@@ -1,0 +1,85 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:list-what-my-ais-sent-out with store {\\\"where\\\": \\\"postgresql database example_sent on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-sent-postgres-connection\\\"} and operation list with limit 20.\"",
+  "lists": [],
+  "no_lists_because": "It names no list: the sent records are kept in the person's own store, in whatever form that store keeps things, and store says where and in which language. The kinds are the DATA rows in records/sent-kinds.json.",
+  "workflows": [
+    "workflow:list-what-my-ais-sent-out"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:list-what-my-ais-sent-out\" with store and an operation: record (with the sent record) or list (with limit and before).",
+    "3. The first run makes the store's own object once and proves it on the example sends: every outcome must be as the intent says, or the run stops and says which.",
+    "4. Every later run keeps the record through that object, or reads the next page, and reads each row back."
+  ],
+  "worked_examples": [
+    {
+      "title": "An email an AI sent is recorded, then listed",
+      "ask": "Record that you emailed Sam the order note, and show what I sent.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:list-what-my-ais-sent-out",
+              "store": {
+                "where": "postgresql database example_sent on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-sent-postgres-connection"
+              },
+              "operation": "record",
+              "sent": {
+                "id": "sent:e1",
+                "kind": "email",
+                "to": [
+                  "sam@example.com"
+                ],
+                "subject": "Your order",
+                "body_markdown": "Thanks, it ships Monday.",
+                "sent_at": "2026-11-10T10:00:00Z",
+                "origin": "real"
+              }
+            }
+          }
+        }
+      },
+      "workflow": "workflow:list-what-my-ais-sent-out",
+      "step": "keep",
+      "given": "No sent record with the id sent:e1 exists yet.",
+      "hands_back": "kept \"sent:e1\"; the same record sent again with the same words is repeated and writes nothing."
+    },
+    {
+      "title": "The newest sends, a page at a time",
+      "ask": "What did my AIs send me recently? Twenty at a time.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:list-what-my-ais-sent-out",
+              "store": {
+                "where": "postgresql database example_sent on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-sent-postgres-connection"
+              },
+              "operation": "list",
+              "limit": 20
+            }
+          }
+        }
+      },
+      "workflow": "workflow:list-what-my-ais-sent-out",
+      "step": "keep",
+      "given": "Two sends are kept: sent:p1 (a post, 2026-11-11) and sent:e1 (an email, 2026-11-10).",
+      "hands_back": "\"sent:p1\" then \"sent:e1\", newest first, each with its kind's label and open link; no next_page because the list ends."
+    }
+  ]
+}
