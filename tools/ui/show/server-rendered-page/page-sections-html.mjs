@@ -1087,7 +1087,7 @@ export const PAGE_PROSE_CSS = `
 .page-prose .doc-list{margin:0 0 1.3em;padding-left:1.45em}
 .page-prose .doc-list li{margin:.4em 0;padding-left:.2em}
 .page-prose .doc-list li::marker{color:var(--page-faint)}
-.page-prose .doc-task{list-style:none;position:relative;margin-left:-1.45em;padding-left:1.9em}
+.page-prose .doc-list .doc-task{list-style:none;position:relative;margin-left:-1.45em;padding-left:1.9em}
 .page-prose .doc-task-box{position:absolute;left:0;top:.38em;width:1.05em;height:1.05em;box-sizing:border-box;border:1.5px solid var(--page-line-strong);border-radius:.3em}
 .page-prose .doc-task[data-done="true"]{color:var(--page-soft)}
 .page-prose .doc-task[data-done="true"] .doc-task-box{border-color:var(--page-ink);background:var(--page-ink)}
