@@ -1,0 +1,233 @@
+{
+  "about": "workflow:read-glance-feeds: Read one glance feed, or an ordered surface of feeds, from the person's own rows: each feed names its record type and row prefix, filters its rows, orders them, and shows the parts a widget or a watch",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:read-glance-feeds",
+        "label": "Read one glance feed or an ordered surface from the person's own rows",
+        "job": "Read one glance feed, or an ordered surface of feeds, from the person's own rows: each feed names its record type and row prefix, filters its rows, orders them, and shows the parts a widget or a watch displays, at most the limit of rows per feed. A feed with no reader or no rows says so instead of guessing.",
+        "produces": "One answer per feed (its rows, or an unavailable status with the reason), read from the store's own rows, and the surface's feeds in their order.",
+        "source": {
+          "from": "tools/read-glance-feeds (read-data/glance-feeds.mjs, do-work/read-glance-feeds.mjs), read on trillion-workshop origin/main bb8022539c; the feed definitions are DATA and stay in the folder at tools/read-glance-feeds/read-data/glance-feeds.json, where the choice of a feed for each widget (tools/choose-the-feed-each-widget-shows) reads them too",
+          "note": "The definitions (surfaces, feed ids, record types, filters, order, the shown parts, the limits) are read from tools/read-glance-feeds/read-data/glance-feeds.json and are not restated here. Two feeds (running and told) read through the packaged reader of the owner tell-the-person (readKeptNotices), which keeps its own rules: the recipe names that reader and does not copy it. The old tool took the rows in the request and opened no door; the store now holds the rows and the query is the store's own."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string"
+                },
+                "language": {
+                  "type": "string"
+                },
+                "credential_name": {
+                  "type": "string"
+                }
+              }
+            },
+            "feed": {
+              "type": "string",
+              "description": "One feed id from the definitions, or leave out"
+            },
+            "surface": {
+              "type": "string",
+              "description": "One surface name from the definitions, or leave out"
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "description": "Rows per feed; default 50"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read the feed definitions and what the store keeps",
+            "do": "Read tools/read-glance-feeds/read-data/glance-feeds.json (the surfaces, the feeds, their record types, filters, order, shown parts and limits), and speak to the store in its own language with the login under its credential_name. For each feed the request names, submit the record type it reads, whether the store keeps rows of that type, and whether the feed is unavailable in the definitions.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "feeds"
+              ],
+              "properties": {
+                "feeds": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "record_type",
+                      "kept"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "record_type": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "kept": {
+                        "type": "boolean"
+                      },
+                      "unavailable": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make no new objects; name what is missing",
+            "do": "A feed reads the store's own rows of the record type it names and makes no object of its own. For a feed whose rows the store does not keep, or that the definitions mark unavailable, answer its status unavailable with the words from the definitions, and do not invent rows. Submit the feeds that answer from rows, and the feeds that answer unavailable.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "readable",
+                "unavailable"
+              ],
+              "properties": {
+                "readable": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "unavailable": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the read on the example rows",
+            "do": "In a throwaway place in the same store, with example habit rows h1 (state Doing, entry_path present, title 'Walk'), h2 (state Stopped, entry_path present), h3 (state Doing, entry_path missing) and h4 (state Doing, entry_path present, title 'Read'), read the feed habits with limit 50: the answer is h1 and h4 only, in the order the definitions give (none of Stopped or Established, entry_path present). Then read the feed habits with limit 1: h1 only. Then read the feed today: unavailable, with the words of the definitions. Then read with limit 0: refused (a positive whole number). Then read a feed id the definitions do not name: refused. Submit each as its rows (ids), status or refusal words.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "attempts"
+              ],
+              "properties": {
+                "attempts": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "attempt",
+                      "outcome"
+                    ],
+                    "properties": {
+                      "attempt": {
+                        "type": "integer"
+                      },
+                      "outcome": {
+                        "type": "string",
+                        "enum": [
+                          "rows",
+                          "unavailable",
+                          "refused"
+                        ]
+                      },
+                      "row_ids": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "why": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "keep",
+            "title": "Answer this run's feeds",
+            "do": "For each feed the request names (or each feed of the surface, in the surface's order), run its read through the store's own query: the record type and prefix, the filters as the definitions give them (a row missing a filtered field is left out, and a present or none-of test is read as the definitions state it), the order, the limit (the request's, else 50, at most 200), and the shown parts. A feed whose reader is a packaged reader is read by that reader, not by this recipe. Submit one answer per feed: id, label, status (rows or unavailable), the rows as the shown parts with their row ids, and the error when unavailable.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "feeds"
+              ],
+              "properties": {
+                "feeds": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "status"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "label": {
+                        "type": "string"
+                      },
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "rows",
+                          "unavailable"
+                        ]
+                      },
+                      "rows": {
+                        "type": "array",
+                        "items": {
+                          "type": "object"
+                        }
+                      },
+                      "error": {
+                        "type": [
+                          "object",
+                          "null"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": []
+          }
+        ],
+        "erase": "Nothing is kept by a read; the definitions in tools/read-glance-feeds/read-data/glance-feeds.json change only by the owner's change to that file."
+      }
+    }
+  ]
+}

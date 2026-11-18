@@ -1,49 +1,7 @@
 # tools/read-glance-feeds/
 
-Reads one glance feed or an ordered surface of feeds from the person's own rows, given in the request as `records` (their AI selects them from their own database with plain SQL and hands them in; the tool opens no door and keeps nothing). The feed's
-record type, prefix, row path, filters, order and displayed fields are DATA in `read-data/glance-feeds.json`; the reader
-contains no feed IDs, product-specific record types or API routes.
+The definitions of the glance feeds and surfaces: `read-data/glance-feeds.json` is DATA only. It names each surface, each feed, the record type a feed reads, its filters, order, shown parts and limits, and the feeds that are unavailable. Nothing in this folder reads a record.
 
-A source may instead name a packaged reader with `{ module, export, input?, rows }`. The relative module and export
-come only from trusted package DATA, never the action input. That function receives `(input, { door })`, the door being a list over the given rows; `rows` selects
-its returned array. This composes an existing record-layout owner without copying its migration rules into each feed.
-Missing readers, wrong shapes, denied reads and the source-row bound still return an unavailable feed.
+Reading one feed or an ordered surface from the person's own rows is no longer a tool. It is the recipe `workflow:read-glance-feeds` (`tools/workflows/recipes/read-glance-feeds.json`): the person's AI reads these definitions, queries the rows of the record type each feed names in the person's own store, and answers each feed. The reader module, its command, its kit and its tests were removed in the landing commit (the store's rows are the store's, and the feed query is the store's own query).
 
-## Call
-
-The Workshop action is `tool:read-glance-feeds`.
-
-Input is `{ "feed": "told" }` or `{ "surface": "watch", "limit": 20 }`. Give exactly one of `feed` or `surface`.
-`limit` is a positive whole number per feed and defaults to 50.
-
-One run's answer stays within `limits.page_bytes` (DATA, 180 KiB), shared across the feeds of a surface. A feed whose
-rows do not fit returns `next_cursor`, the id of its last row returned. To read the next page, call again with
-`{ "feed": "<id>", "cursor": "<next_cursor>" }` (a cursor is only for one feed). Rows are never cut: a row larger than
-the page is an unavailable feed (`row_too_large`), and a cursor with no row to continue after is `stale_cursor`.
-
-The result is `{ feeds: [{ id, label, about, status, empty?, rows?, error? }] }`, with `surface` added when requested.
-`status` is `ready` with `empty` and `rows`, or `unavailable` with `error: { code, message }`. An empty `rows` array
-means a successful empty read. A failed, denied or malformed record read is unavailable, never an empty feed. Each ready
-row has `{ id, title, source, flagged }`, and may also have `detail`, `note`, `open`, `time`, `fraction`, `read` or
-`actions`. `source` is the exact raw row from the record; this keeps action data and read state available to Watch.
-
-Surface reads run each declared feed concurrently and return them in the order in DATA. A surface naming an unknown
-feed is invalid rather than partially returned.
-
-## Current data coverage
-
-The rows given are the feeds' types: `record:habit`, `record:waiting-on-you`, `record:pursuit`, and waiting `ai-job` records under matching
-prefix rights. `told` and `running` compose the existing told reader, which owns the legacy whole-head and current
-indexed notice layouts. They require the same notice-kind list right as the notices tool. Current index membership is
-preserved, so orphaned old item records never reappear as live notices. Running reports retain their actual progress.
-The historical `today`, `needle-mover` and `decisions` feeds remain in the surface DATA
-and return `unavailable` with an explicit reason because their current record contracts are not adopted here. A failed
-read of one source also returns that feed as unavailable while successful siblings are returned in DATA order.
-
-## Files
-
-- `read-data/glance-feeds.json`: record source queries, feed projections and surface order.
-- `read-data/glance-feeds.mjs`: generic feed reader.
-- `do-work/read-glance-feeds.mjs`: the command: lists the given rows the way a door lists them (`tools/record-graph/read-data/rows-as-list.mjs`) and runs the reader.
-- `tool-rows.json`: the registered action.
-- `test/read-glance-feeds.test.mjs`: projection, ordering, filtering, concurrency and failure tests.
+The choice of a feed for each widget (`tools/choose-the-feed-each-widget-shows`) reads `read-data/glance-feeds.json` too. Two feeds, running and told, read through the packaged reader of the tell-the-person owner (readKeptNotices), which keeps its own rules.

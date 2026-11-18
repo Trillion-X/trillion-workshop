@@ -1,0 +1,102 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:read-glance-feeds with store {\\\"where\\\": \\\"postgresql database example_shop on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-shop-postgres-connection\\\"} and surface watch with limit 20.\"",
+  "lists": [],
+  "no_lists_because": "It names no list: the feed reads the person's own rows of the record types the definitions name, in whatever form the store keeps them.",
+  "workflows": [
+    "workflow:read-glance-feeds"
+  ],
+  "tools": [
+    "tool:run-workflow-definition",
+    "tool:hand-a-job-to-an-ai"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:read-glance-feeds\" with store, and either a feed id or a surface, and a limit if you want fewer than 50 rows per feed.",
+    "3. The first run reads the definitions and proves the read on the example rows; every attempt must come out as the prove step says, or the run stops and says which.",
+    "4. Every later run answers each feed from the store's own rows in the order the definitions give."
+  ],
+  "worked_examples": [
+    {
+      "title": "The habits feed",
+      "ask": "Show me my habits feed.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:read-glance-feeds",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "feed": "habits"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:read-glance-feeds",
+      "step": "keep",
+      "given": "The store keeps habit rows h1 (Doing, entry path present, Walk), h2 (Stopped), h3 (no entry path) and h4 (Doing, entry path present, Read).",
+      "hands_back": "feeds [{\"id\": \"habits\", \"status\": \"rows\", \"rows\": [{\"row_id\": \"h1\", \"title\": \"Walk\"}, {\"row_id\": \"h4\", \"title\": \"Read\"}]}]."
+    },
+    {
+      "title": "A feed with no reader",
+      "ask": "Show me the today feed.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:read-glance-feeds",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "feed": "today"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:read-glance-feeds",
+      "step": "keep",
+      "given": "The definitions mark today unavailable.",
+      "hands_back": "feeds [{\"id\": \"today\", \"status\": \"unavailable\", \"error\": {\"code\": \"source_unavailable\"}}]."
+    },
+    {
+      "title": "A watch surface, limited",
+      "ask": "Show the watch surface with 1 row per feed.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:read-glance-feeds",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "surface": "watch",
+              "limit": 1
+            }
+          }
+        }
+      },
+      "workflow": "workflow:read-glance-feeds",
+      "step": "keep",
+      "given": "The watch surface lists habits, pursuits, told, ai-work, running and decisions in that order.",
+      "hands_back": "feeds in the order \"habits\", \"pursuits\", \"told\", \"ai-work\", \"running\", \"decisions\", each with at most 1 row."
+    }
+  ]
+}
