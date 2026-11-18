@@ -9,8 +9,8 @@
 // path passed through the existing exporter (L069/L100). Pure: no I/O; the caller downloads/zips.
 
 import type { BoardItem } from '../read-data/group-board-model.ts';
-import type { MediaCarouselItem } from '../../ui/show/media-carousel/MediaCarousel';
-import { svgDataUrl } from '../../ui/show/raster/svg-to-png';
+import type { MediaCarouselItem } from '../../ui/show/media-carousel/MediaCarousel.tsx';
+import { svgDataUrl } from '../../ui/show/raster/svg-to-png.ts';
 import { itemIsConnector } from '../read-data/group-board-model.ts';
 import { boardFrames, itemsInsideFrame } from './board-frames.ts';
 import { boardToSvg, escapeXml, type BoardSvgOptions } from './board-svg.ts';
@@ -91,11 +91,31 @@ export function deckToMediaCarouselItems(deck: BoardDeck): MediaCarouselItem[] {
  * already produced (no new geometry/serialization — same relationship as `boardToDeck` to `boardToSvg`,
  * L069/L100). `font` is the look's text face it is set in. An empty deck yields a valid document with an honest empty note (never a fake slide).
  */
-export function deckToHtml(deck: BoardDeck, opts: { title?: string; font?: string } = {}): string {
+export function deckToHtml(deck: BoardDeck, opts: DeckHtmlOptions = {}): string {
   const docTitle = escapeXml(opts.title ?? 'Board deck');
   // The deck is set in the look's text face (`font`: the screen's --font-primary, read where it is downloaded), so the
-  // file reads in the same face away from the screen; without one it keeps the face of whatever opens it.
-  const font = typeof opts.font === 'string' && /^[\w\s,'"-]+$/.test(opts.font.trim()) ? opts.font.trim() : 'inherit';
+  // file reads in the same face away from the screen; without one it is set in the system face.
+  const font = typeof opts.font === 'string' && /^[\w\s,'"-]+$/.test(opts.font.trim()) && opts.font.trim() ? opts.font.trim() : '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif';
+  // A look's stylesheet the document carries; one that could end the style element is left out.
+  const lookCss = typeof opts.css === 'string' && !/<\/style/i.test(opts.css) ? opts.css : '';
+  // Page mode: the same slides, each exactly one page, edge to edge, with no caption or frame chrome.
+  const pageCss = opts.page
+    ? [
+        `@page{size:${Math.max(1, Math.round(opts.page.width))}px ${Math.max(1, Math.round(opts.page.height))}px;margin:0}`,
+        'body{background:none}',
+        `.slide{width:${Math.max(1, Math.round(opts.page.width))}px;height:${Math.max(1, Math.round(opts.page.height))}px;min-height:0;padding:0;display:block;overflow:hidden;break-after:page;page-break-after:always}`,
+        '.slide:last-child{break-after:auto;page-break-after:auto}',
+        '.slide figure{max-width:none;height:100%}',
+        '.slide svg{display:block;height:100%;border:0;border-radius:0;box-shadow:none;background:none}',
+        '.slide figcaption{display:none}',
+      ].join('\n')
+    : '';
+  // The words on the slides as inert records, so a word template can be made from the printed deck itself.
+  // `<` is escaped so no text can end the data block; it is JSON, never run.
+  const words = (opts.words ?? []).map((w) => ({ id: w.id, fields: { text: w.text, slide: w.slide } }));
+  const wordsBlock = words.length
+    ? `<script type="application/json" id="slide-words">${JSON.stringify(words).replace(/</g, '\\u003c')}</script>`
+    : '';
   const sections = deck.slides
     .map(
       (s) =>
@@ -115,8 +135,26 @@ export function deckToHtml(deck: BoardDeck, opts: { title?: string; font?: strin
     '.slide figcaption{margin-top:16px;text-align:center;font-size:15px;color:#475569}',
     '.slide.empty p{color:#64748b}',
     '@media print{body{background:#fff}.slide{page-break-after:always;min-height:auto}.slide svg{box-shadow:none}}',
-    '</style></head><body>',
+    lookCss,
+    pageCss,
+    '</style>',
+    wordsBlock,
+    '</head><body>',
     body,
     '</body></html>',
   ].join('\n');
+}
+
+/** How {@link deckToHtml} lays the deck out. Every field absent → the browsable deck (one framed slide
+ *  per screen, with its caption). */
+export interface DeckHtmlOptions {
+  readonly title?: string;
+  /** The look's text face the deck is set in (a font-family list); absent → the system face. */
+  readonly font?: string;
+  /** Print as pages of exactly this size (CSS px): one slide per page, edge to edge, no caption. */
+  readonly page?: { readonly width: number; readonly height: number };
+  /** A stylesheet the document carries (a look's variables and font faces). */
+  readonly css?: string;
+  /** The words on the slides, one `{ id, text, slide }` per text item, kept as inert JSON records. */
+  readonly words?: ReadonlyArray<{ readonly id: string; readonly text: string; readonly slide: number }>;
 }

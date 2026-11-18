@@ -26,7 +26,7 @@ import {
   ungroupMembers,
   type AddressRef,
   type GroupGraph,
-} from '../../ui/show/group/group-graph';
+} from '../../ui/show/group/group-graph.ts';
 // The SSOT deep-copy engine + its DATA descriptor type. `materializeItems` is used only
 // INSIDE `copyBoardContents`' body (never at module top-level), so the resulting
 // function-level import cycle with board-template-apply is benign under ESM/esbuild.

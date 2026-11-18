@@ -19,7 +19,7 @@
 // section's group). `mint` is injected → deterministic + unit-testable.
 // =============================================================================
 
-import type { GroupGraph } from '../../ui/show/group/group-graph';
+import type { GroupGraph } from '../../ui/show/group/group-graph.ts';
 import type { AddressRef } from '../../ui/show/visual-layer-stack/visual-layer-types';
 import { addBoard, boardRootRef, itemRef, placeItem, placeSection, sectionRef, setBoardBackground, setBoardAppearanceKey } from './group-board-model.ts';
 

@@ -28,7 +28,7 @@
 // You are forbidden from simplifying or removing it.
 // =============================================================================
 
-import type { GroupGraph, AddressRef } from '../../ui/show/group/group-graph';
+import type { GroupGraph, AddressRef } from '../../ui/show/group/group-graph.ts';
 import { readItems, placeItem, patchItems, itemIsConnector, type BoardItem } from '../read-data/group-board-model.ts';
 import { selectionBounds, type Rect } from './group-resize.ts';
 import { finiteCoord } from '../read-data/finite-coord.ts';

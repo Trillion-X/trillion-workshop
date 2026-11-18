@@ -177,14 +177,14 @@ function firstPositive(...values: readonly (number | undefined)[]): number {
 }
 
 /** Greedy width-based line wrap for SVG `<text>` (which does not auto-wrap).
- *  Approximate char width = fontSize * 0.55 (proportional-font heuristic).
+ *  Approximate char width = fontSize * charWidth (proportional-font heuristic, 0.55 by default; a face
+ *  narrower or wider than that names its own ratio as `extra.charWidth`).
  *  Height-clamped so text never overflows the rect. */
-function wrapLines(rawText: string, w: number, h: number, fontSize: number): string[] {
+function wrapLines(rawText: string, w: number, h: number, fontSize: number, lineHeight = fontSize * 1.3, inset = 8, charWidth = 0.55): string[] {
   const text = rawText.length > MAX_SVG_TEXT ? rawText.slice(0, MAX_SVG_TEXT) : rawText; // DoS cap before split
-  const innerW = Math.max(0, w - 16);
-  const charsPerLine = Math.max(1, Math.floor(innerW / (fontSize * 0.55)));
-  const lineHeight = fontSize * 1.3;
-  const maxLines = Math.max(1, Math.floor((h - 12) / lineHeight));
+  const innerW = Math.max(0, w - inset * 2);
+  const charsPerLine = Math.max(1, Math.floor(innerW / (fontSize * charWidth)));
+  const maxLines = Math.max(1, Math.floor((h - inset - 4) / lineHeight));
   // Wrap EVERY line first (capped at maxLines+1 so pathological text can't blow up work),
   // THEN clamp. Truncation — and therefore the ellipsis — must fire only when there is MORE
   // content than fits, never when the text fills exactly `maxLines`. The old code ellipsized
@@ -515,19 +515,27 @@ export function boardToSvg(itemsRaw: readonly BoardItem[], opts: BoardSvgOptions
       const img = svgCropImageRect(it.extra?.crop, it.x, it.y, it.w, it.h);
       const filter = svgImageFilter(it);
       const filterAttr = filter ? ` style="filter:${escapeXml(filter)}"` : '';
+      // `extra.imageFit: 'contain'` shows the whole image inside the rect (a logo); absent → it fills the rect.
+      const fit = it.extra?.imageFit === 'contain' ? 'meet' : 'slice';
       parts.push(
         `<image href="${escapeXml(it.src)}" x="${img.x}" y="${img.y}" width="${img.w}" height="${img.h}" ` +
-          `preserveAspectRatio="xMidYMid slice" clip-path="url(#${clipId})"${filterAttr}/>`,
+          `preserveAspectRatio="xMidYMid ${fit}" clip-path="url(#${clipId})"${filterAttr}/>`,
       );
     }
 
-    // FACET: text (sections carry their title here too).
+    // FACET: text (sections carry their title here too). An item may carry its OWN type the same way it
+    // carries its own font: `extra.fontSize` (px), `extra.fontWeight`, `extra.lineHeight` (a multiple of
+    // the size), `extra.textInset` (px from the rect's edge) and `extra.charWidth` (the face's average
+    // character width as a multiple of the size, for wrapping). Each absent → the board default, so an
+    // item without them exports byte-identical.
     if (typeof it.text === 'string' && it.text.trim().length > 0) {
-      const lines = wrapLines(it.text, it.w, it.h, fontSize);
-      const lineHeight = fontSize * 1.3;
-      const startY = it.y + 8 + fontSize;
+      const itemSize = num(it.extra?.fontSize, fontSize);
+      const lineHeight = itemSize * num(it.extra?.lineHeight, 1.3);
+      const inset = num(it.extra?.textInset, 8);
+      const lines = wrapLines(it.text, it.w, it.h, itemSize, lineHeight, inset, num(it.extra?.charWidth, 0.55));
+      const startY = it.y + inset + itemSize;
       const tspans = lines
-        .map((line, i) => `<tspan x="${it.x + 8}" y="${startY + i * lineHeight}">${escapeXml(line)}</tspan>`)
+        .map((line, i) => `<tspan x="${it.x + inset}" y="${startY + i * lineHeight}">${escapeXml(line)}</tspan>`)
         .join('');
       // A note can carry its OWN font (`extra.fontFamily`, e.g. the sketch/infra-stack template's
       // handwritten boxes). The live render honors it per item (item override > board > global); the
@@ -536,7 +544,9 @@ export function boardToSvg(itemsRaw: readonly BoardItem[], opts: BoardSvgOptions
       // (set once above); items without it inherit that group font, so the SVG is byte-identical.
       const itemFont = typeof it.extra?.fontFamily === 'string' && it.extra.fontFamily ? it.extra.fontFamily : undefined;
       const fontAttr = itemFont ? ` font-family="${escapeXml(itemFont)}"` : '';
-      parts.push(`<text font-size="${fontSize}"${fontAttr} fill="${escapeXml(style.textColor)}">${tspans}</text>`);
+      const weight = it.extra?.fontWeight;
+      const weightAttr = typeof weight === 'number' || (typeof weight === 'string' && /^(normal|bold|[1-9]00)$/.test(weight)) ? ` font-weight="${weight}"` : '';
+      parts.push(`<text font-size="${itemSize}"${fontAttr}${weightAttr} fill="${escapeXml(style.textColor)}">${tspans}</text>`);
     }
 
     parts.push('</g>');

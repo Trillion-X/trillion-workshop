@@ -27,9 +27,9 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, extname, isAbsolute, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { boardToDeck, deckToHtml } from '../read-data/board-deck.ts';
-import { exportFillOf } from '../read-data/board-svg.ts';
-import { boardFrames, itemsInsideFrame } from '../read-data/board-frames.ts';
+import { boardToDeck, deckToHtml } from '../../organize-the-sidebar/do-work/board-deck.ts';
+import { exportFillOf } from '../../organize-the-sidebar/do-work/board-svg.ts';
+import { boardFrames, itemsInsideFrame } from '../../organize-the-sidebar/do-work/board-frames.ts';
 
 const IMAGE_TYPES = { '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp' };
 const STYLE_KEYS = ['fill', 'stroke', 'strokeWidth', 'cornerRadius', 'opacity', 'textColor'];

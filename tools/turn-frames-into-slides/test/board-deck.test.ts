@@ -4,8 +4,8 @@
 import { describe, expect, it } from '../../../test-helpers/vitest-shim.mjs';
 import { emptyGraph } from '../read-data/group-graph.ts';
 import type { AddressRef } from '../read-data/group-graph.ts';
-import { placeItem, readItems } from '../read-data/group-board-model.ts';
-import { boardToDeck, deckSlideLabels, deckToHtml } from '../read-data/board-deck.ts';
+import { placeItem, readItems } from '../../organize-the-sidebar/read-data/group-board-model.ts';
+import { boardToDeck, deckSlideLabels, deckToHtml } from '../../organize-the-sidebar/do-work/board-deck.ts';
 
 const PARENT: AddressRef = { family: 'test.board', parts: { board: 'b1' } };
 

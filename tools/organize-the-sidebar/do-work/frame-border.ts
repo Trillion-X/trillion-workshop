@@ -50,5 +50,5 @@
 // mega-barrel) so the React-free `board-svg` serializer stays React-free.
 // -----------------------------------------------------------------------------
 
-export { readFrameBorder } from '../../ui/show/visual-layer-stack/frame-border';
-export type { FrameBorder } from '../../ui/show/visual-layer-stack/frame-border';
+export { readFrameBorder } from '../../ui/show/visual-layer-stack/frame-border.ts';
+export type { FrameBorder } from '../../ui/show/visual-layer-stack/frame-border.ts';

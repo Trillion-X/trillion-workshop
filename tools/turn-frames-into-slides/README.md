@@ -6,13 +6,10 @@ Each presentation frame on a board becomes one slide, in story order, drawn by t
 
 | File | Purpose |
 |------|---------|
-| `read-data/board-deck.ts` | `boardToDeck(items, opts)`: one slide per frame in story order. `deckToHtml(deck, { title, page, css, words })`: the browsable deck, or (with `page`) pages of exactly that size carrying the look's stylesheet and the slide words as inert records. |
-| `read-data/board-svg.ts` | `boardToSvg(items, opts)`: the board's export contract, a pure items-to-SVG serializer; `exportFillOf` its default style resolver. |
-| `read-data/board-frames.ts` | `boardFrames` (frames in story order) and `itemsInsideFrame` (items centred in a frame). |
-| `read-data/group-board-model.ts`, `group-graph.ts`, `board-template-apply.ts`, `relation-kind-catalog.ts`, `frame-border.ts`, `visual-layer-frame-border.ts`, `visual-layer-types.ts`, `node-ref.ts` | The board model the exporter reads. The geometry it draws with is imported from its owner, tools/organize-the-sidebar (`group-resize.ts`, `finite-coord.ts`, `arrowhead-catalog.ts`, `board-svg-transforms.ts`, `crop-rect.ts`, `connector-geometry.ts`, `catmull-rom.ts`, `orthogonal-route.ts`, `stroke-style.ts`), never copied. |
+| `read-data/group-graph.ts`, `node-ref.ts`, `visual-layer-types.ts` | The graph the board is kept in, which other tools import from here (part.json). |
 | `do-work/make-slides.mjs` | `node do-work/make-slides.mjs <request.json> --out <folder> [--browser <chromium>] [--pdf] [--pictures]`: look values, assets and filled words into the board, then the slides, the document, the PDF and the pictures. |
 | `tool-rows.json` | `tool:turn-frames-into-slides`, an `on-your-computer` row. |
-| `part.json` | The deck, exporter, frame and model files other tools may import. |
+| `part.json` | The graph files other tools may import. |
 | `test/board-deck.test.ts` | The deck export's own tests, carried with it. |
 | `test/make-slides.test.mjs` | A made-up board: story order, frame size, look values, an asset, filled words, stops on a missing value, and (with a Chromium) the PDF and pictures. |
 
@@ -54,7 +51,7 @@ Per-reader wording: make a word template from the printed `deck.html` (`html_jso
 
 ## Dependencies
 
-**Depends on:** Node's standard library; `tools/headless-browser` (`devtools.mjs`, loaded only for `--pdf` and `--pictures`) and a Chromium.
+**Depends on:** Node's standard library; `tools/organize-the-sidebar` (the board model, frames, exporter and deck); `tools/headless-browser` (`devtools.mjs`, loaded only for `--pdf` and `--pictures`) and a Chromium.
 
 **Depended on by:** `tools/workflows/recipes/make-a-brand-book-and-decks.json`.
 
@@ -62,6 +59,6 @@ Per-reader wording: make a word template from the printed `deck.html` (`html_jso
 
 - One slide per frame, in the frames' story order; every frame is the same size, and that size is the page.
 - A colour or font written as a variable name is the look's own value, and text shows a look value as `{{--name}}` (a swatch label) so the value is never copied; a name the look lacks stops the run. Nothing here names a colour, a font or a brand.
-- Additions to the carried exporter, each absent → byte-identical output: per-item `extra.fontSize`, `fontWeight`, `lineHeight`, `textInset`, `charWidth`, and `extra.imageFit: "contain"`; `deckToHtml`'s `page`, `css` and `words`.
+- The board model, frames, exporter and deck are tools/organize-the-sidebar's (`read-data/group-board-model.ts`, `do-work/board-frames.ts`, `do-work/board-svg.ts`, `do-work/board-deck.ts`), imported, never copied. Their additions this tool needs, each absent → byte-identical output: per-item `extra.fontSize`, `fontWeight`, `lineHeight`, `textInset`, `charWidth`, and `extra.imageFit: "contain"`; `deckToHtml`'s `page`, `css` and `words`.
 - Text that does not fit its item ends in an ellipsis rather than overflowing; look at the pictures.
 - The slide words in the document are inert JSON (never run), with `<` escaped.
