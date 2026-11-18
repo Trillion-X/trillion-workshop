@@ -10,7 +10,7 @@
 import assert from 'node:assert/strict';
 import { join, relative } from 'node:path';
 import { test } from 'node:test';
-import { pageShellHtml } from '../tools/organize-my-files/parts/ui/show/server-rendered-page/page-sections-html.mjs';
+import { pageShellHtml } from '../tools/ui/show/server-rendered-page/page-sections-html.mjs';
 import { threadCoverHtml } from '../tools/organize-my-files/parts/ui/show/thread-cover/thread-cover.mjs';
 import setup from '../tools/organize-my-files/parts/ui/show/thread-cover/thread-cover.json' with { type: 'json' };
 import { openingCoverFiles, ROOT as coverGeneratorRoot } from '../tools/draw-the-apps-icon-in-every-size-from/scripts/make-opening-cover.mjs';

@@ -31,8 +31,8 @@
 // the only inline script is JSON-LD, built from values, never from caller markup.
 
 import { escapeHtml } from '../../../../../write-a-post-for-each-place/read-data/escape-html.mjs';
-import { SHARE_ROW_CSS, SHARE_ROW_SCRIPT, shareRowHtml } from '../share-row/share-row-html.mjs';
-import { SITE_NAV_CSS, SITE_NAV_SCRIPT, siteNavEntries } from '../site-nav/site-nav-look.mjs';
+import { SHARE_ROW_CSS, SHARE_ROW_SCRIPT, shareRowHtml } from '../../../../../ui/show/share-row/share-row-html.mjs';
+import { SITE_NAV_CSS, SITE_NAV_SCRIPT, siteNavEntries } from '../../../../../ui/show/site-nav/site-nav-look.mjs';
 import { LAYER_DIAGRAM_CSS, layerDiagramHtml } from '../../../../../shared-code/parts/ui/show/layer-diagram/layer-diagram.mjs';
 import { graphDocumentHtml } from '../../../../../shared-code/parts/ui/show/layer-diagram/graph-contract.mjs';
 import WORD_MARKS from './word-marks.json' with { type: 'json' };

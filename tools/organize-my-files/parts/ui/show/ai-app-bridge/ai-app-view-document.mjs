@@ -16,7 +16,7 @@
 //   view imports later, such as a tool's own screen, by the same name the service's own page gives it).
 // - IT LIVES IN THE SHARED UI PART because it is an HTML sink: callers hand copy and addresses, never tags.
 
-import { escapeHtml } from '../server-rendered-page/page-sections-html.mjs';
+import { escapeHtml } from '../../../../../ui/show/server-rendered-page/page-sections-html.mjs';
 
 /** The whole view document. `hostId` is the element the script fills and `wordsId` the JSON holding `words` (`title`
  * and whatever the script shows in words); `module` loads the script as a module (it imports its other files); `importMap` names its bare imports. */

@@ -13,7 +13,7 @@
 //   - the files made for the iPhone app are the cover's own bytes (scripts/make-opening-cover.mjs; the app's copy is checked with the app's source).
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { pageShellHtml } from '../parts/ui/show/server-rendered-page/page-sections-html.mjs';
+import { pageShellHtml } from '../../ui/show/server-rendered-page/page-sections-html.mjs';
 import { coverNeedleSvg, threadCoverHtml, threadCoverPage } from '../parts/ui/show/thread-cover/thread-cover.mjs';
 import setup from '../parts/ui/show/thread-cover/thread-cover.json' with { type: 'json' };
 import { coverLook, openingCoverFiles } from '../../draw-the-apps-icon-in-every-size-from/scripts/make-opening-cover.mjs';

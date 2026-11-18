@@ -62,32 +62,11 @@
       "identity": "1f:e9dc586b0408809343622851cff1e9068b085bbc0ec693d109f9e684e055f32f"
     },
     {
-      "from": "parts/ui/show/loading-mark/loading-mark-html.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/organize-my-files/parts/ui/show/loading-mark/loading-mark-html.mjs",
-      "source_identity": "1f:a4c2e0a07aa1fa19e5a891836e57150eef94cda18121a00f73a306c820346a46",
-      "identity": "1f:9e7e7d0b1d4636f5fc37353e439d3cad3ce624d91c98a4f4ec0f56126e76ebb1"
-    },
-    {
       "from": "parts/ui/show/media-preview/picture-readiness.json",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/organize-my-files/parts/ui/show/media-preview/picture-readiness.json",
       "source_identity": "1f:ed4e169a2c2b0e265681582cfcdf002ff4b130e558ff5b3f544e4adb1c07b635",
       "identity": "1f:ed4e169a2c2b0e265681582cfcdf002ff4b130e558ff5b3f544e4adb1c07b635"
-    },
-    {
-      "from": "parts/ui/show/media-preview/picture-readiness.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/organize-my-files/parts/ui/show/media-preview/picture-readiness.mjs",
-      "source_identity": "1f:95aee010046479d31fe6c7db3b1d2505a2da91fc06873c7d8a5b7ddd8ae8245e",
-      "identity": "1f:95aee010046479d31fe6c7db3b1d2505a2da91fc06873c7d8a5b7ddd8ae8245e"
-    },
-    {
-      "from": "parts/ui/show/plan-card/plan-card-html.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/organize-my-files/parts/ui/show/plan-card/plan-card-html.mjs",
-      "source_identity": "1f:77cbfef43b2bbeaae55c1afa749259ee4d82858e232e8ccb7c4c3d769c671227",
-      "identity": "1f:eedd9117e7247b90c4aeba6a7e80602881aa3f736dca0e1304c2cce66b133104"
     },
     {
       "from": "parts/ui/show/request/quiet-retry.json",
@@ -104,40 +83,11 @@
       "identity": "1f:476c59f1b2c051e6af99ebe661ff0203853168672c3cc89882298b2774b0b72f"
     },
     {
-      "from": "parts/ui/show/server-rendered-page/page-sections-html.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/organize-my-files/parts/ui/show/server-rendered-page/page-sections-html.mjs",
-      "source_identity": "1f:96f3a44bbfbce604301db538e1b6676b6b008742efda4fe0e000cdd5b4c24283",
-      "identity": "1f:f3b91d523f0e79473d6665ab981b4f2ca12e6fdfc0bf93e2bd06bf2cd36a2657"
-    },
-    {
-      "from": "parts/ui/show/server-rendered-page/page-sections-html.mjs",
-      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "to": "tools/organize-my-files/parts/ui/show/server-rendered-page/page-sections-html.mjs",
-      "source_identity": "1f:96f3a44bbfbce604301db538e1b6676b6b008742efda4fe0e000cdd5b4c24283",
-      "identity": "1f:f3b91d523f0e79473d6665ab981b4f2ca12e6fdfc0bf93e2bd06bf2cd36a2657",
-      "reused": true
-    },
-    {
-      "from": "parts/ui/show/share-row/share-row-html.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/organize-my-files/parts/ui/show/share-row/share-row-html.mjs",
-      "source_identity": "1f:32bb7b6c2e7502379483dbf3c1674e6dd464edd7e447cefdc90f8b7eea6f9ad2",
-      "identity": "1f:b6dbcbdf158ef48beea54a6b94b5b00ae961ceef611a5995bc3f65e25f95d097"
-    },
-    {
       "from": "parts/ui/show/share-row/share-row.json",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/organize-my-files/parts/ui/show/share-row/share-row.json",
       "source_identity": "1f:bcebda490816a7a5dd78acc353360db566d5187e33acef22e7e08a421188e6a6",
       "identity": "1f:bcebda490816a7a5dd78acc353360db566d5187e33acef22e7e08a421188e6a6"
-    },
-    {
-      "from": "parts/ui/show/site-nav/site-nav-look.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/organize-my-files/parts/ui/show/site-nav/site-nav-look.mjs",
-      "source_identity": "1f:a634f85f62124d4bcc5cfdedde6f8cfcc3c8431f5742fd175cee807263ffb60f",
-      "identity": "1f:a634f85f62124d4bcc5cfdedde6f8cfcc3c8431f5742fd175cee807263ffb60f"
     },
     {
       "from": "parts/ui/show/thread-cover/thread-cover.json",

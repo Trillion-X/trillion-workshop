@@ -5,7 +5,7 @@
 // (record:setting:draw-the-apps-icon-in-every-size-from~person~owner) as records:read gives it.
 import { readFileSync, writeFileSync } from 'node:fs';
 import { launchChromium } from '../../headless-browser/launch.mjs';
-import { pageShellHtml } from '../../organize-my-files/parts/ui/show/server-rendered-page/page-sections-html.mjs';
+import { pageShellHtml } from '../../ui/show/server-rendered-page/page-sections-html.mjs';
 import { PAGE_LOOK } from '../src/page-look.mjs';
 
 // The `settings` field of the row holds JSON text.
