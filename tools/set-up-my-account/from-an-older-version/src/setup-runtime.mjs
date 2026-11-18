@@ -9,14 +9,15 @@
 // that work's own kept job: an AI is never asked to invent a person's message to have something to answer.
 // Moved wholesale from old trillion src/setup-runtime.mjs (tag old-trillion-before-worker-retire) by way of
 // tools/walk-a-new-person-through-first-setup/from-an-older-version/src/setup-runtime.mjs.held; only its imports and its run
-// lookups changed. A setup run is a recipe run (tools/workflows): its id is the run read's `runId` of the setup recipe and
-// the policy's request key, and its checked answers are the run's kept answers, so the separate verification receipt
-// the old owner saved is the kept verify-outcome answer itself (read-setup.mjs supplies readRun and readOutput over
-// tools/workflows/read-data/read-a-recipe-run.mjs). Nothing here writes: no receipt or session is kept by a read.
+// lookups changed. A setup run is a run of the setup recipe on the workflow engine (tool:run-workflow-definition): its id
+// is `runId` of the setup recipe and the policy's request key, and its checked answers are the answers the caller kept, so
+// the separate verification receipt the old owner saved is the verify-outcome answer itself (read-setup.mjs supplies
+// readRun and readOutput over the setup_run the caller hands in). Nothing here writes: no receipt or session is kept by a read.
 import { withoutSecrets } from '../../../learn-a-workflow-from-a-job/src/scheduler.mjs';
 import { workResultWords } from '../../../see-what-my-ais-did/from-an-older-version/src/work-results.mjs';
 import { nativeSourceReturn, setupCapabilityEvidence } from '../../../show-each-setup-step-with-the-real-things-found/from-an-older-version/src/setup-capability-evidence.mjs';
-import { runId } from '../../../workflows/read-data/step-agents.mjs';
+// A setup run's id: the setup recipe and the request key it is run under.
+const runId = (recipe, requestKey) => `ai-job:${recipe}:${requestKey}`;
 
 export const SETUP_RUNTIME_PATH = '/setup/runtime';
 const toolCall = (tool, args = {}, reason = null) => ({ tool, arguments: args, ...(reason ? { reason } : {}) });

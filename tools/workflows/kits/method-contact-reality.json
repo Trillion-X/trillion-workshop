@@ -14,7 +14,7 @@
   "tools": [],
   "instructions": [
     "1. Write the request in your own plain words, for example \"Let customers pre-order bread online for pickup at a small bakery\".",
-    "2. Say \"Run workflow:method-contact-reality\" with that request; the AI starts it with tool:start-a-recipe-run and works the steps in order: alignment, question, root, rule-out, combine, automate, production, proof.",
+    "2. Say \"Run workflow:method-contact-reality\" with that request; the AI starts it with tool:run-workflow-definition and works the steps in order: alignment, question, root, rule-out, combine, automate, production, proof.",
     "3. For each step the AI answers the step question about your request and each named check, with at least 40 characters for the answer and 20 for each check.",
     "4. Read the proof step last: it names what shows success, what shows failure, the independent check and its date."
   ],
@@ -29,7 +29,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:method-contact-reality",
               "request": "Let customers pre-order bread online for pickup at a small bakery"

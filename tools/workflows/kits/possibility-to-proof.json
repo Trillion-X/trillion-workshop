@@ -7,7 +7,7 @@
     "workflow:possibility-to-proof"
   ],
   "tools": [
-    "tool:start-a-recipe-run"
+    "tool:run-workflow-definition"
   ],
   "instructions": [
     "1. Write the idea in a sentence (at least 3 characters), for example \"a weekly sourdough box that small cafes pre-order\", and add pursuit, context and authority (what the AI may do) when you have them.",
@@ -26,7 +26,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:possibility-to-proof",
               "idea": "A weekly sourdough box that small cafes pre-order",

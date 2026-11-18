@@ -9,7 +9,7 @@
   "tools": [],
   "instructions": [
     "1. Name the part to check: a file, folder, feature, setting or tool (at least 3 characters).",
-    "2. Say \"Run workflow:put-it-where-it-belongs\" with part set to it. The AI starts it with tool:start-a-recipe-run and works the steps job, owner, move.",
+    "2. Say \"Run workflow:put-it-where-it-belongs\" with part set to it. The AI starts it with tool:run-workflow-definition and works the steps job, owner, move.",
     "3. At job, read the plain-words job (without saying where it lives now) and who needs it; at owner, read which place should hold that job and why each other place is wrong.",
     "4. At move, the part goes to its owner, everything that used the old place is updated, the old copy is deleted with no pointer left, and the proof it works from the new place is given."
   ],
@@ -24,7 +24,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:put-it-where-it-belongs",
               "part": "pricing-table.json in the checkout page folder"

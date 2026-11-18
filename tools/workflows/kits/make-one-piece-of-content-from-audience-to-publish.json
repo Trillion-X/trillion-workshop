@@ -69,7 +69,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:make-one-piece-of-content-from-audience-to-publish",
               "purpose": "record:purposes:small-bakery-teaching",

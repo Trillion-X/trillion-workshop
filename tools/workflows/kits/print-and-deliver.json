@@ -15,7 +15,7 @@
   ],
   "instructions": [
     "1. Put the file in your files and decide the finished size, the number of copies, where you start (near), the place you need the prints (on_the_way_to) and the deadline (by).",
-    "2. Say \"Run workflow:print-and-deliver\" with those values. The AI starts it with tool:start-a-recipe-run and works the steps choose, ask, order.",
+    "2. Say \"Run workflow:print-and-deliver\" with those values. The AI starts it with tool:run-workflow-definition and works the steps choose, ask, order.",
     "3. At choose, a small job (Letter or A4, a few copies) goes to your own printer; any other size goes to the print shop nearest your route, with its price read from the shop's own print page.",
     "4. At ask, one row lands on your Waiting on you list with what is printed, where, ready when and the price; nothing is ordered until you tap yes (a yes you gave before skips the tap).",
     "5. At order, the AI orders through the shop account in your name and gives you route buttons from where you start, through the shop, to where you need the prints. If an account or card blocks it, it names which."
@@ -31,7 +31,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:print-and-deliver",
               "file": "menu-poster.pdf",

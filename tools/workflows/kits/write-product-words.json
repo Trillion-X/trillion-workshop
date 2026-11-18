@@ -7,7 +7,7 @@
   ],
   "tools": [
     "tool:check-copy",
-    "tool:start-a-recipe-run"
+    "tool:run-workflow-definition"
   ],
   "instructions": [
     "1. Gather every true fact about what changed or what the words are for (at least 10 characters), where the words will show (a tour card, a notice, a landing page, an email, a post) and who reads them.",
@@ -27,7 +27,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:write-product-words",
               "what": "You can now draw on top of any page you have open and your lines stay put when you scroll.",

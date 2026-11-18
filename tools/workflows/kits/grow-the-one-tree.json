@@ -467,7 +467,7 @@
     "workflow:rewrite-a-broad-condition"
   ],
   "tools": [
-    "tool:start-a-recipe-run",
+    "tool:run-workflow-definition",
     "tool:choose-the-workflows-that-fire",
     "tool:pour-example-rows-into-my-list",
     "tool:check-a-post",
@@ -485,7 +485,7 @@
   "instructions": [
     "1. Give each workflow you keep its conditions: on its row of your list of workflows (or a list you already keep for processes and their triggers, see pour) write fires_when, a list of {label, condition: {fields, tree}, made_by, state}. Workflows you install from the Workshop bring their own; a row of yours with only {recipe, fires_when} changes when an installed one fires.",
     "2. Pour or make list:content-pillars, list:content-formats and list:content-pieces from their example rows, and make list:tree-outputs empty; the run writes it.",
-    "3. Say \"Run workflow:grow-the-one-tree\" with the seed (its words and where it came from), owner.task_list, owner.pursuit and visibility; the AI starts it with tool:start-a-recipe-run (row workflow:grow-the-one-tree).",
+    "3. Say \"Run workflow:grow-the-one-tree\" with the seed (its words and where it came from), owner.task_list, owner.pursuit and visibility; the AI starts it with tool:run-workflow-definition (row workflow:grow-the-one-tree).",
     "4. Read the choose-branches answer: the parts the seed was split into and, for each, the workflows whose conditions kept it (tool:choose-the-workflows-that-fire), and any workflow the AI judged and gave a new condition on its row. Set a condition's state Off on its workflow's row if it should not fire for seeds like this.",
     "5. Each output lands once in its owner list with a tree-outputs row naming the workflow that made it; later workflows read tree-outputs before they make anything.",
     "6. Open the root task in the Calendar tasks table: the show step says which root task to open and how many children are Done."
@@ -501,7 +501,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:grow-the-one-tree",
               "seed": {

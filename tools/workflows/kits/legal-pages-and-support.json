@@ -182,7 +182,7 @@
   "instructions": [
     "1. Make sure your business facts row exists: record:business-setup:facts with business_name, support_email, first_offer_name and seller_return_url (the parent workflow:set-up-a-business-on-the-account writes it in its step write-the-business-facts).",
     "2. Pour the example checklist and gap rows into the lists you keep for launch tasks and blockers (see pour), or make list:business-setup-checklist and list:business-setup-gaps from them.",
-    "3. Say \"Run workflow:legal-pages-and-support\". The AI starts it with tool:start-a-recipe-run and works the steps in order: read-facts, write-the-legal-pages, publish-the-legal-pages, name-the-support-address, record-the-stage.",
+    "3. Say \"Run workflow:legal-pages-and-support\". The AI starts it with tool:run-workflow-definition and works the steps in order: read-facts, write-the-legal-pages, publish-the-legal-pages, name-the-support-address, record-the-stage.",
     "4. Read the three documents it wrote and confirm each fact in them (every page is marked not reviewed by a lawyer); have your lawyer check them before you rely on them.",
     "5. Open the checklist row legal-and-support: it says Gap while no live support inbox tool exists, and the gap row says so in one line."
   ],
@@ -197,7 +197,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:legal-pages-and-support"
             }

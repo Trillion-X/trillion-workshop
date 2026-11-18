@@ -10,11 +10,11 @@
     "workflow:turn-something-shared-into-what-you-can-use"
   ],
   "tools": [
-    "tool:start-a-recipe-run"
+    "tool:run-workflow-definition"
   ],
   "instructions": [
     "1. Write the request, its scope, the constraints (source terms, privacy) and the actions you authorize; add source_id when it came from a shared source.",
-    "2. Say \"Run workflow:real-life-cases\". The AI starts it with tool:start-a-recipe-run and works the steps case, evidence, opportunity.",
+    "2. Say \"Run workflow:real-life-cases\". The AI starts it with tool:run-workflow-definition and works the steps case, evidence, opportunity.",
     "3. At case, real situations are found from current authorized sources; when they are comments under other people's posts, the AI runs workflow:answer-commenters-with-videos for its watch, keep and pick steps.",
     "4. At evidence, each case keeps its author, link, date and excerpt, with supporting and contradicting evidence; at opportunity, read which cases are worth acting on and why."
   ],
@@ -29,7 +29,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:real-life-cases",
               "request": "Find real situations where small bakery owners struggle to train new staff.",

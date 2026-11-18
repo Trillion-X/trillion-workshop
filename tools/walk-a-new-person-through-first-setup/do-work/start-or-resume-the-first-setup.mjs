@@ -21,7 +21,7 @@ const object = value => Boolean(value) && typeof value === 'object' && !Array.is
 const STEPS = [
   { id: 'defaults', owner: 'tool:give-every-account-ready-made-workflows-and-defaults' },
   { id: 'event_intake', owner: null },
-  { id: 'workflow', owner: 'tool:start-a-recipe-run' },
+  { id: 'workflow', owner: 'tool:run-workflow-definition' },
   { id: 'timed_work', owner: 'tool:run-at-a-time' },
 ];
 const READ_BACK = 'tool:read-setup';
@@ -33,7 +33,7 @@ const DONE_STEPS = STEPS.map(step => step.id);
 
 export function startOrResumeTheFirstSetup(input) {
   if (!object(input)) throw new Error('Send one JSON object: { account_id, available_tools, runtime, prerequisites?, done_steps?, restart? }.');
-  if (!object(input.runtime)) throw new Error('runtime is the saved setup run: { workflow: { exists, state, run_id? } }.');
+  if (!object(input.runtime)) throw new Error('runtime is the saved setup run: { workflow: { exists, state, run_id?, answers? } }.');
   if (typeof input.account_id !== 'string' || !input.account_id) throw new Error('account_id names the account whose setup this is.');
   if (!Array.isArray(input.available_tools) || !input.available_tools.every(tool => typeof tool === 'string')) {
     throw new Error('available_tools is the list of Workshop tool ids the caller found in the catalogue.');
@@ -57,7 +57,8 @@ export function startOrResumeTheFirstSetup(input) {
     if (done.has(step.id)) return { id: step.id, status: 'done', owner: step.owner };
     if (!step.owner || !input.available_tools.includes(step.owner)) return { id: step.id, status: 'unavailable', owner: step.owner };
     const call = step.id === 'workflow'
-      ? { tool: step.owner, input: { row: setupRecipe(), ...(resuming ? { run_id: workflow.run_id, resume: true } : {}) }, request_key: WORKFLOW_KEY }
+      // The engine keeps nothing: a resumed run is the same run called again with the answers the caller kept.
+      ? { tool: step.owner, input: { row: setupRecipe(), ...(resuming ? { answers: object(workflow.answers) ? workflow.answers : {} } : {}) }, request_key: WORKFLOW_KEY }
       : { tool: step.owner, input: { account_id: input.account_id } };
     return { id: step.id, status: 'call', owner: step.owner, call, read_back: readBack };
   });

@@ -425,7 +425,6 @@
               {
                 "package": "workflows",
                 "paths": [
-                  "arrivals/step-outputs.json",
                   "do-work/run-a-function.mjs",
                   "kit-observe.json",
                   "kit-template.json",
@@ -438,7 +437,6 @@
                   "read-data/public-recipes.mjs",
                   "read-data/recipe-rows.mjs",
                   "read-data/sql.mjs",
-                  "read-data/step-outputs.mjs",
                   "recipe-check-kinds.json",
                   "recipes",
                   "sql"

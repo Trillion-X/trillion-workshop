@@ -7,7 +7,7 @@
     "workflow:bring-in-my-processes"
   ],
   "tools": [
-    "tool:start-a-recipe-run"
+    "tool:run-workflow-definition"
   ],
   "instructions": [
     "1. Copy your correction exactly as you wrote or said it (at least 10 characters); do not tidy it, the steps quote your own words.",
@@ -27,7 +27,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:turn-a-correction-into-workflows",
               "correction": "You wrote the reply in a hurry and never checked it against my saved replies, and you left the price out of every one."

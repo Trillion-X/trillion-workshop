@@ -3,9 +3,7 @@
 
 import { readFileSync } from 'node:fs';
 import { wakeProblems, WAKE_VOCABULARY } from './wake-problems.mjs';
-import { agentProblems, runsLaneJobs } from './step-agents.mjs';
 import { conditionProblems, FIRES_WHEN } from './fires-when.mjs';
-import { stepOutputsProblems } from './step-outputs.mjs';
 import { CHECK_VOCABULARY, checkProblems } from './check-bindings.mjs';
 
 export { CHECK_VOCABULARY };
@@ -161,12 +159,10 @@ export function recipeProblems(recipe, vocabulary = CHECK_VOCABULARY, { stepAnat
     if (step.run_tool !== undefined && !(object(step.run_tool) && /^tool:/.test(step.run_tool.tool_id ?? '') && (step.run_tool.input === undefined || object(step.run_tool.input)))) problems.push(`${name}.run_tool must be { tool_id: "tool:...", input: { field: value, or { "from": path } } }.`);
     else if (step.run_tool !== undefined) problems.push(...pinProblems(step.run_tool.pinned, `${name}.run_tool.pinned`));
     problems.push(...checkProblems(step.checks, name, step.id, seen, vocabulary, { this: step.submit, input: recipe.input_schema, steps: submits }));
-    if (step.outputs !== undefined) problems.push(...stepOutputsProblems(step.outputs, name));
-    const agentWrong = agentProblems(step, name);
-    problems.push(...agentWrong);
-    // A step with several agents is only done when its lanes' jobs ran: its checks must say so, or the run's own AI could fill every lane.
-    if (!agentWrong.length && runsLaneJobs(step) && !(step.checks ?? []).some(check => check?.kind === 'lane-jobs')) problems.push(`${name} runs its agents as jobs and needs a lane-jobs check, so each lane comes from its own job.`);
-    if (step.lanes_from !== undefined && !agentWrong.length && !submits.has(step.lanes_from[1])) problems.push(`${name}.lanes_from must name an earlier step, and "${step.lanes_from[1]}" is not one.`);
+    // Several agents on one step, lanes and where an output is kept were the recipe layer's (its job queue and tables,
+    // deleted 2026-11-18): several agents are a loop with parallel: true in the recipe's own definition, and what a run
+    // keeps the AI writes to the person's own database itself.
+    for (const field of ['agents', 'lanes', 'lanes_from', 'outputs']) if (step[field] !== undefined) problems.push(`${name}.${field} is not a step field: write several agents as a loop with parallel: true in the recipe's own definition, and keep what a step makes in the person's own database.`);
     submits.set(step.id, step.submit);
     problems.push(...actorPolicyProblems(step.actor_policy, { name, step_id: step.id, asks: actorAsks, prior: id => id !== step.id && seen.has(id) }));
   });

@@ -1,4 +1,4 @@
-// tools/workflows: every started run carries its recipe's kit (start-a-recipe-run.mjs kitFor), so no workflow runs without
+// tools/workflows: every run carries its recipe's kit (kit-for-a-run.mjs kitFor, which tool:run-workflow-definition answers with), so no workflow runs without
 // one: the shipped kit file, else the kit on the person's own recipe row, else a kit drafted from the recipe's own steps,
 // marked draft with what it still owes. A recipe is never refused for lacking a kit. The own-row recipe here is made up.
 import assert from 'node:assert/strict';
@@ -6,7 +6,7 @@ import test from 'node:test';
 import { kitProblems } from '../read-data/kit-problems.mjs';
 import { publicRecipe } from '../read-data/public-recipes.mjs';
 import { recipeFromRows } from '../read-data/recipe-rows.mjs';
-import { kitFor } from '../read-data/start-a-recipe-run.mjs';
+import { kitFor } from '../read-data/kit-for-a-run.mjs';
 
 const madeUp = {
   kind: 'workflow-recipe', id: 'workflow:made-up-bake', label: 'Made-up bake', job: 'Bake one loaf from a starter.',
@@ -25,7 +25,7 @@ test('a shipped recipe\'s run carries the kit the Workshop ships beside it, and 
 });
 
 test('the person\'s own recipe row carries its kit field into the run', () => {
-  const kit = { start_here: 'Say to your AI: "Run workflow:made-up-bake with my starter."', lists: [], no_lists_because: 'It keeps nothing but the loaf.', workflows: ['workflow:made-up-bake'], tools: ['tool:start-a-recipe-run'], instructions: ['1.', '2.', '3.'], worked_examples: [] };
+  const kit = { start_here: 'Say to your AI: "Run workflow:made-up-bake with my starter."', lists: [], no_lists_because: 'It keeps nothing but the loaf.', workflows: ['workflow:made-up-bake'], tools: ['tool:run-workflow-definition'], instructions: ['1.', '2.', '3.'], worked_examples: [] };
   const row = { value: { recipe: 'workflow:made-up-bake', title: 'Made-up bake', job: 'Bake one loaf.', kit: JSON.stringify(kit) } };
   const steps = madeUp.steps.map((step, position) => ({ value: { step: step.id, title: step.title, do: step.do, submit: JSON.stringify(step.submit), position } }));
   const recipe = recipeFromRows(row, steps);

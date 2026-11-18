@@ -176,7 +176,7 @@
     "workflow:set-up-a-business-on-the-account"
   ],
   "tools": [
-    "tool:start-a-recipe-run",
+    "tool:run-workflow-definition",
     "tool:add-a-customer",
     "tool:check-copy",
     "tool:record-a-customer-step",
@@ -203,7 +203,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:onboard-new-buyers-in-five-days"
             }

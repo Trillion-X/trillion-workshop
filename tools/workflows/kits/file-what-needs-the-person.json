@@ -144,7 +144,7 @@
     "workflow:file-what-needs-the-person"
   ],
   "tools": [
-    "tool:start-a-recipe-run",
+    "tool:run-workflow-definition",
     "tool:what-can-my-account-do",
     "tool:who-does-each-step",
     "tool:what-is-waiting-on-me",
@@ -168,7 +168,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:file-what-needs-the-person",
               "said": "Bring 50 paper boxes to the market stall on Saturday and sign the stall form.",

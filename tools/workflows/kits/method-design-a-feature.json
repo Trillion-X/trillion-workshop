@@ -14,11 +14,11 @@
     "workflow:method-test-a-design-against-every-case"
   ],
   "tools": [
-    "tool:start-a-recipe-run"
+    "tool:run-workflow-definition"
   ],
   "instructions": [
     "1. Write the feature in plain words, for example \"Let a bakery show how many loaves are left each morning\".",
-    "2. Say \"Run workflow:method-design-a-feature\" with that request; the AI starts it with tool:start-a-recipe-run.",
+    "2. Say \"Run workflow:method-design-a-feature\" with that request; the AI starts it with tool:run-workflow-definition.",
     "3. For each of its seven steps the AI starts the named sub-workflow with the same request (name-question-delete, contact-reality, find-the-constraints, test-a-design-against-every-case, build-the-real-thing, name-things-by-what-they-do, plan-only-what-helps), walks it to the end and hands back its run_id and the one thing it changed.",
     "4. Read the last step, plan-only-what-helps, for the plan you build from."
   ],
@@ -33,7 +33,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:method-design-a-feature",
               "request": "Let a bakery show how many loaves are left each morning"

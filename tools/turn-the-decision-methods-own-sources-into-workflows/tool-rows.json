@@ -467,12 +467,10 @@
                 "package": "workflows",
                 "paths": [
                   "read-data/recipe-problems.mjs",
+                  "read-data/check-bindings.mjs",
                   "read-data/wake-problems.mjs",
-                  "read-data/step-agents.mjs",
                   "read-data/fires-when.mjs",
-                  "read-data/step-outputs.mjs",
                   "read-data/sql.mjs",
-                  "arrivals/step-outputs.json",
                   "branches/fires-when.json",
                   "read-data/step-anatomy.json",
                   "recipe-check-kinds.json",

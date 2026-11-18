@@ -7,7 +7,7 @@
     "workflow:find-and-test-the-short-video-formats-that-sell-your-app"
   ],
   "tools": [
-    "tool:start-a-recipe-run",
+    "tool:run-workflow-definition",
     "tool:github:yt-dlp-yt-dlp",
     "tool:read-a-page-in-my-browser",
     "tool:tell-the-person"
@@ -30,7 +30,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:find-and-test-the-short-video-formats-that-sell-your-app",
               "app": "A phone app that helps bakery owners plan the day's bake from yesterday's sales.",

@@ -1,4 +1,4 @@
-// tools/workflows: a skill made from a workflow's rows holds every step, its agents and lanes, and the checks, and the
+// tools/workflows: a skill made from a workflow's rows holds every step and its checks, and the
 // same rows always make the same bytes. Every recipe here is made up.
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
@@ -14,20 +14,20 @@ const recipeRow = { id: 'record:workflow-recipe:made-up-dig', value: { recipe: '
 const check = says => JSON.stringify([{ kind: 'distinct-at-least', path: ['this', 'parts', '*', 'id'], count: 1, says }]);
 const stepRows = [
   { id: 'a', value: { recipe: ['made-up-dig'], step: 'split', position: 1, title: 'Split it', do: 'Split the   topic\ninto parts.', submit: '{"type":"object","required":["parts"]}', checks: check('Each part has an id') } },
-  { id: 'b', value: { recipe: ['made-up-dig'], step: 'dig', position: 2, title: 'Dig each part', do: 'Dig.', submit: '{"type":"object","required":["lanes"]}', lanes_from: '["steps","split","parts","*","id"]', checks: JSON.stringify([{ kind: 'lane-jobs', path: ['this', 'lanes'], lane: 'id', job: 'job', says: 'Each part comes from its own job' }]) } },
-  { id: 'c', value: { recipe: ['made-up-dig'], step: 'write', position: 3, title: 'Write it up', do: 'Write.', submit: '{"type":"object","required":["lanes"]}', lanes: '["writer"]', checks: JSON.stringify([{ kind: 'lane-jobs', path: ['this', 'lanes'], lane: 'id', job: 'job', says: 'A separate agent wrote it' }]) } },
+  { id: 'b', value: { recipe: ['made-up-dig'], step: 'dig', position: 2, title: 'Dig each part', do: 'Dig.', submit: '{"type":"object","required":["lanes"]}', checks: check('Each dug part has an id') } },
+  { id: 'c', value: { recipe: ['made-up-dig'], step: 'write', position: 3, title: 'Write it up', do: 'Write.', submit: '{"type":"object","required":["lanes"]}', checks: check('A separate agent wrote it') } },
 ];
 const text = () => skillFromWorkflow(recipeFromRows(recipeRow, [...stepRows].reverse()));
 
-test('the skill holds the name, the job, every step in position order, agents, lanes and checks', () => {
+test('the skill holds the name, the job, every step in position order and checks, and runs on the workflow engine', () => {
   const skill = text();
   assert.match(skill, /^---\nname: made-up-dig\ndescription: "Use when asked to: Dig up a made-up topic\. Runs workflow:made-up-dig;/);
   assert.ok(skill.includes('`{"row":"workflow:made-up-dig"}`') && skill.includes('`topic` (required)'));
   const order = ['### 1. Split it (`split`)', '### 2. Dig each part (`dig`)', '### 3. Write it up (`write`)'].map(heading => skill.indexOf(heading));
   assert.ok(order.every(at => at > 0) && order.join() === [...order].sort((a, b) => a - b).join());
   assert.ok(skill.includes('Split the topic into parts.'));
-  assert.ok(skill.includes('Agents: one per lane, the lanes being read from the answer of step `split`'));
-  assert.ok(skill.includes('Agents: 1, one per lane (writer)'));
+  assert.ok(skill.includes('`tool:run-workflow-definition`') && !skill.includes('start-a-recipe'), 'the skill runs the workflow on the engine');
+  assert.ok(!skill.includes('Agents:'), 'a step has no agents number of its own');
   assert.ok(skill.includes('- Each part has an id') && skill.includes('- A separate agent wrote it'));
   assert.ok(skill.includes('Hands back: `parts`.'));
 });

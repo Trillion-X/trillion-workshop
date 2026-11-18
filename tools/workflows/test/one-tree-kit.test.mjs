@@ -40,19 +40,14 @@ test('the three workflows name no tool the Workshop lacks', () => {
   for (const id of kit.workflows) assert.deepEqual(recipeToolGaps(byId.get(id), { known }), [], `${id} has no tool gaps`);
 });
 
-test('on a blank account (no workflow rows of its own) each of the three workflows starts from the public recipe and writes one waiting job', async () => {
-  const { startARecipeRun } = await import('../read-data/start-a-recipe-run.mjs');
-  const { startDatabase, readRow } = await import('../test-helpers/rows-in-sql.mjs');
-  const db = await startDatabase();
-  try {
-    for (const id of kit.workflows) {
-      await db.reset();
-      const first = await startARecipeRun({ input: { row: id }, task: { request_key: 'blank-1' } }, { sql: db.sql });
-      assert.equal(first.status, 'written');
-      assert.deepEqual((await readRow(db.sql, 'ai_job', first.job)).job, byId.get(id).steps);
-      assert.equal((await startARecipeRun({ input: { row: id }, task: { request_key: 'blank-1' } }, { sql: db.sql })).status, 'already-there');
-    }
-  } finally { await db.stop(); }
+test('on a blank account (no workflow rows of its own) each of the three workflows runs from the public recipe on the workflow engine, paused at its first step', async () => {
+  const { runWorkflow } = await import('../../write-a-job-done-in-several-steps-have/read-data/run-a-workflow.mjs');
+  for (const id of kit.workflows) {
+    const run = await runWorkflow({ row: id });
+    assert.equal(run.status, 'paused', `${id}: ${run.error_message}`);
+    assert.equal(run.waiting[0].step_id, byId.get(id).steps[0].id);
+    assert.deepEqual(run.definition.steps.filter(step => step.kind === 'ask').map(step => step.id), byId.get(id).steps.map(step => step.id));
+  }
 });
 
 test('every condition a published workflow carries is one the formulas engine evaluates, and keeps a part with its tags', async () => {

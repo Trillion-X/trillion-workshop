@@ -8,7 +8,7 @@
   "workflow:x-mode"
  ],
  "tools": [
-  "tool:start-a-recipe-run"
+  "tool:run-workflow-definition"
  ],
  "instructions": [
   "1. Write the request (what must keep working), the scope, the constraints (limits on checks, cost and time) and authorized_actions (what the AI may repair); all four are required.",
@@ -28,7 +28,7 @@
      "address": "@tools",
      "method": "tools:run",
      "input": {
-      "tool": "tool:start-a-recipe-run",
+      "tool": "tool:run-workflow-definition",
       "input": {
        "row": "workflow:keep-it-working",
        "request": "Orders from the order page keep arriving in the order inbox.",

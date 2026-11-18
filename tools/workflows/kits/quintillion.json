@@ -117,7 +117,7 @@
     "workflow:turn-something-shared-into-what-you-can-use"
   ],
   "tools": [
-    "tool:start-a-recipe-run",
+    "tool:run-workflow-definition",
     "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
@@ -138,7 +138,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:quintillion",
               "request": "Take 30 weekend pre-orders a week online for the bakery.",

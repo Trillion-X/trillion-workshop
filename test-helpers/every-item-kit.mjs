@@ -38,7 +38,7 @@ const readKit = file => (existsSync(file) ? JSON.parse(readFileSync(file, 'utf8'
 
 /** Every item: workflow recipes and tool rows, each with its id, kind, kit file and kit problems (null when it has no kit file). */
 export function items() {
-  // Every recipe the Workshop ships (every recipes/*.json, read as tool:start-a-recipe-run reads them), not only the generated
+  // Every recipe the Workshop ships (every recipes/*.json, read as tool:run-workflow-definition reads them), not only the generated
   // workflows.json: a recipe in a file of its own is offered to every person and owes its kit the same.
   const recipes = publicRecipes();
   const offered = offeringFolders();

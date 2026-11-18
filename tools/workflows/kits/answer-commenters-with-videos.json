@@ -280,7 +280,7 @@
     "workflow:read-the-week-and-make-more-of-what-won"
   ],
   "tools": [
-    "tool:start-a-recipe-run",
+    "tool:run-workflow-definition",
     "tool:pour-example-rows-into-my-list",
     "tool:call-a-treg-endpoint",
     "tool:decide-an-agent-action",
@@ -317,7 +317,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:answer-commenters-with-videos",
               "accounts": [

@@ -61,7 +61,7 @@ for (const recipe of recipes) {
 }
 
 test('every stage the parent starts is a business-on-trillion recipe, or a live shipped recipe run by reference', () => {
-  const started = parent.steps.filter(step => step.run_tool?.tool_id === 'tool:start-a-recipe-run').map(step => step.run_tool.input.row);
+  const started = parent.steps.filter(step => step.run_tool?.tool_id === 'tool:run-workflow-definition').map(step => step.run_tool.input.row);
   assert.ok(started.length >= 20, `parent starts ${started.length} stages`);
   const own = new Set(recipes.map(recipe => recipe.id));
   for (const row of started) assert.ok(own.has(row) || shipped.has(row), `${row} is neither shipped here nor in workflows.json`);

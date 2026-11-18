@@ -7,12 +7,12 @@
     "workflow:lead-me-to-it"
   ],
   "tools": [
-    "tool:start-a-recipe-run",
+    "tool:run-workflow-definition",
     "tool:take-me-there",
     "tool:what-is-waiting-on-me"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:lead-me-to-it\"; it starts it with tool:start-a-recipe-run (row workflow:lead-me-to-it).",
+    "1. Say to your AI: \"Run workflow:lead-me-to-it\"; it starts it with tool:run-workflow-definition (row workflow:lead-me-to-it).",
     "2. Pick the needle mover.",
     "3. Do every part an AI can.",
     "4. Write the walkthrough and what to tell them.",

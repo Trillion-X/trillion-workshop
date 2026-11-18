@@ -351,7 +351,7 @@
     "tool:pull-my-instagram-messages",
     "tool:expand-a-reply-template",
     "tool:check-copy",
-    "tool:start-a-recipe-run",
+    "tool:run-workflow-definition",
     "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
@@ -373,7 +373,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:answer-comments-and-messages"
             }
@@ -383,7 +383,7 @@
       "workflow": "workflow:answer-comments-and-messages",
       "step": "read-facts",
       "given": "record:business-setup:facts holds business_name Corner Studio and channels [instagram].",
-      "hands_back": "A job ai-job:workflow:answer-comments-and-messages:<request key> is written for the AI; its first step reads record:business-setup:facts and keeps {\"business_name\":\"Corner Studio\",\"channels\":[\"instagram\"]}."
+      "hands_back": "The run comes back paused at its first step, which reads record:business-setup:facts and keeps {\"business_name\":\"Corner Studio\",\"channels\":[\"instagram\"]}."
     },
     {
       "title": "A price question gets the price reply",

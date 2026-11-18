@@ -6,7 +6,7 @@
   "workflow:follow-up-with-people-who-engaged"
  ],
  "tools": [
-  "tool:start-a-recipe-run",
+  "tool:run-workflow-definition",
   "tool:read-a-page-in-my-browser",
   "tool:find-people",
   "tool:rank-people-by-activity",
@@ -32,7 +32,7 @@
      "address": "@tools",
      "method": "tools:run",
      "input": {
-      "tool": "tool:start-a-recipe-run",
+      "tool": "tool:run-workflow-definition",
       "input": {
        "row": "workflow:follow-up-with-people-who-engaged",
        "platforms": [

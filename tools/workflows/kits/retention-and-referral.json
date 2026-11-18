@@ -180,7 +180,7 @@
     "tool:make-a-referral-code",
     "tool:see-where-each-customer-is",
     "tool:send-an-email",
-    "tool:start-a-recipe-run",
+    "tool:run-workflow-definition",
     "tool:withdraw-a-referral-code",
     "tool:work-out-referral-codes"
   ],
@@ -201,7 +201,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:retention-and-referral"
             }
@@ -223,7 +223,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:retention-and-referral"
             }

@@ -2,9 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readGlanceFeeds } from '../read-data/glance-feeds.mjs';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
-import { runRowIn, startDatabase } from '../../workflows/test-helpers/rows-in-sql.mjs';
 import toolRows from '../tool-rows.json' with { type: 'json' };
-import recipeTools from '../../workflows/tool-rows.json' with { type: 'json' };
 
 function fixture(data) {
   const calls = [];
@@ -180,29 +178,6 @@ test('the actual product record models project their current fields and actions 
   }
   const pursuit = await answerOf(row, { feed: 'pursuits', records }, {});
   assert.deepEqual(pursuit.result.feeds[0].rows.map(item => [item.title, item.open]), [['Learn geometry', '/pursuits/learn']]);
-});
-
-// Cross the actual producer/consumer boundary: a recipe wake inserts a row of the table ai_job in the person's own Postgres; the
-// caller selects it with plain SQL and hands the rows to the feed.
-test('the AI work feed reads the actual recipe starter output and hides it after completion', async () => {
-  const db = await startDatabase();
-  try {
-    const starter = rowOf(recipeTools, 'tool:start-a-recipe-run');
-    const started = await runRowIn(starter, { input: { row: 'workflow:read-the-week-and-make-more-of-what-won' }, task: { request_key: 'glance-producer-consumer-proof' } }, { connection: db.connection });
-    assert.equal(started.code, 0, started.stderr);
-    const waiting = rows => rows.map(row => ({ id: row.id, type: 'ai-job', value: row.value }));
-    const feed = rowOf(toolRows, 'tool:read-glance-feeds');
-    const answer = await answerOf(feed, { feed: 'ai-work', records: waiting(await db.sql('select id, value from ai_job')) }, {});
-    assert.equal(answer.status, 0, answer.error);
-    assert.equal(answer.result.feeds[0].status, 'ready');
-    assert.deepEqual(answer.result.feeds[0].rows.map(row => row.id), [started.last.result.job]);
-    assert.ok(answer.result.feeds[0].rows[0].title.length);
-    await db.sql("update ai_job set value = jsonb_set(value, '{status}', '\"done\"')");
-    const done = await answerOf(feed, { feed: 'ai-work', records: waiting(await db.sql('select id, value from ai_job')) }, {});
-    assert.deepEqual(done.result.feeds[0].rows, []);
-  } finally {
-    await db.stop();
-  }
 });
 
 const pagedDefinition = (pageBytes, extra = []) => ({

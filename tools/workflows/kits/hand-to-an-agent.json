@@ -6,7 +6,7 @@
     "workflow:hand-to-an-agent"
   ],
   "tools": [
-    "tool:start-a-recipe-run"
+    "tool:run-workflow-definition"
   ],
   "instructions": [
     "1. Say to your AI what you want done with what arrived, in plain words (the job), and name the AI if one should take it (to_agent); leave it out for whichever of your AIs takes it first.",
@@ -24,7 +24,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:hand-to-an-agent",
               "job": "Turn this voice note into an outline with a hook and three points",
@@ -36,7 +36,7 @@
       "workflow": "workflow:hand-to-an-agent",
       "step": "handle",
       "given": "The job in plain words and what arrived (the voice note's id and words).",
-      "hands_back": "Step handle answers with what the AI that took the job did, e.g. {\"outline\":{\"hook\":\"Nobody reads the how-to.\",\"points\":[\"hand people the filled-in sheet\",\"show one real row\",\"say what is missing\"]}}."
+      "hands_back": "Step handle answers with what the AI that answered it did, e.g. {\"outline\":{\"hook\":\"Nobody reads the how-to.\",\"points\":[\"hand people the filled-in sheet\",\"show one real row\",\"say what is missing\"]}}."
     }
   ]
 }

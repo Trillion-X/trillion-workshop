@@ -126,14 +126,14 @@
   "workflows": [],
   "tools": [
     "tool:turn-my-agent-skills-into-workflows",
-    "tool:start-a-recipe-run"
+    "tool:run-workflow-definition"
   ],
   "instructions": [
     "1. Make sure your agent-skills list holds your installed skills (each file of each skill folder is a record:agent-skill row).",
     "2. Say \"Turn my agent skills into workflows\", with any words that name your private people, businesses or systems in private_words.",
     "3. Read what comes back: made (the workflow ids), workflows (the rows of each workflow), home (each skill left out, with the kind of reason: a secret key, a folder on your computer, an email address, a phone number or a private word) and stale (workflows you already keep whose skill is gone, when you handed their rows in).",
     "4. Fix or remove what a left-out skill names, then say it again. Your AI writes each workflow's rows into your own list of workflows as workflow: then skill- then the skill's name, with its text files under files; this tool writes nothing.",
-    "5. Run one: say \"Run the id it was written under\" with what you want done in request; the AI starts it with tool:start-a-recipe-run."
+    "5. Run one: say \"Run the id it was written under\" with what you want done in request; the AI starts it with tool:run-workflow-definition."
   ],
   "worked_examples": [
     {
@@ -169,7 +169,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:skill-tidy-notes",
               "request": "Tidy my three notes about the garden."
@@ -180,7 +180,7 @@
       "workflow": "workflow:skill-tidy-notes",
       "step": "follow-the-skill",
       "given": "workflow:skill-tidy-notes was written into your workflows from an earlier run.",
-      "hands_back": "A job for your AI whose one step, follow-the-skill, holds the skill's instructions and lists its files (template.md) to read from the workflow's files."
+      "hands_back": "A run paused at its one step, follow-the-skill, which holds the skill's instructions and lists its files (template.md) to read from the workflow's files."
     }
   ],
   "pour": {

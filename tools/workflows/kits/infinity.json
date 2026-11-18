@@ -10,11 +10,11 @@
   "workflow:grow-the-one-tree"
  ],
  "tools": [
-  "tool:start-a-recipe-run"
+  "tool:run-workflow-definition"
  ],
  "instructions": [
   "1. Write the request (the outcome to keep improving), the scope (what the AI may look at and change), constraints (what it must not do) and authorized_actions (the changes it may make); all four are required.",
-  "2. Say \"Run workflow:infinity\" with those four values; the AI starts it through tool:start-a-recipe-run and answers the steps in order: baseline, bottleneck, improve, continue.",
+  "2. Say \"Run workflow:infinity\" with those four values; the AI starts it through tool:run-workflow-definition and answers the steps in order: baseline, bottleneck, improve, continue.",
   "3. At baseline, give the measured numbers with where each came from; at bottleneck, name the one constraint worth most; at improve, change one mechanism and test it for real; at continue, say what the next pass should measure.",
   "4. Read what each step handed back: every completed requirement cites evidence ids kept in the same step. A requirement that could not be met stays open with its gap, never marked completed.",
   "5. Run it again after the change to compare against the new baseline."
@@ -30,7 +30,7 @@
      "address": "@tools",
      "method": "tools:run",
      "input": {
-      "tool": "tool:start-a-recipe-run",
+      "tool": "tool:run-workflow-definition",
       "input": {
        "row": "workflow:infinity",
        "request": "Keep making the order page load faster and easier to order from.",

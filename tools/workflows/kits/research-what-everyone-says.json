@@ -12,7 +12,7 @@
   ],
   "instructions": [
     "1. Say the subject in plain words; add pursuit_id when it serves a pursuit, and question when there is a decision the research has to settle.",
-    "2. Say \"Run workflow:research-what-everyone-says\". The AI starts it with tool:start-a-recipe-run and works the steps people, companies, best, complaints, synthesis, insights.",
+    "2. Say \"Run workflow:research-what-everyone-says\". The AI starts it with tool:run-workflow-definition and works the steps people, companies, best, complaints, synthesis, insights.",
     "3. Read each source with its exact quote and how that source found it out (its own trial, a survey, a post, an opinion); sources that are not independent count once.",
     "4. Read the complaints with how often each came up, then what all sources agree on, where they contradict, and the answer rebuilt from first principles.",
     "5. Read the least obvious insights and the one next action; test the biggest one with workflow:test-a-finding."
@@ -28,7 +28,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:research-what-everyone-says",
               "subject": "Pre-orders for small bakeries",

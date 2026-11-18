@@ -7,11 +7,11 @@
     "workflow:method-tell-a-story"
   ],
   "tools": [
-    "tool:start-a-recipe-run"
+    "tool:run-workflow-definition"
   ],
   "instructions": [
     "1. Say what you are writing in one plain sentence, for example \"write a newsletter story about a bakery owner who stopped writing training manuals\", and say \"Run workflow:method-tell-a-story\" with it as request.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:method-tell-a-story) and answers its steps in order: story-change, story-awareness, story-journey, story-enhancers, story-draft; each answer is refused until every check of the step is answered about this request.",
+    "2. The AI starts it with tool:run-workflow-definition (row workflow:method-tell-a-story) and answers its steps in order: story-change, story-awareness, story-journey, story-enhancers, story-draft; each answer is refused until every check of the step is answered about this request.",
     "3. At story-enhancers, state the length first and add enhancers in priority order for that length (raw truth, concrete details, the emotional arc and the rest).",
     "4. At story-draft, write the piece; a reader must be able to point at the before, the change, the after and each enhancer in its words."
   ],
@@ -26,7 +26,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:method-tell-a-story",
               "request": "Write a newsletter story about a bakery owner who stopped writing training manuals"

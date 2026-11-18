@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:d71a594791ae2cf69f9d6c81efd32bd1bb7fddbceb1150b5cfbb2c701f59de1f"
+  "blake3": "1f:6587b6c325908b012f83672078ed221bcf684dbdba36580273c8f6fb40637a4c"
  },
  "fields": [
   {
@@ -10249,7 +10249,7 @@
    "values": {
     "title": "Read my setup",
     "job": "Gather what my account's setup is made of and draw the Get started screen from it",
-    "description": "The one read of the Get started screen (tool:get-started). It asks the account files door for this account's setup facts (setup_facts: sign-ins and their app grants, notification devices, the AI connection, computers, the setup runtime, device releases, the last setup snapshot) for the asking browser, reads the account's own show rules (show-rules) and setup context (setup-context), and runs tool:see-what-is-left-to-set-up with them and the page's account id, answering the screen it draws. A source it could not read is left unknown, so the screen is not ready rather than opened on a guess. It writes nothing.",
+    "description": "The one read of the Get started screen (tool:get-started). It asks the account files door for this account's setup facts (setup_facts: sign-ins and their app grants, notification devices, the AI connection, computers, the setup runtime, device releases, the last setup snapshot) for the asking browser, reads the account's own show rules (show-rules) and setup context (setup-context), and runs tool:see-what-is-left-to-set-up with them and the page's account id, answering the screen it draws. The setup run is handed in as setup_run (the status tool:run-workflow-definition answered and the answers so far), since no tool keeps a run. A source it could not read is left unknown, so the screen is not ready rather than opened on a guess. It writes nothing.",
     "status": "active",
     "maker": "maker:set-up-my-account",
     "licence_class": "licence:maker-own",
@@ -13213,51 +13213,6 @@
    }
   },
   {
-   "id": "tool:start-a-recipe-run",
-   "values": {
-    "title": "Start a run of a recipe: leave its steps as a job for my AI",
-    "job": "When a recipe of mine is started, by a wake I switched on or by a call, put its steps and its input in my own database as one job waiting for my AI, once per firing",
-    "description": "Every recipe row runs as this tool (the recipes' row source names it in invoke_with), with the recipe's id in input.row. It reads that recipe from the person's own tables workflow_recipe and workflow_step in their Postgres database (arrivals/recipe-row-types.json names them), or else from the public recipes folder (the person's own row wins when both hold the id), and, when a wake names an arrival source, starts only from the changed rows that source's filter keeps (a row of the table arrival_source naming the table it reads, read_table), each a seed in the run's input, writing nothing when none is kept (arrivals/arrival-sources.json); it inserts one row into the table ai_job, id ai-job:<recipe id>:<request key>, holding status waiting, the recipe id and label, its steps, the input it was started with and the wake cause that started it. It makes its tables first from sql/, each `create table if not exists`. It does no step itself, schedules nothing and keeps nothing else. The AI that next connects to the person's database selects the ai_job rows whose status is waiting, does the oldest, and updates its status to done with its result. A firing or a call that comes again with the same request key finds its job and inserts nothing. The connection string is the held value own-rows-postgres-connection, handed on descriptor 3.",
-    "status": "active",
-    "maker": "maker:workflows",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "workflows"
-   }
-  },
-  {
-   "id": "tool:start-a-recipe-step",
-   "values": {
-    "title": "Start one step of a recipe run and get its work, with its lane jobs when it has several agents",
-    "job": "Begin a step of my recipe run: get the step with what to do, and when it says it has several agents have each agent's own job started in my own database, in the same call",
-    "description": "Reads the run (the ai-job tool:start-a-recipe-run wrote) and its step. A step with one agent is handed back as it is. A step whose agents is above 1 has its lane jobs started by this same call (tool:start-a-steps-agents does the writing, in one statement, none twice), so the run's AI has no separate start to leave out; the lane jobs are handed back with the step. Each lane's job is then done by its own AI. tool:submit-a-recipe-step refuses an answer for lanes whose jobs never ran.",
-    "status": "active",
-    "maker": "maker:workflows",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "workflows"
-   }
-  },
-  {
-   "id": "tool:start-a-steps-agents",
-   "values": {
-    "title": "Start the agents of one step of a recipe run: one waiting job per lane",
-    "job": "When a step of a recipe run says it has several agents, start that many jobs for it in my own database, each with its own lane, so each lane is done by its own AI",
-    "description": "Reads the run (the ai-job tool:start-a-recipe-run wrote) and its step, whose own row says how many agents run it (agents, one whole number, 1 when left out) and may name the lanes (lanes). A step with one agent starts nothing. Otherwise it inserts one waiting ai_job row per lane, id <run id>:<step id>:<lane id>, holding the step, the run's input and cause, the lane and a note telling that AI to do only its lane. The jobs are inserted by one statement, so all are there or none is, and a start that comes again finds the first lane's job and changes none, even one an AI already finished. The step's lane-jobs check refuses an answer unless every lane names its own such job and that job ran.",
-    "status": "active",
-    "maker": "maker:workflows",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "workflows"
-   }
-  },
-  {
    "id": "tool:start-a-stripe-checkout",
    "values": {
     "title": "Start a Stripe checkout",
@@ -13393,36 +13348,6 @@
     "flags": [
      "read-only"
     ]
-   }
-  },
-  {
-   "id": "tool:submit-a-recipe-step",
-   "values": {
-    "title": "Hand in the answer to one step of a recipe run, judged by the step's checks on what the database holds",
-    "job": "Hand in my answer to a step of my recipe run, and have it kept only when the step's checks pass, judged on what my own database says ran",
-    "description": "Reads the run, the step and the answers kept for the steps before it, and judges the step's checks. The ran-job catalog the lane-jobs check looks in is built here from each lane's own ai-job (<run>:<step>:<lane>): a lane's job ran when its status is done, and its taker is who finished it. The caller gives only run, step and answer; an input that carries a catalog or anything else is refused. A failing check refuses the answer and keeps nothing; a check that cannot be judged here is listed as unchecked, never as passed. A passing answer is kept as the ai-job <run>#answer:<step>; a submit that comes again finds it and changes nothing.",
-    "status": "active",
-    "maker": "maker:workflows",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "workflows"
-   }
-  },
-  {
-   "id": "tool:submit-a-step-that-slots-rows",
-   "values": {
-    "title": "Hand in the answer to a recipe step that chose rows, kept only when each row's own workflows ran as its sub-runs",
-    "job": "Hand in my answer to a step that chose rows of one of my lists (a format, a template, any row), and have it kept only when each chosen row's own workflows ran to the end inside this step",
-    "description": "The same submit as tool:submit-a-recipe-step, for a step with a slotted-runs check: the caller also names rows_of, the one table the chosen rows are kept in, and this run reads chosen rows from that table. Each chosen row names its own workflows in the field the check names; each runs as a sub-run of this step, started with tool:start-a-recipe-run under the request key <run>:<step>:slot:<row>, and the answer is kept only when every such sub-run has every step's answer kept. A row that holds no workflow is refused by name, so the workflow that gives a row its workflows can fill it. Nothing the answer says about a sub-run is believed: the rows and runs are read from the database.",
-    "status": "active",
-    "maker": "maker:workflows",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "workflows"
    }
   },
   {

@@ -7,11 +7,11 @@
     "workflow:method-name-question-delete"
   ],
   "tools": [
-    "tool:start-a-recipe-run"
+    "tool:run-workflow-definition"
   ],
   "instructions": [
     "1. Say the thing you are about to build or change in one plain sentence, for example \"cut the time a new baker needs to learn the morning bake\", and say \"Run workflow:method-name-question-delete\" with it as request.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:method-name-question-delete) and answers its steps in order: outcome, alignment, question, baseline, root, delete, rule-out, owner, smallest-change, accelerate, automate, risk, proof; each answer is refused until every check of the step is answered about this request.",
+    "2. The AI starts it with tool:run-workflow-definition (row workflow:method-name-question-delete) and answers its steps in order: outcome, alignment, question, baseline, root, delete, rule-out, owner, smallest-change, accelerate, automate, risk, proof; each answer is refused until every check of the step is answered about this request.",
     "3. At delete, drop every demand or step that is not needed before improving anything; restore only what then fails.",
     "4. Automate only at the automate step, after the change works by hand, and only through what already exists."
   ],
@@ -26,7 +26,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:method-name-question-delete",
               "request": "Cut the time a new baker needs to learn the morning bake"

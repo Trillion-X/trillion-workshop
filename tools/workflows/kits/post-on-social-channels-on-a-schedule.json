@@ -290,7 +290,7 @@
   ],
   "instructions": [
     "1. Make sure the facts row record:business-setup:facts exists (workflow:set-up-a-business-on-the-account writes it) with channels, posts_per_day (1 to 5) and owner_name; pour the example word checks into your own rules list (see pour) or make list:word-checks from them.",
-    "2. Say \"Run workflow:post-on-social-channels-on-a-schedule\". The AI starts it with tool:start-a-recipe-run and works the steps in order: read-facts, write-the-batch, check-the-batch-words, draft-the-posts, approve-the-batch, set-the-posts-to-go, confirm-the-at-its-time-send, read-results, record-the-stage.",
+    "2. Say \"Run workflow:post-on-social-channels-on-a-schedule\". The AI starts it with tool:run-workflow-definition and works the steps in order: read-facts, write-the-batch, check-the-batch-words, draft-the-posts, approve-the-batch, set-the-posts-to-go, confirm-the-at-its-time-send, read-results, record-the-stage.",
     "3. Read the batch it shows you (one line per post: channel, time, caption) and answer \"approve all\" or name the post ids to change; only your reply approves a post.",
     "4. Check the answer of set-the-posts-to-go: a post listed under not_ready names what its place is missing; fix it and run that step again.",
     "5. After a week the read-results step gives each post its visits and conversions; the record-the-stage step ticks social-posting on list:business-setup-checklist and lists open gaps on list:business-setup-gaps."
@@ -306,7 +306,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:post-on-social-channels-on-a-schedule"
             }

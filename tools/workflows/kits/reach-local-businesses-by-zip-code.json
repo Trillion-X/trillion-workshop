@@ -25,7 +25,7 @@
   ],
   "instructions": [
     "1. Set up a separate sending address on a domain that is not your main one (like hello@example.com, verified in your Amazon SES region) and take the businesses for the zip code and kind from your map data connection as items, each with its reviews.",
-    "2. Say \"Run workflow:reach-local-businesses-by-zip-code\" with zip_code, category, items, from, main_domain, time_zone, product_id and region. The AI starts it with tool:start-a-recipe-run and works the steps identity, find, addresses, local-detail, versions, style, write, judge, pace, send, outcomes, record, call, call-outcomes, compare.",
+    "2. Say \"Run workflow:reach-local-businesses-by-zip-code\" with zip_code, category, items, from, main_domain, time_zone, product_id and region. The AI starts it with tool:run-workflow-definition and works the steps identity, find, addresses, local-detail, versions, style, write, judge, pace, send, outcomes, record, call, call-outcomes, compare.",
     "3. At identity the sending domain must be verified and differ from your main domain, else it stops and tells you.",
     "4. At find, each business is scored by its reviews (slow-quote complaints weight 3, a spike of new reviews weight 2, 5 or more reviews in 90 days weight 1); only businesses with at least one signal stay, and only addresses matching your patterns (by default a gmail.com or info@ address) are written to.",
     "5. Approve the emails (a local detail in the first line, two openings compared); they go out on Saturday from the separate address, then the same list is called; the compare step says which opening drew more replies."
@@ -41,7 +41,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:reach-local-businesses-by-zip-code",
               "zip_code": "00000",

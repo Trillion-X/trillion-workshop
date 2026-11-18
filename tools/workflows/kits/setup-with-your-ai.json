@@ -6,11 +6,11 @@
   "workflow:setup-with-your-ai"
  ],
  "tools": [
-  "tool:start-a-recipe-run",
+  "tool:run-workflow-definition",
   "tool:who-does-each-step"
  ],
  "instructions": [
-  "1. Say to your AI: \"Run workflow:setup-with-your-ai\", with goal; required_components; it starts it with tool:start-a-recipe-run (row workflow:setup-with-your-ai).",
+  "1. Say to your AI: \"Run workflow:setup-with-your-ai\", with goal; required_components; it starts it with tool:run-workflow-definition (row workflow:setup-with-your-ai).",
   "2. Read what already works and what is actually needed.",
   "3. Let the shared engine assign every action.",
   "4. Do the setup and keep every unfinished action owned.",
@@ -28,7 +28,7 @@
      "address": "@tools",
      "method": "tools:run",
      "input": {
-      "tool": "tool:start-a-recipe-run",
+      "tool": "tool:run-workflow-definition",
       "input": {
        "row": "workflow:setup-with-your-ai",
        "goal": "run my bakery's orders from my AI",

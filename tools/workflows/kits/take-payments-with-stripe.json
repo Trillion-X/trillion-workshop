@@ -178,7 +178,7 @@
     "tool:set-up-stripe-payment-links",
     "tool:start-a-stripe-checkout-that-pays-someone-else",
     "tool:stripe-events-read_money_since",
-    "tool:start-a-recipe-run",
+    "tool:run-workflow-definition",
     "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
@@ -199,7 +199,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:take-payments-with-stripe"
             }

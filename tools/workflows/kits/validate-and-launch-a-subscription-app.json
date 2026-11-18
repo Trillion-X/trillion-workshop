@@ -16,7 +16,7 @@
     "tool:tell-the-person",
     "tool:work-out-unit-economics",
     "tool:write-legal-documents",
-    "tool:start-a-recipe-run"
+    "tool:run-workflow-definition"
   ],
   "instructions": [
     "1. Write the painful daily problem in one sentence as the people who have it would say it, who has it, the store category (for example Health & Fitness), the store to launch in first (app-store or google-play) and any competitor apps you know, up to five.",
@@ -36,7 +36,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:validate-and-launch-a-subscription-app",
               "problem": "I never know if I drank enough water today",

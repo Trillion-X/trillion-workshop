@@ -7,11 +7,11 @@
     "workflow:method-find-the-constraints"
   ],
   "tools": [
-    "tool:start-a-recipe-run"
+    "tool:run-workflow-definition"
   ],
   "instructions": [
     "1. Write the decision in one plain sentence, for example \"decide the price of a five-lesson online bread-baking course for home bakers\", and say \"Run workflow:method-find-the-constraints\" with it as request (at least 10 characters).",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:method-find-the-constraints) and answers its steps in order: outcome, question, baseline, rule-out, owner, smallest-change, automate, risk, production, proof; each answer is refused until every check of the step is answered about this request.",
+    "2. The AI starts it with tool:run-workflow-definition (row workflow:method-find-the-constraints) and answers its steps in order: outcome, question, baseline, rule-out, owner, smallest-change, automate, risk, production, proof; each answer is refused until every check of the step is answered about this request.",
     "3. At rule-out, write the table of extremes (people, use, money, memory, disk, setup, time, absence, failure) and count how many options survive; if more than a few survive, name the constraint you are missing.",
     "4. Read what the last step, proof, hands back: how success and failure will be checked and the date it will be checked."
   ],
@@ -26,7 +26,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:method-find-the-constraints",
               "request": "Decide the price of a five-lesson online bread-baking course for home bakers"

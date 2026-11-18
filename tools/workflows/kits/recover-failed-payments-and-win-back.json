@@ -183,7 +183,7 @@
   ],
   "instructions": [
     "1. Make sure record:business-setup:facts exists and that Stripe and email sending (Resend) are connected; make list:business-setup-checklist and list:business-setup-gaps from the example rows (see pour) if you keep none.",
-    "2. Say \"Run workflow:recover-failed-payments-and-win-back\". The AI starts it with tool:start-a-recipe-run and works the steps in order: read-facts, list-failed-payments, send-the-payment-failed-email, record-the-retry-setting-gap, list-churned-for-win-back, send-the-win-back-email, record-the-stage.",
+    "2. Say \"Run workflow:recover-failed-payments-and-win-back\". The AI starts it with tool:run-workflow-definition and works the steps in order: read-facts, list-failed-payments, send-the-payment-failed-email, record-the-retry-setting-gap, list-churned-for-win-back, send-the-win-back-email, record-the-stage.",
     "3. Give your own words for the payment-failed email and the win-back (one offer you already sell); the AI checks them with tool:check-copy before it sends.",
     "4. Read the counts: sent and skipped_same_invoice for failed payments (the invoice id is the idempotency key, so a rerun never emails an invoice twice) and sent for win-backs.",
     "5. Set the retry schedule in your Stripe dashboard yourself: no Trillion tool sets it, so the workflow records it as a gap on list:business-setup-gaps."
@@ -199,7 +199,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:recover-failed-payments-and-win-back"
             }

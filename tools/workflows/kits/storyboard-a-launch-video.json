@@ -7,10 +7,10 @@
   "workflow:source-a-screen-from-design-libraries"
  ],
  "tools": [
-  "tool:start-a-recipe-run"
+  "tool:run-workflow-definition"
  ],
  "instructions": [
-  "1. Say to your AI: \"Run workflow:storyboard-a-launch-video\", with product (The product being launched: a row id, its address or its name in the person's words.); it starts it with tool:start-a-recipe-run (row workflow:storyboard-a-launch-video).",
+  "1. Say to your AI: \"Run workflow:storyboard-a-launch-video\", with product (The product being launched: a row id, its address or its name in the person's words.); it starts it with tool:run-workflow-definition (row workflow:storyboard-a-launch-video).",
   "2. Know the product and its buyer: done when The buyer, why it helps and a main flow of at least three walked-through steps are written from the product, not guessed.",
   "3. Pick the hook: done when One hook type is chosen with its opening line and the proof the video will show for it.",
   "4. Draft the flow like a wireframe: done when A goal, a call to action and at least five sections in order, each with what it says and how it contrasts with the one before.",
@@ -31,7 +31,7 @@
      "address": "@tools",
      "method": "tools:run",
      "input": {
-      "tool": "tool:start-a-recipe-run",
+      "tool": "tool:run-workflow-definition",
       "input": {
        "row": "workflow:storyboard-a-launch-video",
        "product": "https://example.com/app",

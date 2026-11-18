@@ -6,7 +6,7 @@
   "workflow:grow-on-reddit-without-selling-first"
  ],
  "tools": [
-  "tool:start-a-recipe-run",
+  "tool:run-workflow-definition",
   "tool:read-a-page-in-my-browser",
   "tool:tell-the-person"
  ],
@@ -27,7 +27,7 @@
      "address": "@tools",
      "method": "tools:run",
      "input": {
-      "tool": "tool:start-a-recipe-run",
+      "tool": "tool:run-workflow-definition",
       "input": {
        "row": "workflow:grow-on-reddit-without-selling-first",
        "product": "A scheduling app for small bakeries",

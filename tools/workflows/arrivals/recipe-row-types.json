@@ -1,5 +1,0 @@
-{
-  "_what": "Where the person's own workflows are kept in their Postgres (tools/workflows/sql/): a table of recipes, one row per recipe, id the recipe's slug (the part of its id after `workflow:`), value the recipe row; and a table of steps, one row per step, `recipe` the recipe's slug and `position` its order, value the step row. tool:start-a-recipe-run, tool:choose-the-workflows-that-fire and tool:submit-a-recipe-step read them here; the names are DATA, quoted as identifiers when used. A row found under a recipe's slug wins over the public recipe of the same id.",
-  "recipe": { "table": "workflow_recipe" },
-  "step": { "table": "workflow_step" }
-}

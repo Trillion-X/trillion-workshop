@@ -8,7 +8,7 @@
   "workflow:x-mode"
  ],
  "tools": [
-  "tool:start-a-recipe-run"
+  "tool:run-workflow-definition"
  ],
  "instructions": [
   "1. Write the request (the one first result the customer should reach), the scope, the constraints and authorized_actions; all four are required, source_id is optional.",
@@ -28,7 +28,7 @@
      "address": "@tools",
      "method": "tools:run",
      "input": {
-      "tool": "tool:start-a-recipe-run",
+      "tool": "tool:run-workflow-definition",
       "input": {
        "row": "workflow:first-win",
        "request": "A first-time visitor places one order on the bakery order page without help.",

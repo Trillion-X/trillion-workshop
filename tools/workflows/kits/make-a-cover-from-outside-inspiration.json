@@ -92,13 +92,13 @@
   "workflow:make-a-cover-from-outside-inspiration"
  ],
  "tools": [
-  "tool:start-a-recipe-run",
+  "tool:run-workflow-definition",
   "tool:compose-thumbnails-from-layout-templates",
   "tool:find-outlier-videos-against-their-channel-median"
  ],
  "instructions": [
   "1. Pour the example rows of list:image-inspiration-sources into the list you already keep for the same job (see pour), or make list:image-inspiration-sources from them.",
-  "2. Say to your AI: \"Run workflow:make-a-cover-from-outside-inspiration\", with piece (The piece the cover is for: a row id of the person's content, or its words.); surface (Where the cover appears, for example a YouTube thumbnail, an Instagram reel cover, the first slide of a carousel, a TikTok cover, a newsletter header, an article hero image or a printed postcard.); it starts it with tool:start-a-recipe-run (row workflow:make-a-cover-from-outside-inspiration).",
+  "2. Say to your AI: \"Run workflow:make-a-cover-from-outside-inspiration\", with piece (The piece the cover is for: a row id of the person's content, or its words.); surface (Where the cover appears, for example a YouTube thumbnail, an Instagram reel cover, the first slide of a carousel, a TikTok cover, a newsletter header, an article hero image or a printed postcard.); it starts it with tool:run-workflow-definition (row workflow:make-a-cover-from-outside-inspiration).",
   "3. Study what outperformed on this surface: done when At least five outliers, each with a link or row id and the move named.",
   "4. Pair a credible source with what culture is talking about: done when Every pair names where in the piece it is backed, and five or more headlines are drafted from the pairs.",
   "5. Find the visual idea outside the platform: done when Three or more cited references, each with what is taken and how it is recreated.",
@@ -117,7 +117,7 @@
      "address": "@tools",
      "method": "tools:run",
      "input": {
-      "tool": "tool:start-a-recipe-run",
+      "tool": "tool:run-workflow-definition",
       "input": {
        "row": "workflow:make-a-cover-from-outside-inspiration",
        "piece": "record:content-pieces:example-ai-study",

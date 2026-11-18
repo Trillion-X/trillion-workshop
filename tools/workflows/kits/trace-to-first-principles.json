@@ -7,7 +7,7 @@
     "workflow:bring-in-a-framework"
   ],
   "tools": [
-    "tool:start-a-recipe-run"
+    "tool:run-workflow-definition"
   ],
   "instructions": [
     "1. Have your chain of first principles as a framework file in your files (kind framework, items in order from the most basic stage to the last, each with a title and text); if you have none, run workflow:bring-in-a-framework first.",
@@ -27,7 +27,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:trace-to-first-principles",
               "subject": "add a weekly digest email for new members",

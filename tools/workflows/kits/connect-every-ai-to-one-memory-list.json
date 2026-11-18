@@ -98,7 +98,7 @@
     "workflow:set-up-your-checks"
   ],
   "tools": [
-    "tool:start-a-recipe-run",
+    "tool:run-workflow-definition",
     "tool:read-documents-as-list-rows",
     "tool:change-a-document-row",
     "tool:check-against-a-persons-rules-and-verdicts",
@@ -121,7 +121,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:connect-every-ai-to-one-memory-list",
               "list_id": "ai-memories",

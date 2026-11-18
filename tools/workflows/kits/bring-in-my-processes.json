@@ -8,7 +8,7 @@
     "workflow:turn-research-into-a-plan"
   ],
   "tools": [
-    "tool:start-a-recipe-run"
+    "tool:run-workflow-definition"
   ],
   "instructions": [
     "1. Decide the scope: one folder of skills, a scripts folder, or everything your AI can reach.",
@@ -27,7 +27,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:bring-in-my-processes",
               "scope": "the folder named skills, holding close-the-shop.md, send-invoice.sh and brand-notes.md"

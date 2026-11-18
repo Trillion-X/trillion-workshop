@@ -22,7 +22,7 @@
   ],
   "instructions": [
     "1. Set up a separate sending address on a domain that is not your main one (like hello@example.com) and note its time zone; take the job posts from your job board connection as items (each post with its company, role, address, posted_at and employees).",
-    "2. Say \"Run workflow:reach-companies-with-a-long-open-job-post\" with offer, from, time_zone, product_id and the items. The AI starts it with tool:start-a-recipe-run and works the steps find, read-post, problems, keep, style, write, judge, pace, send, record, outcomes, measure.",
+    "2. Say \"Run workflow:reach-companies-with-a-long-open-job-post\" with offer, from, time_zone, product_id and the items. The AI starts it with tool:run-workflow-definition and works the steps find, read-post, problems, keep, style, write, judge, pace, send, record, outcomes, measure.",
     "3. At find, only posts open 21 days or more at companies of 10 to 200 people are kept (the shipped rule row; your own source_row replaces it, the rules are never loosened to get more), each scored by the signals it matches.",
     "4. Read the four-sentence messages it wrote (role and days open, biggest problem in the post's own words, what that costs, one low-effort question) and approve the addresses; only approved messages go out, from the separate address, at the pace of the inbox.",
     "5. Replies come to you to answer; bounced addresses are suppressed; the measure step counts found, sent, replied, call booked and customer by signal so the next run knows which signal pays."
@@ -38,7 +38,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:reach-companies-with-a-long-open-job-post",
               "offer": "I help small companies hire operations managers faster.",

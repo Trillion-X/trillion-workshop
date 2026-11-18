@@ -959,7 +959,7 @@
        "account_id": "acct-sample",
        "available_tools": [
         "tool:give-every-account-ready-made-workflows-and-defaults",
-        "tool:start-a-recipe-run"
+        "tool:run-workflow-definition"
        ],
        "runtime": {
         "workflow": {

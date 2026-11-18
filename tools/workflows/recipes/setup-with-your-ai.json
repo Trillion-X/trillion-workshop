@@ -1,5 +1,5 @@
 {
-  "about": "Recipe the deploy ships that no list row holds: setting a person up with their AI (default_for setup), the run set-up-my-account reads Get started from (from-an-older-version/src/setup-runtime.mjs through read-a-recipe-run.mjs). Moved from give-every-account-ready-made-workflows-and-defaults/from-an-older-version/records/setup-workflow-records.json (old trillion tag old-trillion-before-worker-retire).",
+  "about": "Recipe the deploy ships that no list row holds: setting a person up with their AI (default_for setup), the run set-up-my-account reads Get started from (from-an-older-version/src/setup-runtime.mjs, over the setup_run the caller hands in). Moved from give-every-account-ready-made-workflows-and-defaults/from-an-older-version/records/setup-workflow-records.json (old trillion tag old-trillion-before-worker-retire).",
   "records": [
     {
       "id": "workflow:setup-with-your-ai",

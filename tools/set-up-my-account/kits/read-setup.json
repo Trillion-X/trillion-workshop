@@ -9,7 +9,8 @@
   "tools": [
     "tool:read-setup",
     "tool:get-started",
-    "tool:see-what-is-left-to-set-up"
+    "tool:see-what-is-left-to-set-up",
+    "tool:run-workflow-definition"
   ],
   "instructions": [
     "1. Say to your AI: \"Gather what my account's setup is made of and draw the Get started screen from it\", and give it account_id (The page's own account).",

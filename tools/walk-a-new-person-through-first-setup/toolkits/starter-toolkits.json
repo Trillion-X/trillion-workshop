@@ -69,7 +69,7 @@
           }
          ]
         },
-        "tools": ["tool:start-a-recipe-run","tool:pour-example-rows-into-my-list","tool:call-a-treg-endpoint","tool:decide-an-agent-action","tool:decide-the-replies","tool:keep-channels-latest-videos-and-captions","tool:keep-forum-posts-from-a-public-archive","tool:keep-public-posts-by-link","tool:pull-my-instagram-comments","tool:read-a-treg-endpoint-and-its-price","tool:read-my-treg-balance","tool:read-voice","tool:read-youtube-comments","tool:search-the-treg-catalog","tool:see-how-each-post-did","tool:send-a-reply-on-instagram","tool:send-a-reply-on-youtube","tool:watch-my-sources","tool:pull-my-instagram-messages","tool:expand-a-reply-template","tool:check-copy","tool:find-people","tool:rank-people-by-activity","tool:check-against-a-persons-rules-and-verdicts","tool:record-a-customer-step"]
+        "tools": ["tool:run-workflow-definition","tool:pour-example-rows-into-my-list","tool:call-a-treg-endpoint","tool:decide-an-agent-action","tool:decide-the-replies","tool:keep-channels-latest-videos-and-captions","tool:keep-forum-posts-from-a-public-archive","tool:keep-public-posts-by-link","tool:pull-my-instagram-comments","tool:read-a-treg-endpoint-and-its-price","tool:read-my-treg-balance","tool:read-voice","tool:read-youtube-comments","tool:search-the-treg-catalog","tool:see-how-each-post-did","tool:send-a-reply-on-instagram","tool:send-a-reply-on-youtube","tool:watch-my-sources","tool:pull-my-instagram-messages","tool:expand-a-reply-template","tool:check-copy","tool:find-people","tool:rank-people-by-activity","tool:check-against-a-persons-rules-and-verdicts","tool:record-a-customer-step"]
       }
     },
     {
@@ -139,7 +139,7 @@
           }
          ]
         },
-        "tools": ["tool:start-a-recipe-run","tool:check-copy","tool:copy-a-site","tool:publish_site","tool:name_site","tool:attach_domain","tool:critique-a-public-page","tool:pour-example-rows-into-my-list","tool:check-a-page-for-search-and-answer-engines","tool:read-public-web-page","tool:find-a-completed-stripe-checkout","tool:set-up-stripe-payment-links","tool:start-a-stripe-checkout-that-pays-someone-else","tool:stripe-events-read_money_since","tool:send-an-email","tool:list-completed-stripe-checkouts","tool:look-up-a-stripe-checkout","tool:check-what-a-buyer-paid","tool:list-ended-stripe-subscriptions"]
+        "tools": ["tool:run-workflow-definition","tool:check-copy","tool:copy-a-site","tool:publish_site","tool:name_site","tool:attach_domain","tool:critique-a-public-page","tool:pour-example-rows-into-my-list","tool:check-a-page-for-search-and-answer-engines","tool:read-public-web-page","tool:find-a-completed-stripe-checkout","tool:set-up-stripe-payment-links","tool:start-a-stripe-checkout-that-pays-someone-else","tool:stripe-events-read_money_since","tool:send-an-email","tool:list-completed-stripe-checkouts","tool:look-up-a-stripe-checkout","tool:check-what-a-buyer-paid","tool:list-ended-stripe-subscriptions"]
       }
     },
     {
@@ -209,7 +209,7 @@
           }
          ]
         },
-        "tools": ["tool:start-a-recipe-run","tool:what-can-my-account-do","tool:who-does-each-step","tool:what-is-waiting-on-me","tool:take-me-there","tool:pour-example-rows-into-my-list","tool:read-documents-as-list-rows","tool:change-a-document-row","tool:check-against-a-persons-rules-and-verdicts"]
+        "tools": ["tool:run-workflow-definition","tool:what-can-my-account-do","tool:who-does-each-step","tool:what-is-waiting-on-me","tool:take-me-there","tool:pour-example-rows-into-my-list","tool:read-documents-as-list-rows","tool:change-a-document-row","tool:check-against-a-persons-rules-and-verdicts"]
       }
     }
   ]

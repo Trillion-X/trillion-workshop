@@ -116,12 +116,12 @@
   "workflow:make-one-piece-of-content-from-audience-to-publish"
  ],
  "tools": [
-  "tool:start-a-recipe-run",
+  "tool:run-workflow-definition",
   "tool:watch-my-sources"
  ],
  "instructions": [
   "1. Pour the example rows of list:content-ideas into the list you already keep for the same job (see pour), or make list:content-ideas from them.",
-  "2. Say to your AI: \"Run workflow:serve-content-ideas-each-morning\"; it starts it with tool:start-a-recipe-run (row workflow:serve-content-ideas-each-morning).",
+  "2. Say to your AI: \"Run workflow:serve-content-ideas-each-morning\"; it starts it with tool:run-workflow-definition (row workflow:serve-content-ideas-each-morning).",
   "3. Read every idea source: done when Every watched source and the person's own recent records were read, or named in unread with the reason.",
   "4. Turn what is new into ideas that fit: done when Every kept idea has an angle, a source, what it serves and a format row.",
   "5. Serve them for the morning: done when Every served idea is a row read back, and the person was told once.",
@@ -140,7 +140,7 @@
      "address": "@tools",
      "method": "tools:run",
      "input": {
-      "tool": "tool:start-a-recipe-run",
+      "tool": "tool:run-workflow-definition",
       "input": {
        "row": "workflow:serve-content-ideas-each-morning",
        "how_many": 20,

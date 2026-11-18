@@ -18,13 +18,6 @@ const slugOf = recipe => recipe.id.replace(/^workflow:/, '');
 const oneLine = text => String(text).replace(/\s+/g, ' ').trim();
 const quote = text => JSON.stringify(oneLine(text));
 
-function agentsLine(step) {
-  if (step.lanes_from) return `Agents: one per lane, the lanes being read from the answer of step \`${step.lanes_from[1]}\` (\`${step.lanes_from.slice(2).join('.')}\`); start them with \`tool:start-a-recipe-step\`, each lane's job is \`<run>:${step.id}:<lane id>\`, and each lane has a different AI.`;
-  if (Array.isArray(step.lanes)) return `Agents: ${step.lanes.length}, one per lane (${step.lanes.join(', ')}); start them with \`tool:start-a-recipe-step\`, each lane's job is \`<run>:${step.id}:<lane id>\`, and each lane has a different AI.`;
-  if (step.agents > 1) return `Agents: ${step.agents}, one per lane; start them with \`tool:start-a-recipe-step\`, and each lane has a different AI.`;
-  return null;
-}
-
 const handsBack = step => {
   const required = step.submit?.required ?? [];
   return required.length ? required.map(name => `\`${name}\``).join(', ') : 'an object';
@@ -54,16 +47,14 @@ export function skillFromWorkflow(recipe) {
     '',
     `The steps, their schemas and their checks are the rows of \`${recipe.id}\` in the person's list of workflows. Start it, then do each step in order:`,
     '',
-    `1. \`trillion tools\` finds \`tool:start-a-recipe-run\`; run it with \`{"row":"${recipe.id}"}\`${inputs.length ? ` and the input (${inputs.map(name => `\`${name}\`${needed.has(name) ? ' (required)' : ''}`).join(', ')})` : ''}. It writes one waiting AI job holding the steps.`,
-    '2. For each step, begin it with `tool:start-a-recipe-step` (run = that job\'s id, step = the step id), do the work, and hand the answer in with `tool:submit-a-recipe-step`. A step is done only when its checks pass.',
+    `1. \`trillion tools\` finds \`tool:run-workflow-definition\`; run it with \`{"row":"${recipe.id}"}\`${inputs.length ? ` and the input (${inputs.map(name => `\`${name}\`${needed.has(name) ? ' (required)' : ''}`).join(', ')})` : ''}. It runs on the workflow engine and comes back paused at the first step, which \`waiting\` names with what it asks.`,
+    '2. Do that step, then run it again with every answer so far in `answers` (by step id): it goes on to the next step, or fails at a check naming the value. A step is done only when its checks pass. Keep the answers yourself; nothing is kept for you.',
     `3. The steps, in order: ${recipe.steps.map(step => `\`${step.id}\``).join(', ')}.`,
     '',
     '## Steps',
   ];
   recipe.steps.forEach((step, at) => {
     lines.push('', `### ${at + 1}. ${step.title ?? step.id} (\`${step.id}\`)`, '', oneLine(step.do));
-    const agents = agentsLine(step);
-    if (agents) lines.push('', agents);
     lines.push('', `Hands back: ${handsBack(step)}.`);
     const checks = (step.checks ?? []).map(check => check.says).filter(Boolean);
     if (checks.length) lines.push('', 'Checks that must pass:', ...checks.map(says => `- ${says}`));

@@ -2,7 +2,7 @@
   "name": "trillion-workflows",
   "private": true,
   "type": "module",
-  "description": "The tests of the workflows tools that keep rows in SQL (tool:start-a-recipe-run and its siblings); the tools themselves run on the pinned package rows of tool-rows.json.",
+  "description": "The tests of the SQL runner (do-work/run-with-sql.mjs, read-data/with-sql.mjs and sql.mjs), which tools outside this folder still use until their own database parts are deleted; those tools run on the pinned package rows of their tool-rows.json.",
   "dependencies": {
     "pg": "8.23.1"
   },

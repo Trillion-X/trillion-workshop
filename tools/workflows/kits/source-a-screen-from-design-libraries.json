@@ -6,10 +6,10 @@
   "workflow:source-a-screen-from-design-libraries"
  ],
  "tools": [
-  "tool:start-a-recipe-run"
+  "tool:run-workflow-definition"
  ],
  "instructions": [
-  "1. Say to your AI: \"Run workflow:source-a-screen-from-design-libraries\", with need (The screen, flow or component wanted, in the person's words (for example a sign-up flow, a feedback form, a nested popover).); it starts it with tool:start-a-recipe-run (row workflow:source-a-screen-from-design-libraries).",
+  "1. Say to your AI: \"Run workflow:source-a-screen-from-design-libraries\", with need (The screen, flow or component wanted, in the person's words (for example a sign-up flow, a feedback form, a nested popover).); it starts it with tool:run-workflow-definition (row workflow:source-a-screen-from-design-libraries).",
   "2. Look for the whole thing ready-made: done when fit is true with at least one component id read with get_component, or fit is false with the queries run and the near misses named.",
   "3. See how real products do it: done when At least three cited examples and one anatomy list whose parts the next step can search for one by one.",
   "4. Take each part from the component library: done when Every anatomy part has a component id or its queries and the shared component used instead.",
@@ -28,7 +28,7 @@
      "address": "@tools",
      "method": "tools:run",
      "input": {
-      "tool": "tool:start-a-recipe-run",
+      "tool": "tool:run-workflow-definition",
       "input": {
        "row": "workflow:source-a-screen-from-design-libraries",
        "need": "a settings page with a row of notification toggles",

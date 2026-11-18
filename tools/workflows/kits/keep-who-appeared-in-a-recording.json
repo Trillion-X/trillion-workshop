@@ -6,14 +6,14 @@
   "workflow:keep-who-appeared-in-a-recording"
  ],
  "tools": [
-  "tool:start-a-recipe-run",
+  "tool:run-workflow-definition",
   "tool:find-faces",
   "tool:keep-who-appeared",
   "tool:where-someone-appeared",
   "tool:who-is-in-this"
  ],
  "instructions": [
-  "1. Say to your AI: \"Run workflow:keep-who-appeared-in-a-recording\", with file (The recording in this account by its content identity); it starts it with tool:start-a-recipe-run (row workflow:keep-who-appeared-in-a-recording).",
+  "1. Say to your AI: \"Run workflow:keep-who-appeared-in-a-recording\", with file (The recording in this account by its content identity); it starts it with tool:run-workflow-definition (row workflow:keep-who-appeared-in-a-recording).",
   "2. Hear who spoke.",
   "3. See who is on screen.",
   "4. Keep each stretch as a row linked to the person.",
@@ -31,7 +31,7 @@
      "address": "@tools",
      "method": "tools:run",
      "input": {
-      "tool": "tool:start-a-recipe-run",
+      "tool": "tool:run-workflow-definition",
       "input": {
        "row": "workflow:keep-who-appeared-in-a-recording",
        "file": "1f:example-recording-identity",

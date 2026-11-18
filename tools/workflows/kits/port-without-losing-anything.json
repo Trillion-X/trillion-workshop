@@ -7,7 +7,7 @@
     "workflow:port-without-losing-anything"
   ],
   "tools": [
-    "tool:start-a-recipe-run"
+    "tool:run-workflow-definition"
   ],
   "instructions": [
     "1. Name where the old one is and where it moves to, for example \"https://old.example.com/admin/orders\" and \"https://app.example.com/orders\", and say \"Run workflow:port-without-losing-anything\" with old and new (each at least 3 characters).",
@@ -26,7 +26,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:port-without-losing-anything",
               "old": "https://old.example.com/admin/orders",

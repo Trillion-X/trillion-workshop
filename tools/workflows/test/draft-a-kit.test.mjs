@@ -55,7 +55,7 @@ test('a workflow is drafted from its steps, and a step that runs a tool shows th
   const { kit, problems } = draftKit({ recipe: runs, observed });
   assert.deepEqual(problems, []);
   assert.deepEqual(kit.workflows, ['workflow:fixture-greet']);
-  assert.deepEqual(kit.tools, ['tool:start-a-recipe-run', 'tool:fixture-sum']);
+  assert.deepEqual(kit.tools, ['tool:run-workflow-definition', 'tool:fixture-sum']);
   assert.equal(kit.worked_examples[0].step, 'say');
   assert.match(kit.worked_examples[0].hands_back, /"total":3/);
   assert.match(kit.instructions[1], /Say it: done when the total is said/);

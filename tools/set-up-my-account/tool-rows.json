@@ -675,7 +675,7 @@
         "label": "Read my setup",
         "status": "active",
         "job": "Gather what my account's setup is made of and draw the Get started screen from it",
-        "description": "The one read of the Get started screen (tool:get-started). It asks the account files door for this account's setup facts (setup_facts: sign-ins and their app grants, notification devices, the AI connection, computers, the setup runtime, device releases, the last setup snapshot) for the asking browser, reads the account's own show rules (show-rules) and setup context (setup-context), and runs tool:see-what-is-left-to-set-up with them and the page's account id, answering the screen it draws. A source it could not read is left unknown, so the screen is not ready rather than opened on a guess. It writes nothing.",
+        "description": "The one read of the Get started screen (tool:get-started). It asks the account files door for this account's setup facts (setup_facts: sign-ins and their app grants, notification devices, the AI connection, computers, the setup runtime, device releases, the last setup snapshot) for the asking browser, reads the account's own show rules (show-rules) and setup context (setup-context), and runs tool:see-what-is-left-to-set-up with them and the page's account id, answering the screen it draws. The setup run is handed in as setup_run (the status tool:run-workflow-definition answered and the answers so far), since no tool keeps a run. A source it could not read is left unknown, so the screen is not ready rather than opened on a guess. It writes nothing.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -699,6 +699,15 @@
             "now": {
               "type": "string",
               "description": "The time to decide at (ISO); now when left out"
+            },
+            "setup_run": {
+              "type": "object",
+              "required": ["status"],
+              "properties": {
+                "status": { "type": "string", "description": "The status tool:run-workflow-definition answered for the setup recipe's run: paused, completed or failed" },
+                "answers": { "type": "object", "description": "The answers given so far, by step id" }
+              },
+              "description": "The setup run, as the caller keeps it in the person's own database; left out, the setup was never started"
             }
           }
         },
@@ -738,8 +747,6 @@
               {
                 "package": "workflows",
                 "paths": [
-                  "read-data/read-a-recipe-run.mjs",
-                  "read-data/step-agents.mjs",
                   "read-data/public-recipes.mjs",
                   "recipes"
                 ],

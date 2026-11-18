@@ -12,7 +12,7 @@
     "tool:make-tracked-link",
     "tool:read-experiment-results",
     "tool:tell-the-person",
-    "tool:start-a-recipe-run"
+    "tool:run-workflow-definition"
   ],
   "instructions": [
     "1. Have the page address ready, each part of it that changes with its versions (for example the plan card: 9, 12, 15), the places you share it (a newsletter, an ad account) and what counts as a result (signed up, paid). No list is needed: the versions and the rule are kept as records the workflow writes.",
@@ -32,7 +32,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:test-prices-and-change-a-page-for-each-visitor",
               "page": "https://example.com/pricing",

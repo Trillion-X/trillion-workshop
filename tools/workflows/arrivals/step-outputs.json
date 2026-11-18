@@ -1,5 +1,0 @@
-{
-  "_what": "Where a recipe step's output goes (L078 cart). A step carries `outputs: [{port, kind}]`; kind is `row:<list>`, `file` or `none`. The person's cart lines, `{kind, store, credential_name}` (the credential a vault name, never a value), are their own rows of the table below (tools/workflows/sql/), read at run time; no person's line is kept in this repository. `kind_of_line` maps a kind to the line that serves it: `row:<list>` is served by a line of kind `row:<list>` or `row:*`, `file` by a line of kind `file`. `keepers` name the Workshop tool that writes for each kind; the runner calls the tool by id and holds no store of its own.",
-  "cart_line": { "table": "cart_line" },
-  "keepers": { "row": "tool:run-sql-in-my-database", "file": "tool:send-a-file-to-a-namespace" }
-}

@@ -8,7 +8,7 @@
   "workflow:x-mode"
  ],
  "tools": [
-  "tool:start-a-recipe-run"
+  "tool:run-workflow-definition"
  ],
  "instructions": [
   "1. Write the request (the commitments and dependencies to carry through), the scope, the constraints and authorized_actions; all four are required.",
@@ -28,7 +28,7 @@
      "address": "@tools",
      "method": "tools:run",
      "input": {
-      "tool": "tool:start-a-recipe-run",
+      "tool": "tool:run-workflow-definition",
       "input": {
        "row": "workflow:follow-through",
        "request": "Every deposit promised for a wedding cake this week is received or chased.",

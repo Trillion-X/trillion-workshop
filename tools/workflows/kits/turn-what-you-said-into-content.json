@@ -206,7 +206,7 @@
     "workflow:turn-notes-into-finished-content"
   ],
   "tools": [
-    "tool:start-a-recipe-run",
+    "tool:run-workflow-definition",
     "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
@@ -227,7 +227,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:turn-what-you-said-into-content",
               "words": "Every tool must ship with its lists and example rows. Give them the rows, don't tell them instructions.",
@@ -252,7 +252,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:turn-what-you-said-into-content",
               "words": "Every tool must ship with its lists and example rows. Give them the rows, don't tell them instructions."
@@ -275,7 +275,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:method-tell-a-story",
               "request": "People start when they are handed something already filled in. Their words: give them the rows. Formats: thread, talk."

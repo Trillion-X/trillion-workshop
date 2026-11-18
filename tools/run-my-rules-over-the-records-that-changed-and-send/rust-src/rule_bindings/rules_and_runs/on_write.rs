@@ -91,7 +91,7 @@ impl<'db, 's, 'c> NativeTransaction<'db, 's, 'c> {
     /// or empty beside its step rows, DATA `recipe_steps`), else the recipe the deploy ships (shipped_recipes.rs), never
     /// written. The account's row is the engine's own, named by the workflow id or by what follows its first colon
     /// (`workflow:a-b` is row `a-b`), or a row of the person's list of workflows, the recipe kind after `row_kind_prefix`
-    /// (`record:workflow-recipe:a-b`, as trillion-workshop start-a-recipe-run.mjs `ownRecipe` reads it). None when
+    /// (`record:workflow-recipe:a-b`, as trillion-workshop recipe-rows.mjs `recipeFromRows` reads it). None when
     /// neither holds it; Some(Err) with the words when the recipe found cannot be run, so the run says why.
     fn recipe_definition(&mut self, settings: &runs::Settings, kinds: &runs::Kinds, policy: &record_value::OpenPolicy, workflow_id: &str) -> Result<Option<std::result::Result<Json, String>>> {
         let short = workflow_id.split_once(':').map_or(workflow_id, |(_, rest)| rest);

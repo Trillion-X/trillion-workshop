@@ -163,27 +163,31 @@ test('the apps the account has come from the names its sign-ins were made under,
   assert.equal(unknown[0].facts.devices, undefined);
 });
 
-// The engine's setup_facts carries no setup runtime: Get started read the setup run from where the run itself lives, the
-// setup recipe's run (tools/workflows read-a-recipe-run.mjs) and its kept answers, through the setup runtime moved here
-// from old trillion (from-an-older-version/src/setup-runtime.mjs). A run never started is the true "not started", never "the runtime
-// source is unreadable"; a reader with no owner here answers unavailable; nothing is written.
-function engineWithRun(rows = new Map()) {
+// The engine's setup_facts carries no setup runtime: Get started reads the setup run the caller hands in (setup_run: the
+// status tool:run-workflow-definition answered and the answers given so far, which the caller keeps in the person's own
+// database), through the setup runtime moved here from old trillion (from-an-older-version/src/setup-runtime.mjs). No
+// setup_run is the true "not started", never "the runtime source is unreadable"; a reader with no owner here answers
+// unavailable; nothing is read from or written to any store.
+function engineWithRun() {
   const sent = [];
   const reads = [];
   return {
     sent, reads,
     async files() { return { facts: {}, shared_rules: null, context: null }; },
     async readWorkspace([label]) { return { records: { [label]: null } }; },
-    async read(type, id) { reads.push([type, id]); return rows.get(id) ?? null; },
+    async read(type, id) { reads.push([type, id]); return null; },
     async write() { throw new Error('a read writes nothing'); },
     async run(tool, input) { sent.push(input); return seeWhatIsLeftToSetUp(input); },
   };
 }
+const readWith = async setup_run => {
+  const engine = engineWithRun();
+  await readSetup({ account_id: 'acct-a', origin: ORIGIN, now: NOW, ...(setup_run ? { setup_run } : {}) }, { door: engine });
+  return { engine, workflow: engine.sent[0].facts.runtime.workflow, runtime: engine.sent[0].facts.runtime };
+};
 
 test('a new account with no setup run reads its workflow as not started, not as an unreadable runtime', async () => {
-  const engine = engineWithRun();
-  await readSetup({ account_id: 'acct-a', origin: ORIGIN, now: NOW }, { door: engine });
-  const runtime = engine.sent[0].facts.runtime;
+  const { engine, runtime } = await readWith();
   assert.equal(runtime.schema, 'trillion.setup-runtime/v1');
   assert.equal(runtime.workflow.exists, false);
   assert.equal(runtime.workflow.state, 'not_started');
@@ -192,58 +196,30 @@ test('a new account with no setup run reads its workflow as not started, not as 
   for (const id of ['defaults', 'timed_work', 'event_intake', 'agents']) {
     assert.equal(runtime.components.find(row => row.id === id).state, 'unknown', `${id} has no reader here, so it is unknown`);
   }
-  assert.deepEqual(engine.reads, [['ai-job', runtime.workflow.run_id]], 'one read of the run, and nothing else');
+  assert.deepEqual(engine.reads, [], 'nothing is read from a store');
   const screen = await seeWhatIsLeftToSetUp(engine.sent[0]);
   assert.doesNotMatch(JSON.stringify(screen), /runtime-source-unreadable/);
 });
 
-test('a started setup run reads as working, and its kept answers are the steps it admitted', async () => {
-  const engine0 = engineWithRun();
-  await readSetup({ account_id: 'acct-a', origin: ORIGIN, now: NOW }, { door: engine0 });
-  const run = engine0.sent[0].facts.runtime.workflow.run_id;
-  const recipe = run.slice('ai-job:'.length, -':account-setup:v1'.length);
-  const steps = ['discover', 'assign', 'configure', 'verify-outcome'].map(id => ({ id }));
-  const rows = new Map([[run, { kind: 'ai-job', status: 'taken', row: recipe, label: 'Setup', job: steps, input: {} }]]);
+test('a started setup run reads as working, and its answers are the steps it admitted', async () => {
   const inventory = { requirements: [] };
-  rows.set(`${run}#answer:discover`, { kind: 'ai-job', status: 'done', parent: run, step: 'discover', answer: inventory, finished_by: 'workflow:submit-a-recipe-step' });
-  const engine = engineWithRun(rows);
-  await readSetup({ account_id: 'acct-a', origin: ORIGIN, now: NOW }, { door: engine });
-  const workflow = engine.sent[0].facts.runtime.workflow;
+  const { workflow } = await readWith({ status: 'paused', answers: { discover: inventory } });
   assert.equal(workflow.exists, true);
   assert.equal(workflow.state, 'working');
-  assert.equal(workflow.verified, false, 'no verify-outcome answer is kept, so nothing is verified');
-  assert.deepEqual(workflow.inventory, inventory, 'the kept discovery answer is the inventory');
+  assert.equal(workflow.verified, false, 'no verify-outcome answer is given, so nothing is verified');
+  assert.deepEqual(workflow.inventory, inventory, 'the discovery answer is the inventory');
 });
 
-test('a verify-outcome answer kept without the earlier answers it rests on does not read as verified', async () => {
-  const engine0 = engineWithRun();
-  await readSetup({ account_id: 'acct-a', origin: ORIGIN, now: NOW }, { door: engine0 });
-  const run = engine0.sent[0].facts.runtime.workflow.run_id;
-  const recipe = run.slice('ai-job:'.length, -':account-setup:v1'.length);
-  const steps = ['discover', 'assign', 'configure', 'verify-outcome'].map(id => ({ id }));
-  const rows = new Map([[run, { kind: 'ai-job', status: 'taken', row: recipe, label: 'Setup', job: steps, input: {} }]]);
-  rows.set(`${run}#answer:verify-outcome`, { kind: 'ai-job', status: 'done', parent: run, step: 'verify-outcome', answer: { verified: [] }, finished_by: 'workflow:submit-a-recipe-step' });
-  const engine = engineWithRun(rows);
-  await readSetup({ account_id: 'acct-a', origin: ORIGIN, now: NOW }, { door: engine });
-  assert.equal(engine.sent[0].facts.runtime.workflow.verified, false);
+test('a verify-outcome answer given without the earlier answers it rests on does not read as verified', async () => {
+  const { workflow } = await readWith({ status: 'paused', answers: { 'verify-outcome': { verified: [] } } });
+  assert.equal(workflow.verified, false);
 });
 
-test('a setup run reads as finished only once every one of its steps has a kept answer', async () => {
-  const engine0 = engineWithRun();
-  await readSetup({ account_id: 'acct-a', origin: ORIGIN, now: NOW }, { door: engine0 });
-  const run = engine0.sent[0].facts.runtime.workflow.run_id;
-  const recipe = run.slice('ai-job:'.length, -':account-setup:v1'.length);
-  const ids = ['discover', 'assign', 'configure', 'verify-outcome'];
-  const rows = new Map([[run, { kind: 'ai-job', status: 'taken', row: recipe, label: 'Setup', job: ids.map(id => ({ id })), input: {} }]]);
-  const keep = id => rows.set(`${run}#answer:${id}`, { kind: 'ai-job', status: 'done', parent: run, step: id, answer: id === 'discover' ? { requirements: [] } : {}, finished_by: 'workflow:submit-a-recipe-step' });
-  ids.slice(0, 3).forEach(keep);
-  let engine = engineWithRun(rows);
-  await readSetup({ account_id: 'acct-a', origin: ORIGIN, now: NOW }, { door: engine });
-  assert.equal(engine.sent[0].facts.runtime.workflow.state, 'working', 'three of four steps kept is still working');
-  keep('verify-outcome');
-  engine = engineWithRun(rows);
-  await readSetup({ account_id: 'acct-a', origin: ORIGIN, now: NOW }, { door: engine });
-  assert.equal(engine.sent[0].facts.runtime.workflow.state, 'finished');
+test('a setup run reads as finished only once the engine says it completed', async () => {
+  const answers = { discover: { requirements: [] }, assign: {}, configure: {} };
+  assert.equal((await readWith({ status: 'paused', answers })).workflow.state, 'working', 'three of four steps answered is still working');
+  assert.equal((await readWith({ status: 'completed', answers: { ...answers, 'verify-outcome': {} } })).workflow.state, 'finished');
+  assert.equal((await readWith({ status: 'failed', answers })).workflow.state, 'failed');
 });
 
 test('a runtime the setup facts already carry is used as it is', async () => {

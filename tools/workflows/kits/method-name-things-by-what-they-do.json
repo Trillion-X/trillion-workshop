@@ -7,11 +7,11 @@
     "workflow:method-name-things-by-what-they-do"
   ],
   "tools": [
-    "tool:start-a-recipe-run"
+    "tool:run-workflow-definition"
   ],
   "instructions": [
     "1. Say what you are naming in one plain sentence, for example \"name the screens and messages of a bakery's pre-order page\", and say \"Run workflow:method-name-things-by-what-they-do\" with it as request.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:method-name-things-by-what-they-do) and answers its one step, naming, with ten checks (finger-point test, job names, plain cause in errors, no insider words and the rest).",
+    "2. The AI starts it with tool:run-workflow-definition (row workflow:method-name-things-by-what-they-do) and answers its one step, naming, with ten checks (finger-point test, job names, plain cause in errors, no insider words and the rest).",
     "3. Point at each name in the real result and say what concrete thing it shows; replace every name that needs explaining.",
     "4. Read what naming hands back: the names, the plain wording each replaced and every promise matched to what exists today."
   ],
@@ -26,7 +26,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:method-name-things-by-what-they-do",
               "request": "Name the screens and messages of a bakery's pre-order page"

@@ -6,7 +6,7 @@
   "workflow:hire-help-for-a-step"
  ],
  "tools": [
-  "tool:start-a-recipe-run",
+  "tool:run-workflow-definition",
   "tool:hold-to-it",
   "tool:send-an-email"
  ],
@@ -27,7 +27,7 @@
      "address": "@tools",
      "method": "tools:run",
      "input": {
-      "tool": "tool:start-a-recipe-run",
+      "tool": "tool:run-workflow-definition",
       "input": {
        "row": "workflow:hire-help-for-a-step",
        "step": "Photograph the bakery shelf at Example Market",

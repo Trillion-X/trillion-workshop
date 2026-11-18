@@ -7,11 +7,11 @@
     "workflow:method-research-plan-build"
   ],
   "tools": [
-    "tool:start-a-recipe-run"
+    "tool:run-workflow-definition"
   ],
   "instructions": [
     "1. Say the capability you want in one plain sentence, for example \"send bakery customers a pickup reminder before their pickup time\", and say \"Run workflow:method-research-plan-build\" with it as request.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:method-research-plan-build) and answers its steps in order: baseline, root, rule-out, combine, risk, production; each answer is refused until every check of the step is answered about this request.",
+    "2. The AI starts it with tool:run-workflow-definition (row workflow:method-research-plan-build) and answers its steps in order: baseline, root, rule-out, combine, risk, production; each answer is refused until every check of the step is answered about this request.",
     "3. At baseline, research how many others handle it and what is far beyond common practice; at root, reason from basic constraints alone so the two can be compared.",
     "4. At production, write the detailed plan and then carry it out end to end; the step is done when the real working result exists."
   ],
@@ -26,7 +26,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:method-research-plan-build",
               "request": "Send bakery customers a pickup reminder before their pickup time"

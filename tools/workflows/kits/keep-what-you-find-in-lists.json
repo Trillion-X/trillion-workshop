@@ -6,7 +6,7 @@
   "workflow:keep-what-you-find-in-lists"
  ],
  "tools": [
-  "tool:start-a-recipe-run"
+  "tool:run-workflow-definition"
  ],
  "instructions": [
   "1. Say what you need to know in one sentence (need), for example the emails of the founding members.",
@@ -25,7 +25,7 @@
      "address": "@tools",
      "method": "tools:run",
      "input": {
-      "tool": "tool:start-a-recipe-run",
+      "tool": "tool:run-workflow-definition",
       "input": {
        "row": "workflow:keep-what-you-find-in-lists",
        "need": "The emails of the founding members of the bakery club"

@@ -6,7 +6,7 @@
   "workflow:learn-the-person"
  ],
  "tools": [
-  "tool:start-a-recipe-run"
+  "tool:run-workflow-definition"
  ],
  "instructions": [
   "1. Optionally give name, name_source (who supplied the name and where) and focus; without a stated source a name is not used as proof.",
@@ -25,7 +25,7 @@
      "address": "@tools",
      "method": "tools:run",
      "input": {
-      "tool": "tool:start-a-recipe-run",
+      "tool": "tool:run-workflow-definition",
       "input": {
        "row": "workflow:learn-the-person",
        "name": "Sam Example",

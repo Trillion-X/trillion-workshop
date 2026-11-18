@@ -7,11 +7,11 @@
     "workflow:method-plan-only-what-helps"
   ],
   "tools": [
-    "tool:start-a-recipe-run"
+    "tool:run-workflow-definition"
   ],
   "instructions": [
     "1. Say the work in one plain sentence, for example \"let bakery customers change a pre-order until the evening before pickup\", and say \"Run workflow:method-plan-only-what-helps\" with it as request.",
-    "2. The AI starts it with tool:start-a-recipe-run (row workflow:method-plan-only-what-helps) and answers its steps in order: outcome, baseline, delete, owner, combine, smallest-change, risk, production, proof, focused-choice; each answer is refused until every check of the step is answered about this request.",
+    "2. The AI starts it with tool:run-workflow-definition (row workflow:method-plan-only-what-helps) and answers its steps in order: outcome, baseline, delete, owner, combine, smallest-change, risk, production, proof, focused-choice; each answer is refused until every check of the step is answered about this request.",
     "3. Keep a section only when it helps: delete mirror checks and ceremony that makes work wait, and do every step you identify in the same pass.",
     "4. At proof, give a test that could fail, a before and after view, and measured numbers where speed matters."
   ],
@@ -26,7 +26,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:method-plan-only-what-helps",
               "request": "Let bakery customers change a pre-order until the evening before pickup"

@@ -288,7 +288,7 @@
   ],
   "instructions": [
     "1. Make sure record:business-setup:facts exists with newsletter_platform (substack, beehiiv or ghost), posts_per_day (1 to 5) and owner_name; pour the example word checks into your own rules list (see pour) or make list:word-checks from them.",
-    "2. Say \"Run workflow:publish-articles-and-newsletter-on-a-cadence\". The AI starts it with tool:start-a-recipe-run and works the steps in order: read-facts, write-the-articles, check-the-articles, draft-the-articles, approve-and-set-to-go, send-the-newsletter, read-the-newsletter-results, record-the-stage.",
+    "2. Say \"Run workflow:publish-articles-and-newsletter-on-a-cadence\". The AI starts it with tool:run-workflow-definition and works the steps in order: read-facts, write-the-articles, check-the-articles, draft-the-articles, approve-and-set-to-go, send-the-newsletter, read-the-newsletter-results, record-the-stage.",
     "3. Read the titles and dates it shows and answer with your approval; only then are the posts approved and set to go at their time.",
     "4. After a week read each article's numbers from read-the-newsletter-results; record-the-stage ticks the stage on list:business-setup-checklist and writes open gaps to list:business-setup-gaps."
   ],
@@ -303,7 +303,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:publish-articles-and-newsletter-on-a-cadence"
             }

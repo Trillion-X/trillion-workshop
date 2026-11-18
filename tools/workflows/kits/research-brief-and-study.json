@@ -11,7 +11,7 @@
   ],
   "instructions": [
     "1. Pick the subject in plain words (a goal's title, a topic, a person or a place); add pursuit_id when it serves one of your goals, space_id for the community where an approved insight may go, and since_briefing (like /Briefings/<subject>/2026-11-06.md) to get only what changed.",
-    "2. Say \"Run workflow:research-brief-and-study\". The AI starts it with tool:start-a-recipe-run and works the steps research, briefing, study, insight, share.",
+    "2. Say \"Run workflow:research-brief-and-study\". The AI starts it with tool:run-workflow-definition and works the steps research, briefing, study, insight, share.",
     "3. At research, at least 5 sources actually read come back, each with its address, kind, title, an exact quote and when it was read; sources it could not read are listed as unread, never guessed.",
     "4. Read the briefing saved at /Briefings/<subject>/<today>.md, then answer the 3 to 5 questions from memory in your own words; an unanswered question is kept and asked again in the next briefing.",
     "5. Say whether the one insight holds; only if you approve its exact words is it shared in your community or published as a public page."
@@ -27,7 +27,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:research-brief-and-study",
               "subject": "How small bakeries get repeat customers",

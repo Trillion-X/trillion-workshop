@@ -7,11 +7,11 @@
     "workflow:tell-the-person-what-waits"
   ],
   "tools": [
-    "tool:start-a-recipe-run",
+    "tool:run-workflow-definition",
     "tool:what-is-waiting-on-me"
   ],
   "instructions": [
-    "1. Say to your AI: \"Run workflow:tell-the-person-what-waits\"; it starts it with tool:start-a-recipe-run (row workflow:tell-the-person-what-waits).",
+    "1. Say to your AI: \"Run workflow:tell-the-person-what-waits\"; it starts it with tool:run-workflow-definition (row workflow:tell-the-person-what-waits).",
     "2. Read what is waiting on them.",
     "3. Keep what only they can do.",
     "4. Show it in the chat.",

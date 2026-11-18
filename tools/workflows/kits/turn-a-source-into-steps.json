@@ -5,11 +5,11 @@
   "workflow:turn-a-source-into-steps"
  ],
  "tools": [
-  "tool:start-a-recipe-run",
+  "tool:run-workflow-definition",
   "tool:measure-source-coverage"
  ],
  "instructions": [
-  "1. Say to your AI: \"Run workflow:turn-a-source-into-steps\", with reader; it starts it with tool:start-a-recipe-run (row workflow:turn-a-source-into-steps).",
+  "1. Say to your AI: \"Run workflow:turn-a-source-into-steps\", with reader; it starts it with tool:run-workflow-definition (row workflow:turn-a-source-into-steps).",
   "2. Read source: done when The submitted manifest contains all source pieces and the reader completeness readback.",
   "3. Derive steps: done when Each piece has candidate canonical steps or an explicit source-pinned no_check reason.",
   "4. Place steps: done when Every candidate step names an existing or explicitly proposed branch and an order.",
@@ -29,7 +29,7 @@
      "address": "@tools",
      "method": "tools:run",
      "input": {
-      "tool": "tool:start-a-recipe-run",
+      "tool": "tool:run-workflow-definition",
       "input": {
        "row": "workflow:turn-a-source-into-steps",
        "reader": {

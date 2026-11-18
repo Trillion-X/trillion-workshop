@@ -36,7 +36,7 @@
   ],
   "instructions": [
     "1. Say what is on your mind about money in your own words, even vaguely (\"get my money in order\" is enough); add cash_available_cents (like 40000) only if you know it, and for_whom only for another household member who has a consent row.",
-    "2. Say \"Run workflow:put-a-households-money-in-order\". The AI starts it with tool:start-a-recipe-run and works the steps open-the-pursuit, connect-the-sources, inventory-every-item, reconcile-against-cash, research-each-item, decide-the-order, draft-every-message, file-every-movement-for-approval, act-on-approved-rows, follow-up-until-closed, repeat-monthly.",
+    "2. Say \"Run workflow:put-a-households-money-in-order\". The AI starts it with tool:run-workflow-definition and works the steps open-the-pursuit, connect-the-sources, inventory-every-item, reconcile-against-cash, research-each-item, decide-the-order, draft-every-message, file-every-movement-for-approval, act-on-approved-rows, follow-up-until-closed, repeat-monthly.",
     "3. Read the inventory: one row per bill, debt, subscription or refund, each with the exact sentence from its source; read each researched rule with its address and quote.",
     "4. Open the decision case for the order and approve it; every payment, cancellation and message waits as one row on your Waiting-on-you list until you approve it, and nothing moves before that.",
     "5. Items close only on a readback (a matching line, a confirmation id or the payee's written end of balance); a monthly wake runs the whole thing again and writes one summary row."
@@ -52,7 +52,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:put-a-households-money-in-order",
               "request": "The electric bill is past due and I think a streaming subscription still charges me.",

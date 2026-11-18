@@ -9,7 +9,7 @@
   "tools": [],
   "instructions": [
     "1. Write what you are deciding, designing or building in plain words, for example \"Add a pre-order page for a bakery\".",
-    "2. Say \"Run workflow:method-do-it-completely\" with that request; the AI starts it with tool:start-a-recipe-run.",
+    "2. Say \"Run workflow:method-do-it-completely\" with that request; the AI starts it with tool:run-workflow-definition.",
     "3. The steps run in order: delete, owner, smallest-change, production, proof; each hands back an answer (at least 40 characters) and one short answer per named check.",
     "4. Read proof last: it says what shows success or failure and the date it will be checked, so nothing is left for later."
   ],
@@ -24,7 +24,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:method-do-it-completely",
               "request": "Add a pre-order page for a bakery"

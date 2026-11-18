@@ -9,7 +9,7 @@
   ],
   "tools": [
     "tool:check-copy",
-    "tool:start-a-recipe-run"
+    "tool:run-workflow-definition"
   ],
   "instructions": [
     "1. Have your notes, words or principle ready word for word (at least 20 characters) and decide the format (the id or name of one of your content formats, such as a post, thread, newsletter, article, script or talk).",
@@ -29,7 +29,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:turn-notes-into-finished-content",
               "material": "I used to write the order sheet from scratch every morning. Now I hand a new baker the sheet from yesterday and they learn the bake in one morning.",

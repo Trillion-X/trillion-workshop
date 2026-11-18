@@ -9,7 +9,7 @@
     "workflow:turn-something-shared-into-what-you-can-use"
   ],
   "tools": [
-    "tool:start-a-recipe-run"
+    "tool:run-workflow-definition"
   ],
   "instructions": [
     "1. Say the run line in start_here with the request, the page or channel in scope, your constraints and the actions you allow.",
@@ -28,7 +28,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:make-it-perform",
               "request": "Get my bakery's pre-order page found when people search for custom cakes nearby",

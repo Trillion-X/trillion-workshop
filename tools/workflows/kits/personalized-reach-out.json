@@ -10,7 +10,7 @@
     "workflow:turn-something-shared-into-what-you-can-use"
   ],
   "tools": [
-    "tool:start-a-recipe-run"
+    "tool:run-workflow-definition"
   ],
   "instructions": [
     "1. Write the request, the scope (who counts as relevant), the constraints (what not to do) and the authorized actions (for example \"reply in the same thread\"); all four are required.",
@@ -29,7 +29,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:personalized-reach-out",
               "request": "Thank the three people who commented on my bakery video with a useful reply",

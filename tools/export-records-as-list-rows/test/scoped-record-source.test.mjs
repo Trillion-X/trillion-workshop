@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { answerOf as runRow, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import { sendBuiltRecordWrite } from '../do-work/send_built_record_write.mjs';
+import { runWorkflow } from '../../write-a-job-done-in-several-steps-have/read-data/run-a-workflow.mjs';
 
 const tool = fileURLToPath(new URL('..', import.meta.url));
 const builder = join(tool, 'do-work/build_record_write.py');
@@ -129,7 +130,7 @@ test('the Workshop COMPUTER row returns its payload from the records handed in, 
   }
 });
 
-test('a synthetic wake starts the COMPUTER builder, given the records it reads, and its result flows to a separately scoped two-kind writer', async () => {
+test('a synthetic wake run starts the COMPUTER builder, given the records it reads, and its result flows to a separately scoped two-kind writer', async () => {
   const root = mkdtempSync(join(tmpdir(), 'scoped-record-source-two-kinds-'));
   try {
     twoScopeMappingAt(root);
@@ -158,16 +159,12 @@ test('a synthetic wake starts the COMPUTER builder, given the records it reads, 
         },
       })),
     ];
-    const workflowRowsFile = JSON.parse(readFileSync(new URL('../../workflows/tool-rows.json', import.meta.url), 'utf8'));
-    const starter = rowOf(workflowRowsFile, 'tool:start-a-recipe-run');
-    const cause = { kind: 'time', tool: workflowId, wake: 'fixture', due_ms: 1800000000000 };
-    const started = await runRow(starter, { row: workflowId, start_at: 'make-rows' },
-      { records: [...sources, ...workflowRows], task: { request_key: 'synthetic-wake-1', cause } });
-    assert.equal(started.status, 0, JSON.stringify(started));
-    const job = started.kept.find(record => record.type === 'ai-job');
-    assert.deepEqual(job.value.cause, cause, 'the wake cause is retained in the waiting run');
-    assert.deepEqual(job.value.job.map(step => step.run_tool.tool_id), ['tool:build-records-to-write', 'tool:put-records-into-my-account', 'tool:put-records-into-my-account']);
-    assert.deepEqual(job.value.job[1].run_tool.input.payload, { from: ['steps', 'make-rows'] });
+    // The person's workflow rows run on the workflow engine, from the step a wake names: it asks each tool in order.
+    const started = await runWorkflow({ row: workflowRows[0], steps: workflowRows.slice(1), input: { start_at: 'make-rows' } });
+    assert.equal(started.status, 'paused', started.error_message);
+    assert.deepEqual(started.waiting.map(wait => [wait.step_id, wait.asks]), [['make-rows', 'tool:build-records-to-write']]);
+    assert.deepEqual(started.definition.steps.filter(step => step.kind === 'ask').map(step => step.config.name), ['tool:build-records-to-write', 'tool:put-records-into-my-account', 'tool:put-records-into-my-account']);
+    const job = { value: { job: steps.map(step => ({ run_tool: { tool_id: step.tool_id, input: step.input } })) } };
 
     const built = await runRow(builderRow, { ...job.value.job[0].run_tool.input, records: sources });
     assert.equal(built.status, 0, JSON.stringify(built));

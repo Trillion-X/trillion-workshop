@@ -6,8 +6,7 @@ import { sourceCoverage, textIdentity, sweepAtoms } from '../read-data/source-co
 import { sweepAtoms as sharedSweep } from '../../check-against-a-persons-rules-and-verdicts/do-work/piece-sweep.mjs';
 import { atomsOf } from '../../documents-as-list-rows/read-data/atoms.mjs';
 import { recipeProblems, stepAnatomyProblems } from '../../workflows/read-data/recipe-problems.mjs';
-import { startARecipeRun } from '../../workflows/read-data/start-a-recipe-run.mjs';
-import { readRow, startDatabase } from '../../workflows/test-helpers/rows-in-sql.mjs';
+import { runWorkflow } from '../../write-a-job-done-in-several-steps-have/read-data/run-a-workflow.mjs';
 import { rowOf, runRow } from '../../../test-helpers/run-a-row.mjs';
 const source = { id: 'source:synthetic', text: 'Return the version.\nA story.', identity: textIdentity('Return the version.\nA story.') };
 const piece = (id='piece:one',text='Return the version.') => ({id,source_id:source.id,source_identity:source.identity,text,identity:textIdentity(text),location:'synthetic.txt:1'});
@@ -88,18 +87,14 @@ test('descriptor runs with its declared packaged dependencies only',async()=>{
  assert.equal(result.cannot,undefined);assert.equal(result.code,0,JSON.stringify(result));
  assert.equal(result.last.ok,true);assert.equal(result.last.with_step,1);
 });
-test('canonical recipe anatomy and actual starter readback, independent of semantic execution',async()=>{
+test('canonical recipe anatomy and an actual run on the workflow engine, independent of semantic execution',async()=>{
  const recipe=JSON.parse(readFileSync(new URL('../../workflows/recipes/turn-a-source-into-steps.json',import.meta.url))).records[0].payload;
  assert.deepEqual(recipeProblems(recipe),[]);
  for(const step of recipe.steps) assert.deepEqual(stepAnatomyProblems(step),[]);
- const db=await startDatabase();
- try{
-  const input={row:recipe.id,reader:{tool_id:'tool:synthetic-reader',input:{source:'synthetic'}}};
-  const r=await startARecipeRun({input,task:{request_key:'synthetic-recipe-readback'}},{sql:db.sql});
-  const job=await readRow(db.sql,'ai_job',r.job);
-  assert.equal(r.status,'written'); assert.deepEqual(job.job,recipe.steps); assert.equal(job.input.reader.tool_id,'tool:synthetic-reader');
-  assert.equal((await startARecipeRun({input,task:{request_key:'synthetic-recipe-readback'}},{sql:db.sql})).status,'already-there');
- }finally{await db.stop();}
+ const run=await runWorkflow({row:recipe.id,reader:{tool_id:'tool:synthetic-reader',input:{source:'synthetic'}}});
+ assert.equal(run.status,'paused'); assert.equal(run.waiting[0].step_id,recipe.steps[0].id);
+ assert.deepEqual(run.definition.steps.filter(step=>step.kind==='ask').map(step=>step.id),recipe.steps.map(step=>step.id));
+ assert.equal(run.execution_context.start.input.reader.tool_id,'tool:synthetic-reader');
 });
 
 test('one persisted id cannot name both a piece and a derived step or source',()=>{

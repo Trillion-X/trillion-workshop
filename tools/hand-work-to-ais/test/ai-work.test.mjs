@@ -501,7 +501,7 @@ test('a job asks for its outcome, else its job when that is words, else its labe
 
 test('two lane jobs of one step, whose job is the step as a list, are each taken, planned and finished by their own taker', async () => {
   const lanes = ['ai:dig-1-lane', 'ai:dig-2-lane'];
-  // The shape tool:start-a-steps-agents writes: `job` is the step (a list), the outcome and label are words. The second lane is
+  // The shape a lane job has: `job` is the step (a list), the outcome and label are words. The second lane is
   // one written before the outcome was: its label alone says what it asks for.
   const laneJob = (lane, label, outcome) => ({ id: `ai-job:run:dig:${lane.slice(3)}`, type: 'ai-job', value: { kind: 'ai-job', status: 'waiting', label, ...(outcome ? { outcome } : {}), parent: 'ai-job:run', step: 'dig', lane, of: 2, job: [{ id: 'dig', title: 'Dig' }], input: {}, cause: null, priority: 5, sent_at: '2026-11-01T20:00:00.000Z' } });
   const { fake, door } = await account([...AIS, ...lanes.map(lane => ai(lane, { can: ['any'], order: 9 })), ...lanes.map((lane, at1) => laneJob(lane, `Run: Dig, lane ${lane}`, at1 === 0 ? `Run: Dig, lane ${lane}` : null))]);

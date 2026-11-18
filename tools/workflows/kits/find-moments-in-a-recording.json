@@ -174,7 +174,7 @@
     "workflow:turn-what-you-said-into-content"
   ],
   "tools": [
-    "tool:start-a-recipe-run",
+    "tool:run-workflow-definition",
     "tool:transcribe-audio-and-repair-whisper-loops",
     "tool:find-scene-changes",
     "tool:pick-cover-frame",
@@ -199,7 +199,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:find-moments-in-a-recording",
               "file": "1f:ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12"

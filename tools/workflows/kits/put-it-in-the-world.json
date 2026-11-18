@@ -9,11 +9,11 @@
     "workflow:turn-something-shared-into-what-you-can-use"
   ],
   "tools": [
-    "tool:start-a-recipe-run"
+    "tool:run-workflow-definition"
   ],
   "instructions": [
     "1. Write the request, its scope, the constraints and the actions you authorize (publishing a page, for example); add source_id when it came from a shared source.",
-    "2. Say \"Run workflow:put-it-in-the-world\". The AI starts it with tool:start-a-recipe-run and works the steps reuse, shape, publish, reachability.",
+    "2. Say \"Run workflow:put-it-in-the-world\". The AI starts it with tool:run-workflow-definition and works the steps reuse, shape, publish, reachability.",
     "3. At each step the answer holds a summary, the evidence (id, source, what was observed) and a state for each requirement; a blocked requirement stays open with its wall, never marked complete.",
     "4. At reachability, read that the real published address was opened and the served content checked, and that a real-user test was done or marked not applicable."
   ],
@@ -28,7 +28,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:put-it-in-the-world",
               "request": "Turn our bakery training sheet into a public how-to page.",

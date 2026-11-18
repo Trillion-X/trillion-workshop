@@ -96,7 +96,7 @@ function recipeDraft(recipe, observedByTool = new Map()) {
   return {
     start_here: needs.length ? null : `Say to your AI: "Run ${recipe.id}." It ${lower(first(recipe.job))}`,
     instructions: [
-      `1. Say to your AI: "Run ${recipe.id}"${needs.length ? `, with ${needs.join('; ')}` : ''}; it starts it with tool:start-a-recipe-run (row ${recipe.id}).`,
+      `1. Say to your AI: "Run ${recipe.id}"${needs.length ? `, with ${needs.join('; ')}` : ''}; it runs it with tool:run-workflow-definition (row ${recipe.id}).`,
       ...steps.map((step, at) => `${at + 2}. ${step.title ?? step.id}${step.done_when ? `: done when ${words(step.done_when)}` : '.'}`),
       `${steps.length + 2}. Read what it gives back: ${words(recipe.produces) || `what step ${steps.at(-1)?.id ?? 'the last step'} hands back`}`,
     ],
@@ -107,7 +107,7 @@ function recipeDraft(recipe, observedByTool = new Map()) {
       ...(examples.length ? [] : ['No real run of a step can be shown: no step runs a tool (run_tool) whose own sample run ended well here.']),
       ...(writesRows ? ['Its steps write rows (records:write) but the kit cannot name those lists with fields and example rows from the recipe alone.'] : []),
     ].join(' ') || null,
-    workflows: [recipe.id, ...names.workflows], tools: [...new Set(['tool:start-a-recipe-run', ...names.tools])],
+    workflows: [recipe.id, ...names.workflows], tools: [...new Set(['tool:run-workflow-definition', ...names.tools])],
   };
 }
 

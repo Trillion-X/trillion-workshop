@@ -13,7 +13,7 @@
     "workflow:write-a-research-prompt-without-the-answer-in-it"
   ],
   "tools": [
-    "tool:start-a-recipe-run"
+    "tool:run-workflow-definition"
   ],
   "instructions": [
     "1. Write the request (up to 30000 characters), its scope (a clear boundary, up to 5000 characters), the constraints (each a plain sentence, up to 100) and the authorized actions (each a plain sentence, up to 100); source_id is optional.",
@@ -33,7 +33,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:x-mode",
               "request": "Let customers cancel a subscription from the order page.",

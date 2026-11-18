@@ -153,7 +153,7 @@
     "workflow:method-name-question-delete"
   ],
   "tools": [
-    "tool:start-a-recipe-run",
+    "tool:run-workflow-definition",
     "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
@@ -174,7 +174,7 @@
           "address": "@tools",
           "method": "tools:run",
           "input": {
-            "tool": "tool:start-a-recipe-run",
+            "tool": "tool:run-workflow-definition",
             "input": {
               "row": "workflow:test-a-finding",
               "claim": "Free shipping over 50 makes customers add one more item to reach it.",
