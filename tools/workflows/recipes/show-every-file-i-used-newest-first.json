@@ -1,0 +1,188 @@
+{
+  "about": "workflow:show-every-file-i-used-newest-first: keeps every file the person used and how, one row per file and kind, and lists them newest first a page at a time, from the person's own store. It replaces the list and use store in tools/show-every-file-i-used-newest-first/src (recent-files.mjs), whose whole job was keeping and reading uses (rule a-tool-is-only-what-the-store-cannot-do). The Recent screen stays with its owner.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:show-every-file-i-used-newest-first",
+        "label": "Show every file I used, newest first",
+        "job": "Keep every file the person used and how (opened, watched, edited, published, or any other short word a screen or an AI reports), one row per file and kind holding its newest time, and show the files newest first, a page at a time. A use is only a file the person keeps (located by its name or identity); a file not theirs, and a word that is not one short word, are refused in words. Keep at most the shipped number of files; the file used longest ago leaves first. The list shows, for each file, its name, its newest word and time, and every kind with its newest time.",
+        "produces": "The person's uses as the store's own rows and each read as a page of files, newest first; proven on the same example uses in PostgreSQL, a markdown folder and a JSON file, with the same answers in each.",
+        "source": "tools/show-every-file-i-used-newest-first (src/recent-files.mjs and src/recent-files.json, moved from the old tree; the page-side rules watched_seconds and repeat_minutes stay with the Recent screen, which is not converted here). The shipped numbers are carried unchanged as DATA: keep 2000 files, list default 100, list maximum 500, kind pattern ^[a-z][a-z0-9-]{0,39}$, and the words opened, watched, edited, published. The time cursor is the one of tools/recently-deleted-and-storage/time-cursor.mjs: the last row's time and its identity.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language",
+                "credential_name"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these uses: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The name in the person's vault under which the store's login is kept"
+                }
+              }
+            },
+            "file": {
+              "type": "string",
+              "description": "For a use: the file's name starting with / or its identity"
+            },
+            "kind": {
+              "type": "string",
+              "description": "For a use: one short word, such as opened or watched"
+            },
+            "limit": {
+              "type": "integer",
+              "description": "For a list: files per page (default 100, at most 500)"
+            },
+            "before": {
+              "type": "string",
+              "description": "For a list: the next_before a page gave, to read the next page"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the uses are kept (kept_in, or null) and the names of the objects that keep them.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "make",
+            "title": "Make the store's own objects, once, and keep each use",
+            "do": "When the look step found nothing, make the store's own objects in its own form: one row per file identity and kind, holding the newest time of that use, with a key on the identity and the kind. To keep a use: (1) refuse, in words, a file that is not given, longer than 1,000 characters, or not one the person keeps (located by its name or identity); (2) refuse a kind that is not one short lowercase word of up to 40 characters starting with a letter, using letters, digits and dashes; (3) write the row for that identity and kind with the time the store reads now (the owner stamps it, never the caller); (4) if more than 2,000 files are kept, remove every row of the file whose newest use is oldest, so the file used longest ago leaves first. To list: read the files newest first by their newest time, then by identity, a page of the given limit (default 100, at most 500; a non-number gives the default), and after the cursor (the last row's time and identity, written as time|identity) when one is given. For each file show its identity, its name as the person keeps it now, its newest word and time, and every kind with its newest time; a word with no name on screen reads as itself with its first letter raised and dashes as spaces (Opened, Watched, Edited, Published are the shipped names). Submit the names of the objects made, or the ones the look step found.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the rules on the example uses",
+            "do": "In a throwaway place in the same store, with the same objects and with the keep number set to 2 (so the trim is exercised; the shipped number is 2,000), run these ten steps in order and record each outcome and answer. Files: /a.txt is id-a, /b.txt is id-b, /c.txt is id-c; /nope.txt is not theirs. Times are 2026-11-18T10:00:01Z to 10:00:06Z, one per step as numbered. (1) a.txt opened at 01. (2) b.txt watched at 02. (3) a.txt edited at 03. (4) c.txt opened at 04: three files are kept, so b.txt, used longest ago, leaves. (5) /nope.txt opened: refused, not in your files. (6) a.txt with the kind \"Bad Kind\": refused, not one short word. (7) list one file: c.txt, with next_before set. (8) the next page from that cursor: a.txt alone, next_before empty. (9) b.txt opened at 06: three files are kept, so a.txt, used longest ago, leaves. (10) list all: b.txt then c.txt, next_before empty. Submit outcomes (one per step: recorded, refused, one file listed, or two files listed) and answer (the first page, the second page, the list after the trims, and which id each trim removed).",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answer"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "answer": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each step has the outcome the rules give",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "recorded",
+                    "recorded",
+                    "recorded",
+                    "recorded",
+                    "refused",
+                    "refused",
+                    "one file listed",
+                    "one file listed",
+                    "recorded",
+                    "two files listed"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "The store's own answers give every expected page and trim",
+                "path": [
+                  "this",
+                  "answer"
+                ],
+                "values": [
+                  {
+                    "first_page": {
+                      "items": 1,
+                      "first_file": "/c.txt",
+                      "next_before_is_a_time_and_id": true
+                    },
+                    "second_page": {
+                      "items": 1,
+                      "first_file": "/a.txt",
+                      "next_before": null
+                    },
+                    "list_after_trim": [
+                      "/b.txt",
+                      "/c.txt"
+                    ],
+                    "trimmed_by_keep_2": [
+                      "id of /b.txt (step 4)",
+                      "id of /a.txt (step 9)"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "erase": "On the person's request the store deletes every use of the file, every kind of it, so it no longer appears in the list; nothing else in the person's store is changed."
+      }
+    }
+  ]
+}

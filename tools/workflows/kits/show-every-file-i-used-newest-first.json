@@ -1,0 +1,55 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:show-every-file-i-used-newest-first with store {\\\"where\\\": \\\"postgresql database example_shop on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-shop-postgres-connection\\\"} and file \\\"/a.txt\\\" and kind \\\"opened\\\".\"",
+  "lists": [],
+  "no_lists_because": "It names no list: the uses are kept in the person's own store, in whatever form that store keeps rows, and store says where and in which language.",
+  "workflows": [
+    "workflow:show-every-file-i-used-newest-first"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:show-every-file-i-used-newest-first\" with store and either a file and a kind to keep, or a limit and before to list.",
+    "3. The first run makes the store's own objects once and proves the rules on the example uses; every step must give its outcome, or the run stops and says which.",
+    "4. Every later run keeps the use or lists the page, and says what came back."
+  ],
+  "worked_examples": [
+    {
+      "title": "Record that I opened a file",
+      "ask": "I opened /a.txt. Keep it.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:show-every-file-i-used-newest-first",
+              "store": {
+                "where": "a text field",
+                "language": "the store's own",
+                "credential_name": "the store's login"
+              },
+              "file": "/a.txt",
+              "kind": "opened"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:show-every-file-i-used-newest-first",
+      "step": "make",
+      "given": {
+        "store": {
+          "where": "a text field",
+          "language": "the store's own",
+          "credential_name": "the store's login"
+        },
+        "file": "/a.txt",
+        "kind": "opened"
+      },
+      "hands_back": "Recorded: /a.txt (id-a) opened, newest time 2026-11-18T10:00:01.000Z, and it is the first file in the list."
+    }
+  ]
+}
