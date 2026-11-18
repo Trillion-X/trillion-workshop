@@ -1,0 +1,249 @@
+{
+  "about": "workflow:keep-observations-and-their-corrections: keep anything a person notices or measures (steps walked, money spent, a serve's speed, a mood, a kind not invented yet), and every later word about it (confirm, discard, correct, merge) as its own entry, in the person's own store, in that store's own form and language; show what is current, what waits for a word, one value over time and a plan's next step. It replaces the tools of tools/training-and-workouts, whose whole job was keeping a log record the person's AI could keep itself (rule a-tool-is-only-what-the-store-cannot-do).",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-observations-and-their-corrections",
+        "label": "Keep observations and their corrections",
+        "job": "Keep anything a person notices or measures, and every later word about it as its own entry, in the person's own store; show what is current, what waits for a word, one value over time and a plan's next step, from the store's own objects.",
+        "produces": "The store's own objects for observations and their corrections, proven on the example entries, and each new observation kept and read back.",
+        "source": {
+          "from": "the owner, 2026-11-18 about 10:57 and 11:01 AM CST: add-to-my-workout-log is a shortcut of what an AI would do anyway; if create/read/search/update/link is not needed, why make it at all",
+          "note": "No tool keeps or reads the entries: the run speaks to the person's store in its own language. The behaviour the old tools held (never edit in place; confirm, discard, correct and merge as new entries; what waits for a word; a value over time; a plan's next step from a rule) is the intent below, rendered into the store once and proven by the example entries in the prove step."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things: the store's own address (a database, a sheet, a folder), as the person's own store row names it"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms (its query language, its API, its file format)"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses for that store, when it needs one"
+                },
+                "place": {
+                  "type": "string",
+                  "description": "Where in the store these are kept, when the person has a place for them already"
+                }
+              }
+            },
+            "observations": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "New entries or later words to keep this run, each as the intent below describes an entry"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to store in its own language, with the login under its credential_name, and read the store's own description of what it holds (its catalog, its sheets and header rows, its folder listing, its comments). Submit where entries, decisions and plan steps are already kept, if they are (kept_in, or null), and the names of the objects that already answer what is shown.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing that keeps these, make the store's own objects for them, in the store's own form: tables, views and rules in a database; sheets and formulas in a spreadsheet; files and one reading program beside them for a folder that cannot compute. Make 'nothing changes in place' a rule of the store itself wherever the store has rules (for example refuse an update or delete of an entry), and grant only what the store's holder allows the person's login (no new server-wide roles). Kept: entries: Each thing observed: its id, when it was observed (observed_at), what it is about (about: free words, such as walk, groceries, serve), its values (each a name, an amount and the unit it was given in, kept as given), where it came from (source: free words, such as typed by me, phone, watch, receipt photo, radar), and whether it is sure (sure: yes or no; an entry that does not say is sure). decisions: Each later word about earlier entries, kept as its own entry and never by changing the earlier one: confirm (it is right), discard (it is wrong), correct (here are the right values), merge (these entries are one thing, here are its values). A decision names the entries it is about. A correction or merge carries values and is itself an entry; a confirm or discard carries none. plan_steps: Each step of a plan the person follows: its id, what it is (about), its target (a name, an amount, a unit) and the rule for the next step: which value of which kind of entry it reads, and how much to scale the target when that value is at least or below a threshold. Shown: now: The current entries: every entry that no correction or merge replaced and no discard ended, with its values. A correction or merge replaces every entry it names. An entry a later confirm names is sure. to_check: The entries waiting for a word: current entries that are not sure. Decisions are never waiting. over_time: For one named value (such as steps), the sure current entries that carry it, in time order: each one's day and amount, with their count, total, smallest, largest and average (two decimal places). next_step: For each plan step: its next target, the target scaled by its rule, reading the latest sure current entry of the kind the rule reads. Who may: Only the person (and whoever they allow) reads or adds entries. No entry is ever edited or removed; every change is a new entry, so every earlier state can be read again. Submit the names of the objects made, or the ones the look step found.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example entries",
+            "do": "In a throwaway place in the same store (a schema, a copy of the sheet, a sub-folder), with the same objects, keep exactly these example entries and plan steps: {\"now\": \"2026-11-18T12:00:00Z\", \"entries\": [{\"id\": \"o1\", \"observed_at\": \"2026-11-17T18:00:00Z\", \"about\": \"walk\", \"values\": [{\"name\": \"steps\", \"amount\": 6000, \"unit\": \"count\"}], \"source\": \"typed by me\"}, {\"id\": \"o2\", \"observed_at\": \"2026-11-16T18:00:00Z\", \"about\": \"walk\", \"values\": [{\"name\": \"steps\", \"amount\": 4000, \"unit\": \"count\"}], \"source\": \"phone\", \"sure\": \"no\"}, {\"id\": \"o3\", \"observed_at\": \"2026-11-15T17:30:00Z\", \"about\": \"groceries\", \"values\": [{\"name\": \"spent\", \"amount\": 60.0, \"unit\": \"USD\"}], \"source\": \"receipt photo\", \"sure\": \"no\"}, {\"id\": \"o4\", \"observed_at\": \"2026-11-15T20:00:00Z\", \"about\": \"groceries\", \"values\": [{\"name\": \"spent\", \"amount\": 64.5, \"unit\": \"USD\"}], \"source\": \"typed by me\", \"decision\": \"correct\", \"about_entries\": [\"o3\"]}, {\"id\": \"o5\", \"observed_at\": \"2026-11-14T10:00:00Z\", \"about\": \"serve\", \"values\": [{\"name\": \"speed\", \"amount\": 150, \"unit\": \"km/h\"}], \"source\": \"radar\", \"sure\": \"no\"}, {\"id\": \"o6\", \"observed_at\": \"2026-11-14T11:00:00Z\", \"source\": \"typed by me\", \"decision\": \"discard\", \"about_entries\": [\"o5\"]}, {\"id\": \"o7\", \"observed_at\": \"2026-11-16T21:00:00Z\", \"source\": \"typed by me\", \"decision\": \"confirm\", \"about_entries\": [\"o2\"]}, {\"id\": \"o8\", \"observed_at\": \"2026-11-18T09:00:00Z\", \"about\": \"walk\", \"values\": [{\"name\": \"steps\", \"amount\": 8000, \"unit\": \"count\"}], \"source\": \"watch\", \"sure\": \"no\"}, {\"id\": \"o9\", \"observed_at\": \"2026-11-13T18:00:00Z\", \"about\": \"walk\", \"values\": [{\"name\": \"steps\", \"amount\": 3000, \"unit\": \"count\"}], \"source\": \"phone\", \"sure\": \"no\"}, {\"id\": \"o10\", \"observed_at\": \"2026-11-13T18:05:00Z\", \"about\": \"walk\", \"values\": [{\"name\": \"steps\", \"amount\": 3100, \"unit\": \"count\"}], \"source\": \"watch\", \"sure\": \"no\"}, {\"id\": \"o11\", \"observed_at\": \"2026-11-13T22:00:00Z\", \"about\": \"walk\", \"values\": [{\"name\": \"steps\", \"amount\": 3000, \"unit\": \"count\"}], \"source\": \"typed by me\", \"decision\": \"merge\", \"about_entries\": [\"o9\", \"o10\"]}], \"plan_steps\": [{\"id\": \"p1\", \"about\": \"daily walk\", \"target\": {\"name\": \"steps\", \"amount\": 5000, \"unit\": \"count\"}, \"rule\": {\"reads\": \"steps\", \"threshold\": 5000, \"scale_when_at_least\": 1.1, \"scale_when_below\": 0.9}}]} Then ask each shown item through the objects and submit one answer object: now (each current entry's id and its values as {name: amount}, sorted by id as text), to_check (ids sorted as text), over_time.steps (points as [day, amount] in time order, count, total, smallest, largest, average to two decimal places), and next_step ({plan step id: {name, amount, unit}}). Write whole amounts as whole numbers. Try one update and one delete of an entry there and submit in_place_refused: true when the store refused both, false when it allowed either, null when the store has no rules (a folder). Then remove the throwaway place.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "answer",
+                "in_place_refused"
+              ],
+              "properties": {
+                "answer": {
+                  "type": "object"
+                },
+                "in_place_refused": {
+                  "type": [
+                    "boolean",
+                    "null"
+                  ]
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "The store's own objects give every expected answer on the example entries",
+                "path": [
+                  "this",
+                  "answer"
+                ],
+                "values": [
+                  {
+                    "now": [
+                      {
+                        "id": "o1",
+                        "values": {
+                          "steps": 6000
+                        }
+                      },
+                      {
+                        "id": "o11",
+                        "values": {
+                          "steps": 3000
+                        }
+                      },
+                      {
+                        "id": "o2",
+                        "values": {
+                          "steps": 4000
+                        }
+                      },
+                      {
+                        "id": "o4",
+                        "values": {
+                          "spent": 64.5
+                        }
+                      },
+                      {
+                        "id": "o8",
+                        "values": {
+                          "steps": 8000
+                        }
+                      }
+                    ],
+                    "to_check": [
+                      "o8"
+                    ],
+                    "over_time": {
+                      "steps": {
+                        "points": [
+                          [
+                            "2026-11-13",
+                            3000
+                          ],
+                          [
+                            "2026-11-16",
+                            4000
+                          ],
+                          [
+                            "2026-11-17",
+                            6000
+                          ]
+                        ],
+                        "count": 3,
+                        "total": 13000,
+                        "smallest": 3000,
+                        "largest": 6000,
+                        "average": 4333.33
+                      }
+                    },
+                    "next_step": {
+                      "p1": {
+                        "name": "steps",
+                        "amount": 5500,
+                        "unit": "count"
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's observations",
+            "do": "Keep each item of observations as its own entry in the place the render step made, in the store's own language, keyed by its id so keeping it twice keeps one; a later word (confirm, discard, correct, merge) is its own entry naming the entries it is about, and no earlier entry is changed. Read every id back and submit kept_ids and found_ids. With no observations, submit two empty lists.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_ids",
+                "found_ids"
+              ],
+              "properties": {
+                "kept_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "found_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "subset-of",
+                "says": "Every observation kept is read back",
+                "path": [
+                  "this",
+                  "kept_ids"
+                ],
+                "of": [
+                  "this",
+                  "found_ids"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

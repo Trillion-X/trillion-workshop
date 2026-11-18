@@ -1309,10 +1309,10 @@
       ]
     },
     {
-      "capability": "plan the next training session and log workouts",
-      "owner": ["tools/training-and-workouts/"],
-      "entry": "tools/training-and-workouts/tool-rows.json",
-      "evidence": "training-plan: next session and progression; workout-log: workout log state; the original TypeScript of training-plan (read-data/training-plan.ts, derive-next-session.ts, select-adaptive-next-session.ts, apply-progression.ts, do-work/process-scripts/next-session-cli.ts) is carried byte for byte beside the .mjs translation, receipt in moved-from.json; its panel, mount and tests wait on calls rows The bitfield-packages workout-log capture descriptors, lenses, schema, TypeScript decoder and panel are carried unwired in from-bitfield-packages/workout-log/ (moved-from.json there).",
+      "capability": "keep anything a person notices or measures and every later word about it (confirm, discard, correct, merge) as its own entry in the person's own store, and show what is current, what waits for a word, one value over time and a plan's next step",
+      "owner": ["tools/workflows/"],
+      "entry": "tools/workflows/recipes/keep-observations-and-their-corrections.json",
+      "evidence": "the recipe's prove step must give its expected answers on the example entries (a covers check of the whole answer); a renderer that never saw the answers made the store's objects in PGlite, the pursuits computer's PostgreSQL 18 and a markdown folder and all gave every expected answer, and both PostgreSQL stores refused changing an entry in place: 19 of 19 checks, Nov 18 2026 11:30 AM CST. It replaces tools/training-and-workouts, deleted in the same change: its five tools kept a log record that the person's AI keeps itself (rule a-tool-is-only-what-the-store-cannot-do)",
       "source_still_in": {"repo_kind": "retired bitfield-packages repository", "paths": ["bitfield-packages/packages/training-plan/", "bitfield-packages/packages/workout-log/"]}
     },
     {

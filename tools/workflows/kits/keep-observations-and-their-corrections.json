@@ -1,0 +1,48 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:keep-observations-and-their-corrections with store {\\\"where\\\": \\\"postgresql database example_me on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-me-postgres-connection\\\"} and observations [{\\\"id\\\": \\\"walk-2026-11-17\\\", \\\"observed_at\\\": \\\"2026-11-17T18:00:00Z\\\", \\\"about\\\": \\\"walk\\\", \\\"values\\\": [{\\\"name\\\": \\\"steps\\\", \\\"amount\\\": 6000, \\\"unit\\\": \\\"count\\\"}], \\\"source\\\": \\\"typed by me\\\"}].\"",
+  "lists": [],
+  "no_lists_because": "It names no list: the entries are kept in the person's own store, in whatever form that store keeps things, and store says where and in which language.",
+  "workflows": [
+    "workflow:keep-observations-and-their-corrections"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:keep-observations-and-their-corrections\" with store and, when you have them, the observations to keep.",
+    "3. The first run makes the store's own objects once and proves them on the example entries: the prove step must give every expected answer, or the run stops and says which.",
+    "4. Every later run keeps the new observations and later words (confirm, discard, correct, merge) as their own entries and reads each one back; ask your AI what is current, what waits for a word or how one value went over time, and it reads the store's own objects."
+  ],
+  "worked_examples": [
+    {
+      "title": "Yesterday's walk kept in a person's own database",
+      "ask": "Yesterday I walked 6,000 steps.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "run_resource_operation",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-observations-and-their-corrections",
+              "store": {
+                "where": "postgresql database example_me on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-me-postgres-connection"
+              },
+              "observations": [
+                { "id": "walk-2026-11-17", "observed_at": "2026-11-17T18:00:00Z", "about": "walk", "values": [{ "name": "steps", "amount": 6000, "unit": "count" }], "source": "typed by me" }
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-observations-and-their-corrections",
+      "step": "keep",
+      "given": "The look step found the entries already kept in the tables entry, entry_value and entry_target, with the views now_entry and to_check, made by an earlier run.",
+      "hands_back": "kept_ids [\"walk-2026-11-17\"] and found_ids [\"walk-2026-11-17\"]; the entry is sure because it does not say otherwise, so it is in now and in over_time for steps."
+    }
+  ]
+}

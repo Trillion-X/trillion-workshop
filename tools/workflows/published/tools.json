@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:31d70d9403b2b38425a4c5f780078a85e9b634cc683982ec4099ffe611e04ac5"
+  "blake3": "1f:2eb04685b36fd174a5a826dc054327cde48ab307f476613edb2769e1893723e9"
  },
  "fields": [
   {
@@ -87,21 +87,6 @@
     ],
     "listed_on": "2026-10-31T00:00:00Z",
     "folder": "tell-the-person"
-   }
-  },
-  {
-   "id": "tool:adapt-the-next-training-session",
-   "values": {
-    "title": "Adapt my next training session",
-    "job": "Adapt the next training session from the adjustments my progress rules gave for the session I just did",
-    "description": "Takes a session prescription (or the plan and the id of the session) and the adjustments already worked out by the progress evaluator (its list may be empty). Applies them in order and answers `from` (the prescription as given), `next` (the adapted prescription) and `applied` (how many adjustments). An adjustment's doseScale multiplies every number in dose and its intensityScale every number in intensity (whole numbers stay whole, others round to two places); its note is kept at intensity.note; any other key is ignored and words in dose or intensity pass through. The input is never changed. This tool does not decide which rule fires: run the pick-fired-rules tool of the progress evaluator first and give its adjustments here.",
-    "status": "active",
-    "maker": "maker:training-and-workouts",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "training-and-workouts"
    }
   },
   {
@@ -207,21 +192,6 @@
      "placement:your-computer"
     ],
     "folder": "keep-a-video-packaging-ledger"
-   }
-  },
-  {
-   "id": "tool:add-to-my-workout-log",
-   "values": {
-    "title": "Add to my workout log",
-    "job": "Add new evidence to my workout log, or confirm, discard, correct, split or merge an entry already in it",
-    "description": "Takes the workout log record, an operation and when it happened (observed_at; the tool holds no clock). `add` needs descriptor_id (how the evidence was captured, part of the atom id unless id is given), a subject with a kind, dimensions (each a number or text, or { value, unit, role, label }), and optionally source, links, confidence, evidence_refs and a raw_artifact. `confirm` and `discard` need target_atom_id and may carry a note. `correct`, `split` and `merge` need target_atom_id, dimensions holding the new values, optionally additional_target_atom_ids (for merge), subject and note. The entry is never edited: a new atom linking to it is added. Answers `log` (the next record to store: every other key of the record is kept as given), the `atom` added, the ids now in the review queue and the count of canonical entries. Adding the same atom id twice keeps one. The record is stored by the person's AI through the records door.",
-    "status": "active",
-    "maker": "maker:training-and-workouts",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "training-and-workouts"
    }
   },
   {
@@ -9894,21 +9864,6 @@
    }
   },
   {
-   "id": "tool:read-my-progression-inputs",
-   "values": {
-    "title": "Read what my plan needs to decide the next session",
-    "job": "Read my stored progression rules and the last session's result from my training plan, ready for the progress evaluator",
-    "description": "Takes the training plan feed (the plan, its stored progression rules and, when there is one, the last session's result with its measured signals). Answers `rules` (each stored rule turned into { id, metricRef, band, adjustment }, a rule with no metric dropped), `signals` (the last result's { metricRef, value } pairs), `session_id` and the `prescription` the result belongs to (the named session, else the last in the plan). With no usable result there are no signals and no prescription: nothing is made up. The rules are then evaluated against the signals by the progress evaluator (the pick-fired-rules tool), and its adjustments go to the adapt-the-next-session tool.",
-    "status": "active",
-    "maker": "maker:training-and-workouts",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "training-and-workouts"
-   }
-  },
-  {
    "id": "tool:read-my-saved-bookmarks-and-pins",
    "values": {
     "title": "Read my saved bookmarks and pins",
@@ -9954,21 +9909,6 @@
    }
   },
   {
-   "id": "tool:read-my-training-plan",
-   "values": {
-    "title": "Read my training plan",
-    "job": "Read my training plan: its goals, phases, weeks and the sessions prescribed in each week",
-    "description": "Takes the training plan record (goals, phases in a goal, week blocks in a phase, session prescriptions in a week, each prescription with an open dose record and an open intensity record) and answers it decoded, with a count of each, and the sessions of one week when week_id is given. Rows with no id are dropped and a missing field reads as empty, never invented. A week's load intent may be a bare word or a record with any fields; it keeps its own identifier.",
-    "status": "active",
-    "maker": "maker:training-and-workouts",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "training-and-workouts"
-   }
-  },
-  {
    "id": "tool:read-my-treg-balance",
    "values": {
     "title": "Read my treg balance and recent charges",
@@ -10002,21 +9942,6 @@
     "flags": [
      "read-only"
     ]
-   }
-  },
-  {
-   "id": "tool:read-my-workout-log",
-   "values": {
-    "title": "Read my workout log",
-    "job": "Read my workout log: what still needs checking, my summary views, the rows to export and my progress over time",
-    "description": "Takes the workout log record: a ledger of evidence atoms (each one thing observed, with when, source, subject, measured dimensions, links to other atoms and how sure it is), plus optional sessions, sets and the person's own projection lenses. Nothing is edited in place: an entry is confirmed, discarded, corrected, split or merged by a later atom that links to it. Answers `canonicalEvidenceAtoms` (entries not replaced), `reviewQueue` (not confirmed and not yet decided, newest first), `lensOutputs` (each of the person's lenses run: previous-value, review-queue, progress-summary, export-rows, or a list of matches), `exportRows` (confirmed entries as flat rows), `progressSeries` (the numeric measure with the most points over time, as plain numbers with its summary; null when none) and `diagnostics`. A lens that finds nothing says so. With done_status (the word the person uses for a finished session) it also answers completion_rate.",
-    "status": "active",
-    "maker": "maker:training-and-workouts",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "training-and-workouts"
    }
   },
   {
