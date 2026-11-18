@@ -20,6 +20,8 @@
 //      through the screen's own bound controls.
 
 import defaults from './view-of-a-value.json' with { type: 'json' };
+// The parts and the props each declares, as the renderer checks them (one file; its copy in tools/ui is the same).
+import declared from '../../../build-a-screen-from-patches/read-data/declared-props.json' with { type: 'json' };
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const kindOf = value => (value === null || value === undefined ? 'null' : Array.isArray(value) ? 'array' : typeof value);
@@ -173,7 +175,10 @@ const pushed = (children, key) => { if (key !== null) children.push(key); };
 
 /** One template filled for `here` ({value, schema, label}), its children drawn in place. */
 function fill(template, here, settings, out, depth, key = `e${out.next++}`) {
-  const props = Object.fromEntries(Object.entries(template.props ?? {}).map(([name, given]) => [name, propValue(given, here, settings)]).filter(([, value]) => value !== undefined));
+  const limits = declared.parts?.[template.type]?.props ?? {};
+  // Words longer than the part declares it holds end with an ellipsis here, so the renderer never has to cut them.
+  const fitted = (name, value) => (typeof value === 'string' && Number.isFinite(limits[name]?.maxLength) && value.length > limits[name].maxLength ? `${value.slice(0, limits[name].maxLength - 1)}…` : value);
+  const props = Object.fromEntries(Object.entries(template.props ?? {}).map(([name, given]) => [name, fitted(name, propValue(given, here, settings))]).filter(([, value]) => value !== undefined));
   const children = [];
   for (const child of template.children ?? []) {
     if (object(child) && object(child.each_item)) {
@@ -255,6 +260,8 @@ function more(count, settings, out) {
 export function projectValue(value, { schema, lens } = {}) {
   const settings = settingsWith(lens);
   const out = { elements: {}, next: 0, rules: [], state: {}, requests: {} };
-  const root = draw(value, schema, typeof lens?.title === 'string' ? lens.title : undefined, settings, out, 0);
+  // A value whose drawing came out empty (words with none in them) still draws: its words say there is nothing.
+  const root = draw(value, schema, typeof lens?.title === 'string' ? lens.title : undefined, settings, out, 0)
+    ?? fill({ type: 'Text', props: { text: { $words: 'empty' }, variant: 'body', color: 'muted' } }, { value }, settings, out, 0);
   return { spec: { root, elements: out.elements, state: out.state, reads: {} }, requests: out.requests, rules: out.rules };
 }
