@@ -36,33 +36,7 @@ use serde_json::Value;
 use crate::domain::errors::WorkflowError;
 use crate::domain::types::{ExecutionContext, Step, StepHandlerResult, StepOutput, ExecutionStatus};
 
-use super::context::ExecutorDeps;
-
-/// Every value `keys` reaches from `root`: "*" steps into every item of a list, and a list reached at the end gives
-/// its items.
-pub fn values_at(root: &Value, keys: &[Value]) -> Vec<Value> {
-    let mut at: Vec<&Value> = vec![root];
-    for key in keys {
-        let key = key.as_str().unwrap_or_default();
-        at = if key == "*" {
-            at.into_iter().flat_map(|item| item.as_array().into_iter().flatten()).collect()
-        } else {
-            at.into_iter()
-                .filter_map(|item| match item {
-                    Value::Object(map) => map.get(key),
-                    Value::Array(items) => key.parse::<usize>().ok().and_then(|index| items.get(index)),
-                    _ => None,
-                })
-                .collect()
-        };
-    }
-    at.into_iter()
-        .flat_map(|item| match item {
-            Value::Array(items) => items.to_vec(),
-            other => vec![other.clone()],
-        })
-        .collect()
-}
+use super::context::{values_in_run, ExecutorDeps};
 
 /// A value's text for comparing: a string trimmed, anything else as canonical JSON (keys in order).
 fn scalar(value: &Value) -> String {
@@ -100,21 +74,6 @@ fn paths_of(field: &Value) -> Vec<&[Value]> {
         Some(items) if items.first().is_some_and(Value::is_array) => items.iter().filter_map(|path| path.as_array().map(Vec::as_slice)).collect(),
         Some(items) => vec![items.as_slice()],
         None => Vec::new(),
-    }
-}
-
-/// Every value `path` reaches in a run: "this" starts at `this` (a checked step's output), "input" at the run's input,
-/// and "steps" at the output of the step named next. Bindings of the form `{"$kind": "binding", "values": <path>}`
-/// read through this too, so a step's input and a check reach values the same way.
-pub fn values_in_run(ctx: &ExecutionContext, this: Option<&Value>, path: &[Value]) -> Vec<Value> {
-    match path.first().and_then(Value::as_str) {
-        Some("this") => this.map(|root| values_at(root, &path[1..])).unwrap_or_default(),
-        Some("input") => values_at(&ctx.start.input, &path[1..]),
-        Some("steps") => match path.get(1).and_then(Value::as_str).and_then(|id| ctx.step_output(id)) {
-            Some(step) => values_at(&step.output, &path[2..]),
-            None => Vec::new(),
-        },
-        _ => Vec::new(),
     }
 }
 

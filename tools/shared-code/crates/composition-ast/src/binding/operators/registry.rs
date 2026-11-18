@@ -456,6 +456,27 @@ impl OperatorRegistry {
         Ok(self)
     }
 
+    /// Register a second name for an operator already registered: both names reach the same operator, so they
+    /// cannot drift apart. The same refusals as `register` apply to the new name.
+    pub fn register_alias(&mut self, alias: &str, existing: &str) -> Result<&mut Self, RegistryError> {
+        if self.frozen {
+            return Err(RegistryError::Frozen);
+        }
+        if !is_valid_key(alias) {
+            return Err(RegistryError::InvalidKey(alias.to_string()));
+        }
+        if self.operators.contains_key(alias) {
+            return Err(RegistryError::Duplicate(alias.to_string()));
+        }
+        let operator = self
+            .operators
+            .get(existing)
+            .cloned()
+            .ok_or_else(|| RegistryError::InvalidKey(existing.to_string()))?;
+        self.operators.insert(alias.to_string(), operator);
+        Ok(self)
+    }
+
     /// Register a function operator (convenience method)
     pub fn register_fn<F>(
         &mut self,

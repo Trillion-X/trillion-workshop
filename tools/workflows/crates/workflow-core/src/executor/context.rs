@@ -13,11 +13,13 @@
 //   2. Binding resolution is PURE — no I/O, no side effects, no database access.
 //   3. All resolution failures produce structured WorkflowError::TemplateResolutionFailed
 //      with the exact expression that failed and a remediation hint.
-//   4. Binding resolution preserves the split between:
-//        - `"expr"`   → formula engine (Parser + Evaluator)
-//        - `"select"` → direct machine-readable path traversal
-//      Select bindings must not flow through formula evaluation because that
-//      clones whole scope values before narrowing to the requested leaf. Binding
+//   4. This module owns WHERE a binding's values come from (the run's scopes: input,
+//      steps, context, start, loop, change, ambient) and nothing about WHAT an operator
+//      means: every `transform` step is evaluated by the one shared evaluator
+//      (tools/shared-code/crates/composition-ast, `create_core_registry`) that the
+//      formula and trigger engines use, so an operator name means the same in every
+//      engine and no operator name appears in this crate. A `"expr"` formula string is
+//      refused with the binding to write instead. Binding
 //      results are re-resolved recursively (depth-limited to 32) so
 //      bindings-that-return-bindings are fully flattened unless the binding
 //      explicitly says `resolve_nested_bindings: false` for target-owned JSON.
@@ -37,7 +39,6 @@
 //   | {"$kind":"binding","select":{"from":"context","path":"partition_key"}}        | context.partition_key              |
 //   | {"$kind":"binding","select":{"from":"loop","path":"item"}}                   | loop_state.item                   |
 //   | {"$kind":"binding","select":{"from":"start","path":"start_type"}}            | start.start_type                  |
-//   | {"$kind":"binding","expr":"steps.s1.count * input.price"}                    | full formula engine expression    |
 //   | {"$kind":"binding","values":["steps","s1","items","*","id"],"take":"all"}     | every value at the path, as a list|
 //   | {"$kind":"binding","select":{...},"resolve_nested_bindings":false}           | selected value, not reinterpreted |
 //
@@ -57,16 +58,6 @@ use std::sync::Arc;
 
 use crate::domain::errors::WorkflowError;
 use crate::domain::types::{ExecutionContext, PendingWrite, StartData, StepOutput};
-use formula_ast::parser::Parser;
-// Runtime types from formula-core leaf (LEAF 2 — pure compute, zero I/O).
-// formula-core is a genuine leaf crate (zero wasmtime, zero feature flags)
-// after CI-02 extracted sandbox I/O to formula-sandbox. Direct import is correct
-// per L106 — Timmy building a workflow orchestrator would import a math library.
-use formula_core::{
-    context::EvaluationContext as FormulaContext, evaluator::Evaluator,
-    types::Value as FormulaValue,
-};
-
 #[derive(Default)]
 struct JsonOutputCharge {
     nodes: usize,
@@ -199,9 +190,6 @@ pub struct DirectReadResult {
 //   - partition_key: Envelope routing key
 //   - circuit_state: circuit breaker for retry gating
 //
-// Formula evaluation uses direct formula-core import (pure compute leaf,
-// zero I/O — L106 passes). No Envelope dispatch needed for a library call.
-//
 // Everything else (transport_policy, wasm_module_resolver, reference_resolver,
 // local_embodiment_executor, write_batch_sink, envelope_sink, capability_scope)
 // was consumed by the deleted typed dispatch functions. Dead weight.
@@ -315,12 +303,6 @@ pub(crate) fn test_product_word_ids() -> execution_types::ProductWordIds {
 pub struct BindingResolver;
 
 impl BindingResolver {
-    fn op_eval_context() -> &'static ops_core::EvalContext {
-        static OP_EVAL_CONTEXT: std::sync::OnceLock<ops_core::EvalContext> =
-            std::sync::OnceLock::new();
-        OP_EVAL_CONTEXT.get_or_init(ops_core::EvalContext::default)
-    }
-
     fn op_value(value: &Value, ctx: &ExecutionContext) -> Result<ops_core::OpValue, WorkflowError> {
         ops_core::try_from_json_with_budget(value, &ctx.json_conversion_policy.as_ops_budget())
             .map_err(Self::json_conversion_error)
@@ -350,10 +332,6 @@ impl BindingResolver {
                 WorkflowError::ResourcePolicyInvalid { field, reason }
             }
         }
-    }
-
-    fn budget_json_clone(value: &Value, ctx: &ExecutionContext) -> Result<Value, WorkflowError> {
-        Ok(Self::op_value(value, ctx)?.into_inner())
     }
 
     fn charge_output_units(
@@ -455,47 +433,6 @@ impl BindingResolver {
             Self::charge_output_units(charge, ctx, 1, string_bytes, total_bytes)?;
         }
         Ok(())
-    }
-
-    fn charge_output_array_start(
-        charge: &mut JsonOutputCharge,
-        ctx: &ExecutionContext,
-    ) -> Result<(), WorkflowError> {
-        Self::charge_output_units(charge, ctx, 1, 0, 24)
-    }
-
-    fn charge_output_array_slot(
-        charge: &mut JsonOutputCharge,
-        ctx: &ExecutionContext,
-    ) -> Result<(), WorkflowError> {
-        Self::charge_output_units(charge, ctx, 0, 0, 16)
-    }
-
-    fn direct_get_path_ref<'a>(value: &'a Value, path: &str) -> Option<&'a Value> {
-        const FORBIDDEN: &[&str] = &["__proto__", "prototype", "constructor"];
-        let mut current = value;
-        for segment in path.split('.').filter(|segment| !segment.is_empty()) {
-            if FORBIDDEN.contains(&segment) {
-                return None;
-            }
-            current = match current {
-                Value::Object(map) => map.get(segment)?,
-                Value::Array(items) => segment.parse::<usize>().ok().and_then(|i| items.get(i))?,
-                _ => return None,
-            };
-        }
-        Some(current)
-    }
-
-    fn direct_get_path(
-        value: &Value,
-        path: &str,
-        ctx: &ExecutionContext,
-    ) -> Result<Value, WorkflowError> {
-        match Self::direct_get_path_ref(value, path) {
-            Some(selected) => Self::budget_json_clone(selected, ctx),
-            None => Ok(Value::Null),
-        }
     }
 
     /// Resolve binding AST nodes (`$kind: "binding"`) in a Value tree against the ExecutionContext.
@@ -659,7 +596,7 @@ impl BindingResolver {
                         reason: "omit_if_missing requires a values path binding".to_string(),
                         hint: "Use a binding with values and omit_if_missing: true for an optional object member.".to_string(),
                     })?;
-                Ok(super::checks::values_in_run(ctx, None, path).is_empty())
+                Ok(values_in_run(ctx, None, path).is_empty())
             }
             Some(_) => Err(WorkflowError::TemplateResolutionFailed {
                 reason: "binding field omit_if_missing must be a boolean".to_string(),
@@ -670,9 +607,8 @@ impl BindingResolver {
 
     /// Resolve a `$kind: binding` AST node against the ExecutionContext.
     ///
-    /// This function is the CSSOT for binding evaluation. Full `expr` bindings
-    /// use the formula engine; machine-readable `select` bindings resolve by
-    /// direct scope/path traversal.
+    /// Selection is resolved here by direct scope/path traversal; each transform
+    /// step goes to the shared evaluator (`evaluate_transform_chain`).
     ///
     /// Binding AST format (machine-readable alternative to mustache):
     /// ```ignore
@@ -705,31 +641,20 @@ impl BindingResolver {
         map: &serde_json::Map<String, Value>,
         ctx: &ExecutionContext,
     ) -> Result<Value, WorkflowError> {
-        // --- Full expression path (formula engine parser) ---
-        // {"$kind": "binding", "expr": "steps.s1.count * input.price"}
-        // This gives full formula engine capability: arithmetic, conditionals, function calls.
-        if let Some(expr_str) = map.get("expr").and_then(|v| v.as_str()) {
-            let formula_ctx = Self::build_formula_context(ctx)?;
-            let mut parser = Parser::new();
-            let ast = parser.parse(expr_str).map_err(|e| WorkflowError::TemplateResolutionFailed {
-                reason: format!("Failed to parse binding expression '{}': {:?}", expr_str, e),
-                hint: "Check that the expression uses valid formula engine syntax (e.g., 'steps.s1.count + 1')".to_string(),
-            })?;
-            let mut evaluator = Evaluator::new(formula_ctx);
-            let result = evaluator.evaluate_ast(&ast).map_err(|e| {
-                WorkflowError::TemplateResolutionFailed {
-                    reason: format!("Formula engine evaluation failed for expr '{}': {:?}", expr_str, e),
-                    hint: "Check that all referenced scopes (input, steps, context, etc.) have the expected fields".to_string(),
-                }
-            })?;
-            return Ok(result.into_inner());
+        // A formula string is not a binding: every engine's bindings are select + transform, read by the one
+        // shared evaluator.
+        if map.contains_key("expr") {
+            return Err(WorkflowError::TemplateResolutionFailed {
+                reason: "A binding with \"expr\" is no longer read".to_string(),
+                hint: "Write it as a binding: {\"$kind\": \"binding\", \"select\": {\"from\": \"steps\", \"key\": \"s1\", \"path\": \"count\"}, \"transform\": [{\"op\": \"op:core.mul\", \"args\": {\"value\": ...}}]}".to_string(),
+            });
         }
 
-        // --- Every value at a path, "*" stepping into lists (executor/checks.rs) ---
+        // --- Every value at a path, "*" stepping into lists (`values_in_run` below) ---
         // {"$kind": "binding", "values": ["steps", "draft", "sources", "*", "url"], "take": "all"}
         // "take": "all" gives the list; anything else the first value (null when the path reaches nothing).
         if let Some(path) = map.get("values").and_then(|v| v.as_array()) {
-            let found = super::checks::values_in_run(ctx, None, path);
+            let found = values_in_run(ctx, None, path);
             return Ok(match map.get("take").and_then(|v| v.as_str()) {
                 Some("all") => Value::Array(found),
                 _ => found.into_iter().next().unwrap_or(Value::Null),
@@ -739,7 +664,7 @@ impl BindingResolver {
         // --- Select-based path resolution (existing path) ---
         let select = map.get("select").ok_or_else(|| WorkflowError::TemplateResolutionFailed {
             reason: "Binding AST node has $kind: \"binding\" but no \"select\" or \"expr\" field".to_string(),
-            hint: "Binding AST requires either:\n  {\"$kind\": \"binding\", \"select\": {\"from\": \"...\", \"path\": \"...\"}}\n  {\"$kind\": \"binding\", \"expr\": \"steps.s1.count + 1\"}".to_string(),
+            hint: "Binding AST requires either:\n  {\"$kind\": \"binding\", \"select\": {\"from\": \"...\", \"path\": \"...\"}}\n  {\"$kind\": \"binding\", \"values\": [\"steps\", \"s1\", \"items\", \"*\"], \"take\": \"all\"}".to_string(),
         })?;
 
         let from = select.get("from").and_then(|v| v.as_str()).unwrap_or("");
@@ -1236,66 +1161,6 @@ impl BindingResolver {
         }
     }
 
-    fn direct_first(value: &Value, ctx: &ExecutionContext) -> Result<Option<Value>, WorkflowError> {
-        match value {
-            Value::Array(items) => items
-                .first()
-                .map(|selected| Self::budget_json_clone(selected, ctx))
-                .transpose(),
-            _ => Ok(None),
-        }
-    }
-
-    fn direct_last(value: &Value, ctx: &ExecutionContext) -> Result<Option<Value>, WorkflowError> {
-        match value {
-            Value::Array(items) => items
-                .last()
-                .map(|selected| Self::budget_json_clone(selected, ctx))
-                .transpose(),
-            _ => Ok(None),
-        }
-    }
-
-    fn direct_lookup<'a>(value: &'a Value, key: &Value) -> Option<&'a Value> {
-        match (value, key) {
-            (Value::Object(map), Value::String(field)) => map.get(field),
-            (Value::Array(items), Value::Number(index)) => {
-                index.as_u64().and_then(|i| items.get(i as usize))
-            }
-            (Value::Array(items), Value::String(index)) => {
-                index.parse::<usize>().ok().and_then(|i| items.get(i))
-            }
-            _ => None,
-        }
-    }
-
-    fn json_parse_bounded(value: &Value, ctx: &ExecutionContext) -> Result<Value, WorkflowError> {
-        match value {
-            Value::String(text) => match serde_json::from_str::<Value>(text) {
-                Ok(parsed) => Self::budget_json_clone(&parsed, ctx),
-                Err(_) => Ok(Value::Null),
-            },
-            Value::Array(items) => {
-                let mut charge = JsonOutputCharge::default();
-                Self::charge_output_array_start(&mut charge, ctx)?;
-                let mut parsed = Vec::new();
-                for item in items {
-                    let next = match item {
-                        Value::String(text) => {
-                            serde_json::from_str::<Value>(text).unwrap_or(Value::Null)
-                        }
-                        other => other.clone(),
-                    };
-                    Self::charge_output_array_slot(&mut charge, ctx)?;
-                    Self::charge_json_value(&next, ctx, &mut charge, 2)?;
-                    parsed.push(next);
-                }
-                Ok(Value::Array(parsed))
-            }
-            _ => Self::budget_json_clone(value, ctx),
-        }
-    }
-
     fn resolve_raw_step_binding(
         ctx: &ExecutionContext,
         from: &str,
@@ -1352,844 +1217,157 @@ impl BindingResolver {
     /// against the outer scope. This is the closure/capture mechanism: the
     /// predicate pipeline operates on the element value, while binding references
     /// reach into the execution context for external values.
+    /// Every operator a transform names: the one shared registry the formula and trigger engines also use, so a
+    /// name means the same thing in every engine.
+    fn operators() -> &'static composition_ast::binding::operators::registry::OperatorResolver {
+        static OPERATORS: std::sync::OnceLock<composition_ast::binding::operators::registry::OperatorResolver> =
+            std::sync::OnceLock::new();
+        OPERATORS.get_or_init(|| {
+            let registry = std::sync::Arc::new(
+                composition_ast::binding::operators::create_core_registry().expect("the shared operator registry"),
+            );
+            std::sync::Arc::new(move |key: &str| registry.get(key))
+        })
+    }
+
+    /// The run's own scopes. A binding selecting from one of them is resolved here; any other binding (`vars`,
+    /// `self`, `literal`) belongs to the shared evaluator, which binds `$item` and the pipeline value itself.
+    fn selects_run_scope(map: &serde_json::Map<String, Value>) -> bool {
+        if map.contains_key("values") || map.contains_key("expr") {
+            return true;
+        }
+        matches!(
+            map.get("select").and_then(|select| select.get("from")).and_then(Value::as_str),
+            Some("input" | "ambient" | "change" | "context" | "start" | "loop" | "steps")
+        )
+    }
+
+    /// A transform's arguments with every run-scoped binding in them replaced by its value, at any depth, so the
+    /// shared evaluator only ever sees values and its own bindings.
+    fn resolve_run_scoped(value: &Value, ctx: &ExecutionContext) -> Result<Value, WorkflowError> {
+        match value {
+            Value::Object(map) if map.get("$kind").and_then(Value::as_str) == Some("binding") && Self::selects_run_scope(map) => {
+                Self::resolve_value(value, ctx)
+            }
+            Value::Object(map) => {
+                let mut resolved = serde_json::Map::with_capacity(map.len());
+                for (key, item) in map {
+                    resolved.insert(key.clone(), Self::resolve_run_scoped(item, ctx)?);
+                }
+                Ok(Value::Object(resolved))
+            }
+            Value::Array(items) => items.iter().map(|item| Self::resolve_run_scoped(item, ctx)).collect::<Result<Vec<_>, _>>().map(Value::Array),
+            other => Ok(other.clone()),
+        }
+    }
+
+    /// Runs a binding's `transform` steps in order over the selected value. Each step is evaluated by the shared
+    /// evaluator; the run only supplies the values its scopes hold, and charges each step's result to the run's
+    /// output budget.
     fn evaluate_transform_chain(
         mut resolved: Value,
         transforms: &[Value],
         ctx: &ExecutionContext,
     ) -> Result<Value, WorkflowError> {
-        let op_ctx = Self::op_eval_context();
-        let mut transform_index = 0;
-        while transform_index < transforms.len() {
-            let t = &transforms[transform_index];
-            let op = t.get("op").and_then(|v| v.as_str()).unwrap_or("");
-            let args = t.get("args");
-            if op == "op:core.decode"
-                && args.and_then(|a| a.get("encoding")).and_then(Value::as_str) == Some("base64")
-                && matches!(
-                    transforms.get(transform_index + 1),
-                    Some(next)
-                        if next.get("op").and_then(Value::as_str) == Some("op:core.json_parse")
-                )
-            {
-                if let Value::String(text) = &resolved {
-                    let decoded = STANDARD.decode(text.as_bytes()).map_err(|e| {
-                        WorkflowError::TemplateResolutionFailed {
-                            reason: format!("op:core.decode failed: {e}"),
-                            hint: "Use canonical base64 input for the decode transform.".into(),
-                        }
-                    })?;
-                    let parsed = serde_json::from_slice::<Value>(&decoded).unwrap_or(Value::Null);
-                    let mut charge = JsonOutputCharge::default();
-                    Self::charge_json_value(&parsed, ctx, &mut charge, 1)?;
-                    resolved = parsed;
-                    transform_index += 2;
-                    continue;
-                }
-            }
-            // JSON-native projection operators do not materialize the untouched
-            // tree. Every remaining operator is admitted through the required
-            // budget before any legacy, now-provably-bounded infallible helper
-            // can observe it. The transform DATA itself is budgeted as well.
-            if !matches!(
-                op,
-                "op:core.map"
-                    | "op:core.get_path"
-                    | "op:core.first"
-                    | "op:core.last"
-                    | "op:core.lookup"
-            ) {
-                drop(Self::op_value(&resolved, ctx)?);
-                drop(Self::op_value(t, ctx)?);
-            }
-            resolved = match op {
-                // ── Array operations ──────────────────────────────────────────────
-                "op:core.map" => {
-                    // Field extraction: iterate array, lookup named field per element
-                    if let Some(field) = args.and_then(|a| a.get("path")).and_then(|p| p.as_str()) {
-                        if let Value::Array(arr) = &resolved {
-                            let mut charge = JsonOutputCharge::default();
-                            Self::charge_output_array_start(&mut charge, ctx)?;
-                            let mut mapped = Vec::new();
-                            for item in arr {
-                                let selected =
-                                    Self::direct_get_path_ref(item, field).unwrap_or(&Value::Null);
-                                Self::charge_output_array_slot(&mut charge, ctx)?;
-                                Self::charge_json_value(selected, ctx, &mut charge, 2)?;
-                                mapped.push(selected.clone());
-                            }
-                            Value::Array(mapped)
-                        } else {
-                            Self::budget_json_clone(&resolved, ctx)?
-                        }
-                    } else {
-                        Self::budget_json_clone(&resolved, ctx)?
-                    }
-                }
-                "op:core.get_path" => {
-                    // Navigate a dotted path (e.g. "records", "style.padding",
-                    // "items.0") into the resolved object/array. Reuses ops-core's
-                    // OpValue::get_path so the navigation logic has ONE home (no
-                    // builtinOps↔ops-core duplication). Missing path → the value
-                    // unchanged; missing key → Null (ops-core semantics).
-                    if let Some(path) = args.and_then(|a| a.get("path")).and_then(|p| p.as_str()) {
-                        Self::direct_get_path(&resolved, path, ctx)?
-                    } else {
-                        Self::budget_json_clone(&resolved, ctx)?
-                    }
-                }
-                "op:core.first" => Self::direct_first(&resolved, ctx)?.unwrap_or(Value::Null),
-                "op:core.last" => Self::direct_last(&resolved, ctx)?.unwrap_or(Value::Null),
-                // ── Equality / comparison ─────────────────────────────────────────
-                "op:core.equals" => {
-                    let cmp = args
-                        .and_then(|a| a.get("value"))
-                        .map(|v| Self::resolve_value(v, ctx))
-                        .transpose()?
-                        .unwrap_or(Value::Null);
-                    ops_core::logical::eq(
-                        &Self::op_value(&resolved, ctx)?,
-                        &Self::op_value(&cmp, ctx)?,
-                        op_ctx,
-                    )
-                    .map(|v| v.into_inner())
-                    .unwrap_or(Value::Bool(false))
-                }
-                "op:core.not_equals" => {
-                    let cmp = args
-                        .and_then(|a| a.get("value"))
-                        .map(|v| Self::resolve_value(v, ctx))
-                        .transpose()?
-                        .unwrap_or(Value::Null);
-                    ops_core::logical::ne(
-                        &Self::op_value(&resolved, ctx)?,
-                        &Self::op_value(&cmp, ctx)?,
-                        op_ctx,
-                    )
-                    .map(|v| v.into_inner())
-                    .unwrap_or(Value::Bool(true))
-                }
-                "op:core.gt" => {
-                    let cmp = args
-                        .and_then(|a| a.get("value"))
-                        .map(|v| Self::resolve_value(v, ctx))
-                        .transpose()?
-                        .unwrap_or(Value::Null);
-                    ops_core::logical::gt(
-                        &Self::op_value(&resolved, ctx)?,
-                        &Self::op_value(&cmp, ctx)?,
-                        op_ctx,
-                    )
-                    .map(|v| v.into_inner())
-                    .unwrap_or(Value::Bool(false))
-                }
-                "op:core.gte" => {
-                    let cmp = args
-                        .and_then(|a| a.get("value"))
-                        .map(|v| Self::resolve_value(v, ctx))
-                        .transpose()?
-                        .unwrap_or(Value::Null);
-                    ops_core::logical::ge(
-                        &Self::op_value(&resolved, ctx)?,
-                        &Self::op_value(&cmp, ctx)?,
-                        op_ctx,
-                    )
-                    .map(|v| v.into_inner())
-                    .unwrap_or(Value::Bool(false))
-                }
-                "op:core.lt" => {
-                    let cmp = args
-                        .and_then(|a| a.get("value"))
-                        .map(|v| Self::resolve_value(v, ctx))
-                        .transpose()?
-                        .unwrap_or(Value::Null);
-                    ops_core::logical::lt(
-                        &Self::op_value(&resolved, ctx)?,
-                        &Self::op_value(&cmp, ctx)?,
-                        op_ctx,
-                    )
-                    .map(|v| v.into_inner())
-                    .unwrap_or(Value::Bool(false))
-                }
-                "op:core.lte" => {
-                    let cmp = args
-                        .and_then(|a| a.get("value"))
-                        .map(|v| Self::resolve_value(v, ctx))
-                        .transpose()?
-                        .unwrap_or(Value::Null);
-                    ops_core::logical::le(
-                        &Self::op_value(&resolved, ctx)?,
-                        &Self::op_value(&cmp, ctx)?,
-                        op_ctx,
-                    )
-                    .map(|v| v.into_inner())
-                    .unwrap_or(Value::Bool(false))
-                }
-                // ── Boolean logic ──────────────────────────────────────────────────
-                "op:core.not" => ops_core::logical::not(&Self::op_value(&resolved, ctx)?, op_ctx)
-                    .map(|v| v.into_inner())
-                    .unwrap_or(Value::Bool(false)),
-                "op:core.is_null" => {
-                    ops_core::logical::is_null(&Self::op_value(&resolved, ctx)?, op_ctx)
-                        .map(|v| v.into_inner())
-                        .unwrap_or(Value::Bool(false))
-                }
-                "op:core.is_not_null" => {
-                    ops_core::logical::is_not_null(&Self::op_value(&resolved, ctx)?, op_ctx)
-                        .map(|v| v.into_inner())
-                        .unwrap_or(Value::Bool(true))
-                }
-                // ── String operations ──────────────────────────────────────────────
-                "op:core.replace" => {
-                    let find = args
-                        .and_then(|a| a.get("find"))
-                        .map(|v| Self::resolve_value(v, ctx))
-                        .transpose()?
-                        .unwrap_or(Value::Null);
-                    let replacement = args
-                        .and_then(|a| a.get("replace"))
-                        .map(|v| Self::resolve_value(v, ctx))
-                        .transpose()?
-                        .unwrap_or(Value::Null);
-                    ops_core::text::replace(
-                        &Self::op_value(&resolved, ctx)?,
-                        &Self::op_value(&find, ctx)?,
-                        &Self::op_value(&replacement, ctx)?,
-                        op_ctx,
-                    )
-                    .map(|v| v.into_inner())
-                    .unwrap_or(Value::Null)
-                }
-                "op:core.upper" => ops_core::text::upper(&Self::op_value(&resolved, ctx)?, op_ctx)
-                    .map(|v| v.into_inner())
-                    .unwrap_or(Value::Null),
-                "op:core.lower" => ops_core::text::lower(&Self::op_value(&resolved, ctx)?, op_ctx)
-                    .map(|v| v.into_inner())
-                    .unwrap_or(Value::Null),
-                "op:core.trim" => ops_core::text::trim(&Self::op_value(&resolved, ctx)?, op_ctx)
-                    .map(|v| v.into_inner())
-                    .unwrap_or(Value::Null),
-                "op:core.left" => {
-                    let count = args
-                        .and_then(|a| a.get("count"))
-                        .map(|v| Self::resolve_value(v, ctx))
-                        .transpose()?
-                        .unwrap_or(Value::Null);
-                    ops_core::text::left(
-                        &Self::op_value(&resolved, ctx)?,
-                        &Self::op_value(&count, ctx)?,
-                        op_ctx,
-                    )
-                    .map(|v| v.into_inner())
-                    .unwrap_or(Value::Null)
-                }
-                "op:core.concat" => {
-                    if let Some(values) = args
-                        .and_then(|a| a.get("values"))
-                        .and_then(|v| v.as_array())
-                    {
-                        let mut parts = Vec::with_capacity(values.len());
-                        for value in values {
-                            let resolved_value = Self::resolve_value(value, ctx)?;
-                            parts.push(Self::op_value(&resolved_value, ctx)?);
-                        }
-                        ops_core::text::concat_many(&parts, op_ctx)
-                            .map(|v| v.into_inner())
-                            .unwrap_or(Value::Null)
-                    } else {
-                        let prefix = args
-                            .and_then(|a| a.get("prefix"))
-                            .map(|v| Self::resolve_value(v, ctx))
-                            .transpose()?
-                            .unwrap_or(Value::String(String::new()));
-                        let suffix = args
-                            .and_then(|a| a.get("suffix"))
-                            .map(|v| Self::resolve_value(v, ctx))
-                            .transpose()?
-                            .unwrap_or(Value::String(String::new()));
-                        // concat(a, b) concatenates two strings. Chain: prefix + input + suffix.
-                        let with_prefix = ops_core::text::concat(
-                            &Self::op_value(&prefix, ctx)?,
-                            &Self::op_value(&resolved, ctx)?,
-                            op_ctx,
-                        )
-                        .map(|v| v.into_inner())
-                        .unwrap_or(Value::Null);
-                        ops_core::text::concat(
-                            &Self::op_value(&with_prefix, ctx)?,
-                            &Self::op_value(&suffix, ctx)?,
-                            op_ctx,
-                        )
-                        .map(|v| v.into_inner())
-                        .unwrap_or(Value::Null)
-                    }
-                }
-                "op:core.format" => {
-                    let prefix = args
-                        .and_then(|a| a.get("prefix"))
-                        .map(|v| Self::resolve_value(v, ctx))
-                        .transpose()?;
-                    let suffix = args
-                        .and_then(|a| a.get("suffix"))
-                        .map(|v| Self::resolve_value(v, ctx))
-                        .transpose()?;
+        use composition_ast::binding::ast::{Binding, BindingEvaluationContext, DiagnosticLevel};
+        use composition_ast::binding::evaluator::evaluate_binding_with_resolver;
 
-                    if prefix.is_some() || suffix.is_some() {
-                        match resolved.as_str() {
-                            Some(input) => {
-                                let formatted = format!(
-                                    "{}{}{}",
-                                    prefix.as_ref().and_then(Value::as_str).unwrap_or(""),
-                                    input,
-                                    suffix.as_ref().and_then(Value::as_str).unwrap_or(""),
-                                );
-                                Value::String(formatted)
-                            }
-                            None => Value::Null,
-                        }
-                    } else {
-                        let mut values = Vec::new();
-                        if let Some(args_values) = args
-                            .and_then(|a| a.get("values"))
-                            .and_then(|v| v.as_array())
-                        {
-                            values.reserve(args_values.len());
-                            for value in args_values {
-                                let resolved_value = Self::resolve_value(value, ctx)?;
-                                values.push(Self::op_value(&resolved_value, ctx)?);
-                            }
-                        }
-                        ops_core::text::format(&Self::op_value(&resolved, ctx)?, &values, op_ctx)
-                            .map(|v| v.into_inner())
-                            .unwrap_or(Value::Null)
-                    }
-                }
-                "op:core.starts_with" => {
-                    let prefix = args
-                        .and_then(|a| a.get("prefix"))
-                        .map(|v| Self::resolve_value(v, ctx))
-                        .transpose()?
-                        .unwrap_or(Value::Null);
-                    ops_core::text::starts_with(
-                        &Self::op_value(&resolved, ctx)?,
-                        &Self::op_value(&prefix, ctx)?,
-                        op_ctx,
-                    )
-                    .map(|v| v.into_inner())
-                    .unwrap_or(Value::Bool(false))
-                }
-                "op:core.contains" => {
-                    let needle = args
-                        .and_then(|a| a.get("value"))
-                        .map(|v| Self::resolve_value(v, ctx))
-                        .transpose()?
-                        .unwrap_or(Value::Null);
-                    ops_core::text::contains(
-                        &Self::op_value(&resolved, ctx)?,
-                        &Self::op_value(&needle, ctx)?,
-                        op_ctx,
-                    )
-                    .map(|v| v.into_inner())
-                    .unwrap_or(Value::Bool(false))
-                }
-                "op:core.includes" => {
-                    let cmp = args
-                        .and_then(|a| a.get("value"))
-                        .map(|value| Self::resolve_value(value, ctx))
-                        .transpose()?
-                        .unwrap_or(Value::Null);
-                    ops_core::array::includes(
-                        &Self::op_value(&resolved, ctx)?,
-                        &Self::op_value(&cmp, ctx)?,
-                        op_ctx,
-                    )
-                    .map(|v| v.into_inner())
-                    .unwrap_or(Value::Bool(false))
-                }
-                "op:core.append" => {
-                    let value = args
-                        .and_then(|a| a.get("value"))
-                        .map(|v| Self::resolve_value(v, ctx))
-                        .transpose()?
-                        .unwrap_or(Value::Null);
-                    ops_core::array::append(
-                        &Self::op_value(&resolved, ctx)?,
-                        &Self::op_value(&value, ctx)?,
-                        op_ctx,
-                    )
-                    .map(|v| v.into_inner())
-                    .map_err(|e| WorkflowError::TemplateResolutionFailed {
-                        reason: format!("op:core.append failed: {e}"),
-                        hint: "Append requires the current value to be an array or null."
-                            .to_string(),
-                    })?
-                }
-                "op:core.set" => {
-                    let key = args
-                        .and_then(|a| a.get("key"))
-                        .map(|v| Self::resolve_value(v, ctx))
-                        .transpose()?
-                        .unwrap_or(Value::Null);
-                    let value = args
-                        .and_then(|a| a.get("value"))
-                        .map(|v| Self::resolve_value(v, ctx))
-                        .transpose()?
-                        .unwrap_or(Value::Null);
-                    let result = ops_core::structure::set(
-                        &Self::op_value(&resolved, ctx)?,
-                        &Self::op_value(&key, ctx)?,
-                        &Self::op_value(&value, ctx)?,
-                        op_ctx,
-                    )
-                    .map(|v| v.into_inner())
-                    .map_err(|e| WorkflowError::TemplateResolutionFailed {
-                        reason: format!("op:core.set failed: {e}"),
-                        hint: "Set requires the current value to be an object, array, or null and a key valid for that value.".to_string(),
-                    })?;
-                    Self::budget_json_clone(&result, ctx)?
-                }
-                "op:core.merge" => {
-                    let source = args
-                        .and_then(|a| a.get("value"))
-                        .or_else(|| args.and_then(|a| a.get("source")))
-                        .map(|v| Self::resolve_value(v, ctx))
-                        .transpose()?
-                        .unwrap_or(Value::Null);
-                    let result = ops_core::structure::merge(
-                        &Self::op_value(&resolved, ctx)?,
-                        &Self::op_value(&source, ctx)?,
-                        op_ctx,
-                    )
-                    .map(|v| v.into_inner())
-                    .map_err(|e| WorkflowError::TemplateResolutionFailed {
-                        reason: format!("op:core.merge failed: {e}"),
-                        hint: "Merge requires the current value and source to be objects or null.".to_string(),
-                    })?;
-                    Self::budget_json_clone(&result, ctx)?
-                }
-                "op:core.in_list" => {
-                    let values = args
-                        .and_then(|a| a.get("values"))
-                        .map(|value| Self::resolve_value(value, ctx))
-                        .transpose()?
-                        .unwrap_or_else(|| Value::Array(Vec::new()));
-                    ops_core::array::includes(
-                        &Self::op_value(&values, ctx)?,
-                        &Self::op_value(&resolved, ctx)?,
-                        op_ctx,
-                    )
-                    .map(|v| v.into_inner())
-                    .unwrap_or(Value::Bool(false))
-                }
-                "op:core.if_null" => {
-                    let fallback = args
-                        .and_then(|a| a.get("fallback"))
-                        .map(|v| Self::resolve_value(v, ctx))
-                        .transpose()?
-                        .unwrap_or(Value::Null);
-                    ops_core::logical::if_null(
-                        &Self::op_value(&resolved, ctx)?,
-                        &Self::op_value(&fallback, ctx)?,
-                        op_ctx,
-                    )
-                    .map(|v| v.into_inner())
-                    .unwrap_or(Value::Null)
-                }
-                // ── Object/Array lookup ──────────────────────────────────────────
-                "op:core.lookup" => {
-                    let key = args
-                        .and_then(|a| a.get("key"))
-                        .map(|v| Self::resolve_value(v, ctx))
-                        .transpose()?
-                        .unwrap_or(Value::Null);
-                    let key = Self::budget_json_clone(&key, ctx)?;
-                    match &resolved {
-                        Value::Object(_) | Value::Array(_) => Self::direct_lookup(&resolved, &key)
-                            .map(|selected| Self::budget_json_clone(selected, ctx))
-                            .transpose()?
-                            .unwrap_or(Value::Null),
-                        _ => Value::Null,
-                    }
-                }
-                // ── Array find_by ────────────────────────────────────────────────
-                "op:core.find_by" => {
-                    let field = args
-                        .and_then(|a| a.get("field"))
-                        .map(|v| Self::resolve_value(v, ctx))
-                        .transpose()?
-                        .unwrap_or(Value::Null);
-                    let value = args
-                        .and_then(|a| a.get("value"))
-                        .map(|v| Self::resolve_value(v, ctx))
-                        .transpose()?
-                        .unwrap_or(Value::Null);
-                    ops_core::array::find_by(
-                        &Self::op_value(&resolved, ctx)?,
-                        &Self::op_value(&field, ctx)?,
-                        &Self::op_value(&value, ctx)?,
-                        op_ctx,
-                    )
-                    .map(|v| v.into_inner())
-                    .unwrap_or(Value::Null)
-                }
-                // ── Join/Split/Concat ────────────────────────────────────────
-                "op:core.join" => {
-                    let delimiter = args
-                        .and_then(|a| a.get("delimiter"))
-                        .map(|v| Self::resolve_value(v, ctx))
-                        .transpose()?
-                        .unwrap_or(Value::String("".to_string()));
-                    ops_core::text::join(
-                        &Self::op_value(&resolved, ctx)?,
-                        &Self::op_value(&delimiter, ctx)?,
-                        op_ctx,
-                    )
-                    .map(|v| v.into_inner())
-                    .unwrap_or(Value::Null)
-                }
-                "op:core.split" => {
-                    let delimiter = args
-                        .and_then(|a| a.get("delimiter"))
-                        .map(|v| Self::resolve_value(v, ctx))
-                        .transpose()?
-                        .unwrap_or(Value::String("".to_string()));
-                    ops_core::text::split(
-                        &Self::op_value(&resolved, ctx)?,
-                        &Self::op_value(&delimiter, ctx)?,
-                        op_ctx,
-                    )
-                    .map(|v| v.into_inner())
-                    .unwrap_or(Value::Null)
-                }
-                // ── Serialization transforms ────────────────────────────────
-                "op:core.json_parse" => Self::json_parse_bounded(&resolved, ctx)?,
-                "op:core.stringify" => {
-                    let format = args
-                        .and_then(|a| a.get("format"))
-                        .map(|v| Self::resolve_value(v, ctx))
-                        .transpose()?
-                        .ok_or_else(|| WorkflowError::TemplateResolutionFailed {
-                            reason: "op:core.stringify requires a format".to_string(),
-                            hint:
-                                "Provide args.format explicitly, for example {\"format\":\"json\"}."
-                                    .to_string(),
-                        })?;
-                    ops_core::serialization::stringify(
-                        &Self::op_value(&resolved, ctx)?,
-                        &Self::op_value(&format, ctx)?,
-                        op_ctx,
-                    )
-                    .map(|v| v.into_inner())
-                    .map_err(|e| WorkflowError::TemplateResolutionFailed {
-                        reason: format!("op:core.stringify failed: {e}"),
-                        hint: "Use a registered format such as json, yaml, toml, or cbor."
-                            .to_string(),
-                    })?
-                }
-                "op:core.encode" => {
-                    let encoding = args
-                        .and_then(|a| a.get("encoding"))
-                        .map(|v| Self::resolve_value(v, ctx))
-                        .transpose()?
-                        .ok_or_else(|| WorkflowError::TemplateResolutionFailed {
-                            reason: "op:core.encode requires an encoding".to_string(),
-                            hint: "Provide args.encoding explicitly, for example {\"encoding\":\"base64\"}."
-                                .to_string(),
-                        })?;
-                    ops_core::crypto::encode(
-                        &Self::op_value(&resolved, ctx)?,
-                        &Self::op_value(&encoding, ctx)?,
-                        op_ctx,
-                    )
-                    .map(|v| v.into_inner())
-                    .map_err(|e| WorkflowError::TemplateResolutionFailed {
-                        reason: format!("op:core.encode failed: {e}"),
-                        hint: "Use a registered encoding such as base64, base64url, or hex."
-                            .to_string(),
-                    })?
-                }
-                "op:core.decode" => {
-                    let encoding = args
-                        .and_then(|a| a.get("encoding"))
-                        .map(|v| Self::resolve_value(v, ctx))
-                        .transpose()?
-                        .ok_or_else(|| WorkflowError::TemplateResolutionFailed {
-                            reason: "op:core.decode requires an encoding".to_string(),
-                            hint: "Provide args.encoding explicitly, for example {\"encoding\":\"base64\"}."
-                                .to_string(),
-                        })?;
-                    ops_core::crypto::decode(
-                        &Self::op_value(&resolved, ctx)?,
-                        &Self::op_value(&encoding, ctx)?,
-                        op_ctx,
-                    )
-                    .map(|v| v.into_inner())
-                    .map_err(|e| WorkflowError::TemplateResolutionFailed {
-                        reason: format!("op:core.decode failed: {e}"),
-                        hint: "Use a registered encoding such as base64, base64url, or hex."
-                            .to_string(),
-                    })?
-                }
-                // ── Regex extraction ──────────────────────────────────────────
-                "op:core.regex_extract" => {
-                    let pattern = args
-                        .and_then(|a| a.get("pattern"))
-                        .map(|v| Self::resolve_value(v, ctx))
-                        .transpose()?
-                        .unwrap_or(Value::Null);
-                    ops_core::text::regex_extract(
-                        &Self::op_value(&resolved, ctx)?,
-                        &Self::op_value(&pattern, ctx)?,
-                        op_ctx,
-                    )
-                    .map(|v| v.into_inner())
-                    .unwrap_or(Value::Null)
-                }
-                // ── Higher-order array search (predicate sub-chain) ────────
-                "op:core.find_where" => {
-                    let predicate = args
-                        .and_then(|a| a.get("predicate"))
-                        .and_then(|v| v.as_array());
-                    if let (Value::Array(arr), Some(pred_transforms)) = (&resolved, predicate) {
-                        let pred_vec: Vec<Value> = pred_transforms.clone();
-                        let mut found = Value::Null;
-                        for element in arr {
-                            let pred_result =
-                                Self::evaluate_transform_chain(element.clone(), &pred_vec, ctx)?;
-                            if Self::op_value(&pred_result, ctx)?.is_truthy() {
-                                found = element.clone();
-                                break;
-                            }
-                        }
-                        found
-                    } else {
-                        Value::Null
-                    }
-                }
-                "op:core.filter_where" => {
-                    let predicate = args
-                        .and_then(|a| a.get("predicate"))
-                        .and_then(|v| v.as_array());
-                    if let (Value::Array(arr), Some(pred_transforms)) = (&resolved, predicate) {
-                        let pred_vec: Vec<Value> = pred_transforms.clone();
-                        let mut results = Vec::new();
-                        for element in arr {
-                            let pred_result =
-                                Self::evaluate_transform_chain(element.clone(), &pred_vec, ctx)?;
-                            if Self::op_value(&pred_result, ctx)?.is_truthy() {
-                                results.push(element.clone());
-                            }
-                        }
-                        Value::Array(results)
-                    } else {
-                        Value::Null
-                    }
-                }
-                // ── Map each element through a subchain, then concatenate ──────
-                // Completes the higher-order op family (map / filter_where /
-                // flat_map). For each element the `transform` subchain runs; an
-                // Array result is spliced (flattened one level), a Null result is
-                // dropped, and any other value is pushed as-is. Generic and blind:
-                // callers supply the per-element subchain as DATA, this op names
-                // nothing about the elements (L069/L090).
-                "op:core.flat_map" => {
-                    let mapper = args
-                        .and_then(|a| a.get("transform"))
-                        .and_then(|v| v.as_array());
-                    if let (Value::Array(arr), Some(map_transforms)) = (&resolved, mapper) {
-                        let map_vec: Vec<Value> = map_transforms.clone();
-                        let mut results = Vec::new();
-                        for element in arr {
-                            let mapped =
-                                Self::evaluate_transform_chain(element.clone(), &map_vec, ctx)?;
-                            match mapped {
-                                Value::Array(inner) => results.extend(inner),
-                                Value::Null => {}
-                                other => results.push(other),
-                            }
-                        }
-                        Value::Array(results)
-                    } else {
-                        Value::Null
-                    }
-                }
-                // ── Sort objects by field ──────────────────────────────────────
-                "op:core.sort_by" => {
-                    let field = args
-                        .and_then(|a| a.get("field"))
-                        .map(|v| Self::resolve_value(v, ctx))
-                        .transpose()?
-                        .unwrap_or(Value::Null);
-                    let direction = args
-                        .and_then(|a| a.get("direction"))
-                        .map(|v| Self::resolve_value(v, ctx))
-                        .transpose()?
-                        .unwrap_or(Value::String("asc".to_string()));
-                    ops_core::array::sort_by(
-                        &Self::op_value(&resolved, ctx)?,
-                        &Self::op_value(&field, ctx)?,
-                        &Self::op_value(&direction, ctx)?,
-                        op_ctx,
-                    )
-                    .map(|v| v.into_inner())
-                    .unwrap_or(Value::Null)
-                }
-                "op:core.take" => {
-                    let count = args
-                        .and_then(|a| a.get("count"))
-                        .map(|v| Self::resolve_value(v, ctx))
-                        .transpose()?
-                        .unwrap_or(Value::Null);
-                    ops_core::array::take(
-                        &Self::op_value(&resolved, ctx)?,
-                        &Self::op_value(&count, ctx)?,
-                        op_ctx,
-                    )
-                    .map(|v| v.into_inner())
-                    .unwrap_or(Value::Null)
-                }
-                // ── Is prefix of (inverse starts_with) ────────────────────────
-                "op:core.is_prefix_of" => {
-                    let target = args
-                        .and_then(|a| a.get("value"))
-                        .map(|v| Self::resolve_value(v, ctx))
-                        .transpose()?
-                        .unwrap_or(Value::Null);
-                    ops_core::text::is_prefix_of(
-                        &Self::op_value(&resolved, ctx)?,
-                        &Self::op_value(&target, ctx)?,
-                        op_ctx,
-                    )
-                    .map(|v| v.into_inner())
-                    .unwrap_or(Value::Bool(false))
-                }
-                _ => {
-                    return Err(WorkflowError::UnknownTransform {
-                        op: op.to_string(),
-                        hint: format!(
-                            "Transform '{}' is not a wired ops-core operation. \
-                             Supported: op:core.{{map,equals,not_equals,not,is_null,\
-                             is_not_null,first,last,replace,upper,lower,trim,left,\
-                             gt,gte,lt,lte,contains,includes,in_list,if_null,lookup,find_by,\
-                             regex_extract,json_parse,stringify,encode,join,split,concat,starts_with,\
-                             find_where,filter_where,sort_by,take,is_prefix_of,set,merge}}. \
-                             To add a new op: add a match arm in context.rs dispatch \
-                             and call the corresponding ops_core::module::function.",
-                            op
-                        ),
-                    });
-                }
+        for step in transforms {
+            let op = step.get("op").and_then(Value::as_str).unwrap_or("");
+            if Self::operators()(op).is_none() {
+                return Err(WorkflowError::UnknownTransform {
+                    op: op.to_string(),
+                    hint: "A transform names an operator of the shared registry (tools/shared-code/crates/composition-ast, operators/core); a new operator is registered there once and every engine has it.".to_string(),
+                });
+            }
+            // The value is read whole by the evaluator, so its depth is bounded first (recursion is Physics); its
+            // size is charged on what the step makes, so taking one leaf out of a large value is never refused.
+            let depth_only = ops_core::JsonConversionBudget {
+                max_depth: ctx.json_conversion_policy.max_depth,
+                max_nodes: usize::MAX,
+                max_string_bytes: usize::MAX,
+                max_total_bytes: usize::MAX,
             };
-            transform_index += 1;
+            drop(ops_core::try_from_json_with_budget(&resolved, &depth_only).map_err(Self::json_conversion_error)?);
+            let step = Self::resolve_run_scoped(step, ctx)?;
+            drop(Self::op_value(&step, ctx)?);
+            let binding: Binding = serde_json::from_value(serde_json::json!({ "$kind": "binding", "transform": [step] }))
+                .map_err(|error| WorkflowError::TemplateResolutionFailed {
+                    reason: format!("{op} could not be read: {error}"),
+                    hint: "A transform step is {\"op\": <name>, \"args\": {...}}.".to_string(),
+                })?;
+            let result = evaluate_binding_with_resolver(
+                &binding,
+                &resolved,
+                &BindingEvaluationContext::default(),
+                Self::operators(),
+                None,
+            );
+            if let Some(problem) = result.diagnostics.iter().find(|diagnostic| matches!(diagnostic.level, DiagnosticLevel::Error)) {
+                return Err(WorkflowError::TemplateResolutionFailed {
+                    reason: format!("{op} failed: {}", problem.message),
+                    hint: "The value or the arguments are not what this operator takes.".to_string(),
+                });
+            }
+            let mut charge = JsonOutputCharge::default();
+            Self::charge_json_value(&result.value, ctx, &mut charge, 1)?;
+            resolved = result.value;
         }
-
         Ok(resolved)
     }
+}
 
-    /// Build a formula engine context from workflow ExecutionContext.
-    ///
-    /// Registers ALL known scopes unconditionally so that any binding expression
-    /// can reference any combination of scopes without restriction. A binding like
-    /// `{"expr": "steps.s1.price * input.quantity"}` requires both "steps" and "input"
-    /// to be registered — registering only the "primary" scope would break cross-scope
-    /// expressions.
-    ///
-    /// Scope mapping:
-    /// - "input" + "ambient" → ctx.start.input (same data, two names for compatibility)
-    /// - "context"           → serialized ctx.context params
-    /// - "steps"             → all step outputs as a JSON object keyed by step ID
-    /// - "start"             → full serialized ctx.start
-    /// - "loop"              → loop state object (item/index/total/first/last), or empty object if no active loop
-    fn build_formula_context(ctx: &ExecutionContext) -> Result<FormulaContext, WorkflowError> {
-        let mut formula_ctx = FormulaContext::new();
-
-        // input / ambient → start.input
-        formula_ctx.set_variable("input", FormulaValue::from(ctx.start.input.clone()));
-        formula_ctx.set_variable("ambient", FormulaValue::from(ctx.start.input.clone()));
-
-        // context → serialized context params
-        let ctx_value = serde_json::to_value(&ctx.context).map_err(|e| {
-            WorkflowError::TemplateResolutionFailed {
-                reason: format!("Failed to serialize context: {}", e),
-                hint: "Check that context params are valid JSON-serializable values".to_string(),
-            }
-        })?;
-        formula_ctx.set_variable("context", FormulaValue::from(ctx_value));
-
-        // steps → all step outputs as a JSON object keyed by step ID.
-        // Lexical scoping: global steps first, then scope stack entries overlay.
-        // Innermost scope wins — local keys (action_0) shadow global keys.
-        let mut steps_obj = serde_json::Map::new();
-        for (id, output) in ctx.steps.iter() {
-            if let Ok(output_val) = serde_json::to_value(output) {
-                steps_obj.insert(id.clone(), output_val);
-            }
-        }
-        // Overlay scope stack entries (innermost = last in Vec = highest priority)
-        for scope in ctx.scope_stack.iter() {
-            for (id, output) in scope.iter() {
-                if let Ok(output_val) = serde_json::to_value(output) {
-                    steps_obj.insert(id.clone(), output_val);
-                }
-            }
-        }
-        formula_ctx.set_variable(
-            "steps",
-            FormulaValue::from(serde_json::Value::Object(steps_obj)),
-        );
-
-        // start → full start data
-        let start_value = serde_json::to_value(&ctx.start).map_err(|e| {
-            WorkflowError::TemplateResolutionFailed {
-                reason: format!("Failed to serialize start data: {}", e),
-                hint: "Check that the start data is valid JSON-serializable".to_string(),
-            }
-        })?;
-        formula_ctx.set_variable("start", FormulaValue::from(start_value));
-
-        // loop → loop state if active, empty object otherwise
-        // An empty object (not an error) lets expressions like `loop.index` resolve
-        // to null rather than hard-failing when there is no active loop. The scope
-        // validation in resolve_binding_ast handles the "loop binding outside a loop"
-        // error for select-based bindings; expr-based bindings can decide themselves.
-        let loop_value = if let Some(loop_state) = ctx.loop_state.as_ref() {
-            let mut loop_obj = serde_json::Map::new();
-            // Use item_var as the key — e.g. item_var="component" → loop.component
-            loop_obj.insert(loop_state.item_var.clone(), loop_state.item.clone());
-            loop_obj.insert(
-                "index".to_string(),
-                serde_json::Value::Number(serde_json::Number::from(loop_state.index)),
-            );
-            loop_obj.insert(
-                "total".to_string(),
-                serde_json::Value::Number(serde_json::Number::from(loop_state.total)),
-            );
-            loop_obj.insert(
-                "first".to_string(),
-                serde_json::Value::Bool(loop_state.first),
-            );
-            loop_obj.insert("last".to_string(), serde_json::Value::Bool(loop_state.last));
-            serde_json::Value::Object(loop_obj)
+/// Every value `keys` reaches from `root`: "*" steps into every item of a list, and a list reached at the end gives
+/// its items.
+pub fn values_at(root: &Value, keys: &[Value]) -> Vec<Value> {
+    let mut at: Vec<&Value> = vec![root];
+    for key in keys {
+        let key = key.as_str().unwrap_or_default();
+        at = if key == "*" {
+            at.into_iter().flat_map(|item| item.as_array().into_iter().flatten()).collect()
         } else {
-            serde_json::Value::Object(serde_json::Map::new())
+            at.into_iter()
+                .filter_map(|item| match item {
+                    Value::Object(map) => map.get(key),
+                    Value::Array(items) => key.parse::<usize>().ok().and_then(|index| items.get(index)),
+                    _ => None,
+                })
+                .collect()
         };
-        formula_ctx.set_variable("loop", FormulaValue::from(loop_value));
+    }
+    at.into_iter()
+        .flat_map(|item| match item {
+            Value::Array(items) => items.to_vec(),
+            other => vec![other.clone()],
+        })
+        .collect()
+}
 
-        Ok(formula_ctx)
+/// Every value `path` reaches in a run: "this" starts at `this` (a checked step's output), "input" at the run's input,
+/// and "steps" at the output of the step named next. Bindings of the form `{"$kind": "binding", "values": <path>}`
+/// read through this.
+pub fn values_in_run(ctx: &ExecutionContext, this: Option<&Value>, path: &[Value]) -> Vec<Value> {
+    match path.first().and_then(Value::as_str) {
+        Some("this") => this.map(|root| values_at(root, &path[1..])).unwrap_or_default(),
+        Some("input") => values_at(&ctx.start.input, &path[1..]),
+        Some("steps") => match path.get(1).and_then(Value::as_str).and_then(|id| ctx.step_output(id)) {
+            Some(step) => values_at(&step.output, &path[2..]),
+            None => Vec::new(),
+        },
+        _ => Vec::new(),
     }
 }
 
 /// Metadata for a single binding — transform chains applied after resolution.
 #[derive(Debug, Clone)]
 pub struct BindingMeta {
-    /// Transform chain to apply after formula evaluation.
+    /// Transform chain to apply after selection.
     /// Empty if no transforms on this binding.
     pub transforms: Vec<Value>,
 }
 
-// Two-phase Envelope batch path DELETED (L030). formula-core is a genuine
-// leaf crate (zero I/O after CI-02 sandbox extraction). Direct sync evaluation
-// via resolve_value → resolve_binding_ast → Parser + Evaluator is the ONE path.
-// No async Envelope dispatch needed for a pure compute library call.
+// Two-phase Envelope batch path DELETED (L030). Operators are a pure library
+// call into the shared evaluator; no async Envelope dispatch is needed.
 
 // ============================================================================
 // ============================================================================
@@ -4188,7 +3366,7 @@ mod tests {
         assert!(matches!(
             BindingResolver::resolve_value(&params, &ctx),
             Err(WorkflowError::TemplateResolutionFailed { reason, hint })
-                if reason.contains("op:core.set failed") && hint.contains("object, array, or null")
+                if reason.contains("op:core.set failed") && !hint.is_empty()
         ));
     }
 
@@ -4230,7 +3408,7 @@ mod tests {
         assert!(matches!(
             BindingResolver::resolve_value(&params, &ctx),
             Err(WorkflowError::TemplateResolutionFailed { reason, hint })
-                if reason.contains("op:core.merge failed") && hint.contains("objects or null")
+                if reason.contains("op:core.merge failed") && !hint.is_empty()
         ));
     }
 

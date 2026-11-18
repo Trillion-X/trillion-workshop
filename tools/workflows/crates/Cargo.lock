@@ -317,6 +317,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "composition-ast"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "lazy_static",
+ "ops-core",
+ "regex",
+ "rust_decimal",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "urlencoding",
+]
+
+[[package]]
 name = "const-oid"
 version = "0.9.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1026,6 +1041,12 @@ checksum = "cb26cec98cce3a3d96cbb7bced3c4b16e3d13f27ec56dbd62cbc8f39cfb9d653"
 dependencies = [
  "cpufeatures 0.2.17",
 ]
+
+[[package]]
+name = "lazy_static"
+version = "1.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "20870f649af7073d53e38067b2a84312175d56ea15217e1b15bc83506ec50afb"
 
 [[package]]
 name = "leb128fmt"
@@ -2302,11 +2323,10 @@ dependencies = [
  "bytes",
  "chrono",
  "ciborium",
+ "composition-ast",
  "content-crypto",
  "crc32fast",
  "execution-types",
- "formula-ast",
- "formula-core",
  "futures",
  "graph",
  "hex",

@@ -15,6 +15,7 @@
 //! - ONE type system: OpValue throughout the Operator trait
 //! - ops-core is the canonical source of truth
 
+mod each_item;
 mod map_to_nodes;
 
 #[cfg(test)]
@@ -160,6 +161,51 @@ pub fn register_core_operators(registry: &mut OperatorRegistry) -> Result<(), Re
     register_array_operators(registry)?;
     register_datetime_operators(registry)?;
     register_crypto_operators(registry)?;
+    register_other_names(registry)?;
+    Ok(())
+}
+
+/// Names a stored binding already uses for an operator registered under another name. Each pair reaches the very
+/// same operator (`OperatorRegistry::register_alias`), so the two names cannot drift apart. A new pair is one line.
+const OTHER_NAMES: &[(&str, &str)] = &[
+    ("op:core.first", "op:core.array_first"),
+    ("op:core.last", "op:core.array_last"),
+    ("op:core.gte", "op:core.ge"),
+    ("op:core.lte", "op:core.le"),
+    ("op:core.includes", "op:core.array_contains"),
+    ("op:core.left", "op:core.text_left"),
+    ("op:core.regex_extract", "op:core.text_regex_extract"),
+    ("op:core.json_parse", "op:core.text_json_parse"),
+    ("op:core.sort_by", "op:core.array_sort_by"),
+    ("op:core.find_by", "op:core.array_find_by"),
+];
+
+fn register_other_names(registry: &mut OperatorRegistry) -> Result<(), RegistryError> {
+    use ops_core::text;
+
+    // Two objects merged, the argument's keys over the value's (`value`, or `source`)
+    registry.register(FnOperator::new("op:core.merge", |input, args, _ctx| {
+        let source = get_arg(args, "value");
+        let source = if source.is_null() { get_arg(args, "source") } else { source };
+        ops_core::structure::merge(input, &source, ctx_fast()).map_err(op_err)
+    }))?;
+
+    // Text joined: `values` in order, or `prefix` + the value + `suffix`
+    registry.register(FnOperator::new("op:core.concat", |input, args, _ctx| {
+        if args.is_some_and(|args| !get_arg(Some(args), "values").is_null()) {
+            return text::concat_many(&get_values_array(args), ctx_fast()).map_err(op_err);
+        }
+        let around = |name: &str| {
+            let part = get_arg(args, name);
+            if part.is_null() { OpValue::string("") } else { part }
+        };
+        let with_prefix = text::concat(&around("prefix"), input, ctx_fast()).map_err(op_err)?;
+        text::concat(&with_prefix, &around("suffix"), ctx_fast()).map_err(op_err)
+    }))?;
+
+    for (name, existing) in OTHER_NAMES {
+        registry.register_alias(name, existing)?;
+    }
     Ok(())
 }
 
@@ -1132,41 +1178,21 @@ fn register_array_operators(registry: &mut OperatorRegistry) -> Result<(), Regis
         },
     ))?;
 
-    // Count if
-    registry.register(FnOperator::new(
-        "op:core.array_count_if",
-        |input, args, _ctx| {
-            let predicate =
-                get_arg_str(args, "predicate").unwrap_or_else(|| "non_null".to_string());
-            let arr = input.as_array("count_if").map_err(op_err)?;
+    // Count the items a chain holds for (`where`), or one of the ready-made chains `predicate` names
+    registry.register(FnOperator::new("op:core.array_count_if", each_item::count_if).with_nested_arguments())?;
 
-            let count = match predicate.as_str() {
-                "all" => arr.len(),
-                "non_null" => arr
-                    .iter()
-                    .filter(|v| !matches!(v.as_ref(), ops_core::value::OpNode::Null))
-                    .count(),
-                "truthy" => arr
-                    .iter()
-                    .filter(|v| match v.as_ref() {
-                        ops_core::value::OpNode::Null => false,
-                        ops_core::value::OpNode::Bool(b) => *b,
-                        ops_core::value::OpNode::Number(n) => *n != 0.0 && !n.is_nan(),
-                        ops_core::value::OpNode::String(s) => !s.is_empty(),
-                        ops_core::value::OpNode::Array(a) => !a.is_empty(),
-                        ops_core::value::OpNode::Object(o) => !o.is_empty(),
-                    })
-                    .count(),
-                "numeric" => arr
-                    .iter()
-                    .filter(|v| matches!(v.as_ref(), ops_core::value::OpNode::Number(_)))
-                    .count(),
-                _ => arr.len(),
-            };
+    // A chain run on each item of a list: keep, take the first, splice, or pick a path
+    registry.register(FnOperator::new("op:core.filter_where", each_item::filter_where).with_nested_arguments())?;
+    registry.register(FnOperator::new("op:core.find_where", each_item::find_where).with_nested_arguments())?;
+    registry.register(FnOperator::new("op:core.flat_map", each_item::flat_map).with_nested_arguments())?;
+    registry.register(FnOperator::new("op:core.map", each_item::map_path))?;
 
-            Ok(OpValue::from_usize(count))
-        },
-    ))?;
+    registry.register(FnOperator::new("op:core.append", |input, args, _ctx| {
+        array::append(input, &get_arg(args, "value"), ctx_fast()).map_err(op_err)
+    }))?;
+    registry.register(FnOperator::new("op:core.take", |input, args, _ctx| {
+        array::take(input, &get_arg(args, "count"), ctx_fast()).map_err(op_err)
+    }))?;
 
     // MAP_TO_NODES - uses separate module with eager evaluation
     registry.register(FnOperator::new(

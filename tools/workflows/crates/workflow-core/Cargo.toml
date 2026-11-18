@@ -38,12 +38,9 @@ trigger-ast = { path = "../../../shared-code/crates/trigger-ast" }
 # Journal AST leaf crate — JournalRecord, compute_record_hash, Timestamp, ChangeAuthor (L088 leaf extraction)
 journal-ast = { path = "../journal-ast" }
 
-# Formula AST leaf crate — FormulaEvalBatchRequest/Reply types for Envelope dispatch
-formula-ast = { path = "../../../shared-code/crates/formula-ast" }
 
-# Formula Core — pure compute leaf. Workflow owns orchestration only.
-formula-core = { path = "../../../shared-code/crates/formula-core" }
-
+# The one binding evaluator every engine shares: a transform names an operator of its registry
+composition-ast = { path = "../../../shared-code/crates/composition-ast" }
 
 # Ops-core for generic transform dispatching (op:core.map, etc.)
 ops-core = { path = "../../../shared-code/crates/ops-core" }
