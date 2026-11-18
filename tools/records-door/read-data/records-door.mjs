@@ -75,7 +75,10 @@ export function requestKeyOf(key) {
   return Buffer.byteLength(key) <= REQUEST_KEY_BYTES ? key : `key:${makeHashCodeHexFromBytes(Buffer.from(key))}`;
 }
 
-// The door answers a refusal with a code and no words; these are the words a tool says for each.
+// The door answers a refusal with its code and, when the engine has them, its own words for it (`detail`: trillion-rust
+// tool_runs/tools/computer/words.json, passed on as the refusal's structuredContent.detail); a refusal is said in those words,
+// else in these, the words a tool says for each code (found by the gauntlet's generated cases, Nov 18 2026: a workflow run
+// read "The records door refused the call." where the engine had said why).
 const WORDS = {
   current_workspace_rights_refused: 'This tool may not reach those records.',
   original_input_refused: 'The records door refused the request as written.',
@@ -245,7 +248,7 @@ export function openBearerCall({ url, resource, capability, fetchImpl = fetch,
         throw new RecordsDoorError('invalid_answer', 'The records door returned an invalid answer.', 'unknown');
       }
       if (!result.isError) return result.structuredContent;
-      const { code = 'refused', outcome } = result.structuredContent ?? {};
+      const { code = 'refused', outcome, detail } = result.structuredContent ?? {};
       // A busy owner, or a call whose effect is unknown, is sent again with the same request key, never a new one. The
       // engine answers a write that found its record store busy as the source unavailable, with nothing begun.
       const busy = code === 'selected_owner_unavailable' || (code === 'original_workspace_source_unavailable' && outcome === 'not_started');
@@ -255,7 +258,8 @@ export function openBearerCall({ url, resource, capability, fetchImpl = fetch,
       // Missing/malformed outcome metadata never proves an effect did not start.
       const knownOutcome = outcome === 'not_started' || outcome === 'unknown' ? outcome : 'unknown';
       // A busy account that is still busy after the door's own retries is retryable: the caller may ask later under its own key.
-      throw Object.assign(new RecordsDoorError(code, WORDS[code] ?? WORDS.refused, knownOutcome), { retryable: busy });
+      const said = typeof detail === 'string' && detail.trim() ? detail : (WORDS[code] ?? WORDS.refused);
+      throw Object.assign(new RecordsDoorError(code, said, knownOutcome), { retryable: busy });
     }
   }
 

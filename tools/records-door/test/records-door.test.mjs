@@ -887,6 +887,13 @@ test('a refusal that is not busy is final: it is not marked retryable', async ()
   });
 });
 
+test('a refusal is said in the engine\'s own words when it gives them, else in the door\'s words for its code', async () => {
+  const said = door(refusing({ code: 'tools_run_input_refused', outcome: 'not_started', detail: 'The input is not the shape this tool declares.' }));
+  await assert.rejects(said.read('note', 'n1'), error => error.code === 'tools_run_input_refused' && error.message === 'The input is not the shape this tool declares.');
+  const bare = door(refusing({ code: 'original_input_refused', outcome: 'not_started' }));
+  await assert.rejects(bare.read('note', 'n1'), error => error.message === 'The records door refused the request as written.');
+});
+
 test('a record the store answers as its stored body is read and listed as its value, and a value that only looks like one is left', async () => {
   const body = value => ({ kind: 'note', sequence: '01a1', stored: JSON.stringify(value), meta: '{"s":{}}', protected: false });
   const lookalike = { kind: 'note', sequence: '1', stored: { not: 'text' }, meta: null, protected: false };
