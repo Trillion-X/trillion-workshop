@@ -1,5 +1,5 @@
 {
-  "_what": "Generic machine set-up limits. The engine's source commit, its build, its computer config, a front door's Caddy (`binary`, `binary_files`) and every download address are the computer row's.",
+  "_what": "Generic machine set-up limits. The engine's source commit, its build, its computer config, a front door's Caddy (`binary`, `binary_files`) and every download address are the computer row's. One SSH connection carries every command of an apply (`ssh_reuse_path`, the ssh ControlPath, %C its connection hash, short enough for a socket name; `ssh_reuse_seconds`, how long it stays open after the last command).",
   "journal": {
     "system_max_use": "500M"
   },
@@ -8,6 +8,8 @@
     "status": 200,
     "where": "public"
   },
+  "ssh_reuse_path": "/tmp/start-a-computer-%C",
+  "ssh_reuse_seconds": 60,
   "unit_restarts": {
     "budget": 5
   },

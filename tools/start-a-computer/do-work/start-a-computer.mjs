@@ -54,7 +54,10 @@ export async function onMachine(machine, command, input, spawnImpl = spawn) {
 
 function sshOnce({ ssh, address }, command, input, spawnImpl) {
   const identity = ssh.identity_file ? ['-i', absolute(ssh.identity_file, 'ssh.identity_file'), '-o', 'IdentitiesOnly=yes'] : [];
-  const args = ['-T', ...identity, '-o', 'BatchMode=yes', '-o', 'ConnectTimeout=10', '-o', 'ServerAliveInterval=30',
+  // Every command of one apply rides one SSH connection (a master kept for `ssh_reuse_seconds` after the last): a new
+  // connection costs seconds, and an apply runs hundreds of commands, some while a unit it replaces is stopped.
+  const reuse = ['-o', 'ControlMaster=auto', '-o', `ControlPath=${SETTINGS.ssh_reuse_path}`, '-o', `ControlPersist=${SETTINGS.ssh_reuse_seconds}`];
+  const args = ['-T', ...identity, ...reuse, '-o', 'BatchMode=yes', '-o', 'ConnectTimeout=10', '-o', 'ServerAliveInterval=30',
     '-o', 'StrictHostKeyChecking=accept-new', '-o', `UserKnownHostsFile=${absolute(ssh.known_hosts, 'ssh.known_hosts')}`, `root@${address}`, command];
   return new Promise((resolve, reject) => {
     const child = spawnImpl('ssh', args, { stdio: ['pipe', 'pipe', 'pipe'] });
