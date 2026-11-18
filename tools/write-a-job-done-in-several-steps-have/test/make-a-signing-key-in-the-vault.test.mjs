@@ -15,7 +15,7 @@ test('the run asks the vault to make the key under the name, and is done when it
   const asked = await run({});
   assert.equal(asked.status, 'paused');
   assert.deepEqual(asked.waiting.map(item => [item.asks, item.input]), [['secrets:generate', { name: 'made-up-signing-key' }]]);
-  assert.ok(calls.calls.some(([address, method]) => address === '@secrets' && method === 'secrets:generate'), 'the door answers it');
+  assert.ok(calls.calls.includes('secrets:generate'), 'the door answers it');
   const done = await run({ 'make-the-key': { name: 'made-up-signing-key', scheme: 'ed25519', public_key: 'ab'.repeat(32) } });
   assert.equal(done.status, 'completed');
 });

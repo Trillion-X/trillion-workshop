@@ -3,7 +3,7 @@
 // Purpose: find every call the Workshop's shipped text names that nothing answers. Text an AI reads (what it is told on
 // connect, workflow steps, kits, tool descriptions, READMEs) names three kinds of call: a door operation (`@address` with
 // a method such as `tools:run`), a tool (`tool:<id>`) and a workflow (`workflow:<id>`). A door operation answers only when
-// tools/tell-ais-how-to-act/door-calls.json lists its pair (the Workshop's statement of the door it relies on; the engine
+// tools/tell-ais-how-to-act/door-calls.json lists its method (a method no owner declares, with its address; the Workshop's statement of the door it relies on; the engine
 // confirms that list against what it answers); a tool answers only when a row of the Workshop has its id and every right
 // its run asks for is one the door offers (else the engine withholds the row), and a workflow when a row has its id.
 // A name left behind when its owner moved or was deleted is a finding.
@@ -82,10 +82,12 @@ export function namedCallFindings({ repo, ref = 'HEAD' } = {}) {
   const files = git(repo, ['ls-tree', '-r', '--name-only', ref, 'tools']).toString().split('\n')
     .filter(path => /\.(json|md)$/.test(path) && !/(^|\/)(node_modules|test|from-an-older-version)\//.test(path));
   const texts = blobs(repo, ref, files);
-  const door = parsed(texts[DOOR_CALLS] ?? 'null')?.calls ?? [];
+  const listed = parsed(texts[DOOR_CALLS] ?? 'null') ?? {};
+  // A call is its method; a method no owner declares is still sent to an address, so it is listed with it.
+  const door = [...(listed.calls ?? []).map(method => [null, method]), ...(listed.addressed ?? [])];
   // A row whose run asks for a right the door does not offer is withheld by the engine and refuses every run, so it
-  // answers nothing: each right is a held secret's, or names a pair door-calls.json lists.
-  const offered = right => 'secret' in right || (right.operations ?? []).every(method => door.some(([address, named]) => address === right.at && named === method));
+  // answers nothing: each right is a held secret's, or names methods door-calls.json lists.
+  const offered = right => 'secret' in right || (right.operations ?? []).every(method => door.some(([address, named]) => named === method && (address === null || address === right.at)));
   const runs = row => (row.invoke?.records?.rights ?? []).every(offered);
   const tools = new Set(), flows = new Set();
   for (const text of Object.values(texts)) {
@@ -100,7 +102,7 @@ export function namedCallFindings({ repo, ref = 'HEAD' } = {}) {
     const value = parsed(text);
     if (value?.source?.view === 'workflow-catalog' || value?.source?.list === 'workflows') for (const row of value.rows ?? []) if (typeof row.id === 'string') flows.add(row.id.replace(/^workflow:/, ''));
   }
-  const addresses = new Set(door.map(([address]) => address));
+  const addresses = new Set([...(listed.addresses ?? []), ...door.map(([address]) => address).filter(Boolean)]);
   const answers = method => door.some(([, named]) => named === method);
   const families = new Set(door.map(([, named]) => named.split(/[:.]/)[0]));
   const found = {};

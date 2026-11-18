@@ -22,8 +22,10 @@ test('the shipped text names no more calls nothing answers than it did', () => {
   assert.fail(`${total} calls nothing answers, ${allowed} allowed. In the files changed since the count was written:\n${named.join('\n')}\n\nName a tool or workflow by an id a row has, and a door call by a pair door-calls.json lists; the person's own data is in their own stores, never behind the door.`);
 });
 
-test('the door calls list names each pair once', () => {
-  const { calls } = JSON.parse(readFileSync(new URL('../tools/tell-ais-how-to-act/door-calls.json', import.meta.url), 'utf8'));
-  assert.equal(new Set(calls.map(pair => pair.join(' '))).size, calls.length);
-  for (const [address, method] of calls) assert.match(`${address} ${method}`, /^@[a-z][a-z0-9-]* [a-z][a-z-]*[:.][a-z][a-z_-]*$/);
+test('the door calls list names each method once, and each addressed one with its address', () => {
+  const { calls, addressed = [] } = JSON.parse(readFileSync(new URL('../tools/tell-ais-how-to-act/door-calls.json', import.meta.url), 'utf8'));
+  const methods = [...calls, ...addressed.map(([, method]) => method)];
+  assert.equal(new Set(methods).size, methods.length);
+  for (const method of calls) assert.match(method, /^[a-z][a-z-]*[:.][a-z][a-z_-]*$/);
+  for (const [address, method] of addressed) assert.match(`${address} ${method}`, /^@[a-z][a-z0-9-]* [a-z][a-z-]*[:.][a-z][a-z_-]*$/);
 });

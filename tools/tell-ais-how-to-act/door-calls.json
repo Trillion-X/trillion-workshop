@@ -1,27 +1,37 @@
 {
- "_what": "The door operations the Workshop's text may tell an AI to call: each [address, method] pair an owner behind the door answers. They come from the engine's own DATA (trillion-rust tool-runs.json `*_method`, wake.json, share-grant.json `door_grant.act` and the secrets operations; the same set its scopes are checked against, D3.1), and the door's own paged read of these instructions (`ai-instruction-settings.read` in rows.json). test-helpers/named-calls.mjs treats any other door call named in shipped text as one nothing answers. The person's own data is not behind the door: it is in the person's own stores, reached with their own connections.",
+ "_what": "The door operations the Workshop's text may tell an AI to call: each method an owner behind the door answers. A call names only its method (run_resource_operation {method, request_key, input}): the door finds the owner that declares it (trillion-rust D1, Workshop 47a6aeca8). `addressed` are the methods no owner declares, which a call still sends to an address. They come from the engine's own DATA (trillion-rust tool-runs.json `*_method`, wake.json, share-grant.json `door_grant.act` and the secrets operations; the same set its scopes are checked against, D3.1), and the door's own paged read of these instructions (`ai-instruction-settings.read` in rows.json). test-helpers/named-calls.mjs treats any other door call named in shipped text as one nothing answers. The person's own data is not behind the door: it is in the person's own stores, reached with their own connections. `addresses` are the ones a call may still carry, from before calls named only a method; the door ignores one on a method an owner declares, so text naming one is not a call nothing answers (it leaves as the text is reworded).",
  "calls": [
-  ["@tools", "tools:list"],
-  ["@tools", "tools:run"],
-  ["@tools", "tools:read"],
-  ["@tools", "tools:cancel"],
-  ["@tools", "tools:update"],
-  ["@tools", "tools:rollback"],
-  ["@tools", "tools:approve"],
-  ["@tools", "tools:sources"],
-  ["@tools", "tools:add-source"],
-  ["@tools", "tools:remove-source"],
-  ["@secrets", "secrets:put"],
-  ["@secrets", "secrets:remove"],
-  ["@secrets", "secrets:sign"],
-  ["@secrets", "secrets:generate"],
-  ["@secrets", "secrets:names"],
-  ["@own-records", "wake:switch"],
-  ["@own-records", "wake:arrive"],
-  ["@own-records", "wake:list"],
-  ["@own-records", "sharing.keep"],
-  ["@own-records", "sharing.withdraw"],
-  ["@own-records", "sharing.list"],
-  ["@own-records", "instructions:read"]
+  "tools:list",
+  "tools:run",
+  "tools:read",
+  "tools:cancel",
+  "tools:update",
+  "tools:rollback",
+  "tools:approve",
+  "tools:sources",
+  "tools:add-source",
+  "tools:remove-source",
+  "secrets:put",
+  "secrets:remove",
+  "secrets:sign",
+  "secrets:generate",
+  "secrets:names",
+  "wake:switch",
+  "wake:arrive",
+  "wake:list",
+  "sharing.keep",
+  "sharing.withdraw",
+  "sharing.list"
+ ],
+ "addressed": [
+  [
+   "@own-records",
+   "instructions:read"
+  ]
+ ],
+ "addresses": [
+  "@tools",
+  "@secrets",
+  "@own-records"
  ]
 }
