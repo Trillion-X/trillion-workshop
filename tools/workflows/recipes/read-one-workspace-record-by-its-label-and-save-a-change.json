@@ -1,0 +1,242 @@
+{
+  "about": "workflow:read-one-workspace-record-by-its-label-and-save-a-change: Read one of the person's saved workspace records by its exact label, and save a change to it only when the write names the version it was read at (its identity). A stale write is refused under the ret",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:read-one-workspace-record-by-its-label-and-save-a-change",
+        "label": "Read one workspace record by its label and save a change only on the version it read",
+        "job": "Read one of the person's saved workspace records by its exact label, and save a change to it only when the write names the version it was read at (its identity). A stale write is refused under the retry policy, or kept beside the current version as a conflict under the preserve policy, so nothing is silently overwritten. Every saved version is kept as history until the store's keep rule removes it.",
+        "produces": "The store's own record and version objects, proven on the example attempts, and each read answered and each write kept, refused or kept as a conflict, read back.",
+        "source": {
+          "from": "tools/read-one-workspace-record-by-its-label-and-save-a-change (src/native-workspace-records.mjs, src/native-workspace-record-reader.mjs), read on trillion-workshop origin/main bb8022539c; the keep counts per kind come from the store's own keep rule (the old owner read them from tools/make-screen-layouts-and-controls/src/workspace-record-history.json)",
+          "note": "The write contract is the old one: writes name address_label, payload, expected_identity (null for a new record) and scope_id; conflict_policy is retry (a stale write is refused and the current identity answered) or preserve (a stale write is kept as a conflicting version beside the current one). Restore of a reviewed version, scoped erasure, and reclamation of old versions are steps of the same objects. The document operations engine (src/workspace/document-operations.mjs) is NOT part of this recipe: it is a pure computation over values and stays a values-in, values-out tool in its folder. Which account's routes answer a read (the old consumer routing) is the engine's job, not the store's."
+        },
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                }
+              }
+            },
+            "reads": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Labels to read, each exact"
+            },
+            "writes": {
+              "type": "array",
+              "minItems": 0,
+              "maxItems": 100,
+              "items": {
+                "type": "object",
+                "required": [
+                  "address_label",
+                  "payload"
+                ],
+                "properties": {
+                  "address_label": {
+                    "type": "string"
+                  },
+                  "payload": {},
+                  "expected_identity": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "description": "The identity the write was read at, or null for a new record"
+                  },
+                  "scope_id": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "conflict_policy": {
+              "type": "string",
+              "enum": [
+                "retry",
+                "preserve"
+              ],
+              "description": "retry refuses a stale write; preserve keeps it as a conflict beside the current version"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the workspace records are already kept (kept_in, or null) and the names of the objects that keep them and their versions.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing, make the store's own objects in its own form, so the store itself refuses what the intent refuses wherever it can: a record table with one row per label (the label as key, the current identity, the payload as JSON, the time it was saved), and a version table with one row per label and identity (the payload as JSON, the kind the keep rule gives it, the time, and the identity it replaced), keyed by label and identity. A write whose expected_identity is not the current identity is refused by the store's own check, not by a read first. Grant only what the store's holder allows the person's login. Submit the names of the objects made, or the ones the look step found.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example attempts",
+            "do": "In a throwaway place in the same store, with the same objects, make these attempts in order, each through the store's own objects, with the policy named: 1) read page:home (none); 2) write page:home with payload {\"title\": \"A\"} and expected_identity null (kept, identity i1); 3) write page:home with payload {\"title\": \"B\"} and expected_identity i1 (kept, identity i2; i1 kept as a version); 4) write page:home with payload {\"title\": \"C\"} and expected_identity i1 under retry (refused, current identity i2 named); 5) the same write under preserve (kept as a conflict version beside i2; the current stays B); 6) write page:new with expected_identity i9 for a label that does not exist (refused); 7) read page:home (answers B, identity i2). Submit each attempt as kept, refused, conflict or read, with the store's words for each refusal.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "attempts"
+              ],
+              "properties": {
+                "attempts": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "attempt",
+                      "outcome"
+                    ],
+                    "properties": {
+                      "attempt": {
+                        "type": "integer"
+                      },
+                      "outcome": {
+                        "type": "string",
+                        "enum": [
+                          "kept",
+                          "refused",
+                          "conflict",
+                          "read",
+                          "none"
+                        ]
+                      },
+                      "identity": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "why": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's reads and writes",
+            "do": "Answer each item of reads with the current record (its label, identity and payload) or none. Keep each item of writes in order through the store's own objects under its conflict_policy: a write on the current identity is kept, and the identity it replaced is kept as a version; a stale write is refused under retry and kept as a conflict under preserve; a write for a label that does not exist with a non-null expected_identity is refused. Read every kept record back. Submit found (each read), kept (labels kept, with identity), refused (each with the store's words) and read_back (labels read back after the writes).",
+            "submit": {
+              "type": "object",
+              "required": [
+                "found",
+                "kept",
+                "refused",
+                "read_back"
+              ],
+              "properties": {
+                "found": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "kept": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "refused": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "read_back": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "subset-of",
+                "says": "Every label kept is read back",
+                "path": [
+                  "this",
+                  "kept"
+                ],
+                "of": [
+                  "this",
+                  "read_back"
+                ]
+              }
+            ]
+          }
+        ],
+        "erase": "On the person's request the store deletes every version of the named record, its history included, and the current record; a version already handed to a running job stays with that job until it ends, and the store says so."
+      }
+    }
+  ]
+}

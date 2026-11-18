@@ -1,0 +1,121 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:read-one-workspace-record-by-its-label-and-save-a-change with store {\\\"where\\\": \\\"postgresql database example_shop on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-shop-postgres-connection\\\"} and reads [\\\"page:home\\\"] and conflict_policy retry.\"",
+  "lists": [],
+  "no_lists_because": "It names no list: the records and their versions are kept in the person's own store, in whatever form that store keeps things, and store says where and in which language.",
+  "workflows": [
+    "workflow:read-one-workspace-record-by-its-label-and-save-a-change"
+  ],
+  "tools": [
+    "tool:run-workflow-definition",
+    "tool:hand-a-job-to-an-ai"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:read-one-workspace-record-by-its-label-and-save-a-change\" with store, the labels to read, the writes (each with its expected_identity, or null for a new record) and the conflict_policy. Ask the person before you save a change to a record they have not named.",
+    "3. The first run makes the store's own objects once and proves them on the example attempts; every attempt must come out as the prove step says, or the run stops and says which.",
+    "4. Every later run keeps the reads and writes through those objects and reads each record back."
+  ],
+  "worked_examples": [
+    {
+      "title": "A record read by its label",
+      "ask": "Read the page home.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:read-one-workspace-record-by-its-label-and-save-a-change",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "reads": [
+                "page:home"
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:read-one-workspace-record-by-its-label-and-save-a-change",
+      "step": "keep",
+      "given": "The look step found page:home saved by an earlier run with identity i2 and title B.",
+      "hands_back": "found [{\"label\": \"page:home\", \"identity\": \"i2\", \"payload\": {\"title\": \"B\"}}]."
+    },
+    {
+      "title": "A stale change is refused under retry",
+      "ask": "Change the page home to C, from the version I read as i1.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:read-one-workspace-record-by-its-label-and-save-a-change",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "writes": [
+                {
+                  "address_label": "page:home",
+                  "payload": {
+                    "title": "C"
+                  },
+                  "expected_identity": "i1"
+                }
+              ],
+              "conflict_policy": "retry"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:read-one-workspace-record-by-its-label-and-save-a-change",
+      "step": "keep",
+      "given": "page:home is at identity i2 after an earlier run.",
+      "hands_back": "refused [{\"label\": \"page:home\", \"why\": \"the record changed since the identity read\", \"current\": \"i2\"}] and nothing kept for it."
+    },
+    {
+      "title": "A stale change is kept as a conflict under preserve",
+      "ask": "Keep the change to C from i1 as a conflict, so nothing is lost.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:read-one-workspace-record-by-its-label-and-save-a-change",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "writes": [
+                {
+                  "address_label": "page:home",
+                  "payload": {
+                    "title": "C"
+                  },
+                  "expected_identity": "i1"
+                }
+              ],
+              "conflict_policy": "preserve"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:read-one-workspace-record-by-its-label-and-save-a-change",
+      "step": "keep",
+      "given": "page:home is at identity i2 after an earlier run.",
+      "hands_back": "kept [{\"label\": \"page:home\", \"conflict\": true, \"identity\": \"i3\"}] beside the current i2, which stays title B."
+    }
+  ]
+}
