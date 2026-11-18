@@ -159,27 +159,6 @@
       ]
     },
     {
-      "from": "packages/package-store-reviews/read-data/descriptor-contracts.ts",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/browse-and-publish-what-my-ai-can-use/packages/package-store-reviews/read-data/descriptor-contracts.ts",
-      "source_identity": "1f:fa6b6aae1f36e0d58655bdaac5f11b5b4e8f141c248156d4caf01e7b7ae8fa02",
-      "identity": "1f:fa6b6aae1f36e0d58655bdaac5f11b5b4e8f141c248156d4caf01e7b7ae8fa02"
-    },
-    {
-      "from": "packages/package-store-reviews/read-data/fold-generic-record-events.ts",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/browse-and-publish-what-my-ai-can-use/packages/package-store-reviews/read-data/fold-generic-record-events.ts",
-      "source_identity": "1f:6e07c02327acce34b2c174bfba7088b8735f51446f803c3713f9c7c03deda207",
-      "identity": "1f:6e07c02327acce34b2c174bfba7088b8735f51446f803c3713f9c7c03deda207"
-    },
-    {
-      "from": "packages/package-store-reviews/read-data/read-generic-record-projection.ts",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/browse-and-publish-what-my-ai-can-use/packages/package-store-reviews/read-data/read-generic-record-projection.ts",
-      "source_identity": "1f:a3d41162f1a3f5dcf518baa93360c53c998e47811f5bb4d1b2fc2d5db38cd4bc",
-      "identity": "1f:a3d41162f1a3f5dcf518baa93360c53c998e47811f5bb4d1b2fc2d5db38cd4bc"
-    },
-    {
       "from": "packages/package-store-reviews/show/package-store-reviews-consumer-contract.test.tsx",
       "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
       "to": "tools/browse-and-publish-what-my-ai-can-use/packages/package-store-reviews/show/package-store-reviews-consumer-contract.test.tsx",

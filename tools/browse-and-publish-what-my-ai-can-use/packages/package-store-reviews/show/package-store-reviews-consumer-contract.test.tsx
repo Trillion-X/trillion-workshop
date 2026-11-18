@@ -2,8 +2,8 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-import type { GenericRecordContracts } from '../read-data/descriptor-contracts';
-import { readGenericRecordProjection } from '../read-data/read-generic-record-projection';
+import type { GenericRecordContracts } from '../../../../package-store-reviews/read-data/descriptor-contracts';
+import { readGenericRecordProjection } from '../../../../package-store-reviews/read-data/read-generic-record-projection';
 
 const root = join(process.cwd(), 'packages/package-store-reviews');
 const contracts = JSON.parse(readFileSync(join(root, 'data/generic-record-contracts.json'), 'utf8')) as GenericRecordContracts;
