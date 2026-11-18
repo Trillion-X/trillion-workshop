@@ -1,0 +1,217 @@
+{
+  "about": "workflow:find-anything-across-my-rows: finds things across what the person said, saw, named and noted, in the store that keeps those rows: a thing is found when every word of the query appears in some row of it, ranked by its matching rows' place weights (name 3, said 2, noted 2, seen 1) and listed highest first, each with the address that opens it. It is the store query part of tools/find-anything-from-one-box-jump-to-a-screen (its held src/search.mjs, whose ranking the weights and the every-word rule come from). Computing meaning vectors stays with that folder's tool, and jumping to a screen, calendar event or AI is device navigation, so neither is in this recipe (rule a-tool-is-only-what-the-store-cannot-do).",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:find-anything-across-my-rows",
+        "label": "Find anything across my rows",
+        "job": "Find things across what the person said, saw, named and noted, in their own store: every word of the query must appear in a thing's rows, and things are listed by rank with the address that opens each.",
+        "produces": "The things matching a query, each with its address and rank, proven on the example rows in three stores of different kinds, with each query answered or refused.",
+        "source": {
+          "from": "tools/find-anything-from-one-box-jump-to-a-screen (from-an-older-version/src/search.mjs.held, the one search over files, records and services; ranking by place weights)",
+          "note": "The place weights name 3, said 2, noted 2 and seen 1 are the ones this recipe proves; the held search's own weights are data and are checked when that folder's search loads. The jump to a screen is device navigation and is not part of this recipe."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store",
+            "query"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps the searchable rows: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                }
+              }
+            },
+            "query": {
+              "type": "string",
+              "description": "The words to find, separated by spaces"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps for search",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read the rows the person kept that can be searched: each row's place (name, said, seen or noted), its text and the address that opens its thing. Submit where they are kept (or null) and how many rows were read.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "rows_read"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "rows_read": {
+                  "type": "integer"
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own search rows, once",
+            "do": "When the look step found none, make the store's own objects in its own form: one row per searchable piece, with its place, its text and the address of its thing, indexed by address so a thing's rows are read together. Grant the person's login only what the store's holder allows. Submit the names of the objects made.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the search on the example rows",
+            "do": "In a throwaway place in the same store, with the same objects, keep these rows: [{\"id\": \"a1\", \"place\": \"name\", \"text\": \"Harbour plan\", \"address\": \"doc:harbour\"}, {\"id\": \"a2\", \"place\": \"said\", \"text\": \"the harbour boats leave at dawn\", \"address\": \"rec:talk-1\"}, {\"id\": \"a3\", \"place\": \"noted\", \"text\": \"buy bread for the harbour walk\", \"address\": \"note:7\"}, {\"id\": \"a4\", \"place\": \"seen\", \"text\": \"boats in the bay\", \"address\": \"video:bay\"}]. Then ask for each query in order: [\"harbour\", \"boats\", \"harbour boats\", \"zzz\", \"\"]. A thing is found when every word of the query appears in some row of that thing; its rank is the sum of its matching rows' place weights (name 3, said 2, noted 2, seen 1), and things are listed by rank, highest first, then by address. An empty query is refused. Each query must give the outcome the intent gives, and the store's own rows must give every expected answer below.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answers"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "answers": {
+                  "type": "array",
+                  "items": {
+                    "type": [
+                      "object",
+                      "array",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each query is answered or refused as the intent says",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "answered",
+                    "answered",
+                    "answered",
+                    "answered",
+                    "refused"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "Each answered query lists its things by rank, the rows of its things counted by place weight; a query no thing matches lists none",
+                "path": [
+                  "this",
+                  "answers"
+                ],
+                "values": [
+                  [
+                    [
+                      {
+                        "address": "doc:harbour",
+                        "rank": 3
+                      },
+                      {
+                        "address": "note:7",
+                        "rank": 2
+                      },
+                      {
+                        "address": "rec:talk-1",
+                        "rank": 2
+                      }
+                    ],
+                    [
+                      {
+                        "address": "rec:talk-1",
+                        "rank": 2
+                      },
+                      {
+                        "address": "video:bay",
+                        "rank": 1
+                      }
+                    ],
+                    [
+                      {
+                        "address": "rec:talk-1",
+                        "rank": 2
+                      }
+                    ],
+                    [],
+                    null
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's search",
+            "do": "Run the query the request names through the store's own rows, and read the answer back. Submit the things found, each with its address and rank, and the outcome (answered, or refused with the store's words).",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcome"
+              ],
+              "properties": {
+                "outcome": {
+                  "type": "string"
+                },
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "reason": {
+                  "type": "string"
+                }
+              }
+            },
+            "checks": []
+          }
+        ]
+      }
+    }
+  ]
+}

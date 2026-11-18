@@ -1,0 +1,74 @@
+{
+  "drafted_from": "tools/find-anything-from-one-box-jump-to-a-screen (from-an-older-version/src/search.mjs.held and its tests)",
+  "start_here": "Say to your AI: \"Run workflow:find-anything-across-my-rows with store {\\\"where\\\": \\\"postgresql database example_me on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-me-postgres-connection\\\"} and query \\\"harbour boats\\\".\" It finds the things in your own rows that mention both words and tells you where each one opens.",
+  "lists": [],
+  "no_lists_because": "It names no list of its own: the searchable rows are the person's own, in whatever form their store keeps them, and store says where and in which language.",
+  "workflows": [
+    "workflow:find-anything-across-my-rows"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the searchable rows are kept and how the store is spoken to.",
+    "2. Say \"Run workflow:find-anything-across-my-rows\" with store and the query.",
+    "3. The first run makes the search rows once and proves the search on the example rows: every expected answer must match, or the run stops and says which.",
+    "4. Every later run lists the things that have every word of the query, highest rank first, each with the address that opens it."
+  ],
+  "worked_examples": [
+    {
+      "title": "Find the harbour things",
+      "ask": "Find everything about the harbour.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:find-anything-across-my-rows",
+              "store": {
+                "where": "postgresql database example_me on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-me-postgres-connection"
+              },
+              "query": "harbour"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:find-anything-across-my-rows",
+      "step": "keep",
+      "given": "The look step found the example rows kept in the person's database; the prove step matched every expected answer.",
+      "hands_back": "Three things, highest rank first: \"doc:harbour\" with rank 3, \"note:7\" with rank 2 and \"rec:talk-1\" with rank 2."
+    },
+    {
+      "title": "A search with no words is refused",
+      "ask": "Find nothing.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:find-anything-across-my-rows",
+              "store": {
+                "where": "postgresql database example_me on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-me-postgres-connection"
+              },
+              "query": ""
+            }
+          }
+        }
+      },
+      "workflow": "workflow:find-anything-across-my-rows",
+      "step": "keep",
+      "given": "The query has no words.",
+      "hands_back": "outcome \"refused\" with the reason that a search needs at least one word; nothing is searched."
+    }
+  ]
+}
