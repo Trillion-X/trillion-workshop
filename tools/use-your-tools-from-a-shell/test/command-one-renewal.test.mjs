@@ -118,3 +118,14 @@ test('after one refused renewal every later run says ended without asking the se
     assert.equal((await once()).bearer, 'fresh', 'a new sign-in replaces the ended one');
   } finally { dead.close(); }
 });
+
+test('a renewal answer with no new refresh token keeps the one this computer holds (RFC 6749 section 6)', async () => {
+  const { refreshGrant } = await import('../do-work/command.mjs');
+  const held = { access_token: 'old-access', refresh_token: 'kept-refresh', expires_at_ms: 0, client_id: 'https://site.example.test/cli/client.json', origin: 'https://site.example.test', token_endpoint: 'https://site.example.test/token', revocation_endpoint: null, resource: 'https://site.example.test/mcp' };
+  const answer = body => async () => new Response(JSON.stringify(body), { status: 200, headers: { 'content-type': 'application/json' } });
+  const same = await refreshGrant(held, { fetchImpl: answer({ access_token: 'new-access', expires_in: 3600 }), now: () => 1000 });
+  assert.equal(same.access_token, 'new-access');
+  assert.equal(same.refresh_token, 'kept-refresh', 'no new refresh token: the held one stays');
+  const rotated = await refreshGrant(held, { fetchImpl: answer({ access_token: 'newer', refresh_token: 'rotated', expires_in: 3600 }), now: () => 1000 });
+  assert.equal(rotated.refresh_token, 'rotated', 'a new one replaces it');
+});

@@ -421,7 +421,9 @@ async function asJson(response, what, rules = settings) {
   if (!response.ok) throw new CommandError(rules.words.sign_in_step_failed, { detail: fill(rules.words.details.sign_in_step_failed, { what, why: value.error_description ?? value.error ?? response.status }) });
   return value;
 }
-const grantOf = (tokens, { client_id, origin, now = Date.now, found, rules = settings }) => ({ access_token: tokens.access_token, refresh_token: tokens.refresh_token ?? null,
+// A renewal answer that brings no new refresh token leaves the kept one in place (RFC 6749 section 6: the server MAY issue a new
+// one); dropping it signed this computer out an hour later (Nov 17 2026, 8:49 PM CST).
+const grantOf = (tokens, { client_id, origin, now = Date.now, found, rules = settings }) => ({ access_token: tokens.access_token, refresh_token: tokens.refresh_token ?? found?.refresh_token ?? null,
   expires_at_ms: Number.isFinite(tokens.expires_in) ? now() + tokens.expires_in * 1000 : null, client_id, origin,
   token_endpoint: found.token_endpoint, revocation_endpoint: found.revocation_endpoint ?? null, resource: found.resource });
 
