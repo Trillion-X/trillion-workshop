@@ -1,16 +1,9 @@
 {
-  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ. Files removed by the recipe landing (workflow:browse-inspiration-clips) are no longer here.",
   "source": "Trillion-X/trillion",
   "package": "trillion-workshop",
   "calls": [],
   "files": [
-    {
-      "from": "src/card-sections.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/browse-inspiration-clips/card-sections.mjs",
-      "source_identity": "1f:15d99f1fcdc2e9dbfb4b6c7e7c0f114c13492f7950a067564901c57a080231f4",
-      "identity": "1f:15d99f1fcdc2e9dbfb4b6c7e7c0f114c13492f7950a067564901c57a080231f4"
-    },
     {
       "from": "test/inspiration.test.mjs",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
@@ -24,15 +17,6 @@
       "to": "tools/browse-inspiration-clips/inspiration.json",
       "source_identity": "1f:8b8305d6a88ea642d689342c249357909bb0991566baddb7bd6318a3ee438c62",
       "identity": "1f:8b8305d6a88ea642d689342c249357909bb0991566baddb7bd6318a3ee438c62"
-    },
-    {
-      "from": "src/inspiration.mjs",
-      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
-      "to": "tools/browse-inspiration-clips/inspiration.mjs",
-      "source_identity": "1f:25d3f630dc0202951c557d1ad0eefaccecbaa08881c8424ffb4c789a750ea05f",
-      "identity": "1f:25d3f630dc0202951c557d1ad0eefaccecbaa08881c8424ffb4c789a750ea05f",
-      "found_by": "same bytes"
     },
     {
       "from": "web/src/workspace/inspiration-screen.tsx",

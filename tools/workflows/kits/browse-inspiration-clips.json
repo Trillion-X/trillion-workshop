@@ -1,0 +1,73 @@
+{
+  "drafted_from": "tool:sort-inspiration-clips-into-card-rows's own row and kits/sort-inspiration-clips-into-card-rows.json, read on origin/main bb8022539c",
+  "start_here": "Say to your AI: \"Show me my inspiration rows\", with store {\\\"where\\\": \\\"postgresql database example_shop on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-shop-postgres-connection\\\"}.\"",
+  "lists": [],
+  "no_lists_because": "It names no list: the clips, files, formats, examples and posts are the person's own rows, in whatever form their store keeps them.",
+  "workflows": [
+    "workflow:browse-inspiration-clips"
+  ],
+  "tools": [
+    "tool:run-workflow-definition",
+    "tool:hand-a-job-to-an-ai"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:browse-inspiration-clips\" with store, and a layout if the person names one.",
+    "3. The first run reads the DATA and proves the rows on the example sources; every attempt must come out as the prove step says, or the run stops and says which.",
+    "4. Every later run reads each source once from the store and answers the rows in the DATA's order."
+  ],
+  "worked_examples": [
+    {
+      "title": "The inspiration rows",
+      "ask": "Show me what is worth making from.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:browse-inspiration-clips",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              }
+            }
+          }
+        }
+      },
+      "workflow": "workflow:browse-inspiration-clips",
+      "step": "keep",
+      "given": "The store keeps clips c1, c2, c3 and c4 and recent files f1, f2 and f3 as in the prove step.",
+      "hands_back": "layout \"sections\"; rows [\"recent\": cards f3, f2 (f1 is the same file as f3, so one card); \"library\": cards c1, c3, c4 with Make this on each]; empty [] for the rows that have cards."
+    },
+    {
+      "title": "A source the store does not keep",
+      "ask": "Show me my posts.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:browse-inspiration-clips",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              }
+            }
+          }
+        }
+      },
+      "workflow": "workflow:browse-inspiration-clips",
+      "step": "keep",
+      "given": "The store keeps no post rows.",
+      "hands_back": "rows [\"posts\": no cards], empty [\"Nothing here yet\"]."
+    }
+  ]
+}

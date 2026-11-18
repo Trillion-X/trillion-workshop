@@ -1,0 +1,203 @@
+{
+  "about": "workflow:browse-inspiration-clips: Sort the person's inspiration sources into named rows of cards, read from the person's own store: each source is read once, each section's row keeps the items that pass its tests, a distinct field kee",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:browse-inspiration-clips",
+        "label": "Browse inspiration: the clips, files, formats, examples and posts worth making from, as named rows of cards",
+        "job": "Sort the person's inspiration sources into named rows of cards, read from the person's own store: each source is read once, each section's row keeps the items that pass its tests, a distinct field keeps one card per value, a limit caps each row, and a clip that can start a new edit is marked so. The layouts, sources, sections, actions and words are DATA in tools/browse-inspiration-clips/inspiration.json.",
+        "produces": "The rows of cards in the order the DATA gives, each card with its shown fields and actions, read from the store's own rows.",
+        "source": {
+          "from": "tools/browse-inspiration-clips (browse-inspiration.mjs, card-sections.mjs, inspiration.mjs; kits/sort-inspiration-clips-into-card-rows.json), read on trillion-workshop origin/main bb8022539c; the DATA tools/browse-inspiration-clips/inspiration.json stays in place",
+          "note": "The old tool took the sources in the request and read no store. The recipe reads each source's rows from the store's own query, using the paths the DATA names (items, title, subtitle, card fields, opens, edit). Tests (a row's limit, distinct and the section's read) are the DATA's. The screen that draws the rows (show/inspiration-mount.tsx, web/src/workspace/inspiration-screen.tsx) belongs to the screen owner and is not changed by this recipe."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string"
+                },
+                "language": {
+                  "type": "string"
+                },
+                "credential_name": {
+                  "type": "string"
+                }
+              }
+            },
+            "layout": {
+              "type": "string",
+              "description": "A layout id from the DATA, or leave out for the default"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read the DATA and what the store keeps",
+            "do": "Read tools/browse-inspiration-clips/inspiration.json (sources, sections, layouts, card actions, empty and said words), and speak to the store in its own language, with the login under its credential_name. For each source the DATA names, submit where its rows are kept (kept_in, or null) and whether the store keeps them.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "sources"
+              ],
+              "properties": {
+                "sources": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "name",
+                      "kept"
+                    ],
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "kept_in": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "kept": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make no new objects; name what is missing",
+            "do": "The browse makes no object of its own: it reads the store's rows of each source. For a source the store does not keep, its row is empty and it is named as having no cards, and no card is invented. Submit the sources that answer from rows and the ones that answer empty.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "readable",
+                "empty"
+              ],
+              "properties": {
+                "readable": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "empty": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the rows on the example sources",
+            "do": "In a throwaway place in the same store, with example clips c1 (no edit has used it, video), c2 (an edit has used it, audio), c3 (no edit, video, file f9) and c4 (no edit, video), and example recent files f1 (captured 3), f2 (captured 5) and f3 (file f1 again, captured 6), read the rows: a row 'recent' with limit 2 keeps the newest distinct files by file: f3 then f2 (f1 is the same file as f3, so one card); a row 'library' of clips keeps the clips that pass the edit test (no edit has used them: c1, c3, c4, in the order of identity), with the Make this action on each. Submit each row's cards in order with their ids and actions.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "rows"
+              ],
+              "properties": {
+                "rows": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "row",
+                      "cards"
+                    ],
+                    "properties": {
+                      "row": {
+                        "type": "string"
+                      },
+                      "cards": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "actions": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "keep",
+            "title": "Answer the browse",
+            "do": "For each section of the DATA (or the layout's rows), read its source from the store, pass each item through the section's tests, keep one card per distinct value of the section's distinct field, cut the row at its limit, and map each card's fields by the DATA's card paths (the first path holding a value wins). Mark a clip with its edit flag true when the section's test says so. Submit rows (each with its name, its cards, and each card's id, title and actions), layout used, and empty (the rows with no cards, named with the DATA's empty words).",
+            "submit": {
+              "type": "object",
+              "required": [
+                "rows",
+                "layout",
+                "empty"
+              ],
+              "properties": {
+                "rows": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "row",
+                      "cards"
+                    ],
+                    "properties": {
+                      "row": {
+                        "type": "string"
+                      },
+                      "cards": {
+                        "type": "array",
+                        "items": {
+                          "type": "object"
+                        }
+                      }
+                    }
+                  }
+                },
+                "layout": {
+                  "type": "string"
+                },
+                "empty": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          }
+        ],
+        "erase": "Nothing is kept by a browse; the rows follow the store's sources."
+      }
+    }
+  ]
+}
