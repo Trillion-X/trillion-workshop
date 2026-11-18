@@ -310,7 +310,7 @@
               {
                 "package": "keep-and-wake-ai-sessions-on-this-computer",
                 "paths": [
-                  "tools/live-namespace/do-work/blake3.mjs",
+                  "parts/live-namespace/do-work/blake3.mjs",
                   "src/entity-mentions.json",
                   "src/entity-mentions.mjs",
                   "src/lists.json",
@@ -318,7 +318,9 @@
                   "src/live-keys.mjs",
                   "src/renamed-tools.json",
                   "src/sold-copies.json",
-                  "src/work-progress.mjs"
+                  "src/work-progress.mjs",
+                  "src/renamed-tools.mjs",
+                  "src/sold-copies.mjs"
                 ],
                 "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
               },
@@ -362,9 +364,9 @@
                   "calendar-task-messages.mjs",
                   "calendar-tasks.json",
                   "calendar-tasks.mjs",
-                  "tools/ui/show/schedule-calendar/schedule-placement.mjs",
-                  "tools/ui/show/schedule-calendar/schedule-planner.json",
-                  "tools/ui/show/schedule-calendar/schedule-planner.mjs"
+                  "parts/ui/show/schedule-calendar/schedule-placement.mjs",
+                  "parts/ui/show/schedule-calendar/schedule-planner.json",
+                  "parts/ui/show/schedule-calendar/schedule-planner.mjs"
                 ],
                 "at": "/opt/plan-tasks-and-todo-lists"
               },
@@ -458,9 +460,7 @@
                   "src/failure-codes.json",
                   "src/failure.mjs",
                   "src/platform-failures.json",
-                  "src/renamed-tools.mjs",
                   "src/repo-explorer.mjs",
-                  "src/sold-copies.mjs",
                   "src/task-proposals.json",
                   "src/typed-operation-contract.mjs"
                 ],

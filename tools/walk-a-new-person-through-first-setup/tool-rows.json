@@ -342,7 +342,6 @@
         "package": "shared-code",
         "paths": [
          "src/server-instruction-paragraphs.mjs",
-         "src/renamed-tools.mjs",
          "src/agent-delivery.mjs"
         ],
         "at": "/opt/shared-code"
@@ -352,7 +351,8 @@
         "paths": [
          "harness/setup.json",
          "src/renamed-tools.json",
-         "src/server-instructions.json"
+         "src/server-instructions.json",
+         "src/renamed-tools.mjs"
         ],
         "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
        },
@@ -821,7 +821,6 @@
         "package": "shared-code",
         "paths": [
          "src/server-instruction-paragraphs.mjs",
-         "src/renamed-tools.mjs",
          "src/agent-delivery.mjs"
         ],
         "at": "/opt/shared-code"
@@ -831,7 +830,8 @@
         "paths": [
          "harness/setup.json",
          "src/renamed-tools.json",
-         "src/server-instructions.json"
+         "src/server-instructions.json",
+         "src/renamed-tools.mjs"
         ],
         "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
        },

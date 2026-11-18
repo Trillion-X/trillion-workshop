@@ -107,6 +107,24 @@ test('a file reached through a .ts program is packed, and only where a relative 
   assert.deepEqual(fixtureFindings({ package: 'other', paths: ['read-data'], at: '/opt/other' }), ['missing-relative-import tools/shared/read-data/go.mjs']);
 });
 
+// The engine copies each path a row lays from the row's package into the run's folder before the program starts, and refuses the
+// run when one is gone (container.rs copy_tree: NotRunnableHere). A file moved, renamed or kept once in another tool leaves the
+// rows that laid it unable to start anything, so every laid path is one the tree holds.
+test('every path a tool row lays is a file or folder of its package', () => {
+  const gone = [];
+  for (const tool of readdirSync(join(repo, 'tools'), { withFileTypes: true }).filter(entry => entry.isDirectory())) {
+    const file = join(repo, 'tools', tool.name, 'tool-rows.json');
+    if (!existsSync(file)) continue;
+    for (const { payload } of JSON.parse(readFileSync(file, 'utf8')).records ?? []) {
+      for (const entry of [payload?.invoke?.files?.package_files ?? []].flat()) {
+        if (typeof entry?.package !== 'string') continue;
+        for (const laid of entry.paths ?? []) if (!existsSync(join(repo, 'tools', entry.package, laid))) gone.push(`${payload.id}: tools/${entry.package}/${laid}`);
+      }
+    }
+  }
+  assert.deepEqual(gone, [], `\n${gone.join('\n')}\n\nLay the file where it is now (its kept copy, or its new folder), or take the path out of the row.`);
+});
+
 // A row may pin a package itself (invoke.packages: name, version and fetched archive). The engine fetches it, but a bare import
 // finds it only where a package_files entry lays it, /opt/node_modules/<name>; a pinned package laid nowhere is a program that
 // starts and then fails "Cannot find package" the first time it imports it.

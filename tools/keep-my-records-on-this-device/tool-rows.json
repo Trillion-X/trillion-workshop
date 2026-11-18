@@ -381,7 +381,10 @@
                   "do-work/record-model.mjs",
                   "do-work/record-stamps.mjs",
                   "do-work/record-sync.mjs",
-                  "do-work/store-size.json"
+                  "do-work/store-size.json",
+                  "do-work/erasable.mjs",
+                  "do-work/json-members.mjs",
+                  "do-work/kept-runs.mjs"
                 ],
                 "at": "/opt/record-log"
               },
@@ -402,12 +405,9 @@
               {
                 "package": "keep-and-wake-ai-sessions-on-this-computer",
                 "paths": [
-                  "tools/live-namespace/do-work/blake3.mjs",
-                  "tools/record-log/do-work/erasable.mjs",
-                  "tools/record-log/do-work/json-members.mjs",
-                  "tools/record-log/do-work/kept-runs.mjs",
-                  "tools/record-log/do-work/record-log-store.mjs",
-                  "tools/record-log/do-work/record-tables.mjs"
+                  "parts/live-namespace/do-work/blake3.mjs",
+                  "parts/record-log/do-work/record-log-store.mjs",
+                  "parts/record-log/do-work/record-tables.mjs"
                 ],
                 "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
               },
