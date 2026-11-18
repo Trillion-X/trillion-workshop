@@ -552,7 +552,7 @@
           {
             "name": "known_hosts",
             "mode": "0600",
-            "text": "[{host}]:{ssh_port} {host_key}\n"
+            "text": "meeting-point {host_key}\n"
           },
           {
             "name": "identity-cert.pub",
@@ -575,6 +575,8 @@
           "StrictHostKeyChecking=yes",
           "-o",
           "UserKnownHostsFile={dir}/known_hosts",
+          "-o",
+          "HostKeyAlias=meeting-point",
           "-o",
           "ExitOnForwardFailure=yes",
           "-o",
@@ -663,7 +665,7 @@
           {
             "name": "known_hosts",
             "mode": "0600",
-            "text": "[{host}]:{ssh_port} {host_key}\n"
+            "text": "meeting-point {host_key}\n"
           }
         ],
         "argv": [
@@ -679,6 +681,8 @@
           "StrictHostKeyChecking=yes",
           "-o",
           "UserKnownHostsFile={dir}/known_hosts",
+          "-o",
+          "HostKeyAlias=meeting-point",
           "-o",
           "ExitOnForwardFailure=yes",
           "-o",

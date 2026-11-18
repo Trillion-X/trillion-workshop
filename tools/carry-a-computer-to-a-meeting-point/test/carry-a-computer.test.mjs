@@ -69,7 +69,9 @@ test('the second row is a reverse forward bound to loopback on both sides, with 
   assert.ok(argv.includes('StrictHostKeyChecking=yes') && argv.includes('ExitOnForwardFailure=yes'));
   assert.ok(argv.includes(`127.0.0.1:${portFor('computer-one')}:127.0.0.1:8789`));
   assert.match(argv.at(-1), /^carry-[0-9a-f]{16}@relay\.example\.test$/);
-  assert.equal(files.find(file => file.name === 'known_hosts').text, '[relay.example.test]:22 ssh-ed25519 AAAAEXAMPLE\n');
+  // Pinned under one alias: OpenSSH looks a port-22 host up by its bare name, so a `[host]:22` line never matches.
+  assert.equal(files.find(file => file.name === 'known_hosts').text, 'meeting-point ssh-ed25519 AAAAEXAMPLE\n');
+  assert.ok(argv.includes('HostKeyAlias=meeting-point'));
 });
 
 test('a synthetic way row runs with no code change', async t => {
