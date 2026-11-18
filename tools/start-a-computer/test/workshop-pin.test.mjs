@@ -5,7 +5,7 @@
 // is absent is reported while it is there and taken away by applying.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { applyWhatItRuns, runsDifferences, SITE_BLOCK } from '../do-work/start-a-computer.mjs';
+import { applyWhatItRuns, runsDifferences } from '../do-work/start-a-computer.mjs';
 import { renderWhatItRuns } from '../do-work/render-what-a-computer-runs.mjs';
 
 const OLD = 'a'.repeat(40), NEW = 'b'.repeat(40);
@@ -19,11 +19,11 @@ const unit = (extra = {}) => ({
   workshop_commit: NEW,
   ...extra,
 });
-const runsWith = (u, extra = {}) => ({ caddy: { site_hosts: ['place.example.test'], port: 7199 }, units: [u], unmanaged: [], ...extra });
+const runsWith = (u, extra = {}) => ({ health_listen: '127.0.0.1:7199', units: [u], unmanaged: [], ...extra });
 
 // A computer that runs its row as rendered, with `files` beside it.
 const computer = (runs, { files = {} }) => {
-  const live = Object.fromEntries(renderWhatItRuns(runs, SITE_BLOCK).map(({ path, text }) => [path, text]));
+  const live = Object.fromEntries(renderWhatItRuns(runs).map(({ path, text }) => [path, text]));
   Object.assign(live, files, { [`${runs.units[0].node_bin}/node`]: 'node', [runs.units[0].secret_file]: 'sealed', [runs.units[0].credentials[0].file]: 'sealed' });
   const commands = [];
   const run = async (_machine, command) => {
@@ -56,7 +56,7 @@ test('a new pin is a difference in the sign-in unit, and applying it restarts th
   assert.deepEqual(answer.restarted, ['example-sign-in.service']);
   assert.ok(!commands.some(command => /git -C .* (fetch|checkout)/.test(command)), 'the apply moves no clone: the unit fetches its pin at start');
   assert.deepEqual(await runsDifferences(machine, runs, computer(runs, {}).run), []);
-  assert.throws(() => renderWhatItRuns(runsWith(unit({ workshop_commit: 'main' })), SITE_BLOCK), /workshop_commit must be a full commit id/);
+  assert.throws(() => renderWhatItRuns(runsWith(unit({ workshop_commit: 'main' }))), /workshop_commit must be a full commit id/);
 });
 
 test('a file the row says is absent is a difference while it is there, and applying takes it away', async () => {

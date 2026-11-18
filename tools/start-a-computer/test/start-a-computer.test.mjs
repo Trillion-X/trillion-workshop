@@ -34,11 +34,11 @@ function provider(base, table, calls = []) {
 }
 
 // The computer row a start is given (request.computer_row): what it runs is the engine unit, built from its source commit,
-// its Caddy name and nothing kept beside it.
+// the Host its boot check names and nothing kept beside it.
 const SOURCE_COMMIT = 'c'.repeat(40);
 const COMPUTER_ROW = { address: '192.0.2.41', name: 'example-computer', runs: {
-  caddy: { site_hosts: ['computer.example.com'], port: 7199 },
-  health: { path: '/readyz', status: 200, where: 'machine' },
+  health_listen: '127.0.0.1:7199',
+  health: { path: '/readyz', status: 200, where: 'machine', host: 'computer.example.com' },
   units: [{
     unit: 'example-computer.service', template: 'tools/start-a-computer/read-data/unit-templates/serve-computer.service', description: 'A computer that keeps people\'s rows', user: 'example-computer',
     state: '/var/lib/example-computer', builds: '/var/lib/example-computer/builds', program: 'example-engine', key_file: '/var/lib/example-computer/computer.key',

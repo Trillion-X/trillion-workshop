@@ -1,20 +1,16 @@
 // tools/start-a-computer/do-work/render-what-a-computer-runs.mjs
 //
-// Renders the files one computer runs: the Caddy site file, each service unit and its drop-ins. What it runs is the `runs`
-// of that computer's own row (request.computer_row, handed in with the request); the templates are read-data/unit-templates,
-// the units' own text with a {field} for each value a computer declares. A field the row does not give is refused,
-// so a template never renders half-filled. The row's own Caddy routes (caddy.routes) are read-data/caddy-routes files filled
-// from its caddy fields, and a unit's settings object is written as JSON to its settings_file. A row whose caddy
-// row has `front_door` is a public front door (read-data/caddy-front-door): its certificates live in the shared storage
-// every front door reaches, a name no site block names gets one on demand only when the door's ask path says yes, and
-// each such name and each of `door_hosts` is carried to `door_upstream`; the Caddy it runs is the row's `binary` (its path) and `binary_files`.
+// Renders the files one computer runs: each service unit, its drop-ins and the files it reads. What it runs is the `runs` of
+// that computer's own row (request.computer_row, handed in with the request); a unit's template, script and drop-ins are files
+// a row names by path, the program's own text with a {field} for each value a computer declares. A field the row does not give
+// is refused, so a template never renders half-filled. A unit's settings object is written as JSON to its settings_file. A
+// program's own grammar (a web server's site file, a database's access file) is its own kit's `prepare` module, never this tool's.
 import { existsSync, readFileSync } from 'node:fs';
 import { isAbsolute, relative, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { fill } from './fill-fields.mjs';
 import { WAYS, renderMeetingPoint } from '../../carry-a-computer-to-a-meeting-point/do-work/carry-a-computer.mjs';
 
-const TEMPLATE = name => readFileSync(new URL(`../read-data/unit-templates/${name}`, import.meta.url), 'utf8');
 // The Workshop this tool runs from: a path a row names is read inside it, at the commit the tool runs at.
 const WORKSHOP = fileURLToPath(new URL('../../../', import.meta.url));
 /** The text of a file a row names (a unit's `template`, `script` or `drop_ins`): the program's own file, published by its
@@ -28,115 +24,12 @@ const publishedFile = (path, where) => {
   return file;
 };
 const publishedText = (path, where) => readFileSync(publishedFile(path, where), 'utf8');
-const ROUTE = name => {
-  const file = new URL(`../read-data/caddy-routes/${name}.caddy`, import.meta.url);
-  if (!/^[a-z0-9-]+$/.test(name) || !existsSync(file)) throw new Error(`caddy.routes names an unknown route ${name}`);
-  return readFileSync(file, 'utf8').trimEnd();
-};
 // The values a unit's template reads when its row gives none (read-data/settings.json `unit_defaults`): the build link it
 // runs (`current`) and how long its stop may take (`stop_seconds`).
 const UNIT_DEFAULTS = JSON.parse(readFileSync(new URL('../read-data/settings.json', import.meta.url), 'utf8')).unit_defaults;
 const SYSTEMD = '/etc/systemd/system';
 /** The name a drop-in file a unit lists is written under: its file's name without the extension. */
 export const dropInName = path => path.split('/').pop().replace(/\.[^.]*$/, '');
-const FRONT_DOOR = name => readFileSync(new URL(`../read-data/caddy-front-door/${name}.caddy`, import.meta.url), 'utf8').trimEnd();
-
-/** Each {{field}} in `text` is the caddy row's own value (a list is joined with spaces); `special` answers a field first (routes). */
-const fillFields = (text, caddy, where, special = () => undefined) => text.replace(/\{\{([a-z_]+)\}\}/g, (_, key) => {
-  const value = special(key) ?? caddy[key];
-  if (value === undefined) throw new Error(`${where} needs ${key}`);
-  return Array.isArray(value) ? value.join(' ') : String(value);
-});
-// The pages the front door answers itself are the caller's: the request hands them as `pages` (name and bytes of each file of
-// the person's own pages folder), and each lands as the file at its address under the row's `caddy.pages_root`. A text page is
-// carried as its text, any other file as base64 with `binary: true`, so the computer receives the same bytes. This tool holds no page.
-const TEXT_PAGE = /\.(?:html|css|svg)$/;
-const pageFiles = (caddy, pages) => {
-  if (!Array.isArray(pages) || !pages.length) throw new Error('caddy.pages_root needs the pages the request gives (pages_folder)');
-  return pages.map(({ name, bytes }) => (TEXT_PAGE.test(name) ? { path: `${caddy.pages_root}/${name}`, text: bytes.toString('utf8') } : { path: `${caddy.pages_root}/${name}`, text: bytes.toString('base64'), binary: true }))
-    .sort((a, b) => (a.path < b.path ? -1 : 1));
-};
-
-// The sign-in tool answers the addresses its own pages/routes.json lists (each page, and what is under it, and its assets):
-// the front door sends exactly those to it, so a page the tool adds is routed with no copy of the list in a computer's row.
-const SIGN_IN_ROUTES = JSON.parse(readFileSync(new URL('../../better-auth-official/pages/routes.json', import.meta.url), 'utf8'));
-const signInPaths = () => [...new Set([...SIGN_IN_ROUTES.routes.map(({ path }) => path), SIGN_IN_ROUTES.assets_path.replace(/\/$/, '')])]
-  .flatMap(path => [path, `${path}/*`]);
-/** A Caddy route file filled from the row's caddy fields; the sign-in pages' paths are the tool's own, and each pool the
- * row names (`pools`) is the field `<pool>_proxy`. */
-const routeText = (name, caddy, where) => {
-  if (caddy.auth_page_paths !== undefined) throw new Error(`${where}: caddy.auth_page_paths is gone; the sign-in paths are the tool's own pages/routes.json`);
-  return fill(ROUTE(name), { ...caddy, ...poolFields(caddy), auth_page_paths: signInPaths() }, where);
-};
-
-// A pool (caddy.pools: { <name>: { listen, health_uri, health_interval, try_duration, lines? } }) is every slot of one
-// program: Caddy sends each call to the first that answers its health page, so a slot that is stopping (its health page
-// answers 503 while it finishes what it holds) gets no new call, and a refused connection is tried at the next slot for up
-// to try_duration. A call already sent is never sent again. `lines` are the pool's own reverse_proxy lines (a Host header).
-const POOL = readFileSync(new URL('../read-data/caddy-routes/pool.fragment', import.meta.url), 'utf8').trimEnd();
-const poolFields = caddy => Object.fromEntries(Object.entries(caddy.pools ?? {}).map(([name, pool]) => {
-  const where = `caddy.pools ${name}`;
-  if (!/^[a-z0-9_]+$/.test(name) || !Array.isArray(pool?.listen) || !pool.listen.length) throw new Error(`${where} needs listen: every slot's address`);
-  const lines = (pool.lines ?? []).map(line => `\t\t\t${fill(line, caddy, where)}\n`).join('');
-  return [`${name}_proxy`, fill(POOL, { ...pool, lines }, where)];
-}));
-
-// An inner door (caddy.inner_doors: [{ listen, pool }]) is a loopback address Caddy holds for the programs on this computer
-// (the engine's call to the sign-in tool's own listener), sent to that pool's slots, so a program that calls it never
-// follows a slot switch.
-const innerDoors = caddy => (caddy.inner_doors ?? []).map(({ listen, pool }, at) => {
-  const where = `caddy.inner_doors ${at}`;
-  if (!/^127\.0\.0\.1:[0-9]+$/.test(listen ?? '')) throw new Error(`${where} listens on a loopback address only`);
-  const proxy = poolFields(caddy)[`${pool}_proxy`];
-  if (!proxy) throw new Error(`${where} names no pool of caddy.pools`);
-  // The site is the port alone (`http://:<port>`), so a call with any Host reaches the pool: a site named by its address
-  // would answer a call naming another Host with Caddy's empty 200, and a health check through it would pass on nothing.
-  return `\nhttp://:${listen.split(':')[1]} {\n\tbind 127.0.0.1\n\t${proxy.trim()}\n}\n`;
-}).join('');
-
-/** The Caddy site file: one site block per name, each with the row's port. `siteBlock` is the wrapper the set-up tool
- * uses, with {SITE} and {PORT} still to fill. The row's own routes (caddy.routes) go first inside each block. */
-export const renderCaddy = (siteBlock, caddy) => {
-  if (caddy.site_file) return renderSiteFile(caddy);
-  const { site_hosts, port } = caddy;
-  if (!Array.isArray(site_hosts) || !site_hosts.length) throw new Error('caddy.site_hosts needs at least one name');
-  const routes = (caddy.routes ?? []).map(name => routeText(name, caddy, `caddy route ${name}`)).join('\n');
-  const sites = site_hosts.map(host => {
-    const block = siteBlock.replaceAll('{SITE}', host).replaceAll('{PORT}', String(port));
-    return `${routes ? block.replace('\n', `\n${routes}\n`) : block}\n`;
-  }).join('');
-  return caddy.front_door ? renderFrontDoor(caddy.front_door, sites) : sites;
-};
-
-/** A computer whose caddy row names `site_file` gets that whole file (read-data/caddy-sites/<site_file>.caddy): each
- * {{field}} in it is the row's own value (a list is joined with spaces), and a {{routes}} or {{<name>_routes}} slot is that
- * list of route names in the row (caddy.routes, caddy.every_name_routes), each filled as in a site block. A line that is
- * only a routes slot the row leaves empty is no line at all. Caddy's own {placeholders} are left as they are. */
-const SITE_FILE = name => {
-  const file = new URL(`../read-data/caddy-sites/${name}.caddy`, import.meta.url);
-  if (!/^[a-z0-9-]+$/.test(name) || !existsSync(file)) throw new Error(`caddy.site_file names an unknown site file ${name}`);
-  return readFileSync(file, 'utf8');
-};
-const renderSiteFile = caddy => {
-  const where = `caddy site file ${caddy.site_file}`;
-  const routes = key => (caddy[key] ?? []).map(name => routeText(name, caddy, `caddy route ${name}`)).join('\n');
-  const isRoutes = key => key === 'routes' || key.endsWith('_routes');
-  const text = SITE_FILE(caddy.site_file).replace(/^\{\{([a-z_]+)\}\}\n/gm, (line, key) => isRoutes(key) && !routes(key) ? '' : line);
-  return fillFields(text, caddy, where, key => (isRoutes(key) ? routes(key) : undefined));
-};
-
-/** A front door's whole site file: the shared storage and the on-demand ask (global options), the loopback site the ask
- * goes to, the row's own sites, each of `door_hosts`, and every other name, on demand, carried to `door_upstream`. */
-const renderFrontDoor = (door, sites) => {
-  const where = 'caddy.front_door';
-  const doorSite = (name, tls) => fill(FRONT_DOOR('door-site').replace('{SITE}', name).replace('{TLS}', tls), door, where);
-  return [
-    fill(FRONT_DOOR('global'), door, where), fill(FRONT_DOOR('ask'), door, where), sites.trimEnd(),
-    ...(door.door_hosts ?? []).map(name => doorSite(name, '')),
-    doorSite('https://', '\ttls {\n\t\ton_demand\n\t}\n'),
-  ].join('\n\n') + '\n';
-};
-
 /** A unit's settings as the file it reads at its `settings_file`: its `settings_lines`, one line each, or its `settings` object as JSON
  * (an engine's computer config is one: trillion-rust src/native_entry/computer.rs). */
 const unitSettings = (unit, where) => {
@@ -145,30 +38,28 @@ const unitSettings = (unit, where) => {
 };
 
 /** A computer's `runs` with each unit that names `prepare` handed to that file first: the program's own module (a path read
- * like a template, `published`), which knows its program and answers { unit, firewall_allow?, routes? }. The unit it answers is
- * the one the computer runs (its `files` are written beside it, and a change in one restarts it), and the ports and Caddy
- * routes it opens join the row's. start-a-computer knows no program: whatever a unit's own module says is what runs. */
-export async function withPrepared(runs) {
-  const units = [], firewall = [], routes = [];
-  for (const given of runs.units ?? []) {
-    if (given.prepare === undefined) { units.push(given); continue; }
-    const { prepare: path, ...unit } = given;
-    const where = `unit ${given.unit} prepare`;
+ * like a template), which knows its program and answers { unit, firewall_allow? }. The unit it answers is the one the computer
+ * runs (its `files` are written beside it), and the ports it opens join the row's. `given` is what the request hands every
+ * module (the pages a web server answers, `pages`). start-a-computer knows no program: whatever a unit's own module says is
+ * what runs. */
+export async function withPrepared(runs, given = {}) {
+  const units = [], firewall = [];
+  for (const row of runs.units ?? []) {
+    if (row.prepare === undefined) { units.push(row); continue; }
+    const { prepare: path, ...unit } = row;
+    const where = `unit ${row.unit} prepare`;
     const { prepare } = await import(pathToFileURL(publishedFile(path, where)).href);
     if (typeof prepare !== 'function') throw new Error(`${where}: ${path} exports no prepare`);
-    const answer = prepare(unit);
+    const answer = prepare(unit, given);
     units.push(answer.unit);
     firewall.push(...(answer.firewall_allow ?? []));
-    routes.push(...(answer.routes ?? []));
   }
   const machine = { ...runs.machine };
   if (firewall.length) {
     if (machine.firewall_allow === null) throw new Error('a unit opens a port, and this computer\'s firewall is kept by another program (machine.firewall_allow null)');
     machine.firewall_allow = [...(machine.firewall_allow ?? []), ...firewall];
   }
-  if (routes.length && !runs.caddy) throw new Error('a unit adds a Caddy route, and this computer\'s row names no caddy');
-  const caddy = routes.length ? { ...runs.caddy, routes: [...(runs.caddy.routes ?? []), ...routes] } : runs.caddy;
-  return { ...runs, units, caddy, machine };
+  return { ...runs, units, machine };
 }
 
 /** A computer's `runs` with each unit that names `slots` made into one unit per slot, so a new release starts beside the
@@ -233,14 +124,12 @@ const withCredentials = (unit, where) => {
   };
 };
 
-/** Every file a computer's `runs` declares: { path, text }. A unit's drop-ins are the names it lists in `drop_ins`. */
-export function renderWhatItRuns(given, siteBlock, pages) {
+/** Every file a computer's `runs` declares: { path, text, binary?, check?, then? }. A unit's drop-ins are the files it lists in
+ * `drop_ins`. A unit with no `template` is one whose unit file the computer already has (a package's own); only its drop-ins and
+ * files are written. */
+export function renderWhatItRuns(given) {
   const runs = withSlots(given);
-  // A computer that serves no web pages names no `caddy`: no Caddy file is written for it.
-  const files = runs.caddy ? [{ path: '/etc/caddy/Caddyfile', text: renderCaddy(siteBlock, runs.caddy) + innerDoors(runs.caddy) }] : [];
-  if (runs.caddy?.pages_root) files.push(...pageFiles(runs.caddy, pages));
-  const door = runs.caddy?.front_door;
-  if (door) files.push({ path: `${SYSTEMD}/caddy.service.d/front-door.conf`, text: fill(TEMPLATE('caddy-front-door.conf'), door, 'caddy.front_door') });
+  const files = [];
   // A meeting point (`meeting_point`: { way, values }) runs the host half of that way row
   // (tools/carry-a-computer-to-a-meeting-point read-data/ways.json), the same for every computer carried to it: its files are
   // written like every other, and its commands (`then`) run, in order, after one of them changed.
@@ -253,12 +142,11 @@ export function renderWhatItRuns(given, siteBlock, pages) {
   }
   for (const unit of runs.units ?? []) {
     const where = `unit ${unit.unit}`;
-    const template = publishedText(unit.template, `${where} template`);
     if (unit.workshop_commit !== undefined && !/^[0-9a-f]{40}$/.test(unit.workshop_commit)) throw new Error(`${where} workshop_commit must be a full commit id`);
-    files.push({ path: `${SYSTEMD}/${unit.unit}`, text: fill(template, withCredentials({ ...UNIT_DEFAULTS, ...unit }, where), where) });
+    if (unit.template !== undefined) files.push({ path: `${SYSTEMD}/${unit.unit}`, text: fill(publishedText(unit.template, `${where} template`), withCredentials({ ...UNIT_DEFAULTS, ...unit }, where), where) });
     if (unit.settings !== undefined || unit.settings_lines !== undefined) files.push(unitSettings(unit, where));
     if (unit.script !== undefined) files.push({ path: fill('{script_file}', unit, where), text: publishedText(unit.script, `${where} script`) });
-    for (const file of unit.files ?? []) files.push({ path: file.path, text: file.text });
+    files.push(...(unit.files ?? []));
     for (const path of unit.drop_ins ?? []) {
       const name = dropInName(path);
       files.push({ path: `${SYSTEMD}/${unit.unit}.d/${name}.conf`, text: fill(publishedText(path, `${where} drop-in`), unit, `${where} drop-in ${path}`) });

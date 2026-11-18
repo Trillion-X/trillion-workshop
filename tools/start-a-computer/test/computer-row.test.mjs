@@ -7,11 +7,11 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { applyAComputerRow, runsOf, computerRowDifferences, readRequest, SITE_BLOCK } from '../do-work/start-a-computer.mjs';
+import { applyAComputerRow, runsOf, computerRowDifferences, readRequest } from '../do-work/start-a-computer.mjs';
 import { renderWhatItRuns } from '../do-work/render-what-a-computer-runs.mjs';
 
 const runs = {
-  caddy: { site_hosts: ['place.example.test'], port: 7199 },
+  health_listen: '127.0.0.1:7199',
   units: [{
     unit: 'example-place.service', template: 'tools/start-a-computer/read-data/unit-templates/serve-computer.service', description: 'Example place', user: 'example-place',
     state: '/var/lib/example-place', builds: '/var/lib/example-place/builds', program: 'example-engine',
@@ -36,19 +36,13 @@ test('a request may name the computer row as a file beside it: the row is that f
 });
 
 test('a computer row that is an id, a missing value, or has no runs with units is refused', () => {
-  for (const given of ['record:computer:example-computer', undefined, null, {}, { runs: { caddy: {} } }, runs]) {
+  for (const given of ['record:computer:example-computer', undefined, null, {}, { runs: { health_listen: '127.0.0.1:7199' } }, runs]) {
     assert.throws(() => runsOf({ computer_row: given }), /computer_row is the computer's own row: its `runs` names the units/);
   }
 });
 
-test('a computer that serves no web pages names no caddy, and no Caddy file is written for it', () => {
-  const quiet = { units: [] };
-  assert.deepEqual(runsOf({ computer_row: { runs: quiet } }), quiet);
-  assert.equal(renderWhatItRuns(quiet, SITE_BLOCK).some(({ path }) => path === '/etc/caddy/Caddyfile'), false);
-});
-
 test('applying and comparing a computer use its row: a computer that runs it has no differences', async () => {
-  const live = Object.fromEntries(renderWhatItRuns(runs, SITE_BLOCK).map(({ path, text }) => [path, text]));
+  const live = Object.fromEntries(renderWhatItRuns(runs).map(({ path, text }) => [path, text]));
   const run = async (_machine, command) => {
     if (command.startsWith('if [ -f ')) {
       const path = command.match(/if \[ -f '([^']+)' \]/)[1];
@@ -60,6 +54,6 @@ test('applying and comparing a computer use its row: a computer that runs it has
   };
   assert.deepEqual(await computerRowDifferences(request, { run }), { differences: [] });
   assert.deepEqual(await applyAComputerRow(request, { run }), { written: [], restarted: [] });
-  delete live['/etc/caddy/Caddyfile'];
-  assert.deepEqual(await computerRowDifferences(request, { run }), { differences: [{ path: '/etc/caddy/Caddyfile', reason: 'missing on the computer' }] });
+  delete live['/etc/example-place/computer.json'];
+  assert.deepEqual(await computerRowDifferences(request, { run }), { differences: [{ path: '/etc/example-place/computer.json', reason: 'missing on the computer' }] });
 });

@@ -10,17 +10,14 @@
 # set-up data's `files` (path and text, for a file that decides how a package installs) and its `apt_sources` (a package source:
 # its `list_file` holds its `line`, and the key it is signed by is kept at `key_file`, refused unless the key's sha256 is the
 # pinned one) are put in place; after them its `downloads` (one program each, its archive refused unless its sha256 is the
-# pinned one). The files a computer row renders (the
-# Caddy site file, each unit and its drop-ins) are written by applyWhatItRuns in start-a-computer.mjs, so this script names no
+# pinned one). The files a computer row renders (each
+# unit, its drop-ins and the files it reads) are written by applyWhatItRuns in start-a-computer.mjs, so this script names no
 # path the row does not give.
 #
 # RUNS is what the computer's row says it runs (request.computer_row `runs`, read at run time) as JSON; SET_UP is settings.json `machine` with the row's own `machine` fields over it (the node release is the row's own).
-# FRONT_DOOR_CADDY, given when the row's caddy has `front_door`, is "PATH URL SHA256" of this machine's architecture
-# (the row's caddy.front_door binary_files): that Caddy is fetched and installed at PATH only when its SHA-256 is SHA256.
 set -eu
 RUNS=$1
 SET_UP=$2
-FRONT_DOOR_CADDY=${3:-}
 command -v apt-get >/dev/null 2>&1 || { echo "This machine has no apt-get; start-a-computer sets up Debian and Ubuntu machines." >&2; exit 3; }
 export DEBIAN_FRONTEND=noninteractive
 command -v jq >/dev/null 2>&1 || { apt-get update -qq && apt-get install -y -qq jq >/dev/null; }
@@ -107,15 +104,6 @@ done
 printf '%s' "$RUNS" | jq -r '.units[] | .user as $user | (.folders // [])[] | [$user, .] | @tsv' | while IFS="$(printf '\t')" read -r user folder; do
   install -d -o "$user" -g "$user" -m 0700 "$folder"
 done
-if [ -n "$FRONT_DOOR_CADDY" ]; then
-  set -- $FRONT_DOOR_CADDY
-  if ! printf '%s  %s\n' "$3" "$1" | sha256sum -c --status 2>/dev/null; then
-    install -d -m 0755 "$(dirname "$1")"
-    curl -fsSL --max-time 300 -o "$1.new" "$2"
-    printf '%s  %s\n' "$3" "$1.new" | sha256sum -c --status || { echo "The Caddy at $2 is not the pinned one." >&2; exit 4; }
-    chmod 0755 "$1.new" && mv "$1.new" "$1"
-  fi
-fi
 if printf '%s' "$SET_UP" | jq -e '.firewall_allow | type == "array"' >/dev/null; then
   printf '%s' "$SET_UP" | jq -r '.firewall_allow[]' | while read -r port; do ufw allow "$port" >/dev/null; done
   ufw --force enable >/dev/null

@@ -4,12 +4,12 @@
 // (set up, then every file the row renders written, and its units started).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { applyWhatItRuns, runsDifferences, SITE_BLOCK } from '../do-work/start-a-computer.mjs';
+import { applyWhatItRuns, runsDifferences } from '../do-work/start-a-computer.mjs';
 import { renderWhatItRuns } from '../do-work/render-what-a-computer-runs.mjs';
 
 const machine = { address: '192.0.2.9', ssh: { known_hosts: '/dev/null' } };
 const runs = {
-  caddy: { site_hosts: ['place.example.test'], port: 7199 },
+  health_listen: '127.0.0.1:7199',
   units: [{
     unit: 'example-place.service', template: 'tools/start-a-computer/read-data/unit-templates/serve-computer.service', description: 'Example place', user: 'example-place',
     state: '/var/lib/example-place', builds: '/var/lib/example-place/builds', program: 'example-engine',
@@ -39,31 +39,28 @@ const computer = live => {
 };
 
 test('a computer that already runs its row gets nothing written, no set-up, and nothing restarted', async () => {
-  const live = Object.fromEntries(renderWhatItRuns(runs, SITE_BLOCK).map(({ path, text }) => [path, text]));
+  const live = Object.fromEntries(renderWhatItRuns(runs).map(({ path, text }) => [path, text]));
   const { run, commands } = computer(live);
   assert.deepEqual(await applyWhatItRuns(machine, runs, run), { written: [], restarted: [] });
-  assert.equal(commands.filter(({ command }) => /^(sh -s|install |cp |systemctl |caddy )/.test(command)).length, 0);
+  assert.equal(commands.filter(({ command }) => /^(sh -s|install |cp |systemctl )/.test(command)).length, 0);
 });
 
 test('a fresh computer is set up from the row, then gets every file the row renders, and its unit started', async () => {
   const { run, commands } = computer({});
   const { written, restarted } = await applyWhatItRuns(machine, runs, run);
-  const rendered = renderWhatItRuns(runs, SITE_BLOCK).map(({ path }) => path);
+  const rendered = renderWhatItRuns(runs).map(({ path }) => path);
   assert.deepEqual(written, rendered);
   assert.deepEqual(restarted, ['example-place.service']);
   const setUp = commands.findIndex(({ command }) => command.startsWith('sh -s'));
   const firstWrite = commands.findIndex(({ command }) => command.startsWith('install -m 0644') || command.startsWith('install -d -m 0755'));
   assert.ok(setUp >= 0 && setUp < firstWrite, 'set-up runs before anything is written');
-  assert.match(commands[setUp].command, /^sh -s -- '\{"caddy"/);
-  const caddy = commands.find(({ command }) => command.includes('caddy validate'));
-  assert.ok(caddy, 'the Caddy file is validated before it replaces the live one');
+  assert.match(commands[setUp].command, /^sh -s -- '\{"health_listen"/);
   assert.ok(commands.some(({ command }) => command === 'systemctl daemon-reload'));
   assert.ok(commands.some(({ command }) => command.includes('systemctl enable') && command.includes('example-place.service')));
-  assert.ok(commands.some(({ command }) => command === 'systemctl reload caddy'));
 });
 
 test('a file that differs keeps its previous bytes beside it, and only that file is written', async () => {
-  const rendered = renderWhatItRuns(runs, SITE_BLOCK);
+  const rendered = renderWhatItRuns(runs);
   const live = Object.fromEntries(rendered.map(({ path, text }) => [path, text]));
   live['/etc/systemd/system/example-place.service'] = 'an older unit\n';
   const { run, commands } = computer(live);
@@ -94,7 +91,7 @@ const building = live => {
 const sourceSent = command => JSON.parse(command.match(/ sh '(\{.*\})'$/s)[1]);
 
 test('a unit behind its source commit is fetched and built by the computer itself, made current and restarted', async () => {
-  const live = Object.fromEntries(renderWhatItRuns(built, SITE_BLOCK).map(({ path, text }) => [path, text]));
+  const live = Object.fromEntries(renderWhatItRuns(built).map(({ path, text }) => [path, text]));
   const { run, commands } = building(live);
   assert.deepEqual(await runsDifferences(machine, built, run), [{ path: '/var/lib/example-place/builds/current', reason: `runs ${'b'.repeat(40)}; its row builds ${SOURCE_COMMIT}` }]);
   const answer = await applyWhatItRuns(machine, built, run);
@@ -111,7 +108,7 @@ test('a unit behind its source commit is fetched and built by the computer itsel
 });
 
 test('a unit whose current build is its row\'s but which is not running it is restarted, and one running it is left alone', async () => {
-  const live = Object.fromEntries(renderWhatItRuns(built, SITE_BLOCK).map(({ path, text }) => [path, text]));
+  const live = Object.fromEntries(renderWhatItRuns(built).map(({ path, text }) => [path, text]));
   for (const [running, restarted] of [[false, ['example-place.service']], [true, []]]) {
     const base = computer(live);
     const run = async (m, command, input) => {
@@ -127,7 +124,7 @@ test('a unit whose current build is its row\'s but which is not running it is re
 });
 
 test('a private repository is fetched with the key the vault holds under its credential name, sent only on standard input', async () => {
-  const live = Object.fromEntries(renderWhatItRuns(keyed, SITE_BLOCK).map(({ path, text }) => [path, text]));
+  const live = Object.fromEntries(renderWhatItRuns(keyed).map(({ path, text }) => [path, text]));
   const { run, commands } = building(live);
   const KEY = 'made-up-private-key-text';
   await applyWhatItRuns(machine, keyed, run, { 'example-engine-read-key': KEY });
@@ -154,47 +151,38 @@ test('a restarted unit must answer its health row on the machine, or the apply f
   await assert.rejects(applyWhatItRuns(machine, runs, crashing, {}, { wait: async () => {} }), /example-place\.service answered nothing on \/readyz, not 200/);
 });
 
-// A front door (caddy.front_door): its pinned Caddy is fetched by set-up when the machine lacks it, its site file is
-// validated by that Caddy with the shared storage's environment, and Caddy restarts because its drop-in swaps the program.
-test('a front door gets its pinned Caddy, is validated by it and restarts Caddy instead of only reloading it', async () => {
-  const door = { ...runs, caddy: { ...runs.caddy, front_door: {
-    storage_server_cert: '/etc/caddy/storage-server.crt', storage_env: '/etc/caddy/storage.env', ask_port: 9444,
-    ask_path: '/origins/certificate', door_upstream: 'https://192.0.2.10:443', door_host: 'app.example.test',
-    door_server_name: '{http.request.host}', door_hosts: ['app.example.test'],
-    binary: '/opt/example/caddy',
-    binary_files: { x86_64: { url: 'https://downloads.example.test/caddy-linux-amd64', sha256: 'e'.repeat(64) }, aarch64: { url: 'https://downloads.example.test/caddy-linux-arm64', sha256: 'f'.repeat(64) } } } } };
-  const rendered = renderWhatItRuns(door, SITE_BLOCK);
-  const live = Object.fromEntries(rendered.filter(({ path }) => !path.includes('caddy')).map(({ path, text }) => [path, text]));
-  const base = computer(live);
-  const run = async (machine_, command, input) => {
-    if (command === 'uname -m') { base.commands.push({ command }); return 'x86_64\n'; }
-    if (command.includes('sha256sum -c --status || exit 3')) { base.commands.push({ command }); throw Object.assign(new Error('not pinned'), { code: 3 }); }
-    return base.run(machine_, command, input);
-  };
-  const { written, restarted } = await applyWhatItRuns(machine, door, run);
-  assert.deepEqual(written, ['/etc/caddy/Caddyfile', '/etc/systemd/system/caddy.service.d/front-door.conf']);
-  assert.deepEqual(restarted, ['caddy.service']);
-  const setUp = base.commands.find(({ command }) => command.startsWith('sh -s'));
-  assert.match(setUp.command, / '\/opt\/example\/caddy https:\/\/downloads\.example\.test\/caddy-linux-amd64 e{64}'$/);
-  assert.ok(base.commands.some(({ command }) => command.startsWith("set -a && . '/etc/caddy/storage.env' && set +a && '/opt/example/caddy' validate")));
-  assert.ok(base.commands.some(({ command }) => command === "systemctl restart 'caddy.service'"));
-  assert.ok(!base.commands.some(({ command }) => command === 'systemctl reload caddy'), 'a restart already loads the new site file');
+// A file that names `check` replaces the live one only once that command passes on the new text, and one that names `then`
+// is applied by those commands, after the units start, instead of restarting the unit that reads it.
+test('a file with check is checked beside the live one before it replaces it, and one with then restarts nothing', async () => {
+  const unit = { unit: 'example-web.service', user: 'example-web', prepare: 'tools/start-a-computer/test/fixtures/prepare-example.mjs', greeting: 'hello' };
+  const row = { ...runs, units: [...runs.units, unit] };
+  const { withPrepared } = await import('../do-work/render-what-a-computer-runs.mjs');
+  const live = Object.fromEntries(renderWhatItRuns(await withPrepared(row)).map(({ path, text }) => [path, text]));
+  live['/etc/example-greeter/site.conf'] = 'an older site\n';
+  const { run, commands } = computer(live);
+  const { written, restarted } = await applyWhatItRuns(machine, row, run);
+  assert.deepEqual(written, ['/etc/example-greeter/site.conf']);
+  assert.deepEqual(restarted, []);
+  const write = commands.find(({ command }) => command.includes("site.conf.new'"));
+  assert.match(write.command, /install -m 0644 -o root -g root \/dev\/stdin '\/etc\/example-greeter\/site\.conf\.new' && 'example-check' '--file' '\/etc\/example-greeter\/site\.conf\.new' >\/dev\/null && mv '\/etc\/example-greeter\/site\.conf\.new' '\/etc\/example-greeter\/site\.conf'$/);
+  assert.equal(write.input, 'site\n');
+  assert.ok(commands.some(({ command }) => command === "'systemctl' 'reload' 'example-web.service'"));
+  assert.ok(!commands.some(({ command }) => command.startsWith('systemctl restart')));
 });
 
-test('a front door whose row gives no address for the pinned Caddy is refused before anything is written', async () => {
-  const door = { ...runs, caddy: { ...runs.caddy, front_door: {
-    storage_server_cert: '/etc/caddy/storage-server.crt', storage_env: '/etc/caddy/storage.env', ask_port: 9444,
-    ask_path: '/origins/certificate', door_upstream: 'https://192.0.2.10:443', door_host: 'app.example.test',
-    door_server_name: '{http.request.host}', door_hosts: ['app.example.test'], binary: '/opt/example/caddy' } } };
-  const base = computer({});
-  const run = async (machine_, command, input) => (command === 'uname -m' ? 'x86_64\n' : base.run(machine_, command, input));
-  await assert.rejects(applyWhatItRuns(machine, door, run), /gives no binary_files for x86_64/);
+test('a new drop-in on a unit restarts it, so a running unit starts with it', async () => {
+  const live = Object.fromEntries(renderWhatItRuns(runs).map(({ path, text }) => [path, text]));
+  delete live['/etc/systemd/system/example-place.service.d/nofile.conf'];
+  const { run, commands } = computer(live);
+  const { restarted } = await applyWhatItRuns(machine, runs, run);
+  assert.deepEqual(restarted, ['example-place.service']);
+  assert.ok(commands.some(({ command }) => command === "systemctl restart 'example-place.service'"));
 });
 
 test('a unit\'s health row may name the Host its boot check asks for', async () => {
   const health = { path: '/.well-known/oauth-protected-resource/mcp', status: 200, host: 'place.example.test' };
   const withHost = { ...runs, units: [{ ...runs.units[0], health, health_listen: '127.0.0.1:9445' }] };
-  const live = Object.fromEntries(renderWhatItRuns(runs, SITE_BLOCK).map(({ path, text }) => [path, text]));
+  const live = Object.fromEntries(renderWhatItRuns(runs).map(({ path, text }) => [path, text]));
   live['/etc/systemd/system/example-place.service'] = 'an older unit\n';
   const { run, commands } = computer(live);
   const { restarted } = await applyWhatItRuns(machine, withHost, run);
@@ -203,7 +191,7 @@ test('a unit\'s health row may name the Host its boot check asks for', async () 
 });
 
 test('a user the row says is absent is a difference while the computer has it, and the apply removes it and reloads ssh for a removed drop-in', async () => {
-  const gone = { caddy: { site_hosts: ['place.example.test'], port: 7199 }, units: [], unmanaged: [], absent: ['/etc/ssh/sshd_config.d/old-tunnel.conf'], absent_users: ['old-tunnel'] };
+  const gone = { health_listen: '127.0.0.1:7199', units: [], unmanaged: [], absent: ['/etc/ssh/sshd_config.d/old-tunnel.conf'], absent_users: ['old-tunnel'] };
   const commands = [];
   const run = async (_machine, command) => {
     commands.push(command);
@@ -235,7 +223,7 @@ test('a unit with a check_command is booted when the command passes, and the app
 
 test('a computer missing a package or program its row names is set up, and one that has them all is not', async () => {
   const data = { ...runs, machine: { packages: ['jq'], downloads: [{ path: '/usr/local/bin/example-tool' }] } };
-  const live = Object.fromEntries(renderWhatItRuns(data, SITE_BLOCK).map(({ path, text }) => [path, text]));
+  const live = Object.fromEntries(renderWhatItRuns(data).map(({ path, text }) => [path, text]));
   const changed = { ...data, units: [{ ...data.units[0], description: 'Example place again' }] };
   const lacking = computer(live);
   const run = (missing) => async (m, command, input) => {
@@ -273,9 +261,9 @@ test('a changed access file restarts its server, and a changed script reruns eac
     after: 'example-database.service', script: 'tools/keep-a-postgres-database-on-a-computer/scripts/set-up-postgres-role.sh', script_file: '/usr/local/lib/example-database/set-up-postgres-role.sh',
     environment: ['SECRET_NAME=role'], program_bin: '/usr/lib/postgresql/18/bin', writable: '/var/lib/postgresql',
     secret_name: 'role', secret_vault_key: `${name}-connection`, secret_file: `/etc/credstore.encrypted/${name}`, check_command: `true ${name}` });
-  const row = { caddy: runs.caddy, unmanaged: [], units: [server, role('example-owner'), role('example-share')] };
+  const row = { health_listen: runs.health_listen, unmanaged: [], units: [server, role('example-owner'), role('example-share')] };
   const { withPrepared } = await import('../do-work/render-what-a-computer-runs.mjs');
-  const live = Object.fromEntries(renderWhatItRuns(await withPrepared(row), SITE_BLOCK).map(({ path, text }) => [path, text]));
+  const live = Object.fromEntries(renderWhatItRuns(await withPrepared(row)).map(({ path, text }) => [path, text]));
   live['/etc/example-database/pg_hba.conf'] = 'host all all 0.0.0.0/0 trust\n';
   live['/usr/local/lib/example-database/set-up-postgres-role.sh'] = '# an older script\n';
   const { run, commands } = computer(live);
@@ -289,7 +277,7 @@ test('a changed access file restarts its server, and a changed script reruns eac
 test('a path unit that is not active is started, with nothing written', async () => {
   const row = { ...runs, units: [...runs.units, { unit: 'example-certificate.path', template: 'tools/start-a-computer/read-data/unit-templates/watch-a-file.path', description: 'Example certificate', user: 'root',
     watch: '/var/lib/example-door/example.test.crt', runs: 'example-certificate.service', check_command: 'systemctl is-active --quiet example-certificate.path' }] };
-  const live = Object.fromEntries(renderWhatItRuns(row, SITE_BLOCK).map(({ path, text }) => [path, text]));
+  const live = Object.fromEntries(renderWhatItRuns(row).map(({ path, text }) => [path, text]));
   const { run, commands } = computer(live);
   let started = false;
   const answer = await applyWhatItRuns(machine, row, async (m, command, input) => {
@@ -305,10 +293,10 @@ test('a path unit that is not active is started, with nothing written', async ()
 // A unit with `slots` runs one slot at a time: a new release is built into the other slot's own link, started there, and only
 // once it answers its boot check does the slot that ran stop (and finish what it holds); a release that never answers is
 // stopped again and the slot that ran keeps serving (plan: a deploy never drops anything).
-const slotted = { ...built, units: [{ ...built.units[0], stop_seconds: 170, health: { path: '/readyz', status: 200 }, health_listen: '127.0.0.1:7199',
+const slotted = { ...built, units: [{ ...built.units[0], stop_seconds: 170, health: { path: '/readyz', status: 200, host: 'place.example.test' }, health_listen: '127.0.0.1:7199',
   slots: { a: { 'settings.listen': '127.0.0.1:7199', health_listen: '127.0.0.1:7199' }, b: { 'settings.listen': '127.0.0.1:7198', health_listen: '127.0.0.1:7198' } } }] };
 const slotComputer = ({ active, links, answers = {} }) => {
-  const live = Object.fromEntries(renderWhatItRuns(slotted, SITE_BLOCK).map(({ path, text }) => [path, text]));
+  const live = Object.fromEntries(renderWhatItRuns(slotted).map(({ path, text }) => [path, text]));
   const base = computer(live);
   const run = async (m, command, input) => {
     const activeAsked = command.match(/^systemctl is-active --quiet '([^']+)'/);
@@ -325,16 +313,16 @@ const slotComputer = ({ active, links, answers = {} }) => {
 };
 
 test('slots render one unit each, with its own port, settings file, build link and the row\'s stop time', () => {
-  const files = renderWhatItRuns(slotted, SITE_BLOCK);
+  const files = renderWhatItRuns(slotted);
   const unit = name => files.find(file => file.path === `/etc/systemd/system/${name}`)?.text;
   assert.equal(unit('example-place.service'), undefined, 'the slotted unit itself is never a unit');
   assert.match(unit('example-place-a.service'), /^ExecStart=\/var\/lib\/example-place\/builds\/current-a\/example-engine serve \/etc\/example-place\/computer-a\.json$/m);
   assert.match(unit('example-place-b.service'), /^ExecStart=\/var\/lib\/example-place\/builds\/current-b\/example-engine serve \/etc\/example-place\/computer-b\.json$/m);
   assert.match(unit('example-place-b.service'), /^KillMode=mixed\nTimeoutStopSec=170$/m);
   assert.equal(JSON.parse(files.find(file => file.path === '/etc/example-place/computer-b.json').text).listen, '127.0.0.1:7198');
-  assert.match(renderWhatItRuns(runs, SITE_BLOCK).find(file => file.path === '/etc/systemd/system/example-place.service').text, /^TimeoutStopSec=30$/m, 'a unit with no stop time keeps the default');
-  assert.throws(() => renderWhatItRuns({ ...slotted, units: [{ ...slotted.units[0], slots: { a: {} } }] }, SITE_BLOCK), /two or more slots/);
-  assert.throws(() => renderWhatItRuns({ ...slotted, units: [{ ...slotted.units[0], slots: { a: { unit: 'x' }, b: {} } }] }, SITE_BLOCK), /not a value of the unit a slot may have/);
+  assert.match(renderWhatItRuns(runs).find(file => file.path === '/etc/systemd/system/example-place.service').text, /^TimeoutStopSec=30$/m, 'a unit with no stop time keeps the default');
+  assert.throws(() => renderWhatItRuns({ ...slotted, units: [{ ...slotted.units[0], slots: { a: {} } }] }), /two or more slots/);
+  assert.throws(() => renderWhatItRuns({ ...slotted, units: [{ ...slotted.units[0], slots: { a: { unit: 'x' }, b: {} } }] }), /not a value of the unit a slot may have/);
 });
 
 test('a new release starts in the other slot, and the slot that ran stops only once it answers', async () => {

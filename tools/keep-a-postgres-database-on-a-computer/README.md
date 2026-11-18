@@ -5,7 +5,7 @@ PostgreSQL's own files for a computer row: the server unit, its access file, and
 ## What is here
 
 - `serve-postgres.service`: the server unit (a row's unit `template`).
-- `prepare-a-database-unit.mjs`: the unit's `prepare`. It turns the unit's `reach` into the listen line, the access file, and the ports and routes they open.
+- `prepare-a-database-unit.mjs`: the unit's `prepare`. It turns the unit's `reach` into the listen line, the access file, and the ports they open.
 - `scripts/set-up-postgres-role.sh`, `scripts/back-up-postgres.sh`, `scripts/restore-a-postgres-backup.sh`: a `run-a-script` unit's `script`.
 - `test/a-database-unit.test.mjs`: these files rendered by start-a-computer from a made-up row.
 
@@ -15,7 +15,7 @@ The server unit (`tools/keep-a-postgres-database-on-a-computer/serve-postgres.se
 
 ## Who reaches it: `reach`
 
-The unit names `prepare: tools/keep-a-postgres-database-on-a-computer/prepare-a-database-unit.mjs` and `hba_file`. `reach` is a list of entries, each one way in: `for` (the tool or unit it lets in, for example `tool:run-sql-in-my-database`), `listen` (an address the server listens on), `hba` (rows in the server's own words: `type`, `database`, `user`, `address`, `method`), `credential` (the held name of the connection the caller uses), and `firewall_allow` and `routes` when it opens a port or a Caddy route. The server's `listen_addresses` is every entry's `listen` (none means no network listener), and its access file, at the unit's `hba_file`, holds every entry's `hba` rows and nothing else; a row's `settings_lines` may not set either. A database unit without `reach` keeps PostgreSQL's own defaults.
+The unit names `prepare: tools/keep-a-postgres-database-on-a-computer/prepare-a-database-unit.mjs` and `hba_file`. `reach` is a list of entries, each one way in: `for` (the tool or unit it lets in, for example `tool:run-sql-in-my-database`), `listen` (an address the server listens on), `hba` (rows in the server's own words: `type`, `database`, `user`, `address`, `method`), `credential` (the held name of the connection the caller uses), and `firewall_allow` when it opens a port. The server's `listen_addresses` is every entry's `listen` (none means no network listener), and its access file, at the unit's `hba_file`, holds every entry's `hba` rows and nothing else; a row's `settings_lines` may not set either. A database unit without `reach` keeps PostgreSQL's own defaults.
 
 ## The scripts
 

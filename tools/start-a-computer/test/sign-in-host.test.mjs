@@ -10,7 +10,7 @@ import { createHash } from 'node:crypto';
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { applyWhatItRuns, readRequest, SITE_BLOCK } from '../do-work/start-a-computer.mjs';
+import { applyWhatItRuns, readRequest } from '../do-work/start-a-computer.mjs';
 import { renderWhatItRuns } from '../do-work/render-what-a-computer-runs.mjs';
 
 const SETTINGS = JSON.parse(readFileSync(new URL('../read-data/settings.json', import.meta.url), 'utf8'));
@@ -122,11 +122,11 @@ const computer = (live, { accounts = true } = {}) => {
 };
 
 const machine = { address: '192.0.2.9', ssh: { known_hosts: '/dev/null' } };
-const runsFor = unit => ({ caddy: { site_hosts: ['place.example.test'], port: 7199, routes: ['better-auth'], pools: { auth: { listen: ['127.0.0.1:7201'], health_uri: '/readyz', health_interval: '1s', try_duration: '5s' } } }, units: [unit], unmanaged: [] });
+const runsFor = unit => ({ health_listen: '127.0.0.1:7199', health: { host: 'place.example.test' }, units: [unit], unmanaged: [] });
 
 test('the sign-in unit loads its secret sealed for the computer, by the name the row gives, and holds no value', () => {
   const unit = signInUnit('');
-  const text = renderWhatItRuns(runsFor(unit), SITE_BLOCK).find(file => file.path === '/etc/systemd/system/example-sign-in.service').text;
+  const text = renderWhatItRuns(runsFor(unit)).find(file => file.path === '/etc/systemd/system/example-sign-in.service').text;
   assert.match(text, /^LoadCredentialEncrypted=better-auth-secret:\/etc\/credstore\.encrypted\/better-auth-secret$/m);
   assert.match(text, /"\$CREDENTIALS_DIRECTORY\/better-auth-secret"/);
   assert.doesNotMatch(text, /^LoadCredential=/m);
@@ -135,7 +135,7 @@ test('the sign-in unit loads its secret sealed for the computer, by the name the
 test('a computer without the secret gets the value held under its vault name sealed by systemd-creds, never in a command line or the answer', async () => {
   const unit = signInUnit('');
   const runs = runsFor(unit);
-  const live = Object.fromEntries(renderWhatItRuns(runs, SITE_BLOCK).map(({ path, text }) => [path, text]));
+  const live = Object.fromEntries(renderWhatItRuns(runs).map(({ path, text }) => [path, text]));
   live[`${unit.node_bin}/node`] = 'node';
   const { run, commands } = computer(live);
   const answer = await applyWhatItRuns(machine, runs, run, { 'example-better-auth-secret': SECRET, 'example-store': 'made-up-store-connection' });
@@ -152,7 +152,7 @@ test('a computer without the secret gets the value held under its vault name sea
 test('a computer that already holds the sealed secret is sent nothing; one without it and no value handed is refused by vault name', async () => {
   const unit = signInUnit('');
   const runs = runsFor(unit);
-  const live = Object.fromEntries(renderWhatItRuns(runs, SITE_BLOCK).map(({ path, text }) => [path, text]));
+  const live = Object.fromEntries(renderWhatItRuns(runs).map(({ path, text }) => [path, text]));
   live[`${unit.node_bin}/node`] = 'node';
   live[unit.secret_file] = 'sealed';
   live[unit.credentials[0].file] = 'sealed';
@@ -168,7 +168,7 @@ test('a computer that already holds the sealed secret is sent nothing; one witho
 test('a computer whose sign-in unit\'s node is missing is set up again even when its accounts exist', async () => {
   const unit = signInUnit('');
   const runs = runsFor(unit);
-  const live = Object.fromEntries(renderWhatItRuns(runs, SITE_BLOCK).map(({ path, text }) => [path, text]));
+  const live = Object.fromEntries(renderWhatItRuns(runs).map(({ path, text }) => [path, text]));
   live[unit.secret_file] = 'sealed';
   live[unit.credentials[0].file] = 'sealed';
   const { run, commands } = computer(live);
@@ -261,7 +261,7 @@ test('a settings part puts any value of any file at any place in the settings, e
 test('a held credential whose handed value differs from the sealed one is sealed again, and a matching one is left', async () => {
   const unit = signInUnit('');
   const runs = runsFor(unit);
-  const live = Object.fromEntries(renderWhatItRuns(runs, SITE_BLOCK).map(({ path, text }) => [path, text]));
+  const live = Object.fromEntries(renderWhatItRuns(runs).map(({ path, text }) => [path, text]));
   live[`${unit.node_bin}/node`] = 'node';
   live[unit.secret_file] = 'sealed';
   live[unit.credentials[0].file] = 'sealed';

@@ -2,8 +2,8 @@
 //
 // PostgreSQL's own part of a computer row: a database unit's `reach` (who may reach the server, and over what) made into the
 // lines and files the server reads. start-a-computer knows no program; a unit that names this file as its `prepare` is handed
-// to `prepare` before it renders, and gets back the unit as the computer runs it, the files it reads, and the ports and Caddy
-// routes it opens (moved here from start-a-computer's render-what-a-computer-runs.mjs, Nov 18 2026, K2 of the plan that no
+// to `prepare` before it renders, and gets back the unit as the computer runs it, the files it reads, and the ports it opens
+// (moved here from start-a-computer's render-what-a-computer-runs.mjs, Nov 18 2026, K2 of the plan that no
 // general tool knows a program).
 //
 // A unit without `reach` keeps PostgreSQL's own defaults: it is handed back as it came, with no access file.
@@ -20,8 +20,7 @@ const hbaLine = (row, where) => {
 
 /** A database unit as the computer runs it: the address list it listens on (every `reach` entry's `listen`; none is no
  * network listener) and the access file at its `hba_file` (every entry's `hba` rows and nothing else, so who may connect is
- * only what the entries say), written as `settings_lines` and `files`; and the ports and Caddy routes the entries open
- * (`firewall_allow`, `routes`). */
+ * only what the entries say), written as `settings_lines` and `files`; and the ports the entries open (`firewall_allow`). */
 export function prepare(given) {
   const where = `unit ${given.unit}`;
   if (given.reach === undefined) return { unit: given };
@@ -38,6 +37,5 @@ export function prepare(given) {
       files: [...(unit.files ?? []), { path: hba_file, text: lines.map(line => `${line}\n`).join('') }],
     },
     firewall_allow: reach.flatMap(entry => entry.firewall_allow ?? []),
-    routes: reach.flatMap(entry => entry.routes ?? []),
   };
 }

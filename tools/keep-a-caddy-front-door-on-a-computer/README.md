@@ -1,0 +1,57 @@
+# Keep a Caddy front door on a computer
+
+Caddy's own part of a computer row: the site file Caddy reads, the routes and pools in it, and the pages it answers itself. start-a-computer knows no program; a computer runs this kit when its row names a Caddy unit whose `prepare` is `tools/keep-a-caddy-front-door-on-a-computer/prepare-a-caddy-site.mjs`. The kit came out of start-a-computer on Nov 18 2026 (K3 of the plan that no general tool knows a program).
+
+## A Caddy unit in a computer row
+
+```json
+{
+  "unit": "caddy.service",
+  "user": "caddy",
+  "prepare": "tools/keep-a-caddy-front-door-on-a-computer/prepare-a-caddy-site.mjs",
+  "site": { "site_hosts": ["place.example.test"], "port": 7199 }
+}
+```
+
+The unit names no `template`: Caddy's own unit file is the computer's (a package's, or the person's own, listed in the row's `unmanaged`). Its drop-ins are files the row names, like any unit's; `storage.conf` here gives Caddy an environment file (`storage_env`). `prepare` answers the unit with its `files`:
+
+- `/etc/caddy/Caddyfile`, rendered from `site`. Before it replaces the live file, the Caddy the site names (`binary`, else `caddy`) validates it, and a change is applied by `systemctl reload <unit>`, so a call in flight is never dropped.
+- Every page the request hands in (`pages_folder`), under `pages_root`. Writing a page restarts nothing.
+
+## The site
+
+A site with `site_hosts` and `port` gets one block per name (`sites/one-block-per-name.caddy`) sending to that port, with the site's `routes` first inside each block.
+
+A site that names `site_file` gets that whole file from `sites/`, each `{{field}}` filled from the site. A `{{routes}}` or `{{<name>_routes}}` slot is that list of route names (`routes/`), and a line that is only an empty routes slot is left out. Caddy's own `{placeholders}` are left as they are.
+
+`site_file: "single-name-front-door"` makes a computer the front door of one name (`door_host`) with nothing between Caddy and the engine:
+- Caddy keeps that name's certificate itself. There is no shared store, no attached names and no forwarder.
+- It answers the person's own pages from `pages_root` and every other path with 404.
+- It sends the paths in `engine_paths` to the `engine` pool, but only when `engine_routes` names `engine`.
+- `grace_period` is how long a reload lets calls in flight finish.
+- It logs one JSON line per request to the journal: the method, the address without the query, the status and the duration. Every header, client address, cookie and query value is removed, so a sign-in attempt is visible without keeping anything private.
+
+## Routes and pools
+
+The routes are `routes/*.caddy`:
+- `better-auth` sends `/api/auth/*` to the sign-in tool.
+- `better-auth-discovery` sends `/.well-known/oauth-authorization-server*`.
+- `better-auth-webauthn` sends `/.well-known/webauthn`.
+- `better-auth-home` redirects `/` to `/sign-in`.
+- `better-auth-pages` sends every address the sign-in tool's own `tools/better-auth-official/pages/routes.json` lists, so a page the tool adds is routed with no list in the row. A site that still names `auth_page_paths` is refused.
+- `engine` sends `engine_paths` to the engine.
+
+Every slot of a program is one pool: `pools: {<name>: {listen: [every slot's address], health_uri, health_interval, try_duration, lines?}}`, filled into a route as `{<name>_proxy}`. The engine route uses `engine`; the sign-in routes use `auth`.
+- Caddy sends each call to the first slot that answers its health page. A slot that is stopping answers 503 and gets no new call.
+- A refused connection is tried at the next slot for up to `try_duration`.
+- `lines` are the pool's own `reverse_proxy` lines, such as a Host header.
+
+An inner door (`inner_doors: [{listen: "127.0.0.1:<port>", pool}]`) is a loopback address Caddy holds for programs on this computer, such as the engine's call to the sign-in tool's own listener. It sends to a pool, so that caller never follows a slot switch.
+
+## Pages
+
+The pages are the caller's own data, and this kit holds none. The request hands them in as `pages_folder`. A site that names `pages_root` gets every file of that folder under `pages_root`: a text file as its text, any other file as base64 that the computer decodes, so the bytes are the same. The site file serves a GET or HEAD for any of them through Caddy's `file_server`, and a path without `.html` finds its page. A site that names `pages_root` with no pages handed in is refused.
+
+## Checks
+
+`test/a-caddy-site.test.mjs` covers the site file in both shapes, the routes, pools and inner doors, the pages and their bytes, and how each file is applied, all with synthetic sites. Run `node --test tools/keep-a-caddy-front-door-on-a-computer/test/*.test.mjs`.

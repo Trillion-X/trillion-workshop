@@ -30,8 +30,6 @@ const SETUP = fileURLToPath(new URL('./set-up-the-machine.sh', import.meta.url))
 const CAP_JOURNAL = fileURLToPath(new URL('./cap-the-journal.sh', import.meta.url));
 const BUILD = readFileSync(new URL('./build-from-source.sh', import.meta.url), 'utf8');
 const SETTINGS = JSON.parse(readFileSync(new URL('../read-data/settings.json', import.meta.url), 'utf8'));
-// Each name's Caddy site block: the wrapper the row's own routes go into.
-export const SITE_BLOCK = readFileSync(new URL('../read-data/caddy-site-block.caddy', import.meta.url), 'utf8').trimEnd();
 const q = text => `'${String(text).replace(/'/g, `'\\''`)}'`;
 const absolute = (path, what) => {
   if (typeof path !== 'string' || !isAbsolute(path)) throw Object.assign(new Error(`${what} must be an absolute path.`), { exit: 2 });
@@ -89,8 +87,8 @@ export async function runsDifferences(machine, runs, run = onMachine, deps = {})
  * name. Each unit that names `prepare` is first handed to its program's own module (`withPrepared`),
  * and the answer's `runs` is that whole list, the one the apply follows. */
 export async function runsState(machine, given, run = onMachine, { pages } = {}) {
-  const runs = withSlots(await withPrepared(given)), units = runs.units;
-  const rendered = renderWhatItRuns(runs, SITE_BLOCK, pages);
+  const runs = withSlots(await withPrepared(given, { pages })), units = runs.units;
+  const rendered = renderWhatItRuns(runs);
   const live = {};
   for (const { path, binary } of rendered) live[path] = await readIfPresent(machine, run, path, binary);
   const found = [];
@@ -211,9 +209,10 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
   const { runs, rendered, live, present, usersPresent, builds, stale, switches } = await runsState(machine, given, run, deps);
   const writes = rendered.filter(({ path, text }) => live[path] !== text);
   // A file a unit reads (its settings, access file or script) changes that unit, and each unit that names it; a unit file or
-  // drop-in changes its own unit.
+  // drop-in changes its own unit. A file that names `then` is applied by those commands instead (a site file a reload reads,
+  // a page nothing needs to read again), so it restarts nothing.
   const unitsOf = path => {
-    const readers = runs.units.filter(unit => [unit.settings_file, unit.script_file, ...(unit.files ?? []).map(file => file.path)].includes(path)).map(unit => unit.unit);
+    const readers = runs.units.filter(unit => [unit.settings_file, unit.script_file, ...(unit.files ?? []).filter(file => !file.then).map(file => file.path)].includes(path)).map(unit => unit.unit);
     return readers.length ? readers : [path.match(/\/([^/]+\.(?:service|timer|path))(?:\.d\/[^/]+)?$/)?.[1]];
   };
   const slotted = new Set(runs.units.filter(unit => unit.slot).map(unit => unit.unit));
@@ -253,13 +252,8 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
   // Set-up makes what is missing (packages, node, accounts, folders); a computer whose accounts and node all exist needs
   // none, and running it would refresh the package lists on every apply.
   const accounts = await Promise.all(runs.units.map(unit => run(machine, `getent passwd ${q(unit.user)} >/dev/null || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; })));
-  // A front door's pinned Caddy is fetched by set-up too, so a row that gains front_door on a computer that has its
-  // accounts still runs set-up once.
-  const door = runs.caddy?.front_door;
-  const doorCaddy = door ? await frontDoorCaddy(machine, run, door) : null;
-  const caddyMissing = door ? await run(machine, `printf '%s  %s\\n' ${q(doorCaddy.sha256)} ${q(doorCaddy.binary)} | sha256sum -c --status || exit 3`).then(() => false, error => { if (error.code === 3) return true; throw error; }) : false;
   // The set-up data is settings.json `machine` with the row's own `machine` fields over it (its packages, its firewall).
-  if (accounts.includes(false) || caddyMissing || nodeMissing || foldersMissing || programsMissing) await run(machine, `sh -s -- ${q(JSON.stringify(runs))} ${q(JSON.stringify(machineData))}${door ? ` ${q(`${doorCaddy.binary} ${doorCaddy.url} ${doorCaddy.sha256}`)}` : ''}`, readFileSync(SETUP));
+  if (accounts.includes(false) || nodeMissing || foldersMissing || programsMissing) await run(machine, `sh -s -- ${q(JSON.stringify(runs))} ${q(JSON.stringify(machineData))}`, readFileSync(SETUP));
   for (const unit of missing) {
     await run(machine, `install -d -m 0700 ${q(dirname(unit.secret_file))} && umask 077 && systemd-creds encrypt --name=${q(unit.secret_name)} - ${q(unit.secret_file)}`, held[unit.secret_vault_key]);
   }
@@ -283,29 +277,23 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
   for (const user of usersPresent) await run(machine, `userdel -r ${q(user)}`);
   const removed = present.length || usersPresent.length ? { removed: [...present, ...usersPresent.map(user => `user ${user}`)] } : {};
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
-  for (const { path, text, binary } of writes) {
+  for (const { path, text, binary, check } of writes) {
     if (live[path] !== undefined) await run(machine, `cp -p ${q(path)} ${q(`${path}.bak-${stamp}`)}`);
-    if (path === CADDYFILE) {
-      await run(machine, `install -m 0644 -o root -g root /dev/stdin ${q(`${path}.new`)}`, text);
-      // A front door's site file names its shared storage through the environment file only the door's Caddy reads.
-      // The Caddy that validates is the one the computer runs: the pinned front door's, or the caddy row's `binary`, with
-      // the storage environment its site file reads (`storage_env`) when the row names one.
-      const storageEnv = door?.storage_env ?? runs.caddy?.storage_env;
-      const binary = door ? q(doorCaddy.binary) : runs.caddy?.binary ? q(runs.caddy.binary) : 'caddy';
-      const validate = storageEnv ? `set -a && . ${q(storageEnv)} && set +a && ${binary}` : binary;
-      await run(machine, `${validate} validate --config ${q(`${path}.new`)} --adapter caddyfile >/dev/null && mv ${q(`${path}.new`)} ${q(path)}`);
-    } else {
-      await run(machine, `install -d -m 0755 ${q(dirname(path))} && ${binary ? 'base64 -d | ' : ''}install -m 0644 -o root -g root /dev/stdin ${q(path)}`, text);
-    }
+    const write = `install -d -m 0755 ${q(dirname(path))} && ${binary ? 'base64 -d | ' : ''}install -m 0644 -o root -g root /dev/stdin`;
+    // A file that names `check` (an argv, `{file}` the new text's path) is written beside the live one and replaces it only
+    // once that command passes: a site file its own server validates, so a bad one never reaches the running program.
+    if (check) await run(machine, `${write} ${q(`${path}.new`)} && ${check.map(word => q(word.replaceAll('{file}', `${path}.new`))).join(' ')} >/dev/null && mv ${q(`${path}.new`)} ${q(path)}`, text);
+    else await run(machine, `${write} ${q(path)}`, text);
   }
-  // A file that names commands to run once it changed (`then`: the meeting point's user and its ssh server's reload) runs them,
-  // each once, in order.
-  const thens = [...new Map(writes.flatMap(({ then }) => then ?? []).map(argv => [JSON.stringify(argv), argv])).values()];
-  for (const argv of thens) await run(machine, argv.map(q).join(' '));
   const builtUnits = [...builds.map(({ unit }) => unit.unit), ...stale.map(unit => unit.unit)];
   const units = [...new Set([...writes.flatMap(({ path }) => unitsOf(path)), ...missing.map(unit => unit.unit), ...triggersOff, ...builtUnits].filter(Boolean))]
     .filter(unit => !slotted.has(unit));
-  const running = new Set([...writes.filter(({ path }) => live[path] !== undefined).flatMap(({ path }) => unitsOf(path)),
+  // A unit whose file or drop-in was there before is restarted. A new drop-in changes how a running unit starts, so it restarts
+  // it too, unless the unit's own file is new as well: a new unit is enabled and started.
+  // (A unit with no template is the computer's own, so it was there.)
+  const unitFile = path => path.match(/^(.+)\.d\/[^/]+$/)?.[1];
+  const startedBefore = path => live[path] !== undefined || !rendered.some(file => file.path === path);
+  const running = new Set([...writes.filter(({ path }) => live[path] !== undefined || (unitFile(path) && startedBefore(unitFile(path)))).flatMap(({ path }) => unitsOf(path)),
     ...[...missing.map(unit => unit.unit), ...builtUnits].filter(name => live[`/etc/systemd/system/${name}`] !== undefined)]);
   if (units.length || switching.length) await run(machine, 'systemctl daemon-reload');
   // The boot check: each restarted unit must answer its own health row (`health`, `health_listen`, and the Host its request
@@ -316,11 +304,12 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
     // A unit that is not an HTTP server names the command that tells it is well (`check_command`, run on the computer, exit 0).
     if (row.check_command) return commandPasses(machine, row.check_command, { run, wait: deps.wait ?? pause, tries: 12 }, `${unit}'s check_command`);
     const health = healthOf(row.health ?? runs.health);
-    const listen = row.health_listen ?? runs.health_listen ?? runs.caddy?.listen ?? `127.0.0.1:${runs.caddy?.port}`;
+    const listen = row.health_listen ?? runs.health_listen;
+    if (!listen) throw refused(`${unit} restarted, and neither it nor its computer's row names health_listen: the address its boot check asks.`);
     // A unit whose first start is long (a slot fetching and installing its own copy) names how long its health may take to
     // answer (`health.wait_seconds`); it is asked every 5 s.
     const tries = Math.max(1, Math.ceil((health.wait_seconds ?? 60) / 5));
-    const status = await healthStatus(machine, { listen }, health.host ?? runs.caddy?.site_hosts?.[0] ?? '', { ...health, where: 'machine' }, { fetchImpl: undefined, wait: deps.wait ?? pause, tries, run });
+    const status = await healthStatus(machine, { listen }, health.host ?? '', { ...health, where: 'machine' }, { fetchImpl: undefined, wait: deps.wait ?? pause, tries, run });
     if (status !== health.status) throw Object.assign(new Error(`${unit} answered ${status ?? 'nothing'} on ${health.path}, not ${health.status}, after its restart.`), { unit, status });
   };
   // A switch starts the other slot, and only once it answers its boot check is it the one that starts with the computer and is
@@ -340,27 +329,18 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
     for (const unit of stopped) await run(machine, `systemctl disable --now ${q(unit.unit)} >/dev/null 2>&1`);
     switched.push({ to: target.unit, from: group.active.filter(unit => unit !== target).map(unit => unit.unit) });
   }
-  // Caddy is restarted, never only enabled, when its front-door drop-in changes: the drop-in swaps the program itself.
   for (const unit of units) {
-    await run(machine, running.has(unit) || unit === 'caddy.service' ? `systemctl restart ${q(unit)}` : `systemctl enable --now ${q(unit)} >/dev/null 2>&1`);
+    await run(machine, running.has(unit) ? `systemctl restart ${q(unit)}` : `systemctl enable --now ${q(unit)} >/dev/null 2>&1`);
   }
-  if (writes.some(({ path }) => path === CADDYFILE) && !units.includes('caddy.service')) await run(machine, 'systemctl reload caddy');
+  // A file that names commands to run once it changed (`then`: a server's reload of its site file, the meeting point's user
+  // and its ssh server's reload) runs them, each once, in order, once every unit it may send to has started.
+  const thens = [...new Map(writes.flatMap(({ then }) => then ?? []).map(argv => [JSON.stringify(argv), argv])).values()];
+  for (const argv of thens) await run(machine, argv.map(q).join(' '));
   for (const unit of units) {
     await bootCheck(unit);
     booted.push(unit);
   }
   return { written: writes.map(({ path }) => path), restarted: units, booted, ...(switched.length ? { switched } : {}), ...(missing.length ? { sealed: missing.map(unit => unit.secret_name) } : {}), ...(built.length ? { built } : {}), ...removed };
-}
-
-const CADDYFILE = '/etc/caddy/Caddyfile';
-
-/** The pinned front-door Caddy for this machine's architecture: { binary, url, sha256 }, all from the computer row's
- * `front_door` (`binary`, and `binary_files`: architecture to { url, sha256 }), so this tool names no host. */
-async function frontDoorCaddy(machine, run, door) {
-  const arch = (await run(machine, 'uname -m')).trim();
-  const file = door.binary_files?.[arch];
-  if (!file?.url || !file.sha256) throw refused(`The computer row's caddy.front_door gives no binary_files for ${arch}: the address and SHA-256 of the pinned Caddy.`);
-  return { binary: door.binary, ...file };
 }
 
 const refused = message => Object.assign(new Error(message), { exit: 2 });
@@ -483,15 +463,14 @@ export async function removeAComputer(leaseFile, { machineToken, nameToken, fetc
 }
 
 /** What the computer runs: `request.computer_row` is the computer's own row (a `record:computer`: its address, name and
- * `runs`, the units, any Caddy and set-up it runs), handed in with the request; this tool reads no store for it. A computer
- * that serves no web pages (a database computer) names no `caddy`, and no Caddy file is written for it. */
+ * `runs`, the units and set-up it runs), handed in with the request; this tool reads no store for it. */
 export function runsOf(request) {
   const runs = request.computer_row?.runs;
   if (!runs || typeof runs !== 'object' || !Array.isArray(runs.units)) throw refused('computer_row is the computer\'s own row: its `runs` names the units the computer runs.');
   return runs;
 }
 
-/** The pages a front door answers itself, handed in as `pages_folder` (the person's own folder, resolved against the request
+/** The pages a web server answers itself, handed in as `pages_folder` (the person's own folder, resolved against the request
  * file): every file of it, as { name, bytes }; undefined when the request names none. */
 export function readPages(request) {
   if (request.pages_folder === undefined) return undefined;
@@ -593,7 +572,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     }
     if (operation === 'apply' || operation === 'differences') {
       if (!first || second) throw Object.assign(new Error(usage), { exit: 2 });
-      const request = json(first), runs = await withPrepared(runsOf(request));
+      const request = json(first), runs = await withPrepared(runsOf(request), { pages: readPages(request) });
       const held = operation === 'apply' && runs.units.some(needsHeld) ? heldValues(await pipe(5)) : {};
       const answer = operation === 'apply' ? await applyAComputerRow(request, { held }) : await computerRowDifferences(request);
       process.stdout.write(`${JSON.stringify(answer)}\n`);
@@ -603,7 +582,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const asked = ['price', 'rent', 'start'].includes(operation), lease = asked ? null : await readLease(fileStore(resolvePath(first)));
     const needsName = ['rent', 'start'].includes(operation) ? Boolean(json(first).name?.provider) : operation === 'remove' && Boolean(lease.recordId);
     const needsMachine = operation !== 'unit' && Boolean(readProvider(asked ? json(first).machine.provider : lease.providerFile).base);
-    const startRuns = operation === 'start' ? await withPrepared(runsOf(json(first))) : null;
+    const startRuns = operation === 'start' ? await withPrepared(runsOf(json(first)), { pages: readPages(json(first)) }) : null;
     const tokens = { machineToken: needsMachine ? await pipe(3) : '', nameToken: needsName ? await pipe(4) : '', held: (startRuns?.units ?? []).some(needsHeld) ? heldValues(await pipe(5)) : {} };
     const answer = operation === 'price' ? await priceOfAComputer(json(first), tokens)
       : operation === 'rent' ? await rentAMachine(json(first), tokens).then(({ lease, host_name, arch, price, line, terms_url }) => ({ lease, host_name, arch, price, terms_url, ...(line && { line }) }))
