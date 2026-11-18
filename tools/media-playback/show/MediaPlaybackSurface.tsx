@@ -11,7 +11,7 @@ import { captionReaderLook, captionShellClass, captionToolbarClass, timedPassage
 import { timedTextSegmentLookup } from '../read-data/timed-text-index';
 import { transcriptSegmentsForSpeaker, transcriptSpeakers } from '../../transcript-reader/read-data/read-transcript-records';
 import { readOrMakePreview, type MadePreviewStore } from '../../ui/show/media-preview';
-import { MediaFrame } from './MediaFrame';
+import { MediaFrame } from '../../show-any-file-as-itself/show/MediaFrame';
 import { controlShown } from '../../ui/show/show-rules/show-of';
 
 // The browser's own picture in picture for a playing video or an embedded player is the same control a pane floating
@@ -21,9 +21,9 @@ const EMBED_ALLOWS = ['accelerometer', 'autoplay', 'clipboard-write', 'encrypted
 const embedAllows = () => EMBED_ALLOWS.filter(allow => allow !== 'picture-in-picture' || controlShown(PICTURE_IN_PICTURE_CONTROL)).join('; ');
 import { PlaybackControls } from './PlaybackControls';
 import { hostWithin } from 'trillion-workshop/tools/http-client/do-work/same-origin.mjs';
-import type { MediaEmbedControl, MediaSourceRecord } from '../read-data/read-media-playback';
-import { privateObjectControl, privateObjectView } from '../read-data/private-object-request';
-import type { PrivateObjectCopy, PrivateObjectReply } from '../read-data/private-object-request';
+import type { MediaEmbedControl, MediaSourceRecord } from '../../show-any-file-as-itself/read-data/read-media-playback';
+import { privateObjectControl, privateObjectView } from '../../show-any-file-as-itself/read-data/private-object-request';
+import type { PrivateObjectCopy, PrivateObjectReply } from '../../show-any-file-as-itself/read-data/private-object-request';
 
 /** The one play mark every player in Trillion draws over a still or a paused picture: a frosted dark disc with a white
  *  glyph (the icon's own box is the disc), drawn the same for a browser video, an embedded one and a paused one. */

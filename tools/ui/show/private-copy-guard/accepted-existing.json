@@ -54,7 +54,7 @@
     "count": 1
   },
   {
-    "path": "tools/media-playback/show/MediaFrame.tsx",
+    "path": "tools/show-any-file-as-itself/show/MediaFrame.tsx",
     "kind": "button",
     "line": "<button",
     "count": 1

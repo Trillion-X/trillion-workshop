@@ -9,7 +9,7 @@
 //   2. Each file is measured once per editor, however many clips play it.
 
 import React from 'react';
-import { measureMediaLength } from '../../../../../media-playback/read-data/measure-media-length';
+import { measureMediaLength } from '../../../../../show-any-file-as-itself/read-data/measure-media-length';
 import { fileResults } from '../api';
 import type { MediaEditClip } from './panel-types';
 

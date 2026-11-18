@@ -8,7 +8,7 @@ import { PlaybackCompletion as PlaybackCompletionOverlay } from '../../ui/show/p
 import { Dropdown } from '../../ui/show/dropdown';
 import { widestTextWidth } from '../../ui/read-data/widest-text';
 import { captionReaderLook, captionShellClass, captionToolbarClass, timedPassageClass, timedWordClass, type TimedWordLook } from '../../screen-look/show/timed-text-style';
-import { timedTextSegmentLookup } from '../read-data/timed-text-index';
+import { timedTextSegmentLookup } from '../../media-playback/read-data/timed-text-index';
 import { transcriptSegmentsForSpeaker, transcriptSpeakers } from '../../transcript-reader/read-data/read-transcript-records';
 import { readOrMakePreview, type MadePreviewStore } from '../../ui/show/media-preview';
 import { MediaFrame } from './MediaFrame';

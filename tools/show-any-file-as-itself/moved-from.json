@@ -32,15 +32,6 @@
       "found_by": "same bytes"
     },
     {
-      "from": "parts/media-playback/read-data/timed-text-index.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/show-any-file-as-itself/read-data/timed-text-index.ts",
-      "source_identity": "1f:2cbacbb6cae5e2794f77a82005ad23aafea71f97db4f71ccaeeb574593460f19",
-      "identity": "1f:2cbacbb6cae5e2794f77a82005ad23aafea71f97db4f71ccaeeb574593460f19",
-      "found_by": "same bytes"
-    },
-    {
       "from": "parts/file-content-renderer/show/CodeRenderer.tsx",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",

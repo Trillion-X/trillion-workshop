@@ -14,7 +14,7 @@ import {
 import {AnimatePresence} from 'framer-motion';
 import { motion } from 'trillion-workshop/tools/ui/motion/lazy-motion.tsx';
 import * as Popover from '@radix-ui/react-popover';
-import { classNames } from './class-names';
+import { classNames } from '../../show-any-file-as-itself/show/class-names';
 
 const SPEED_OPTIONS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4];
 

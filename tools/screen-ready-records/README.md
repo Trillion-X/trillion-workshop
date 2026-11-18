@@ -19,4 +19,4 @@ Reads the rows a screen is handed into a plain list, brought from bitfield-packa
 
 **Depends on:** nothing.
 
-**Depended on by:** `../media-playback/read-data/read-media-playback.ts`.
+**Depended on by:** `tools/show-any-file-as-itself/read-data/read-media-playback.ts`.
