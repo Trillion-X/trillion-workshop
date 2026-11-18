@@ -1,0 +1,190 @@
+{
+  "about": "workflow:read-a-saved-record-and-show-its-value-the-same: shows one saved record's latest value and facts from the person's own store and refuses what the store cannot give as one value. It replaces tools/read-a-saved-record-and-show-its-value-the-same, whose whole job was one bounded read of a saved value (rule a-tool-is-only-what-the-store-cannot-do).",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:read-a-saved-record-and-show-its-value-the-same",
+        "label": "Read a saved record and show its value the same way everywhere",
+        "job": "Show one saved record's latest value, its facts (each field path with its value and kind) and when it was saved, from the person's own store, without changing, indexing or running anything. Refuse, with the reason and no value, what the store cannot give as one value: an unknown record, a value over the byte, depth, node or field limits, text that is not one JSON object or list, earlier versions, a fifth different record in one inspection, or a record id with a line break.",
+        "produces": "The latest value and its facts as read from the store, or a refusal that names its reason; proven on the example values in three kinds of store (PostgreSQL, a markdown folder and a JSON file) with the same answers in each.",
+        "source": "tools/read-a-saved-record-and-show-its-value-the-same (src/native-record-inspection.mjs, moved from the old tree at b6ae0ebf8, read on the Workshop origin main). Its limits are the existing DATA of tools/keep-and-wake-ai-sessions-on-this-computer/src/record-model.json native_inspection.limits (value 1,500,000 bytes, 4 owner reads, 20,000 nodes, 2,000 facts, depth 64, 500 reference characters). Its fact projection is factsOf in tools/record-log/do-work/record-model.mjs, which the store reading does not replace.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store",
+            "records"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language",
+                "credential_name"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these records: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The name in the person's vault under which the store's login is kept"
+                }
+              }
+            },
+            "records": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "The record ids to show, in order"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the values are kept (kept_in, or null) and the names of the objects that keep them.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "read",
+            "title": "Show each record's latest value and facts",
+            "do": "For each record id in records, in order, read the store's one latest version of that record: its value, when it was saved and its sequence number. Refuse, with the reason and no value, when the id is not text of at most 500 characters with no line break or NUL; the store has no version of it; the stored text is larger than 1,500,000 bytes; the stored text is not one JSON object or list; the value nests deeper than 64 levels or has more than 20,000 nodes; it has more than 2,000 facts; or it is the fifth different record in this inspection (at most four reads). Show the facts: one per field path (a list of objects is walked by position, such as parts.0.x), each with its path, its value and its kind (text, number, true or false, null, or list). Earlier versions are never shown here. Submit shown (one entry per record that passed, with record, seq, at, bytes and facts) and refused (the record and the reason).",
+            "submit": {
+              "type": "object",
+              "required": [
+                "shown",
+                "refused"
+              ],
+              "properties": {
+                "shown": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "refused": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the reads on the example values",
+            "do": "In a throwaway place in the same store, with the same objects, save these example values: decision:d1 with two versions (the second saved at 2026-11-11T10:00:00Z: title \"Pay the vendor\", cost 150, done true, tags an empty list); message:m1 with note null and parts [{\"x\":1},{\"x\":2}]; bad:j1 as text that is not JSON; big:b1 as a JSON text over 1,500,000 bytes; deep:z1 as an object nested 70 levels. Then run these nine attempts in order and submit each outcome: shown when every record in the attempt passed, refused otherwise. Attempts: 1 read decision:d1; 2 read message:m1; 3 ask for an earlier version of decision:d1; 4 read decision:none; 5 read bad:j1; 6 read big:b1; 7 read deep:z1; 8 read the id \"decision:d1\" followed by a line break; 9 read five different records (decision:d1, message:m1, bad:j1, big:b1, deep:z1). Submit outcomes (one per attempt) and answer: the seq and fact count of decision:d1 and message:m1 with the parts 0 and 1 x values, and the refusal reasons that were given.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answer"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "answer": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each attempt is shown or refused as the intent says",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "shown",
+                    "shown",
+                    "refused",
+                    "refused",
+                    "refused",
+                    "refused",
+                    "refused",
+                    "refused",
+                    "refused"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "The store's own answers give every expected value and refusal reason",
+                "path": [
+                  "this",
+                  "answer"
+                ],
+                "values": [
+                  {
+                    "decision:d1": {
+                      "seq": 2,
+                      "at": "2026-11-11T10:00:00Z",
+                      "facts": 4,
+                      "cost": 150
+                    },
+                    "message:m1": {
+                      "seq": 3,
+                      "at": "2026-11-12T10:00:00Z",
+                      "facts": 3,
+                      "parts_0_x": 1,
+                      "parts_1_x": 2
+                    },
+                    "refusals": [
+                      "this owner does not expose earlier versions here",
+                      "not available from its owner",
+                      "cannot be represented as record facts",
+                      "larger than the inspection byte limit",
+                      "deeper than the inspection depth limit",
+                      "not a record id",
+                      "more owner reads than this inspection permits"
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "erase": "Nothing is kept by this recipe, so there is nothing to erase; the example values in the throwaway place are removed with that place."
+      }
+    }
+  ]
+}
