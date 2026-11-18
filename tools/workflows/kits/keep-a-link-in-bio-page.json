@@ -1,0 +1,63 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:keep-a-link-in-bio-page with store {\\\"where\\\": \\\"postgresql database example_shop on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-shop-postgres-connection\\\"} and changes [{\\\"on\\\": true, \\\"title\\\": \\\"Example shop\\\", \\\"links\\\": [{\\\"link_id\\\": \\\"shop\\\", \\\"label\\\": \\\"Shop\\\", \\\"url\\\": \\\"https://example.com/shop\\\"}]}].\"",
+  "lists": [],
+  "no_lists_because": "It names no list: the page and its counts are kept in the person's own store, in whatever form that store keeps things, and store says where and in which language.",
+  "workflows": [
+    "workflow:keep-a-link-in-bio-page"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:keep-a-link-in-bio-page\" with store, and the changes, visits and opens to keep.",
+    "3. The first run makes the store's own objects once and proves them on the example attempts: every attempt must give the outcome the intent says, or the run stops and says which.",
+    "4. Every later run keeps the changes and counts through those objects; a visit to a page that is off, or an open of a link the page does not list, is refused with the store's own words, and turning the page back on keeps its code."
+  ],
+  "worked_examples": [
+    {
+      "title": "The page turned on, with one link, then a visit from Instagram counted",
+      "ask": "Turn my link page on with my shop link, and count a visit from Instagram.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-a-link-in-bio-page",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "changes": [
+                {
+                  "on": true,
+                  "title": "Example shop",
+                  "links": [
+                    {
+                      "link_id": "shop",
+                      "label": "Shop",
+                      "url": "https://example.com/shop"
+                    }
+                  ]
+                }
+              ],
+              "visits": [
+                {
+                  "place": "instagram"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-a-link-in-bio-page",
+      "step": "keep",
+      "given": "The look step found the page kept in the tables link_page, link_page_counts and link_page_totals, made by an earlier run.",
+      "hands_back": "kept_ids [\"shop\"], refused [] and found_ids [\"shop\"]; the page reads on with its code, and the visit reads once under instagram."
+    }
+  ]
+}

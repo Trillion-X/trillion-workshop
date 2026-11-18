@@ -1,0 +1,242 @@
+{
+  "about": "workflow:keep-a-link-in-bio-page: keep a person's link-in-bio page as one record in their own store (on or off, title, about, its links, its code) and count its visits and opens by place and by item, per day and in total, from the store's own rows, keys and checks. It replaces the record and count half of tools/keep-a-link-in-bio-page/read-data/link-page.mjs, whose whole job was keeping the page and its counts in the retired record store and a per-owner SQL table (rule a-tool-is-only-what-the-store-cannot-do). Serving the public address, redirecting an open to its link, the public code lookup and the unique name claim stay with the tool, because they reach outside the store or hold exact authority.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-a-link-in-bio-page",
+        "label": "Keep a link in bio page",
+        "job": "Keep a person's link-in-bio page as one record in their own store (on or off, title, about, links, code), count each visit and each open by place and item per day and in total, and read the page with its counts, from the store's own objects.",
+        "produces": "The store's own objects for the page and its counts, proven on the example attempts, and each change, visit and open kept, refused or counted and read back.",
+        "source": {
+          "from": "the owner, 2026-11-18 about 10:57 and 11:01 AM CST: a tool whose whole job is keeping records is a shortcut of what an AI does anyway",
+          "note": "No tool keeps the page or its counts: the run speaks to the person's store in its own language, and the store's own keys, checks and totals hold the rules the intent below states. Serving the page to a visitor, sending an open on to its link, the public code that finds the store, and the unique name claim are not in this recipe: they reach outside the store or hold exact authority, and stay with the tool."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                },
+                "place": {
+                  "type": "string",
+                  "description": "Where in the store the page is kept, when it already is"
+                }
+              }
+            },
+            "changes": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Changes to the page this run: on, title, about, links, add_link or remove_link, as the intent below describes"
+            },
+            "visits": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Visits to count this run: the place each came from"
+            },
+            "opens": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Opens to count this run: the item opened and the place it came from"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where a link page is already kept (kept_in, or null) and the names of the objects that already keep and show it.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing, make the store's own objects in its own form, so that the store itself refuses what the intent refuses wherever it can (keys, checks), with a total for each thing counted that is moved by the same write as its day's count. Grant only what the store's holder allows the person's login. Page, kept once per person: on (true or false, false when none is given), title and about (optional, up to 300 and 2000 characters), links (each with link_id, label up to 80 characters and url, a full https address up to 2000 characters, the link_id unique and up to 120 characters of letters, digits, colon, underscore or dash; at most 20 links), code (20 lowercase hex characters, made the first time the page is turned on and kept from then on, even while off), and the time it is kept. Visit, counted per day: what (view), item (empty), place and day. Open, counted per day: what (open), item (a link_id the page lists, or a post's id), place and day. A place is a plain word of lowercase letters, digits, dash or underscore up to 40 characters; any other place is kept as the page's unknown place. Keeping a change: a change makes the page, its links and title as the change says, and refuses a link without a label or without a full https address, two links with the same link_id, more than 20 links, a remove of a link the page does not hold, and a list of links that is not a list. Turning on makes the code, and an earlier code is reused. A change never rewrites a count. Keeping a visit: a visit to a page that is off is refused, since nothing is shown and nothing is counted. Keeping an open: an open of an item the page does not list is refused, and an open of a listed item counts once, from its place, and never changes the page. Reading: the page with its code, its links, its title and about, the visits and opens in total and in the recent days, the opens by item, and the visits and opens by place.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example attempts",
+            "do": "In a throwaway place in the same store, with the same objects, keep these attempts in order, each through the store's own objects, each at the time given: [{\"at\": \"2026-11-03T09:00:00Z\", \"change\": {\"on\": true, \"title\": \"Example shop\", \"links\": [{\"link_id\": \"shop\", \"label\": \"Shop\", \"url\": \"https://example.com/shop\"}]}}, {\"at\": \"2026-11-03T09:05:00Z\", \"change\": {\"add_link\": {\"link_id\": \"blog\", \"label\": \"Blog\", \"url\": \"https://example.com/blog\"}}}, {\"at\": \"2026-11-03T09:06:00Z\", \"change\": {\"add_link\": {\"label\": \"Old\", \"url\": \"http://example.com/old\"}}}, {\"at\": \"2026-11-03T09:10:00Z\", \"visit\": {\"place\": \"instagram\"}}, {\"at\": \"2026-11-03T09:11:00Z\", \"visit\": {\"place\": \"BAD PLACE!\"}}, {\"at\": \"2026-11-03T09:12:00Z\", \"open\": {\"item\": \"shop\", \"place\": \"instagram\"}}, {\"at\": \"2026-11-03T09:13:00Z\", \"open\": {\"item\": \"nope\", \"place\": \"instagram\"}}, {\"at\": \"2026-11-03T09:20:00Z\", \"change\": {\"remove_link\": \"blog\"}}, {\"at\": \"2026-11-03T09:30:00Z\", \"change\": {\"on\": false}}, {\"at\": \"2026-11-03T09:31:00Z\", \"visit\": {\"place\": \"instagram\"}}, {\"at\": \"2026-11-03T09:40:00Z\", \"change\": {\"on\": true}}]. Each attempt must give the outcome the intent gives, and the store's own objects must give every expected answer below.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answer"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "answer": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each change, visit and open is kept or refused as the intent says",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "kept",
+                    "kept",
+                    "refused",
+                    "kept",
+                    "kept",
+                    "kept",
+                    "refused",
+                    "kept",
+                    "kept",
+                    "refused",
+                    "kept"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "The store's own objects give every expected answer",
+                "path": [
+                  "this",
+                  "answer"
+                ],
+                "values": [
+                  {
+                    "on": true,
+                    "code_kept_from_first_on": true,
+                    "links": [
+                      "shop"
+                    ],
+                    "visits": 2,
+                    "visits_by_place": {
+                      "instagram": 1,
+                      "unknown": 1
+                    },
+                    "opens": 1,
+                    "opens_by_item": {
+                      "shop": 1
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's changes, visits and opens",
+            "do": "Keep each item of changes in order, then each item of visits, then each item of opens, through the store's own objects, and read the page back. Submit kept_ids (the link_id of each link a change added and kept, in order), refused (each refused item's list and position, and the store's own words for why) and found_ids (the link_ids the page reads back). With nothing given, submit three empty lists.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_ids",
+                "refused",
+                "found_ids"
+              ],
+              "properties": {
+                "kept_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "refused": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "found_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "subset-of",
+                "says": "Every link kept on the page is read back",
+                "path": [
+                  "this",
+                  "kept_ids"
+                ],
+                "of": [
+                  "this",
+                  "found_ids"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
