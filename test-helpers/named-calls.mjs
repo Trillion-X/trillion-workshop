@@ -26,7 +26,8 @@ import { fileURLToPath } from 'node:url';
 const DOOR_CALLS = 'tools/tell-ais-how-to-act/door-calls.json';
 // A door call is a family:verb (or family.verb) written where a call is: a `method` or `operation` field, a right's
 // `operations`, right after an address, or in words ("call X", "with X", "X at @address"). A row id (`record:x:y`), a
-// file name or a tool or workflow id is never one.
+// file name or a tool or workflow id is never one. In words a dotted name is a call only in a family the door names
+// (sharing.keep), since a field path (`with note.by`) is written the same way.
 const OP = String.raw`((?!tool:|workflow:)[a-z][a-z-]*[:.][a-z][a-z_-]*)(?![\w:.-])`;
 const CALLS = [
   new RegExp(String.raw`\\?"(?:method|operation)\\?"\s*:\s*\\?"` + OP, 'g'),
@@ -34,6 +35,7 @@ const CALLS = [
   new RegExp(String.raw`\b(?:call|calls|calling|with|use|uses|using|through|via)\s+` + OP, 'g'),
   new RegExp(OP + String.raw`\s+(?:at|on)\s+@`, 'g'),
 ];
+const IN_WORDS = CALLS[2];
 const ADDRESSED = /(?:"address"\s*:\s*"|\bat\s+|\baddress\s+)@([a-z][a-z0-9-]*)/g;
 const TOOL = /(?<![\w-])tool:([a-z0-9][a-z0-9:_.-]*[a-z0-9])/g;
 const FLOW = /(?<![\w-])workflow:([a-z0-9][a-z0-9-]*[a-z0-9])/g;
@@ -97,13 +99,17 @@ export function namedCallFindings({ repo, ref = 'HEAD' } = {}) {
   }
   const addresses = new Set(door.map(([address]) => address));
   const answers = method => door.some(([, named]) => named === method);
+  const families = new Set(door.map(([, named]) => named.split(/[:.]/)[0]));
   const found = {};
   for (const [path, text] of Object.entries(texts)) {
     const dead = [];
     for (const [, address] of text.matchAll(ADDRESSED)) if (!addresses.has(`@${address}`)) dead.push(`@${address}`);
     // One written call is counted once, whichever ways of writing it find it.
     const at = new Map();
-    for (const pattern of CALLS) for (const match of text.matchAll(pattern)) at.set(match.index + match[0].indexOf(match[1]), match[1]);
+    for (const pattern of CALLS) for (const match of text.matchAll(pattern)) {
+      if (pattern === IN_WORDS && !match[1].includes(':') && !families.has(match[1].split('.')[0])) continue;
+      at.set(match.index + match[0].indexOf(match[1]), match[1]);
+    }
     for (const method of at.values()) if (!answers(method)) dead.push(method);
     // A run's rights ask the engine's door: each operation a row's invoke.records.rights names that the door does not list.
     for (const row of rowsIn(parsed(text))) for (const right of row.invoke.records.rights ?? []) if (!offered(right)) for (const method of right.operations ?? []) dead.push(method);
