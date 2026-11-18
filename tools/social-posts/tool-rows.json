@@ -3919,22 +3919,6 @@
             "id": "at-its-time",
             "on": {
               "fact": {
-                "kind": "row-changes",
-                "from": ["run"],
-                "match": {
-                  "table_name": "post"
-                }
-              }
-            },
-            "budget": {
-              "steps": 33,
-              "wall_ms": 3960000
-            }
-          },
-          {
-            "id": "at-its-time-something-changed",
-            "on": {
-              "fact": {
                 "kind": "something-changed",
                 "from": ["run"],
                 "match": {

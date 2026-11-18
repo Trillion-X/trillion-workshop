@@ -22,24 +22,6 @@
             "id": "a-row-changed",
             "on": {
               "fact": {
-                "kind": "row-changes",
-                "from": [
-                  "run"
-                ]
-              }
-            },
-            "budget": {
-              "steps": 4,
-              "wall_ms": 300000
-            },
-            "input": {
-              "start_at": "choose"
-            }
-          },
-          {
-            "id": "a-row-changed-something-changed",
-            "on": {
-              "fact": {
                 "kind": "something-changed",
                 "from": [
                   "run"
