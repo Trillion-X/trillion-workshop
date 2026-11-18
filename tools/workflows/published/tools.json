@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:e7eaaad1496d045dfd05f2574f6778b6b26ffb9a61ce5e6c4bc639b1144d0d13"
+  "blake3": "1f:230fa905e5583ea4a49e21e2b89eba8cbb8cb5399f75b8c8f268b46909b72cfa"
  },
  "fields": [
   {
@@ -2496,25 +2496,6 @@
    }
   },
   {
-   "id": "tool:choose-which-ai-answers-me",
-   "values": {
-    "title": "Choose which AI answers me",
-    "job": "Make the request that sets which AI answers a person, or sends them back to automatic routing, as the selected-agent part sends it to the workflow slot, without sending it",
-    "description": "Give agent_id: the AI that should answer the person, or \"\" to go back to automatic routing (and, rarely, definition_id: the workflow definition that keeps the choice, action:update-selected-agent when left out). Runs do-work/set-selected-agent.ts's own setSelectedAgent with the workspace's sender stood in (run/requests-kept-here.mjs), and answers the one request it would send: { target: slot::workflow, payload: { operation: execute_definition, include_output: false, definition_id, input: { value: agent_id } } }, and automatic (whether it restores automatic routing). It sends nothing and changes no one's choice: the request is for a sender, or a person, to look at first. Refuses an agent_id that is not text and a definition_id that is not an action id. The chat screen sends the request and keeps the choice as the person's owner fact; this run does neither.",
-    "status": "active",
-    "maker": "maker:selected-agent",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "listed_on": "2026-11-04T00:00:00Z",
-    "folder": "selected-agent",
-    "flags": [
-     "read-only"
-    ]
-   }
-  },
-  {
    "id": "tool:cite-principles-from-captions",
    "values": {
     "title": "Keep principles from captioned videos, each backed by a quote checked word for word (runs on your computer)",
@@ -3065,21 +3046,6 @@
     "flags": [
      "read-only"
     ]
-   }
-  },
-  {
-   "id": "tool:deliver-to-list",
-   "values": {
-    "title": "Write a message as a row of a list",
-    "job": "Write a message (to, subject, text, kind) as one row of a list in my records, with the row's id set to an idempotency key, so a send again writes the same row",
-    "description": "Reads one JSON object from standard input: config (the door config file), row_type, to, subject, text, kind and idempotencyKey. Writes one row whose id is the idempotency key and whose type is record:<row_type>, through the person's door. Answers the message id the engine's delivery reads, or the refusal's words; a write that may have happened answers unknown.",
-    "status": "active",
-    "maker": "maker:deliver-to-list",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "deliver-to-list"
    }
   },
   {
@@ -5361,22 +5327,6 @@
    }
   },
   {
-   "id": "tool:keep-by-its-rule",
-   "values": {
-    "title": "Apply one of my keep rules",
-    "job": "Ask my engine to apply one of my keep rules now: it destroys, restorable for the undo window, the records of one kind that the rule's row says have expired; my own schedule says when",
-    "description": "A keep rule is a row of mine (record:keep-rule): which kind of record, when a record of it has expired (the formula engine's rule tree over the record's own values and its age), and how many records one firing may destroy and look at. A wake declaration of mine names this tool with {rule} (the row's id) and its own schedule; the run hands the engine the rule, and the engine reads the row, decides each record with the formula engine and destroys through its restorable erasure. This tool counts no time and removes nothing itself.",
-    "status": "active",
-    "maker": "maker:keep-records-as-long-as-their-keep-rule-says",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "listed_on": "2026-11-14T16:00:00Z",
-    "folder": "keep-records-as-long-as-their-keep-rule-says"
-   }
-  },
-  {
    "id": "tool:keep-channels-latest-videos-and-captions",
    "values": {
     "title": "Keep the newest videos of channels and their captions",
@@ -7649,21 +7599,6 @@
    }
   },
   {
-   "id": "tool:name-the-recording-behind-transcript-lines",
-   "values": {
-    "title": "Find which recording a cited passage of my transcript archive comes from",
-    "job": "Tell me which of my recordings a passage of my transcript archive comes from, given the line numbers it was cited by",
-    "description": "Reads an archive index the person let this tool read (a JSON list of windows, each with an id, the recording's title, the first and last line it covers and its text) and, for each line range given, lists every window that overlaps it: the window id, the recording's title, the window's line span and its first words. A range that no window overlaps is listed in not_found. A range is written first-last, for example 120-180; a malformed or reversed range is refused with what to write. archive is a path inside the granted folder (or the archive setting a film's settings row holds, named by settings_record); preview_chars (a setting, default 120) sets how many first characters are shown. It changes nothing and reads only the index file.",
-    "status": "active",
-    "maker": "maker:name-the-recording-behind-transcript-lines",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "name-the-recording-behind-transcript-lines"
-   }
-  },
-  {
    "id": "tool:name-voices-from-the-call",
    "values": {
     "title": "Name the voices from the call app",
@@ -8198,21 +8133,6 @@
      "placement:your-computer"
     ],
     "folder": "trading"
-   }
-  },
-  {
-   "id": "tool:place-pursuits-on-a-life-map",
-   "values": {
-    "title": "Place my pursuits on my life map",
-    "job": "Place the pursuits I hand in on my own map of a full life and say which parts of my life none of my pursuits touch",
-    "description": "Places each pursuit handed in on the areas of the person's own map (the rows of their map list, each area with what it is part of and what it means), also handed in; answers every area with its pursuits, the leaf areas no pursuit names that are not optional, one line for each, and with section true the Progress section. With no map_rows (the person never made a map) the answer is offered: true and nothing placed; the starter map is never used in its place. The starter map is handed in as settings. It reads nothing and keeps nothing: the caller's AI reads the map rows and the pursuit records from their lists and hands them in.",
-    "status": "active",
-    "maker": "maker:place-pursuits-on-a-life-map",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "place-pursuits-on-a-life-map"
    }
   },
   {
@@ -9074,21 +8994,6 @@
    }
   },
   {
-   "id": "tool:rank-records-for-review",
-   "values": {
-    "title": "Rank records for review",
-    "job": "Put a list of suggestions, matches or any records in the order a person should review them, showing the fields they asked for on each row and whether they already accepted or passed on it",
-    "description": "Give a descriptor (which fields to show, which records to leave out, how rows relate to other records, which parts of a record name the suggestion a stand is on, and the actions on a row), the records, and optionally related records, the person's stands (their accept or pass records) and a list of upsert or delete events to apply over the records first. Returns the rows smallest rank first (then by record ref; a record with no rank has rank null and comes last), each with its shown values, relationship answers, status keys, actions and the person's newest stand on it (none if their newest version takes the stand back), plus counts. Every word about the domain is in the descriptor; a filter or relationship method the tool does not know is refused.",
-    "status": "active",
-    "maker": "maker:rank-records-for-review",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "rank-records-for-review"
-   }
-  },
-  {
    "id": "tool:re-time-events-tied-to-words",
    "values": {
     "title": "Move events to where their words now play (runs on your computer)",
@@ -9590,24 +9495,6 @@
      "placement:small-container"
     ],
     "folder": "ask-questions-sort-answers-follow-up"
-   }
-  },
-  {
-   "id": "tool:read-glance-feeds",
-   "values": {
-    "title": "Read a glance feed",
-    "job": "Read one feed or an ordered set of feeds for a glance surface",
-    "description": "Give feed or surface and optionally limit (a positive whole number, default 50 per feed). Works over the rows given as records, by the record queries declared in Workshop DATA, applies each feed's row path, filters, order and displayed fields, and returns { surface?, feeds: [{ id, label, about, status, empty?, rows?, error? }] }. status is ready with empty and rows (an empty rows array is a successful empty read), or unavailable with error { code, message }; one failed feed does not discard available siblings. A row carries its displayed title, optional detail, note, open address, time and progress fraction, flagged and read booleans, actions when declared, and source, the unchanged row. Current data covers habits, waiting, pursuits, told and waiting AI jobs; other historical feeds are explicitly marked unavailable until their record contracts exist.",
-    "status": "active",
-    "maker": "maker:read-glance-feeds",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "read-glance-feeds",
-    "flags": [
-     "read-only"
-    ]
    }
   },
   {
@@ -12855,25 +12742,6 @@
      "placement:small-container"
     ],
     "folder": "send-messages"
-   }
-  },
-  {
-   "id": "tool:sort-inspiration-clips-into-card-rows",
-   "values": {
-    "title": "Sort inspiration clips into rows of cards",
-    "job": "Sort the clips, recent files, formats, saved examples and prepared posts handed in into the named rows of inspiration cards, marking which clips can start a new edit",
-    "description": "Give sources: { source name: the answer it gives } for any of pick ({ pick: { clips, title?, reason? } }), library ({ rows }), recent ({ items }), formats ({ formats }), examples ({ examples }) and posts ({ posts }). Reads each source once with inspiration.mjs over card-sections.mjs and inspiration.json: each row (Make this next, You talk in these, Jump back in, Formats to steal, Swipe file, Ready to go out, Finished videos, Fresh recordings) keeps the items its tests pass, newest first where it says so, up to its limit, and turns each into a card ({ id, source, section, title, summary, detail, at, file, duration, opens, edit }); edit is true for a clip with a duration that could go into a new edit. Answers sections (each with total and cards, or failed when its source was not given), said (one sentence summing it up) and the layouts, card actions, pick actions, picture shapes and empty words the screen draws with. It refuses sources that is not an object and a source name inspiration.json does not hold. It reads no files or records itself, writes nothing, opens no card and never starts an edit: Make this and Edit these, and drawing the rows, wall or grid, are the app's Inspiration screen.",
-    "status": "active",
-    "maker": "maker:browse-inspiration-clips",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "listed_on": "2026-11-04T00:00:00Z",
-    "folder": "browse-inspiration-clips",
-    "flags": [
-     "read-only"
-    ]
    }
   },
   {

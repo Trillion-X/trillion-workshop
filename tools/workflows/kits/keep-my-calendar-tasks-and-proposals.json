@@ -257,6 +257,14 @@
           {
             "id": "status",
             "label": "Status"
+          },
+          {
+            "id": "starts_at",
+            "label": "Starts"
+          },
+          {
+            "id": "ends_at",
+            "label": "Ends"
           }
         ]
       }
