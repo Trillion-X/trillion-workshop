@@ -3,19 +3,16 @@
   "lists": [],
   "no_lists_because": "It keeps no list of its own: each step's answers come back in the run, and the last step keeps them wherever the person keeps the pursuit's rows, in that store's own way.",
   "workflows": [
-    "workflow:choose-a-change-worth-making",
-    "workflow:choose-the-next-move-that-matters-most",
-    "workflow:find-unexplored-ground"
+    "workflow:choose-a-change-worth-making"
   ],
   "tools": [
-    "tool:run-sql-in-my-database",
     "tool:run-workflow-definition"
   ],
   "instructions": [
     "1. Name the pursuit in plain words, and what is already known about it, as the input: {\"pursuit\": \"teaching people to hit a Federer-style forehand\", \"known\": \"I can teach the swing; I have not sold lessons yet\"}.",
     "2. Run workflow:choose-a-change-worth-making with tools:run, tool tool:run-workflow-definition, input {row: \"workflow:choose-a-change-worth-making\", pursuit, known}. Each step waits for an answer: its lines answered with evidence in checked, and the lines not answerable yet in open with what would answer them.",
-    "3. Answer a step by giving its answer under answers by its step id and running again; a line that names an existing workflow is answered by running that workflow.",
-    "4. Read what the run kept and what is open; the open lines are the next things to find out, and the last step names which part matters most next."
+    "3. Answer a step by giving its answer under answers by its step id and running again; a part some workflow the person can run already does is answered by running it.",
+    "4. Read what the run kept and what is open; the open lines are the next things to find out, and the last step says what matters most next."
   ],
   "worked_examples": [
     {
@@ -23,7 +20,7 @@
       "ask": "Run choose a change worth making for teaching people to hit a Federer-style forehand.",
       "mcp": {
         "server": "{cli}",
-        "tool": "do_one_thing_in_my_account",
+        "tool": "run_resource_operation",
         "input": {
           "method": "tools:run",
           "input": {
