@@ -1,0 +1,10 @@
+{
+  "_what": "What tool:check-a-computer-from-outside tries and when it calls something a finding. ports_to_try are the ports any computer is commonly found answering on by a scanner; every port the computer's row declares is tried too. Each value is a row a person changes, never code.",
+  "ports_to_try": [21, 22, 23, 25, 53, 80, 110, 143, 443, 445, 465, 587, 993, 995, 1433, 2375, 2376, 3000, 3306, 3389, 5000, 5432, 5672, 5900, 6379, 6390, 8000, 8080, 8443, 8888, 9000, 9090, 9200, 11211, 15672, 27017],
+  "connect_timeout_ms": 3000,
+  "tls_port": 443,
+  "certificate_warn_days": 21,
+  "domain_warn_days": 30,
+  "rdap": "https://rdap.org/domain/",
+  "most_at_once": 8
+}

@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:9f18acfcbc143dd4acc86e9abd0d62b8d192c2ff112764ef29a63497ee13f394"
+  "blake3": "1f:3805fe109e3c7f4a65bdaf2463ca57e88f3c47c595487cf7eb47e0260af5016d"
  },
  "fields": [
   {
@@ -1431,6 +1431,21 @@
      "placement:your-computer"
     ],
     "folder": "keep-a-video-packaging-ledger"
+   }
+  },
+  {
+   "id": "tool:check-a-computer-from-outside",
+   "values": {
+    "title": "Check a computer from outside",
+    "job": "see what anyone on the internet can see of one computer (open ports, certificates, its SSH version, its domains' registration, how long a connection takes) and say where it differs from what the computer's row declares",
+    "description": "Give the computer's public address, the ports its row declares and the names it serves. It tries every port in settings.json ports_to_try and every declared one, reads each name's certificate and its domain's registration expiry (RDAP), reads the SSH version line, and times the connection. It answers what it saw and the findings: an open port the row does not declare, a declared port that does not answer, a certificate or domain within its warning days or unreadable. It logs in to nothing and writes nothing; every connection goes through the run's own proxy.",
+    "status": "active",
+    "maker": "maker:check-a-computer-from-outside",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "check-a-computer-from-outside"
    }
   },
   {

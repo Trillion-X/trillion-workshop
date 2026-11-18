@@ -1,7 +1,7 @@
 {
   "start_here": "Say to your AI: \"Run workflow:deliver-it-and-keep-it-sustainable for teaching people to hit a Federer-style forehand.\" It goes through the checklists step by step, answering each line from what is actually known, found or tested, and says what is still open.",
   "lists": [],
-  "no_lists_because": "It keeps no list of its own: each step's answers come back in the run, and the steps that keep them write rows to the pursuit's own table deliver_it_and_keep_it_sustainable in the pursuit's own database.",
+  "no_lists_because": "It keeps no list of its own: each step's answers come back in the run, and the last step keeps them wherever the person keeps the pursuit's rows, in that store's own way.",
   "workflows": [
     "workflow:choose-the-next-move-that-matters-most",
     "workflow:deliver-it-and-keep-it-sustainable",

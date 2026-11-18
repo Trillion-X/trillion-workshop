@@ -1,0 +1,46 @@
+{
+  "start_here": "Say to your AI: \"Check my computer at 203.0.113.20 from outside; its row opens 22, 80 and 443.\" It runs tool:check-a-computer-from-outside and tells you every port, certificate or domain that differs from what the row declares.",
+  "lists": [],
+  "no_lists_because": "It keeps nothing: it reads what any scanner on the internet can see of one computer and answers it, with the differences from the ports and names the caller gives.",
+  "workflows": [
+    "workflow:check-every-computer-from-outside"
+  ],
+  "tools": [
+    "tool:check-a-computer-from-outside"
+  ],
+  "instructions": [
+    "1. Read the computer's row from wherever you keep it: its public address, the ports it declares open (such as 22/tcp) and the names its sites serve.",
+    "2. Call tools:run with tool tool:check-a-computer-from-outside and input {name, address, declared_ports, names}.",
+    "3. Read findings: an open port the row does not declare, a declared port that does not answer, a certificate or domain close to its end. Fix each through the computer's row, never by hand on the computer.",
+    "4. To check every computer and tell each finding as a fact other workflows hear, run workflow:check-every-computer-from-outside."
+  ],
+  "worked_examples": [
+    {
+      "title": "The data computer answers on a port its row does not declare",
+      "ask": "Check my data computer from outside.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "run_resource_operation",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-a-computer-from-outside",
+            "input": {
+              "name": "data",
+              "address": "203.0.113.20",
+              "declared_ports": [
+                "22/tcp",
+                "80/tcp",
+                "443/tcp"
+              ],
+              "names": []
+            }
+          }
+        }
+      },
+      "given": "Run from the Mac at 2:42 PM CST on Nov 18 2026 against one real computer (shown here as the documentation address 203.0.113.20), whose row's machine.firewall_allow is 22/tcp, 80/tcp and 443/tcp.",
+      "hands_back": "{\"ports\":[{\"port\":22,\"open\":true},{\"port\":80,\"open\":true},{\"port\":443,\"open\":true},{\"port\":5432,\"open\":true}],\"ssh\":{\"port\":22,\"banner\":\"SSH-2.0-OpenSSH_9.6p1 Ubuntu-3ubuntu13.18\"},\"findings\":[{\"computer\":\"data\",\"kind\":\"undeclared-open-port\",\"about\":\"5432\",\"said\":\"Port 5432 answers from the internet, and the computer's row does not declare it.\"}]}"
+    }
+  ],
+  "drafted_from": "tools/check-a-computer-from-outside/tool-rows.json and its runs against the two computers on Nov 18 2026"
+}

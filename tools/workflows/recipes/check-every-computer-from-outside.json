@@ -1,0 +1,272 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:check-every-computer-from-outside",
+        "label": "Check every computer from outside",
+        "job": "Look at each of the person's computers the way anyone on the internet can (open ports, certificates, the SSH version, the domains' registration, how long a connection takes), compare it with what each computer's row declares, and tell each difference as a computer-finding fact, so a workflow or a person hears it the moment it shows up.",
+        "produces": "One computer-finding fact per difference found: an open port the row does not declare, a declared port that does not answer, a certificate or domain within its warning days or unreadable.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "computers"
+          ],
+          "properties": {
+            "computers": {
+              "type": "array",
+              "minItems": 1,
+              "description": "The computers to check, each read by the caller from wherever the person keeps their computers' rows: {name, address, declared_ports (the row's open ports, such as \"22/tcp\"), names (the names its sites serve)}.",
+              "items": {
+                "type": "object",
+                "required": [
+                  "address"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "address": {
+                    "type": "string"
+                  },
+                  "declared_ports": {
+                    "type": "array"
+                  },
+                  "names": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "definition": {
+          "id": "workflow:check-every-computer-from-outside",
+          "name": "Check every computer from outside",
+          "kind": "workflow",
+          "is_active": true,
+          "version": 1,
+          "steps": [
+            {
+              "id": "check-each",
+              "kind": "loop",
+              "config": {
+                "source": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "computers"
+                  }
+                },
+                "item_var": "computer",
+                "definition_id": "workflow:check-every-computer-from-outside:check-one",
+                "parallel": true
+              }
+            }
+          ],
+          "edges": [],
+          "uses": [
+            {
+              "id": "workflow:check-every-computer-from-outside:check-one",
+              "name": "Check one computer and tell each finding",
+              "kind": "workflow",
+              "is_active": true,
+              "version": 1,
+              "steps": [
+                {
+                  "id": "check",
+                  "kind": "ask",
+                  "config": {
+                    "name": "tool:check-a-computer-from-outside",
+                    "input": {
+                      "name": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "loop",
+                          "path": "computer.name"
+                        }
+                      },
+                      "address": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "loop",
+                          "path": "computer.address"
+                        }
+                      },
+                      "declared_ports": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "loop",
+                          "path": "computer.declared_ports"
+                        }
+                      },
+                      "names": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "loop",
+                          "path": "computer.names"
+                        }
+                      }
+                    },
+                    "context": {
+                      "step_id": "check"
+                    }
+                  }
+                },
+                {
+                  "id": "tell-each",
+                  "kind": "loop",
+                  "config": {
+                    "source": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "check",
+                        "path": "output.findings"
+                      }
+                    },
+                    "item_var": "finding",
+                    "definition_id": "workflow:check-every-computer-from-outside:tell-one",
+                    "parallel": true
+                  }
+                }
+              ],
+              "edges": [
+                {
+                  "from": "check",
+                  "to": "tell-each",
+                  "kind": "always"
+                }
+              ]
+            },
+            {
+              "id": "workflow:check-every-computer-from-outside:tell-one",
+              "name": "Tell one finding",
+              "kind": "workflow",
+              "is_active": true,
+              "version": 1,
+              "edges": [],
+              "steps": [
+                {
+                  "id": "tell",
+                  "kind": "ask",
+                  "config": {
+                    "name": "wake:arrive",
+                    "input": {
+                      "kind": "computer-finding",
+                      "event_id": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "loop",
+                          "path": "finding.computer"
+                        },
+                        "resolve_nested_bindings": true,
+                        "transform": [
+                          {
+                            "op": "op:core.concat",
+                            "args": {
+                              "values": [
+                                {
+                                  "$kind": "binding",
+                                  "select": {
+                                    "from": "loop",
+                                    "path": "finding.computer"
+                                  }
+                                },
+                                ":",
+                                {
+                                  "$kind": "binding",
+                                  "select": {
+                                    "from": "loop",
+                                    "path": "finding.kind"
+                                  }
+                                },
+                                ":",
+                                {
+                                  "$kind": "binding",
+                                  "select": {
+                                    "from": "loop",
+                                    "path": "finding.about"
+                                  }
+                                },
+                                ":",
+                                {
+                                  "$kind": "binding",
+                                  "select": {
+                                    "from": "loop",
+                                    "path": "finding.at"
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      },
+                      "payload": {
+                        "computer": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "finding.computer"
+                          }
+                        },
+                        "kind_of_finding": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "finding.kind"
+                          }
+                        },
+                        "about": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "finding.about"
+                          }
+                        },
+                        "said": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "finding.said"
+                          }
+                        },
+                        "at": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "finding.at"
+                          }
+                        }
+                      }
+                    },
+                    "context": {
+                      "step_id": "tell"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "records": {
+          "rights": [
+            {
+              "at": "@own-records",
+              "id": "computer-finding",
+              "operations": [
+                "wake:arrive"
+              ]
+            }
+          ],
+          "runs": [
+            "tool:check-a-computer-from-outside"
+          ]
+        }
+      }
+    }
+  ]
+}

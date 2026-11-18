@@ -1,0 +1,65 @@
+{
+  "start_here": "Say to your AI: \"Check every computer of mine from outside.\" It reads your computers' rows, runs workflow:check-every-computer-from-outside with them, and each difference it finds is told as a computer-finding fact.",
+  "lists": [],
+  "no_lists_because": "It keeps nothing: the computers come in as values the caller read from where the person keeps them, and each finding leaves as a fact any workflow or person can hear.",
+  "workflows": [
+    "workflow:check-every-computer-from-outside"
+  ],
+  "tools": [
+    "tool:check-a-computer-from-outside"
+  ],
+  "instructions": [
+    "1. Read each computer's row from wherever you keep it: name, public address, declared ports and site names.",
+    "2. Call tools:run with tool tool:run-workflow-definition and input {row: \"workflow:check-every-computer-from-outside\", computers: [...]}.",
+    "3. Each difference becomes a computer-finding fact {computer, kind_of_finding, about, said, at}; a workflow hears it with a wake on {fact: {kind: computer-finding}}.",
+    "4. Fix each finding through the computer's row and run it again: a fixed difference is no longer told."
+  ],
+  "worked_examples": [
+    {
+      "title": "Two computers checked; one undeclared port told",
+      "ask": "Check my web and data computers from outside.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "run_resource_operation",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:check-every-computer-from-outside",
+              "computers": [
+                {
+                  "name": "web",
+                  "address": "203.0.113.10",
+                  "declared_ports": [
+                    "22/tcp",
+                    "80/tcp",
+                    "443/tcp"
+                  ],
+                  "names": [
+                    "app.example.com"
+                  ]
+                },
+                {
+                  "name": "data",
+                  "address": "203.0.113.20",
+                  "declared_ports": [
+                    "22/tcp",
+                    "80/tcp",
+                    "443/tcp"
+                  ],
+                  "names": []
+                }
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:check-every-computer-from-outside",
+      "step": "check-each",
+      "given": "Run on the workflow engine from the Mac at 2:42 PM CST on Nov 18 2026, with the real check against both real computers (shown here under made-up names and documentation addresses).",
+      "hands_back": "Completed; one wake:arrive of kind computer-finding with event_id \"data:undeclared-open-port:5432:2026-11-18T20:42:41.688Z\" and payload {computer: data, kind_of_finding: undeclared-open-port, about: 5432}; the web computer had no difference."
+    }
+  ],
+  "drafted_from": "workflow:check-every-computer-from-outside's own file and its run on the workflow engine on Nov 18 2026"
+}

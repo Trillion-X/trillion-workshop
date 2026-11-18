@@ -69469,7 +69469,7 @@
         "id": "workflow:understand-where-a-pursuit-is-starting-from",
         "label": "Understand where a pursuit is starting from",
         "job": "Part 1 of 13 of carrying any pursuit or business: What is actually true about the situation, the people involved, what already exists, and what is possible? For a business: What do I know about myself, the people I might serve, the existing market, the available possibilities, and everything that has already been tried? Every step is a plain checklist answered with evidence; Currier's and Maurya's checks sit inside the steps they belong to.",
-        "produces": "Each checklist line of part 1 answered with its evidence or left open with what would answer it, kept as rows of the pursuit's own understand_where_a_pursuit_is_starting_from table, and the part that matters most next.",
+        "produces": "Each checklist line of part 1 answered with its evidence or left open with what would answer it, kept wherever the person keeps the pursuit's rows, and the part that matters most next.",
         "input_schema": {
           "type": "object",
           "properties": {
@@ -70089,7 +70089,7 @@
           {
             "id": "check-it-is-done-and-keep-it",
             "title": "Check it is done, keep what was found, and choose what is next",
-            "do": "Completion check: You have a useful account of your starting situation, what already exists, what people are doing, what you know, and what still needs investigating. You do not have to know everything before acting.\nKeep each answered line as a row of the pursuit's own table understand_where_a_pursuit_is_starting_from in its own database (tool:run-sql-in-my-database; make the table the first time, with the columns line, answer, evidence, asked_at), so the next run starts from it.\nName which of the 13 parts the evidence now says matters most, and why; the person or workflow:choose-the-next-move-that-matters-most starts it.",
+            "do": "Completion check: You have a useful account of your starting situation, what already exists, what people are doing, what you know, and what still needs investigating. You do not have to know everything before acting.\nKeep each answered line, its answer, its evidence and when it was asked wherever the person keeps this pursuit's rows, in that store's own way, so the next run starts from it.\nName which of the 13 parts the evidence now says matters most, and why; the person or workflow:choose-the-next-move-that-matters-most starts it.",
             "submit": {
               "type": "object",
               "required": [
@@ -70194,7 +70194,7 @@
         "id": "workflow:choose-a-change-worth-making",
         "label": "Choose a change worth making",
         "job": "Part 2 of 13 of carrying any pursuit or business: Of all the things I could change, which changes actually deserve to happen? For a business: Which problems, desires, people, possibilities, products, or businesses are worth pursuing, and why those instead of the alternatives? Every step is a plain checklist answered with evidence; Currier's and Maurya's checks sit inside the steps they belong to.",
-        "produces": "Each checklist line of part 2 answered with its evidence or left open with what would answer it, kept as rows of the pursuit's own choose_a_change_worth_making table, and the part that matters most next.",
+        "produces": "Each checklist line of part 2 answered with its evidence or left open with what would answer it, kept wherever the person keeps the pursuit's rows, and the part that matters most next.",
         "input_schema": {
           "type": "object",
           "properties": {
@@ -70955,7 +70955,7 @@
           {
             "id": "check-it-is-done-and-keep-it",
             "title": "Check it is done, keep what was found, and choose what is next",
-            "do": "Important: A possibility can be worth creating even when people aren't already searching for it. But evidence of a worthwhile contribution and evidence of a commercially sustainable business are different things. You need to examine both when the pursuit is commercial. Completion check: You can explain why this pursuit deserves attention relative to other possibilities, without relying merely on having already invested time in it.\nKeep each answered line as a row of the pursuit's own table choose_a_change_worth_making in its own database (tool:run-sql-in-my-database; make the table the first time, with the columns line, answer, evidence, asked_at), so the next run starts from it.\nName which of the 13 parts the evidence now says matters most, and why; the person or workflow:choose-the-next-move-that-matters-most starts it.",
+            "do": "Important: A possibility can be worth creating even when people aren't already searching for it. But evidence of a worthwhile contribution and evidence of a commercially sustainable business are different things. You need to examine both when the pursuit is commercial. Completion check: You can explain why this pursuit deserves attention relative to other possibilities, without relying merely on having already invested time in it.\nKeep each answered line, its answer, its evidence and when it was asked wherever the person keeps this pursuit's rows, in that store's own way, so the next run starts from it.\nName which of the 13 parts the evidence now says matters most, and why; the person or workflow:choose-the-next-move-that-matters-most starts it.",
             "submit": {
               "type": "object",
               "required": [
@@ -71060,7 +71060,7 @@
         "id": "workflow:choose-the-next-move-that-matters-most",
         "label": "Choose the next move that matters most, and do it",
         "job": "Part 3 of 13 of carrying any pursuit or business: What is the most effective thing to do next, considering everything it affects and everything it costs? For a business: Which customer, product, task, test, partnership, improvement, or combination would make the greatest worthwhile difference for the resources it requires? Every step is a plain checklist answered with evidence; Currier's and Maurya's checks sit inside the steps they belong to.",
-        "produces": "Each checklist line of part 3 answered with its evidence or left open with what would answer it, kept as rows of the pursuit's own choose_the_next_move_that_matters_most table, and the part that matters most next.",
+        "produces": "Each checklist line of part 3 answered with its evidence or left open with what would answer it, kept wherever the person keeps the pursuit's rows, and the part that matters most next.",
         "input_schema": {
           "type": "object",
           "properties": {
@@ -71750,7 +71750,7 @@
           {
             "id": "check-it-is-done-and-keep-it",
             "title": "Check it is done, keep what was found, and choose what is next",
-            "do": "Completion check: You have selected and carried out a justified next action. You are not merely producing a larger task list.\nKeep each answered line as a row of the pursuit's own table choose_the_next_move_that_matters_most in its own database (tool:run-sql-in-my-database; make the table the first time, with the columns line, answer, evidence, asked_at), so the next run starts from it.\nStart the part that matters most now by running its workflow: workflow:understand-where-a-pursuit-is-starting-from, workflow:choose-a-change-worth-making, workflow:choose-the-next-move-that-matters-most, workflow:build-the-abilities-the-work-needs, workflow:make-it-work-and-test-it-against-reality, workflow:find-the-words-people-understand-and-act-on, workflow:make-it-easy-to-recognize-and-use, workflow:keep-what-was-learned-usable-by-others, workflow:give-people-a-way-to-find-and-get-it, workflow:reach-the-people-it-matters-to, workflow:deliver-it-and-keep-it-sustainable, workflow:check-what-changed-and-fix-what-failed, workflow:carry-each-lesson-into-the-next-work. Then check what it found and choose again.",
+            "do": "Completion check: You have selected and carried out a justified next action. You are not merely producing a larger task list.\nKeep each answered line, its answer, its evidence and when it was asked wherever the person keeps this pursuit's rows, in that store's own way, so the next run starts from it.\nStart the part that matters most now by running its workflow: workflow:understand-where-a-pursuit-is-starting-from, workflow:choose-a-change-worth-making, workflow:choose-the-next-move-that-matters-most, workflow:build-the-abilities-the-work-needs, workflow:make-it-work-and-test-it-against-reality, workflow:find-the-words-people-understand-and-act-on, workflow:make-it-easy-to-recognize-and-use, workflow:keep-what-was-learned-usable-by-others, workflow:give-people-a-way-to-find-and-get-it, workflow:reach-the-people-it-matters-to, workflow:deliver-it-and-keep-it-sustainable, workflow:check-what-changed-and-fix-what-failed, workflow:carry-each-lesson-into-the-next-work. Then check what it found and choose again.",
             "submit": {
               "type": "object",
               "required": [
@@ -71855,7 +71855,7 @@
         "id": "workflow:build-the-abilities-the-work-needs",
         "label": "Build the abilities the work needs",
         "job": "Part 4 of 13 of carrying any pursuit or business: What abilities are required to accomplish the pursuit, and how can they be developed or obtained? For a business: What must I, my collaborators, and our tools be capable of doing to create, sell, deliver, and improve the intended contribution? Every step is a plain checklist answered with evidence; Currier's and Maurya's checks sit inside the steps they belong to.",
-        "produces": "Each checklist line of part 4 answered with its evidence or left open with what would answer it, kept as rows of the pursuit's own build_the_abilities_the_work_needs table, and the part that matters most next.",
+        "produces": "Each checklist line of part 4 answered with its evidence or left open with what would answer it, kept wherever the person keeps the pursuit's rows, and the part that matters most next.",
         "input_schema": {
           "type": "object",
           "properties": {
@@ -72475,7 +72475,7 @@
           {
             "id": "check-it-is-done-and-keep-it",
             "title": "Check it is done, keep what was found, and choose what is next",
-            "do": "Completion check: The necessary work can actually be performed. Merely studying a subject, installing software, or acquiring equipment is not proof that the capability exists.\nKeep each answered line as a row of the pursuit's own table build_the_abilities_the_work_needs in its own database (tool:run-sql-in-my-database; make the table the first time, with the columns line, answer, evidence, asked_at), so the next run starts from it.\nName which of the 13 parts the evidence now says matters most, and why; the person or workflow:choose-the-next-move-that-matters-most starts it.",
+            "do": "Completion check: The necessary work can actually be performed. Merely studying a subject, installing software, or acquiring equipment is not proof that the capability exists.\nKeep each answered line, its answer, its evidence and when it was asked wherever the person keeps this pursuit's rows, in that store's own way, so the next run starts from it.\nName which of the 13 parts the evidence now says matters most, and why; the person or workflow:choose-the-next-move-that-matters-most starts it.",
             "submit": {
               "type": "object",
               "required": [
@@ -72580,7 +72580,7 @@
         "id": "workflow:make-it-work-and-test-it-against-reality",
         "label": "Make it work and test it against reality",
         "job": "Part 5 of 13 of carrying any pursuit or business: How can I turn what I've learned into a real change, and how will I know whether it works? For a business: What product, service, method, or experience can actually deliver the outcome people want, and what evidence demonstrates that it does? Every step is a plain checklist answered with evidence; Currier's and Maurya's checks sit inside the steps they belong to.",
-        "produces": "Each checklist line of part 5 answered with its evidence or left open with what would answer it, kept as rows of the pursuit's own make_it_work_and_test_it_against_reality table, and the part that matters most next.",
+        "produces": "Each checklist line of part 5 answered with its evidence or left open with what would answer it, kept wherever the person keeps the pursuit's rows, and the part that matters most next.",
         "input_schema": {
           "type": "object",
           "properties": {
@@ -73271,7 +73271,7 @@
           {
             "id": "check-it-is-done-and-keep-it",
             "title": "Check it is done, keep what was found, and choose what is next",
-            "do": "Completion check: You have real evidence that the method or product can deliver the result under identifiable conditions. When that evidence is incomplete, you know precisely what remains untested.\nKeep each answered line as a row of the pursuit's own table make_it_work_and_test_it_against_reality in its own database (tool:run-sql-in-my-database; make the table the first time, with the columns line, answer, evidence, asked_at), so the next run starts from it.\nName which of the 13 parts the evidence now says matters most, and why; the person or workflow:choose-the-next-move-that-matters-most starts it.",
+            "do": "Completion check: You have real evidence that the method or product can deliver the result under identifiable conditions. When that evidence is incomplete, you know precisely what remains untested.\nKeep each answered line, its answer, its evidence and when it was asked wherever the person keeps this pursuit's rows, in that store's own way, so the next run starts from it.\nName which of the 13 parts the evidence now says matters most, and why; the person or workflow:choose-the-next-move-that-matters-most starts it.",
             "submit": {
               "type": "object",
               "required": [
@@ -73376,7 +73376,7 @@
         "id": "workflow:find-the-words-people-understand-and-act-on",
         "label": "Find the words people understand and act on",
         "job": "Part 6 of 13 of carrying any pursuit or business: How can I explain what matters in words another person will understand and care about? For a business: What words, promises, examples, headlines, and explanations cause the appropriate customers to recognize the value of the offering? Every step is a plain checklist answered with evidence; Currier's and Maurya's checks sit inside the steps they belong to.",
-        "produces": "Each checklist line of part 6 answered with its evidence or left open with what would answer it, kept as rows of the pursuit's own find_the_words_people_understand_and_act_on table, and the part that matters most next.",
+        "produces": "Each checklist line of part 6 answered with its evidence or left open with what would answer it, kept wherever the person keeps the pursuit's rows, and the part that matters most next.",
         "input_schema": {
           "type": "object",
           "properties": {
@@ -74135,7 +74135,7 @@
           {
             "id": "check-it-is-done-and-keep-it",
             "title": "Check it is done, keep what was found, and choose what is next",
-            "do": "Completion check: The intended people understand the promise, the explanation accurately represents the work, and there is evidence showing which language helps them take meaningful action.\nKeep each answered line as a row of the pursuit's own table find_the_words_people_understand_and_act_on in its own database (tool:run-sql-in-my-database; make the table the first time, with the columns line, answer, evidence, asked_at), so the next run starts from it.\nName which of the 13 parts the evidence now says matters most, and why; the person or workflow:choose-the-next-move-that-matters-most starts it.",
+            "do": "Completion check: The intended people understand the promise, the explanation accurately represents the work, and there is evidence showing which language helps them take meaningful action.\nKeep each answered line, its answer, its evidence and when it was asked wherever the person keeps this pursuit's rows, in that store's own way, so the next run starts from it.\nName which of the 13 parts the evidence now says matters most, and why; the person or workflow:choose-the-next-move-that-matters-most starts it.",
             "submit": {
               "type": "object",
               "required": [
@@ -74240,7 +74240,7 @@
         "id": "workflow:make-it-easy-to-recognize-and-use",
         "label": "Make it easy to recognize and use",
         "job": "Part 7 of 13 of carrying any pursuit or business: How should information or a result be presented so people can recognize, understand, and use it? For a business: What designs, demonstrations, images, layouts, interfaces, or other presentations make the offering clear, credible, and easy to use? Every step is a plain checklist answered with evidence; Currier's and Maurya's checks sit inside the steps they belong to.",
-        "produces": "Each checklist line of part 7 answered with its evidence or left open with what would answer it, kept as rows of the pursuit's own make_it_easy_to_recognize_and_use table, and the part that matters most next.",
+        "produces": "Each checklist line of part 7 answered with its evidence or left open with what would answer it, kept wherever the person keeps the pursuit's rows, and the part that matters most next.",
         "input_schema": {
           "type": "object",
           "properties": {
@@ -74789,7 +74789,7 @@
           {
             "id": "check-it-is-done-and-keep-it",
             "title": "Check it is done, keep what was found, and choose what is next",
-            "do": "Completion check: The presentation makes the substance easier to understand and use. Attractive design alone is not sufficient.\nKeep each answered line as a row of the pursuit's own table make_it_easy_to_recognize_and_use in its own database (tool:run-sql-in-my-database; make the table the first time, with the columns line, answer, evidence, asked_at), so the next run starts from it.\nName which of the 13 parts the evidence now says matters most, and why; the person or workflow:choose-the-next-move-that-matters-most starts it.",
+            "do": "Completion check: The presentation makes the substance easier to understand and use. Attractive design alone is not sufficient.\nKeep each answered line, its answer, its evidence and when it was asked wherever the person keeps this pursuit's rows, in that store's own way, so the next run starts from it.\nName which of the 13 parts the evidence now says matters most, and why; the person or workflow:choose-the-next-move-that-matters-most starts it.",
             "submit": {
               "type": "object",
               "required": [
@@ -74894,7 +74894,7 @@
         "id": "workflow:keep-what-was-learned-usable-by-others",
         "label": "Keep what was learned usable by others",
         "job": "Part 8 of 13 of carrying any pursuit or business: How can what has been discovered or developed remain useful beyond the original person and moment? For a business: How can the method, expertise, instructions, knowledge, or experience become a reusable product, resource, or capability? Every step is a plain checklist answered with evidence; Currier's and Maurya's checks sit inside the steps they belong to.",
-        "produces": "Each checklist line of part 8 answered with its evidence or left open with what would answer it, kept as rows of the pursuit's own keep_what_was_learned_usable_by_others table, and the part that matters most next.",
+        "produces": "Each checklist line of part 8 answered with its evidence or left open with what would answer it, kept wherever the person keeps the pursuit's rows, and the part that matters most next.",
         "input_schema": {
           "type": "object",
           "properties": {
@@ -75444,7 +75444,7 @@
           {
             "id": "check-it-is-done-and-keep-it",
             "title": "Check it is done, keep what was found, and choose what is next",
-            "do": "Completion check: Other people or tools can obtain and use the preserved knowledge or capability to accomplish something worthwhile.\nKeep each answered line as a row of the pursuit's own table keep_what_was_learned_usable_by_others in its own database (tool:run-sql-in-my-database; make the table the first time, with the columns line, answer, evidence, asked_at), so the next run starts from it.\nName which of the 13 parts the evidence now says matters most, and why; the person or workflow:choose-the-next-move-that-matters-most starts it.",
+            "do": "Completion check: Other people or tools can obtain and use the preserved knowledge or capability to accomplish something worthwhile.\nKeep each answered line, its answer, its evidence and when it was asked wherever the person keeps this pursuit's rows, in that store's own way, so the next run starts from it.\nName which of the 13 parts the evidence now says matters most, and why; the person or workflow:choose-the-next-move-that-matters-most starts it.",
             "submit": {
               "type": "object",
               "required": [
@@ -75549,7 +75549,7 @@
         "id": "workflow:give-people-a-way-to-find-and-get-it",
         "label": "Give people a way to find and get it",
         "job": "Part 9 of 13 of carrying any pursuit or business: How can someone who needs the contribution find it, understand how to access it, and actually obtain it? For a business: Where can interested customers examine the offer, ask questions, book, purchase, receive access, or otherwise obtain the product or service? Every step is a plain checklist answered with evidence; Currier's and Maurya's checks sit inside the steps they belong to.",
-        "produces": "Each checklist line of part 9 answered with its evidence or left open with what would answer it, kept as rows of the pursuit's own give_people_a_way_to_find_and_get_it table, and the part that matters most next.",
+        "produces": "Each checklist line of part 9 answered with its evidence or left open with what would answer it, kept wherever the person keeps the pursuit's rows, and the part that matters most next.",
         "input_schema": {
           "type": "object",
           "properties": {
@@ -76029,7 +76029,7 @@
           {
             "id": "check-it-is-done-and-keep-it",
             "title": "Check it is done, keep what was found, and choose what is next",
-            "do": "Completion check: A suitable person can independently find and obtain the contribution through the intended route.\nKeep each answered line as a row of the pursuit's own table give_people_a_way_to_find_and_get_it in its own database (tool:run-sql-in-my-database; make the table the first time, with the columns line, answer, evidence, asked_at), so the next run starts from it.\nName which of the 13 parts the evidence now says matters most, and why; the person or workflow:choose-the-next-move-that-matters-most starts it.",
+            "do": "Completion check: A suitable person can independently find and obtain the contribution through the intended route.\nKeep each answered line, its answer, its evidence and when it was asked wherever the person keeps this pursuit's rows, in that store's own way, so the next run starts from it.\nName which of the 13 parts the evidence now says matters most, and why; the person or workflow:choose-the-next-move-that-matters-most starts it.",
             "submit": {
               "type": "object",
               "required": [
@@ -76134,7 +76134,7 @@
         "id": "workflow:reach-the-people-it-matters-to",
         "label": "Reach the people it matters to",
         "job": "Part 10 of 13 of carrying any pursuit or business: How can the contribution reach the people, places, and circumstances where it will produce value? For a business: How can I repeatedly reach suitable customers, get their attention, help them recognize the value, and bring them to a meaningful next action? Every step is a plain checklist answered with evidence; Currier's and Maurya's checks sit inside the steps they belong to.",
-        "produces": "Each checklist line of part 10 answered with its evidence or left open with what would answer it, kept as rows of the pursuit's own reach_the_people_it_matters_to table, and the part that matters most next.",
+        "produces": "Each checklist line of part 10 answered with its evidence or left open with what would answer it, kept wherever the person keeps the pursuit's rows, and the part that matters most next.",
         "input_schema": {
           "type": "object",
           "properties": {
@@ -77315,7 +77315,7 @@
           {
             "id": "check-it-is-done-and-keep-it",
             "title": "Check it is done, keep what was found, and choose what is next",
-            "do": "Completion check: You know at least one credible way to reach the intended people, and you are developing evidence about whether it can repeatedly support the contribution.\nKeep each answered line as a row of the pursuit's own table reach_the_people_it_matters_to in its own database (tool:run-sql-in-my-database; make the table the first time, with the columns line, answer, evidence, asked_at), so the next run starts from it.\nName which of the 13 parts the evidence now says matters most, and why; the person or workflow:choose-the-next-move-that-matters-most starts it.",
+            "do": "Completion check: You know at least one credible way to reach the intended people, and you are developing evidence about whether it can repeatedly support the contribution.\nKeep each answered line, its answer, its evidence and when it was asked wherever the person keeps this pursuit's rows, in that store's own way, so the next run starts from it.\nName which of the 13 parts the evidence now says matters most, and why; the person or workflow:choose-the-next-move-that-matters-most starts it.",
             "submit": {
               "type": "object",
               "required": [
@@ -77420,7 +77420,7 @@
         "id": "workflow:deliver-it-and-keep-it-sustainable",
         "label": "Deliver it and keep it paying for itself",
         "job": "Part 11 of 13 of carrying any pursuit or business: How do people actually receive and use the contribution, and what is required to keep it available? For a business: How do people become customers, receive the promised result, get the help they need, and generate enough revenue to sustain the business? Every step is a plain checklist answered with evidence; Currier's and Maurya's checks sit inside the steps they belong to.",
-        "produces": "Each checklist line of part 11 answered with its evidence or left open with what would answer it, kept as rows of the pursuit's own deliver_it_and_keep_it_sustainable table, and the part that matters most next.",
+        "produces": "Each checklist line of part 11 answered with its evidence or left open with what would answer it, kept wherever the person keeps the pursuit's rows, and the part that matters most next.",
         "input_schema": {
           "type": "object",
           "properties": {
@@ -78460,7 +78460,7 @@
           {
             "id": "check-it-is-done-and-keep-it",
             "title": "Check it is done, keep what was found, and choose what is next",
-            "do": "Completion check: Customers can purchase and receive the intended result, and you understand whether continued delivery can be financially and operationally sustained.\nKeep each answered line as a row of the pursuit's own table deliver_it_and_keep_it_sustainable in its own database (tool:run-sql-in-my-database; make the table the first time, with the columns line, answer, evidence, asked_at), so the next run starts from it.\nName which of the 13 parts the evidence now says matters most, and why; the person or workflow:choose-the-next-move-that-matters-most starts it.",
+            "do": "Completion check: Customers can purchase and receive the intended result, and you understand whether continued delivery can be financially and operationally sustained.\nKeep each answered line, its answer, its evidence and when it was asked wherever the person keeps this pursuit's rows, in that store's own way, so the next run starts from it.\nName which of the 13 parts the evidence now says matters most, and why; the person or workflow:choose-the-next-move-that-matters-most starts it.",
             "submit": {
               "type": "object",
               "required": [
@@ -78565,7 +78565,7 @@
         "id": "workflow:check-what-changed-and-fix-what-failed",
         "label": "Check what changed and fix what failed",
         "job": "Part 12 of 13 of carrying any pursuit or business: What actually happened compared with what I intended, and what needs to change? For a business: Did the customers receive value? Did the business produce the expected results? Where did the process fail, and what should be improved? Every step is a plain checklist answered with evidence; Currier's and Maurya's checks sit inside the steps they belong to.",
-        "produces": "Each checklist line of part 12 answered with its evidence or left open with what would answer it, kept as rows of the pursuit's own check_what_changed_and_fix_what_failed table, and the part that matters most next.",
+        "produces": "Each checklist line of part 12 answered with its evidence or left open with what would answer it, kept wherever the person keeps the pursuit's rows, and the part that matters most next.",
         "input_schema": {
           "type": "object",
           "properties": {
@@ -79395,7 +79395,7 @@
           {
             "id": "check-it-is-done-and-keep-it",
             "title": "Check it is done, keep what was found, and choose what is next",
-            "do": "Completion check: You know what happened, how it compares with the intended outcome, what needs changing, and whether your corrections actually improve results.\nKeep each answered line as a row of the pursuit's own table check_what_changed_and_fix_what_failed in its own database (tool:run-sql-in-my-database; make the table the first time, with the columns line, answer, evidence, asked_at), so the next run starts from it.\nName which of the 13 parts the evidence now says matters most, and why; the person or workflow:choose-the-next-move-that-matters-most starts it.",
+            "do": "Completion check: You know what happened, how it compares with the intended outcome, what needs changing, and whether your corrections actually improve results.\nKeep each answered line, its answer, its evidence and when it was asked wherever the person keeps this pursuit's rows, in that store's own way, so the next run starts from it.\nName which of the 13 parts the evidence now says matters most, and why; the person or workflow:choose-the-next-move-that-matters-most starts it.",
             "submit": {
               "type": "object",
               "required": [
@@ -79500,7 +79500,7 @@
         "id": "workflow:carry-each-lesson-into-the-next-work",
         "label": "Carry each lesson into the next work",
         "job": "Part 13 of 13 of carrying any pursuit or business: How can what has been learned make future actions better, rather than repeatedly starting from the beginning? For a business: How can every useful discovery improve future products, customer service, research, marketing, tools, decisions, and business operations? Every step is a plain checklist answered with evidence; Currier's and Maurya's checks sit inside the steps they belong to.",
-        "produces": "Each checklist line of part 13 answered with its evidence or left open with what would answer it, kept as rows of the pursuit's own carry_each_lesson_into_the_next_work table, and the part that matters most next.",
+        "produces": "Each checklist line of part 13 answered with its evidence or left open with what would answer it, kept wherever the person keeps the pursuit's rows, and the part that matters most next.",
         "input_schema": {
           "type": "object",
           "properties": {
@@ -80190,7 +80190,7 @@
           {
             "id": "check-it-is-done-and-keep-it",
             "title": "Check it is done, keep what was found, and choose what is next",
-            "do": "Completion check: The learning is not merely stored. It has been incorporated into the work, and future actions can benefit from it.\nKeep each answered line as a row of the pursuit's own table carry_each_lesson_into_the_next_work in its own database (tool:run-sql-in-my-database; make the table the first time, with the columns line, answer, evidence, asked_at), so the next run starts from it.\nName which of the 13 parts the evidence now says matters most, and why; the person or workflow:choose-the-next-move-that-matters-most starts it.",
+            "do": "Completion check: The learning is not merely stored. It has been incorporated into the work, and future actions can benefit from it.\nKeep each answered line, its answer, its evidence and when it was asked wherever the person keeps this pursuit's rows, in that store's own way, so the next run starts from it.\nName which of the 13 parts the evidence now says matters most, and why; the person or workflow:choose-the-next-move-that-matters-most starts it.",
             "submit": {
               "type": "object",
               "required": [
