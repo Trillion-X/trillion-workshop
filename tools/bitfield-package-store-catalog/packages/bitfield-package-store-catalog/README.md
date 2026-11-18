@@ -83,8 +83,8 @@ report state, reply rows, or review aggregates as catalog truth.
 
 ## Proof
 
-`bitfield-package-store.resolve-current-install-inputs` reads this package's current
-catalog and prepares the existing `package-files.install-packages-from-pointers`
+`bitfield-package-store.resolve-current-install-inputs` takes the catalog it is handed (the caller reads this package's current
+catalog from its own store; the resolver reads and sends nothing) and prepares the existing `package-files.install-packages-from-pointers`
 request for an exact `package_identity` and optional selected `package_set`. It performs no
 installation and grants no access or publisher trust. Caller-supplied catalog,
 pointer and trust values are ignored. Missing package identity, malformed explicit destination, missing or ambiguous

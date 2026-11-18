@@ -1,21 +1,8 @@
-import { sendRequestToBitfieldTarget, type BitfieldRuntimeContext } from '@bitfield/runtime-kit';
 import { resolveInstallInputs } from './resolve-install-inputs';
 
-/** Reads only this owner's current catalog. Caller catalog/trust/pointer values are ignored. */
-export async function resolveCurrentInstallInputs(input: { package_identity: string; package_set?: string }, _context?: BitfieldRuntimeContext,
-  send = sendRequestToBitfieldTarget) {
-  let catalog: unknown;
-  try {
-    const raw: any = await send({ target: 'engine.operation.label-addressed', payload: {
-      operation_label: 'engine.operation.read-current', address_mode: 'label_hash',
-      address_label: 'package::bitfield-package-store-catalog::stored-bytes::catalog-data',
-    } });
-    const value = raw.payload instanceof Uint8Array ? JSON.parse(new TextDecoder().decode(raw.payload)) : raw.payload ?? raw;
-    if (value.found === true) {
-      catalog = value.payload;
-      if (typeof catalog === 'string') catalog = JSON.parse(catalog);
-      if (!catalog && typeof value.payload_base64 === 'string') catalog = JSON.parse(atob(value.payload_base64));
-    }
-  } catch { /* Absence or unreadable current data cannot grant installation. */ }
-  return resolveInstallInputs(catalog, { package_identity: input.package_identity, package_set: input.package_set });
+/** Prepares install inputs from the catalog the caller hands in (its current catalog, read by the caller from its own store).
+ *  Nothing is read here: a missing or unreadable catalog grants nothing. */
+export function resolveCurrentInstallInputs(input: { package_identity: string; package_set?: string }, catalog: unknown) {
+  const value = typeof catalog === 'string' ? (() => { try { return JSON.parse(catalog); } catch { return undefined; } })() : catalog;
+  return resolveInstallInputs(value, { package_identity: input.package_identity, package_set: input.package_set });
 }
