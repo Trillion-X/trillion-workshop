@@ -1,0 +1,368 @@
+{
+  "about": "workflow:total-a-list-or-view: add up one of the person's lists, or one of its saved views, in the store that holds the list: how many rows, the sum, average, median, smallest or largest of a number field, filled or distinct counts, over the whole list or once for each value of one field. It replaces tools/total-a-list-or-view (do-work/total-a-list.mjs, which read the list's rows through a records door handed in by the caller and ran the arithmetic of tools/query-and-change-list-rows/src/list-aggregates.mjs). Totals are an aggregate the store already computes in its own language, so no tool sits between the store and its rows (rule a-tool-is-only-what-the-store-cannot-do).",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:total-a-list-or-view",
+        "label": "Total a list or a view",
+        "job": "Add up one of the person's lists, or one of its saved views, in the store that holds it: the row count, and for a number field the sum, average, median, smallest or largest; for any field the filled and distinct counts; over the whole list or once for each value of one field.",
+        "produces": "The totals as the store computes them, proven on the example list in three stores of different kinds, with each attempt's totals or its refusal read back, and no row of the list sent anywhere but the answer.",
+        "source": {
+          "from": "tools/total-a-list-or-view (do-work/total-a-list.mjs, test/total-a-list-or-view.test.mjs), read on trillion-workshop origin/main; the arithmetic of tools/query-and-change-list-rows/src/list-aggregates.mjs (aggregateRows)",
+          "note": "The old tool had three caps: 20,000 rows read, 100 groups and 20 measures per call. They are limits of the tool, not of the list, and the store answers over all its rows in one aggregate, so no cap is kept; the answer still says whether it is complete. The rules that decide a measure's meaning (filled is a value that is not empty, distinct counts non-empty values, sum and the rest read only number values) are the intent below. A measure's own settings (params of a measure row) are not in this recipe: a measure the person asks for beyond these eight is a new aggregate in the store, not a row here."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store",
+            "list",
+            "measures"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps the list: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                },
+                "place": {
+                  "type": "string",
+                  "description": "Where in the store the list's rows are kept, when the store has more than one place for them"
+                }
+              }
+            },
+            "list": {
+              "type": "string",
+              "description": "The list's name in the store, and the kind of its rows (for example orders, and its rows are of the kind order)"
+            },
+            "view": {
+              "type": "object",
+              "description": "A saved view of the list, when only the rows it keeps are to be totalled: its filter rules as the store holds them, read the way the page shows the view",
+              "required": [
+                "name",
+                "rules"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "rules": {
+                  "type": "object"
+                }
+              }
+            },
+            "measures": {
+              "type": "array",
+              "maxItems": 20,
+              "items": {
+                "type": "object",
+                "required": [
+                  "op"
+                ],
+                "properties": {
+                  "op": {
+                    "type": "string",
+                    "enum": [
+                      "count",
+                      "filled",
+                      "distinct",
+                      "sum",
+                      "average",
+                      "median",
+                      "min",
+                      "max"
+                    ]
+                  },
+                  "field": {
+                    "type": "string",
+                    "description": "The field the measure is about: any field for filled and distinct, a number field for the rest. Not needed for count."
+                  }
+                }
+              }
+            },
+            "group_by": {
+              "type": "string",
+              "description": "A field of the list: the measures are answered once for each value it holds. A field holding several tags counts each row once per tag."
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of the list named in the request: its rows, their kind, its fields and their kinds, and any saved view named in the request. Submit where the list is kept (place, or null), the list's row kind, the number fields, and whether the view exists.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "place",
+                "row_kind",
+                "number_fields",
+                "view_found"
+              ],
+              "properties": {
+                "place": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "row_kind": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "number_fields": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "view_found": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the totals on the example list",
+            "do": "In a throwaway place in the same store, put the example rows of the list (kits/total-a-list-or-view.json, list orders) as the store's own rows of the kind order, then ask each attempt below through the store's own aggregate, each attempt at the time given. An attempt that the intent refuses (a measure on a field that is not a number, a field the list does not have, a row kind the list does not hold, a list that is not there) must come back refused with the store's own words for why. attempts: [{\"list\": \"orders\", \"measures\": [{\"op\": \"count\"}, {\"op\": \"sum\", \"field\": \"amount\"}]}, {\"list\": \"orders\", \"group_by\": \"kind\", \"measures\": [{\"op\": \"count\"}, {\"op\": \"sum\", \"field\": \"amount\"}]}, {\"list\": \"orders\", \"view\": \"bread-only\", \"measures\": [{\"op\": \"count\"}, {\"op\": \"sum\", \"field\": \"amount\"}]}, {\"list\": \"orders\", \"measures\": [{\"op\": \"average\", \"field\": \"amount\"}, {\"op\": \"median\", \"field\": \"amount\"}, {\"op\": \"min\", \"field\": \"amount\"}, {\"op\": \"max\", \"field\": \"amount\"}, {\"op\": \"distinct\", \"field\": \"kind\"}, {\"op\": \"filled\", \"field\": \"item\"}]}, {\"list\": \"orders\", \"measures\": [{\"op\": \"sum\", \"field\": \"item\"}]}, {\"list\": \"orders\", \"measures\": [{\"op\": \"sum\", \"field\": \"nope\"}]}, {\"list\": \"secret\", \"measures\": [{\"op\": \"count\"}]}]. Each attempt must give the outcome the intent gives, and the totals must match the expected answers below.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answers"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "answered",
+                      "refused"
+                    ]
+                  }
+                },
+                "answers": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each attempt is answered or refused as the intent says",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "answered",
+                    "answered",
+                    "answered",
+                    "answered",
+                    "refused",
+                    "refused",
+                    "refused"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "The store's own aggregate gives every expected total: the whole list, each group, the saved view and the single-field measures",
+                "path": [
+                  "this",
+                  "answers"
+                ],
+                "values": [
+                  [
+                    {
+                      "rows_counted": 5,
+                      "complete": true,
+                      "measures": [
+                        {
+                          "op": "count",
+                          "field": null,
+                          "value": 5
+                        },
+                        {
+                          "op": "sum",
+                          "field": "amount",
+                          "value": 60.5
+                        }
+                      ]
+                    },
+                    {
+                      "rows_counted": 5,
+                      "complete": true,
+                      "groups": [
+                        {
+                          "key": "bread",
+                          "rows": 2,
+                          "measures": [
+                            {
+                              "op": "count",
+                              "field": null,
+                              "value": 2
+                            },
+                            {
+                              "op": "sum",
+                              "field": "amount",
+                              "value": 10.5
+                            }
+                          ]
+                        },
+                        {
+                          "key": "cake",
+                          "rows": 2,
+                          "measures": [
+                            {
+                              "op": "count",
+                              "field": null,
+                              "value": 2
+                            },
+                            {
+                              "op": "sum",
+                              "field": "amount",
+                              "value": 42
+                            }
+                          ]
+                        },
+                        {
+                          "key": "tart",
+                          "rows": 1,
+                          "measures": [
+                            {
+                              "op": "count",
+                              "field": null,
+                              "value": 1
+                            },
+                            {
+                              "op": "sum",
+                              "field": "amount",
+                              "value": 8
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "rows_counted": 2,
+                      "complete": true,
+                      "measures": [
+                        {
+                          "op": "count",
+                          "field": null,
+                          "value": 2
+                        },
+                        {
+                          "op": "sum",
+                          "field": "amount",
+                          "value": 10.5
+                        }
+                      ]
+                    },
+                    {
+                      "rows_counted": 5,
+                      "complete": true,
+                      "measures": [
+                        {
+                          "op": "average",
+                          "field": "amount",
+                          "value": 12.1
+                        },
+                        {
+                          "op": "median",
+                          "field": "amount",
+                          "value": 8
+                        },
+                        {
+                          "op": "min",
+                          "field": "amount",
+                          "value": 4
+                        },
+                        {
+                          "op": "max",
+                          "field": "amount",
+                          "value": 30
+                        },
+                        {
+                          "op": "distinct",
+                          "field": "kind",
+                          "value": 3
+                        },
+                        {
+                          "op": "filled",
+                          "field": "item",
+                          "value": 5
+                        }
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "id": "answer",
+            "title": "Total the asked list",
+            "do": "Total the list the request names, with the measures and group_by it names, over the whole list or the view it names, through the store's own aggregate, and read the answer back. Submit rows_counted, complete (false when the store stopped before the end), the measures (each with its op, field and value) and, with group_by, one entry for each value. A refusal is the store's own words for what to ask instead.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "rows_counted",
+                "complete",
+                "measures"
+              ],
+              "properties": {
+                "rows_counted": {
+                  "type": "integer"
+                },
+                "complete": {
+                  "type": "boolean"
+                },
+                "measures": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "groups": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "refused": {
+                  "type": "string"
+                }
+              }
+            },
+            "checks": []
+          }
+        ]
+      }
+    }
+  ]
+}

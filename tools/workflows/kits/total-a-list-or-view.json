@@ -1,0 +1,113 @@
+{
+  "drafted_from": "tools/total-a-list-or-view (do-work/total-a-list.mjs, test/total-a-list-or-view.test.mjs) and tools/query-and-change-list-rows/src/list-aggregates.mjs (the measures and their meaning); the example list is the proof's",
+  "start_here": "Say to your AI: \"Run workflow:total-a-list-or-view with store {\\\"where\\\": \\\"postgresql database example_me on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-me-postgres-connection\\\"}, list \\\"orders\\\" and measures [{\\\"op\\\": \\\"count\\\"}, {\\\"op\\\": \\\"sum\\\", \\\"field\\\": \\\"amount\\\"}], grouped by kind.\" It totals your orders in your own database and hands back only the totals.",
+  "lists": [],
+  "no_lists_because": "It names no list of its own: the list it totals is whichever list the request names, kept in the person's own store, in whatever form that store keeps things.",
+  "workflows": [
+    "workflow:total-a-list-or-view"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the list is kept and how the store is spoken to.",
+    "2. Say \"Run workflow:total-a-list-or-view\" with store, the list, the measures, and group_by or a view when you want them.",
+    "3. The first run proves the totals on a small example list in a throwaway place of the store: every expected answer must match, or the run stops and says which.",
+    "4. Every later run asks the store's own aggregate for the list the request names and reads the answer back. Only the answer comes back, never the rows."
+  ],
+  "worked_examples": [
+    {
+      "title": "How many orders, and what they add up to, for each kind",
+      "ask": "How many orders do I have and what do they add up to, for each kind?",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:total-a-list-or-view",
+              "store": {
+                "where": "postgresql database example_me on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-me-postgres-connection"
+              },
+              "list": "orders",
+              "group_by": "kind",
+              "measures": [
+                {
+                  "op": "count"
+                },
+                {
+                  "op": "sum",
+                  "field": "amount"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:total-a-list-or-view",
+      "step": "answer",
+      "given": "The look step found the orders list kept in the person's database with the kind and amount fields, and the prove step matched every expected total on the example orders.",
+      "hands_back": "rows_counted 5 and complete true; for bread 2 rows totalling 10.5, for cake 2 rows totalling 42, and for tart 1 row totalling 8."
+    },
+    {
+      "title": "The bread orders only, from a saved view",
+      "ask": "Total only the bread orders.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:total-a-list-or-view",
+              "store": {
+                "where": "postgresql database example_me on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-me-postgres-connection"
+              },
+              "list": "orders",
+              "view": {
+                "name": "bread-only",
+                "rules": {
+                  "kind": "group",
+                  "combinator": "and",
+                  "negate": false,
+                  "rules": [
+                    {
+                      "kind": "rule",
+                      "field": "kind",
+                      "operator": "is_any_of",
+                      "params": {
+                        "values": [
+                          "bread"
+                        ]
+                      }
+                    }
+                  ]
+                }
+              },
+              "measures": [
+                {
+                  "op": "count"
+                },
+                {
+                  "op": "sum",
+                  "field": "amount"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:total-a-list-or-view",
+      "step": "answer",
+      "given": "The bread-only view is a saved view of the orders list; the store reads it the way the page shows it.",
+      "hands_back": "rows_counted 2 and complete true, with a count of 2 and a sum of amount of 10.5."
+    }
+  ]
+}
