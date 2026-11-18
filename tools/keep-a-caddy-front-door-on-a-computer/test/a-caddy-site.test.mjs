@@ -128,3 +128,13 @@ test('a certificate-only site keeps the certificate of its name or address with 
   assert.doesNotMatch(file.text, /\{\{|reverse_proxy|file_server/);
   await assert.rejects(siteFile({ site_file: 'certificate-only', door_host: '192.0.2.10', grace_period: '5s' }), /certificate_profile/);
 });
+
+test('a made page is made at the apply by the module the site names, from this Workshop, and a page given twice is refused', async () => {
+  const made = { module: 'tools/use-your-tools-from-a-shell/do-work/write-site-pages.mjs', export: 'sitePages', arguments: ['https://example.test', { name: 'Example', cli: 'example' }] };
+  const files = (await filesOf({ ...single, made_pages: [made] })).filter(file => file.path.startsWith('/var/lib/front-door-pages/cli/'));
+  const install = files.find(file => file.path === '/var/lib/front-door-pages/cli/install');
+  assert.match(Buffer.from(install.text, 'base64').toString('utf8'), /https:\/\/example\.test\/cli\/install/, 'the install page is filled for the site');
+  assert.ok(files.some(file => file.path === '/var/lib/front-door-pages/cli/program/command.mjs'), 'the program the command line runs is served');
+  const twice = [...PAGES, { name: 'cli/install', bytes: Buffer.from('a kept copy') }];
+  await assert.rejects(filesOf({ ...single, made_pages: [made] }, twice), /cli\/install is given twice/);
+});

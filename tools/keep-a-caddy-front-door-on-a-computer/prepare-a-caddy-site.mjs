@@ -38,8 +38,25 @@ const fillFields = (text, site, where, special = () => undefined) => text.replac
 const TEXT_PAGE = /\.(?:html|css|svg)$/;
 const pageFiles = (site, pages) => {
   if (!Array.isArray(pages) || !pages.length) throw new Error('caddy.pages_root needs the pages the request gives (pages_folder)');
+  const names = pages.map(({ name }) => name), twice = names.find((name, at) => names.indexOf(name) !== at);
+  if (twice) throw new Error(`caddy.pages_root: ${twice} is given twice (the pages folder and a made page)`);
   return pages.map(({ name, bytes }) => (TEXT_PAGE.test(name) ? { path: `${site.pages_root}/${name}`, text: bytes.toString('utf8') } : { path: `${site.pages_root}/${name}`, text: bytes.toString('base64'), binary: true }))
     .sort((a, b) => (a.path < b.path ? -1 : 1));
+};
+
+// Pages a tool makes rather than the person keeps (`made_pages`: each { module, export, arguments }, a module published in this
+// Workshop whose export answers [{ page, bytes }] for those arguments): made at every apply from the Workshop the apply runs, so
+// they never go stale in the person's folder (finding F5: the site's command-line pages were a day old). A page both the
+// person's folder and a made page give is refused: one place says what it is.
+const madePages = async site => {
+  const made = [];
+  for (const { module, export: name, arguments: args = [] } of site.made_pages ?? []) {
+    const where = `caddy made page ${module}`;
+    const make = (await import(pathToFileURL(publishedFile(module, where)).href))[name];
+    if (typeof make !== 'function') throw new Error(`${where} exports no ${name}`);
+    made.push(...(await make(...args)).map(({ page, bytes }) => ({ name: page, bytes: Buffer.from(bytes) })));
+  }
+  return made;
 };
 
 /** A route's text filled from the site's fields; each pool the site names (`pools`) is the field `<pool>_proxy`. */
@@ -109,7 +126,7 @@ export async function prepare(given, { pages } = {}) {
   const texts = await routeTexts(site);
   const text = (site.site_file ? wholeFile(site, texts) : blockPerName(site, texts)) + innerDoors(site);
   const caddyfile = { path: CADDYFILE, text, check: [site.binary ?? 'caddy', 'validate', '--config', '{file}', '--adapter', 'caddyfile'], then: [['systemctl', 'reload', unit.unit]] };
-  const served = site.pages_root ? pageFiles(site, pages).map(file => ({ ...file, then: [] })) : [];
+  const served = site.pages_root ? pageFiles(site, [...(pages ?? []), ...await madePages(site)]).map(file => ({ ...file, then: [] })) : [];
   // The pages folder is the site's whole: a page that left the person's pages folder leaves the computer too (owned_folders).
   return { unit: { ...unit, files: [...(unit.files ?? []), caddyfile, ...served], ...(site.pages_root ? { owned_folders: [...(unit.owned_folders ?? []), site.pages_root] } : {}) } };
 }

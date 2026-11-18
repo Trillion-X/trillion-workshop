@@ -524,23 +524,23 @@ export function readRequest(file) {
     rowHere = dirname(rowFile);
     delete request.computer_row_file;
   }
-  // A unit's `settings_parts` fills its settings from what the person keeps (any file: their own description, a provider's):
-  // each key is a JSON Pointer (RFC 6901) into `settings`, each value `{ file, pointer }`, the value at that pointer of the
-  // file's JSON (pointer "" or none: the whole file), read relative to the computer row's file. The tool names no setting and
-  // no field: which value goes where is the person's.
+  // A unit's `parts` fill it from what the person keeps (any file: their own description, a provider's): each key is a JSON
+  // Pointer (RFC 6901) into the unit (its settings, a web server's site, any field), each value `{ file, pointer }`, the value at
+  // that pointer of the file's JSON (pointer "" or none: the whole file), read relative to the computer row's file. The tool
+  // names no setting and no field: which value goes where is the person's.
   for (const unit of request.computer_row?.runs?.units ?? []) {
-    for (const [target, part] of Object.entries(unit.settings_parts ?? {})) {
-      const where = `${unit.unit} settings_parts ${target}`;
+    for (const [target, part] of Object.entries(unit.parts ?? {})) {
+      const where = `${unit.unit} parts ${target}`;
       if (!target.startsWith('/') || !part || typeof part.file !== 'string' || (part.pointer !== undefined && typeof part.pointer !== 'string')) {
-        throw refused(`${where}: each key is a JSON Pointer into the unit's settings (it starts with /) and each value { file, pointer }.`);
+        throw refused(`${where}: each key is a JSON Pointer into the unit (it starts with /) and each value { file, pointer }.`);
       }
       const value = pointed(JSON.parse(readFileSync(resolvePath(rowHere, part.file), 'utf8')), part.pointer ?? '', `${where} reads ${part.file}`);
       const keys = pointerKeys(target), last = keys.pop();
-      const holder = keys.reduce((held, key) => held?.[key], unit.settings);
-      if (!holder || typeof holder !== 'object') throw refused(`${where}: the unit's settings hold nothing at ${target.slice(0, target.lastIndexOf('/')) || '/'} to put it in.`);
+      const holder = keys.reduce((held, key) => held?.[key], unit);
+      if (!holder || typeof holder !== 'object') throw refused(`${where}: the unit holds nothing at ${target.slice(0, target.lastIndexOf('/')) || '/'} to put it in.`);
       holder[Array.isArray(holder) ? Number(last) : last] = value;
     }
-    delete unit.settings_parts;
+    delete unit.parts;
   }
   resolveIn(request.machine, 'provider');
   resolveIn(request.name, 'provider');
