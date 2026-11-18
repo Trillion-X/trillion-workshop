@@ -1,3 +1,4 @@
+/*
  *
  * The look of the chat part (tools/chat, brought over from bitfield-packages packages/chat): its conversation list
  * beside the open conversation. The chat draws with the shared ui and sidebar parts and their tokens; this file only

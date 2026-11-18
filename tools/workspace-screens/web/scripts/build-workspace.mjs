@@ -40,6 +40,7 @@ import { clientFileAt, partsAreToolsPlugin, toolFileOfPart } from './parts-are-t
 import { SOURCE_RECORD_FILE, buildCommit, sourceRecord } from '../../../../tools/native-space-source-release/scripts/workspace-source-record.mjs';
 import { writePublicIcons } from './public-icons.mjs';
 import { installedModules, workshopRoot } from './installed-modules.mjs';
+import { lookDocumentCss } from '../../../../tools/screen-look/read-data/look-document-css.js';
 
 const { whatsNewList } = await import('../src/whats-new-rows.mjs');
 const { devicesFor } = await import('../src/devices.mjs');
@@ -200,7 +201,13 @@ for (const file of sources) if (/\.(m?[jt]sx?)$/.test(file)) for (const word of 
 // screen-look tool's, where the looks moved (trillion-workshop tools/screen-look/show).
 const workshopLooks = relative(root, join(workshop, 'tools/screen-look/show'));
 const lookAt = file => [join(relative(root, join(parts, 'screen-look/show')), file), join(workshopLooks, file)].find(path => existsSync(join(root, path))) ?? join(relative(root, join(parts, 'screen-look/show')), file);
-const look = file => readFileSync(join(root, lookAt(file)), 'utf8');
+// A look whose comment closes without opening (its first "/*" lost) makes the browser drop every rule after it, in this
+// sheet and every sheet it is joined into, with no error anywhere: the build refuses it instead.
+const look = file => {
+  const css = readFileSync(join(root, lookAt(file)), 'utf8');
+  if (css.replace(/\/\*[\s\S]*?\*\//g, '').includes('*/')) throw new Error(`${lookAt(file)} closes a comment it never opened, so a browser would drop every rule after it.`);
+  return css;
+};
 const { workspaceUtilitySource } = await import('../../../../tools/screen-look/do-work/workspace-utility-source.mjs');
 const tailwindSource = workspaceUtilitySource(look('coss-workspace.css'));
 const compiled = await compile(tailwindSource, { base: join(modules, 'tailwindcss'), onDependency: () => {} });
@@ -243,6 +250,31 @@ const shareCompiled = await compile(tailwindSource, { base: join(modules, 'tailw
 writeFileSync(join(out, 'share-view.css'), [shareCompiled.build([...shareCandidates]), look('coss-workspace.css'),
   twenty('record-table.css'), look('look-bridges.css'), look('edge-fade.css'), look('chart.css'),
   look('schedule-calendar.css'), look('rotating-carousel.css'), look('creative-workspace.css')].join('\n'));
+// The view an AI app draws for the answer of any operation the engine's door runs (src/workspace/value-view.tsx): one
+// script and the look it needs, at fixed addresses (value-view.js, value-view.css) because an AI app keeps the view's
+// document between deploys. The document itself is the front door's own (it names that door's origin); it loads these.
+const valueView = await build({
+  absWorkingDir: root,
+  entryPoints: ['src/workspace/value-view.tsx'],
+  bundle: true, format: 'iife', platform: 'browser', target: 'es2022', minify: true, jsx: 'automatic',
+  outfile: join(out, 'value-view.js'), metafile: true, logLevel: 'warning', legalComments: 'none',
+  define: { 'process.env.NODE_ENV': '"production"' },
+  // The formula engine is fetched only by a screen that has a condition (parts-screen.tsx), and a drawn value has none.
+  loader: { '.wasm': 'empty' },
+  // The icons it carries are the ones its drawing rows name; a value naming another is drawn with the fallback icon.
+  plugins: [namedIconsPlugin(root, [join(parts, 'ui/show/view-of-a-value')]), jsonFields, partSideEffectsPlugin(parts), workshopShell, partsAreTools, barrels.plugin],
+});
+// Its look is made the way the page's is (above): its utilities, the parts' own looks, and the light theme's tokens that
+// any of them read. The classes it can write are words of its own script as built (what the bundler kept), and a look
+// is carried when a class it styles is one of them.
+const valueCandidates = new Set(classWords(readFileSync(join(out, 'value-view.js'), 'utf8')));
+const valueUtilities = (await compile(tailwindSource, { base: join(modules, 'tailwindcss'), onDependency: () => {} })).build([...valueCandidates]);
+const valueLooks = LOOKS.map(look).filter(css => [...css.matchAll(/\.(-?[A-Za-z_][\w-]*)/g)].some(([, name]) => valueCandidates.has(name)));
+const valueSources = Object.keys(valueView.metafile.inputs).map(input => resolve(root, input)).filter(file => (file.startsWith(`${parts}/`) || file.startsWith(join(root, 'src/workspace/'))) && /\.(m?[jt]sx?)$/.test(file) && !file.startsWith(join(parts, 'ui/show/twenty/theme-')));
+const valueTheme = lightThemeCss(parts, [tailwindSource, valueUtilities, ...valueLooks, ...valueSources.map(file => readFileSync(file, 'utf8'))]);
+const { wornLook } = await import('../src/page-look.mjs');
+// The look's own tokens and faces lead, as the look every page starts with (src/page-look.mjs): the view reads no one's look.
+writeFileSync(join(out, 'value-view.css'), oneCopyOfEachRule((await transform([lookDocumentCss(wornLook(null).palette), valueUtilities, ...valueLooks, valueTheme].join('\n'), { loader: 'css', minify: true, logLevel: 'silent' })).code));
 // The public share look also serves collections with no media player, so it is an independent stylesheet.
 writeFileSync(join(out, 'public-share.css'), [look('loading-mark.css'), look('public-share.css')].join('\n'));
 // What the Worker writes into the workspace page (src/workspace-files.mjs): the script, the stylesheet, and the files
@@ -336,6 +368,6 @@ writeFileSync(resolve(out, '..', '..', SOURCE_RECORD_FILE), JSON.stringify(sourc
   prefix: process.env.WORKSPACE_SOURCE_PREFIX ?? '',
   // The client is the Workshop's own files, asked of the Workshop commit at their path from the Workshop's folder (a link to it in a checkout, the installed copy elsewhere).
   treeRoot: realpathSync(workshop) })));
-process.stdout.write(`built ${relative(root, out)}: ${Object.keys(bundled.metafile.outputs).filter(file => !file.endsWith('.css')).length} content-named files and ${stylesheetName} in ${NAMED}/, file-view.js, screen-view.js, share-view.js, device-copy-worker.js, share-view.css, workspace.css, files.json; ${toolScreens.modules.length} screen modules sharing ${shared.entryOf.size} files with the page\n`);
+process.stdout.write(`built ${relative(root, out)}: ${Object.keys(bundled.metafile.outputs).filter(file => !file.endsWith('.css')).length} content-named files and ${stylesheetName} in ${NAMED}/, file-view.js, screen-view.js, share-view.js, device-copy-worker.js, share-view.css, value-view.js, value-view.css, workspace.css, files.json; ${toolScreens.modules.length} screen modules sharing ${shared.entryOf.size} files with the page\n`);
 
 });

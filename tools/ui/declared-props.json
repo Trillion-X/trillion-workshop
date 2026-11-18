@@ -6,6 +6,7 @@
       "children": true,
       "props": {
         "layout": { "enum": ["horizontal", "vertical", "grid", "responsive-split", "flow"] },
+        "gridCols": { "enum": [1, 2, 3, 4, "auto-fill-xs", "auto-fill-sm"] },
         "gap": { "enum": ["none", "xs", "sm", "md", "lg", "xl"] },
         "padding": { "enum": ["none", "xs", "sm", "md", "lg", "xl"] },
         "alignItems": { "enum": ["start", "center", "end", "stretch"] },

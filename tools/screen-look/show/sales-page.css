@@ -1,3 +1,4 @@
+/*
    The look of a sales or landing page written by the page tool (tools/write-a-sales-page), on top of the shared page
    writer's own sections (tools/ui/show/server-rendered-page). A section names how it reads with one emphasis word
    (`hero`, `offer`, `proof`, `steps`, `story`, `cta`, `fine`); a word no rule here knows reads as an ordinary section.

@@ -1,3 +1,4 @@
+/*
    The look of every chart (tools/ui/show/chart): the first series wears the worn look's accent (--accent-primary), the
    others categorical series colours in a fixed, colour-blind-checked order
    (the dataviz reference palette, validated light and dark: worst adjacent CVD ΔE 9.1 / 8.4), reserved tones for a

@@ -1,3 +1,4 @@
+/*
    The look of the shared steps checklist (ui/show/steps-checklist/StepsChecklist.tsx): a small done / total count over a
    two pixel bar (21st.dev Onboarding Checklist 30552), then one bordered list with a hairline between rows (Xero's set-up
    steps, DoorDash Merchant's numbered instructions, Mobbin cb2e2006 and 42576734), each row a round mark, the words, and a

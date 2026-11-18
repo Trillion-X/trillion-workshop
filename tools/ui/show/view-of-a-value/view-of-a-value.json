@@ -1,0 +1,307 @@
+{
+  "_what": "How any value is drawn as a screen of shared parts (project.mjs). `rules` are tried in order; the first whose `when` holds for the value draws it with its `draw` template. A `when` names facts of the value's own shape (project.mjs `factsOf`: kind, count, items_kind, has_title, empty, is_error, has_range, media) and the value each must have (`*_lte`/`*_gte` bound a number). A `draw` template is an element of tools/ui/declared-props.json with `props` whose values may read the value: {\"$at\": \"/pointer\"} a field, {\"$title\": true} its title (the first of `title_fields` it has), {\"$text\": true} the value as words, {\"$words\": \"key\"} a word below, {\"$label\": true} the field's name in words, {\"$count\": true} how many items it holds. `children` are templates, or {\"each_item\": template} once per item of a list, or {\"each_field\": template} once per field of an object (its value is {key, value}), or {\"$view\": \"/pointer\"} the value at that pointer drawn by these same rules (so any nesting is drawn with no rule naming it). The last rule holds for every value, so nothing is left undrawn. `title_fields` and `hidden_fields` are DATA: a person's lens may narrow them. `limits` bound one screen (the parts screen's own limits are tools/build-a-screen-from-patches/read-data/screen-spec.json).",
+  "title_fields": [
+    "title",
+    "name",
+    "label",
+    "subject",
+    "id"
+  ],
+  "hidden_fields": [],
+  "limits": {
+    "depth": 8,
+    "items": 50,
+    "fields": 40,
+    "text_chars": 600
+  },
+  "words": {
+    "empty": "Nothing here yet.",
+    "more": "{count} more",
+    "error": "This did not work",
+    "yes": "Yes",
+    "no": "No",
+    "none": "None"
+  },
+  "rules": [
+    {
+      "id": "an-error",
+      "when": {
+        "kind": "object",
+        "is_error": true
+      },
+      "draw": {
+        "type": "Card",
+        "props": {
+          "variant": "outline",
+          "padding": "md",
+          "layout": "stack"
+        },
+        "children": [
+          {
+            "type": "Badge",
+            "props": {
+              "text": {
+                "$words": "error"
+              },
+              "variant": "error"
+            }
+          },
+          {
+            "type": "Text",
+            "props": {
+              "text": {
+                "$at": [
+                  "/message",
+                  "/detail",
+                  "/code"
+                ]
+              },
+              "variant": "body"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "nothing",
+      "when": {
+        "empty": true
+      },
+      "draw": {
+        "type": "Text",
+        "props": {
+          "text": {
+            "$words": "empty"
+          },
+          "variant": "body",
+          "color": "muted"
+        }
+      }
+    },
+    {
+      "id": "a-few-things-to-choose-from",
+      "when": {
+        "kind": "array",
+        "items_kind": "object",
+        "has_title": true,
+        "count_lte": 6
+      },
+      "draw": {
+        "type": "Container",
+        "props": {
+          "layout": "grid",
+          "gridCols": "auto-fill-xs",
+          "gap": "md"
+        },
+        "children": [
+          {
+            "each_item": {
+              "type": "Card",
+              "props": {
+                "variant": "surface",
+                "padding": "md",
+                "layout": "stack"
+              },
+              "children": [
+                {
+                  "type": "Text",
+                  "props": {
+                    "text": {
+                      "$title": true
+                    },
+                    "variant": "title"
+                  }
+                },
+                {
+                  "each_field": {
+                    "type": "Container",
+                    "props": {
+                      "layout": "vertical",
+                      "gap": "xs"
+                    },
+                    "children": [
+                      {
+                        "type": "Text",
+                        "props": {
+                          "text": {
+                            "$label": true
+                          },
+                          "variant": "label",
+                          "color": "muted"
+                        }
+                      },
+                      {
+                        "$view": "/value"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "a-list-of-records",
+      "when": {
+        "kind": "array",
+        "items_kind": "object"
+      },
+      "draw": {
+        "type": "Container",
+        "props": {
+          "layout": "vertical",
+          "gap": "sm"
+        },
+        "children": [
+          {
+            "each_item": {
+              "type": "Card",
+              "props": {
+                "variant": "outline",
+                "padding": "sm",
+                "layout": "row"
+              },
+              "children": [
+                {
+                  "type": "Text",
+                  "props": {
+                    "text": {
+                      "$title": true
+                    },
+                    "variant": "body"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "a-list-of-words-or-numbers",
+      "when": {
+        "kind": "array"
+      },
+      "draw": {
+        "type": "Container",
+        "props": {
+          "layout": "flow",
+          "gap": "xs"
+        },
+        "children": [
+          {
+            "each_item": {
+              "type": "Badge",
+              "props": {
+                "text": {
+                  "$text": true
+                },
+                "variant": "neutral"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "a-number-in-a-range",
+      "when": {
+        "kind": "number",
+        "has_range": true
+      },
+      "draw": {
+        "type": "ScoreRing",
+        "props": {
+          "value": {
+            "$at": ""
+          },
+          "max": {
+            "$at": "#maximum"
+          },
+          "label": {
+            "$label": true
+          }
+        }
+      }
+    },
+    {
+      "id": "yes-or-no",
+      "when": {
+        "kind": "boolean"
+      },
+      "draw": {
+        "type": "Badge",
+        "props": {
+          "text": {
+            "$text": true
+          },
+          "variant": "secondary"
+        }
+      }
+    },
+    {
+      "id": "a-record",
+      "when": {
+        "kind": "object"
+      },
+      "draw": {
+        "type": "Card",
+        "props": {
+          "variant": "surface",
+          "padding": "md",
+          "layout": "stack"
+        },
+        "children": [
+          {
+            "type": "Text",
+            "props": {
+              "text": {
+                "$title": true
+              },
+              "variant": "title"
+            }
+          },
+          {
+            "each_field": {
+              "type": "Container",
+              "props": {
+                "layout": "vertical",
+                "gap": "xs"
+              },
+              "children": [
+                {
+                  "type": "Text",
+                  "props": {
+                    "text": {
+                      "$label": true
+                    },
+                    "variant": "label",
+                    "color": "muted"
+                  }
+                },
+                {
+                  "$view": "/value"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "words",
+      "when": {},
+      "draw": {
+        "type": "Text",
+        "props": {
+          "text": {
+            "$text": true
+          },
+          "variant": "body"
+        }
+      }
+    }
+  ]
+}

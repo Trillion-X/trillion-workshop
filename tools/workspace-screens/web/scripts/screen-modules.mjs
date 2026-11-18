@@ -95,7 +95,8 @@ export function savedScreenSharedModules(asked) {
   return entries;
 }
 
-// A relative import of another code file of the page's own tree: followed in the probe, so the names a file passes on with `export * from` are read.
+// A relative import of another code file (of the page's own tree, or inside an installed package, whose `utils.mjs` may
+// pass on `./utils/element.mjs` whole): followed in the probe, so the names a file passes on with `export * from` are read.
 const CODE_PATH = /^\.{1,2}\/(?:[^?#]*\/)?[^./?#]+(?:\.(?:[cm]?[jt]sx?))?$/;
 
 // What the page passes on for one shared name (`index` numbers it): the names bundles import from it (`names`, or
@@ -111,7 +112,7 @@ async function sharedSource(shared, names, index, root, surface, plugins) {
     absWorkingDir: root, entryPoints: [target], bundle: true, write: false, metafile: true, format: 'esm', platform: 'browser', logLevel: 'silent', outdir: '/probe',
     // A page file that names compiled bytes (record-filter.ts: the formula engine's wasm) is probed for its names like any other; the bytes are not read.
     loader: { '.wasm': 'empty' },
-    plugins: [...plugins, { name: 'only-this-file', setup(only) { only.onResolve({ filter: /.*/ }, args => (args.kind === 'entry-point' || args.kind === 'import-statement' && CODE_PATH.test(args.path) && !args.importer.split(sep).includes('node_modules') ? undefined : { path: args.path, external: true })); } }],
+    plugins: [...plugins, { name: 'only-this-file', setup(only) { only.onResolve({ filter: /.*/ }, args => (args.kind === 'entry-point' || args.kind === 'import-statement' && CODE_PATH.test(args.path) ? undefined : { path: args.path, external: true })); } }],
   });
   const exports = probe ? Object.values(probe.metafile.outputs).find(output => output.entryPoint)?.exports ?? [] : ['default'];
   const quoted = JSON.stringify(target);

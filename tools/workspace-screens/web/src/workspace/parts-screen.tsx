@@ -180,15 +180,22 @@ function childrenOf(element: Element, here: Scope & { state: Record<string, unkn
 }
 
 // Every element's visibility and choices are decided by the formula engine (screen-spec.mjs conditionHolds), so a screen
-// draws once the engine's bytes are loaded, the same bytes the page's record filters use; if they cannot be fetched the
-// screen says so rather than draw conditions it cannot decide.
-function ConditionsLoaded({ children }: { children: React.ReactNode }) {
-  const [state, setState] = React.useState<'loading' | 'ready' | 'failed'>('loading');
+// that has one draws once the engine's bytes are loaded, the same bytes the page's record filters use; if they cannot be
+// fetched the screen says so rather than draw conditions it cannot decide. A screen with no condition (no `visible`, no
+// `$cond`) asks nothing of the engine, so it draws at once and its bytes are never fetched for it.
+const hasCondition = (spec: PartsSpec) => Object.values(spec.elements ?? {}).some(element => element?.visible !== undefined || JSON.stringify(element?.props ?? {}).includes('"$cond"'));
+
+function ConditionsLoaded({ store, children }: { store: Store; children: React.ReactNode }) {
+  const needed = React.useSyncExternalStore(store.subscribe, () => hasCondition(store.spec()));
+  const [state, setState] = React.useState<'idle' | 'loading' | 'ready' | 'failed'>('idle');
   React.useEffect(() => {
+    if (!needed || state !== 'idle') return undefined;
     let live = true;
+    setState('loading');
     loadScreenConditions().then(() => live && setState('ready'), () => live && setState('failed'));
     return () => { live = false; };
-  }, []);
+  }, [needed, state]);
+  if (!needed) return <>{children}</>;
   if (state === 'failed') return <Fallback />;
   return state === 'ready' ? <>{children}</> : <ScreenState state={{ status: 'loading', label: screenSpecWords.loading, layout: 'rows' }} />;
 }
@@ -224,6 +231,7 @@ export function mountPartsScreen(element: HTMLElement, { call, requests = {} }: 
   let readsKey = '';
   let gone = false;
   let readVersion = 0;
+  let changed: (() => void) | null = null;
   const failed = (error: unknown) => store.fail(say(screenSpecWords.failed, { reason: reasonOf(error) }));
   // Each read fills its state path; one that fails says so and leaves what was there.
   const read = async () => {
@@ -254,12 +262,17 @@ export function mountPartsScreen(element: HTMLElement, { call, requests = {} }: 
   const take = (answer: Answer) => {
     store.setSpec(answer.spec as PartsSpec);
     const key = JSON.stringify(answer.spec.reads ?? {});
-    if (key !== readsKey) { readsKey = key; void read(); }
+    if (key !== readsKey) {
+      readsKey = key;
+      // A screen hears the store's changes only once it reads something: one that reads nothing (a drawn answer in a chat's
+      // frame) opens no live channel.
+      if (!changed && Object.keys(answer.spec.reads ?? {}).length) changed = onStoreChange(read);
+      void read();
+    }
     return answer;
   };
-  const mounted = mountReactSurface(element, <ConditionsLoaded><Screen host={{ store, run }} /></ConditionsLoaded>);
-  const changed = onStoreChange(read);
-  const dispose = (() => { gone = true; changed(); queueMicrotask(() => mounted()); }) as PartsScreenHandle;
+  const mounted = mountReactSurface(element, <ConditionsLoaded store={store}><Screen host={{ store, run }} /></ConditionsLoaded>);
+  const dispose = (() => { gone = true; changed?.(); queueMicrotask(() => mounted()); }) as PartsScreenHandle;
   dispose.push = text => take(stream.push(text));
   dispose.end = text => take(stream.end(text));
   dispose.show = spec => { take({ spec, changed: new Set(), said: [], restarted: false } as Answer); };

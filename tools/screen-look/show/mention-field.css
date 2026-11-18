@@ -1,3 +1,4 @@
+/*
  *
  * The look of the shared message field (tools/ui/show/mention-field/MentionField.tsx): plain writing that grows
  * with its words, a placeholder while empty, each mention as a coloured chip (the documents part's chip, tools/documents/read-data/inline-chip-dom.ts), and the @ picker above the box.

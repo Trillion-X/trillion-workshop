@@ -1,3 +1,4 @@
+/*
    The look of the shared one-at-a-time queue (ui/show/one-at-a-time-queue/OneAtATimeQueue.tsx): one focused column with
    where the person is ("3 of 214"), then one card with the deck's next two edges showing behind it (Deepstash's
    onboarding deck), the one way to finish it as the loudest thing on the card, compact context beneath it, and the moves

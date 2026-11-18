@@ -1,3 +1,4 @@
+/*
  *
  * The look of what `@` shows (tools/ui/show/mention-picker/MentionPicker.tsx): a row of kinds that narrows the list,
  * then the things grouped under faint kind headers, each with its kind's icon in a soft disc of the kind's colour.
