@@ -62,6 +62,13 @@ export const kitOf = recipe => kitFor(recipe);
 /** The recipe from the step `start_at` names on, or the recipe itself when it names none. */
 function startingAt(payload, start) {
   if (start === undefined) return payload;
+  // A recipe holding its own definition is a graph, not a list of steps to cut: it starts at its first step, which a wake
+  // names as its start_at like any other.
+  if (payload.definition) {
+    const first = payload.definition.steps?.[0]?.id;
+    if (start !== first) throw new Error(`start_at names ${JSON.stringify(start)}, but ${payload.id} holds its own definition, which starts at its first step, ${JSON.stringify(first)}.`);
+    return payload;
+  }
   const at = (payload.steps ?? []).findIndex(step => step.id === start);
   if (at < 0) throw new Error(`start_at names ${JSON.stringify(start)}, which is not a step of ${payload.id}: ${(payload.steps ?? []).map(step => step.id).join(', ')}.`);
   return { ...payload, steps: payload.steps.slice(at) };

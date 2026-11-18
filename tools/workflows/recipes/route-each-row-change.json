@@ -1,0 +1,291 @@
+{
+  "_what": "One workflow every row change wakes. The noticer tells each change of a table the person's AI attached record_row_change() to as a row-changes fact {database, table_name, op, at, txid, position, connection}; this run reads that change from row_changes at its position, with the connection the fact names, makes it one part {database, table_name, op, before, after}, asks tool:choose-the-workflows-that-fire which workflows' fires_when conditions keep that part, and tells one workflow-chosen fact for each choice {workflow, condition, database, table_name, op, position, connection}. It starts no workflow itself: each chosen workflow starts from its own wake on that fact, under its own switch and its own rights, with the input its condition names (start_at and the rest). A condition lives only in a workflow's own fires_when: nothing here names a table, an operation or a workflow. The event id is the change's own key plus the workflow and the condition, so a retried run tells each choice once. Neither fact carries row values, because a told fact is at most 8 text fields of 1,024 bytes (trillion-rust src/wake/host-events.json).",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:route-each-row-change",
+        "label": "Tell the workflows a row change calls for",
+        "job": "When a row of the person's own database is added, changed or removed, tell every workflow whose conditions say it follows that kind of change, so each starts from its own wake with that change",
+        "produces": "one workflow-chosen fact for each workflow a row change calls for",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "fact": {
+              "type": "object",
+              "description": "The row-changes fact that woke this run: database, table_name, op, at, txid, position and connection (the vault name of the connection that reads that database)"
+            }
+          }
+        },
+        "wakes": [
+          {
+            "id": "a-row-changed",
+            "on": {
+              "fact": {
+                "kind": "row-changes",
+                "from": [
+                  "run"
+                ]
+              }
+            },
+            "budget": {
+              "steps": 4,
+              "wall_ms": 300000
+            },
+            "input": {
+              "start_at": "read-the-change"
+            }
+          }
+        ],
+        "definition": {
+          "id": "workflow:route-each-row-change",
+          "name": "Tell the workflows a row change calls for",
+          "kind": "workflow",
+          "is_active": true,
+          "version": 1,
+          "steps": [
+            {
+              "id": "read-the-change",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "fact.connection"
+                    }
+                  },
+                  "sql": "SELECT table_name, op, before, after FROM row_changes WHERE position = $1",
+                  "params": [
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "fact.position"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "choose",
+              "kind": "ask",
+              "config": {
+                "name": "tool:choose-the-workflows-that-fire",
+                "input": {
+                  "parts": [
+                    {
+                      "database": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "fact.database"
+                        }
+                      },
+                      "table_name": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read-the-change",
+                          "path": "output.rows.0.table_name"
+                        }
+                      },
+                      "op": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read-the-change",
+                          "path": "output.rows.0.op"
+                        }
+                      },
+                      "before": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read-the-change",
+                          "path": "output.rows.0.before"
+                        }
+                      },
+                      "after": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "read-the-change",
+                          "path": "output.rows.0.after"
+                        }
+                      }
+                    }
+                  ],
+                  "within": [
+                    "workflow:route-each-row-change"
+                  ]
+                }
+              }
+            },
+            {
+              "id": "start-each",
+              "kind": "loop",
+              "config": {
+                "source": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "choose",
+                    "path": "output.chosen"
+                  }
+                },
+                "item_var": "chosen",
+                "definition_id": "workflow:route-each-row-change:tell-one",
+                "parallel": true
+              }
+            }
+          ],
+          "edges": [
+            {
+              "from": "read-the-change",
+              "to": "choose",
+              "kind": "always"
+            },
+            {
+              "from": "choose",
+              "to": "start-each",
+              "kind": "always"
+            }
+          ],
+          "uses": [
+            {
+              "id": "workflow:route-each-row-change:tell-one",
+              "name": "Tell that one chosen workflow its change",
+              "kind": "workflow",
+              "is_active": true,
+              "version": 1,
+              "steps": [
+                {
+                  "id": "tell",
+                  "kind": "ask",
+                  "config": {
+                    "name": "wake:arrive",
+                    "input": {
+                      "source": "workflow-chosen",
+                      "event_id": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "input",
+                          "path": "fact.database"
+                        },
+                        "resolve_nested_bindings": true,
+                        "transform": [
+                          {
+                            "op": "op:core.concat",
+                            "args": {
+                              "values": [
+                                {
+                                  "$kind": "binding",
+                                  "select": {
+                                    "from": "input",
+                                    "path": "fact.database"
+                                  }
+                                },
+                                ":",
+                                {
+                                  "$kind": "binding",
+                                  "select": {
+                                    "from": "input",
+                                    "path": "fact.txid"
+                                  }
+                                },
+                                ":",
+                                {
+                                  "$kind": "binding",
+                                  "select": {
+                                    "from": "input",
+                                    "path": "fact.position"
+                                  }
+                                },
+                                ":",
+                                {
+                                  "$kind": "binding",
+                                  "select": {
+                                    "from": "loop",
+                                    "path": "chosen.workflow"
+                                  }
+                                },
+                                ":",
+                                {
+                                  "$kind": "binding",
+                                  "select": {
+                                    "from": "loop",
+                                    "path": "chosen.condition"
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      },
+                      "payload": {
+                        "workflow": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "chosen.workflow"
+                          }
+                        },
+                        "condition": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "loop",
+                            "path": "chosen.condition"
+                          }
+                        },
+                        "database": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "fact.database"
+                          }
+                        },
+                        "table_name": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "fact.table_name"
+                          }
+                        },
+                        "op": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "fact.op"
+                          }
+                        },
+                        "position": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "fact.position"
+                          }
+                        },
+                        "connection": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "fact.connection"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              ],
+              "edges": []
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

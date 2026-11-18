@@ -57,10 +57,20 @@ test('every condition a published workflow carries is one the formulas engine ev
   for (const recipe of carrying) {
     for (const item of recipe.fires_when) {
       const { fields: reads, tree } = item.condition;
-      // A made-up part with every tag the condition names: the condition keeps it, and a part with none is not kept by it.
-      const tags = JSON.stringify(tree).match(/"values":\[[^\]]*\]/g)?.flatMap(found => JSON.parse(`{${found}}`).values) ?? [];
-      const full = { words: 'made up', kinds: tags, subjects: ['made-up subject'], people: ['made-up person'], niches: ['made-up niche'], own_words: true };
+      // A made-up part holding, at each field the condition reads, the values its rules name (a list for a tags field, the
+      // first value for any other): the condition keeps it, and a part holding none of them is not kept by it.
+      const full = { words: 'made up', subjects: ['made-up subject'], people: ['made-up person'], niches: ['made-up niche'], own_words: true };
       const empty = { words: 'made up', kinds: [], subjects: [], people: [], niches: [], own_words: false };
+      const walk = node => (node?.kind === 'group' ? node.rules.flatMap(walk) : node?.kind === 'rule' ? [node] : []);
+      for (const rule of walk(tree)) {
+        const field = reads.find(read => read.id === rule.field);
+        const values = rule.params?.values;
+        if (!field || !Array.isArray(values)) continue;
+        const [at] = field.path ?? [field.id];
+        full[at] = field.kind === 'tags' ? [...new Set([...(full[at] ?? []), ...values])] : values[0];
+        if (field.kind !== 'tags') empty[at] = 'made-up value no rule names';
+      }
+      full.kinds ??= [];
       const result = filterRecords({ records: [full, empty], fields: reads, tree });
       assert.deepEqual(result.incomplete, [], `${recipe.id} "${item.label}" has no unfinished rule`);
       assert.deepEqual(result.matches, [0], `${recipe.id} "${item.label}" keeps the part that meets it and only that one`);
@@ -81,19 +91,22 @@ test('the trunk carries one daily wake, chooses from every workflow, heals into 
   assert.ok(!recipe.input_schema.required.includes('seed'), 'a woken run takes its seeds from its cause');
 });
 
-test('a broad condition the trunk reports is written as a row the rewrite workflow wakes on, and only a Waiting row starts it', async () => {
+test('a broad condition the trunk reports is written as a row the rewrite workflow follows, and only a Waiting row starts it', async () => {
   const trunk = byId.get('workflow:grow-the-one-tree');
   const rewrite = byId.get('workflow:rewrite-a-broad-condition');
   assert.ok(rewrite, 'workflow:rewrite-a-broad-condition is published');
   assert.deepEqual(recipeProblems(rewrite), []);
-  const [wake] = rewrite.wakes;
+  // The rewrite follows an added broad_condition row through its own condition (route-each-row-change tells it), and starts
+  // with the input that condition names.
+  const condition = rewrite.fires_when.find(item => item.condition.fields.some(field => field.id === 'table_name'));
+  const valuesOf = id => condition.condition.tree.rules.find(rule => rule.field === id).params.values;
   const choose = trunk.steps.find(step => step.id === 'choose-branches').do;
-  // The trunk writes rows of the kind whose table the wake hears inserts in (the kind with - as _), and the arrival source
-  // the wake names when absent.
-  assert.deepEqual(wake.on.fact.match, { table_name: 'broad_condition', op: 'INSERT' });
-  assert.match(choose, new RegExp(`type record:${wake.on.fact.match.table_name.replaceAll('_', '-')}\\b`));
-  assert.ok(choose.includes(wake.input.arrival_source), 'choose-branches writes the arrival source the wake names');
-  assert.equal(wake.input.start_at, rewrite.steps[0].id);
+  // The trunk writes rows of the kind whose table the condition follows (the kind with - as _), and the arrival source the
+  // condition starts it with.
+  assert.deepEqual([valuesOf('table_name'), valuesOf('op')], [['broad_condition'], ['INSERT']]);
+  assert.match(choose, new RegExp(`type record:${valuesOf('table_name')[0].replaceAll('_', '-')}\\b`));
+  assert.ok(choose.includes(condition.input.arrival_source), 'choose-branches writes the arrival source the condition names');
+  assert.equal(condition.input.start_at, rewrite.steps[0].id);
   // The source row choose-branches writes keeps a Waiting row and drops a Done one, so marking a row Done starts nothing.
   const { filterRecords } = await import('../../formulas/do-work/requests.mjs');
   const { fields, tree } = JSON.parse(choose.match(/filter: the text (\{.*?\}\}\]\}\}), seed/)[1]);

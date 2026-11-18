@@ -8,7 +8,7 @@
 // is a candidate at once.
 //
 //   chooseTheWorkflowsThatFire({ parts, own?: [{ id, value: { recipe?, title, fires_when } }], operators?, within? })
-//     -> { workflows, own, catalog_only, chosen: [{ workflow, label, part, condition, made_by, from }],
+//     -> { workflows, own, catalog_only, chosen: [{ workflow, label, part, condition, made_by, from, input }],
 //          unfinished: [{ workflow, condition, incomplete }], unconditioned: [{ workflow, label }], unmatched_parts,
 //          within: [{ workflow, part, condition }] }
 //
@@ -121,7 +121,7 @@ export async function chooseTheWorkflowsThatFire(input = {}) {
     const matched = metKeys(item.condition, parts[part], operators);
     const weight = typeof item.weight === 'number' ? item.weight : 1;
     const score = weight * matched.reduce((sum, key) => sum + Math.log(conditioned / (holders.get(key) ?? conditioned)), 0);
-    return { workflow, label, part, condition: item.label, made_by: item.made_by, from, matched, weight, score: Number(score.toFixed(6)) };
+    return { workflow, label, part, condition: item.label, made_by: item.made_by, from, matched, weight, score: Number(score.toFixed(6)), input: item.input ?? {} };
   }).sort((a, b) => a.part - b.part || b.score - a.score || (a.workflow < b.workflow ? -1 : 1));
   // A condition that keeps more than half of the parts it is shown says nothing about which work a part is: it is named in
   // broad so learn-and-prune rewrites it around the one situation its workflow is for.

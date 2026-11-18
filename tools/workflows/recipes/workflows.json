@@ -17926,30 +17926,6 @@
           "name": "A post showing a personalised lesson video made in about 15 minutes for a few cents with paid voice, image, timing and animation services",
           "note": "The post's cost and time are the author's claim and were not verified. This recipe replaces each paid service with a free tool the person already has: voice from a local speech model or the person's own cloned voice, timing from a local speech-to-text model, the character from a local image model with a reference-image method, mouth movement from the voice's loudness, and the render from an open-source HTML video renderer."
         },
-        "wakes": [
-          {
-            "id": "lesson-asked",
-            "on": {
-              "fact": {
-                "kind": "row-changes",
-                "from": [
-                  "run"
-                ],
-                "match": {
-                  "table_name": "lesson_request",
-                  "op": "INSERT"
-                }
-              }
-            },
-            "budget": {
-              "steps": 100,
-              "wall_ms": 3600000
-            },
-            "input": {
-              "start_at": "plan-the-lesson"
-            }
-          }
-        ],
         "fires_when": [
           {
             "label": "someone wants an explainer video on a topic for one described learner",
@@ -17984,6 +17960,60 @@
             "made_by": "derived",
             "state": "On",
             "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          },
+          {
+            "label": "a lesson_request row is added",
+            "condition": {
+              "fields": [
+                {
+                  "id": "table_name",
+                  "kind": "choice",
+                  "path": [
+                    "table_name"
+                  ]
+                },
+                {
+                  "id": "op",
+                  "kind": "choice",
+                  "path": [
+                    "op"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "table_name",
+                    "operator": "is_any_of",
+                    "params": {
+                      "values": [
+                        "lesson_request"
+                      ]
+                    }
+                  },
+                  {
+                    "kind": "rule",
+                    "field": "op",
+                    "operator": "is_any_of",
+                    "params": {
+                      "values": [
+                        "INSERT"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "fires_when",
+            "state": "On",
+            "input": {
+              "start_at": "plan-the-lesson"
+            },
+            "evidence": "Moved from this workflow's wake lesson-asked (a row-changes fact matching table_name lesson_request, op INSERT) on 2026-11-18, when workflow:route-each-row-change became the one run every row change wakes: a condition lives only in fires_when, and the workflow starts from its own wake on the workflow-chosen fact the router tells, under its own switch."
           }
         ],
         "steps": [
@@ -48205,29 +48235,61 @@
           "proven": "On one account the same recipe, woken by a person's wake-declaration, rewrote a real broad condition and marked its row Done (9:31 AM CST Nov 14 2026); a Done write started a second run until the arrival source kept only rows still Waiting.",
           "starts": "By the wake broad-found when a record:broad-condition row is written and the arrival source record:arrival-sources:broad-conditions-waiting keeps it (status Waiting). The trunk's choose-branches writes that source when the person has none. The wake is off until the person switches it on."
         },
-        "wakes": [
+        "fires_when": [
           {
-            "id": "broad-found",
-            "on": {
-              "fact": {
-                "kind": "row-changes",
-                "from": [
-                  "run"
-                ],
-                "match": {
-                  "table_name": "broad_condition",
-                  "op": "INSERT"
+            "label": "a broad_condition row is added",
+            "condition": {
+              "fields": [
+                {
+                  "id": "table_name",
+                  "kind": "choice",
+                  "path": [
+                    "table_name"
+                  ]
+                },
+                {
+                  "id": "op",
+                  "kind": "choice",
+                  "path": [
+                    "op"
+                  ]
                 }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "table_name",
+                    "operator": "is_any_of",
+                    "params": {
+                      "values": [
+                        "broad_condition"
+                      ]
+                    }
+                  },
+                  {
+                    "kind": "rule",
+                    "field": "op",
+                    "operator": "is_any_of",
+                    "params": {
+                      "values": [
+                        "INSERT"
+                      ]
+                    }
+                  }
+                ]
               }
             },
-            "budget": {
-              "steps": 10,
-              "wall_ms": 900000
-            },
+            "made_by": "fires_when",
+            "state": "On",
             "input": {
               "start_at": "rewrite",
               "arrival_source": "record:arrival-sources:broad-conditions-waiting"
-            }
+            },
+            "evidence": "Moved from this workflow's wake broad-found (a row-changes fact matching table_name broad_condition, op INSERT) on 2026-11-18, when workflow:route-each-row-change became the one run every row change wakes: a condition lives only in fires_when, and the workflow starts from its own wake on the workflow-chosen fact the router tells, under its own switch."
           }
         ],
         "steps": [
@@ -57307,28 +57369,6 @@
             "input": {
               "start_at": "find-new"
             }
-          },
-          {
-            "id": "recording-added",
-            "on": {
-              "fact": {
-                "kind": "row-changes",
-                "from": [
-                  "run"
-                ],
-                "match": {
-                  "table_name": "recording",
-                  "op": "INSERT"
-                }
-              }
-            },
-            "budget": {
-              "steps": 80,
-              "wall_ms": 3600000
-            },
-            "input": {
-              "start_at": "find-new"
-            }
           }
         ],
         "fires_when": [
@@ -57366,6 +57406,60 @@
             "made_by": "derived",
             "state": "On",
             "evidence": "Derived on 2026-11-13 from the workflow's own title, job and input names (lane every-workflow-is-a-branch); the label is the condition in words."
+          },
+          {
+            "label": "a recording row is added",
+            "condition": {
+              "fields": [
+                {
+                  "id": "table_name",
+                  "kind": "choice",
+                  "path": [
+                    "table_name"
+                  ]
+                },
+                {
+                  "id": "op",
+                  "kind": "choice",
+                  "path": [
+                    "op"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "table_name",
+                    "operator": "is_any_of",
+                    "params": {
+                      "values": [
+                        "recording"
+                      ]
+                    }
+                  },
+                  {
+                    "kind": "rule",
+                    "field": "op",
+                    "operator": "is_any_of",
+                    "params": {
+                      "values": [
+                        "INSERT"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "fires_when",
+            "state": "On",
+            "input": {
+              "start_at": "find-new"
+            },
+            "evidence": "Moved from this workflow's wake recording-added (a row-changes fact matching table_name recording, op INSERT) on 2026-11-18, when workflow:route-each-row-change became the one run every row change wakes: a condition lives only in fires_when, and the workflow starts from its own wake on the workflow-chosen fact the router tells, under its own switch."
           }
         ],
         "steps": [

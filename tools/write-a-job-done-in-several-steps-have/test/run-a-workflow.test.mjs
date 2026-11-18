@@ -209,3 +209,15 @@ test('a recipe holding its own definition keeps the definitions it uses, so its 
   const made = definitionOf({ id: 'workflow:made-up-parent', label: 'Parent', definition: { id: 'workflow:made-up-parent', version: 1, steps: [], edges: [], uses: [child] } });
   assert.deepEqual(made.uses, [child]);
 });
+
+test('a recipe holding its own definition starts at its first step, the one its wake names; another step is refused', async () => {
+  const recipe = { kind: 'workflow-recipe', id: 'workflow:made-up-graph', label: 'made up', definition: { steps: [
+    { id: 'first', kind: 'ask', config: { name: 'ai', input: { do: 'one', submit: { type: 'object' } } } },
+    { id: 'second', kind: 'ask', config: { name: 'ai', input: { do: 'two', submit: { type: 'object' } } } }],
+    edges: [{ from: 'first', to: 'second', kind: 'always' }] } };
+  const run = await runWorkflow({ recipe, input: { start_at: 'first' } });
+  assert.equal(run.status, 'paused');
+  assert.deepEqual(run.waiting.map(item => item.step_id), ['first']);
+  await assert.rejects(runWorkflow({ recipe, input: { start_at: 'second' } }), /starts at its first step, "first"/);
+});
+
