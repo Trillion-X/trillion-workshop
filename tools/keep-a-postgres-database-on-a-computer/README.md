@@ -1,0 +1,34 @@
+# Keep a PostgreSQL database on a computer
+
+PostgreSQL's own files for a computer row: the server unit, its access file, and the scripts that make its roles, back it up and test a restore. A computer row names these files by path, and start-a-computer applies them knowing no program (the plan that no general tool knows a program, K2, Nov 18 2026; they lived in tools/start-a-computer until then). Pick it from a setup list; nothing general names PostgreSQL.
+
+## What is here
+
+- `serve-postgres.service`: the server unit (a row's unit `template`).
+- `prepare-a-database-unit.mjs`: the unit's `prepare`. It turns the unit's `reach` into the listen line, the access file, and the ports and routes they open.
+- `scripts/set-up-postgres-role.sh`, `scripts/back-up-postgres.sh`, `scripts/restore-a-postgres-backup.sh`: a `run-a-script` unit's `script`.
+- `test/a-database-unit.test.mjs`: these files rendered by start-a-computer from a made-up row.
+
+## The server unit
+
+The server unit (`tools/keep-a-postgres-database-on-a-computer/serve-postgres.service`) runs `postgres` as the unit's `user` on `data_dir` (`initdb` runs at the first start, data checksums on), reading the `settings_file` the row's `settings_lines` render, one line each, and the sealed credential `secret_name` (a file of `NAME=value` lines the server and the archive command it starts read).
+
+## Who reaches it: `reach`
+
+The unit names `prepare: tools/keep-a-postgres-database-on-a-computer/prepare-a-database-unit.mjs` and `hba_file`. `reach` is a list of entries, each one way in: `for` (the tool or unit it lets in, for example `tool:run-sql-in-my-database`), `listen` (an address the server listens on), `hba` (rows in the server's own words: `type`, `database`, `user`, `address`, `method`), `credential` (the held name of the connection the caller uses), and `firewall_allow` and `routes` when it opens a port or a Caddy route. The server's `listen_addresses` is every entry's `listen` (none means no network listener), and its access file, at the unit's `hba_file`, holds every entry's `hba` rows and nothing else; a row's `settings_lines` may not set either. A database unit without `reach` keeps PostgreSQL's own defaults.
+
+## The scripts
+
+The scripts: `set-up-postgres-role.sh` reads a held connection string (`postgresql://ROLE:PASSWORD@HOST/DATABASE`) and makes the role, its password and the database it owns, with the right to connect taken from every other role (the store, not a query rule, keeps one person's rows from another's); `PG_MAKES_ROLES=yes` lets the role make roles of its own, which the role recipes of `tools/run-sql-in-my-database` need (a read-only share, standing or minted with `VALID UNTIL`). No computer makes a read role by default. `back-up-postgres.sh` takes a WAL-G base backup, switches the WAL segment and waits until the archive holds it, so each backup restores without a later one. `restore-a-postgres-backup.sh` fetches the newest backup into the run's private scratch folder, starts a second server from it with no network listener, replays the archived WAL and refuses unless the database `PG_DATABASE` is there.
+
+## A row that uses it
+
+```json
+{"unit": "example-database.service",
+ "template": "tools/keep-a-postgres-database-on-a-computer/serve-postgres.service",
+ "prepare": "tools/keep-a-postgres-database-on-a-computer/prepare-a-database-unit.mjs",
+ "hba_file": "/etc/example-database/pg_hba.conf",
+ "reach": [{"for": "this computer's own jobs", "hba": [{"type": "local", "database": "all", "user": "all", "method": "peer"}]}]}
+```
+
+A backup job is a `run-a-script` unit whose `script` is `tools/keep-a-postgres-database-on-a-computer/scripts/back-up-postgres.sh`, run by a `run-on-a-timer` unit. Where the backups go is the row's own value (WAL-G's settings in the sealed credential), never this folder's.

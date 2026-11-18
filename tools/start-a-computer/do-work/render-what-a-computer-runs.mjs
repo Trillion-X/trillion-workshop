@@ -10,7 +10,7 @@
 // each such name and each of `door_hosts` is carried to `door_upstream`; the Caddy it runs is the row's `binary` (its path) and `binary_files`.
 import { existsSync, readFileSync } from 'node:fs';
 import { isAbsolute, relative, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { fill } from './fill-fields.mjs';
 import { WAYS, renderMeetingPoint } from '../../carry-a-computer-to-a-meeting-point/do-work/carry-a-computer.mjs';
 
@@ -20,13 +20,14 @@ const WORKSHOP = fileURLToPath(new URL('../../../', import.meta.url));
 /** The text of a file a row names (a unit's `template`, `script` or `drop_ins`): the program's own file, published by its
  *  owner. A relative path is read inside this Workshop (it may not leave it); an absolute path is the person's own file. The
  *  tool keeps no list of programs: whatever file a row names is what the computer runs. */
-const published = (path, where) => {
+const publishedFile = (path, where) => {
   if (typeof path !== 'string' || !path) throw new Error(`${where} names no file`);
   const file = isAbsolute(path) ? path : resolve(WORKSHOP, path);
   if (!isAbsolute(path) && (relative(WORKSHOP, file).startsWith('..') || isAbsolute(relative(WORKSHOP, file)))) throw new Error(`${where} names a file outside the Workshop: ${path}`);
   if (!existsSync(file)) throw new Error(`${where} names a file that does not exist: ${path}`);
-  return readFileSync(file, 'utf8');
+  return file;
 };
+const publishedText = (path, where) => readFileSync(publishedFile(path, where), 'utf8');
 const ROUTE = name => {
   const file = new URL(`../read-data/caddy-routes/${name}.caddy`, import.meta.url);
   if (!/^[a-z0-9-]+$/.test(name) || !existsSync(file)) throw new Error(`caddy.routes names an unknown route ${name}`);
@@ -143,50 +144,29 @@ const unitSettings = (unit, where) => {
   return { path: unit.settings_file, text: unit.settings_lines ? `${unit.settings_lines.join('\n')}\n` : `${JSON.stringify(unit.settings, null, 2)}\n` };
 };
 
-// A database unit's `reach` (who may reach the store, and over what), made into the lines and files it renders. Without it a
-// database unit keeps the server's own defaults.
-const POSTGRES_WORD = /^[A-Za-z0-9_.:/,@+-]+$/;
-/** One `pg_hba.conf` line from a reach entry's `hba` row, in the server's own words: type, database, user, address (none
- * for a local socket) and method. Each word is one token with no space, so a row cannot add a line. */
-const hbaLine = (row, where) => {
-  const words = [row?.type, row?.database, row?.user, ...(row?.address === undefined ? [] : [row.address]), row?.method];
-  if (!words.every(word => typeof word === 'string' && POSTGRES_WORD.test(word))) throw new Error(`${where} hba rows need type, database, user, method and, for a host line, address, each one word`);
-  return words.join(' ');
-};
-
-/** A database unit with `reach`: the address list it listens on (every entry's `listen`; none is no network listener), the
- * access file at its `hba_file` (every entry's `hba` rows, and nothing else, so who may connect is only what the entries
- * say), and the ports and Caddy routes the entries open (`firewall_allow`, `routes`). */
-const reachOf = (unit, where) => {
-  if (!Array.isArray(unit.reach) || typeof unit.hba_file !== 'string' || !unit.hba_file.startsWith('/')) throw new Error(`${where} reach is a list of entries, and needs hba_file: the path of the access file the server reads`);
-  if ((unit.settings_lines ?? []).some(line => /^\s*(listen_addresses|hba_file)\s*=/.test(line))) throw new Error(`${where} settings_lines must not set listen_addresses or hba_file: its reach renders them`);
-  const listen = [...new Set(unit.reach.map(entry => entry.listen).filter(address => address !== undefined))];
-  if (!listen.every(address => typeof address === 'string' && POSTGRES_WORD.test(address))) throw new Error(`${where} reach listen must be one address`);
-  return {
-    settings_lines: [`listen_addresses = '${listen.join(',')}'`, `hba_file = '${unit.hba_file}'`],
-    hba_lines: unit.reach.flatMap((entry, at) => (entry.hba ?? []).map(row => hbaLine(row, `${where} reach ${at}`))),
-    firewall_allow: unit.reach.flatMap(entry => entry.firewall_allow ?? []),
-    routes: unit.reach.flatMap(entry => entry.routes ?? []),
-  };
-};
-
-/** A computer's `runs` with each database unit's `reach` made into the listen line, the access file, the ports and the routes it renders. */
-export function withReach(runs) {
+/** A computer's `runs` with each unit that names `prepare` handed to that file first: the program's own module (a path read
+ * like a template, `published`), which knows its program and answers { unit, firewall_allow?, routes? }. The unit it answers is
+ * the one the computer runs (its `files` are written beside it, and a change in one restarts it), and the ports and Caddy
+ * routes it opens join the row's. start-a-computer knows no program: whatever a unit's own module says is what runs. */
+export async function withPrepared(runs) {
   const units = [], firewall = [], routes = [];
-  for (const given of runs.units) {
-    if (given.reach === undefined) { units.push(given); continue; }
-    const { reach, ...unit } = given;
-    const rendered = reachOf(given, `unit ${given.unit}`);
-    units.push({ ...unit, settings_lines: [...(unit.settings_lines ?? []), ...rendered.settings_lines], hba_lines: rendered.hba_lines });
-    firewall.push(...rendered.firewall_allow);
-    routes.push(...rendered.routes);
+  for (const given of runs.units ?? []) {
+    if (given.prepare === undefined) { units.push(given); continue; }
+    const { prepare: path, ...unit } = given;
+    const where = `unit ${given.unit} prepare`;
+    const { prepare } = await import(pathToFileURL(publishedFile(path, where)).href);
+    if (typeof prepare !== 'function') throw new Error(`${where}: ${path} exports no prepare`);
+    const answer = prepare(unit);
+    units.push(answer.unit);
+    firewall.push(...(answer.firewall_allow ?? []));
+    routes.push(...(answer.routes ?? []));
   }
   const machine = { ...runs.machine };
   if (firewall.length) {
-    if (machine.firewall_allow === null) throw new Error('a reach entry opens a port, and this computer\'s firewall is kept by another program (machine.firewall_allow null)');
+    if (machine.firewall_allow === null) throw new Error('a unit opens a port, and this computer\'s firewall is kept by another program (machine.firewall_allow null)');
     machine.firewall_allow = [...(machine.firewall_allow ?? []), ...firewall];
   }
-  if (routes.length && !runs.caddy) throw new Error('a reach entry adds a Caddy route, and this computer\'s row names no caddy');
+  if (routes.length && !runs.caddy) throw new Error('a unit adds a Caddy route, and this computer\'s row names no caddy');
   const caddy = routes.length ? { ...runs.caddy, routes: [...(runs.caddy.routes ?? []), ...routes] } : runs.caddy;
   return { ...runs, units, caddy, machine };
 }
@@ -273,15 +253,15 @@ export function renderWhatItRuns(given, siteBlock, pages) {
   }
   for (const unit of runs.units ?? []) {
     const where = `unit ${unit.unit}`;
-    const template = published(unit.template, `${where} template`);
+    const template = publishedText(unit.template, `${where} template`);
     if (unit.workshop_commit !== undefined && !/^[0-9a-f]{40}$/.test(unit.workshop_commit)) throw new Error(`${where} workshop_commit must be a full commit id`);
     files.push({ path: `${SYSTEMD}/${unit.unit}`, text: fill(template, withCredentials({ ...UNIT_DEFAULTS, ...unit }, where), where) });
     if (unit.settings !== undefined || unit.settings_lines !== undefined) files.push(unitSettings(unit, where));
-    if (unit.script !== undefined) files.push({ path: fill('{script_file}', unit, where), text: published(unit.script, `${where} script`) });
-    if (unit.hba_lines !== undefined) files.push({ path: unit.hba_file, text: unit.hba_lines.map(line => `${line}\n`).join('') });
+    if (unit.script !== undefined) files.push({ path: fill('{script_file}', unit, where), text: publishedText(unit.script, `${where} script`) });
+    for (const file of unit.files ?? []) files.push({ path: file.path, text: file.text });
     for (const path of unit.drop_ins ?? []) {
       const name = dropInName(path);
-      files.push({ path: `${SYSTEMD}/${unit.unit}.d/${name}.conf`, text: fill(published(path, `${where} drop-in`), unit, `${where} drop-in ${path}`) });
+      files.push({ path: `${SYSTEMD}/${unit.unit}.d/${name}.conf`, text: fill(publishedText(path, `${where} drop-in`), unit, `${where} drop-in ${path}`) });
     }
   }
   // A file several units name (one script two jobs run) is one file; two different texts for one path are refused.

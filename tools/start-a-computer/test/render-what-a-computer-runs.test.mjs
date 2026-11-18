@@ -3,7 +3,7 @@
 // The renderer of what a computer runs, on a synthetic computer: its files, its refusals and the comparison with what a computer runs.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { differences, renderWhatItRuns, withReach } from '../do-work/render-what-a-computer-runs.mjs';
+import { differences, renderWhatItRuns, withPrepared } from '../do-work/render-what-a-computer-runs.mjs';
 
 const SITE_BLOCK = '{SITE} {\n\thandle {\n\t\treverse_proxy 127.0.0.1:{PORT}\n\t}\n}';
 const runs = {
@@ -142,115 +142,20 @@ test('a front door renders its storage, its ask, its own sites, its door hosts a
   assert.throws(() => renderWhatItRuns({ ...runs, caddy: { ...runs.caddy, front_door: missing } }, SITE_BLOCK), /caddy\.front_door needs door_upstream/);
 });
 
-// A computer that runs a database server: its settings file of lines, its backup, restore test and role scripts, and the
-// timers that run them, all from the row.
-const database = {
-  caddy: runs.caddy,
-  units: [{
-    unit: 'example-database.service', template: 'tools/start-a-computer/read-data/unit-templates/serve-postgres.service', description: 'Example database', user: 'postgres',
-    state: '/var/lib/postgresql', data_dir: '/var/lib/postgresql/18/example', program_bin: '/usr/lib/postgresql/18/bin',
-    settings_file: '/etc/example-database/postgresql.conf', settings_lines: ["listen_addresses = '127.0.0.1'", "archive_command = 'wal-g wal-push %p'"],
-    environment: ['PGDATA=/var/lib/postgresql/18/example', 'WALG_S3_PREFIX=s3://example-bucket/postgres'], writable: '/var/lib/postgresql',
-    secret_name: 'example-store', secret_file: '/etc/credstore.encrypted/example-database', secret_vault_key: 'example-store-env',
-    check_command: 'pg_isready -q',
-  }, {
-    unit: 'example-database-backup.service', template: 'tools/start-a-computer/read-data/unit-templates/run-a-script.service', description: 'Example database backup', user: 'postgres',
-    state: '/var/lib/postgresql', after: 'example-database.service', script: 'tools/start-a-computer/read-data/scripts/back-up-postgres.sh', script_file: '/usr/local/lib/example-database/back-up.sh',
-    program_bin: '/usr/lib/postgresql/18/bin', environment: ['PGDATA=/var/lib/postgresql/18/example', 'SECRET_NAME=example-store'], writable: '/var/lib/postgresql',
-    secret_name: 'example-store', secret_file: '/etc/credstore.encrypted/example-database-backup', secret_vault_key: 'example-store-env',
-  }, {
-    unit: 'example-database-backup.timer', template: 'tools/start-a-computer/read-data/unit-templates/run-on-a-timer.timer', description: 'Example database backup, daily', user: 'postgres',
-    state: '/var/lib/postgresql', runs: 'example-database-backup.service', on_calendar: 'daily',
-  }],
-};
-
-test('a database unit, a script unit and a timer render from their fields, and the script and settings lines are written', () => {
-  const files = renderWhatItRuns(database, SITE_BLOCK);
-  const text = path => files.find(file => file.path === path)?.text;
-  for (const { path, text: body } of files) if (path.startsWith('/etc/systemd/system/')) assert.doesNotMatch(body, /\{[a-z_]+\}/, path);
-  const server = text('/etc/systemd/system/example-database.service');
-  assert.match(server, /^LoadCredentialEncrypted=example-store:\/etc\/credstore\.encrypted\/example-database$/m);
-  assert.match(server, /^Environment=PGDATA=\/var\/lib\/postgresql\/18\/example WALG_S3_PREFIX=s3:\/\/example-bucket\/postgres$/m);
-  assert.match(server, /exec postgres -D \/var\/lib\/postgresql\/18\/example -c config_file=\/etc\/example-database\/postgresql\.conf'$/m);
-  assert.equal(text('/etc/example-database/postgresql.conf'), "listen_addresses = '127.0.0.1'\narchive_command = 'wal-g wal-push %p'\n");
-  const job = text('/etc/systemd/system/example-database-backup.service');
-  assert.match(job, /^Type=oneshot$/m);
-  assert.match(job, /^After=network-online\.target example-database\.service$/m);
-  assert.match(job, /^ExecStart=\/bin\/sh \/usr\/local\/lib\/example-database\/back-up\.sh$/m);
-  assert.match(text('/usr/local/lib/example-database/back-up.sh'), /^wal-g backup-push "\$PGDATA"$/m);
-  const timer = text('/etc/systemd/system/example-database-backup.timer');
-  assert.match(timer, /^OnCalendar=daily$/m);
-  assert.match(timer, /^Unit=example-database-backup\.service$/m);
-});
-
-// A database server that reads the front door's certificate: each file it names in files_read_at_start is copied into its
-// credentials folder at start, and a path unit restarts it when the certificate is replaced.
-test('files read at start render as LoadCredential lines, and a watched file restarts the unit that reads it', () => {
-  const server = { ...database.units[0], files_read_at_start: [{ name: 'tls.crt', file: '/var/lib/example-door/example.test.crt' }, { name: 'tls.key', file: '/var/lib/example-door/example.test.key' }] };
-  const watch = { unit: 'example-certificate.path', template: 'tools/start-a-computer/read-data/unit-templates/watch-a-file.path', description: 'Example certificate', user: 'root', watch: '/var/lib/example-door/example.test.crt', runs: 'example-certificate.service' };
-  const restart = { unit: 'example-certificate.service', template: 'tools/start-a-computer/read-data/unit-templates/restart-a-unit.service', description: 'Example database reads its new certificate', user: 'root', restarts: 'example-database.service' };
-  const files = renderWhatItRuns({ ...database, units: [server, watch, restart] }, SITE_BLOCK);
-  const text = path => files.find(file => file.path === path)?.text;
-  for (const { path, text: body } of files) if (path.startsWith('/etc/systemd/system/')) assert.doesNotMatch(body, /\{[a-z_]+\}/, path);
-  const unit = text('/etc/systemd/system/example-database.service');
-  assert.match(unit, /^LoadCredentialEncrypted=example-store:\/etc\/credstore\.encrypted\/example-database\nLoadCredential=tls\.crt:\/var\/lib\/example-door\/example\.test\.crt\nLoadCredential=tls\.key:\/var\/lib\/example-door\/example\.test\.key$/m);
-  assert.match(text('/etc/systemd/system/example-certificate.path'), /^PathChanged=\/var\/lib\/example-door\/example\.test\.crt\nUnit=example-certificate\.service$/m);
-  assert.match(text('/etc/systemd/system/example-certificate.service'), /^ExecStart=\/bin\/systemctl try-restart example-database\.service$/m);
-  assert.doesNotMatch(renderWhatItRuns(database, SITE_BLOCK).find(file => file.path === '/etc/systemd/system/example-database.service').text, /^LoadCredential=/m, 'a server that names none loads none');
-  assert.throws(() => renderWhatItRuns({ ...database, units: [{ ...server, files_read_at_start: [{ name: 'tls.key', file: 'relative/key' }] }] }, SITE_BLOCK), /files_read_at_start need a name and an absolute file/);
-});
-
-// A database unit's reach: the listen line and an access file holding only its entries' rows, and the ports and routes an
-// entry opens.
-const reachServer = { ...database.units[0], settings_lines: ["unix_socket_directories = '/run/postgresql'"] };
-const reach = [
-  { for: 'the computer\'s own jobs', hba: [{ type: 'local', database: 'all', user: 'all', method: 'peer' }] },
-  { for: 'tool:run-sql-in-my-database', listen: '127.0.0.1', credential: 'example-connection', hba: [{ type: 'host', database: 'p_example', user: 'all', address: '127.0.0.1/32', method: 'scram-sha-256' }] },
-];
-const reachRow = { caddy: runs.caddy, units: [reachServer] };
-
-test('a database unit without reach renders only its own settings lines and no access file', () => {
-  const expanded = withReach(reachRow);
-  assert.deepEqual(expanded.units, [reachServer]);
-  assert.ok(!renderWhatItRuns(expanded, SITE_BLOCK).some(file => file.path.endsWith('pg_hba.conf')));
-});
-
-test('reach renders the listen line and an access file holding only what its entries say', () => {
-  const files = renderWhatItRuns(withReach({ ...reachRow, units: [{ ...reachServer, reach, hba_file: '/etc/example-database/pg_hba.conf' }] }), SITE_BLOCK);
-  const text = path => files.find(file => file.path === path)?.text;
-  assert.equal(text('/etc/example-database/postgresql.conf'), "unix_socket_directories = '/run/postgresql'\nlisten_addresses = '127.0.0.1'\nhba_file = '/etc/example-database/pg_hba.conf'\n");
-  assert.equal(text('/etc/example-database/pg_hba.conf'), 'local all all peer\nhost p_example all 127.0.0.1/32 scram-sha-256\n');
-  const none = renderWhatItRuns(withReach({ ...reachRow, units: [{ ...reachServer, reach: [], hba_file: '/etc/example-database/pg_hba.conf' }] }), SITE_BLOCK);
-  assert.equal(none.find(file => file.path === '/etc/example-database/pg_hba.conf').text, '', 'no entry, nobody connects');
-  assert.match(none.find(file => file.path === '/etc/example-database/postgresql.conf').text, /^listen_addresses = ''$/m, 'no entry listens, no network listener');
-});
-
-test('a reach entry that opens a port adds it to the firewall and its Caddy routes, and is refused where another program keeps the firewall', () => {
-  const opened = { for: 'an AI that opens TCP', listen: '0.0.0.0', firewall_allow: ['5432/tcp'], routes: ['example-route'], hba: [{ type: 'hostssl', database: 'p_example', user: 'p_example_share', address: '0.0.0.0/0', method: 'scram-sha-256' }] };
-  const expanded = withReach({ ...reachRow, units: [{ ...reachServer, reach: [opened], hba_file: '/etc/example-database/pg_hba.conf' }], machine: { firewall_allow: ['22/tcp'] } });
-  assert.deepEqual(expanded.machine.firewall_allow, ['22/tcp', '5432/tcp']);
-  assert.deepEqual(expanded.caddy.routes, ['example-route']);
-  assert.throws(() => withReach({ ...reachRow, units: [{ ...reachServer, reach: [opened], hba_file: '/etc/example-database/pg_hba.conf' }], machine: { firewall_allow: null } }), /firewall is kept by another program/);
-});
-
-test('reach refuses a missing access file, a typed listen line and a word that would add a line', () => {
-  assert.throws(() => withReach({ ...reachRow, units: [{ ...reachServer, reach }] }), /needs hba_file/);
-  assert.throws(() => withReach({ ...reachRow, units: [{ ...reachServer, reach, hba_file: '/etc/x', settings_lines: ["listen_addresses = '*'"] }] }), /must not set listen_addresses/);
-  assert.throws(() => withReach({ ...reachRow, units: [{ ...reachServer, reach: [{ hba: [{ type: 'host', database: 'all\nhost', user: 'all', address: '0.0.0.0/0', method: 'trust' }] }], hba_file: '/etc/x' }] }), /each one word/);
-});
-
-test('a unit that names a script that does not exist is refused', () => {
-  const [server, job] = database.units;
-  assert.throws(() => renderWhatItRuns({ ...database, units: [server, { ...job, script: 'tools/nope/nope.sh' }] }, SITE_BLOCK), /script names a file that does not exist: tools\/nope\/nope\.sh/);
-});
-
-test('every script the Workshop keeps for units is valid shell', async () => {
-  const { readdirSync } = await import('node:fs');
-  const { spawnSync } = await import('node:child_process');
-  const folder = new URL('../read-data/scripts/', import.meta.url);
-  const names = readdirSync(folder).filter(name => name.endsWith('.sh'));
-  assert.ok(names.length >= 3);
-  for (const name of names) assert.equal(spawnSync('sh', ['-n', new URL(name, folder).pathname]).status, 0, name);
+// A unit that names `prepare` is handed to its program's own module first, which knows its program: start-a-computer writes
+// the files it answers beside the unit and joins the ports and routes it opens, and knows nothing else about it.
+test('a unit that names prepare is made by its program\'s own module: its files, ports and routes', async () => {
+  const unit = { ...runs.units[0], prepare: 'tools/start-a-computer/test/fixtures/prepare-example.mjs', greeting: 'hello' };
+  const prepared = await withPrepared({ ...runs, units: [unit], machine: { firewall_allow: ['22/tcp'] } });
+  assert.equal(prepared.units[0].prepare, undefined);
+  assert.equal(prepared.units[0].greeting, undefined, 'the module takes the fields it reads');
+  assert.deepEqual(prepared.machine.firewall_allow, ['22/tcp', '9000/tcp']);
+  assert.deepEqual(prepared.caddy.routes, ['example-route']);
+  const greeting = renderWhatItRuns({ ...prepared, caddy: runs.caddy }, SITE_BLOCK).find(file => file.path === '/etc/example-greeter/example-place.service.txt');
+  assert.equal(greeting.text, 'hello\n');
+  await assert.rejects(withPrepared({ ...runs, units: [{ ...unit, prepare: 'tools/nope/prepare.mjs' }] }), /prepare names a file that does not exist/);
+  await assert.rejects(withPrepared({ ...runs, units: [{ ...unit, prepare: 'tools/start-a-computer/do-work/fill-fields.mjs' }] }), /exports no prepare/);
+  await assert.rejects(withPrepared({ ...runs, units: [unit], machine: { firewall_allow: null } }), /firewall is kept by another program/);
 });
 
 test('an inner door is a loopback address Caddy holds for programs on this computer, sent to every slot of a pool', () => {

@@ -15,7 +15,7 @@
 // environment or the answer.
 //
 // usage: start-a-computer.mjs price REQUEST_FILE | rent REQUEST_FILE | start REQUEST_FILE | apply REQUEST_FILE | differences REQUEST_FILE | status LEASE_FILE | unit LEASE_FILE REQUEST_FILE | remove LEASE_FILE
-import { differences, renderWhatItRuns, dropInName, withReach, withSlots } from './render-what-a-computer-runs.mjs';
+import { differences, renderWhatItRuns, dropInName, withPrepared, withSlots } from './render-what-a-computer-runs.mjs';
 import { fill } from './fill-fields.mjs';
 import { readFileSync, readdirSync, createReadStream } from 'node:fs';
 import { isAbsolute, dirname, relative, resolve as resolvePath } from 'node:path';
@@ -86,10 +86,10 @@ export async function runsDifferences(machine, runs, run = onMachine, deps = {})
 }
 
 /** What a computer's `runs` renders, what the computer has at those paths, and what the computer keeps that `runs` does not
- * name. Each database unit's `reach` is first made into the lines and files it renders (`withReach`),
+ * name. Each unit that names `prepare` is first handed to its program's own module (`withPrepared`),
  * and the answer's `runs` is that whole list, the one the apply follows. */
 export async function runsState(machine, given, run = onMachine, { pages } = {}) {
-  const runs = withSlots(withReach(given)), units = runs.units;
+  const runs = withSlots(await withPrepared(given)), units = runs.units;
   const rendered = renderWhatItRuns(runs, SITE_BLOCK, pages);
   const live = {};
   for (const { path, binary } of rendered) live[path] = await readIfPresent(machine, run, path, binary);
@@ -213,7 +213,7 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
   // A file a unit reads (its settings, access file or script) changes that unit, and each unit that names it; a unit file or
   // drop-in changes its own unit.
   const unitsOf = path => {
-    const readers = runs.units.filter(unit => [unit.settings_file, unit.hba_file, unit.script_file].includes(path)).map(unit => unit.unit);
+    const readers = runs.units.filter(unit => [unit.settings_file, unit.script_file, ...(unit.files ?? []).map(file => file.path)].includes(path)).map(unit => unit.unit);
     return readers.length ? readers : [path.match(/\/([^/]+\.(?:service|timer|path))(?:\.d\/[^/]+)?$/)?.[1]];
   };
   const slotted = new Set(runs.units.filter(unit => unit.slot).map(unit => unit.unit));
@@ -593,7 +593,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     }
     if (operation === 'apply' || operation === 'differences') {
       if (!first || second) throw Object.assign(new Error(usage), { exit: 2 });
-      const request = json(first), runs = withReach(runsOf(request));
+      const request = json(first), runs = await withPrepared(runsOf(request));
       const held = operation === 'apply' && runs.units.some(needsHeld) ? heldValues(await pipe(5)) : {};
       const answer = operation === 'apply' ? await applyAComputerRow(request, { held }) : await computerRowDifferences(request);
       process.stdout.write(`${JSON.stringify(answer)}\n`);
@@ -603,7 +603,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const asked = ['price', 'rent', 'start'].includes(operation), lease = asked ? null : await readLease(fileStore(resolvePath(first)));
     const needsName = ['rent', 'start'].includes(operation) ? Boolean(json(first).name?.provider) : operation === 'remove' && Boolean(lease.recordId);
     const needsMachine = operation !== 'unit' && Boolean(readProvider(asked ? json(first).machine.provider : lease.providerFile).base);
-    const startRuns = operation === 'start' ? withReach(runsOf(json(first))) : null;
+    const startRuns = operation === 'start' ? await withPrepared(runsOf(json(first))) : null;
     const tokens = { machineToken: needsMachine ? await pipe(3) : '', nameToken: needsName ? await pipe(4) : '', held: (startRuns?.units ?? []).some(needsHeld) ? heldValues(await pipe(5)) : {} };
     const answer = operation === 'price' ? await priceOfAComputer(json(first), tokens)
       : operation === 'rent' ? await rentAMachine(json(first), tokens).then(({ lease, host_name, arch, price, line, terms_url }) => ({ lease, host_name, arch, price, terms_url, ...(line && { line }) }))

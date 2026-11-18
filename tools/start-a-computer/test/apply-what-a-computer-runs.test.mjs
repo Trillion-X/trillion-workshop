@@ -264,18 +264,18 @@ test('the node release is the computer row\'s own data: a computer that names no
 // A database server with reach, and two role jobs that run one script. A changed access file restarts the server that reads
 // it; a changed script runs again every job that names it, and is written once.
 test('a changed access file restarts its server, and a changed script reruns each job naming it', async () => {
-  const server = { unit: 'example-database.service', template: 'tools/start-a-computer/read-data/unit-templates/serve-postgres.service', description: 'Example database', user: 'postgres', state: '/var/lib/postgresql',
+  const server = { unit: 'example-database.service', template: 'tools/keep-a-postgres-database-on-a-computer/serve-postgres.service', prepare: 'tools/keep-a-postgres-database-on-a-computer/prepare-a-database-unit.mjs', description: 'Example database', user: 'postgres', state: '/var/lib/postgresql',
     data_dir: '/var/lib/postgresql/18/example', program_bin: '/usr/lib/postgresql/18/bin', settings_file: '/etc/example-database/postgresql.conf',
     settings_lines: [], environment: ['PGDATA=/var/lib/postgresql/18/example'], writable: '/var/lib/postgresql', check_command: 'pg_isready -q',
     secret_name: 'store', secret_vault_key: 'example-store', secret_file: '/etc/credstore.encrypted/example-database', hba_file: '/etc/example-database/pg_hba.conf',
     reach: [{ for: 'tool:run-sql-in-my-database', listen: '127.0.0.1', hba: [{ type: 'host', database: 'p_example', user: 'all', address: '127.0.0.1/32', method: 'scram-sha-256' }] }] };
   const role = name => ({ unit: `${name}.service`, template: 'tools/start-a-computer/read-data/unit-templates/run-a-script.service', description: name, user: 'postgres', state: '/var/lib/postgresql',
-    after: 'example-database.service', script: 'tools/start-a-computer/read-data/scripts/set-up-postgres-role.sh', script_file: '/usr/local/lib/example-database/set-up-postgres-role.sh',
+    after: 'example-database.service', script: 'tools/keep-a-postgres-database-on-a-computer/scripts/set-up-postgres-role.sh', script_file: '/usr/local/lib/example-database/set-up-postgres-role.sh',
     environment: ['SECRET_NAME=role'], program_bin: '/usr/lib/postgresql/18/bin', writable: '/var/lib/postgresql',
     secret_name: 'role', secret_vault_key: `${name}-connection`, secret_file: `/etc/credstore.encrypted/${name}`, check_command: `true ${name}` });
   const row = { caddy: runs.caddy, unmanaged: [], units: [server, role('example-owner'), role('example-share')] };
-  const { withReach } = await import('../do-work/render-what-a-computer-runs.mjs');
-  const live = Object.fromEntries(renderWhatItRuns(withReach(row), SITE_BLOCK).map(({ path, text }) => [path, text]));
+  const { withPrepared } = await import('../do-work/render-what-a-computer-runs.mjs');
+  const live = Object.fromEntries(renderWhatItRuns(await withPrepared(row), SITE_BLOCK).map(({ path, text }) => [path, text]));
   live['/etc/example-database/pg_hba.conf'] = 'host all all 0.0.0.0/0 trust\n';
   live['/usr/local/lib/example-database/set-up-postgres-role.sh'] = '# an older script\n';
   const { run, commands } = computer(live);
