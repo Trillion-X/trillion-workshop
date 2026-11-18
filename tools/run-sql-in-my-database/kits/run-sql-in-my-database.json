@@ -10,7 +10,8 @@
     "1. Hold your database's connection string in your vault under a name of your choosing, such as my-database-connection (and a SELECT-only login's under another, such as my-database-read-connection for a share that may only read). The string is never typed into a request.",
     "2. Say what you want in plain words. Your AI writes one SQL statement and calls tools:run with tool tool:run-sql-in-my-database, credential_name and sql (and params for $1, $2 and so on).",
     "3. Read the answer: columns, rows and row_count, or the database's own error text. Two statements in one call are refused by the database.",
-    "4. To let someone only read, ask for a read-only login: tool:run-sql-in-my-database with credential_name my-database-connection and recipe {name: read-only, action: create} plus role_credential_name (a standing login whose connection you hold under that name) or recipe.valid_until (a minted login that stops working then; its connection is answered once). recipe {action: drop} takes it away."
+    "4. To let someone only read, ask for a read-only login: tool:run-sql-in-my-database with credential_name my-database-connection and recipe {name: read-only, action: create} plus role_credential_name (a standing login whose connection you hold under that name) or recipe.valid_until (a minted login that stops working then; its connection is answered once). recipe {action: drop} takes it away.",
+    "5. To give a pursuit its own database on a computer you run, hold its connection (postgresql://ROLE:PASSWORD@HOST/DATABASE) under a name, then run tool:run-sql-in-my-database with credential_name your operator login's connection (CREATEROLE and CREATEDB) and recipe {name: own-database, action: create} plus role_credential_name that name: it makes the login and the database it owns, closed to every other login, yours too. recipe {action: drop} with the same name takes both away."
   ],
   "worked_examples": [
     {
@@ -27,7 +28,10 @@
             "input": {
               "credential_name": "own-rows-postgres-connection",
               "sql": "SELECT $1::int + $2::int AS total",
-              "params": [2, 3]
+              "params": [
+                2,
+                3
+              ]
             }
           }
         }
