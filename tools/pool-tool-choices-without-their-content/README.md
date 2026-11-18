@@ -1,10 +1,10 @@
-# tools/remember-which-tool-was-chosen-for-a-job/
+# tools/pool-tool-choices-without-their-content/
 
 Pool a content-free set for a tool choice (how many tools were offered for a job and which position was run), only while the account shares what it decides.
 
 The record half of this folder moved to the workflow recipe `workflow:remember-which-tool-was-chosen-for-a-job` (`tools/workflows/recipes/remember-which-tool-was-chosen-for-a-job.json`, kit beside it). The choices an AI was offered and the one it ran are the person's own rows in the person's own store, and the store keeps and sweeps them (rule a-tool-is-only-what-the-store-cannot-do). What stays here reaches outside the store, so it stays a tool: it turns a choice into the pool row and hands that back, and the caller decides whether to send it.
 
-Old copies: `src/tool-choices.mjs`, `src/tool-choice-keep.mjs` and `src/tool-choice-keep.json` (their keep rules are the recipe's 30 days, 24-hour refresh and sweep) were deleted here. The source tree still holds its own copies at commit 3d4b99409f8fff2ca0558111018f409dce6c1df9 until a lane there deletes them.
+This folder was named tools/remember-which-tool-was-chosen-for-a-job until W3.2a renamed it. Old copies: `src/tool-choices.mjs`, `src/tool-choice-keep.mjs` and `src/tool-choice-keep.json` (their keep rules are the recipe's 30 days, 24-hour refresh and sweep) were deleted here. The source tree still holds its own copies at commit 3d4b99409f8fff2ca0558111018f409dce6c1df9 until a lane there deletes them.
 
 ## Files
 
