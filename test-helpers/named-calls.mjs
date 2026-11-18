@@ -38,8 +38,8 @@ const CALLS = [
 ];
 const IN_WORDS = CALLS[2];
 const ADDRESSED = /(?:"address"\s*:\s*"|\bat\s+|\baddress\s+)@([a-z][a-z0-9-]*)/g;
-const TOOL = /(?<![\w-])tool:([a-z0-9][a-z0-9:_.-]*[a-z0-9])/g;
-const FLOW = /(?<![\w-])workflow:([a-z0-9][a-z0-9-]*[a-z0-9])/g;
+const TOOL = /(?<![\w:-])tool:([a-z0-9][a-z0-9:_.-]*[a-z0-9])/g;
+const FLOW = /(?<![\w:-])workflow:([a-z0-9][a-z0-9-]*[a-z0-9])/g;
 
 const git = (repo, args, input) => execFileSync('git', ['-C', repo, ...args], { input, maxBuffer: 1 << 30 });
 
@@ -116,8 +116,10 @@ export function namedCallFindings({ repo, ref = 'HEAD' } = {}) {
     for (const method of at.values()) if (!answers(method)) dead.push(method);
     // A run's rights ask the engine's door: each operation a row's invoke.records.rights names that the door does not list.
     for (const row of rowsIn(parsed(text))) for (const right of row.invoke.records.rights ?? []) if (!offered(right)) for (const method of right.operations ?? []) dead.push(method);
-    for (const [, id] of text.matchAll(TOOL)) if (!tools.has(id)) dead.push(`tool:${id}`);
-    for (const [, id] of text.matchAll(FLOW)) if (!flows.has(id)) dead.push(`workflow:${id}`);
+    // A name followed by `*` (`tool:google-account-*`) is a family written as a pattern, not one id.
+    const pattern = match => /^-?\*/.test(text.slice(match.index + match[0].length));
+    for (const match of text.matchAll(TOOL)) if (!pattern(match) && !tools.has(match[1])) dead.push(`tool:${match[1]}`);
+    for (const match of text.matchAll(FLOW)) if (!pattern(match) && !flows.has(match[1])) dead.push(`workflow:${match[1]}`);
     if (dead.length) found[path] = dead;
   }
   const counts = Object.fromEntries(Object.entries(found).map(([path, dead]) => [path, dead.length]).sort());
