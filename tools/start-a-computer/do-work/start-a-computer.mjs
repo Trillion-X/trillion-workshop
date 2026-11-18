@@ -15,7 +15,7 @@
 // environment or the answer.
 //
 // usage: start-a-computer.mjs price REQUEST_FILE | rent REQUEST_FILE | start REQUEST_FILE | apply REQUEST_FILE | differences REQUEST_FILE | status LEASE_FILE | unit LEASE_FILE REQUEST_FILE | remove LEASE_FILE
-import { differences, renderWhatItRuns, withReach, withSlots } from './render-what-a-computer-runs.mjs';
+import { differences, renderWhatItRuns, dropInName, withReach, withSlots } from './render-what-a-computer-runs.mjs';
 import { fill } from './fill-fields.mjs';
 import { readFileSync, readdirSync, createReadStream } from 'node:fs';
 import { isAbsolute, dirname, relative, resolve as resolvePath } from 'node:path';
@@ -97,7 +97,7 @@ export async function runsState(machine, given, run = onMachine, { pages } = {})
   for (const unit of units) {
     const dir = `/etc/systemd/system/${unit.unit}.d`;
     const names = (await run(machine, `if [ -d ${q(dir)} ]; then ls -1 ${q(dir)}; fi`)).split('\n').filter(Boolean);
-    found.push(...names.filter(name => !(unit.drop_ins ?? []).includes(name.replace(/\.conf$/, ''))).map(name => ({ path: `${dir}/${name}`, reason: 'not in the computer row' })));
+    found.push(...names.filter(name => !(unit.drop_ins ?? []).map(dropInName).includes(name.replace(/\.conf$/, ''))).map(name => ({ path: `${dir}/${name}`, reason: 'not in the computer row' })));
   }
   for (const item of runs.unmanaged ?? []) {
     const gone = { path: item.user ? `user ${item.user}` : item.path, reason: 'unmanaged, kept, and missing on the computer' };

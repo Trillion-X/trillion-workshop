@@ -40,9 +40,9 @@ const COMPUTER_ROW = { address: '192.0.2.41', name: 'example-computer', runs: {
   caddy: { site_hosts: ['computer.example.com'], port: 7199 },
   health: { path: '/readyz', status: 200, where: 'machine' },
   units: [{
-    unit: 'example-computer.service', template: 'serve-computer', description: 'A computer that keeps people\'s rows', user: 'example-computer',
+    unit: 'example-computer.service', template: 'tools/start-a-computer/read-data/unit-templates/serve-computer.service', description: 'A computer that keeps people\'s rows', user: 'example-computer',
     state: '/var/lib/example-computer', builds: '/var/lib/example-computer/builds', program: 'example-engine', key_file: '/var/lib/example-computer/computer.key',
-    folders: ['/var/lib/example-computer/persons'], settings_file: '/etc/example-computer/computer.json', writable: '/var/lib/example-computer', drop_ins: ['nofile'],
+    folders: ['/var/lib/example-computer/persons'], settings_file: '/etc/example-computer/computer.json', writable: '/var/lib/example-computer', drop_ins: ['tools/start-a-computer/read-data/unit-templates/nofile.conf'],
     settings: { listen: '127.0.0.1:7199', persons: '/var/lib/example-computer/persons', computer_key_file: '/var/lib/example-computer/computer.key', public_origin: 'https://computer.example.com' },
     source: { repository: 'https://git.example.test/example-engine.git', commit: SOURCE_COMMIT, build: ['cargo', 'build', '--locked', '--release'], output: '{builds}/target/release/example-engine', environment: ['HOME={state}'] },
   }],

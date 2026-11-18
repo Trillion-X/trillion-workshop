@@ -11,10 +11,10 @@ const machine = { address: '192.0.2.9', ssh: { known_hosts: '/dev/null' } };
 const runs = {
   caddy: { site_hosts: ['place.example.test'], port: 7199 },
   units: [{
-    unit: 'example-place.service', template: 'serve-computer', description: 'Example place', user: 'example-place',
+    unit: 'example-place.service', template: 'tools/start-a-computer/read-data/unit-templates/serve-computer.service', description: 'Example place', user: 'example-place',
     state: '/var/lib/example-place', builds: '/var/lib/example-place/builds', program: 'example-engine',
     settings_file: '/etc/example-place/computer.json', settings: { listen: '127.0.0.1:7199' }, writable: '/var/lib/example-place',
-    drop_ins: ['nofile'],
+    drop_ins: ['tools/start-a-computer/read-data/unit-templates/nofile.conf'],
   }],
   unmanaged: [],
 };
@@ -264,13 +264,13 @@ test('the node release is the computer row\'s own data: a computer that names no
 // A database server with reach, and two role jobs that run one script. A changed access file restarts the server that reads
 // it; a changed script runs again every job that names it, and is written once.
 test('a changed access file restarts its server, and a changed script reruns each job naming it', async () => {
-  const server = { unit: 'example-database.service', template: 'serve-postgres', description: 'Example database', user: 'postgres', state: '/var/lib/postgresql',
+  const server = { unit: 'example-database.service', template: 'tools/start-a-computer/read-data/unit-templates/serve-postgres.service', description: 'Example database', user: 'postgres', state: '/var/lib/postgresql',
     data_dir: '/var/lib/postgresql/18/example', program_bin: '/usr/lib/postgresql/18/bin', settings_file: '/etc/example-database/postgresql.conf',
     settings_lines: [], environment: ['PGDATA=/var/lib/postgresql/18/example'], writable: '/var/lib/postgresql', check_command: 'pg_isready -q',
     secret_name: 'store', secret_vault_key: 'example-store', secret_file: '/etc/credstore.encrypted/example-database', hba_file: '/etc/example-database/pg_hba.conf',
     reach: [{ for: 'tool:run-sql-in-my-database', listen: '127.0.0.1', hba: [{ type: 'host', database: 'p_example', user: 'all', address: '127.0.0.1/32', method: 'scram-sha-256' }] }] };
-  const role = name => ({ unit: `${name}.service`, template: 'run-a-script', description: name, user: 'postgres', state: '/var/lib/postgresql',
-    after: 'example-database.service', script: 'set-up-postgres-role', script_file: '/usr/local/lib/example-database/set-up-postgres-role.sh',
+  const role = name => ({ unit: `${name}.service`, template: 'tools/start-a-computer/read-data/unit-templates/run-a-script.service', description: name, user: 'postgres', state: '/var/lib/postgresql',
+    after: 'example-database.service', script: 'tools/start-a-computer/read-data/scripts/set-up-postgres-role.sh', script_file: '/usr/local/lib/example-database/set-up-postgres-role.sh',
     environment: ['SECRET_NAME=role'], program_bin: '/usr/lib/postgresql/18/bin', writable: '/var/lib/postgresql',
     secret_name: 'role', secret_vault_key: `${name}-connection`, secret_file: `/etc/credstore.encrypted/${name}`, check_command: `true ${name}` });
   const row = { caddy: runs.caddy, unmanaged: [], units: [server, role('example-owner'), role('example-share')] };
@@ -287,7 +287,7 @@ test('a changed access file restarts its server, and a changed script reruns eac
 
 // A path unit the row names is started when it is not active, like a timer, though nothing it renders changed.
 test('a path unit that is not active is started, with nothing written', async () => {
-  const row = { ...runs, units: [...runs.units, { unit: 'example-certificate.path', template: 'watch-a-file', description: 'Example certificate', user: 'root',
+  const row = { ...runs, units: [...runs.units, { unit: 'example-certificate.path', template: 'tools/start-a-computer/read-data/unit-templates/watch-a-file.path', description: 'Example certificate', user: 'root',
     watch: '/var/lib/example-door/example.test.crt', runs: 'example-certificate.service', check_command: 'systemctl is-active --quiet example-certificate.path' }] };
   const live = Object.fromEntries(renderWhatItRuns(row, SITE_BLOCK).map(({ path, text }) => [path, text]));
   const { run, commands } = computer(live);

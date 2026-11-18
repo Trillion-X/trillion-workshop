@@ -9,10 +9,10 @@ const SITE_BLOCK = '{SITE} {\n\thandle {\n\t\treverse_proxy 127.0.0.1:{PORT}\n\t
 const runs = {
   caddy: { site_hosts: ['place.example.test', 'www.example.test'], port: 7199 },
   units: [{
-    unit: 'example-place.service', template: 'serve-computer', description: 'Example place', user: 'example-place',
+    unit: 'example-place.service', template: 'tools/start-a-computer/read-data/unit-templates/serve-computer.service', description: 'Example place', user: 'example-place',
     state: '/var/lib/example-place', builds: '/var/lib/example-place/builds', program: 'example-engine',
     settings_file: '/etc/example-place/computer.json', settings: { listen: '127.0.0.1:7199', persons: '/var/lib/example-place/persons' },
-    writable: '/var/lib/example-place', drop_ins: ['nofile'],
+    writable: '/var/lib/example-place', drop_ins: ['tools/start-a-computer/read-data/unit-templates/nofile.conf'],
   }],
 };
 
@@ -41,9 +41,12 @@ test('refuses a template field the row does not give', () => {
   assert.throws(() => renderWhatItRuns({ ...runs, units: [withoutProgram] }, SITE_BLOCK), /needs program/);
 });
 
-test('refuses an unknown template or drop-in name', () => {
-  assert.throws(() => renderWhatItRuns({ ...runs, units: [{ ...runs.units[0], template: 'nope' }] }, SITE_BLOCK), /unknown template/);
-  assert.throws(() => renderWhatItRuns({ ...runs, units: [{ ...runs.units[0], drop_ins: ['nope'] }] }, SITE_BLOCK), /unknown drop-in/);
+test('a unit names its files by path: one that does not exist, one outside the Workshop, or none is refused', () => {
+  const unit = runs.units[0];
+  assert.throws(() => renderWhatItRuns({ ...runs, units: [{ ...unit, template: 'tools/nope/nope.service' }] }, SITE_BLOCK), /template names a file that does not exist: tools\/nope\/nope\.service/);
+  assert.throws(() => renderWhatItRuns({ ...runs, units: [{ ...unit, template: '../../etc/passwd' }] }, SITE_BLOCK), /names a file outside the Workshop/);
+  assert.throws(() => renderWhatItRuns({ ...runs, units: [{ ...unit, template: undefined }] }, SITE_BLOCK), /template names no file/);
+  assert.throws(() => renderWhatItRuns({ ...runs, units: [{ ...unit, drop_ins: ['tools/nope/nope.conf'] }] }, SITE_BLOCK), /drop-in names a file that does not exist/);
 });
 
 test('differences name a missing file and a changed file, and match when equal', () => {
@@ -63,7 +66,7 @@ test('differences name a missing file and a changed file, and match when equal',
 const withSignIn = {
   caddy: { ...runs.caddy, routes: ['better-auth', 'better-auth-discovery'], pools: { auth: { listen: ['127.0.0.1:7201'], health_uri: '/readyz', health_interval: '1s', try_duration: '5s' } } },
   units: [...runs.units, {
-    unit: 'example-sign-in.service', template: 'serve-better-auth', description: 'Example sign-in', user: 'example-sign-in',
+    unit: 'example-sign-in.service', template: 'tools/start-a-computer/read-data/unit-templates/serve-better-auth.service', description: 'Example sign-in', user: 'example-sign-in',
     workshop: '/var/lib/example-sign-in/trillion-workshop', repository: 'https://github.com/Trillion-X/trillion-workshop.git',
     tool_folder: 'tools/better-auth-official', workshop_commit: '7777777777777777777777777777777777777777', node_bin: '/opt/node/bin', settings_file: '/var/lib/example-sign-in/settings.json',
     settings: { port: 7201, base_url: 'https://place.example.test', issuer: 'https://place.example.test', store: { credential: 'sign-in-store', env: 'BETTER_AUTH_STORE_CONNECTION' } },
@@ -144,19 +147,19 @@ test('a front door renders its storage, its ask, its own sites, its door hosts a
 const database = {
   caddy: runs.caddy,
   units: [{
-    unit: 'example-database.service', template: 'serve-postgres', description: 'Example database', user: 'postgres',
+    unit: 'example-database.service', template: 'tools/start-a-computer/read-data/unit-templates/serve-postgres.service', description: 'Example database', user: 'postgres',
     state: '/var/lib/postgresql', data_dir: '/var/lib/postgresql/18/example', program_bin: '/usr/lib/postgresql/18/bin',
     settings_file: '/etc/example-database/postgresql.conf', settings_lines: ["listen_addresses = '127.0.0.1'", "archive_command = 'wal-g wal-push %p'"],
     environment: ['PGDATA=/var/lib/postgresql/18/example', 'WALG_S3_PREFIX=s3://example-bucket/postgres'], writable: '/var/lib/postgresql',
     secret_name: 'example-store', secret_file: '/etc/credstore.encrypted/example-database', secret_vault_key: 'example-store-env',
     check_command: 'pg_isready -q',
   }, {
-    unit: 'example-database-backup.service', template: 'run-a-script', description: 'Example database backup', user: 'postgres',
-    state: '/var/lib/postgresql', after: 'example-database.service', script: 'back-up-postgres', script_file: '/usr/local/lib/example-database/back-up.sh',
+    unit: 'example-database-backup.service', template: 'tools/start-a-computer/read-data/unit-templates/run-a-script.service', description: 'Example database backup', user: 'postgres',
+    state: '/var/lib/postgresql', after: 'example-database.service', script: 'tools/start-a-computer/read-data/scripts/back-up-postgres.sh', script_file: '/usr/local/lib/example-database/back-up.sh',
     program_bin: '/usr/lib/postgresql/18/bin', environment: ['PGDATA=/var/lib/postgresql/18/example', 'SECRET_NAME=example-store'], writable: '/var/lib/postgresql',
     secret_name: 'example-store', secret_file: '/etc/credstore.encrypted/example-database-backup', secret_vault_key: 'example-store-env',
   }, {
-    unit: 'example-database-backup.timer', template: 'run-on-a-timer', description: 'Example database backup, daily', user: 'postgres',
+    unit: 'example-database-backup.timer', template: 'tools/start-a-computer/read-data/unit-templates/run-on-a-timer.timer', description: 'Example database backup, daily', user: 'postgres',
     state: '/var/lib/postgresql', runs: 'example-database-backup.service', on_calendar: 'daily',
   }],
 };
@@ -184,8 +187,8 @@ test('a database unit, a script unit and a timer render from their fields, and t
 // credentials folder at start, and a path unit restarts it when the certificate is replaced.
 test('files read at start render as LoadCredential lines, and a watched file restarts the unit that reads it', () => {
   const server = { ...database.units[0], files_read_at_start: [{ name: 'tls.crt', file: '/var/lib/example-door/example.test.crt' }, { name: 'tls.key', file: '/var/lib/example-door/example.test.key' }] };
-  const watch = { unit: 'example-certificate.path', template: 'watch-a-file', description: 'Example certificate', user: 'root', watch: '/var/lib/example-door/example.test.crt', runs: 'example-certificate.service' };
-  const restart = { unit: 'example-certificate.service', template: 'restart-a-unit', description: 'Example database reads its new certificate', user: 'root', restarts: 'example-database.service' };
+  const watch = { unit: 'example-certificate.path', template: 'tools/start-a-computer/read-data/unit-templates/watch-a-file.path', description: 'Example certificate', user: 'root', watch: '/var/lib/example-door/example.test.crt', runs: 'example-certificate.service' };
+  const restart = { unit: 'example-certificate.service', template: 'tools/start-a-computer/read-data/unit-templates/restart-a-unit.service', description: 'Example database reads its new certificate', user: 'root', restarts: 'example-database.service' };
   const files = renderWhatItRuns({ ...database, units: [server, watch, restart] }, SITE_BLOCK);
   const text = path => files.find(file => file.path === path)?.text;
   for (const { path, text: body } of files) if (path.startsWith('/etc/systemd/system/')) assert.doesNotMatch(body, /\{[a-z_]+\}/, path);
@@ -236,9 +239,9 @@ test('reach refuses a missing access file, a typed listen line and a word that w
   assert.throws(() => withReach({ ...reachRow, units: [{ ...reachServer, reach: [{ hba: [{ type: 'host', database: 'all\nhost', user: 'all', address: '0.0.0.0/0', method: 'trust' }] }], hba_file: '/etc/x' }] }), /each one word/);
 });
 
-test('a unit that names an unknown script is refused', () => {
+test('a unit that names a script that does not exist is refused', () => {
   const [server, job] = database.units;
-  assert.throws(() => renderWhatItRuns({ ...database, units: [server, { ...job, script: 'nope' }] }, SITE_BLOCK), /unknown script nope/);
+  assert.throws(() => renderWhatItRuns({ ...database, units: [server, { ...job, script: 'tools/nope/nope.sh' }] }, SITE_BLOCK), /script names a file that does not exist: tools\/nope\/nope\.sh/);
 });
 
 test('every script the Workshop keeps for units is valid shell', async () => {

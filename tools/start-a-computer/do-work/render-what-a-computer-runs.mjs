@@ -9,17 +9,22 @@
 // every front door reaches, a name no site block names gets one on demand only when the door's ask path says yes, and
 // each such name and each of `door_hosts` is carried to `door_upstream`; the Caddy it runs is the row's `binary` (its path) and `binary_files`.
 import { existsSync, readFileSync } from 'node:fs';
+import { isAbsolute, relative, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { fill } from './fill-fields.mjs';
 import { WAYS, renderMeetingPoint } from '../../carry-a-computer-to-a-meeting-point/do-work/carry-a-computer.mjs';
 
 const TEMPLATE = name => readFileSync(new URL(`../read-data/unit-templates/${name}`, import.meta.url), 'utf8');
-// A unit's template is named by its file without the extension.
-const UNITS = Object.fromEntries(['serve-computer', 'serve-better-auth', 'serve-postgres', 'run-a-script', 'restart-a-unit']
-  .map(name => [name, TEMPLATE(`${name}.service`)]).concat([['run-on-a-timer', TEMPLATE('run-on-a-timer.timer')], ['watch-a-file', TEMPLATE('watch-a-file.path')]]));
-// A script a unit runs (`script`): the program's own text, written at the unit's `script_file`.
-const SCRIPT = name => {
-  const file = new URL(`../read-data/scripts/${name}.sh`, import.meta.url);
-  if (!/^[a-z0-9-]+$/.test(name) || !existsSync(file)) throw new Error(`a unit names an unknown script ${name}`);
+// The Workshop this tool runs from: a path a row names is read inside it, at the commit the tool runs at.
+const WORKSHOP = fileURLToPath(new URL('../../../', import.meta.url));
+/** The text of a file a row names (a unit's `template`, `script` or `drop_ins`): the program's own file, published by its
+ *  owner. A relative path is read inside this Workshop (it may not leave it); an absolute path is the person's own file. The
+ *  tool keeps no list of programs: whatever file a row names is what the computer runs. */
+const published = (path, where) => {
+  if (typeof path !== 'string' || !path) throw new Error(`${where} names no file`);
+  const file = isAbsolute(path) ? path : resolve(WORKSHOP, path);
+  if (!isAbsolute(path) && (relative(WORKSHOP, file).startsWith('..') || isAbsolute(relative(WORKSHOP, file)))) throw new Error(`${where} names a file outside the Workshop: ${path}`);
+  if (!existsSync(file)) throw new Error(`${where} names a file that does not exist: ${path}`);
   return readFileSync(file, 'utf8');
 };
 const ROUTE = name => {
@@ -27,11 +32,12 @@ const ROUTE = name => {
   if (!/^[a-z0-9-]+$/.test(name) || !existsSync(file)) throw new Error(`caddy.routes names an unknown route ${name}`);
   return readFileSync(file, 'utf8').trimEnd();
 };
-const DROP_INS = { nofile: TEMPLATE('nofile.conf') };
 // The values a unit's template reads when its row gives none (read-data/settings.json `unit_defaults`): the build link it
 // runs (`current`) and how long its stop may take (`stop_seconds`).
 const UNIT_DEFAULTS = JSON.parse(readFileSync(new URL('../read-data/settings.json', import.meta.url), 'utf8')).unit_defaults;
 const SYSTEMD = '/etc/systemd/system';
+/** The name a drop-in file a unit lists is written under: its file's name without the extension. */
+export const dropInName = path => path.split('/').pop().replace(/\.[^.]*$/, '');
 const FRONT_DOOR = name => readFileSync(new URL(`../read-data/caddy-front-door/${name}.caddy`, import.meta.url), 'utf8').trimEnd();
 
 /** Each {{field}} in `text` is the caddy row's own value (a list is joined with spaces); `special` answers a field first (routes). */
@@ -267,17 +273,15 @@ export function renderWhatItRuns(given, siteBlock, pages) {
   }
   for (const unit of runs.units ?? []) {
     const where = `unit ${unit.unit}`;
-    const template = UNITS[unit.template];
-    if (!template) throw new Error(`${where} names an unknown template ${unit.template}`);
+    const template = published(unit.template, `${where} template`);
     if (unit.workshop_commit !== undefined && !/^[0-9a-f]{40}$/.test(unit.workshop_commit)) throw new Error(`${where} workshop_commit must be a full commit id`);
     files.push({ path: `${SYSTEMD}/${unit.unit}`, text: fill(template, withCredentials({ ...UNIT_DEFAULTS, ...unit }, where), where) });
     if (unit.settings !== undefined || unit.settings_lines !== undefined) files.push(unitSettings(unit, where));
-    if (unit.script !== undefined) files.push({ path: fill('{script_file}', unit, where), text: SCRIPT(unit.script) });
+    if (unit.script !== undefined) files.push({ path: fill('{script_file}', unit, where), text: published(unit.script, `${where} script`) });
     if (unit.hba_lines !== undefined) files.push({ path: unit.hba_file, text: unit.hba_lines.map(line => `${line}\n`).join('') });
-    for (const name of unit.drop_ins ?? []) {
-      const dropIn = DROP_INS[name];
-      if (!dropIn) throw new Error(`${where} names an unknown drop-in ${name}`);
-      files.push({ path: `${SYSTEMD}/${unit.unit}.d/${name}.conf`, text: fill(dropIn, unit, `${where} drop-in ${name}`) });
+    for (const path of unit.drop_ins ?? []) {
+      const name = dropInName(path);
+      files.push({ path: `${SYSTEMD}/${unit.unit}.d/${name}.conf`, text: fill(published(path, `${where} drop-in`), unit, `${where} drop-in ${path}`) });
     }
   }
   // A file several units name (one script two jobs run) is one file; two different texts for one path are refused.

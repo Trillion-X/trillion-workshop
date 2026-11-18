@@ -11,7 +11,7 @@ import { renderWhatItRuns } from '../do-work/render-what-a-computer-runs.mjs';
 const OLD = 'a'.repeat(40), NEW = 'b'.repeat(40);
 
 const unit = (extra = {}) => ({
-  unit: 'example-sign-in.service', template: 'serve-better-auth', description: 'Example sign-in', user: 'example-sign-in',
+  unit: 'example-sign-in.service', template: 'tools/start-a-computer/read-data/unit-templates/serve-better-auth.service', description: 'Example sign-in', user: 'example-sign-in',
   state: '/var/lib/example-sign-in', workshop: '/opt/example-workshop', repository: 'https://example.test/workshop.git',
   tool_folder: 'tools/better-auth-official', node_bin: '/opt/node/bin', settings_file: '/etc/example/settings.json', settings: { port: 8792 },
   secret_vault_key: 'example-secret', secret_name: 'example-secret', secret_file: '/etc/credstore.encrypted/example-secret',
