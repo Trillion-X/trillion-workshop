@@ -88,5 +88,12 @@
       "given": "The look step found that a folder of files has no way of its own to tell a change.",
       "hands_back": "made [\"a due-time wake every 60 seconds that reads lesson-requests, compares it with the last read kept beside it, and tells each added, changed or removed file as row-changes\"]; the prove step then passes all five examples."
     }
+  ],
+  "example_renderings": [
+    {
+      "for": "a Postgres database made by workflow:make-a-database-for-each-pursuit",
+      "file": "tools/workflows/kits/tell-me-when-something-changes/example-postgres-row-changes.mjs",
+      "what": "The Postgres leaf the noticer uses, copied here as one example rendering of this workflow for a Postgres store: it reads the database's own change table in commit order and tells each change as something-changed. It is one person's own choice for a Postgres store, not a shared default; nothing shared names this file, and any store can be rendered the same way from this kit's intent and examples."
+    }
   ]
 }
