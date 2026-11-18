@@ -266,3 +266,15 @@ test('a run woken by a fact that only points at a row is given the row first, as
   await assert.rejects(runAsTheTool({ run: { definitions: [definition], workflow_id: definition.id }, woken_by: detail },
     { door: { async run() { throw Object.assign(new Error('did not finish'), { outcome: 'committed' }); } } }));
 });
+
+test('a refusal of the step\'s own call fails the step with the door\'s code; a right not granted still waits', async () => {
+  const definition = { id: 'workflow:made-up-lister', name: 'Lister', kind: 'workflow', is_active: true, version: 1, edges: [],
+    steps: [{ id: 'list', kind: 'ask', config: { name: 'tools:list', input: { credential: 'made-up-key' }, context: { step_id: 'list' } } }] };
+  const refusing = code => ({ run() {}, async operation() { throw Object.assign(new Error('The input is not the shape this tool declares.'), { code, outcome: 'not_started' }); } });
+  const invalid = await runAsTheTool({ run: { definitions: [definition], workflow_id: definition.id } }, { door: refusing('tools_run_input_refused') });
+  assert.equal(invalid.status, 'failed');
+  assert.match(invalid.error_message, /tools:list was refused \(tools_run_input_refused\)/);
+  const ungranted = await runAsTheTool({ run: { definitions: [definition], workflow_id: definition.id } }, { door: refusing('tools_tool_capability_not_granted') });
+  assert.equal(ungranted.status, 'paused');
+  assert.equal(ungranted.waiting[0].step_id, 'list');
+});

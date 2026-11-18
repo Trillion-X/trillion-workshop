@@ -30,7 +30,8 @@
 //     tools:run with a server's address) by that operation (door.operation), its input the door's whole input and its
 //     answer the result (an error fails the step); each is keyed by the step and the BLAKE3 of what it asks, so a retried run repeats
 //     nothing. An answer already given for the step wins. When the call did not happen (the run holds no door, or no
-//     right to it), the ask waits like any other, with the door's words as `why`; a call that ran and failed fails the
+//     right to it, or anything else a wait can fix), the ask waits like any other, with the door's words as `why`; a
+//     refusal of the call itself (ask-rights.json fails_on: an input not of the tool's shape, an unknown tool) fails it; a call that ran and failed fails the
 //     run. Every other ask (the person, an AI, an agent) waits, as it does with no door. The rights a run holds are its
 //     workflow row's own `records` (workflows/read-data/derived-records.mjs), which the engine hands it.
 import { readFileSync } from 'node:fs';
@@ -82,7 +83,9 @@ function startingAt(payload, start) {
 }
 
 const TOOL = /^tool:[a-z0-9][a-z0-9-]*$/;
-const DOOR_ASKS = JSON.parse(readFileSync(new URL('../../workflows/ask-rights.json', import.meta.url), 'utf8')).asks;
+const ASK_RIGHTS = JSON.parse(readFileSync(new URL('../../workflows/ask-rights.json', import.meta.url), 'utf8'));
+const DOOR_ASKS = ASK_RIGHTS.asks;
+const FAILS_ON = new Set(ASK_RIGHTS.fails_on.codes);
 const FACT_VALUES = JSON.parse(readFileSync(new URL('../../workflows/fact-values.json', import.meta.url), 'utf8')).kinds;
 const decoder = new TextDecoder();
 const encoder = new TextEncoder();
@@ -115,6 +118,8 @@ function toolHost(door, answers) {
         return text(asked === 'operation' && answer && typeof answer === 'object' && Object.hasOwn(answer, 'result') ? answer.result : answer);
       } catch (error) {
         if (error?.outcome === 'committed') throw error;
+        // A refusal no wait can fix (the step's own call is wrong: ask-rights.json fails_on) fails the step, naming it.
+        if (FAILS_ON.has(error?.code)) throw new Error(`${name} was refused (${error.code}): ${error.message}`);
         return wait(step, name, payload, String(error?.message ?? error));
       }
     },
