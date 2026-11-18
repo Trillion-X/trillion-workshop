@@ -47,11 +47,11 @@ import {
   Wrench,
 } from 'lucide-react';
 import { FileHeader } from './FileHeader';
-import { CodeRenderer } from './CodeRenderer';
-import MarkdownRenderer from './MarkdownRenderer';
-import { DiffRenderer } from './DiffRenderer';
-import { ImageRenderer } from './ImageRenderer';
-import { RawRenderer } from './RawRenderer';
+import { CodeRenderer } from '../../show-any-file-as-itself/show/CodeRenderer';
+import MarkdownRenderer from '../../show-any-file-as-itself/show/MarkdownRenderer';
+import { DiffRenderer } from '../../show-any-file-as-itself/show/DiffRenderer';
+import { ImageRenderer } from '../../show-any-file-as-itself/show/ImageRenderer';
+import { RawRenderer } from '../../show-any-file-as-itself/show/RawRenderer';
 import { Button, Container, SchemaValueView, Text } from '../../ui';
 import { DEFAULT_FILE_CONTENT_RENDERER_CLASSIFICATION, type FileContentRendererClassification } from './classify-file-content';
 

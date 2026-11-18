@@ -27,7 +27,7 @@
 
 import React from 'react';
 import { Container, Badge, Icon, CopyablePath } from '../../ui';
-import { FileActions } from './FileActions';
+import { FileActions } from '../../show-any-file-as-itself/show/FileActions';
 import type { LucideProps } from 'lucide-react';
 
 // ---------------------------------------------------------------------------
