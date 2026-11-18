@@ -1,0 +1,42 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:direct-and-render-a-short-motion-film for a short film announcing my software tool's new release.\" It goes step by step, handing back what it found with where each thing came from, and what is still open.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: each step's answers come back in the run, and the last step keeps them wherever the person keeps the pursuit's rows, in that store's own way.",
+  "workflows": [
+    "workflow:direct-and-render-a-short-motion-film"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Say what the run is for in plain words, and what is already known, as the input: {\"about\": \"a short film announcing my software tool's new release\", \"known\": \"what you already know or decided\"}.",
+    "2. Run workflow:direct-and-render-a-short-motion-film with tools:run, tool tool:run-workflow-definition, input {row: \"workflow:direct-and-render-a-short-motion-film\", about, known}. Each step waits for its answer: what was found, each with where it came from, in found, and what is not settled yet in open with what would settle it.",
+    "3. Answer a step by giving its answer under answers by its step id and running again.",
+    "4. Read what the run kept and what is open; the last step says what matters most next, and choosing what runs next is up to you or your AI."
+  ],
+  "worked_examples": [
+    {
+      "title": "Start to direct and render a short motion film for a short film announcing my software tool's new release",
+      "ask": "Run direct and render a short motion film for a short film announcing my software tool's new release.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "run_resource_operation",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:direct-and-render-a-short-motion-film",
+              "about": "a short film announcing my software tool's new release"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:direct-and-render-a-short-motion-film",
+      "step": "take-in-the-brief-and-choose-the-form",
+      "given": "No answers yet; run on the workflow engine on 2026-11-18 with this input.",
+      "hands_back": "{\"status\":\"paused\",\"waiting\":[{\"step_id\":\"take-in-the-brief-and-choose-the-form\",\"asks\":\"ai\"}]}: the run waits at 'Take in the brief and choose the form' for what was found (found) and what is still open (open)."
+    }
+  ],
+  "drafted_from": "workflow:direct-and-render-a-short-motion-film's own rows in published/workflows.json and published/workflow-steps.json, and its run on the workflow engine on 2026-11-18"
+}

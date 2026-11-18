@@ -1,0 +1,42 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:capture-a-set-of-ui-references-with-evidence-and-prompts for five new pricing pages worth studying for my software tool.\" It goes step by step, handing back what it found with where each thing came from, and what is still open.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: each step's answers come back in the run, and the last step keeps them wherever the person keeps the pursuit's rows, in that store's own way.",
+  "workflows": [
+    "workflow:capture-a-set-of-ui-references-with-evidence-and-prompts"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Say what the run is for in plain words, and what is already known, as the input: {\"about\": \"five new pricing pages worth studying for my software tool\", \"known\": \"what you already know or decided\"}.",
+    "2. Run workflow:capture-a-set-of-ui-references-with-evidence-and-prompts with tools:run, tool tool:run-workflow-definition, input {row: \"workflow:capture-a-set-of-ui-references-with-evidence-and-prompts\", about, known}. Each step waits for its answer: what was found, each with where it came from, in found, and what is not settled yet in open with what would settle it.",
+    "3. Answer a step by giving its answer under answers by its step id and running again.",
+    "4. Read what the run kept and what is open; the last step says what matters most next, and choosing what runs next is up to you or your AI."
+  ],
+  "worked_examples": [
+    {
+      "title": "Start to capture a set of interface references with evidence and prompts for five new pricing pages worth studying for my software tool",
+      "ask": "Run capture a set of interface references with evidence and prompts for five new pricing pages worth studying for my software tool.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "run_resource_operation",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:capture-a-set-of-ui-references-with-evidence-and-prompts",
+              "about": "five new pricing pages worth studying for my software tool"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:capture-a-set-of-ui-references-with-evidence-and-prompts",
+      "step": "start-from-the-projects-own-contract",
+      "given": "No answers yet; run on the workflow engine on 2026-11-18 with this input.",
+      "hands_back": "{\"status\":\"paused\",\"waiting\":[{\"step_id\":\"start-from-the-projects-own-contract\",\"asks\":\"ai\"}]}: the run waits at 'Start from the project's own contract' for what was found (found) and what is still open (open)."
+    }
+  ],
+  "drafted_from": "workflow:capture-a-set-of-ui-references-with-evidence-and-prompts's own rows in published/workflows.json and published/workflow-steps.json, and its run on the workflow engine on 2026-11-18"
+}

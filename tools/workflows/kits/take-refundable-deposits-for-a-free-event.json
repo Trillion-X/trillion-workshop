@@ -1,0 +1,42 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:take-refundable-deposits-for-a-free-event for a free tennis clinic where no-shows waste the court.\" It goes step by step, handing back what it found with where each thing came from, and what is still open.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: each step's answers come back in the run, and the last step keeps them wherever the person keeps the pursuit's rows, in that store's own way.",
+  "workflows": [
+    "workflow:take-refundable-deposits-for-a-free-event"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Say what the run is for in plain words, and what is already known, as the input: {\"about\": \"a free tennis clinic where no-shows waste the court\", \"known\": \"what you already know or decided\"}.",
+    "2. Run workflow:take-refundable-deposits-for-a-free-event with tools:run, tool tool:run-workflow-definition, input {row: \"workflow:take-refundable-deposits-for-a-free-event\", about, known}. Each step waits for its answer: what was found, each with where it came from, in found, and what is not settled yet in open with what would settle it.",
+    "3. Answer a step by giving its answer under answers by its step id and running again.",
+    "4. Read what the run kept and what is open; the last step says what matters most next, and choosing what runs next is up to you or your AI."
+  ],
+  "worked_examples": [
+    {
+      "title": "Start to take refundable deposits for a free event for a free tennis clinic where no-shows waste the court",
+      "ask": "Run take refundable deposits for a free event for a free tennis clinic where no-shows waste the court.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "run_resource_operation",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:take-refundable-deposits-for-a-free-event",
+              "about": "a free tennis clinic where no-shows waste the court"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:take-refundable-deposits-for-a-free-event",
+      "step": "read-the-event",
+      "given": "No answers yet; run on the workflow engine on 2026-11-18 with this input.",
+      "hands_back": "{\"status\":\"paused\",\"waiting\":[{\"step_id\":\"read-the-event\",\"asks\":\"ai\"}]}: the run waits at 'Read the method and the event' for what was found (found) and what is still open (open)."
+    }
+  ],
+  "drafted_from": "workflow:take-refundable-deposits-for-a-free-event's own rows in published/workflows.json and published/workflow-steps.json, and its run on the workflow engine on 2026-11-18"
+}

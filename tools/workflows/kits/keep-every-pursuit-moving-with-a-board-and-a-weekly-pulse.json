@@ -1,0 +1,42 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:keep-every-pursuit-moving-with-a-board-and-a-weekly-pulse for my three side projects: the book, the tennis clinic and the rental.\" It goes step by step, handing back what it found with where each thing came from, and what is still open.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: each step's answers come back in the run, and the last step keeps them wherever the person keeps the pursuit's rows, in that store's own way.",
+  "workflows": [
+    "workflow:keep-every-pursuit-moving-with-a-board-and-a-weekly-pulse"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Say what the run is for in plain words, and what is already known, as the input: {\"about\": \"my three side projects: the book, the tennis clinic and the rental\", \"known\": \"what you already know or decided\"}.",
+    "2. Run workflow:keep-every-pursuit-moving-with-a-board-and-a-weekly-pulse with tools:run, tool tool:run-workflow-definition, input {row: \"workflow:keep-every-pursuit-moving-with-a-board-and-a-weekly-pulse\", about, known}. Each step waits for its answer: what was found, each with where it came from, in found, and what is not settled yet in open with what would settle it.",
+    "3. Answer a step by giving its answer under answers by its step id and running again.",
+    "4. Read what the run kept and what is open; the last step says what matters most next, and choosing what runs next is up to you or your AI."
+  ],
+  "worked_examples": [
+    {
+      "title": "Start to keep every pursuit moving with a board and weekly pulse for my three side projects: the book, the tennis clinic and the rental",
+      "ask": "Run keep every pursuit moving with a board and weekly pulse for my three side projects: the book, the tennis clinic and the rental.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "run_resource_operation",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-every-pursuit-moving-with-a-board-and-a-weekly-pulse",
+              "about": "my three side projects: the book, the tennis clinic and the rental"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-every-pursuit-moving-with-a-board-and-a-weekly-pulse",
+      "step": "set-up-a-board-for-each-pursuit",
+      "given": "No answers yet; run on the workflow engine on 2026-11-18 with this input.",
+      "hands_back": "{\"status\":\"paused\",\"waiting\":[{\"step_id\":\"set-up-a-board-for-each-pursuit\",\"asks\":\"ai\"}]}: the run waits at 'Set up one board per pursuit, in whatever place that pursuit already keeps its work' for what was found (found) and what is still open (open)."
+    }
+  ],
+  "drafted_from": "workflow:keep-every-pursuit-moving-with-a-board-and-a-weekly-pulse's own rows in published/workflows.json and published/workflow-steps.json, and its run on the workflow engine on 2026-11-18"
+}
