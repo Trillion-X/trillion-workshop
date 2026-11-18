@@ -10,7 +10,7 @@ import type {
   ProgressDiagnostic,
   SourceCorrelatedEvent,
   SourceRecordRef,
-} from './source-correlated-records';
+} from '../../../../see-what-is-being-worked-on/packages/record-board-progress-feed/read-data/source-correlated-records';
 
 export interface ProcessSessionSourceLink {
   sessionId: string;

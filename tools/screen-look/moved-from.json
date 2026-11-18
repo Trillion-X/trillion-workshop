@@ -879,13 +879,6 @@
       "identity": "1f:39fb69a48f1973f815c633789ceacf4b00e55b04d2566cf9e59369111f6446dc"
     },
     {
-      "from": "packages/record-board-progress-feed/read-data/observed-content-flow.ts",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/screen-look/packages/record-board-progress-feed/read-data/observed-content-flow.ts",
-      "source_identity": "1f:cd2e3c4e2bfc50326d12f00233e002c6bfdb7ffd7eb84a29667135b0242a8c0e",
-      "identity": "1f:cd2e3c4e2bfc50326d12f00233e002c6bfdb7ffd7eb84a29667135b0242a8c0e"
-    },
-    {
       "from": "packages/record-board-progress-feed/read-data/process-session-source-events.ts",
       "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
       "to": "tools/screen-look/packages/record-board-progress-feed/read-data/process-session-source-events.ts",
@@ -898,27 +891,6 @@
       "to": "tools/screen-look/packages/record-board-progress-feed/read-data/README.md",
       "source_identity": "1f:082e4d9d9acde0eff8c3f21ec324531d47598b6bb3a181502626519747b0d373",
       "identity": "1f:082e4d9d9acde0eff8c3f21ec324531d47598b6bb3a181502626519747b0d373"
-    },
-    {
-      "from": "packages/record-board-progress-feed/read-data/source-correlated-records.ts",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/screen-look/packages/record-board-progress-feed/read-data/source-correlated-records.ts",
-      "source_identity": "1f:103aa4caac8c1e38e731ef0881ec4aaa00095a5e1fcc4d3e1c962981c258f053",
-      "identity": "1f:103aa4caac8c1e38e731ef0881ec4aaa00095a5e1fcc4d3e1c962981c258f053"
-    },
-    {
-      "from": "packages/record-board-progress-feed/read-data/work-flow-feed.ts",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/screen-look/packages/record-board-progress-feed/read-data/work-flow-feed.ts",
-      "source_identity": "1f:f96ce8c7561ae62010aad1ae273df6cc60bed12e041651a7e89a10da4799fe32",
-      "identity": "1f:f96ce8c7561ae62010aad1ae273df6cc60bed12e041651a7e89a10da4799fe32"
-    },
-    {
-      "from": "packages/record-board-progress-feed/read-data/work-flow-map.ts",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/screen-look/packages/record-board-progress-feed/read-data/work-flow-map.ts",
-      "source_identity": "1f:b61128f29adf7006f53516a730dc50b836326f0be38b63b5989b415b1237c433",
-      "identity": "1f:b61128f29adf7006f53516a730dc50b836326f0be38b63b5989b415b1237c433"
     },
     {
       "from": "packages/record-board-progress-feed/reference-grounded-screen-contract.md",
@@ -935,25 +907,11 @@
       "identity": "1f:4ae42b1d4d25dbe8900fee50afc7aecbea56dd739ddad05c65db9cf1c85d8027"
     },
     {
-      "from": "packages/record-board-progress-feed/show/mount-work-flow-map.tsx",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/screen-look/packages/record-board-progress-feed/show/mount-work-flow-map.tsx",
-      "source_identity": "1f:5e51a3d190bd8c1defd92d17b0407dc9098fa8ba33aaa05f26d1a650d92506a6",
-      "identity": "1f:5e51a3d190bd8c1defd92d17b0407dc9098fa8ba33aaa05f26d1a650d92506a6"
-    },
-    {
       "from": "packages/record-board-progress-feed/show/WorkFlowMap.test.tsx",
       "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
       "to": "tools/screen-look/packages/record-board-progress-feed/show/WorkFlowMap.test.tsx",
       "source_identity": "1f:b717d007140a792d76e2bccf2dd7d7b2d0ead218d5fd0e419ba8c9a18036345b",
       "identity": "1f:b717d007140a792d76e2bccf2dd7d7b2d0ead218d5fd0e419ba8c9a18036345b"
-    },
-    {
-      "from": "packages/record-board-progress-feed/show/WorkFlowMap.tsx",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/screen-look/packages/record-board-progress-feed/show/WorkFlowMap.tsx",
-      "source_identity": "1f:b686c033ea62eb00b7fce5a88a92c70af721b8034d48ea9aae555c95f259c052",
-      "identity": "1f:b686c033ea62eb00b7fce5a88a92c70af721b8034d48ea9aae555c95f259c052"
     },
     {
       "source": "Trillion-X/trillion-apps",

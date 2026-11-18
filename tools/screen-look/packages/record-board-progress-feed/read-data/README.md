@@ -8,7 +8,7 @@ calls, or package-set folder assumptions.
 
 ## Owned Files
 
-- `source-correlated-records.ts`: generic event, row, diagnostic, descriptor,
+- `tools/see-what-is-being-worked-on/packages/record-board-progress-feed/read-data/source-correlated-records.ts`: generic event, row, diagnostic, descriptor,
   and action helpers.
 - `process-session-source-events.ts`: adapter from existing process-session
   snapshots/activity events into the generic event shape.
