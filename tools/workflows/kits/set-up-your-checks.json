@@ -91,7 +91,9 @@
   "tools": [
     "tool:check-against-a-persons-rules-and-verdicts",
     "tool:judge-against-rules",
-    "tool:pour-example-rows-into-my-list"
+    "tool:pour-example-rows-into-my-list",
+    "tool:keep-the-workshop-current",
+    "tool:run-sql-in-my-database"
   ],
   "instructions": [
     "1. Pour the example rules into the list where you keep your word rules (see pour), or let the workflow make list:word-checks.",
