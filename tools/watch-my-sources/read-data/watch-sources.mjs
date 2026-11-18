@@ -14,7 +14,7 @@
 //   1. Only public addresses are read (feed-items.mjs readFeedText, the page reader's own address check) and nothing
 //      is ever sent outward: no post, no message, no write to a source.
 //   2. A source is read by what it answers, not by its kind (a ranked list aside, invariant 9): RSS, Atom and JSON items
-//      (feed-items.mjs), the videos page of a YouTube channel when its feeds do not answer, and anything else as a
+//      (feed-items.mjs), the addresses its kind's feed_readers row tries (a YouTube channel's playlist and videos page when its feeds do not answer), and anything else as a
 //      page read like a link (tools/browse-public-page extractPage), whose change of readable text is one item. A source that cannot be read reports its problem
 //      in its row; it never stops the others.
 //   3. An item is kept once: its identity (id, else link) is checked against the signals already kept for that source,
@@ -101,28 +101,33 @@ async function readRanks(source, read) {
   return { ranks: [...ranks.values()].sort((a, b) => a.rank - b.rank), dated };
 }
 
-// The videos page of a YouTube channel address (the handle or channel page, with or without a tab), else null.
-function videosPageOf(address) {
-  let url;
-  try { url = new URL(address); } catch { return null; }
-  if (!/(^|\.)youtube\.com$/.test(url.hostname)) return null;
-  const path = url.pathname.replace(/\/(videos|featured|streams|shorts|playlists|community|about)\/?$/, '').replace(/\/+$/, '');
-  return /^\/(@[^/]+|channel\/UC[\w-]+|c\/[^/]+|user\/[^/]+)$/.test(path) ? `https://www.youtube.com${path}/videos` : null;
+// The feed_readers row of a source's kind, else null (a source read by its feed, else its address).
+const readerOf = source => data.feed_readers.rows.find(row => [].concat(row.kinds ?? []).includes(source.kind)) ?? null;
+// The page readers a try's `items` may name.
+const PAGE_ITEMS = { 'youtube-videos': youtubeVideos };
+const NAMES = /\{(\w+)\}/g;
+
+// A source's text fields and the named parts its reader's captures take out of them.
+function valuesOf(source, reader) {
+  const values = Object.fromEntries(Object.entries(source).map(([name, value]) => [name, text(value)]).filter(([, value]) => value));
+  for (const capture of reader.captures ?? []) {
+    const from = [].concat(capture.of).map(field => text(source[field])).find(Boolean);
+    const groups = from ? new RegExp(capture.pattern).exec(from)?.groups : null;
+    for (const [name, value] of Object.entries(groups ?? {})) if (value && !values[name]) values[name] = value;
+  }
+  return values;
 }
 
-// What to try for one source, in order: { url, videos?, feed? }. A YouTube channel's feeds sometimes answer 404, so the
-// channel's own feed is followed by its uploads playlist's, then by its videos page.
-function candidatesOf(source) {
+// What to try for one source, in order: { url, feed?, items?, browser? }: its reader's tries whose names all have values,
+// else its feed, else its address.
+function candidatesOf(source, reader) {
   const address = text(source.address);
   const feed = text(source.feed);
-  if (source.kind !== 'youtube-channel') return feed || address ? [{ url: feed || address }] : [];
-  const channel = /\/channel\/(UC[\w-]{10,})/.exec(address)?.[1] ?? /channel_id=(UC[\w-]{10,})/.exec(feed)?.[1];
-  const tries = [];
-  if (feed) tries.push({ url: feed, feed: true });
-  else if (channel) tries.push({ url: `https://www.youtube.com/feeds/videos.xml?channel_id=${channel}`, feed: true });
-  if (channel) tries.push({ url: `https://www.youtube.com/feeds/videos.xml?playlist_id=UU${channel.slice(2)}`, feed: true });
-  const page = videosPageOf(address || feed);
-  if (page) tries.push({ url: page, videos: true });
+  if (!reader?.tries) return feed || address ? [{ url: feed || address }] : [];
+  const values = valuesOf(source, reader);
+  const tries = reader.tries
+    .filter(one => !(one.unless && values[one.unless]) && [...one.url.matchAll(NAMES)].every(([, name]) => values[name]))
+    .map(one => ({ url: fill(one.url, values), feed: one.feed === true, items: text(one.items) || null, browser: one.browser === true }));
   return tries.filter((one, index) => tries.findIndex(other => other.url === one.url) === index);
 }
 
@@ -130,19 +135,19 @@ function candidatesOf(source) {
 // | { problem }.
 async function readOne(source, read) {
   if (source.kind === 'ranked-list') return readRanks(source, read);
-  if (source.kind === 'youtube-subscriptions') return { problem: words.subscriptions };
-  if (source.kind === 'x-account' && !text(source.feed)) return { problem: words.x };
-  const tries = candidatesOf(source);
-  if (!tries.length) return { problem: source.kind === 'youtube-channel' ? words.channel : words.no_address };
-  if (source.kind === 'youtube-channel' && !tries.some(one => one.feed || one.videos)) return { problem: words.channel };
+  const reader = readerOf(source);
+  if (reader?.problem && ![].concat(reader.needs ?? []).some(field => text(source[field]))) return { problem: words[reader.problem] };
+  const tries = candidatesOf(source, reader);
+  if (!tries.length) return { problem: words[reader?.none ?? 'no_address'] };
   let last = null;
   for (const one of tries) {
-    const got = await readFeedText(read, one.url, { etag: text(source.etag) || null, modified: text(source.modified) || null, browser: Boolean(one.videos) });
+    const got = await readFeedText(read, one.url, { etag: text(source.etag) || null, modified: text(source.modified) || null, browser: Boolean(one.browser) });
     if (got.not_modified) return { not_modified: true, etag: got.etag, modified: got.modified };
     if (!got.ok) { last = got; continue; }
     const kept = { etag: got.etag, modified: got.modified };
-    if (one.videos) {
-      const items = youtubeVideos(got.text);
+    if (one.items) {
+      if (!PAGE_ITEMS[one.items]) return { problem: fill(words.no_reader, { items: one.items }) };
+      const items = PAGE_ITEMS[one.items](got.text);
       if (items.length) return { items, ...kept };
       continue;
     }

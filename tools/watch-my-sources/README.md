@@ -20,7 +20,7 @@ The row holds no records right: it reads only public addresses and writes nothin
 | File | Purpose |
 |------|---------|
 | `read-data/watch-sources.mjs` | `watchSources({ lists, read, pursuits, formats, ask, arrive, now }, input)`: one run over any `lists` (answered at once or as promises). |
-| `read-data/watch-sources.json` | The lists it makes (fields, choices, the starter places, each off), run limits, the arrival route, the weighing question, ranked-list readers, history tools and every refusal's words, as DATA. |
+| `read-data/watch-sources.json` | The lists it makes (fields, choices, the starter places, each off), run limits, the arrival route, the weighing question, ranked-list readers, history tools and every refusal's words, as DATA. `feed_readers`: how a source of each kind is read when its address is not its feed (a YouTube channel's feeds and videos page, an X account through a given feed), one row per kind. |
 | `read-data/feed-items.mjs` | One reader for every address followed: RSS, Atom, JSON items, a YouTube channel's videos page, and the bounded conditional read (ETag, Last-Modified, 304). |
 | `read-data/ranked-lists.mjs` | A ranked list read whole by its reader row, and how an item moved between two days. |
 | `do-work/watch-my-sources.mjs` | `watchMySources(input, { read })`: the tool's run over `input.records`, with the weighing and hand-in answered for the caller and `write` for what to keep. |

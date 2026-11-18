@@ -227,6 +227,24 @@ test('an X account without a feed, a subscriptions source and a channel with no 
   assert.deepEqual(data.sources.fields.find(field => field.id === 'kind').choices, ['feed', 'youtube-channel', 'youtube-subscriptions', 'x-account', 'page', 'ranked-list']);
 });
 
+test('a new kind of source is read by its feed_readers row alone, and a try with a value missing is passed over', async () => {
+  const rows = data.feed_readers.rows;
+  rows.push({ name: 'A made-up podcast host', kinds: ['made-up-podcast'], captures: [{ of: 'address', pattern: '/shows/(?<show>[\\w-]+)' }],
+    tries: [{ url: 'https://feeds.example/{season}/{show}.xml', feed: true }, { url: 'https://feeds.example/{show}.xml', feed: true }], none: 'no_address' });
+  try {
+    const world = setup();
+    await world.source('pod', { name: 'Tides', address: 'https://pods.example/shows/tides', kind: 'made-up-podcast' });
+    world.pages.set('https://feeds.example/tides.xml', { text: rss([{ title: 'Episode one', link: 'https://pods.example/shows/tides/1' }]) });
+    const report = await world.run();
+    assert.deepEqual(world.requests.map(request => request.url), ['https://feeds.example/tides.xml']);
+    assert.equal(report.read, 1);
+    assert.deepEqual(report.problems, []);
+    const none = setup();
+    await none.source('pod', { name: 'No show', address: 'https://pods.example/about', kind: 'made-up-podcast' });
+    assert.deepEqual((await none.run()).problems, [{ name: 'No show', problem: data.words.no_address }]);
+  } finally { rows.pop(); }
+});
+
 test('an X account with a feed address is read like any feed', async () => {
   const world = setup();
   await world.source('x', { name: 'Someone on X', address: 'https://x.com/someone', feed: 'https://bridge.example/someone.xml', kind: 'x-account' });

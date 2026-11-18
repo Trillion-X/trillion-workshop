@@ -74,6 +74,29 @@
   "_baseline_max": "A source's first read keeps every item it lists now, up to this many, as Seen before watching: keeping only most_per_source let the rest come back as New on the next read (Product Hunt, 2026-10-08).",
   "_unseen_older_than_days": "An item a source lists that was never kept and was published this many days before the source was last read is old news the first read's cap left behind, so it is kept as Seen before watching, not New. A date-only or backdated publish time shortly before the last read still counts as new.",
   "_ranks": "A ranked-list source is read as a ranked list: each day's ranks are kept per item in the `ranked` list, and how an item moved since the day before becomes one signal. An item new to the list at rank_new_at_most or better entered; one that rose at least rank_climbed_places places, or at least rank_share_least_places places and rank_climbed_share of its old rank, climbed; one that fell rank_fell_places places, or rank_share_least_places places and rank_fell_share of its old rank, fell; one on the list before and not now dropped out. A source's first read keeps the ranks and hands nothing on. Each movement is kept once per item and day, so reading again the same day adds nothing. Days are UTC dates. rank_recent_days ranks are kept in an item's Recent ranks.",
+  "feed_readers": {
+    "_what": "How a source of one kind is read when its address alone is not its feed, one row per kind (matched by the source's kind), as rank_readers is per site: watch-sources.mjs reads these rows and names no site. `captures` take named parts out of the source's own fields: each is {of, pattern}, `of` one field or a list whose first filled one is read, `pattern` a pattern whose named groups become values (a value already found is kept). `tries` are the addresses read in order: `url` with {name} filled from the source's fields and the captures, used only when every name in it has a value, and skipped when `unless` names a value that is there; `feed` says a try that answers no feed is passed over, `items` names the page reader of feed-items.mjs that reads its items (`youtube-videos`: a channel's videos page), `browser` asks it as a browser would. A row without tries reads the source's feed, else its address. `problem` is the words key said instead of reading, unless one of the fields `needs` names is filled; `none` the words key said when no try has its values. A new kind of source is a new row here, never code.",
+    "rows": [
+      {
+        "name": "A YouTube channel: its own feed, then its uploads playlist, then its videos page, for the days its feeds answer 404",
+        "kinds": ["youtube-channel"],
+        "captures": [
+          { "of": "address", "pattern": "/channel/(?<channel>UC(?<channel_rest>[\\w-]{10,}))" },
+          { "of": "feed", "pattern": "channel_id=(?<channel>UC(?<channel_rest>[\\w-]{10,}))" },
+          { "of": ["address", "feed"], "pattern": "^https?://(?:[^/?#@]+\\.)?youtube\\.com(?<channel_path>/(?:@[^/?#]+|channel/UC[\\w-]+|c/[^/?#]+|user/[^/?#]+))(?:/(?:videos|featured|streams|shorts|playlists|community|about))?/*(?:[?#].*)?$" }
+        ],
+        "tries": [
+          { "url": "{feed}", "feed": true },
+          { "url": "https://www.youtube.com/feeds/videos.xml?channel_id={channel}", "feed": true, "unless": "feed" },
+          { "url": "https://www.youtube.com/feeds/videos.xml?playlist_id=UU{channel_rest}", "feed": true },
+          { "url": "https://www.youtube.com{channel_path}/videos", "items": "youtube-videos", "browser": true }
+        ],
+        "none": "channel"
+      },
+      { "name": "A person's YouTube subscriptions: only readable once YouTube is connected", "kinds": ["youtube-subscriptions"], "problem": "subscriptions" },
+      { "name": "An X account: X serves no public feed, so it is read only through a feed address the person gives", "kinds": ["x-account"], "problem": "x", "needs": ["feed"] }
+    ]
+  },
   "rank_readers": {
     "_what": "How to read a ranked list from a site, one row per site, matched by the address's host and a part of its path. `pages` are the addresses read for one list: the address with `append_path` added to its path and each `query` value set (a list shown 50 at a time over two pages). `items.from` is the way the page carries its data (ranked-lists.mjs FROM: `html-attribute-json` is a page attribute holding JSON, its HTML entities decoded; `nuxt-payload` is a Nuxt page payload, its references resolved), `list_path` the path to the items' array, a step {\"any\": true} standing for whichever key holds the rest; in each item `id_path`, `rank_path` (its position when left out) and `title_path`; `facts` the item's own facts kept with its rank; `dated_path` the date the site gave its list, so a list the site has not changed since the last read is not measured again. `titles` is a pattern whose named groups `id` and `title` give an item's title where the page carries it outside the items. `link` is the item's address, {id} filled. A second site is a new row here, never code.",
     "rows": [
@@ -117,6 +140,7 @@
     "subscriptions": "connect YouTube to read your subscriptions",
     "channel": "needs its feed address",
     "no_address": "needs an address",
+    "no_reader": "has no reader for {items} pages",
     "no_text": "The page says nothing to read.",
     "says_nothing": "The page says nothing about itself.",
     "failed_in_a_row": "{problem} It has failed {runs} runs in a row, since {since}.",
