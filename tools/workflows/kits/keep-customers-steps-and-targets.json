@@ -1,0 +1,49 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:keep-customers-steps-and-targets with store {\\\"where\\\": \\\"postgresql database example_me on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-me-postgres-connection\\\"} and records [{\\\"kind\\\": \\\"contact\\\", \\\"contact_id\\\": \\\"c1\\\", \\\"display_name\\\": \\\"Ada\\\"}].\"",
+  "lists": [],
+  "no_lists_because": "It names no list: the customers, their steps and the product targets are kept in the person's own store, in whatever form that store keeps things, and store says where and in which language.",
+  "workflows": [
+    "workflow:keep-customers-steps-and-targets"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:keep-customers-steps-and-targets\" with store, and the contacts, targets and steps to keep.",
+    "3. The first run makes the store's own objects once and proves them on the example attempts; every attempt must be kept, repeated or refused as the intent says, or the run stops and says which.",
+    "4. Every later run keeps the new records and reads each product's progress and each customer's steps back."
+  ],
+  "worked_examples": [
+    {
+      "title": "A customer added, then a purchase kept",
+      "ask": "Add Ada as a customer, and note that she bought the plan.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-customers-steps-and-targets",
+              "store": {
+                "where": "postgresql database example_me on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-me-postgres-connection"
+              },
+              "records": [
+                {"kind": "contact", "contact_id": "c1", "display_name": "Ada"},
+                {"kind": "step", "step_id": "s1", "contact_id": "c1", "product_id": "p1", "step_kind": "purchase", "label": "Bought", "created_at": "2026-11-10T10:00:00Z"}
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-customers-steps-and-targets",
+      "step": "keep",
+      "given": "The look step found the contacts, targets and steps already kept by an earlier run, with the target of the plan.",
+      "hands_back": "kept [\"c1\", \"s1\"]; found shows the plan's progress with one customer counted once, and Ada with one step."
+    }
+  ]
+}

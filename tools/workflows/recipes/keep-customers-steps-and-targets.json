@@ -1,0 +1,69 @@
+{
+  "about": "workflow:keep-customers-steps-and-targets: each customer, each product's customer target, and each step taken with a customer (outreach, a reply, a booked call, a purchase, onboarding, a follow-up, feedback), kept in the person's own store; a product's progress counts each purchasing customer once. It replaces the records the tools of tools/customer-follow-up only build (add-a-customer, record-a-customer-step, set-a-customer-target), whose keeping the person's AI does in the store (rule a-tool-is-only-what-the-store-cannot-do). The views the folder computes (timelines, progress) stay values in, values out in read-data/.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-customers-steps-and-targets",
+        "label": "Keep customers, their steps and product targets",
+        "job": "Keep each customer, each product's customer target, and each step taken with a customer, in the person's store; a step is kept once by its id, and read back each product's progress (customers who purchased, once each, against the target) and each customer's steps newest first.",
+        "produces": "The store's own objects for customers, targets and steps, proven on the example attempts, and each record kept, repeated or refused and read back.",
+        "source": {
+          "from": "tools/customer-follow-up (do-work/add-a-customer.mjs, record-a-customer-step.ts, set-a-customer-target; read-data/read-customer-follow-up.ts for the progress and timeline views), read on trillion-workshop origin/main",
+          "note": "Only the keeping is the store's job: one customer per contact id (a repeated add with the same content changes nothing, a new content replaces it), one target per target id, and one step per step id. A step needs its customer to be kept already. The progress and timelines are computed from what the store holds, by the values-in views of read-data."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": ["store"],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": ["where", "language"],
+              "properties": {
+                "where": {"type": "string", "description": "Where the person keeps these things: the store's own address"},
+                "language": {"type": "string", "description": "How that store is spoken to, in its own terms"},
+                "credential_name": {"type": "string", "description": "The vault name of the login the run uses, when it needs one"},
+                "place": {"type": "string", "description": "Where in the store these are kept, when they already are"}
+              }
+            },
+            "records": {"type": "array", "items": {"type": "object"}, "description": "Records to keep, each {kind: contact, contact_id, display_name} or {kind: target, target_id, product_id, product_label, target_count, active} or {kind: step, step_id, contact_id, product_id, step_kind, label, created_at}"}
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the customer records are already kept (kept_in, or null) and the names of the objects that already keep them, and show them.",
+            "submit": {"type": "object", "required": ["kept_in", "objects"], "properties": {"kept_in": {"type": ["string", "null"]}, "objects": {"type": "array", "items": {"type": "string"}}}},
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing, make the store's own objects in its own form: contacts (contact_id unique, display_name), targets (target_id unique, product_id, product_label, target_count, active), and steps (step_id unique, contact_id and product_id, step_kind from the eight kinds, label, created_at). The store refuses a step whose contact is not kept, wherever it can (keys and foreign keys). Grant only what the store's holder allows the login. Submit the names of the objects made, or the ones the look step found.",
+            "submit": {"type": "object", "required": ["objects"], "properties": {"objects": {"type": "array", "items": {"type": "string"}}}},
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example attempts",
+            "do": "In a throwaway place in the same store, with the same objects, keep these attempts in order, each through the store's own objects. The example attempts, in order: [{\"kind\": \"contact\", \"contact_id\": \"c1\", \"display_name\": \"Ada\"}, {\"kind\": \"contact\", \"contact_id\": \"c1\", \"display_name\": \"Ada\"}, {\"kind\": \"contact\", \"contact_id\": \"c1\", \"display_name\": \"Ada L\"}, {\"kind\": \"target\", \"target_id\": \"t1\", \"product_id\": \"p1\", \"product_label\": \"Plan\", \"target_count\": 2, \"active\": true}, {\"kind\": \"step\", \"step_id\": \"s1\", \"contact_id\": \"c1\", \"product_id\": \"p1\", \"step_kind\": \"purchase\", \"label\": \"Bought\", \"created_at\": \"2026-11-10T10:00:00Z\"}, {\"kind\": \"step\", \"step_id\": \"s1\", \"contact_id\": \"c1\", \"product_id\": \"p1\", \"step_kind\": \"purchase\", \"label\": \"Bought\", \"created_at\": \"2026-11-10T10:00:00Z\"}, {\"kind\": \"step\", \"step_id\": \"s1\", \"contact_id\": \"c1\", \"product_id\": \"p1\", \"step_kind\": \"purchase\", \"label\": \"Bought again\", \"created_at\": \"2026-11-10T10:00:00Z\"}, {\"kind\": \"step\", \"step_id\": \"s2\", \"contact_id\": \"c1\", \"product_id\": \"p1\", \"step_kind\": \"purchase\", \"label\": \"Bought again\", \"created_at\": \"2026-11-11T10:00:00Z\"}, {\"kind\": \"step\", \"step_id\": \"s3\", \"contact_id\": \"c9\", \"product_id\": \"p1\", \"step_kind\": \"purchase\", \"label\": \"Bought\", \"created_at\": \"2026-11-12T10:00:00Z\"}, {\"kind\": \"contact\", \"contact_id\": \"c2\", \"display_name\": \"Ben\"}, {\"kind\": \"step\", \"step_id\": \"s3\", \"contact_id\": \"c2\", \"product_id\": \"p1\", \"step_kind\": \"purchase\", \"label\": \"Bought\", \"created_at\": \"2026-11-12T10:00:00Z\"}, {\"kind\": \"step\", \"step_id\": \"s4\", \"contact_id\": \"c1\", \"product_id\": \"p1\", \"step_kind\": \"onboarding\", \"label\": \"Set up\", \"created_at\": \"2026-11-13T10:00:00Z\"}]. Rules: a contact or target with the same id and the same content is repeated; with other content it replaces the kept one. A step with the same id and the same content is repeated; with other content it is refused (\"This step id names another step.\"). A step whose contact is not kept is refused (\"The contact is not kept.\"). Then answer: products (for each active target: product_id, customer_count (the number of distinct contacts with a purchase step on the product), target_count, remaining_count (target minus customers, not below zero), percent (customers over target, 0 to 100)); for c1 and c2: display_name, steps (the number of steps kept with the contact); and kept_count (the number of attempts kept). Then remove the throwaway place. Submit outcomes (one of kept, repeated or refused per attempt, in order, with the refusal's words for a refused one) and answer.",
+            "submit": {"type": "object", "required": ["outcomes", "answer"], "properties": {"outcomes": {"type": "array", "items": {"type": "string"}}, "answer": {"type": "object"}}},
+            "checks": [
+              {"kind": "covers", "says": "Each attempt is kept, repeated or refused as the intent says", "path": ["this", "outcomes"], "values": [["kept", "repeated", "kept", "kept", "kept", "repeated", "refused", "kept", "refused", "kept", "kept", "kept"]]},
+              {"kind": "covers", "says": "The store's own objects give every expected answer", "path": ["this", "answer"], "values": [{"products": [{"product_id": "p1", "customer_count": 2, "target_count": 2, "remaining_count": 0, "percent": 100}], "c1": {"display_name": "Ada L", "steps": 3}, "c2": {"display_name": "Ben", "steps": 1}, "kept_count": 8}]}
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's records",
+            "do": "Keep each item of records, in order, through the store's own objects, and read every kept record back. Submit kept (each record's id, kept or repeated), refused (each refused record and the store's own words for why) and found (each product's progress and each customer's step count read back). With no records, submit empty lists.",
+            "submit": {"type": "object", "required": ["kept", "refused", "found"], "properties": {"kept": {"type": "array", "items": {"type": "string"}}, "refused": {"type": "array", "items": {"type": "object"}}, "found": {"type": "object"}}},
+            "checks": []
+          }
+        ],
+        "erase": "On the person's request the store deletes a customer and every step taken with them, a product's target, or a single step; the progress each product reads back follows from what remains."
+      }
+    }
+  ]
+}
