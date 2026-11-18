@@ -272,12 +272,12 @@ function fileIdentities(value) {
 
 // ---------------------------------------------------------------------------------------------------------------------
 // tool:answer-the-media-page: the Media page's routes as a @workshop-routes tool (input { path, method, query, body,
-// browser, edit }, result { status, body }), handleWorkMedia above run with the person's carrier the old native
-// carrier handed it (src/native-browser-media.mjs), over the run's files door; it keeps no records:
+// browser, edit }, result { status, body, file_uses? }), handleWorkMedia above run with the person's carrier the old
+// native carrier handed it (src/native-browser-media.mjs); it reads and keeps nothing itself:
 //   - the edit a GET asks for is the request's `edit` (the caller read it from a store), and a POST answers the checked
 //     edit as { edit } for the caller to store;
-//   - recordFileUse (each saved clip kept as edited on Recent) is the files door's record_file_use, the engine's
-//     own recent-files owner (trillion-rust #173);
+//   - recordFileUse (each saved clip kept as edited on Recent) is answered as file_uses ({ file, kind }), for the caller
+//     to record where the person's Recent is kept (the person's files program's record_file_use, tools/live-namespace);
 //   - the old carrier's fetch to a shared project (`/spaces/<id>/records/shared:media-edit:<id>`, `/spaces/<id>/items/
 //     <id>/file`), its Workshop runs (render, transcribe, the editor hand-off), the Namespace's media library and the
 //     next-edit owner are not reachable from this run: a request that needs one answers 503 with words that
@@ -289,10 +289,14 @@ export class Unreachable extends Error {
   constructor(what) { super(`${what} is not reachable from this page's route tool yet.`); this.status = 503; }
 }
 
-/** The person carrier handleWorkMedia reads, over the files door. */
-export function doorPerson(door) {
+/** The person carrier handleWorkMedia reads: each file use it keeps goes into `uses`, answered for the caller to record. */
+export function doorPerson(uses) {
   return {
-    recordFileUse: input => door.files('record_file_use', { file: input?.file, kind: input?.kind }),
+    recordFileUse: async input => {
+      if (typeof input?.file !== 'string' || !input.file) throw new Error('Send the file that was used: { file, kind }.');
+      uses.push({ file: input.file, ...(typeof input.kind === 'string' ? { kind: input.kind } : {}) });
+      return { file: input.file, answered_for_the_caller: true };
+    },
     fetch: async request => { throw new Unreachable(`A shared project (${new URL(request.url).pathname})`); },
     mediaLibrary: async () => { throw new Unreachable('The Media library (the files door has no media_library operation)'); },
     mediaNextEditRead: async () => { throw new Unreachable('The next-edit suggestion'); },
@@ -300,15 +304,16 @@ export function doorPerson(door) {
   };
 }
 
-export async function answerTheMediaPage(input, { door }) {
+export async function answerTheMediaPage(input) {
   const { path = '', method = 'GET', query = {}, body, edit } = input !== null && typeof input === 'object' ? input : {};
   const search = new URLSearchParams(query !== null && typeof query === 'object' ? query : {}).toString();
   const url = new URL(`/work/api${path}${search ? `?${search}` : ''}`, ORIGIN);
   const request = new Request(url, { method, headers: { origin: ORIGIN, 'content-type': 'application/json' }, ...(method === 'GET' ? {} : { body: JSON.stringify(body ?? {}) }) });
+  const uses = [];
   try {
-    const response = await handleWorkMedia(request, { person: doorPerson(door), userId: 'this-account', origin: ORIGIN, url, edit,
+    const response = await handleWorkMedia(request, { person: doorPerson(uses), userId: 'this-account', origin: ORIGIN, url, edit,
       runTool: async () => { throw new Unreachable('Running another Workshop tool'); } });
-    return { status: response.status, body: await response.json() };
+    return { status: response.status, body: await response.json(), ...(uses.length ? { file_uses: uses } : {}) };
   } catch (error) {
     if (error instanceof Unreachable) return { status: 503, body: { error: error.message } };
     throw error;

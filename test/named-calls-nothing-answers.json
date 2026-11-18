@@ -1,4 +1,4 @@
 {
  "_what": "How many calls the shipped text names that nothing answers (test-helpers/named-calls.mjs). It may only go down: test/every-named-call-resolves.test.mjs fails when the count is higher, and names what the files changed since this file was last written add. Rewrite it with `node test-helpers/named-calls.mjs <ref> --write` after a landing that removes some; the outcome is 0.",
- "total": 1707
+ "total": 1698
 }

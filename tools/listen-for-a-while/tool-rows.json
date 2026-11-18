@@ -694,7 +694,7 @@
               {
                 "package": "keep-and-wake-ai-sessions-on-this-computer",
                 "paths": [
-                  "tools/keep-and-wake-ai-sessions-on-this-computer/parts/live-namespace/do-work/shared-file-reference.mjs"
+                  "parts/live-namespace/do-work/shared-file-reference.mjs"
                 ],
                 "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
               },
@@ -1192,7 +1192,7 @@
               {
                 "package": "keep-and-wake-ai-sessions-on-this-computer",
                 "paths": [
-                  "tools/keep-and-wake-ai-sessions-on-this-computer/parts/live-namespace/do-work/shared-file-reference.mjs"
+                  "parts/live-namespace/do-work/shared-file-reference.mjs"
                 ],
                 "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
               },

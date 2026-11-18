@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:97b5f46b8d571d33cf8c2ee6ceb2dd7c4903afe1a4740829eb3b17309aabbdec"
+  "blake3": "1f:25c2045211d58bea0c9fccf6da414ad1ee128d996680abeb64ffb91bdde3a0ca"
  },
  "fields": [
   {
@@ -487,7 +487,7 @@
    "values": {
     "title": "Answer the Media page's saved edits",
     "job": "Answer the Media page: check an edit of my recordings and answer it",
-    "description": "The Media page's routes, answered by old trillion's src/work-media.mjs handleWorkMedia: GET /media/edit?id= answers the `edit` handed in (null when none); POST /media/edit { id, title, clips, ratio?, captions?, textOverlays?, edl?, panels?, file? } checks the edit as the old route did (400 with words when a clip has no source or valid times), answers it as { edit } for the caller to store, and keeps each clip as edited on Recent. Nothing else is kept here. An edit in a shared project (space_id), and the page's library, next-edit, render, transcribe and editor routes, need what this run cannot reach, and answer 503 with words naming it. Answers { status, body }.",
+    "description": "The Media page's routes, answered by old trillion's src/work-media.mjs handleWorkMedia: GET /media/edit?id= answers the `edit` handed in (null when none); POST /media/edit { id, title, clips, ratio?, captions?, textOverlays?, edl?, panels?, file? } checks the edit as the old route did (400 with words when a clip has no source or valid times), answers it as { edit } for the caller to store, and answers each clip it used as file_uses ({ file, kind: edited }) for the caller to keep on Recent, where the person's files program records file uses. Nothing else is kept here. An edit in a shared project (space_id), and the page's library, next-edit, render, transcribe and editor routes, need what this run cannot reach, and answer 503 with words naming it. Answers { status, body }.",
     "status": "active",
     "maker": "maker:trillion",
     "licence_class": "licence:maker-own",

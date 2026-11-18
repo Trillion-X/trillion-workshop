@@ -226,7 +226,7 @@
     "listed_on": "2026-11-05T00:00:00Z",
     "label": "Answer the Media page's saved edits",
     "job": "Answer the Media page: check an edit of my recordings and answer it",
-    "description": "The Media page's routes, answered by old trillion's src/work-media.mjs handleWorkMedia: GET /media/edit?id= answers the `edit` handed in (null when none); POST /media/edit { id, title, clips, ratio?, captions?, textOverlays?, edl?, panels?, file? } checks the edit as the old route did (400 with words when a clip has no source or valid times), answers it as { edit } for the caller to store, and keeps each clip as edited on Recent. Nothing else is kept here. An edit in a shared project (space_id), and the page's library, next-edit, render, transcribe and editor routes, need what this run cannot reach, and answer 503 with words naming it. Answers { status, body }.",
+    "description": "The Media page's routes, answered by old trillion's src/work-media.mjs handleWorkMedia: GET /media/edit?id= answers the `edit` handed in (null when none); POST /media/edit { id, title, clips, ratio?, captions?, textOverlays?, edl?, panels?, file? } checks the edit as the old route did (400 with words when a clip has no source or valid times), answers it as { edit } for the caller to store, and answers each clip it used as file_uses ({ file, kind: edited }) for the caller to keep on Recent, where the person's files program records file uses. Nothing else is kept here. An edit in a shared project (space_id), and the page's library, next-edit, render, transcribe and editor routes, need what this run cannot reach, and answer 503 with words naming it. Answers { status, body }.",
     "needs": {
      "expected_seconds": 2,
      "network_egress": false
@@ -276,7 +276,11 @@
       "status": {
        "type": "integer"
       },
-      "body": {}
+      "body": {},
+      "file_uses": {
+        "type": "array",
+        "description": "The files the request used, { file, kind }, for the caller to record on the person's Recent (record_file_use of the person's files program). Left out when none."
+      }
      }
     },
     "invoke": {
@@ -293,7 +297,7 @@
        {
         "package": "keep-and-wake-ai-sessions-on-this-computer",
         "paths": [
-         "tools/keep-and-wake-ai-sessions-on-this-computer/parts/live-namespace/do-work/shared-file-reference.mjs",
+         "parts/live-namespace/do-work/shared-file-reference.mjs",
          "src/connecting-without-the-store.json",
          "src/connecting-without-the-store.mjs",
          "src/execution-context.mjs",
@@ -426,17 +430,6 @@
       "fill": {
        "from": "input"
       }
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "files": "/",
-        "operations": [
-         "record_file_use"
-        ]
-       }
-      ]
      }
     },
     "provenance": {

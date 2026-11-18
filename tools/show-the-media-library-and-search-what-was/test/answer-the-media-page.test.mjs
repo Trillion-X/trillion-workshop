@@ -4,7 +4,7 @@
 // owners") and test/native-browser-media.test.mjs ("edit persistence ... retain the existing validation": the saved edit
 // keeps its clip). Their render, transcribe and next-edit halves need a Workshop run or the Namespace's owners, which
 // this row cannot reach: those requests answer 503 with words, checked below. The row runs as the container runs it,
-// against the fake door with exactly its rights; the saved edit is handed in and the checked edit is answered, never stored.
+// with no door; the saved edit is handed in, and the checked edit and the clips it used are answered, never stored.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
@@ -29,7 +29,7 @@ test('a saved edit is answered with its clips and captions and stored nowhere, e
   assert.deepEqual([value.title, value.ratio, value.file], [edit.title, edit.ratio, edit.file]);
   assert.deepEqual(value.edl, edit.edl);
   assert.equal(typeof value.saved_at, 'string');
-  assert.deepEqual(saved.calls.filter(call => call.method === 'record_file_use').map(call => call.input), [{ file: FILE, kind: 'edited' }], 'the clip is kept as edited on Recent');
+  assert.deepEqual(saved.result.file_uses, [{ file: FILE, kind: 'edited' }], 'the clip is answered as edited, for the caller to keep on Recent');
 
   const read = await answerOf(row, { ...route('/media/edit', 'GET', {}, { id: 'edit-1' }), edit: value });
   assert.equal(read.result.status, 200);
@@ -51,13 +51,14 @@ test('what needs a shared project, a Workshop run or the Namespace\'s owners ans
   assert.match(shared.result.body.error, /shared project .* is not reachable/);
   const library = await answerOf(row, route('/media/library', 'GET', {}, { limit: '60', stored: 'true' }));
   assert.deepEqual(library.result, { status: 503, body: { error: 'The Media library is not reachable from this page\'s route tool yet.' } });
-  // A render cannot start a Workshop run from here, so the old handler's own refusal of a run that did not start answers.
+  // A render cannot start a Workshop run from here, so the old handler's own refusal of a run that did not start answers;
+  // the old handler kept the clips as edited before starting it, and so are they answered here.
   const render = await answerOf(row, route('/media/render', 'POST', edit));
-  assert.deepEqual(render.result, { status: 400, body: { error: 'That could not be started. Try again.' } });
+  assert.deepEqual(render.result, { status: 400, body: { error: 'That could not be started. Try again.' }, file_uses: [{ file: FILE, kind: 'edited' }] });
   assert.equal((await answerOf(row, route('/media/next-edit'))).result.status, 503);
 });
 
-test('the row holds no records right and only keeps file uses', () => {
-  assert.deepEqual(row.invoke.records.rights, [{ files: '/', operations: ['record_file_use'] }]);
+test('the row opens no door: the file uses it answers are the caller\'s to record', () => {
+  assert.equal(row.invoke.records, undefined);
   assert.equal(row.invoke.internet, false);
 });
