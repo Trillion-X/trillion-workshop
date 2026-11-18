@@ -1083,7 +1083,7 @@
             "properties": {
               "channel": {
                 "type": "string",
-                "enum": ["in-app", "this-computer", "phone", "watch", "browser", "mac-app", "mac-voice", "device-pull", "apns", "web-push"]
+                "maxLength": 200
               },
               "here": {
                 "type": "boolean"

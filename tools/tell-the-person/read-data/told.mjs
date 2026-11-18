@@ -134,8 +134,9 @@ export async function markMyNoticesRead(input = {}, { door, now = () => new Date
   if (!ids.length && !key) throw new Error('Name one or more notice ids, or the notification key, to mark read.');
   const surfaceInput = input.on && typeof input.on === 'object' && !Array.isArray(input.on) ? input.on : null;
   const channel = surfaceInput?.here === true ? 'in-app' : typeof surfaceInput?.channel === 'string' ? surfaceInput.channel.trim() : '';
-  const surface = read && ['in-app', 'this-computer', 'phone', 'watch', 'browser', 'mac-app', 'mac-voice', 'apns', 'web-push', 'device-pull'].includes(channel)
-    ? { channel, ...(typeof surfaceInput.device_id === 'string' && surfaceInput.device_id.trim() ? { device_id: surfaceInput.device_id.trim().slice(0, 200) } : {}), at: now().toISOString() }
+  // Where the person saw it is the reader's own word for the place (in-app, phone, a watch, a car); any place is kept.
+  const surface = read && channel
+    ? { channel: channel.slice(0, 200), ...(typeof surfaceInput.device_id === 'string' && surfaceInput.device_id.trim() ? { device_id: surfaceInput.device_id.trim().slice(0, 200) } : {}), at: now().toISOString() }
     : null;
   const held = await keptRows(door);
   const headRecord = held.get(HEAD);

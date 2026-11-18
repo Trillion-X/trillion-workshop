@@ -143,4 +143,9 @@ test('mark read keeps the first surface, repeated reads write nothing, and unrea
   assert.equal(browser.kept.find(record => record.id === 'told-the-person:2').value.item.read_on.device_id, 'browser-a');
   const watch = await answerOf(markRow, { ids: ['told:2'], on: { channel: 'watch', device_id: 'watch-a' } }, { records: initial });
   assert.equal(watch.kept.find(record => record.id === 'told-the-person:2').value.item.read_on.channel, 'watch');
+  // A place no list names (a channel the sender rows add later, an email read) is kept as the reader names it.
+  const email = await answerOf(markRow, { ids: ['told:2'], on: { channel: 'email' } }, { records: initial });
+  assert.equal(email.kept.find(record => record.id === 'told-the-person:2').value.item.read_on.channel, 'email');
+  const nowhere = await answerOf(markRow, { ids: ['told:2'], on: { channel: '  ' } }, { records: initial });
+  assert.equal('read_on' in nowhere.kept.find(record => record.id === 'told-the-person:2').value.item, false);
 });
