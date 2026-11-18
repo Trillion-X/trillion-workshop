@@ -1,0 +1,70 @@
+{
+  "about": "workflow:keep-item-records: the posts, replies and activity of a space, kept as item records in the person's own store, each write on the revision it was read at and keyed by its event ref so a repeated write changes nothing and a different write under the same ref is refused; a removal keeps the record as removed; each activity effect (who did what, to what, when) is kept once. It replaces the send requests of tools/item-record/do-work (create-item-record.ts, owner-actions.ts, record-activity-effect.ts, read-activity-effects.ts, refresh-item-records.ts, read-item-record-feed.ts), which sent each write to the retired Bitfield runtime and whose whole job was keeping these records (rule a-tool-is-only-what-the-store-cannot-do). The descriptor reading and the feed split stay as values in, values out in read-data/.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-item-records",
+        "label": "Keep item records and their activity",
+        "job": "Keep a space's posts, replies and removals as item records, each write checked against the revision it was read at and keyed by its event ref, and keep each activity effect once; read back a space's live items in creation order, with each reply under its parent.",
+        "produces": "The store's own objects for item records and effects, proven on the example attempts, and each write or effect kept, repeated or refused and read back.",
+        "source": {
+          "from": "tools/item-record (do-work/create-item-record.ts, owner-actions.ts, record-activity-effect.ts, read-activity-effects.ts; the request identity, revision and ref rules are the owner-actions request contract), read on trillion-workshop origin/main",
+          "note": "Only the record keeping is the store's job: one current record per item (its revision and removed flag), the event refs that made it (a repeated ref writes nothing), and the effects kept once per effect id. The leaderboard scoring that reads the effects is not here; scoring weights are records the leaderboard reads."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": ["store"],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": ["where", "language"],
+              "properties": {
+                "where": {"type": "string", "description": "Where the person keeps these things: the store's own address"},
+                "language": {"type": "string", "description": "How that store is spoken to, in its own terms"},
+                "credential_name": {"type": "string", "description": "The vault name of the login the run uses, when it needs one"},
+                "place": {"type": "string", "description": "Where in the store these are kept, when they already are"}
+              }
+            },
+            "writes": {"type": "array", "items": {"type": "object"}, "description": "Writes to keep: {item_ref, scope_ref, target_ref, operation (upsert or remove), expected_revision, event_ref, fields (optional: kind, body, parent_ref)}"},
+            "effects": {"type": "array", "items": {"type": "object"}, "description": "Effects to keep: {effect_id, kind, actor_ref, target_ref, created_at}"}
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the items are already kept (kept_in, or null) and the names of the objects that already keep them, and show them.",
+            "submit": {"type": "object", "required": ["kept_in", "objects"], "properties": {"kept_in": {"type": ["string", "null"]}, "objects": {"type": "array", "items": {"type": "string"}}}},
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing, make the store's own objects in its own form: items (item_ref unique, scope_ref, target_ref, parent_ref, kind, body, revision at least 0, removed as true or false, and a creation order), event receipts (one row per event_ref, holding the write it made, so a repeated ref is recognised and a different one is refused), and effects (one row per effect_id). Grant only what the store's holder allows the login. Submit the names of the objects made, or the ones the look step found.",
+            "submit": {"type": "object", "required": ["objects"], "properties": {"objects": {"type": "array", "items": {"type": "string"}}}},
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example attempts",
+            "do": "In a throwaway place in the same store, with the same objects, keep these attempts in order, each through the store's own objects. The example attempts, in order: [{\"kind\": \"write\", \"write\": {\"item_ref\": \"p1\", \"scope_ref\": \"s1\", \"target_ref\": \"t1\", \"operation\": \"upsert\", \"expected_revision\": 0, \"event_ref\": \"e1\", \"fields\": {\"kind\": \"post\", \"body\": \"hi\"}}}, {\"kind\": \"write\", \"write\": {\"item_ref\": \"p1\", \"scope_ref\": \"s1\", \"target_ref\": \"t1\", \"operation\": \"upsert\", \"expected_revision\": 0, \"event_ref\": \"e1\", \"fields\": {\"kind\": \"post\", \"body\": \"hi\"}}}, {\"kind\": \"write\", \"write\": {\"item_ref\": \"p1\", \"scope_ref\": \"s1\", \"target_ref\": \"t1\", \"operation\": \"upsert\", \"expected_revision\": 0, \"event_ref\": \"e2\", \"fields\": {\"kind\": \"post\", \"body\": \"x\"}}}, {\"kind\": \"write\", \"write\": {\"item_ref\": \"p1\", \"scope_ref\": \"s1\", \"target_ref\": \"t1\", \"operation\": \"upsert\", \"expected_revision\": 1, \"event_ref\": \"e3\", \"fields\": {\"kind\": \"post\", \"body\": \"hello\"}}}, {\"kind\": \"write\", \"write\": {\"item_ref\": \"r1\", \"scope_ref\": \"s1\", \"target_ref\": \"t1\", \"operation\": \"upsert\", \"expected_revision\": 0, \"event_ref\": \"e4\", \"fields\": {\"kind\": \"reply\", \"body\": \"yes\", \"parent_ref\": \"p1\"}}}, {\"kind\": \"write\", \"write\": {\"item_ref\": \"p1\", \"scope_ref\": \"s1\", \"target_ref\": \"t1\", \"operation\": \"upsert\", \"expected_revision\": 2, \"event_ref\": \"e3\", \"fields\": {\"kind\": \"post\", \"body\": \"other\"}}}, {\"kind\": \"write\", \"write\": {\"item_ref\": \"p1\", \"scope_ref\": \"s1\", \"target_ref\": \"t1\", \"operation\": \"remove\", \"expected_revision\": 2, \"event_ref\": \"e5\"}}, {\"kind\": \"effect\", \"effect\": {\"effect_id\": \"ef1\", \"kind\": \"post_created\", \"actor_ref\": \"a1\", \"target_ref\": \"p1\", \"created_at\": \"2026-11-18T10:00:00Z\"}}, {\"kind\": \"effect\", \"effect\": {\"effect_id\": \"ef1\", \"kind\": \"post_created\", \"actor_ref\": \"a1\", \"target_ref\": \"p1\", \"created_at\": \"2026-11-18T10:00:00Z\"}}, {\"kind\": \"effect\", \"effect\": {\"effect_id\": \"ef1\", \"kind\": \"like_given\", \"actor_ref\": \"a1\", \"target_ref\": \"p1\", \"created_at\": \"2026-11-18T10:00:00Z\"}}]. Rules: a write whose event_ref is already kept with the same item, operation and fields is repeated and writes nothing; a write whose event_ref is kept with different content is refused (\"This event ref names another write.\"). Otherwise a write whose expected_revision is not the item's current revision (0 for a new item) is refused (\"The item changed since it was read.\"). An upsert adds one to the revision; a remove keeps the record and sets removed. A removed item is not read back. An effect whose effect_id is kept with the same content is repeated; a different one is refused. Then answer for the scope s1: visible_items (the live item refs in creation order), each item's revision and removed flag for p1 and r1, parent_ref of r1, effects (the count of kept effects) and kept_count (the number of attempts kept). Then remove the throwaway place. Submit outcomes (one of kept, repeated or refused per attempt, in order, with the refusal's words for a refused one) and answer.",
+            "submit": {"type": "object", "required": ["outcomes", "answer"], "properties": {"outcomes": {"type": "array", "items": {"type": "string"}}, "answer": {"type": "object"}}},
+            "checks": [
+              {"kind": "covers", "says": "Each attempt is kept, repeated or refused as the intent says", "path": ["this", "outcomes"], "values": [["kept", "repeated", "refused", "kept", "kept", "refused", "kept", "kept", "repeated", "refused"]]},
+              {"kind": "covers", "says": "The store's own objects give every expected answer", "path": ["this", "answer"], "values": [{"visible_items": ["r1"], "p1": {"revision": 3, "removed": true}, "r1": {"revision": 1, "removed": false, "parent_ref": "p1"}, "effects": 1, "kept_count": 5}]}
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's writes and effects",
+            "do": "Keep each item of writes, then each item of effects, through the store's own objects, in order, and read every kept record back. Submit kept (each event_ref or effect_id, kept or repeated), refused (each refused item and the store's own words for why) and found (the live items of each scope read back). With no items, submit empty lists.",
+            "submit": {"type": "object", "required": ["kept", "refused", "found"], "properties": {"kept": {"type": "array", "items": {"type": "string"}}, "refused": {"type": "array", "items": {"type": "object"}}, "found": {"type": "object"}}},
+            "checks": []
+          }
+        ],
+        "erase": "On the person's request the store deletes the named item records, their event refs and their effects; a removed item is erased with the rest, not kept as a tombstone."
+      }
+    }
+  ]
+}
