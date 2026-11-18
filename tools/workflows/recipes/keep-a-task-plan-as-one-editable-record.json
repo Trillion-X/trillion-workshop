@@ -1,0 +1,236 @@
+{
+  "about": "workflow:keep-a-task-plan-as-one-editable-record: keep one task plan per source id in the person's own store as one editable record, keep its progress as an append-only trail, and read plans newest first and one plan with its trail oldest first, from the store's own keys, checks and indexes. It replaces tools/keep-a-task-plan-as-one-editable-record/src/plan-records.mjs, whose whole job was keeping these records in the retired record store (rule a-tool-is-only-what-the-store-cannot-do).",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-a-task-plan-as-one-editable-record",
+        "label": "Keep a task plan as one editable record",
+        "job": "Keep one task plan per source id in the person's own store as one editable record, keep its progress as an append-only trail, and read the plans newest first and one plan with its trail oldest first, from the store's own objects.",
+        "produces": "The store's own objects for task plans and their progress, proven on the example attempts, and each new plan or progress entry kept, repeated or refused and read back.",
+        "source": {
+          "from": "the owner, 2026-11-18 about 10:57 and 11:01 AM CST: a tool whose whole job is keeping records is a shortcut of what an AI does anyway",
+          "note": "No tool keeps or reads the plans: the run speaks to the person's store in its own language, and the store's own keys, checks and indexes hold the rules the intent below states. A plan can name the person's existing pursuits, decisions and workflow runs by their ids; it copies none of them. The earlier record copy of this code stays in the account that ran it until that account's own store is the only one."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                },
+                "place": {
+                  "type": "string",
+                  "description": "Where in the store the plans are kept, when they already are"
+                }
+              }
+            },
+            "plans": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Plans to keep this run, each as the intent below describes one"
+            },
+            "progress": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Progress entries to keep this run, each as the intent below describes one"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where task plans are already kept (kept_in, or null) and the names of the objects that already keep and show them.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing, make the store's own objects in its own form, so that the store itself refuses what the intent refuses wherever it can (keys, checks, triggers), with an index for listing plans by their updated time and for reading one plan's trail. Grant only what the store's holder allows the person's login. Plan, kept once by its source_id (required, up to 1000 characters): title (required, up to 300 characters), goal and body (both required, up to 20000 characters each), status (one of active, blocked, completed, paused; active when none is given), next_action and success_measure (optional, up to 4000 characters), pursuit_ids (optional, a list of ids of the person's existing pursuits), decision_case_id and workflow_run_id (optional, up to 300 characters each), and the app that kept it. Progress entry, kept once per plan by its entry_id (required, up to 1000 characters): the plan it belongs to (plan_source_id), summary (required, up to 4000 characters), status (optional, one of the four above), step (optional, up to 300 characters) and the time it is kept. Keeping a plan: a plan whose source_id is not yet kept is made, stamped with the time it is kept as both created and updated, and with the app as creator and last changer. A plan save with the same source_id and no change asked returns the plan kept already, unchanged: a retry never resets completed work. A save with change true sets each field the save gives and keeps the rest, and stamps the time it is kept as its updated time. A source_id already used by something that is not a plan is refused. Keeping a progress entry: an entry whose plan is not kept, or whose status is not one of the four, is refused. An entry whose entry_id is already kept for that plan is repeated and changes nothing. A new entry is appended to that plan's trail, sets the plan's latest_progress to its summary, sets its status when the entry gives one, and stamps its updated time. Store rule: a kept progress entry is never changed or removed by a run; an erase the person asks for deletes the plan together with its trail.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example attempts",
+            "do": "In a throwaway place in the same store, with the same objects, keep these attempts in order, each through the store's own objects, each at the time given: [{\"at\": \"2026-11-01T10:00:00Z\", \"plan\": {\"source_id\": \"contract-builder:plan\", \"title\": \"Build reusable sales contracts\", \"goal\": \"Reuse the shared sales primitives for client contracts\", \"body\": \"Use the existing decision to choose the delivery path.\", \"pursuit_ids\": [\"pursuit:clients\"], \"decision_case_id\": \"decision:clients\", \"workflow_run_id\": \"run:contracts\", \"app\": \"example-ai\"}}, {\"at\": \"2026-11-01T10:05:00Z\", \"plan\": {\"source_id\": \"contract-builder:plan\", \"title\": \"Build reusable sales contracts\", \"goal\": \"Reuse the shared sales primitives for client contracts\", \"body\": \"Use the existing decision to choose the delivery path.\", \"pursuit_ids\": [\"pursuit:clients\"], \"decision_case_id\": \"decision:clients\", \"workflow_run_id\": \"run:contracts\", \"app\": \"example-ai\"}}, {\"at\": \"2026-11-02T10:00:00Z\", \"progress\": {\"plan_source_id\": \"contract-builder:plan\", \"entry_id\": \"step-1\", \"summary\": \"Drafted the contract\", \"step\": \"draft\"}}, {\"at\": \"2026-11-02T10:01:00Z\", \"progress\": {\"plan_source_id\": \"contract-builder:plan\", \"entry_id\": \"step-1\", \"summary\": \"Drafted the contract\", \"step\": \"draft\"}}, {\"at\": \"2026-11-03T10:00:00Z\", \"progress\": {\"plan_source_id\": \"contract-builder:plan\", \"entry_id\": \"step-2\", \"summary\": \"Sent to the client\", \"status\": \"completed\", \"step\": \"send\"}}, {\"at\": \"2026-11-03T11:00:00Z\", \"plan\": {\"source_id\": \"contract-builder:plan\", \"change\": true, \"status\": \"active\"}}, {\"at\": \"2026-11-03T12:00:00Z\", \"plan\": {\"source_id\": \"contract-builder:plan\", \"title\": \"A different title\"}}, {\"at\": \"2026-11-03T13:00:00Z\", \"plan\": {\"source_id\": \"no-goal\", \"title\": \"Plan without a goal\", \"body\": \"Body.\"}}, {\"at\": \"2026-11-03T13:01:00Z\", \"plan\": {\"source_id\": \"archived-plan\", \"title\": \"Archived plan\", \"goal\": \"Goal.\", \"body\": \"Body.\", \"status\": \"archived\"}}, {\"at\": \"2026-11-03T13:02:00Z\", \"progress\": {\"plan_source_id\": \"not-kept-plan\", \"entry_id\": \"step-1\", \"summary\": \"Nothing to attach to.\"}}, {\"at\": \"2026-11-03T13:03:00Z\", \"progress\": {\"plan_source_id\": \"contract-builder:plan\", \"entry_id\": \"step-3\", \"summary\": \"Bad status.\", \"status\": \"archived\"}}, {\"at\": \"2026-11-04T10:00:00Z\", \"plan\": {\"source_id\": \"review-pricing\", \"title\": \"Review the pricing page\", \"goal\": \"Decide the next price test\", \"body\": \"Read the funnel first.\", \"pursuit_ids\": [\"pursuit:clients\"], \"app\": \"example-ai\"}}]. Each attempt must give the outcome the intent gives, and the store's own objects must give every expected answer below.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answer"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "answer": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each attempt is kept, repeated or refused as the intent says",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "kept",
+                    "repeated",
+                    "kept",
+                    "repeated",
+                    "kept",
+                    "kept",
+                    "repeated",
+                    "refused",
+                    "refused",
+                    "refused",
+                    "refused",
+                    "kept"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "The store's own objects give every expected answer",
+                "path": [
+                  "this",
+                  "answer"
+                ],
+                "values": [
+                  {
+                    "plans_newest_first": [
+                      "Review the pricing page",
+                      "Build reusable sales contracts"
+                    ],
+                    "plans_total": 2,
+                    "contract_plan": {
+                      "status": "active",
+                      "latest_progress": "Sent to the client",
+                      "title": "Build reusable sales contracts",
+                      "progress_oldest_first": [
+                        "Drafted the contract",
+                        "Sent to the client"
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's plans and progress",
+            "do": "Keep each item of plans in order, then each item of progress in order, through the store's own objects, and read every kept id back. Submit kept_ids (each plan or entry kept or repeated, by its source_id or entry_id), refused (each refused item's id and the store's own words for why) and found_ids. With no plans and no progress, submit three empty lists.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_ids",
+                "refused",
+                "found_ids"
+              ],
+              "properties": {
+                "kept_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "refused": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "found_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "subset-of",
+                "says": "Every plan or entry kept is read back",
+                "path": [
+                  "this",
+                  "kept_ids"
+                ],
+                "of": [
+                  "this",
+                  "found_ids"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
