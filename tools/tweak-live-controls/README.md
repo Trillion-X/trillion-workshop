@@ -1,31 +1,19 @@
 # tools/tweak-live-controls
 
-Live controls over one tool: a tool's input schema and its `controls` DATA become the rows a person moves (sliders, choices, toggles, words), and the values they move are checked against each row and the tool's own schema into the input the tool runs with. Moved from Trillion-X/trillion `src/made-controls.mjs` (a9ee258, #76); the failure contract it imports came byte for byte from the old tree (`moved-from.json`).
+Only the failure contract is kept here: `failure.mjs` (`failureOf`, from old trillion `src/failure.mjs`) and the codes it reads (`failure-codes.json`, `platform-failures.json`, `effect-outcomes.json`), byte for byte from the old tree (`moved-from.json`). Two tools import them by path: `tools/shape-a-thought-into-my-content-formats/read-data/content-formats.mjs` and `tools/write-a-job-done-in-several-steps-have/read-data/workflows.mjs`. Their natural owner is `tools/say-why-a-call-failed`; they move there when those two tools' rows can be changed together.
 
 ## Files
 
 | File | Purpose |
 |------|---------|
-| `made-controls.mjs` | `controlRows`, `runInput`, `checkedValue`, `interfaceRecipe` and the old made-interface owner, unchanged from the old tree |
-| `failure.mjs` | The failure contract `made-controls.mjs` imports (`failureOf`), from old trillion `src/failure.mjs` |
-| `failure-codes.json` | The failure codes `failure.mjs` reads (from old trillion `src/failure-codes.json`) |
-| `platform-failures.json` | Which code a platform error is (from old trillion `src/platform-failures.json`) |
-| `effect-outcomes.json` | What each effect state means for a retry (from old trillion `src/effect-outcomes.json`) |
-| `live-controls.mjs` | `liveControlsForATool({ descriptor, bind?, values? })`: the control rows and, given values, the checked tool input as one run (what `tool-rows.json` runs) |
+| `failure.mjs` | The failure contract (`failureOf`), from old trillion `src/failure.mjs` |
+| `failure-codes.json` | The failure codes `failure.mjs` reads |
+| `platform-failures.json` | Which code a platform error is |
+| `effect-outcomes.json` | What each effect state means for a retry |
 | `moved-from.json` | Where each brought-in file came from, and both identities |
-| `tool-rows.json` | The row `tool:turn-a-tool-into-live-controls`, with a sample run over a made-up photo-warming tool |
-| `README.md` | This file |
 
-## The row
+## Retired (Nov 18 2026)
 
-`tool:turn-a-tool-into-live-controls` runs `live-controls.mjs` in a small container with no internet, through `tools/workflows/do-work/run-a-function.mjs` (a function of its input: no records door, no database). It reads only what it is given and writes nothing. Running the tool, saving the interface, the preview beside the controls and undo and redo stay with the app's controls screen and the account.
+The live controls made from a tool's input schema were retired: `made-controls.mjs`, `live-controls.mjs`, the row `tool:turn-a-tool-into-live-controls` and its kit, the Controls screen (`web/src/workspace/controls-screen.tsx`, `show/controls-mount.tsx`, `tool:screen-controls`) and its fixed list of preview kinds (`controls-previews.tsx` `PREVIEWS`, one of them `video-look`). They picked a slider, a toggle or a choice by the input's JSON type. That is a fixed list, the owner's examples turned into code.
 
-## Screens moved from the web client
-
-These files were moved byte for byte from the web client (`moved-from.json` names each file's source path, commit and identity). Their imports of the web shell's files stay as written; the client build answers them with the shell's files and opens each screen as a screen module named by its row (`screen.module`).
-
-| File | Purpose |
-|------|---------|
-| `web/src/workspace/controls-screen.tsx` | Controls (`tool:screen-controls`): the live controls an AI made for one thing, beside the tool's preview. |
-| `web/src/workspace/controls-previews.tsx` | What the controls show beside them, by the preview kind (only the Controls screen uses it). |
-| `show/controls-mount.tsx` | The module entry the row names for `controls`: `mount` is `mountControlsScreen`. |
+The replacement is `tools/ui/show/run-the-screen-an-ai-wrote`. The AI writes the controls for whatever is being tuned, as code. They act on the real thing through `window.door.run`, and the screen is kept for next time.

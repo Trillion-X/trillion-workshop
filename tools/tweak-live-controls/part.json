@@ -3,44 +3,6 @@
     "effect-outcomes.json": "effect-outcomes.json",
     "failure": "failure.mjs",
     "failure-codes.json": "failure-codes.json",
-    "made-controls": "made-controls.mjs",
     "platform-failures.json": "platform-failures.json"
-  },
-  "offers": [
-    {
-      "kind": "ai-tool-descriptor",
-      "id": "tool:screen-controls",
-      "listed_on": "2026-10-12T14:00:00Z",
-      "label": "Controls",
-      "job": "A few live controls an AI made for one thing you want to adjust yourself: a preview that changes as you move them, Undo, and a full copy kept when it looks right.",
-      "description": "A few live controls an AI made for one thing you want to adjust yourself: a preview that changes as you move them, Undo, and a full copy kept when it looks right.",
-      "status": "active",
-      "maker": "maker:trillion",
-      "licence_class": "licence:maker-own",
-      "screen": {
-        "kind": "app-entry",
-        "entry": "controls",
-        "icon": "SlidersHorizontal",
-        "surface": {
-          "id": "trillion.controls",
-          "opens_kinds": [
-            "controls"
-          ],
-          "surface_id": "trillion.controls",
-          "kind": "placeable-surface",
-          "order": 37,
-          "listed": false,
-          "placement_labels": [
-            "trillion"
-          ],
-          "placement_order_key": "000000037:trillion.controls",
-          "wrap_material": false,
-          "material_target": "component:trillion-controls",
-          "route_prefix": "/controls/",
-          "route_input": "id",
-          "actions": []
-        }
-      }
-    }
-  ]
+  }
 }
