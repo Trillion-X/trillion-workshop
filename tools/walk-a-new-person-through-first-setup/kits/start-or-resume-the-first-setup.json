@@ -40,7 +40,7 @@
         }
       },
       "given": "The input {\"account_id\":\"acct-sample\",\"available_tools\":[\"tool:run-workflow-definition\"],\"runtime\":{\"workflow\":{\"exists\":false,\"state\":\"not_started\"}}}.",
-      "hands_back": "The answer's $.result.schema contains \"trillion.setup-start/v1\"."
+      "hands_back": "The answer's $.result.schema contains \"trillion.setup-start/v1\", and its defaults step names workflow:keep-my-changes-to-the-shipped-defaults with status unavailable: that is the recipe that keeps the person's changes to the shipped defaults, not a tool, so it is not in available_tools."
     }
   ]
 }
