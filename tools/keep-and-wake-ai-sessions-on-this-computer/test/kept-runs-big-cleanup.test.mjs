@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { sqliteHost } from '../src/local-store.mjs';
-import { keptRuns } from '../parts/record-log/do-work/kept-runs.mjs';
+import { keptRuns } from '../../record-log/do-work/kept-runs.mjs';
 
 const settings = { prefix: 'cleanup', page_bytes: 128, big_bytes: 32, memtable_bytes: 4096, fan_in: 2, max_runs: 2 };
 const key = at => `k${String(at).padStart(4, '0')}`;

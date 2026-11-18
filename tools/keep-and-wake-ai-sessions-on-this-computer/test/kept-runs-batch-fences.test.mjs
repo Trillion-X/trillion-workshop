@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { sqliteHost } from '../src/local-store.mjs';
-import { keptRuns, KeptRangeBudgetExceeded } from '../parts/record-log/do-work/kept-runs.mjs';
+import { keptRuns, KeptRangeBudgetExceeded } from '../../record-log/do-work/kept-runs.mjs';
 
 const key = n => `key:${String(n).padStart(5, '0')}`;
 function fixture() {

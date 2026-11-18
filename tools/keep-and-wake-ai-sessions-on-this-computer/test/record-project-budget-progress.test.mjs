@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { sqliteHost } from '../src/local-store.mjs';
 import { recordLogStore } from '../parts/record-log/do-work/record-log-store.mjs';
-import { keptRuns } from '../parts/record-log/do-work/kept-runs.mjs';
+import { keptRuns } from '../../record-log/do-work/kept-runs.mjs';
 const id=n=>'note:'+String(n).padStart(3,'0');
 const options=host=>({transaction:host.transaction,slot_bytes:4096,runs:{page_bytes:4096,cache_bytes:0,filter_bytes:0,max_runs:1000}});
 const markers=[null,false,0,'',{},[],{large:'x'.repeat(1000)}];

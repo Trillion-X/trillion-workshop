@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { sqliteHost } from '../src/local-store.mjs';
-import { keptRuns, repairKeptRunsCatalog } from '../parts/record-log/do-work/kept-runs.mjs';
+import { keptRuns, repairKeptRunsCatalog } from '../../record-log/do-work/kept-runs.mjs';
 import { repairRecordLogCatalog, recordLogOwnsTable } from '../parts/record-log/do-work/record-log-store.mjs';
 
 const settings = { prefix: 'record_keys', page_bytes: 256, big_bytes: 64, memtable_bytes: 8192, fan_in: 8, max_runs: 8 };

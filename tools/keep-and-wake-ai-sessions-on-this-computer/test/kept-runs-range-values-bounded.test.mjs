@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { sqliteHost } from '../src/local-store.mjs';
-import { keptRuns } from '../parts/record-log/do-work/kept-runs.mjs';
+import { keptRuns } from '../../record-log/do-work/kept-runs.mjs';
 
 // A range that opens values reads each winning page once per call, not once per winner that changes run. With the
 // page cache off, a 32-winner range over 20 interleaved runs must read the same number of pages at 2,000 keys and at

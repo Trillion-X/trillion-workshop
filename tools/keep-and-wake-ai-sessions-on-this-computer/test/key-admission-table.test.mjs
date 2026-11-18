@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { sqliteHost } from '../src/local-store.mjs';
-import { erasableKeys } from '../parts/record-log/do-work/erasable.mjs';
+import { erasableKeys } from '../../record-log/do-work/erasable.mjs';
 import { erasableKeys as before } from './fixtures/erasable-before-key-admission.mjs';
 const material=Buffer.alloc(32,9).toString('base64');
 const seeded=(host,owner,options={})=>{const keys=owner(host.sql,options);keys.take(Object.fromEntries(Array.from({length:130},(_,n)=>['key:'+n,material])));keys.take({'gone':{erased:['text']}});keys.forgetCached();return keys;};

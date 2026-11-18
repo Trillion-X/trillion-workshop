@@ -7,7 +7,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { sqliteHost } from '../src/local-store.mjs';
 import { recordLogStore } from '../parts/record-log/do-work/record-log-store.mjs';
-import { keptRuns } from '../parts/record-log/do-work/kept-runs.mjs';
+import { keptRuns } from '../../record-log/do-work/kept-runs.mjs';
 import { bucketOf } from '../../record-log/do-work/record-digest.mjs';
 
 test('own-field JSON keeps exact shared Unicode content across chunk boundaries, rollback and cold rewrite', () => {

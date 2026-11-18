@@ -8,7 +8,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { sqliteHost } from '../src/local-store.mjs';
-import { keptRuns } from '../parts/record-log/do-work/kept-runs.mjs';
+import { keptRuns } from '../../record-log/do-work/kept-runs.mjs';
 
 const key = at => `k${String(at).padStart(5, '0')}`;
 const value = (at, round) => ({ at, round, text: 'v'.repeat(60) });

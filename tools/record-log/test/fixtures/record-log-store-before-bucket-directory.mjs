@@ -69,17 +69,17 @@
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
-import { keptRuns, KeptRangeBudgetExceeded, KEPT_RANGE_PROGRESS } from '../../../keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/kept-runs.mjs';
+import { keptRuns, KeptRangeBudgetExceeded, KEPT_RANGE_PROGRESS } from '../../do-work/kept-runs.mjs';
 import { slotTable } from '../../../slot-table/do-work/slot-table.mjs';
 import { jsonExpansionBytes } from '../../../json-expansion.mjs';
-import { jsonMembers } from '../../../keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/json-members.mjs';
+import { jsonMembers } from '../../do-work/json-members.mjs';
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
 import { storeSums, lanesFrom, bucketOf, textHash } from '../../do-work/record-digest.mjs';
 import { stateOf, stateFrom, merge, keptFrom, stampAfter, tieByContent, envelopeOfKept, sameKept } from '../../do-work/record-stamps.mjs';
 import { recordModel, declarationIndexesOf, partsOf, setsOf, refusalOf, undeclaredOf, factsOf, valueKindOf, ModelRefused, ModelUndeclared } from '../../do-work/record-model.mjs';
 import { recordTables } from '../../../keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/record-tables.mjs';
-import { erasableKeys, erasureQueue, seal, open as openSealed, isSealed, keyIdOf, SEALED_MARK } from '../../../keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/erasable.mjs';
+import { erasableKeys, erasureQueue, seal, open as openSealed, isSealed, keyIdOf, SEALED_MARK } from '../../do-work/erasable.mjs';
 export { ModelRefused, ModelUndeclared };
 
 const SEP = '\u0000';

@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { build } from 'esbuild';
 import { Miniflare } from 'miniflare';
 import { sqliteHost } from '../src/local-store.mjs';
-import { keptRuns } from '../parts/record-log/do-work/kept-runs.mjs';
+import { keptRuns } from '../../record-log/do-work/kept-runs.mjs';
 
 // The real owner accepts a synchronous decoder. A decoder of the first selected
 // value can itself read the remaining selected pages, while the outer grouped

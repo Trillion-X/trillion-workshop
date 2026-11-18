@@ -80,7 +80,7 @@ import { bytesToHex } from '@noble/hashes/utils.js';
 import { storeSums, lanesFrom, bucketOf, textHash, BUCKETS } from 'trillion-workshop/tools/record-log/do-work/record-digest.mjs';
 import { stateOf, stateFrom, merge, keptFrom, stampAfter, tieByContent, envelopeOfKept, sameKept } from 'trillion-workshop/tools/record-log/do-work/record-stamps.mjs';
 import { recordModel, declarationIndexesOf, partsOf, setsOf, refusalOf, undeclaredOf, factsOf, valueKindOf, ModelRefused, ModelUndeclared } from 'trillion-workshop/tools/record-log/do-work/record-model.mjs';
-import { recordTables } from './record-tables.mjs';
+import { recordTables } from '../../keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/record-tables.mjs';
 import { erasableKeys, erasureQueue, seal, open as openSealed, isSealed, keyIdOf, SEALED_MARK } from 'trillion-workshop/tools/record-log/do-work/erasable.mjs';
 export { ModelRefused, ModelUndeclared };
 

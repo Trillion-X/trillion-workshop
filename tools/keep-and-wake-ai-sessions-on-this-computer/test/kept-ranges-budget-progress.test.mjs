@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { sqliteHost } from '../src/local-store.mjs';
-import { keptRuns, KeptRangeBudgetExceeded, KEPT_RANGE_PROGRESS } from '../parts/record-log/do-work/kept-runs.mjs';
+import { keptRuns, KeptRangeBudgetExceeded, KEPT_RANGE_PROGRESS } from '../../record-log/do-work/kept-runs.mjs';
 const exact = lo => ({ lo, hi: `${lo}\u0000` });
 function fixture() {
   const host=sqliteHost(':memory:'),opts={transaction:host.transaction,prefix:'progress',page_bytes:256,cache_bytes:0,filter_bytes:0,max_runs:1000};

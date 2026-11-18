@@ -166,15 +166,6 @@
       "source_identity": "1f:da9d3aaaba0ae64e7b8ca538c348d9b20d60574c594a461fa5e5185649d53adb",
       "identity": "1f:da9d3aaaba0ae64e7b8ca538c348d9b20d60574c594a461fa5e5185649d53adb",
       "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/record-log/do-work/record-tables.mjs",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/record-log/do-work/record-tables.mjs",
-      "source_identity": "1f:b8c30e83224059452c67505954e476ed39c236b18dc0b112b7cefff1ebd52a2a",
-      "identity": "1f:b8c30e83224059452c67505954e476ed39c236b18dc0b112b7cefff1ebd52a2a",
-      "found_by": "byte copy"
     }
   ]
 }

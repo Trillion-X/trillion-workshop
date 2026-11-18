@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import { slotTable, SLOT_SPACE } from '../do-work/slot-table.mjs';
 import { sqliteHost } from '../../keep-and-wake-ai-sessions-on-this-computer/src/local-store.mjs';
 import { recordLogStore } from '../../keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/record-log-store.mjs';
-import { keptRuns } from '../../keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/kept-runs.mjs';
+import { keptRuns } from '../../record-log/do-work/kept-runs.mjs';
 
 test('a slot answers its value, kind, version and declared columns, and a stale handle answers nothing', () => {
   const table = slotTable({ columns: [{ kind: 'note', field: 'at', as: 'number' }, { kind: 'note', field: 'room', as: 'text' }] });

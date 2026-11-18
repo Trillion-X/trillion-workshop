@@ -4,7 +4,7 @@ import {mkdtempSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {sqliteHost} from '../src/local-store.mjs';
-import {keptRuns} from '../parts/record-log/do-work/kept-runs.mjs';
+import {keptRuns} from '../../record-log/do-work/kept-runs.mjs';
 import fixture from './fixtures/kept-runs-sparse-v1.json' with {type:'json'};
 // These actual persisted rows come from the qualified synthetic codec writer.
 // A reader test imports no historical implementation or writer-admission callback.

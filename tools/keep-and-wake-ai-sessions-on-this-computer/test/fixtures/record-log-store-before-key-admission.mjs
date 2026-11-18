@@ -69,10 +69,10 @@
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
-import { keptRuns, KeptRangeBudgetExceeded, KEPT_RANGE_PROGRESS, KEPT_RUNS_DEFAULTS } from '../../parts/record-log/do-work/kept-runs.mjs';
+import { keptRuns, KeptRangeBudgetExceeded, KEPT_RANGE_PROGRESS, KEPT_RUNS_DEFAULTS } from '../../../record-log/do-work/kept-runs.mjs';
 import { slotTable } from '../../../slot-table/do-work/slot-table.mjs';
 import { jsonExpansionBytes } from '../../../json-expansion.mjs';
-import { jsonMembers } from '../../parts/record-log/do-work/json-members.mjs';
+import { jsonMembers } from '../../../record-log/do-work/json-members.mjs';
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
 import { storeSums, lanesFrom, bucketOf, textHash, BUCKETS } from '../../../record-log/do-work/record-digest.mjs';

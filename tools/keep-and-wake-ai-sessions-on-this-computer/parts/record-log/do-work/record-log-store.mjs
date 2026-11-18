@@ -70,11 +70,11 @@
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
-import { keptRuns, repairKeptRunsCatalog, KeptRangeBudgetExceeded, KEPT_RANGE_PROGRESS, KEPT_RUNS_DEFAULTS } from './kept-runs.mjs';
+import { keptRuns, repairKeptRunsCatalog, KeptRangeBudgetExceeded, KEPT_RANGE_PROGRESS, KEPT_RUNS_DEFAULTS } from '../../../../record-log/do-work/kept-runs.mjs';
 import { slotTable } from '../../../../slot-table/do-work/slot-table.mjs';
 import { jsonExpansionBytes } from '../../../../json-expansion.mjs';
 import { sqlStatementWasNotExecuted } from '../../../../sql-statement-execution.mjs';
-import { jsonMembers } from './json-members.mjs';
+import { jsonMembers } from '../../../../record-log/do-work/json-members.mjs';
 import pacing from '../../../../record-log/do-work/maintenance-pacing.json' with { type: 'json' };
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
@@ -82,7 +82,7 @@ import { storeSums, lanesFrom, bucketOf, textHash, BUCKETS } from '../../../../r
 import { stateOf, stateFrom, merge, keptFrom, stampAfter, tieByContent, envelopeOfKept, sameKept } from '../../../../record-log/do-work/record-stamps.mjs';
 import { recordModel, declarationIndexesOf, partsOf, setsOf, refusalOf, undeclaredOf, factsOf, valueKindOf, ModelRefused, ModelUndeclared } from '../../../../record-log/do-work/record-model.mjs';
 import { recordTables } from './record-tables.mjs';
-import { erasableKeys, erasureQueue, seal, open as openSealed, isSealed, keyIdOf, SEALED_MARK } from './erasable.mjs';
+import { erasableKeys, erasureQueue, seal, open as openSealed, isSealed, keyIdOf, SEALED_MARK } from '../../../../record-log/do-work/erasable.mjs';
 export { ModelRefused, ModelUndeclared };
 
 const SEP = '\u0000';

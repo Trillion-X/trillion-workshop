@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { build } from 'esbuild';
 import { Miniflare } from 'miniflare';
 import { sqliteHost } from '../src/local-store.mjs';
-import { keptRuns } from '../parts/record-log/do-work/kept-runs.mjs';
+import { keptRuns } from '../../record-log/do-work/kept-runs.mjs';
 
 function sample(keptRuns, sql, transaction = fn => fn(), meter = () => {}) {
   const options = { prefix: 'bracket', transaction, page_bytes: 128, cache_bytes: 0, filter_bytes: 0, max_runs: 1000 };

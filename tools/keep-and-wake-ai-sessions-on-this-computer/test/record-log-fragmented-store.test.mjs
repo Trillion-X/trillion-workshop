@@ -6,7 +6,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { sqliteHost } from '../src/local-store.mjs';
 import { recordLogStore } from '../parts/record-log/do-work/record-log-store.mjs';
-import { keptRuns } from '../parts/record-log/do-work/kept-runs.mjs';
+import { keptRuns } from '../../record-log/do-work/kept-runs.mjs';
 
 // Wall time of one wake in this process; the store's own CPU limit is far above it, so a wake past it is a job that
 // grows with the store instead of a bounded slice.

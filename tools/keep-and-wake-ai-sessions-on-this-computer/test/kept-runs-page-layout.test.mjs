@@ -10,7 +10,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { sqliteHost } from '../src/local-store.mjs';
-import { keptRuns } from '../parts/record-log/do-work/kept-runs.mjs';
+import { keptRuns } from '../../record-log/do-work/kept-runs.mjs';
 import { keptRuns as keptRunsBefore } from './fixtures/kept-runs-before-directory-reader.mjs';
 
 const SETTINGS = { page_bytes: 256, memtable_bytes: 1 << 30, fan_in: 4, max_runs: 4, compaction_debt_min_bytes: 1 };

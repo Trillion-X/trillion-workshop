@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {sqliteHost} from '../src/local-store.mjs';
-import {keptRuns} from '../parts/record-log/do-work/kept-runs.mjs';
+import {keptRuns} from '../../record-log/do-work/kept-runs.mjs';
 test('a warm catalogue reload refuses a newly unsupported format before reusing its cached dense run',t=>{
  const host=sqliteHost(':memory:');t.after(()=>host.db.close());
  const owner=keptRuns(host.sql,{transaction:host.transaction,prefix:'warm_format',cache_bytes:4096});owner.put('a-public',{keep:1});owner.flush();assert.deepEqual(owner.get('a-public'),{keep:1});

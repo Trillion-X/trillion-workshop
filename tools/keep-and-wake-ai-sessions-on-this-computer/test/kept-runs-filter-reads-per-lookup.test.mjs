@@ -7,7 +7,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { sqliteHost } from '../src/local-store.mjs';
-import { keptRuns } from '../parts/record-log/do-work/kept-runs.mjs';
+import { keptRuns } from '../../record-log/do-work/kept-runs.mjs';
 
 // Every query that reads a filter row (a negative page of some run table), counted once per statement.
 const FILTER_ROW_READ = /_run_\d+ WHERE page = (\?|-)/;

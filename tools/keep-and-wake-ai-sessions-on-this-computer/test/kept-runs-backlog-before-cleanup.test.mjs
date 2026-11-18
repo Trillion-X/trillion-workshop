@@ -8,7 +8,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { sqliteHost } from '../src/local-store.mjs';
-import { keptRuns } from '../parts/record-log/do-work/kept-runs.mjs';
+import { keptRuns } from '../../record-log/do-work/kept-runs.mjs';
 
 const settings = { prefix: 'backlog', page_bytes: 128, big_bytes: 32, memtable_bytes: 1 << 30, fan_in: 2, max_runs: 4 };
 const key = at => `k${String(at).padStart(4, '0')}`;

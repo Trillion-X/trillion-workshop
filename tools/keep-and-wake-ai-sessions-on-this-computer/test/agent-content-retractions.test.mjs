@@ -4,7 +4,7 @@ import { sqliteHost } from '../src/local-store.mjs';
 import { openRecords, setRecordEngine } from '../src/record-engine.mjs';
 import { agentRecordStore } from '../../shared-code/src/agent-records.mjs';
 import { recordLogStore } from '../parts/record-log/do-work/record-log-store.mjs';
-import { keptRuns } from '../parts/record-log/do-work/kept-runs.mjs';
+import { keptRuns } from '../../record-log/do-work/kept-runs.mjs';
 
 const ACTOR = { actor: { by: 'synthetic-content-retraction-test' } };
 const resultId = id => `agent-handoff-result:${id}`;

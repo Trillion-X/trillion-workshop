@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import { sqliteHost } from '../../keep-and-wake-ai-sessions-on-this-computer/src/local-store.mjs';
 import { recordLogStore } from '../../keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/record-log-store.mjs';
 import { recordLogStore as beforeOwner } from './fixtures/record-log-store-before-bucket-directory.mjs';
-import { keptRuns } from '../../keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/kept-runs.mjs';
+import { keptRuns } from '../do-work/kept-runs.mjs';
 import { bucketOf, BUCKETS } from '../do-work/record-digest.mjs';
 
 const ALL = Array.from({ length: BUCKETS }, (_, n) => n);

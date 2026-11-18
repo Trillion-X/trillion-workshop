@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { sqliteHost } from '../src/local-store.mjs';
-import { keptRuns } from '../parts/record-log/do-work/kept-runs.mjs';
+import { keptRuns } from '../../record-log/do-work/kept-runs.mjs';
 
 // A start loads only filter_boot_bytes of filters, and each filter left out costs one SQL probe per read. On a store
 // with a merge backlog that probed every run: one setting read on the founder's store took 1,666 statements and

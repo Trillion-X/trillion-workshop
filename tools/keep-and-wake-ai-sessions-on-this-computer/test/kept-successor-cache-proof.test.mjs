@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { sqliteHost } from '../src/local-store.mjs';
-import { keptRuns } from '../parts/record-log/do-work/kept-runs.mjs';
+import { keptRuns } from '../../record-log/do-work/kept-runs.mjs';
 
 // Keys in a page's header: its suffixes follow the offsets' JSON after \u0002 (kept-runs.mjs), or an earlier page's s array.
 const keysInHeader = body => {

@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
 import { Miniflare } from 'miniflare';
 import { sqliteHost } from '../src/local-store.mjs';
-import { keptRuns, KeptRangeBudgetExceeded } from '../parts/record-log/do-work/kept-runs.mjs';
+import { keptRuns, KeptRangeBudgetExceeded } from '../../record-log/do-work/kept-runs.mjs';
 
 const beforeURL = new URL('./fixtures/kept-runs-before-cache-successor.mjs', import.meta.url);
 const beforeSha256 = 'fec1cf69340e6508f9fe0663973123c4e62964ba0f624863dd425be10b45379e';

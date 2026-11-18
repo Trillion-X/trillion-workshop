@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { sqliteHost } from '../src/local-store.mjs';
-import { keptRuns } from '../parts/record-log/do-work/kept-runs.mjs';
+import { keptRuns } from '../../record-log/do-work/kept-runs.mjs';
 import { keptRuns as before } from './fixtures/kept-runs-before-directory-reader.mjs';
 const key=n=>'i:'+String(n).padStart(6,'0');
 const config=host=>({transaction:host.transaction,prefix:'probe',page_bytes:512,big_bytes:4096,memtable_bytes:1<<20,cache_bytes:0,filter_bytes:0});
