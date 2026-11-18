@@ -1,5 +1,5 @@
 import { describe, it, expect } from '../../../../../test-helpers/vitest-shim.mjs';
-import { toPublishedRecords, readAgentId } from './mount-agent-card';
+import { toPublishedRecords, readAgentId } from '../../../../ai-agent-profile/packages/ai-agent-profile/show/mount-agent-card';
 
 describe('toPublishedRecords', () => {
   it('passes a bare array through', () => {
