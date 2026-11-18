@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { packageFilesByRow, toolRowFindings } from '../test-helpers/tool-row-imports.mjs';
@@ -177,4 +177,47 @@ test('every part.json export and public entry names a file or folder its tool ho
     for (const target of part.public ?? []) if (typeof target === 'string' && !target.includes('*') && !holds(tool.name, target)) gone.push(`tools/${tool.name}/part.json public: ${target}`);
   }
   assert.deepEqual(gone, [], `\n${gone.join('\n')}\n\nPoint each entry at a file the tool holds, or remove it.`);
+});
+
+// A package a row lays imports, at run time, the packages its lockfile entry depends on; each of those its laid files import is
+// laid beside it, or the program stops at module load ("Cannot find package 'tldts-core' imported from /opt/node_modules/tldts").
+// tool:walk-a-new-person-through-first-setup failed every live run this way (Nov 18 2026). Only dependencies the package's laid
+// code names count: a dependency kept for types (@babel/parser's @babel/types) is never loaded.
+test('every package a tool row lays has each dependency its laid code imports laid beside it', () => {
+  const lock = JSON.parse(readFileSync(join(repo, 'package-lock.json'), 'utf8')).packages;
+  const named = /(?:\brequire\(\s*|\bfrom\s*|\bimport\(\s*|^\s*import\s+)['"]((?:@[a-z0-9][\w.-]*\/)?[a-z0-9][\w.-]*(?:\/[\w./-]*)?)['"]/gm;
+  const top = spec => spec.startsWith('@') ? spec.split('/').slice(0, 2).join('/') : spec.split('/')[0];
+  const read = new Map();
+  const importsOf = (name, laid) => {
+    const key = `${name}|${laid}`;
+    if (!read.has(key)) {
+      const found = new Set();
+      const walk = path => {
+        if (!existsSync(path)) return;
+        if (statSync(path).isDirectory()) { for (const entry of readdirSync(path)) walk(join(path, entry)); return; }
+        if (/\.(c|m)?js$/.test(path)) for (const match of readFileSync(path, 'utf8').matchAll(named)) found.add(top(match[1]));
+      };
+      walk(join(repo, 'node_modules', name, laid));
+      read.set(key, found);
+    }
+    return read.get(key);
+  };
+  const unlaid = [];
+  for (const tool of readdirSync(join(repo, 'tools'), { withFileTypes: true }).filter(entry => entry.isDirectory())) {
+    const file = join(repo, 'tools', tool.name, 'tool-rows.json');
+    if (!existsSync(file)) continue;
+    for (const { payload } of JSON.parse(readFileSync(file, 'utf8')).records ?? []) {
+      const items = [payload?.invoke?.files?.package_files ?? []].flat().filter(item => item && typeof item === 'object');
+      const laid = new Set(items.flatMap(item => item.packages ?? []));
+      for (const item of items) for (const key of item.packages ?? []) {
+        if (!key.startsWith('node_modules/')) continue;
+        const name = key.slice('node_modules/'.length);
+        const used = new Set((item.paths ?? ['.']).flatMap(path => [...importsOf(name, path)]));
+        for (const dependency of Object.keys(lock[key]?.dependencies ?? {})) {
+          if (used.has(dependency) && !laid.has(`node_modules/${dependency}`)) unlaid.push(`${payload.id}: ${name} needs ${dependency}`);
+        }
+      }
+    }
+  }
+  assert.deepEqual(unlaid, [], `\n${unlaid.join('\n')}\n\nAdd { packages: ["node_modules/<dependency>"], paths, at: "/opt/node_modules/<dependency>" } to the row's invoke.files.package_files.`);
 });
