@@ -483,10 +483,11 @@ export async function removeAComputer(leaseFile, { machineToken, nameToken, fetc
 }
 
 /** What the computer runs: `request.computer_row` is the computer's own row (a `record:computer`: its address, name and
- * `runs`, the units, Caddy and set-up it runs), handed in with the request; this tool reads no store for it. */
+ * `runs`, the units, any Caddy and set-up it runs), handed in with the request; this tool reads no store for it. A computer
+ * that serves no web pages (a database computer) names no `caddy`, and no Caddy file is written for it. */
 export function runsOf(request) {
   const runs = request.computer_row?.runs;
-  if (!runs || typeof runs !== 'object' || !Array.isArray(runs.units) || !runs.caddy) throw refused('computer_row is the computer\'s own row: its `runs` names the units and caddy the computer runs.');
+  if (!runs || typeof runs !== 'object' || !Array.isArray(runs.units)) throw refused('computer_row is the computer\'s own row: its `runs` names the units the computer runs.');
   return runs;
 }
 
