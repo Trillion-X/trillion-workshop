@@ -27,11 +27,12 @@
 // (draft-a-kit.mjs), marked `draft: true` with what it still lacks in `owes`. A recipe is never refused for lacking a kit:
 // the person's older workflows (written before kits) keep running, each with the kit its own rows make.
 
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { recipeFromRows } from './recipe-rows.mjs';
 import { readJob, runId } from './step-agents.mjs';
 import { publicRecipe } from './public-recipes.mjs';
-import { draftKit } from './draft-a-kit.mjs';
+import { kitFor } from './kit-for-a-run.mjs';
+export { kitFor };
 import { identifier } from './sql.mjs';
 import { filterRecords } from '../../formulas/do-work/requests.mjs';
 
@@ -80,16 +81,6 @@ async function arrivedSeeds(sourceId, cause, sql) {
     .filter(item => typeof item.words === 'string' && item.words.trim());
 }
 
-const KITS = new URL('../kits/', import.meta.url);
-
-/** The kit this run carries: the shipped kit file, the kit on the person's own row, or one drafted from the recipe's own steps. */
-export function kitFor(recipe) {
-  const file = new URL(`${recipe.id.slice(recipe.id.indexOf(':') + 1)}.json`, KITS);
-  if (existsSync(file)) return { from: 'shipped', kit: JSON.parse(readFileSync(file, 'utf8')) };
-  if (recipe.kit && typeof recipe.kit === 'object') return { from: 'own-row', kit: recipe.kit };
-  const { kit, problems } = draftKit({ recipe });
-  return { from: 'drafted', kit: { ...kit, draft: true, owes: problems } };
-}
 
 export async function startARecipeRun({ input = {}, task = {} } = {}, { sql }) {
   const { row, ...given } = input;

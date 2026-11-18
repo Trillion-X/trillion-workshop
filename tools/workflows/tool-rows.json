@@ -272,6 +272,7 @@
                   "do-work/run-with-sql.mjs",
                   "read-data/start-a-recipe-run.mjs",
                   "read-data/draft-a-kit.mjs",
+                  "read-data/kit-for-a-run.mjs",
                   "read-data/kit-problems.mjs",
                   "read-data/kit-words.mjs",
                   "kit-template.json",

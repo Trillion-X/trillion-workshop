@@ -1,0 +1,73 @@
+{
+  "drafted_from": "tool:run-workflow-definition's own row (tool-rows.json: its words, input schema and sample runs) and what test/run-a-workflow.test.mjs got back from the workflow engine for a made-up bakery recipe",
+  "start_here": "Say to your AI: \"Run my workflow:made-up-bake with allowed flours rye and wheat, and tell me which step waits for an answer.\" It runs tool:run-workflow-definition and answers status \"paused\", waiting at step \"pick\".",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: the recipe (or your recipe row and its step rows), the input and the answers come in the request, the run comes back in the answer, and nothing is kept in your records.",
+  "workflows": [],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Give the recipe: its steps in order (each with do, submit and checks), or your record:workflow-recipe row with its record:workflow-step rows, or engine definitions with a workflow_id.",
+    "2. Give the run's input (what the checks read as input....) and no answers: the run comes back paused, and waiting names the first step with what it asks.",
+    "3. Answer that step by its id in answers and call again with every answer so far: the run goes on to the next step, or fails at a check with the engine's own words naming the value.",
+    "4. When every step has an answer that passes its checks, the run comes back completed, with each step's output; keep the answers yourself, the tool keeps nothing."
+  ],
+  "worked_examples": [
+    {
+      "title": "A new run stops at its first step",
+      "ask": "Run my bake recipe with allowed flours rye and wheat.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "recipe": {
+                "id": "workflow:made-up-bake",
+                "title": "Bake a loaf",
+                "steps": [
+                  { "id": "pick", "title": "Pick flours", "do": "Pick the flours the card names.", "submit": { "type": "object", "properties": { "flours": { "type": "array" } } }, "checks": [{ "kind": "subset-of", "says": "Only flours the card names", "path": ["this", "flours", "*"], "of": ["input", "allowed"] }] },
+                  { "id": "bake", "title": "Bake", "do": "Bake the loaf.", "submit": { "type": "object" } }
+                ]
+              },
+              "input": { "allowed": ["rye", "wheat"] }
+            }
+          }
+        }
+      },
+      "hands_back": "{\"status\":\"paused\",\"waiting\":[{\"step_id\":\"pick\",\"asks\":\"ai\",\"input\":{\"checks\":[\"Only flours the card names\"],\"do\":\"Pick the flours the card names.\",\"submit\":{\"properties\":{\"flours\":{\"type\":\"array\"}},\"type\":\"object\"}}}]}"
+    },
+    {
+      "title": "A flour the card does not name fails the run, by name",
+      "ask": "Go on with flours rye and sawdust, and the bake done.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "recipe": {
+                "id": "workflow:made-up-bake",
+                "title": "Bake a loaf",
+                "steps": [
+                  { "id": "pick", "title": "Pick flours", "do": "Pick the flours the card names.", "submit": { "type": "object", "properties": { "flours": { "type": "array" } } }, "checks": [{ "kind": "subset-of", "says": "Only flours the card names", "path": ["this", "flours", "*"], "of": ["input", "allowed"] }] },
+                  { "id": "bake", "title": "Bake", "do": "Bake the loaf.", "submit": { "type": "object" } }
+                ]
+              },
+              "input": { "allowed": ["rye", "wheat"] },
+              "answers": { "pick": { "flours": ["rye", "sawdust"] }, "bake": { "done": true } }
+            }
+          }
+        }
+      },
+      "hands_back": "{\"status\":\"failed\",\"error_message\":\"Workflow execution failed: Step 'pick#checks' failed: Step 'pick#checks' did not pass its checks: Only flours the card names (\\\"sawdust\\\" is not one of them).\"}"
+    }
+  ]
+}
