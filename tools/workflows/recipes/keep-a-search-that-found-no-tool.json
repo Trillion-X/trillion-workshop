@@ -1,0 +1,163 @@
+{
+  "about": "workflow:keep-a-search-that-found-no-tool: keeps, in the person's own store, each job a search asked for that found no tool, once per job, counted up, with its first and last time, written at most once per refresh window, and swept after keep days; and lists them newest first. It replaces the record half of tools/keep-a-search-that-found-no-tool (src/dead-end-search.mjs, deadEndSearches: missed and list), whose whole job except the rule was keeping that record in the retired record store. The rule (only an empty candidates list is a dead end, the job is tidied and cut, the ignored words, the name) stays in that folder as values in, values out (rule a-tool-is-only-what-the-store-cannot-do).",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-a-search-that-found-no-tool",
+        "label": "Keep a search that found no tool",
+        "job": "Keep each job a search asked for and found no tool for, as one record in the person's own store that counts up each time the job is asked again, written at most once per refresh window, and list them newest first.",
+        "produces": "The store's own dead-end objects, proven on the example searches in the store, each miss kept, counted, repeated or refused and read back, and the sweep dropping the old ones.",
+        "source": {
+          "from": "tools/keep-a-search-that-found-no-tool (src/dead-end-search.mjs, deadEndSearches: missed and list), read on the workshop repository's origin/main; the old source is src/dead-end-search.mjs at commit b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+          "note": "The keep days (30) and the refresh window (24 hours) are the ones workflow:remember-which-tool-was-chosen-for-a-job states for its choices, which this record shares a sweep with. The record's name is the tool's deadEndName for the job (its name family and the BLAKE3 identity of the job, 32 hex characters)."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store",
+            "operation"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                },
+                "place": {
+                  "type": "string",
+                  "description": "Where in the store the dead ends are kept, when they already are"
+                }
+              }
+            },
+            "operation": {
+              "type": "string",
+              "enum": [
+                "missed",
+                "list",
+                "sweep"
+              ]
+            },
+            "sent": {
+              "type": "object",
+              "description": "For missed: { job } as the AI sent it to the search"
+            },
+            "reply": {
+              "type": "object",
+              "description": "For missed: { candidates } the search answered with"
+            },
+            "now": {
+              "type": "string",
+              "description": "The time of this run, as an ISO date and time in UTC"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the dead ends are kept (kept_in, or null) and the names of the objects that already keep them, and show them.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own object, once",
+            "do": "When the look step found nothing, make one object in the store's own form: dead_ends (name, job, times, first_at, at), primary key name (the deadEndName), with a check that times is at least 1 and that a job is kept whole, at most 300 characters. Grant only what the store's holder allows the person's login. Submit the name of the object made, or the one the look step found.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the object on the example searches",
+            "do": "In a throwaway place in the same store, with the same object, do these in order, with the time t0 = 2026-11-04T10:00:00Z: (1) missed with sent {job: \"book a ferry\"} and reply {candidates: []} at t0 (kept, times 1); (2) missed with sent {job: \"turn a scan into text\"} and reply {candidates: []} at t0 (kept, times 1); (3) the same as 2 at t0 plus one minute (repeated: inside the refresh window, nothing written); (4) the same as 2 at t0 plus 25 hours (changed: times 2, first_at stays t0); (5) missed with sent {job: \"translate a voice note\"} and reply {candidates: []} at t0 plus 26 hours (kept, times 1); (6) missed with sent {job: \"turn a scan into text\"} and reply {candidates: [{tool_id: \"tool:a\"}]} at t0 plus 27 hours (refused: not a dead end, nothing written); (7) missed with sent {job: \"ab\"} and reply {candidates: []} (refused: too short); (8) list; (9) sweep at t0 plus 31 days (drops every row whose at is older than 30 days before that time). Rules: the name of a job is the tool's deadEndName (its name family and the BLAKE3 identity of the job); a job is tidied (spaces collapsed, trimmed, cut to 300 characters) and must be at least 3 characters and not be listed in the ignore words. Then remove the throwaway place. Submit outcomes (kept, repeated, changed, refused or swept, in order) and answers: after step 4 \"turn a scan into text\" has times 2 and first_at t0; the list before the sweep is translate a voice note, then turn a scan into text, then book a ferry, newest first; after the sweep the list is translate a voice note and turn a scan into text only, and book a ferry is gone.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answers"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "answers": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "keep",
+            "title": "Keep each run through that object",
+            "do": "For missed: take the job from the tool (deadEndJob); when it is empty, nothing is written. Otherwise find the row by its name: when none exists, insert it with times 1, first_at and at now; when one exists and it was written less than 24 hours ago, repeat it and write nothing; when one exists and it is older than the refresh window, set times to its times plus 1 and at to now, keeping first_at. The answer for a job asked before says how many times and since when, using the words of the tool's file (words.asked_before). For list: read every row, newest at first. For sweep: delete every row whose at is more than 30 days before now. Submit the outcome and the rows read back.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcome"
+              ],
+              "properties": {
+                "outcome": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": []
+          }
+        ],
+        "erase": "On the person's request the store deletes the dead-end rows, all of them or the ones named. A dead end is the person's own record of what they asked for, kept as the AI's description of the job."
+      }
+    }
+  ]
+}

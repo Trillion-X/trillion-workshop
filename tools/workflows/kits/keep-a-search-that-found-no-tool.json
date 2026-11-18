@@ -1,0 +1,80 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:keep-a-search-that-found-no-tool with store {\\\"where\\\": \\\"postgresql database example_searches on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-searches-postgres-connection\\\"} and operation missed with sent {\\\"job\\\": \\\"book a ferry\\\"} and reply {\\\"candidates\\\": []}.\"",
+  "lists": [],
+  "no_lists_because": "It names no list: the dead ends are kept in the person's own store, in whatever form that store keeps things, and store says where and in which language.",
+  "workflows": [
+    "workflow:keep-a-search-that-found-no-tool"
+  ],
+  "tools": [
+    "tool:run-workflow-definition",
+    "tool:keep-a-search-that-found-no-tool"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:keep-a-search-that-found-no-tool\" with store and an operation: missed (with the search's sent and reply), list, or sweep. The tool tool:keep-a-search-that-found-no-tool decides whether an answer is a dead end and what its job is.",
+    "3. The first run makes the store's own object once and proves it on the example searches: every outcome must be as the intent says, or the run stops and says which.",
+    "4. Every later run keeps the miss through that object and reads the row back."
+  ],
+  "worked_examples": [
+    {
+      "title": "A search for a tool that finds nothing",
+      "ask": "Search for a tool to turn a scan into text. Nothing came back.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-a-search-that-found-no-tool",
+              "store": {
+                "where": "postgresql database example_searches on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-searches-postgres-connection"
+              },
+              "operation": "missed",
+              "sent": {
+                "job": "turn a scan into text"
+              },
+              "reply": {
+                "candidates": []
+              }
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-a-search-that-found-no-tool",
+      "step": "keep",
+      "given": "A search for a tool to turn a scan into text returned no candidates; no earlier record exists.",
+      "hands_back": "kept with times 1, first_at and at \"2026-11-04T10:00:00.000Z\"; asked again inside 24 hours it is repeated with times 1 and nothing written."
+    },
+    {
+      "title": "The list of dead ends",
+      "ask": "What have I searched for that no tool covers?",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-a-search-that-found-no-tool",
+              "store": {
+                "where": "postgresql database example_searches on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-searches-postgres-connection"
+              },
+              "operation": "list"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-a-search-that-found-no-tool",
+      "step": "keep",
+      "given": "Three dead ends are kept: book a ferry (written first), turn a scan into text (times 2), translate a voice note.",
+      "hands_back": "The list newest first: \"translate a voice note\" (times 1, first_at 2026-11-04T10:00:00.000Z, at 2026-11-05T12:00:00.000Z), \"turn a scan into text\" (times 2, first_at 2026-11-04T10:00:00.000Z, at 2026-11-05T11:00:00.000Z), \"book a ferry\" (times 1, first_at and at 2026-11-04T10:00:00.000Z) before the sweep; the sweep then drops \"book a ferry\"."
+    }
+  ]
+}
