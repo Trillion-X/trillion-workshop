@@ -1,0 +1,238 @@
+{
+  "about": "workflow:keep-a-titled-block-of-source-words: a titled block of source words kept in the person's own store, pointing back to its source, with state, progress, parent, extra sources and proof. It replaces tools/mark-a-titled-block-of-source-words-such/src/work-blocks.mjs, whose whole job was keeping blocks in the retired record store (rule a-tool-is-only-what-the-store-cannot-do).",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-a-titled-block-of-source-words",
+        "label": "Keep a titled block of source words",
+        "job": "Keep a titled block of source words, such as a passage of a transcript, as its own record in the person's own store, pointing back to the words it came from, with its state, progress, parent, extra sources and proof.",
+        "produces": "The store's own objects for blocks, proven on the example attempts, and each new block kept, repeated or refused with the reason, and read back.",
+        "source": {
+          "from": "tools/mark-a-titled-block-of-source-words-such (src/work-blocks.mjs, moved from the old tree at b6ae0ebf), read on trillion-workshop origin/main aea60ccfd1",
+          "note": "A block is only keeping: its checks (the words are in the source, parents and proof exist, the progress and the state agree) are the store's own keys, checks and foreign keys. The block's id was a BLAKE3 hash of its source, range, title and parent; the store's own unique key on those same five facts keeps the one-block-per-key rule without an identity function, so no tool and no hash is needed. Nothing outside the folder called it in the Workshop."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                },
+                "place": {
+                  "type": "string",
+                  "description": "Where in the store the blocks are kept, when they already are"
+                }
+              }
+            },
+            "blocks": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Blocks to keep this run, each {source_id, title, start and end (both or neither: the words of the source's text), parent_title or parent_id (optional), state (open, in_progress, blocked or done), progress (a whole number 0 to 100), sources (extra {source_id, start, end}), proof (each {kind, id} of an existing record), contributors, about}"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where blocks are already kept (kept_in, or null) and the names of the objects that already keep them and show them.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing, make the store's own objects in its own form, so that the store itself refuses what the intent refuses wherever it can. Kept per block: source_id (an existing record of the store), title (text, not blank), start and end (both or neither, whole numbers, start at least 0, end after start and no longer than the source's text, and the words there not blank), parent (an existing block of the same source), state (open, in_progress, blocked or done; open when new), progress (whole number 0 to 100, or none), sources (extra {source_id, start, end} links, each to an existing record, with its words in range when given), proof (each {kind, id} of an existing record), contributors and about (lists, when given), and at (a date and time). Kept once by its five facts: the source, the start, the end, the title and the parent (a unique key over all five, with an unset start, end or parent counted as the same unset value), so a block given again with the same five keeps the first one and changes it only as the intent says. Grant only what the store's holder allows the person's login. Who may: only the person (and whoever they allow). Submit the names of the objects made, or the ones the look step found.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example attempts",
+            "do": "In a throwaway place in the same store, with the same objects, and with these example records first kept: message:one with the text \"Make a launch checklist now\", message:two with the text \"The checklist needs clear steps\", handoff:one with state finished, then keep these attempts in order, each through the store's own objects: [{\"source_id\": \"message:one\", \"start\": 7, \"end\": 13, \"title\": \"Launch checklist\", \"proof\": [{\"kind\": \"handoff\", \"id\": \"handoff:one\"}]}, {\"source_id\": \"message:one\", \"start\": 7, \"end\": 13, \"title\": \"Launch checklist\", \"proof\": [{\"kind\": \"handoff\", \"id\": \"handoff:one\"}]}, {\"source_id\": \"message:one\", \"parent_title\": \"Launch checklist\", \"title\": \"Check wording\", \"state\": \"done\", \"proof\": [{\"kind\": \"handoff\", \"id\": \"handoff:one\"}]}, {\"source_id\": \"message:one\", \"start\": 7, \"end\": 13, \"title\": \"Launch checklist\", \"state\": \"in_progress\", \"progress\": 40}, {\"source_id\": \"message:one\", \"start\": 7, \"end\": 13, \"title\": \"Launch checklist\", \"state\": \"in_progress\", \"progress\": 40}, {\"source_id\": \"message:one\", \"title\": \"Unproved completion\", \"state\": \"done\"}, {\"source_id\": \"message:one\", \"title\": \"Invalid percent\", \"progress\": 101}, {\"source_id\": \"message:one\", \"start\": 7, \"end\": 100, \"title\": \"Bad range\"}, {\"source_id\": \"message:one\", \"start\": 7, \"title\": \"Half range\"}, {\"source_id\": \"message:missing\", \"title\": \"Lost source\"}, {\"source_id\": \"message:one\", \"parent_title\": \"Nope\", \"title\": \"Lost parent\"}, {\"source_id\": \"message:one\", \"title\": \"False proof\", \"proof\": [{\"kind\": \"file\", \"id\": \"file:missing\"}]}, {\"source_id\": \"message:one\", \"start\": 7, \"end\": 13, \"title\": \"Launch checklist\", \"sources\": [{\"source_id\": \"message:two\", \"start\": 4, \"end\": 13}]}, {\"source_id\": \"message:one\", \"start\": 7, \"end\": 13, \"title\": \"Launch checklist\", \"state\": \"done\"}]. A parent_title names the block of that title from the same source kept earlier in the run. Rules: a block whose state is done needs a linked result (proof) on it, kept now or before; a block whose state is done must show progress 100 when it has progress; a block at progress 100 must be done; progress must be a whole number from 0 to 100; start and end must be given together and must be words of the source's text. A block given again with the same five facts and the same content is repeated; the same block with a new state, progress, proof or extra source is kept as an update, with its proof and sources added to what it had. Then remove the throwaway place. Submit outcomes (one of kept, repeated, refused per attempt, in order) and answer: launch_checklist (state, progress, sources and proof_count of the block titled Launch checklist), check_wording (state, parent_title and proof_count of the block titled Check wording), block_count, kept_count and repeated_count.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answer"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "answer": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each attempt is kept, repeated or refused as the intent says",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "kept",
+                    "repeated",
+                    "kept",
+                    "kept",
+                    "repeated",
+                    "refused",
+                    "refused",
+                    "refused",
+                    "refused",
+                    "refused",
+                    "refused",
+                    "refused",
+                    "kept",
+                    "refused"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "The store's own objects give every expected answer",
+                "path": [
+                  "this",
+                  "answer"
+                ],
+                "values": [
+                  {
+                    "launch_checklist": {
+                      "state": "in_progress",
+                      "progress": 40,
+                      "sources": [
+                        {
+                          "source_id": "message:two",
+                          "start": 4,
+                          "end": 13
+                        }
+                      ],
+                      "proof_count": 1
+                    },
+                    "check_wording": {
+                      "state": "done",
+                      "parent_title": "Launch checklist",
+                      "proof_count": 1
+                    },
+                    "block_count": 2,
+                    "kept_count": 4,
+                    "repeated_count": 2
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's blocks",
+            "do": "Keep each item of blocks through the store's own objects, in order, and read every kept block back. Submit kept_titles (kept or repeated, by title), refused (each refused block's title and the store's own words for why) and found_titles (each block read back by title). With no blocks, submit empty lists.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_titles",
+                "refused",
+                "found_titles"
+              ],
+              "properties": {
+                "kept_titles": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "refused": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "found_titles": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "subset-of",
+                "says": "Every block kept is read back",
+                "path": [
+                  "this",
+                  "kept_titles"
+                ],
+                "of": [
+                  "this",
+                  "found_titles"
+                ]
+              }
+            ]
+          }
+        ],
+        "erase": "On the person's request the store deletes a block, and the links from other blocks to it; the source words and the records named as proof stay where they are."
+      }
+    }
+  ]
+}

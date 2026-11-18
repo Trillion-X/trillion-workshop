@@ -1,0 +1,53 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:keep-a-titled-block-of-source-words with store {\\\"where\\\": \\\"postgresql database example_shop on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-shop-postgres-connection\\\"} and blocks [{\\\"source_id\\\": \\\"message:one\\\", \\\"start\\\": 7, \\\"end\\\": 13, \\\"title\\\": \\\"Launch checklist\\\"}].\"",
+  "lists": [],
+  "no_lists_because": "It names no list: the blocks are kept in the person's own store, in whatever form that store keeps things, and store says where and in which language.",
+  "workflows": [
+    "workflow:keep-a-titled-block-of-source-words"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:keep-a-titled-block-of-source-words\" with store and the blocks to keep. Give start and end together, or neither.",
+    "3. The first run makes the store's own objects once and proves them on the example attempts: every attempt must be kept, repeated or refused as the intent says, or the run stops and says which.",
+    "4. Every later run keeps the new blocks through those objects and reads each one back; a refused block comes back with the store's own words for why."
+  ],
+  "worked_examples": [
+    {
+      "title": "A launch checklist kept from the words of a message",
+      "ask": "Keep the words launch in my message one as a block called Launch checklist.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-a-titled-block-of-source-words",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "blocks": [
+                {
+                  "source_id": "message:one",
+                  "start": 7,
+                  "end": 13,
+                  "title": "Launch checklist"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-a-titled-block-of-source-words",
+      "step": "keep",
+      "given": "The look step found the example records and blocks kept by an earlier run, in the store's own objects.",
+      "hands_back": "kept_titles [\"Launch checklist\"] with found_titles [\"Launch checklist\"]; the same block again is repeated, and a block whose range is not in message one is refused with the store's own words."
+    }
+  ]
+}
