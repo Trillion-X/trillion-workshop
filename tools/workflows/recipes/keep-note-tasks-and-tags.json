@@ -1,0 +1,176 @@
+{
+  "about": "workflow:keep-note-tasks-and-tags: keeps the checkbox tasks and the #tags written inside the person's notes in the person's own store, as rebuildable rows (note_text_sources, note_tasks, note_tags), and answers which tasks are open, which tags exist and which notes carry a tag. It replaces the SQLite index half of tools/find-checkbox-tasks-and-nested-hashtags-written (src/note-text-index.mjs: noteTextIndex, noteTextStore, syncResults, handleNotesApi, noteTextActions), whose whole job except the parser was keeping and reading those rows. The parser stays in that folder as a values-in, values-out tool (rule a-tool-is-only-what-the-store-cannot-do).",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-note-tasks-and-tags",
+        "label": "Keep note tasks and tags",
+        "job": "Keep, for each of the person's notes, its checkbox tasks and its #tags in the person's own store, skip a note whose text has not changed, drop a removed note's rows, rebuild every row from the notes, and answer: the open or done tasks in note order, the tags with how many notes carry each, and the notes carrying a tag or any tag beneath it.",
+        "produces": "The store's own note_text_sources, note_tasks and note_tags objects with their keys and indexes, proven on the example notes in the store, and each index, remove, rebuild and read answered as the example answers say.",
+        "source": {
+          "from": "tools/find-checkbox-tasks-and-nested-hashtags-written (src/note-text-index.mjs), read on the workshop repository's origin/main 13c05f2c8c; the old source is src/note-text-index.mjs at commit b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+          "note": "The parse (which lines are tasks, which words are tags, the BLAKE3 identity) is the tool's values-in, values-out function parseNoteText and identityOf; the limits are tools/shared-code/src/note-text-index.json. Two rules changed in the move: a tag's display is the spelling first written explicitly in the store (the old code took the maximum of the spellings, which depends on the store's collation), and the file-results sync is replaced by the person's own note rows, whatever table keeps them."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store",
+            "operation"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                },
+                "place": {
+                  "type": "string",
+                  "description": "Where in the store the notes are kept, when they already are"
+                }
+              }
+            },
+            "operation": {
+              "type": "string",
+              "enum": [
+                "index",
+                "remove",
+                "rebuild",
+                "tasks",
+                "tags",
+                "items_for_tag"
+              ]
+            },
+            "notes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "item_id",
+                  "text"
+                ],
+                "properties": {
+                  "item_id": { "type": "string" },
+                  "text": { "type": "string" },
+                  "kind": { "type": "string" },
+                  "space_id": { "type": "string" },
+                  "source_identity": { "type": "string" }
+                }
+              },
+              "description": "Notes to index (index, rebuild) or to remove (remove, by item_id)"
+            },
+            "query": {
+              "type": "object",
+              "description": "tasks: { space_id, done, kind, after, limit }; tags: { space_id, after, limit }; items_for_tag: { tag, space_id, limit }"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the note rows are kept (kept_in, or null) and the names of the objects that already keep tasks, tags and note sources, and show them.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing, make three objects in the store's own form: note_text_sources (item_id, identity, seq: one row per indexed note, primary key item_id; seq is the order the note was first indexed, kept when its text changes, and is what decides a tag's display), note_tasks (item_id, position, line, text, done, kind, space_id: primary key item_id and position, one row per checkbox paragraph in the order written, an index on space_id, done, item_id) and note_tags (item_id, tag, display, explicit, kind, space_id: primary key item_id and tag, an index on space_id, tag, item_id). Keep the store's own identity type for item_id text and the store's own integer for done and explicit. Grant only what the store's holder allows the person's login. Submit the names of the objects made, or the ones the look step found.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example notes",
+            "do": "In a throwaway place in the same store, with the same objects, do these in order, parsing each note's text with the tool parseNoteText from tools/find-checkbox-tasks-and-nested-hashtags-written and keeping the identity from identityOf: index n1 (item_id note:n1, kind note, space_id s1, text \"- [ ] buy milk #home/kitchen\\n- [x] call mum #family\\n```\\n- [ ] not a task #code\\n```\\nSee `#inline` here.\"); index n2 (note:n2, kind note, s1, text \"[ ] fix #Home/Kitchen and #multi word tag# here\"); index n1 again with the same text; index n3 (markdown:n3, kind markdown, s2, text \"# Title\\n#12\\n- [x] ship it\"); then tasks with space_id s1 and done false; tags with space_id s1; items_for_tag \"home\" with space_id s1; remove note:n2; tasks with space_id s1 and done false; then rebuild from [n1, n3]; tags with no space_id. Rules: a note whose identity is unchanged is kept as repeated and writes nothing; a changed note replaces its rows in one transaction; a tag lists itself (explicit) and each parent of its path (not explicit); a tag's display is the spelling first written explicitly, or when no note wrote it explicitly the spelling first kept, and a later spelling never replaces it; tasks come in item_id order, then position; tags come sorted by their key in byte order. Then remove the throwaway place. Submit outcomes (kept, repeated or removed, in order) and answers: index n1 is changed with 2 tasks and 3 tags; index n1 again is unchanged; tasks s1 open are note:n1 position 0 \"buy milk #home/kitchen\" and note:n2 position 0 \"fix #Home/Kitchen and #multi word tag# here\"; tags s1 are family 1 note, home 2 notes (display home), home/kitchen 2 notes (display home/kitchen), multi word tag 1 note; items for tag home are note:n1 and note:n2; after remove of note:n2 the open tasks are only note:n1 position 0; after rebuild from n1 and n3 the tags with no space are family 1, home 1, home/kitchen 1, multi word tag absent, and markdown:n3 holds one done task \"ship it\" and no tags.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answers"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "answers": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "keep",
+            "title": "Keep each run through those objects",
+            "do": "For each operation the person asks for, do it through the store's own objects and read the rows back. index: parse the text, skip when the identity is held for that item_id, otherwise replace that note's rows in one transaction. remove: drop every row of that note. rebuild: empty the three objects and index every note given. tasks, tags and items_for_tag: read with the query's space_id, done, kind, after and limit, a page at a time, with the page's last key as next. Submit the outcome and the rows read back.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcome"
+              ],
+              "properties": {
+                "outcome": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": []
+          }
+        ],
+        "erase": "On the person's request the store deletes the note rows and note sources of the notes named, or all of them. The tasks and tags are derived from the note text, which is the person's own record and is erased with it."
+      }
+    }
+  ]
+}

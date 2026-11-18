@@ -1,0 +1,86 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:keep-note-tasks-and-tags with store {\\\"where\\\": \\\"postgresql database example_notes on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-notes-postgres-connection\\\"} and operation index with notes [{\\\"item_id\\\": \\\"note:n1\\\", \\\"text\\\": \\\"- [ ] buy milk #home/kitchen\\\", \\\"kind\\\": \\\"note\\\", \\\"space_id\\\": \\\"s1\\\"}].\"",
+  "lists": [],
+  "no_lists_because": "It names no list: the tasks and tags are kept in the person's own store, in whatever form that store keeps things, and store says where and in which language. The note text is the person's own record.",
+  "workflows": [
+    "workflow:keep-note-tasks-and-tags"
+  ],
+  "tools": [
+    "tool:run-workflow-definition",
+    "tool:find-checkbox-tasks-and-nested-hashtags-written"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:keep-note-tasks-and-tags\" with store and an operation (index, remove, rebuild, tasks, tags or items_for_tag). The parse of each note's text is the tool tool:find-checkbox-tasks-and-nested-hashtags-written.",
+    "3. The first run makes the store's own objects once and proves them on the example notes: every outcome must be as the intent says, or the run stops and says which.",
+    "4. Every later run keeps the change through those objects and reads each row back."
+  ],
+  "worked_examples": [
+    {
+      "title": "A note indexed, then the same note again",
+      "ask": "Index note:n1 with its text. Then index it again with the same text.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-note-tasks-and-tags",
+              "store": {
+                "where": "postgresql database example_notes on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-notes-postgres-connection"
+              },
+              "operation": "index",
+              "notes": [
+                {
+                  "item_id": "note:n1",
+                  "text": "- [ ] buy milk #home/kitchen\n- [x] call mum #family",
+                  "kind": "note",
+                  "space_id": "s1"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-note-tasks-and-tags",
+      "step": "keep",
+      "given": "No note rows yet; the person's note n1 has two lines: an open task \"buy milk #home/kitchen\" and a done task \"call mum #family\".",
+      "hands_back": "The first index is changed with 2 tasks and 2 tags (home/kitchen, family plus its parent home: 3 tags in all); the second index of the same text is unchanged and writes nothing. Both rows are read back."
+    },
+    {
+      "title": "The open tasks in one space",
+      "ask": "What tasks are still open in space s1?",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-note-tasks-and-tags",
+              "store": {
+                "where": "postgresql database example_notes on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-notes-postgres-connection"
+              },
+              "operation": "tasks",
+              "query": {
+                "space_id": "s1",
+                "done": false
+              }
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-note-tasks-and-tags",
+      "step": "keep",
+      "given": "The person's note n1 and note n2 are indexed in space s1; n2 holds the open task \"fix #Home/Kitchen and #multi word tag# here\".",
+      "hands_back": "The open tasks of s1 in order: note:n1 position 0 \"buy milk #home/kitchen\" and note:n2 position 0 \"fix #Home/Kitchen and #multi word tag# here\"."
+    }
+  ]
+}
