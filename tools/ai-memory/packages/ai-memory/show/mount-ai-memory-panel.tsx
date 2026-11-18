@@ -3,7 +3,7 @@ import { useBitfieldData } from '@bitfield/runtime-kit/react';
 import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
 import { readPublishedRecords } from '../../../../ui/show/placeable-surface-intent/placeable-surface-record';
 import { readMemoryContext } from '../read-data/read-memory-context';
-import { AiMemoryPanel } from './AiMemoryPanel';
+import { AiMemoryPanel } from '../../../../keep-lists-of-rows/packages/ai-memory/show/AiMemoryPanel';
 
 type MountArgs = { el: HTMLElement; props?: Record<string, unknown> };
 

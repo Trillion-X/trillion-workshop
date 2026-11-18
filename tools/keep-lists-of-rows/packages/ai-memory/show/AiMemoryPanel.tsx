@@ -1,6 +1,6 @@
 import React from 'react';
 import { Badge, Card, Container, Text } from '../../../../ui';
-import type { MemoryContextItem } from '../read-data/read-memory-context';
+import type { MemoryContextItem } from '../../../../ai-memory/packages/ai-memory/read-data/read-memory-context';
 
 function humanizeReference(value: string): string {
   const segment = value.split(/[.:/]/).filter(Boolean).at(-1) ?? value;
