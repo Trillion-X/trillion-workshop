@@ -8,8 +8,8 @@
 // what the place cannot show and saying what it degraded and which capabilities it relied on that nobody has confirmed.
 //
 // Non-negotiable invariants:
-//   1. Every branch is on a capability field (html, collapsibles, checkboxes, dialect, max_chars, theme.strategy), never on a
-//      surface id.
+//   1. Every branch is on a capability field (html, collapsibles, checkboxes, max_chars, theme.strategy) or a field of the
+//      dialect row the capability names (surface-compose.json `dialects`), never on a surface id or a dialect's name.
 //   2. The marker (if given) is first and survives any cut: a message that cannot be found again is not one we posted.
 //   3. Markup is written through the one tree writer (tools/ui/show/server-rendered-page/markup-tree.mjs), never by hand.
 //   4. A body over max_chars is cut at a block boundary, never mid-block, and says so.
@@ -39,43 +39,53 @@ export function capabilityOfPlace(place, settings = rules) {
 
 const plainOf = text => text.replace(/[*_`#>]+/gu, '').replace(/\[([^\]]*)\]\([^)]*\)/gu, '$1');
 
+/** The dialect record a capability names (`dialects` of the DATA); a dialect the DATA has no row for is refused. */
+export function dialectOf(capability, settings = rules) {
+  const dialect = Object.hasOwn(settings.dialects, capability?.dialect) ? settings.dialects[capability.dialect] : null;
+  if (dialect === null) throw new Error(`no dialect row for ${String(capability?.dialect)}`);
+  return dialect;
+}
+
+const hashes = count => '#'.repeat(Math.min(Math.max(count, 1), 6));
+
 function renderBlock(block, capability, state, settings, depth = 0) {
   const words = settings.words;
-  const markdown = capability.dialect === 'markdown';
-  const text = value => (markdown ? String(value ?? '') : plainOf(String(value ?? '')));
+  const dialect = dialectOf(capability, settings);
+  const text = value => (dialect.plain_text ? plainOf(String(value ?? '')) : String(value ?? ''));
   switch (block?.type) {
-    case 'heading': return markdown ? `${'#'.repeat(Math.min(Math.max(block.level ?? 2, 1), 6))} ${text(block.text)}` : text(block.text);
+    case 'heading': return fill(dialect.heading, { hashes: hashes(block.level ?? 2), text: text(block.text) });
     case 'paragraph': return text(block.text);
-    case 'code': return markdown ? `\`\`\`\n${block.text}\n\`\`\`` : String(block.text);
-    case 'list': return block.items.map(item => `${markdown ? '-' : '•'} ${text(item)}`).join('\n');
+    case 'code': return fill(dialect.code, { text: String(block.text) });
+    case 'list': return block.items.map(item => fill(dialect.list_item, { text: text(item) })).join('\n');
     case 'checklist': {
       if (!capability.checkboxes) state.degrade('checkboxes'); else state.use('checkboxes');
-      return block.items.map(item => (capability.checkboxes && markdown
-        ? `- ${item.done ? words.box_done : words.box_open} ${text(item.text)}`
-        : `• ${item.done ? words.plain_box_done : words.plain_box_open} ${text(item.text)}`)).join('\n');
+      const boxes = capability.checkboxes ? dialect.boxes : null;
+      return block.items.map(item => (boxes
+        ? fill(boxes.item, { mark: item.done ? boxes.done : boxes.open, text: text(item.text) })
+        : fill(words.no_box_item, { mark: item.done ? words.plain_box_done : words.plain_box_open, text: text(item.text) }))).join('\n');
     }
     case 'image': {
       const strategy = capability.theme?.strategy ?? 'single';
       if (block.dark_url && strategy === 'single') state.degrade('theme');
       else if (block.dark_url) state.use('theme');
-      if (!markdown) return `${block.alt}: ${block.url}`;
-      if (block.dark_url && strategy === 'picture' && capability.html) {
+      if (dialect.themed_images && block.dark_url && strategy === 'picture' && capability.html) {
         return serialise(element('picture', {}, [element('source', { media: '(prefers-color-scheme: dark)', srcset: block.dark_url }), element('img', { src: block.url, alt: block.alt })]));
       }
-      if (block.dark_url && strategy === 'suffix') {
-        return `![${block.alt}](${block.url}${capability.theme.light ?? ''})\n![${block.alt}](${block.dark_url}${capability.theme.dark ?? ''})`;
+      if (dialect.themed_images && block.dark_url && strategy === 'suffix') {
+        return [fill(dialect.image, { alt: block.alt, url: `${block.url}${capability.theme.light ?? ''}` }),
+          fill(dialect.image, { alt: block.alt, url: `${block.dark_url}${capability.theme.dark ?? ''}` })].join('\n');
       }
-      return `![${block.alt}](${block.url})`;
+      return fill(dialect.image, { alt: block.alt, url: block.url });
     }
     case 'collapsible': {
       const inner = block.blocks.map(item => renderBlock(item, capability, state, settings, depth + 1)).join('\n\n');
-      if (capability.collapsibles && capability.html && markdown) {
+      if (capability.collapsibles && capability.html && dialect.html_blocks) {
         state.use('collapsibles');
         state.use('html');
         return serialise(element('details', {}, [element('summary', {}, [textOf(block.summary)]), textOf(`\n\n${inner}\n\n`)]));
       }
       state.degrade('collapsibles');
-      return `${markdown ? `${'#'.repeat(Math.min(depth + 3, 6))} ` : ''}${fill(words.folded_heading, { summary: text(block.summary) })}\n\n${inner}`;
+      return `${fill(dialect.folded, { hashes: hashes(depth + 3), text: fill(words.folded_heading, { summary: text(block.summary) }) })}\n\n${inner}`;
     }
     default: throw new Error(`unknown block type ${String(block?.type)}`);
   }
@@ -86,7 +96,7 @@ export function composeFor(blocks, capability, { marker = '' } = {}, settings = 
   const degraded = new Set();
   const used = new Set();
   const state = { degrade: name => degraded.add(name), use: name => used.add(name) };
-  if (capability.dialect !== 'markdown') used.add('dialect');
+  if (dialectOf(capability, settings).counts_as_used) used.add('dialect');
   const pieces = blocks.map(block => renderBlock(block, capability, state, settings)).filter(piece => piece !== '');
   const head = marker ? [marker] : [];
   let truncated = false;

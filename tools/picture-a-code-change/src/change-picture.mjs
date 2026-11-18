@@ -5,7 +5,7 @@
 // Purpose: reading a change as a list of files hides its shape. This reads the change through the person's own connection to the
 // host (the connector operations the host's DATA row names), draws it with the graph engine (change-graph.mjs, or a richer graph
 // document an AI wrote from the bounded input), writes the comment for what that host's comment surface can show
-// (surface-compose.mjs), and, when asked, keeps ONE comment of ours on the pull request (owned-upsert.mjs): found by marker and
+// (tools/write-a-post-for-each-place/read-data/surface-compose.mjs, its one owner), and, when asked, keeps ONE comment of ours on the pull request (owned-upsert.mjs): found by marker and
 // author, never written twice, never written for a change that moved on while it was being made.
 //
 // Non-negotiable invariants:
@@ -25,7 +25,7 @@ import { changeGraph } from '../parts/ui/show/layer-diagram/change-graph.mjs';
 import { validateGraphDocument } from '../../ui/show/layer-diagram/graph-contract.mjs';
 import { graphSvgAssets } from '../../ui/show/layer-diagram/graph-svg.mjs';
 import { boundAuthorInput, outboundList } from '../../ui/show/layer-diagram/author-input.mjs';
-import { capabilityOf, composeFor } from './surface-compose.mjs';
+import { capabilityOf, composeFor } from '../../write-a-post-for-each-place/read-data/surface-compose.mjs';
 import { upsertOwned } from './owned-upsert.mjs';
 
 const fill = (template, values) => template.replace(/\{(\w+)\}/gu, (whole, name) => (name in values ? String(values[name]) : whole));

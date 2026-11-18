@@ -67,3 +67,15 @@ test('an unknown surface has no record, and a post place becomes one from its ow
 test('an unknown block type is refused', () => {
   assert.throws(() => composeFor([{ type: 'video' }], capabilityOf('plain_message')), /unknown block type/);
 });
+
+test('a new text format is a row of dialects, with no code: a chat format that bolds headings and links as <url|words>', () => {
+  const chat = { plain_text: false, heading: '*{text}*', code: '```{text}```', list_item: '• {text}', folded: '*{text}*',
+    boxes: null, image: '<{url}|{alt}>', themed_images: false, html_blocks: false, counts_as_used: true };
+  const settings = { ...rules, dialects: { ...rules.dialects, 'chat-markup': chat } };
+  const capability = { id: 'a-chat', html: false, collapsibles: false, checkboxes: true, dialect: 'chat-markup', max_chars: null, theme: { strategy: 'single' }, unproven: ['dialect'] };
+  const made = composeFor([{ type: 'heading', text: 'Shipped' }, { type: 'code', text: 'x = 1' }, { type: 'checklist', items: [{ text: 'tests', done: true }] },
+    { type: 'image', alt: 'chart', url: 'https://x.example/c.png' }, { type: 'collapsible', summary: 'More', blocks: [{ type: 'paragraph', text: 'inner' }] }], capability, {}, settings);
+  assert.equal(made.body, '*Shipped*\n\n```x = 1```\n\n• done: tests\n\n<https://x.example/c.png|chart>\n\n*More*\n\ninner');
+  assert.deepEqual(made.unproven_used, ['dialect'], 'writing in a format the place has not confirmed is said');
+  assert.throws(() => composeFor([{ type: 'paragraph', text: 'x' }], { ...capability, dialect: 'nobody-wrote-this' }, {}, settings), /no dialect row for nobody-wrote-this/);
+});

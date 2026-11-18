@@ -6,14 +6,14 @@ Writes one body (a change summary, a status, a picture with words) for each kind
 
 | File | Purpose |
 |------|---------|
-| `read-data/surface-compose.mjs` | `capabilityOf`, `capabilityOfPlace`, `composeFor`. Moved from Trillion-X/trillion `src/surface-compose.mjs`; only its import of the markup tree writer changed (`./markup-tree.mjs`). |
-| `read-data/surface-compose.json` | One capability record per surface (`github_comment`, `gitlab_note`, `bitbucket_comment`, `plain_message`), the record a post place starts from, and every word written. Moved byte for byte. |
+| `read-data/surface-compose.mjs` | `capabilityOf`, `capabilityOfPlace`, `composeFor`, `dialectOf`. Moved from Trillion-X/trillion `src/surface-compose.mjs`; its import of the markup tree writer changed (`./markup-tree.mjs`), and each block is written from the dialect row the place's capability names, never from a dialect's name (Nov 18 2026: every body of every surface stayed byte for byte the same). The one copy: tools/picture-a-code-change imports it. |
+| `read-data/surface-compose.json` | One capability record per surface (`github_comment`, `gitlab_note`, `bitbucket_comment`, `plain_message`), the record a post place starts from, the text formats (`dialects`: how each writes each block; a new format is a row), and every word written. |
 | `read-data/markup-tree.mjs` | The one tree writer the composer writes markup through (`element`, `serialise`, `textOf`). Copied byte for byte from Trillion-X/trillion `tools/ui/show/server-rendered-page/markup-tree.mjs`. |
 | `read-data/escape-html.mjs` | The escaper the tree writer uses. Copied byte for byte from the same old folder. |
 | `read-data/post-tools.mjs` | The row's function: picks the capability record the input names (a surface, a whole record, or a post place) and composes. |
 | `tool-rows.json` | `tool:write-a-post-for-a-place`, a container row run by `tools/records-door`'s `run-an-export.mjs`; no records door. |
 | `part.json` | Nothing here is imported by other code. |
-| `test/surface-compose.test.mjs` | Trillion's `test/surface-compose.test.mjs` with its assertions unchanged. |
+| `test/surface-compose.test.mjs` | Trillion's `test/surface-compose.test.mjs` with its assertions unchanged, and a text format added as a row only. |
 | `test/write-a-post-row.test.mjs` | The row run as the container runner runs it: a named surface, a whole record, a post place, and the refusals. |
 
 ## Key Types / Functions

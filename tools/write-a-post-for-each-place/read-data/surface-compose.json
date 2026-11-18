@@ -1,18 +1,108 @@
 {
-  "_what": "What each place a message is written to can show, as one capability record per surface (src/surface-compose.mjs). `html` whether markup inside the text is shown; `collapsibles` whether a folded section is supported; `checkboxes` whether a task-list item is drawn as a box; `dialect` the text format ('markdown' or 'plain'); `max_chars` the longest body, or null for no limit; `theme`: how a picture that has a light and a dark form is written ('picture' two sources in one element, 'suffix' two images told apart by an address suffix, 'single' only the light one). `unproven` names the capabilities of that row nobody has confirmed against the real surface: a composition that relies on one reports it, so it is checked before it is trusted. Composition reads these fields and never the surface's name. A new surface is a new row.",
+  "_what": "What each place a message is written to can show, as one capability record per surface (src/surface-compose.mjs). `html` whether markup inside the text is shown; `collapsibles` whether a folded section is supported; `checkboxes` whether a task-list item is drawn as a box; `dialect` the text format, a row of `dialects`; `max_chars` the longest body, or null for no limit; `theme`: how a picture that has a light and a dark form is written ('picture' two sources in one element, 'suffix' two images told apart by an address suffix, 'single' only the light one). `unproven` names the capabilities of that row nobody has confirmed against the real surface: a composition that relies on one reports it, so it is checked before it is trusted. Composition reads these fields and never the surface's name. A new surface is a new row. `dialects`: how each text format writes each block, filled from the block (`{hashes}` a heading's or a folded section's marks, `{text}`, `{alt}`, `{url}`, `{mark}`): `plain_text` strips markup characters and keeps a link's words; `heading`, `code`, `list_item`, `folded`; `boxes` the item and its two marks when the place draws boxes (null: none in this format); `image`, and `themed_images` whether the light and dark forms (`theme`) can be written in it; `html_blocks` whether a folded section may be written as markup; `counts_as_used` whether writing in it relies on the place's `dialect` capability (so an unconfirmed one is reported). A new text format is a new row.",
   "surfaces": {
-    "github_comment": { "html": true, "collapsibles": true, "checkboxes": true, "dialect": "markdown", "max_chars": 65536, "theme": { "strategy": "suffix", "light": "#gh-light-mode-only", "dark": "#gh-dark-mode-only" }, "unproven": [] },
-    "gitlab_note": { "html": true, "collapsibles": true, "checkboxes": true, "dialect": "markdown", "max_chars": 1000000, "theme": { "strategy": "single" }, "unproven": ["theme"] },
-    "bitbucket_comment": { "html": false, "collapsibles": false, "checkboxes": false, "dialect": "markdown", "max_chars": 32768, "theme": { "strategy": "single" }, "unproven": ["html", "collapsibles", "checkboxes", "max_chars", "theme"] },
-    "plain_message": { "html": false, "collapsibles": false, "checkboxes": false, "dialect": "plain", "max_chars": null, "theme": { "strategy": "single" }, "unproven": [] }
+    "github_comment": {
+      "html": true,
+      "collapsibles": true,
+      "checkboxes": true,
+      "dialect": "markdown",
+      "max_chars": 65536,
+      "theme": {
+        "strategy": "suffix",
+        "light": "#gh-light-mode-only",
+        "dark": "#gh-dark-mode-only"
+      },
+      "unproven": []
+    },
+    "gitlab_note": {
+      "html": true,
+      "collapsibles": true,
+      "checkboxes": true,
+      "dialect": "markdown",
+      "max_chars": 1000000,
+      "theme": {
+        "strategy": "single"
+      },
+      "unproven": [
+        "theme"
+      ]
+    },
+    "bitbucket_comment": {
+      "html": false,
+      "collapsibles": false,
+      "checkboxes": false,
+      "dialect": "markdown",
+      "max_chars": 32768,
+      "theme": {
+        "strategy": "single"
+      },
+      "unproven": [
+        "html",
+        "collapsibles",
+        "checkboxes",
+        "max_chars",
+        "theme"
+      ]
+    },
+    "plain_message": {
+      "html": false,
+      "collapsibles": false,
+      "checkboxes": false,
+      "dialect": "plain",
+      "max_chars": null,
+      "theme": {
+        "strategy": "single"
+      },
+      "unproven": []
+    }
   },
-  "place_surface": { "html": false, "collapsibles": false, "checkboxes": false, "dialect": "plain", "theme": { "strategy": "single" }, "unproven_when_unsourced": ["max_chars"] },
+  "place_surface": {
+    "html": false,
+    "collapsibles": false,
+    "checkboxes": false,
+    "dialect": "plain",
+    "theme": {
+      "strategy": "single"
+    },
+    "unproven_when_unsourced": [
+      "max_chars"
+    ]
+  },
+  "dialects": {
+    "markdown": {
+      "plain_text": false,
+      "heading": "{hashes} {text}",
+      "code": "```\n{text}\n```",
+      "list_item": "- {text}",
+      "folded": "{hashes} {text}",
+      "boxes": {
+        "item": "- {mark} {text}",
+        "done": "[x]",
+        "open": "[ ]"
+      },
+      "image": "![{alt}]({url})",
+      "themed_images": true,
+      "html_blocks": true,
+      "counts_as_used": false
+    },
+    "plain": {
+      "plain_text": true,
+      "heading": "{text}",
+      "code": "{text}",
+      "list_item": "• {text}",
+      "folded": "{text}",
+      "boxes": null,
+      "image": "{alt}: {url}",
+      "themed_images": false,
+      "html_blocks": false,
+      "counts_as_used": true
+    }
+  },
   "words": {
     "folded_heading": "{summary}",
-    "box_done": "[x]",
-    "box_open": "[ ]",
     "plain_box_done": "done:",
     "plain_box_open": "to do:",
-    "truncated": "(The rest was left out: this place takes at most {max} characters.)"
+    "truncated": "(The rest was left out: this place takes at most {max} characters.)",
+    "no_box_item": "• {mark} {text}"
   }
 }
