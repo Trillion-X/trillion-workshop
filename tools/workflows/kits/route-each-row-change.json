@@ -10,7 +10,7 @@
     "workflow:turn-one-long-recording-into-many-pieces"
   ],
   "tools": [
-    "tool:run-sql-in-my-database",
+    "tool:read-one-row-change",
     "tool:choose-the-workflows-that-fire",
     "tool:notice-when-something-shows-up"
   ],
@@ -19,7 +19,7 @@
     "2. Attach record_row_change() to each table whose changes should start work: CREATE TRIGGER lesson_request_changes AFTER INSERT OR UPDATE OR DELETE ON lesson_request FOR EACH ROW EXECUTE FUNCTION record_row_change().",
     "3. Turn on tool:notice-when-something-shows-up's wake keep-noticing-row-changes with that vault name, and this workflow's wake a-row-changed.",
     "4. Give a workflow a fires_when condition over the change's table_name and op (fields of kind choice, rule is_any_of) and, in its input, the step it starts at; turn on that workflow's own workflow-chosen wake.",
-    "5. Add a row and read the run of this workflow: it reads the change, names the workflows chosen, and tells each one; each chosen workflow then runs from its own wake."
+    "5. Add a row and read the run of this workflow: it is woken with the change, names the workflows chosen, and tells each one; each chosen workflow then runs from its own wake."
   ],
   "worked_examples": [
     {
@@ -41,7 +41,7 @@
       },
       "workflow": "workflow:route-each-row-change",
       "step": "start-each",
-      "given": "The noticer told row-changes {database p_x, table_name lesson_request, op INSERT, position 42, connection own-rows-postgres-connection}; read-the-change read the row at position 42 ({\"id\":7,\"topic\":\"tides\"}), and the chooser kept that part with the explainer-video workflow's condition \"a lesson_request row is added\".",
+      "given": "The noticer told row-changes {database p_x, table_name lesson_request, op INSERT, position 42, connection own-rows-postgres-connection}; the run was woken with that change as input.change (tool:read-one-row-change read the row at position 42: after {\"id\":7,\"topic\":\"tides\"}), and the chooser kept that part with the explainer-video workflow's condition \"a lesson_request row is added\".",
       "hands_back": "One wake:arrive of kind workflow-chosen with event_id \"p_x:901:42:workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner:a lesson_request row is added\" and payload {\"workflow\":\"workflow:make-a-personalised-explainer-video-on-any-topic-for-a-learner\",\"condition\":\"a lesson_request row is added\",\"database\":\"p_x\",\"table_name\":\"lesson_request\",\"op\":\"INSERT\",\"position\":\"42\",\"connection\":\"own-rows-postgres-connection\"}; that workflow's own wake then starts it at plan-the-lesson."
     }
   ]

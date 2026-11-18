@@ -1,5 +1,5 @@
 {
-  "_what": "One workflow every row change wakes. The noticer tells each change of a table the person's AI attached record_row_change() to as a row-changes fact {database, table_name, op, at, txid, position, connection}; this run reads that change from row_changes at its position, with the connection the fact names, makes it one part {database, table_name, op, before, after}, asks tool:choose-the-workflows-that-fire which workflows' fires_when conditions keep that part, and tells one workflow-chosen fact for each choice {workflow, condition, database, table_name, op, position, connection}. It starts no workflow itself: each chosen workflow starts from its own wake on that fact, under its own switch and its own rights, with the input its condition names (start_at and the rest). A condition lives only in a workflow's own fires_when: nothing here names a table, an operation or a workflow. The event id is the change's own key plus the workflow and the condition, so a retried run tells each choice once. Neither fact carries row values, because a told fact is at most 8 text fields of 1,024 bytes (trillion-rust src/wake/host-events.json).",
+  "_what": "One workflow every row change wakes. The noticer tells each change of a table the person's AI attached record_row_change() to as a row-changes fact {database, table_name, op, at, txid, position, connection}; the run is woken with the change itself as input.change {table_name, op, before, after}, read by tool:read-one-row-change before its first step (tools/workflows/fact-values.json), and makes it one part with the fact's database, asks tool:choose-the-workflows-that-fire which workflows' fires_when conditions keep that part, and tells one workflow-chosen fact for each choice {workflow, condition, database, table_name, op, position, connection}. It starts no workflow itself: each chosen workflow starts from its own wake on that fact, under its own switch and its own rights, with the input its condition names (start_at and the rest). A condition lives only in a workflow's own fires_when: nothing here names a table, an operation or a workflow. The event id is the change's own key plus the workflow and the condition, so a retried run tells each choice once. Neither fact carries row values, because a told fact is at most 8 text fields of 1,024 bytes (trillion-rust src/wake/host-events.json).",
   "records": [
     {
       "payload": {
@@ -33,7 +33,7 @@
               "wall_ms": 300000
             },
             "input": {
-              "start_at": "read-the-change"
+              "start_at": "choose"
             }
           }
         ],
@@ -44,32 +44,6 @@
           "is_active": true,
           "version": 1,
           "steps": [
-            {
-              "id": "read-the-change",
-              "kind": "ask",
-              "config": {
-                "name": "tool:run-sql-in-my-database",
-                "input": {
-                  "credential_name": {
-                    "$kind": "binding",
-                    "select": {
-                      "from": "input",
-                      "path": "fact.connection"
-                    }
-                  },
-                  "sql": "SELECT table_name, op, before, after FROM row_changes WHERE position = $1",
-                  "params": [
-                    {
-                      "$kind": "binding",
-                      "select": {
-                        "from": "input",
-                        "path": "fact.position"
-                      }
-                    }
-                  ]
-                }
-              }
-            },
             {
               "id": "choose",
               "kind": "ask",
@@ -88,33 +62,29 @@
                       "table_name": {
                         "$kind": "binding",
                         "select": {
-                          "from": "steps",
-                          "key": "read-the-change",
-                          "path": "output.rows.0.table_name"
+                          "from": "input",
+                          "path": "change.table_name"
                         }
                       },
                       "op": {
                         "$kind": "binding",
                         "select": {
-                          "from": "steps",
-                          "key": "read-the-change",
-                          "path": "output.rows.0.op"
+                          "from": "input",
+                          "path": "change.op"
                         }
                       },
                       "before": {
                         "$kind": "binding",
                         "select": {
-                          "from": "steps",
-                          "key": "read-the-change",
-                          "path": "output.rows.0.before"
+                          "from": "input",
+                          "path": "change.before"
                         }
                       },
                       "after": {
                         "$kind": "binding",
                         "select": {
-                          "from": "steps",
-                          "key": "read-the-change",
-                          "path": "output.rows.0.after"
+                          "from": "input",
+                          "path": "change.after"
                         }
                       }
                     }
@@ -144,11 +114,6 @@
             }
           ],
           "edges": [
-            {
-              "from": "read-the-change",
-              "to": "choose",
-              "kind": "always"
-            },
             {
               "from": "choose",
               "to": "start-each",
@@ -297,8 +262,7 @@
           ],
           "runs": [
             "tool:choose-the-workflows-that-fire",
-            "tool:read-one-row-change",
-            "tool:run-sql-in-my-database"
+            "tool:read-one-row-change"
           ]
         }
       }
