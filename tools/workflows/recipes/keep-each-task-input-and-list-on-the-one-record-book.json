@@ -1,0 +1,303 @@
+{
+  "about": "workflow:keep-each-task-input-and-list-on-the-one-record-book: Keep a stable binding from each identity (a task, an input or a list, by kind and id) to the one executing book that holds it, in the person's own store: a binding made once is kept, the same binding ",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-each-task-input-and-list-on-the-one-record-book",
+        "label": "Keep each task, input and list on the one record book that holds it",
+        "job": "Keep a stable binding from each identity (a task, an input or a list, by kind and id) to the one executing book that holds it, in the person's own store: a binding made once is kept, the same binding again is repeated, a binding to another book is refused until someone recovers it explicitly, a tombstoned identity is never rebound, and a relationship group of identities is bound to one book as a whole. Also find which book holds a list by its id.",
+        "produces": "The store's own binding and group objects, proven on the example attempts, and each binding or lookup kept, repeated, refused or read back.",
+        "source": {
+          "from": "tools/keep-each-task-input-and-list-on-the-one-record-book (src/original-work-resource-selection.mjs, src/original-work-resource-affinity.mjs, src/original-work-resource-catalogue.mjs, src/original-work-installation-shard.mjs), read on trillion-workshop origin/main bb8022539c",
+          "note": "The affinity rule is the old owner's: an existing binding always wins; the first binding of an identity chooses its book by a BLAKE3 fingerprint of the identity key over the sorted candidate books (the same key always gives the same book); a group binds all its identities to one book or none; a bound identity answers its book without a new choice; a tombstone is final for that identity in that generation. Only the rows are the store's job. Which books a person may use, and any move between books, stay with the person's tools and an explicit recovery; this recipe never moves a binding. The L101 table of the removed functions is kept in the lane note, not here."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                }
+              }
+            },
+            "generation": {
+              "type": "string",
+              "description": "The binding generation the rows belong to; 'initial' when the person has not chosen one"
+            },
+            "bindings": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "identities"
+                ],
+                "properties": {
+                  "identities": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "kind",
+                        "id"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "type": "string"
+                        },
+                        "id": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "description": "One or more identities bound together, each {kind, id}; no identity twice in one binding; at most 1000"
+                  },
+                  "group": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "description": "The relationship group they belong to, or null"
+                  },
+                  "book": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "description": "{owner, resource} of the book to bind to, or null to choose one from the candidates"
+                  }
+                }
+              },
+              "description": "Bindings to keep this run"
+            },
+            "lookups": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "kind",
+                  "id"
+                ],
+                "properties": {
+                  "kind": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "type": "string"
+                  }
+                }
+              },
+              "description": "Identities whose book to read"
+            },
+            "candidates": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "owner",
+                  "resource"
+                ],
+                "properties": {
+                  "owner": {
+                    "type": "string"
+                  },
+                  "resource": {
+                    "type": "string"
+                  }
+                }
+              },
+              "description": "The books a new binding may choose from, all owned by the same account"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the bindings are already kept (kept_in, or null) and the names of the objects that already keep them, and the generation the store says is current.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects",
+                "current_generation"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "current_generation": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing, make the store's own objects in its own form, so the store itself refuses what the intent refuses wherever it can (keys, checks, unique constraints). Binding object: one row per identity per generation, with the generation, kind, identity key (a BLAKE3 fingerprint of [kind, id]), the identity as JSON, the group key or null, the book as JSON {owner, resource}, a state of bound or tombstone, the tombstone as JSON or null, and the time it was made; the key is (owner, generation, kind, identity key). Group object: one row per group per generation, with the group key (BLAKE3 of the group name), the group as JSON, the book, its state and time; the key is (owner, generation, group key). The store refuses a second book for an identity already bound to another book, and refuses a tombstoned identity being bound again. Grant only what the store's holder allows the person's login. Submit the names of the objects made, or the ones the look step found.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example attempts",
+            "do": "In a throwaway place in the same store, with the same objects, make these attempts in order, each through the store's own objects, with the candidates [{owner: 'account-a', resource: 'book-1'}, {owner: 'account-a', resource: 'book-2'}] and the generation 'initial': 1) bind identity task t1 to book-1 (bound now); 2) bind task:t1 to book-1 again (repeated, nothing changes); 3) bind task:t1 to book-2 (refused: already bound to another book); 4) bind the group g1 of the list l1 and task t2 to book-2 (bound); 5) bind task t2 to book-1 (refused: its group is on book-2); 6) tombstone task:t1 and bind it again to book-1 (refused: tombstoned); 7) look up the list l1 (answers book-2); 8) look up the list l9 never bound (answers none, not an error); 9) bind task:t3 with no book given (chooses one of the two candidates, and the same choice again if repeated). Rules: a choice is the candidate at the BLAKE3 fingerprint of the identity key modulo the count of candidates, over the candidates sorted by owner then resource; a book owned by another account is refused. Submit each attempt as kept, repeated, refused (with the store's words) or found, and the chosen book for task:t3.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "attempts",
+                "chosen_for_t3"
+              ],
+              "properties": {
+                "attempts": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "attempt",
+                      "outcome"
+                    ],
+                    "properties": {
+                      "attempt": {
+                        "type": "integer"
+                      },
+                      "outcome": {
+                        "type": "string",
+                        "enum": [
+                          "kept",
+                          "repeated",
+                          "refused",
+                          "found",
+                          "none"
+                        ]
+                      },
+                      "book": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "why": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    }
+                  }
+                },
+                "chosen_for_t3": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's bindings and answer its lookups",
+            "do": "Keep each item of bindings through the store's own objects, in order: a binding made of identities already bound to the same book is repeated; a binding to another book, or of an identity tombstoned in that generation, is refused and nothing is changed for it. Answer each item of lookups with the book that holds it, or none. Read every kept binding back. Submit kept (the identities bound or repeated), refused (each with the store's own words), found (each lookup with its book or none) and read_back (the identities read back after the write).",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept",
+                "refused",
+                "found",
+                "read_back"
+              ],
+              "properties": {
+                "kept": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "refused": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "found": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "read_back": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "subset-of",
+                "says": "Every identity kept is read back",
+                "path": [
+                  "this",
+                  "kept"
+                ],
+                "of": [
+                  "this",
+                  "read_back"
+                ]
+              }
+            ]
+          }
+        ],
+        "erase": "On the person's request the store deletes the bindings and groups of the named identities in the named generation; a binding already used by a running job stays with that job until it ends, and the store says so."
+      }
+    }
+  ]
+}

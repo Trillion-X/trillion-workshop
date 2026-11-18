@@ -1,0 +1,174 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:keep-each-task-input-and-list-on-the-one-record-book with store {\\\"where\\\": \\\"postgresql database example_shop on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-shop-postgres-connection\\\"} and bindings [{\\\"identities\\\": [{\\\"kind\\\": \\\"list\\\", \\\"id\\\": \\\"l1\\\"}], \\\"group\\\": null, \\\"book\\\": null}] and candidates [{\\\"owner\\\": \\\"account-a\\\", \\\"resource\\\": \\\"book-1\\\"}].\"",
+  "lists": [],
+  "no_lists_because": "It names no list: the bindings are kept in the person's own store, in whatever form that store keeps things, and store says where and in which language.",
+  "workflows": [
+    "workflow:keep-each-task-input-and-list-on-the-one-record-book"
+  ],
+  "tools": [
+    "tool:run-workflow-definition",
+    "tool:hand-a-job-to-an-ai"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:keep-each-task-input-and-list-on-the-one-record-book\" with store, the bindings to keep, the lookups and the candidate books. Ask the person before choosing a book for them.",
+    "3. The first run makes the store's own objects once and proves them on the example attempts; every attempt must come out as the prove step says, or the run stops and says which.",
+    "4. Every later run keeps the new bindings through those objects and reads each one back."
+  ],
+  "worked_examples": [
+    {
+      "title": "A list bound once, then looked up",
+      "ask": "Bind list l1 to the first candidate book, then tell me which book holds l1.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-each-task-input-and-list-on-the-one-record-book",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "bindings": [
+                {
+                  "identities": [
+                    {
+                      "kind": "list",
+                      "id": "l1"
+                    }
+                  ],
+                  "group": null,
+                  "book": null
+                }
+              ],
+              "candidates": [
+                {
+                  "owner": "account-a",
+                  "resource": "book-1"
+                },
+                {
+                  "owner": "account-a",
+                  "resource": "book-2"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-each-task-input-and-list-on-the-one-record-book",
+      "step": "keep",
+      "given": "The look step found the bindings kept by an earlier run.",
+      "hands_back": "kept [\"list l1\"] and found [{\"list l1\": \"book-1\"}]."
+    },
+    {
+      "title": "A binding to a second book is refused",
+      "ask": "Bind task t1 to book-2 although it is on book-1.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-each-task-input-and-list-on-the-one-record-book",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "bindings": [
+                {
+                  "identities": [
+                    {
+                      "kind": "task",
+                      "id": "t1"
+                    }
+                  ],
+                  "group": null,
+                  "book": {
+                    "owner": "account-a",
+                    "resource": "book-2"
+                  }
+                }
+              ],
+              "candidates": [
+                {
+                  "owner": "account-a",
+                  "resource": "book-1"
+                },
+                {
+                  "owner": "account-a",
+                  "resource": "book-2"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-each-task-input-and-list-on-the-one-record-book",
+      "step": "keep",
+      "given": "task t1 is bound to book-1 by an earlier run.",
+      "hands_back": "refused [{\"identity\": \"task t1\", \"why\": \"already bound to another book\"}] and nothing kept for it."
+    },
+    {
+      "title": "A relationship group goes to one book",
+      "ask": "Bind list l2 and task t2 together to book-2.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-each-task-input-and-list-on-the-one-record-book",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "bindings": [
+                {
+                  "identities": [
+                    {
+                      "kind": "list",
+                      "id": "l2"
+                    },
+                    {
+                      "kind": "task",
+                      "id": "t2"
+                    }
+                  ],
+                  "group": "g1",
+                  "book": {
+                    "owner": "account-a",
+                    "resource": "book-2"
+                  }
+                }
+              ],
+              "candidates": [
+                {
+                  "owner": "account-a",
+                  "resource": "book-1"
+                },
+                {
+                  "owner": "account-a",
+                  "resource": "book-2"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-each-task-input-and-list-on-the-one-record-book",
+      "step": "keep",
+      "given": "The group g1 is not yet bound.",
+      "hands_back": "kept [\"list l2\", \"task t2\"] both on book-2, read back the same."
+    }
+  ]
+}
