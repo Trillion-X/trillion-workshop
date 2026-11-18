@@ -141,7 +141,11 @@ export async function runsState(machine, given, run = onMachine, { pages } = {})
   // swapped by hand) is owed a restart: what runs is checked, never only what is on disk.
   const builds = [], stale = [];
   const isActive = name => run(machine, `systemctl is-active --quiet ${q(name)} || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; });
-  const runsLink = async (unit, program) => run(machine, `pid=$(systemctl show -p MainPID --value ${q(unit.unit)}); [ "$pid" != 0 ] && [ "$(readlink -f /proc/$pid/exe)" = "$(readlink -f ${q(`${unit.builds}/${unit.current ?? 'current'}/${program}`)})" ] || exit 3`)
+  // A program run by an interpreter (`interpreter`: node, say) is not the process's own executable: it runs `current`'s build
+  // when its process started after `current` last moved (the link's own change time).
+  const runsLink = async (unit, program) => run(machine, unit.interpreter
+    ? `pid=$(systemctl show -p MainPID --value ${q(unit.unit)}); [ "$pid" != 0 ] && [ "$(stat -c %Y /proc/$pid)" -ge "$(stat -c %Z ${q(`${unit.builds}/${unit.current ?? 'current'}`)})" ] || exit 3`
+    : `pid=$(systemctl show -p MainPID --value ${q(unit.unit)}); [ "$pid" != 0 ] && [ "$(readlink -f /proc/$pid/exe)" = "$(readlink -f ${q(`${unit.builds}/${unit.current ?? 'current'}/${program}`)})" ] || exit 3`)
     .then(() => true, error => { if (error.code === 3) return false; throw error; });
   for (const unit of units.filter(row => row.source && !row.slot)) {
     const { commit, program } = sourceOf(unit);
@@ -272,8 +276,11 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
   // Set-up makes what is missing (packages, node, accounts, folders); a computer whose accounts and node all exist needs
   // none, and running it would refresh the package lists on every apply.
   const accounts = await Promise.all(runs.units.map(unit => run(machine, `getent passwd ${q(unit.user)} >/dev/null || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; })));
-  // The set-up data is settings.json `machine` with the row's own `machine` fields over it (its packages, its firewall).
-  if (accounts.includes(false) || nodeMissing || foldersMissing || programsMissing || portsClosed.length) await run(machine, `sh -s -- ${q(JSON.stringify(runs))} ${q(JSON.stringify(machineData))}`, readFileSync(SETUP));
+  // The set-up data is settings.json `machine` with the row's own `machine` fields over it (its packages, its firewall). Set-up
+  // reads of each unit only what it makes (its account, folders and node), so only those go in its argument: a unit's files
+  // and pages (a site's bundles) can be larger than one argument may be.
+  const setUpUnits = runs.units.map(({ unit, user, state, builds, key_file, folders, node_bin }) => ({ unit, user, state, builds, key_file, folders, node_bin }));
+  if (accounts.includes(false) || nodeMissing || foldersMissing || programsMissing || portsClosed.length) await run(machine, `sh -s -- ${q(JSON.stringify({ units: setUpUnits }))} ${q(JSON.stringify(machineData))}`, readFileSync(SETUP));
   for (const unit of missing) {
     await run(machine, `install -d -m 0700 ${q(dirname(unit.secret_file))} && umask 077 && systemd-creds encrypt --name=${q(unit.secret_name)} - ${q(unit.secret_file)}`, held[unit.secret_vault_key]);
   }
@@ -297,8 +304,11 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
   for (const user of usersPresent) await run(machine, `userdel -r ${q(user)}`);
   const removed = present.length || usersPresent.length ? { removed: [...present, ...usersPresent.map(user => `user ${user}`)] } : {};
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+  // A file in a folder a unit owns whole (a site's page) keeps no copy beside it: the person's own folder holds every page, and a
+  // copy there would be a stray the next apply removes.
+  const owned = runs.units.flatMap(unit => unit.owned_folders ?? []).map(folder => `${folder.replace(/\/$/, '')}/`);
   for (const { path, text, binary, check } of writes) {
-    if (live[path] !== undefined) await run(machine, `cp -p ${q(path)} ${q(`${path}.bak-${stamp}`)}`);
+    if (live[path] !== undefined && !owned.some(folder => path.startsWith(folder))) await run(machine, `cp -p ${q(path)} ${q(`${path}.bak-${stamp}`)}`);
     const write = `install -d -m 0755 ${q(dirname(path))} && ${binary ? 'base64 -d | ' : ''}install -m 0644 -o root -g root /dev/stdin`;
     // A file that names `check` (an argv, `{file}` the new text's path) is written beside the live one and replaces it only
     // once that command passes: a site file its own server validates, so a bad one never reaches the running program.

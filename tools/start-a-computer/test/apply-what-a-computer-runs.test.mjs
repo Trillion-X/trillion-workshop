@@ -56,7 +56,9 @@ test('a fresh computer is set up from the row, then gets every file the row rend
   const setUp = commands.findIndex(({ command }) => command.startsWith('sh -s'));
   const firstWrite = commands.findIndex(({ command }) => command.startsWith('install -m 0644') || command.startsWith('install -d -m 0755'));
   assert.ok(setUp >= 0 && setUp < firstWrite, 'set-up runs before anything is written');
-  assert.match(commands[setUp].command, /^sh -s -- '\{"health_listen"/);
+  // Set-up is handed only what it makes of each unit (account, folders, node), never the unit's files or pages.
+  assert.match(commands[setUp].command, /^sh -s -- '\{"units":\[\{"unit":"example-place.service","user":"example-place","state":"\/var\/lib\/example-place"/);
+  assert.ok(!commands[setUp].command.includes('health_listen') && !commands[setUp].command.includes('[Unit]'));
   assert.ok(commands.some(({ command }) => command === 'systemctl daemon-reload'));
   assert.ok(commands.some(({ command }) => command.includes('systemctl enable') && command.includes('example-place.service')));
 });
@@ -123,6 +125,20 @@ test('a unit whose current build is its row\'s but which is not running it is re
     assert.deepEqual(answer.restarted, restarted);
     assert.equal(base.commands.some(({ command }) => command.startsWith('sh -c ')), false, 'nothing is built again');
   }
+});
+
+test('a program run by an interpreter runs current\'s build when its process started after current last moved, not when its executable is the program', async () => {
+  const interpreted = { ...built, units: built.units.map(unit => ({ ...unit, interpreter: '/opt/node/bin/node' })) };
+  const asked = [];
+  const base = computer(Object.fromEntries(renderWhatItRuns(interpreted).map(({ path, text }) => [path, text])));
+  const run = async (m, command, input) => {
+    if (command.startsWith('readlink ')) return SOURCE_COMMIT;
+    if (command.startsWith('pid=$(systemctl show')) { asked.push(command); return ''; }
+    return base.run(m, command, input);
+  };
+  assert.deepEqual(await runsDifferences(machine, interpreted, run), []);
+  assert.match(asked[0], /stat -c %Y \/proc\/\$pid\)" -ge "\$\(stat -c %Z '\/var\/lib\/example-place\/builds\/current'\)/);
+  assert.ok(!asked[0].includes('/proc/$pid/exe'), 'the interpreter is never compared with the program');
 });
 
 test('a private repository is fetched with the key the vault holds under its credential name, sent only on standard input', async () => {
@@ -388,4 +404,23 @@ test('a port the row admits that the firewall does not is a difference, and the 
   assert.match(setUp.command, /5432\/tcp/, 'with the row\'s firewall');
   const matched = computer({ ...live, firewall: ['22/tcp', '5432/tcp'] });
   assert.deepEqual(await runsDifferences(machine, opened, matched.run), []);
+});
+
+test('a changed file in a folder a unit owns whole keeps no copy beside it, so the next apply finds no stray', async () => {
+  const owner = { ...runs.units[0], owned_folders: ['/var/lib/example-pages'], files: [{ path: '/var/lib/example-pages/kept.html', text: 'new\n', then: [] }] };
+  const row = { ...runs, units: [owner] };
+  const live = Object.fromEntries(renderWhatItRuns(row).map(({ path, text }) => [path, text]));
+  live['/var/lib/example-pages/kept.html'] = 'old\n';
+  const commands = [];
+  const run = async (_machine, command) => {
+    commands.push(command);
+    if (command.startsWith('if [ -f ')) { const p = command.match(/if \[ -f '([^']+)' \]/)[1]; if (live[p] === undefined) throw Object.assign(new Error('absent'), { code: 3 }); return live[p]; }
+    if (command.startsWith("if [ -d '/var/lib/example-pages' ]")) return '/var/lib/example-pages/kept.html\n';
+    if (command.includes('curl')) return '200';
+    if (command.startsWith('ufw status')) return 'Status: active\n\n22/tcp ALLOW Anywhere\n80/tcp ALLOW Anywhere\n443/tcp ALLOW Anywhere\n';
+    return '';
+  };
+  const answer = await applyWhatItRuns(machine, row, run);
+  assert.deepEqual(answer.written, ['/var/lib/example-pages/kept.html']);
+  assert.ok(!commands.some(command => command.startsWith("cp -p '/var/lib/example-pages/kept.html'")), 'no copy is kept in the owned folder');
 });
