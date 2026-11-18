@@ -1,18 +1,21 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { nativeCommunityEvents } from '../read-data/community-events.mjs';
+import { checkedMemberDecision } from '../read-data/community-access.mjs';
 
 function fixture(overrides = {}) {
   const events = new Map(), members = new Map(), calls = [], admissions = [];
   let queue = Promise.resolve();
-  let relay = 'host', allowed = new Set(['host']), active = new Set(['host', 'member', 'other']), serial = 0;
+  let relay = 'host', allowed = new Set(['host']), serial = 0;
   const community = { id: 'space', config: { title: 'Shared learning', spaces: { events: 'members' } } };
   const clone = value => value == null ? value : structuredClone(value);
   const key = (id, person) => JSON.stringify([id, person]);
+  const roster = new Map(['host', 'member', 'other'].map(person => [key('space', person),
+    { membership_id: 'space', relay: person, role: 'member', state: 'member' }]));
   const memberships = {
     read: id => clone(events.get(id)),
     events: parent => [...events.values()].filter(row => row.parent_id === parent).map(clone),
-    member: (id, person) => clone(members.get(key(id, person))),
+    member: (id, person) => clone((id === community.id ? roster : members).get(key(id, person))),
     members: id => [...members.values()].filter(row => row.membership_id === id).map(clone),
     putEvents: rows => { for (const row of rows) events.set(row.id, clone(row)); },
     putMember: row => members.set(key(row.membership_id, row.relay), clone(row)),
@@ -35,25 +38,21 @@ function fixture(overrides = {}) {
       } finally { release(); }
     },
   };
-  const checkedMember = (id, person) => {
-    if (id !== community.id || !active.has(person)) throw Object.assign(new Error('Only active members.'), { status: 403 });
-    return clone(community);
-  };
-  const checkedMay = (id, person, action) => {
-    checkedMember(id, person);
+  const checkedMay = async (id, person, action, holds = []) => {
+    if (id !== community.id) throw new Error('No space.');
+    const space = await checkedMemberDecision({ community: clone(community), relay: person, holds, member: memberships.member(id, person) });
     if (action !== 'put_on_events' || !allowed.has(person)) throw Object.assign(new Error('No event permission.'), { status: 403 });
+    return clone(space);
+  };
+  const readSpace = id => {
+    if (id !== community.id) throw new Error('No space.');
     return clone(community);
   };
   const owner = nativeCommunityEvents({
     memberships, resource: 'space:space',
     principal: () => ({ resource: 'space:space', relay, holds: [], actor: relay ? { kind: 'account', id: relay } : undefined }),
     current: async (operation, input) => { admissions.push({ operation, input }); return true; },
-    readCommunity: id => {
-      if (id !== community.id) throw new Error('No space.');
-      return clone(community);
-    },
-    activeMember: (_community, person) => active.has(person),
-    checkedMember, checkedMay,
+    readCommunity: readSpace, communityValue: readSpace, checkedMay,
     mayIn: (_community, person) => ({ put_on_events: allowed.has(person) }),
     spaceChanged: (...args) => calls.push({ kind: 'changed', args }),
     tellEventCalendars: (spaceId, eventIds, onlyRelay, options, delivery) => calls.push({
@@ -71,7 +70,7 @@ function fixture(overrides = {}) {
   const create = input => owner.createEvent({ community_id: 'space', title: 'Meet', starts_at: '2026-10-31T22:00:00Z',
     ends_at: '2026-10-31T23:30:00Z', ...input });
   return { owner, create, events, members, calls, admissions, memberships, community,
-    use: person => { relay = person; }, allow: person => allowed.add(person), leave: person => active.delete(person) };
+    use: person => { relay = person; }, allow: person => allowed.add(person), leave: person => roster.set(key('space', person), { membership_id: 'space', relay: person, role: 'member', state: 'left' }) };
 }
 
 test('creation persists original membership rows and recurring times in one series through the callable native owner', async () => {
@@ -162,8 +161,8 @@ test('creator still needs current membership; delegated permission can move anot
   assert.equal(f.events.get(id).title, 'Allowed');
   f.use('host');
   f.leave('host');
-  await assert.rejects(f.owner.moveEvent({ community_id: 'space', event_id: id, title: 'Gone' }), /active members/);
-  await assert.rejects(f.owner.cancelEvent({ community_id: 'space', event_id: id }), /active members/);
+  await assert.rejects(f.owner.moveEvent({ community_id: 'space', event_id: id, title: 'Gone' }), /Only members/);
+  await assert.rejects(f.owner.cancelEvent({ community_id: 'space', event_id: id }), /Only members/);
   assert.equal(f.events.get(id).title, 'Allowed');
 });
 
@@ -209,7 +208,7 @@ test('capacity and retries count active RSVP rows; declining is kept even before
   assert.equal(f.memberships.members(id).filter(row => row.state === 'member').length, 1);
   assert.deepEqual(f.calls.at(-1).args.slice(0, 3), ['space', [id], 'other']);
   f.leave('other');
-  await assert.rejects(f.owner.rsvp({ event_id: id, going: false }), /active members/);
+  await assert.rejects(f.owner.rsvp({ event_id: id, going: false }), /Only members/);
 });
 
 test('concurrent last-seat requests serialize their capacity check and write in the supplied transaction', async () => {
@@ -464,16 +463,19 @@ test('withheld or malformed native actors cannot write through a relay alone', a
   }
 });
 
-test('unavailable membership results cannot expose member-only events or calendar files', async () => {
-  for (const result of [{ state: 'unknown' }, { allowed: false }, null, 'member']) {
-    const f = fixture({ activeMember: () => result });
-    f.events.set('private-event', { id: 'private-event', label: 'event', parent_id: 'space',
-      title: 'Private event', starts_at: '2026-10-31T22:00:00Z', ends_at: null });
-    const unavailable = error => error.status === 503 && error.code === 'event_membership_unknown';
-    await assert.rejects(f.owner.spaceEvents({ community_id: 'space' }), unavailable);
-    await assert.rejects(f.owner.eventFile({ event_id: 'private-event' }), unavailable);
-    assert.equal(f.calls.length, 0);
-  }
+test('unavailable membership evidence cannot expose member-only events or calendar files', async () => {
+  const gated = { id: 'space', joined_by_rules: true, owner_relay: 'owner',
+    config: { title: 'Shared learning', spaces: { events: 'members' }, join: [{ access: 'paid', says: 'Pay to join' }] } };
+  const f = fixture({
+    readCommunity: () => structuredClone(gated),
+    principal: () => ({ resource: 'space:space', relay: 'host', holds: null, actor: { kind: 'account', id: 'host' } }),
+  });
+  f.events.set('private-event', { id: 'private-event', label: 'event', parent_id: 'space',
+    title: 'Private event', starts_at: '2026-10-31T22:00:00Z', ends_at: null });
+  const unavailable = error => error.status === 503 && error.code === 'event_membership_unknown';
+  await assert.rejects(f.owner.spaceEvents({ community_id: 'space' }), unavailable);
+  await assert.rejects(f.owner.eventFile({ event_id: 'private-event' }), unavailable);
+  assert.equal(f.calls.length, 0);
 });
 
 for (const { label, result, status, code } of [
@@ -493,29 +495,27 @@ for (const { label, result, status, code } of [
     assert.equal(creates, 0);
     assert.equal(creating.events.size, 0);
     assert.equal(creating.calls.length, 0);
-
-    const existing = fixture({ checkedMember: () => structuredClone(result) });
-    const { event_id: id } = await existing.create({});
-    existing.calls.length = 0;
-    let writes = 0;
-    for (const method of ['putEvents', 'putMember', 'removeEvent']) {
-      const original = existing.memberships[method];
-      existing.memberships[method] = (...args) => { writes += 1; return original(...args); };
-    }
-    const before = structuredClone(existing.events.get(id));
-    await assert.rejects(existing.owner.rsvp({ event_id: id, going: true }), refused);
-    await assert.rejects(existing.owner.moveEvent({ community_id: 'space', event_id: id, title: 'Forbidden change' }), refused);
-    await assert.rejects(existing.owner.cancelEvent({ community_id: 'space', event_id: id }), refused);
-    assert.equal(writes, 0);
-    assert.equal(existing.members.size, 0);
-    assert.deepEqual(existing.events.get(id), before);
-    assert.equal(existing.calls.length, 0);
   });
 }
 
+test('a member who has left cannot change or answer an event, and nothing is written', async () => {
+  const f = fixture();
+  const { event_id: id } = await f.create({});
+  f.calls.length = 0;
+  f.leave('host');
+  const before = structuredClone(f.events.get(id));
+  const refused = error => error.status === 403 && error.code === 'community_membership_required';
+  await assert.rejects(f.owner.rsvp({ event_id: id, going: true }), refused);
+  await assert.rejects(f.owner.moveEvent({ community_id: 'space', event_id: id, title: 'Forbidden change' }), refused);
+  await assert.rejects(f.owner.cancelEvent({ community_id: 'space', event_id: id }), refused);
+  assert.equal(f.members.size, 0);
+  assert.deepEqual(f.events.get(id), before);
+  assert.equal(f.calls.length, 0);
+});
+
 test('access callback accepts explicit true and the original matching community result', async () => {
   for (const result of [true, { id: 'space', config: { title: 'Shared learning', spaces: { events: 'members' } } }]) {
-    const f = fixture({ checkedMay: () => structuredClone(result), checkedMember: () => structuredClone(result) });
+    const f = fixture({ checkedMay: () => structuredClone(result) });
     const { event_id: id } = await f.create({});
     await f.owner.rsvp({ event_id: id, going: true });
     await f.owner.moveEvent({ community_id: 'space', event_id: id, title: 'Permitted change' });

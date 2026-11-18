@@ -75,6 +75,6 @@ test('a read of a community that does not exist is 404, and the route reads comm
   const access = communityAccessOver(records, { labels });
   assert.equal((await access.readCommunity('space-1')).config.title, 'A community');
   await assert.rejects(access.readCommunity('missing'), error => error.status === 404 && error.code === 'community_not_found');
-  assert.equal(await access.activeMember(await access.readCommunity('space-1'), 'relay-member'), true);
+  assert.equal((await access.checkedMember('space-1', 'relay-member')).id, 'space-1');
   await assert.rejects(access.checkedMember('space-1', 'relay-absent'), error => error.status === 403);
 });

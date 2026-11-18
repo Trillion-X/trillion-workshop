@@ -1,7 +1,7 @@
 // Original event HTTP clauses, freshly adapted only after normal baseline
 // 64fecded. The separately archived preliminary draft is not source evidence.
 import { nativeCommunityEvents } from '../read-data/community-events.mjs';
-import { communityOf, joinedByRules, checkedMemberDecision, memberDecision, isMemberNow } from '../read-data/community-access.mjs';
+import { communityOf, joinedByRules, checkedMemberDecision, isMemberNow } from '../read-data/community-access.mjs';
 // HELD: nativeSpacePermissions from the declared space-permissions public owner.
 // HELD: mailSettings from the maintained sender owner's public read-only API.
 
@@ -118,9 +118,6 @@ export function communityAccessOver(records, { labels, acceptedInvitation } = {}
     return communityOf({ membership, configRow, joinedByRules: joinedByRules(await chainOf(id), labels), labels });
   };
   const memberOf = (spaceId, relay) => records.member(spaceId, relay);
-  const activeMember = async (community, relay, holds = [], options = {}) => (await memberDecision({
-    community, relay, holds, member: await memberOf(community.id, relay), acceptedInvitation: options.acceptedInvitation ?? acceptedInvitation,
-  })).allowed;
   const checkedMember = async (id, relay, holds = [], options = {}) => {
     const community = await readCommunity(id);
     return checkedMemberDecision({ community, relay, holds, member: await memberOf(id, relay), acceptedInvitation: options.acceptedInvitation ?? acceptedInvitation });
@@ -128,7 +125,7 @@ export function communityAccessOver(records, { labels, acceptedInvitation } = {}
   return Object.freeze({
     read: id => records.read(id), events: parentId => records.events(parentId), member: memberOf, members: eventId => records.members(eventId),
     putEvents: rows => records.putEvents(rows), putMember: row => records.putMember(row), removeEvent: id => records.removeEvent(id),
-    transaction: fn => records.transaction(fn), readCommunity, activeMember, checkedMember, joinedByRules: id => chainOf(id).then(chain => joinedByRules(chain, labels)),
+    transaction: fn => records.transaction(fn), readCommunity, checkedMember, joinedByRules: id => chainOf(id).then(chain => joinedByRules(chain, labels)),
     isMemberNow: async (id, relay) => isMemberNow(await memberOf(id, relay)),
   });
 }
@@ -195,8 +192,8 @@ export async function createCommunityEventRoute({
       await permissionsFor(id).allowedInSpace(id, principal().relay, 'read_space');
       return memberships.readCommunity(id);
     },
-    activeMember: memberships.activeMember,
-    checkedMember: memberships.checkedMember,
+    communityValue: memberships.readCommunity,
+    acceptedInvitation,
     checkedMay: async (id, relay, action, holds) => {
       const community = await memberships.checkedMember(id, relay, holds);
       await permissionsFor(id).allowedInSpace(id, relay, action);

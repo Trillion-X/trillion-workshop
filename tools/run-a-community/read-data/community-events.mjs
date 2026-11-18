@@ -1,6 +1,7 @@
 // Event actions restored from the complete immutable methods in source-baselines.
 // Memberships remain the space's existing records; this owner owns no store.
 import { eventTimes } from './event-times.mjs';
+import { memberDecision, checkedMemberDecision } from './community-access.mjs';
 // HELD: calendarInviteFile from the declared booking invitation owner awaits
 // shared public-import admission proof. The exporter is intentionally unbound.
 
@@ -30,23 +31,25 @@ const seesMeetings = (config, member) => config.spaces?.events === 'everyone' ||
  *
  * principal is the admitted {resource,relay,holds,actor?}; null holds explicitly
  * means unknown evidence for the membership owner to resolve when needed. No principal field is
- * taken from input. current/checkedMay/checkedMember belong to current owners.
+ * taken from input. current and checkedMay belong to current owners.
  * Current admission must return true; false denies, and unknown stays unavailable.
  * Checked access returns true or the matching community with valid config;
  * permission decisions and unavailable/error envelopes never grant access.
  * Delivery callbacks receive an immutable event snapshot in a fifth context
  * argument, so cancellation can deliver after removal and atomic commit.
  * Existing native command/delivery owners retain idempotency and recovery.
+ * communityValue(id) reads the space as a value; activeMember and checkedMember decide membership from the member
+ * row with the pure checks in community-access.mjs (acceptedInvitation is that owner's read, when needed).
  */
 export function nativeCommunityEvents({
-  memberships, resource, principal, current: currentAdmission, readCommunity, activeMember,
-  checkedMay, checkedMember, mayIn, spaceChanged, tellEventCalendars,
+  memberships, resource, principal, current: currentAdmission, readCommunity, communityValue,
+  checkedMay, mayIn, acceptedInvitation, spaceChanged, tellEventCalendars,
   tellMembersOfMeetingChange, calendarOrganizer, calendarUid, newId = defaultId,
 } = {}) {
   if (!memberships || ['read', 'events', 'member', 'members', 'putEvents', 'putMember', 'removeEvent', 'transaction']
     .some(name => typeof memberships[name] !== 'function')
     || typeof resource !== 'string' || !resource
-    || [principal, currentAdmission, readCommunity, activeMember, checkedMay, checkedMember, mayIn,
+    || [principal, currentAdmission, readCommunity, communityValue, checkedMay, mayIn,
       spaceChanged, tellEventCalendars, tellMembersOfMeetingChange, calendarOrganizer, calendarUid, newId].some(fn => typeof fn !== 'function'))
     throw new TypeError('Event actions require the current resource, membership owner, admitted principal, rights and delivery adapters.');
 
@@ -265,13 +268,20 @@ export function nativeCommunityEvents({
     const host = {
       memberships: membership, eventTimes,
       readCommunity: async id => { const result = await readCommunity(id); check(); return result; },
-      activeMember: async (...args) => {
-        const result = await activeMember(...args);
+      activeMember: async (community, relay, holds) => {
+        const decision = await memberDecision({ community, relay, holds, member: await membership.member(community.id, relay), acceptedInvitation })
+          .catch(error => {
+            throw error?.status === 503 ? Object.assign(fail('The current space owner could not verify event membership.', 503), { code: 'event_membership_unknown' }) : error;
+          });
         check();
-        if (typeof result !== 'boolean') throw Object.assign(fail('The current space owner could not verify event membership.', 503), { code: 'event_membership_unknown' });
-        return result;
+        return decision.allowed;
       },
-      checkedMay: access(checkedMay), checkedMember: access(checkedMember),
+      checkedMay: access(checkedMay),
+      checkedMember: async (id, relay, holds) => {
+        const community = await communityValue(id);
+        check();
+        return checkedMemberDecision({ community, relay, holds, member: await membership.member(id, relay), acceptedInvitation });
+      },
       mayIn: async (...args) => { const result = await mayIn(...args); check(); return result; },
       isMemberNow: async (id, relay) => (await membership.member(id, relay))?.state === 'member',
       spaceChanged: (...args) => { pending.push(['spaceChanged', () => spaceChanged(...args)]); },
