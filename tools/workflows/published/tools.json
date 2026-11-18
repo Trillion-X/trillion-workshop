@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:a45ebac92e95e20bdbb74a059cf6a336262973b9b46b4345d33aedbf29f13abe"
+  "blake3": "1f:96c8247b489e8ae68ed7c4f9939b9a78b9db156dd179cc2e0d5bf10b26eb3408"
  },
  "fields": [
   {
@@ -10249,7 +10249,7 @@
    "values": {
     "title": "Read my setup",
     "job": "Gather what my account's setup is made of and draw the Get started screen from it",
-    "description": "The one read of the Get started screen (tool:get-started). It asks the account files door for this account's setup facts (setup_facts: sign-ins and their app grants, notification devices, the AI connection, computers, the setup runtime, device releases, the last setup snapshot) for the asking browser, reads the account's own show rules (show-rules) and setup context (setup-context), and runs tool:see-what-is-left-to-set-up with them and the page's account id, answering the screen it draws. The setup run is handed in as setup_run (the status tool:run-workflow-definition answered and the answers so far), since no tool keeps a run. A source it could not read is left unknown, so the screen is not ready rather than opened on a guess. It writes nothing.",
+    "description": "The one read of the Get started screen (tool:get-started). It is handed this account's setup facts as setup_facts (sign-ins and their app grants, notification devices, the AI connection, computers, the setup runtime, device releases, the last setup snapshot: what the caller can read of them, since no one owner answers them now), reads the account's own show rules (show-rules) and setup context (setup-context) from `stored`, and runs tool:see-what-is-left-to-set-up with them and the page's account id, answering the screen it draws. The setup run is handed in as setup_run (the status tool:run-workflow-definition answered and the answers so far), since no tool keeps a run. A source it could not read is left unknown, so the screen is not ready rather than opened on a guess. It writes nothing.",
     "status": "active",
     "maker": "maker:set-up-my-account",
     "licence_class": "licence:maker-own",

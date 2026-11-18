@@ -675,7 +675,7 @@
         "label": "Read my setup",
         "status": "active",
         "job": "Gather what my account's setup is made of and draw the Get started screen from it",
-        "description": "The one read of the Get started screen (tool:get-started). It asks the account files door for this account's setup facts (setup_facts: sign-ins and their app grants, notification devices, the AI connection, computers, the setup runtime, device releases, the last setup snapshot) for the asking browser, reads the account's own show rules (show-rules) and setup context (setup-context), and runs tool:see-what-is-left-to-set-up with them and the page's account id, answering the screen it draws. The setup run is handed in as setup_run (the status tool:run-workflow-definition answered and the answers so far), since no tool keeps a run. A source it could not read is left unknown, so the screen is not ready rather than opened on a guess. It writes nothing.",
+        "description": "The one read of the Get started screen (tool:get-started). It is handed this account's setup facts as setup_facts (sign-ins and their app grants, notification devices, the AI connection, computers, the setup runtime, device releases, the last setup snapshot: what the caller can read of them, since no one owner answers them now), reads the account's own show rules (show-rules) and setup context (setup-context) from `stored`, and runs tool:see-what-is-left-to-set-up with them and the page's account id, answering the screen it draws. The setup run is handed in as setup_run (the status tool:run-workflow-definition answered and the answers so far), since no tool keeps a run. A source it could not read is left unknown, so the screen is not ready rather than opened on a guess. It writes nothing.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -708,6 +708,14 @@
                 "answers": { "type": "object", "description": "The answers given so far, by step id" }
               },
               "description": "The setup run, as the caller keeps it in the person's own database; left out, the setup was never started"
+            },
+            "setup_facts": {
+              "type": "object",
+              "description": "What the caller can read of the account's setup: { facts?, signed_in?: { names }, system?, shared_rules?, context?, setup_access?, installs? }. What is left out is unknown, never none, so the screen is not ready rather than opened on a guess."
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: workspace: {label: value} for show-rules, setup-context, as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -889,35 +897,6 @@
           },
           "records": {
             "fd": 3,
-            "rights": [
-              {
-                "files": "/",
-                "operations": [
-                  "setup_facts"
-                ]
-              },
-              {
-                "kind": "@own-records",
-                "id": "show-rules",
-                "operations": [
-                  "workspace:read"
-                ]
-              },
-              {
-                "kind": "@own-records",
-                "id": "setup-context",
-                "operations": [
-                  "workspace:read"
-                ]
-              },
-              {
-                "kind": "ai-job",
-                "operations": [
-                  "records:read"
-                ],
-                "prefix": "ai-job:workflow:setup-with-your-ai:"
-              }
-            ],
             "runs": [
               "tool:see-what-is-left-to-set-up"
             ]
@@ -962,6 +941,22 @@
             },
             "output_selector": "$.result.title",
             "contains": "Connect your AI"
+          }
+        ],
+        "stored": [
+          {
+            "kind": "@own-records",
+            "id": "show-rules",
+            "operations": [
+              "workspace:read"
+            ]
+          },
+          {
+            "kind": "@own-records",
+            "id": "setup-context",
+            "operations": [
+              "workspace:read"
+            ]
           }
         ]
       }

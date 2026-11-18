@@ -8,10 +8,12 @@
 //   (src/native-setup.mjs facts) and drew getStartedFacts over it. Here the same facts are gathered the same way, each
 //   from its owner today, and the screen is drawn by tool:see-what-is-left-to-set-up:
 //     - the account's own mechanics (sign-ins and their app grants, notification devices, the AI connection, computers,
-//       the setup runtime, device releases, the last setup snapshot) are the account files door's `setup_facts`
-//       (the brief's contract C), asked for the asking browser's user_agent and origin as old /setup/facts was;
-//     - the account's own show rules and its own setup context are its records `show-rules` and `setup-context`
-//       (old readSetupPolicy's ownRead('/show-rules') and ownRead('/records?label=setup-context'));
+//       the setup runtime, device releases, the last setup snapshot) are `setup_facts`, handed in by the caller from
+//       what it can read of them: the engine that answered them keeps none of an account's things now, and no owner
+//       answers them in one read (a named gap), so what is left out is unknown, never none;
+//     - the account's own show rules and its own setup context are its settings `show-rules` and `setup-context`
+//       (old readSetupPolicy's ownRead('/show-rules') and ownRead('/records?label=setup-context')), given in
+//       `stored.workspace` as read from the person's own store;
 //     - the account id is the page's admitted account (contract B), old facts()'s owner_user_id;
 //     - the setup runtime, when `setup_facts` carries none: old facts() read it from the account's setup runtime owner
 //       (src/native-setup.mjs:104-158, makeSetupRuntime over makeSetupWorkflow). The setup run is a run of the recipe whose
@@ -28,8 +30,7 @@
 //      or setup-context read that fails leaves `rules` / `personal_context` out of the request, and the steps say so.
 //      The operator's shared rules and context are sent only when `setup_facts` carries them; otherwise they are unknown
 //      and the gate stays closed (old trillion read them from the service's edge store, which no tool reaches).
-//   2. A `setup_facts` refusal keeps its status (old readSetup rejected with the setup owner's status), so the screen
-//      host answers it as it answered the old read's failure.
+//   2. `setup_facts`, when given, is one object; left out, every mechanic is unknown.
 //   3. An origin that is not a web address is refused: the address the page was reached at is input, never a fixed host.
 //   4. Nothing is written.
 import showRules from '../read-data/show-rules.json' with { type: 'json' };
@@ -41,8 +42,7 @@ import { defaultRecipeFor } from '../../workflows/read-data/public-recipes.mjs';
 import { makeHashCodeHexFromJson } from '../../content-identity/read-data/identity.mjs';
 
 const SCREEN_TOOL = 'tool:see-what-is-left-to-set-up';
-const SETUP_FACTS = 'setup_facts';
-// The names see-what-is-left-to-set-up reads beside `facts`, when the files door answers them.
+// The names see-what-is-left-to-set-up reads beside `facts`, when setup_facts carries them.
 const BESIDE = ['system', 'shared_rules', 'context', 'setup_access', 'installs'];
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -92,22 +92,17 @@ async function setupRuntime(setupRun, now) {
   return makeSetupRuntime({ read: { workflow }, now: () => now }).read();
 }
 
-/** tool:read-setup: { origin, account_id, user_agent? } → the Get started screen. */
+/** tool:read-setup: { origin, account_id, user_agent?, setup_facts?, setup_run?, now? } → the Get started screen. */
 export async function readSetup(input = {}, { door } = {}) {
   if (!object(input)) throw new Error('Send one JSON object: { origin, account_id, user_agent? }.');
   const accountId = text(input.account_id);
   if (!accountId) throw new Error('account_id names the account whose setup this is: the page\'s own account.');
   const origin = webOrigin(input.origin);
   if (!origin) throw new Error('origin names the web address the page was reached at (http or https).');
-  let answer;
-  try {
-    answer = await door.files(SETUP_FACTS, { user_agent: text(input.user_agent), origin });
-  } catch (error) {
-    throw Object.assign(new Error(error?.message ?? 'Setup could not be read.'), { status: Number.isInteger(error?.status) ? error.status : 502 });
-  }
-  if (!object(answer)) throw Object.assign(new Error('Setup could not be read.'), { status: 502 });
+  const answer = input.setup_facts ?? {};
+  if (!object(answer)) throw new Error('setup_facts is one object: { facts?, signed_in?: { names }, system?, shared_rules?, context?, setup_access?, installs? }.');
   // Old /setup/facts drew `devices` from the names the account's sign-ins were made under (devicesFor({ signedInAs, system,
-  // observer, distribution, now }), src/native-setup.mjs:243) only when those names could be read; the files door answers
+  // observer, distribution, now }), src/native-setup.mjs:243) only when those names could be read; setup_facts carries
   // them as `signed_in.names`. The device releases (`distribution`) have no owner here, so each app's ways to get it are
   // its published entries alone, as old devicesFor drew them when the distribution read failed.
   const userAgent = text(input.user_agent);

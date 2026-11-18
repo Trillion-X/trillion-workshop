@@ -3,7 +3,7 @@
 // for the asking device's facts and returns what the layout draws', and from test/account-screens.test.mjs's Get started
 // tests, over made-up facts:
 //   - old readSetup asked GET /setup/facts?user_agent=&origin= of the account's setup owner; here the same question is
-//     the account files door's setup_facts (the brief's contract C), and the steps are drawn by
+//     setup_facts, handed in by the caller, and the steps are drawn by
 //     tool:see-what-is-left-to-set-up, run through the door (contract A);
 //   - the drawn screen is compared with a golden (fixtures/get-started-descriptions.json) recorded from the moved
 //     setupStepsWithRules and getStartedFacts (byte copies of trillion's, see ../ports/) over the same made-up facts.
@@ -13,7 +13,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { readSetup } from '../do-work/read-setup.mjs';
+import { readSetup as readSetupOf } from '../do-work/read-setup.mjs';
 import { seeWhatIsLeftToSetUp } from '../do-work/see-what-is-left-to-set-up.mjs';
 import { pendingSetup, provenSetup } from './setup-fixtures.mjs';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
@@ -24,21 +24,20 @@ const GOLDEN = JSON.parse(readFileSync(new URL('./fixtures/get-started-descripti
 const ORIGIN = 'https://app.example';
 const NOW = '2026-10-08T12:00:00.000Z';
 const OWN_RULES = { rules: [] };
-// What the files door answers for this made-up account: its mechanics, and the operator's shared rules and context
+// What the caller hands in as setup_facts for this made-up account: its mechanics, and the operator's shared rules and context
 // beside them (null context: the operator keeps none for this account).
 const answered = facts => ({ facts, shared_rules: { rules: [] }, context: null });
 
-// A stand-in door: setup_facts answers `facts`, the account's own records are `records` (a label that throws is
+// The caller hands the setup facts in (setup_facts). Each stand-in below says them as `facts()`, and this hands them over.
+const readSetup = async (input, { door: given }) => readSetupOf({ ...input, ...(given.facts ? { setup_facts: await given.facts() } : {}) }, { door: given });
+
+// A stand-in door: `facts` is what the caller hands in as setup_facts, the account's own records are `records` (a label that throws is
 // unreadable), and a run of tool:see-what-is-left-to-set-up is that tool's own function.
-function door({ facts, records = { 'show-rules': OWN_RULES, 'setup-context': null }, refuse = null }) {
+function door({ facts, records = { 'show-rules': OWN_RULES, 'setup-context': null } }) {
   const asked = [];
   return {
     asked,
-    async files(operation, input) {
-      asked.push([operation, input]);
-      if (refuse) throw Object.assign(new Error('Refused.'), { status: refuse });
-      return facts;
-    },
+    async facts() { return facts; },
     async readWorkspace([label]) {
       asked.push(['workspace:read', label]);
       if (records[label] instanceof Error) throw records[label];
@@ -48,13 +47,12 @@ function door({ facts, records = { 'show-rules': OWN_RULES, 'setup-context': nul
   };
 }
 
-test('read-setup asks the setup facts for the asking device and answers what the layout draws', async () => {
+test('read-setup reads the setup facts it is given and answers what the layout draws', async () => {
   const pending = door({ facts: answered(pendingSetup()) });
   const screen = await readSetup({ account_id: 'acct-a', user_agent: 'Mozilla/5.0 (iPhone)', origin: 'https://app.example/work', now: NOW }, { door: pending });
-  assert.deepEqual(pending.asked, [['setup_facts', { user_agent: 'Mozilla/5.0 (iPhone)', origin: ORIGIN }],
-    ['workspace:read', 'show-rules'], ['workspace:read', 'setup-context'], ['tools:run', 'tool:see-what-is-left-to-set-up', 'read-setup:acct-a']]);
+  assert.deepEqual(pending.asked, [['workspace:read', 'show-rules'], ['workspace:read', 'setup-context'], ['tools:run', 'tool:see-what-is-left-to-set-up', 'read-setup:acct-a']]);
   assert.equal(screen.title, 'Connect your AI to start');
-  await assert.rejects(readSetup({ account_id: 'acct-a', origin: ORIGIN }, { door: door({ refuse: 402 }) }), error => error.status === 402);
+  await assert.rejects(readSetupOf({ account_id: 'acct-a', origin: ORIGIN, setup_facts: [] }, { door: pending }), /setup_facts is one object/);
   // Asked with no web address, nothing is read: the address the page was reached at is input.
   const unaddressed = door({ facts: answered(pendingSetup()) });
   await assert.rejects(readSetup({ account_id: 'acct-a' }, { door: unaddressed }), /origin/);
@@ -97,7 +95,7 @@ test('Get started carries the whole setup to the AI from inside the required scr
 
 // Old readSetupPolicy: each source has its own known bit. The account's own show rules that could not be read are
 // unknown (a problem that does not block: personal rules only change how steps read); operator rules and context the
-// files door does not carry are unknown too, and those keep even a proven setup closed.
+// setup facts do not carry are unknown too, and those keep even a proven setup closed.
 test('a source that could not be read is unknown, never empty, so the screen does not open on a guess', async () => {
   const proven = { ...provenSetup(), computers: [] };
   const ownUnread = await readSetup({ account_id: 'acct-a', origin: ORIGIN, now: NOW },
@@ -111,10 +109,9 @@ test('a source that could not be read is unknown, never empty, so the screen doe
   assert.equal(all.ready, true);
 });
 
-test('the row runs through the door with exactly its rights: setup_facts, its own two records and the one tool it runs', async () => {
-  const run = await answerOf(ROW, { account_id: 'acct-a', user_agent: 'Mozilla/5.0 (Macintosh)', origin: ORIGIN, now: NOW }, {
+test('the row runs with its two settings given as stored and the one tool it runs through the door', async () => {
+  const run = await answerOf(ROW, { account_id: 'acct-a', user_agent: 'Mozilla/5.0 (Macintosh)', origin: ORIGIN, now: NOW, setup_facts: answered(pendingSetup()) }, {
     records: [], doorOptions: { workspaceRecords: { 'show-rules': OWN_RULES, 'setup-context': null } },
-    file_answers: { setup_facts: answered(pendingSetup()) },
     tool_runs: { 'tool:see-what-is-left-to-set-up': input => seeWhatIsLeftToSetUp(input) },
   });
   assert.equal(run.status, 0, run.error);
@@ -130,8 +127,8 @@ test('the row runs through the door with exactly its rights: setup_facts, its ow
 // TOOL_RUN_ANSWER). On 2026-11-14 a fresh account's Get started page was blank: read-setup handed the page that whole
 // answer instead of the screen inside it, and this row's test passed only because the fake answered the bare screen.
 test('the page gets the drawn screen, never the engine\'s answer around it, and a run that failed is said, not drawn', async () => {
-  const input = { account_id: 'acct-a', user_agent: 'Mozilla/5.0 (Macintosh)', origin: ORIGIN, now: NOW };
-  const sample = { records: [], doorOptions: { workspaceRecords: { 'show-rules': OWN_RULES, 'setup-context': null } }, file_answers: { setup_facts: answered(pendingSetup()) } };
+  const input = { account_id: 'acct-a', user_agent: 'Mozilla/5.0 (Macintosh)', origin: ORIGIN, now: NOW, setup_facts: answered(pendingSetup()) };
+  const sample = { records: [], doorOptions: { workspaceRecords: { 'show-rules': OWN_RULES, 'setup-context': null } } };
   const run = await answerOf(ROW, input, { ...sample, tool_runs: { 'tool:see-what-is-left-to-set-up': input => seeWhatIsLeftToSetUp(input) } });
   assert.equal(run.status, 0, run.error);
   assert.equal(run.result.title, 'Connect your AI to start');
@@ -141,13 +138,13 @@ test('the page gets the drawn screen, never the engine\'s answer around it, and 
   assert.match(failed.error, /tool:see-what-is-left-to-set-up did not finish: the steps could not be drawn/);
 });
 
-// The engine's setup_facts answers the names the account's sign-ins were made under (`signed_in.names`) and no `system`;
+// setup_facts carries the names the account's sign-ins were made under (`signed_in.names`) and no `system`;
 // old /setup/facts drew `devices` from those names (devicesFor({ signedInAs, system, observer, distribution, now }),
 // src/native-setup.mjs:243) and the system from the asking browser. Read here the same way.
 test('the apps the account has come from the names its sign-ins were made under, and the system from the asking browser', async () => {
   const sent = [];
   const engine = {
-    async files() { return { facts: {}, signed_in: { names: ['Trillion for Mac', 'Claude'], complete: true }, shared_rules: null, context: null, origin: ORIGIN }; },
+    async facts() { return { facts: {}, signed_in: { names: ['Trillion for Mac', 'Claude'], complete: true }, shared_rules: null, context: null, origin: ORIGIN }; },
     async readWorkspace([label]) { return { records: { [label]: null } }; },
     async run(tool, input) { sent.push(input); return seeWhatIsLeftToSetUp(input); },
   };
@@ -159,11 +156,11 @@ test('the apps the account has come from the names its sign-ins were made under,
   assert.equal(installed.iphone, false);
   // No names read: devices stay unknown, never "none installed".
   const unknown = [];
-  await readSetup({ account_id: 'acct-a', origin: ORIGIN, now: NOW }, { door: { ...engine, async files() { return { facts: {}, shared_rules: null, context: null }; }, async run(tool, input) { unknown.push(input); return seeWhatIsLeftToSetUp(input); } } });
+  await readSetup({ account_id: 'acct-a', origin: ORIGIN, now: NOW }, { door: { ...engine, async facts() { return { facts: {}, shared_rules: null, context: null }; }, async run(tool, input) { unknown.push(input); return seeWhatIsLeftToSetUp(input); } } });
   assert.equal(unknown[0].facts.devices, undefined);
 });
 
-// The engine's setup_facts carries no setup runtime: Get started reads the setup run the caller hands in (setup_run: the
+// setup_facts that carry no setup runtime: Get started reads the setup run the caller hands in (setup_run: the
 // status tool:run-workflow-definition answered and the answers given so far, which the caller keeps in the person's own
 // database), through the setup runtime moved here from old trillion (from-an-older-version/src/setup-runtime.mjs). No
 // setup_run is the true "not started", never "the runtime source is unreadable"; a reader with no owner here answers
@@ -173,7 +170,7 @@ function engineWithRun() {
   const reads = [];
   return {
     sent, reads,
-    async files() { return { facts: {}, shared_rules: null, context: null }; },
+    async facts() { return { facts: {}, shared_rules: null, context: null }; },
     async readWorkspace([label]) { return { records: { [label]: null } }; },
     async read(type, id) { reads.push([type, id]); return null; },
     async write() { throw new Error('a read writes nothing'); },
@@ -224,7 +221,7 @@ test('a setup run reads as finished only once the engine says it completed', asy
 
 test('a runtime the setup facts already carry is used as it is', async () => {
   const engine = engineWithRun();
-  engine.files = async () => ({ facts: { runtime: { schema: 'trillion.setup-runtime/v1', components: [], workflow: { exists: true, state: 'finished' } } }, shared_rules: null, context: null });
+  engine.facts = async () => ({ facts: { runtime: { schema: 'trillion.setup-runtime/v1', components: [], workflow: { exists: true, state: 'finished' } } }, shared_rules: null, context: null });
   await readSetup({ account_id: 'acct-a', origin: ORIGIN, now: NOW }, { door: engine });
   assert.equal(engine.sent[0].facts.runtime.workflow.state, 'finished');
   assert.deepEqual(engine.reads, []);
@@ -233,9 +230,8 @@ test('a runtime the setup facts already carry is used as it is', async () => {
 test('run as its row, with no runtime in the setup facts, the setup run is read within the row\'s rights', async () => {
   const facts = { facts: {}, shared_rules: null, context: null };
   const sent = [];
-  const run = await answerOf(ROW, { account_id: 'acct-a', origin: ORIGIN, now: NOW }, {
+  const run = await answerOf(ROW, { account_id: 'acct-a', origin: ORIGIN, now: NOW, setup_facts: facts }, {
     records: [], doorOptions: { workspaceRecords: { 'show-rules': OWN_RULES, 'setup-context': null } },
-    file_answers: { setup_facts: facts },
     tool_runs: { 'tool:see-what-is-left-to-set-up': input => { sent.push(input); return seeWhatIsLeftToSetUp(input); } },
   });
   assert.equal(run.status, 0, run.error);

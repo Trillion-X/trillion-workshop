@@ -61,8 +61,9 @@ function toolDraft(tool, observed = []) {
   const rowRights = rights.filter(right => right.kind ?? right.prefix);
   const fileRights = rights.filter(right => right.files);
   const writesRows = rowRights.some(right => [right.operations ?? []].flat().some(operation => /write/.test(operation)));
-  // A kind the request fills in (`{ fill: ... }`) is named as that.
-  const kindOf = right => (typeof (right.kind ?? right.prefix) === 'string' ? right.kind ?? right.prefix : 'the kind the request names');
+  // A setting is named by its label; a kind the request fills in (`{ fill: ... }`) is named as that.
+  const kindOf = right => ([right.operations ?? []].flat().some(operation => /^workspace:/.test(operation)) && typeof right.id === 'string' ? `the setting ${right.id}`
+    : typeof (right.kind ?? right.prefix) === 'string' ? right.kind ?? right.prefix : 'the kind the request names');
   const kindsOf = list => [...new Set(list.map(kindOf))].join(', ');
   const opsOf = right => ([right.operations ?? []].flat().some(operation => /write/.test(operation)) ? 'reads and makes' : 'reads');
   return {
