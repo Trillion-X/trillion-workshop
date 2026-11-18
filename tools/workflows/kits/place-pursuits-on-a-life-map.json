@@ -1,0 +1,72 @@
+{
+  "drafted_from": "tools/place-pursuits-on-a-life-map (src/life-map.mjs, do-work/place-pursuits-on-a-life-map.mjs, test/place-pursuits-on-a-life-map.test.mjs) and tools/workflows/kits/walk-a-pursuit-through-your-map.json (its worked example)",
+  "start_here": "Say to your AI: \"Run workflow:place-pursuits-on-a-life-map with store {\\\"where\\\": \\\"postgresql database example_me on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-me-postgres-connection\\\"} and place my pursuits on my map.\" It reads your own map and your pursuits from your database and tells you which pursuit lives in which part of life, and which parts none of them touches.",
+  "lists": [],
+  "no_lists_because": "It names no list of its own: the map and the pursuits are the person's own rows, in whatever form their store keeps them, and store says where and in which language.",
+  "workflows": [
+    "workflow:place-pursuits-on-a-life-map"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the map and the pursuits are kept and how the store is spoken to.",
+    "2. Say \"Run workflow:place-pursuits-on-a-life-map\" with store (and map_list or pursuit_rows when they are not named your-map and the pursuit rows).",
+    "3. The first run proves the placing on the example map: every expected answer must match, or the run stops and says which.",
+    "4. Every later run reads your map and pursuits and answers which part of life each pursuit lives in and which parts are left out. If you keep no map, it offers you one and places nothing."
+  ],
+  "worked_examples": [
+    {
+      "title": "Where my pursuits live on my map, and what they leave out",
+      "ask": "Put my pursuits on my map: which parts of my life do they touch, and which do they leave out?",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:place-pursuits-on-a-life-map",
+              "store": {
+                "where": "postgresql database example_me on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-me-postgres-connection"
+              }
+            }
+          }
+        }
+      },
+      "workflow": "workflow:place-pursuits-on-a-life-map",
+      "step": "answer",
+      "given": "The look step found the map kept as your-map rows in the person's database, with two pursuits, Run a bakery on body and money, and Learn guitar on mind; the prove step matched every expected placing.",
+      "hands_back": "offered false; Run a bakery in body and money, Learn guitar in mind; missing: people, because no pursuit names it and it is not optional."
+    },
+    {
+      "title": "No map kept yet",
+      "ask": "Put my pursuits on my map.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:place-pursuits-on-a-life-map",
+              "store": {
+                "where": "postgresql database example_me on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-me-postgres-connection"
+              }
+            }
+          }
+        }
+      },
+      "workflow": "workflow:place-pursuits-on-a-life-map",
+      "step": "answer",
+      "given": "The look step found no map kept in the person's store (map_kept_in null).",
+      "hands_back": "offered true, and nothing placed: the starter map is offered to the person and is not used in place of their own."
+    }
+  ]
+}

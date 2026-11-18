@@ -1,0 +1,207 @@
+{
+  "about": "workflow:place-pursuits-on-a-life-map: places a person's pursuits on their own map of a full life, in the store that keeps the map and the pursuits: each area with the pursuits that name it, and the non-optional leaf areas no pursuit names, in the map's order. It replaces the placing in tools/place-pursuits-on-a-life-map (src/life-map.mjs placeOnMap and missingLines, which read the map and the pursuits handed in and kept nothing). A join and a missing-row check are what the store does in its own language (rule a-tool-is-only-what-the-store-cannot-do). The starter map is not used in place of the person's own map: with no map rows the answer is offered, never placed.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:place-pursuits-on-a-life-map",
+        "label": "Place pursuits on a life map",
+        "job": "Place the person's pursuits on their own map of a full life, in their own store: each area with the pursuits that name it, and the parts of life no pursuit names, in the map's order; with no map kept, offer the map and place nothing.",
+        "produces": "Each area with its pursuits and the missing parts of life, read from the store's own rows, proven on the example map and pursuits in three stores of different kinds.",
+        "source": {
+          "from": "tools/place-pursuits-on-a-life-map (src/life-map.mjs: placeOnMap, missingLines, keptAreas; do-work/place-pursuits-on-a-life-map.mjs), read on trillion-workshop origin/main",
+          "note": "Hidden map rows (shown false) shape the judgement only and are never placed or reported. An area id the map does not hold is dropped, and a repeated one is kept once. An area is missing when no area is part of it, it is not optional, and no pursuit names it. The starter map is never used in place of the person's own map. The words of the missing lines are the person's own map's words (words.missing_one), not in this recipe."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps the map and the pursuits: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                }
+              }
+            },
+            "map_list": {
+              "type": "string",
+              "description": "The person's own map list, by its name in the store (your-map when left out)"
+            },
+            "pursuit_rows": {
+              "type": "string",
+              "description": "Where the person's pursuit rows are kept, with each pursuit's title and the areas it names"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read the person's map and pursuits",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read the person's own map list (its rows, each with its id, label, part_of, optional and shown) and the pursuit rows with the areas each names. Submit where the map is kept (or null when none is kept) and how many pursuits were read.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "map_kept_in",
+                "pursuits_read"
+              ],
+              "properties": {
+                "map_kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "pursuits_read": {
+                  "type": "integer"
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the placing on the example map",
+            "do": "In a throwaway place in the same store, with the same kind of rows, place these attempts each at the time given. The starter map has areas inside (not optional, a parent), body and mind (part of inside, not optional), around (a parent), people and money (part of around, not optional), places (part of around, optional) and secret (hidden, shown false). attempts: [{\"at\": \"2026-11-18T10:00:00Z\", \"map\": \"starter\", \"pursuits\": [{\"title\": \"Run a bakery\", \"areas\": [\"body\", \"money\"]}, {\"title\": \"Learn guitar\", \"areas\": [\"mind\", \"nope\"]}]}, {\"at\": \"2026-11-18T10:05:00Z\", \"map\": null, \"pursuits\": [{\"title\": \"Run a bakery\", \"areas\": [\"money\"]}]}, {\"at\": \"2026-11-18T10:10:00Z\", \"map\": \"starter\", \"pursuits\": []}]. Each attempt must give the outcome the intent gives, and the store's own rows must give every expected answer below.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answers"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "answered",
+                      "offered"
+                    ]
+                  }
+                },
+                "answers": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each attempt is answered, or offered when no map is kept",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "answered",
+                    "offered",
+                    "answered"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "The store's own rows give every expected placing and missing part of life; the hidden area is never placed, the unknown area id is dropped, and no map means nothing is placed",
+                "path": [
+                  "this",
+                  "answers"
+                ],
+                "values": [
+                  [
+                    {
+                      "placed": {
+                        "inside": [],
+                        "body": [
+                          "Run a bakery"
+                        ],
+                        "mind": [
+                          "Learn guitar"
+                        ],
+                        "around": [],
+                        "people": [],
+                        "money": [
+                          "Run a bakery"
+                        ],
+                        "places": []
+                      },
+                      "missing": [
+                        "people"
+                      ]
+                    },
+                    {
+                      "offered": true
+                    },
+                    {
+                      "placed": {
+                        "inside": [],
+                        "body": [],
+                        "mind": [],
+                        "around": [],
+                        "people": [],
+                        "money": [],
+                        "places": []
+                      },
+                      "missing": [
+                        "body",
+                        "mind",
+                        "people",
+                        "money"
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "id": "answer",
+            "title": "Place the asked pursuits on the person's map",
+            "do": "Read the person's map and pursuit rows through the store's own language, and answer: for each area in the map's order the titles of the pursuits that name it, and the missing parts of life as their area ids, in the map's order. With no map kept, answer offered and place nothing. Submit offered (true or false), placed (each area id with its pursuit titles) and missing (the labels).",
+            "submit": {
+              "type": "object",
+              "required": [
+                "offered"
+              ],
+              "properties": {
+                "offered": {
+                  "type": "boolean"
+                },
+                "placed": {
+                  "type": "object"
+                },
+                "missing": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Each missing area's id"
+                }
+              }
+            },
+            "checks": []
+          }
+        ]
+      }
+    }
+  ]
+}
