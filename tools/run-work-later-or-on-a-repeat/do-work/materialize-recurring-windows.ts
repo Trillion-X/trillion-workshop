@@ -35,18 +35,14 @@ export interface RecurringWindowSchedule {
     readonly gap?: DstGapPolicy;
     readonly fold?: DstFoldPolicy;
   };
-  // The recurrence owner is generic DATA. The timed-action runtime wraps this
-  // synchronous owner call with durable occurrence-state + receipt writes; an
-  // asynchronous acceptance is deliberately not a supported completion mode.
+  // The recurrence owner is generic DATA: which operation is due and whose. An occurrence is done once its owner's
+  // proof is kept (occurrence_states); how the owner is reached and answers is the caller's, not a field here.
   readonly action: {
     readonly operation: string;
     readonly owner_ref: string;
     readonly owner_dispatch: {
       readonly name: string;
       readonly input: unknown;
-    };
-    readonly completion: {
-      readonly mode: 'synchronous-owner-return';
     };
   };
 }
@@ -124,7 +120,6 @@ function scheduleError(schedule: RecurringWindowSchedule): string | null {
   if (schedule.dst?.gap && schedule.dst.gap !== 'skip' && schedule.dst.gap !== 'next-valid') return 'invalid_gap_policy';
   if (schedule.dst?.fold && schedule.dst.fold !== 'earlier' && schedule.dst.fold !== 'later' && schedule.dst.fold !== 'both') return 'invalid_fold_policy';
   if (!text(schedule?.action?.operation) || !text(schedule?.action?.owner_ref) || !text(schedule?.action?.owner_dispatch?.name)) return 'invalid_action_owner';
-  if (schedule?.action?.completion?.mode !== 'synchronous-owner-return') return 'unsupported_completion_mode';
   if (timeZoneName(schedule.timezone) === null) return 'invalid_timezone';
   return null;
 }

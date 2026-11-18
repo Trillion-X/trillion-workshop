@@ -159,3 +159,13 @@ test('asked with no resume point, a schedule begun decades ago is due at its lat
   assert.ok(due.missed_before > 4000 && Date.parse(due.missed_since) < Date.parse(due.start), `${due.missed_before} since ${due.missed_since}`);
   assert.equal(asked.next_wake_at ?? null, null);
 });
+
+test('a schedule names its action and its owner, and nothing about how the owner answers', () => {
+  const { completion, ...action } = { ...mondayReview.action, completion: { mode: 'synchronous-owner-return' } };
+  const bare = { ...mondayReview, schedule_id: 'schedule:no-completion', action };
+  const answer = whenToWake({ now: '2026-03-01T12:00:00Z', schedules: [bare], resume_from_ms: Date.parse('2026-03-01T12:00:00Z') });
+  assert.deepEqual(answer.rejected_schedules, [], 'a schedule with no completion is taken');
+  assert.equal(answer.next_wake_at, '2026-03-02T14:00:00.000Z');
+  const kept = whenToWake({ now: '2026-03-01T12:00:00Z', schedules: [{ ...bare, action: { ...action, completion } }], resume_from_ms: Date.parse('2026-03-01T12:00:00Z') });
+  assert.equal(kept.next_wake_at, answer.next_wake_at, 'one that still carries it is the same');
+});
