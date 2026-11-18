@@ -6,12 +6,11 @@
     "workflow:keep-note-tasks-and-tags"
   ],
   "tools": [
-    "tool:run-workflow-definition",
-    "tool:find-checkbox-tasks-and-nested-hashtags-written"
+    "tool:run-workflow-definition"
   ],
   "instructions": [
     "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
-    "2. Say \"Run workflow:keep-note-tasks-and-tags\" with store and an operation (index, remove, rebuild, tasks, tags or items_for_tag). The parse of each note's text is the tool tool:find-checkbox-tasks-and-nested-hashtags-written.",
+    "2. Say \"Run workflow:keep-note-tasks-and-tags\" with store and an operation (index, remove, rebuild, tasks, tags or items_for_tag). The parse of each note's text is the parser in tools/find-checkbox-tasks-and-nested-hashtags-written.",
     "3. The first run makes the store's own objects once and proves them on the example notes: every outcome must be as the intent says, or the run stops and says which.",
     "4. Every later run keeps the change through those objects and reads each row back."
   ],

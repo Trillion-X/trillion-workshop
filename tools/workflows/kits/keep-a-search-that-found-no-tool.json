@@ -6,12 +6,11 @@
     "workflow:keep-a-search-that-found-no-tool"
   ],
   "tools": [
-    "tool:run-workflow-definition",
-    "tool:keep-a-search-that-found-no-tool"
+    "tool:run-workflow-definition"
   ],
   "instructions": [
     "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
-    "2. Say \"Run workflow:keep-a-search-that-found-no-tool\" with store and an operation: missed (with the search's sent and reply), list, or sweep. The tool tool:keep-a-search-that-found-no-tool decides whether an answer is a dead end and what its job is.",
+    "2. Say \"Run workflow:keep-a-search-that-found-no-tool\" with store and an operation: missed (with the search's sent and reply), list, or sweep. The rule in tools/keep-a-search-that-found-no-tool decides whether an answer is a dead end and what its job is.",
     "3. The first run makes the store's own object once and proves it on the example searches: every outcome must be as the intent says, or the run stops and says which.",
     "4. Every later run keeps the miss through that object and reads the row back."
   ],
