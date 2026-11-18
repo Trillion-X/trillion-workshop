@@ -59,3 +59,14 @@ test('a computer with no engine, no site or no carrier is not carried', async ()
   assert.equal(await carryThisComputer(context('https://site.example.com'), { home: homeWith({ listen: '127.0.0.1:8788' }), platform: 'linux', load: async () => null }), null);
   assert.equal(made.length, 0);
 });
+
+test('the carrier runs the program as it was invoked, so it signs in under the same command name', async () => {
+  const home = homeWith({ listen: '127.0.0.1:8788' });
+  const invoked = process.argv[1];
+  process.argv[1] = '/home/someone/.local/bin/example';
+  try {
+    const { config } = await carryThisComputer(context('https://site.example.com'), { home, platform: 'linux', load: async () => fakeCarrier([]) });
+    assert.deepEqual(config.credential_command, [process.execPath, '/home/someone/.local/bin/example', 'carrier-key']);
+    assert.equal(config.announce.argv[1], '/home/someone/.local/bin/example', 'never the program file under its own name (command.mjs)');
+  } finally { process.argv[1] = invoked; }
+});

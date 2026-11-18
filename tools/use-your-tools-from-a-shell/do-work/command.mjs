@@ -44,7 +44,7 @@ import { chmodSync, existsSync, writeSync, lstatSync, mkdirSync, readFileSync, r
 import { createServer, request as httpRequest } from 'node:http';
 import { createInterface } from 'node:readline';
 import { homedir, hostname } from 'node:os';
-import { basename, dirname, join } from 'node:path';
+import { basename, dirname, join, resolve as resolvePath } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { runOnAgUi } from './ag-ui-agent.mjs';
 import { makeHashCodeHexFromBytes, requestKeyForEngine } from './packs/read-data/identity.mjs';
@@ -619,8 +619,9 @@ export async function carryThisComputer(context, { rules = settings, home = home
   const keys = carrierKeyStore({ rules, home, platform, exec });
   let key = keys.read();
   if (!key) { key = carrier.makeKey(way, { state }); keys.write(key); }
-  const installed = join(expand(rules.install.folder, home), rules.install.files[0]);
-  const self = program ?? [process.execPath, existsSync(installed) ? installed : fileURLToPath(import.meta.url)];
+  // The carrier runs this very program as it was invoked: the command learns its name, and so its sign-in, from the file
+  // it runs as, so the program file under another name (command.mjs) would be signed in to nobody.
+  const self = program ?? [process.execPath, process.argv[1] ? resolvePath(process.argv[1]) : fileURLToPath(import.meta.url)];
   const { announce } = rules.carry;
   return carrier.installCarrier({
     label: rules.carry.label, way, relay_host: { id: 'site', hostname: new URL(site).hostname },
