@@ -1,0 +1,160 @@
+{
+  "about": "workflow:draw-the-task-map-of-one-page: For a list of message ids (one page's messages), read from the person's own store only the fields the map draws: each message's arrivals (id, message id, and any files they carry, in id order), and ea",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:draw-the-task-map-of-one-page",
+        "label": "Draw the task map of one page's arrivals and the work done on them",
+        "job": "For a list of message ids (one page's messages), read from the person's own store only the fields the map draws: each message's arrivals (id, message id, and any files they carry, in id order), and each job of the work of those messages and the work handed on from it (each job once), with the newest 100 jobs too on the first page, which no message owns. The words of an arrival or a job (its title, results, and input) are never read for the map.",
+        "produces": "The drawn arrivals and the drawn work for the page, each item once, read from the store's own rows, bounded, and proven on the example page.",
+        "source": {
+          "from": "tools/draw-the-task-map-of-one-pages-arrivals-and-the-work (src/task-map-reads.mjs), read on trillion-workshop origin/main bb8022539c; the field list is the shared handoff projection's TASK_MAP_ARRIVAL_FIELDS (tools/shared-code/src/handoff-projection.mjs)",
+          "note": "The bound is the reason for the rule: reading whole arrivals and jobs was about 3 MB for one map (2026-10-16), so an index entry that carries the drawn fields answers alone, and a row kept before it carried them is read by those fields only. The map does not read messages' words either. The old owner's drawn fields (TASK_MAP_ARRIVAL_FIELDS) are the ones the kit names; the rest of the task map (the canvas) is the screen's own owner."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store",
+            "message_ids"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string"
+                },
+                "language": {
+                  "type": "string"
+                },
+                "credential_name": {
+                  "type": "string"
+                }
+              }
+            },
+            "message_ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 500
+            },
+            "first_page": {
+              "type": "boolean",
+              "description": "True on the first page: also the newest 100 jobs, which no message may own"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the arrivals and the jobs are kept (kept_in, or null), the fields of an arrival that the store already carries in an index, and whether the store keeps each job's handoff id.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "indexed_fields"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "indexed_fields": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own indexes, once",
+            "do": "When the look step did not find the arrival fields carried, make an index over the arrivals on message id, carrying the drawn fields (the id, the message id and the files), and an index over jobs on the message they came from and on the handoff they were handed on by, carrying the handoff id and the time, so that the store answers the map without reading the words. Submit the names of the indexes made or found.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the read on the example page",
+            "do": "In a throwaway place in the same store, with example arrivals a1 (message m1, files [f1]), a2 (message m1), a3 (message m2) and a4 (message m1, with no files), and jobs j1 (from message m1), j2 (handed on from j1, from message m9) and j3 (from message m2, and handed on from j1 too), read the map for message ids [m1] with first_page false: the arrivals are a1 (with its file f1), a2 and a4, in id order; the jobs are j1, j2 and j3, each once (j2 and j3 are handed on from j1); a3 is not read. Then read the map for message ids [m2] with first_page true: the arrival a3, and the jobs j1, j2 and j3, each once (the newest 100 jobs, here all three). Submit the arrivals and the jobs read, with the drawn fields only.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "arrivals",
+                "jobs"
+              ],
+              "properties": {
+                "arrivals": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "jobs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "keep",
+            "title": "Answer the map",
+            "do": "For the message ids the request names, read the arrivals of those messages with the fields the index carries (or the fields of a row kept before the index carried them), in id order, leaving out a null or absent field; then read the jobs of those messages and the jobs handed on from them, each job once, plus the newest 100 jobs when first_page is true. Read no title, result or input. Submit arrivals (the drawn items) and jobs (the handoff ids drawn).",
+            "submit": {
+              "type": "object",
+              "required": [
+                "arrivals",
+                "jobs"
+              ],
+              "properties": {
+                "arrivals": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "jobs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          }
+        ],
+        "erase": "Nothing is kept by a read; the indexes follow the rows they index, and erasing an arrival or a job removes its index entry with it."
+      }
+    }
+  ]
+}

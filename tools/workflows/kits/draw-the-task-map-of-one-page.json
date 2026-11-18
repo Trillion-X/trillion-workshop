@@ -1,0 +1,80 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:draw-the-task-map-of-one-page with store {\\\"where\\\": \\\"postgresql database example_shop on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-shop-postgres-connection\\\"} and message_ids [\\\"m1\\\"] and first_page false.\"",
+  "lists": [],
+  "no_lists_because": "It names no list: the arrivals and the jobs are the person's own rows, in whatever form their store keeps them, and store says where and in which language.",
+  "workflows": [
+    "workflow:draw-the-task-map-of-one-page"
+  ],
+  "tools": [
+    "tool:run-workflow-definition",
+    "tool:hand-a-job-to-an-ai"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:draw-the-task-map-of-one-page\" with store, the message ids of one page, and first_page true only on the first page.",
+    "3. The first run makes the indexes once and proves them on the example page; every attempt must come out as the prove step says, or the run stops and says which.",
+    "4. Every later run reads the map from the indexes and never the words of an arrival or a job."
+  ],
+  "worked_examples": [
+    {
+      "title": "One message's map",
+      "ask": "Draw the task map of message m1.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:draw-the-task-map-of-one-page",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "message_ids": [
+                "m1"
+              ],
+              "first_page": false
+            }
+          }
+        }
+      },
+      "workflow": "workflow:draw-the-task-map-of-one-page",
+      "step": "keep",
+      "given": "The store keeps arrivals a1 (file f1), a2 and a4 on m1, and jobs j1 from m1, and j2 and j3 handed on from j1.",
+      "hands_back": "arrivals [{\"id\": \"a1\", \"message_id\": \"m1\", \"files\": [\"f1\"]}, {\"id\": \"a2\", \"message_id\": \"m1\"}, {\"id\": \"a4\", \"message_id\": \"m1\"}] and jobs [\"j1\", \"j2\", \"j3\"]."
+    },
+    {
+      "title": "The first page also shows the newest jobs",
+      "ask": "Draw the first page of message m2.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:draw-the-task-map-of-one-page",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "message_ids": [
+                "m2"
+              ],
+              "first_page": true
+            }
+          }
+        }
+      },
+      "workflow": "workflow:draw-the-task-map-of-one-page",
+      "step": "keep",
+      "given": "The store keeps arrival a3 on m2 and jobs j1, j2 and j3.",
+      "hands_back": "arrivals [{\"id\": \"a3\", \"message_id\": \"m2\"}] and jobs [\"j1\", \"j2\", \"j3\"], each once."
+    }
+  ]
+}
