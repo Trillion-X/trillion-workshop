@@ -116,14 +116,19 @@ export async function runsState(machine, given, run = onMachine, { pages } = {})
   found.push(...usersPresent.map(user => ({ path: `user ${user}`, reason: 'present; the computer row says absent' })));
   // A unit whose program is built from source (`source`) is behind when its `current` is not the commit its row names; the
   // apply builds that commit on the computer and moves `current` to it.
-  const builds = [];
+  // One whose `current` is that commit but whose running program is not `current`'s (a restart that failed, or a program
+  // swapped by hand) is owed a restart: what runs is checked, never only what is on disk.
+  const builds = [], stale = [];
   for (const unit of units.filter(row => row.source)) {
-    const { commit } = sourceOf(unit);
+    const { commit, program } = sourceOf(unit);
     const from = (await run(machine, `readlink ${q(`${unit.builds}/current`)} || true`)).trim();
-    if (from !== commit) builds.push({ unit, from });
+    if (from !== commit) { builds.push({ unit, from }); continue; }
+    const runsCurrent = `pid=$(systemctl show -p MainPID --value ${q(unit.unit)}); [ "$pid" != 0 ] && [ "$(readlink -f /proc/$pid/exe)" = "$(readlink -f ${q(`${unit.builds}/current/${program}`)})" ] || exit 3`;
+    if (await run(machine, runsCurrent).then(() => false, error => { if (error.code === 3) return true; throw error; })) stale.push(unit);
   }
   found.push(...builds.map(({ unit, from }) => ({ path: `${unit.builds}/current`, reason: `runs ${from || 'no program'}; its row builds ${unit.source.commit}` })));
-  return { runs, rendered, live, found, present, usersPresent, builds };
+  found.push(...stale.map(unit => ({ path: unit.unit, reason: `is not running ${unit.builds}/current, the build its row names` })));
+  return { runs, rendered, live, found, present, usersPresent, builds, stale };
 }
 
 /** A unit's `source` with its fields filled from the unit: the git `repository` address the computer fetches from (any host;
@@ -177,7 +182,7 @@ const needsHeld = unit => secretsOf(unit).length > 0 || Boolean(unit.source?.cre
  * `NAME.bak-STAMP`. `held` maps a unit's `secret_vault_key` to the value the person's vault holds under that name; the value
  * reaches the computer only on the SSH channel's standard input, sealed there by systemd-creds at the unit's `secret_file`. */
 export async function applyWhatItRuns(machine, given, run = onMachine, held = {}, deps = {}) {
-  const { runs, rendered, live, present, usersPresent, builds } = await runsState(machine, given, run, deps);
+  const { runs, rendered, live, present, usersPresent, builds, stale } = await runsState(machine, given, run, deps);
   const writes = rendered.filter(({ path, text }) => live[path] !== text);
   const absent = (path, input) => run(machine, `${path} || exit 3`, input).then(() => false, error => { if (error.code === 3) return true; throw error; });
   const nodes = [...new Set(runs.units.map(unit => unit.node_bin).filter(Boolean))];
@@ -219,7 +224,7 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
     ...(machineData.packages ?? []).map(name => absent(`dpkg -s ${q(name)} >/dev/null 2>&1`)),
     ...(machineData.downloads ?? []).map(({ path }) => absent(`test -x ${q(path)}`)),
   ])).includes(true);
-  if (!writes.length && !missing.length && !nodeMissing && !foldersMissing && !programsMissing && !triggersOff.length && !builds.length && !usersPresent.length) return { written: [], restarted: [], ...removed };
+  if (!writes.length && !missing.length && !nodeMissing && !foldersMissing && !programsMissing && !triggersOff.length && !builds.length && !stale.length && !usersPresent.length) return { written: [], restarted: [], ...removed };
   // Set-up makes what is missing (packages, node, accounts, folders); a computer whose accounts and node all exist needs
   // none, and running it would refresh the package lists on every apply.
   const accounts = await Promise.all(runs.units.map(unit => run(machine, `getent passwd ${q(unit.user)} >/dev/null || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; })));
@@ -262,7 +267,7 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
     const readers = runs.units.filter(unit => [unit.settings_file, unit.hba_file, unit.script_file].includes(path)).map(unit => unit.unit);
     return readers.length ? readers : [path.match(/\/([^/]+\.(?:service|timer|path))(?:\.d\/[^/]+)?$/)?.[1]];
   };
-  const builtUnits = builds.map(({ unit }) => unit.unit);
+  const builtUnits = [...builds.map(({ unit }) => unit.unit), ...stale.map(unit => unit.unit)];
   const units = [...new Set([...writes.flatMap(({ path }) => unitsOf(path)), ...missing.map(unit => unit.unit), ...triggersOff, ...builtUnits].filter(Boolean))];
   const running = new Set([...writes.filter(({ path }) => live[path] !== undefined).flatMap(({ path }) => unitsOf(path)),
     ...[...missing.map(unit => unit.unit), ...builtUnits].filter(name => live[`/etc/systemd/system/${name}`] !== undefined)]);

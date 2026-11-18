@@ -110,6 +110,22 @@ test('a unit behind its source commit is fetched and built by the computer itsel
   assert.ok(commands.some(({ command }) => command === "systemctl restart 'example-place.service'"));
 });
 
+test('a unit whose current build is its row\'s but which is not running it is restarted, and one running it is left alone', async () => {
+  const live = Object.fromEntries(renderWhatItRuns(built, SITE_BLOCK).map(({ path, text }) => [path, text]));
+  for (const [running, restarted] of [[false, ['example-place.service']], [true, []]]) {
+    const base = computer(live);
+    const run = async (m, command, input) => {
+      if (command.startsWith('readlink ')) return SOURCE_COMMIT;
+      if (command.startsWith('pid=$(systemctl show')) { if (running) return ''; throw Object.assign(new Error('not running current'), { code: 3 }); }
+      return base.run(m, command, input);
+    };
+    if (!running) assert.deepEqual(await runsDifferences(machine, built, run), [{ path: 'example-place.service', reason: 'is not running /var/lib/example-place/builds/current, the build its row names' }]);
+    const answer = await applyWhatItRuns(machine, built, run);
+    assert.deepEqual(answer.restarted, restarted);
+    assert.equal(base.commands.some(({ command }) => command.startsWith('sh -c ')), false, 'nothing is built again');
+  }
+});
+
 test('a private repository is fetched with the key the vault holds under its credential name, sent only on standard input', async () => {
   const live = Object.fromEntries(renderWhatItRuns(keyed, SITE_BLOCK).map(({ path, text }) => [path, text]));
   const { run, commands } = building(live);
