@@ -1,0 +1,192 @@
+{
+  "about": "workflow:keep-store-reviews: keeps reviews of what a store lists, in the person's own store: a review is a rating from 1 to 5 with a title, a body, a subject, an actor, a time and a visibility (public, private or pending); a response, a helpful vote and a report each point at a review; a vote is kept once per actor and review; only the public reviews are listed, with their responses, votes and reports counted, and their average rating. It replaces tools/package-store-reviews (do-work/validate-action-input.ts, build-owner-action-request.ts and write-generic-record-event.ts, and read-data/fold-generic-record-events.ts and read-generic-record-projection.ts), whose generic records were folded into a projection in the retired owner's store (rule a-tool-is-only-what-the-store-cannot-do). The descriptor words in data/generic-record-contracts.json are the fields and the visibility rules here. The folder is kept: it is a prepared restore whose tests are held, not yet wired to any tool row.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-store-reviews",
+        "label": "Keep reviews of a store's listings",
+        "job": "Keep the reviews of what a store lists in the person's own store: ratings from 1 to 5 with a title and body, responses, helpful votes kept once per person, and reports; list the public reviews with their counts and the average rating.",
+        "produces": "The review rows in the person's own store, proven on the example writes in three stores of different kinds, with each write kept, repeated or refused and the public reviews read back.",
+        "source": {
+          "from": "tools/package-store-reviews (data/generic-record-contracts.json fields score-value, headline-text, body-text, visibility-state and the projection public-reader; do-work/validate-action-input.ts), read on trillion-workshop origin/main",
+          "note": "The rating range is 1 to 5. The visibility values are public, private and pending, and only public rows are listed to everyone. A private review stays out of the public list. The rule on a vote is the old one's: a vote is a signal keyed by its kind, so the same person's same vote is kept once."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store",
+            "write"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps the reviews: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                }
+              }
+            },
+            "write": {
+              "type": "object",
+              "description": "One statement, response, vote or concern as the caller gives it: write (statement, response, vote or concern), actor, and the fields that kind takes"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read which reviews the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read the review rows already kept for the subject: statements, responses, votes and reports. Submit where they are kept (or null) and how many statements are kept.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "statements"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "statements": {
+                  "type": "integer"
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own review rows, once",
+            "do": "When the look step found none, make the store's own objects in its own form: one row per statement (a rating, a title, a body, a subject, an actor, a time and a visibility), one per response (a body, an actor, a time, a visibility) pointing at its statement, one per vote and one per report, a vote unique per statement, actor and key so a repeated vote is kept once. Grant the person's login only what the store's holder allows. Submit the names of the objects made.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the review rows on the example writes",
+            "do": "In a throwaway place in the same store, with the same objects, make these writes in order, each at the time given: [{\"at\": \"2026-11-18T10:00:00Z\", \"write\": \"statement\", \"actor\": \"u1\", \"subject\": \"app-a\", \"score\": 5, \"title\": \"Great\", \"body\": \"Works\", \"visibility\": \"public\"}, {\"at\": \"2026-11-18T10:01:00Z\", \"write\": \"statement\", \"actor\": \"u2\", \"subject\": \"app-a\", \"score\": 9, \"title\": \"Too high\", \"body\": \"x\", \"visibility\": \"public\"}, {\"at\": \"2026-11-18T10:02:00Z\", \"write\": \"statement\", \"actor\": \"u2\", \"subject\": \"app-a\", \"score\": 3, \"title\": \"Meh\", \"body\": \"Slow\", \"visibility\": \"private\"}, {\"at\": \"2026-11-18T10:03:00Z\", \"write\": \"response\", \"actor\": \"dev\", \"target\": \"r1\", \"body\": \"Thanks\"}, {\"at\": \"2026-11-18T10:04:00Z\", \"write\": \"vote\", \"actor\": \"u3\", \"target\": \"r1\", \"key\": \"helpful\"}, {\"at\": \"2026-11-18T10:05:00Z\", \"write\": \"vote\", \"actor\": \"u3\", \"target\": \"r1\", \"key\": \"helpful\"}, {\"at\": \"2026-11-18T10:06:00Z\", \"write\": \"concern\", \"actor\": \"u3\", \"target\": \"r2\", \"reason\": \"spam\"}, {\"at\": \"2026-11-18T10:07:00Z\", \"write\": \"statement\", \"actor\": \"u4\", \"subject\": \"app-a\", \"score\": 4, \"title\": \"Ok\", \"body\": \"Fine\", \"visibility\": \"bogus\"}]. A rating is a number from 1 to 5, and a visibility is public, private or pending; anything else is refused with what it must be. A response, vote or report needs a statement it points at. A repeated vote by the same actor on the same statement is repeated, not kept again. Each write must give the outcome the intent gives, and the store's own rows must give every expected answer below: the public reviews only, with their responses, helpful votes and reports counted, and the average rating of the public reviews.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answer"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "answer": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each write is kept, repeated or refused as the intent says",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "kept",
+                    "refused",
+                    "kept",
+                    "kept",
+                    "kept",
+                    "repeated",
+                    "kept",
+                    "refused"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "The public reviews, with their counts, and the average rating; a private review is never listed in the public reviews",
+                "path": [
+                  "this",
+                  "answer"
+                ],
+                "values": [
+                  {
+                    "public": [
+                      {
+                        "id": "r1",
+                        "score": 5,
+                        "title": "Great",
+                        "responses": 1,
+                        "helpful": 1,
+                        "reports": 0
+                      }
+                    ],
+                    "average_score": 5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's review write",
+            "do": "Write the review, response, vote or report as given, through the store's own rows, and read it back. Submit outcome (kept, repeated or refused, with the store's words when refused) and the public reviews after the write.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcome"
+              ],
+              "properties": {
+                "outcome": {
+                  "type": "string"
+                },
+                "reason": {
+                  "type": "string"
+                },
+                "public": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "checks": []
+          }
+        ]
+      }
+    }
+  ]
+}

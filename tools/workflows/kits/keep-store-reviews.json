@@ -1,0 +1,90 @@
+{
+  "drafted_from": "tools/package-store-reviews (data/generic-record-contracts.json, do-work/validate-action-input.ts and the projection public-reader)",
+  "start_here": "Say to your AI: \"Run workflow:keep-store-reviews with store {\\\"where\\\": \\\"postgresql database example_me on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-me-postgres-connection\\\"} and write a statement by u1 on app-a: score 5, title \\\"Great\\\", body \\\"Works\\\", visibility public.\" It keeps the review in your own database and lists the public reviews.",
+  "lists": [],
+  "no_lists_because": "It names no list of its own: the reviews are kept in the person's own store, in whatever form that store keeps them, and store says where and in which language.",
+  "workflows": [
+    "workflow:keep-store-reviews"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the reviews are kept and how the store is spoken to.",
+    "2. Say \"Run workflow:keep-store-reviews\" with store and the write: a statement, response, vote or concern.",
+    "3. The first run makes the review rows once and proves the writes on the example reviews: every expected outcome and answer must match, or the run stops and says which.",
+    "4. Every later run keeps the write, refuses a rating outside 1 to 5 or an unknown visibility, and lists the public reviews with their counts."
+  ],
+  "worked_examples": [
+    {
+      "title": "A public review of an app",
+      "ask": "Review app-a: five stars, Great, it works.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-store-reviews",
+              "store": {
+                "where": "postgresql database example_me on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-me-postgres-connection"
+              },
+              "write": {
+                "write": "statement",
+                "actor": "u1",
+                "subject": "app-a",
+                "score": 5,
+                "title": "Great",
+                "body": "Works",
+                "visibility": "public"
+              }
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-store-reviews",
+      "step": "keep",
+      "given": "The look step found no review of app-a from u1; the prove step matched every expected outcome and answer.",
+      "hands_back": "outcome \"kept\" and the public review \"r1\" with score 5 and title \"Great\"."
+    },
+    {
+      "title": "A rating above five is refused",
+      "ask": "Review app-a with nine stars.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-store-reviews",
+              "store": {
+                "where": "postgresql database example_me on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-me-postgres-connection"
+              },
+              "write": {
+                "write": "statement",
+                "actor": "u2",
+                "subject": "app-a",
+                "score": 9,
+                "title": "Too high",
+                "body": "x",
+                "visibility": "public"
+              }
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-store-reviews",
+      "step": "keep",
+      "given": "The rating 9 is outside the range from 1 to 5.",
+      "hands_back": "outcome \"refused\" with the reason \"rating must be from 1 to 5\"; nothing is kept."
+    }
+  ]
+}
