@@ -2,13 +2,15 @@
 //
 // Purpose: The pin an engine installs a commit of a repository by: the BLAKE3 identity of the commit's files, computed here
 // from the publisher's own checkout, never from the host that serves the archive. An engine's tools:update takes
-// {commit, manifest_blake3} (and a launcher entry `first_start_manifest`); it reads the host's archive, records every file's
-// path and BLAKE3, and installs the copy only when the identity of that record is this pin. So the host cannot hand over
-// other files under the commit, and a host that compresses the same files differently still matches (the files are pinned,
-// not the archive's bytes, as Nix pins an unpacked tree).
+// {address, files_blake3} (a launcher's `tool_sources` entry names the same two beside its `label`): the https address of an
+// archive of the commit and this pin. The engine reads the archive at that address, records every file's path and BLAKE3, and
+// installs the copy only when the identity of that record is this pin. So the host cannot hand over other files, the address
+// may be any host's, and a host that compresses the same files differently still matches (the files are pinned, not the
+// archive's bytes, as Nix pins an unpacked tree and Go's go.sum h1: pins a module's files).
 //
-//   node tools/workflows/do-work/pin-a-commit-by-its-files.mjs REPOSITORY COMMIT
-//     prints {"commit", "manifest_blake3", "files"}: the input of tools:update for that commit
+//   node tools/workflows/do-work/pin-a-commit-by-its-files.mjs REPOSITORY COMMIT ADDRESS
+//     ADDRESS is the https address of the commit's archive, where `{commit}` stands for the commit
+//     prints {"address", "files_blake3", "files"}: the input of tools:update for that commit, and `files`, how many it holds
 //
 // The identity is the engine's own (the engine's src/tool_runs/tools/install.rs `manifest_identity`): BLAKE3 of the JSON text
 // of {path: BLAKE3 hex of the file's bytes} for every regular file of the archive, keys in byte order, no spaces. The files
@@ -16,7 +18,7 @@
 // export-ignore are honoured the same way; links are left out, as the engine's unpack leaves them out.
 //
 // Non-Negotiable Invariants:
-// - Only a full commit identity is pinned (a branch or a short name moves; a pin must not).
+// - Only a full commit identity is pinned (a branch or a short name moves; a pin must not), at an https address.
 // - Nothing is written: the archive is read from git's output in memory.
 //
 // AI Assistant Directive:
@@ -62,16 +64,18 @@ export function manifestIdentity(files) {
   return hex(blake3(Buffer.from(text, 'utf8')));
 }
 
-/** The pin of `commit` in `repository`: what tools:update takes. */
-export function pinOf(repository, commit) {
+/** The pin of `commit` in `repository`, served at `address` (`{commit}` stands for the commit): what tools:update takes. */
+export function pinOf(repository, commit, address) {
   if (!/^[a-f0-9]{40}$/.test(commit)) throw new Error('Give the full commit identity (40 hex): a branch or a short name moves.');
+  const at = String(address ?? '').replaceAll('{commit}', commit);
+  if (!/^https:\/\/[^/\s]+\/\S*$/.test(at)) throw new Error('Give the https address of the commit\'s archive, with {commit} where the commit goes.');
   const archive = execFileSync('git', ['-C', repository, 'archive', '--format=tar', commit], { maxBuffer: 1 << 30 });
   const files = tarFiles(archive);
-  return { commit, manifest_blake3: manifestIdentity(files), files: files.length };
+  return { address: at, files_blake3: manifestIdentity(files), files: files.length };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const [repository, commit] = process.argv.slice(2);
-  if (!repository || !commit) { console.error('Give the repository folder and the full commit: node pin-a-commit-by-its-files.mjs REPOSITORY COMMIT'); process.exit(2); }
-  process.stdout.write(`${JSON.stringify(pinOf(repository, commit))}\n`);
+  const [repository, commit, address] = process.argv.slice(2);
+  if (!repository || !commit || !address) { console.error('Give the repository folder, the full commit and the archive address: node pin-a-commit-by-its-files.mjs REPOSITORY COMMIT ADDRESS'); process.exit(2); }
+  process.stdout.write(`${JSON.stringify(pinOf(repository, commit, address))}\n`);
 }

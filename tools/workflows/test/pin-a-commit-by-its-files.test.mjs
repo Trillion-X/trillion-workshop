@@ -1,6 +1,6 @@
 // The pin of a commit is the engine's manifest identity of exactly the files `git archive` holds: long and non-ASCII names
 // read whole, links left out, keys in byte order (a name that looks like a number is not moved first), and only a full
-// commit is pinned.
+// commit at an https address is pinned.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
@@ -28,7 +28,9 @@ test('a commit is pinned by exactly its archived files, in the engine\'s identit
   const entries = Object.entries(files).map(([path, text]) => [path, hex(blake3(Buffer.from(text)))])
     .sort(([a], [b]) => Buffer.compare(Buffer.from(a), Buffer.from(b)));
   const expected = hex(blake3(Buffer.from(`{${entries.map(([path, digest]) => `"${path}":"${digest}"`).join(',')}}`)));
-  assert.deepEqual(pinOf(repository, commit), { commit, manifest_blake3: expected, files: 5 });
-  assert.throws(() => pinOf(repository, commit.slice(0, 9)), /full commit/);
-  assert.throws(() => pinOf(repository, 'main'), /full commit/);
+  const address = 'https://archives.example.com/maker/tools/{commit}.tar.gz';
+  assert.deepEqual(pinOf(repository, commit, address), { address: `https://archives.example.com/maker/tools/${commit}.tar.gz`, files_blake3: expected, files: 5 });
+  assert.throws(() => pinOf(repository, commit.slice(0, 9), address), /full commit/);
+  assert.throws(() => pinOf(repository, 'main', address), /full commit/);
+  for (const bad of [undefined, 'http://archives.example.com/{commit}', 'archives.example.com/{commit}']) assert.throws(() => pinOf(repository, commit, bad), /https address/, bad);
 });
