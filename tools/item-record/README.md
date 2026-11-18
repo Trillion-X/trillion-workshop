@@ -8,13 +8,13 @@ Each file below is the package's own, byte for byte; `moved-from.json` names eac
 
 | File | What it is |
 |---|---|
-| `do-work/create-item-record.ts` | Builds and sends the descriptor-backed create request; accepts pass-through fields |
+| `do-work/create-item-record.ts` | Builds the descriptor-backed create request (target and payload, values out; the caller's host sends it); accepts pass-through fields |
 | `do-work/owner-actions.ts` | Builds workflow owner-action requests from descriptor data |
-| `do-work/read-activity-effects.ts` | A file of the package. |
+| `do-work/read-activity-effects.ts` | Builds the effect-read request (values out) and reads the effect rows from the reply handed in (values in) |
 | `do-work/read-item-record-feed.test.ts.held` | A test of the package, held: imports @bitfield/runtime-kit or @bitfield/slot-protocol (the retired package runtime); needs the records door in its place |
-| `do-work/read-item-record-feed.ts` | Browser read helper for the admitted subject-scoped feed target |
-| `do-work/record-activity-effect.ts` | A file of the package. |
-| `do-work/refresh-item-records.ts` | Triggers the `refresh-item-records` republish action |
+| `do-work/read-item-record-feed.ts` | Builds the subject's feed request (`itemRecordFeedRequest`) and reads rows from the reply handed in (`readItemRecordFeed`, values in) |
+| `do-work/record-activity-effect.ts` | Builds one activity effect request (target and payload, values out) |
+| `do-work/refresh-item-records.ts` | Builds the `refresh-item-records` republish request (values out) |
 | `read-data/read-home-rail.ts` | A file of the package. |
 | `read-data/read-item-records.test.ts` | Unit tests: decodeFeedItem tolerance/legacy rows + splitFeed partition/dedup/sort/categories |
 | `read-data/read-item-records.ts` | Decodes the `item-records` input into FeedItems; exports `splitFeed` for descriptor-role partitioning |

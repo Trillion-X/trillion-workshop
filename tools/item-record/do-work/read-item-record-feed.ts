@@ -1,4 +1,3 @@
-import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
 import { decodeFeedRowsForSubject, type FeedItem } from '../read-data/read-item-records.ts';
 
 export const ITEM_RECORD_FEED_REFRESH_EVENT = 'item-record:changed';
@@ -19,16 +18,21 @@ function decodeReply(reply: unknown): JsonRecord {
   return value;
 }
 
-/** Read current feed rows through the session-admitted browser doorway. */
-export async function readItemRecordFeed(subjectRef: string): Promise<FeedItem[]> {
+/** The request for a subject's feed rows: the caller's host sends it and hands the reply back to readItemRecordFeed. */
+export function itemRecordFeedRequest(subjectRef: string): { target: string; payload: JsonRecord } {
   const subject = typeof subjectRef === 'string' ? subjectRef.trim() : '';
   if (!subject) throw new Error('item feed subject is required');
-  const reply = decodeReply(await sendRequestToBitfieldTarget({
-    target: 'item-record.read-feed-items',
-    payload: { subject_ref: subject, expected_revision: 0 },
-  }));
-  if (reply.status !== 'accepted' || reply.subject_ref !== subject || !Array.isArray(reply.rows)) {
+  return { target: 'item-record.read-feed-items', payload: { subject_ref: subject, expected_revision: 0 } };
+}
+
+/** Feed rows for a subject from the reply the caller's host got for itemRecordFeedRequest; no reply, no rows. */
+export function readItemRecordFeed(subjectRef: string, reply: unknown = null): FeedItem[] {
+  const subject = typeof subjectRef === 'string' ? subjectRef.trim() : '';
+  if (!subject) throw new Error('item feed subject is required');
+  if (reply === null) return [];
+  const decoded = decodeReply(reply);
+  if (decoded.status !== 'accepted' || decoded.subject_ref !== subject || !Array.isArray(decoded.rows)) {
     throw new Error('item feed was not accepted for the requested subject');
   }
-  return decodeFeedRowsForSubject(reply.rows, subject);
+  return decodeFeedRowsForSubject(decoded.rows, subject);
 }

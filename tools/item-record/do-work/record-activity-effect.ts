@@ -9,8 +9,6 @@
 // Effects are points-source facts only: failure to record one never blocks
 // the user action that produced it, so callers fire-and-forget.
 
-import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
-
 const RECORD_EFFECT_ACTION = 'action:signed-event-effects.record-signed-event-effect';
 
 export interface ActivityEffectRequest {
@@ -26,10 +24,10 @@ export interface ActivityEffectRequest {
   createdAt: string;
 }
 
-export async function recordActivityEffect(request: ActivityEffectRequest): Promise<unknown> {
+export async function recordActivityEffect(request: ActivityEffectRequest): Promise<{ target: string; payload: unknown }> {
   // Observability: [signed-events] effect actor=<a> kind=<k>
   console.log(`[signed-events] effect actor=${request.actorRef} kind=${request.kind}`);
-  return sendRequestToBitfieldTarget({
+  return {
     target: 'slot::workflow',
     payload: {
       operation: 'execute_definition',
@@ -46,5 +44,5 @@ export async function recordActivityEffect(request: ActivityEffectRequest): Prom
         proof: {},
       },
     },
-  });
+  };
 }
