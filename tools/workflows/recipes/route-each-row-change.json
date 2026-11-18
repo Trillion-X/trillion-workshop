@@ -13,7 +13,7 @@
           "properties": {
             "fact": {
               "type": "object",
-              "description": "The row-changes fact that woke this run: where, table_name, op, at, key, and before and after as JSON text when they fit"
+              "description": "The something-changed fact that woke this run: where, place (what changed, in the store's own name), change (added, changed or removed), at, key, and before and after as JSON text when they fit"
             }
           }
         },
@@ -59,18 +59,18 @@
                           "path": "fact.where"
                         }
                       },
-                      "table_name": {
+                      "place": {
                         "$kind": "binding",
                         "select": {
                           "from": "input",
-                          "path": "fact.table_name"
+                          "path": "fact.place"
                         }
                       },
-                      "op": {
+                      "change": {
                         "$kind": "binding",
                         "select": {
                           "from": "input",
-                          "path": "fact.op"
+                          "path": "fact.change"
                         }
                       },
                       "before": {

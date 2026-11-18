@@ -101,13 +101,13 @@ test('a broad condition the trunk reports is written as a row the rewrite workfl
   assert.deepEqual(recipeProblems(rewrite), []);
   // The rewrite follows an added broad_condition row through its own condition (route-each-row-change tells it), and starts
   // with the input that condition names.
-  const condition = rewrite.fires_when.find(item => item.condition.fields.some(field => field.id === 'table_name'));
+  const condition = rewrite.fires_when.find(item => item.condition.fields.some(field => field.id === 'place'));
   const valuesOf = id => condition.condition.tree.rules.find(rule => rule.field === id).params.values;
   const choose = trunk.steps.find(step => step.id === 'choose-branches').do;
   // The trunk writes rows of the kind whose table the condition follows (the kind with - as _), and the arrival source the
   // condition starts it with.
-  assert.deepEqual([valuesOf('table_name'), valuesOf('op')], [['broad_condition'], ['INSERT']]);
-  assert.match(choose, new RegExp(`type record:${valuesOf('table_name')[0].replaceAll('_', '-')}\\b`));
+  assert.deepEqual([valuesOf('place'), valuesOf('change')], [['broad_condition'], ['added']]);
+  assert.match(choose, new RegExp(`type record:${valuesOf('place')[0].replaceAll('_', '-')}\\b`));
   assert.ok(choose.includes(condition.input.arrival_source), 'choose-branches writes the arrival source the condition names');
   assert.equal(condition.input.start_at, rewrite.steps[0].id);
   // The source row choose-branches writes keeps a Waiting row and drops a Done one, so marking a row Done starts nothing.

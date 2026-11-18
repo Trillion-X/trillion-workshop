@@ -13,7 +13,7 @@
           "properties": {
             "fact": {
               "type": "object",
-              "description": "The workflow-chosen fact that woke this run: where (the vault name of the store), table_name (what changed, in the store's own name), op, key, and after: the drawn case as JSON text"
+              "description": "The workflow-chosen fact that woke this run: where (the vault name of the store), place (what changed, in the store's own name), change, key, and after: the drawn case as JSON text"
             }
           }
         },
@@ -31,10 +31,10 @@
                   ]
                 },
                 {
-                  "id": "op",
+                  "id": "change",
                   "kind": "choice",
                   "path": [
-                    "op"
+                    "change"
                   ]
                 }
               ],
@@ -50,11 +50,10 @@
                   },
                   {
                     "kind": "rule",
-                    "field": "op",
+                    "field": "change",
                     "operator": "is_any_of",
                     "params": {
                       "values": [
-                        "INSERT",
                         "added"
                       ]
                     }

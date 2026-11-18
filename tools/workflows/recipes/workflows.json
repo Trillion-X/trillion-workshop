@@ -60313,17 +60313,17 @@
             "condition": {
               "fields": [
                 {
-                  "id": "table_name",
+                  "id": "place",
                   "kind": "choice",
                   "path": [
-                    "table_name"
+                    "place"
                   ]
                 },
                 {
-                  "id": "op",
+                  "id": "change",
                   "kind": "choice",
                   "path": [
-                    "op"
+                    "change"
                   ]
                 }
               ],
@@ -60334,7 +60334,7 @@
                 "rules": [
                   {
                     "kind": "rule",
-                    "field": "table_name",
+                    "field": "place",
                     "operator": "is_any_of",
                     "params": {
                       "values": [
@@ -60344,11 +60344,11 @@
                   },
                   {
                     "kind": "rule",
-                    "field": "op",
+                    "field": "change",
                     "operator": "is_any_of",
                     "params": {
                       "values": [
-                        "INSERT"
+                        "added"
                       ]
                     }
                   }
@@ -111115,17 +111115,17 @@
             "condition": {
               "fields": [
                 {
-                  "id": "table_name",
+                  "id": "place",
                   "kind": "choice",
                   "path": [
-                    "table_name"
+                    "place"
                   ]
                 },
                 {
-                  "id": "op",
+                  "id": "change",
                   "kind": "choice",
                   "path": [
-                    "op"
+                    "change"
                   ]
                 }
               ],
@@ -111136,7 +111136,7 @@
                 "rules": [
                   {
                     "kind": "rule",
-                    "field": "table_name",
+                    "field": "place",
                     "operator": "is_any_of",
                     "params": {
                       "values": [
@@ -111146,11 +111146,11 @@
                   },
                   {
                     "kind": "rule",
-                    "field": "op",
+                    "field": "change",
                     "operator": "is_any_of",
                     "params": {
                       "values": [
-                        "INSERT"
+                        "added"
                       ]
                     }
                   }
@@ -137251,17 +137251,17 @@
             "condition": {
               "fields": [
                 {
-                  "id": "table_name",
+                  "id": "place",
                   "kind": "choice",
                   "path": [
-                    "table_name"
+                    "place"
                   ]
                 },
                 {
-                  "id": "op",
+                  "id": "change",
                   "kind": "choice",
                   "path": [
-                    "op"
+                    "change"
                   ]
                 }
               ],
@@ -137272,7 +137272,7 @@
                 "rules": [
                   {
                     "kind": "rule",
-                    "field": "table_name",
+                    "field": "place",
                     "operator": "is_any_of",
                     "params": {
                       "values": [
@@ -137282,11 +137282,11 @@
                   },
                   {
                     "kind": "rule",
-                    "field": "op",
+                    "field": "change",
                     "operator": "is_any_of",
                     "params": {
                       "values": [
-                        "INSERT"
+                        "added"
                       ]
                     }
                   }
