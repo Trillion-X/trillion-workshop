@@ -93,6 +93,8 @@ printf '%s' "$RUNS" | jq -r '[.units[] | .node_bin // empty] | unique[]' | while
   rm -f "$download"
 done
 printf '%s' "$RUNS" | jq -r '.units[] | [.user, (.state // ""), (.builds // ""), (.key_file // "")] | @tsv' | while IFS="$(printf '\t')" read -r user state builds key; do
+  # A unit that runs as an account the machine already has (root, say) and names no state of its own needs nothing made here.
+  if [ -z "$state" ] && id -u "$user" >/dev/null 2>&1; then continue; fi
   [ -n "$state" ] || { echo "Unit user $user needs state in the computer row." >&2; exit 2; }
   id -u "$user" >/dev/null 2>&1 || useradd --system --home-dir "$state" --create-home --shell /usr/sbin/nologin "$user"
   install -d -o "$user" -g "$user" -m 0700 "$state"
