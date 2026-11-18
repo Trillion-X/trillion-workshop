@@ -1,13 +1,13 @@
 // tools/workflows/read-data/choose-the-workflows-that-fire.mjs
 //
 // Every workflow is a candidate branch of the one tree. Each says when it fires on its own row (branches/fires-when.json):
-// a list of conditions, each the {fields, tree} tool:filter-rows-by-rules takes, evaluated over one seed part. This reads
-// every workflow the person has (their table of workflows, the name in arrivals/recipe-row-types.json) and
+// a list of conditions, each the {fields, tree} tool:filter-rows-by-rules takes, evaluated over one seed part. This takes
+// the person's own workflow rows as values (`own`, read by the caller from wherever the person keeps them) beside
 // every recipe this Workshop installs (recipes/), the person's own row winning, and lets the formulas engine say which
 // conditions keep which parts. Nothing here names a workflow, a branch or a tag: a workflow added, or a kit installed,
 // is a candidate at once.
 //
-//   chooseTheWorkflowsThatFire({ parts, operators?, within? }, { sql })
+//   chooseTheWorkflowsThatFire({ parts, own?: [{ id, value: { recipe?, title, fires_when } }], operators?, within? })
 //     -> { workflows, own, catalog_only, chosen: [{ workflow, label, part, condition, made_by, from }],
 //          unfinished: [{ workflow, condition, incomplete }], unconditioned: [{ workflow, label }], unmatched_parts,
 //          within: [{ workflow, part, condition }] }
@@ -20,13 +20,9 @@
 // last two are named so the run can fix them. A workflow with no condition is named in unconditioned, so the run can
 // judge it by its words and write the condition it judged back onto the workflow's row.
 
-import { readFileSync } from 'node:fs';
 import { filterRecords } from '../../formulas/do-work/requests.mjs';
 import { conditionProblems, FIRES_WHEN } from './fires-when.mjs';
 import { publicRecipes } from './public-recipes.mjs';
-import { identifier } from './sql.mjs';
-
-const TABLES = JSON.parse(readFileSync(new URL('../arrivals/recipe-row-types.json', import.meta.url), 'utf8'));
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const parsed = (value, where) => {
@@ -44,10 +40,11 @@ function catalogRecipes() {
   return byId;
 }
 
-// The person's own workflow rows, by recipe id.
-async function ownWorkflows(sql) {
+// The person's own workflow rows, as given, by recipe id.
+function ownWorkflows(rows = []) {
+  if (!Array.isArray(rows) || !rows.every(row => object(row) && typeof row.id === 'string')) throw new Error('own must be a list of the person\'s workflow rows, each { id, value }.');
   const byId = new Map();
-  for (const row of await sql(`select id, value from ${identifier(TABLES.recipe.table)} order by id`)) {
+  for (const row of [...rows].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))) {
     const value = row.value ?? {};
     const id = typeof value.recipe === 'string' && value.recipe ? value.recipe : `workflow:${row.id}`;
     byId.set(id, { label: value.title, conditions: parsed(value[FIRES_WHEN.field], `${row.id} ${FIRES_WHEN.field}`) });
@@ -88,12 +85,12 @@ function metKeys(condition, part, operators) {
   return met;
 }
 
-export async function chooseTheWorkflowsThatFire(input = {}, { sql }) {
-  const { parts, operators, within = [] } = input;
+export async function chooseTheWorkflowsThatFire(input = {}) {
+  const { parts, own: ownRows = [], operators, within = [] } = input;
   if (!Array.isArray(within) || !within.every(id => typeof id === 'string')) throw new Error('within must be a list of workflow ids.');
   if (!Array.isArray(parts) || !parts.length || !parts.every(object)) throw new Error('parts must be a list of the seed\'s parts, each an object of its typed fields.');
   const catalog = catalogRecipes();
-  const own = await ownWorkflows(sql);
+  const own = ownWorkflows(ownRows);
   const ids = [...new Set([...own.keys(), ...catalog.keys()])].sort();
   const matches = [], unfinished = [], unconditioned = [];
   // How many workflows hold each rule key, over every live condition: the rarer a key, the more a match on it says.

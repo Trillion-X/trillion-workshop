@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:7d34c0053d15627813d886697c6685cf1eec2b9f6a49ad4e23e8ff56b1df234e"
+  "blake3": "1f:d71a594791ae2cf69f9d6c81efd32bd1bb7fddbceb1150b5cfbb2c701f59de1f"
  },
  "fields": [
   {
@@ -2515,7 +2515,7 @@
    "values": {
     "title": "Choose which of my workflows fire for these parts of a seed",
     "job": "Say which of all my workflows, and the Workshop's I have installed, fire for each part of something that arrived, from the conditions each workflow carries on its own row",
-    "description": "Every workflow is a candidate branch of the one tree. Takes parts: the parts of one seed, each an object of its typed fields (for example kinds, subjects, people, niches, own_words; the fields are whatever the conditions read). Reads every workflow row the person has (their table of workflows, the name in arrivals/recipe-row-types.json) and every recipe this Workshop installs; when both hold an id the person's row wins, and when it holds no conditions the installed recipe's are used. Each workflow's conditions are its fires_when (branches/fires-when.json): a list of { label, condition: { fields, tree }, made_by, state }, the same fields and tree tool:filter-rows-by-rules takes, evaluated by the same formulas engine over the parts. Answers chosen (one row per workflow, part and condition that kept it, ranked within each part by specificity: score is the sum over the tags or rules the part met of log(workflows with a condition / workflows holding that tag), times the condition's measured weight, rank 1 best), broad (conditions that kept more than half of the parts, to be rewritten), unfinished (conditions with a rule the engine cannot evaluate or no rule at all, which choose nothing), unconditioned (workflows with no condition On, by id and label, to be judged by their words), unmatched_parts and the counts. Nothing is written; no workflow, branch or tag is named in the tool.",
+    "description": "Every workflow is a candidate branch of the one tree. Takes parts: the parts of one seed, each an object of its typed fields (for example kinds, subjects, people, niches, own_words; the fields are whatever the conditions read). Is given the person's own workflow rows as values (own), read by the caller from wherever the person keeps them, beside every recipe this Workshop installs; it reaches no database; when both hold an id the person's row wins, and when it holds no conditions the installed recipe's are used. Each workflow's conditions are its fires_when (branches/fires-when.json): a list of { label, condition: { fields, tree }, made_by, state }, the same fields and tree tool:filter-rows-by-rules takes, evaluated by the same formulas engine over the parts. Answers chosen (one row per workflow, part and condition that kept it, ranked within each part by specificity: score is the sum over the tags or rules the part met of log(workflows with a condition / workflows holding that tag), times the condition's measured weight, rank 1 best), broad (conditions that kept more than half of the parts, to be rewritten), unfinished (conditions with a rule the engine cannot evaluate or no rule at all, which choose nothing), unconditioned (workflows with no condition On, by id and label, to be judged by their words), unmatched_parts and the counts. Nothing is written; no workflow, branch or tag is named in the tool.",
     "status": "active",
     "maker": "maker:workflows",
     "licence_class": "licence:maker-own",
@@ -3349,7 +3349,7 @@
    "values": {
     "title": "End shares whose condition failed",
     "job": "End the shares I let people run my tools by, once the end I gave each has passed, so none stays open past its time",
-    "description": "Reads each condition row of kind grant-end that tool:share-anything kept for a run share: every run share is given one that ends it after 90 days with no use (each use starts the days again), and your own until is its fixed end. For each row whose end has passed by this run's clock (or now, an ISO time to decide at) it withdraws that share at your door, removes the row and keeps a grant-ended record saying why, for the Connections page. The engine keeps no end and reads none: it admits a person while their share is kept, so a share ends when this withdraws it. A row with no readable end is left alone and counted as waiting; a share the engine lists with no last use is judged by its fixed end alone and counted as unjudged. Edit or remove a grant-end row and it stays so. Switch its wake on (wake:switch) and it runs about every 22 hours (a hundredth of the 90 days); run it once by hand and it does the same.",
+    "description": "Lists every share that lets people run your tools, with the end rule you gave it (if any) and when it was last used, through your door's own share list, and withdraws each whose rule says it has ended: until, a time that has passed, or unused_days, that many days with no use counted from the later of when you set the rule and its last use (each use starts the days again). A share with no rule never ends here; it stands until you stop it. The engine keeps your rule beside the share and reads none of it: it admits a person while their share is kept, so a share ends when this withdraws it. A rule it cannot read is left alone and counted as waiting; a share the engine lists with no last use is judged by its until alone and counted as unjudged. Change a rule with tool:share-anything op end and the next run acts on it. Switch its wake on (wake:switch) and it runs every hour, the grain the engine writes a last use at; run it once by hand and it does the same.",
     "status": "active",
     "maker": "maker:share-anything",
     "licence_class": "licence:maker-own",
@@ -3451,6 +3451,22 @@
      "placement:small-container"
     ],
     "folder": "train-and-evaluate-a-writing-voice-classifier"
+   }
+  },
+  {
+   "id": "tool:evaluate-rules-over-records",
+   "values": {
+    "title": "Check rules against changed records (trigger engine)",
+    "job": "Trigger engine: when something happens to a record (it is added, changed or removed) and a rule's condition holds, say what the rule sends, and to which tool, workflow or target, for every matching rule",
+    "description": "Give rules (each with a match_condition over the changed record, read as change.<field> and envelope.address_text, and a dispatch: target plus output_template) and the records that changed ({address, path?, value} or {address, removed: true}). Returns fires: every send the rules made, with its target and the payload filled from the record, plus the engine's outcome records and any failures. Rules only see changes given after them, so a rule never fires for the past. Nothing is sent; the caller runs each fire.",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-09-28T17:54:38Z",
+    "folder": "run-my-rules-over-the-records-that-changed-and-send"
    }
   },
   {
@@ -5546,6 +5562,21 @@
    }
   },
   {
+   "id": "tool:keep-my-account-in-your-instructions",
+   "values": {
+    "title": "Keep Trillion's standing instructions in my AI's own instruction file (runs on your computer)",
+    "job": "Put, check or take out Trillion's standing instructions as one marked block in my AI harness's own global instruction file, leaving every other line of it as it was",
+    "description": "Reads, writes or removes one marked block in a harness's own global instruction file (Claude Code's CLAUDE.md, Codex's AGENTS.md, Gemini CLI's GEMINI.md; where each is, and its home variable, is a row of read-data/harness-instruction-files.json). inspect answers absent, present, outdated or blocked (markers that are not one start followed by one end) and writes nothing; apply writes or replaces only the block and twice changes nothing; remove takes out only the block. Every byte outside the block is kept, a symbolic link is written through to its target, and the file keeps its mode. A hosted app with no file is answered with the control it has, never written. `text` is the current words; without it the copy in read-data/standing-instructions.json is used.",
+    "status": "active",
+    "maker": "maker:tell-ais-how-to-act",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "tell-ais-how-to-act"
+   }
+  },
+  {
    "id": "tool:keep-public-posts-by-link",
    "values": {
     "title": "Keep public posts by link",
@@ -5603,21 +5634,6 @@
      "placement:small-container"
     ],
     "folder": "gather-words-from-people"
-   }
-  },
-  {
-   "id": "tool:keep-my-account-in-your-instructions",
-   "values": {
-    "title": "Keep Trillion's standing instructions in my AI's own instruction file (runs on your computer)",
-    "job": "Put, check or take out Trillion's standing instructions as one marked block in my AI harness's own global instruction file, leaving every other line of it as it was",
-    "description": "Reads, writes or removes one marked block in a harness's own global instruction file (Claude Code's CLAUDE.md, Codex's AGENTS.md, Gemini CLI's GEMINI.md; where each is, and its home variable, is a row of read-data/harness-instruction-files.json). inspect answers absent, present, outdated or blocked (markers that are not one start followed by one end) and writes nothing; apply writes or replaces only the block and twice changes nothing; remove takes out only the block. Every byte outside the block is kept, a symbolic link is written through to its target, and the file keeps its mode. A hosted app with no file is answered with the control it has, never written. `text` is the current words; without it the copy in read-data/standing-instructions.json is used.",
-    "status": "active",
-    "maker": "maker:tell-ais-how-to-act",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "tell-ais-how-to-act"
    }
   },
   {
@@ -7402,6 +7418,86 @@
    }
   },
   {
+   "id": "tool:media-eject",
+   "values": {
+    "title": "Eject a drive",
+    "job": "Eject one drive connected to this person's computer safely, so it can be unplugged",
+    "description": "Runs on the person's computer. check true only names anything still using the drive and ejects nothing.",
+    "status": "active",
+    "maker": "maker:work-on-connected-drives",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-09-30T23:55:41Z",
+    "folder": "work-on-connected-drives"
+   }
+  },
+  {
+   "id": "tool:media-file-places",
+   "values": {
+    "title": "Where else a file is",
+    "job": "Find every other place one file on this person's computer also is (a duplicate): on their other connected drives and in their Trillion space",
+    "description": "Runs on the person's computer. path is the file on a connected drive.",
+    "status": "active",
+    "maker": "maker:work-on-connected-drives",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-09-30T23:55:41Z",
+    "folder": "work-on-connected-drives"
+   }
+  },
+  {
+   "id": "tool:media-transfer",
+   "values": {
+    "title": "Copy or move files between drives",
+    "job": "Copy or move files and folders to one or more folders on drives connected to this person's computer, as a long job that can be paused and stopped",
+    "description": "Runs on the person's computer. sources are full paths; destinations are folders on connected drives; mode is copy or move. check true previews what would be copied and changes nothing.",
+    "status": "active",
+    "maker": "maker:work-on-connected-drives",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-09-30T23:55:41Z",
+    "folder": "work-on-connected-drives"
+   }
+  },
+  {
+   "id": "tool:media-work",
+   "values": {
+    "title": "Drive work in progress",
+    "job": "List the long file jobs running on this person's computer drives (copies and moves): how far each has got, and whether it can be paused, resumed or stopped now",
+    "description": "Runs on the person's computer. Returns work: each job with its id, what it is doing and the controls it takes now.",
+    "status": "active",
+    "maker": "maker:work-on-connected-drives",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-09-30T23:55:41Z",
+    "folder": "work-on-connected-drives"
+   }
+  },
+  {
+   "id": "tool:media-work-control",
+   "values": {
+    "title": "Pause, resume or stop drive work",
+    "job": "Pause, resume or stop one long file job on this person's computer drives (a copy or a move), optionally resuming it at a chosen time",
+    "description": "Runs on the person's computer. id is the job from tool:media-work; action is one of the controls it lists; check true only says whether that control is ready.",
+    "status": "active",
+    "maker": "maker:work-on-connected-drives",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-09-30T23:55:41Z",
+    "folder": "work-on-connected-drives"
+   }
+  },
+  {
    "id": "tool:merge-a-streamed-answer",
    "values": {
     "title": "Merge a streamed answer's parts",
@@ -7734,6 +7830,21 @@
      "placement:small-container"
     ],
     "folder": "notice-what-needs-attention"
+   }
+  },
+  {
+   "id": "tool:notice-when-something-shows-up",
+   "values": {
+    "title": "Notice when something shows up, and tell the engine",
+    "job": "Keep watching for things outside (a stretch of time passing, a drive attached or removed, files someone finished putting in a place, a delivery over the network) and tell the person's engine one fact each time, so any tool whose wake hears that kind of fact starts",
+    "description": "Give waiters: the standing orders the noticer keeps (notice-when-something-shows-up.waiter-descriptor rows, each naming one mechanism in do-work/mechanisms, its settings and the kind of fact it emits). It runs as a kept-open program: while its wake is on, each waiter waits, and each time something shows up or goes away it tells the engine one fact at wake:arrive, of the waiter's kind, with the change's fields as text. A tool hears it by declaring a wake {fact: {kind, from: [\"run\"], match}}. This row may tell only the kinds its rights name. Each fact told or refused is one line of the program's output. Given for_seconds, it watches that long and answers {told, refused}.",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-18T06:30:00Z",
+    "folder": "notice-when-something-shows-up"
    }
   },
   {
@@ -8397,6 +8508,22 @@
      "placement:small-container"
     ],
     "folder": "plan-my-time"
+   }
+  },
+  {
+   "id": "tool:plan-recurring-windows",
+   "values": {
+    "title": "Plan future recurrence windows",
+    "job": "Enumerate a bounded set of future recurrence slots from generic schedule data, including local-time daylight-saving policies and explicit coverage.",
+    "description": "Give an explicit replay-stable now, recurring schedules, and max_occurrences_per_schedule. Returns future_occurrences in start order, rejected_schedules, skipped_resolutions, and per-schedule coverage showing count and calendar-scan limits. Recurrence is open-ended; a bounded plan never claims the schedule itself is exhausted. This is a pure plan: it writes no occurrence state, creates no materialization intents, and runs no action.",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-10-14T00:00:00Z",
+    "folder": "run-work-later-or-on-a-repeat"
    }
   },
   {
@@ -9478,8 +9605,8 @@
    "id": "tool:read-answer-progress",
    "values": {
     "title": "Answers over time",
-    "job": "Show one person's answers to a form across every time they answered, in order, and the trend of one numeric answer, from the answer facts it is given",
-    "description": "Give form_id, respondent_id, field_map (the name you want for each answer, to its questionId) and records (the answer-fact records, as a store lists them), and optionally trend_field (which mapped answer to chart; default the first that is numeric). Returns one row per time answered, oldest first, with the mapped answers and when; the numeric series for the trend; the latest row; and the count. A person who has not answered gets no rows.",
+    "job": "Show one person's answers to a form across every time they answered, in order, and the trend of one numeric answer, from the answer facts in the database",
+    "description": "Give form_id, respondent_id and field_map (the name you want for each answer, to its questionId), and optionally trend_field (which mapped answer to chart; default the first that is numeric). The answer facts are read from the table answer_fact. Returns one row per time answered, oldest first, with the mapped answers and when; the numeric series for the trend; the latest row; and the count. A person who has not answered gets no rows.",
     "status": "active",
     "maker": "maker:ask-questions-sort-answers-follow-up",
     "licence_class": "licence:maker-own",
@@ -9605,8 +9732,8 @@
    "id": "tool:read-form-results",
    "values": {
     "title": "Form results",
-    "job": "Show who answered a form, the score each earned and the segment each was sorted into, with a count per segment, from the segment assignments it is given",
-    "description": "Give records (the segment-assignment records, as a store lists them) and optionally a form_id to see one form, or nothing to see every form in them. Returns rows (respondentId, formId, segmentId, score, decidedAt), newest decision first, and a summary with the total and a count per segment. No assignments gives an empty list, never an invented one.",
+    "job": "Show who answered a form, the score each earned and the segment each was sorted into, with a count per segment, from the segment assignments in the database",
+    "description": "Give optionally a form_id to see one form, or nothing to see every form in the table segment_assignment. Returns rows (respondentId, formId, segmentId, score, decidedAt), newest decision first, and a summary with the total and a count per segment. No assignments gives an empty list, never an invented one.",
     "status": "active",
     "maker": "maker:ask-questions-sort-answers-follow-up",
     "licence_class": "licence:maker-own",
@@ -9686,8 +9813,8 @@
    "id": "tool:read-latest-answers-as-lines",
    "values": {
     "title": "Latest answers as lines",
-    "job": "Give the latest answers to a form as plain lines, each starting with the question it answers, ready to hand to a writer or a summary, from the records it is given",
-    "description": "Give form_id, records (the form's question-sequence record and its answer-fact records, as a store lists them) and optionally respondent_id. Returns lines: the most recent time the form was answered, one \"Question: answer\" line per non-empty answer (the bare answer when the question's label is not known).",
+    "job": "Give the latest answers to a form as plain lines, each starting with the question it answers, ready to hand to a writer or a summary, from the database",
+    "description": "Give form_id and optionally respondent_id. The form is read from the table question_sequence and its answers from answer_fact. Returns lines: the most recent time the form was answered, one \"Question: answer\" line per non-empty answer (the bare answer when the question's label is not known).",
     "status": "active",
     "maker": "maker:ask-questions-sort-answers-follow-up",
     "licence_class": "licence:maker-own",
@@ -10707,6 +10834,21 @@
    }
   },
   {
+   "id": "tool:register-my-account-in-my-ai-apps",
+   "values": {
+    "title": "Put Trillion in my AI apps' MCP settings, or take it out (runs on your computer)",
+    "job": "Add Trillion's MCP server entry to the config file of each AI app I name, preview exactly what changes first, or take the entry out again",
+    "description": "mcp-inspect answers what each named app has now (absent, registered, outdated, custom, blocked or not_installed). mcp-preview writes nothing and answers each file's exact before/after lines and a review_hash of the whole plan; mcp-register with --reviewed <hash> refuses every write when the plan changed meanwhile. An entry under the same name that matches none of Trillion's signatures is the person's own and is never changed or removed; every other key in the file is kept. An app not on this computer is answered not_installed and nothing is created for it. Writes are locked, backed up beside the file, refused for a symbolic link or a file changed meanwhile, and read back. The address is https, or http at the literal loopback host only. An entry is not a signed-in connection: each result names the sign-in still to do in that app. Each app's file, format and entry is a row of read-data/mcp-registration.json.",
+    "status": "active",
+    "maker": "maker:register-my-account-in-my-ai-apps",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "register-my-account-in-my-ai-apps"
+   }
+  },
+  {
    "id": "tool:register-my-live-activity",
    "values": {
     "title": "Register or end my Live Activity",
@@ -10736,21 +10878,6 @@
     ],
     "listed_on": "2026-10-31T00:00:00Z",
     "folder": "notifications"
-   }
-  },
-  {
-   "id": "tool:register-my-account-in-my-ai-apps",
-   "values": {
-    "title": "Put Trillion in my AI apps' MCP settings, or take it out (runs on your computer)",
-    "job": "Add Trillion's MCP server entry to the config file of each AI app I name, preview exactly what changes first, or take the entry out again",
-    "description": "mcp-inspect answers what each named app has now (absent, registered, outdated, custom, blocked or not_installed). mcp-preview writes nothing and answers each file's exact before/after lines and a review_hash of the whole plan; mcp-register with --reviewed <hash> refuses every write when the plan changed meanwhile. An entry under the same name that matches none of Trillion's signatures is the person's own and is never changed or removed; every other key in the file is kept. An app not on this computer is answered not_installed and nothing is created for it. Writes are locked, backed up beside the file, refused for a symbolic link or a file changed meanwhile, and read back. The address is https, or http at the literal loopback host only. An entry is not a signed-in connection: each result names the sign-in still to do in that app. Each app's file, format and entry is a row of read-data/mcp-registration.json.",
-    "status": "active",
-    "maker": "maker:register-my-account-in-my-ai-apps",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "register-my-account-in-my-ai-apps"
    }
   },
   {
@@ -11456,6 +11583,21 @@
    }
   },
   {
+   "id": "tool:run-workflow-definition",
+   "values": {
+    "title": "Run a workflow definition (workflow engine)",
+    "job": "Workflow engine: run a workflow definition of steps (asks, branches, loops, parallel steps, checks) with an input, using the answers known so far, and say where it finished or which steps are waiting for an answer",
+    "description": "Give definitions (workflow-core definitions: id, name, kind \"workflow\", is_active, version, steps [{id, kind, config}], edges [{from, to, kind}]), the workflow_id to run, its input and answers keyed by step id (an ask's config.context.step_id) or ask name. Returns the run (status completed, failed or paused, each step's output) and waiting: the asks with no answer yet, each with the input the engine gave it. Call again with those answers added and the run goes on from there. Or give a recipe (or the person's record:workflow-recipe row with its record:workflow-step rows) instead of definitions: it becomes one definition, each step an ask (named \"ai\", or the tool a step runs) followed by a check step holding the step's checks, and a recipe holding its own definition runs as that definition. A check fails the run with the engine's own words, naming the value. A listed workflow row (source:workflow-recipes) runs as this tool: given its id as row, the shipped recipe runs, the row's other fields (a wake's input) are the run's input, start_at there is the step the run starts at, and the answer carries the recipe's kit. Nothing is kept: the caller keeps the answers and calls again.",
+    "status": "active",
+    "maker": "maker:write-a-job-done-in-several-steps-have",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "write-a-job-done-in-several-steps-have"
+   }
+  },
+  {
    "id": "tool:sample-shots-and-frames-from-my-format-library",
    "values": {
     "title": "Sample shots and their frames from my format library (runs on your computer)",
@@ -11474,8 +11616,8 @@
    "id": "tool:save-a-form",
    "values": {
     "title": "Make a form record",
-    "job": "Check a form, a list of questions people answer, and give it as one record the person's AI can keep in a store, so it can be asked and its answers checked",
-    "description": "Give a form_id, an optional title and presentation, and the questions. Each question needs a questionId and a questionTypeId (a row in the question-type list: text, long text, number, rating, choice, a reference to a file) and may carry a label, required, options, its own validation rules laid over its type's, and an afterSaved hand-off naming an owner and an action. Returns the form as one question-sequence record ({ id, type, value }) and how many questions it holds. Nothing is kept: write the record to a store to keep it; the same form_id gives the same record id.",
+    "job": "Check a form, a list of questions people answer, and keep it in the person's own database, so it can be asked and its answers checked",
+    "description": "Give a form_id, an optional title and presentation, and the questions. Each question needs a questionId and a questionTypeId (a row in the question-type list: text, long text, number, rating, choice, a reference to a file) and may carry a label, required, options, its own validation rules laid over its type's, and an afterSaved hand-off naming an owner and an action. The form is kept as one row of the table question_sequence (the same form_id replaces the same row) and answered with how many questions it holds.",
     "status": "active",
     "maker": "maker:ask-questions-sort-answers-follow-up",
     "licence_class": "licence:maker-own",
@@ -12633,6 +12775,21 @@
    }
   },
   {
+   "id": "tool:set-up-account-hooks-in-an-ai-app-on-this-computer",
+   "values": {
+    "title": "Set up Trillion's hooks in an AI app on this computer",
+    "job": "Read, add or take out the hooks that keep an AI app's sessions on this computer as the person's records (Claude Code or Codex)",
+    "description": "Runs harness/setup.mjs with --action inspect, apply or remove for one AI app on this computer (claude-code or codex). inspect writes nothing and answers a report: status, ready, checks (each with id, status and reason), changes it would make and boundaries (what this installer never does: write an MCP entry, open a browser, grant notification permission). apply writes the hooks named in harness/setup.json into that app's own settings, keeping the person's existing settings and permission choices; remove takes them out again. The full hook suite needs the Trillion Mac app and macOS Keychain: on another platform the platform check answers unsupported and nothing is written. Exit 0 means ready, 2 means not ready (the checks say why), 1 means the request was wrong (standard error says what to change).",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "keep-and-wake-ai-sessions-on-this-computer"
+   }
+  },
+  {
    "id": "tool:set-up-someone-i-pay-in-stripe",
    "values": {
     "title": "Set up someone I pay in Stripe",
@@ -12660,21 +12817,6 @@
      "placement:your-computer"
     ],
     "folder": "take-payments"
-   }
-  },
-  {
-   "id": "tool:set-up-account-hooks-in-an-ai-app-on-this-computer",
-   "values": {
-    "title": "Set up Trillion's hooks in an AI app on this computer",
-    "job": "Read, add or take out the hooks that keep an AI app's sessions on this computer as the person's records (Claude Code or Codex)",
-    "description": "Runs harness/setup.mjs with --action inspect, apply or remove for one AI app on this computer (claude-code or codex). inspect writes nothing and answers a report: status, ready, checks (each with id, status and reason), changes it would make and boundaries (what this installer never does: write an MCP entry, open a browser, grant notification permission). apply writes the hooks named in harness/setup.json into that app's own settings, keeping the person's existing settings and permission choices; remove takes them out again. The full hook suite needs the Trillion Mac app and macOS Keychain: on another platform the platform check answers unsupported and nothing is written. Exit 0 means ready, 2 means not ready (the checks say why), 1 means the request was wrong (standard error says what to change).",
-    "status": "active",
-    "maker": "maker:trillion",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "keep-and-wake-ai-sessions-on-this-computer"
    }
   },
   {
@@ -12791,7 +12933,7 @@
    "values": {
     "title": "Share anything",
     "job": "Share anything of mine read-only, from one record or one piece of text to a whole list or any mix of records, with a person, an AI or anyone holding a link, or let named people and AIs run some of my tools at my door with no copy on their computer; show who has access; and stop it",
-    "description": "op share (the default job): give grant (sharing: plus the thing's label; read-data/share-label.mjs grantOf makes it, and the answer of any earlier call names it), thing (one of { type, id }, { list } for a list and all its rows, { text, title? } for a piece of text, or { items: [{ type, id? | prefix? }], title } for any mix) and who: with (a list of names of people or AIs, each given a key of its own) and/or link: true (one key anyone can hold). Optional until (a future ISO time the share ends: kept as your own condition row, ended by tool:end-shares-whose-condition-failed when you have switched its wake on, never read by the engine) and origin (https:// address that opens a link: url is then origin/share/<key>). A view share only lets people view (can: [\"view\"], the default). It keeps the share as one record of yours and answers each key once: the key itself is not kept anywhere, only a digest of it, so lose it and share again after stopping. A person or AI presents the key at your door (records:read and records:list inside what was shared) and a person opens the url in a browser. op stop: give grant, and principal to stop one person (principal \"link\" stops the link), or leave principal out to stop everyone. op access: give grant; answers who can open it now (people with when added, the link, until when, whether it is open, stopped or ended), never a key. To let people run tools instead: can [\"run\"] with grant (sharing: plus a name you choose), tools (Workshop tool ids, tool:...), with (names of people or AIs: letters, digits, _ or -), optional until, identity (none, the default: your side learns nothing of who runs; self: the tool's input gets their name) and journal (input, the default, or none). Each person gets a key of their own, answered once; they or any MCP client of theirs present it at your door and can list and run only those tools there. op stop and op access take can [\"run\"] and grant the same way; stopping a person or everyone ends their next call.",
+    "description": "op share (the default job): give grant (sharing: plus the thing's label; read-data/share-label.mjs grantOf makes it, and the answer of any earlier call names it), thing (one of { type, id }, { list } for a list and all its rows, { text, title? } for a piece of text, or { items: [{ type, id? | prefix? }], title } for any mix) and who: with (a list of names of people or AIs, each given a key of its own) and/or link: true (one key anyone can hold). Optional until (a future ISO time the view share ends) and origin (https:// address that opens a link: url is then origin/share/<key>). A view share only lets people view (can: [\"view\"], the default). It keeps the share as one record of yours and answers each key once: the key itself is not kept anywhere, only a digest of it, so lose it and share again after stopping. A person or AI presents the key at your door (records:read and records:list inside what was shared) and a person opens the url in a browser. op stop: give grant, and principal to stop one person (principal \"link\" stops the link), or leave principal out to stop everyone. op access: give grant; answers who can open it now (people with when added, the link, until when, whether it is open, stopped or ended), never a key. To let people run tools instead: can [\"run\"] with grant (sharing: plus a name you choose), tools (Workshop tool ids, tool:...), with (names of people or AIs: letters, digits, _ or -), an optional end rule you choose (until, a future ISO time; unused_days, whole days with no use; or both, the earlier ends it; by default it has no end and stands until you stop it), identity (none, the default: your side learns nothing of who runs; self: the tool's input gets their name) and journal (input, the default, or none). Each person gets a key of their own, answered once; they or any MCP client of theirs present it at your door and can list and run only those tools there. op stop and op access take can [\"run\"] and grant the same way; stopping a person or everyone ends their next call. op end with can [\"run\"] and grant sets the end rule again (until and/or unused_days, or neither for no end), and the people keep their keys. The rule is kept beside the share and the engine never reads it: tool:end-shares-whose-condition-failed, once you switch its wake on, withdraws a share whose rule says it has ended.",
     "status": "active",
     "maker": "maker:share-anything",
     "licence_class": "licence:maker-own",
@@ -13045,7 +13187,7 @@
    "values": {
     "title": "Start a computer",
     "job": "Make a machine into a computer that runs what its own row says: rent one or use one I already run, set it up, build its programs from source there and read back its health page",
-    "description": "Rents a machine from the provider description the request names (or adopts a Linux machine the person runs, at its address), points a public name at it through the name provider description, and applies the computer's own row (record:computer, `runs`) over SSH: set-up (packages, toolchains, users, folders, keys), each unit with a `source` built from that commit on the machine itself from the caller's own checkout (no release, no feed, no copied program), the files the row renders, the restarts and each unit's boot check. Answers the lease, the machine's architecture, the monthly price, what the apply wrote, built and restarted, and the public health page's HTTP status. Running it again resumes from the saved lease.",
+    "description": "Rents a machine from the provider description the request names (or adopts a Linux machine the person runs, at its address), points a public name at it through the name provider description, and applies the computer's own row (record:computer, `runs`) over SSH: set-up (packages, toolchains, users, folders, keys), each unit with a `source` fetched by the machine itself from the git address the row names and built there (no release, no feed, no copied program), the files the row renders, the restarts and each unit's boot check. Answers the lease, the machine's architecture, the monthly price, what the apply wrote, built and restarted, and the public health page's HTTP status. Running it again resumes from the saved lease.",
     "status": "active",
     "maker": "maker:start-a-computer",
     "licence_class": "licence:maker-own",
@@ -13287,8 +13429,8 @@
    "id": "tool:submit-form-answers",
    "values": {
     "title": "Check and decide form answers",
-    "job": "Check a person's answers against a form and, when they are all valid, give the answer records, the score and segment they earn and any follow-up the form hands to its owner",
-    "description": "Give form_id, respondent_id, answers (questionId to value) and records: the form's question-sequence record and, for deciding the segment, the score-rule, segment-rule and follow-up-sequence records, as a store lists them. Optionally submission_id (for a form answered again and again, so each time has its own records) and answered_at. The answers are checked against the form as check-form-answers does. If any is invalid the first to fix is returned and no records. Otherwise it returns the decision (score and segment), the segment's follow-up sequence, and records: an answer fact for each answer the form asks about, one segment assignment, and one request record for each question whose afterSaved names an owner and action, with the answers filled into its input. Nothing is kept: write the returned records to a store to keep them.",
+    "job": "Check a person's answers against a form kept in the database and, when they are all valid, keep them with the score and segment they earn and any follow-up the form hands to its owner",
+    "description": "Give form_id, respondent_id and answers (questionId to value). The form is read from the table question_sequence (make it with save-a-form) and the rules that decide the segment from the tables score_rule, segment_rule and follow_up_sequence. Optionally submission_id (for a form answered again and again, so each time has its own rows) and answered_at. The answers are checked against the form as check-form-answers does. If any is invalid the first to fix is returned and nothing is kept. Otherwise one transaction keeps an answer fact for each answer the form asks about (table answer_fact), one segment assignment (segment_assignment) and one request row for each question whose afterSaved names an owner and action, with the answers filled into its input (owner_action_request), and the tool answers the decision (score and segment), the segment's follow-up sequence and the rows kept.",
     "status": "active",
     "maker": "maker:ask-questions-sort-answers-follow-up",
     "licence_class": "licence:maker-own",
@@ -13885,86 +14027,6 @@
    }
   },
   {
-   "id": "tool:media-eject",
-   "values": {
-    "title": "Eject a drive",
-    "job": "Eject one drive connected to this person's computer safely, so it can be unplugged",
-    "description": "Runs on the person's computer. check true only names anything still using the drive and ejects nothing.",
-    "status": "active",
-    "maker": "maker:work-on-connected-drives",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "listed_on": "2026-09-30T23:55:41Z",
-    "folder": "work-on-connected-drives"
-   }
-  },
-  {
-   "id": "tool:media-file-places",
-   "values": {
-    "title": "Where else a file is",
-    "job": "Find every other place one file on this person's computer also is (a duplicate): on their other connected drives and in their Trillion space",
-    "description": "Runs on the person's computer. path is the file on a connected drive.",
-    "status": "active",
-    "maker": "maker:work-on-connected-drives",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "listed_on": "2026-09-30T23:55:41Z",
-    "folder": "work-on-connected-drives"
-   }
-  },
-  {
-   "id": "tool:media-transfer",
-   "values": {
-    "title": "Copy or move files between drives",
-    "job": "Copy or move files and folders to one or more folders on drives connected to this person's computer, as a long job that can be paused and stopped",
-    "description": "Runs on the person's computer. sources are full paths; destinations are folders on connected drives; mode is copy or move. check true previews what would be copied and changes nothing.",
-    "status": "active",
-    "maker": "maker:work-on-connected-drives",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "listed_on": "2026-09-30T23:55:41Z",
-    "folder": "work-on-connected-drives"
-   }
-  },
-  {
-   "id": "tool:media-work",
-   "values": {
-    "title": "Drive work in progress",
-    "job": "List the long file jobs running on this person's computer drives (copies and moves): how far each has got, and whether it can be paused, resumed or stopped now",
-    "description": "Runs on the person's computer. Returns work: each job with its id, what it is doing and the controls it takes now.",
-    "status": "active",
-    "maker": "maker:work-on-connected-drives",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "listed_on": "2026-09-30T23:55:41Z",
-    "folder": "work-on-connected-drives"
-   }
-  },
-  {
-   "id": "tool:media-work-control",
-   "values": {
-    "title": "Pause, resume or stop drive work",
-    "job": "Pause, resume or stop one long file job on this person's computer drives (a copy or a move), optionally resuming it at a chosen time",
-    "description": "Runs on the person's computer. id is the job from tool:media-work; action is one of the controls it lists; check true only says whether that control is ready.",
-    "status": "active",
-    "maker": "maker:work-on-connected-drives",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "listed_on": "2026-09-30T23:55:41Z",
-    "folder": "work-on-connected-drives"
-   }
-  },
-  {
    "id": "tool:turn-a-drawn-stroke-into-a-mark-shape",
    "values": {
     "title": "Turn a drawn stroke into a line, rectangle or polygon",
@@ -14181,9 +14243,9 @@
   {
    "id": "tool:use-your-tools-from-a-shell",
    "values": {
-    "title": "Use Trillion from any AI's shell: the trillion command (runs on your computer)",
+    "title": "Use your tools from any AI's shell: the site's own command (runs on your computer)",
     "job": "Let an AI that can run shell commands see my AIs and their jobs, hand and take work, and run my Workshop tools, with no MCP connection of its own",
-    "description": "The `trillion` command. Every command is ONE call of the engine's one MCP tool (run_resource_operation) at the account's door: the Trillion Mac app's local door when this computer has one, else the public origin. setup signs in once, puts `trillion` on the PATH and writes the skill for each AI app here; whoami, who, publish, send, work, take, finish, fail, stuck, release, withdraw, remove and serve move AI jobs through tools/hand-work-to-ais; tools and call list and run Workshop tools; op runs any engine operation; records replay-from-transcripts brings back the rows this computer's AIs wrote, from their own transcripts (a dry run lists them, --write writes them back in batches and reads a sample back). The credential is the account's existing key or the sign-in login kept, read into memory only, never printed or put on a command line. Every call carries one request key reused on every retry. A copy an owner installed (its install-owner.json marker beside it) is never rewritten by a bare copy, and `trillion update` names who updates it: the command never updates itself.",
+    "description": "The `{cli}` command. Every command is ONE call of the engine's one MCP tool (run_resource_operation) at the account's door: the brand's Mac app's local door when this computer has one, else the public origin. setup signs in once, puts `{cli}` on the PATH and writes the skill for each AI app here; whoami, who, publish, send, work, take, finish, fail, stuck, release, withdraw, remove and serve move AI jobs through tools/hand-work-to-ais; tools and call list and run Workshop tools; op runs any engine operation; records replay-from-transcripts brings back the rows this computer's AIs wrote, from their own transcripts (a dry run lists them, --write writes them back in batches and reads a sample back). The credential is the account's existing key or the sign-in login kept, read into memory only, never printed or put on a command line. Every call carries one request key reused on every retry. A copy an owner installed (its install-owner.json marker beside it) is never rewritten by a bare copy, and `{cli} update` names who updates it: the command never updates itself.",
     "status": "active",
     "maker": "maker:use-your-tools-from-a-shell",
     "licence_class": "licence:maker-own",
@@ -14342,6 +14404,22 @@
      "placement:small-container"
     ],
     "folder": "what-is-waiting-on-me"
+   }
+  },
+  {
+   "id": "tool:when-to-run-next",
+   "values": {
+    "title": "Work out what is due and when to run next (schedules)",
+    "job": "Scheduler: from recurring schedules (every day or week at a local time in a time zone, daylight saving handled) and one-off timed actions, work out what is due to run now and the next time to run",
+    "description": "Give now plus schedules (schedule_id, timezone as an IANA name, start_local_date, cadence {unit: day | week, interval?, weekdays?: 0=Sunday..6}, local_window {start: HH:MM, duration_minutes}, dst {gap: skip | next-valid, fold: earlier | later | both}, action with its owner_dispatch) and their occurrence_states, and/or one-off time_windows, actions and receipts. Returns recurring_due, scheduled_due, the occurrences to record before running them, and next_wake_at: the next time anything is due, counting what is due now as done.",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-09-28T17:54:38Z",
+    "folder": "run-work-later-or-on-a-repeat"
    }
   },
   {

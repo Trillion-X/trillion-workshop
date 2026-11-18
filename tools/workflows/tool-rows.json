@@ -875,7 +875,7 @@
         "label": "Choose which of my workflows fire for these parts of a seed",
         "status": "active",
         "job": "Say which of all my workflows, and the Workshop's I have installed, fire for each part of something that arrived, from the conditions each workflow carries on its own row",
-        "description": "Every workflow is a candidate branch of the one tree. Takes parts: the parts of one seed, each an object of its typed fields (for example kinds, subjects, people, niches, own_words; the fields are whatever the conditions read). Reads every workflow row the person has (their table of workflows, the name in arrivals/recipe-row-types.json) and every recipe this Workshop installs; when both hold an id the person's row wins, and when it holds no conditions the installed recipe's are used. Each workflow's conditions are its fires_when (branches/fires-when.json): a list of { label, condition: { fields, tree }, made_by, state }, the same fields and tree tool:filter-rows-by-rules takes, evaluated by the same formulas engine over the parts. Answers chosen (one row per workflow, part and condition that kept it, ranked within each part by specificity: score is the sum over the tags or rules the part met of log(workflows with a condition / workflows holding that tag), times the condition's measured weight, rank 1 best), broad (conditions that kept more than half of the parts, to be rewritten), unfinished (conditions with a rule the engine cannot evaluate or no rule at all, which choose nothing), unconditioned (workflows with no condition On, by id and label, to be judged by their words), unmatched_parts and the counts. Nothing is written; no workflow, branch or tag is named in the tool.",
+        "description": "Every workflow is a candidate branch of the one tree. Takes parts: the parts of one seed, each an object of its typed fields (for example kinds, subjects, people, niches, own_words; the fields are whatever the conditions read). Is given the person's own workflow rows as values (own), read by the caller from wherever the person keeps them, beside every recipe this Workshop installs; it reaches no database; when both hold an id the person's row wins, and when it holds no conditions the installed recipe's are used. Each workflow's conditions are its fires_when (branches/fires-when.json): a list of { label, condition: { fields, tree }, made_by, state }, the same fields and tree tool:filter-rows-by-rules takes, evaluated by the same formulas engine over the parts. Answers chosen (one row per workflow, part and condition that kept it, ranked within each part by specificity: score is the sum over the tags or rules the part met of log(workflows with a condition / workflows holding that tag), times the condition's measured weight, rank 1 best), broad (conditions that kept more than half of the parts, to be rewritten), unfinished (conditions with a rule the engine cannot evaluate or no rule at all, which choose nothing), unconditioned (workflows with no condition On, by id and label, to be judged by their words), unmatched_parts and the counts. Nothing is written; no workflow, branch or tag is named in the tool.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -900,6 +900,24 @@
                 "type": "string"
               },
               "description": "The workflow ids of the runs this choice is made inside (the run itself and every run above it); none of them is chosen again, so no workflow starts itself through its own parts"
+            },
+            "own": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "value": {
+                    "type": "object"
+                  }
+                }
+              },
+              "description": "The person's own workflow rows, read by the caller from wherever the person keeps them: each { id, value: { recipe?, title, fires_when } }. Left out, only the installed recipes are candidates"
             }
           }
         },
@@ -1024,12 +1042,9 @@
         "invoke": {
           "kind": "container",
           "internet": false,
-          "local_doors": [
-            "own-rows-postgres"
-          ],
           "argv": [
             "node",
-            "/opt/workflows/do-work/run-with-sql.mjs",
+            "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/workflows/read-data/choose-the-workflows-that-fire.mjs",
             "chooseTheWorkflowsThatFire"
           ],
@@ -1043,16 +1058,12 @@
               {
                 "package": "workflows",
                 "paths": [
-                  "do-work/run-with-sql.mjs",
+                  "do-work/run-a-function.mjs",
                   "read-data/choose-the-workflows-that-fire.mjs",
                   "read-data/public-recipes.mjs",
                   "read-data/fires-when.mjs",
                   "recipes",
-                  "arrivals",
-                  "branches",
-                  "read-data/sql.mjs",
-                  "sql",
-                  "read-data/with-sql.mjs"
+                  "branches"
                 ],
                 "at": "/opt/workflows"
               },
@@ -1071,238 +1082,9 @@
                   "built-stored-bytes"
                 ],
                 "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
-              },
-              {
-                "packages": [
-                  "pg"
-                ],
-                "at": "/opt/node_modules/pg"
-              },
-              {
-                "packages": [
-                  "pg-connection-string"
-                ],
-                "at": "/opt/node_modules/pg-connection-string"
-              },
-              {
-                "packages": [
-                  "pg-pool"
-                ],
-                "at": "/opt/node_modules/pg-pool"
-              },
-              {
-                "packages": [
-                  "pg-protocol"
-                ],
-                "at": "/opt/node_modules/pg-protocol"
-              },
-              {
-                "packages": [
-                  "pg-types"
-                ],
-                "at": "/opt/node_modules/pg-types"
-              },
-              {
-                "packages": [
-                  "pg-int8"
-                ],
-                "at": "/opt/node_modules/pg-int8"
-              },
-              {
-                "packages": [
-                  "postgres-array"
-                ],
-                "at": "/opt/node_modules/postgres-array"
-              },
-              {
-                "packages": [
-                  "postgres-bytea"
-                ],
-                "at": "/opt/node_modules/postgres-bytea"
-              },
-              {
-                "packages": [
-                  "postgres-date"
-                ],
-                "at": "/opt/node_modules/postgres-date"
-              },
-              {
-                "packages": [
-                  "postgres-interval"
-                ],
-                "at": "/opt/node_modules/postgres-interval"
-              },
-              {
-                "packages": [
-                  "xtend"
-                ],
-                "at": "/opt/node_modules/xtend"
-              },
-              {
-                "packages": [
-                  "pgpass"
-                ],
-                "at": "/opt/node_modules/pgpass"
-              },
-              {
-                "packages": [
-                  "split2"
-                ],
-                "at": "/opt/node_modules/split2"
               }
             ]
-          },
-          "packages": {
-            "pg": {
-              "version": "8.23.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg/-/pg-8.23.1.tgz",
-                  "blake3": "d9fa473dbb66d6ebb3f9ed639504645825d90f0e581940545e394b97d540b827",
-                  "checked_against": "https://registry.npmjs.org/pg/8.23.1"
-                }
-              }
-            },
-            "pg-connection-string": {
-              "version": "2.14.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.1.tgz",
-                  "blake3": "3ebf322e73fbb3789b12506529485c3d34d2e0b496fa8b57ae0237dbfd605965",
-                  "checked_against": "https://registry.npmjs.org/pg-connection-string/2.14.1"
-                }
-              }
-            },
-            "pg-pool": {
-              "version": "3.14.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz",
-                  "blake3": "936d28ee7461005bc3b8fdb2003e6333a7079d654e21fa3f83fb85f1fe08cd1e",
-                  "checked_against": "https://registry.npmjs.org/pg-pool/3.14.0"
-                }
-              }
-            },
-            "pg-protocol": {
-              "version": "1.16.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.16.1.tgz",
-                  "blake3": "3604bc8340c62cb2451d63bf49496831fcf157a0da3c759f3794f64223a4bbb4",
-                  "checked_against": "https://registry.npmjs.org/pg-protocol/1.16.1"
-                }
-              }
-            },
-            "pg-types": {
-              "version": "2.2.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz",
-                  "blake3": "6c9524b7c592b94d3aad0399acf47ddf22c1eb53a24b9ae3ab14d4180a572945",
-                  "checked_against": "https://registry.npmjs.org/pg-types/2.2.0"
-                }
-              }
-            },
-            "pg-int8": {
-              "version": "1.0.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz",
-                  "blake3": "8f4971d42324eae73a49354f8e120dce0a6a95e159316a753558fc4644512efa",
-                  "checked_against": "https://registry.npmjs.org/pg-int8/1.0.1"
-                }
-              }
-            },
-            "postgres-array": {
-              "version": "2.0.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz",
-                  "blake3": "71fc338a8920999897cbaf581dc843d4ff3a910fe478f863b12c8a5da3dc0836",
-                  "checked_against": "https://registry.npmjs.org/postgres-array/2.0.0"
-                }
-              }
-            },
-            "postgres-bytea": {
-              "version": "1.0.1",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz",
-                  "blake3": "d1b058156ca51001e64ebe0efea72ef9befe365ba66b4731f5b591052f060553",
-                  "checked_against": "https://registry.npmjs.org/postgres-bytea/1.0.1"
-                }
-              }
-            },
-            "postgres-date": {
-              "version": "1.0.7",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz",
-                  "blake3": "005396786ab1c87c62c9f2422040e90711000bdf26d3d673e1073b9972e1a079",
-                  "checked_against": "https://registry.npmjs.org/postgres-date/1.0.7"
-                }
-              }
-            },
-            "postgres-interval": {
-              "version": "1.2.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz",
-                  "blake3": "24a6078fab15e22e6ffc864acab92746d6bfcb0ee9569b0c2bed3d1fc12856f2",
-                  "checked_against": "https://registry.npmjs.org/postgres-interval/1.2.0"
-                }
-              }
-            },
-            "xtend": {
-              "version": "4.0.2",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz",
-                  "blake3": "3ac366571ec5d13e6beb846cd1eeb69193d47d833a19f6cada5ccdd0fcb0a8be",
-                  "checked_against": "https://registry.npmjs.org/xtend/4.0.2"
-                }
-              }
-            },
-            "pgpass": {
-              "version": "1.0.5",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz",
-                  "blake3": "d0f6f693abc27625c5ef62c1e75aa91cf0cf2769f74908bbdc541f748ad67a2d",
-                  "checked_against": "https://registry.npmjs.org/pgpass/1.0.5"
-                }
-              }
-            },
-            "split2": {
-              "version": "4.2.0",
-              "archive": "tgz",
-              "fetch": {
-                "any": {
-                  "url": "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz",
-                  "blake3": "5e0899c8843b75de6d7326c029931a636b3d19e854d05e53967ffde6d6b92005",
-                  "checked_against": "https://registry.npmjs.org/split2/4.2.0"
-                }
-              }
-            }
-          },
-          "credential_mounts": [
-            {
-              "secret_name": "own-rows-postgres-connection",
-              "fd": 3
-            }
-          ]
+          }
         },
         "result_selector": "$.result",
         "needs": {
@@ -1315,7 +1097,13 @@
           "placement:small-container"
         ],
         "maker": "maker:workflows",
-        "verify": [{ "kind": "needs-a-machine", "requires": "a Postgres-wire server on the local port the computer reports as own-rows-postgres, with its connection string held as own-rows-postgres-connection", "proved_on": "2026-11-17" }]
+        "verify": [
+          {
+            "kind": "needs-a-machine",
+            "requires": "a Postgres-wire server on the local port the computer reports as own-rows-postgres, with its connection string held as own-rows-postgres-connection",
+            "proved_on": "2026-11-17"
+          }
+        ]
       }
     },
     {
