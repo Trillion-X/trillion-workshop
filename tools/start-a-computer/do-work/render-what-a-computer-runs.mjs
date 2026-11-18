@@ -16,7 +16,7 @@ const WORKSHOP = fileURLToPath(new URL('../../../', import.meta.url));
 /** The text of a file a row names (a unit's `template`, `script` or `drop_ins`): the program's own file, published by its
  *  owner. A relative path is read inside this Workshop (it may not leave it); an absolute path is the person's own file. The
  *  tool keeps no list of programs: whatever file a row names is what the computer runs. */
-const publishedFile = (path, where) => {
+export const publishedFile = (path, where) => {
   if (typeof path !== 'string' || !path) throw new Error(`${where} names no file`);
   const file = isAbsolute(path) ? path : resolve(WORKSHOP, path);
   if (!isAbsolute(path) && (relative(WORKSHOP, file).startsWith('..') || isAbsolute(relative(WORKSHOP, file)))) throw new Error(`${where} names a file outside the Workshop: ${path}`);
@@ -50,7 +50,7 @@ export async function withPrepared(runs, given = {}) {
     const where = `unit ${row.unit} prepare`;
     const { prepare } = await import(pathToFileURL(publishedFile(path, where)).href);
     if (typeof prepare !== 'function') throw new Error(`${where}: ${path} exports no prepare`);
-    const answer = prepare(unit, given);
+    const answer = await prepare(unit, given);
     units.push(answer.unit);
     firewall.push(...(answer.firewall_allow ?? []));
   }

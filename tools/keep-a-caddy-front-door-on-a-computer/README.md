@@ -33,13 +33,9 @@ A site that names `site_file` gets that whole file from `sites/`, each `{{field}
 
 ## Routes and pools
 
-The routes are `routes/*.caddy`:
-- `better-auth` sends `/api/auth/*` to the sign-in tool.
-- `better-auth-discovery` sends `/.well-known/oauth-authorization-server*`.
-- `better-auth-webauthn` sends `/.well-known/webauthn`.
-- `better-auth-home` redirects `/` to `/sign-in`.
-- `better-auth-pages` sends every address the sign-in tool's own `tools/better-auth-official/pages/routes.json` lists, so a page the tool adds is routed with no list in the row. A site that still names `auth_page_paths` is refused.
-- `engine` sends `engine_paths` to the engine.
+A site names each route by path, like a unit's template: a file the program it sends to publishes (a relative path inside the Workshop, or an absolute path of the person's own), filled from the site's fields. A route that is a module (`.mjs`) answers its text from `route()`, so a program that computes its route from its own data keeps that data. This kit names no route of its own:
+- The sign-in tool's routes are `tools/better-auth-official/on-a-computer/caddy-route-*`.
+- `routes/engine.caddy` sends `engine_paths` to the engine's pool. It moves to the engine with K5.
 
 Every slot of a program is one pool: `pools: {<name>: {listen: [every slot's address], health_uri, health_interval, try_duration, lines?}}`, filled into a route as `{<name>_proxy}`. The engine route uses `engine`; the sign-in routes use `auth`.
 - Caddy sends each call to the first slot that answers its health page. A slot that is stopping answers 503 and gets no new call.

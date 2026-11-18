@@ -8,13 +8,22 @@
 // before it replaces the live one, and a change is applied by a reload, so no call in flight is dropped; a page that changes
 // restarts nothing.
 import { existsSync, readFileSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
 import { fill } from '../start-a-computer/do-work/fill-fields.mjs';
+import { publishedFile } from '../start-a-computer/do-work/render-what-a-computer-runs.mjs';
 
 const CADDYFILE = '/etc/caddy/Caddyfile';
-const ROUTE = name => {
-  const file = new URL(`./routes/${name}.caddy`, import.meta.url);
-  if (!/^[a-z0-9-]+$/.test(name) || !existsSync(file)) throw new Error(`caddy.routes names an unknown route ${name}`);
-  return readFileSync(file, 'utf8').trimEnd();
+/** Each route a site names is a file its program publishes, named by path like a unit's template (the sign-in tool's routes
+ * are tools/better-auth-official/on-a-computer/caddy-route-*): its text, or, for a module (`.mjs`), the text its `route()`
+ * answers, so a program that computes its route from its own data keeps that data. This kit names no route of its own. */
+const routeTexts = async site => {
+  const paths = new Set(Object.entries(site).filter(([key]) => key === 'routes' || key.endsWith('_routes')).flatMap(([, list]) => list ?? []));
+  const texts = new Map();
+  for (const path of paths) {
+    const file = publishedFile(path, `caddy route ${path}`);
+    texts.set(path, (path.endsWith('.mjs') ? (await import(pathToFileURL(file).href)).route() : readFileSync(file, 'utf8')).trimEnd());
+  }
+  return texts;
 };
 
 /** Each {{field}} in `text` is the site's own value (a list is joined with spaces); `special` answers a field first (routes). */
@@ -33,17 +42,8 @@ const pageFiles = (site, pages) => {
     .sort((a, b) => (a.path < b.path ? -1 : 1));
 };
 
-// The sign-in tool answers the addresses its own pages/routes.json lists (each page, and what is under it, and its assets):
-// the site sends exactly those to it, so a page the tool adds is routed with no copy of the list in a computer's row.
-const SIGN_IN_ROUTES = JSON.parse(readFileSync(new URL('../better-auth-official/pages/routes.json', import.meta.url), 'utf8'));
-const signInPaths = () => [...new Set([...SIGN_IN_ROUTES.routes.map(({ path }) => path), SIGN_IN_ROUTES.assets_path.replace(/\/$/, '')])]
-  .flatMap(path => [path, `${path}/*`]);
-/** A route file filled from the site's fields; the sign-in pages' paths are the tool's own, and each pool the site names
- * (`pools`) is the field `<pool>_proxy`. */
-const routeText = (name, site, where) => {
-  if (site.auth_page_paths !== undefined) throw new Error(`${where}: caddy.auth_page_paths is gone; the sign-in paths are the tool's own pages/routes.json`);
-  return fill(ROUTE(name), { ...site, ...poolFields(site), auth_page_paths: signInPaths() }, where);
-};
+/** A route's text filled from the site's fields; each pool the site names (`pools`) is the field `<pool>_proxy`. */
+const routeText = (texts, path, site) => fill(texts.get(path), { ...site, ...poolFields(site) }, `caddy route ${path}`);
 
 // A pool (pools: { <name>: { listen, health_uri, health_interval, try_duration, lines? } }) is every slot of one program:
 // Caddy sends each call to the first that answers its health page, so a slot that is stopping (its health page answers 503
@@ -73,10 +73,10 @@ const innerDoors = site => (site.inner_doors ?? []).map(({ listen, pool }, at) =
 /** One site block per name (`site_hosts`), each sending to the site's `port` (sites/one-block-per-name.caddy); the site's own
  * routes go first inside each block. */
 const BLOCK = readFileSync(new URL('./sites/one-block-per-name.caddy', import.meta.url), 'utf8').trimEnd();
-const blockPerName = site => {
+const blockPerName = (site, texts) => {
   const { site_hosts, port } = site;
   if (!Array.isArray(site_hosts) || !site_hosts.length) throw new Error('caddy.site_hosts needs at least one name');
-  const routes = (site.routes ?? []).map(name => routeText(name, site, `caddy route ${name}`)).join('\n');
+  const routes = (site.routes ?? []).map(path => routeText(texts, path, site)).join('\n');
   return site_hosts.map(host => {
     const block = BLOCK.replaceAll('{SITE}', host).replaceAll('{PORT}', String(port));
     return `${routes ? block.replace('\n', `\n${routes}\n`) : block}\n`;
@@ -92,9 +92,9 @@ const SITE_FILE = name => {
   if (!/^[a-z0-9-]+$/.test(name) || !existsSync(file)) throw new Error(`caddy.site_file names an unknown site file ${name}`);
   return readFileSync(file, 'utf8');
 };
-const wholeFile = site => {
+const wholeFile = (site, texts) => {
   const where = `caddy site file ${site.site_file}`;
-  const routes = key => (site[key] ?? []).map(name => routeText(name, site, `caddy route ${name}`)).join('\n');
+  const routes = key => (site[key] ?? []).map(path => routeText(texts, path, site)).join('\n');
   const isRoutes = key => key === 'routes' || key.endsWith('_routes');
   const text = SITE_FILE(site.site_file).replace(/^\{\{([a-z_]+)\}\}\n/gm, (line, key) => isRoutes(key) && !routes(key) ? '' : line);
   return fillFields(text, site, where, key => (isRoutes(key) ? routes(key) : undefined));
@@ -102,10 +102,11 @@ const wholeFile = site => {
 
 /** The Caddy unit as the computer runs it: its `files` are the site file (checked by the site's Caddy, `binary`, and applied by
  * a reload of the unit) and every page under `pages_root` (applied by being written). The unit's other fields are its own. */
-export function prepare(given, { pages } = {}) {
+export async function prepare(given, { pages } = {}) {
   const { site, ...unit } = given;
   if (site === null || typeof site !== 'object') throw new Error(`unit ${given.unit} needs site: the names, routes and pools Caddy serves`);
-  const text = (site.site_file ? wholeFile(site) : blockPerName(site)) + innerDoors(site);
+  const texts = await routeTexts(site);
+  const text = (site.site_file ? wholeFile(site, texts) : blockPerName(site, texts)) + innerDoors(site);
   const caddyfile = { path: CADDYFILE, text, check: [site.binary ?? 'caddy', 'validate', '--config', '{file}', '--adapter', 'caddyfile'], then: [['systemctl', 'reload', unit.unit]] };
   const served = site.pages_root ? pageFiles(site, pages).map(file => ({ ...file, then: [] })) : [];
   return { unit: { ...unit, files: [...(unit.files ?? []), caddyfile, ...served] } };

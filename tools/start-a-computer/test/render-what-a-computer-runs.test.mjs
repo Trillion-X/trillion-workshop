@@ -61,7 +61,7 @@ test('a unit with no template is one whose unit file the computer already has: o
 // tool folder with its settings from the row, and the secret by vault key only.
 const withSignIn = {
   units: [...runs.units, {
-    unit: 'example-sign-in.service', template: 'tools/start-a-computer/read-data/unit-templates/serve-better-auth.service', description: 'Example sign-in', user: 'example-sign-in',
+    unit: 'example-sign-in.service', template: 'tools/better-auth-official/on-a-computer/serve-better-auth.service', description: 'Example sign-in', user: 'example-sign-in',
     workshop: '/var/lib/example-sign-in/trillion-workshop', repository: 'https://github.com/Trillion-X/trillion-workshop.git',
     tool_folder: 'tools/better-auth-official', workshop_commit: '7777777777777777777777777777777777777777', node_bin: '/opt/node/bin', settings_file: '/var/lib/example-sign-in/settings.json',
     settings: { port: 7201, base_url: 'https://place.example.test', issuer: 'https://place.example.test', store: { credential: 'sign-in-store', env: 'BETTER_AUTH_STORE_CONNECTION' } },

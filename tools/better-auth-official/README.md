@@ -233,3 +233,11 @@ From `/api/auth/oauth2/token` with `resource` set to `mcp.resource`: EdDSA JWTs,
 ## Discovery
 
 `/.well-known/oauth-authorization-server` (RFC 8414) and `/.well-known/oauth-protected-resource` (RFC 9728).
+
+## On a computer
+
+`on-a-computer/` holds what a computer row names to run this tool:
+- `serve-better-auth.service`: the unit's template. start-a-computer's README says which fields it reads.
+- `caddy-route-*`: the web server's routes to it. `caddy-route-better-auth-pages.mjs` builds its route from `pages/routes.json`, so a page added here is routed with no list in any row.
+
+A row names each file by path, such as `tools/better-auth-official/on-a-computer/serve-better-auth.service`.

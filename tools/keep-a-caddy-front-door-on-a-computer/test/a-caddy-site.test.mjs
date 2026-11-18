@@ -14,67 +14,67 @@ const PAGES = [
   { name: 'assets/site.css', bytes: Buffer.from('body { margin: 0 }') },
   { name: 'icon.png', bytes: Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0xff]) },
 ];
-const filesOf = (site, pages = PAGES) => prepare({ unit: 'caddy.service', user: 'caddy', site }, { pages }).unit.files;
-const siteFile = (site, pages) => filesOf(site, pages)[0];
+const ENGINE = 'tools/keep-a-caddy-front-door-on-a-computer/routes/engine.caddy';
+const filesOf = async (site, pages = PAGES) => (await prepare({ unit: 'caddy.service', user: 'caddy', site }, { pages })).unit.files;
+const siteFile = async (site, pages) => (await filesOf(site, pages))[0];
 
 const BLOCK = readFileSync(new URL('../sites/one-block-per-name.caddy', import.meta.url), 'utf8').trimEnd();
 const names = { site_hosts: ['place.example.test', 'www.example.test'], port: 7199 };
 const auth = { auth: { listen: ['127.0.0.1:7201'], health_uri: '/readyz', health_interval: '1s', try_duration: '5s' } };
 
-test('the site file is one block per name, with the port, checked by the site\'s Caddy and applied by a reload', () => {
-  const file = siteFile(names);
+test('the site file is one block per name, with the port, checked by the site\'s Caddy and applied by a reload', async () => {
+  const file = await siteFile(names);
   assert.equal(file.path, '/etc/caddy/Caddyfile');
   const block = host => `${BLOCK.replace('{SITE}', host).replace('{PORT}', '7199')}\n`;
   assert.equal(file.text, block('place.example.test') + block('www.example.test'));
   assert.deepEqual(file.check, ['caddy', 'validate', '--config', '{file}', '--adapter', 'caddyfile']);
   assert.deepEqual(file.then, [['systemctl', 'reload', 'caddy.service']]);
-  assert.equal(siteFile({ ...names, binary: '/opt/example/caddy' }).check[0], '/opt/example/caddy', 'the Caddy that checks is the one the site runs');
+  assert.equal((await siteFile({ ...names, binary: '/opt/example/caddy' })).check[0], '/opt/example/caddy', 'the Caddy that checks is the one the site runs');
 });
 
-test('the unit keeps its own fields, and a unit with no site is refused', () => {
-  const { unit } = prepare({ unit: 'caddy.service', user: 'caddy', drop_ins: ['example.conf'], storage_env: '/etc/example.env', site: names });
+test('the unit keeps its own fields, and a unit with no site is refused', async () => {
+  const { unit } = await prepare({ unit: 'caddy.service', user: 'caddy', drop_ins: ['example.conf'], storage_env: '/etc/example.env', site: names });
   assert.deepEqual(Object.keys(unit).sort(), ['drop_ins', 'files', 'storage_env', 'unit', 'user']);
-  assert.throws(() => prepare({ unit: 'caddy.service' }), /unit caddy\.service needs site/);
+  await assert.rejects(prepare({ unit: 'caddy.service' }), /unit caddy\.service needs site/);
 });
 
-test('the sign-in routes go first inside every block, sent to the pool the site names', () => {
-  const file = siteFile({ ...names, routes: ['better-auth', 'better-auth-discovery'], pools: auth });
+test('the sign-in routes go first inside every block, sent to the pool the site names', async () => {
+  const file = await siteFile({ ...names, routes: ['tools/better-auth-official/on-a-computer/caddy-route-better-auth.caddy', 'tools/better-auth-official/on-a-computer/caddy-route-better-auth-discovery.caddy'], pools: auth });
   for (const host of names.site_hosts) {
     const block = file.text.slice(file.text.indexOf(`${host} {`));
     assert.match(block, /^\thandle \/api\/auth\/\* \{\n\t\treverse_proxy 127\.0\.0\.1:7201 \{\n\t\t\tlb_policy first\n[\s\S]*?\n\t\t\}\n\t\}$/m);
     assert.match(block, /^\thandle \/\.well-known\/oauth-authorization-server\* \{\n\t\treverse_proxy 127\.0\.0\.1:7201 \{\n\t\t\tlb_policy first\n[\s\S]*?\n\t\t\}\n\t\}$/m);
     assert.ok(block.indexOf('handle /api/auth/*') < block.indexOf('reverse_proxy 127.0.0.1:7199'), 'the auth routes sit inside the block, before the catch-all');
   }
-  assert.doesNotMatch(siteFile(names).text, /api\/auth/);
-  assert.throws(() => siteFile({ ...names, routes: ['nope'] }), /unknown route nope/);
-  assert.throws(() => siteFile({ ...names, routes: ['better-auth'] }), /caddy route better-auth needs auth_proxy/);
+  assert.doesNotMatch((await siteFile(names)).text, /api\/auth/);
+  await assert.rejects(siteFile({ ...names, routes: ['nope'] }), /names a file that does not exist: nope/);
+  await assert.rejects(siteFile({ ...names, routes: ['tools/better-auth-official/on-a-computer/caddy-route-better-auth.caddy'] }), /caddy-route-better-auth\.caddy needs auth_proxy/);
 });
 
-test('better-auth-pages sends the sign-in tool every address its own routes file lists, and a site that names the paths is refused', () => {
-  const file = siteFile({ ...names, routes: ['better-auth', 'better-auth-pages'], pools: auth });
+test('better-auth-pages sends the sign-in tool every address its own routes file lists', async () => {
+  const file = await siteFile({ ...names, routes: ['tools/better-auth-official/on-a-computer/caddy-route-better-auth.caddy', 'tools/better-auth-official/on-a-computer/caddy-route-better-auth-pages.mjs'], pools: auth });
   const matcher = file.text.match(/^\t@better_auth_pages path (.*)$/m)[1].split(' ');
   const listed = JSON.parse(readFileSync(new URL('../../better-auth-official/pages/routes.json', import.meta.url), 'utf8')).routes.map(({ path }) => path);
   for (const path of listed) assert.ok(matcher.includes(path) && matcher.includes(`${path}/*`), path);
   for (const path of ['/connected', '/consent', '/device', '/sign-in']) assert.ok(matcher.includes(path), `${path} is routed to the tool`);
-  assert.throws(() => siteFile({ ...names, routes: ['better-auth-pages'], pools: auth, auth_page_paths: ['/sign-in'] }), /auth_page_paths is gone/);
 });
 
-test('an inner door is a loopback address Caddy holds for programs on this computer, sent to every slot of a pool', () => {
+test('an inner door is a loopback address Caddy holds for programs on this computer, sent to every slot of a pool', async () => {
   const pools = { internal: { listen: ['127.0.0.1:8794', '127.0.0.1:8795'], health_uri: '/readyz', health_interval: '1s', try_duration: '5s' } };
-  assert.match(siteFile({ ...names, pools, inner_doors: [{ listen: '127.0.0.1:8793', pool: 'internal' }] }).text, /\nhttp:\/\/:8793 \{\n\tbind 127\.0\.0\.1\n\treverse_proxy 127\.0\.0\.1:8794 127\.0\.0\.1:8795 \{\n\t\t\tlb_policy first\n/);
-  assert.throws(() => siteFile({ ...names, pools, inner_doors: [{ listen: '0.0.0.0:8793', pool: 'internal' }] }), /loopback address only/);
-  assert.throws(() => siteFile({ ...names, pools, inner_doors: [{ listen: '127.0.0.1:8793', pool: 'none' }] }), /names no pool/);
+  assert.match((await siteFile({ ...names, pools, inner_doors: [{ listen: '127.0.0.1:8793', pool: 'internal' }] })).text, /\nhttp:\/\/:8793 \{\n\tbind 127\.0\.0\.1\n\treverse_proxy 127\.0\.0\.1:8794 127\.0\.0\.1:8795 \{\n\t\t\tlb_policy first\n/);
+  await assert.rejects(siteFile({ ...names, pools, inner_doors: [{ listen: '0.0.0.0:8793', pool: 'internal' }] }), /loopback address only/);
+  await assert.rejects(siteFile({ ...names, pools, inner_doors: [{ listen: '127.0.0.1:8793', pool: 'none' }] }), /names no pool/);
 });
 
 const single = {
   site_file: 'single-name-front-door', door_host: 'door.example.test', engine_paths: ['/a/*'], request_max: '4MB',
-  pages_root: '/var/lib/front-door-pages', routes: ['better-auth', 'better-auth-pages', 'better-auth-discovery', 'better-auth-home'], engine_routes: ['engine'],
+  pages_root: '/var/lib/front-door-pages', routes: ['tools/better-auth-official/on-a-computer/caddy-route-better-auth.caddy', 'tools/better-auth-official/on-a-computer/caddy-route-better-auth-pages.mjs', 'tools/better-auth-official/on-a-computer/caddy-route-better-auth-discovery.caddy', 'tools/better-auth-official/on-a-computer/caddy-route-better-auth-home.caddy'], engine_routes: [ENGINE],
   grace_period: '150s', pools: { auth: { listen: ['127.0.0.1:8792'], health_uri: '/readyz', health_interval: '1s', try_duration: '5s' },
     engine: { listen: ['127.0.0.1:7199', '127.0.0.1:7198'], health_uri: '/readyz', health_interval: '1s', try_duration: '5s', lines: ['header_up Host {door_host}', 'flush_interval -1'] } },
 };
 
-test('a single-name front door renders its own name, pages, sign-in routes and engine paths, and no program, store or other host', () => {
-  const file = siteFile(single);
+test('a single-name front door renders its own name, pages, sign-in routes and engine paths, and no program, store or other host', async () => {
+  const file = await siteFile(single);
   assert.equal(file.path, '/etc/caddy/Caddyfile');
   assert.doesNotMatch(file.text, /\{\{/);
   assert.match(file.text, /^door\.example\.test \{$/m);
@@ -95,20 +95,20 @@ test('a single-name front door renders its own name, pages, sign-in routes and e
   for (const field of ['request>headers', 'request>remote_ip', 'request>client_ip', 'resp_headers']) assert.match(file.text, new RegExp(`${field} delete`));
 });
 
-test('a routes slot the site leaves empty is no line at all; a missing field or an unknown site file is refused', () => {
+test('a routes slot the site leaves empty is no line at all; a missing field or an unknown site file is refused', async () => {
   const { engine_paths, ...noPaths } = single;
-  assert.throws(() => siteFile(noPaths), /caddy route engine needs engine_paths/);
-  const noEngine = siteFile({ ...noPaths, engine_routes: [] });
+  await assert.rejects(siteFile(noPaths), /routes\/engine\.caddy needs engine_paths/);
+  const noEngine = await siteFile({ ...noPaths, engine_routes: [] });
   assert.doesNotMatch(noEngine.text, /@engine|7199/);
   assert.doesNotMatch(noEngine.text, /^\{\{engine_routes\}\}$/m);
-  assert.throws(() => siteFile({ ...single, engine_routes: ['nope'] }), /caddy\.routes names an unknown route nope/);
+  await assert.rejects(siteFile({ ...single, engine_routes: ['nope'] }), /names a file that does not exist: nope/);
   const { door_host, ...noHost } = single;
-  assert.throws(() => siteFile({ ...noHost, engine_routes: [], pools: { auth: single.pools.auth } }), /caddy site file single-name-front-door needs door_host/);
-  assert.throws(() => siteFile({ ...single, site_file: 'nope' }), /unknown site file nope/);
+  await assert.rejects(siteFile({ ...noHost, engine_routes: [], pools: { auth: single.pools.auth } }), /caddy site file single-name-front-door needs door_host/);
+  await assert.rejects(siteFile({ ...single, site_file: 'nope' }), /unknown site file nope/);
 });
 
-test('every page the request hands in lands under pages_root, byte for byte, binary ones as base64, and restarts nothing', () => {
-  const files = filesOf(single).filter(file => file.path.startsWith('/var/lib/front-door-pages/'));
+test('every page the request hands in lands under pages_root, byte for byte, binary ones as base64, and restarts nothing', async () => {
+  const files = (await filesOf(single)).filter(file => file.path.startsWith('/var/lib/front-door-pages/'));
   assert.deepEqual(files.map(file => file.path), PAGES.map(page => `/var/lib/front-door-pages/${page.name}`).sort());
   for (const file of files) {
     const bytes = PAGES.find(page => file.path.endsWith(`/${page.name}`)).bytes;
@@ -116,8 +116,8 @@ test('every page the request hands in lands under pages_root, byte for byte, bin
     assert.equal(Boolean(file.binary), !/\.(?:html|css|svg)$/.test(file.path));
     assert.deepEqual(file.then, [], 'a page is applied by being written');
   }
-  assert.throws(() => prepare({ unit: 'caddy.service', site: single }), /needs the pages the request gives/);
-  assert.throws(() => filesOf(single, []), /needs the pages the request gives/);
+  await assert.rejects(prepare({ unit: 'caddy.service', site: single }), /needs the pages the request gives/);
+  await assert.rejects(filesOf(single, []), /needs the pages the request gives/);
   const { pages_root, ...noRoot } = single;
-  assert.throws(() => siteFile(noRoot), /needs pages_root/);
+  await assert.rejects(siteFile(noRoot), /needs pages_root/);
 });
