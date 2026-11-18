@@ -414,6 +414,8 @@
         ],
         "at": "/opt/http-client"
        },
+       { "packages": ["node_modules/tldts"], "paths": ["LICENSE", "package.json", "dist"], "at": "/opt/node_modules/tldts" },
+       { "packages": ["node_modules/tldts-core"], "paths": ["LICENSE", "package.json", "dist"], "at": "/opt/node_modules/tldts-core" },
        {
         "package": "refuse-requests-to-private-addresses",
         "paths": [
@@ -893,6 +895,8 @@
         ],
         "at": "/opt/http-client"
        },
+       { "packages": ["node_modules/tldts"], "paths": ["LICENSE", "package.json", "dist"], "at": "/opt/node_modules/tldts" },
+       { "packages": ["node_modules/tldts-core"], "paths": ["LICENSE", "package.json", "dist"], "at": "/opt/node_modules/tldts-core" },
        {
         "package": "refuse-requests-to-private-addresses",
         "paths": [

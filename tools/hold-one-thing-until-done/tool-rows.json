@@ -494,6 +494,7 @@
                 ],
                 "at": "/opt/node_modules/tldts"
               },
+              { "packages": ["node_modules/tldts-core"], "paths": ["LICENSE", "package.json", "dist"], "at": "/opt/node_modules/tldts-core" },
               {
                 "package": "judge-words",
                 "paths": [
@@ -1013,6 +1014,7 @@
                 ],
                 "at": "/opt/node_modules/tldts"
               },
+              { "packages": ["node_modules/tldts-core"], "paths": ["LICENSE", "package.json", "dist"], "at": "/opt/node_modules/tldts-core" },
               {
                 "package": "judge-words",
                 "paths": [
@@ -1460,6 +1462,7 @@
                 ],
                 "at": "/opt/node_modules/tldts"
               },
+              { "packages": ["node_modules/tldts-core"], "paths": ["LICENSE", "package.json", "dist"], "at": "/opt/node_modules/tldts-core" },
               {
                 "package": "hand-work-to-ais",
                 "paths": [
