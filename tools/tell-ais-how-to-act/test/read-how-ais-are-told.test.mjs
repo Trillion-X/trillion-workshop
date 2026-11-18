@@ -42,7 +42,8 @@ test('the first three rows fit in 512 characters', () => {
   assert.ok(opening.length <= 512, `${opening.length} characters`);
   assert.match(opening, /run_resource_operation/);
   assert.match(opening, /@tools.*tools:list.*tools:run/);
-  assert.match(opening, /@own-records.*records:read\/list\/write/);
+  assert.match(opening, /@secrets.*secrets:put\/remove\/sign/);
+  assert.match(opening, /@own-records.*wake:\*.*sharing\.\*.*instructions:read/);
   assert.match(opening, /Old names.*not call IDs/);
 });
 
@@ -53,9 +54,9 @@ test('tool instructions use discovered Workshop IDs and the current door schemas
   assert.match(details, /tools:list input \{after\?,runs_here\?\}/);
   assert.match(details, /tools:list \{tool:ID\} returns that row.s \{id,label,job,description,input_schema,output_schema,runs_here\}/);
   assert.match(details, /tools:run input \{tool:ID,input:\{\.\.\.\}\}/);
-  assert.match(details, /records:read takes \{id,type\?\}/);
-  assert.match(details, /records:list takes \{type,order\?,prefix\?,above\?,below\?,reverse\?,limit\?,after\?,fields\?,where\?,view\?\}/);
-  assert.match(details, /records:write takes \{records:\[\{id,type,value\}\]\}/);
+  assert.match(details, /their own stores .* in each store's own language/);
+  assert.match(details, /input's `stored`.*under `keep`/);
+  assert.doesNotMatch(details, /records:(read|list|write)/);
   assert.match(details, /preserve lessons, context and original payload provenance/);
   assert.doesNotMatch(details, /tool:details/);
 });
@@ -81,6 +82,6 @@ test('every AI is told to start a lane only from its task row, and to run it in 
   assert.ok((lane.reaches ?? ['initialize']).includes('initialize'));
   assert.match(lane.text, /launch-a-lane-job\.py/);
   assert.match(lane.text, /cloud/);
-  assert.match(lane.text, /where-agents-run\.json/);
+  assert.match(lane.text, /where-agents-run/);
   assert.match(lane.text, /Needs this Mac:/);
 });
