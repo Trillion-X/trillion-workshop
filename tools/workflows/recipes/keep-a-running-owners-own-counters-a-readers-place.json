@@ -1,0 +1,178 @@
+{
+  "about": "workflow:keep-a-running-owners-own-counters-a-readers-place: keeps a running owner's own counters, a reader's place and its waiting queue as rows in the person's store, writing only the rows that changed, and says when nothing changed. It replaces tools/keep-a-running-owners-own-counters-a-readers-place, whose whole job was keeping these rows in SQL (rule a-tool-is-only-what-the-store-cannot-do).",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-a-running-owners-own-counters-a-readers-place",
+        "label": "Keep a running owner's own counters, a reader's place and its waiting queue",
+        "job": "Keep one running owner's own state (its routing counters, a reader's place, its waiting queue) as rows in the store, one row per top-level field and one row per key of a field named as split, so that a write changes only the rows whose value changed and removes the rows of keys it left out. A write that changes nothing writes nothing. A version token changes exactly when a write changed something, so a reader can tell whether its copy is still the stored one. A document that was never written can take an earlier value once. None of this is record history: the state stays out of the person's record log, because every write kept there would fill the store (lesson L126).",
+        "produces": "The owner's document in the store, one row per field or key, with the version token; proven on the example writes in PostgreSQL, a markdown folder and a JSON file, with the same counts of changed rows and the same answers in each.",
+        "source": "tools/keep-a-running-owners-own-counters-a-readers-place (src/operational-state.mjs, moved from the old tree; test/operational-state.test.mjs, checked over a SQLite host). The fact that the state is never a record is the rule in the module header (lesson L126). The store reading is not written for any one owner; the document name is the owner's own.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store",
+            "doc",
+            "split"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language",
+                "credential_name"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps this state: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The name in the person's vault under which the store's login is kept"
+                }
+              }
+            },
+            "doc": {
+              "type": "string",
+              "description": "The document's name; one owner per name"
+            },
+            "split": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Top-level fields that are maps, kept one row per key"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the document is kept (kept_in, or null) and the names of the objects that keep it.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "make",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing, make the store's own objects in its own form: one row per top-level field of the document; one row per key of each field named in split (the row's name is the field and the key together); and one token row with the empty part name, absent until the first write. A write (1) reads the rows it has, (2) finds the rows whose value differs from the new value and the rows the new value left out, (3) stops with \"nothing written\" when neither exists and the token is already there, (4) otherwise writes those rows and sets the token to a new value in the same transaction where the store has one. A read returns the document as one object built from its rows, or nothing when it was never written. A carry-in writes the value only when the document was never written. Keep no history of these writes. Submit the names of the objects made, or the ones the look step found.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the rules on the example writes",
+            "do": "In a throwaway place in the same store, with the same objects, run these eight steps in order on the document \"routing\" with split [\"again_at\", \"tried\"], and record for each the outcome and the number of rows the store wrote or removed (the token row counts). (1) Read the document: never written, so absent. (2) Write {again_at: 300 keys h_0 to h_299, each a time, tried: {h_1: [\"ai:a\"]}, last: {finished: false, why: a text of 600 characters}}: written, and it takes 303 rows (300 again_at keys, one tried key, one last field and the token). (3) Write the same value again: nothing written, 0 rows. (4) Change again_at key h_7 only and write: one row written, plus the token, 2 rows. (5) Remove again_at key h_9 and write: one row removed, plus the token, 2 rows. (6) Carry in {tried: {}} on the written document: not carried in, 0 rows. (7) Read the stamp after the change and compare it with the stamp before: moved. (8) Write the same value again and compare the stamp: stayed. Submit outcomes (one per step, in the words given) and answer (the row counts per step, the first write count, and whether the stamp moved on the change and stayed on the no-op).",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answer"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "answer": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each step has the outcome the rules give",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "absent",
+                    "written",
+                    "nothing written",
+                    "one row written",
+                    "one row removed",
+                    "not carried in",
+                    "moved",
+                    "stayed"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "The store's row counts and stamps give the expected answers",
+                "path": [
+                  "this",
+                  "answer"
+                ],
+                "values": [
+                  {
+                    "row_changes": [
+                      0,
+                      303,
+                      0,
+                      2,
+                      2,
+                      0,
+                      0,
+                      0
+                    ],
+                    "first_write_rows": 303,
+                    "stamp_moved_on_change": true,
+                    "stamp_stayed_on_no_op": true
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "erase": "On the person's request the store deletes every row of the document, its token included; this state is the owner's operational bookkeeping and is not in any record log to erase from."
+      }
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:keep-a-running-owners-own-counters-a-readers-place with store {\\\"where\\\": \\\"postgresql database example_shop on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-shop-postgres-connection\\\"} and doc \\\"routing\\\" with split [\\\"again_at\\\", \\\"tried\\\"].\"",
+  "lists": [],
+  "no_lists_because": "It names no list: the document's rows are kept in the person's own store, in whatever form that store keeps rows, and store says where and in which language. The state is not a list the person sees.",
+  "workflows": [
+    "workflow:keep-a-running-owners-own-counters-a-readers-place"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:keep-a-running-owners-own-counters-a-readers-place\" with store, the document name and its split fields.",
+    "3. The first run makes the store's own objects once and proves the rules on the example writes; every step must give its outcome and row count, or the run stops and says which.",
+    "4. Every later run writes the document through those objects: only the changed rows, nothing for a no-op, and the token moves when something changed."
+  ],
+  "worked_examples": [
+    {
+      "title": "A counter changes for one key",
+      "ask": "The routing counter for handoff h_7 changed. Save the routing state.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-a-running-owners-own-counters-a-readers-place",
+              "store": {
+                "where": "a text field",
+                "language": "the store's own",
+                "credential_name": "the store's login"
+              },
+              "doc": "routing",
+              "split": [
+                "again_at",
+                "tried"
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-a-running-owners-own-counters-a-readers-place",
+      "step": "make",
+      "given": {
+        "store": {
+          "where": "a text field",
+          "language": "the store's own",
+          "credential_name": "the store's login"
+        },
+        "doc": "routing",
+        "split": [
+          "again_at",
+          "tried"
+        ]
+      },
+      "hands_back": "Outcome \"one row written\": 2 rows written (the row of the h_7 key and the token), and the stamp moved: true."
+    }
+  ]
+}
