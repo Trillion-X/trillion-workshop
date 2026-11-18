@@ -10,6 +10,7 @@
 import words from '../../decide-with-a-method/read-data/what-helped-words.json' with { type: 'json' };
 import handling from '../records/outcome-handling.json' with { type: 'json' };
 import precedence from './outcome-precedence.json' with { type: 'json' };
+import * as outcome from '../../decide-with-a-method/read-data/decision-outcome.mjs';
 
 const numbers = usage => Object.fromEntries(Object.entries(usage ?? {}).filter(([, value]) => typeof value === 'number' && Number.isFinite(value)));
 // The check ids a refusal names: every id the step could ask that appears in the refusal's words.
@@ -68,81 +69,13 @@ export function decisionChoice(record) {
   };
 }
 
-export const decisionGeneration = record => record?.decision_generation ?? 1;
-const outcomeTime = (entry, kind) => entry.observed_at ?? (kind === 'report' ? entry.reported_at : entry.checked_at);
-const milliseconds = value => Number.isFinite(Date.parse(value)) ? Date.parse(value) : null;
-
-// Older records did not name their generation. Their own timestamp, and an action's recorded generation when
-// available, are enough to keep them historical after a new decision. Undated legacy evidence cannot verify a
-// later generation. This is a projection: no earlier observation or testimony is rewritten to manufacture a link.
-export function outcomeIsCurrent(record, entry, kind = 'check') {
-  const generation = entry.decision_generation ?? (entry.action_key
-    ? record.actions?.find(action => action.key === entry.action_key)?.decision_generation : undefined);
-  if (generation !== undefined) return generation === decisionGeneration(record);
-  const observed = milliseconds(outcomeTime(entry, kind));
-  const decided = milliseconds(record.decided_at);
-  if (observed !== null && decided !== null) return observed >= decided;
-  return decisionGeneration(record) === 1;
-}
-
-// The one current assessment used by execution controls, screens and learning. "checked" and "reported" remain
-// distinct. The server's revision orders simultaneous new evidence; a legacy tie favours failure over a success.
-export function currentDecisionOutcome(record) {
-  // A decision that does not exist (a lookup that came back null) has no outcome; a default parameter would not
-  // catch null, and reading its lists crashed every decision call.
-  record ??= {};
-  const candidates = [];
-  for (const [field, kind, by] of [['outcome_checks', 'check', 'checked'], ['observations', 'observation', 'checked'], ['reports', 'report', 'reported']]) {
-    for (const [index, entry] of (record[field] ?? []).entries()) {
-      if (!['met', 'failed', 'unknown'].includes(entry.result) || !outcomeIsCurrent(record, entry, kind)) continue;
-      if (['technical_delivery_only', 'reported_execution', 'observation_unavailable'].includes(entry.scope)) continue;
-      if (kind === 'report' && entry.answered_by !== undefined && entry.answered_by !== 'person') continue;
-      candidates.push({ result: entry.result, at: outcomeTime(entry, kind) ?? null, by,
-        source_ref: entry.source_ref ?? null, summary: entry.summary ?? entry.reason ?? null,
-        decision_generation: decisionGeneration(record), revision: entry.outcome_revision ?? 0, index, evidence: entry });
-    }
-  }
-  const severity = { met: 0, unknown: 1, failed: 2 };
-  const superseded = new Set(candidates.map(item => item.evidence.supersedes).filter(Boolean));
-  const current = candidates.filter(item => !superseded.has(item.source_ref));
-  current.sort((a, b) => (milliseconds(a.at) ?? -Infinity) - (milliseconds(b.at) ?? -Infinity)
-    || a.revision - b.revision || severity[a.result] - severity[b.result] || a.index - b.index);
-  const latest = current.at(-1) ?? null;
-  if (!latest) return null;
-  // The person's confirmed value (a report they made themselves) and the AI's inference (a check or observation) are
-  // kept side by side. With src/outcome-precedence.json person_confirmed_wins the confirmed value stays current until the person
-  // changes or retracts it; the inference never replaces it, and is returned beside it.
-  const confirmed = current.filter(item => item.by === 'reported' && personReportVerified(item.evidence)).at(-1) ?? null;
-  const inferred = current.filter(item => item.by === 'checked').at(-1) ?? null;
-  const chosen = precedence.person_confirmed_wins === true && confirmed ? confirmed : latest;
-  const inference = inferred && inferred !== chosen ? { result: inferred.result, at: inferred.at, source_ref: inferred.source_ref, summary: inferred.summary } : null;
-  return inference ? { ...chosen, inference } : chosen;
-}
-
-// This basis is supplied by the signed-in host, never copied from report_result's body. An author label alone is
-// a claim. Old entries and AI-transcribed words remain attributed claims until a trusted original source exists.
-export const personReportVerified = report => Boolean(report?.answered_by === 'person' && ['signed_in_person_screen', 'kept_person_message'].includes(report.person_source?.basis)
-  && typeof report.person_source?.source_ref === 'string' && report.person_source.source_ref.trim().length > 0);
-
-// A person report can contradict a verified result; it cannot promote itself into independent verification.
-// Preserve other reasons a case is open for correction (a rejected action or an explicit disagreement).
-export function decisionStatus(record) {
-  record ??= {};
-  if (!record.decision || ['invalid_source', 'ended', 'needs_decision'].includes(record.status)) return record.status;
-  const outcome = currentDecisionOutcome(record);
-  if (outcome?.result === 'failed') return 'correction_needed';
-  if (outcome?.result === 'unknown' || outcome?.by === 'reported' || !outcome) {
-    return record.status === 'correction_needed' ? 'correction_needed' : 'needs_outcome';
-  }
-  return record.status;
-}
-
-// The current settled outcome, or null while unknown. Every consumer gets the same chronology and generation.
-export function decisionResult(record) {
-  const outcome = currentDecisionOutcome(record);
-  if (outcome?.result === 'met' && outcome.by === 'reported' && !personReportVerified(outcome.evidence)) return null;
-  return outcome && outcome.result !== 'unknown' ? { result: outcome.result, at: outcome.at, by: outcome.by } : null;
-}
+// How a decision turned out is decide-with-a-method's (read-data/decision-outcome.mjs, its public part): which evidence is
+// current, the one current assessment, its status and its settled result. This file keeps only who wins when the
+// person and a check disagree (./outcome-precedence.json), and passes it.
+export const { decisionGeneration, outcomeIsCurrent, personReportVerified } = outcome;
+export const currentDecisionOutcome = record => outcome.currentDecisionOutcome(record, precedence);
+export const decisionStatus = record => outcome.decisionStatus(record, precedence);
+export const decisionResult = record => outcome.decisionResult(record, precedence);
 
 const median = values => {
   const sorted = values.filter(value => typeof value === 'number' && Number.isFinite(value)).sort((a, b) => a - b);
