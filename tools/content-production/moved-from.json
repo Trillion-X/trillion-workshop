@@ -182,41 +182,6 @@
       "identity": "1f:7c3af44254ca2ab17a77922385c704123e9113235209d0b25ea3cee14619c643"
     },
     {
-      "from": "packages/content-production/show/ContentDeliverablesPanel.tsx",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/content-production/packages/content-production/show/ContentDeliverablesPanel.tsx",
-      "source_identity": "1f:47e194c339c2872823812cefb5a20b921cb29dfc6271858c18fe9c9f1f0893c0",
-      "identity": "1f:47e194c339c2872823812cefb5a20b921cb29dfc6271858c18fe9c9f1f0893c0"
-    },
-    {
-      "from": "packages/content-production/show/ContentLibraryPanel.tsx",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/content-production/packages/content-production/show/ContentLibraryPanel.tsx",
-      "source_identity": "1f:3ab9cc5f03f474acea4c4afa2db8720c3b5ca814d5452fffee7dd8c5b812b5c8",
-      "identity": "1f:3ab9cc5f03f474acea4c4afa2db8720c3b5ca814d5452fffee7dd8c5b812b5c8"
-    },
-    {
-      "from": "packages/content-production/show/ContentProduction.tsx",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/content-production/packages/content-production/show/ContentProduction.tsx",
-      "source_identity": "1f:b4baf19cace3c1114c1d796dea501813efc5e41348f451772bb3a5b2666f6b91",
-      "identity": "1f:b4baf19cace3c1114c1d796dea501813efc5e41348f451772bb3a5b2666f6b91"
-    },
-    {
-      "from": "packages/content-production/show/ContentStylePanel.tsx",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/content-production/packages/content-production/show/ContentStylePanel.tsx",
-      "source_identity": "1f:55ffe5680ff8e86fbf4f18cc34e43ed4fe7c11750777ec2c387eda09396737cf",
-      "identity": "1f:55ffe5680ff8e86fbf4f18cc34e43ed4fe7c11750777ec2c387eda09396737cf"
-    },
-    {
-      "from": "packages/content-production/show/ContentWorkspaceShell.tsx",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/content-production/packages/content-production/show/ContentWorkspaceShell.tsx",
-      "source_identity": "1f:08975a58da50280d48222b9a45307df29fff522a987afce394305137d0686d3e",
-      "identity": "1f:08975a58da50280d48222b9a45307df29fff522a987afce394305137d0686d3e"
-    },
-    {
       "from": "packages/content-production/show/mount-content-deliverables.tsx",
       "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
       "to": "tools/content-production/packages/content-production/show/mount-content-deliverables.tsx",

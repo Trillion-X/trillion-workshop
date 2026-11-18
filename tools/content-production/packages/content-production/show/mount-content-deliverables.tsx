@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { ContentDeliverablesPanel } from './ContentDeliverablesPanel';
+import { ContentDeliverablesPanel } from '../../../../shape-a-thought-into-my-content-formats/packages/content-production/show/ContentDeliverablesPanel';
 import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
 
 type MountArgs = {

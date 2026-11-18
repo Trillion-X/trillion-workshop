@@ -7,9 +7,9 @@
 | File | Purpose |
 |------|---------|
 | `mount-content-production.tsx` | Entry adapter for the "Make content" panel (`FloatingMaterialFrame` + `ErrorBoundary` + `ContentProduction`) |
-| `ContentProduction.tsx` | The "Make content" run-submission panel |
+| `tools/shape-a-thought-into-my-content-formats/packages/content-production/show/ContentProduction.tsx` | The "Make content" run-submission panel |
 | `mount-content-workspace.tsx` | Entry adapter for the workspace shell (`FloatingMaterialFrame` + `ErrorBoundary` + `ContentWorkspaceShell`) |
-| `ContentWorkspaceShell.tsx` | Root workspace shell: Fey-style header + `EmbeddedScreenArrangement` hosting all content surfaces as tabs |
+| `tools/shape-a-thought-into-my-content-formats/packages/content-production/show/ContentWorkspaceShell.tsx` | Root workspace shell: Fey-style header + `EmbeddedScreenArrangement` hosting all content surfaces as tabs |
 
 ## Key Types / Functions
 

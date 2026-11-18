@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { ContentStylePanel } from './ContentStylePanel';
+import { ContentStylePanel } from '../../../../shape-a-thought-into-my-content-formats/packages/content-production/show/ContentStylePanel';
 import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
 
 type MountArgs = {

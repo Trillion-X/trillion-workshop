@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { ContentWorkspaceShell } from './ContentWorkspaceShell';
+import { ContentWorkspaceShell } from '../../../../shape-a-thought-into-my-content-formats/packages/content-production/show/ContentWorkspaceShell';
 import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
 
 type MountArgs = {

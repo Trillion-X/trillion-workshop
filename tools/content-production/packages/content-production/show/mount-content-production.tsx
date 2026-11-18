@@ -2,7 +2,7 @@ import React from 'react';
 import { ErrorBoundary } from '../../../../ui/show/error-boundary';
 import { FloatingMaterialFrame } from '../../../../ui/show/floating-material-frame';
 import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
-import { ContentProduction } from './ContentProduction';
+import { ContentProduction } from '../../../../shape-a-thought-into-my-content-formats/packages/content-production/show/ContentProduction';
 
 type MountArgs = {
   el: HTMLElement;
