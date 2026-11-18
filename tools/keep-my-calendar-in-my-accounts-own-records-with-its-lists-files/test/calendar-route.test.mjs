@@ -42,35 +42,8 @@ function personDoor(records = [], { beforeWrite = () => {} } = {}) {
 
 const route = (door, path, method = 'GET', query = {}, body = {}) => answerTheCalendarRoute({ path, method, query, body, browser: {} }, { door });
 
-test('a task added through POST /calendar/tasks is kept as the person\'s records and read back by GET', async () => {
-  const { door, kept } = personDoor();
-  const empty = await route(door, '/calendar/tasks');
-  assert.equal(empty.status, 200);
-  assert.deepEqual(empty.body.tasks ?? [], []);
-  // The old owner's read makes the calendar's starting lists once when they are missing (calendar-tasks.mjs
-  // ensureTaskList), and keeps no task.
-  assert.ok(kept.has('list:calendar-tasks'));
-  assert.equal([...kept.keys()].filter(id => id.startsWith('record:calendar-task:')).length, 0);
-  const again = new Map(kept);
-  await route(door, '/calendar/tasks');
-  assert.deepEqual(kept, again, 'once made, a read writes nothing');
-
-  const added = await route(door, '/calendar/tasks', 'POST', {}, { action: 'create', request_key: 'fern-1', title: 'Water the sample ferns', duration_minutes: 15 });
-  assert.equal(added.status, 200, JSON.stringify(added.body));
-  const taskIds = [...kept.keys()].filter(id => id.startsWith('record:calendar-task:'));
-  assert.equal(taskIds.length, 1, 'one task record');
-  assert.ok(kept.has('list:calendar-tasks'), 'the task list is made once, as the old owner made it');
-
-  const read = await route(door, '/calendar/tasks');
-  assert.equal(read.status, 200);
-  assert.deepEqual(read.body.tasks.map(task => task.title), ['Water the sample ferns']);
-});
-
 test('GET /calendar reads the person\'s tasks as its personal-tasks source and says the sources a run cannot reach', async () => {
-  const { door } = personDoor();
-  const made = await route(door, '/calendar/tasks', 'POST', {}, { action: 'create', request_key: 'dentist-1', title: 'Sample dentist', duration_minutes: 60 });
-  const scheduled = await route(door, '/calendar/tasks', 'POST', {}, { action: 'schedule', task_id: made.body.task.id, start: '2036-10-06T09:00:00.000Z', end: '2036-10-06T10:00:00.000Z' });
-  assert.equal(scheduled.status, 200, JSON.stringify(scheduled.body));
+  const { door } = personDoor([{ id: 'record:calendar-task:calendar-dentist-1', type: 'record:calendar-task', value: { title: 'Sample dentist', duration_minutes: 60, created_at: '2026-11-18T21:59:01.357Z', description: '', labels: [], status: 'To do', manual_order: 'V', starts_at: '2036-10-06T09:00:00.000Z', ends_at: '2036-10-06T10:00:00.000Z' } }]);
   const answer = await route(door, '/calendar', 'GET', { from: '2036-10-05T00:00:00Z', to: '2036-10-12T00:00:00Z' });
   assert.equal(answer.status, 200, JSON.stringify(answer.body));
   const by = Object.fromEntries(answer.body.sources.map(row => [row.id, row]));
@@ -90,48 +63,11 @@ test('a span the calendar refuses is the owner\'s refusal in its words; routes o
   for (const path of ['/calendar/actions', '/calendar/availability', '/elsewhere']) assert.deepEqual(await route(door, path, 'POST'), { status: 404, body: { error: 'Not found' } });
 });
 
-test('a record changed while the request ran is never written over', async () => {
-  let race = null;
-  const { door, kept } = personDoor([], { beforeWrite: held => {
-    if (!race) return;
-    const id = race;
-    race = null;
-    held.set(id, { ...held.get(id), value: { ...held.get(id).value, title: 'Renamed meanwhile' } });
-  } });
-  const made = await route(door, '/calendar/tasks', 'POST', {}, { action: 'create', request_key: 'one', title: 'First sample', duration_minutes: 15 });
-  const id = `record:calendar-task:${made.body.task.id}`;
-  race = id;
-  const refused = await route(door, '/calendar/tasks', 'POST', {}, { action: 'complete', task_id: made.body.task.id });
-  assert.equal(refused.status, 500);
-  assert.equal(kept.get(id).value.title, 'Renamed meanwhile', 'the change made meanwhile stands');
-  assert.notEqual(kept.get(id).value.status, 'Done', 'the refused change wrote nothing');
-});
-
 test('the route row runs as the engine runs it, against the stand-in door with exactly its rights', async () => {
   const row = rowOf(rows, 'tool:answer-the-calendar-page-route');
   const [sample] = row.verify;
   const ran = await answerOf(row, sample.input, sample);
   assert.equal(ran.status, 0, JSON.stringify(ran));
   assert.equal(ran.result.status, 200, JSON.stringify(ran.result));
-  assert.ok(ran.kept.some(record => record.type === 'record:calendar-task'), 'the task is kept through the door');
-});
-
-test('a task a lane-job link row names cannot be completed through the route until that job is done with a result', async () => {
-  const { door, kept } = personDoor();
-  await route(door, '/calendar/tasks');
-  const added = await route(door, '/calendar/tasks', 'POST', {}, { action: 'create', request_key: 'linked-1', title: 'Sample linked work', duration_minutes: 15 });
-  assert.equal(added.status, 200, JSON.stringify(added.body));
-  const recordId = [...kept.keys()].find(id => id.startsWith('record:calendar-task:'));
-  const taskId = added.body.task.id;
-  const job = (status, result) => kept.set('ai-job:sample-lane', { id: 'ai-job:sample-lane', type: 'ai-job', value: { status, ...(result ? { result } : {}) } });
-  // A link row of the launcher's shape: its id is not record:-prefixed, the description is never read.
-  kept.set('lane-job-link:sample-lane', { id: 'lane-job-link:sample-lane', type: 'lane-job-link', value: { job: 'ai-job:sample-lane', task: recordId, kind: ['record:calendar-task-list:x'], paths: [] } });
-  kept.set('lane-job-link:other-lane', { id: 'lane-job-link:other-lane', type: 'lane-job-link', value: { job: 'ai-job:other-lane', task: 'record:calendar-task:someone-else', paths: [] } });
-  job('taken');
-  const refused = await route(door, '/calendar/tasks', 'POST', {}, { action: 'complete', task_id: taskId });
-  assert.equal(refused.status >= 400, true, JSON.stringify(refused.body));
-  assert.match(JSON.stringify(refused.body), /ai-job:sample-lane, and that job is taken/);
-  job('done', 'Finished; read back.');
-  const settled = await route(door, '/calendar/tasks', 'POST', {}, { action: 'complete', task_id: taskId });
-  assert.equal(settled.status, 200, JSON.stringify(settled.body));
+  assert.equal(ran.kept.filter(record => record.type === 'record:calendar-task').length, 0, 'a read keeps no task');
 });

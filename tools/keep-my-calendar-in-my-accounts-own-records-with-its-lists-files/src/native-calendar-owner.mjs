@@ -7,8 +7,7 @@ import { readCalendar, isCalendarPath } from './calendar.mjs';
 import { runCalendarAction } from './calendar-actions.mjs';
 import { buildCalendarSources, listSelectableCalendars, validateCalendarSelections,
   validateCalendarRouteChoice, calendarSelectionSourceId } from './calendar-connections.mjs';
-import { changeCalendarTask, readCalendarTasks, readCalendarTaskCollections,
-  handleCalendarTasksRequest, runCalendarTaskRecurrencePage } from '../../plan-tasks-and-todo-lists/calendar-tasks.mjs';
+import { readCalendarTasks, readCalendarTaskCollections, handleCalendarTasksRequest } from '../../plan-tasks-and-todo-lists/calendar-tasks.mjs';
 import { handleTaskProposalRequest, isTaskProposalPath } from './task-proposals.mjs';
 import { handleDateShiftRequest, isDateShiftPath } from '../../move-a-dated-plan/src/date-shift.mjs';
 import { makeLists } from '../../keep-lists-of-rows/lists.mjs';
@@ -25,7 +24,7 @@ export function nativeCalendarOwner({
   records, eeaf = records, workshop, namespace, models, connections,
   route, connectionIO, current = async () => {}, context = () => ({}),
   settings = calendarSettings, sources = settings.sources, revisionOf = () => '', now = () => Date.now(),
-  availability = () => null, taskListOwner = null, arm = async () => {}, stateRead = async () => null, stateWrite = async () => {},
+  availability = () => null, taskListOwner = null,
 } = {}) {
   if (!eeaf || typeof eeaf.read !== 'function') throw new TypeError('The current native EEAF record owner is required.');
   if (!workshop || typeof workshop.run !== 'function') throw new TypeError('The current native Workshop owner is required.');
@@ -51,28 +50,6 @@ export function nativeCalendarOwner({
     catch(error) { return error?.missing_connection ? {connected:false} : {state:'failed',error:String(error.message??error)}; }
   };
 
-  const journal = crypto.randomUUID();
-  const stamp = () => JSON.stringify(eeaf.read('list:calendar-tasks') ?? null);
-  const invalid = state => {
-    if (!state || state.stamp !== stamp() || state.journal !== journal) return true;
-    const seq=eeaf.changeSeq?.();if(!Number.isSafeInteger(seq)||!Number.isSafeInteger(state.seq)||seq<state.seq)return true;
-    if(seq===state.seq)return false;const changed=eeaf.changedSince?.(state.seq);
-    return !Array.isArray(changed)||changed.some(id=>id==='list:calendar-tasks'||id.startsWith('record:calendar-task:'));
-  };
-  const blank=()=>({stamp:stamp(),journal,seq:eeaf.changeSeq?.()??0,cursor:null,next_at:null,complete:false});
-  const recurrenceNextAt=async()=>{
-    // No task list, nothing to repeat: no step is due and no recurrence state is written (src/calendar-tasks.mjs).
-    if(!await lists.has(taskSettings.list.id))return null;
-    let state=await stateRead();if(invalid(state)||state.complete&&Number.isFinite(state.next_at)&&state.next_at<=now()) {state=blank();await stateWrite(state);}
-    else if(state.seq!==eeaf.changeSeq?.()){state.seq=eeaf.changeSeq?.()??state.seq;await stateWrite(state);}
-    return !state.complete?now():Number.isFinite(state.next_at)?state.next_at:null;
-  };
-  const recurrenceStep=async()=>{
-    let state=await stateRead();if(invalid(state)||state.complete)state=blank();
-    const page=await runCalendarTaskRecurrencePage(lists,{cursor:state.cursor??undefined,now:now(),limit:50});
-    const next=page.next_at===null?state.next_at:state.next_at===null?page.next_at:Math.min(state.next_at,page.next_at);
-    await stateWrite({stamp:stamp(),journal,seq:eeaf.changeSeq?.()??0,cursor:page.next_cursor,next_at:next,complete:page.complete});return page;
-  };
   const currentSources = async () => {
     const selections = eeaf.read('workspace-preference:calendar-selections');
     if (!Array.isArray(selections)) return sources;
@@ -81,6 +58,8 @@ export function nativeCalendarOwner({
     const accountIndex = await listSelectableCalendars(connectionIO, settings);
     return [...own, ...await buildCalendarSources({ selections, accountIndex, io: connectionIO, settings })];
   };
+  // Keeping (tasks, proposals, dates, selections) is the recipe's: this page route only reads.
+  const keepingMoved = () => Response.json({ error: 'Keeping moved to workflow:keep-my-calendar-tasks-and-proposals; the calendar page route only reads.' }, { status: 405 });
   const request = async input => {
     await current('calendar:request', input);
     const url = new URL(input.path, 'https://native'), method = input.method ?? 'GET';
@@ -90,17 +69,11 @@ export function nativeCalendarOwner({
       if (!owner) throw new Error('The availability capability is not installed.');
       return owner.request(input);
     } else if (url.pathname === '/calendar/tasks') {
-      response = await handleCalendarTasksRequest(lists, new Request(url, { method, headers: { 'content-type': 'application/json' },
-        ...(method === 'GET' ? {} : { body: JSON.stringify(input.body ?? {}) }) }), { jobs, jobsOfTask });
-      if (method === 'POST' && response.ok) await arm();
+      response = method === 'GET' ? await handleCalendarTasksRequest(lists, new Request(url, { method }), { jobs, jobsOfTask }) : keepingMoved();
     } else if (isDateShiftPath(url.pathname)) {
-      response = await handleDateShiftRequest(lists, new Request(url, { method, headers: { 'content-type': 'application/json' },
-        ...(method === 'GET' ? {} : { body: JSON.stringify(input.body ?? {}) }) }));
-      if (method === 'POST' && response.ok) await arm();
+      response = method === 'GET' ? await handleDateShiftRequest(lists, new Request(url, { method })) : keepingMoved();
     } else if (isTaskProposalPath(url.pathname)) {
-      response = await handleTaskProposalRequest(lists, new Request(url, { method, headers: { 'content-type': 'application/json' },
-        ...(method === 'GET' ? {} : { body: JSON.stringify(input.body ?? {}) }) }));
-      if (method === 'POST' && response.ok) await arm();
+      response = await handleTaskProposalRequest(lists, new Request(url, { method }));
     } else if (url.pathname === '/calendar/connections' && method === 'GET') {
       response = Response.json({ ...await listSelectableCalendars(connectionIO, settings), selections: eeaf.read('workspace-preference:calendar-selections') ?? null });
     } else if (url.pathname === '/calendar' && method === 'GET') {
@@ -108,14 +81,12 @@ export function nativeCalendarOwner({
         sources: await currentSources(), revisionOf, now }));
     } else if (url.pathname === '/calendar/actions' && method === 'POST') {
       const result = await runCalendarAction(input.body, { runTool:(tool_id,input,request_key)=>workshop.run({tool_id,input,request_key,wait_seconds:30}), sources: await currentSources() });
-      if (!['completed', 'failed', 'refused'].includes(result?.state)) await arm();
       response = Response.json(result);
     } else response = Response.json({ error: 'Not found' }, { status: 404 });
     return { native_response: true, status: response.status, headers: { 'content-type':'application/json' }, body: await response.json() };
   };
   const operations = Object.freeze({
     'calendar:request': request,
-    'calendar:recurrenceStep':async input=>{await current('calendar:recurrenceStep',input);return recurrenceStep();},
     'calendar:read': input => read('calendar:read', input, async () => readCalendar(input, {
       route,
       runTool,
@@ -130,8 +101,6 @@ export function nativeCalendarOwner({
     })),
     'calendar:tasks:read': input => read('calendar:tasks:read', input, async () => await readCalendarTasks(lists, input)),
     'calendar:tasks:collections': input => read('calendar:tasks:collections', input, async () => await readCalendarTaskCollections(lists, input)),
-    'calendar:tasks:change': input => read('calendar:tasks:change', input, async () => await changeCalendarTask(lists, input, { now: () => now(), jobs, jobsOfTask })),
-    'calendar:tasks:recurrence': input => read('calendar:tasks:recurrence', input, async () => await runCalendarTaskRecurrencePage(lists, { ...input, now: now() })),
     'calendar:connections:list': input => read('calendar:connections:list', input, () => {
       if (!connectionIO) throw new Error('The current native service-connections owner is unavailable.');
       return listSelectableCalendars(connectionIO, settings);
@@ -153,7 +122,7 @@ export function nativeCalendarOwner({
   });
 
   return Object.freeze({
-    operations, recurrenceNextAt, recurrenceStep,
+    operations,
     invoke(operation, input = {}) {
       if (!object(input)) throw new TypeError('Calendar input must be an object.');
       const implementation = operations[operation];
@@ -165,12 +134,11 @@ export function nativeCalendarOwner({
     http: Object.freeze({
       read: 'calendar:read',
       taskRead: 'calendar:tasks:read',
-      taskChange: 'calendar:tasks:change',
     }),
     mcp: Object.freeze({
       read: 'calendar:read',
       action: 'calendar:action',
-      tasks: Object.freeze(['calendar:tasks:read', 'calendar:tasks:collections', 'calendar:tasks:change']),
+      tasks: Object.freeze(['calendar:tasks:read', 'calendar:tasks:collections']),
       connections: Object.freeze(['calendar:connections:list', 'calendar:connections:validate', 'calendar:connections:build', 'calendar:connections:route']),
     }),
     taskSettings,

@@ -209,8 +209,8 @@
         "id": "tool:answer-the-calendar-page-route",
         "label": "Answer the calendar page routes",
         "status": "active",
-        "job": "Answer the page's calendar routes (GET /work/api/calendar, GET and POST /work/api/calendar/tasks, and the task proposal and date-shift routes) from my own records",
-        "description": "The page's calendar routes, run by the engine for the page's account (workshop-routes): the request's { path, method, query, body } in, { status, body } out. Each is answered by old trillion's own calendar owner (src/native-calendar-owner.mjs calendar:request, moved here unchanged) over the person's calendar task lists, read and written only through the records door, every write conditional on what was read. GET /calendar reads every source; the person's tasks are read here, and a source only another route or a connected calendar tool can read is said unread in the calendar's own words. /calendar/actions and /calendar/availability are not answered here (404).",
+        "job": "Answer the page's calendar routes that read (GET /work/api/calendar, GET /calendar/tasks, GET /calendar/task-proposals, GET /calendar/connections) from my own records",
+        "description": "The page's calendar routes, run by the engine for the page's account (workshop-routes): the request's { path, method, query, body } in, { status, body } out. Each is answered by old trillion's own calendar owner (src/native-calendar-owner.mjs calendar:request) over the person's calendar task lists, read through the records door. GET /calendar reads every source; the person's tasks are read here, and a source only another route or a connected calendar tool can read is said unread in the calendar's own words. Keeping tasks, proposals, dates and selections is not answered here: a POST to those routes answers 405 and that keeping is workflow:keep-my-calendar-tasks-and-proposals. /calendar/actions and /calendar/availability are not answered here (404).",
         "input_schema": {
           "type": "object",
           "required": [
@@ -497,7 +497,9 @@
                 "at": "/opt/wall-time"
               },
               {
-                "packages": ["node_modules/@noble/hashes"],
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
                 "paths": [
                   "LICENSE",
                   "_blake.js",
@@ -559,14 +561,9 @@
             "kind": "sample-run",
             "input": {
               "path": "/calendar/tasks",
-              "method": "POST",
+              "method": "GET",
               "query": {},
-              "body": {
-                "action": "create",
-                "request_key": "sample-1",
-                "title": "Water the sample ferns",
-                "duration_minutes": 15
-              },
+              "body": {},
               "browser": {}
             },
             "records": [],

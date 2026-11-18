@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:d210ec842203ab2fe73c72b376564ab042d5311f833ef8b9bff12e6ca58eee7e"
+  "blake3": "1f:93f8240fc4bc7d768a28d31304332fe954fc9b20e47870159da9e5a2adfdbe66"
  },
  "fields": [
   {
@@ -364,8 +364,8 @@
    "id": "tool:answer-the-calendar-page-route",
    "values": {
     "title": "Answer the calendar page routes",
-    "job": "Answer the page's calendar routes (GET /work/api/calendar, GET and POST /work/api/calendar/tasks, and the task proposal and date-shift routes) from my own records",
-    "description": "The page's calendar routes, run by the engine for the page's account (workshop-routes): the request's { path, method, query, body } in, { status, body } out. Each is answered by old trillion's own calendar owner (src/native-calendar-owner.mjs calendar:request, moved here unchanged) over the person's calendar task lists, read and written only through the records door, every write conditional on what was read. GET /calendar reads every source; the person's tasks are read here, and a source only another route or a connected calendar tool can read is said unread in the calendar's own words. /calendar/actions and /calendar/availability are not answered here (404).",
+    "job": "Answer the page's calendar routes that read (GET /work/api/calendar, GET /calendar/tasks, GET /calendar/task-proposals, GET /calendar/connections) from my own records",
+    "description": "The page's calendar routes, run by the engine for the page's account (workshop-routes): the request's { path, method, query, body } in, { status, body } out. Each is answered by old trillion's own calendar owner (src/native-calendar-owner.mjs calendar:request) over the person's calendar task lists, read through the records door. GET /calendar reads every source; the person's tasks are read here, and a source only another route or a connected calendar tool can read is said unread in the calendar's own words. Keeping tasks, proposals, dates and selections is not answered here: a POST to those routes answers 405 and that keeping is workflow:keep-my-calendar-tasks-and-proposals. /calendar/actions and /calendar/availability are not answered here (404).",
     "status": "active",
     "maker": "maker:trillion",
     "licence_class": "licence:maker-own",
@@ -13563,21 +13563,6 @@
      "placement:your-computer"
     ],
     "folder": "grade-and-repair-speech-audio"
-   }
-  },
-  {
-   "id": "tool:total-a-list-or-view",
-   "values": {
-    "title": "Total a list or a view",
-    "job": "Add up a list, or one of its saved views, without reading its rows: how many rows, the sum, average, smallest or largest of a number field, over the whole list or for each value of one field",
-    "description": "Totals over one of my lists or one of its saved views, without sending the rows: measures: [{ op, field? }] where op is count (rows), filled or distinct (any field), or sum, average, median, min or max (a number field), each answered once for the whole list and, with group_by, once for each value of that field (at most 100 groups; a field holding several tags counts the row once per tag). With view_id only the rows that view keeps are totalled, read the way the page shows the view. The answer says how many rows it counted and complete: false when it stopped before the end, so a partial total is never taken for the whole. The totals come back in the answer; this run reads only the records handed in and keeps nothing. Old trillion's read_list_aggregates (POST /lists/<id>/aggregate).",
-    "status": "active",
-    "maker": "maker:trillion",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "total-a-list-or-view"
    }
   },
   {

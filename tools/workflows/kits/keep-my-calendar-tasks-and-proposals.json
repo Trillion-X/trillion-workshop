@@ -1,0 +1,265 @@
+{
+  "start_here": "Say to your AI: \"Propose the task Book the offsite from meeting standup, then approve it, then show me my calendar tasks.\" Your AI keeps the proposal and the task in your own store with workflow:keep-my-calendar-tasks-and-proposals, then reads them back with tool:answer-the-calendar-page-route (GET /calendar/tasks and GET /calendar/task-proposals).",
+  "lists": [
+    {
+      "list": "list:calendar-tasks",
+      "label": "Calendar tasks",
+      "row_type": "record:calendar-task",
+      "holds": "The tasks on your calendar: what to do, how long it takes, when it is due or placed, and where it stands.",
+      "fields": [
+        {
+          "id": "title",
+          "kind": "text",
+          "label": "Task",
+          "alike": [
+            "name",
+            "task name",
+            "to do"
+          ]
+        },
+        {
+          "id": "description",
+          "kind": "long-text",
+          "label": "Description",
+          "alike": [
+            "notes",
+            "details"
+          ]
+        },
+        {
+          "id": "priority",
+          "kind": "choice",
+          "label": "Priority",
+          "alike": [
+            "importance",
+            "urgency"
+          ]
+        },
+        {
+          "id": "duration_minutes",
+          "kind": "number",
+          "label": "Minutes",
+          "alike": [
+            "length",
+            "time"
+          ]
+        },
+        {
+          "id": "status",
+          "kind": "choice",
+          "label": "Status",
+          "alike": [
+            "state",
+            "progress"
+          ]
+        },
+        {
+          "id": "starts_at",
+          "kind": "text",
+          "label": "Starts",
+          "alike": [
+            "start",
+            "placed at"
+          ]
+        },
+        {
+          "id": "ends_at",
+          "kind": "text",
+          "label": "Ends",
+          "alike": [
+            "end",
+            "finish"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "water-the-sample-ferns",
+          "values": {
+            "title": "Water the sample ferns",
+            "description": "The two ferns by the window.",
+            "priority": "low",
+            "duration_minutes": 15,
+            "status": "To do"
+          }
+        },
+        {
+          "id": "sample-dentist",
+          "values": {
+            "title": "Sample dentist",
+            "priority": "medium",
+            "duration_minutes": 60,
+            "starts_at": "2036-10-06T09:00:00.000Z",
+            "ends_at": "2036-10-06T10:00:00.000Z",
+            "status": "Not started"
+          }
+        }
+      ],
+      "alike": [
+        "a to-do app's task list",
+        "a calendar's tasks panel",
+        "a spreadsheet of chores with durations"
+      ]
+    },
+    {
+      "list": "list:calendar-task-proposals",
+      "label": "Proposed tasks",
+      "row_type": "record:calendar-task-proposal",
+      "holds": "Tasks an AI or a rule found (action items in a meeting, requests in a message), waiting for you to approve, reject or edit them.",
+      "fields": [
+        {
+          "id": "title",
+          "kind": "text",
+          "label": "Task",
+          "alike": [
+            "name",
+            "to do"
+          ]
+        },
+        {
+          "id": "state",
+          "kind": "choice",
+          "label": "State",
+          "alike": [
+            "status"
+          ]
+        },
+        {
+          "id": "source_id",
+          "kind": "text",
+          "label": "Where it came from",
+          "alike": [
+            "source",
+            "meeting"
+          ]
+        },
+        {
+          "id": "due",
+          "kind": "text",
+          "label": "Due",
+          "alike": [
+            "deadline"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "book-the-offsite",
+          "values": {
+            "title": "Book the offsite",
+            "state": "proposed",
+            "source_id": "meeting:standup",
+            "due": "2026-11-20"
+          }
+        },
+        {
+          "id": "send-the-invoice",
+          "values": {
+            "title": "Send the invoice",
+            "state": "approved",
+            "source_id": "email:acme",
+            "due": "2026-11-22"
+          }
+        }
+      ],
+      "alike": [
+        "an inbox of suggested to-dos",
+        "a meeting's action-item list",
+        "a spreadsheet of tasks waiting for review"
+      ]
+    }
+  ],
+  "workflows": [
+    "workflow:keep-my-calendar-tasks-and-proposals"
+  ],
+  "tools": [
+    "tool:run-workflow-definition",
+    "tool:answer-the-calendar-page-route"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say what you want kept (a task, a proposal to review, a calendar choice) and run workflow:keep-my-calendar-tasks-and-proposals with store and the changes.",
+    "3. The first run makes the store's own objects once and proves them on the example attempts: every change must be kept, repeated or refused as the intent says, or the run stops and says which.",
+    "4. Read the calendar back with tool:answer-the-calendar-page-route (GET only). Keeping a proposal or a task never goes through that tool."
+  ],
+  "worked_examples": [
+    {
+      "title": "Propose a task, approve it, read the tasks back",
+      "ask": "Propose the task Book the offsite from meeting standup and approve it.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-my-calendar-tasks-and-proposals",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "changes": [
+                {
+                  "op": "propose",
+                  "source_id": "meeting:standup",
+                  "items": [
+                    {
+                      "title": "Book the offsite"
+                    }
+                  ]
+                },
+                {
+                  "op": "approve",
+                  "of": [
+                    "meeting:standup",
+                    "Book the offsite"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-my-calendar-tasks-and-proposals",
+      "step": "keep",
+      "given": "The look step found the proposals and tasks kept by an earlier run in the store's own objects.",
+      "hands_back": "kept_changes [\"kept\", \"kept\"] and found with the proposal approved and its task read back."
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for the same job and read its fields and row type from your own store. Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the example rows to keep beside your own.",
+    "example": {
+      "kit_list": "list:calendar-tasks",
+      "into": {
+        "list": "list:my-tasks",
+        "row_type": "record:task",
+        "fields": [
+          {
+            "id": "title",
+            "label": "Task"
+          },
+          {
+            "id": "description",
+            "label": "Description"
+          },
+          {
+            "id": "priority",
+            "label": "Priority"
+          },
+          {
+            "id": "duration_minutes",
+            "label": "Minutes"
+          },
+          {
+            "id": "status",
+            "label": "Status"
+          }
+        ]
+      }
+    }
+  }
+}

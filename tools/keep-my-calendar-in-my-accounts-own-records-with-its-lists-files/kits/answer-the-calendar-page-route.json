@@ -1,6 +1,43 @@
 {
   "drafted_from": "tool:answer-the-calendar-page-route row in tool-rows.json, src/calendar-route.mjs, src/native-calendar-owner.mjs and test/calendar-route.test.mjs; list:calendar-tasks read from the person's own store; the example answer was produced by running answerTheCalendarRoute against the test's in-memory rows",
-  "start_here": "Say to your AI: \"Add a 15 minute task called Water the sample ferns to my calendar tasks, then show me my calendar tasks.\" It calls the calendar page route twice, a POST to /calendar/tasks and a GET, and reads the task back from your own records.",
+  "start_here": "Say to your AI: \"Show me my calendar tasks and the tasks waiting for my review.\" It calls the calendar page route twice, a GET to /calendar/tasks and a GET to /calendar/task-proposals, and reads them from your own records.",
+  "workflows": [
+    "workflow:keep-my-calendar-tasks-and-proposals"
+  ],
+  "tools": [
+    "tool:answer-the-calendar-page-route"
+  ],
+  "instructions": [
+    "1. Say what you want to see on the calendar; your AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:answer-the-calendar-page-route and input {path, method, query, body}.",
+    "2. Use GET only: GET /calendar reads the sources, GET /calendar/tasks reads your tasks, GET /calendar/task-proposals reads the tasks waiting for review, and GET /calendar/connections reads the calendars you can choose.",
+    "3. Changing tasks, proposals, dates or calendar choices is not done through this route: it is workflow:keep-my-calendar-tasks-and-proposals, which keeps them in your own store."
+  ],
+  "worked_examples": [
+    {
+      "title": "Show my calendar tasks",
+      "ask": "Show me my calendar tasks.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:answer-the-calendar-page-route",
+            "input": {
+              "path": "/calendar/tasks",
+              "method": "GET",
+              "query": {},
+              "body": {},
+              "browser": {}
+            }
+          }
+        }
+      },
+      "given": "The person's task list is kept in their own store.",
+      "hands_back": "status 200 and the tasks the store holds, read back with nothing kept.",
+      "step": "read"
+    }
+  ],
   "lists": [
     {
       "list": "list:calendar-tasks",
@@ -224,46 +261,6 @@
         "a shared team calendar",
         "a meetings spreadsheet"
       ]
-    }
-  ],
-  "workflows": [],
-  "tools": [
-    "tool:answer-the-calendar-page-route",
-    "tool:pour-example-rows-into-my-list"
-  ],
-  "instructions": [
-    "1. Pour the example tasks into the task list you already keep (see pour), or let the first call make list:calendar-tasks for you: a read makes the calendar's starting lists once when they are missing and keeps no task.",
-    "2. Say what you want done on the calendar; your AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:answer-the-calendar-page-route and input {path, method, query, body}: GET /calendar reads the sources, GET and POST /calendar/tasks read and change tasks (action create, schedule, complete and the others the owner knows).",
-    "3. Read the answer {status, body}: 200 with the owner's body (the task and an undo for a create, the tasks list for a read), or the owner's refusal in its words with its status; every write is conditional on what was read, so a record changed meanwhile is never written over.",
-    "4. /calendar/actions and /calendar/availability answer 404 here; sources only another route or a connected calendar tool can read (meetings, posts) are said unread in the calendar's own words."
-  ],
-  "worked_examples": [
-    {
-      "title": "Add a 15 minute task, then read the tasks back",
-      "ask": "Add a 15 minute task called Water the sample ferns to my calendar, then list my tasks.",
-      "mcp": {
-        "server": "{cli}",
-        "tool": "do_one_thing_in_my_account",
-        "input": {
-          "method": "tools:run",
-          "input": {
-            "tool": "tool:answer-the-calendar-page-route",
-            "input": {
-              "path": "/calendar/tasks",
-              "method": "POST",
-              "query": {},
-              "body": {
-                "action": "create",
-                "request_key": "fern-1",
-                "title": "Water the sample ferns",
-                "duration_minutes": 15
-              }
-            }
-          }
-        }
-      },
-      "given": "From tools/keep-my-calendar-in-my-accounts-own-records-with-its-lists-files/test/calendar-route.test.mjs (the same first test): the account has no calendar tasks yet. The answer below was produced by running src/calendar-route.mjs against that test's in-memory rows.",
-      "hands_back": "{status: 200, body: {task: {id: \"calendar-fern-1\", title: \"Water the sample ferns\", duration_minutes: 15, status: \"To do\", description: \"\", labels: [], priority: null, due: null, starts_at: null, ends_at: null, may_move: true, may_cancel: false, created_at: <the time of the run>, ...}, kept: false, undo: {action: \"restore\", rows: [{task_id: \"calendar-fern-1\", remove: true}]}}}; the record record:calendar-task:calendar-fern-1 is kept and list:calendar-tasks is made once. A following GET /calendar/tasks answers {status: 200, body: {list_id: \"calendar-tasks\", tasks: [that task], collections: [], page: {complete: true, next_cursor: null}, ...}}. POST /calendar/availability answers {status: 404, body: {error: \"Not found\"}}."
     }
   ],
   "pour": {

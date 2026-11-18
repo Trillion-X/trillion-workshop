@@ -1,0 +1,229 @@
+{
+  "about": "workflow:keep-my-calendar-tasks-and-proposals: the person's calendar tasks, the proposed tasks they review and the calendars they chose, kept in their own store. It holds the keeping that tools/keep-my-calendar-in-my-accounts-own-records-with-its-lists-files did in its route, proposal and selection code (rule a-tool-is-only-what-the-store-cannot-do).",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-my-calendar-tasks-and-proposals",
+        "label": "Keep my calendar tasks and proposals",
+        "job": "Keep the person's calendar tasks, the tasks an AI or a rule found for them and waits for their review (proposals), and the calendars they chose, in their own store: propose, approve, reject, restore, edit and undo proposals, and create and delete tasks.",
+        "produces": "The store's own objects for proposals, tasks and the calendar selection, proven on the example attempts, and each change kept, repeated or refused with the reason, and read back.",
+        "source": {
+          "from": "tools/keep-my-calendar-in-my-accounts-own-records-with-its-lists-files (src/task-proposals.mjs, src/native-calendar-owner.mjs and src/calendar-route.mjs keeping calls, moved from the old tree), read on trillion-workshop origin/main",
+          "note": "Only keeping moved here. Reads (the calendar, the sources, the connection choices, the lists of tasks and proposals) stay with tool:answer-the-calendar-page-route and the values tools of this folder. A task's own rules (its change, its repeat, its Done gate) are the calendar tasks owner's (tools/plan-tasks-and-todo-lists), and the store applies them as that owner's kit states. The proposal's id was a BLAKE3 hash of its source and normalised title; the store's own unique key on those two normalised texts keeps one proposal per finding with no identity function."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                },
+                "place": {
+                  "type": "string",
+                  "description": "Where in the store these are kept, when they already are"
+                }
+              }
+            },
+            "changes": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Changes to keep this run, each one of: {op: propose, source_id, items: [{title, due?, duration_minutes?, evidence?}]} | {op: approve|reject|restore|undo_approval, of: [source_id, title]} | {op: edit, of: [source_id, title], title?, due?, duration_minutes?} | {op: create_task, request_key, title, duration_minutes, due?} | {op: delete_task, request_key} | {op: keep_selections, calendars: [ids]}"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where proposals, tasks and the calendar selection are already kept (kept_in, or null) and the names of the objects that already keep them and show them.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing, make the store's own objects in its own form, so that the store itself refuses what the intent refuses wherever it can. Three kinds. A proposal: source_id and title, both text, normalised (lower case, one space between words, trimmed) and kept as the unique key with each other; its state (proposed, approved or rejected), due (a date, or none), duration_minutes (whole number, the calendar tasks' default when not given), evidence (text, up to the shared limit), proposed_by, and the task it made (task_key, or none). A task: request_key (unique: one task per key), title, duration_minutes, due, source_id and collection_id when given. The calendar selection: one row for the person, the list of calendar ids they chose. Grant only what the store's holder allows the person's login. Who may: only the person (and whoever they allow). Submit the names of the objects made, or the ones the look step found.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example attempts",
+            "do": "In a throwaway place in the same store, with the same objects, keep these changes in order, each through the store's own objects: [{\"op\": \"propose\", \"source_id\": \"meeting:standup\", \"items\": [{\"title\": \"Book the offsite\", \"due\": \"2026-11-20\", \"duration_minutes\": 30}]}, {\"op\": \"propose\", \"source_id\": \"meeting:standup\", \"items\": [{\"title\": \"Book the offsite\", \"due\": \"2026-11-20\", \"duration_minutes\": 30}]}, {\"op\": \"propose\", \"source_id\": \"meeting:other\", \"items\": [{\"title\": \"Book the offsite\"}]}, {\"op\": \"approve\", \"of\": [\"meeting:standup\", \"Book the offsite\"]}, {\"op\": \"approve\", \"of\": [\"meeting:standup\", \"Book the offsite\"]}, {\"op\": \"reject\", \"of\": [\"meeting:standup\", \"Book the offsite\"]}, {\"op\": \"reject\", \"of\": [\"meeting:other\", \"Book the offsite\"]}, {\"op\": \"propose\", \"source_id\": \" Meeting:Other \", \"items\": [{\"title\": \"  book the   offsite \"}]}, {\"op\": \"restore\", \"of\": [\"meeting:other\", \"Book the offsite\"]}, {\"op\": \"restore\", \"of\": [\"meeting:other\", \"Book the offsite\"]}, {\"op\": \"undo_approval\", \"of\": [\"meeting:standup\", \"Book the offsite\"]}, {\"op\": \"edit\", \"of\": [\"meeting:standup\", \"Book the offsite\"], \"title\": \"Book the offsite room\"}, {\"op\": \"approve\", \"of\": [\"meeting:other\", \"Book the offsite\"]}, {\"op\": \"edit\", \"of\": [\"meeting:other\", \"Book the offsite\"], \"title\": \"x\"}, {\"op\": \"propose\", \"source_id\": \"meeting:x\", \"items\": []}, {\"op\": \"create_task\", \"request_key\": \"sample-1\", \"title\": \"Water the sample ferns\", \"duration_minutes\": 15}, {\"op\": \"create_task\", \"request_key\": \"sample-1\", \"title\": \"Water the sample ferns\", \"duration_minutes\": 15}, {\"op\": \"delete_task\", \"request_key\": \"sample-1\"}, {\"op\": \"keep_selections\", \"calendars\": [\"calendar-a\", \"calendar-b\"]}, {\"op\": \"keep_selections\", \"calendars\": [\"calendar-a\", \"calendar-b\"]}]. Rules. propose: an item needs a title (not blank, within the shared limit), a finding already kept for the same normalised source and title is repeated and changes nothing (a rejected one stays rejected); a new one is kept as proposed; an empty items list is refused. approve: a proposal that already made its task answers that task (repeated); otherwise it makes one task with request_key equal to the proposal's key, state approved, and the task_key. reject: refused for an approved proposal; otherwise state rejected (repeated if already rejected). restore: only a rejected proposal, which becomes proposed; otherwise refused. undo_approval: only an approved proposal with its task, which deletes that task and becomes proposed; otherwise refused. edit: only a proposed proposal, and only title, due or duration_minutes; otherwise refused. create_task: a task for a request_key already kept is repeated; delete_task: deletes the task of that request_key. keep_selections: the same list again is repeated. A proposal is found by its [source_id, title] pair, normalised as above. Then remove the throwaway place. Submit outcomes (one of kept, repeated or refused per change, in order) and answer: proposals (each proposal in the order first kept, with source_id, title and state), tasks (the titles of the tasks kept, in order), selections (the calendar ids chosen), kept_count and repeated_count.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answer"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "answer": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each change is kept, repeated or refused as the intent says",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "kept",
+                    "repeated",
+                    "kept",
+                    "kept",
+                    "repeated",
+                    "refused",
+                    "kept",
+                    "repeated",
+                    "kept",
+                    "refused",
+                    "kept",
+                    "kept",
+                    "kept",
+                    "refused",
+                    "refused",
+                    "kept",
+                    "repeated",
+                    "kept",
+                    "kept",
+                    "repeated"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "The store's own objects give every expected answer",
+                "path": [
+                  "this",
+                  "answer"
+                ],
+                "values": [
+                  {
+                    "proposals": [
+                      {
+                        "source_id": "meeting:standup",
+                        "title": "Book the offsite room",
+                        "state": "proposed"
+                      },
+                      {
+                        "source_id": "meeting:other",
+                        "title": "Book the offsite",
+                        "state": "approved"
+                      }
+                    ],
+                    "tasks": [
+                      "Book the offsite"
+                    ],
+                    "selections": [
+                      "calendar-a",
+                      "calendar-b"
+                    ],
+                    "kept_count": 11,
+                    "repeated_count": 5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's changes",
+            "do": "Keep each item of changes through the store's own objects, in order, and read back what each one changed. Submit kept_changes (the op of each change kept, repeated or refused, in order), refused (each refused change's op and the store's own words for why) and found (the proposals and tasks read back for the person). With no changes, submit empty lists.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_changes",
+                "refused",
+                "found"
+              ],
+              "properties": {
+                "kept_changes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "refused": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "found": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": []
+          }
+        ],
+        "erase": "On the person's request the store deletes a proposal or a task, and the link from the proposal to its task; the calendar's own sources are not touched."
+      }
+    }
+  ]
+}
