@@ -1,0 +1,333 @@
+{
+  "about": "workflow:keep-reports-once-per-submission: keeps each member report once per submission in the operator's own store, with its work reference, intake state and review kept beside it, never overwritten. The replay, refusal and join rules are the store's own, proven by the example hand-offs. It replaces the record keeping of tools/see-customers-and-their-journeys/read-data/hand-to-an-account.mjs (its list writes, the eeaf read of the row kept for a submission and the joins), which kept rows through the records door (rule a-tool-is-only-what-the-store-cannot-do).",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-reports-once-per-submission",
+        "label": "Keep reports once per submission",
+        "job": "Keep each report a member's AI or the Tell us screen sends to the people who make the product, once per submission, in the operator's own store: a replay adds only the links still missing (the work reference, the intake state), a different report under the same submission is refused, the review and outcome the operator writes are never overwritten, and the newest reports are read first.",
+        "produces": "The store's own report, join and review objects, proven on the example hand-offs and probes in three kinds of store, and each run's reports kept, replayed, refused and read back.",
+        "source": {
+          "from": "the owner, 2026-11-18 about 2:35 PM CST, and the W3.2b lane brief: hand-to-an-account keeps one report row per submission; a tool keeps no record, the store does",
+          "note": "Ported from the retired Worker's src/hand-to-an-account.mjs (source commit b6ae0ebf815f2f5271eed34e6e023c7e1767ec04, see source-map.json). The list, its fields, the notice and the work request are the shipped tray row's values. The store keeps the report, its joins and its review. The tool that decides values (the fingerprint, the replay, the joins still missing, the notice words) stays in tools/see-customers-and-their-journeys/read-data/hand-to-an-account.mjs, which takes values in and hands values back."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store",
+            "tool_row",
+            "hand_offs"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the operator keeps the reports: the store's own address, as the operator's store row names it"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses for that store, when it needs one"
+                },
+                "place": {
+                  "type": "string",
+                  "description": "Where in the store the reports are kept, when the operator has a place for them already"
+                }
+              }
+            },
+            "tool_row": {
+              "type": "string",
+              "description": "The shipped tray tool row whose invoke names the list and the notice (its id is in records/workshop-tray-tool-records.json: the row that sends a report to the makers)"
+            },
+            "hand_offs": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Each hand-off: {submission, from, note, kind, at, work} (submission may be null for an arrival-time report)"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit kept_in (where the reports are kept, or null) and objects (the names of the objects that already answer each question below).",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found no such objects, make them in the store's own form, from the list's fields (the shipped tool row's list, given as input): (1) a report table: one row per submission, insert only, never changed in place and never removed; (2) a join table beside it: one value per field, set once, except that intake state may move once from received to work_created; (3) a review table beside the report, which the operator edits and which never changes the report; (4) a view that merges the three for reading, newest first by sent time. Grant only what the store needs for these.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example hand-offs",
+            "do": "In a throwaway place in the same store, with the same objects, run these operations in order, each through the store's own objects: [{\"id\": \"r1\", \"op\": \"hand\", \"submission\": \"task:1\", \"from\": \"member\", \"note\": \"Original report\", \"kind\": \"friction\", \"at\": \"2026-10-08T03:00:00.000Z\", \"work\": \"fail\"}, {\"id\": \"r1-review\", \"op\": \"review\", \"source\": \"r1\", \"review\": \"approved\", \"outcome\": \"kept outcome\"}, {\"id\": \"r1-retry\", \"op\": \"hand\", \"submission\": \"task:1\", \"from\": \"member\", \"note\": \"Original report\", \"kind\": \"friction\", \"at\": \"2026-10-08T03:00:00.000Z\", \"work\": \"ok\"}, {\"id\": \"r1-replay\", \"op\": \"hand\", \"submission\": \"task:1\", \"from\": \"member\", \"note\": \"Original report\", \"kind\": \"friction\", \"at\": \"2026-10-08T03:00:00.000Z\", \"work\": \"ok\"}, {\"id\": \"r1-conflict\", \"op\": \"hand\", \"submission\": \"task:1\", \"from\": \"member\", \"note\": \"different report\", \"kind\": \"friction\", \"at\": \"2026-10-08T03:00:00.000Z\", \"work\": \"ok\"}, {\"id\": \"r2\", \"op\": \"hand\", \"submission\": \"task:2\", \"from\": \"member\", \"note\": \"Second report\", \"kind\": \"bug\", \"at\": \"2026-10-08T04:00:00.000Z\", \"work\": \"ok\"}, {\"id\": \"r3\", \"op\": \"hand\", \"submission\": null, \"from\": \"member\", \"note\": \"Arrival report\", \"kind\": \"idea\", \"at\": \"2026-10-09T09:00:00.000Z\", \"work\": \"ok\"}] Then try each probe ([{\"id\": \"p1\", \"op\": \"overwrite\", \"source\": \"r1\", \"note\": \"changed in place\"}, {\"id\": \"p2\", \"op\": \"second-work\", \"source\": \"r2\", \"work_ref\": \"work:other\"}, {\"id\": \"p3\", \"op\": \"remove\", \"source\": \"r2\"}]) and read the list newest first. Submit results (per hand-off), refusals (the hand-offs refused and why), notices (the notice keys told, in order), rows (every kept row read back), newest, and probes (refused or changed).",
+            "submit": {
+              "type": "object"
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Every example hand-off is kept, replayed, joined or refused as the intent says, every probe is refused, and the store's own objects give every expected answer",
+                "path": [
+                  "this",
+                  "answer"
+                ],
+                "values": [
+                  {
+                    "newest": [
+                      {
+                        "intake_state": "work_created",
+                        "note": "Arrival report",
+                        "origin": "synthetic",
+                        "sent_at": "2026-10-09T09:00:00.000Z",
+                        "work_ref": "work:r3"
+                      },
+                      {
+                        "intake_state": "work_created",
+                        "note": "Second report",
+                        "origin": "synthetic",
+                        "sent_at": "2026-10-08T04:00:00.000Z",
+                        "work_ref": "work:r2"
+                      },
+                      {
+                        "intake_state": "work_created",
+                        "note": "Original report",
+                        "origin": "synthetic",
+                        "outcome": "kept outcome",
+                        "review": "approved",
+                        "sent_at": "2026-10-08T03:00:00.000Z",
+                        "work_ref": "work:r1-retry"
+                      }
+                    ],
+                    "notices": [
+                      "hand-to-an-account:notes-from-members:submission-5650a87ac9ea01fd450114628842ae7dabcacc3175d31cc768309b10bedcdfd1",
+                      "hand-to-an-account:notes-from-members:submission-5650a87ac9ea01fd450114628842ae7dabcacc3175d31cc768309b10bedcdfd1",
+                      "hand-to-an-account:notes-from-members:submission-5650a87ac9ea01fd450114628842ae7dabcacc3175d31cc768309b10bedcdfd1",
+                      "hand-to-an-account:notes-from-members:submission-ab8c7c57845668b40b8f5f6702b69b35e3d3d1673c2004ff716240db4a6a69ab",
+                      "hand-to-an-account:notes-from-members:2026-10-09T09-00-00-000Z-member-ref"
+                    ],
+                    "probes": {
+                      "p1": "refused",
+                      "p2": "refused",
+                      "p3": "refused"
+                    },
+                    "refusals": {
+                      "r1-conflict": "This submission already holds a different report. Use a new task for a new report; the original was kept."
+                    },
+                    "results": {
+                      "r1": {
+                        "error": "work unavailable",
+                        "kept_row": true
+                      },
+                      "r1-replay": {
+                        "handoff_id": "work:r1-retry",
+                        "intake_state": "work_created",
+                        "kept": true,
+                        "list_id": "notes-from-members",
+                        "origin": "synthetic",
+                        "replay_coverage": "task_and_account",
+                        "row_id": "submission-5650a87ac9ea01fd450114628842ae7dabcacc3175d31cc768309b10bedcdfd1",
+                        "source_ref": "record:note-from-member:submission-5650a87ac9ea01fd450114628842ae7dabcacc3175d31cc768309b10bedcdfd1",
+                        "work_ref": "work:r1-retry"
+                      },
+                      "r1-retry": {
+                        "handoff_id": "work:r1-retry",
+                        "intake_state": "work_created",
+                        "kept": true,
+                        "list_id": "notes-from-members",
+                        "origin": "synthetic",
+                        "replay_coverage": "task_and_account",
+                        "row_id": "submission-5650a87ac9ea01fd450114628842ae7dabcacc3175d31cc768309b10bedcdfd1",
+                        "source_ref": "record:note-from-member:submission-5650a87ac9ea01fd450114628842ae7dabcacc3175d31cc768309b10bedcdfd1",
+                        "work_ref": "work:r1-retry"
+                      },
+                      "r2": {
+                        "handoff_id": "work:r2",
+                        "intake_state": "work_created",
+                        "kept": true,
+                        "list_id": "notes-from-members",
+                        "origin": "synthetic",
+                        "replay_coverage": "task_and_account",
+                        "row_id": "submission-ab8c7c57845668b40b8f5f6702b69b35e3d3d1673c2004ff716240db4a6a69ab",
+                        "source_ref": "record:note-from-member:submission-ab8c7c57845668b40b8f5f6702b69b35e3d3d1673c2004ff716240db4a6a69ab",
+                        "work_ref": "work:r2"
+                      },
+                      "r3": {
+                        "handoff_id": "work:r3",
+                        "intake_state": "work_created",
+                        "kept": true,
+                        "list_id": "notes-from-members",
+                        "origin": "synthetic",
+                        "replay_coverage": "arrival_time_only",
+                        "row_id": "2026-10-09T09-00-00-000Z-member-ref",
+                        "source_ref": "record:note-from-member:2026-10-09T09-00-00-000Z-member-ref",
+                        "work_ref": "work:r3"
+                      }
+                    },
+                    "rows": [
+                      {
+                        "account": "member",
+                        "from": "Member",
+                        "harness": "Codex",
+                        "input_fingerprint": "67502e7ffed5b74634d7918656ac289e3dc818e9e6faf60a45b635496577f5d0",
+                        "intake_state": "work_created",
+                        "kind": "idea",
+                        "note": "Arrival report",
+                        "origin": "synthetic",
+                        "sent_at": "2026-10-09T09:00:00.000Z",
+                        "sent_by": "ai",
+                        "source_ref": "record:note-from-member:2026-10-09T09-00-00-000Z-member-ref",
+                        "their_words": "their words",
+                        "where": "Files",
+                        "work_ref": "work:r3"
+                      },
+                      {
+                        "account": "member",
+                        "execution_ref": "execution:task:1",
+                        "from": "Member",
+                        "harness": "Codex",
+                        "input_fingerprint": "81a3a8c272cc178867581b663a9bd08079b2c55ccd67d0144e29ed32d30d13da",
+                        "intake_state": "work_created",
+                        "kind": "friction",
+                        "note": "Original report",
+                        "origin": "synthetic",
+                        "outcome": "kept outcome",
+                        "review": "approved",
+                        "sent_at": "2026-10-08T03:00:00.000Z",
+                        "sent_by": "ai",
+                        "source_ref": "record:note-from-member:submission-5650a87ac9ea01fd450114628842ae7dabcacc3175d31cc768309b10bedcdfd1",
+                        "their_words": "their words",
+                        "where": "Files",
+                        "work_ref": "work:r1-retry"
+                      },
+                      {
+                        "account": "member",
+                        "execution_ref": "execution:task:2",
+                        "from": "Member",
+                        "harness": "Codex",
+                        "input_fingerprint": "2fc85b6b21beedf9b1f32bdc59808dbb1bf8ae046bcaedc674b6ec6a6d7fc5de",
+                        "intake_state": "work_created",
+                        "kind": "bug",
+                        "note": "Second report",
+                        "origin": "synthetic",
+                        "sent_at": "2026-10-08T04:00:00.000Z",
+                        "sent_by": "ai",
+                        "source_ref": "record:note-from-member:submission-ab8c7c57845668b40b8f5f6702b69b35e3d3d1673c2004ff716240db4a6a69ab",
+                        "their_words": "their words",
+                        "where": "Files",
+                        "work_ref": "work:r2"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's hand-offs",
+            "do": "For each hand-off: read the row kept for its submission (or none); plan it with the shipped tool row's values (a new row, the fields a list gained, the picture, the notice and the work the row asks for); keep the list change, the picture and the first row; tell the notice; when the plan asks for work, hand it to the receiving account's AIs and take its reference; then keep the joins still missing. A replay attaches only missing joins. A different report under the same submission is refused, and the kept row stays as it was. Submit results (per hand-off: kept, row_id, source_ref, intake_state and work_ref), refused, kept_ids, found_ids (every row read back).",
+            "submit": {
+              "type": "object",
+              "required": [
+                "results",
+                "refused",
+                "kept_ids",
+                "found_ids"
+              ],
+              "properties": {
+                "results": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "refused": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "kept_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "found_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "subset-of",
+                "says": "Every row kept is read back",
+                "path": [
+                  "this",
+                  "kept_ids"
+                ],
+                "of": [
+                  "this",
+                  "found_ids"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
