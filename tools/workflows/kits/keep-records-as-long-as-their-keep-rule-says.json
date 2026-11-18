@@ -1,0 +1,75 @@
+{
+  "drafted_from": "tool:keep-by-its-rule's own row and its kit (kits/keep-by-its-rule.json), read on origin/main bb8022539c",
+  "start_here": "Say to your AI: \"Keep my notes as long as my keep rule says\", with rule set to the id of your keep-rule row, and store {\\\"where\\\": \\\"postgresql database example_shop on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-shop-postgres-connection\\\"}. Then declare a wake of yours on this workflow with the schedule you want.",
+  "lists": [],
+  "no_lists_because": "It names no list: the keep rule and the records are the person's own rows, in whatever form their store keeps them.",
+  "workflows": [
+    "workflow:keep-records-as-long-as-their-keep-rule-says"
+  ],
+  "tools": [
+    "tool:run-workflow-definition",
+    "tool:hand-a-job-to-an-ai"
+  ],
+  "instructions": [
+    "1. Make a keep rule row in your store: enabled, the kind it keeps, its expiry rule, page and walk.",
+    "2. Declare a wake of yours on workflow:keep-records-as-long-as-their-keep-rule-says with the input {\"rule\": \"<the rule's row id>\"} and the schedule you want; it stays off until you switch it on.",
+    "3. Edit the rule to change what is kept; the next firing reads it again. Turn enabled off to stop it.",
+    "4. A record removed stays restorable until its undo window ends."
+  ],
+  "worked_examples": [
+    {
+      "title": "One firing removes one expired note",
+      "ask": "Apply my note keep rule now.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-records-as-long-as-their-keep-rule-says",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "rule": "rule:notes-30"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-records-as-long-as-their-keep-rule-says",
+      "step": "keep",
+      "given": "The rule keeps notes older than 30 days, page 1; notes n1 (40 days old) and n3 (35 days old) are expired.",
+      "hands_back": "removed [\"n1\"], looked_at 2 and purged [] (n1 is in the trash until its undo window ends)."
+    },
+    {
+      "title": "A rule that is off does nothing",
+      "ask": "Apply my note keep rule now.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-records-as-long-as-their-keep-rule-says",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "rule": "rule:notes-off"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-records-as-long-as-their-keep-rule-says",
+      "step": "keep",
+      "given": "The rule row has enabled set to false.",
+      "hands_back": "removed [], looked_at 0, rule_enabled false."
+    }
+  ]
+}

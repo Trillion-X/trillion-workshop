@@ -46,9 +46,9 @@
     {
       "capability": "apply one of the person's keep rules from their own schedule: ask the engine to destroy, through its restorable erasure, the records of a kind that the rule's row says have expired",
       "owner": [
-        "tools/keep-records-as-long-as-their-keep-rule-says/"
+        "tools/workflows/recipes/keep-records-as-long-as-their-keep-rule-says.json"
       ],
-      "entry": "tools/keep-records-as-long-as-their-keep-rule-says/tool-rows.json",
+      "entry": "tools/workflows/recipes/keep-records-as-long-as-their-keep-rule-says.json",
       "evidence": "The tool answers the engine's keep effect for the rule row it is given; the engine (trillion-rust src/wake.rs Effect::Keep, src/storage/record_store/keep.rs) reads the row, decides each record with the formula engine and destroys through RecordStore::erase_cascading. The person's wake declaration is the schedule; nothing here counts time or removes a record.",
       "distinct_from": [
         {

@@ -1,0 +1,189 @@
+{
+  "about": "workflow:keep-records-as-long-as-their-keep-rule-says: Apply a person's keep rule to their own store on its schedule: each firing looks at the records of the rule's kind, decides each one by the rule's expiry (its rule tree over the record's own values an",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-records-as-long-as-their-keep-rule-says",
+        "label": "Keep the person's records as long as their keep rule says",
+        "job": "Apply a person's keep rule to their own store on its schedule: each firing looks at the records of the rule's kind, decides each one by the rule's expiry (its rule tree over the record's own values and its age), and moves up to the page size of expired records to a restorable trash for the undo window, then removes the trash past that window. The rule is a row of the person's own (enabled, keeps kind, expire rule, page, walk); a rule that is off does nothing.",
+        "produces": "The records the rule removed (restorable until the undo window ends), the records it looked at, and the rule's answer for the firing.",
+        "source": {
+          "from": "tools/keep-records-as-long-as-their-keep-rule-says (read-data/keep-by-rule.mjs, read-data/keep-by-rule.json, tool-rows.json tool:keep-by-its-rule), read on trillion-workshop origin/main bb8022539c",
+          "note": "The engine no longer reads a keep effect: since 2026-11-15 trillion-rust has no keep effect in its wake (only wake and arrive), so the tool that handed one back was dead and held the store's default resource name own-records. Its job, applying the rule to the store's rows, is record keeping, so it is this recipe. The rule's names and numbers stay in the person's rule row (no number in the recipe): the record store's keep settings (trillion-rust src/storage/record_store/settings.json keep) are the owner of the defaults. The schedule is the person's own wake declaration; the recipe does not start itself."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store",
+            "rule"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string"
+                },
+                "language": {
+                  "type": "string"
+                },
+                "credential_name": {
+                  "type": "string"
+                }
+              }
+            },
+            "rule": {
+              "type": "string",
+              "description": "The id of the keep rule's row in the person's store"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read the keep rule and what the store keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name. Read the keep rule row named by rule: its enabled flag, the kind of record it keeps, its expiry rule tree and fields, its page and walk sizes. Submit where the records of that kind are kept (kept_in, or null), where the trash is kept, and the rule as read (or null when the row is missing).",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "rule"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "trash_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "rule": {
+                  "type": [
+                    "object",
+                    "null"
+                  ]
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own trash, once",
+            "do": "When the look step found no trash, make one table in the store's own form: the record's kind, its id, its values as JSON, the time it was written, the time it was moved to the trash, and the time the undo window ends. The store refuses a second trash row for the same record. Keep the walk and the page as the rule's numbers, not as constants in the recipe. Submit the names of the objects made, or the ones the look step found.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the rule on the example records",
+            "do": "In a throwaway place in the same store, with the same objects, and a rule of kind note, an expiry of 30 days of age, page 1, walk 10 and an undo window of 7 days, with notes n1 (written day 40), n2 (written day 95), n3 (written day 60) and n4 (written day 10) read in id order. Firings: day 100 removes n1 (expired, age 60; trash until day 107; looked at 4); day 101 removes n3 (age 41); day 102 removes n4 (age 92); n2 (age 7 at day 102) is never expired. A purge at day 110 removes n1, n3 and n4 for good, because each undo window has ended. Submit each firing as day, removed (ids moved to the trash), looked_at, trash (ids then in the trash) and, for the purge, purged.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "firings"
+              ],
+              "properties": {
+                "firings": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "day",
+                      "removed"
+                    ],
+                    "properties": {
+                      "day": {
+                        "type": "integer"
+                      },
+                      "removed": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "looked_at": {
+                        "type": "integer"
+                      },
+                      "trash": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "purged": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "keep",
+            "title": "Apply this firing",
+            "do": "Read the rule again. If it is off, answer removed nothing and stop. Otherwise look at up to walk records of the rule's kind in the store's own order, decide each by the rule's expiry tree over its values and its age in milliseconds (now minus its write time), move at most page expired records to the trash with their undo window end, and remove the trash rows whose undo window has ended. Never remove a record the rule does not name as expired. Submit removed (ids moved to the trash), looked_at (the count looked at), purged (ids removed for good) and the rule as read.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "removed",
+                "looked_at",
+                "purged"
+              ],
+              "properties": {
+                "removed": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "looked_at": {
+                  "type": "integer"
+                },
+                "purged": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "rule_enabled": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "checks": []
+          }
+        ],
+        "erase": "The person may erase a record at once; that removes it for good and skips the undo window, and the store says so."
+      }
+    }
+  ]
+}
