@@ -28,3 +28,18 @@ test('readSettings lays the rendered file over the shipped settings, so the row 
     if (before === undefined) delete process.env.BETTER_AUTH_SETTINGS; else process.env.BETTER_AUTH_SETTINGS = before;
   }
 });
+
+test('a settings file that cannot be read or holds no JSON object stops the server and names the file', () => {
+  const folder = mkdtempSync(join(tmpdir(), 'sign-in-settings-'));
+  const before = process.env.BETTER_AUTH_SETTINGS;
+  try {
+    for (const [name, text] of [['broken.json', '{"site": '], ['list.json', '[1]'], ['missing.json', null]]) {
+      const file = join(folder, name);
+      if (text !== null) writeFileSync(file, text);
+      process.env.BETTER_AUTH_SETTINGS = file;
+      assert.throws(() => readSettings(), error => error.message.includes(file), `${name} is named`);
+    }
+  } finally {
+    if (before === undefined) delete process.env.BETTER_AUTH_SETTINGS; else process.env.BETTER_AUTH_SETTINGS = before;
+  }
+});

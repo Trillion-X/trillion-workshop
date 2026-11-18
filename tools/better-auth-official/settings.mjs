@@ -16,10 +16,19 @@ export function laid(under, over) {
   return out;
 }
 
+/** The JSON object in `file`; a file that cannot be read, or holds no JSON object, is refused with its path and why, so a
+ * server that will not start says which settings file stopped it. */
+function objectIn(file) {
+  let value;
+  try { value = JSON.parse(readFileSync(file, 'utf8')); } catch (error) { throw new Error(`The settings file ${file} cannot be used: ${error.code ?? error.message}`); }
+  if (!plain(value)) throw new Error(`The settings file ${file} cannot be used: it holds no JSON object`);
+  return value;
+}
+
 export function readSettings() {
-  const shipped = JSON.parse(readFileSync(SHIPPED, 'utf8'));
+  const shipped = objectIn(SHIPPED);
   const named = process.env.BETTER_AUTH_SETTINGS ? resolve(process.env.BETTER_AUTH_SETTINGS) : null;
-  const settings = named && named !== SHIPPED ? laid(shipped, JSON.parse(readFileSync(named, 'utf8'))) : shipped;
+  const settings = named && named !== SHIPPED ? laid(shipped, objectIn(named)) : shipped;
   const { name, storage_prefix: prefix } = settings.site ?? {};
   if (!name || !prefix) throw new Error('settings.site needs a name and a storage_prefix: the computer running this tool says whose sign-in it is');
   settings.session_cookie_name ??= `__Host-${prefix}_session`;
