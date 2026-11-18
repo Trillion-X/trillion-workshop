@@ -1,0 +1,218 @@
+{
+  "about": "workflow:keep-each-workshop-task-whole-and-a-small-index: each Workshop task kept whole, every version of it, with one index row per task (its tool, state, due time, the order it was last written in, and its card), so that a question over every task reads the index rows and whole tasks only for the ones it answers with. It replaces tools/keep-each-workshop-task-whole-and-a-small-index: every file there is held old code whose whole job was this record keeping (src/workshop-tasks.mjs.held and its tests), with no row and no live caller. The old files are the bytes of tag the-tag-before-the-worker-retired in the earlier repository, under their old paths. The scheduler's wake (the alarm for the next due task) is not part of this recipe: it belongs to tools/keep-and-wake-ai-sessions-on-this-computer (rule a-tool-is-only-what-the-store-cannot-do).",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-each-workshop-task-whole-and-a-small-index",
+        "label": "Keep each Workshop task whole and a small index of them",
+        "job": "Keep each Workshop task whole in the person's own store, every version of it kept, with one index row per task, and answer the questions asked of all tasks (what is due, when the next one is due, the last good run of a tool, the newest runs) from the index rows.",
+        "produces": "The store's own task versions and index rows, proven on the example writes in three kinds of store, and each write kept, repeated or refused, and each question answered from the index.",
+        "source": {
+          "from": "tools/keep-each-workshop-task-whole-and-a-small-index/from-an-older-version (src/workshop-tasks.mjs.held, read at tag the-tag-before-the-worker-retired)",
+          "note": "A task is written in one place: its version is appended and its index row replaced in one transaction, so the index names the newest version of every task. A write older than the newest version kept is refused; an identical write is repeated. A question answers from the index rows; a whole task is read only for the ones it answers with. The newest runs are listed at most 200 at a time (RUNS_LISTED). Versions that a newer one replaced may move out to history files when the store is large (VERSION_MOVE); the store does that under its own keys."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                },
+                "place": {
+                  "type": "string",
+                  "description": "Where in the store the tasks are kept, when they already are"
+                }
+              }
+            },
+            "writes": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Task versions to keep this run, each {task_id, tool_id, state (scheduled, running, done or failed), due_at (ISO time or null), seq (the order it was written in, a whole number), result (optional), job (optional)}"
+            },
+            "questions": {
+              "type": "object",
+              "description": "What to answer from the index this run: {now (ISO time), tool_id (for the last good run), newest (how many newest runs, at most 200)}"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the tasks are already kept (kept_in, or null) and the names of the objects that already keep their versions and their index rows.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing, make two objects in the store's own form: task versions, appended and never changed (one row per task and seq, with the whole task as a value of any size the store allows), and index rows, one per task, holding its tool, state, due time, seq and card (what a list of runs shows). Keep the due time as a moment with a zone. Make the store refuse what it can: one version per task and seq, one index row per task. Grant only what the store's holder allows the person's login.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example writes",
+            "do": "In a throwaway place in the same store, with the same objects, keep these writes in order, each through the store's own objects: [{\"task_id\": \"t1\", \"tool_id\": \"bake-tool\", \"state\": \"scheduled\", \"due_at\": \"2026-11-18T10:00:00Z\", \"seq\": 1}, {\"task_id\": \"t2\", \"tool_id\": \"count-tool\", \"state\": \"scheduled\", \"due_at\": \"2026-11-18T09:00:00Z\", \"seq\": 2}, {\"task_id\": \"t1\", \"tool_id\": \"bake-tool\", \"state\": \"done\", \"due_at\": null, \"seq\": 3, \"result\": \"12 loaves\"}, {\"task_id\": \"t1\", \"tool_id\": \"bake-tool\", \"state\": \"scheduled\", \"due_at\": \"2026-11-18T10:00:00Z\", \"seq\": 1}, {\"task_id\": \"t2\", \"tool_id\": \"count-tool\", \"state\": \"scheduled\", \"due_at\": \"2026-11-18T09:00:00Z\", \"seq\": 2}, {\"task_id\": \"t3\", \"tool_id\": \"count-tool\", \"state\": \"done\", \"due_at\": null, \"seq\": 4, \"result\": \"3 counted\"}]. A write whose seq is older than the newest version kept for its task is refused; a write identical to the newest version kept is repeated. Then answer these questions from the index at now 2026-11-18T09:30:00Z: due_now (the task ids scheduled whose due time is at or before now), next_due (the task id of the earliest scheduled task due after now, or null), last_good (for bake-tool, the task id of the newest done run, and for count-tool the same), newest (the task ids of the newest runs by seq, newest first, at most 200), index_rows (how many tasks have an index row) and versions_kept (how many versions are kept in all). Then remove the throwaway place. Submit outcomes (one of kept, repeated, refused per write, in order) and answer with due_now, next_due, last_good, newest, index_rows and versions_kept.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answer"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "kept",
+                      "repeated",
+                      "refused"
+                    ]
+                  }
+                },
+                "answer": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each write is kept, repeated or refused as the intent says",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "kept",
+                    "kept",
+                    "kept",
+                    "refused",
+                    "repeated",
+                    "kept"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "The store's own objects give every expected answer from the index",
+                "path": [
+                  "this",
+                  "answer"
+                ],
+                "values": [
+                  {
+                    "due_now": [
+                      "t2"
+                    ],
+                    "next_due": null,
+                    "last_good": {
+                      "bake-tool": "t1",
+                      "count-tool": "t3"
+                    },
+                    "newest": [
+                      "t3",
+                      "t1",
+                      "t2"
+                    ],
+                    "index_rows": 3,
+                    "versions_kept": 4
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's task versions and answer the questions",
+            "do": "Keep each item of writes through the store's own objects, in order: kept when newer than the newest version kept for its task (or none), repeated when identical to it, refused when older, and the store's own words say why. Each kept version replaces its task's index row in the same transaction. Then answer the questions from the index rows only, at the now given: due_now, next_due, last_good for the tool_id given, and newest (at most the number asked, and never more than 200). Submit kept_tasks (task ids kept or repeated), refused (each refused write's task id and the store's words why), and answer with due_now, next_due, last_good, newest and index_rows. With no writes, submit empty lists.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_tasks",
+                "refused",
+                "answer"
+              ],
+              "properties": {
+                "kept_tasks": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "refused": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "answer": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": []
+          }
+        ],
+        "erase": "On the person's request the store deletes every version of the task and its index row; a job already handed to an AI is that AI's own record and is ended with its own tool."
+      }
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:keep-each-workshop-task-whole-and-a-small-index with store {\\\"where\\\": \\\"postgresql database example_shop on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-shop-postgres-connection\\\"}, writes [{\\\"task_id\\\": \\\"t1\\\", \\\"tool_id\\\": \\\"bake-tool\\\", \\\"state\\\": \\\"done\\\", \\\"due_at\\\": null, \\\"seq\\\": 3, \\\"result\\\": \\\"12 loaves\\\"}] and questions {\\\"now\\\": \\\"2026-11-18T09:30:00Z\\\", \\\"tool_id\\\": \\\"bake-tool\\\", \\\"newest\\\": 10}.\"",
+  "lists": [],
+  "no_lists_because": "It names no list: each task and its index row are kept in the person's own store, in whatever form that store keeps things, and store says where and in which language.",
+  "workflows": [
+    "workflow:keep-each-workshop-task-whole-and-a-small-index"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:keep-each-workshop-task-whole-and-a-small-index\" with store, writes and questions. Send each write as the task's version as it is now, with its seq, never an older one by choice.",
+    "3. The first run makes the store's own objects once and proves them on the example writes: every write must be kept, repeated or refused as the intent says, and every answer must match, or the run stops and says which.",
+    "4. Every later run keeps the writes through those objects, then answers the questions from the index rows only. A question never reads a whole task unless it answers with that task."
+  ],
+  "worked_examples": [
+    {
+      "title": "A bake run finishes, and the person asks for the last good bake",
+      "ask": "The bake task t1 is done with 12 loaves. What was the last good bake run?",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-each-workshop-task-whole-and-a-small-index",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "writes": [
+                {
+                  "task_id": "t1",
+                  "tool_id": "bake-tool",
+                  "state": "done",
+                  "due_at": null,
+                  "seq": 3,
+                  "result": "12 loaves"
+                }
+              ],
+              "questions": {
+                "now": "2026-11-18T09:30:00Z",
+                "tool_id": "bake-tool",
+                "newest": 10
+              }
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-each-workshop-task-whole-and-a-small-index",
+      "step": "keep",
+      "given": "The look step found the tasks and index rows kept by an earlier run, and the store's own objects are proven.",
+      "hands_back": "kept_tasks [\"t1\"] and answer with last_good {\"bake-tool\": \"t1\"}, due_now [\"t2\"] (the scheduled task due at 09:00), next_due null and newest [\"t3\", \"t1\", \"t2\"] (the newest runs first, by seq)."
+    },
+    {
+      "title": "A write from an older run arrives after a newer one",
+      "ask": "Save the earlier version of task t1 again.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-each-workshop-task-whole-and-a-small-index",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "writes": [
+                {
+                  "task_id": "t1",
+                  "tool_id": "bake-tool",
+                  "state": "scheduled",
+                  "due_at": "2026-11-18T10:00:00Z",
+                  "seq": 1
+                }
+              ],
+              "questions": {}
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-each-workshop-task-whole-and-a-small-index",
+      "step": "keep",
+      "given": "The newest kept version of t1 has seq 3.",
+      "hands_back": "refused for t1, with the store's own words that seq 1 is older than the version kept, and the index row unchanged."
+    }
+  ]
+}
