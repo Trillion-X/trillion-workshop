@@ -147,3 +147,19 @@ test('lens rows: the person beats a learned rule beats an AI beats the default, 
   assert.deepEqual(lensFor(dinners, []), {});
   assert.deepEqual(lensFor('words', rows), { items: 10, hidden_fields: ['id'] }, 'only rows that need no field hold for an answer with none');
 });
+
+// The answer tools:run gave through the door for tool:add-a-customer on Nov 18 (5:15 AM CST).
+const finishedRun = { exit_code: 0, replayed: false, tool: 'tool:add-a-customer', result: { contact_id: 'contact:7a21a378-b639-4655-91b5-99fe6f86b2ab',
+  contact_record: { channelLabel: 'Email', contactId: 'contact:7a21a378-b639-4655-91b5-99fe6f86b2ab', displayName: 'Ada Lovelace', kind: 'customer-contact' } } };
+
+test('a finished run leads with its outcome and its result, never its own plumbing', () => {
+  const { spec, rules, texts } = accepted(finishedRun);
+  assert.equal(rules[0], 'a-finished-run');
+  assert.ok(Object.values(spec.elements).some(element => element.type === 'Badge' && element.props.text === 'Done'));
+  assert.ok(texts.includes('Ada Lovelace'), 'the record leads with its display name');
+  for (const plumbing of ['Exit code', 'Replayed', 'Tool']) assert.ok(!texts.includes(plumbing), plumbing);
+  const ids = Object.values(spec.elements).filter(element => element.props.text === 'contact:7a21a378-b639-4655-91b5-99fe6f86b2ab');
+  assert.ok(ids.length && ids.every(element => element.props.variant === 'caption' && element.props.color === 'muted'), 'an identifier is drawn quietly');
+  assert.ok(texts.includes('Channel label') && texts.includes('Contact id'), 'labels are sentence case');
+  assert.equal(ids.length, 1, 'the id the record repeats is said once, inside the record');
+});

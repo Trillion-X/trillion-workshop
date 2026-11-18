@@ -89,12 +89,15 @@ function words(value, settings) {
 }
 
 /** A field's name as words: separators become spaces, the first letter is a capital. */
-const labelOf = key => { const spaced = String(key).replace(/[_-]+/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2').trim(); return spaced.charAt(0).toUpperCase() + spaced.slice(1); };
+const labelOf = key => { const spaced = String(key).replace(/[_-]+/g, ' ').replace(/([a-z])([A-Z])/g, (_, low, high) => `${low} ${high.toLowerCase()}`).trim(); return spaced.charAt(0).toUpperCase() + spaced.slice(1); };
 
-/** The fields of a record that are drawn: its own, less the hidden ones and its title field. */
+/** The fields of a record that are drawn: its own, less the hidden ones, its title field and any plain value one of its
+ * records repeats. */
 function shownFields(value, settings) {
   const title = settings.title_fields.find(name => value[name] !== undefined && value[name] !== null && value[name] !== '');
-  return Object.keys(value).filter(key => key !== title && !settings.hidden_fields.includes(key));
+  // A plain value a sibling record also holds is said once, inside that record (`hide_repeated`).
+  const inside = new Set(settings.hide_repeated ? Object.values(value).filter(object).flatMap(record => Object.values(record).filter(field => typeof field === 'string' || typeof field === 'number')) : []);
+  return Object.keys(value).filter(key => key !== title && !settings.hidden_fields.includes(key) && !inside.has(value[key]));
 }
 
 /** The facts of a value's shape that rules may name. */
@@ -113,6 +116,8 @@ export function factsOf(value, schema, settings = defaults) {
     has_range: object(schema) && Number.isFinite(schema.minimum) && Number.isFinite(schema.maximum),
     media: typeof value === 'string' && /^(image|video|audio)\//.test(object(schema) ? String(schema.contentMediaType ?? '') : ''),
     runnable: runOf(value, settings) !== null,
+    identifier: typeof value === 'string' && settings.identifier_shapes.some(shape => new RegExp(shape, 'i').test(value)),
+    wraps_result: object(value) && object(value[settings.runs.result_field]) && Object.entries(value).every(([key, field]) => key === settings.runs.result_field || !object(field) && !Array.isArray(field)),
   };
 }
 
@@ -163,6 +168,9 @@ function draw(value, schema, label, settings, out, depth) {
   return fill(rule.draw, { value, schema, label }, settings, out, depth, key);
 }
 
+/** Adds a drawn element's key, when one was drawn. */
+const pushed = (children, key) => { if (key !== null) children.push(key); };
+
 /** One template filled for `here` ({value, schema, label}), its children drawn in place. */
 function fill(template, here, settings, out, depth, key = `e${out.next++}`) {
   const props = Object.fromEntries(Object.entries(template.props ?? {}).map(([name, given]) => [name, propValue(given, here, settings)]).filter(([, value]) => value !== undefined));
@@ -171,13 +179,13 @@ function fill(template, here, settings, out, depth, key = `e${out.next++}`) {
     if (object(child) && object(child.each_item)) {
       const items = Array.isArray(here.value) ? here.value : [];
       const itemSchema = object(here.schema) ? here.schema.items : undefined;
-      for (const item of items.slice(0, settings.limits.items)) children.push(fill(child.each_item, { value: item, schema: itemSchema, label: here.label }, settings, out, depth + 1));
+      for (const item of items.slice(0, settings.limits.items)) pushed(children, fill(child.each_item, { value: item, schema: itemSchema, label: here.label }, settings, out, depth + 1));
       if (items.length > settings.limits.items) children.push(more(items.length - settings.limits.items, settings, out));
     } else if (object(child) && object(child.each_field)) {
       const fields = object(here.value) ? shownFields(here.value, settings) : [];
       for (const field of fields.slice(0, settings.limits.fields)) {
         const fieldSchema = object(here.schema) && object(here.schema.properties) ? here.schema.properties[field] : undefined;
-        children.push(fill(child.each_field, { value: { key: field, value: here.value[field] }, schema: fieldSchema, label: labelOf(field), field: true }, settings, out, depth + 1));
+        pushed(children, fill(child.each_field, { value: { key: field, value: here.value[field] }, schema: fieldSchema, label: labelOf(field), field: true }, settings, out, depth + 1));
       }
       if (fields.length > settings.limits.fields) children.push(more(fields.length - settings.limits.fields, settings, out));
     } else if (object(child) && object(child.each_input)) {
@@ -188,14 +196,16 @@ function fill(template, here, settings, out, depth, key = `e${out.next++}`) {
         out.rules.push(`input:${rule.id}`);
         const path = `${settings.runs.state_at}/${field.replace(/~/g, '~0').replace(/\//g, '~1')}`;
         if (object(inputSchema) && inputSchema.default !== undefined) setAt(out.state, path, inputSchema.default);
-        children.push(fill(rule.draw, { value: undefined, schema: inputSchema, label: object(inputSchema) && typeof inputSchema.title === 'string' ? inputSchema.title : labelOf(field), bind: path }, settings, out, depth + 1));
+        pushed(children, fill(rule.draw, { value: undefined, schema: inputSchema, label: object(inputSchema) && typeof inputSchema.title === 'string' ? inputSchema.title : labelOf(field), bind: path }, settings, out, depth + 1));
       }
     } else if (object(child) && typeof child.$view === 'string') {
-      children.push(draw(at(here.value, child.$view), here.field ? here.schema : undefined, here.label, settings, out, depth + 1));
+      pushed(children, draw(at(here.value, child.$view), here.field ? here.schema : undefined, here.label, settings, out, depth + 1));
     } else if (object(child) && typeof child.type === 'string') {
-      children.push(fill(child, here, settings, out, depth + 1));
+      pushed(children, fill(child, here, settings, out, depth + 1));
     }
   }
+  // A part whose words are its whole content and came out empty (a record with no title) is left out, never drawn blank.
+  if (!children.length && Object.hasOwn(template.props ?? {}, 'text') && object(template.props.text) && (props.text === undefined || props.text === '')) return null;
   out.elements[key] = { type: template.type, props, ...(children.length ? { children } : {}), ...(object(template.on) ? { on: template.on } : {}) };
   return key;
 }
