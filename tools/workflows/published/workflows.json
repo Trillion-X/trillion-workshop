@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflows:public",
   "list": "workflows",
-  "blake3": "1aff6a577f52d34020b8e103732b01b00bd07919f81c4289fb48f9212457418b",
+  "blake3": "741525be464205f29d87ef9043fb23e64ea993620a7eeb614c50c9769f2815f1",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
@@ -16,6 +16,8 @@
    "workflow_ids": [
     "account-for-every-ask-in-a-message",
     "act-on-feedback-with-judgment",
+    "adopt-a-named-tool-or-repository",
+    "adopt-a-stated-way-of-working-with-ai",
     "answer-commenters-with-videos",
     "answer-comments-and-messages",
     "ask-for-ten-and-keep-the-winner",
@@ -96,6 +98,7 @@
     "get-a-rented-room-ready-after-a-stay",
     "get-a-stalled-agent-moving-again",
     "get-past-a-wall-called-impossible",
+    "give-a-row-its-workflows",
     "give-or-end-access-by-hand",
     "give-paid-buyers-access",
     "give-people-a-way-to-find-and-get-it",
@@ -129,6 +132,7 @@
     "list-your-product-in-every-ai-connector-store",
     "lock-in",
     "make-a-font-from-measured-references",
+    "make-a-piece-in-a-format",
     "make-a-piece-with-a-known-device",
     "make-a-piece-with-a-known-edit-technique",
     "make-a-service-call-us-and-keep-its-signing-secret",
@@ -153,6 +157,7 @@
     "measure-a-sport-technique-from-footage",
     "measure-how-a-codebase-is-growing",
     "measure-the-funnel-and-set-a-baseline",
+    "measure-what-a-computer-can-still-take",
     "method-build-a-product",
     "method-build-the-real-thing",
     "method-change-code",
@@ -4663,6 +4668,81 @@
     "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
     "fires_when": "[{\"label\": \"a part asks to bring an old site's content into the seller's own place\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"site-to-leave\", \"content-to-move\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from no Workshop tool does the whole job; the reading is done directly in the old store's own way\\\", \\\"trillion-workshop origin/main:tools/keep-a-record-library-valid\\\", \\\"trillion-workshop origin/main:tools/export-records-as-list-rows\\\"]; the label is the condition in words.\"}]",
     "source": "{\"from\": \"no Workshop tool does the whole job; the reading is done directly in the old store's own way\\\", \\\"trillion-workshop origin/main:tools/keep-a-record-library-valid\\\", \\\"trillion-workshop origin/main:tools/export-records-as-list-rows\\\"], judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "adopt-a-named-tool-or-repository",
+   "values": {
+    "title": "Adopt a named tool or repository after checking it",
+    "recipe": "workflow:adopt-a-named-tool-or-repository",
+    "job": "Takes a saved post that names tools to use, finds each real address, checks whether it is already held, reads the licence, tries it on a real input and decides adopt, present or leave. For a person who wants new abilities their AIs can reach.",
+    "produces": "For each named thing: its real address, its job, whether it is already held, its licence read from a page, a real trial result, a decision of adopt, present or leave with a reason, how it was attached and proved reachable, and one record of what happened to every item.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to adopt a named tool or repository after checking it\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"tool-named\", \"capability-gap\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from the person's old kept store, table workflow_recipe record:workflow-recipe:adopt-a-named-tool-or-repository, workflow_step recipe like '%\\\"adopt-a-named-tool-or-repository\\\"%' (6; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"the person's old kept store, table workflow_recipe record:workflow-recipe:adopt-a-named-tool-or-repository, workflow_step recipe like '%\\\"adopt-a-named-tool-or-repository\\\"%' (6, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "adopt-a-stated-way-of-working-with-ai",
+   "values": {
+    "title": "Adopt a stated way of working with AI",
+    "recipe": "workflow:adopt-a-stated-way-of-working-with-ai",
+    "job": "Splits a saved post into separate instructions about working with AI, checks each against what the person already keeps, judges it and puts adopted ones where every AI reads them. For anyone collecting working methods.",
+    "produces": "Every instruction in the input with its area, a verdict with reason and the entries it was judged against, a decision for those that add or conflict, each adopted one read back and found by search, and one record of verdicts, outcomes and the most important open question.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to adopt a stated way of working with AI\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"practice-shared\", \"rule-to-enforce\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from the person's old kept store, table workflow_recipe record:workflow-recipe:adopt-a-stated-way-of-working-with-ai, workflow_step recipe like '%\\\"adopt-a-stated-way-of-working-with-ai\\\"%' (6; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"the person's old kept store, table workflow_recipe record:workflow-recipe:adopt-a-stated-way-of-working-with-ai, workflow_step recipe like '%\\\"adopt-a-stated-way-of-working-with-ai\\\"%' (6, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "give-a-row-its-workflows",
+   "values": {
+    "title": "Give a kept row the workflows that do its work",
+    "recipe": "workflow:give-a-row-its-workflows",
+    "job": "Reads a kept row, finds existing workflows that cover each part of its job, makes a workflow for any uncovered part, and writes the answer back on the row. For anyone with rows that describe work but name no way to do it.",
+    "produces": "For the row: its job and parts, the existing workflows that cover each part, a new workflow for any part nothing covers, the row read back naming its workflows, and a record of what was covered, what was made and what is still open.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to give a kept row the workflows that do its work\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"process-to-document\", \"capability-gap\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from the person's old kept store, table workflow_recipe record:workflow-recipe:give-a-row-its-workflows, workflow_step recipe like '%\\\"give-a-row-its-workflows\\\"%' (4; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"the person's old kept store, table workflow_recipe record:workflow-recipe:give-a-row-its-workflows, workflow_step recipe like '%\\\"give-a-row-its-workflows\\\"%' (4, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "make-a-piece-in-a-format",
+   "values": {
+    "title": "Make a piece that matches a format definition",
+    "recipe": "workflow:make-a-piece-in-a-format",
+    "job": "Measures a made piece the way its format definition was measured (length, aspect, cuts, holds, moving share, words per minute, loudness) and compares each number to the definition. For anyone making content in a reusable format.",
+    "produces": "The piece made to the format's definition from the person's own material, with the script approved before any voice or spend, each measure beside the definition's range and whether it is within, a verdict for each check kept for every piece, and a record of what was found and what matters most next.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to make a piece that matches a format definition\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"piece-to-make\", \"video-request\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from the person's old kept store, table content_formats; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"the person's old kept store, table content_formats, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "measure-what-a-computer-can-still-take",
+   "values": {
+    "title": "Measure what a computer can still take",
+    "recipe": "workflow:measure-what-a-computer-can-still-take",
+    "job": "Measure a computer and each store on it against its own limits, twice, and say how long each has left at the growth seen, so nothing is added until a measurement shows the need.",
+    "produces": "Every reading with its time and source, what is left of each limit, the findings near a limit with their numbers, and which one matters most now.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to measure what a computer can still take\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"capacity-question\", \"week-ended\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from The roadmap's item on measuring each computer before adding anything (its study of connections, memory per connection, disk and each store's own stopping limits), Nov 18 2026; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"The roadmap's item on measuring each computer before adding anything (its study of connections, memory per connection, disk and each store's own stopping limits), Nov 18 2026, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
    }
   }
  ]

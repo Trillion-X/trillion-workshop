@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflow-steps:public",
   "list": "workflow-steps",
-  "blake3": "c0aa9e8966717a5232eb793b378cb4f594a9a793159a18e2ba9d86ef8dbc1337",
+  "blake3": "6dab7735b575ea3b204c322ebad978c8b9b97bde7e71a40151147f20d20de44b",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
@@ -16,6 +16,8 @@
    "workflow_ids": [
     "account-for-every-ask-in-a-message",
     "act-on-feedback-with-judgment",
+    "adopt-a-named-tool-or-repository",
+    "adopt-a-stated-way-of-working-with-ai",
     "answer-commenters-with-videos",
     "answer-comments-and-messages",
     "ask-for-ten-and-keep-the-winner",
@@ -96,6 +98,7 @@
     "get-a-rented-room-ready-after-a-stay",
     "get-a-stalled-agent-moving-again",
     "get-past-a-wall-called-impossible",
+    "give-a-row-its-workflows",
     "give-or-end-access-by-hand",
     "give-paid-buyers-access",
     "give-people-a-way-to-find-and-get-it",
@@ -129,6 +132,7 @@
     "list-your-product-in-every-ai-connector-store",
     "lock-in",
     "make-a-font-from-measured-references",
+    "make-a-piece-in-a-format",
     "make-a-piece-with-a-known-device",
     "make-a-piece-with-a-known-edit-technique",
     "make-a-service-call-us-and-keep-its-signing-secret",
@@ -153,6 +157,7 @@
     "measure-a-sport-technique-from-footage",
     "measure-how-a-codebase-is-growing",
     "measure-the-funnel-and-set-a-baseline",
+    "measure-what-a-computer-can-still-take",
     "method-build-a-product",
     "method-build-the-real-thing",
     "method-change-code",
@@ -45461,6 +45466,790 @@
     ],
     "part_of": [
      "workflow:bring-an-old-sites-content-into-the-sellers-own-store"
+    ]
+   }
+  },
+  {
+   "id": "adopt-a-named-tool-or-repository--read-what-names-it",
+   "values": {
+    "title": "Read what names it",
+    "recipe": [
+     "adopt-a-named-tool-or-repository"
+    ],
+    "position": 0,
+    "step": "read-what-names-it",
+    "do": "Read the input in full: its text, its why, its links. Open each short link to learn its real address; read the final page's address and title. List every thing it names to use. For each give a short id, its name, its kind (repository, library, command-line program, skill, server, model, reference collection, hosted service, or the kind you find), its real address (never the short link) and what the post says it does, in your words (a short quote at most). Note anything the input already says about having adopted it.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "The run's input is a post or page (its text, its why, its links) that names a tool, repository, skill, server, library, model or reference collection.",
+    "done_when": "Every named thing is listed with a real address read from a page, not guessed from its name.",
+    "if_missing": "If a link no longer opens, search the public web for the name and say the address was found by search. If the input cannot be read, stop and name it.",
+    "why": "Adoption is for the exact thing the post points at; a name alone matches the wrong project.",
+    "good_answer": "Passes: a post about an open-sourced phone farm gives one item, kind repository, address read from the redirect. Fails: the address is the short link, or the whole post is one item called 'the tool'.",
+    "came_from": [
+     "the person's old kept store, table workflow_recipe record:workflow-recipe:adopt-a-named-tool-or-repository, workflow_step recipe like '%\"adopt-a-named-tool-or-repository\"%' (6 rows), x_bookmarks rows where workflow='workflow:adopt-a-named-tool-or-repository' (99 rows)"
+    ],
+    "part_of": [
+     "workflow:adopt-a-named-tool-or-repository"
+    ]
+   }
+  },
+  {
+   "id": "adopt-a-named-tool-or-repository--name-the-job-it-would-do",
+   "values": {
+    "title": "Name the job it would do",
+    "recipe": [
+     "adopt-a-named-tool-or-repository"
+    ],
+    "position": 1,
+    "step": "name-the-job-it-would-do",
+    "do": "For each item write one sentence, in the person's words: the job it would do for them, and which work of theirs it touches today. Read the tool's own page or repository to see what it says it does. If you cannot tie the job to work the person does, record 'no job yet' with the link for that item.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "Every named thing is listed.",
+    "done_when": "Each item has one sentence naming the job and the work it touches, and the page read is linked, or is recorded as 'no job yet'.",
+    "if_missing": "If the person has no such work, record 'no job yet' with the link and stop for that item.",
+    "why": "A thing with no job in the person's work is not adopted, however good it looks.",
+    "good_answer": "Passes: 'Job: cut a long talk into captioned clips. Touches: the weekly recordings. Source: the repository's own readme, read today.' Fails: 'looks useful'.",
+    "came_from": [
+     "the person's old kept store, table workflow_recipe record:workflow-recipe:adopt-a-named-tool-or-repository, workflow_step recipe like '%\"adopt-a-named-tool-or-repository\"%' (6 rows), x_bookmarks rows where workflow='workflow:adopt-a-named-tool-or-repository' (99 rows)"
+    ],
+    "part_of": [
+     "workflow:adopt-a-named-tool-or-repository"
+    ]
+   }
+  },
+  {
+   "id": "adopt-a-named-tool-or-repository--find-whether-it-is-already-here",
+   "values": {
+    "title": "Find whether it is already here",
+    "recipe": [
+     "adopt-a-named-tool-or-repository"
+    ],
+    "position": 2,
+    "step": "find-whether-it-is-already-here",
+    "do": "Before adopting anything, look for each item among what the person already keeps: the tools their AIs can reach, the skills and servers their AIs hold, the workflows that do its job, and the rows that record open gaps. Search by its name, its repository and its job in meaning, not only by name. Hand back, per item, what is the same thing or already does its job, and the places searched.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "The jobs are named.",
+    "done_when": "Every item is either found present (named by what holds it) or listed as not present, with the places searched named.",
+    "if_missing": "If a search cannot run, read the person's own rows of that kind by hand and say which search was not used.",
+    "why": "A second copy of a thing already held splits what the person has; finding it first turns many posts into a quick 'already present'.",
+    "good_answer": "Passes: a post about a video-rendering library finds the installed rendering skill and the tools that render with it. Fails: 'not present' with no search named.",
+    "came_from": [
+     "the person's old kept store, table workflow_recipe record:workflow-recipe:adopt-a-named-tool-or-repository, workflow_step recipe like '%\"adopt-a-named-tool-or-repository\"%' (6 rows), x_bookmarks rows where workflow='workflow:adopt-a-named-tool-or-repository' (99 rows)"
+    ],
+    "part_of": [
+     "workflow:adopt-a-named-tool-or-repository"
+    ]
+   }
+  },
+  {
+   "id": "adopt-a-named-tool-or-repository--read-its-licence-and-terms",
+   "values": {
+    "title": "Read its licence and terms",
+    "recipe": [
+     "adopt-a-named-tool-or-repository"
+    ],
+    "position": 3,
+    "step": "read-its-licence-and-terms",
+    "do": "For each item not present, read its licence and terms; never guess them. A code repository: the repository's own licence field, and when that is missing or unclear, its licence file, naming the licence identifier its text states. A package: its registry page. A model: its model card. A hosted service or reference collection: its terms page and its prices. Put it in one of the person's own licence classes (what allows offering it to other people, what allows it only on the person's own computer, what allows no hosting, none stated), taken from wherever the person keeps those classes. Also read its last commit or release date and say whether it is kept up.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "Some item is not present.",
+    "done_when": "Every item not present has a licence read from a named page, a class, and a last-update date.",
+    "if_missing": "If no page states a licence, the licence is 'none stated' and the item is not wrapped.",
+    "why": "The person's tools are offered to others; a thing whose licence does not allow that must not be wrapped as if it did.",
+    "good_answer": "Passes: 'licence Apache-2.0, read from the repository's licence file, allows offering, last commit 2026-11-02'. Fails: 'MIT (probably)', or a licence with no page it was read from.",
+    "came_from": [
+     "the person's old kept store, table workflow_recipe record:workflow-recipe:adopt-a-named-tool-or-repository, workflow_step recipe like '%\"adopt-a-named-tool-or-repository\"%' (6 rows), x_bookmarks rows where workflow='workflow:adopt-a-named-tool-or-repository' (99 rows)"
+    ],
+    "part_of": [
+     "workflow:adopt-a-named-tool-or-repository"
+    ]
+   }
+  },
+  {
+   "id": "adopt-a-named-tool-or-repository--try-it-on-one-real-input",
+   "values": {
+    "title": "Try it on one real input",
+    "recipe": [
+     "adopt-a-named-tool-or-repository"
+    ],
+    "position": 4,
+    "step": "try-it-on-one-real-input",
+    "do": "Run it once on one real input of the person's, in a place where it cannot reach their other data or any secret. Install it only from the exact source named. Write down what it did and what the source said it would do, side by side, and mark each claim 'held' or 'did not hold'.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "Some item is not present and its licence allows trying it.",
+    "done_when": "One real run is kept with the input used, the output, and each claim from the source marked 'held' or 'did not hold'.",
+    "if_missing": "If it will not run, record the exact error and the step that failed; do not guess a fix twice.",
+    "why": "What a source says a thing does is a claim; only a run on the person's own input shows it.",
+    "good_answer": "Passes: 'Claim: 20 styles and mp4 export. Held: mp4 export worked on our clip in 40 seconds. Did not hold: only 6 styles were in the build.' Fails: 'it works'.",
+    "came_from": [
+     "the person's old kept store, table workflow_recipe record:workflow-recipe:adopt-a-named-tool-or-repository, workflow_step recipe like '%\"adopt-a-named-tool-or-repository\"%' (6 rows), x_bookmarks rows where workflow='workflow:adopt-a-named-tool-or-repository' (99 rows)"
+    ],
+    "part_of": [
+     "workflow:adopt-a-named-tool-or-repository"
+    ]
+   }
+  },
+  {
+   "id": "adopt-a-named-tool-or-repository--compare-with-what-is-already-there",
+   "values": {
+    "title": "Compare with what is already there",
+    "recipe": [
+     "adopt-a-named-tool-or-repository"
+    ],
+    "position": 5,
+    "step": "compare-with-what-is-already-there",
+    "do": "Read what the person already keeps that does the same job before judging. Run the same input through that and through the new one. Compare on what the job needs: time, cost and how good the result is, each as a number.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "A trial run exists.",
+    "done_when": "One comparison shows both results on the same input, with a number for each thing that matters.",
+    "if_missing": "If the person has nothing for this job, say so and compare against doing it by hand.",
+    "why": "A thing earns a place only by doing the job better than what the person has.",
+    "good_answer": "Passes: 'Old way: 12 minutes, 2 retakes. New: 3 minutes, 0 retakes, same output length.' Fails: 'the new one feels faster'.",
+    "came_from": [
+     "the person's old kept store, table workflow_recipe record:workflow-recipe:adopt-a-named-tool-or-repository, workflow_step recipe like '%\"adopt-a-named-tool-or-repository\"%' (6 rows), x_bookmarks rows where workflow='workflow:adopt-a-named-tool-or-repository' (99 rows)"
+    ],
+    "part_of": [
+     "workflow:adopt-a-named-tool-or-repository"
+    ]
+   }
+  },
+  {
+   "id": "adopt-a-named-tool-or-repository--decide-adopt-present-or-leave",
+   "values": {
+    "title": "Decide adopt present or leave",
+    "recipe": [
+     "adopt-a-named-tool-or-repository"
+    ],
+    "position": 6,
+    "step": "decide-adopt-present-or-leave",
+    "do": "Decide each item once: adopt, present or leave. Present: it was found already here. Adopt only when all hold: its licence class allows the way it would be used; it does a job that some work of the person needs, or that a recorded open gap asks for (name the work or the gap); nothing present does that job as well; and it runs where the person's work runs without an account they lack. Otherwise leave it, with the reason in one line.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "Every item is found present, or has its licence read and its trial compared.",
+    "done_when": "Every item is in exactly one of adopt, present or leave, each with a reason.",
+    "if_missing": "If no work and no gap needs it, leave it: a thing being absent is never by itself a reason to adopt it.",
+    "why": "Only a thing that does a needed job, under a licence that allows it, earns a place every AI will be offered.",
+    "good_answer": "Passes: 'a keyless web scraper is adopted because content making reads pages and an open gap asks for search; a premium dashboard with no licence is left'. Fails: adopted because 'it looks useful'.",
+    "came_from": [
+     "the person's old kept store, table workflow_recipe record:workflow-recipe:adopt-a-named-tool-or-repository, workflow_step recipe like '%\"adopt-a-named-tool-or-repository\"%' (6 rows), x_bookmarks rows where workflow='workflow:adopt-a-named-tool-or-repository' (99 rows)"
+    ],
+    "part_of": [
+     "workflow:adopt-a-named-tool-or-repository"
+    ]
+   }
+  },
+  {
+   "id": "adopt-a-named-tool-or-repository--attach-it-so-every-ai-can-reach-it",
+   "values": {
+    "title": "Attach it so every ai can reach it",
+    "recipe": [
+     "adopt-a-named-tool-or-repository"
+    ],
+    "position": 7,
+    "step": "attach-it-so-every-ai-can-reach-it",
+    "do": "Attach each adopted item the way the person's other abilities are attached, through the owner for its kind, described by what it does (the job as someone would ask for it), with how to install and run it copied from its own readme and a check that proves it still runs. A remote server or interface description is added as a server the person's AIs can call and proved by listing what it offers. A skill from a public collection is copied byte for byte with its source recorded. A model, hosted service or reference collection is recorded with how to reach it. Then prove it is reachable by asking for its job the way an AI would and reading the answer back. If the proving check fails after attaching, take it off again and record why.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "Some item is adopted.",
+    "done_when": "Every adopted item is reachable by asking for its job, read back after the change, or has a gap recorded naming what is missing.",
+    "if_missing": "If a landed change has not appeared yet, read again after the next refresh; do not report it as attached until it answers.",
+    "why": "An adopted thing that no AI can reach by asking for its job is not adopted.",
+    "good_answer": "Passes: 'described as cut a talk into clips; the check runs the sample clip and finds the mp4; a search for the job finds it'. Fails: 'added' with no read back.",
+    "came_from": [
+     "the person's old kept store, table workflow_recipe record:workflow-recipe:adopt-a-named-tool-or-repository, workflow_step recipe like '%\"adopt-a-named-tool-or-repository\"%' (6 rows), x_bookmarks rows where workflow='workflow:adopt-a-named-tool-or-repository' (99 rows)"
+    ],
+    "part_of": [
+     "workflow:adopt-a-named-tool-or-repository"
+    ]
+   }
+  },
+  {
+   "id": "adopt-a-named-tool-or-repository--record-what-was-found",
+   "values": {
+    "title": "Record what was found",
+    "recipe": [
+     "adopt-a-named-tool-or-repository"
+    ],
+    "position": 8,
+    "step": "record-what-was-found",
+    "do": "Record each item with its job, the evidence, the decision (adopted when at least one item is now usable, not adopted when every item was left), what was attached, what was found present, what was left and why, and what now matters most about it (for example whether it keeps working after its next update). Keep the record wherever the person keeps this pursuit's rows, in that store's own way, changing nothing else already kept there, and read it back. If you do not know where, ask the person once. Do not choose what runs next.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "A decision exists for every item.",
+    "done_when": "The record read back holds the new adoption mark and names every item and what happened to it.",
+    "if_missing": "If the write is refused, read what is kept again and write once more with the same request key; never write a partial value.",
+    "why": "The adoption mark is how the person sees which posts became something usable.",
+    "good_answer": "Passes: 'adopted; attached [tool]; present []; left [premium dashboards]; open: does it keep working after its next update', read back from where it is kept. Fails: the input's text overwritten, or adoption set with no read back.",
+    "came_from": [
+     "the person's old kept store, table workflow_recipe record:workflow-recipe:adopt-a-named-tool-or-repository, workflow_step recipe like '%\"adopt-a-named-tool-or-repository\"%' (6 rows), x_bookmarks rows where workflow='workflow:adopt-a-named-tool-or-repository' (99 rows)"
+    ],
+    "part_of": [
+     "workflow:adopt-a-named-tool-or-repository"
+    ]
+   }
+  },
+  {
+   "id": "adopt-a-stated-way-of-working-with-ai--read-the-post-and-name-each-instruction",
+   "values": {
+    "title": "Read the post and name each instruction",
+    "recipe": [
+     "adopt-a-stated-way-of-working-with-ai"
+    ],
+    "position": 0,
+    "step": "read-the-post-and-name-each-instruction",
+    "do": "Read the input in full: its text, why, link and topics. When the text is cut short or points at a linked article, thread or video, read the link (a video: its transcript). Split what it states into separate instructions. For each give: a short id, what an AI or the person would do differently (in plain words), the area it belongs to (prompting, model choice, harness, agent security, design loop, or another you name), a quote of at most 20 words with no names, and the kind of evidence behind it (measured: it shows a number it measured; shown: it shows a result; claim only: it only says so).",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "The run's input is a post or other text (with its link) that states how to work with AI (a prompt, a model or effort choice, an agent harness, agent security, a loop for designing with an agent).",
+    "done_when": "Every instruction the row states is written with its area, a short quote and the kind of evidence behind it.",
+    "if_missing": "If the input cannot be read, stop and name it. If a link cannot be read, judge from the input's own text and say the link was not read.",
+    "why": "A post often holds two or three separate practices; each is tested and adopted on its own, and an instruction read only from a summary is not what the post said.",
+    "good_answer": "Passes: a post saying to load named design skills before building a site gives one instruction, area design loop, evidence shown. Fails: one instruction 'use AI better', or an instruction read from an id alone.",
+    "came_from": [
+     "the person's old kept store, table workflow_recipe record:workflow-recipe:adopt-a-stated-way-of-working-with-ai, workflow_step recipe like '%\"adopt-a-stated-way-of-working-with-ai\"%' (6 rows), x_bookmarks/x_likes rows where workflow='workflow:adopt-a-stated-way-of-working-with-ai'"
+    ],
+    "part_of": [
+     "workflow:adopt-a-stated-way-of-working-with-ai"
+    ]
+   }
+  },
+  {
+   "id": "adopt-a-stated-way-of-working-with-ai--find-what-the-person-already-holds-on-it",
+   "values": {
+    "title": "Find what the person already holds on it",
+    "recipe": [
+     "adopt-a-stated-way-of-working-with-ai"
+    ],
+    "position": 1,
+    "step": "find-what-the-person-already-holds-on-it",
+    "do": "For each instruction, before judging it, search everything the person keeps that tells AIs how to work, of every kind they keep it in, including the standing instructions every AI is told when it connects. Search once with the instruction's words in each place, by that place's own search. Read every hit you keep in full and quote the line that bears on the instruction. Keep only entries about the same practice. Hand back what was searched per instruction, the matches {instruction, entry, says}, and the standing instructions by their ids.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "The instructions are named.",
+    "done_when": "Every instruction was searched in every place the person keeps ways of working, and each match is an entry read in full with the line that bears on it.",
+    "if_missing": "If a search cannot run, read that place's entries by hand and say which search was not used.",
+    "why": "An instruction is judged against what the person already does, never against a blank page; most stated practices are already held or already ruled against.",
+    "good_answer": "Passes: 'keep effort low' matches an entry on model choice and another on effort, each with the quoted line. Fails: 'nothing found' without the searches, or a match whose line says nothing about the practice.",
+    "came_from": [
+     "the person's old kept store, table workflow_recipe record:workflow-recipe:adopt-a-stated-way-of-working-with-ai, workflow_step recipe like '%\"adopt-a-stated-way-of-working-with-ai\"%' (6 rows), x_bookmarks/x_likes rows where workflow='workflow:adopt-a-stated-way-of-working-with-ai'"
+    ],
+    "part_of": [
+     "workflow:adopt-a-stated-way-of-working-with-ai"
+    ]
+   }
+  },
+  {
+   "id": "adopt-a-stated-way-of-working-with-ai--judge-each-instruction-and-decide",
+   "values": {
+    "title": "Judge each instruction and decide",
+    "recipe": [
+     "adopt-a-stated-way-of-working-with-ai"
+    ],
+    "position": 2,
+    "step": "judge-each-instruction-and-decide",
+    "do": "For each instruction give a verdict from the matches, never from the post's tone or its author's reach: already held (a matched row already says it; cite it), adds something (no matched row covers it, or it sharpens one), conflicts (it goes against a matched rule or lesson; that rule stands unless the post brings new evidence), or not for us (it does not fit how the person works, or nothing in it could be tested). For adds-something and conflicts, test it when a test is cheap: run the stated prompt, model, effort or harness change on one real task of the person's and the current way on the same task, and compare what was measured (tokens, time, defects found); otherwise say untested. Added rule: a skill is for a one-shot task; an agent is for a loop that acts, checks and adjusts against a clear stop rule; when an instruction picks one of the two, judge it by whether the work is one shot or a loop with a stop rule. Added rule: when an instruction gives an AI agent a tool surface for making or editing things (animation, video, design, audio), prefer a node-based graph with a script interface over a layer-based editor, which costs the agent far more compute and steps; judge the instruction by the tool shape it asks for. Then put each adds-something and conflicts instruction to the person's own decision method with the quote and its evidence kind, every match and its line, and the test result or 'untested', and keep the outcome.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "The person's current practice is found.",
+    "done_when": "Every instruction has a verdict with its reason and cited rows, and every adds-something or conflicts verdict has a decision with its outcome.",
+    "if_missing": "If the decision method cannot run, give the verdict and say no decision was made; adopt nothing without one.",
+    "why": "A post is evidence, not authority; only a tested gain or a real gap changes how every AI works, and the decision keeps why.",
+    "good_answer": "Passes: 'answer in a terse style to save tokens' is conflicts with the person's plain-words rule, tested on one task (tokens 180 vs 45, two answers unclear), decision keep current. Fails: adopted because it went viral, or a conflict decided with no decision.",
+    "came_from": [
+     "the person's old kept store, table workflow_recipe record:workflow-recipe:adopt-a-stated-way-of-working-with-ai, workflow_step recipe like '%\"adopt-a-stated-way-of-working-with-ai\"%' (6 rows), x_bookmarks/x_likes rows where workflow='workflow:adopt-a-stated-way-of-working-with-ai'"
+    ],
+    "part_of": [
+     "workflow:adopt-a-stated-way-of-working-with-ai"
+    ]
+   }
+  },
+  {
+   "id": "adopt-a-stated-way-of-working-with-ai--put-each-adopted-instruction-where-every-ai-reads-it",
+   "values": {
+    "title": "Put each adopted instruction where every ai reads it",
+    "recipe": [
+     "adopt-a-stated-way-of-working-with-ai"
+    ],
+    "position": 3,
+    "step": "put-each-adopted-instruction-where-every-ai-reads-it",
+    "do": "For each adopted instruction, change what every AI reads, improving a matched entry before adding a new one. Something an AI must or must never do that a check can judge keeps its check beside it. A way of doing one kind of work joins the entry that already covers that work; a new entry only when none does, with a source line naming the input's link. Something every AI must hear when it first connects stays rare and short, with its source. An adopted conflict changes the conflicting entry itself, so no two entries disagree. Make each change in the entry's own owner, in that owner's own way, never as a note, memory or research file, and never as a write on the input itself. Hand back adopted, and for every other instruction left with why.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "Some instruction's decision is adopt; when none is, hand back adopted: [] and left for each.",
+    "done_when": "Every adopted instruction is in one entry that every AI reads, with the input's link as its source.",
+    "if_missing": "If no owner can write the entry this needs, record the missing ability as a gap (what is wanted, the job, nearest existing, why missing) and hand the instruction back as left with that gap.",
+    "why": "A practice changes behavior only when it is in what every AI reads; a note in a file is read by no one.",
+    "good_answer": "Passes: 'pull the design skills before building a page' added as a line of the entry that already covers design work, source the input's link. Fails: a new note, or a second entry that repeats one already held.",
+    "came_from": [
+     "the person's old kept store, table workflow_recipe record:workflow-recipe:adopt-a-stated-way-of-working-with-ai, workflow_step recipe like '%\"adopt-a-stated-way-of-working-with-ai\"%' (6 rows), x_bookmarks/x_likes rows where workflow='workflow:adopt-a-stated-way-of-working-with-ai'"
+    ],
+    "part_of": [
+     "workflow:adopt-a-stated-way-of-working-with-ai"
+    ]
+   }
+  },
+  {
+   "id": "adopt-a-stated-way-of-working-with-ai--read-every-adopted-row-back-and-find-it-by-search",
+   "values": {
+    "title": "Read every adopted row back and find it by search",
+    "recipe": [
+     "adopt-a-stated-way-of-working-with-ai"
+    ],
+    "position": 4,
+    "step": "read-every-adopted-row-back-and-find-it-by-search",
+    "do": "Read every adopted entry back by its id, after whatever refresh renders it from its owner; when it has not appeared, run that refresh and read again. Hand back the changed line and the source it carries. Then prove an AI finds it: search that kind of entry with the instruction's words and say whether the entry is among the results.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "Some instruction was adopted; when none was, hand back read_back: [].",
+    "done_when": "Every adopted entry read back holds the change and names the input as its source, and a search on the practice finds it.",
+    "if_missing": "If the entry never appears after its refresh, say so with the change that was made; never call it adopted.",
+    "why": "A write or a commit is not delivery; the entry an AI reads is.",
+    "good_answer": "Passes: the entry read back with its statement and its source, found by the search. Fails: 'committed' with no read back, or an entry read back without its source.",
+    "came_from": [
+     "the person's old kept store, table workflow_recipe record:workflow-recipe:adopt-a-stated-way-of-working-with-ai, workflow_step recipe like '%\"adopt-a-stated-way-of-working-with-ai\"%' (6 rows), x_bookmarks/x_likes rows where workflow='workflow:adopt-a-stated-way-of-working-with-ai'"
+    ],
+    "part_of": [
+     "workflow:adopt-a-stated-way-of-working-with-ai"
+    ]
+   }
+  },
+  {
+   "id": "adopt-a-stated-way-of-working-with-ai--record-what-was-found",
+   "values": {
+    "title": "Record what was found",
+    "recipe": [
+     "adopt-a-stated-way-of-working-with-ai"
+    ],
+    "position": 5,
+    "step": "record-what-was-found",
+    "do": "Record, wherever the person keeps this pursuit's rows, in that store's own way, each instruction with its area, verdict, evidence kind, test result, decision, where it was adopted or why it was left, and the one question that now matters most (for example an untested instruction worth a test). Do not choose what runs next.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "Every instruction has a verdict, an outcome and, if adopted, a read back.",
+    "done_when": "One record holds every instruction of the post with its verdict and outcome and the most important open question.",
+    "if_missing": "If the place for the record is not known, ask the person once where they keep what they find.",
+    "why": "A verdict nobody can find again is lost the next time the same post arrives.",
+    "good_answer": "Passes: three instructions: one held already, one adopted into a skill line and found by search, one left as not testable; open question: does the adopted line change effort chosen on real tasks. Fails: 'adopted some'.",
+    "came_from": [
+     "the person's old kept store, table workflow_recipe record:workflow-recipe:adopt-a-stated-way-of-working-with-ai, workflow_step recipe like '%\"adopt-a-stated-way-of-working-with-ai\"%' (6 rows), x_bookmarks/x_likes rows where workflow='workflow:adopt-a-stated-way-of-working-with-ai'"
+    ],
+    "part_of": [
+     "workflow:adopt-a-stated-way-of-working-with-ai"
+    ]
+   }
+  },
+  {
+   "id": "give-a-row-its-workflows--read-the-row-and-break-it-into-parts",
+   "values": {
+    "title": "Read the row and break it into parts",
+    "recipe": [
+     "give-a-row-its-workflows"
+    ],
+    "position": 0,
+    "step": "read-the-row-and-break-it-into-parts",
+    "do": "Read the row itself, never from its id alone. Say what kind of row it is, what job it is for in plain words, and break it into the parts a workflow would have to do: each thing the row says to make, check, wait for or decide. Note what the row already names as its workflows.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "A row of the person's (a format, a template, a how-to, a learned process, a call to make, a pie to bake) is named, or arrives.",
+    "done_when": "The row's job and every part it needs done are written, read from the row itself.",
+    "if_missing": "If the row cannot be read, stop and name it.",
+    "why": "A workflow is chosen or made for what the row really needs; reading first keeps it from being one for a different row.",
+    "good_answer": "Passes: a format row's parts are script, voice, beats, render, check, each from its own fields. Fails: one part 'make the thing'.",
+    "came_from": [
+     "the person's old kept store, table workflow_recipe record:workflow-recipe:give-a-row-its-workflows, workflow_step recipe like '%\"give-a-row-its-workflows\"%' (4 rows)"
+    ],
+    "part_of": [
+     "workflow:give-a-row-its-workflows"
+    ]
+   }
+  },
+  {
+   "id": "give-a-row-its-workflows--find-the-workflows-that-already-do-it",
+   "values": {
+    "title": "Find the workflows that already do it",
+    "recipe": [
+     "give-a-row-its-workflows"
+    ],
+    "position": 1,
+    "step": "find-the-workflows-that-already-do-it",
+    "do": "Look for workflows that already do the row's job before making any: choose by the row's job and parts in meaning, and look through the workflows the person holds for ones whose job does the same. For each fit, name the parts it covers. Keep only workflows that exist.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "The row and its parts are read.",
+    "done_when": "Every part is either covered by an existing workflow or listed as uncovered.",
+    "if_missing": "If the chooser cannot run, search the person's workflows by the row's job words and say the chooser was not used.",
+    "why": "Many workflows already exist; making a new one for a job one already does splits the tree.",
+    "good_answer": "Passes: a row whose parts are write, record, cut and check finds, for each part, a workflow whose job is that part, and names which parts each covers. Fails: a fit that covers a part the row does not have.",
+    "came_from": [
+     "the person's old kept store, table workflow_recipe record:workflow-recipe:give-a-row-its-workflows, workflow_step recipe like '%\"give-a-row-its-workflows\"%' (4 rows)"
+    ],
+    "part_of": [
+     "workflow:give-a-row-its-workflows"
+    ]
+   }
+  },
+  {
+   "id": "give-a-row-its-workflows--make-a-workflow-for-what-nothing-does-yet",
+   "values": {
+    "title": "Make a workflow for what nothing does yet",
+    "recipe": [
+     "give-a-row-its-workflows"
+    ],
+    "position": 2,
+    "step": "make-a-workflow-for-what-nothing-does-yet",
+    "do": "For the uncovered parts make one workflow with a title, the job it does, when it fires, the input it needs and the row it came from, and one step per part, each with what to do, when, what done looks like, a good answer, what to do if something is missing, why, and where it came from. Write it, then read it back. When the row's text is long, turn it into steps first. When nothing is uncovered, hand back that nothing was made.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "Some parts are uncovered.",
+    "done_when": "Every uncovered part is a step of a workflow that now exists and was read back.",
+    "if_missing": "If a part needs an ability that does not exist, still write the step naming what it needs and record the missing ability as a gap.",
+    "why": "A row with a part no workflow does would be refused by every step that chooses it.",
+    "good_answer": "Passes: a pie recipe row gets a workflow with steps mix, rest, bake, cool, each with a check. Fails: one step 'bake the pie'.",
+    "came_from": [
+     "the person's old kept store, table workflow_recipe record:workflow-recipe:give-a-row-its-workflows, workflow_step recipe like '%\"give-a-row-its-workflows\"%' (4 rows)"
+    ],
+    "part_of": [
+     "workflow:give-a-row-its-workflows"
+    ]
+   }
+  },
+  {
+   "id": "give-a-row-its-workflows--say-on-the-row-which-workflows-do-it",
+   "values": {
+    "title": "Say on the row which workflows do it",
+    "recipe": [
+     "give-a-row-its-workflows"
+    ],
+    "position": 3,
+    "step": "say-on-the-row-which-workflows-do-it",
+    "do": "Write on the row, in the field the person's rows use to say how they are done, the workflows found and made: one as text, several as a list. Read the row first and write its whole value back with only that field changed, then read it back and hand back what the field now holds. Record what was found (which parts were covered by existing workflows, which were made) and what now matters most (any gap still open). Do not choose what runs next.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "Every part is covered.",
+    "done_when": "The row read back names its workflows, and the record states what was covered, what was made and what is still open.",
+    "if_missing": "If the write is refused because the row's kind has no such field, add the field to that kind's definition and write again.",
+    "why": "A row that carries its own workflows lets any step that picks the row run them without naming it.",
+    "good_answer": "Passes: read back holds the map-explainer workflow, with no gap open. Fails: the workflow named in prose in another field.",
+    "came_from": [
+     "the person's old kept store, table workflow_recipe record:workflow-recipe:give-a-row-its-workflows, workflow_step recipe like '%\"give-a-row-its-workflows\"%' (4 rows)"
+    ],
+    "part_of": [
+     "workflow:give-a-row-its-workflows"
+    ]
+   }
+  },
+  {
+   "id": "make-a-piece-in-a-format--take-the-formats-definition",
+   "values": {
+    "title": "Take the format's definition",
+    "recipe": [
+     "make-a-piece-in-a-format"
+    ],
+    "position": 0,
+    "step": "take-the-formats-definition",
+    "do": "Find the format the person wants and read its definition in full as kept: its measures (length, aspect, cuts per minute, longest hold, moving share, words per minute, loudness, and any other it lists, each with its range), how it is built beat by beat, what it needs from the person, what to do when that is missing, and the checks it adds. Hand back the definition with each measure and its range, and what it needs.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "The run's input names a format to make a piece in, or a piece the person wants made in a format they have kept.",
+    "done_when": "Every measure the definition lists is written with its range, with how it is built and what it needs, all read from the definition itself.",
+    "if_missing": "If the person holds no definition for the format, stop and say so; do not invent the measures. If a measure has no range, say which one.",
+    "why": "The definition's numbers are why the format worked; making the piece from a remembered impression makes a different format.",
+    "good_answer": "Passes: 'length 30-60 s vertical; cuts per minute 22-28; beats: setup 0-5 s, what went wrong 5-20 s, the lesson 30-35 s; needs a true story with a turn'. Fails: 'a short vertical video'.",
+    "came_from": [
+     "the person's old kept store, table content_formats rows (583; definition, how_built, checks, if_missing, length, needs, films) and the kept rules on script approval, unasked audio, real sound and painted backgrounds"
+    ],
+    "part_of": [
+     "workflow:make-a-piece-in-a-format"
+    ]
+   }
+  },
+  {
+   "id": "make-a-piece-in-a-format--gather-the-persons-own-material",
+   "values": {
+    "title": "Gather the person's own material",
+    "recipe": [
+     "make-a-piece-in-a-format"
+    ],
+    "position": 1,
+    "step": "gather-the-persons-own-material",
+    "do": "Find what the definition needs among what the person already holds: their recordings, footage, memos, notes and words, in whatever place each is kept. Take only material that is theirs, and only people who agreed to be shown. Hand back, per need of the definition, the material found with where it is, or that nothing was found and what the definition says to do instead.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "The definition is read.",
+    "done_when": "Every need of the definition is matched to the person's own material, or to the stand-in the definition names, or is listed as missing.",
+    "if_missing": "When the material is missing and the definition names a stand-in, use the stand-in and say so. When it names none, stop and ask the person for the material. Where real sound effects or unused music are needed and none exist, stop and ask for files; never make up audio from code.",
+    "why": "A piece in the person's format is only theirs if the material is theirs.",
+    "good_answer": "Passes: 'needs a true story with a turn: found the 41-second voice memo from Tuesday; footage of the moment: found 3 clips'. Fails: stock footage, or 'material gathered' with nothing named.",
+    "came_from": [
+     "the person's old kept store, table content_formats rows (583; definition, how_built, checks, if_missing, length, needs, films) and the kept rules on script approval, unasked audio, real sound and painted backgrounds"
+    ],
+    "part_of": [
+     "workflow:make-a-piece-in-a-format"
+    ]
+   }
+  },
+  {
+   "id": "make-a-piece-in-a-format--make-the-piece-to-the-definition",
+   "values": {
+    "title": "Make the piece to the definition",
+    "recipe": [
+     "make-a-piece-in-a-format"
+    ],
+    "position": 2,
+    "step": "make-the-piece-to-the-definition",
+    "do": "Write the script from the definition's beats and the person's material, and show it to the person. Do not generate any voice, sound or paid output, and spend nothing, until the person approves that exact script. Then make the piece to the definition: its length, aspect, cuts and holds as listed. Generate no audio the person has not asked for. If a beat needs a realistic painted background, ask the person first whether to make it from a written prompt, and wait for the answer. Keep the piece where the person keeps made pieces, in that store's own way, and hand back its place.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "The definition is read and the material is gathered.",
+    "done_when": "The person approved the script before any voice or spend, no audio was generated unasked, and the piece exists to the definition's build.",
+    "if_missing": "If the person has not approved the script, stop at the script and wait. If real sound or unused music is missing, stop and ask for it. If the person has not answered about a painted background, make the beat without one.",
+    "why": "Voice, sound and painted scenes cost money and speak in the person's name; only the person's yes releases them.",
+    "good_answer": "Passes: 'script shown, approved by the person at 3:10 PM; no voice made until then; piece made at 38 s, vertical; the painted background was asked about and declined'. Fails: a voice made before approval, or a painted background added unasked.",
+    "came_from": [
+     "the person's old kept store, table content_formats rows (583; definition, how_built, checks, if_missing, length, needs, films) and the kept rules on script approval, unasked audio, real sound and painted backgrounds"
+    ],
+    "part_of": [
+     "workflow:make-a-piece-in-a-format"
+    ]
+   }
+  },
+  {
+   "id": "make-a-piece-in-a-format--check-against-the-definition",
+   "values": {
+    "title": "Check it against the definition",
+    "recipe": [
+     "make-a-piece-in-a-format"
+    ],
+    "position": 3,
+    "step": "check-against-the-definition",
+    "do": "Measure the made piece the way the definition was measured (length, aspect, cuts per minute, longest hold, moving share, words per minute, loudness, as the definition lists them) with the measuring tools it names, and compare each number to the definition's. Hand back each measure with the definition's value, the piece's value and whether it is within the definition's range. Then judge the piece against every check the person keeps for all pieces: the checks field of each content-formats row whose how_built says its checks apply to every format (today record:content-formats:426aac7e-2a4a-4cd2-9c5a-0f89957b9a59). Hand back one verdict per check in shared: {check, holds, why}.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "The piece exists.",
+    "done_when": "Every measure the definition names is within its range. Every check kept for all pieces holds.",
+    "if_missing": "If a measure is out of range, change the piece and measure again; a piece out of range is not handed back as done.",
+    "why": "The definition's numbers are why the format worked; a piece that misses them is a different format.",
+    "good_answer": "Passes: cuts per minute 25.4 against 26.1, within. Fails: 'looks close'.",
+    "came_from": [
+     "source:Zm9ybWF0LXJvd3MtZ2V0LXRoZWlyLXdvcmtmbG93cy0yMDI2LTExLTE1",
+     "record:content-formats:426aac7e-2a4a-4cd2-9c5a-0f89957b9a59"
+    ],
+    "part_of": [
+     "workflow:make-a-piece-in-a-format"
+    ]
+   }
+  },
+  {
+   "id": "make-a-piece-in-a-format--record-what-was-found-and-what-matters-most",
+   "values": {
+    "title": "Record what was found and what matters most",
+    "recipe": [
+     "make-a-piece-in-a-format"
+    ],
+    "position": 4,
+    "step": "record-what-was-found-and-what-matters-most",
+    "do": "Record, wherever the person keeps this pursuit's rows, in that store's own way: the format, the piece and its place, each measure beside the definition's range, each check's verdict, what material and stand-ins were used, and the one thing that matters most next (for example the measure that came closest to its limit, or a need the definition could not meet). Do not choose what runs next.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "The check against the definition is done.",
+    "done_when": "One record holds the piece, every measure with its range, every check's verdict, and the most important open point, read back from where it is kept.",
+    "if_missing": "If the place for the record is not known, ask the person once where they keep what they find.",
+    "why": "A result nobody can find again is lost the next time the same format is wanted.",
+    "good_answer": "Passes: 'cuts per minute 25.4 against 22-28, within; all shared checks hold; open: the take had no real sound, a stand-in was used'. Fails: 'piece made'.",
+    "came_from": [
+     "the person's old kept store, table content_formats rows (583; definition, how_built, checks, if_missing, length, needs, films) and the kept rules on script approval, unasked audio, real sound and painted backgrounds"
+    ],
+    "part_of": [
+     "workflow:make-a-piece-in-a-format"
+    ]
+   }
+  },
+  {
+   "id": "measure-what-a-computer-can-still-take--read-what-the-computer-runs",
+   "values": {
+    "title": "Read what the computer runs",
+    "recipe": [
+     "measure-what-a-computer-can-still-take"
+    ],
+    "position": 0,
+    "step": "read-what-the-computer-runs",
+    "do": "Read the computer's own row (wherever the person keeps it): its address, its units, the stores it runs and the ports they listen on, its memory and disk as the provider sold them. List each thing to measure: the machine itself, and each store or program on it that has limits of its own.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "When the run starts.",
+    "done_when": "Every unit and store in the row is listed with what limits it has, or marked as having none.",
+    "if_missing": "When a measure needs a login or command only the person holds, put it in open with exactly what is needed and go on; never estimate a number that can be read.",
+    "why": "A computer runs out of the one resource nobody measured.",
+    "good_answer": "Passes: 'machine (4 GB, 80 GB disk); a database server with 3 databases; a web front door; a program on a socket'. Fails: a list made from memory instead of the row.",
+    "came_from": [
+     "The roadmap's item on measuring each computer before adding anything (its study of connections, memory per connection, disk and each store's own stopping limits), Nov 18 2026"
+    ],
+    "part_of": [
+     "workflow:measure-what-a-computer-can-still-take"
+    ]
+   }
+  },
+  {
+   "id": "measure-what-a-computer-can-still-take--measure-the-machine",
+   "values": {
+    "title": "Measure the machine",
+    "recipe": [
+     "measure-what-a-computer-can-still-take"
+    ],
+    "position": 1,
+    "step": "measure-the-machine",
+    "do": "On the computer, through the way the person reaches it (a script unit its row names, or a shell they hold), read: load against the number of cores, memory used, available and in swap, disk used and free on each mount, open files and network connections in use. Read each twice a few minutes apart and keep both, with when each was read.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After 'Read what the computer runs'.",
+    "done_when": "Each measure has two readings with their times and the command that produced them.",
+    "if_missing": "When a measure needs a login or command only the person holds, put it in open with exactly what is needed and go on; never estimate a number that can be read.",
+    "why": "One reading can be a spike; two show a level.",
+    "good_answer": "Passes: 'memory 2.9 of 3.8 GB used, 0 swap, at 6:02 and 6:07 PM'. Fails: one reading, or a number with no command or time.",
+    "came_from": [
+     "The roadmap's item on measuring each computer before adding anything (its study of connections, memory per connection, disk and each store's own stopping limits), Nov 18 2026"
+    ],
+    "part_of": [
+     "workflow:measure-what-a-computer-can-still-take"
+    ]
+   }
+  },
+  {
+   "id": "measure-what-a-computer-can-still-take--measure-each-store-in-its-own-way",
+   "values": {
+    "title": "Measure each store in its own way",
+    "recipe": [
+     "measure-what-a-computer-can-still-take"
+    ],
+    "position": 2,
+    "step": "measure-each-store-in-its-own-way",
+    "do": "For each store or program with limits of its own, read them in its own language and tools: connections in use against the most it allows, memory each connection takes, size of each database or collection and how fast it grew since the last run, and any limit that ends in a stop when reached (a counter that wraps, a log that fills, a quota). Name the exact query or command used for each.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After 'Measure the machine'.",
+    "done_when": "Each store has its limits read with the query or command used, or says it has none of that kind.",
+    "if_missing": "When a measure needs a login or command only the person holds, put it in open with exactly what is needed and go on; never estimate a number that can be read.",
+    "why": "Stores stop at their own limits before the machine looks full.",
+    "good_answer": "Passes: 'connections 37 of 100; largest database 2.1 GB, +140 MB since Nov 11; oldest transaction age 41 million of 2 billion'. Fails: a store skipped because it is small.",
+    "came_from": [
+     "The roadmap's item on measuring each computer before adding anything (its study of connections, memory per connection, disk and each store's own stopping limits), Nov 18 2026"
+    ],
+    "part_of": [
+     "workflow:measure-what-a-computer-can-still-take"
+    ]
+   }
+  },
+  {
+   "id": "measure-what-a-computer-can-still-take--compare-each-with-its-limit",
+   "values": {
+    "title": "Compare each measure with its limit",
+    "recipe": [
+     "measure-what-a-computer-can-still-take"
+    ],
+    "position": 3,
+    "step": "compare-each-with-its-limit",
+    "do": "For each measure, write how much is left and, where two runs exist, how long until it runs out at the growth seen. Write a finding only where what is left is near the limit by the measured growth, each with its number, when it was read and where it came from. A finding names the smallest change that would give room (an index, a cleanup, a setting), and names an added service, a larger machine or a second computer only when the measured growth needs it.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After 'Measure each store in its own way'.",
+    "done_when": "Every measure has what is left; every finding has its number, time and source.",
+    "if_missing": "When a measure needs a login or command only the person holds, put it in open with exactly what is needed and go on; never estimate a number that can be read.",
+    "why": "A limit is a fact measured, never a guess or a best practice.",
+    "good_answer": "Passes: 'disk: 11 GB left, growing 1.2 GB a week: about 9 weeks; finding: logs take 6 GB, keep 14 days'. Fails: 'should add monitoring' with no number.",
+    "came_from": [
+     "The roadmap's item on measuring each computer before adding anything (its study of connections, memory per connection, disk and each store's own stopping limits), Nov 18 2026"
+    ],
+    "part_of": [
+     "workflow:measure-what-a-computer-can-still-take"
+    ]
+   }
+  },
+  {
+   "id": "measure-what-a-computer-can-still-take--record-what-was-found",
+   "values": {
+    "title": "Record what was found and what matters most",
+    "recipe": [
+     "measure-what-a-computer-can-still-take"
+    ],
+    "position": 4,
+    "step": "record-what-was-found",
+    "do": "Keep every reading, what is left and each finding wherever the person keeps this computer's rows, in that store's own way, so the next run measures growth from it. Say which finding matters most now and why. Stop there.",
+    "submit": "{\"type\": \"object\", \"required\": [\"found\", \"open\"], \"properties\": {\"found\": {\"type\": \"array\", \"description\": \"Each thing this step asked for that was found or done: what it is, and where it came from (a quote, a number, a link, a file or who said it).\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"evidence\"], \"properties\": {\"what\": {\"type\": \"string\", \"minLength\": 3}, \"evidence\": {\"type\": \"string\", \"minLength\": 3}}}}, \"open\": {\"type\": \"array\", \"description\": \"Each thing not found or done yet, with what would settle it.\", \"items\": {\"type\": \"object\", \"required\": [\"what\", \"needs\"], \"properties\": {\"what\": {\"type\": \"string\"}, \"needs\": {\"type\": \"string\"}}}}}}",
+    "flags": [
+     "public"
+    ],
+    "when": "After every other step, or when the person stops this run.",
+    "done_when": "Every reading and finding is kept with its time, and one finding is named as mattering most, or none is near a limit.",
+    "if_missing": "When a measure needs a login or command only the person holds, put it in open with exactly what is needed and go on; never estimate a number that can be read.",
+    "why": "Growth is only visible against the last run.",
+    "good_answer": "Passes: 'kept 23 readings; nothing within 8 weeks of a limit; most near: disk, 9 weeks'. Fails: findings that are not kept, so the next run cannot see growth.",
+    "came_from": [
+     "The roadmap's item on measuring each computer before adding anything (its study of connections, memory per connection, disk and each store's own stopping limits), Nov 18 2026"
+    ],
+    "part_of": [
+     "workflow:measure-what-a-computer-can-still-take"
     ]
    }
   }
