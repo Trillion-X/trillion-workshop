@@ -25,7 +25,7 @@
 // - The provider is reached through its machines API with the credential this
 //   package already resolves; no provider command is composed here.
 
-import { verifyReleaseViewportPaint } from './verify-release-viewport-paint.mjs';
+import { verifyReleaseViewportPaint } from '../../write-a-sales-page/packages/hosted-public-app/processes/verify-release-viewport-paint.mjs';
 
 const FLY_MACHINES_API = 'https://api.machines.dev/v1';
 

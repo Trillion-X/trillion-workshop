@@ -5,7 +5,7 @@ import { chmodSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync,
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { providerCredential, providerCredentialConfiguration, vercelProviderCredential } from './provider-credential.mjs';
+import { providerCredential, providerCredentialConfiguration, vercelProviderCredential } from '../../write-a-sales-page/packages/hosted-public-app/processes/provider-credential.mjs';
 import { confirmLiveOrRestore, memoryMegabytesForMeasuredNeed, proveTheReleaseStarts } from './prove-a-release-starts-before-it-goes-live.mjs';
 import releaseMachineSettings from '../read-data/release-machine-settings.json' with { type: 'json' };
 

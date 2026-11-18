@@ -1,4 +1,4 @@
-import { publishReviewedArticle } from './publish-reviewed-article.mjs';
+import { publishReviewedArticle } from '../../write-a-sales-page/packages/hosted-public-app/processes/publish-reviewed-article.mjs';
 import { captureArticleCandidate, readRenderArtifact, releaseRenderWorkspace } from './render-article-candidate.mjs';
 import { sendRequestToRunningApp } from '../../send-requests-to-an-engine/read-data/find-the-running-app-and-send-requests-to-it.mjs';
 

@@ -33,11 +33,11 @@
 //
 // =============================================================================
 
-import { providerCredential } from './provider-credential.mjs';
+import { providerCredential } from '../../write-a-sales-page/packages/hosted-public-app/processes/provider-credential.mjs';
 
 const PROVIDER_API = 'https://api.fly.io/graphql';
 
-export { providerCredential } from './provider-credential.mjs';
+export { providerCredential } from '../../write-a-sales-page/packages/hosted-public-app/processes/provider-credential.mjs';
 
 const CERTIFICATE_FIELDS = `
   configured

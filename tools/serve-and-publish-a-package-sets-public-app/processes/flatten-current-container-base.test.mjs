@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { dockerfileForCurrentImage } from './flatten-current-container-base.mjs';
+import { dockerfileForCurrentImage } from '../../write-a-sales-page/packages/hosted-public-app/processes/flatten-current-container-base.mjs';
 
 test('a full-depth serving image becomes one filesystem layer with its launch settings', () => {
   const image = 'registry.fly.io/example:release-current1';

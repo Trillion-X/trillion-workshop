@@ -9,7 +9,7 @@ import { randomUUID } from 'node:crypto';
 import { isDeepStrictEqual } from 'node:util';
 import { chromium } from 'playwright';
 import { currentContainerBaseResult } from './run-provider-deploy.mjs';
-import { inspectCurrentContainerImage } from './flatten-current-container-base.mjs';
+import { inspectCurrentContainerImage } from '../../write-a-sales-page/packages/hosted-public-app/processes/flatten-current-container-base.mjs';
 
 const SERVER_IN_IMAGE = '/opt/bitfield/public-entry-server';
 const DESCRIPTION_IN_IMAGE = '/app/page-description.json';

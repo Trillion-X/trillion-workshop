@@ -3,7 +3,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync, mkdirSync } from 'nod
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve, sep } from 'node:path';
 import { spawn } from 'node:child_process';
-import { currentContainerBaseResult, runProviderDeployment } from './run-provider-deploy.mjs';
+import { currentContainerBaseResult, runProviderDeployment } from '../../../../serve-and-publish-a-package-sets-public-app/processes/run-provider-deploy.mjs';
 import { dockerfileForCurrentImage, inspectCurrentContainerImage } from './flatten-current-container-base.mjs';
 
 const PAGE_DESCRIPTION_PATH = '/app/page-description.json';

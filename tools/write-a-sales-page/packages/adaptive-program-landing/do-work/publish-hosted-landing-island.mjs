@@ -40,7 +40,7 @@ import { fileURLToPath } from 'node:url';
 import {
   currentContainerBaseResult,
   runProviderDeployment,
-} from '../../hosted-public-app/processes/run-provider-deploy.mjs';
+} from '../../../../serve-and-publish-a-package-sets-public-app/processes/run-provider-deploy.mjs';
 import { readCurrentImageArchive } from '../../hosted-public-app/processes/publish-reviewed-article.mjs';
 import { dockerfileForCurrentImage, inspectCurrentContainerImage } from '../../hosted-public-app/processes/flatten-current-container-base.mjs';
 import { pageSectionsHtml } from '../../ui/show/server-rendered-page/page-sections-html.mjs';

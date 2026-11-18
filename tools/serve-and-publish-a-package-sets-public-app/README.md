@@ -1,6 +1,6 @@
 # tools/serve-and-publish-a-package-sets-public-app/
 
-The public app host: one generic server source (`processes/public-entry-server-source.mjs`) that serves any package set's public pages from the page description that set carries (a host with no description answers 503 on purpose, not a blank 200), keeps the last good page description and kept prices across an engine outage, serves a recovering host only its own archive, refuses a public route a description retires, and answers a customer's own socket only for that customer. Around it: publication of a selected experience (`do-work/selected-publication-targets.ts`, `do-work/public-selection-transition.ts`, `do-work/request-publish-live-site.ts`), the processes that prepare publication records, materialize the hosted tree, prove a release starts before it goes live, check what a public address serves, publish a reviewed article and a document, and deploy to a provider (`processes/run-provider-deploy.mjs`, `processes/provider-credential.mjs`). Moved byte for byte from bitfield-packages `packages/hosted-public-app` at its last commit. Machine-built files (`built-stored-bytes/`, `.bitfield-entry-scope/`, `package-preview.*.gz`), `proof/` captures and the package's `entry-to-package-data-map.json` are build output of the retired package builder and are not carried.
+The public app host: one generic server source (`processes/public-entry-server-source.mjs`) that serves any package set's public pages from the page description that set carries (a host with no description answers 503 on purpose, not a blank 200), keeps the last good page description and kept prices across an engine outage, serves a recovering host only its own archive, refuses a public route a description retires, and answers a customer's own socket only for that customer. Around it: publication of a selected experience (`do-work/selected-publication-targets.ts`, `do-work/public-selection-transition.ts`, `do-work/request-publish-live-site.ts`), the processes that prepare publication records, materialize the hosted tree, prove a release starts before it goes live, check what a public address serves, publish a reviewed article and a document, and deploy to a provider (`processes/run-provider-deploy.mjs`, `tools/write-a-sales-page/packages/hosted-public-app/processes/provider-credential.mjs`). Moved byte for byte from bitfield-packages `packages/hosted-public-app` at its last commit. Machine-built files (`built-stored-bytes/`, `.bitfield-entry-scope/`, `package-preview.*.gz`), `proof/` captures and the package's `entry-to-package-data-map.json` are build output of the retired package builder and are not carried.
 
 ## Files
 
@@ -74,7 +74,7 @@ The public app host: one generic server source (`processes/public-entry-server-s
 | `processes/compose-article-discovery.mjs` | The package's code, moved as written. |
 | `processes/compose-article-discovery.test.mjs` | The package's code, moved as written. |
 | `processes/document-parts.mjs` | The parts of an HTML document, for code that has one and needs the other. |
-| `processes/flatten-current-container-base.mjs` | The package's code, moved as written. |
+| `tools/write-a-sales-page/packages/hosted-public-app/processes/flatten-current-container-base.mjs` | The package's code, moved as written. |
 | `processes/flatten-current-container-base.test.mjs` | The package's code, moved as written. |
 | `processes/hosted-url-return-action.mjs` | The package's code, moved as written. |
 | `processes/hosted-url-return-action.test.mjs` | The package's code, moved as written. |
@@ -88,13 +88,13 @@ The public app host: one generic server source (`processes/public-entry-server-s
 | `processes/prepare-publication-records.test.mjs.held` | Held test: imports `@bitfield/slot-protocol`, the retired package runtime's protocol package |
 | `processes/prove-a-release-host.test.mjs.held` | Held test: imports `pngjs` (and the browser checks `playwright`) |
 | `processes/prove-a-release-starts-before-it-goes-live.mjs` | started from that release on a copy of the app's own data, says it is fully |
-| `processes/provider-credential.mjs` | Read the hosting provider credential without putting it in arguments, output, |
+| `tools/write-a-sales-page/packages/hosted-public-app/processes/provider-credential.mjs` | Read the hosting provider credential without putting it in arguments, output, |
 | `processes/public-entry-server-source.mjs` | The package's code, moved as written. |
 | `processes/public-route-retirement.mjs` | The package's code, moved as written. |
 | `processes/public-route-retirement.test.mjs` | The package's code, moved as written. |
 | `processes/publish-current-document.mjs` | Native publication owner. The session is the selected running-app transport, |
 | `processes/publish-current-document.test.mjs.held` | Held test: imports `pngjs` (and the browser checks `playwright`) |
-| `processes/publish-reviewed-article.mjs` | Replace the one archived Article at the same route, preserving every other |
+| `tools/write-a-sales-page/packages/hosted-public-app/processes/publish-reviewed-article.mjs` | Replace the one archived Article at the same route, preserving every other |
 | `processes/publish-reviewed-article.test.mjs.held` | Held test: imports `pngjs` (and the browser checks `playwright`) |
 | `processes/read-one-public-page.mjs` | PURPOSE |
 | `processes/render-article-candidate.mjs` | The package's code, moved as written. |
@@ -104,7 +104,7 @@ The public app host: one generic server source (`processes/public-entry-server-s
 | `processes/run-provider-deploy.test.mjs.held` | Held test: imports `pngjs` (and the browser checks `playwright`) |
 | `processes/runtime-instance-for-this-request.mjs` | Which runtime instance answers THIS request. |
 | `processes/runtime-upstream-transport.mjs` | The front door selects one verified customer's upstream before reaching this |
-| `processes/verify-release-viewport-paint.mjs` | A signed-in journey can enter a member route such as /account after the |
+| `tools/write-a-sales-page/packages/hosted-public-app/processes/verify-release-viewport-paint.mjs` | A signed-in journey can enter a member route such as /account after the |
 | `processes/write-a-module-export-result-to-a-file.mjs` | Call one export of one module and write what it returns to a file. |
 | `read-data/__tests__/page-cta-price.test.ts.held` | Held test: imports a file of another package that is not at the path the import names in this tree (checkout `read-offers`, ui `for |
 | `read-data/artifacts/app-api-experience-bytes-route.ts.txt` | The package's code, moved as written. |
@@ -136,7 +136,7 @@ The public app host: one generic server source (`processes/public-entry-server-s
 | `part.json` | Nothing here is imported by this tree; the folder is a part another tree imports. |
 | `README.md` | This file |
 
-The original package README is kept at `from-bitfield-packages/README.md`. The provider deploy talks to one retired hosting provider with a credential read by `processes/provider-credential.mjs`; that group is held (the door hands credentials by handle through a row's `invoke.connection`), so none of it is edited here.
+The original package README is kept at `from-bitfield-packages/README.md`. The provider deploy talks to one retired hosting provider with a credential read by `tools/write-a-sales-page/packages/hosted-public-app/processes/provider-credential.mjs`; that group is held (the door hands credentials by handle through a row's `invoke.connection`), so none of it is edited here.
 
 ## Still on the retired runtime
 

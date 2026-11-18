@@ -296,13 +296,6 @@
       "identity": "1f:ae500171fcd0396974a5267413316b215db1ed04901458c54426df3b72aa2f63"
     },
     {
-      "from": "packages/hosted-public-app/processes/run-provider-deploy.mjs",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/write-a-sales-page/packages/hosted-public-app/processes/run-provider-deploy.mjs",
-      "source_identity": "1f:5dcec2d5013dc4db676edbf41dee63baaf7b3a480fda79e29efd0df6e6d0635c",
-      "identity": "1f:5dcec2d5013dc4db676edbf41dee63baaf7b3a480fda79e29efd0df6e6d0635c"
-    },
-    {
       "from": "packages/hosted-public-app/processes/verify-release-viewport-paint.mjs",
       "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
       "to": "tools/write-a-sales-page/packages/hosted-public-app/processes/verify-release-viewport-paint.mjs",

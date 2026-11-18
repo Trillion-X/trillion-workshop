@@ -628,13 +628,6 @@
       "identity": "1f:ba4441b3b5593cbe7ad8c8499425099633f4d4b7f75794b460a3af1424a83ac0"
     },
     {
-      "from": "packages/hosted-public-app/processes/flatten-current-container-base.mjs",
-      "commit": "ff36bdca7016c2c9894b6ace3fc33615ce8f88ad",
-      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/flatten-current-container-base.mjs",
-      "source_identity": "1f:8ad2688d29b600760fa33e9b020724788818fb1aad46d2d1af4196cf945fcdf2",
-      "identity": "1f:8ad2688d29b600760fa33e9b020724788818fb1aad46d2d1af4196cf945fcdf2"
-    },
-    {
       "from": "packages/hosted-public-app/processes/flatten-current-container-base.test.mjs",
       "commit": "ff36bdca7016c2c9894b6ace3fc33615ce8f88ad",
       "to": "tools/serve-and-publish-a-package-sets-public-app/processes/flatten-current-container-base.test.mjs",
@@ -738,13 +731,6 @@
       "identity": "1f:12042762796784ffd6f6381dc76272ccdfe8aded26512ebd4c4d2b3236c44619"
     },
     {
-      "from": "packages/hosted-public-app/processes/provider-credential.mjs",
-      "commit": "8df8c1085efeb97504cd86d266e4d3714cb91ef6",
-      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/provider-credential.mjs",
-      "source_identity": "1f:6c016ed428a09af8d4a7fce0c508d01fa53151dd082fd3bcb22e2a8dc434de4a",
-      "identity": "1f:6c016ed428a09af8d4a7fce0c508d01fa53151dd082fd3bcb22e2a8dc434de4a"
-    },
-    {
       "from": "packages/hosted-public-app/processes/public-entry-server-source.mjs",
       "commit": "f429c6b5764190ab58290e49feffa97ac36cd96c",
       "to": "tools/serve-and-publish-a-package-sets-public-app/processes/public-entry-server-source.mjs",
@@ -782,13 +768,6 @@
       "to": "tools/serve-and-publish-a-package-sets-public-app/processes/publish-current-document.test.mjs.held",
       "source_identity": "1f:f85ecd519d23a0217ad69dc48ff04597fe77bfff6b8eaca788d02cd98e8a989c",
       "identity": "1f:f85ecd519d23a0217ad69dc48ff04597fe77bfff6b8eaca788d02cd98e8a989c"
-    },
-    {
-      "from": "packages/hosted-public-app/processes/publish-reviewed-article.mjs",
-      "commit": "086778aa9192575067621cbf10dbd0489e100fff",
-      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/publish-reviewed-article.mjs",
-      "source_identity": "1f:ae500171fcd0396974a5267413316b215db1ed04901458c54426df3b72aa2f63",
-      "identity": "1f:ae500171fcd0396974a5267413316b215db1ed04901458c54426df3b72aa2f63"
     },
     {
       "from": "packages/hosted-public-app/processes/publish-reviewed-article.test.mjs",
@@ -855,13 +834,6 @@
       "to": "tools/serve-and-publish-a-package-sets-public-app/processes/runtime-upstream-transport.mjs",
       "source_identity": "1f:3b184a80c9880906b536c1cdb4ce459771e35c10f26067ef59b4f9fb2dabc671",
       "identity": "1f:3b184a80c9880906b536c1cdb4ce459771e35c10f26067ef59b4f9fb2dabc671"
-    },
-    {
-      "from": "packages/hosted-public-app/processes/verify-release-viewport-paint.mjs",
-      "commit": "ae80856e42e93d622e2a6c4858b2d8a74eb21870",
-      "to": "tools/serve-and-publish-a-package-sets-public-app/processes/verify-release-viewport-paint.mjs",
-      "source_identity": "1f:d92e9ef32cebda0dc827d3028901c1e093b12991ca3c2d2e5aa4b25a7b4f0b35",
-      "identity": "1f:d92e9ef32cebda0dc827d3028901c1e093b12991ca3c2d2e5aa4b25a7b4f0b35"
     },
     {
       "from": "packages/hosted-public-app/processes/write-a-module-export-result-to-a-file.mjs",
