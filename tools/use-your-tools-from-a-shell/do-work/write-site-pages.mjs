@@ -14,7 +14,7 @@
 //   1. The bytes are this folder's own files; nothing is written by hand, and a page is rewritten only when its bytes change.
 //   2. ORIGIN must be an https origin (a loopback http origin is allowed for a test), with no path; the brand's name is plain
 //      words and its cli a plain command name, so neither can break the install line's quoting.
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import settings from './command.json' with { type: 'json' };
@@ -38,20 +38,27 @@ export function sitePages(origin, brand, { rules = settings, from = HERE } = {})
   ];
 }
 
-/** Writes the pages under `folder`; answers each page with whether it changed. */
+/** Writes the pages under `folder`; answers each page with whether it changed, and each page of the program folder this
+ *  set no longer holds (a renamed or dropped file) with removed: true, so the site never serves a file the program left. */
 export function writeSitePages(origin, brand, folder, options) {
-  return sitePages(origin, brand, options).map(({ page, bytes }) => {
+  const pages = sitePages(origin, brand, options);
+  const written = pages.map(({ page, bytes }) => {
     const path = join(folder, page);
     let same = false;
     try { same = readFileSync(path).equals(bytes); } catch { /* not there yet */ }
     if (!same) { mkdirSync(dirname(path), { recursive: true }); writeFileSync(path, bytes); }
     return { page, changed: !same };
   });
+  const kept = new Set(pages.map(({ page }) => page));
+  const program = join(folder, 'cli/program');
+  const left = existsSync(program) ? readdirSync(program, { recursive: true }).map(name => `cli/program/${name}`).filter(page => !kept.has(page) && statSync(join(folder, page)).isFile()) : [];
+  for (const page of left) rmSync(join(folder, page));
+  return [...written, ...left.map(page => ({ page, removed: true }))];
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const [origin, folder, brandFile] = process.argv.slice(2);
   if (!origin || !folder || !brandFile) { process.stderr.write('usage: write-site-pages.mjs ORIGIN PAGES_FOLDER BRAND_FILE\n'); process.exit(2); }
   const brand = JSON.parse(readFileSync(brandFile, 'utf8'));
-  for (const row of writeSitePages(origin, brand, folder)) process.stdout.write(`${row.changed ? 'written' : 'unchanged'}: ${row.page}\n`);
+  for (const row of writeSitePages(origin, brand, folder)) process.stdout.write(`${row.removed ? 'removed' : row.changed ? 'written' : 'unchanged'}: ${row.page}\n`);
 }
