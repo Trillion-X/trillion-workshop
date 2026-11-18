@@ -106,3 +106,11 @@ test('with no Node.js 22 the install line says where to get it and changes nothi
   assert.match(said.stdout, /Node\.js 22 or newer.*nodejs\.org/);
   assert.ok(!existsSync(join(home, '.acmeco')));
 });
+
+test('a brand named in any script gets its pages, and a name that could break the install line is refused', () => {
+  for (const name of ['Café Lumière', '日本ラボ', 'Ωmega Co']) {
+    const pages = sitePages('https://acme.test', { name, cli: 'acmeco' });
+    assert.ok(pages.find(row => row.page === 'cli/client.json').bytes.toString('utf8').includes(name), name);
+  }
+  for (const name of ["it's", 'a"b', 'a\\b', 'a`b', 'a$b', 'a\nb', ' padded']) assert.throws(() => sitePages('https://acme.test', { name, cli: 'acmeco' }), /no quote/, JSON.stringify(name));
+});

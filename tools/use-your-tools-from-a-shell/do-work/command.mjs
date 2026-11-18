@@ -1189,8 +1189,11 @@ export function brandOf({ invoked = process.argv[1] ?? '', home = homedir(), rul
   const cli = basename(invoked).replace(/\.m?js$/, '');
   let site = null;
   try { site = JSON.parse(readFileSync(join(expand(rules.state_folder.replaceAll('{cli}', cli), home), rules.site_file), 'utf8')); } catch { /* not installed from a site */ }
-  const named = value => (typeof value === 'string' && /^[\w .'-]{1,64}$/.test(value) ? value : null);
-  return { cli: named(site?.cli) ?? cli, brand: named(site?.brand) ?? named(site?.cli) ?? cli };
+  // The command name is a shell word; the brand is words in any script (only quotes, backslashes, dollars and control
+  // characters are refused).
+  const command = value => (typeof value === 'string' && /^[a-z][a-z0-9-]{0,31}$/.test(value) ? value : null);
+  const words = value => (typeof value === 'string' && /^[^\p{C}"\\`$]{1,64}$/u.test(value) ? value : null);
+  return { cli: command(site?.cli) ?? cli, brand: words(site?.brand) ?? command(site?.cli) ?? cli };
 }
 
 /** Fills {brand} and {cli} in this program's settings, once: the sentences a person reads and the places it keeps. */

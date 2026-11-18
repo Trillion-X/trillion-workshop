@@ -26,7 +26,8 @@ export function sitePages(origin, brand, { rules = settings, from = HERE } = {})
   const url = URL.canParse(origin) ? new URL(origin) : null;
   const loopback = url && url.protocol === 'http:' && ['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname);
   if (!url || (url.protocol !== 'https:' && !loopback) || url.origin !== origin) throw new Error(`${origin} is not an origin (https://host, no path)`);
-  if (!/^[A-Za-z0-9][\w .-]{0,63}$/.test(brand?.name ?? '')) throw new Error('the brand row\'s name must be plain words');
+  // A brand's name is words in any script; only what could break the install line's quoting is refused.
+  if (!/^[^\p{C}'"\\`$]{1,64}$/u.test(brand?.name ?? '') || brand.name.trim() !== brand.name) throw new Error('the brand row\'s name must be words with no quote, backslash, backtick, dollar or control character');
   if (!/^[a-z][a-z0-9-]{0,31}$/.test(brand?.cli ?? '')) throw new Error('the brand row\'s cli must be a plain command name');
   const values = { origin, brand: brand.name, cli: brand.cli, program: rules.install.files[0] };
   const filled = name => Buffer.from(readFileSync(join(from, name), 'utf8').replace(/\{(origin|brand|cli|program)\}/g, (whole, key) => values[key]));
