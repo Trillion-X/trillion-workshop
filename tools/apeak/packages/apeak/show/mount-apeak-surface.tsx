@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useBitfieldData } from '@bitfield/runtime-kit/react';
 import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface, Text, Container } from '../../../../ui';
-import { ApeakSurface } from './ApeakSurface';
+import { ApeakSurface } from '../../../../practice-and-review/packages/apeak/show/ApeakSurface';
 import {
   applyOverlayMappings,
   normalizeSurfaceSource,
@@ -9,7 +9,7 @@ import {
   readOverlayMappings,
   readProjectionAddress,
   readSurfaceInput,
-} from './apeak-surface-model';
+} from '../../../../practice-and-review/packages/apeak/show/apeak-surface-model';
 
 const RECORD_BY_ADDRESS_INPUT = 'record-by-address';
 

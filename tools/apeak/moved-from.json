@@ -110,20 +110,6 @@
       "identity": "1f:b6366330cb8a12a60c03f33081a733cff7bf55454e3881991715cf55adaf0d93"
     },
     {
-      "from": "packages/apeak/show/apeak-surface-model.ts",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/apeak/packages/apeak/show/apeak-surface-model.ts",
-      "source_identity": "1f:d78095d300a46258c5ee222b12a49892a8157da8e406207b911720c14f22a487",
-      "identity": "1f:d78095d300a46258c5ee222b12a49892a8157da8e406207b911720c14f22a487"
-    },
-    {
-      "from": "packages/apeak/show/ApeakSurface.tsx",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/apeak/packages/apeak/show/ApeakSurface.tsx",
-      "source_identity": "1f:456e7a8248e7a862b1839c0a3624946df41e7152780623ffc90d167e51440b8c",
-      "identity": "1f:456e7a8248e7a862b1839c0a3624946df41e7152780623ffc90d167e51440b8c"
-    },
-    {
       "from": "packages/apeak/show/mount-apeak-surface.tsx",
       "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
       "to": "tools/apeak/packages/apeak/show/mount-apeak-surface.tsx",

@@ -61,13 +61,6 @@
       "identity": "1f:456e7a8248e7a862b1839c0a3624946df41e7152780623ffc90d167e51440b8c"
     },
     {
-      "from": "packages/apeak/show/mount-apeak-surface.tsx",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/practice-and-review/packages/apeak/show/mount-apeak-surface.tsx",
-      "source_identity": "1f:9b6c999dead7732dc795ce67c8d6b92242959feace84687bf1df8185041cef62",
-      "identity": "1f:9b6c999dead7732dc795ce67c8d6b92242959feace84687bf1df8185041cef62"
-    },
-    {
       "from": "packages/practice-decision-loop/show/mount-practice-decision-loop.tsx",
       "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
       "to": "tools/practice-and-review/packages/practice-decision-loop/show/mount-practice-decision-loop.tsx",
