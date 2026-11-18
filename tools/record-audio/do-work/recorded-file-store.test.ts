@@ -7,7 +7,7 @@ import {
   storedRecordedFileRef,
   storeRecordingChunkWithRetry,
   type CaptureJournal,
-} from './recorded-file-store';
+} from '../../record-voice-and-meetings/do-work/recorded-file-store';
 
 describe('record-audio recorded file store', () => {
   const journal = (revision: number, phase = 'recording'): CaptureJournal => ({

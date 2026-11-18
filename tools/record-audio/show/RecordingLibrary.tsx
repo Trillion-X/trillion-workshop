@@ -5,7 +5,7 @@ import {Button} from '../../ui';
 import {useRecordConfigurations, type RecordConfigurationBinding} from '../../ui/show/record-views/use-record-configurations';
 import {formatFactValue} from '../../ui/show/fact-chips/FactChips';
 import {extractFieldValue, type VisualDatabaseFieldDescriptor, type VisualDatabaseModel, type VisualDatabaseViewDescriptor} from 'trillion-workshop/tools/keep-lists-of-rows/read-data/visual-database.ts';
-import {removeRecording, setRecordingName, setRecordingNotes, setRecordingSubtitle} from '../do-work/record-audio-requests';
+import {removeRecording, setRecordingName, setRecordingNotes, setRecordingSubtitle} from '../../record-voice-and-meetings/do-work/record-audio-requests';
 import library from '../read-data/recording-library.json';
 
 export type RecordingLibraryConfiguration = RecordConfigurationBinding & {target: string; openPath: string};

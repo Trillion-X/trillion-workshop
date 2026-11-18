@@ -22,12 +22,12 @@
       "why": "reasonOf: the gate itself, read with the screen's fallback"
     },
     {
-      "file": "tools/record-audio/show/RecordAudioPanel.tsx",
+      "file": "tools/record-voice-and-meetings/show/RecordAudioPanel.tsx",
       "line": "error.stack || error.message",
       "why": "diagnosticErrorDetail: the recording diagnostics log"
     },
     {
-      "file": "tools/record-audio/show/RecordAudioPanel.tsx",
+      "file": "tools/record-voice-and-meetings/show/RecordAudioPanel.tsx",
       "line": "return String(error);",
       "why": "diagnosticErrorDetail: the recording diagnostics log"
     },

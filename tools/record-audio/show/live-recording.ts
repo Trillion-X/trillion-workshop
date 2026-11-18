@@ -1,11 +1,11 @@
-import type { LocalPlaybackChunkRef } from '../do-work/recorded-file-store';
-import type { CaptureDescriptorValue } from '../do-work/record-audio-requests';
+import type { LocalPlaybackChunkRef } from '../../record-voice-and-meetings/do-work/recorded-file-store';
+import type { CaptureDescriptorValue } from '../../record-voice-and-meetings/do-work/record-audio-requests';
 import {
   claimStop,
   type RecordingCompletionObservation,
   type RecordingPhase,
   type RecordingTiming,
-} from './recording-lifecycle';
+} from '../../record-voice-and-meetings/show/recording-lifecycle';
 
 /**
  * The LIVE recording is owned by this module, not by any surface instance.

@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { RecordAudioPanel } from './RecordAudioPanel';
+import { RecordAudioPanel } from '../../record-voice-and-meetings/show/RecordAudioPanel';
 import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../ui';
 import { registerLocalActorAdmission } from '../../ui/show/action-affordance';
 

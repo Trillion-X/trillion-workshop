@@ -41,16 +41,16 @@
 //      recording's sound track lets go of the microphone and the mix; the microphone ending by itself ends that track,
 //      as before. A browser that cannot mix records the opened stream.
 
-import { createChunker } from './live-audio-encoding';
+import { createChunker } from '../../record-voice-and-meetings/show/live-audio-encoding';
 import { createLiveStream } from './live-audio-stream';
 import { createFailover, createLadder, pageStore } from './adaptation-ladder';
 import sources from '../read-data/capture-sources.json';
 import type { DevicePick } from '../../permission-lease/read-data/capability-permission';
-import { activeDurationMs, beginActiveTime, pauseActiveTime, resumeActiveTime, type RecordingTiming } from './recording-lifecycle';
+import { activeDurationMs, beginActiveTime, pauseActiveTime, resumeActiveTime, type RecordingTiming } from '../../record-voice-and-meetings/show/recording-lifecycle';
 import { rootMeanSquare } from '../../record-video/show/silence-stop';
 import { screenMediaStream, isScreenCaptureAvailable } from '../../screen-recording/do-work/browser-screen-capture';
 import { holdWhileRecording, runPreflight } from '../read-data/capture-preflight.mjs';
-import { endNativeSystemAudioTrack, listenToNativeSystemAudio, nativeStartMessage } from './native-system-audio-session.mjs';
+import { endNativeSystemAudioTrack, listenToNativeSystemAudio, nativeStartMessage } from '../../record-voice-and-meetings/show/native-system-audio-session.mjs';
 import { CodeLoadFailure, loadCode } from '../../ui/show/load-later/load-code';
 
 export type CaptureType = { media_type: string; extension: string };
@@ -235,7 +235,7 @@ async function openMediaCode(load: () => Promise<(mode: 'audio' | 'video', pick?
   if (!await awaitCaptureOperation(current, signal)) throw Object.assign(new Error('This recording request has ended.'), { name: 'AbortError' });
   return open(mode, pick);
 }
-const audioCode = () => loadCode(() => import('./browser-media-capture'), module => module.mediaStreamForMode);
+const audioCode = () => loadCode(() => import('../../record-voice-and-meetings/show/browser-media-capture'), module => module.mediaStreamForMode);
 const videoCode = () => loadCode(() => import('../../record-video/show/browser-media-capture'), module => module.mediaStreamForMode);
 
 /** Mixes the Mac's ScreenCaptureKit output with its microphone into a normal MediaStream. */

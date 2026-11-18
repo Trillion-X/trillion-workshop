@@ -22,7 +22,7 @@
 //   4. One input failing never stops another: each is opened, cut and kept on its own.
 
 import { extensionOf, problemWords, startCapture, captureSource, openSource, type Capture, type CaptureSource } from '../show/record-in-the-browser';
-import { keepOnDevice, reopenOnDevice, unfinishedRecordings, type DeviceRecording } from './recording-on-device';
+import { keepOnDevice, reopenOnDevice, unfinishedRecordings, type DeviceRecording } from '../../record-voice-and-meetings/do-work/recording-on-device';
 import { sendWhileRecording, type GrowingClient, type Sending } from './send-while-recording';
 import { pieceName, sessionList, windowAt } from './rolling-segments.mjs';
 import type { DevicePick } from '../../permission-lease/read-data/capability-permission';

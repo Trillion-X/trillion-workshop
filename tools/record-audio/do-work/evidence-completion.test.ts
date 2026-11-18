@@ -3,7 +3,7 @@ import {
   automaticTranscriptResultRef,
   completeRecordedEvidence,
   recordAudioEvidenceResult,
-} from './evidence-completion';
+} from '../../record-voice-and-meetings/do-work/evidence-completion';
 
 const completionTarget = {
   target: 'coordination-session.intake-evidence-completion',

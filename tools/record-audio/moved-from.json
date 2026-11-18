@@ -47,15 +47,6 @@
     },
     {
       "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/record-audio/do-work/evidence-completion.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/record-audio/do-work/evidence-completion.ts",
-      "source_identity": "1f:c815af737d45848ee03f28fe9814bd0ece4894b269f0ad57f9b5767940fbb228",
-      "identity": "1f:c815af737d45848ee03f28fe9814bd0ece4894b269f0ad57f9b5767940fbb228",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
       "from": "web/parts/record-audio/do-work/meeting-application-recording.ts",
       "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
       "to": "tools/record-audio/do-work/meeting-application-recording.ts",
@@ -74,38 +65,11 @@
     },
     {
       "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/record-audio/do-work/record-audio-requests.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/record-audio/do-work/record-audio-requests.ts",
-      "source_identity": "1f:805a95f94bfd16b6bd15c9d4cbb6a6e0ae9fcfb32b634214413d1ad5ea8f5495",
-      "identity": "1f:805a95f94bfd16b6bd15c9d4cbb6a6e0ae9fcfb32b634214413d1ad5ea8f5495",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/record-audio/do-work/recorded-file-artifact.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/record-audio/do-work/recorded-file-artifact.ts",
-      "source_identity": "1f:c244f474f55ab438f618eb35adeccaefb7711ee46330d840a57081fcbfc5c06c",
-      "identity": "1f:c244f474f55ab438f618eb35adeccaefb7711ee46330d840a57081fcbfc5c06c",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
       "from": "web/parts/record-audio/do-work/recorded-file-store.test.ts",
       "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
       "to": "tools/record-audio/do-work/recorded-file-store.test.ts",
       "source_identity": "1f:a7e7e37bb126f67f2fca63435f2c3ed1ab2298f0d0a2e832ae0c842116a33eec",
       "identity": "1f:a7e7e37bb126f67f2fca63435f2c3ed1ab2298f0d0a2e832ae0c842116a33eec",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/record-audio/do-work/recorded-file-store.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/record-audio/do-work/recorded-file-store.ts",
-      "source_identity": "1f:3e305ae64706002b1c21796a0ea11431c3c903c6eb46c0ab8e32b25325cf375a",
-      "identity": "1f:3e305ae64706002b1c21796a0ea11431c3c903c6eb46c0ab8e32b25325cf375a",
       "found_by": "byte copy"
     },
     {
@@ -124,15 +88,6 @@
       "to": "tools/record-audio/do-work/recording-meeting-context-update.ts",
       "source_identity": "1f:bc6c03f51611b29edd8354a435eede431fc8da927326c2fd9222a0751080e542",
       "identity": "1f:bc6c03f51611b29edd8354a435eede431fc8da927326c2fd9222a0751080e542",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/record-audio/do-work/recording-on-device.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/record-audio/do-work/recording-on-device.ts",
-      "source_identity": "1f:4a37fcf13fc5ffc2f11427e5fd00cdd6b5495f5b5c52438d992226bb37d04888",
-      "identity": "1f:4a37fcf13fc5ffc2f11427e5fd00cdd6b5495f5b5c52438d992226bb37d04888",
       "found_by": "byte copy"
     },
     {
@@ -200,15 +155,6 @@
     },
     {
       "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/record-audio/read-data/processing-steps.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/record-audio/read-data/processing-steps.ts",
-      "source_identity": "1f:ee1bb96b40189c1420e3fa8b55f6dcd3fb0f7af41080e089abe548d3fca11e2c",
-      "identity": "1f:ee1bb96b40189c1420e3fa8b55f6dcd3fb0f7af41080e089abe548d3fca11e2c",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
       "from": "web/parts/record-audio/read-data/recording-library.json",
       "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
       "to": "tools/record-audio/read-data/recording-library.json",
@@ -227,83 +173,11 @@
     },
     {
       "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/record-audio/show/AiInstructionsSettings.tsx",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/record-audio/show/AiInstructionsSettings.tsx",
-      "source_identity": "1f:621aac264ff7774ca129596b67187d476118e67645c3ea9d00b7985e590ed694",
-      "identity": "1f:621aac264ff7774ca129596b67187d476118e67645c3ea9d00b7985e590ed694",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/record-audio/show/MeetingAssociationPanel.tsx",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/record-audio/show/MeetingAssociationPanel.tsx",
-      "source_identity": "1f:4763daa7bdd5b40da14180f34bbe4f4ca2b8468fd25fbbaa0a12590c0e9dfffe",
-      "identity": "1f:4763daa7bdd5b40da14180f34bbe4f4ca2b8468fd25fbbaa0a12590c0e9dfffe",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/record-audio/show/MeetingNoteMetadata.tsx",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/record-audio/show/MeetingNoteMetadata.tsx",
-      "source_identity": "1f:68fd46bbd9d2b464fba2de06c43af9113cfb4ece11b8641e85112aad6bb8f0ae",
-      "identity": "1f:68fd46bbd9d2b464fba2de06c43af9113cfb4ece11b8641e85112aad6bb8f0ae",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/record-audio/show/MeetingNotesSettings.tsx",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/record-audio/show/MeetingNotesSettings.tsx",
-      "source_identity": "1f:ff50423f8c028155cd9eac9ce521db9b1df46bef6a9bb6b8d4159c344395b292",
-      "identity": "1f:ff50423f8c028155cd9eac9ce521db9b1df46bef6a9bb6b8d4159c344395b292",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/record-audio/show/MeetingStartSettings.tsx",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/record-audio/show/MeetingStartSettings.tsx",
-      "source_identity": "1f:d8a4515d3bc922929ed79901dbb35e3c07d76fe9d8bf030910a95d5cd7120d8b",
-      "identity": "1f:d8a4515d3bc922929ed79901dbb35e3c07d76fe9d8bf030910a95d5cd7120d8b",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/record-audio/show/ProcessingStepsPill.tsx",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/record-audio/show/ProcessingStepsPill.tsx",
-      "source_identity": "1f:c8a6c9c3b117adf4dcfa278d1528a0a64f12769829526ce0614f0c67360b7825",
-      "identity": "1f:c8a6c9c3b117adf4dcfa278d1528a0a64f12769829526ce0614f0c67360b7825",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
       "from": "web/parts/record-audio/show/RecordAudioPanel.test.tsx",
       "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
       "to": "tools/record-audio/show/RecordAudioPanel.test.tsx",
       "source_identity": "1f:e726ad5ad110dd16a8ca0da0dab6ac63b3db87a6e9d81fa2673f83ea11650104",
       "identity": "1f:e726ad5ad110dd16a8ca0da0dab6ac63b3db87a6e9d81fa2673f83ea11650104",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/record-audio/show/RecordAudioPanel.tsx",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/record-audio/show/RecordAudioPanel.tsx",
-      "source_identity": "1f:c82d26259870efc3c2f258c50e6ba776e3995e647411ca782918346741ae8d6b",
-      "identity": "1f:c82d26259870efc3c2f258c50e6ba776e3995e647411ca782918346741ae8d6b",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/record-audio/show/RecordingEnrichmentPanel.tsx",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/record-audio/show/RecordingEnrichmentPanel.tsx",
-      "source_identity": "1f:e1785f02ddad292ebdbe9f7eab7cb424479c7889961f0856f4a16ffd9e28965d",
-      "identity": "1f:e1785f02ddad292ebdbe9f7eab7cb424479c7889961f0856f4a16ffd9e28965d",
       "found_by": "byte copy"
     },
     {
@@ -344,38 +218,11 @@
     },
     {
       "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/record-audio/show/browser-media-capture.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/record-audio/show/browser-media-capture.ts",
-      "source_identity": "1f:8a0b08474ec7ef263151b9212942fe8a36c01ae8498cf9f7f322e87eb80beee6",
-      "identity": "1f:8a0b08474ec7ef263151b9212942fe8a36c01ae8498cf9f7f322e87eb80beee6",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/record-audio/show/edit-recording.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/record-audio/show/edit-recording.ts",
-      "source_identity": "1f:603427372bdde9721fe15fd159904d96ebcea76d689545a463fb76bcbf84e0ae",
-      "identity": "1f:603427372bdde9721fe15fd159904d96ebcea76d689545a463fb76bcbf84e0ae",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
       "from": "web/parts/record-audio/show/live-audio-encoding.test.ts",
       "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
       "to": "tools/record-audio/show/live-audio-encoding.test.ts",
       "source_identity": "1f:4240120e4c838618f3dc099e8514fcdbc5fc8905e034e52d4d3ffbc8616e541a",
       "identity": "1f:4240120e4c838618f3dc099e8514fcdbc5fc8905e034e52d4d3ffbc8616e541a",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/record-audio/show/live-audio-encoding.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/record-audio/show/live-audio-encoding.ts",
-      "source_identity": "1f:171a0856edf7fb10e1644388c226b33b23235733177e65ddc9b9759c1c7b00e8",
-      "identity": "1f:171a0856edf7fb10e1644388c226b33b23235733177e65ddc9b9759c1c7b00e8",
       "found_by": "byte copy"
     },
     {
@@ -407,15 +254,6 @@
     },
     {
       "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/record-audio/show/live-recording-controls.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/record-audio/show/live-recording-controls.ts",
-      "source_identity": "1f:235edf77641f0c7b13b278af2e9f730a63ed1d27aa8a4298cea03267cd53242b",
-      "identity": "1f:235edf77641f0c7b13b278af2e9f730a63ed1d27aa8a4298cea03267cd53242b",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
       "from": "web/parts/record-audio/show/live-recording.test.ts",
       "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
       "to": "tools/record-audio/show/live-recording.test.ts",
@@ -443,15 +281,6 @@
     },
     {
       "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/record-audio/show/native-system-audio-session.mjs",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/record-audio/show/native-system-audio-session.mjs",
-      "source_identity": "1f:2e112c6215493286b2aa5a6ba0d95139429bb761005748117305d8722b973e92",
-      "identity": "1f:2e112c6215493286b2aa5a6ba0d95139429bb761005748117305d8722b973e92",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
       "from": "web/parts/record-audio/show/plain-language-capture.test.ts",
       "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
       "to": "tools/record-audio/show/plain-language-capture.test.ts",
@@ -475,15 +304,6 @@
       "to": "tools/record-audio/show/recording-lifecycle.test.ts",
       "source_identity": "1f:43801e7f1d5c55e00554a2c79adaa73647c5c45f9a4f50639362e8eeee454d22",
       "identity": "1f:43801e7f1d5c55e00554a2c79adaa73647c5c45f9a4f50639362e8eeee454d22",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/record-audio/show/recording-lifecycle.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/record-audio/show/recording-lifecycle.ts",
-      "source_identity": "1f:cfa56b6de567e65ae6575a913bda5d5e3f7237dd6a70d66259fa97072f2b8450",
-      "identity": "1f:cfa56b6de567e65ae6575a913bda5d5e3f7237dd6a70d66259fa97072f2b8450",
       "found_by": "byte copy"
     },
     {

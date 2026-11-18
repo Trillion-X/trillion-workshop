@@ -13,7 +13,7 @@
 
 import settingsWords from '../../../read-data/meeting-settings.json';
 import { adhocEventInput } from '../../../read-data/meeting-settings.mjs';
-import type { RecordingSavedFact } from '../../../../record-audio/show/RecordAudioPanel';
+import type { RecordingSavedFact } from '../../../show/RecordAudioPanel';
 import { notify } from '../../../../ui/show/coss/notifications';
 import { postJson, readJson } from './api';
 import { readWorkspacePreference } from './records';

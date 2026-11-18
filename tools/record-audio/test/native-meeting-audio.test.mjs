@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { build } from 'esbuild';
 import { fileURLToPath } from 'node:url';
-import { endNativeSystemAudioTrack, excludedApps, listenToNativeSystemAudio, nativeStartMessage } from 'trillion-workshop/tools/record-audio/show/native-system-audio-session.mjs';
+import { endNativeSystemAudioTrack, excludedApps, listenToNativeSystemAudio, nativeStartMessage } from 'trillion-workshop/tools/record-voice-and-meetings/show/native-system-audio-session.mjs';
 import { importSource } from 'trillion-workshop/test-helpers/import-source-for-tests.mjs';
 
 const read = path => readFileSync(new URL(path, import.meta.url), 'utf8');

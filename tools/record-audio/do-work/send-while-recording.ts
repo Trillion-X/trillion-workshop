@@ -22,8 +22,8 @@
 //      of exactly the bytes on the device, so the kept file is the device copy byte for byte.
 //   5. Nothing names a kind of recording or a screen: the namespace is reached through the client handed in.
 
-import type { RecordingUpload, SentSpan } from './recorded-file-store';
-import type { DeviceRecording } from './recording-on-device';
+import type { RecordingUpload, SentSpan } from '../../record-voice-and-meetings/do-work/recorded-file-store';
+import type { DeviceRecording } from '../../record-voice-and-meetings/do-work/recording-on-device';
 
 /** How a request to the person's Files went wrong: send it `again` later, `restart` the upload from the device copy,
  *  or `refused` (say why and stop until the person asks again). */

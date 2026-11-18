@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { chooseEncoding, createChunker, createChunkSender, loadChunkWorklet, pcm16Of, workletSource } from './live-audio-encoding';
+import { chooseEncoding, createChunker, createChunkSender, loadChunkWorklet, pcm16Of, workletSource } from '../../record-voice-and-meetings/show/live-audio-encoding';
 
 describe('live audio encoding', () => {
   it('cuts uneven blocks into chunks of exactly the frame size and keeps the rest for next time', () => {

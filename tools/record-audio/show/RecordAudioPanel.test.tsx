@@ -2,9 +2,9 @@ import * as React from 'react';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { RecordAudioPanel } from './RecordAudioPanel';
+import { RecordAudioPanel } from '../../record-voice-and-meetings/show/RecordAudioPanel';
 import { currentLiveRecording, releaseLiveRecording } from './live-recording';
-import { mediaStreamForMode } from './browser-media-capture';
+import { mediaStreamForMode } from '../../record-voice-and-meetings/show/browser-media-capture';
 import { createMeetingJoinRecordingInvocation } from '../do-work/meeting-join-recording';
 
 const meetingContext = { source: 'calendar:source-a', sourceId: 'account:a/calendar:main', eventId: 'event:a', title: 'Planning', startsAt: '2026-10-14T10:00:00.000Z', endsAt: '2026-10-14T11:00:00.000Z', url: 'https://meet.example/a' };
@@ -57,7 +57,7 @@ vi.mock('../do-work/recorded-file-artifact', () => ({
 }));
 
 vi.mock('../do-work/recorded-file-store', async importOriginal => ({
-  ...(await importOriginal<typeof import('../do-work/recorded-file-store')>()),
+  ...(await importOriginal<typeof import('../../record-voice-and-meetings/do-work/recorded-file-store')>()),
   captureJournalRecoveryState: () => 'recover',
   claimMeetingJoinRecordingInvocation: mocks.claimMeetingJoinRecordingInvocation,
   deleteCaptureJournal: mocks.deleteCaptureJournal,

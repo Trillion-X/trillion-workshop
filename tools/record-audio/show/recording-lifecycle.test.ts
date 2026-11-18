@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { activeDurationMs, beginActiveTime, claimStop, pauseActiveTime, resumeActiveTime } from './recording-lifecycle';
+import { activeDurationMs, beginActiveTime, claimStop, pauseActiveTime, resumeActiveTime } from '../../record-voice-and-meetings/show/recording-lifecycle';
 
 const observation = (reasonRef: string, observedAtMs = 100) => ({
   reasonRef, observedAtMs, sourceRef: `source:${reasonRef}`,

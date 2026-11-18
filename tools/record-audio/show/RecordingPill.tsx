@@ -28,8 +28,8 @@ import { Dropdown } from '../../ui/show/dropdown';
 import { LAYER_ORDER } from '../../ui/show/layer-order/layer-order';
 import widgets from '../read-data/recording-widgets.json';
 import { currentLiveRecording, subscribeToLiveRecording } from './live-recording';
-import { liveRecordingMicrophone, pauseLiveRecording, resumeLiveRecording, stopLiveRecording, switchLiveRecordingMicrophone } from './live-recording-controls';
-import { activeDurationMs } from './recording-lifecycle';
+import { liveRecordingMicrophone, pauseLiveRecording, resumeLiveRecording, stopLiveRecording, switchLiveRecordingMicrophone } from '../../record-voice-and-meetings/show/live-recording-controls';
+import { activeDurationMs } from '../../record-voice-and-meetings/show/recording-lifecycle';
 
 const pill = widgets.pill;
 const place = widgets.window;

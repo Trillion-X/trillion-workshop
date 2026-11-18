@@ -62,7 +62,7 @@ import { mountReactSurface } from '../../../../ui/show/react-surface-mount';
 import { notify } from '../../../../ui/show/coss/notifications';
 import { loopFreeWords } from '../../../read-data/heard-words.mjs';
 import { canCapture, captureSource, openSource, problemWords, startCapture, type Capture, type CaptureSource, type Recorded } from '../../../../record-audio/show/record-in-the-browser';
-import { keepOnDevice, reopenOnDevice, unfinishedRecordings, type DeviceRecording, type UnfinishedRecording } from '../../../../record-audio/do-work/recording-on-device';
+import { keepOnDevice, reopenOnDevice, unfinishedRecordings, type DeviceRecording, type UnfinishedRecording } from '../../../do-work/recording-on-device';
 import { sendWhileRecording, type Sending, type SendState } from '../../../../record-audio/do-work/send-while-recording';
 import { isFeedPiece } from '../../../../record-audio/do-work/always-recording';
 import { deviceAccount, PlanNeeded, postJson, readFileJson, readJson } from './api';
@@ -91,7 +91,7 @@ const MediaFrame = lazyPart(() => import('../../../../ui/show/media-frame/MediaF
 const FilePreview = lazyPart(() => import('../../../../ui/show/file-preview/FilePreview'), module => module.FilePreview);
 const AudioTimeline = lazyPart(() => import('../../../../ui/show/audio-timeline/AudioTimeline'), module => module.AudioTimeline);
 // Opening, playing and saving an edit share the loader's recovered copy, just as the timeline's data and component do.
-const editorCode = () => loadCode(() => import('../../../../record-audio/show/edit-recording'), module => {
+const editorCode = () => loadCode(() => import('../../../show/edit-recording'), module => {
   if ([module.decodeRecording, module.renderEdit, module.wavFile, module.playFrom].some(value => typeof value !== 'function')) {
     throw new TypeError('The recording editor is missing an export.');
   }

@@ -17,7 +17,7 @@ import { notify } from '../../ui/show/coss/notifications';
 import type { NotificationHandle } from '../../ui/show/notifications/notification-center';
 import widgets from '../read-data/recording-widgets.json';
 import { currentLiveRecording, subscribeToLiveRecording, type LiveRecording } from './live-recording';
-import { pauseLiveRecording, resumeLiveRecording, stopLiveRecording } from './live-recording-controls';
+import { pauseLiveRecording, resumeLiveRecording, stopLiveRecording } from '../../record-voice-and-meetings/show/live-recording-controls';
 
 export type RecordingNoticeHost = {
   /** Opens the note of a recording: its saved file when `kept`, else the screen that shows it while it records. */
