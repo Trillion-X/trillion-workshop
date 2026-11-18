@@ -1017,7 +1017,7 @@ export function installSkills({ rules = settings, home = homedir(), env = proces
 
 // ── What a person or an AI reads ─────────────────────────────────────────────────────────────────────────────────
 
-const QUIET = new Set(['ai_instructions', 'trillion/screen']);
+const QUIET = new Set(['ai_instructions']);
 const quiet = value => (object(value) ? Object.fromEntries(Object.entries(value).filter(([name]) => !QUIET.has(name))) : value);
 const short = (value, size = 100) => { const text = typeof value === 'string' ? value : JSON.stringify(value); return text && text.length > size ? `${text.slice(0, size - 1)}…` : text ?? ''; };
 

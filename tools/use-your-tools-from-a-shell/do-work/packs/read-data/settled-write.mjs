@@ -2,7 +2,7 @@
 //
 // The one wait until a write the door keeps is settled. The door answers `{ accepted, pending }` until the writer settles
 // it, and the same request key then answers the outcome: a commit, or the writer's refusal, which `send` throws. Every
-// caller that sends a write (the records client, `trillion op`) reads it to its outcome through here, so a write is never
+// caller that sends a write (the records client, the `{cli} op` command) reads it to its outcome through here, so a write is never
 // reported as kept while it is pending. A copy is packed into each caller that needs it (identity.mjs is packed the same way).
 //
 // A write is asked again every SETTLE_POLL_MS (the engine's renew_every_ms, the cadence of the account timer that settles its
