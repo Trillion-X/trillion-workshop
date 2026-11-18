@@ -173,6 +173,19 @@ test('in an app that holds the call before the page starts (ChatGPT: window.open
   } finally { await browser.close(); }
 });
 
+test('a show tool\'s answer is kept when ChatGPT hands its one-line result as the output', async () => {
+  const browser = await chromium.launch();
+  try {
+    const tab = await browser.newPage();
+    const html = page(words).replace('<head>', `<head><script>window.openai = { toolInput: { answer: { tools: ['a', 'b', 'c'] }, screen: '<p id="n"></p><script>door.onAnswer(a => { document.getElementById("n").textContent = a.tools.length; });<\\/script>' }, toolOutput: { text: 'Shown to the person.' } };</script>`);
+    const file = join(folder, 'shown.html');
+    writeFileSync(file, html);
+    await tab.goto(`file://${file}`);
+    await tab.waitForTimeout(300);
+    assert.equal(await tab.textContent('#n'), '3', 'the answer the call carried, not the result\'s words');
+  } finally { await browser.close(); }
+});
+
 test('opened as a page, the answer in the address fragment is shown as text', async () => {
   const browser = await chromium.launch();
   try {

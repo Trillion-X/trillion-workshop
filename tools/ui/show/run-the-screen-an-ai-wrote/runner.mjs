@@ -10,7 +10,7 @@
 // - The code is put into the page as it grows, at most once per animation frame, with its scripts inert; once the call's
 //   input is whole, the code is put in once more and its scripts run, once.
 // - Before any script runs, `window[words.api_name ?? 'door']` is { answer, onAnswer(fn), run(method, input), size() }.
-//   `answer` is the result's structured answer, else the `answer` the call itself carried (a show tool's). `run`
+//   `answer` is the `answer` the call itself carried (a show tool's), else the result's structured answer. `run`
 //   is the door's one tool (the words' `run_tool`) through the app, as the person who connected it, with a fresh 128-bit request key; it
 //   resolves with the door's answer or rejects with the door's words, which are also said above the screen, so a call
 //   the door refuses never looks like an empty answer. A call names only its method: the door finds the owner that
@@ -124,8 +124,9 @@ export function runScreens(win, { connect, words = {} }) {
   }
 
   async function onToolResult(result) {
-    // The answer is the result's own structured answer, else the one the call carried.
-    if (result.structuredContent != null || !(call && 'answer' in call)) setAnswer(result.structuredContent);
+    // A call that carried its answer (a show tool's) keeps it: its result carries nothing back, and an app may still
+    // make one of its words (ChatGPT hands {text} as the output of a result with no structured answer).
+    if (!(call && 'answer' in call)) setAnswer(result.structuredContent);
     text = (result.content ?? []).filter(block => typeof block?.text === 'string').map(block => block.text).join('\n');
     if (code !== null && madeBy === (words.chat_maker ?? 'ai:chat') && !result.isError) keep(code);
     if (code === null && !tried) { tried = true; await tryInOrder(); }

@@ -19,7 +19,7 @@ The `screen` field is laid on the door's one tool by the door owner's row (trill
 
 | Member | What it is |
 |--------|------------|
-| `answer` | The call's answer: the result's `structuredContent`, else the `answer` the call itself carried (a show tool's, which runs nothing and carries nothing back). Null until either arrives. |
+| `answer` | The call's answer: the `answer` the call itself carried (a show tool's, which runs nothing and carries nothing back, so its result never replaces it), else the result's `structuredContent`. Null until either arrives. |
 | `onAnswer(fn)` | `fn` hears the answer now if it is here, and each new one. Answers what stops hearing. |
 | `run(method, input)` | The door's one tool, through the app, as the person who connected it, with a fresh 128-bit request key. The call names only its method (`tools:list`); the door finds the owner that answers it. It resolves with the door's answer, or rejects with the door's own words, which are also said above the screen. |
 | `size()` | Tells the app the height the page needs. |
