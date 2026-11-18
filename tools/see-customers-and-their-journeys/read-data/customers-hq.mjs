@@ -1,6 +1,6 @@
 // Source-first port; configuration is supplied by authenticated list rows.
 
-export function createCustomersHQ(reports, { readJourneys, htmlPage }) {
+export function createCustomersHQ(reports, { htmlPage }) {
 // src/customers-hq.mjs
 //
 // PURPOSE
@@ -9,8 +9,9 @@ export function createCustomersHQ(reports, { readJourneys, htmlPage }) {
 //   struggling, and their latest events). Customers who are struggling come first.
 //     GET /work/customers      the screen, as a page
 //     GET /work/api/customers  the same as JSON
-//   Reports are read from the operator account's Notes from members list (src/hand-to-an-account.mjs `memberReports`);
-//   journeys from every journeys-<n> shard (src/journey.mjs `readJourneys`).
+//   The caller reads the reports (the operator's Notes from members rows, read-data/hand-to-an-account.mjs) and the journey
+//   summaries (read-data/journey.mjs summarizeJourneys over the kept rows) and passes them in, only after it has checked
+//   the operator; this module keeps and reads nothing.
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. Only the operator account (OPERATOR_ACCOUNT_ID) reads either address; everyone else gets the same "Not found" as
@@ -46,16 +47,13 @@ function groupReports(rows) {
     }));
 }
 
-/** Everything the screen shows: { reports: grouped, customers: journeys with names }. */
-/** `own` is the signed-in account's own store: only the operator account is answered (both callers check), so the
- *  reports it read are its own, never another account's store asked for them. */
-async function customersAnswer(env, own, now = Date.now()) {
-  const operator = own;
-  const [rows, journeys] = await Promise.all([operator.memberReports({ limit: WORDS.reports_limit }), readJourneys(env, now)]);
+/** Everything the screen shows: { reports: grouped, customers: journeys with names }, from the values the caller read. */
+async function customersAnswer(env, { rows, journeys }) {
   const names = new Map(await Promise.all(journeys.map(async journey => [journey.account, (await env.accountName(journey.account)) ?? String(journey.account).slice(0, 8)])));
+  const newest = [...rows].sort((a, b) => String(b.sent_at ?? '').localeCompare(String(a.sent_at ?? ''))).slice(0, Math.max(1, WORDS.reports_limit));
   return {
-    reports: groupReports(rows),
-    report_count: rows.length,
+    reports: groupReports(newest),
+    report_count: newest.length,
     customers: journeys.map(journey => ({ ...journey, name: names.get(journey.account) })),
   };
 }
@@ -85,13 +83,14 @@ function customersPage(answer, origin) {
   }, { 'x-trillion-privacy': 'customer-scope' });
 }
 
-/** GET /work/customers and GET /work/api/customers; null for every other address. */
-async function answerCustomers(request, { env, userId, url, origin }) {
+/** GET /work/customers and GET /work/api/customers; null for every other address. `values` is called, and only for the
+ *  operator, to read { rows, journeys }. */
+async function answerCustomers(request, { env, userId, url, origin, values }) {
   const page = url.pathname === '/work/customers';
   if (!page && url.pathname !== '/work/api/customers') return null;
   if (request.method !== 'GET') return null;
   if (!(Boolean(env.operatorAccount) && userId === env.operatorAccount)) return notFound();
-  const answer = await customersAnswer(env, env.own);
+  const answer = await customersAnswer(env, await values());
   return page ? customersPage(answer, origin) : json(answer);
 }
 

@@ -5,7 +5,6 @@
     "read-data/hand-to-an-account.mjs",
     "read-data/hq-sharing.mjs",
     "read-data/interactions.mjs",
-    "read-data/journey.mjs",
-    "do-work/journey-records.mjs"
+    "read-data/journey.mjs"
   ]
 }

@@ -1,0 +1,335 @@
+{
+  "about": "workflow:keep-customer-journeys-and-their-choices: keeps each thing a customer does (one row per thing, the facts the policy names, words only when the customer chose to share them) and each customer's choice to share it, in the person's own store. Erasure on stop sharing, the sweep after keep_days and the struggling summary are the store's own rules, proven by the example operations. It replaces the record keeping of tools/see-customers-and-their-journeys (do-work/journey-records.mjs and the door reads in read-data/journey.mjs and hq-sharing.mjs), which took rows in and handed them back through a records door (rule a-tool-is-only-what-the-store-cannot-do).",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-customer-journeys-and-their-choices",
+        "label": "Keep customer journeys and their choices",
+        "job": "Keep what a customer does on the person's own store (one row per thing, only the facts the policy names, words only when the customer chose to share them), keep each customer's choice to share it, erase a customer's rows when they stop sharing, sweep rows past the retention window, and read each customer's summary (struggling first).",
+        "produces": "The store's own choice and journey objects, proven on the example operations in three kinds of store, and each run's rows kept, refused, erased and read back.",
+        "source": {
+          "from": "the owner, 2026-11-18 about 2:35 PM CST, and the W3.2b lane brief: see-customers-and-their-journeys keeps records; a tool keeps no record, the person's store does",
+          "note": "Ported from the retired Worker's src/journey.mjs, src/hq-sharing.mjs and src/journey-records (source commit b6ae0ebf815f2f5271eed34e6e023c7e1767ec04, see source-map.json). The rules the old code held stay as values the policy input carries (records/hq-reports.json journey, records/hq-sharing.json). The store keeps the rows and enforces the insert-only, activity and operator rules itself. The tools that decide values (which rows an event becomes, the choice to write, what counts as trouble) stay in tools/see-customers-and-their-journeys/read-data/journey.mjs and hq-sharing.mjs, which take values in and hand values back."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store",
+            "policy"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things: the store's own address, as the person's own store row names it"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses for that store, when it needs one"
+                },
+                "place": {
+                  "type": "string",
+                  "description": "Where in the store these are kept, when the person has a place for them already"
+                }
+              }
+            },
+            "policy": {
+              "type": "object",
+              "description": "The journey and sharing values: records/hq-reports.json journey (keep_days, label_chars, timeline, most_customers, recorded, struggling) and records/hq-sharing.json (default, key_prefix)"
+            },
+            "operations": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Choice changes ({op: choose, account, at, patch, via}) and events ({op: keep, account, at, events: [{kind, facts, words}]}) to keep this run, in order"
+            },
+            "read": {
+              "type": "object",
+              "description": "{now} when the summary is wanted"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit kept_in (where choices and journey rows already are, or null) and objects (the names of the objects that already answer each question below).",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found no such objects, make them in the store's own form, from policy (the person's records/hq-reports.json journey and records/hq-sharing.json values, given as input): (1) a choice per account, with activity and content, content only when activity is on; no row for an account means activity on and content off, as the policy default says. (2) journey rows, insert only: a row for the operator account, or for an account whose kept choice has activity off, is refused by the store's own rule; a row is never changed in place (an update is refused); a row leaves only by erasure of one account or by the sweep of rows older than keep_days (the store's own delete rule allows that and nothing else). (3) the store's own read of the rows, which the answer is summarized from. Grant only what the store needs for these.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example operations",
+            "do": "In a throwaway place in the same store, with the same objects, run these operations in order, each through the store's own objects: [{\"event_id\": \"c1\", \"op\": \"choose\", \"account\": \"member\", \"at\": \"2026-11-01T09:00:00.000Z\", \"via\": \"sign_up\", \"patch\": {}}, {\"event_id\": \"c2\", \"op\": \"choose\", \"account\": \"member\", \"at\": \"2026-11-01T09:05:00.000Z\", \"via\": \"settings\", \"patch\": {\"content\": true}}, {\"event_id\": \"e1\", \"op\": \"keep\", \"account\": \"member\", \"at\": \"2026-11-10T10:00:00.000Z\", \"events\": [{\"kind\": \"report\", \"facts\": {\"kind\": \"bug\", \"sent_by\": \"ai\", \"harness\": \"Codex\"}, \"words\": {\"note\": \"the export failed\", \"where\": \"Files\"}}]}, {\"event_id\": \"e2\", \"op\": \"keep\", \"account\": \"member\", \"at\": \"2026-11-11T10:00:00.000Z\", \"events\": [{\"kind\": \"client_error\", \"facts\": {\"path\": \"/files/a\", \"category\": \"script\", \"email\": \"someone@example.com\"}}]}, {\"event_id\": \"e3\", \"op\": \"keep\", \"account\": \"member\", \"at\": \"2026-11-11T10:05:00.000Z\", \"events\": [{\"kind\": \"page_view\", \"facts\": {\"path\": \"/decisions\"}}]}, {\"event_id\": \"e4\", \"op\": \"keep\", \"account\": \"member\", \"at\": \"2026-01-01T10:00:00.000Z\", \"events\": [{\"kind\": \"page_view\", \"facts\": {\"path\": \"/old\"}}]}, {\"event_id\": \"e5\", \"op\": \"keep\", \"account\": \"member\", \"at\": \"2026-11-13T08:00:00.000Z\", \"events\": [{\"kind\": \"notice\", \"facts\": {\"kind\": \"welcome\", \"title\": \"Welcome\"}, \"words\": {\"body\": \"a private body\"}}]}, {\"event_id\": \"e6\", \"op\": \"keep\", \"account\": \"hq\", \"at\": \"2026-11-10T10:00:00.000Z\", \"events\": [{\"kind\": \"page_view\", \"facts\": {\"path\": \"/\"}}]}, {\"event_id\": \"e7\", \"op\": \"keep\", \"account\": \"other\", \"at\": \"2026-11-12T10:00:00.000Z\", \"events\": [{\"kind\": \"tool_run\", \"facts\": {\"tool\": \"x\", \"client\": \"chatgpt\"}}]}, {\"event_id\": \"c3\", \"op\": \"choose\", \"account\": \"other\", \"at\": \"2026-11-12T11:00:00.000Z\", \"via\": \"settings\", \"patch\": {\"activity\": false}}, {\"event_id\": \"e8\", \"op\": \"keep\", \"account\": \"other\", \"at\": \"2026-11-12T12:00:00.000Z\", \"events\": [{\"kind\": \"tool_run\", \"facts\": {\"tool\": \"later\", \"client\": \"chatgpt\"}}]}] Then sweep the rows older than keep_days at 2026-11-15T12:00:00.000Z and read the rows back. Submit refused_event_ids (each operation the store refused), kept_row_ids_before_sweep, swept_row_ids, choices, rows_after_sweep, and the summary the policy's summary rule gives (struggling first, then last seen; each account's timeline).",
+            "submit": {
+              "type": "object"
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Every example operation is refused or kept as the intent says, and the store's own objects give every expected answer",
+                "path": [
+                  "this",
+                  "answer"
+                ],
+                "values": [
+                  {
+                    "choices": {
+                      "member": {
+                        "activity": true,
+                        "content": true,
+                        "set_at": "2026-11-01T09:05:00.000Z",
+                        "via": "settings"
+                      },
+                      "other": {
+                        "activity": false,
+                        "content": false,
+                        "set_at": "2026-11-12T11:00:00.000Z",
+                        "via": "settings"
+                      }
+                    },
+                    "refused_event_ids": [
+                      "e6",
+                      "e8"
+                    ],
+                    "kept_row_ids_before_sweep": [
+                      "e1.0",
+                      "e2.0",
+                      "e3.0",
+                      "e4.0",
+                      "e5.0"
+                    ],
+                    "swept_row_ids": [
+                      "e4.0"
+                    ],
+                    "rows_after_sweep": [
+                      {
+                        "id": "e1.0",
+                        "account": "member",
+                        "at": 1794304800000,
+                        "surface": "report",
+                        "kind": "report",
+                        "label": "bug",
+                        "facts": {
+                          "sent_by": "ai",
+                          "harness": "Codex",
+                          "words": {
+                            "where": "Files",
+                            "note": "the export failed"
+                          }
+                        }
+                      },
+                      {
+                        "id": "e2.0",
+                        "account": "member",
+                        "at": 1794391200000,
+                        "surface": "app",
+                        "kind": "client_error",
+                        "label": "/files/a",
+                        "facts": {
+                          "category": "script"
+                        }
+                      },
+                      {
+                        "id": "e3.0",
+                        "account": "member",
+                        "at": 1794391500000,
+                        "surface": "app",
+                        "kind": "page_view",
+                        "label": "/decisions",
+                        "facts": {}
+                      },
+                      {
+                        "id": "e5.0",
+                        "account": "member",
+                        "at": 1794556800000,
+                        "surface": "notice",
+                        "kind": "notice",
+                        "label": "welcome",
+                        "facts": {
+                          "title": "Welcome",
+                          "words": {
+                            "body": "a private body"
+                          }
+                        }
+                      }
+                    ],
+                    "summary": [
+                      {
+                        "account": "member",
+                        "last_seen": 1794556800000,
+                        "total": 4,
+                        "recent": 4,
+                        "trouble": 2,
+                        "struggling": true,
+                        "by_kind": {
+                          "client_error": 1,
+                          "notice": 1,
+                          "page_view": 1,
+                          "report": 1
+                        },
+                        "timeline": [
+                          {
+                            "at": 1794556800000,
+                            "surface": "notice",
+                            "kind": "notice",
+                            "label": "welcome",
+                            "facts": {
+                              "title": "Welcome",
+                              "words": {
+                                "body": "a private body"
+                              }
+                            }
+                          },
+                          {
+                            "at": 1794391500000,
+                            "surface": "app",
+                            "kind": "page_view",
+                            "label": "/decisions",
+                            "facts": {}
+                          },
+                          {
+                            "at": 1794391200000,
+                            "surface": "app",
+                            "kind": "client_error",
+                            "label": "/files/a",
+                            "facts": {
+                              "category": "script"
+                            }
+                          },
+                          {
+                            "at": 1794304800000,
+                            "surface": "report",
+                            "kind": "report",
+                            "label": "bug",
+                            "facts": {
+                              "sent_by": "ai",
+                              "harness": "Codex",
+                              "words": {
+                                "where": "Files",
+                                "note": "the export failed"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's operations",
+            "do": "Run each choice change and each event through the store's own objects, in order. A choice change that turns activity off erases that account's rows first and reports a failure as a failure, never a success (a retry finishes it). Each event is kept as the policy's rule says (only the facts the kind names; words only when the account's content choice is on) or refused by the store; read every kept id back. When a read is asked for, read the summary. Submit refused_event_ids, kept_ids, erased_ids, found_ids (every row read back) and summary.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "refused_event_ids",
+                "kept_ids",
+                "erased_ids",
+                "found_ids"
+              ],
+              "properties": {
+                "refused_event_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "kept_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "erased_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "found_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "summary": {
+                  "type": "array"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "subset-of",
+                "says": "Every row kept is read back",
+                "path": [
+                  "this",
+                  "kept_ids"
+                ],
+                "of": [
+                  "this",
+                  "found_ids"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
