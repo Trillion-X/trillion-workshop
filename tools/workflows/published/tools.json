@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:93f8240fc4bc7d768a28d31304332fe954fc9b20e47870159da9e5a2adfdbe66"
+  "blake3": "1f:e7eaaad1496d045dfd05f2574f6778b6b26ffb9a61ce5e6c4bc639b1144d0d13"
  },
  "fields": [
   {
@@ -3424,21 +3424,6 @@
    }
   },
   {
-   "id": "tool:expire-old-holds",
-   "values": {
-    "title": "Expire old holds",
-    "job": "Free the places whose hold time has run out, and offer each to the waitlist",
-    "description": "Ends every confirmed hold whose expiry has passed by this run's clock and, by default, promotes one waiting entry into each freed place. A hold with no expiry is never ended. Run it on a schedule so a place is never held for ever by someone who went quiet. The answer holds the next ledger for your AI to keep; the tool reads and keeps nothing.",
-    "status": "active",
-    "maker": "maker:reservations",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "reservations"
-   }
-  },
-  {
    "id": "tool:export-a-document-to-a-file",
    "values": {
     "title": "Save anything as a file: a list, a table, a document, a board, words or a picture, as PDF, Word, Excel, CSV, Markdown, text, web page, SVG and more",
@@ -4988,21 +4973,6 @@
    }
   },
   {
-   "id": "tool:hold-a-place",
-   "values": {
-    "title": "Hold a place",
-    "job": "Hold a place for someone, or put them on the waitlist when every place is taken",
-    "description": "Holds one place on a capacity ledger for a subject, or adds them to the waitlist when their class has no place left. The same idempotency_key sent again answers the first outcome and holds nothing twice. A hold may expire after a number of seconds from now. Answers held or waitlisted and how full the ledger is. The answer holds the next ledger for your AI to keep; the tool reads and keeps nothing.",
-    "status": "active",
-    "maker": "maker:reservations",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "reservations"
-   }
-  },
-  {
    "id": "tool:hold-back-on-risk",
    "values": {
     "title": "Hold an output back when risk is too high",
@@ -5151,21 +5121,6 @@
      "placement:small-container"
     ],
     "folder": "space-members"
-   }
-  },
-  {
-   "id": "tool:join-a-waitlist",
-   "values": {
-    "title": "Join a waitlist",
-    "job": "Put someone on the waitlist for a class or table without trying to hold a place first",
-    "description": "Adds a subject to the end of a capacity ledger's waitlist with a reason, even when places are free. The same idempotency_key sent again answers the first entry and adds nothing. The answer holds the next ledger for your AI to keep; the tool reads and keeps nothing.",
-    "status": "active",
-    "maker": "maker:reservations",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "reservations"
    }
   },
   {
@@ -7817,21 +7772,6 @@
    }
   },
   {
-   "id": "tool:open-a-capacity-ledger",
-   "values": {
-    "title": "Open a capacity ledger",
-    "job": "Set up how many places there are for a class, table, room or any limited thing, so my AI can hold them one by one",
-    "description": "Opens one capacity ledger: the total number of places, and optionally how many are kept back for a named class (members, guests, VIP). The answer holds the new ledger as its capacity-ledger record for your AI to keep; the tool keeps nothing. Give the ledger you already hold under that id as ledger and opening changes nothing and answers how full it is.",
-    "status": "active",
-    "maker": "maker:reservations",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "reservations"
-   }
-  },
-  {
    "id": "tool:open-a-paid-file-for-a-buyer",
    "values": {
     "title": "Open a paid file for a buyer",
@@ -8753,21 +8693,6 @@
    }
   },
   {
-   "id": "tool:promote-from-the-waitlist",
-   "values": {
-    "title": "Promote from the waitlist",
-    "job": "Move the next waiting person (or one I name) into a place that is free",
-    "description": "Promotes the first waiting entry whose class has a free place, or the waiting entry named, into a hold. Nothing happens when no place is free or nobody waits. The same idempotency_key sent again changes nothing. The answer holds the next ledger for your AI to keep; the tool reads and keeps nothing.",
-    "status": "active",
-    "maker": "maker:reservations",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "reservations"
-   }
-  },
-  {
    "id": "tool:publish-a-checked-filmcraft-preview",
    "values": {
     "title": "Publish a checked option preview, then put it in my watch folder (runs on your computer)",
@@ -9176,21 +9101,6 @@
      "placement:your-computer"
     ],
     "folder": "fill-a-template-without-changing-its-words"
-   }
-  },
-  {
-   "id": "tool:read-a-capacity-ledger",
-   "values": {
-    "title": "Read a capacity ledger",
-    "job": "See who holds the places and who is waiting",
-    "description": "Works out, from the ledger you give, every hold and waitlist entry, how full it is, and the ledger as one reservation row (the scope, its state and who holds a place). It reads and keeps nothing.",
-    "status": "active",
-    "maker": "maker:reservations",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "reservations"
    }
   },
   {
@@ -9990,21 +9900,6 @@
     "flags": [
      "read-only"
     ]
-   }
-  },
-  {
-   "id": "tool:read-one-row-change",
-   "values": {
-    "title": "Read one change in my database",
-    "job": "read one change a database recorded (what table, what happened, the row before and after) by its position, so a run woken by the change has the row itself",
-    "description": "Give the vault name of the database's connection and the change's position (the row-changes fact names both: connection and position). It answers that one change of the database's change table, row_changes, which its own setup made (workflow:make-a-database-for-each-pursuit): {columns, rows: [{table_name, op, before, after}], row_count}. It runs only that one read, so a workflow may hold it without being able to run any other SQL.",
-    "status": "active",
-    "maker": "maker:run-sql-in-my-database",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "run-sql-in-my-database"
    }
   },
   {
@@ -10896,21 +10791,6 @@
      "placement:your-computer"
     ],
     "folder": "move-the-public-door"
-   }
-  },
-  {
-   "id": "tool:release-a-place",
-   "values": {
-    "title": "Release a place",
-    "job": "Give a held place back, and offer it to the next person on the waitlist",
-    "description": "Releases one confirmed hold, named by its hold id or by its subject, and by default promotes the first waiting entry that fits the freed place. The same idempotency_key sent again changes nothing. Answers the released hold and the promoted one, if any. The answer holds the next ledger for your AI to keep; the tool reads and keeps nothing.",
-    "status": "active",
-    "maker": "maker:reservations",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "reservations"
    }
   },
   {
@@ -13013,21 +12893,6 @@
     "flags": [
      "read-only"
     ]
-   }
-  },
-  {
-   "id": "tool:sort-reservations-by-status",
-   "values": {
-    "title": "Sort reservations by status",
-    "job": "Group my reservations (tables, rooms, visits) by status, the ones that need me first",
-    "description": "Groups reservations by status, with the statuses the person lists in attention_order first and in that order, then any other status in the order seen. Groups the rows given; it reads nothing. Rows may use camelCase or snake_case; a row with no id is dropped. Also lists the reservations that name no policy.",
-    "status": "active",
-    "maker": "maker:reservations",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "reservations"
    }
   },
   {

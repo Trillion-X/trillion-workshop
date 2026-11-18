@@ -10,7 +10,7 @@
         "produces": "The store's own way of telling its changes, made once and proven on the example changes, and each later change told once as a fact.",
         "source": {
           "from": "the owner, 2026-11-18 about 2:35 and 2:55 PM CST (relayed by session 68): shared parts must not know about any store and must not be solved store by store; a person's whose store is Cassandra, Notion, a CSV folder or Firestore must also get \"a row changed, wake a workflow\"",
-          "note": "Replaces the Postgres-only road as the general way (row_changes, tool:read-one-row-change, fact-values.json). A Postgres database's record_row_change() with the noticer's keep-noticing-row-changes stays one person's own choice of how their database tells. Measured on 8 store kinds on 2026-11-18 (store matrix, change_feed): Postgres LISTEN, CalDAV sync-token, IMAP IDLE and Cassandra CDC tell; a markdown or CSV folder, IndexedDB and Google Sheets (through its API) need a read and compare."
+          "note": "Replaces the Postgres-only road as the general way (a fixed read of one Postgres change table, and the fact-values file that named it). A Postgres database's record_row_change() with the noticer's keep-noticing-row-changes stays one person's own choice of how their database tells. Measured on 8 store kinds on 2026-11-18 (store matrix, change_feed): Postgres LISTEN, CalDAV sync-token, IMAP IDLE and Cassandra CDC tell; a markdown or CSV folder, IndexedDB and Google Sheets (through its API) need a read and compare. The change fact carries before and after; a change over 1,024 bytes is read by its key and where, in the store's own language."
         },
         "input_schema": {
           "type": "object",
