@@ -29,6 +29,8 @@ const computer = live => {
       if (live[path] === undefined) throw Object.assign(new Error('absent'), { code: 3 });
       return live[path];
     }
+    // A set-up computer's firewall admits the ports the settings name; a fresh one has none.
+    if (command.startsWith('ufw status')) return Object.keys(live).length ? `Status: active\n\nTo Action From\n${(live.firewall ?? ['22/tcp', '80/tcp', '443/tcp']).map(port => `${port}                     ALLOW       Anywhere`).join('\n')}\n` : '';
     if (command.includes('curl')) return '200';
     if (command.startsWith('if [ -d ')) return '';
     if (command.startsWith('getent')) { if (Object.keys(live).length === 0) throw Object.assign(new Error('no such account'), { code: 3 }); return ''; }
@@ -364,6 +366,7 @@ test('a folder a unit owns whole keeps only the files the row renders: a stray i
     if (command.startsWith('if [ -f ')) { const p = command.match(/if \[ -f '([^']+)' \]/)[1]; if (live[p] === undefined) throw Object.assign(new Error('absent'), { code: 3 }); return live[p]; }
     if (command.startsWith("if [ -d '/var/lib/example-pages' ]")) return '/var/lib/example-pages/kept.html\n/var/lib/example-pages/old/left.html\n';
     if (command.includes('curl')) return '200';
+    if (command.startsWith('ufw status')) return 'Status: active\n\n22/tcp ALLOW Anywhere\n80/tcp ALLOW Anywhere\n443/tcp ALLOW Anywhere\n';
     return '';
   };
   const found = await runsDifferences(machine, row, run);
@@ -372,4 +375,17 @@ test('a folder a unit owns whole keeps only the files the row renders: a stray i
   assert.deepEqual(answer.removed, ['/var/lib/example-pages/old/left.html']);
   assert.ok(commands.includes("rm -rf -- '/var/lib/example-pages/old/left.html'"));
   assert.ok(!commands.some(command => command.includes("rm -rf -- '/var/lib/example-pages/kept.html'")));
+});
+
+test('a port the row admits that the firewall does not is a difference, and the apply runs set-up, which admits it', async () => {
+  const opened = { ...runs, machine: { firewall_allow: ['22/tcp', '5432/tcp'] } };
+  const live = { ...Object.fromEntries(renderWhatItRuns(opened).map(({ path, text }) => [path, text])), firewall: ['22/tcp'] };
+  const { run, commands } = computer(live);
+  assert.deepEqual(await runsDifferences(machine, opened, run), [{ path: 'firewall 5432/tcp', reason: 'the computer row admits it; the firewall does not' }]);
+  await applyWhatItRuns(machine, opened, run);
+  const setUp = commands.find(({ command }) => command.startsWith('sh -s'));
+  assert.ok(setUp, 'set-up ran');
+  assert.match(setUp.command, /5432\/tcp/, 'with the row\'s firewall');
+  const matched = computer({ ...live, firewall: ['22/tcp', '5432/tcp'] });
+  assert.deepEqual(await runsDifferences(machine, opened, matched.run), []);
 });

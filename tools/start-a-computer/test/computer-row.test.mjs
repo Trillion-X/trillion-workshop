@@ -44,6 +44,8 @@ test('a computer row that is an id, a missing value, or has no runs with units i
 test('applying and comparing a computer use its row: a computer that runs it has no differences', async () => {
   const live = Object.fromEntries(renderWhatItRuns(runs).map(({ path, text }) => [path, text]));
   const run = async (_machine, command) => {
+    // A set-up computer's firewall admits the settings' ports.
+    if (command.startsWith('ufw status')) return 'Status: active\n\n22/tcp ALLOW Anywhere\n80/tcp ALLOW Anywhere\n443/tcp ALLOW Anywhere\n';
     if (command.startsWith('if [ -f ')) {
       const path = command.match(/if \[ -f '([^']+)' \]/)[1];
       if (live[path] === undefined) throw Object.assign(new Error('absent'), { code: 3 });

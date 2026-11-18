@@ -103,6 +103,8 @@ const computer = (live, { accounts = true } = {}) => {
   const commands = [];
   const run = async (_machine, command, input) => {
     commands.push({ command, input: input === undefined ? undefined : String(input) });
+    // A set-up computer's firewall admits the settings' ports.
+    if (command.startsWith('ufw status')) return 'Status: active\n\n22/tcp ALLOW Anywhere\n80/tcp ALLOW Anywhere\n443/tcp ALLOW Anywhere\n';
     if (command.startsWith('if [ -f ')) {
       const path = command.match(/if \[ -f '([^']+)' \]/)[1];
       if (live[path] === undefined) throw Object.assign(new Error('absent'), { code: 3 });

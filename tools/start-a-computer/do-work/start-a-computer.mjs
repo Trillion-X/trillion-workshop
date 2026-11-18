@@ -124,6 +124,17 @@ export async function runsState(machine, given, run = onMachine, { pages } = {})
     if (await run(machine, `getent passwd ${q(user)} >/dev/null || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; })) usersPresent.push(user);
   }
   found.push(...usersPresent.map(user => ({ path: `user ${user}`, reason: 'present; the computer row says absent' })));
+  // A port the row's firewall admits (settings.json `machine` with the row's own over it, and every port a unit's prepare
+  // opens) that the computer's firewall does not admit is a difference, and the apply runs set-up, which admits it. A
+  // computer whose firewall another program keeps (firewall_allow null) is not asked.
+  const firewall = { ...SETTINGS.machine, ...runs.machine }.firewall_allow;
+  const portsClosed = [];
+  if (Array.isArray(firewall)) {
+    const status = await run(machine, 'ufw status 2>/dev/null || true');
+    const admits = port => status.split('\n').some(line => line.split(/\s+/)[0] === port && /\sALLOW\s/.test(line) && !line.includes('(v6)'));
+    portsClosed.push(...[...new Set(firewall)].filter(port => !admits(port)));
+  }
+  found.push(...portsClosed.map(port => ({ path: `firewall ${port}`, reason: 'the computer row admits it; the firewall does not' })));
   // A unit whose program is built from source (`source`) is behind when its `current` is not the commit its row names; the
   // apply builds that commit on the computer and moves `current` to it.
   // One whose `current` is that commit but whose running program is not `current`'s (a restart that failed, or a program
@@ -160,7 +171,7 @@ export async function runsState(machine, given, run = onMachine, { pages } = {})
     switches.push(group);
     if (reason) found.push({ path: group.of, reason });
   }
-  return { runs, rendered, live, found, present, usersPresent, builds, stale, switches };
+  return { runs, rendered, live, found, present, usersPresent, portsClosed, builds, stale, switches };
 }
 
 /** A unit's `source` with its fields filled from the unit: the git `repository` address the computer fetches from (any host;
@@ -215,7 +226,7 @@ const needsHeld = unit => secretsOf(unit).length > 0 || Boolean(unit.source?.cre
  * `NAME.bak-STAMP`. `held` maps a unit's `secret_vault_key` to the value the person's vault holds under that name; the value
  * reaches the computer only on the SSH channel's standard input, sealed there by systemd-creds at the unit's `secret_file`. */
 export async function applyWhatItRuns(machine, given, run = onMachine, held = {}, deps = {}) {
-  const { runs, rendered, live, present, usersPresent, builds, stale, switches } = await runsState(machine, given, run, deps);
+  const { runs, rendered, live, present, usersPresent, portsClosed, builds, stale, switches } = await runsState(machine, given, run, deps);
   const writes = rendered.filter(({ path, text }) => live[path] !== text);
   // A file a unit reads (its settings, access file or script) changes that unit, and each unit that names it; a unit file or
   // drop-in changes its own unit. A file that names `then` is applied by those commands instead (a site file a reload reads,
@@ -257,12 +268,12 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
   const changed = new Set([...writes.flatMap(({ path }) => unitsOf(path)), ...missing.map(unit => unit.unit)]);
   const switching = switches.filter(group => group.reason || group.units.some(unit => changed.has(unit.unit)))
     .map(group => ({ group, target: group.units.find(unit => !group.active.includes(unit)) ?? group.units.at(-1) }));
-  if (!writes.length && !missing.length && !nodeMissing && !foldersMissing && !programsMissing && !triggersOff.length && !builds.length && !stale.length && !usersPresent.length && !present.length && !switching.length) return { written: [], restarted: [] };
+  if (!writes.length && !missing.length && !nodeMissing && !foldersMissing && !programsMissing && !triggersOff.length && !builds.length && !stale.length && !usersPresent.length && !present.length && !portsClosed.length && !switching.length) return { written: [], restarted: [] };
   // Set-up makes what is missing (packages, node, accounts, folders); a computer whose accounts and node all exist needs
   // none, and running it would refresh the package lists on every apply.
   const accounts = await Promise.all(runs.units.map(unit => run(machine, `getent passwd ${q(unit.user)} >/dev/null || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; })));
   // The set-up data is settings.json `machine` with the row's own `machine` fields over it (its packages, its firewall).
-  if (accounts.includes(false) || nodeMissing || foldersMissing || programsMissing) await run(machine, `sh -s -- ${q(JSON.stringify(runs))} ${q(JSON.stringify(machineData))}`, readFileSync(SETUP));
+  if (accounts.includes(false) || nodeMissing || foldersMissing || programsMissing || portsClosed.length) await run(machine, `sh -s -- ${q(JSON.stringify(runs))} ${q(JSON.stringify(machineData))}`, readFileSync(SETUP));
   for (const unit of missing) {
     await run(machine, `install -d -m 0700 ${q(dirname(unit.secret_file))} && umask 077 && systemd-creds encrypt --name=${q(unit.secret_name)} - ${q(unit.secret_file)}`, held[unit.secret_vault_key]);
   }
