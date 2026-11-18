@@ -1,0 +1,116 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:deliver-a-message-as-a-row-of-my-list with store {\\\"where\\\": \\\"postgresql database example_shop on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-shop-postgres-connection\\\"} and row_type sign-in-code, to sam@example.com, subject 'Your code', text '123456', kind sign-in-code, idempotency_key k1.\"",
+  "lists": [],
+  "no_lists_because": "It names no list the person must already have: the message becomes one row of the list the store keeps for its row type, in whatever form that store keeps things.",
+  "workflows": [
+    "workflow:deliver-a-message-as-a-row-of-my-list"
+  ],
+  "tools": [
+    "tool:run-workflow-definition",
+    "tool:hand-a-job-to-an-ai"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:deliver-a-message-as-a-row-of-my-list\" with store, the row type, to, subject, text, kind and an idempotency key. Send the same key again if an answer was unknown.",
+    "3. The first run makes the list's table once and proves the write on the example messages; every attempt must come out as the prove step says, or the run stops and says which.",
+    "4. Every later run writes the message as one row through that table and reads it back."
+  ],
+  "worked_examples": [
+    {
+      "title": "A sign-in code written as a row",
+      "ask": "Write a sign-in code for sam@example.com as a row of my sign-in list, text 123456, key k1.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:deliver-a-message-as-a-row-of-my-list",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "row_type": "sign-in-code",
+              "to": "sam@example.com",
+              "subject": "Your code",
+              "text": "123456",
+              "kind": "sign-in-code",
+              "idempotency_key": "k1"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:deliver-a-message-as-a-row-of-my-list",
+      "step": "keep",
+      "given": "The store keeps no sign-in-code row with key k1.",
+      "hands_back": "outcome \"written\", row_id \"k1\", read back with to \"sam@example.com\" and text \"123456\"."
+    },
+    {
+      "title": "The same key again writes nothing new",
+      "ask": "Send the same sign-in code again with key k1.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:deliver-a-message-as-a-row-of-my-list",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "row_type": "sign-in-code",
+              "to": "sam@example.com",
+              "subject": "Your code",
+              "text": "123456",
+              "kind": "sign-in-code",
+              "idempotency_key": "k1"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:deliver-a-message-as-a-row-of-my-list",
+      "step": "keep",
+      "given": "The row k1 was written by the first example.",
+      "hands_back": "outcome \"repeated\", row_id \"k1\", and still one row for k1."
+    },
+    {
+      "title": "A message with no address is refused",
+      "ask": "Write a sign-in code with no address, key k3.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:deliver-a-message-as-a-row-of-my-list",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "row_type": "sign-in-code",
+              "to": "",
+              "subject": "Your code",
+              "text": "123456",
+              "kind": "sign-in-code",
+              "idempotency_key": "k3"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:deliver-a-message-as-a-row-of-my-list",
+      "step": "keep",
+      "given": "The store keeps the sign-in-code list.",
+      "hands_back": "outcome \"refused\", row_id null, and no row written for k3."
+    }
+  ]
+}

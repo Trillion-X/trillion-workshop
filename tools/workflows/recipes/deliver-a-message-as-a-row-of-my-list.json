@@ -1,0 +1,202 @@
+{
+  "about": "workflow:deliver-a-message-as-a-row-of-my-list: Write a message (to, subject, text, kind) as one row of a list the person keeps in their own store, with the row's id equal to the message's idempotency key, so the same key sent again writes the same",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:deliver-a-message-as-a-row-of-my-list",
+        "label": "Write a message as one row of a list in the person's own store",
+        "job": "Write a message (to, subject, text, kind) as one row of a list the person keeps in their own store, with the row's id equal to the message's idempotency key, so the same key sent again writes the same row and never a second one. This is the sink a sign-up's emailed code goes to while no mail is connected: the code lands as a row, not in an inbox.",
+        "produces": "The store's own row for the message, proven on the example writes, and each write answered as written, repeated, refused, or unknown (the write may have happened).",
+        "source": {
+          "from": "tools/deliver-to-list (do-work/deliver-to-list.mjs, read through the door of tools/read-a-list-view), read on trillion-workshop origin/main bb8022539c; capabilities.json names it as the sink of a sign-up's emailed code",
+          "note": "The row's type is record:<row_type>, and its id is the idempotency key. A refusal answers an error with unknown false; a write that may have happened answers unknown true, and the caller sends the same key again. The door is the old way to reach the store; the recipe writes to the store's own table directly. Sending the message out to a mail service is NOT part of this recipe: that is a vendor's API and stays a tool of its own."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store",
+            "row_type",
+            "to",
+            "subject",
+            "text",
+            "kind",
+            "idempotency_key"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string"
+                },
+                "language": {
+                  "type": "string"
+                },
+                "credential_name": {
+                  "type": "string"
+                }
+              }
+            },
+            "row_type": {
+              "type": "string",
+              "description": "The list's row type; the row is kept as record:<row_type>"
+            },
+            "to": {
+              "type": "string"
+            },
+            "subject": {
+              "type": "string"
+            },
+            "text": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string"
+            },
+            "idempotency_key": {
+              "type": "string",
+              "description": "Also the row's id"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the list of this row type is kept (kept_in, or null) and whether a row with the idempotency key already exists.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "row_exists"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "row_exists": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own list, once",
+            "do": "When the look step found no list for the row type, make one table in the store's own form: the row id as key (the idempotency key), the row type, the to, subject, text and kind, and the time it was written. The store refuses a row with no to or no id, and a second row with the same id is the same row, not a copy. Submit the names of the objects made, or the ones the look step found.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the write on the example messages",
+            "do": "In a throwaway place in the same store, with the same table, write these in order: 1) row type sign-in-code, to a@example.com, subject 'Your code', text '123456', kind sign-in-code, key k1 (written, row id k1); 2) the same as 1 again with key k1 (repeated, no second row); 3) to b@example.com with key k2 (written); 4) with key k3 and no to (refused, no row); 5) with key k1 but a different text (repeated: the first row stays, its text is unchanged). Submit each as written, repeated or refused, with the row id.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "attempts"
+              ],
+              "properties": {
+                "attempts": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "attempt",
+                      "outcome"
+                    ],
+                    "properties": {
+                      "attempt": {
+                        "type": "integer"
+                      },
+                      "outcome": {
+                        "type": "string",
+                        "enum": [
+                          "written",
+                          "repeated",
+                          "refused"
+                        ]
+                      },
+                      "row_id": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "why": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "keep",
+            "title": "Write this run's message",
+            "do": "Write the message as one row of the list, in one statement that refuses a missing to and keeps the first row for a repeated key. If the write may have happened but the store did not answer, read the row by its key: found means written, not found means send the same key again. Read the row back. Submit outcome (written, repeated, refused or unknown), the row id, and the row read back.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcome",
+                "row_id"
+              ],
+              "properties": {
+                "outcome": {
+                  "type": "string",
+                  "enum": [
+                    "written",
+                    "repeated",
+                    "refused",
+                    "unknown"
+                  ]
+                },
+                "row_id": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "read_back": {
+                  "type": [
+                    "object",
+                    "null"
+                  ]
+                }
+              }
+            },
+            "checks": []
+          }
+        ],
+        "erase": "On the person's request the store deletes the row by its id, the same as any other row of the list."
+      }
+    }
+  ]
+}
