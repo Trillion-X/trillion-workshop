@@ -1,0 +1,196 @@
+{
+  "about": "workflow:run-each-command-in-a-shared-space-exactly-once: Run a command in a shared space exactly once: keep a receipt of what each command did under its unique key, answer the same key with its own receipt and run nothing again, ask the person again when a ",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:run-each-command-in-a-shared-space-exactly-once",
+        "label": "Run each command in a shared space exactly once",
+        "job": "Run a command in a shared space exactly once: keep a receipt of what each command did under its unique key, answer the same key with its own receipt and run nothing again, ask the person again when a command's outcome is unsure, and stop a run that half finished so it is not run twice.",
+        "produces": "A receipt row per command key (started, done, unsure or stopped), and each command answered as run, repeated, asked again or stopped.",
+        "source": {
+          "from": "tools/run-each-command-in-a-shared-space-exactly-once (from-an-older-version/src/shared-policy-maintenance.mjs.held, and the older receipts of the port backlog), read on trillion-workshop origin/main bb8022539c; no tool row exists yet",
+          "note": "The receipt keeping is the store's job and is this recipe. The held policy-fence bytes (shared-policy-maintenance.mjs.held) are authority: they decide who may fence or publish a shared space's content policy and they import the shared account and execution context that are not here yet. They stay held in their folder; they are not part of this recipe and are not wired by it."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store",
+            "command_key",
+            "command"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string"
+                },
+                "language": {
+                  "type": "string"
+                },
+                "credential_name": {
+                  "type": "string"
+                }
+              }
+            },
+            "command_key": {
+              "type": "string",
+              "description": "Unique for one command in one shared space"
+            },
+            "command": {
+              "type": "string",
+              "description": "What the command does, in the person's words"
+            },
+            "outcome": {
+              "type": "string",
+              "enum": [
+                "done",
+                "unsure",
+                "stopped"
+              ],
+              "description": "The outcome to record when the command ends; leave out to ask whether it already ran"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the receipts are kept (kept_in, or null) and whether a receipt with the command key exists and its state.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "receipt_exists"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "receipt_exists": {
+                  "type": "boolean"
+                },
+                "state": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own receipts, once",
+            "do": "When the look step found no receipts, make one table in the store's own form: the command key as the unique key, the command, the state (started, done, unsure or stopped), and the time each state was set. The store refuses a second receipt with the same key. Submit the names of the objects made, or the ones the look step found.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the receipts on the example commands",
+            "do": "In a throwaway place in the same store, with the same table, make these attempts in order: 1) command key c1 is new: started (run it); 2) c1 again while started: asked again (the person is asked whether it already ran; no second run); 3) c1 with outcome done: done; 4) c1 again: repeated (answer its receipt: done, run nothing); 5) c2 new with outcome stopped at once: stopped, and c2 again: stopped (repeated, not run); 6) c3 new with outcome unsure: unsure, and a later c3 is asked again. Submit each as run, repeated, asked, or stopped, with the state after it.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "attempts"
+              ],
+              "properties": {
+                "attempts": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "attempt",
+                      "outcome"
+                    ],
+                    "properties": {
+                      "attempt": {
+                        "type": "integer"
+                      },
+                      "outcome": {
+                        "type": "string",
+                        "enum": [
+                          "run",
+                          "repeated",
+                          "asked",
+                          "stopped"
+                        ]
+                      },
+                      "state": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "keep",
+            "title": "Keep this command's receipt",
+            "do": "Look up the receipt by the command key. No receipt: keep one as started, then run the command and set its outcome when it ends. A receipt that is done or stopped: answer it, and run nothing. A receipt that is started with no outcome, or unsure: ask the person whether it already ran before running it again, and keep their answer as the outcome. Read the receipt back. Submit outcome (run, repeated, asked or stopped), the state read back, and what the person answered when asked.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcome",
+                "state"
+              ],
+              "properties": {
+                "outcome": {
+                  "type": "string",
+                  "enum": [
+                    "run",
+                    "repeated",
+                    "asked",
+                    "stopped"
+                  ]
+                },
+                "state": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "answered": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            },
+            "checks": []
+          }
+        ],
+        "erase": "On the person's request the store deletes the receipts of the named command keys; the command itself is not undone by a delete."
+      }
+    }
+  ]
+}

@@ -1,0 +1,104 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:run-each-command-in-a-shared-space-exactly-once with store {\\\"where\\\": \\\"postgresql database example_shop on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-shop-postgres-connection\\\"} and command_key c1 and command 'Add the member to the shared list'.\"",
+  "lists": [],
+  "no_lists_because": "It names no list: the receipts are kept in the person's own store, in whatever form that store keeps things, and store says where and in which language.",
+  "workflows": [
+    "workflow:run-each-command-in-a-shared-space-exactly-once"
+  ],
+  "tools": [
+    "tool:run-workflow-definition",
+    "tool:hand-a-job-to-an-ai"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:run-each-command-in-a-shared-space-exactly-once\" with store, the command key, the command and, when it ends, its outcome.",
+    "3. The first run makes the receipts table once and proves it on the example commands; every attempt must come out as the prove step says, or the run stops and says which.",
+    "4. Every later run answers the command from its receipt and asks the person before it runs a command whose receipt is unsure."
+  ],
+  "worked_examples": [
+    {
+      "title": "A new command runs once",
+      "ask": "Add the member to the shared list, key c1.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:run-each-command-in-a-shared-space-exactly-once",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "command_key": "c1",
+              "command": "Add the member to the shared list"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:run-each-command-in-a-shared-space-exactly-once",
+      "step": "keep",
+      "given": "No receipt exists for c1.",
+      "hands_back": "outcome \"run\", state \"started\"; once it ends the receipt is \"done\"."
+    },
+    {
+      "title": "The same command again runs nothing",
+      "ask": "Add the member to the shared list again, key c1.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:run-each-command-in-a-shared-space-exactly-once",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "command_key": "c1",
+              "command": "Add the member to the shared list"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:run-each-command-in-a-shared-space-exactly-once",
+      "step": "keep",
+      "given": "The receipt c1 is done.",
+      "hands_back": "outcome \"repeated\", state \"done\", and nothing run."
+    },
+    {
+      "title": "An unsure command is asked again",
+      "ask": "Run key c3 again.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:run-each-command-in-a-shared-space-exactly-once",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "command_key": "c3",
+              "command": "Send the invitation"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:run-each-command-in-a-shared-space-exactly-once",
+      "step": "keep",
+      "given": "The receipt c3 is \"unsure\".",
+      "hands_back": "outcome \"asked\", state \"unsure\", and nothing run until the person answers."
+    }
+  ]
+}
