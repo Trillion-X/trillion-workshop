@@ -9,7 +9,7 @@ import { Button, buttonVariants } from '../../../../ui/show/button';
 import { Card } from '../../../../ui/show/card';
 import { Input } from '../../../../ui/show/input';
 import { Text } from '../../../../ui/show/text';
-import { PointillistPackagePreviewCanvas } from './PointillistPackagePreviewCanvas';
+import { PointillistPackagePreviewCanvas } from '../../../../bitfield-package-store-browse-surface/packages/bitfield-package-store-browse-surface/show/PointillistPackagePreviewCanvas';
 import { PresentationSectionRenderer } from './PresentationSectionRenderer';
 import { AICurationPanelComponent } from './AICurationPanelComponent';
 import { StoreRatingsReviews } from './StoreRatingsReviews';

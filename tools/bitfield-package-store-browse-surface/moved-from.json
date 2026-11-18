@@ -96,13 +96,6 @@
       "identity": "1f:fd9984a21550e905ba5a336894e99a4131e57a8bcecf612f145acb3c44df84d8"
     },
     {
-      "from": "packages/bitfield-package-store-browse-surface/show/AICurationPanelComponent.tsx",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/bitfield-package-store-browse-surface/packages/bitfield-package-store-browse-surface/show/AICurationPanelComponent.tsx",
-      "source_identity": "1f:faa2567013ee9478b009ff401d5bffb60885512a76b6e8a153aa70a8c9f4f95f",
-      "identity": "1f:faa2567013ee9478b009ff401d5bffb60885512a76b6e8a153aa70a8c9f4f95f"
-    },
-    {
       "from": "packages/bitfield-package-store-browse-surface/show/BitfieldPackageStoreBrowseSurface.tsx",
       "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
       "to": "tools/bitfield-package-store-browse-surface/packages/bitfield-package-store-browse-surface/show/BitfieldPackageStoreBrowseSurface.tsx",
@@ -129,27 +122,6 @@
       "to": "tools/bitfield-package-store-browse-surface/packages/bitfield-package-store-browse-surface/show/pointillistPackedFrame.ts",
       "source_identity": "1f:a086963e666e29dadb7d69d1d10e9ba58834a2f73d58309fdd616e7bbc752cbc",
       "identity": "1f:a086963e666e29dadb7d69d1d10e9ba58834a2f73d58309fdd616e7bbc752cbc"
-    },
-    {
-      "from": "packages/bitfield-package-store-browse-surface/show/PresentationSectionRenderer.tsx",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/bitfield-package-store-browse-surface/packages/bitfield-package-store-browse-surface/show/PresentationSectionRenderer.tsx",
-      "source_identity": "1f:b807c63d2104f600336a12201958553641d9c99ccefc2bedda6081ac596e46f1",
-      "identity": "1f:b807c63d2104f600336a12201958553641d9c99ccefc2bedda6081ac596e46f1"
-    },
-    {
-      "from": "packages/bitfield-package-store-browse-surface/show/SearchModeRow.tsx",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/bitfield-package-store-browse-surface/packages/bitfield-package-store-browse-surface/show/SearchModeRow.tsx",
-      "source_identity": "1f:bedb74b9b1f55baa383e541704eef4a17fd1f2e062085c6da14be761b8472ba5",
-      "identity": "1f:bedb74b9b1f55baa383e541704eef4a17fd1f2e062085c6da14be761b8472ba5"
-    },
-    {
-      "from": "packages/bitfield-package-store-browse-surface/show/StoreRatingsReviews.tsx",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/bitfield-package-store-browse-surface/packages/bitfield-package-store-browse-surface/show/StoreRatingsReviews.tsx",
-      "source_identity": "1f:018c076db1a6fbec7597683a891e39b9868d5da2ebef582b8e55b52be7c891fc",
-      "identity": "1f:018c076db1a6fbec7597683a891e39b9868d5da2ebef582b8e55b52be7c891fc"
     },
     {
       "from": "packages/bitfield-package-store-browse-surface/things-to-store-and-run.json",

@@ -10,11 +10,11 @@ import { Card } from '../../../../ui/show/card';
 import { Input } from '../../../../ui/show/input';
 import { Text } from '../../../../ui/show/text';
 import { PointillistPackagePreviewCanvas } from './PointillistPackagePreviewCanvas';
-import { PresentationSectionRenderer } from './PresentationSectionRenderer';
-import { AICurationPanelComponent } from './AICurationPanelComponent';
-import { StoreRatingsReviews } from './StoreRatingsReviews';
+import { PresentationSectionRenderer } from '../../../../browse-and-publish-what-my-ai-can-use/packages/bitfield-package-store-browse-surface/show/PresentationSectionRenderer';
+import { AICurationPanelComponent } from '../../../../browse-and-publish-what-my-ai-can-use/packages/bitfield-package-store-browse-surface/show/AICurationPanelComponent';
+import { StoreRatingsReviews } from '../../../../browse-and-publish-what-my-ai-can-use/packages/bitfield-package-store-browse-surface/show/StoreRatingsReviews';
 import { StatStrip } from '../../../../ui/show/stat-strip';
-import { SearchModeRow, SEARCH_MODES } from './SearchModeRow';
+import { SearchModeRow, SEARCH_MODES } from '../../../../browse-and-publish-what-my-ai-can-use/packages/bitfield-package-store-browse-surface/show/SearchModeRow';
 import { Container } from '../../../../ui/show/container';
 import {
   type BrowseHeroSceneConfig,

@@ -82,32 +82,11 @@
       "found_by": "byte copy, then the word bundle written toolkit in what a person reads"
     },
     {
-      "from": "packages/bitfield-package-store-browse-surface/show/mount-package-store-browse-surface.tsx",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/browse-and-publish-what-my-ai-can-use/packages/bitfield-package-store-browse-surface/show/mount-package-store-browse-surface.tsx",
-      "source_identity": "1f:a287f3b6b14bbfd420fabf0ba10c85b84833456ce4396d67bd7f3f006f0e433f",
-      "identity": "1f:a287f3b6b14bbfd420fabf0ba10c85b84833456ce4396d67bd7f3f006f0e433f"
-    },
-    {
       "from": "packages/bitfield-package-store-browse-surface/show/packageDownloadUrl.test.tsx",
       "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
       "to": "tools/browse-and-publish-what-my-ai-can-use/packages/bitfield-package-store-browse-surface/show/packageDownloadUrl.test.tsx",
       "source_identity": "1f:4e59a0cffbe3ecf8298d7b4c09925bcb81df2fdc89cb884e4ca3b1298f1743be",
       "identity": "1f:4e59a0cffbe3ecf8298d7b4c09925bcb81df2fdc89cb884e4ca3b1298f1743be"
-    },
-    {
-      "from": "packages/bitfield-package-store-browse-surface/show/PointillistPackagePreviewCanvas.tsx",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/browse-and-publish-what-my-ai-can-use/packages/bitfield-package-store-browse-surface/show/PointillistPackagePreviewCanvas.tsx",
-      "source_identity": "1f:811843af9762da9f60b964ca47ef21eac3092bc1c3e10ae6e0c1fcda3bd09fda",
-      "identity": "1f:811843af9762da9f60b964ca47ef21eac3092bc1c3e10ae6e0c1fcda3bd09fda"
-    },
-    {
-      "from": "packages/bitfield-package-store-browse-surface/show/pointillistPackedFrame.ts",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/browse-and-publish-what-my-ai-can-use/packages/bitfield-package-store-browse-surface/show/pointillistPackedFrame.ts",
-      "source_identity": "1f:a086963e666e29dadb7d69d1d10e9ba58834a2f73d58309fdd616e7bbc752cbc",
-      "identity": "1f:a086963e666e29dadb7d69d1d10e9ba58834a2f73d58309fdd616e7bbc752cbc"
     },
     {
       "from": "packages/bitfield-package-store-browse-surface/show/PresentationSectionRenderer.tsx",
