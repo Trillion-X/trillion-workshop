@@ -13,7 +13,7 @@
     {
       "repository": "trillion-workshop",
       "commit": "1083a00ae322107c47e76d82e9c641789d0fd176",
-      "path": "tools/answer-one-search-over-my-results-by-matching-words/src/search-answer.mjs",
+      "path": "tools/search-everything-with-one-question/results/src/search-answer.mjs",
       "multihash": "1f:16617efc3f9b0caa2016cad88beca46a8f5788166a159391e6b581a933c4e35a",
       "ownership": "repository-owned",
       "old_copy": {

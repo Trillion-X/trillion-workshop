@@ -3,7 +3,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { sqliteHost } from '../../keep-and-wake-ai-sessions-on-this-computer/src/local-store.mjs';
-import { searchCandidatePages } from '../src/search-candidate-pages.mjs';
+import { searchCandidatePages } from '../../search-everything-with-one-question/results/src/search-candidate-pages.mjs';
 import settings from '../../shared-code/src/search.json' with { type: 'json' };
 
 const hit = (identity, score) => ({ identity, n: 0, start: 0, end: 1, timed: false, said: null, score });

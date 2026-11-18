@@ -9059,7 +9059,7 @@
   {
    "path": "src/search-answer.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/answer-one-search-over-my-results-by-matching-words/src/search-answer.mjs",
+   "destination": "trillion-workshop:tools/search-everything-with-one-question/results/src/search-answer.mjs",
    "why": "a feature a person or AI uses",
    "batch": "slice src m-z, scripts, parts (trillion-workshop PR #122)"
   },
@@ -9073,7 +9073,7 @@
   {
    "path": "src/search-candidate-pages.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/answer-one-search-over-my-results-by-matching-words/src/search-candidate-pages.mjs",
+   "destination": "trillion-workshop:tools/search-everything-with-one-question/results/src/search-candidate-pages.mjs",
    "why": "a feature a person or AI uses",
    "batch": "slice src m-z, scripts, parts (trillion-workshop PR #122)"
   },
@@ -9108,7 +9108,7 @@
   {
    "path": "src/search-vector-index.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/answer-one-search-over-my-results-by-matching-words/src/search-vector-index.mjs",
+   "destination": "trillion-workshop:tools/search-everything-with-one-question/results/src/search-vector-index.mjs",
    "why": "a feature a person or AI uses",
    "batch": "slice src m-z, scripts, parts (trillion-workshop PR #122)"
   },
