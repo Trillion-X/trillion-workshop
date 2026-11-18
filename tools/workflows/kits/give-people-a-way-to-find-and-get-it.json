@@ -1,0 +1,44 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:give-people-a-way-to-find-and-get-it for teaching people to hit a Federer-style forehand.\" It goes through the checklists step by step, answering each line from what is actually known, found or tested, and says what is still open.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: each step's answers come back in the run, and the steps that keep them write rows to the pursuit's own table give_people_a_way_to_find_and_get_it in the pursuit's own database.",
+  "workflows": [
+    "workflow:choose-the-next-move-that-matters-most",
+    "workflow:give-people-a-way-to-find-and-get-it"
+  ],
+  "tools": [
+    "tool:run-sql-in-my-database",
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Name the pursuit in plain words, and what is already known about it, as the input: {\"pursuit\": \"teaching people to hit a Federer-style forehand\", \"known\": \"I can teach the swing; I have not sold lessons yet\"}.",
+    "2. Run workflow:give-people-a-way-to-find-and-get-it with tools:run, tool tool:run-workflow-definition, input {row: \"workflow:give-people-a-way-to-find-and-get-it\", pursuit, known}. Each step waits for an answer: its lines answered with evidence in checked, and the lines not answerable yet in open with what would answer them.",
+    "3. Answer a step by giving its answer under answers by its step id and running again; a line that names an existing workflow is answered by running that workflow.",
+    "4. Read what the run kept and what is open; the open lines are the next things to find out, and the last step names which part matters most next."
+  ],
+  "worked_examples": [
+    {
+      "title": "Start give people a way to find and get it for a forehand-teaching pursuit",
+      "ask": "Run give people a way to find and get it for teaching people to hit a Federer-style forehand.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "run_resource_operation",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:give-people-a-way-to-find-and-get-it",
+              "pursuit": "teaching people to hit a Federer-style forehand"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:give-people-a-way-to-find-and-get-it",
+      "step": "decide-what-the-person-needs-to-do",
+      "given": "No answers yet; run on the workflow engine on 2026-11-18 with this input.",
+      "hands_back": "{\"status\":\"paused\",\"waiting\":[{\"step_id\":\"decide-what-the-person-needs-to-do\",\"asks\":\"ai\"}]}: the run waits at 'Decide what the person needs to do' for its lines answered with evidence (checked) and the ones still open (open)."
+    }
+  ],
+  "drafted_from": "workflow:give-people-a-way-to-find-and-get-it's own rows in published/workflows.json and published/workflow-steps.json, and its run on the workflow engine on 2026-11-18"
+}

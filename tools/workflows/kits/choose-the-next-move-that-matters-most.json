@@ -1,0 +1,56 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:choose-the-next-move-that-matters-most for teaching people to hit a Federer-style forehand.\" It goes through the checklists step by step, answering each line from what is actually known, found or tested, and says what is still open.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: each step's answers come back in the run, and the steps that keep them write rows to the pursuit's own table choose_the_next_move_that_matters_most in the pursuit's own database.",
+  "workflows": [
+    "workflow:build-the-abilities-the-work-needs",
+    "workflow:carry-each-lesson-into-the-next-work",
+    "workflow:check-what-changed-and-fix-what-failed",
+    "workflow:choose-a-change-worth-making",
+    "workflow:choose-the-next-move-that-matters-most",
+    "workflow:deliver-it-and-keep-it-sustainable",
+    "workflow:find-the-words-people-understand-and-act-on",
+    "workflow:give-people-a-way-to-find-and-get-it",
+    "workflow:keep-what-was-learned-usable-by-others",
+    "workflow:lead-me-to-it",
+    "workflow:make-it-easy-to-recognize-and-use",
+    "workflow:make-it-work-and-test-it-against-reality",
+    "workflow:reach-the-people-it-matters-to",
+    "workflow:understand-where-a-pursuit-is-starting-from"
+  ],
+  "tools": [
+    "tool:run-sql-in-my-database",
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Name the pursuit in plain words, and what is already known about it, as the input: {\"pursuit\": \"teaching people to hit a Federer-style forehand\", \"known\": \"I can teach the swing; I have not sold lessons yet\"}.",
+    "2. Run workflow:choose-the-next-move-that-matters-most with tools:run, tool tool:run-workflow-definition, input {row: \"workflow:choose-the-next-move-that-matters-most\", pursuit, known}. Each step waits for an answer: its lines answered with evidence in checked, and the lines not answerable yet in open with what would answer them.",
+    "3. Answer a step by giving its answer under answers by its step id and running again; a line that names an existing workflow is answered by running that workflow.",
+    "4. Read what the run kept and what is open; the open lines are the next things to find out, and the last step names which part matters most next."
+  ],
+  "worked_examples": [
+    {
+      "title": "Start choose the next move that matters most, and do it for a forehand-teaching pursuit",
+      "ask": "Run choose the next move that matters most, and do it for teaching people to hit a Federer-style forehand.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "run_resource_operation",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:choose-the-next-move-that-matters-most",
+              "pursuit": "teaching people to hit a Federer-style forehand"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:choose-the-next-move-that-matters-most",
+      "step": "start-from-the-desired-result",
+      "given": "No answers yet; run on the workflow engine on 2026-11-18 with this input.",
+      "hands_back": "{\"status\":\"paused\",\"waiting\":[{\"step_id\":\"start-from-the-desired-result\",\"asks\":\"ai\"}]}: the run waits at 'Start from the desired result' for its lines answered with evidence (checked) and the ones still open (open)."
+    }
+  ],
+  "drafted_from": "workflow:choose-the-next-move-that-matters-most's own rows in published/workflows.json and published/workflow-steps.json, and its run on the workflow engine on 2026-11-18"
+}
