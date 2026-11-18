@@ -1,0 +1,68 @@
+{
+  "drafted_from": "tool:plan-recurring-windows's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Enumerate a bounded set of future recurrence slots from generic schedule data, including local-time daylight-saving policies and explicit coverage.\", with {\"now\":\"2026-03-01T12:00:00Z\",\"schedules\":[{\"schedule_id\":\"schedule:monday-review\",\"source_generation\":1,\"schedule_revision\":1,\"timezone\":\"America/New_York\",\"start_local_date\":\"2026-03-02\",\"cadence\":{\"unit\":\"week\",\"weekdays\":[1]},\"local_window\":{\"start\":\"09:00\",\"duration_minutes\":30},\"action\":{\"operation\":\"write-weekly-review\",\"owner_ref\":\"tool:write-review\" .... It runs tool:plan-recurring-windows and answers {\"schema\":\"timed-action.recurring-window-plan.v1\",\"now\":\"2026-03-01T12:00:00.000Z\",\"max_occurrences_per_schedule\":2,\"max_calendar_scan_days\":4096,\"future_occurrences\":[{\"occurrence_key\":\"timed-action. ...",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
+  "workflows": [],
+  "tools": [
+    "tool:plan-recurring-windows"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Enumerate a bounded set of future recurrence slots from generic schedule data, including local-time daylight-saving policies and explicit coverage.\", and give it now (Explicit replay-stable time: ISO text or epoch milliseconds.); schedules (Generic timed-action recurrence schedule DATA, including timezone, cadence, local window, DST policies, and owner dispatch.); max_occurrences_per_schedule (Maximum future occurrence rows returned for each valid schedule.).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:plan-recurring-windows and its input (the worked example shows one).",
+    "3. Read what comes back: Give an explicit replay-stable now, recurring schedules, and max_occurrences_per_schedule."
+  ],
+  "worked_examples": [
+    {
+      "title": "Plan future recurrence windows on its own sample",
+      "ask": "Enumerate a bounded set of future recurrence slots from generic schedule data, including local-time daylight-saving policies and explicit coverage.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:plan-recurring-windows",
+            "input": {
+              "now": "2026-03-01T12:00:00Z",
+              "schedules": [
+                {
+                  "schedule_id": "schedule:monday-review",
+                  "source_generation": 1,
+                  "schedule_revision": 1,
+                  "timezone": "America/New_York",
+                  "start_local_date": "2026-03-02",
+                  "cadence": {
+                    "unit": "week",
+                    "weekdays": [
+                      1
+                    ]
+                  },
+                  "local_window": {
+                    "start": "09:00",
+                    "duration_minutes": 30
+                  },
+                  "action": {
+                    "operation": "write-weekly-review",
+                    "owner_ref": "tool:write-review",
+                    "owner_dispatch": {
+                      "name": "tool:write-review",
+                      "input": {}
+                    },
+                    "completion": {
+                      "mode": "synchronous-owner-return"
+                    }
+                  }
+                }
+              ],
+              "max_occurrences_per_schedule": 2
+            }
+          }
+        }
+      },
+      "given": "The input {\"now\":\"2026-03-01T12:00:00Z\",\"schedules\":[{\"schedule_id\":\"schedule:monday-review\",\"source_generation\":1,\"schedule_revision\":1,\"timezone\":\"America/New_York\",\"start_local_date\":\"2026-03-02\",\"cadence\":{\"unit\":\"week\",\"weekdays\":[1]},\"local_window\":{\"start\":\"09:00\",\"duration_minutes\":30},\"action\":{\"operation\":\"write-weekly-review\",\"owner_ref\":\"tool:write-review\" ....",
+      "hands_back": "It answered {\"schema\":\"timed-action.recurring-window-plan.v1\",\"now\":\"2026-03-01T12:00:00.000Z\",\"max_occurrences_per_schedule\":2,\"max_calendar_scan_days\":4096,\"future_occurrences\":[{\"occurrence_key\":\"timed-action.recurring-window::%5B%22schedule%3Amonday-review%22%2C%221%22%2C%221%22%2C%22America%2FNew_York%22%2C%222026-03-02%22%2C%2209%3A00%22%2C%222026-03-02%22%2C%2209%3A30%22%2C%222026-03-02%22%2C%2209%3A00%22%2C%222026-03-02%22%2C%2209%3A30%22%2C%22unique%22%5D\",\"schedule_id\":\"schedule:monday-review\",\"schedule_label\":null,\"source_generation\":\"1\",\"schedule_revision\":\"1\",\"timezone\":\"America/New_York\",\"requested_local_window\":{\"start\":{\"date\":\"2026-03-02\",\"time\":\"09:00\"},\"end\":{\"date\":\"2026-03-02\" ...."
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "drafted_from": "tool:when-to-run-next's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"Scheduler: from recurring schedules (every day or week at a local time in a time zone, daylight saving handled) and one-off timed actions, work out what is due to run now and the next time to run\", with {\"now\":\"2026-03-01T12:00:00Z\",\"schedules\":[{\"schedule_id\":\"schedule:monday-review\",\"source_generation\":1,\"schedule_revision\":1,\"timezone\":\"America/New_York\",\"start_local_date\":\"2026-03-02\",\"cadence\":{\"unit\":\"week\",\"weekdays\":[1]},\"local_window\":{\"start\":\"09:00\",\"duration_minutes\":30},\"action\":{\"operation\":\"write-weekly-review\",\"owner_ref\":\"tool:write-review\" .... It runs tool:when-to-run-next and answers {\"now\":\"2026-03-01T12:00:00.000Z\",\"recurring_due\":[],\"materializations\":[],\"scheduled_due\":[],\"next_wake_at\":\"2026-03-02T14:00:00.000Z\",\"rejected_schedules\":[],\"skipped_resolutions\":[]}",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
+  "workflows": [],
+  "tools": [
+    "tool:when-to-run-next"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Scheduler: from recurring schedules (every day or week at a local time in a time zone, daylight saving handled) and one-off timed actions, work out what is due to run now and the next time to run\", and give it now (The time to work from: ISO text or epoch milliseconds).",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:when-to-run-next and its input (the worked example shows one).",
+    "3. Read what comes back: Give now plus schedules (schedule_id, timezone as an IANA name, start_local_date, cadence {unit: day | week, interval?, weekdays?: 0=Sunday..6}, local_window {start: HH:MM, duration_minutes}, dst {gap: skip | next-valid, fold: earlier | later | both}, action with its owner_dispatch) and their occurrence_states, and/or one-off time_windows, actions and receipts."
+  ],
+  "worked_examples": [
+    {
+      "title": "Work out what is due and when to run next (schedules) on its own sample",
+      "ask": "Scheduler: from recurring schedules (every day or week at a local time in a time zone, daylight saving handled) and one-off timed actions, work out what is due to run now and the next time to run",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:when-to-run-next",
+            "input": {
+              "now": "2026-03-01T12:00:00Z",
+              "schedules": [
+                {
+                  "schedule_id": "schedule:monday-review",
+                  "source_generation": 1,
+                  "schedule_revision": 1,
+                  "timezone": "America/New_York",
+                  "start_local_date": "2026-03-02",
+                  "cadence": {
+                    "unit": "week",
+                    "weekdays": [
+                      1
+                    ]
+                  },
+                  "local_window": {
+                    "start": "09:00",
+                    "duration_minutes": 30
+                  },
+                  "action": {
+                    "operation": "write-weekly-review",
+                    "owner_ref": "tool:write-review",
+                    "owner_dispatch": {
+                      "name": "tool:write-review",
+                      "input": {}
+                    },
+                    "completion": {
+                      "mode": "synchronous-owner-return"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "given": "The input {\"now\":\"2026-03-01T12:00:00Z\",\"schedules\":[{\"schedule_id\":\"schedule:monday-review\",\"source_generation\":1,\"schedule_revision\":1,\"timezone\":\"America/New_York\",\"start_local_date\":\"2026-03-02\",\"cadence\":{\"unit\":\"week\",\"weekdays\":[1]},\"local_window\":{\"start\":\"09:00\",\"duration_minutes\":30},\"action\":{\"operation\":\"write-weekly-review\",\"owner_ref\":\"tool:write-review\" ....",
+      "hands_back": "It answered {\"now\":\"2026-03-01T12:00:00.000Z\",\"recurring_due\":[],\"materializations\":[],\"scheduled_due\":[],\"next_wake_at\":\"2026-03-02T14:00:00.000Z\",\"rejected_schedules\":[],\"skipped_resolutions\":[]}."
+    }
+  ]
+}
