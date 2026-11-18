@@ -1,0 +1,256 @@
+{
+  "about": "workflow:keep-space-descriptors-as-revisions: keeps a Space's descriptor (its kind, title, subtitle, icon, layout and the refs of its fields and actions) in the person's own store as revisions: a save is kept only on the revision it was read at, the same idempotency key repeats without a second revision, a stale save is refused with the current revision, and a read folds each property to its latest revision. It replaces tools/composed-space/packages/composed-space/do-work (save-space.ts, apply-space.ts) and read-data (read-composed-spaces.ts, use-composed-spaces.ts), which kept the descriptor in the retired Bitfield target composed-space.save-space. Items, participation and evidence relations are other owners' rows and are not kept here; placement is presentation data the host supplies; migrate-embedded-space-members.ts is not carried, because old state is not migrated (rule the-old-way-is-not-a-requirement). Rule a-tool-is-only-what-the-store-cannot-do.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-space-descriptors-as-revisions",
+        "label": "Keep Space descriptors as revisions",
+        "job": "Keep a Space's descriptor in the person's own store as revisions: a save is kept only on the revision it was read at, a repeated save with the same key is not written twice, a stale or incomplete save is refused, and a read gives each property at its latest revision.",
+        "produces": "The store's own objects for Space descriptors, proven on the example saves in three stores of different kinds, with each save kept, repeated or refused and read back.",
+        "source": {
+          "from": "tools/composed-space/packages/composed-space (do-work/save-space.ts, read-data/read-composed-spaces.ts, read-data/use-composed-spaces.ts), read on trillion-workshop origin/main; the property list COMPOSED_SPACE_PROPS",
+          "note": "The old save was a message to the retired Bitfield target composed-space.save-space, with expectedRevision and idempotencyRef carried in the request. Those two rules are kept here as the store's own check and key. Items, participants and relations are not in this recipe: each has its owner's rows. Placement is presentation DATA, and the package never mutated it. The migration of legacy aggregates is not carried."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store",
+            "save"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                }
+              }
+            },
+            "save": {
+              "type": "object",
+              "required": [
+                "space_ref",
+                "scope_ref",
+                "kind",
+                "title",
+                "expected_revision",
+                "idempotency_ref"
+              ],
+              "properties": {
+                "space_ref": {
+                  "type": "string",
+                  "description": "The Space's id; a new one when it has none yet"
+                },
+                "scope_ref": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "subtitle": {
+                  "type": "string"
+                },
+                "icon": {
+                  "type": "string"
+                },
+                "layout_ref": {
+                  "type": "string"
+                },
+                "field_refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "action_refs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "expected_revision": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "The revision the save was read at: 0 for a Space that is new"
+                },
+                "idempotency_ref": {
+                  "type": "string",
+                  "description": "A key the caller makes for this save; the same key again is not written twice"
+                }
+              }
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read whether Space descriptors are already kept there and at which revision the named Space is. Submit where they are kept (or null) and the Space's current revision (0 when it has none).",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "current_revision"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "current_revision": {
+                  "type": "integer"
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing, make the store's own objects in its own form: one row per revision of a Space, keyed by its space_ref and revision, with a unique key on the idempotency_ref so the store itself refuses a second write with the same key, and the rows in the order they were made. Grant the person's login only what the store's holder allows. Submit the names of the objects made.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example saves",
+            "do": "In a throwaway place in the same store, with the same objects, make these saves in order, each at the time given: [{\"at\": \"2026-11-18T10:00:00Z\", \"space_ref\": \"sp1\", \"scope_ref\": \"ledger\", \"kind\": \"community\", \"title\": \"Ledger club\", \"expected_revision\": 0, \"idempotency_ref\": \"k1\"}, {\"at\": \"2026-11-18T10:01:00Z\", \"space_ref\": \"sp1\", \"scope_ref\": \"ledger\", \"kind\": \"community\", \"title\": \"Ledger club\", \"expected_revision\": 0, \"idempotency_ref\": \"k1\"}, {\"at\": \"2026-11-18T10:02:00Z\", \"space_ref\": \"sp1\", \"scope_ref\": \"ledger\", \"kind\": \"community\", \"title\": \"Ledger club 2\", \"subtitle\": \"Thursdays\", \"expected_revision\": 1, \"idempotency_ref\": \"k2\"}, {\"at\": \"2026-11-18T10:03:00Z\", \"space_ref\": \"sp1\", \"scope_ref\": \"ledger\", \"kind\": \"community\", \"title\": \"Stale\", \"expected_revision\": 1, \"idempotency_ref\": \"k3\"}, {\"at\": \"2026-11-18T10:04:00Z\", \"space_ref\": \"sp1\", \"scope_ref\": \"ledger\", \"kind\": \"community\", \"title\": \"\", \"expected_revision\": 2, \"idempotency_ref\": \"k4\"}, {\"at\": \"2026-11-18T10:05:00Z\", \"space_ref\": \"sp2\", \"scope_ref\": \"ledger\", \"kind\": \"event-inbox\", \"title\": \"Inbox\", \"expected_revision\": 0, \"idempotency_ref\": \"k5\"}]. Each save must give the outcome the intent gives, and the store's own objects must give every expected answer below.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answer"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "kept",
+                      "repeated",
+                      "refused"
+                    ]
+                  }
+                },
+                "answer": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each save is kept, repeated or refused as the intent says",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "kept",
+                    "repeated",
+                    "kept",
+                    "refused",
+                    "refused",
+                    "kept"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "The store's own objects give every expected answer: the Space's latest revision, its folded title and subtitle, and the Spaces in order",
+                "path": [
+                  "this",
+                  "answer"
+                ],
+                "values": [
+                  {
+                    "sp1": {
+                      "revision": 2,
+                      "kind": "community",
+                      "title": "Ledger club 2",
+                      "subtitle": "Thursdays"
+                    },
+                    "sp2": {
+                      "revision": 1,
+                      "kind": "event-inbox",
+                      "title": "Inbox"
+                    },
+                    "order": [
+                      "sp1",
+                      "sp2"
+                    ],
+                    "revisions_of_sp1": [
+                      1,
+                      2
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's save",
+            "do": "Save the Space as given, through the store's own objects, at the revision it was read at, and read the Space back. Submit outcome (kept, repeated or refused, with the store's own words when refused), the Space's revision after the save, and its folded title. A save that is refused gives the current revision so the caller can read and try again.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcome",
+                "revision"
+              ],
+              "properties": {
+                "outcome": {
+                  "type": "string"
+                },
+                "reason": {
+                  "type": "string"
+                },
+                "revision": {
+                  "type": "integer"
+                },
+                "title": {
+                  "type": "string"
+                }
+              }
+            },
+            "checks": []
+          }
+        ]
+      }
+    }
+  ]
+}

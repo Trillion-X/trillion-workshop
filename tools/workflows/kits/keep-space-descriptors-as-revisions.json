@@ -1,0 +1,62 @@
+{
+  "drafted_from": "tools/composed-space/packages/composed-space (do-work/save-space.ts, read-data/read-composed-spaces.ts) and its property list COMPOSED_SPACE_PROPS",
+  "start_here": "Say to your AI: \"Run workflow:keep-space-descriptors-as-revisions with store {\\\"where\\\": \\\"postgresql database example_me on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-me-postgres-connection\\\"} and save the Space sp1 for the ledger scope, kind community, title \\\"Ledger club\\\", at revision 0 with key k1.\" It keeps the Space as its first revision in your own database and reads it back.",
+  "lists": [],
+  "no_lists_because": "It names no list of its own: the Space revisions are kept in the person's own store, in whatever form that store keeps things, and store says where and in which language.",
+  "workflows": ["workflow:keep-space-descriptors-as-revisions"],
+  "tools": ["tool:run-workflow-definition"],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:keep-space-descriptors-as-revisions\" with store and the save: the Space, its scope, kind, title, the revision you read it at, and a key of your own.",
+    "3. The first run makes the store's own objects once and proves them on the example saves: every expected outcome and answer must match, or the run stops and says which.",
+    "4. Every later run keeps the save as the next revision, repeated if its key was kept, or refused with the current revision, and reads the Space back."
+  ],
+  "worked_examples": [
+    {
+      "title": "A community Space kept at its first revision",
+      "ask": "Make a Space called Ledger club for the ledger scope, a community.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-space-descriptors-as-revisions",
+              "store": {"where": "postgresql database example_me on my own computer", "language": "SQL (PostgreSQL)", "credential_name": "example-me-postgres-connection"},
+              "save": {"space_ref": "sp1", "scope_ref": "ledger", "kind": "community", "title": "Ledger club", "expected_revision": 0, "idempotency_ref": "k1"}
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-space-descriptors-as-revisions",
+      "step": "keep",
+      "given": "The look step found no Space sp1 kept yet, so its expected revision is 0; the prove step matched every expected outcome and answer.",
+      "hands_back": "outcome kept, with revision 1 and the title Ledger club."
+    },
+    {
+      "title": "A stale save is refused and names the current revision",
+      "ask": "Rename Ledger club to Ledger club 2, from the revision I read earlier, which was 1.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-space-descriptors-as-revisions",
+              "store": {"where": "postgresql database example_me on my own computer", "language": "SQL (PostgreSQL)", "credential_name": "example-me-postgres-connection"},
+              "save": {"space_ref": "sp1", "scope_ref": "ledger", "kind": "community", "title": "Ledger club 2", "expected_revision": 0, "idempotency_ref": "k9"}
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-space-descriptors-as-revisions",
+      "step": "keep",
+      "given": "The Space already sits at revision 1, so a save that expects revision 0 is stale.",
+      "hands_back": "outcome refused, with the reason that the expected revision 0 is not the current revision 1, and revision 1 so the save can be read and tried again."
+    }
+  ]
+}
