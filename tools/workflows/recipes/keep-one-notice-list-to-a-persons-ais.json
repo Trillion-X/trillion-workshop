@@ -1,0 +1,227 @@
+{
+  "about": "workflow:keep-one-notice-list-to-a-persons-ais: one notice list per person, kept in the person's own store with one record per notice (kept once per kind and key, in order), and one cursor per reader that says the last notice it was shown; a notice addressed to one reader is shown to that reader only; a reader's cursor moves only from the cursor it was read at. It replaces tools/keep-one-notice-list-to-a-persons-ais-for-every-screen (src/notices.mjs), whose kept parts were this list and these cursors. The selection of what one reader is shown now (the first-look window, the most shown at once, the claim that spends a cursor) and the call-keyed take are the reading's rules in this recipe, applied by the AI that reads (rule a-tool-is-only-what-the-store-cannot-do). Left out, with reason: the live jobs held in memory are live-work's (its owner keeps them, not the store), and the transport's own cursor for one sign-in is the caller's key.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-one-notice-list-to-a-persons-ais",
+        "label": "Keep one notice list to a person's AIs",
+        "job": "Keep one list of notices for a person's AIs in the person's own store, each notice kept once per kind and key, and one cursor per reader so that each AI is shown every notice addressed to it, at most once, and never one it made itself.",
+        "produces": "The store's own notice and cursor objects, proven on the example notices and cursor moves in three kinds of store, and each notice kept or repeated, each cursor moved or refused, and each reader's unseen notices read back.",
+        "source": {
+          "from": "tools/keep-one-notice-list-to-a-persons-ais-for-every-screen (src/notices.mjs), read on trillion-workshop origin/main bb8022539",
+          "note": "A notice has one seq (its order), a kind, a key, the time, from_reader, for_reader (null when it is for every reader), refs, said (cut to the said limit) and next_call (optional). A cursor is { seq, at, seen }. A reader that has not moved its cursor for forget_reader_days is forgotten; a reader seen for the first time is shown only the notices from the first-look window, at most most_at_once of them. A cursor moves only when it still holds the value it was read at, so a notice is shown once."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                },
+                "place": {
+                  "type": "string",
+                  "description": "Where in the store the notices are kept, when they already are"
+                }
+              }
+            },
+            "rules": {
+              "type": "object",
+              "description": "The numbers the caller's settings give: {first_look_hours, most_at_once, keep, forget_reader_days, said_max}"
+            },
+            "adds": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Notices to keep this run, each {kind, key, said, from_reader (optional), for_reader (optional), refs (optional), next_call (optional)}"
+            },
+            "sees": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Cursor moves this run, each {reader, from (the seq the cursor held when it was read, or null), upto (the seq shown)}"
+            },
+            "unseen_for": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Readers whose unseen notices to read back"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the notices are already kept (kept_in, or null) and the names of the objects that already keep the notices and the cursors.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing, make two objects in the store's own form: notices, one row per notice with its seq (the next number after the last), kind, key (kind and key together unique), time, from_reader, for_reader, refs, said and next_call; and reader cursors, one row per reader with seq, time and seen (the seqs shown ahead of the cursor). Keep the time as a moment with a zone. Grant only what the store's holder allows the person's login.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example notices and cursor moves",
+            "do": "In a throwaway place in the same store, with the same objects, keep these in order: [{\"op\": \"add\", \"kind\": \"tell\", \"key\": \"a\", \"said\": \"one\"}, {\"op\": \"add\", \"kind\": \"tell\", \"key\": \"a\", \"said\": \"one\"}, {\"op\": \"add\", \"kind\": \"tell\", \"key\": \"b\", \"said\": \"two\", \"from_reader\": \"app:Claude\"}, {\"op\": \"add\", \"kind\": \"tell\", \"key\": \"c\", \"said\": \"three\", \"for_reader\": \"app:Codex\"}, {\"op\": \"see\", \"reader\": \"app:Codex\", \"from\": null, \"upto\": 3}, {\"op\": \"see\", \"reader\": \"app:Codex\", \"from\": null, \"upto\": 3}]. A notice whose kind and key are already kept is repeated and adds nothing. A cursor moves only when it still holds the value it was read at (from); otherwise the move is refused. Then read the unseen notices of app:Codex and app:Other, and count the kept notices. Then remove the throwaway place. Submit outcomes (one of kept, repeated, refused per item, in order) and answer with codex_unseen (the keys unseen by app:Codex), other_unseen (the keys unseen by app:Other) and kept_notices.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answer"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "kept",
+                      "repeated",
+                      "refused"
+                    ]
+                  }
+                },
+                "answer": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each add and cursor move is kept, repeated or refused as the intent says",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "kept",
+                    "repeated",
+                    "kept",
+                    "kept",
+                    "kept",
+                    "refused"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "The store's own objects give every expected unseen list and count",
+                "path": [
+                  "this",
+                  "answer"
+                ],
+                "values": [
+                  {
+                    "codex_unseen": [],
+                    "other_unseen": [
+                      "a",
+                      "b"
+                    ],
+                    "kept_notices": 3
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's notices, move cursors, and read unseen",
+            "do": "Keep each item of adds through the store's own objects, in order: kept with the next seq when its kind and key are new, repeated when they are already kept. Move each item of sees: kept when the reader's cursor still holds from, refused otherwise (the store's own words say the cursor moved). Then, for each reader in unseen_for, read its unseen notices: the notices with a seq above the reader's cursor (zero when none), not made by that reader, and for every reader or for that reader only, oldest first; for a reader with no cursor yet, only the notices within rules.first_look_hours of now, and at most rules.most_at_once of them, newest kept. Submit outcomes (one per add or see, in order), refused (each refused item's key or reader and the store's words why), kept_notices (the count of notices kept) and unseen (each reader's keys unseen). With nothing given, submit empty lists.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "refused",
+                "kept_notices",
+                "unseen"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "refused": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "kept_notices": {
+                  "type": "integer"
+                },
+                "unseen": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": []
+          }
+        ],
+        "erase": "On the person's request the store deletes the person's notices and reader cursors."
+      }
+    }
+  ]
+}

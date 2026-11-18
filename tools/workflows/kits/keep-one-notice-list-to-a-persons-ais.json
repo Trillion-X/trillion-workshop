@@ -1,0 +1,50 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:keep-one-notice-list-to-a-persons-ais with store {\\\"where\\\": \\\"postgresql database example_shop on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-shop-postgres-connection\\\"}, adds [{\\\"kind\\\": \\\"tell\\\", \\\"key\\\": \\\"d\\\", \\\"said\\\": \\\"four\\\"}] and unseen_for [\\\"app:Codex\\\"].\"",
+  "lists": [],
+  "no_lists_because": "It names no list: the notices and the reader cursors are kept in the person's own store, in whatever form that store keeps things, and store says where and in which language.",
+  "workflows": [
+    "workflow:keep-one-notice-list-to-a-persons-ais"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:keep-one-notice-list-to-a-persons-ais\" with store, rules, adds, sees and unseen_for. Send the numbers from the person's settings, never invented ones.",
+    "3. The first run makes the store's own objects once and proves them on the example notices and cursor moves: every answer must match, or the run stops and says which.",
+    "4. Every later run keeps each new notice once, moves each cursor only from the value it was read at, and reads each reader's unseen notices."
+  ],
+  "worked_examples": [
+    {
+      "title": "An AI asks what it has not been told yet",
+      "ask": "Codex, what have you not been told yet?",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-one-notice-list-to-a-persons-ais",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "adds": [],
+              "sees": [],
+              "unseen_for": [
+                "app:Codex"
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-one-notice-list-to-a-persons-ais",
+      "step": "keep",
+      "given": "The look step found the notices and cursors kept by an earlier run; the proof's notices are kept.",
+      "hands_back": "unseen {\"app:Codex\": []} when the cursor already holds the newest notice, and the notices after its cursor otherwise; nothing is written."
+    }
+  ]
+}
