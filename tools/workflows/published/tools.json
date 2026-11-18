@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:2eb87f2e2194091c5603f67bde81ec80880da02c977bdf31ec953912732f0ae3"
+  "blake3": "1f:7712d893f28148f0301dfbda1075705595be519acdfdbc55800f1c7519e1400f"
  },
  "fields": [
   {
@@ -7837,7 +7837,7 @@
    "values": {
     "title": "Notice when something shows up, and tell the engine",
     "job": "Keep watching for things outside (a stretch of time passing, a drive attached or removed, files someone finished putting in a place, a delivery over the network) and tell the person's engine one fact each time, so any tool whose wake hears that kind of fact starts",
-    "description": "Give waiters: the standing orders the noticer keeps (notice-when-something-shows-up.waiter-descriptor rows, each naming one mechanism in do-work/mechanisms, its settings and the kind of fact it emits). It runs as a kept-open program: while its wake is on, each waiter waits, and each time something shows up or goes away it tells the engine one fact at wake:arrive, of the waiter's kind, with the change's fields as text. A tool hears it by declaring a wake {fact: {kind, from: [\"run\"], match}}. This row may tell only the kinds its rights name. Each fact told or refused is one line of the program's output. Given for_seconds, it watches that long and answers {told, refused}.",
+    "description": "Give waiters: the standing orders the noticer keeps (notice-when-something-shows-up.waiter-descriptor rows, each naming one mechanism in do-work/mechanisms, its settings and the kind of fact it emits). It runs as a kept-open program: while its wake is on, each waiter waits, and each time something shows up or goes away it tells the engine one fact at wake:arrive, of the waiter's kind, with the change's fields as text. A tool hears it by declaring a wake {fact: {kind, from: [\"run\"], match}}. This row may tell only the kinds its rights name. Each fact told or refused is one line of the program's output. Given for_seconds, it watches that long and answers {told, refused}. A second wake, keep-noticing-row-changes, watches one database's changes (the row-changes leaf) over the connection the person keeps under watched-database-connection; it is off until the person switches it on, and only then does the run hold that connection and reach its host.",
     "status": "active",
     "licence_class": "licence:maker-own",
     "placements": [
