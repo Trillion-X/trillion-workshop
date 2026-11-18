@@ -106,7 +106,7 @@ test('the add-a-passkey link goes by email, is one-time, and lives a day', async
   const email = 'other-device@example.test';
   assert.equal((await call('/sign-in/magic-link', { body: { email, callbackURL: '/sign-in/add-passkey' } })).status, 200);
   const sent = mail().at(-1);
-  assert.equal(sent.subject, emailWords.kinds['magic-link'].subject.replace('{name}', settings.brand.name));
+  assert.equal(sent.subject, emailWords.kinds['magic-link'].subject.replace('{name}', settings.site.name));
   assert.match(sent.text, /add-passkey/);
   const stored = (await (await auth.$context).adapter.findMany({ model: 'verification' })).find(row => row.value.includes(email));
   const life = (new Date(stored.expiresAt) - Date.now()) / 1000;
@@ -119,7 +119,7 @@ test('a signed-in person starts a change of email, and a session is fresh for th
   const cookie = cookieOf(await signInByCode('before@example.test'));
   const changed = await call('/change-email', { body: { newEmail: 'after@example.test', callbackURL: '/' }, cookie });
   assert.equal(changed.status, 200, await changed.clone().text());
-  assert.ok(mail().some(row => ['change-email', 'verify-email'].map(kind => emailWords.kinds[kind].subject.replace('{name}', settings.brand.name)).includes(row.subject)), 'a link goes out');
+  assert.ok(mail().some(row => ['change-email', 'verify-email'].map(kind => emailWords.kinds[kind].subject.replace('{name}', settings.site.name)).includes(row.subject)), 'a link goes out');
   assert.equal((await auth.$context).sessionConfig.freshAge, settings.session.fresh_age_seconds);
 });
 

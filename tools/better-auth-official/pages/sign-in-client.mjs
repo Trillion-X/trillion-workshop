@@ -75,11 +75,11 @@ const json = async (path, options) => {
 };
 const post = (path, body) => json(path, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
 
-// Whose sign-in this is comes from the page (data-brand-name, data-brand-prefix: settings.brand): the words say {{name}} where they
+// Whose sign-in this is comes from the page (data-site-name, data-site-prefix: settings.site): the words say {{name}} where they
 // name the product, and every key kept in the browser starts with the prefix.
-const brandName = document.documentElement.dataset.brandName;
-const keep = `${document.documentElement.dataset.brandPrefix}-`;
-const named = value => (typeof value === 'string' ? value.replaceAll('{{name}}', brandName) : Array.isArray(value) ? value.map(named) : value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).map(([key, item]) => [key, named(item)])) : value);
+const siteName = document.documentElement.dataset.siteName;
+const keep = `${document.documentElement.dataset.sitePrefix}-`;
+const named = value => (typeof value === 'string' ? value.replaceAll('{{name}}', siteName) : Array.isArray(value) ? value.map(named) : value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).map(([key, item]) => [key, named(item)])) : value);
 const words = named(wordsWithNameGaps);
 
 // The words with `{name}`-style gaps drawn on a page: filled from `values`, whatever the page's own words are around them.

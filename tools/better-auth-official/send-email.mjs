@@ -22,23 +22,23 @@ const filled = (shape, values) => {
   return shape;
 };
 
-/** The message a kind says, in its words and drawn in the email look (`extra.brand.email`, settings.brand): { subject, text, html },
- * each {field} the message's own value, {name} the brand's. `extra.assets_url` is where the brand's pictures are served. A kind's `markdown` (else its `text`) is what
+/** The message a kind says, in its words and drawn in the email look (`extra.site.email`, settings.site): { subject, text, html },
+ * each {field} the message's own value, {name} the site's. `extra.assets_url` is where the site's pictures are served. A kind's `markdown` (else its `text`) is what
  * the html says and its `action` the button under it; `text` is the plain part. */
 export function messageOf(message, extra = {}) {
   const said = words.kinds[message.kind];
   if (!said) throw new Error(`email-words.json has no words for ${message.kind}`);
-  const { brand } = extra;
-  const values = { name: brand.name, ...extra, ...message };
+  const { site } = extra;
+  const values = { name: site.name, ...extra, ...message };
   const text = filled(said.text.join('\n'), values);
   const picture = present => (present ? `${extra.assets_url}wordmark.png` : null);
   const drawn = emailMessageHtml({
     markdown: filled((said.markdown ?? said.text).join('\n'), values),
     preheader: said.preheader ? filled(said.preheader, values) : undefined,
     action: said.action ? filled(said.action, values) : undefined,
-    brand: { name: brand.name, image: picture(brand.wordmark_png) },
-    made_with: { label: brand.email.made_with_label, alt: brand.name, href: extra.site_url, image: picture(brand.wordmark_png) },
-    palette: brand.email.palette,
+    site: { name: site.name, image: picture(site.wordmark_png) },
+    made_with: { label: site.email.made_with_label, alt: site.name, href: extra.site_url, image: picture(site.wordmark_png) },
+    palette: site.email.palette,
   });
   return { subject: filled(said.subject, values), text, html: drawn.html };
 }

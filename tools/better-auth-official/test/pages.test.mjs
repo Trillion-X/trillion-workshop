@@ -10,10 +10,10 @@ import { mkdtempSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-// The pages draw the brand block they are given: this run's has a mark, so the pages that name it can be checked.
+// The pages draw the site block they are given: this run's has a mark, so the pages that name it can be checked.
 const given = JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8'));
 const scratchDir = mkdtempSync(join(tmpdir(), 'pages-test-'));
-writeFileSync(join(scratchDir, 'settings.json'), JSON.stringify({ ...given, brand: { ...given.brand, mark_svg: '<svg xmlns="http://www.w3.org/2000/svg"/>' } }));
+writeFileSync(join(scratchDir, 'settings.json'), JSON.stringify({ ...given, site: { ...given.site, mark_svg: '<svg xmlns="http://www.w3.org/2000/svg"/>' } }));
 process.env.BETTER_AUTH_SETTINGS = join(scratchDir, 'settings.json');
 const { pageAnswer, table } = await import('../pages.mjs');
 
@@ -46,7 +46,7 @@ test('every page is the one shared shell around its own sections: no head, style
   assert.deepEqual([...used].sort(), sectionFiles.map(name => name.replace(/\.html$/, '')).sort(), 'every section file is drawn by a route and every route draws a file');
   for (const route of table.routes.filter(row => !row.redirect)) {
     const body = page(urlOf(route));
-    assert.ok(body.includes(`<title>${route.title.replace('{{name}}', given.brand.name).replace(/&/g, '&amp;')}</title>`), `${route.path} carries its own title`);
+    assert.ok(body.includes(`<title>${route.title.replace('{{name}}', given.site.name).replace(/&/g, '&amp;')}</title>`), `${route.path} carries its own title`);
     assert.doesNotMatch(body, /\{\{/, `${route.path} leaves no gap of the shell undrawn`);
   }
 });
@@ -203,7 +203,7 @@ test('the logo is served by the tool itself, and every page names that address',
   assert.equal(served.status, 200);
   assert.equal(served.headers['content-type'], 'image/svg+xml');
   assert.match(String(served.body), /<svg/);
-  for (const name of readdirSync(new URL('sections/', dir))) assert.doesNotMatch(readFileSync(new URL(`sections/${name}`, dir), 'utf8'), /\/brand\/current\//, name);
+  for (const name of readdirSync(new URL('sections/', dir))) assert.doesNotMatch(readFileSync(new URL(`sections/${name}`, dir), 'utf8'), /\/site\/current\//, name);
 });
 
 test('/approve is one page for every person-only call: a line, Allow and Deny, and the calls it may make are DATA, each a door path under /work/api/door/ for a row kind', () => {
@@ -233,7 +233,7 @@ test('/approve is one page for every person-only call: a line, Allow and Deny, a
   assert.match(client, /id.startsWith\(found\.row_prefix\) && value\.approve\.method === method/, 'only a call the DATA names, for a row kind it names');
 });
 
-test('/sign-in/done says the person is signed in and can close the tab and go back to the terminal, in the brand look, with no sign-in form', () => {
+test('/sign-in/done says the person is signed in and can close the tab and go back to the terminal, in the site look, with no sign-in form', () => {
   const answer = pageAnswer('/sign-in/done');
   assert.equal(answer.status, 200);
   const html = String(answer.body);

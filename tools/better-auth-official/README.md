@@ -8,7 +8,7 @@ Plugins: email and password (with `sendResetPassword`), passkey, two factor (TOT
 multi session, API key, JWT (EdDSA, `/api/auth/jwks`), MCP (the OAuth 2.1 authorization server MCP clients connect through,
 with Client ID Metadata Documents), device authorization, bearer (the device docs need it so a device's
 session token works as `Authorization: Bearer`) and admin (https://www.better-auth.com/docs/plugins/admin). The session
-cookie is `session_cookie_name`, or `__Host-<brand.storage_prefix>_session`.
+cookie is `session_cookie_name`, or `__Host-<site.storage_prefix>_session`.
 
 ## Run
 
@@ -180,17 +180,17 @@ parts, so authorize resumes and asks consent. What the pages' forms and buttons 
 Better Auth through `better-auth/client` with the passkey, email OTP and two-factor client plugins, and its words are
 `pages/words.json`. `npm run build-pages` bundles it to `pages/assets/sign-in.js`, served at `/sign-in/assets/sign-in.js`. The
 pages load the fonts, mark and icons at the addresses the product already serves them from (`/workspace/fonts.css`,
-`/brand/current/mark.svg`, `/favicon.ico`).
+`/site/current/mark.svg`, `/favicon.ico`).
 
-## Whose sign-in it is: `settings.brand`
+## Whose sign-in it is: `settings.site`
 
-The tool's own files name no product, colour or logo. The computer that runs it supplies one block, `settings.brand`: `name` (every `{{name}}` in
+The tool's own files name no product, colour or logo. The computer that runs it supplies one block, `settings.site`: `name` (every `{{name}}` in
 pages, routes and email words, `{name}` in email words, the passkey relying party name and the authenticator issuer), `cli` (`{{cli}}`),
 `storage_prefix` (every key the pages keep in the browser, and the session cookie `__Host-<prefix>_session` unless `session_cookie_name` is
 set), `theme` (`data_theme`, `scheme`, `theme_color`: the Screen Look theme the pages wear), `look_css` (that theme's resolved tokens),
 `share` (link-preview title and description, or null), `links` (head links: manifest, icons, font sheets), `mark_svg` (text) and
 `wordmark_png` (base64), served as `mark.svg` and `wordmark.png` under the assets path, and `email` (`palette`, `made_with_label`: the look
-email-message-html.mjs draws every email in). `settings.json` ships a neutral "Example" stand-in. test/brand-blind.test.mjs fails when a
+email-message-html.mjs draws every email in). `settings.json` ships a neutral "Example" stand-in. test/site-blind.test.mjs fails when a
 source file of this tool names a product.
 
 ## Sign-in edge cases (the old product's, ported)

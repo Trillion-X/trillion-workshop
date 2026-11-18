@@ -14,7 +14,7 @@ test('a key the computer names wins, objects are laid key by key, a list is repl
 test('readSettings lays the rendered file over the shipped settings, so the row carries only its own keys', () => {
   const shipped = JSON.parse(readFileSync(new URL('../settings.json', import.meta.url), 'utf8'));
   const file = join(mkdtempSync(join(tmpdir(), 'sign-in-settings-')), 'settings.json');
-  writeFileSync(file, JSON.stringify({ brand: { name: 'Example Co', storage_prefix: 'example' }, issuer: 'https://sign-in.example.com' }));
+  writeFileSync(file, JSON.stringify({ site: { name: 'Example Co', storage_prefix: 'example' }, issuer: 'https://sign-in.example.com' }));
   const before = process.env.BETTER_AUTH_SETTINGS;
   process.env.BETTER_AUTH_SETTINGS = file;
   try {
