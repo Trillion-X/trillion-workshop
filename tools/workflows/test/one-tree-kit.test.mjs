@@ -88,8 +88,10 @@ test('a broad condition the trunk reports is written as a row the rewrite workfl
   assert.deepEqual(recipeProblems(rewrite), []);
   const [wake] = rewrite.wakes;
   const choose = trunk.steps.find(step => step.id === 'choose-branches').do;
-  // The trunk writes the rows under the prefix the wake listens to, and the arrival source the wake names when absent.
-  assert.match(choose, new RegExp(`id ${wake.on.record.prefix}`));
+  // The trunk writes rows of the kind whose table the wake hears inserts in (the kind with - as _), and the arrival source
+  // the wake names when absent.
+  assert.deepEqual(wake.on.fact.match, { table_name: 'broad_condition', op: 'INSERT' });
+  assert.match(choose, new RegExp(`type record:${wake.on.fact.match.table_name.replaceAll('_', '-')}\\b`));
   assert.ok(choose.includes(wake.input.arrival_source), 'choose-branches writes the arrival source the wake names');
   assert.equal(wake.input.start_at, rewrite.steps[0].id);
   // The source row choose-branches writes keeps a Waiting row and drops a Done one, so marking a row Done starts nothing.

@@ -110,12 +110,11 @@
             "node",
             "/opt/workflows/do-work/run-a-function.mjs",
             "/opt/write-a-job-done-in-several-steps-have/read-data/run-a-workflow.mjs",
-            "runWorkflow"
+            "runAsTheTool"
           ],
           "stdin": {
-            "fill": {
-              "from": "input"
-            }
+            "run": { "fill": { "from": "input" } },
+            "woken_by": { "fill": { "from": "task", "field": "cause.detail" } }
           },
           "files": {
             "package_files": [
@@ -379,6 +378,7 @@
                 "paths": [
                   "src/effect-outcomes.json",
                   "src/failure-codes.json",
+                  "src/failure.mjs",
                   "src/platform-failures.json",
                   "src/renamed-tools.mjs",
                   "src/repo-explorer.mjs",

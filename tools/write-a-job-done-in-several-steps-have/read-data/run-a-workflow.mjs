@@ -17,6 +17,10 @@
 //     (public-recipes.mjs) and every other field is the run's input. `start_at` in that input names the step a woken
 //     run starts at: the run starts there, and a step it names that the recipe lacks is refused.
 //   - Every run of a recipe carries its kit (kitFor) in the answer, so no run starts without one.
+//   - The tool is runAsTheTool: its stdin is { run: the call's input, woken_by: the waking fact } (the row's invoke fills
+//     woken_by from the engine's task, cause.detail, which only a wake's run has). A woken run's input gains `fact`, the
+//     fact's payload, so a step binds {from: input, path: fact.<field>}; when later facts were folded into it, `folded`
+//     (how many) and `last` (the last one's payload). A run nothing woke is given its input unchanged.
 import { readFileSync } from 'node:fs';
 import { definitionOf } from './workflows.mjs';
 import { recipeFromRows } from '../../workflows/read-data/recipe-rows.mjs';
@@ -82,4 +86,12 @@ export async function runWorkflow({ definitions = null, workflow_id = null, reci
   }
   const { definition, run, kit } = await runAWorkflow({ recipe, row, steps, input, answers, partition }, { engine });
   return { ...run, definition, kit };
+}
+
+/** tool:run-workflow-definition as the engine calls it: { run, woken_by? } → runWorkflow(run), the waking fact in its input. */
+export async function runAsTheTool({ run = {}, woken_by = null } = {}, options = {}) {
+  if (!woken_by || typeof woken_by !== 'object' || woken_by.payload === undefined) return runWorkflow(run, options);
+  const woken = { fact: woken_by.payload, ...(woken_by.coalesced > 0 ? { folded: woken_by.coalesced, last: woken_by.last?.payload ?? null } : {}) };
+  const listed = typeof run.row === 'string' && run.input === undefined;
+  return runWorkflow(listed ? { ...run, ...woken } : { ...run, input: { ...(run.input ?? {}), ...woken } }, options);
 }
