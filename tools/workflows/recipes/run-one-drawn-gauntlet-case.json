@@ -1,0 +1,227 @@
+{
+  "_what": "One workflow the workflow engine runs for each case a gauntlet's generator draws (the e2e skill's generated cases): see its job. Its records and its condition's wake are made by read-data/derived-records.mjs.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:run-one-drawn-gauntlet-case",
+        "label": "Run one drawn gauntlet case",
+        "job": "Run one case a gauntlet's generator drew, as the real call it stands for, and keep what it answered. A gauntlet keeps its axes, formulas, drawn cases and results as tables in the person's own database (gauntlet_<name>_axes, _formulas, _cases, _results); the formula engine draws each case as a row of _cases holding its number k, its words per axis and `call`, the input of one tools:list that has no effect. When such a row is added, this run reads it, makes that list call, and writes the whole answer to the gauntlet's _results table under the same k. A split is then read from the results with the gauntlet's own property, in the database's own language.",
+        "produces": "One result row per drawn case: the real answer of the call the case stands for.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "fact": {
+              "type": "object",
+              "description": "The workflow-chosen fact that woke this run: database, table_name, op, position and connection (the vault name of the connection that reads that database)"
+            }
+          }
+        },
+        "fires_when": [
+          {
+            "label": "a gauntlet case row is added",
+            "condition": {
+              "fields": [
+                {
+                  "id": "table_name",
+                  "kind": "text",
+                  "path": [
+                    "table_name"
+                  ]
+                },
+                {
+                  "id": "op",
+                  "kind": "choice",
+                  "path": [
+                    "op"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "table_name",
+                    "operator": "matches_glob",
+                    "params": {
+                      "text": "gauntlet_*_cases"
+                    }
+                  },
+                  {
+                    "kind": "rule",
+                    "field": "op",
+                    "operator": "is_any_of",
+                    "params": {
+                      "values": [
+                        "INSERT"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "fires_when",
+            "state": "On",
+            "input": {
+              "start_at": "read-the-case"
+            },
+            "evidence": "Written on 2026-11-18 for the e2e skill's generated cases (W0.3): the trigger engine fires on a drawn case row through the row-change road (record_row_change, the noticer, route-each-row-change), and this workflow is the workflow engine's run of each case."
+          }
+        ],
+        "definition": {
+          "id": "workflow:run-one-drawn-gauntlet-case",
+          "name": "Run one drawn gauntlet case",
+          "kind": "workflow",
+          "is_active": true,
+          "version": 1,
+          "steps": [
+            {
+              "id": "read-the-case",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "fact.connection"
+                    }
+                  },
+                  "sql": "SELECT table_name, after FROM row_changes WHERE position = $1",
+                  "params": [
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "input",
+                        "path": "fact.position"
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "id": "list",
+              "kind": "ask",
+              "config": {
+                "name": "tools:list",
+                "input": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "read-the-case",
+                    "path": "output.rows.0.after.call"
+                  }
+                }
+              }
+            },
+            {
+              "id": "write-the-result",
+              "kind": "ask",
+              "config": {
+                "name": "tool:run-sql-in-my-database",
+                "input": {
+                  "credential_name": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "fact.connection"
+                    }
+                  },
+                  "sql": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "read-the-case",
+                      "path": "output.rows.0.table_name"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.text_substitute",
+                        "args": {
+                          "old": "_cases",
+                          "new": "_results"
+                        }
+                      },
+                      {
+                        "op": "op:core.concat",
+                        "args": {
+                          "prefix": "INSERT INTO ",
+                          "suffix": " (k, answered, run_by) VALUES ($1, $2, $3) ON CONFLICT (k) DO UPDATE SET answered = EXCLUDED.answered, run_by = EXCLUDED.run_by, written_at = now()"
+                        }
+                      }
+                    ]
+                  },
+                  "params": [
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "read-the-case",
+                        "path": "output.rows.0.after.k"
+                      }
+                    },
+                    {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "steps",
+                        "key": "list",
+                        "path": "output"
+                      }
+                    },
+                    "workflow:run-one-drawn-gauntlet-case"
+                  ]
+                }
+              }
+            }
+          ],
+          "edges": [
+            {
+              "from": "read-the-case",
+              "to": "list",
+              "kind": "always"
+            },
+            {
+              "from": "list",
+              "to": "write-the-result",
+              "kind": "always"
+            }
+          ]
+        },
+        "wakes": [
+          {
+            "id": "chosen--a-gauntlet-case-row-is-added",
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:run-one-drawn-gauntlet-case",
+                  "condition": "a gauntlet case row is added"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "read-the-case"
+            }
+          }
+        ],
+        "records": {
+          "runs": [
+            "tool:run-sql-in-my-database"
+          ]
+        }
+      }
+    }
+  ]
+}

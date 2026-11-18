@@ -1,0 +1,46 @@
+{
+  "drafted_from": "workflow:run-one-drawn-gauntlet-case's own file, tools/workflows/recipes/run-one-drawn-gauntlet-case.json (its condition, wake and three steps), and the e2e skill's generated cases: axes, formulas, cases and results as tables in the person's own database, drawn by the formula engine and run by the workflow engine",
+  "start_here": "Say to your AI: \"Turn on workflow:run-one-drawn-gauntlet-case's wake chosen--a-gauntlet-case-row-is-added, attach record_row_change() to gauntlet_example_cases, and add case 59 with call {\\\"address\\\": \\\"https://127.0.0.1/mcp\\\", \\\"runs_here\\\": false}.\" The workflow then reads that row, makes the list call it stands for, and writes the answer to gauntlet_example_results under k 59.",
+  "lists": [],
+  "no_lists_because": "It keeps nothing in lists: the cases it reads and the results it writes are tables in the person's own database, reached in SQL with tool:run-sql-in-my-database, and their names come from the change that woke it.",
+  "workflows": [
+    "workflow:run-one-drawn-gauntlet-case",
+    "workflow:route-each-row-change"
+  ],
+  "tools": [
+    "tool:run-sql-in-my-database",
+    "tool:notice-when-something-shows-up",
+    "tool:choose-the-workflows-that-fire"
+  ],
+  "instructions": [
+    "1. Keep the gauntlet's tables in the person's own database: gauntlet_<name>_axes (one row per axis: domain, extremes, strange values, and `calls`, the list input each value stands for), gauntlet_<name>_cases (k bigint primary key, words jsonb, call jsonb, drawn_by text) and gauntlet_<name>_results (k bigint primary key, answered jsonb, run_by text).",
+    "2. Draw the cases with the formula engine: the size formula (flat_map each axis to its value count, then op:core.product) and the draw formula (case k as one value per axis, index floor(k / stride) mod radix); keep both as rows of gauntlet_<name>_formulas.",
+    "3. Attach record_row_change() to gauntlet_<name>_cases (CREATE TRIGGER gauntlet_<name>_cases_changes AFTER INSERT OR UPDATE OR DELETE ON gauntlet_<name>_cases FOR EACH ROW EXECUTE FUNCTION record_row_change()), with the noticer's keep-noticing-row-changes and route-each-row-change's a-row-changed on.",
+    "4. Turn on this workflow's wake chosen--a-gauntlet-case-row-is-added, then insert the drawn cases as rows of gauntlet_<name>_cases.",
+    "5. Read gauntlet_<name>_results: one row per case, the whole answer of its call. A split is a result the gauntlet's property does not hold for; read it in SQL and keep each one as a row."
+  ],
+  "worked_examples": [
+    {
+      "title": "A case naming a private address is listed and refused, and its answer is kept",
+      "ask": "Run the drawn case 59 of my example gauntlet.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "run_resource_operation",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:run-one-drawn-gauntlet-case",
+              "fact": { "workflow": "workflow:run-one-drawn-gauntlet-case", "condition": "a gauntlet case row is added", "database": "p_x", "table_name": "gauntlet_example_cases", "op": "INSERT", "position": "77", "connection": "own-rows-postgres-connection" }
+            }
+          }
+        }
+      },
+      "workflow": "workflow:run-one-drawn-gauntlet-case",
+      "step": "write-the-result",
+      "given": "read-the-case read the row at position 77: {\"k\": 59, \"words\": [\"a call naming no credential\", \"a private address\"], \"call\": {\"address\": \"https://127.0.0.1/mcp\", \"runs_here\": false}}; list asked tools:list with that call.",
+      "hands_back": "One row of gauntlet_example_results: k 59, answered {\"tools\": [], \"next\": null, \"unavailable\": [{\"source\": \"127.0.0.1\", \"unreachable\": \"The server did not answer: The address must be a public site, not this computer or a private network.\"}]}, run_by \"workflow:run-one-drawn-gauntlet-case\"."
+    }
+  ]
+}
