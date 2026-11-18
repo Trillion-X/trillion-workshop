@@ -10405,17 +10405,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "files": "/",
-                "operations": [
-                  "usage_days"
-                ]
-              }
-            ]
           }
         },
         "result_selector": "$.result",
@@ -10433,8 +10422,8 @@
         },
         "id": "tool:observe-live-usage",
         "label": "Observe my live usage",
-        "job": "Read my account's own usage day rows (stored bytes, work time, source bytes the engine counted) and answer each closed day as one usage observation per billed resource, ready to settle",
-        "description": "Read my account's own usage day rows (stored bytes, work time, source bytes the engine counted) and answer each closed day as one usage observation per billed resource, ready to settle. This run reads only the account's own usage day rows and keeps nothing; the caller keeps the observations it is answered and gives them to settle-shared-resource-cost.",
+        "job": "Turn my account's own usage day rows (stored bytes, work time, source bytes the person's files program counted) into one usage observation per billed resource for each closed day, ready to settle",
+        "description": "Turn my account's own usage day rows (stored bytes, work time, source bytes the person's files program counted, handed in as usage_days as its usage_days answered them) into one usage observation per billed resource for each closed day, ready to settle. This run reads only the rows it is given and keeps nothing; the caller keeps the observations it is answered and gives them to settle-shared-resource-cost.",
         "input_schema": {
           "type": "object",
           "properties": {
@@ -10455,6 +10444,13 @@
             },
             "included_units": {
               "type": "object"
+            },
+            "usage_days": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "The account's usage day rows as the person's files program (tools/live-namespace) answers them with usage_days: { day, stored_bytes, source_bytes_read, work_ms, flushes, updated_at, ... }. A day with no row is named in missing_days, never counted as zero."
             }
           },
           "required": [
@@ -10462,7 +10458,8 @@
             "day_from",
             "day_to",
             "today",
-            "settlement_keys"
+            "settlement_keys",
+            "usage_days"
           ],
           "additionalProperties": false
         },
@@ -10518,10 +10515,8 @@
                   "currency": "usd",
                   "resource_id": "resource:source-bytes"
                 }
-              }
-            },
-            "doorOptions": {
-              "usageDays": [
+              },
+              "usage_days": [
                 {
                   "kind": "namespace-usage-day",
                   "day": "2026-11-01",

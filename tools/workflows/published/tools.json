@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:96c8247b489e8ae68ed7c4f9939b9a78b9db156dd179cc2e0d5bf10b26eb3408"
+  "blake3": "1f:13f9ebc3c2307e1773c53cd219678fbdd511e31b423ef6a6d68cf8ca26428263"
  },
  "fields": [
   {
@@ -7851,8 +7851,8 @@
    "id": "tool:observe-live-usage",
    "values": {
     "title": "Observe my live usage",
-    "job": "Read my account's own usage day rows (stored bytes, work time, source bytes the engine counted) and answer each closed day as one usage observation per billed resource, ready to settle",
-    "description": "Read my account's own usage day rows (stored bytes, work time, source bytes the engine counted) and answer each closed day as one usage observation per billed resource, ready to settle. This run reads only the account's own usage day rows and keeps nothing; the caller keeps the observations it is answered and gives them to settle-shared-resource-cost.",
+    "job": "Turn my account's own usage day rows (stored bytes, work time, source bytes the person's files program counted) into one usage observation per billed resource for each closed day, ready to settle",
+    "description": "Turn my account's own usage day rows (stored bytes, work time, source bytes the person's files program counted, handed in as usage_days as its usage_days answered them) into one usage observation per billed resource for each closed day, ready to settle. This run reads only the rows it is given and keeps nothing; the caller keeps the observations it is answered and gives them to settle-shared-resource-cost.",
     "status": "active",
     "maker": "maker:take-payments",
     "licence_class": "licence:maker-own",

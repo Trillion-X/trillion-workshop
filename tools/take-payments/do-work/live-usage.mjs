@@ -1,14 +1,15 @@
-// The account's own live usage rows as take-payments' usage input. The engine counts three generic quantities per
-// account and keeps them as that account's own day rows (trillion-rust src/namespace/usage.rs, read through the files
-// door's `usage_days` operation): stored_bytes (the level kept that day), source_bytes_read and work_ms. Nothing in
-// those rows is a price. This file turns one closed day of one row into one resource-usage-observation per billed
+// The account's own live usage rows as take-payments' usage input. The person's files program counts three generic
+// quantities per account and keeps them as that account's own day rows (tools/live-namespace src/account_files/usage.rs,
+// answered by its `usage_days` operation): stored_bytes (the level kept that day), source_bytes_read and work_ms. The
+// caller reads those rows from it and hands them in as `usage_days`; nothing here reads a door. Nothing in those rows is
+// a price. This file turns one closed day of one row into one resource-usage-observation per billed
 // resource (read-data/usage-meters.json, the old trillion meters ported one to one), through the existing
 // keepResourceUsageObservation checker, and answers them. The existing pooled settlement (settleSharedResourceCost,
 // given those observations) prices them at the seller's markup and the existing reporting sends them to Stripe. Nothing
 // is kept here: the caller keeps the observations it is answered.
 //
 // A day is observed only once it is closed (before the current UTC day), so an observation never has to change: a row
-// still counting is refused, never observed twice. A row the engine has not written is no observation, never zero.
+// still counting is refused, never observed twice. A day with no row is no observation, never zero.
 import { readFileSync } from 'node:fs';
 import { keepResourceUsageObservation } from './resource-usage.mjs';
 import { rational, exactAmount, divideAmounts, subtractAmounts, compareAmounts } from '../read-data/resource-usage.mjs';
@@ -64,18 +65,6 @@ export function liveReadings() {
   }));
 }
 
-/** Every usage day row the account's files door answers, in day order. */
-export async function readUsageDays(door, { after, limit = MOST_DAYS } = {}) {
-  const days = []; let next = after;
-  for (;;) {
-    const page = await door.files('usage_days', { ...(next ? { after: next } : {}), limit });
-    if (!page || !Array.isArray(page.days)) throw new Error('The files door answered no usage days.');
-    days.push(...page.days);
-    if (!page.next_after) return days;
-    next = page.next_after;
-  }
-}
-
 /** One closed day's quantity of one resource, exact, in its settled unit, or null when the row holds none. */
 export async function quantityOf(row, reading) {
   const read = await liveUsageReadings({ names: [reading.reading], row });
@@ -86,11 +75,10 @@ export async function quantityOf(row, reading) {
 /**
  * Answer the account's closed usage days from..to as observations, one per resource per day.
  * input: { payer_id, day_from, day_to, today, settlement_keys: { [resource_id]: settlement_key },
- *          included_units?: { [resource_id]: amount per day } }
+ *          usage_days: [day row, ...] (as usage_days answered them), included_units?: { [resource_id]: amount per day } }
  * answers { observations: { [resource_id]: [observation, ...] }, quantities: { [resource_id]: { [day]: amount } }, missing_days }.
  */
-export async function observeLiveUsage(input, context) {
-  const { door } = context;
+export async function observeLiveUsage(input) {
   for (const name of ['day_from', 'day_to', 'today']) if (!DAY.test(input[name] ?? '')) throw new Error(`Give ${name} as YYYY-MM-DD.`);
   if (input.day_from > input.day_to) throw new Error('day_from comes on or before day_to.');
   if (input.day_to >= input.today) throw new Error('Only closed days are observed: day_to must be before today, while the engine still counts today.');
@@ -99,7 +87,10 @@ export async function observeLiveUsage(input, context) {
   const keys = input.settlement_keys ?? {};
   const resources = Object.keys(readings).filter(id => keys[id]);
   if (!resources.length) throw new Error('Name a settlement_key for at least one resource.');
-  const rows = (await readUsageDays(door)).filter(row => row.day >= input.day_from && row.day <= input.day_to);
+  if (!Array.isArray(input.usage_days) || !input.usage_days.every(row => row && typeof row === 'object' && DAY.test(row.day ?? ''))) {
+    throw new Error('Give usage_days: the day rows the person\'s files program answered (usage_days), each with its day as YYYY-MM-DD.');
+  }
+  const rows = input.usage_days.filter(row => row.day >= input.day_from && row.day <= input.day_to);
   if (rows.length > MOST_DAYS) throw new Error(`Observe at most ${MOST_DAYS} days at once.`);
   const seen = new Set(rows.map(row => row.day));
   const missing_days = [];

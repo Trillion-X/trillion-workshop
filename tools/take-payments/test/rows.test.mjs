@@ -73,8 +73,7 @@ test('the usage tools that compute keep nothing and read no records', () => {
     const row = rows.find(item => item.id === id);
     assert.ok(row, `${id} is a row of this folder`);
     const rights = rightsOf(row) ?? [];
-    assert.ok(rights.every(right => right.files === '/' && right.operations.join() === 'usage_days'), `${id} declares no records right`);
-    assert.ok(id === 'tool:observe-live-usage' ? rights.length === 1 : rights.length === 0, `${id} declares only what it needs`);
+    assert.equal(rights.length, 0, `${id} declares no right: what it reads comes in the request`);
   }
 });
 // The payment tools keep nothing and open no records door: the person's rows come in the request, the answer holds the result.
@@ -83,8 +82,7 @@ test('payment tools open no records door; usage writers can append only their de
   for (const id of paymentToolsKeepingNothing) assert.equal(rows.find(row => row.id === id).invoke.records, undefined, `${id} opens no records door`);
   for (const row of rows) {
     for (const right of rightsOf(row) ?? []) {
-      // The one files right a payment row holds: reading the account's own usage day rows, nothing else of its files.
-      if (right.files !== undefined) { assert.ok(row.id === 'tool:observe-live-usage' && right.files === '/' && right.operations.join() === 'usage_days', `${row.id} reads only its usage rows from the files door`); continue; }
+      assert.equal(right.files, undefined, `${row.id} reads none of the person's files`);
       const allowed = usageWriters.has(row.id) ? ['records:list', 'records:read', 'records:write'] : ['records:read', 'records:list'];
       assert.ok(right.operations.every(operation => allowed.includes(operation)), `${row.id} respects its record action scope`);
       if (right.operations.includes('records:write')) assert.match(right.kind, /^(usage-pricing-rule(?:-version)?|resource-usage-(observation|settlement(?:-version|-evidence)?|allocation|receipt|cash|applied-source|provider-report))$/, `${row.id} cannot write another feature's records`);
