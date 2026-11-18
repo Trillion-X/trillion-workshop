@@ -26,7 +26,7 @@
 //
 // Shapes
 //   moveList(op, { rowType, scope, step, pageSize, say }) -> progress
-//     op(address, method, input, requestKey) -> answer        the records door (use-trillion-from-a-shell opWhole)
+//     op(address, method, input, requestKey) -> answer        the records door (use-your-tools-from-a-shell opWhole)
 //     step: 'copy' | 'verify' | 'remove'                       copy also verifies; remove needs a verified progress
 //   canonical(value) -> string                                 JSON with object keys sorted, for comparing rows
 //
@@ -234,9 +234,9 @@ export async function moveList(op, { rowType, scope, step = 'copy', pageSize = 2
 }
 
 async function main([rowType, step = 'copy']) {
-  const shell = await import('trillion-workshop/tools/use-trillion-from-a-shell/do-work/trillion.mjs');
+  const shell = await import('trillion-workshop/tools/use-your-tools-from-a-shell/do-work/command.mjs');
   const credential = await shell.credentialFor();
-  const client = shell.trillionClient({ door: shell.doorFor({ credential }), credential });
+  const client = shell.engineClient({ door: shell.doorFor({ credential }), credential });
   // A busy engine answers selected_owner_unavailable when its writer's wait runs out, or original_command_outcome_unknown when
   // it cannot yet say whether a write landed, or original_result_unavailable when a read ran past its time; every answer
   // but a refusal of the input is a busy engine (a write the second computer did not acknowledge in time is refused

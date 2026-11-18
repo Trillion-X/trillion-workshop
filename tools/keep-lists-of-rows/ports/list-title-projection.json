@@ -56,12 +56,12 @@
     },
     {
       "repository": "trillion-workshop",
-      "path": "tools/use-trillion-from-a-shell/do-work/trillion.mjs",
+      "path": "tools/use-your-tools-from-a-shell/do-work/command.mjs",
       "why": "Its namesOf function batches formula evaluation for the account's AI-name list; it is the existing host call to reuse, not a general list-title projection owner."
     },
     {
       "repository": "trillion-workshop",
-      "path": "tools/use-trillion-from-a-shell/test/trillion-cli.test.mjs",
+      "path": "tools/use-your-tools-from-a-shell/test/command-cli.test.mjs",
       "why": "This tests the shell's AI-name projection and owns no list-title behavior."
     },
     {

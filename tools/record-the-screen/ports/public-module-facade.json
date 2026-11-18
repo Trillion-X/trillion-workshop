@@ -158,7 +158,7 @@
     },
     {
       "repository": "trillion-workshop",
-      "path": "tools/use-trillion-from-a-shell/from-old-trillion/harness/action-bus.json",
+      "path": "tools/use-your-tools-from-a-shell/from-an-older-version/harness/action-bus.json",
       "why": "This is historical dispatcher DATA that names the old capture operations, not a current Node export binding."
     },
     {

@@ -135,7 +135,7 @@
           "capability": "let any AI that can run a shell see a person's AIs and their jobs, hand and take work and run Workshop tools through one command that makes one door call per command",
           "repository": "trillion-workshop",
           "owner": [
-            "tools/use-trillion-from-a-shell/"
+            "tools/use-your-tools-from-a-shell/"
           ],
           "words": 0.242,
           "near": false,

@@ -5,7 +5,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { keepSecret, readStdin, removeSecret, valueOf } from '../do-work/keep-a-secret.mjs';
-import { trillionClient } from '../../use-trillion-from-a-shell/do-work/trillion.mjs';
+import { engineClient } from '../../use-your-tools-from-a-shell/do-work/command.mjs';
 
 // A door that answers each JSON-RPC call with the structured content it is given, and keeps every request body it was sent.
 function stubDoor(answer) {
@@ -15,7 +15,7 @@ function stubDoor(answer) {
     return new Response(JSON.stringify({ jsonrpc: '2.0', id: 1, result: { structuredContent: answer, isError: false } }),
       { status: 200, headers: { 'content-type': 'application/json' } });
   };
-  const client = trillionClient({ door: { name: 'test door', mcp: 'https://door.test/mcp' }, credential: { kind: 'key', bearer: 'nm_synthetic' }, fetchImpl });
+  const client = engineClient({ door: { name: 'test door', mcp: 'https://door.test/mcp' }, credential: { kind: 'key', bearer: 'nm_synthetic' }, fetchImpl });
   return { client, bodies };
 }
 

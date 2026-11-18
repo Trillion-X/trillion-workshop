@@ -1,0 +1,96 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import settings from '../do-work/command.json' with { type: 'json' };
+import { CommandError, argumentsFor, schedules, validateAcceptance, validateCheck, validateContinuation, speakFor } from '../do-work/command.mjs';
+
+// These tests speak for one brand, as an install from that brand's site makes the command do.
+speakFor({ cli: 'example', brand: 'Example' });
+
+const me = { agent_id: 'lane-a', ai_id: 'ai:lane-a', held_as: [] };
+const folder = mkdtempSync(join(tmpdir(), 'example-job-commands-'));
+const file = (name, value) => { const path = join(folder, name); writeFileSync(path, JSON.stringify(value)); return path; };
+const call = (command, words, flags = {}) => argumentsFor(command, { words, flags }, { me, requestKey: 'key-1' });
+const continuation = { owner: 'ai:lane-b', action: 'Read the consumer record', after: '2026-11-17T09:00:00-06:00', reason: 'Waiting on the sender' };
+const acceptance = { outcome: 'Saved', target: { type: 'note', id: 'note:1' }, rules: [{ id: 'outcome', path: 'text', equals: ['x'] }] };
+
+test('wait, resume, edit and release carry their saved parts, and a malformed part is refused before anything is sent', () => {
+  assert.deepEqual(call('wait', ['ai-job:1'], { 'continuation-file': file('c.json', continuation) }), { work: 'change', input: { as: 'ai:lane-a', id: 'ai-job:1', action: 'wait', continuation } });
+  assert.deepEqual(call('release', ['ai-job:1'], { because: 'later', 'continuation-file': file('c2.json', continuation) }).input, { as: 'ai:lane-a', id: 'ai-job:1', action: 'release', because: 'later', continuation });
+  assert.deepEqual(call('resume', ['ai-job:1'], { because: 'The record changed' }).input, { as: 'ai:lane-a', id: 'ai-job:1', action: 'resume', because: 'The record changed' });
+  assert.throws(() => call('resume', ['ai-job:1']), /Say what changed/);
+  assert.throws(() => call('wait', ['ai-job:1']), /continuation-file/);
+  assert.throws(() => call('wait', ['ai-job:1'], { 'continuation-file': file('bad.json', { owner: 'lane-b' }) }), /A continuation needs owner ai:NAME/);
+  const edit = call('edit', ['ai-job:1'], { job: 'Do it again', to: 'any', priority: '2', 'obligations-file': file('o.json', [{ id: 'a', outcome: 'A holds' }]), 'source-file': file('s.json', { kind: 'repository', ref: 'r' }) });
+  assert.deepEqual(edit.input, { as: 'ai:lane-a', id: 'ai-job:1', action: 'edit', job: 'Do it again', source: { kind: 'repository', ref: 'r' }, obligations: [{ id: 'a', outcome: 'A holds' }], to: null, priority: 2 });
+  assert.throws(() => call('edit', ['ai-job:1']), /Name at least one field/);
+  assert.throws(() => call('edit', ['ai-job:1'], { 'obligations-file': file('dup.json', [{ id: 'a', outcome: 'x' }, { id: 'a', outcome: 'y' }]) }), /Obligations are unique rows/);
+  for (const action of ['wait', 'resume', 'edit']) assert.equal(settings.work.actions[action], action, `${action} is a work action`);
+});
+
+test('send carries a saved acceptance, source and obligations, and the outcome must match the acceptance', () => {
+  const sent = call('send', ['any', 'Save', 'a', 'note'], { 'acceptance-file': file('a.json', acceptance) }).input;
+  assert.deepEqual([sent.outcome, sent.acceptance], ['Saved', acceptance]);
+  assert.throws(() => call('send', ['any', 'Save'], { 'acceptance-file': file('a2.json', acceptance), outcome: 'Other' }), /must exactly match/);
+  assert.throws(() => call('plan', ['ai-job:1'], { 'acceptance-file': file('a3.json', { outcome: 'x' }) }), /Acceptance needs outcome/);
+});
+
+test('a check receipt is valid only with an outcome, an offset time, evidence and obligations', () => {
+  const receipt = { outcome: 'Saved', checked_at: '2026-11-16T20:05:00Z', evidence: [{ ref: 'note:1', observation: 'Read back.' }], obligations: [] };
+  assert.equal(validateCheck(receipt), receipt);
+  for (const broken of [{ ...receipt, checked_at: '2026-11-16' }, { ...receipt, evidence: [] }, { ...receipt, obligations: undefined }]) assert.throws(() => validateCheck(broken), CommandError);
+  assert.equal(validateContinuation(continuation), continuation);
+  assert.equal(validateAcceptance(acceptance), acceptance);
+});
+
+// A fake engine for the schedule commands: records, the wake book and the answers the door gives for each.
+const engine = () => {
+  const records = new Map(), wakes = [], live = {}, calls = [];
+  const client = {
+    wait: async () => {},
+    op: async (address, method, input) => {
+      calls.push(method);
+      if (method === 'records:read') return records.get(input.id) ?? { id: input.id, type: null, value: null };
+      if (method === 'records:list') return { records: [...records.values()].filter(row => row.type === input.type), next: null };
+      if (method === 'records:write') {
+        for (const row of input.records) {
+          if (row.value === null) { records.delete(row.id); continue; }
+          records.set(row.id, { id: row.id, type: row.type, value: row.value, identity: `v${records.size}` });
+          if (!wakes.some(wake => wake.id === row.value.id)) wakes.push({ origin: 'person', tool: row.value.tool, id: row.value.id, switched_on: false });
+        }
+        return { written: input.records.length };
+      }
+      if (method === 'wake:causes') return { wakes, book: { live }, next: null };
+      if (method === 'wake:switch') { wakes.find(wake => wake.id === input.id).switched_on = input.on; return { on: input.on }; }
+      if (method === 'tools:cancel') { delete live[input.run]; return { cancelled: true }; }
+      throw new Error(`unexpected ${method}`);
+    },
+  };
+  return { client, records, wakes, live, calls };
+};
+const run = (fake, ...words) => schedules(fake.client, words, { requestKey: 'req-1', flags: {}, rules: settings });
+
+test('schedule at creates a wake declaration and switches it on, and off, edit and delete read the result back', async () => {
+  const fake = engine();
+  const made = await run(fake, 'at', 'schedule:1', 'tool:x', 'wake-1', '1790000000000', '{"steps":2}', '{"start_at":"a"}');
+  assert.deepEqual([made.complete, made.on, made.scheduled, made.value.on], [true, true, true, { time: { at_ms: 1790000000000 } }]);
+  assert.equal((await run(fake, 'list')).schedules[0].state, 'on');
+  assert.equal((await run(fake, 'off', 'schedule:1')).future_admissions, 'stopped');
+  const edited = await run(fake, 'edit', 'schedule:1', '{"budget":{"steps":9}}');
+  assert.deepEqual([edited.value.budget, edited.on], [{ steps: 9 }, false]);
+  await assert.rejects(run(fake, 'edit', 'schedule:1', '{"tool":"tool:y"}'), /keeps its tool and wake id/);
+  await assert.rejects(run(fake, 'at', 'schedule:1', 'tool:x', 'wake-1', '1790000000000', '{}', '{}'), /already exists/);
+  const gone = await run(fake, 'delete', 'schedule:1');
+  assert.deepEqual([gone.deleted, fake.records.size], [true, 0]);
+  await assert.rejects(run(fake, 'read', 'schedule:1'), /No wake declaration/);
+});
+
+test('schedule cancel retires one exact admitted run and refuses one that is not admitted', async () => {
+  const fake = engine();
+  fake.live['run-1'] = { tool: 'tool:x', wake: 'wake-1' };
+  const done = await run(fake, 'cancel', 'run-1');
+  assert.deepEqual([done.cancellation_state, done.read_back], ['retired', { live: false }]);
+  await assert.rejects(run(fake, 'cancel', 'run-9'), /nothing was cancelled/);
+});

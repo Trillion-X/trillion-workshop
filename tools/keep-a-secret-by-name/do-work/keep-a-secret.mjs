@@ -20,9 +20,9 @@
 import { randomUUID } from 'node:crypto';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { credentialFor, doorFor, trillionClient, TrillionError } from '../../use-trillion-from-a-shell/do-work/trillion.mjs';
+import { credentialFor, doorFor, engineClient, CommandError } from '../../use-your-tools-from-a-shell/do-work/command.mjs';
 
-const say = (message, status) => new TrillionError(message, { status });
+const say = (message, status) => new CommandError(message, { status });
 
 /** Reads all of stdin as text. */
 export async function readStdin(stream = process.stdin) {
@@ -66,7 +66,7 @@ async function main(argv, { stdin = process.stdin, print = line => process.stdou
   const name = removing ? argv[1] : argv[0];
   const issuerStatus = removing && argv[2] === '--issuer-status' ? argv[3] : undefined;
   const credential = await credentialFor();
-  const client = trillionClient({ door: doorFor({ credential }), credential });
+  const client = engineClient({ door: doorFor({ credential }), credential });
   if (removing) return print(JSON.stringify(await removeSecret({ name, issuerStatus, client })));
   const value = valueOf(await readStdin(stdin));
   print(JSON.stringify(await keepSecret({ name, value, client })));

@@ -5247,14 +5247,14 @@
   {
    "path": "harness/trillion-skill.md",
    "verdict": "moved",
-   "home": "trillion-workshop/tools/use-trillion-from-a-shell/do-work/trillion-skill.md",
+   "home": "trillion-workshop/tools/use-your-tools-from-a-shell/do-work/command-skill.md",
    "evidence": "same bytes"
   },
   {
    "path": "harness/trillion.json",
    "verdict": "being_moved",
-   "home": "trillion-workshop:tools/use-trillion-from-a-shell/do-work/trillion.json",
-   "evidence": "receipt trillion-workshop:tools/use-trillion-from-a-shell/moved-from.json names from harness/trillion.json; its source_identity equals the BLAKE3 of the bytes on old main 5dc302be37 (content adapted at its new path, receipt verified) (home not on trillion-workshop:tools main yet)",
+   "home": "trillion-workshop:tools/use-your-tools-from-a-shell/do-work/command.json",
+   "evidence": "receipt trillion-workshop:tools/use-your-tools-from-a-shell/moved-from.json names from harness/trillion.json; its source_identity equals the BLAKE3 of the bytes on old main 5dc302be37 (content adapted at its new path, receipt verified) (home not on trillion-workshop:tools main yet)",
    "group": "records-docs"
   },
   {

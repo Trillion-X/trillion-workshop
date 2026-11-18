@@ -15,11 +15,11 @@
   },
   "groups": [
     {
-      "id": "tests-of-use-trillion-from-a-shell",
+      "id": "tests-of-use-your-tools-from-a-shell",
       "owner": [
         "test/ag-ui-agent.test.mjs"
       ],
-      "to": "tools/use-trillion-from-a-shell",
+      "to": "tools/use-your-tools-from-a-shell",
       "joins_tool": "the tests of code this tool holds, which Trillion-X/trillion PR #243 deleted instead of carrying"
     },
     {
@@ -179,17 +179,17 @@
     },
     {
       "from": "harness/ag-ui-agent.mjs",
-      "home": "tools/use-trillion-from-a-shell/do-work/ag-ui-agent.mjs",
+      "home": "tools/use-your-tools-from-a-shell/do-work/ag-ui-agent.mjs",
       "why": "an earlier lane adapted it here (backlog row (home-exists)); not the same bytes once import paths are set aside"
     },
     {
       "from": "harness/trillion.json",
-      "home": "tools/use-trillion-from-a-shell/do-work/trillion.json",
+      "home": "tools/use-your-tools-from-a-shell/do-work/command.json",
       "why": "an earlier lane adapted it here (the one same-name file); not the same bytes once import paths are set aside"
     },
     {
       "from": "harness/trillion.mjs",
-      "home": "tools/use-trillion-from-a-shell/do-work/trillion.mjs",
+      "home": "tools/use-your-tools-from-a-shell/do-work/command.mjs",
       "why": "an earlier lane adapted it here (backlog row (home-exists)); not the same bytes once import paths are set aside"
     },
     {

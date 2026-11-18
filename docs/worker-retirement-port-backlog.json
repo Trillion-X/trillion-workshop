@@ -62,13 +62,13 @@
   {
    "path": "harness/ag-ui-agent.mjs",
    "class": "home-exists",
-   "destination": "trillion-workshop:tools/use-trillion-from-a-shell/do-work/ag-ui-agent.mjs",
+   "destination": "trillion-workshop:tools/use-your-tools-from-a-shell/do-work/ag-ui-agent.mjs",
    "why": "adapted port, 97% of lines kept"
   },
   {
    "path": "harness/ag-ui-wire.mjs",
    "class": "home-exists",
-   "destination": "trillion-workshop:tools/use-trillion-from-a-shell/do-work/ag-ui-wire.mjs",
+   "destination": "trillion-workshop:tools/use-your-tools-from-a-shell/do-work/ag-ui-wire.mjs",
    "why": "adapted port, 97% of lines kept"
   },
   {
@@ -206,7 +206,7 @@
   {
    "path": "harness/trillion.mjs",
    "class": "home-exists",
-   "destination": "trillion-workshop:tools/use-trillion-from-a-shell/do-work/trillion.mjs",
+   "destination": "trillion-workshop:tools/use-your-tools-from-a-shell/do-work/command.mjs",
    "why": "adapted port, 100% of lines kept"
   },
   {

@@ -30,7 +30,7 @@ The JSON report distinguishes `ready`, `pending`, `unknown`, `missing`, `blocked
 
 ## The trillion command
 
-The `trillion` command is not in this folder: its one copy is the Workshop's (`tools/use-trillion-from-a-shell`), installed as
+The `trillion` command is not in this folder: its one copy is the Workshop's (`tools/use-your-tools-from-a-shell`), installed as
 `~/.trillion/cli/program` with the link `~/.local/bin/trillion` by `trillion setup`. Products meet the engine through the installed
 command, and nothing here carries a second copy. `trillion op` and `trillion call` take `--timeout SECONDS` (at most the engine's
 call deadline in the program's DATA).
