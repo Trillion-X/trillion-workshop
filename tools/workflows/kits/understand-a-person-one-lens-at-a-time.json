@@ -1,0 +1,42 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:understand-a-person-one-lens-at-a-time for the parents who book tennis lessons for their kids.\" It goes step by step, handing back what it found with where each thing came from, and what is still open.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: each step's answers come back in the run, and the last step keeps them wherever the person keeps the pursuit's rows, in that store's own way.",
+  "workflows": [
+    "workflow:understand-a-person-one-lens-at-a-time"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Say what the run is for in plain words, and what is already known, as the input: {\"about\": \"the parents who book tennis lessons for their kids\", \"known\": \"what you already know or decided\"}.",
+    "2. Run workflow:understand-a-person-one-lens-at-a-time with tools:run, tool tool:run-workflow-definition, input {row: \"workflow:understand-a-person-one-lens-at-a-time\", about, known}. Each step waits for its answer: what was found, each with where it came from, in found, and what is not settled yet in open with what would settle it.",
+    "3. Answer a step by giving its answer under answers by its step id and running again.",
+    "4. Read what the run kept and what is open; the last step says what matters most next, and choosing what runs next is up to you or your AI."
+  ],
+  "worked_examples": [
+    {
+      "title": "Start to understand a person one lens at a time for the parents who book tennis lessons for their kids",
+      "ask": "Run understand a person one lens at a time for the parents who book tennis lessons for their kids.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "run_resource_operation",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:understand-a-person-one-lens-at-a-time",
+              "about": "the parents who book tennis lessons for their kids"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:understand-a-person-one-lens-at-a-time",
+      "step": "pick-the-person-and-the-purpose",
+      "given": "No answers yet; run on the workflow engine on 2026-11-18 with this input.",
+      "hands_back": "{\"status\":\"paused\",\"waiting\":[{\"step_id\":\"pick-the-person-and-the-purpose\",\"asks\":\"ai\"}]}: the run waits at 'Pick the person or group to understand' for what was found (found) and what is still open (open)."
+    }
+  ],
+  "drafted_from": "workflow:understand-a-person-one-lens-at-a-time's own rows in published/workflows.json and published/workflow-steps.json, and its run on the workflow engine on 2026-11-18"
+}

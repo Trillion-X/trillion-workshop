@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflows:public",
   "list": "workflows",
-  "blake3": "2f21bb0c7791a965bb811908e951819e222b54a05785aaa2188962dd2e6adf48",
+  "blake3": "aec72024f7da69839059edd325daa767ebdebb77d47314c742b05ceb63589495",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
@@ -14,6 +14,7 @@
     "workflow-steps"
    ],
    "workflow_ids": [
+    "account-for-every-ask-in-a-message",
     "answer-commenters-with-videos",
     "answer-comments-and-messages",
     "bring-in-a-framework",
@@ -33,15 +34,18 @@
     "file-what-needs-the-person",
     "fill-in-a-lean-canvas-with-evidence",
     "find-moments-in-a-recording",
+    "find-the-move-from-what-is-already-in-a-persons-world",
     "find-the-words-people-understand-and-act-on",
     "find-the-words-then-the-channel-then-the-product",
     "find-their-own-map",
     "find-unexplored-ground",
+    "find-what-a-person-values-from-what-they-do",
     "find-what-your-pursuits-leave-out",
     "find-where-the-steward-ladder-breaks",
     "first-win",
     "follow-through",
     "follow-up-with-people-who-engaged",
+    "get-a-rented-room-ready-after-a-stay",
     "give-paid-buyers-access",
     "give-people-a-way-to-find-and-get-it",
     "grow-on-reddit-without-selling-first",
@@ -51,6 +55,7 @@
     "hire-help-for-a-step",
     "hold-us-to-it",
     "infinity",
+    "judge-whether-a-pursuit-is-worth-the-persons-time",
     "keep-a-changelog-from-what-shipped",
     "keep-it-working",
     "keep-what-was-learned-usable-by-others",
@@ -59,6 +64,8 @@
     "learn-the-person",
     "legal-pages-and-support",
     "lock-in",
+    "make-a-piece-with-a-known-device",
+    "make-a-piece-with-a-known-edit-technique",
     "make-it-easy-to-recognize-and-use",
     "make-it-once-for-everyone",
     "make-it-perform",
@@ -99,6 +106,7 @@
     "reach-companies-with-a-long-open-job-post",
     "reach-local-businesses-by-zip-code",
     "reach-the-people-it-matters-to",
+    "read-the-surroundings-around-a-person",
     "real-life-cases",
     "recover-failed-payments-and-win-back",
     "refresh-measurement-coverage",
@@ -122,11 +130,13 @@
     "test-a-finding",
     "test-prices-and-change-a-page-for-each-visitor",
     "trace-to-first-principles",
+    "treat-things-that-arrive-together-as-one-job",
     "turn-a-correction-into-workflows",
     "turn-notes-into-finished-content",
     "turn-one-long-recording-into-many-pieces",
     "turn-research-into-a-plan",
     "turn-what-you-said-into-content",
+    "understand-a-person-one-lens-at-a-time",
     "understand-where-a-pursuit-is-starting-from",
     "walk-a-pursuit-through-your-map",
     "work-through-a-framework",
@@ -2247,6 +2257,156 @@
     "input_schema": "{\"type\": \"object\", \"properties\": {\"pursuit\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"The pursuit or business this run is for, in the person's words (for example: teaching people to hit a Federer-style forehand).\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or tested, so the run starts from it instead of asking again.\"}}}",
     "fires_when": "[{\"label\": \"a part asks to test a business model one belief at a time\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"business-idea\", \"decision-to-make\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job, when its checklists were made from the 2026-11-17 to 11-18 conversation 'start to GTM frameworks'; the label is the condition in words.\"}]",
     "source": "{\"from\": \"the 2026-11-17 to 11-18 conversation 'start to GTM frameworks'\", \"note\": \"Every leaf is a line of the conversation's own checklists, kept in its words; nothing here names a field, product or person, so tennis lessons, a software tool and a bakery run the same steps.\"}"
+   }
+  },
+  {
+   "id": "account-for-every-ask-in-a-message",
+   "values": {
+    "title": "Account for every ask in a message",
+    "recipe": "workflow:account-for-every-ask-in-a-message",
+    "job": "Read one message whole, list every distinct ask in it with what will carry each one, and choose a result that can be checked, so no ask in a long message is dropped.",
+    "produces": "Every ask in the message, quoted, with what carries it, the result chosen and how it will be checked, and which ask matters most now.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to account for every ask in a message\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"message-arrived\", \"request-to-sort\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from the person's old kept store, table method; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"the person's old kept store, table method, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "find-the-move-from-what-is-already-in-a-persons-world",
+   "values": {
+    "title": "Find the next move in what is already in a person's world",
+    "recipe": "workflow:find-the-move-from-what-is-already-in-a-persons-world",
+    "job": "Before proposing anything new, find the move that carries a pursuit furthest from what is already moving, what holds it back, and what the person already has: contacts, commitments, things owned and abilities barely used.",
+    "produces": "The candidate moves, each with its evidence and its cost, the one question that would unblock a stalled item, and a one-sentence statement of what the person is for, tested with them.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to find the next move in what is already in a person's world\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"stuck-pursuit\", \"what-next-question\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from the person's old kept store, table pursuit_lens; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"the person's old kept store, table pursuit_lens, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "find-what-a-person-values-from-what-they-do",
+   "values": {
+    "title": "Find what a person values from what they do",
+    "recipe": "workflow:find-what-a-person-values-from-what-they-do",
+    "job": "Find what a person values, can do and wants from the traces their life leaves and what they do, before asking them anything, and put what they say beside what they do.",
+    "produces": "A dated record of observations and patterns: what they value and refuse, what is theirs and what others put on them, what keeps coming back, what they never look at, and what they can do that others find hard.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to find what a person values from what they do\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"pursuit-start\", \"self-understanding\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from the person's old kept store, table pursuit_lens; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"the person's old kept store, table pursuit_lens, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "read-the-surroundings-around-a-person",
+   "values": {
+    "title": "Read the surroundings around a person",
+    "recipe": "workflow:read-the-surroundings-around-a-person",
+    "job": "Map the people, things, money, places, rules and pressures around a person, and find where their setting changed what they did, so a pursuit is judged inside the life it has to run in.",
+    "produces": "The people around them and what each needs, what is within reach and what is missing, the rules that are only customs, the stretches where setting changed output, each with where it came from, and what matters most.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to read the surroundings around a person\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"pursuit-start\", \"context-needed\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from the person's old kept store, table pursuit_lens; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"the person's old kept store, table pursuit_lens, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "understand-a-person-one-lens-at-a-time",
+   "values": {
+    "title": "Understand a person one lens at a time",
+    "recipe": "workflow:understand-a-person-one-lens-at-a-time",
+    "job": "Understand one person or group from what they actually said and did, read through each lens row the person keeps, and ask only about what the evidence does not show.",
+    "produces": "For each lens row: what the evidence shows, what it shows for the opposite, the answers to the questions asked, each with its source, and the findings ranked by how much they would change what is made or said next.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to understand a person one lens at a time\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"audience-research\", \"understand-someone\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from the person's old kept store, table aa_buckets; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"the person's old kept store, table aa_buckets, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "treat-things-that-arrive-together-as-one-job",
+   "values": {
+    "title": "Treat things that arrive together as one job",
+    "recipe": "workflow:treat-things-that-arrive-together-as-one-job",
+    "job": "When photos, recordings and messages reach the person close together and belong together, read each one whole and do the one job they ask for once, instead of one job per thing.",
+    "produces": "The group and the span it covers, what each member says or shows beside its link, the one job done, and what is left for the person.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to treat things that arrive together as one job\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"several-things-arrived\", \"message-arrived\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from the person's old kept store, table w_moment; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"the person's old kept store, table w_moment, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "judge-whether-a-pursuit-is-worth-the-persons-time",
+   "values": {
+    "title": "Judge whether a pursuit is worth the person's time",
+    "recipe": "workflow:judge-whether-a-pursuit-is-worth-the-persons-time",
+    "job": "Judge one pursuit for one person in the source's own order: see what is happening, list what they bring, find where attention belongs, list the possibilities, then judge whether it is good for people and worthwhile for them.",
+    "produces": "What was observed, what the person brings, where attention belongs, the possibilities with what is unknown about each, two judgements (good for people; worthwhile for this person) each yes, no or not clear yet with reasons, and what matters most now.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to judge whether a pursuit is worth the person's time\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"pursuit-start\", \"decision-to-make\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from the person's old kept store, table awareness_framework; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"the person's old kept store, table awareness_framework, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "make-a-piece-with-a-known-device",
+   "values": {
+    "title": "Make a piece with a known device",
+    "recipe": "workflow:make-a-piece-with-a-known-device",
+    "job": "Pick, from the content devices the person keeps, the one whose effect a moment needs, build it into their material, check the moment does what the device says, and keep their verdict on it.",
+    "produces": "The device chosen and why, the changed moment, a check of each thing the device says it does, and the person's verdict kept beside the device.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to make a piece with a known device\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"piece-to-make\", \"content-request\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from the person's old kept store, table content_devices; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"the person's old kept store, table content_devices, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "make-a-piece-with-a-known-edit-technique",
+   "values": {
+    "title": "Make a piece with a known edit technique",
+    "recipe": "workflow:make-a-piece-with-a-known-edit-technique",
+    "job": "Pick, from the edit techniques the person keeps, the one a shot needs, apply it in the editing tool they use, compare the result with the technique's kept look and checks, and keep their verdict on it.",
+    "produces": "The technique chosen and why, the changed span, each kept check passed or not with what was seen, and the person's verdict on using it more, less or never.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to make a piece with a known edit technique\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"piece-to-make\", \"video-edit-request\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from the person's old kept store, table video_edit_techniques; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"the person's old kept store, table video_edit_techniques, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "get-a-rented-room-ready-after-a-stay",
+   "values": {
+    "title": "Get a rented room ready after a stay",
+    "recipe": "workflow:get-a-rented-room-ready-after-a-stay",
+    "job": "For each rented room, find the window between one guest leaving and the next arriving, confirm the room is empty before anyone enters, do the changeover inside the window, and record what is ready.",
+    "produces": "Each room's changeover window, the confirmation that it was empty with when it came, the changeover done with a photo, and which room's window closes first or which same-day changeover is still open.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to get a rented room ready after a stay\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"stay-ended\", \"booking-changed\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from the person's old kept store, table property_turnover; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"the person's old kept store, table property_turnover, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
    }
   }
  ]
