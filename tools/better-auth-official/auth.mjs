@@ -19,14 +19,14 @@ import { trustedOriginsFor } from './attached-origins.mjs';
 import { readSettings } from './settings.mjs';
 import rules from './pages/sign-in-rules.json' with { type: 'json' };
 import { holdLoopbackResources } from './loopback-resource.mjs';
-import { storePool } from './store.mjs';
+import { storeDriver } from './store.mjs';
 import { teamIdsOf, teamClaim } from './teams-claim.mjs';
 
 const read = readSettings();
 // How an AI product's client metadata document is fetched: Better Auth's own https transport unless the layout names another module.
 const { fetchClientMetadataResource } = await import(read.settings.cimd.fetch_module);
 export const settings = read.settings;
-export const pool = storePool(settings);
+export const pool = await storeDriver(settings);
 const deliver = emailHook(settings.email, { minutes: String(settings.email_code.expires_in_seconds / 60), site: settings.site, site_url: `${settings.issuer}/`, assets_url: `${settings.issuer}${pageTable.assets_path}` });
 
 // Better Auth waits for a send but only logs its failure ("Failed to run background task"), so the answer would still say the

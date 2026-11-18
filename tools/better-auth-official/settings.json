@@ -7,7 +7,11 @@
   "store": {
     "credential": "sign-in-store-connection",
     "env": "BETTER_AUTH_STORE_CONNECTION",
-    "pool_size": 10
+    "module": "pg",
+    "export": "Pool",
+    "arguments": [{ "connectionString": "{connection}", "max": 10 }],
+    "close": "end",
+    "migration_lock": { "take": "select pg_advisory_lock(7104081977)", "give": "select pg_advisory_unlock(7104081977)" }
   },
   "session_cookie_name": null,
   "passkey": {
