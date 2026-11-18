@@ -101,7 +101,7 @@
         "anchor": "object",
         "rows": "objects"
       },
-      "_read_by": "src/private-responses.mjs: the person's own reactions on one record or part of it"
+      "_read_by": "workflow:keep-my-private-reactions: the person's own reactions on one record or part of it"
     },
     {
       "type": "customer-database",

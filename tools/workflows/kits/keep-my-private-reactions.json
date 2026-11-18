@@ -1,0 +1,66 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:keep-my-private-reactions with store {\\\"where\\\": \\\"postgresql database example_shop on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-shop-postgres-connection\\\"} and reactions [{\\\"record\\\": \\\"file:private\\\", \\\"symbol\\\": \\\"heart\\\"}].\"",
+  "lists": [],
+  "no_lists_because": "It names no list: the reactions are kept in the person's own store, in whatever form that store keeps things, and store says where and in which language.",
+  "workflows": [
+    "workflow:keep-my-private-reactions"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:keep-my-private-reactions\" with store and the reactions to keep. Give part only when the reaction is on one part of the thing.",
+    "3. The first run makes the store's own objects once and proves them on the example attempts: every attempt must be kept, repeated or refused as the intent says, or the run stops and says which.",
+    "4. Every later run keeps the new reactions through those objects and reads them back for the person only."
+  ],
+  "worked_examples": [
+    {
+      "title": "A heart on a part of a file, given then taken back",
+      "ask": "Give a heart to the word on the second line of my private file, then take it back.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-my-private-reactions",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "reactions": [
+                {
+                  "record": "file:private",
+                  "part": {
+                    "kind": "text-range",
+                    "start": 2,
+                    "quote": "word"
+                  },
+                  "symbol": "heart",
+                  "on": true
+                },
+                {
+                  "record": "file:private",
+                  "part": {
+                    "kind": "text-range",
+                    "start": 2,
+                    "quote": "word"
+                  },
+                  "symbol": "heart"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-my-private-reactions",
+      "step": "keep",
+      "given": "The look step found the reactions kept by an earlier run in the store's own objects.",
+      "hands_back": "kept [\"kept\", \"removed\"] and found with no heart on the part; another person's store reads nothing on that record."
+    }
+  ]
+}

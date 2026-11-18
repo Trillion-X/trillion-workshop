@@ -1,0 +1,229 @@
+{
+  "about": "workflow:keep-my-private-reactions: the person's own reactions on anything in their own store, on the whole or on one part, toggled and read back for the person only. It replaces tools/react-privately-to-anything-in-a-persons-own-account-so-no, whose src/private-responses.mjs kept them in the retired record store and whose route tool answered the page (rule a-tool-is-only-what-the-store-cannot-do).",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-my-private-reactions",
+        "label": "Keep my private reactions",
+        "job": "Keep the person's own reaction (a palette reaction, their own emoji or an https picture) on anything in their own store, on the whole thing or on one part of it, toggled on and off, read back for the person only.",
+        "produces": "The store's own objects for reactions, proven on the example attempts, and each reaction kept, removed, repeated or refused with the reason, and read back.",
+        "source": {
+          "from": "tools/react-privately-to-anything-in-a-persons-own-account-so-no (src/private-responses.mjs, moved from the old tree), read on trillion-workshop origin/main aea60ccfd1; the palette and the picture and emoji rules are tools/keep-and-wake-ai-sessions-on-this-computer src/reactions.json and src/responses.mjs",
+          "note": "A reaction is only keeping: one row per record, part and symbol, toggled. The old row id was a BLAKE3 hash of the anchor; the store's own key over the record, the part (as a JSON value, whatever order its keys arrive in) and the symbol keeps the same one-reaction-per-symbol rule with no identity function. The page route that answered it is not kept: the person's app reads and writes their own store directly."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                },
+                "place": {
+                  "type": "string",
+                  "description": "Where in the store the reactions are kept, when they already are"
+                }
+              }
+            },
+            "reactions": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Reactions to keep this run, each {record, part (optional: {kind, ...}), symbol (a palette symbol, an emoji up to 32 characters with no spaces, or an https picture address up to 2000 characters), on (optional true or false; without it the reaction is toggled)}"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where reactions are already kept (kept_in, or null) and the names of the objects that already keep them and show them.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing, make the store's own objects in its own form, so that the store itself refuses what the intent refuses wherever it can. Kept per reaction: record (text, up to 500 characters, not blank), part (none for the whole thing, or a JSON object with a kind of up to 60 characters, at most 4096 characters when written), symbol, glyph (what it draws: its palette glyph, or the emoji or picture address itself) and label (what it says: its palette label, else \"Picture\" for an https address, else its own mark), and at (a date and time). Kept once by its record, its part (compared as JSON, whatever order the keys arrive in) and its symbol, so a palette reaction is given once per part and removed by the same symbol. Refused: a symbol that is the vote (votes belong to communities); a symbol that is not a palette symbol, an emoji of up to 32 characters with no spaces, or an https address of up to 2000 characters; a record that is blank or longer than 500 characters; an on value that is neither true nor false when given. Grant only what the store's holder allows the person's login. Who may: only the person (and whoever they allow); another person's store holds none of these. Submit the names of the objects made, or the ones the look step found.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example attempts",
+            "do": "In a throwaway place in the same store, with the same objects, keep these attempts in order, each through the store's own objects: [{\"record\": \"file:private\", \"part\": {\"kind\": \"text-range\", \"start\": 2, \"quote\": \"word\"}, \"symbol\": \"heart\", \"on\": true}, {\"record\": \"file:private\", \"part\": {\"quote\": \"word\", \"start\": 2, \"kind\": \"text-range\"}, \"symbol\": \"heart\", \"on\": true}, {\"record\": \"file:private\", \"part\": {\"kind\": \"text-range\", \"start\": 2, \"quote\": \"word\"}, \"symbol\": \"🦊\"}, {\"record\": \"file:private\", \"part\": {\"kind\": \"text-range\", \"start\": 2, \"quote\": \"word\"}, \"symbol\": \"heart\"}, {\"record\": \"file:private\", \"part\": {\"kind\": \"text-range\", \"start\": 2, \"quote\": \"word\"}, \"symbol\": \"heart\", \"on\": false}, {\"record\": \"file:private\", \"part\": {\"kind\": \"text-range\", \"start\": 2, \"quote\": \"word\"}, \"symbol\": \"vote\"}, {\"record\": \"\", \"symbol\": \"heart\"}, {\"record\": \"file:private\", \"part\": {\"kind\": \"text-range\", \"start\": 2, \"quote\": \"word\"}, \"symbol\": \"two words\"}, {\"record\": \"file:private\", \"part\": {\"kind\": \"text-range\", \"start\": 2, \"quote\": \"word\"}, \"symbol\": \"https://example.com/x.gif\"}, {\"record\": \"file:private\", \"part\": {\"kind\": \"text-range\", \"start\": 2, \"quote\": \"word\"}, \"symbol\": \"heart\", \"on\": \"yes\"}]. The palette has heart (glyph ❤️, label Love) and thumbs-up, party, fire and others. Without on, a reaction the part already has on that symbol is removed, and one it does not have is given. With on true a reaction is given (repeated if already there); with on false it is removed (repeated if absent). A second store of another person holds none of them. Then remove the throwaway place. Submit outcomes (one of kept, repeated or refused per attempt, in order) and answer: part_reactions (the symbols of the reactions on the part, in the order they were first given), heart_on_part (whether heart is on the part), other_person_sees (how many reactions the other person's store holds on that record), kept_count and repeated_count.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answer"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "answer": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each attempt is kept, repeated or refused as the intent says",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "kept",
+                    "repeated",
+                    "kept",
+                    "kept",
+                    "repeated",
+                    "refused",
+                    "refused",
+                    "refused",
+                    "kept",
+                    "refused"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "The store's own objects give every expected answer",
+                "path": [
+                  "this",
+                  "answer"
+                ],
+                "values": [
+                  {
+                    "part_reactions": [
+                      "🦊",
+                      "https://example.com/x.gif"
+                    ],
+                    "heart_on_part": false,
+                    "other_person_sees": 0,
+                    "kept_count": 4,
+                    "repeated_count": 2
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's reactions",
+            "do": "Keep each item of reactions through the store's own objects, in order, and read each record's reactions back for the person. Submit kept (kept, repeated or removed, per item, in order), kept_records (the records of the items kept, removed or repeated), refused (each refused item's record and the store's own words for why) and found_records (the records read back, each with its reactions and their symbols). With no reactions, submit empty lists.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept",
+                "kept_records",
+                "refused",
+                "found_records"
+              ],
+              "properties": {
+                "kept": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "kept_records": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "refused": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "found_records": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "subset-of",
+                "says": "Every reaction kept is read back",
+                "path": [
+                  "this",
+                  "kept_records"
+                ],
+                "of": [
+                  "this",
+                  "found_records"
+                ]
+              }
+            ]
+          }
+        ],
+        "erase": "On the person's request the store deletes every reaction on that record or part, and nothing else of the record is touched."
+      }
+    }
+  ]
+}
