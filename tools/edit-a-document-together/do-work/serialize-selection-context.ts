@@ -4,8 +4,8 @@
 // action reference can consume as input. The serializer never names or
 // branches on consumers.
 
-import type { SceneNode } from '../read-data/documents';
-import { visibleTextLines } from './project-scene-to-file-request';
+import type { SceneNode } from '../../documents/read-data/documents';
+import { visibleTextLines } from '../../documents/do-work/project-scene-to-file-request';
 
 export type SelectionContextPayload = {
   kind: 'composition-selection-context';

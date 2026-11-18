@@ -18,19 +18,19 @@
     "count": 1
   },
   {
-    "path": "tools/documents/show/DocumentsSurface.tsx",
+    "path": "tools/edit-a-document-together/show/DocumentsSurface.tsx",
     "kind": "button",
     "line": "<button",
     "count": 15
   },
   {
-    "path": "tools/documents/show/DocumentsSurface.tsx",
+    "path": "tools/edit-a-document-together/show/DocumentsSurface.tsx",
     "kind": "font",
     "line": "font-family: inherit;",
     "count": 1
   },
   {
-    "path": "tools/documents/show/DocumentsSurface.tsx",
+    "path": "tools/edit-a-document-together/show/DocumentsSurface.tsx",
     "kind": "icon",
     "line": "<ChevronRight size={14} />",
     "count": 1

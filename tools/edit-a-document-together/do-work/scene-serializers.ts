@@ -4,7 +4,7 @@ import type {
   SceneNodeCapability,
   SceneNodeProps,
   SceneWebElement,
-} from '../read-data/documents';
+} from '../../documents/read-data/documents';
 import { parseEmphasisRuns, safeInlineLinkUrl, sanitizeInlineStyle, type InlineMark } from '../read-data/inline-tokens.ts';
 
 export type SceneSerializationFormat = 'html' | 'jsx';

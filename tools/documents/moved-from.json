@@ -22,47 +22,11 @@
     },
     {
       "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/documents/do-work/append-scene-roots-target.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/documents/do-work/append-scene-roots-target.ts",
-      "source_identity": "1f:fcf0dcd9b67279b202f325e7f03cab0a5527a56641b6e9d82401d14da68d2066",
-      "identity": "1f:fcf0dcd9b67279b202f325e7f03cab0a5527a56641b6e9d82401d14da68d2066",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/documents/do-work/apply-scene-patch.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/documents/do-work/apply-scene-patch.ts",
-      "source_identity": "1f:acff213925e32d3d2181c36c75615834b62c27f15763de58c1b698787fd507c0",
-      "identity": "1f:acff213925e32d3d2181c36c75615834b62c27f15763de58c1b698787fd507c0",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
       "from": "web/parts/documents/do-work/build-resize-transaction.ts",
       "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
       "to": "tools/documents/do-work/build-resize-transaction.ts",
       "source_identity": "1f:5ac5b4498c180680d2668e1424b4734279bd59058bd10a98b06533b0b024a7cc",
       "identity": "1f:5ac5b4498c180680d2668e1424b4734279bd59058bd10a98b06533b0b024a7cc",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/documents/do-work/composer-config.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/documents/do-work/composer-config.ts",
-      "source_identity": "1f:3a40d741ad2ce11d40b3d9566f9e0c658a459d1ebeb344297c0d3a2f5aaec498",
-      "identity": "1f:3a40d741ad2ce11d40b3d9566f9e0c658a459d1ebeb344297c0d3a2f5aaec498",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/documents/do-work/hydrate-composition-scene.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/documents/do-work/hydrate-composition-scene.ts",
-      "source_identity": "1f:7c470ba0cf076f85b69ff5b9cf1c235f086bb14bcb075ffbf027aaf974b21749",
-      "identity": "1f:7c470ba0cf076f85b69ff5b9cf1c235f086bb14bcb075ffbf027aaf974b21749",
       "found_by": "byte copy"
     },
     {
@@ -85,29 +49,11 @@
     },
     {
       "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/documents/do-work/materialize-selection-target.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/documents/do-work/materialize-selection-target.ts",
-      "source_identity": "1f:89b97232bd86c0f8a73274be11e7db422659e6946121e00fbc2e7b2d1b3a24f8",
-      "identity": "1f:89b97232bd86c0f8a73274be11e7db422659e6946121e00fbc2e7b2d1b3a24f8",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
       "from": "web/parts/documents/do-work/page-operation-writes.mjs",
       "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
       "to": "tools/documents/do-work/page-operation-writes.mjs",
       "source_identity": "1f:8bc318f05dc924cb3adaca75ed140864fef998729e01a0b1c90b5a10f16140c4",
       "identity": "1f:8bc318f05dc924cb3adaca75ed140864fef998729e01a0b1c90b5a10f16140c4",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/documents/do-work/process-scripts/import-content-document.mjs",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/documents/do-work/process-scripts/import-content-document.mjs",
-      "source_identity": "1f:6db9ff490394a575489848a6ec56e8a7d9621b0724617008dddac8a86c112caf",
-      "identity": "1f:6db9ff490394a575489848a6ec56e8a7d9621b0724617008dddac8a86c112caf",
       "found_by": "byte copy"
     },
     {
@@ -121,56 +67,11 @@
     },
     {
       "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/documents/do-work/projection-runners-pack.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/documents/do-work/projection-runners-pack.ts",
-      "source_identity": "1f:af946c4b9e4a97843bca986adaded4358dd5a50c1da940dae786dad32c9bb754",
-      "identity": "1f:af946c4b9e4a97843bca986adaded4358dd5a50c1da940dae786dad32c9bb754",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
       "from": "web/parts/documents/do-work/publish-authored-thing.ts",
       "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
       "to": "tools/documents/do-work/publish-authored-thing.ts",
       "source_identity": "1f:012a495a235ca6be3dc0a498dae15d0916903cbba918bfa686f082eac5c9800a",
       "identity": "1f:012a495a235ca6be3dc0a498dae15d0916903cbba918bfa686f082eac5c9800a",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/documents/do-work/read-scene-target.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/documents/do-work/read-scene-target.ts",
-      "source_identity": "1f:b9965cc199ccca97975dc402fdfde0a3a869634a694f9032090cf3e1504725ea",
-      "identity": "1f:b9965cc199ccca97975dc402fdfde0a3a869634a694f9032090cf3e1504725ea",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/documents/do-work/serialize-scene-target.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/documents/do-work/serialize-scene-target.ts",
-      "source_identity": "1f:3e042a0d977fae79f2ee37e747cb3094aec9c894cbe8ed1295ea8a49b936676e",
-      "identity": "1f:3e042a0d977fae79f2ee37e747cb3094aec9c894cbe8ed1295ea8a49b936676e",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/documents/do-work/serialize-selection-context.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/documents/do-work/serialize-selection-context.ts",
-      "source_identity": "1f:923438eac9815817010e1f53849897c206344cc544de052e571078e83df1dcf1",
-      "identity": "1f:923438eac9815817010e1f53849897c206344cc544de052e571078e83df1dcf1",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/documents/do-work/write-composition-documents.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/documents/do-work/write-composition-documents.ts",
-      "source_identity": "1f:102601173aaf63070aa7bf20055346fca8d77f7b0bc10ed5a7a530c74657ab25",
-      "identity": "1f:102601173aaf63070aa7bf20055346fca8d77f7b0bc10ed5a7a530c74657ab25",
       "found_by": "byte copy"
     },
     {
@@ -220,15 +121,6 @@
     },
     {
       "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/documents/read-data/content-view-projection.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/documents/read-data/content-view-projection.ts",
-      "source_identity": "1f:d4bce33b23fe6071d79a4cd031f71dfc0a8c7c73919199d0fa05a641ee94f567",
-      "identity": "1f:d4bce33b23fe6071d79a4cd031f71dfc0a8c7c73919199d0fa05a641ee94f567",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
       "from": "web/parts/documents/read-data/cursor-commands.ts",
       "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
       "to": "tools/documents/read-data/cursor-commands.ts",
@@ -252,24 +144,6 @@
       "to": "tools/documents/read-data/document-import-formats.json",
       "source_identity": "1f:eac302d6e41f8e91624d98fc8a4bf843d22498dd5e4f025bb7c39e38599451f2",
       "identity": "1f:eac302d6e41f8e91624d98fc8a4bf843d22498dd5e4f025bb7c39e38599451f2",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/documents/read-data/document-index.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/documents/read-data/document-index.ts",
-      "source_identity": "1f:4b7850fc232448cd48524a08e676ee9cc31dea85b75689fb987ec643ad5d9b79",
-      "identity": "1f:4b7850fc232448cd48524a08e676ee9cc31dea85b75689fb987ec643ad5d9b79",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/documents/read-data/document-sections.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/documents/read-data/document-sections.ts",
-      "source_identity": "1f:db23013b6e6064e2a4e7663d21872a1fa0f0cae09147b73de4516d75a1c53f6d",
-      "identity": "1f:db23013b6e6064e2a4e7663d21872a1fa0f0cae09147b73de4516d75a1c53f6d",
       "found_by": "byte copy"
     },
     {
@@ -301,29 +175,11 @@
     },
     {
       "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/documents/read-data/heading-semantics.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/documents/read-data/heading-semantics.ts",
-      "source_identity": "1f:fed744913824f3f2c28a69997988fced92cbc7a84c96bef15a9b8754721741ad",
-      "identity": "1f:fed744913824f3f2c28a69997988fced92cbc7a84c96bef15a9b8754721741ad",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
       "from": "web/parts/documents/read-data/inline-chip-dom.ts",
       "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
       "to": "tools/documents/read-data/inline-chip-dom.ts",
       "source_identity": "1f:dcb405fa4e245a58f320bc423de1388ccd6e6dcbb40c5201229edc767ffbf70a",
       "identity": "1f:dcb405fa4e245a58f320bc423de1388ccd6e6dcbb40c5201229edc767ffbf70a",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/documents/read-data/markdown-code-fence.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/documents/read-data/markdown-code-fence.ts",
-      "source_identity": "1f:84650c8d92d107a1505a81a35aec3001e42dd79918a1d4da1f6f2ae7cd079b83",
-      "identity": "1f:84650c8d92d107a1505a81a35aec3001e42dd79918a1d4da1f6f2ae7cd079b83",
       "found_by": "byte copy"
     },
     {
@@ -373,15 +229,6 @@
     },
     {
       "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/documents/read-data/scene-views.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/documents/read-data/scene-views.ts",
-      "source_identity": "1f:95e6b4afef40cf3d0a9430f3c8af25c125fb83faa5d1a36ca61b94fd42fcb671",
-      "identity": "1f:95e6b4afef40cf3d0a9430f3c8af25c125fb83faa5d1a36ca61b94fd42fcb671",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
       "from": "web/parts/documents/read-data/selection-ops.ts",
       "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
       "to": "tools/documents/read-data/selection-ops.ts",
@@ -396,15 +243,6 @@
       "to": "tools/documents/read-data/structural-blocks.test.ts",
       "source_identity": "1f:b5a4b382a561b2956b4d2d11f057664e09fad0489e15e8fd598cfdfb33d7852c",
       "identity": "1f:b5a4b382a561b2956b4d2d11f057664e09fad0489e15e8fd598cfdfb33d7852c",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/documents/read-data/structural-blocks.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/documents/read-data/structural-blocks.ts",
-      "source_identity": "1f:ffa9ef92ed9dffa77dca3b83bd840026102f11533b69fcc018e79ae77e5202d9",
-      "identity": "1f:ffa9ef92ed9dffa77dca3b83bd840026102f11533b69fcc018e79ae77e5202d9",
       "found_by": "byte copy"
     },
     {
@@ -430,24 +268,6 @@
     },
     {
       "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/documents/show/AuthoredNoteEntry.tsx",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/documents/show/AuthoredNoteEntry.tsx",
-      "source_identity": "1f:3e3d20fd051f943d24398420fa1a689588889804252c157d212b0948992c7a92",
-      "identity": "1f:3e3d20fd051f943d24398420fa1a689588889804252c157d212b0948992c7a92",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/documents/show/CompositionSurfaceContent.tsx",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/documents/show/CompositionSurfaceContent.tsx",
-      "source_identity": "1f:c622fafe0771dd379a10b6255e75ad22aa5a8fff9d637f86667be0d379578be4",
-      "identity": "1f:c622fafe0771dd379a10b6255e75ad22aa5a8fff9d637f86667be0d379578be4",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
       "from": "web/parts/documents/show/DocumentConflictComparison.tsx",
       "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
       "to": "tools/documents/show/DocumentConflictComparison.tsx",
@@ -466,65 +286,11 @@
     },
     {
       "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/documents/show/DocumentImportDialog.tsx",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/documents/show/DocumentImportDialog.tsx",
-      "source_identity": "1f:2861eedf1c9b8ea02d828a564785045bedfee69ba3c896bc0dbf43a13bd0231c",
-      "identity": "1f:2861eedf1c9b8ea02d828a564785045bedfee69ba3c896bc0dbf43a13bd0231c",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/documents/show/DocumentRevisionHistory.tsx",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/documents/show/DocumentRevisionHistory.tsx",
-      "source_identity": "1f:58797cb19f34fa3efcee910e7757209c3849bf4eb00052e962aa9700ada05808",
-      "identity": "1f:58797cb19f34fa3efcee910e7757209c3849bf4eb00052e962aa9700ada05808",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/documents/show/DocumentsSurface.tsx",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/documents/show/DocumentsSurface.tsx",
-      "source_identity": "1f:6905ed2ae14a508007a4b68249c9a68186a188761d44983c213f87991726fff9",
-      "identity": "1f:6905ed2ae14a508007a4b68249c9a68186a188761d44983c213f87991726fff9",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
       "from": "web/parts/documents/show/documents-page-sidebar.ts",
       "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
       "to": "tools/documents/show/documents-page-sidebar.ts",
       "source_identity": "1f:06bccf9cad943ba3020fad6fc59e5ee414fac6bd02a3251b4d402bb230dc7026",
       "identity": "1f:06bccf9cad943ba3020fad6fc59e5ee414fac6bd02a3251b4d402bb230dc7026",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/documents/show/mount-composition-scene.tsx",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/documents/show/mount-composition-scene.tsx",
-      "source_identity": "1f:80553943d415ae8cc0bd3f57b0d0d6de0e40f30f6d7fca5dbc44b92d35bec48f",
-      "identity": "1f:80553943d415ae8cc0bd3f57b0d0d6de0e40f30f6d7fca5dbc44b92d35bec48f",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/documents/show/mount-documents.tsx",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/documents/show/mount-documents.tsx",
-      "source_identity": "1f:8ace2e96e6b22b859cb63d526a1ef36883320f78e0c0e1ebbf7b007a5e1589d6",
-      "identity": "1f:8ace2e96e6b22b859cb63d526a1ef36883320f78e0c0e1ebbf7b007a5e1589d6",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/documents/show/mount-selected-composition.tsx",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/documents/show/mount-selected-composition.tsx",
-      "source_identity": "1f:bf0780f5cf90cc91549f06c18d5970db19ef6b53abb3a160b0242f9ce19350e4",
-      "identity": "1f:bf0780f5cf90cc91549f06c18d5970db19ef6b53abb3a160b0242f9ce19350e4",
       "found_by": "byte copy"
     },
     {

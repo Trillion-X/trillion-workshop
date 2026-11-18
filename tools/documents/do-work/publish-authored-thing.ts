@@ -17,7 +17,7 @@ import {
   type ExportArtifactRecord,
   type ExportDescriptorRecord,
 } from '../read-data/authored-thing-refs';
-import { DOCUMENTS_ADDRESS, DOCUMENTS_PATH } from './write-composition-documents';
+import { DOCUMENTS_ADDRESS, DOCUMENTS_PATH } from '../../edit-a-document-together/do-work/write-composition-documents';
 import type { CompositionContent } from '../read-data/documents';
 
 export type BitfieldRequestSender = (request: { target: string; payload: Uint8Array }) => Promise<unknown>;

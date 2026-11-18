@@ -1,4 +1,4 @@
-import type { CompositionContent, SceneNode } from './documents';
+import type { CompositionContent, SceneNode } from '../../documents/read-data/documents';
 
 // Opaque delivery identities are owner data on the inserted Component node.
 // They survive collapse/reload with the authored document and make the owner,

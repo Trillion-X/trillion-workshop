@@ -1,5 +1,5 @@
 import type { Ref } from './inline-tokens';
-import type { ReferenceResolution } from './page-references';
+import type { ReferenceResolution } from '../../documents/read-data/page-references';
 
 export type ReferenceOwnerCheck = (request: {
   target: string;

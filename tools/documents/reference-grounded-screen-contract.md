@@ -3,8 +3,8 @@
 ## Boundary
 
 - Package root: `<checkout>/packages/documents`
-- Active rendered entry: `show/mount-composition-scene.tsx`
-- Shared engine handoff: `do-work/hydrate-composition-scene.ts`
+- Active rendered entry: `tools/edit-a-document-together/show/mount-composition-scene.tsx`
+- Shared engine handoff: `tools/edit-a-document-together/do-work/hydrate-composition-scene.ts`
 - Product job: render any addressed authored composition as a live, permission-gated surface without authoring chrome.
 - Dominant action: consume the authored scene and interact with its mounted owner surfaces.
 

@@ -7,7 +7,7 @@ import {
   materializeCompositionBoundFeeds,
   readCompositionContent,
   type CompositionSnapshot,
-} from '../read-data/documents';
+} from '../../documents/read-data/documents';
 import { CompositionSurfaceContent } from './CompositionSurfaceContent';
 import {
   parseCompositionSceneInput,

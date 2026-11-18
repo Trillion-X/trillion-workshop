@@ -27,8 +27,8 @@ import { createEditorHistory, type EditorHistory } from '../../ui/show/rich-text
 import { createPortal } from 'react-dom';
 
 import { Container } from '../../ui/show/container';
-import { resolveCursorCommand } from '../read-data/cursor-commands.ts';
-import { candidatesInRect, resolveGoalColumn, resolveInDirection, type Candidate, type GoalRun } from '../read-data/cursor-nav.ts';
+import { resolveCursorCommand } from '../../documents/read-data/cursor-commands.ts';
+import { candidatesInRect, resolveGoalColumn, resolveInDirection, type Candidate, type GoalRun } from '../../documents/read-data/cursor-nav.ts';
 import {
   applyAutoformat,
   applySelectionOp,
@@ -49,11 +49,11 @@ import {
   type DocumentValue,
   type Edited,
   type Focus,
-} from '../read-data/document-value.ts';
-import { literalIndentEdit, literalLineBreak, matchAutoformat, matchInputShortcut, textInputPolicyFor, type SceneNode as DocumentNode } from '../read-data/documents.ts';
+} from '../../documents/read-data/document-value.ts';
+import { literalIndentEdit, literalLineBreak, matchAutoformat, matchInputShortcut, textInputPolicyFor, type SceneNode as DocumentNode } from '../../documents/read-data/documents.ts';
 import { CHIP_CLASS, caretFlatOffset, isDrawnAs, placeCaretAtFlatOffset, readBlockText, readBlockSelection, restoreBlockSelection, renderBlockRuns, type ColourOf } from '../read-data/inline-chip-dom.ts';
 import type { InlineMark, Ref } from '../read-data/inline-tokens.ts';
-import { matchSelectionOp } from '../read-data/selection-ops.ts';
+import { matchSelectionOp } from '../../documents/read-data/selection-ops.ts';
 import { pastedMarkdown } from '../read-data/paste-sources.ts';
 
 /** What the editor asks of a mention picker while `@` is being typed. */

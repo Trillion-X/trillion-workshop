@@ -28,7 +28,7 @@
 //   * Generic overrides: an override is plain { props?, style?, text? } DATA,
 //     overlaid uniformly. NEVER `if definition is button/card/chart` (Codex Q7).
 
-import type { SceneNode } from './documents';
+import type { SceneNode } from '../../documents/read-data/documents';
 
 export const INSTANCE_NS = '::';
 export const DEFINITION_REF_PROP = 'definition_ref';

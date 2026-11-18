@@ -29,12 +29,12 @@ export {
   readEditingRules,
   setBlockText,
   splitBlock,
-} from './read-data/document-value.ts';
-export type { DocumentNode, DocumentValue, Edited, EditingRules, Focus, Mint } from './read-data/document-value.ts';
-export type { InputShortcut, AutoformatRule } from './read-data/documents.ts';
+} from '../documents/read-data/document-value.ts';
+export type { DocumentNode, DocumentValue, Edited, EditingRules, Focus, Mint } from '../documents/read-data/document-value.ts';
+export type { InputShortcut, AutoformatRule } from '../documents/read-data/documents.ts';
 export { encodeInlineLinkOpen, safeInlineLinkUrl, applyInlineLinkToText, selectedInlineLink, encodeRefToken, parseInlineRuns, hasRefToken, runsToText } from './read-data/inline-tokens.ts';
 export type { InlineMark, Ref, Run } from './read-data/inline-tokens.ts';
-export { pageReferencesToCheck } from './read-data/page-references.ts';
+export { pageReferencesToCheck } from '../documents/read-data/page-references.ts';
 // A document's pages from plain sections of words (each `{ text, heading?, level? }`), the shape Write keeps.
 export { sectionsToContent } from './do-work/imported-document.mjs';
-export type { PageReference, ReferenceResolution } from './read-data/page-references.ts';
+export type { PageReference, ReferenceResolution } from '../documents/read-data/page-references.ts';

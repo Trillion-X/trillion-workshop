@@ -35,7 +35,7 @@ import {
 } from './documents.ts';
 import { encodeInlineLinkOpen, encodeRefToken, insertRefTokenIntoText, parseEmphasisRuns, safeInlineLinkUrl, type InlineMark, type Ref } from 'trillion-workshop/tools/edit-a-document-together/read-data/inline-tokens.ts';
 import { normalizeAuthoredDocument } from './normalize-authored-document.ts';
-import { markdownCodeFence } from './markdown-code-fence.ts';
+import { markdownCodeFence } from '../../edit-a-document-together/read-data/markdown-code-fence.ts';
 import { readSelectionOps, selectionOpPatches, type SelectionOp } from './selection-ops.ts';
 import { markerToStartTheNextOneWith, whatEnterDoesInThisBlock, type EnterDecision } from './what-enter-does-in-this-block.ts';
 

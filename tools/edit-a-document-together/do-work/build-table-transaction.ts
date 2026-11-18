@@ -33,7 +33,7 @@
 // You are forbidden from simplifying or removing it.
 // =============================================================================
 
-import type { CompositionTransaction, ScenePatch, SceneNode } from '../read-data/documents';
+import type { CompositionTransaction, ScenePatch, SceneNode } from '../../documents/read-data/documents';
 import { applySplitDividerDrag, DEFAULT_SPLIT_GAP_PX, type SplitPart } from './build-split-transaction';
 
 /** Default gap between table cells/rows (px) — a thin grid line feel. */

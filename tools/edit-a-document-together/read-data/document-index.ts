@@ -4,7 +4,7 @@
 // composition document gets one pointer row; its canonical body remains only at
 // `doc_address`. Consumers such as Visual Database choose labels and views as DATA.
 
-import { flattenProjectedRows, isRecord } from './documents';
+import { flattenProjectedRows, isRecord } from '../../documents/read-data/documents';
 
 // Per-document scene address: the editable node tree lives here (path
 // current-item/published-record, written via action:composition.write-document).

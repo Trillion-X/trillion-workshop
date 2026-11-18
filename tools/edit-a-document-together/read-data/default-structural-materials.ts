@@ -21,7 +21,7 @@
 // Hand-authored DATA — the June-22 gen-structural-materials.mjs generator is retired; THIS
 // committed module is the source of truth. Add a block = add ONE MaterialDescriptor row
 // here; ZERO renderer code changes (B1 / L090 / enum-dissolution).
-import type { MaterialDescriptor } from './documents';
+import type { MaterialDescriptor } from '../../documents/read-data/documents';
 
 export const DEFAULT_STRUCTURAL_MATERIALS: MaterialDescriptor[] = [
   {

@@ -21,7 +21,7 @@
 //   * The engine never sees the instance: definition_ref / prop_overrides ride
 //     under `props` and the resolver strips them before engine handoff.
 
-import type { SceneNode, ScenePatch } from '../read-data/documents';
+import type { SceneNode, ScenePatch } from '../../documents/read-data/documents';
 import {
   DEFINITION_REF_PROP,
   PROP_OVERRIDES_PROP,

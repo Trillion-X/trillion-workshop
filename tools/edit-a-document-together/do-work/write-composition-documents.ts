@@ -14,7 +14,7 @@ import {
 import {
   readCompositionContent,
   type CompositionContent,
-} from '../read-data/documents';
+} from '../../documents/read-data/documents';
 
 // The live content address — the SSOT the good era always wrote and where the
 // user's real pages live (911+ log versions). Shared with the name/export/board

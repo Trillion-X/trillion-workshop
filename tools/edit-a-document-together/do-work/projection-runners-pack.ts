@@ -24,7 +24,7 @@ import {
   saveExportDescriptor,
   authoredNoteSurfaceAddress,
   writeCompositionRecord,
-} from './publish-authored-thing';
+} from '../../documents/do-work/publish-authored-thing';
 import { exportCompositionFragment, exportDocumentMarkdown } from './imported-document.mjs';
 import {
   buildTaskAttachmentAppend,
@@ -34,12 +34,12 @@ import {
 import type {
   ExportArtifactRecord,
   ExportDescriptorRecord,
-} from '../read-data/authored-thing-refs';
+} from '../../documents/read-data/authored-thing-refs';
 import type {
   AuthoredCompositionUnit,
   ProjectionResult,
   ProjectionRunnerMap,
-} from './materialize-authored-composition-intent';
+} from '../../documents/do-work/materialize-authored-composition-intent';
 
 const textEncoder = new TextEncoder();
 

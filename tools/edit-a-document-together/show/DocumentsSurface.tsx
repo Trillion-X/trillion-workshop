@@ -6,13 +6,13 @@ import { DOCUMENTS_SURFACE_CSS } from '../../screen-look/show/documents-surface-
 export { DOCUMENTS_SURFACE_CSS } from '../../screen-look/show/documents-surface-style';
 import { isTextCompositionKey, splitEditableSelection, trackTextComposition, type EditableTextSplit } from '../../ui/show/rich-text-editor/editing-selection';
 import { createEditorHistory } from '../../ui/show/rich-text-editor/editing-history';
-import { blocksFromMarkdown, changeBlockIndent, MAX_INDENT_LEVEL } from '../read-data/document-value';
+import { blocksFromMarkdown, changeBlockIndent, MAX_INDENT_LEVEL } from '../../documents/read-data/document-value';
 import { authoredInteractionState, authoredPrimaryGrip, compositionInteractionsForHandler } from '../read-data/interaction-events';
 import { DocumentImportDialog } from './DocumentImportDialog';
 import type { FileFieldSource } from '../../ui/show/file-field';
 import { matchesMenuSearch } from '../../ui/show/dropdown';
 import { DocumentConflictComparison } from './DocumentConflictComparison';
-import { documentPageReferenceIndex, referenceOccurrencesToCheck, remapPageSelfReferences, resolveDocumentPageReference } from '../read-data/page-references';
+import { documentPageReferenceIndex, referenceOccurrencesToCheck, remapPageSelfReferences, resolveDocumentPageReference } from '../../documents/read-data/page-references';
 import { sceneNodeReferenceOptions, sceneNodeReferenceSource } from '../read-data/scene-node-reference-options';
 import { checkPageReferences, referenceKey, type ReferenceOwnerCheck } from '../read-data/check-page-references';
 import { readDocumentIndex } from '../read-data/document-index';
@@ -120,15 +120,15 @@ import {
   type SceneNode,
   type ScenePatch,
   type Viewport,
-} from '../read-data/documents';
+} from '../../documents/read-data/documents';
 import { AddressedSurfaceIntentReader, AddressedSurfaceIntentRecipient, placeableSurfaceCatalogForViewer, surfaceIntentMatchesCatalogPayload, ViewerAccessRefsContext, type SurfaceIntentReaderConfig } from '../../ui/show/placeable-surface-intent';
-import { resolveInDirection, resolveGoalColumn, candidatesInRect, marqueeRect, navDiagnostics, type Direction } from '../read-data/cursor-nav';
+import { resolveInDirection, resolveGoalColumn, candidatesInRect, marqueeRect, navDiagnostics, type Direction } from '../../documents/read-data/cursor-nav';
 import { escalateScope, subtreeIds, ancestorChainToCeiling } from '../read-data/containment-scope';
 import {
   whatEnterDoesInThisBlock,
   markerToStartTheNextOneWith,
   type ContinuableShortcutRule,
-} from '../read-data/what-enter-does-in-this-block';
+} from '../../documents/read-data/what-enter-does-in-this-block';
 import { AppSidebar } from '../../sidebar/show/AppSidebar';
 import { DocumentRevisionHistory } from './DocumentRevisionHistory';
 import type { AppSidebarProps } from '../../sidebar/show/AppSidebar';
@@ -143,11 +143,11 @@ import {
   documentsPageActions,
   documentsPageMenuItems,
   documentPageMoveTarget,
-} from './documents-page-sidebar';
-import { resolveCursorCommand, CURSOR_COMMANDS, type CursorCommand } from '../read-data/cursor-commands';
+} from '../../documents/show/documents-page-sidebar';
+import { resolveCursorCommand, CURSOR_COMMANDS, type CursorCommand } from '../../documents/read-data/cursor-commands';
 import { resolveInitialPageSelection } from '../read-data/initial-page-selection';
 import { headingLevel } from '../read-data/heading-semantics.ts';
-import { matchSelectionOp, selectionOpPatches, type SelectionOp } from '../read-data/selection-ops';
+import { matchSelectionOp, selectionOpPatches, type SelectionOp } from '../../documents/read-data/selection-ops';
 import { makeStructuralListItem, nestIndentableBlock, outdentIndentableBlock, structuralContinuation, structuralPrimaryContext, structuralizeListBlocks, unwrapStructuralListItem } from '../read-data/structural-blocks';
 
 import { hydrateCompositionScene } from '../do-work/hydrate-composition-scene';
@@ -162,7 +162,7 @@ import {
   materializeAuthoredCompositionIntent,
   type ProjectionDescriptor,
   type ProjectionRunnerMap,
-} from '../do-work/materialize-authored-composition-intent';
+} from '../../documents/do-work/materialize-authored-composition-intent';
 import {
   foldProjectionActions,
   buildProjectionDispatch,
@@ -177,7 +177,7 @@ import { requestSelectionResponse } from '../../ui/show/responses/selection-comm
 import selectionResponseActions from '../read-data/selection-response-actions.json';
 import { controlShown, useShowChange } from '../../ui/show/show-rules/show-of';
 import { composerKeyAction } from '../read-data/composer-key-action';
-import { visibleTextLines } from '../do-work/project-scene-to-file-request';
+import { visibleTextLines } from '../../documents/do-work/project-scene-to-file-request';
 import { readPublishedRecords } from '../../ui/show/placeable-surface-intent';
 import { findPlaceableSurfaces } from '../../ui/show/placeable-surface-intent/placeable-surface-record';
 import { normalizeFeedRows } from '../read-data/normalize-feed-rows';
@@ -219,9 +219,9 @@ import {
   COMPOSITION_SLASH_CHANNEL,
   ownerSelectionContext,
   type AffordanceSlashRow,
-} from '../read-data/affordance-materials';
+} from '../../documents/read-data/affordance-materials';
 import { runActionAffordance } from '../do-work/run-action-affordance';
-import { resolveDestinationActionReadback, type DestinationActionReadback } from '../read-data/action-result-readback';
+import { resolveDestinationActionReadback, type DestinationActionReadback } from '../../documents/read-data/action-result-readback';
 // Blind reuse of process-session's live-output primitive: composition hands it an
 // opaque stream handle read from the interim payload and renders the returned
 // growing text. It knows NOTHING of event feeds, deltas, or stream addresses.
@@ -234,7 +234,7 @@ import { composerConfigGroups, dispatchComposerConfigSelect, readComposerConfigC
 // the SAME useProcessSessionLiveOutput panel. Selection is resolved from DATA on
 // the shortcut; the render + fire are process-session's blind generic primitives.
 import { sendRequestToBitfieldTarget } from '#workspace-records';
-import { buildResizeTransaction } from '../do-work/build-resize-transaction';
+import { buildResizeTransaction } from '../../documents/do-work/build-resize-transaction';
 import { buildFloatTransaction, repositionFromDrag, buildRepositionTransaction, panFromDrag, zoomAtPoint, CANVAS_ZOOM_LIMITS, isCanvasRoot, buildWorkspaceCanvasArrangement, workspaceHasCanvasLayout, zoomByFactor, zoomToActualSize, fitCamera, framesBoundingBox, cameraCenteredOnWorld, type WorldRect } from '../do-work/build-float-transaction';
 import {
   readSplitParts,

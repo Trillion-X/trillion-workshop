@@ -3,7 +3,7 @@ import type {
   CompositionBinding,
   CompositionTrigger,
   SceneNode,
-} from '../read-data/documents';
+} from '../../documents/read-data/documents';
 
 export type CompositionActionRecord = {
   id: string;

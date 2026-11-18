@@ -9,8 +9,8 @@ import pageActionRows from 'trillion-workshop/tools/edit-a-document-together/dat
 import type { NavItemActionData, NavSectionData } from '../../sidebar/show/SidebarContent';
 import type { DocumentPageBacklink, PageReference } from '../read-data/page-references';
 import { parseInlineRuns } from 'trillion-workshop/tools/edit-a-document-together/read-data/inline-tokens.ts';
-import { headingLevel } from '../read-data/heading-semantics.ts';
-import type { DocumentIndexEntry } from '../read-data/document-index.ts';
+import { headingLevel } from '../../edit-a-document-together/read-data/heading-semantics.ts';
+import type { DocumentIndexEntry } from '../../edit-a-document-together/read-data/document-index.ts';
 
 export const DOCUMENTS_PAGE_SIDEBAR_SCOPE = 'documents-pages';
 export const DOCUMENTS_PAGE_COLLECTION_ID = 'pages';

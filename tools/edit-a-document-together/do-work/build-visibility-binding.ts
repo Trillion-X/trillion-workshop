@@ -41,7 +41,7 @@
 // You are forbidden from simplifying or removing it.
 // =============================================================================
 
-import type { CompositionTransaction, SceneNode } from '../read-data/documents';
+import type { CompositionTransaction, SceneNode } from '../../documents/read-data/documents';
 
 /** The engine's visibility-binding AST (untagged `Visibility::Binding`). */
 export type VisibilityBinding = {

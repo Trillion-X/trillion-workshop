@@ -3,7 +3,7 @@ import {
   DOCUMENTS_SCENE_ROOT_ID,
   type ApplyScenePatchReceipt,
 } from './apply-scene-patch';
-import type { SceneNode, ScenePatch } from '../read-data/documents';
+import type { SceneNode, ScenePatch } from '../../documents/read-data/documents';
 import type { DocumentsSceneTargetDependencies } from './scene-target-runtime';
 import type { BitfieldRuntimeContext } from '#workspace-records';
 import { readDocumentsScene } from './read-scene-target';

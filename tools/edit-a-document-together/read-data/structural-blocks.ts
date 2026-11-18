@@ -1,5 +1,5 @@
-import type { SceneNode, ScenePatch } from './documents.ts';
-import { MAX_INDENT_LEVEL } from './document-value.ts';
+import type { SceneNode, ScenePatch } from '../../documents/read-data/documents.ts';
+import { MAX_INDENT_LEVEL } from '../../documents/read-data/document-value.ts';
 import { authoredPrimaryGrip } from './interaction-events.ts';
 
 /** Optional structure contracts carried by a material's interaction DATA. */

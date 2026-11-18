@@ -1,6 +1,6 @@
 import { blake3 } from '@noble/hashes/blake3.js';
 import { marked } from 'marked';
-import { markdownCodeFence } from '../read-data/markdown-code-fence.ts';
+import { markdownCodeFence } from '../../edit-a-document-together/read-data/markdown-code-fence.ts';
 import importFormats from '../read-data/document-import-formats.json' with { type: 'json' };
 import editingRules from '../read-data/editing-rules.json' with { type: 'json' };
 

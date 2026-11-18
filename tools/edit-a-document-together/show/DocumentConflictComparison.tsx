@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Button, Container, SchemaValueView } from '../../ui';
-import type { CompositionContent } from '../read-data/documents';
+import type { CompositionContent } from '../../documents/read-data/documents';
 import { PageTextPreview } from './DocumentImportDialog';
 import { FloatingPanel } from '../../screen-arrangement/show/FloatingPanel';
 

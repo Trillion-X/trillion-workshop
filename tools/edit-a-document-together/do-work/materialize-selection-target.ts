@@ -10,7 +10,7 @@ import {
   makeHashCodeHexFromBytes,
 } from '#workspace-records';
 import { serializeSelectionContext } from './serialize-selection-context';
-import type { SceneNode } from '../read-data/documents';
+import type { SceneNode } from '../../documents/read-data/documents';
 
 type ExactRef = { address: string; revision: string; object_hash: string };
 type Sender = typeof sendRequestToBitfieldTarget;

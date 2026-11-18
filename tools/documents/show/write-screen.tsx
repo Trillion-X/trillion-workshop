@@ -25,7 +25,7 @@
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
 import manifest from 'trillion-workshop/tools/edit-a-document-together/things-to-store-and-run.json';
-import mountDocuments from './mount-documents';
+import mountDocuments from '../../edit-a-document-together/show/mount-documents';
 import { partManifestFeeds } from '#workspace/part-records.ts';
 import { showMissing } from '#workspace-records';
 import settings from 'trillion-workshop/tools/edit-a-document-together/show/write-screen.json';

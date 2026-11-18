@@ -16,7 +16,7 @@
 // document opens in the SAME editor and every piece (heading, paragraph, sources
 // line) is individually selectable/editable — zero article-specific rendering.
 
-import type { CompositionContent } from './documents';
+import type { CompositionContent } from '../../documents/read-data/documents';
 import { sectionsToContent } from '../do-work/imported-document.mjs';
 
 // One ordered piece of a document. `heading:true` (or a `level`) renders the text

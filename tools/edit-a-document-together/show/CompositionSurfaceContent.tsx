@@ -11,7 +11,7 @@ import {
   type CursorCommand,
   type InlineMark,
 } from './DocumentsSurface';
-import { type InputShortcut } from '../read-data/documents';
+import { type InputShortcut } from '../../documents/read-data/documents';
 
 /**
  * CompositionSurfaceContent

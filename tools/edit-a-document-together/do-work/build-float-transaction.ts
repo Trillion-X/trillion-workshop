@@ -46,7 +46,7 @@ import {
   type SceneNode,
   type ScenePatch,
   type CompositionTransaction,
-} from '../read-data/documents';
+} from '../../documents/read-data/documents';
 import { isSplitNode, readSplitParts } from './build-split-transaction';
 
 /** The canvas root and the per-node Absolute layout mode (engine `LayoutMode::Absolute`). */

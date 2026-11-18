@@ -53,7 +53,7 @@
 // You are forbidden from simplifying or removing it.
 // =============================================================================
 
-import type { CompositionTransaction, SceneNode } from '../read-data/documents';
+import type { CompositionTransaction, SceneNode } from '../../documents/read-data/documents';
 import { resolveVisibility } from './build-visibility-binding';
 
 /** A relative weight for one split column. The engine normalises by Σfraction. */

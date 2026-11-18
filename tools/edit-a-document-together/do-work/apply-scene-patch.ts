@@ -7,7 +7,7 @@ import {
   type CompositionDocumentSnapshot,
   type CompositionDocumentsLogStore,
 } from './write-composition-documents';
-import type { CompositionContent, SceneNode, ScenePatch } from '../read-data/documents';
+import type { CompositionContent, SceneNode, ScenePatch } from '../../documents/read-data/documents';
 import {
   readTrustedRuntimeClockMs,
   readTrustedRuntimePartition,

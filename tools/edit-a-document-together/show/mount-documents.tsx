@@ -12,7 +12,7 @@ import { ViewerAccessRefsProvider } from '../../ui/show/placeable-surface-intent
 import { DocumentsSurface } from './DocumentsSurface';
 import { defaultProjectionRunners } from '../do-work/projection-runners-pack';
 import { sendCompositionTransaction } from '../do-work/send-composition-transaction';
-import type { CompositionTransaction } from '../read-data/documents';
+import type { CompositionTransaction } from '../../documents/read-data/documents';
 import {
   createCompositionDocumentsLogStore,
   readServingCompositionRuntimeConfig,
@@ -27,9 +27,9 @@ import {
   readInputShortcutsFull,
   type CompositionContent,
   type SceneNode,
-} from '../read-data/documents';
-import { readSelectionOps } from '../read-data/selection-ops';
-import { readCursorCommands } from '../read-data/cursor-commands';
+} from '../../documents/read-data/documents';
+import { readSelectionOps } from '../../documents/read-data/selection-ops';
+import { readCursorCommands } from '../../documents/read-data/cursor-commands';
 import { normalizeFeedRows } from '../read-data/feed-rows';
 import { readSidebarSettings } from '../../sidebar/read-data/sidebar-settings';
 import { documentCollaborationView } from '../read-data/collaboration-view';

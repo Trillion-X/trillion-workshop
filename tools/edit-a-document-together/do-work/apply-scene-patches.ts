@@ -13,7 +13,7 @@
 //   * Unknown / unfindable targets are no-ops (defensive — never throw on a patch
 //     that doesn't apply, e.g. an instance-internal id absent from the authored tree).
 
-import type { SceneNode, ScenePatch } from '../read-data/documents';
+import type { SceneNode, ScenePatch } from '../../documents/read-data/documents';
 
 function asRecord(v: unknown): Record<string, unknown> {
   return v && typeof v === 'object' && !Array.isArray(v) ? (v as Record<string, unknown>) : {};

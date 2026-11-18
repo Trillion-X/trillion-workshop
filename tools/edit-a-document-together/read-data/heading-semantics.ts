@@ -1,5 +1,5 @@
-import { DEFAULT_EDITING_RULES } from './document-value.ts';
-import type { AutoformatRule } from './documents.ts';
+import { DEFAULT_EDITING_RULES } from '../../documents/read-data/document-value.ts';
+import type { AutoformatRule } from '../../documents/read-data/documents.ts';
 
 const levelOf = (value: unknown): number | null =>
   typeof value === 'number' && Number.isInteger(value) && value >= 1 && value <= 6 ? value : null;

@@ -22,7 +22,7 @@
 // number. The host renders the spine for a collapsed node (generic chrome for a
 // generic layout state, like `visible`/`selected` — zero Society vocabulary).
 
-import type { CompositionTransaction, SceneNode } from '../read-data/documents';
+import type { CompositionTransaction, SceneNode } from '../../documents/read-data/documents';
 
 /** Fixed on-screen width (px) of a collapsed panel's spine — a thin labelled rail. */
 export const SPINE_PX = 36;

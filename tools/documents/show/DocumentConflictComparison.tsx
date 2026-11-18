@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Button, Container, SchemaValueView } from '../../ui';
 import type { CompositionContent } from '../read-data/documents';
-import { PageTextPreview } from './DocumentImportDialog';
+import { PageTextPreview } from '../../edit-a-document-together/show/DocumentImportDialog';
 import { FloatingPanel } from '../../screen-arrangement/show/FloatingPanel';
 
 /** Review both versions without replacing the document under the cursor. */

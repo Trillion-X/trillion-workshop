@@ -18,7 +18,7 @@ context, sends the workflow Envelope, and places returned artifacts.
 |------|---------|
 | `mount-documents.tsx` | The editor entry (`documents`). Mounts `DocumentsSurface` at `props.scene_address` (defaults to the standalone documents address), so it edits whichever document it is pointed at. |
 | `DocumentsSurface.tsx` | The block editor itself (blocks, formatting, input-shortcuts, edges, camera). |
-| `documents-page-sidebar.ts` | Projects page scene nodes into the shape the OWNED sidebar reads, plus the page row-action rows. Pure: it writes no record, so page scene nodes stay the only page identity and order authority. |
+| `tools/documents/show/documents-page-sidebar.ts` | Projects page scene nodes into the shape the OWNED sidebar reads, plus the page row-action rows. Pure: it writes no record, so page scene nodes stay the only page identity and order authority. |
 | `CompositionSurfaceContent.tsx` | Renders the same `SceneNodeView` tree behind a `canEdit` gate. Every handler `DocumentsSurface` passes must also be threaded here, or the gated path hands the child `undefined`. |
 | `mount-composition-scene.tsx` | The `composition-scene` entry. |
 | `mount-selected-composition.tsx` | The `selected-composition` entry. |
@@ -29,7 +29,7 @@ context, sends the workflow Envelope, and places returned artifacts.
 
 The rail beside the editor is the OWNED sidebar (`packages/sidebar` plus
 `group`), mounted as `AppSidebar` with `presentation="embedded"` and fed by
-`documents-page-sidebar.ts`. The `embedded` presentation is NOT optional: the
+`tools/documents/show/documents-page-sidebar.ts`. The `embedded` presentation is NOT optional: the
 default is the app rail, and mounting that here evicts the shell nav and takes
 the window rail instead of adding a panel to this container.
 

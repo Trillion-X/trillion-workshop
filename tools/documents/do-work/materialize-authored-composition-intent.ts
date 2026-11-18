@@ -29,7 +29,7 @@ import {
   type BitfieldRequestSender,
 } from './publish-authored-thing';
 import type { TaskRecord } from './build-task-attachment-append';
-import { defaultProjectionRunners } from './projection-runners-pack';
+import { defaultProjectionRunners } from '../../edit-a-document-together/do-work/projection-runners-pack';
 
 // The resolved, addressed authored composition unit every projection reads from.
 export interface AuthoredCompositionUnit {

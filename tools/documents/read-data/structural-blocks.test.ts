@@ -12,7 +12,7 @@ import {
   structuralPrimaryContext,
   structuralizeListBlocks,
   unwrapStructuralListItem,
-} from './structural-blocks.ts';
+} from '../../edit-a-document-together/read-data/structural-blocks.ts';
 import { DEFAULT_STRUCTURAL_MATERIALS } from './default-structural-materials.ts';
 
 const toggle = (id: string, title: string, placement?: 'body' | 'sibling'): SceneNode => ({

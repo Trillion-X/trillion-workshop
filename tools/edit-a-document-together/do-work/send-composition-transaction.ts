@@ -1,7 +1,7 @@
 import type {
   CompositionSnapshot,
   CompositionTransaction,
-} from '../read-data/documents';
+} from '../../documents/read-data/documents';
 import { sendRequestToBitfieldTarget } from '#workspace-records';
 
 const DEFAULT_CAMERA = { pan_x: 0, pan_y: 0, zoom: 1 };

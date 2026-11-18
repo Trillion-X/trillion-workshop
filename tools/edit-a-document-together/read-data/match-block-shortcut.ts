@@ -1,5 +1,5 @@
-import { matchAutoformat, type AutoformatMatch, type AutoformatRule, type InputShortcut } from './documents.ts';
-import { embeddedTextMarker } from './what-enter-does-in-this-block.ts';
+import { matchAutoformat, type AutoformatMatch, type AutoformatRule, type InputShortcut } from '../../documents/read-data/documents.ts';
+import { embeddedTextMarker } from '../../documents/read-data/what-enter-does-in-this-block.ts';
 
 /** Match authored input after an earlier shortcut has already painted its marker.
  * Only that producing DATA row can identify a marker; punctuation is never guessed.

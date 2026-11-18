@@ -151,23 +151,6 @@
       "reused": true
     },
     {
-      "from": "parts/documents/do-work/build-resize-transaction.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/edit-a-document-together/do-work/build-resize-transaction.ts",
-      "source_identity": "1f:5ac5b4498c180680d2668e1424b4734279bd59058bd10a98b06533b0b024a7cc",
-      "identity": "1f:5ac5b4498c180680d2668e1424b4734279bd59058bd10a98b06533b0b024a7cc",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "packages/documents/do-work/build-resize-transaction.ts",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/edit-a-document-together/do-work/build-resize-transaction.ts",
-      "source_identity": "1f:7bb3f08d5d43e0eb35b363055dfd19f45f71de6d57f594129f5ccc030e7a6c98",
-      "identity": "1f:5ac5b4498c180680d2668e1424b4734279bd59058bd10a98b06533b0b024a7cc",
-      "reused": true
-    },
-    {
       "from": "parts/documents/do-work/build-split-transaction.ts",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
@@ -246,23 +229,6 @@
       "found_by": "same bytes"
     },
     {
-      "from": "parts/documents/do-work/materialize-authored-composition-intent.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/edit-a-document-together/do-work/materialize-authored-composition-intent.ts",
-      "source_identity": "1f:526ffcb03640d9e959b2130112f5b7b6f8d300c5616c160388929532c2c58dd0",
-      "identity": "1f:526ffcb03640d9e959b2130112f5b7b6f8d300c5616c160388929532c2c58dd0",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "packages/documents/do-work/materialize-authored-composition-intent.ts",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/edit-a-document-together/do-work/materialize-authored-composition-intent.ts",
-      "source_identity": "1f:de2c022705c73e87d5680769d97b378aa2978a633946c66ef257c13838b33c31",
-      "identity": "1f:526ffcb03640d9e959b2130112f5b7b6f8d300c5616c160388929532c2c58dd0",
-      "reused": true
-    },
-    {
       "from": "parts/documents/do-work/materialize-selection-target.ts",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
@@ -306,23 +272,6 @@
       "reused": true
     },
     {
-      "from": "parts/documents/do-work/project-scene-to-file-request.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/edit-a-document-together/do-work/project-scene-to-file-request.ts",
-      "source_identity": "1f:226832b43993102b78e4c09dd898ed1d52629744331add53912ecb695ec1d19a",
-      "identity": "1f:226832b43993102b78e4c09dd898ed1d52629744331add53912ecb695ec1d19a",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "packages/documents/do-work/project-scene-to-file-request.ts",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/edit-a-document-together/do-work/project-scene-to-file-request.ts",
-      "source_identity": "1f:743d6633eb0d7a37020de39aa9b0d8e282ca9f2a8fd8fbc01ce46c72a7f882d8",
-      "identity": "1f:226832b43993102b78e4c09dd898ed1d52629744331add53912ecb695ec1d19a",
-      "reused": true
-    },
-    {
       "from": "parts/documents/do-work/projection-runners-pack.ts",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
@@ -330,23 +279,6 @@
       "source_identity": "1f:49aff4c8f8dd10a30d545383bb42107ac498d4f84f6280da1d2353e95cae32fa",
       "identity": "1f:49aff4c8f8dd10a30d545383bb42107ac498d4f84f6280da1d2353e95cae32fa",
       "found_by": "same bytes"
-    },
-    {
-      "from": "parts/documents/do-work/publish-authored-thing.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/edit-a-document-together/do-work/publish-authored-thing.ts",
-      "source_identity": "1f:012a495a235ca6be3dc0a498dae15d0916903cbba918bfa686f082eac5c9800a",
-      "identity": "1f:012a495a235ca6be3dc0a498dae15d0916903cbba918bfa686f082eac5c9800a",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "packages/documents/do-work/publish-authored-thing.ts",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/edit-a-document-together/do-work/publish-authored-thing.ts",
-      "source_identity": "1f:38bfb6886d40408a343e34c669cd2e1cc76bcb01dafdee7bea7297a4db73704a",
-      "identity": "1f:012a495a235ca6be3dc0a498dae15d0916903cbba918bfa686f082eac5c9800a",
-      "reused": true
     },
     {
       "from": "parts/documents/do-work/read-scene-target.ts",
@@ -705,57 +637,6 @@
       "identity": "1f:1c6cfe6f1c3f63e637ce07129916600123e3c84037feaac4934d6f1136af3c86"
     },
     {
-      "from": "parts/documents/read-data/action-result-readback.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/edit-a-document-together/read-data/action-result-readback.ts",
-      "source_identity": "1f:3aafab65eb7cb6f151d28696eb260ceeb1af937a490fe4e84f426b8ab74e7048",
-      "identity": "1f:3aafab65eb7cb6f151d28696eb260ceeb1af937a490fe4e84f426b8ab74e7048",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "packages/documents/read-data/action-result-readback.ts",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/edit-a-document-together/read-data/action-result-readback.ts",
-      "source_identity": "1f:c7d63448eadc99f1327b672242fa2b7451af196eda83d0c987c86d42c6ed7b1f",
-      "identity": "1f:3aafab65eb7cb6f151d28696eb260ceeb1af937a490fe4e84f426b8ab74e7048",
-      "reused": true
-    },
-    {
-      "from": "parts/documents/read-data/affordance-materials.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/edit-a-document-together/read-data/affordance-materials.ts",
-      "source_identity": "1f:c4217c41c093c3aa43a811987e10f6c185b86e35707aace76ed58e7163126c13",
-      "identity": "1f:c4217c41c093c3aa43a811987e10f6c185b86e35707aace76ed58e7163126c13",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "packages/documents/read-data/affordance-materials.ts",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/edit-a-document-together/read-data/affordance-materials.ts",
-      "source_identity": "1f:45cdbd40d624fcc47bba9b32a35380b6081b9c579e8574abfa8a3ca8612c61d0",
-      "identity": "1f:c4217c41c093c3aa43a811987e10f6c185b86e35707aace76ed58e7163126c13",
-      "reused": true
-    },
-    {
-      "from": "parts/documents/read-data/authored-thing-refs.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/edit-a-document-together/read-data/authored-thing-refs.ts",
-      "source_identity": "1f:d941650ae262c73ab2e9b2e8f15946aab01283f51c4406fca896806f9d7c4652",
-      "identity": "1f:d941650ae262c73ab2e9b2e8f15946aab01283f51c4406fca896806f9d7c4652",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "packages/documents/read-data/authored-thing-refs.ts",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/edit-a-document-together/read-data/authored-thing-refs.ts",
-      "source_identity": "1f:36a284caa987326fa77b457fcba85fd9472e921c4833c3c5efca79556fbf7aed",
-      "identity": "1f:d941650ae262c73ab2e9b2e8f15946aab01283f51c4406fca896806f9d7c4652",
-      "reused": true
-    },
-    {
       "from": "parts/documents/read-data/check-page-references.ts",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
@@ -841,40 +722,6 @@
       "reused": true
     },
     {
-      "from": "parts/documents/read-data/cursor-commands.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/edit-a-document-together/read-data/cursor-commands.ts",
-      "source_identity": "1f:5c78bc9471cb20ad4157da8e42a0b9d70274bc305d069dae3efb048dd52a99c3",
-      "identity": "1f:5c78bc9471cb20ad4157da8e42a0b9d70274bc305d069dae3efb048dd52a99c3",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "packages/documents/read-data/cursor-commands.ts",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/edit-a-document-together/read-data/cursor-commands.ts",
-      "source_identity": "1f:ba9e54a7913b51cb93c4f2a641133d36871338560c90a9fd2d97bb9f2680be0a",
-      "identity": "1f:5c78bc9471cb20ad4157da8e42a0b9d70274bc305d069dae3efb048dd52a99c3",
-      "reused": true
-    },
-    {
-      "from": "parts/documents/read-data/cursor-nav.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/edit-a-document-together/read-data/cursor-nav.ts",
-      "source_identity": "1f:322a1ca6c0207cfc2971e18dc4c5050779c46dd0ac4b4267d633d29730a4a0d1",
-      "identity": "1f:322a1ca6c0207cfc2971e18dc4c5050779c46dd0ac4b4267d633d29730a4a0d1",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "packages/documents/read-data/cursor-nav.ts",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/edit-a-document-together/read-data/cursor-nav.ts",
-      "source_identity": "1f:322a1ca6c0207cfc2971e18dc4c5050779c46dd0ac4b4267d633d29730a4a0d1",
-      "identity": "1f:322a1ca6c0207cfc2971e18dc4c5050779c46dd0ac4b4267d633d29730a4a0d1",
-      "reused": true
-    },
-    {
       "from": "parts/documents/read-data/default-structural-materials.ts",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
@@ -927,24 +774,6 @@
       "found_by": "same bytes"
     },
     {
-      "from": "parts/documents/read-data/document-value.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/edit-a-document-together/read-data/document-value.ts",
-      "source_identity": "1f:51e250f9fece5d796894b619547c79197e5e26b5a1ec9c6a99750d1eaad74c1a",
-      "identity": "1f:51e250f9fece5d796894b619547c79197e5e26b5a1ec9c6a99750d1eaad74c1a",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "parts/documents/read-data/documents.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/edit-a-document-together/read-data/documents.ts",
-      "source_identity": "1f:8b8826d7cf50742f63b2ec39f8c641cff1f64b9b039e2898d23e9499842ab920",
-      "identity": "1f:8b8826d7cf50742f63b2ec39f8c641cff1f64b9b039e2898d23e9499842ab920",
-      "found_by": "same bytes"
-    },
-    {
       "from": "parts/documents/read-data/feed-rows.ts",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
@@ -980,23 +809,6 @@
       "found_by": "same bytes"
     },
     {
-      "from": "parts/documents/read-data/normalize-authored-document.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/edit-a-document-together/read-data/normalize-authored-document.ts",
-      "source_identity": "1f:c87d2e0767bb99b170248fce7d29004885ff64202cf28bd390ad8d823dd05220",
-      "identity": "1f:c87d2e0767bb99b170248fce7d29004885ff64202cf28bd390ad8d823dd05220",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "packages/documents/read-data/normalize-authored-document.ts",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/edit-a-document-together/read-data/normalize-authored-document.ts",
-      "source_identity": "1f:722dab0b851c755cef119347ce55a70ac95077f73600ff022ef0bf961726e6dd",
-      "identity": "1f:c87d2e0767bb99b170248fce7d29004885ff64202cf28bd390ad8d823dd05220",
-      "reused": true
-    },
-    {
       "from": "parts/documents/read-data/normalize-feed-rows.ts",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
@@ -1012,15 +824,6 @@
       "source_identity": "1f:2c5ee32291ef59140c393a033d323747c12a79d6cdeab2b27199cc660ba3303e",
       "identity": "1f:2c5ee32291ef59140c393a033d323747c12a79d6cdeab2b27199cc660ba3303e",
       "reused": true
-    },
-    {
-      "from": "parts/documents/read-data/page-references.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/edit-a-document-together/read-data/page-references.ts",
-      "source_identity": "1f:161c7fa1a3ef0dab6210c7e3752981d246878cb4af02cd965880de052d4fa3b8",
-      "identity": "1f:161c7fa1a3ef0dab6210c7e3752981d246878cb4af02cd965880de052d4fa3b8",
-      "found_by": "same bytes"
     },
     {
       "from": "parts/documents/read-data/projection-actions.ts",
@@ -1082,23 +885,6 @@
       "reused": true
     },
     {
-      "from": "parts/documents/read-data/selection-ops.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/edit-a-document-together/read-data/selection-ops.ts",
-      "source_identity": "1f:2831c092a5836c5315fdf78f760c4869cd3fdc6025b606f69ee90e06c5530214",
-      "identity": "1f:2831c092a5836c5315fdf78f760c4869cd3fdc6025b606f69ee90e06c5530214",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "packages/documents/read-data/selection-ops.ts",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/edit-a-document-together/read-data/selection-ops.ts",
-      "source_identity": "1f:3dea280ecc49053ca5e72bf0ff1a12e7fa62f9cad8d1a69af9875f50e13acf7d",
-      "identity": "1f:2831c092a5836c5315fdf78f760c4869cd3fdc6025b606f69ee90e06c5530214",
-      "reused": true
-    },
-    {
       "from": "parts/documents/read-data/visibility-operators.ts",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
@@ -1114,15 +900,6 @@
       "source_identity": "1f:8fc49cd3a01960594ffde4abafb0132ac2695b9ed5e546ca9e536d22cd8dc26a",
       "identity": "1f:8fc49cd3a01960594ffde4abafb0132ac2695b9ed5e546ca9e536d22cd8dc26a",
       "reused": true
-    },
-    {
-      "from": "parts/documents/read-data/what-enter-does-in-this-block.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/edit-a-document-together/read-data/what-enter-does-in-this-block.ts",
-      "source_identity": "1f:c0d074e186272ef6346f9c78b4d56425ba2b8a0afba5ccd6e7c251d6fbd2ddcf",
-      "identity": "1f:c0d074e186272ef6346f9c78b4d56425ba2b8a0afba5ccd6e7c251d6fbd2ddcf",
-      "found_by": "same bytes"
     },
     {
       "from": "parts/documents/show/AuthoredNoteEntry.tsx",
@@ -1175,15 +952,6 @@
       "to": "tools/edit-a-document-together/show/DocumentImportDialog.tsx",
       "source_identity": "1f:2861eedf1c9b8ea02d828a564785045bedfee69ba3c896bc0dbf43a13bd0231c",
       "identity": "1f:2861eedf1c9b8ea02d828a564785045bedfee69ba3c896bc0dbf43a13bd0231c",
-      "found_by": "same bytes"
-    },
-    {
-      "from": "parts/documents/show/documents-page-sidebar.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/edit-a-document-together/show/documents-page-sidebar.ts",
-      "source_identity": "1f:cc688a70b1e93edcfaab5921ae7273e1e558075998a206f9a7fa299883eb134c",
-      "identity": "1f:cc688a70b1e93edcfaab5921ae7273e1e558075998a206f9a7fa299883eb134c",
       "found_by": "same bytes"
     },
     {

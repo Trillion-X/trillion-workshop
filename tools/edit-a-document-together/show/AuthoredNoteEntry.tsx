@@ -5,9 +5,9 @@ import { bitfieldGeneratedLiveReadScopeDescriptor } from '#workspace-records';
 import {
   readCompositionRuntimeConfig,
   type CompositionContent,
-} from '../read-data/documents';
-import { findSubtree } from '../read-data/authored-thing-refs';
-import { projectSceneSubtreeToSections } from '../do-work/project-scene-to-file-request';
+} from '../../documents/read-data/documents';
+import { findSubtree } from '../../documents/read-data/authored-thing-refs';
+import { projectSceneSubtreeToSections } from '../../documents/do-work/project-scene-to-file-request';
 import { createCompositionDocumentsLogStore } from '../do-work/write-composition-documents';
 import { normalizeFeedRows } from '../read-data/feed-rows';
 

@@ -3,7 +3,7 @@ import { Button, Container, Spinner, Text } from '../../ui';
 import { VersionHistory, type VersionRow } from '../../ui/show/version-history';
 import { FloatingPanel } from '../../screen-arrangement/show/FloatingPanel';
 import { readWorkspaceDocumentHistory, readWorkspaceDocumentRevision } from '#workspace-records';
-import type { SceneNode } from '../read-data/documents';
+import type { SceneNode } from '../../documents/read-data/documents';
 import { PageTextPreview } from './DocumentImportDialog';
 
 function SavedPagePreview({ id, current }: { id: string; current: SceneNode }) {

@@ -1,6 +1,6 @@
 import { repairOwnedFsmBindings } from '../read-data/interaction-events';
 import { decodeCompositionSnapshotReply } from './send-composition-transaction';
-import { normalizeAuthoredDocument } from '../read-data/normalize-authored-document';
+import { normalizeAuthoredDocument } from '../../documents/read-data/normalize-authored-document';
 import {
   definitionsMapFrom,
   instanceRootsFrom,
@@ -14,7 +14,7 @@ import type {
   EdgeConnection,
   SceneNode,
   Viewport,
-} from '../read-data/documents';
+} from '../../documents/read-data/documents';
 
 export type HydratedCompositionScene = {
   snapshot: CompositionSnapshot;

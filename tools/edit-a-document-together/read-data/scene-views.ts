@@ -8,7 +8,7 @@ import {
   isRecord,
   type CompositionContent,
   type EdgeConnection,
-} from './documents';
+} from '../../documents/read-data/documents';
 
 export type VersionNote = {
   kind: 'composition-version-note';
