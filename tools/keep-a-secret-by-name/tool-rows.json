@@ -232,9 +232,9 @@
               "items": {
                 "type": "string",
                 "minLength": 1,
-                "description": "The secret's name, one word; or --remove, the name, --issuer-status, then revoked or unknown."
+                "description": "The secret's name, one word, optionally followed by --hosts and the comma-separated hosts the value may be sent to; or --remove, the name, --issuer-status, then revoked or unknown."
               },
-              "description": "The name; or --remove NAME --issuer-status revoked|unknown."
+              "description": "The name, optionally then --hosts HOST,HOST; or --remove NAME --issuer-status revoked|unknown."
             }
           }
         },

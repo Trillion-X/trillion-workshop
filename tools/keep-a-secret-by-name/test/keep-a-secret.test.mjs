@@ -4,7 +4,7 @@
 // body and never in an argument, a log line or the answer.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { keepSecret, readStdin, removeSecret, valueOf } from '../do-work/keep-a-secret.mjs';
+import { hostsOf, keepSecret, readStdin, removeSecret, valueOf } from '../do-work/keep-a-secret.mjs';
 import { engineClient } from '../../use-your-tools-from-a-shell/do-work/command.mjs';
 
 // A door that answers each JSON-RPC call with the structured content it is given, and keeps every request body it was sent.
@@ -30,6 +30,21 @@ test('a secret goes to secrets:put in the request body, under its name, and the 
   assert.equal(call.method, 'secrets:put');
   assert.deepEqual(call.input, { name: 'synthetic-push-secret', value: 'synthetic-value-7f3a' });
   assert.ok(!JSON.stringify(answer).includes('synthetic-value-7f3a'));
+});
+
+test('hosts travel beside the value as the input\'s hosts, and the answer names them without the value', async () => {
+  const { client, bodies } = stubDoor({ accepted: true });
+  const answer = await keepSecret({ name: 'synthetic-push-secret', value: 'synthetic-value-7f3a', hosts: hostsOf('api.example.com, mcp.example.com'), client });
+  assert.deepEqual(answer, { name: 'synthetic-push-secret', accepted: true, hosts: ['api.example.com', 'mcp.example.com'] });
+  assert.deepEqual(bodies[0].params.arguments.input,
+    { name: 'synthetic-push-secret', value: 'synthetic-value-7f3a', hosts: ['api.example.com', 'mcp.example.com'] });
+  assert.ok(!JSON.stringify(answer).includes('synthetic-value-7f3a'));
+});
+
+test('--hosts with no host is refused before any call is sent', async () => {
+  const { client, bodies } = stubDoor({ accepted: true });
+  await assert.rejects(keepSecret({ name: 'synthetic-push-secret', value: 'x', hosts: hostsOf(' , '), client }), /at least one host/);
+  assert.equal(bodies.length, 0);
 });
 
 test('a door that does not accept the value is an error, never a silent success', async () => {

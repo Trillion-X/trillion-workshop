@@ -1,0 +1,77 @@
+{
+  "_what": "Connect one outside service by its key. The person copies the service's key; the key is kept in their vault under the name they choose, sent only to the hosts the input names. Input: {service, name, hosts: \"host,host\", where_to_find_the_key}. Used by every choice of a saved setup list whose job is a service reached with a key (for example an email, phone or app-login service). The value never appears in a step's input or answer: the person's own computer pipes what the person copied into the vault tool's stdin, and the tool's answer {name, accepted, hosts} is the proof it was kept.",
+  "definitions": [
+    {
+      "id": "workflow:connect-a-service-by-key",
+      "name": "Connect a service by its key",
+      "kind": "workflow",
+      "is_active": true,
+      "version": 2,
+      "steps": [
+        {
+          "id": "get-the-key",
+          "kind": "ask",
+          "config": {
+            "name": "person",
+            "input": {
+              "do": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input",
+                  "path": "where_to_find_the_key"
+                }
+              },
+              "service": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input",
+                  "path": "service"
+                }
+              },
+              "then": "Copy the key, then say it is copied. Never paste it into a chat."
+            },
+            "context": {
+              "step_id": "get-the-key"
+            }
+          }
+        },
+        {
+          "id": "keep-the-key",
+          "kind": "ask",
+          "config": {
+            "name": "tool:keep-a-secret-by-name",
+            "input": {
+              "arguments": [
+                {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "name"
+                  }
+                },
+                "--hosts",
+                {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "input",
+                    "path": "hosts"
+                  }
+                }
+              ]
+            },
+            "context": {
+              "step_id": "keep-the-key"
+            }
+          }
+        }
+      ],
+      "edges": [
+        {
+          "from": "get-the-key",
+          "to": "keep-the-key",
+          "kind": "always"
+        }
+      ]
+    }
+  ]
+}
