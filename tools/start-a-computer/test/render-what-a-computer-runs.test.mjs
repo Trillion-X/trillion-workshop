@@ -139,24 +139,6 @@ test('a front door renders its storage, its ask, its own sites, its door hosts a
   assert.throws(() => renderWhatItRuns({ ...runs, caddy: { ...runs.caddy, front_door: missing } }, SITE_BLOCK), /caddy\.front_door needs door_upstream/);
 });
 
-// A computer that serves the public door runs the program built from its source, from the unit's own builds folder.
-const withDoor = {
-  caddy: runs.caddy,
-  units: [...runs.units, {
-    unit: 'example-door.service', template: 'serve-door', description: 'Example door', user: 'example-door',
-    builds: '/opt/example-door/builds', door_file: 'example-door',
-    environment: ['DOOR_LISTEN=127.0.0.1:9445', 'DOOR_PUBLIC_HOST=place.example.test'],
-  }],
-};
-
-test('a row that names the door renders its unit from its builds folder, with its environment', () => {
-  const door = renderWhatItRuns(withDoor, SITE_BLOCK).find(file => file.path === '/etc/systemd/system/example-door.service').text;
-  assert.doesNotMatch(door, /\{[a-z_]+\}/);
-  assert.match(door, /^Environment=DOOR_LISTEN=127\.0\.0\.1:9445 DOOR_PUBLIC_HOST=place\.example\.test$/m);
-  assert.match(door, /^ExecStart=\/opt\/example-door\/builds\/current\/example-door$/m);
-  assert.match(door, /^User=example-door$/m);
-});
-
 // A computer that runs a database server: its settings file of lines, its backup, restore test and role scripts, and the
 // timers that run them, all from the row.
 const database = {

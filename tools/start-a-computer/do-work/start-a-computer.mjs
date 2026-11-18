@@ -160,14 +160,14 @@ export async function runsState(machine, given, run = onMachine, { pages } = {})
  * the address is the row's), the `commit` built, the `build` argv run in its tree, the `output` file it makes, and the
  * `environment` lines it runs with, each `{field}` in them the unit's own value or the `{commit}` built. A private repository
  * names `credential`, the vault name of an SSH key that may read it, and `host_keys`, the known_hosts lines of its host. The
- * program is the unit's own `program` (or its `door_file`) in its `builds` folder. */
+ * program is the unit's own `program` in its `builds` folder. */
 export function sourceOf(unit) {
   const { source } = unit, where = `${unit.unit} source`;
   if (!/^[0-9a-f]{40}$/.test(source.commit ?? '')) throw refused(`${where} needs commit, a full commit id.`);
   if (typeof source.repository !== 'string' || !/^(https:\/\/|ssh:\/\/|[A-Za-z0-9._-]+@[A-Za-z0-9.-]+:)\S+$/.test(source.repository)) throw refused(`${where} needs repository, the git address the computer fetches the commit from.`);
   if (!Array.isArray(source.build) || !source.build.length || typeof source.output !== 'string') throw refused(`${where} needs build (an argv) and output (the file the build makes).`);
   if (source.credential !== undefined && (typeof source.credential !== 'string' || !Array.isArray(source.host_keys) || !source.host_keys.length)) throw refused(`${where} credential is the vault name of an SSH key, and needs host_keys: the known_hosts lines of the repository's host.`);
-  const program = unit.program ?? unit.door_file, current = unit.current ?? 'current';
+  const program = unit.program, current = unit.current ?? 'current';
   if (!/^[A-Za-z0-9._-]+$/.test(program ?? '') || typeof unit.builds !== 'string' || !isAbsolute(unit.builds)) throw refused(`${where} needs the unit's program and its builds folder.`);
   if (!/^current[A-Za-z0-9_-]*$/.test(current)) throw refused(`${where}: the build link a unit runs is current, or current- and a slot's name.`);
   const filled = text => fill(text, { ...unit, commit: source.commit }, where);

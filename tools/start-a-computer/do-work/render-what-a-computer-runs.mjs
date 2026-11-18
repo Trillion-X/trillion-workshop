@@ -14,7 +14,7 @@ import { WAYS, renderMeetingPoint } from '../../carry-a-computer-to-a-meeting-po
 
 const TEMPLATE = name => readFileSync(new URL(`../read-data/unit-templates/${name}`, import.meta.url), 'utf8');
 // A unit's template is named by its file without the extension.
-const UNITS = Object.fromEntries(['serve-computer', 'serve-better-auth', 'serve-door', 'serve-postgres', 'run-a-script', 'restart-a-unit']
+const UNITS = Object.fromEntries(['serve-computer', 'serve-better-auth', 'serve-postgres', 'run-a-script', 'restart-a-unit']
   .map(name => [name, TEMPLATE(`${name}.service`)]).concat([['run-on-a-timer', TEMPLATE('run-on-a-timer.timer')], ['watch-a-file', TEMPLATE('watch-a-file.path')]]));
 // A script a unit runs (`script`): the program's own text, written at the unit's `script_file`.
 const SCRIPT = name => {
