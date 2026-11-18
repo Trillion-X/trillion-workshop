@@ -2,7 +2,7 @@
 
 Tell one person something through every way they chose to hear that kind of news, and stop when the thing it was about is settled.
 
-Old trillion's owner of this, `src/tell-the-person.mjs` (tag `old-trillion-before-worker-retire`), is `read-data/tell-the-person.mjs`: a byte copy first (3cffafe5), then adapted as `ports/tell-the-person.json` says (import paths, and `GET /tell/feeds` answering the shipped glance feeds). Its rows (`records/tell-the-person.json`), quiet-hours row, glance feeds and run-progress rows came with it, and its test runs here with its assertions unchanged. The parked copies under `from-old-trillion/` were these files; `moved-from.json` records where each went.
+Old trillion's owner of this, `src/tell-the-person.mjs` (tag `old-trillion-before-worker-retire`), is `read-data/tell-the-person.mjs`: a byte copy first (3cffafe5), then adapted as `ports/tell-the-person.json` says (import paths, and `GET /tell/feeds` answering the shipped glance feeds). Its rows (`records/tell-the-person.json`), quiet-hours row, glance feeds and run-progress rows came with it, and its test runs here with its assertions unchanged. The parked copies under `from-an-older-version/` were these files; `moved-from.json` records where each went.
 
 ## Files
 

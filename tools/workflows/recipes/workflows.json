@@ -436,7 +436,7 @@
         "job": "Pull new Instagram messages, pick each person's reply from the person's own templates, check the replies against the person's rules, and hand them over to be sent.",
         "produces": "Checked replies ready to send, with the messages no template covered listed for the person.",
         "source": {
-          "from": "business-on-trillion meta-workflow, generic and public",
+          "from": "business-on-the-account meta-workflow, generic and public",
           "note": "Top of funnel. Live tools: pull-my-instagram-messages, expand-a-reply-template, check-copy. There is no live tool that sends a direct-message reply; a gap is written each run. OpenReply is not a tool in the live catalog or the Workshop source."
         },
         "fires_when": [
@@ -479,7 +479,7 @@
           {
             "id": "read-facts",
             "title": "Read the business facts",
-            "do": "Call run_resource_operation with address @own-records, method records:read and input {\"id\":\"record:business-setup:facts\"}. Keep the returned value as the facts. If the value is null, stop this stage: submit blocked with reason \"facts row missing\" and tell the person to run the parent workflow workflow:set-up-a-business-on-trillion step write-the-business-facts first.",
+            "do": "Call run_resource_operation with address @own-records, method records:read and input {\"id\":\"record:business-setup:facts\"}. Keep the returned value as the facts. If the value is null, stop this stage: submit blocked with reason \"facts row missing\" and tell the person to run the parent workflow workflow:set-up-a-business-on-the-account step write-the-business-facts first.",
             "submit": {
               "type": "object",
               "required": [
@@ -500,7 +500,7 @@
             "why": "Every later step reads its names and values from this one row, so no stage asks the person for the same fact twice.",
             "good_answer": "Passes: facts holds business_name, owner_name and channels exactly as the row keeps them. Fails: facts is an invented or guessed value, or a field this stage uses is absent without a blocker.",
             "came_from": [
-              "workflow:set-up-a-business-on-trillion:write-the-business-facts",
+              "workflow:set-up-a-business-on-the-account:write-the-business-facts",
               "L082"
             ],
             "part_of": [
@@ -560,7 +560,7 @@
             "why": "Replies are only as fast as the pull; the status says whether the pull is complete.",
             "good_answer": "Passes: status partial is reported as partial with the messages it did get. Fails: a message invented to fill a gap.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:top-of-funnel",
+              "brief:business-on-the-account-2026-11-12:top-of-funnel",
               "L082",
               "tool:pull-my-instagram-messages input_schema"
             ],
@@ -611,7 +611,7 @@
             "why": "A reply is picked from the person's own words, never from a template this stage invented.",
             "good_answer": "Passes: templates lists every row as stored. Fails: a template text written by the AI that is not in the list.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:top-of-funnel",
+              "brief:business-on-the-account-2026-11-12:top-of-funnel",
               "L082"
             ],
             "part_of": [
@@ -660,7 +660,7 @@
             "why": "Keyword picking is the person's own rule, so the same message always gets the same template.",
             "good_answer": "Passes: a message with the word from a template's match_words gets that template. Fails: a template picked whose match_words do not appear in the message.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:top-of-funnel",
+              "brief:business-on-the-account-2026-11-12:top-of-funnel",
               "L082"
             ],
             "part_of": [
@@ -713,7 +713,7 @@
             "why": "A template filled with the message's own details answers the person who wrote, without a made-up promise.",
             "good_answer": "Passes: a reply text that names the sender only when the message named them. Fails: a reply with a price or a date the template did not hold.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:top-of-funnel",
+              "brief:business-on-the-account-2026-11-12:top-of-funnel",
               "L082",
               "tool:expand-a-reply-template input_schema"
             ],
@@ -760,7 +760,7 @@
             "why": "Replies go out in the person's name, so they pass the same check as posts.",
             "good_answer": "Passes: a reply with a banned word appears in failing. Fails: a failing reply handed over.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:top-of-funnel",
+              "brief:business-on-the-account-2026-11-12:top-of-funnel",
               "L082",
               "tool:check-copy input_schema"
             ],
@@ -793,7 +793,7 @@
             "why": "Stating which send step is missing stops a stage claiming automated replies that were never sent.",
             "good_answer": "Passes: the answer says the person sends each reply and names the missing tool. Fails: a claim that replies were sent by Trillion.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:top-of-funnel",
+              "brief:business-on-the-account-2026-11-12:top-of-funnel",
               "L082",
               "L082 (a missing send step is named, not hidden)"
             ],
@@ -830,7 +830,7 @@
             "why": "The checklist is the only place a person sees what is done, not done or open. A stage that is ticked Done with an open step or an unwritten gap makes the checklist false.",
             "good_answer": "Passes: the row reads back with status Done only when every step is Done or Not applicable, and each gap found in the run has a gap row with status open. Fails: status Done while a step is Not done, or a gap found in the run is missing from list list:business-setup-gaps.",
             "came_from": [
-              "workflow:set-up-a-business-on-trillion:make-the-checklist",
+              "workflow:set-up-a-business-on-the-account:make-the-checklist",
               "record:check:every-step-is-banana-explicit",
               "L082"
             ],
@@ -2475,7 +2475,7 @@
         "job": "Write the page words as rows, check them against the person's rules, publish the page as a site, name it, attach the person's domain, and critique the live page.",
         "produces": "A published page on the person's address, built from rows the person can edit.",
         "source": {
-          "from": "business-on-trillion meta-workflow, generic and public",
+          "from": "business-on-the-account meta-workflow, generic and public",
           "note": "Middle of funnel. Live tools: check-copy, copy-a-site, publish_site, name_site, attach_domain, critique-a-public-page. DNS is set by the person at their DNS host."
         },
         "fires_when": [
@@ -2519,7 +2519,7 @@
           {
             "id": "read-facts",
             "title": "Read the business facts",
-            "do": "Call run_resource_operation with address @own-records, method records:read and input {\"id\":\"record:business-setup:facts\"}. Keep the returned value as the facts. If the value is null, stop this stage: submit blocked with reason \"facts row missing\" and tell the person to run the parent workflow workflow:set-up-a-business-on-trillion step write-the-business-facts first.",
+            "do": "Call run_resource_operation with address @own-records, method records:read and input {\"id\":\"record:business-setup:facts\"}. Keep the returned value as the facts. If the value is null, stop this stage: submit blocked with reason \"facts row missing\" and tell the person to run the parent workflow workflow:set-up-a-business-on-the-account step write-the-business-facts first.",
             "submit": {
               "type": "object",
               "required": [
@@ -2540,7 +2540,7 @@
             "why": "Every later step reads its names and values from this one row, so no stage asks the person for the same fact twice.",
             "good_answer": "Passes: facts holds business_name, owner_name and channels exactly as the row keeps them. Fails: facts is an invented or guessed value, or a field this stage uses is absent without a blocker.",
             "came_from": [
-              "workflow:set-up-a-business-on-trillion:write-the-business-facts",
+              "workflow:set-up-a-business-on-the-account:write-the-business-facts",
               "L082"
             ],
             "part_of": [
@@ -2583,7 +2583,7 @@
             "why": "Page copy in rows is the one place the page's words live, so a later edit changes the page on its next publish.",
             "good_answer": "Passes: seven blocks in order, each with its id, text and price. Fails: a proof line with a claim the person has not given.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:middle",
+              "brief:business-on-the-account-2026-11-12:middle",
               "L082"
             ],
             "part_of": [
@@ -2629,7 +2629,7 @@
             "why": "A page is the first words a buyer reads; they pass the same rules as posts.",
             "good_answer": "Passes: a block with a banned word in failing. Fails: failing empty over a banned word.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:middle",
+              "brief:business-on-the-account-2026-11-12:middle",
               "L082",
               "tool:check-copy input_schema"
             ],
@@ -2665,7 +2665,7 @@
             "why": "A reference layout is useful only when the person chose it; the words stay the person's.",
             "good_answer": "Passes: copied false with Not applicable when no address was given. Fails: a reference's paragraphs in the page.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:middle",
+              "brief:business-on-the-account-2026-11-12:middle",
               "L082",
               "tool:copy-a-site input_schema"
             ],
@@ -2703,7 +2703,7 @@
             "why": "The installation id is the site's handle; name_site and attach_domain both need it.",
             "good_answer": "Passes: a 32 hex installation id. Fails: an installation id typed from memory.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:middle",
+              "brief:business-on-the-account-2026-11-12:middle",
               "L082",
               "the tool that publishes a site from its files (id publish_site) input_schema"
             ],
@@ -2753,7 +2753,7 @@
             "why": "A named site is found by name later; an unnamed one is found only by its id.",
             "good_answer": "Passes: the name the tool kept. Fails: a name different from the one it returned.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:middle",
+              "brief:business-on-the-account-2026-11-12:middle",
               "L082",
               "the tool that names a published site (id name_site) input_schema"
             ],
@@ -2806,7 +2806,7 @@
             "why": "The buyer reaches the page through the person's own domain only after this step and the DNS record.",
             "good_answer": "Passes: attached false with the DNS record named. Fails: attached true without the tool's answer.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:middle",
+              "brief:business-on-the-account-2026-11-12:middle",
               "L082",
               "the tool that attaches a domain to a site (id attach_domain) input_schema"
             ],
@@ -2844,7 +2844,7 @@
             "why": "A page is checked on the real address, not on a local copy.",
             "good_answer": "Passes: each issue named with its fix. Fails: an issue dropped without a fix or a reason.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:middle",
+              "brief:business-on-the-account-2026-11-12:middle",
               "L082",
               "tool:critique-a-public-page input_schema"
             ],
@@ -2881,7 +2881,7 @@
             "why": "The checklist is the only place a person sees what is done, not done or open. A stage that is ticked Done with an open step or an unwritten gap makes the checklist false.",
             "good_answer": "Passes: the row reads back with status Done only when every step is Done or Not applicable, and each gap found in the run has a gap row with status open. Fails: status Done while a step is Not done, or a gap found in the run is missing from list list:business-setup-gaps.",
             "came_from": [
-              "workflow:set-up-a-business-on-trillion:make-the-checklist",
+              "workflow:set-up-a-business-on-the-account:make-the-checklist",
               "record:check:every-step-is-banana-explicit",
               "L082"
             ],
@@ -4306,7 +4306,7 @@
         },
         "source": {
           "from": "the product's own behaviour",
-          "note": "Any sentence that has the person doing something becomes a row first, so it reaches every device, explains itself and gets louder until it is done, instead of sitting in one chat. Every plan passes through this before a person sees it. It also holds the earlier workflow \"Do it for me\", which had the same first three steps. Names tools that no tool in the Workshop offers yet: tool:take-me-there, tool:what-can-trillion-do, tool:what-is-waiting-on-me, tool:who-does-each-step."
+          "note": "Any sentence that has the person doing something becomes a row first, so it reaches every device, explains itself and gets louder until it is done, instead of sitting in one chat. Every plan passes through this before a person sees it. It also holds the earlier workflow \"Do it for me\", which had the same first three steps. Names tools that no tool in the Workshop offers yet: tool:take-me-there, tool:what-can-my-account-do, tool:what-is-waiting-on-me, tool:who-does-each-step."
         },
         "fires_when": [
           {
@@ -4382,7 +4382,7 @@
           {
             "id": "steps",
             "title": "Split it into steps",
-            "do": "Read what was said as raw material, not an order to transcribe: first ask whether each thing in it serves a worthwhile pursuit of theirs and whether a bigger or smaller version of it would serve them better, and drop or change what does not. Then split every thing it has the person doing into one step each (a list of things to bring, check, sign or send is one step per thing). Read tool:what-can-trillion-do. For each step give its words, what it needs in that tool's words (`needs`, a few words each), and only when no one else could ever do it, the reason from its only_a_person list. Never mark a step the person's because a person usually does it. When a step needs the person's consent or permission, first look for a yes they already gave in their own words: the person's own messages that say it in the step's own words, their decisions, and the owner's own record of it (for their saved logins, the grant that lets AIs read them). When they already said yes, put that message's id as `given_in`: the step is then the host's, and an owner that takes their message applies it (their saved logins: the grant, with the approval message's id and the exact words).",
+            "do": "Read what was said as raw material, not an order to transcribe: first ask whether each thing in it serves a worthwhile pursuit of theirs and whether a bigger or smaller version of it would serve them better, and drop or change what does not. Then split every thing it has the person doing into one step each (a list of things to bring, check, sign or send is one step per thing). Read tool:what-can-my-account-do. For each step give its words, what it needs in that tool's words (`needs`, a few words each), and only when no one else could ever do it, the reason from its only_a_person list. Never mark a step the person's because a person usually does it. When a step needs the person's consent or permission, first look for a yes they already gave in their own words: the person's own messages that say it in the step's own words, their decisions, and the owner's own record of it (for their saved logins, the grant that lets AIs read them). When they already said yes, put that message's id as `given_in`: the step is then the host's, and an owner that takes their message applies it (their saved logins: the grant, with the approval message's id and the exact words).",
             "submit": {
               "type": "object",
               "required": [
@@ -7545,7 +7545,7 @@
           {
             "id": "path",
             "title": "Remove the first blocker",
-            "do": "This mode adds no permissions. Preserve customer choice, privacy, access boundaries, consent and resource limits. Apply the exact request and its exclusions. A required but blocked step stays open; record the wall with the run, never submit invented completion. Evidence admission checks structure and references, not the truth of an external observation.\n\npath: Cover the real entry and recovery path for new and existing users, account and provider setup, required sign-in, and free or paid access, payment and entitlement when relevant. Search live Marketplace tools and workflows for each blocker and reuse capable current owners. Minimize reader effort with clear guidance, but keep every Next, Back and Skip responsive and do not expose tour save bookkeeping as 'Saving…'.\n\nexecution-standard: Apply workflow:trillion-x-mode through the actual workflow:trillion-x-mode run for this applicable stage and read back its actual result. Use the existing licensed interface components and owner for any visible change.\n\ncapability-review-path: At this stage search the current Marketplace, Yours and Everyone's, for useful tools, workflows, data and connected MCP capabilities. Always review REA, 21st.dev and Mobbin alongside other discovered capabilities: keep the must-review set distinct from the open set of useful capabilities. Describe each relevant candidate's actual job, inputs, licence, running place and observed results, then use the capable licensed owner when it fits. Reuse already verified output when the underlying state is unchanged. Record the exact unavailable route, lost evidence and available equivalent; never claim a tool was used without its actual output. Improve a missing generic capability through its owner rather than hardcoding the example.",
+            "do": "This mode adds no permissions. Preserve customer choice, privacy, access boundaries, consent and resource limits. Apply the exact request and its exclusions. A required but blocked step stays open; record the wall with the run, never submit invented completion. Evidence admission checks structure and references, not the truth of an external observation.\n\npath: Cover the real entry and recovery path for new and existing users, account and provider setup, required sign-in, and free or paid access, payment and entitlement when relevant. Search live Marketplace tools and workflows for each blocker and reuse capable current owners. Minimize reader effort with clear guidance, but keep every Next, Back and Skip responsive and do not expose tour save bookkeeping as 'Saving…'.\n\nexecution-standard: Apply workflow:x-mode through the actual workflow:x-mode run for this applicable stage and read back its actual result. Use the existing licensed interface components and owner for any visible change.\n\ncapability-review-path: At this stage search the current Marketplace, Yours and Everyone's, for useful tools, workflows, data and connected MCP capabilities. Always review REA, 21st.dev and Mobbin alongside other discovered capabilities: keep the must-review set distinct from the open set of useful capabilities. Describe each relevant candidate's actual job, inputs, licence, running place and observed results, then use the capable licensed owner when it fits. Reuse already verified output when the underlying state is unchanged. Record the exact unavailable route, lost evidence and available equivalent; never claim a tool was used without its actual output. Improve a missing generic capability through its owner rather than hardcoding the example.",
             "submit": {
               "type": "object",
               "additionalProperties": false,
@@ -8236,7 +8236,7 @@
           {
             "id": "act",
             "title": "Advance owned dependencies",
-            "do": "This mode adds no permissions. Keep actions within their existing owner, authority, consent and resource boundaries. Apply the exact request and its exclusions. A required but blocked step stays open; record the wall with the run, never submit invented completion. Evidence admission checks structure and references, not the truth of an external observation.\n\nowner-next-event: Give every unresolved dependency a real owner, source, next relevant event, finite boundary and stop condition. Search the current Marketplace for capable existing tools and workflows; reuse the owner and preserve idempotency and cancellation.\n\nexecution-standard-each-stage: Apply workflow:trillion-x-mode through the actual workflow:trillion-x-mode run at each applicable stage, and read back the actual run result before claiming the stage advanced.\n\ncapability-review-act: At this stage search the current Marketplace, Yours and Everyone's, for useful tools, workflows, data and connected MCP capabilities. Always review REA, 21st.dev and Mobbin alongside other discovered capabilities: keep the must-review set distinct from the open set of useful capabilities. Describe each relevant candidate's actual job, inputs, licence, running place and observed results, then use the capable licensed owner when it fits. Reuse already verified output when the underlying state is unchanged. Record the exact unavailable route, lost evidence and available equivalent; never claim a tool was used without its actual output. Improve a missing generic capability through its owner rather than hardcoding the example.",
+            "do": "This mode adds no permissions. Keep actions within their existing owner, authority, consent and resource boundaries. Apply the exact request and its exclusions. A required but blocked step stays open; record the wall with the run, never submit invented completion. Evidence admission checks structure and references, not the truth of an external observation.\n\nowner-next-event: Give every unresolved dependency a real owner, source, next relevant event, finite boundary and stop condition. Search the current Marketplace for capable existing tools and workflows; reuse the owner and preserve idempotency and cancellation.\n\nexecution-standard-each-stage: Apply workflow:x-mode through the actual workflow:x-mode run at each applicable stage, and read back the actual run result before claiming the stage advanced.\n\ncapability-review-act: At this stage search the current Marketplace, Yours and Everyone's, for useful tools, workflows, data and connected MCP capabilities. Always review REA, 21st.dev and Mobbin alongside other discovered capabilities: keep the must-review set distinct from the open set of useful capabilities. Describe each relevant candidate's actual job, inputs, licence, running place and observed results, then use the capable licensed owner when it fits. Reuse already verified output when the underlying state is unchanged. Record the exact unavailable route, lost evidence and available equivalent; never claim a tool was used without its actual output. Improve a missing generic capability through its owner rather than hardcoding the example.",
             "submit": {
               "type": "object",
               "additionalProperties": false,
@@ -13747,7 +13747,7 @@
           {
             "id": "improve",
             "title": "Change and check one useful mechanism",
-            "do": "This mode adds no permissions. Keep effects within the user's request and the rights, consent, preferences and opt-outs of other people. Use bounded batches and current resource limits; stop or cancel cleanly when the boundary is reached. Apply the exact request and its exclusions. A required but blocked step stays open; record the wall with the run, never submit invented completion. Evidence admission checks structure and references, not the truth of an external observation.\n\nbounded-change: Apply workflow:trillion-x-mode through the actual workflow:trillion-x-mode run at this applicable stage, and read back that run's real result. Make the smallest generic improvement that addresses the bottleneck; preserve source identity, effects, dependencies and recovery.\n\nreal-test: When the changed outcome is user-facing, find the existing workflow by the job 'do real user testing', inspect its published identity, run it on the real interface and task, and read back its actual run evidence. Do not invent a workflow id or substitute simulated interaction for real use.\n\ncapability-review-improve: At this stage search the current Marketplace, Yours and Everyone's, for useful tools, workflows, data and connected MCP capabilities. Always review REA, 21st.dev and Mobbin alongside other discovered capabilities: keep the must-review set distinct from the open set of useful capabilities. Describe each relevant candidate's actual job, inputs, licence, running place and observed results, then use the capable licensed owner when it fits. Reuse already verified output when the underlying state is unchanged. Record the exact unavailable route, lost evidence and available equivalent; never claim a tool was used without its actual output. Improve a missing generic capability through its owner rather than hardcoding the example.",
+            "do": "This mode adds no permissions. Keep effects within the user's request and the rights, consent, preferences and opt-outs of other people. Use bounded batches and current resource limits; stop or cancel cleanly when the boundary is reached. Apply the exact request and its exclusions. A required but blocked step stays open; record the wall with the run, never submit invented completion. Evidence admission checks structure and references, not the truth of an external observation.\n\nbounded-change: Apply workflow:x-mode through the actual workflow:x-mode run at this applicable stage, and read back that run's real result. Make the smallest generic improvement that addresses the bottleneck; preserve source identity, effects, dependencies and recovery.\n\nreal-test: When the changed outcome is user-facing, find the existing workflow by the job 'do real user testing', inspect its published identity, run it on the real interface and task, and read back its actual run evidence. Do not invent a workflow id or substitute simulated interaction for real use.\n\ncapability-review-improve: At this stage search the current Marketplace, Yours and Everyone's, for useful tools, workflows, data and connected MCP capabilities. Always review REA, 21st.dev and Mobbin alongside other discovered capabilities: keep the must-review set distinct from the open set of useful capabilities. Describe each relevant candidate's actual job, inputs, licence, running place and observed results, then use the capable licensed owner when it fits. Reuse already verified output when the underlying state is unchanged. Record the exact unavailable route, lost evidence and available equivalent; never claim a tool was used without its actual output. Improve a missing generic capability through its owner rather than hardcoding the example.",
             "submit": {
               "type": "object",
               "additionalProperties": false,
@@ -14793,7 +14793,7 @@
           {
             "id": "restore",
             "title": "Verify continuity after repair",
-            "do": "This mode adds no permissions. Honor retention, privacy, consent, cancellation, resource and service limits. Apply the exact request and its exclusions. A required but blocked step stays open; record the wall with the run, never submit invented completion. Evidence admission checks structure and references, not the truth of an external observation.\n\nexecution-standard: Apply workflow:trillion-x-mode through the actual workflow:trillion-x-mode run for this applicable repair and read back its actual run result. Fix the shared cause and check affected sibling consumers before declaring recovery.\n\ncontinuity-proof: Read back the same persisted customer target and verify that the intended result works again. Preserve unresolved causes, owner, next event and exact stop condition; continue only when new evidence and remaining budget warrant it.\n\ncapability-review-restore: At this stage search the current Marketplace, Yours and Everyone's, for useful tools, workflows, data and connected MCP capabilities. Always review REA, 21st.dev and Mobbin alongside other discovered capabilities: keep the must-review set distinct from the open set of useful capabilities. Describe each relevant candidate's actual job, inputs, licence, running place and observed results, then use the capable licensed owner when it fits. Reuse already verified output when the underlying state is unchanged. Record the exact unavailable route, lost evidence and available equivalent; never claim a tool was used without its actual output. Improve a missing generic capability through its owner rather than hardcoding the example.",
+            "do": "This mode adds no permissions. Honor retention, privacy, consent, cancellation, resource and service limits. Apply the exact request and its exclusions. A required but blocked step stays open; record the wall with the run, never submit invented completion. Evidence admission checks structure and references, not the truth of an external observation.\n\nexecution-standard: Apply workflow:x-mode through the actual workflow:x-mode run for this applicable repair and read back its actual run result. Fix the shared cause and check affected sibling consumers before declaring recovery.\n\ncontinuity-proof: Read back the same persisted customer target and verify that the intended result works again. Preserve unresolved causes, owner, next event and exact stop condition; continue only when new evidence and remaining budget warrant it.\n\ncapability-review-restore: At this stage search the current Marketplace, Yours and Everyone's, for useful tools, workflows, data and connected MCP capabilities. Always review REA, 21st.dev and Mobbin alongside other discovered capabilities: keep the must-review set distinct from the open set of useful capabilities. Describe each relevant candidate's actual job, inputs, licence, running place and observed results, then use the capable licensed owner when it fits. Reuse already verified output when the underlying state is unchanged. Record the exact unavailable route, lost evidence and available equivalent; never claim a tool was used without its actual output. Improve a missing generic capability through its owner rather than hardcoding the example.",
             "submit": {
               "type": "object",
               "additionalProperties": false,
@@ -16526,7 +16526,7 @@
         "job": "Write the terms, privacy and refunds pages from the person's facts, mark them as not reviewed by a lawyer, publish them on the site, and put the support address where buyers can find it, recording the missing support inbox as a gap.",
         "produces": "Three legal pages published on the site, marked as not lawyer-reviewed, and a support address shown to buyers.",
         "source": {
-          "from": "business-on-trillion meta-workflow, generic and public",
+          "from": "business-on-the-account meta-workflow, generic and public",
           "note": "After the sale. Live tools: write-legal-documents, publish_site. There is no live support-inbox tool. Legal text is not legal advice and is marked as not reviewed by a lawyer."
         },
         "fires_when": [
@@ -16569,7 +16569,7 @@
           {
             "id": "read-facts",
             "title": "Read the business facts",
-            "do": "Call run_resource_operation with address @own-records, method records:read and input {\"id\":\"record:business-setup:facts\"}. Keep the returned value as the facts. If the value is null, stop this stage: submit blocked with reason \"facts row missing\" and tell the person to run the parent workflow workflow:set-up-a-business-on-trillion step write-the-business-facts first.",
+            "do": "Call run_resource_operation with address @own-records, method records:read and input {\"id\":\"record:business-setup:facts\"}. Keep the returned value as the facts. If the value is null, stop this stage: submit blocked with reason \"facts row missing\" and tell the person to run the parent workflow workflow:set-up-a-business-on-the-account step write-the-business-facts first.",
             "submit": {
               "type": "object",
               "required": [
@@ -16590,7 +16590,7 @@
             "why": "Every later step reads its names and values from this one row, so no stage asks the person for the same fact twice.",
             "good_answer": "Passes: facts holds business_name, owner_name and channels exactly as the row keeps them. Fails: facts is an invented or guessed value, or a field this stage uses is absent without a blocker.",
             "came_from": [
-              "workflow:set-up-a-business-on-trillion:write-the-business-facts",
+              "workflow:set-up-a-business-on-the-account:write-the-business-facts",
               "L082"
             ],
             "part_of": [
@@ -16681,7 +16681,7 @@
             "why": "Legal pages state what the business does; a page with a guessed fact is a false statement.",
             "good_answer": "Passes: three documents, each unreviewed-by-lawyer flagged. Fails: a document with a fact not in facts.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:after-the-sale",
+              "brief:business-on-the-account-2026-11-12:after-the-sale",
               "L082",
               "tool:write-legal-documents input_schema"
             ],
@@ -16721,7 +16721,7 @@
             "why": "A legal page is only useful once a buyer can reach it from the site.",
             "good_answer": "Passes: a 32 hex installation id. Fails: a page published with no link from the site.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:after-the-sale",
+              "brief:business-on-the-account-2026-11-12:after-the-sale",
               "L082",
               "the tool that publishes a site from its files (id publish_site) input_schema"
             ],
@@ -16754,7 +16754,7 @@
             "why": "A buyer who cannot reach support leaves; the address is the minimum.",
             "good_answer": "Passes: the gap names the missing inbox tool. Fails: a support inbox claimed with no tool.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:after-the-sale",
+              "brief:business-on-the-account-2026-11-12:after-the-sale",
               "L082",
               "answer-a-support-question (not in catalog)",
               "support-inbox (not in catalog)"
@@ -16792,7 +16792,7 @@
             "why": "The checklist is the only place a person sees what is done, not done or open. A stage that is ticked Done with an open step or an unwritten gap makes the checklist false.",
             "good_answer": "Passes: the row reads back with status Done only when every step is Done or Not applicable, and each gap found in the run has a gap row with status open. Fails: status Done while a step is Not done, or a gap found in the run is missing from list list:business-setup-gaps.",
             "came_from": [
-              "workflow:set-up-a-business-on-trillion:make-the-checklist",
+              "workflow:set-up-a-business-on-the-account:make-the-checklist",
               "record:check:every-step-is-banana-explicit",
               "L082"
             ],
@@ -18952,7 +18952,7 @@
           {
             "id": "improve",
             "title": "Improve the whole path",
-            "do": "This mode adds no permissions. Respect platform terms, privacy, accessibility, publication rights and audience preferences. Never promise rankings, placement, impressions or conversion. Apply the exact request and its exclusions. A required but blocked step stays open; record the wall with the run, never submit invented completion. Evidence admission checks structure and references, not the truth of an external observation.\n\nimprove: Fix the actual bottleneck across content relevance, technical access, clarity, speed, accessibility and next action as applicable. For social, test audience appeal, engagement quality and satisfaction using real responses rather than promising reach. Apply workflow:trillion-x-mode through the actual workflow:trillion-x-mode run and read back its result for this applicable stage.\n\nreplay: For a user-facing change, find the existing workflow by the job 'do real user testing', inspect its published identity, and verify the real task through the interface; repair every touched failure before closing.\n\ncapability-review-improve: At this stage search the current Marketplace, Yours and Everyone's, for useful tools, workflows, data and connected MCP capabilities. Always review REA, 21st.dev and Mobbin alongside other discovered capabilities: keep the must-review set distinct from the open set of useful capabilities. Describe each relevant candidate's actual job, inputs, licence, running place and observed results, then use the capable licensed owner when it fits. Reuse already verified output when the underlying state is unchanged. Record the exact unavailable route, lost evidence and available equivalent; never claim a tool was used without its actual output. Improve a missing generic capability through its owner rather than hardcoding the example.",
+            "do": "This mode adds no permissions. Respect platform terms, privacy, accessibility, publication rights and audience preferences. Never promise rankings, placement, impressions or conversion. Apply the exact request and its exclusions. A required but blocked step stays open; record the wall with the run, never submit invented completion. Evidence admission checks structure and references, not the truth of an external observation.\n\nimprove: Fix the actual bottleneck across content relevance, technical access, clarity, speed, accessibility and next action as applicable. For social, test audience appeal, engagement quality and satisfaction using real responses rather than promising reach. Apply workflow:x-mode through the actual workflow:x-mode run and read back its result for this applicable stage.\n\nreplay: For a user-facing change, find the existing workflow by the job 'do real user testing', inspect its published identity, and verify the real task through the interface; repair every touched failure before closing.\n\ncapability-review-improve: At this stage search the current Marketplace, Yours and Everyone's, for useful tools, workflows, data and connected MCP capabilities. Always review REA, 21st.dev and Mobbin alongside other discovered capabilities: keep the must-review set distinct from the open set of useful capabilities. Describe each relevant candidate's actual job, inputs, licence, running place and observed results, then use the capable licensed owner when it fits. Reuse already verified output when the underlying state is unchanged. Record the exact unavailable route, lost evidence and available equivalent; never claim a tool was used without its actual output. Improve a missing generic capability through its owner rather than hardcoding the example.",
             "submit": {
               "type": "object",
               "additionalProperties": false,
@@ -22597,7 +22597,7 @@
         "job": "Pick a clip from the person's recordings, cut and caption it, make it vertical, render it, pick the cover, and check its words against the person's style rules.",
         "produces": "A rendered vertical clip with a cover, checked against the person's rules, handed to the posting stage.",
         "source": {
-          "from": "business-on-trillion meta-workflow, generic and public",
+          "from": "business-on-the-account meta-workflow, generic and public",
           "note": "Top of funnel. Live tools: list-my-recordings-and-media, find-silence, suggest-media-cuts, cut-and-caption, reframe-video, render-an-edit, pick-cover-frame, check-against-a-persons-rules-and-verdicts. add-captions is live and can be used instead of the caption style in cut-and-caption. B-roll choices come from the person's list; the list is the person's own."
         },
         "fires_when": [
@@ -22641,7 +22641,7 @@
           {
             "id": "read-facts",
             "title": "Read the business facts",
-            "do": "Call run_resource_operation with address @own-records, method records:read and input {\"id\":\"record:business-setup:facts\"}. Keep the returned value as the facts. If the value is null, stop this stage: submit blocked with reason \"facts row missing\" and tell the person to run the parent workflow workflow:set-up-a-business-on-trillion step write-the-business-facts first.",
+            "do": "Call run_resource_operation with address @own-records, method records:read and input {\"id\":\"record:business-setup:facts\"}. Keep the returned value as the facts. If the value is null, stop this stage: submit blocked with reason \"facts row missing\" and tell the person to run the parent workflow workflow:set-up-a-business-on-the-account step write-the-business-facts first.",
             "submit": {
               "type": "object",
               "required": [
@@ -22662,7 +22662,7 @@
             "why": "Every later step reads its names and values from this one row, so no stage asks the person for the same fact twice.",
             "good_answer": "Passes: facts holds business_name, owner_name and channels exactly as the row keeps them. Fails: facts is an invented or guessed value, or a field this stage uses is absent without a blocker.",
             "came_from": [
-              "workflow:set-up-a-business-on-trillion:write-the-business-facts",
+              "workflow:set-up-a-business-on-the-account:write-the-business-facts",
               "L082"
             ],
             "part_of": [
@@ -22717,7 +22717,7 @@
             "why": "Every edit step names a file by identity; a guessed identity fails.",
             "good_answer": "Passes: identities copied exactly as returned. Fails: a file name used where an identity is required.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:top-of-funnel",
+              "brief:business-on-the-account-2026-11-12:top-of-funnel",
               "L082",
               "tool:list-my-recordings-and-media description"
             ],
@@ -22769,7 +22769,7 @@
             "why": "A talking-head cut starts from where the speaker starts, so the pauses set the edges.",
             "good_answer": "Passes: each pause has end greater than start. Fails: pauses in minutes, not seconds.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:top-of-funnel",
+              "brief:business-on-the-account-2026-11-12:top-of-funnel",
               "L082",
               "tool:find-silence input_schema"
             ],
@@ -22825,7 +22825,7 @@
             "why": "Cuts that follow the speech are the person's style; the tool proposes, the person decides.",
             "good_answer": "Passes: status NO_TRANSCRIPT is reported as a gap. Fails: a proposal applied to the file.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:top-of-funnel",
+              "brief:business-on-the-account-2026-11-12:top-of-funnel",
               "L082",
               "tool:suggest-media-cuts input_schema"
             ],
@@ -22864,7 +22864,7 @@
             "why": "The clip length is the one rule of short-form video that the person's audience reads as a pace.",
             "good_answer": "Passes: to minus from is between 15 and 60. Fails: a clip of 3 seconds or 300 seconds.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:top-of-funnel",
+              "brief:business-on-the-account-2026-11-12:top-of-funnel",
               "L082",
               "L082"
             ],
@@ -22913,7 +22913,7 @@
             "why": "Captions and the cut are one pass so the words stay in step with the picture.",
             "good_answer": "Passes: the clip length equals to minus from within a frame. Fails: captions that do not match the transcript words.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:top-of-funnel",
+              "brief:business-on-the-account-2026-11-12:top-of-funnel",
               "L082",
               "tool:cut-and-caption input_schema"
             ],
@@ -22956,7 +22956,7 @@
             "why": "Short-form platforms show vertical video; a horizontal clip is cropped by the platform, not by the person.",
             "good_answer": "Passes: identity returned for the 9:16 frame. Fails: a horizontal output.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:top-of-funnel",
+              "brief:business-on-the-account-2026-11-12:top-of-funnel",
               "L082",
               "tool:reframe-video input_schema"
             ],
@@ -22998,7 +22998,7 @@
             "why": "A rendered file is the one thing that gets posted; this step makes the file that the post steps name.",
             "good_answer": "Passes: a new identity different from the source identity. Fails: the source identity returned as the render.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:top-of-funnel",
+              "brief:business-on-the-account-2026-11-12:top-of-funnel",
               "L082",
               "tool:render-an-edit input_schema"
             ],
@@ -23034,7 +23034,7 @@
             "why": "A cover is what a viewer sees before playing; without it the platform picks a frame at random.",
             "good_answer": "Passes: a cover_identity returned. Fails: the cover taken from a black frame.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:top-of-funnel",
+              "brief:business-on-the-account-2026-11-12:top-of-funnel",
               "L082",
               "tool:pick-cover-frame input_schema"
             ],
@@ -23078,7 +23078,7 @@
             "why": "A short that breaks the person's own rule is the one the audience reads as off-brand.",
             "good_answer": "Passes: a caption with a banned word is in failing. Fails: failing empty over a banned word.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:top-of-funnel",
+              "brief:business-on-the-account-2026-11-12:top-of-funnel",
               "L082",
               "workflow:set-up-your-checks"
             ],
@@ -23111,7 +23111,7 @@
             "why": "A finished clip that no post names is a file nobody publishes; the row is what the posting stage reads.",
             "good_answer": "Passes: records:read returns the row with both identities. Fails: the identities kept only in this answer.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:top-of-funnel",
+              "brief:business-on-the-account-2026-11-12:top-of-funnel",
               "L082"
             ],
             "part_of": [
@@ -23147,7 +23147,7 @@
             "why": "The checklist is the only place a person sees what is done, not done or open. A stage that is ticked Done with an open step or an unwritten gap makes the checklist false.",
             "good_answer": "Passes: the row reads back with status Done only when every step is Done or Not applicable, and each gap found in the run has a gap row with status open. Fails: status Done while a step is Not done, or a gap found in the run is missing from list list:business-setup-gaps.",
             "came_from": [
-              "workflow:set-up-a-business-on-trillion:make-the-checklist",
+              "workflow:set-up-a-business-on-the-account:make-the-checklist",
               "record:check:every-step-is-banana-explicit",
               "L082"
             ],
@@ -23484,7 +23484,7 @@
         "job": "List subscriptions that ended, cancel at the end of a period when a member asks, tag the reason, count paid installments, show a member their offers, and record the billing-page gap.",
         "produces": "Member cancellations that keep access to the period end, each tagged with a reason, and a gap for the billing page.",
         "source": {
-          "from": "business-on-trillion meta-workflow, generic and public",
+          "from": "business-on-the-account meta-workflow, generic and public",
           "note": "Bottom of funnel. Live tools: list-ended-stripe-subscriptions, cancel-a-stripe-subscription, tag-a-stripe-subscription, count-a-paid-installment-in-stripe, show-which-offers-a-buyer-may-see, see-who-holds-paid-access. No live tool shows a billing page for one purchase."
         },
         "fires_when": [
@@ -23527,7 +23527,7 @@
           {
             "id": "read-facts",
             "title": "Read the business facts",
-            "do": "Call run_resource_operation with address @own-records, method records:read and input {\"id\":\"record:business-setup:facts\"}. Keep the returned value as the facts. If the value is null, stop this stage: submit blocked with reason \"facts row missing\" and tell the person to run the parent workflow workflow:set-up-a-business-on-trillion step write-the-business-facts first.",
+            "do": "Call run_resource_operation with address @own-records, method records:read and input {\"id\":\"record:business-setup:facts\"}. Keep the returned value as the facts. If the value is null, stop this stage: submit blocked with reason \"facts row missing\" and tell the person to run the parent workflow workflow:set-up-a-business-on-the-account step write-the-business-facts first.",
             "submit": {
               "type": "object",
               "required": [
@@ -23548,7 +23548,7 @@
             "why": "Every later step reads its names and values from this one row, so no stage asks the person for the same fact twice.",
             "good_answer": "Passes: facts holds business_name, owner_name and channels exactly as the row keeps them. Fails: facts is an invented or guessed value, or a field this stage uses is absent without a blocker.",
             "came_from": [
-              "workflow:set-up-a-business-on-trillion:write-the-business-facts",
+              "workflow:set-up-a-business-on-the-account:write-the-business-facts",
               "L082"
             ],
             "part_of": [
@@ -23593,7 +23593,7 @@
             "why": "Churn is seen here first; the other steps act on this list.",
             "good_answer": "Passes: each entry has a subscription_id. Fails: an entry with no id.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:bottom",
+              "brief:business-on-the-account-2026-11-12:bottom",
               "L082",
               "tool:list-ended-stripe-subscriptions input_schema"
             ],
@@ -23632,7 +23632,7 @@
             "why": "A cancel by the wrong id cancels another member's paid access.",
             "good_answer": "Passes: at_period_end true with an ends_at date. Fails: an immediate cancel.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:bottom",
+              "brief:business-on-the-account-2026-11-12:bottom",
               "L082",
               "tool:cancel-a-stripe-subscription input_schema"
             ],
@@ -23671,7 +23671,7 @@
             "why": "A cancelled member with no reason cannot be learned from.",
             "good_answer": "Passes: tagged true with a reason. Fails: a tag with an invented reason.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:bottom",
+              "brief:business-on-the-account-2026-11-12:bottom",
               "L082",
               "tool:tag-a-stripe-subscription input_schema"
             ],
@@ -23706,7 +23706,7 @@
             "why": "A member who paid three of twelve installments is a different case than one who paid all.",
             "good_answer": "Passes: a whole number from the tool. Fails: a count typed by hand.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:bottom",
+              "brief:business-on-the-account-2026-11-12:bottom",
               "L082",
               "tool:count-a-paid-installment-in-stripe input_schema"
             ],
@@ -23738,7 +23738,7 @@
             "why": "A member sees only the offers their access allows; the tool decides that.",
             "good_answer": "Passes: an offer the member does not hold access to is absent from offers. Fails: a hidden offer shown.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:bottom",
+              "brief:business-on-the-account-2026-11-12:bottom",
               "L082",
               "tool:show-which-offers-a-buyer-may-see input_schema"
             ],
@@ -23767,7 +23767,7 @@
             "why": "A missing tool written down is a known gap; one hidden in a claim is a lie.",
             "good_answer": "Passes: the gap written with the missing tool named. Fails: a billing page claimed with no tool that shows it.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:bottom",
+              "brief:business-on-the-account-2026-11-12:bottom",
               "L082",
               "open-the-billing-page-for-one-purchase-and-show-the-card (folder with a README only; no tool row)"
             ],
@@ -23804,7 +23804,7 @@
             "why": "The checklist is the only place a person sees what is done, not done or open. A stage that is ticked Done with an open step or an unwritten gap makes the checklist false.",
             "good_answer": "Passes: the row reads back with status Done only when every step is Done or Not applicable, and each gap found in the run has a gap row with status open. Fails: status Done while a step is Not done, or a gap found in the run is missing from list list:business-setup-gaps.",
             "came_from": [
-              "workflow:set-up-a-business-on-trillion:make-the-checklist",
+              "workflow:set-up-a-business-on-the-account:make-the-checklist",
               "record:check:every-step-is-banana-explicit",
               "L082"
             ],
@@ -23823,7 +23823,7 @@
         "job": "Draft the funnel stages, count visits and sales at each, break them down by source, and write a dated baseline row for later comparison.",
         "produces": "A funnel with counted stages, a source breakdown, and a dated baseline row.",
         "source": {
-          "from": "business-on-trillion meta-workflow, generic and public",
+          "from": "business-on-the-account meta-workflow, generic and public",
           "note": "Middle of funnel, with the analytics baseline added by this meta-workflow (not in the original list). Live tools: draft-a-funnel, measure-funnel-stages, break-down-visits-and-sales. Tracked links are made with make-tracked-link (live)."
         },
         "fires_when": [
@@ -23866,7 +23866,7 @@
           {
             "id": "read-facts",
             "title": "Read the business facts",
-            "do": "Call run_resource_operation with address @own-records, method records:read and input {\"id\":\"record:business-setup:facts\"}. Keep the returned value as the facts. If the value is null, stop this stage: submit blocked with reason \"facts row missing\" and tell the person to run the parent workflow workflow:set-up-a-business-on-trillion step write-the-business-facts first.",
+            "do": "Call run_resource_operation with address @own-records, method records:read and input {\"id\":\"record:business-setup:facts\"}. Keep the returned value as the facts. If the value is null, stop this stage: submit blocked with reason \"facts row missing\" and tell the person to run the parent workflow workflow:set-up-a-business-on-the-account step write-the-business-facts first.",
             "submit": {
               "type": "object",
               "required": [
@@ -23887,7 +23887,7 @@
             "why": "Every later step reads its names and values from this one row, so no stage asks the person for the same fact twice.",
             "good_answer": "Passes: facts holds business_name, owner_name and channels exactly as the row keeps them. Fails: facts is an invented or guessed value, or a field this stage uses is absent without a blocker.",
             "came_from": [
-              "workflow:set-up-a-business-on-trillion:write-the-business-facts",
+              "workflow:set-up-a-business-on-the-account:write-the-business-facts",
               "L082"
             ],
             "part_of": [
@@ -23934,8 +23934,8 @@
             "why": "A funnel is the path a number follows; without stages no number has a place.",
             "good_answer": "Passes: four stages in the order given. Fails: a stage missing or reordered.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:middle",
-              "brief:business-on-trillion-2026-11-12:added-analytics-baseline",
+              "brief:business-on-the-account-2026-11-12:middle",
+              "brief:business-on-the-account-2026-11-12:added-analytics-baseline",
               "L082",
               "tool:draft-a-funnel input_schema"
             ],
@@ -23993,8 +23993,8 @@
             "why": "Counts with zeros show where the funnel is empty; a missing stage hides it.",
             "good_answer": "Passes: a stage with no records appears with count 0. Fails: a stage dropped from counts.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:middle",
-              "brief:business-on-trillion-2026-11-12:added-analytics-baseline",
+              "brief:business-on-the-account-2026-11-12:middle",
+              "brief:business-on-the-account-2026-11-12:added-analytics-baseline",
               "L082",
               "tool:measure-funnel-stages input_schema"
             ],
@@ -24045,8 +24045,8 @@
             "why": "The source breakdown is what tells the person which channel to keep.",
             "good_answer": "Passes: each sale joined to a visit with the same visitor. Fails: a sale with no visit counted as a visit.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:middle",
-              "brief:business-on-trillion-2026-11-12:added-analytics-baseline",
+              "brief:business-on-the-account-2026-11-12:middle",
+              "brief:business-on-the-account-2026-11-12:added-analytics-baseline",
               "L082",
               "tool:break-down-visits-and-sales input_schema"
             ],
@@ -24075,8 +24075,8 @@
             "why": "A business cannot show growth without a dated first number; the baseline is that number.",
             "good_answer": "Passes: a dated row exists before any change to the page. Fails: a baseline written after a change with no note.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:middle",
-              "brief:business-on-trillion-2026-11-12:added-analytics-baseline",
+              "brief:business-on-the-account-2026-11-12:middle",
+              "brief:business-on-the-account-2026-11-12:added-analytics-baseline",
               "L082"
             ],
             "part_of": [
@@ -24112,7 +24112,7 @@
             "why": "The checklist is the only place a person sees what is done, not done or open. A stage that is ticked Done with an open step or an unwritten gap makes the checklist false.",
             "good_answer": "Passes: the row reads back with status Done only when every step is Done or Not applicable, and each gap found in the run has a gap row with status open. Fails: status Done while a step is Not done, or a gap found in the run is missing from list list:business-setup-gaps.",
             "came_from": [
-              "workflow:set-up-a-business-on-trillion:make-the-checklist",
+              "workflow:set-up-a-business-on-the-account:make-the-checklist",
               "record:check:every-step-is-banana-explicit",
               "L082"
             ],
@@ -29685,7 +29685,7 @@
         "job": "Sign each new buyer up for the five-day course with their consent, send the lessons on their days, add them as customers, record their steps, see where each one is, and record the follow-up gap.",
         "produces": "Each new buyer on the five-day course with a customer record and a day-by-day journey.",
         "source": {
-          "from": "business-on-trillion meta-workflow, generic and public",
+          "from": "business-on-the-account meta-workflow, generic and public",
           "note": "After the sale. Live tools: sign-someone-up-for-an-email-course, send-due-email-lessons, add-a-customer, record-a-customer-step, see-where-each-customer-is, send-an-email. send-follow-up-emails-after-sign-up is not a live tool."
         },
         "fires_when": [
@@ -29729,7 +29729,7 @@
           {
             "id": "read-facts",
             "title": "Read the business facts",
-            "do": "Call run_resource_operation with address @own-records, method records:read and input {\"id\":\"record:business-setup:facts\"}. Keep the returned value as the facts. If the value is null, stop this stage: submit blocked with reason \"facts row missing\" and tell the person to run the parent workflow workflow:set-up-a-business-on-trillion step write-the-business-facts first.",
+            "do": "Call run_resource_operation with address @own-records, method records:read and input {\"id\":\"record:business-setup:facts\"}. Keep the returned value as the facts. If the value is null, stop this stage: submit blocked with reason \"facts row missing\" and tell the person to run the parent workflow workflow:set-up-a-business-on-the-account step write-the-business-facts first.",
             "submit": {
               "type": "object",
               "required": [
@@ -29750,7 +29750,7 @@
             "why": "Every later step reads its names and values from this one row, so no stage asks the person for the same fact twice.",
             "good_answer": "Passes: facts holds business_name, owner_name and channels exactly as the row keeps them. Fails: facts is an invented or guessed value, or a field this stage uses is absent without a blocker.",
             "came_from": [
-              "workflow:set-up-a-business-on-trillion:write-the-business-facts",
+              "workflow:set-up-a-business-on-the-account:write-the-business-facts",
               "L082"
             ],
             "part_of": [
@@ -29797,7 +29797,7 @@
             "why": "Each new buyer enters the course on the day they pay, not in a batch.",
             "good_answer": "Passes: signed_up true for the one buyer named. Fails: a batch of addresses signed up with no consent per address.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:after-the-sale",
+              "brief:business-on-the-account-2026-11-12:after-the-sale",
               "L082",
               "tool:sign-someone-up-for-an-email-course input_schema"
             ],
@@ -29840,7 +29840,7 @@
             "why": "The five days run on the clock; this daily call is what moves the clock.",
             "good_answer": "Passes: failed lists each failure. Fails: sent counted for a failure.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:after-the-sale",
+              "brief:business-on-the-account-2026-11-12:after-the-sale",
               "L082",
               "tool:send-due-email-lessons input_schema"
             ],
@@ -29878,7 +29878,7 @@
             "why": "A customer record is the start of the journey the retention stage reads.",
             "good_answer": "Passes: contact_id returned. Fails: a customer with no reach-them-by address.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:after-the-sale",
+              "brief:business-on-the-account-2026-11-12:after-the-sale",
               "L082",
               "tool:add-a-customer input_schema"
             ],
@@ -29921,7 +29921,7 @@
             "why": "The step is what the journey view shows; without it the buyer looks new forever.",
             "good_answer": "Passes: recorded true with step onboarding-day-1. Fails: a step recorded for the wrong buyer.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:after-the-sale",
+              "brief:business-on-the-account-2026-11-12:after-the-sale",
               "L082",
               "tool:record-a-customer-step input_schema"
             ],
@@ -29969,7 +29969,7 @@
             "why": "The journey view shows who is stuck; it is read weekly.",
             "good_answer": "Passes: each customer's last step matches their recorded steps. Fails: a customer with no step listed.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:after-the-sale",
+              "brief:business-on-the-account-2026-11-12:after-the-sale",
               "L082",
               "tool:see-where-each-customer-is input_schema"
             ],
@@ -30002,7 +30002,7 @@
             "why": "A stage that claims an automatic follow-up with no live send is a broken promise.",
             "good_answer": "Passes: gap names send-follow-up-emails-after-sign-up. Fails: a follow-up claimed as sent.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:after-the-sale",
+              "brief:business-on-the-account-2026-11-12:after-the-sale",
               "L082",
               "send-follow-up-emails-after-sign-up (ports only; no tool row)",
               "tool:check-copy input_schema"
@@ -30040,7 +30040,7 @@
             "why": "The checklist is the only place a person sees what is done, not done or open. A stage that is ticked Done with an open step or an unwritten gap makes the checklist false.",
             "good_answer": "Passes: the row reads back with status Done only when every step is Done or Not applicable, and each gap found in the run has a gap row with status open. Fails: status Done while a step is Not done, or a gap found in the run is missing from list list:business-setup-gaps.",
             "came_from": [
-              "workflow:set-up-a-business-on-trillion:make-the-checklist",
+              "workflow:set-up-a-business-on-the-account:make-the-checklist",
               "record:check:every-step-is-banana-explicit",
               "L082"
             ],
@@ -31242,7 +31242,7 @@
           {
             "id": "deliver",
             "title": "Send and verify delivery state",
-            "do": "This mode adds no permissions. Act only within the user's request and the channel's rules. Respect consent, recipient preferences, suppression lists, opt-outs and do-not-contact signals; never endlessly contact someone. Apply the exact request and its exclusions. A required but blocked step stays open; record the wall with the run, never submit invented completion. Evidence admission checks structure and references, not the truth of an external observation.\n\nbounded-delivery: Use the requested connected channel and a finite batch sized to current limits. Make sends idempotent; record prepared, queued, accepted, delivered, seen, replied and acted states separately. Apply workflow:trillion-x-mode through the actual workflow:trillion-x-mode run and read back the result for this applicable stage.\n\nrecipient-rights: Check consent, opt-outs, suppression, channel policy and recipient preferences before every send and follow-up. Stop on any opt-out or do-not-contact signal; do not infer awareness or interest from delivery or an open.\n\ncapability-review-deliver: At this stage search the current Marketplace, Yours and Everyone's, for useful tools, workflows, data and connected MCP capabilities. Always review REA, 21st.dev and Mobbin alongside other discovered capabilities: keep the must-review set distinct from the open set of useful capabilities. Describe each relevant candidate's actual job, inputs, licence, running place and observed results, then use the capable licensed owner when it fits. Reuse already verified output when the underlying state is unchanged. Record the exact unavailable route, lost evidence and available equivalent; never claim a tool was used without its actual output. Improve a missing generic capability through its owner rather than hardcoding the example.",
+            "do": "This mode adds no permissions. Act only within the user's request and the channel's rules. Respect consent, recipient preferences, suppression lists, opt-outs and do-not-contact signals; never endlessly contact someone. Apply the exact request and its exclusions. A required but blocked step stays open; record the wall with the run, never submit invented completion. Evidence admission checks structure and references, not the truth of an external observation.\n\nbounded-delivery: Use the requested connected channel and a finite batch sized to current limits. Make sends idempotent; record prepared, queued, accepted, delivered, seen, replied and acted states separately. Apply workflow:x-mode through the actual workflow:x-mode run and read back the result for this applicable stage.\n\nrecipient-rights: Check consent, opt-outs, suppression, channel policy and recipient preferences before every send and follow-up. Stop on any opt-out or do-not-contact signal; do not infer awareness or interest from delivery or an open.\n\ncapability-review-deliver: At this stage search the current Marketplace, Yours and Everyone's, for useful tools, workflows, data and connected MCP capabilities. Always review REA, 21st.dev and Mobbin alongside other discovered capabilities: keep the must-review set distinct from the open set of useful capabilities. Describe each relevant candidate's actual job, inputs, licence, running place and observed results, then use the capable licensed owner when it fits. Reuse already verified output when the underlying state is unchanged. Record the exact unavailable route, lost evidence and available equivalent; never claim a tool was used without its actual output. Improve a missing generic capability through its owner rather than hardcoding the example.",
             "submit": {
               "type": "object",
               "additionalProperties": false,
@@ -33285,7 +33285,7 @@
         "job": "Write a week of posts for each channel the business uses, have the person approve them, set each to go at its time, and read the results after a week.",
         "produces": "A seven-day batch of posts for each channel, approved, set to go, and read back.",
         "source": {
-          "from": "business-on-trillion meta-workflow, generic and public",
+          "from": "business-on-the-account meta-workflow, generic and public",
           "note": "Top of funnel. Live tools: draft-a-post, approve-a-post, set-a-post-to-go-at-its-time, see-how-each-post-did, check-against-a-persons-rules-and-verdicts, check-copy. send-each-post-at-its-time is wake-driven; the wake step reads whether it is on. The one send tool (send-a-post, told its place: instagram, youtube, facebook, tiktok, threads, x or linkedin) is live and the scheduled path uses it."
         },
         "fires_when": [
@@ -33329,7 +33329,7 @@
           {
             "id": "read-facts",
             "title": "Read the business facts",
-            "do": "Call run_resource_operation with address @own-records, method records:read and input {\"id\":\"record:business-setup:facts\"}. Keep the returned value as the facts. If the value is null, stop this stage: submit blocked with reason \"facts row missing\" and tell the person to run the parent workflow workflow:set-up-a-business-on-trillion step write-the-business-facts first.",
+            "do": "Call run_resource_operation with address @own-records, method records:read and input {\"id\":\"record:business-setup:facts\"}. Keep the returned value as the facts. If the value is null, stop this stage: submit blocked with reason \"facts row missing\" and tell the person to run the parent workflow workflow:set-up-a-business-on-the-account step write-the-business-facts first.",
             "submit": {
               "type": "object",
               "required": [
@@ -33350,7 +33350,7 @@
             "why": "Every later step reads its names and values from this one row, so no stage asks the person for the same fact twice.",
             "good_answer": "Passes: facts holds business_name, owner_name and channels exactly as the row keeps them. Fails: facts is an invented or guessed value, or a field this stage uses is absent without a blocker.",
             "came_from": [
-              "workflow:set-up-a-business-on-trillion:write-the-business-facts",
+              "workflow:set-up-a-business-on-the-account:write-the-business-facts",
               "L082",
               "tool:check-copy"
             ],
@@ -33406,7 +33406,7 @@
             "why": "A batch written once and approved once is the cadence; writing one post at a time is what stops a business posting.",
             "good_answer": "Passes: 14 posts for 2 channels at 1 post per day over 7 days, each caption unique. Fails: a caption copied to two channels with no change, or a time with no zone.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:top-of-funnel",
+              "brief:business-on-the-account-2026-11-12:top-of-funnel",
               "L082",
               "tool:check-copy"
             ],
@@ -33467,7 +33467,7 @@
             "why": "The same rules must judge every AI's copy, so the batch is checked by the Workshop's tool and not by eye.",
             "good_answer": "Passes: a post with a banned word is listed in failing with its rule. Fails: failing empty while a caption contains a word from a rule row.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:top-of-funnel",
+              "brief:business-on-the-account-2026-11-12:top-of-funnel",
               "L082",
               "workflow:set-up-your-checks",
               "tool:check-copy"
@@ -33511,7 +33511,7 @@
             "why": "A post exists in the Trillion post tool only once drafted; every later step names a post_id.",
             "good_answer": "Passes: post_ids holds the same count as posts. Fails: a missing post_id with no gap.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:top-of-funnel",
+              "brief:business-on-the-account-2026-11-12:top-of-funnel",
               "L082",
               "tool:draft-a-post input_schema",
               "tool:check-copy"
@@ -33551,7 +33551,7 @@
             "why": "Approval is the person's decision; the approve tool records who approved and what text was approved.",
             "good_answer": "Passes: approved_post_ids is exactly the set the person named. Fails: an approve call with no reply from the person.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:top-of-funnel",
+              "brief:business-on-the-account-2026-11-12:top-of-funnel",
               "L082",
               "tool:approve-a-post input_schema",
               "tool:check-copy"
@@ -33609,7 +33609,7 @@
             "why": "A post set to go is what the at-its-time send reads; a post left approved is never sent.",
             "good_answer": "Passes: a post with a missing destination is listed in not_ready with its missing item. Fails: a post reported scheduled that the tool did not mark ready.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:top-of-funnel",
+              "brief:business-on-the-account-2026-11-12:top-of-funnel",
               "L082",
               "tool:set-a-post-to-go-at-its-time input_schema",
               "tool:check-copy"
@@ -33639,7 +33639,7 @@
             "why": "A scheduled post with an off wake never leaves the account; the check makes the send visible.",
             "good_answer": "Passes: wake_on false is reported as a gap. Fails: wake_on true with no wake row read.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:top-of-funnel",
+              "brief:business-on-the-account-2026-11-12:top-of-funnel",
               "L082",
               "tool:send-each-post-at-its-time description",
               "tool:check-copy"
@@ -33672,7 +33672,7 @@
             "why": "The batch is judged by what it did, so the stage closes with the numbers and not with the sends.",
             "good_answer": "Passes: a post with no numbers yet is listed with a reason. Fails: numbers invented for a post the tool did not report.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:top-of-funnel",
+              "brief:business-on-the-account-2026-11-12:top-of-funnel",
               "L082",
               "tool:see-how-each-post-did input_schema",
               "tool:check-copy"
@@ -33710,7 +33710,7 @@
             "why": "The checklist is the only place a person sees what is done, not done or open. A stage that is ticked Done with an open step or an unwritten gap makes the checklist false.",
             "good_answer": "Passes: the row reads back with status Done only when every step is Done or Not applicable, and each gap found in the run has a gap row with status open. Fails: status Done while a step is Not done, or a gap found in the run is missing from list list:business-setup-gaps.",
             "came_from": [
-              "workflow:set-up-a-business-on-trillion:make-the-checklist",
+              "workflow:set-up-a-business-on-the-account:make-the-checklist",
               "record:check:every-step-is-banana-explicit",
               "L082"
             ],
@@ -33888,7 +33888,7 @@
         "job": "Read the live page at its real address, check it for search and answer engines, check it at phone, tablet and desktop widths, and count the stage checklist so the launch is judged on what buyers see.",
         "produces": "A live address read, a search readiness check, widths checked, and a checklist count.",
         "source": {
-          "from": "business-on-trillion meta-workflow, generic and public",
+          "from": "business-on-the-account meta-workflow, generic and public",
           "note": "After the sale. Added by this meta-workflow (not in the original list): launch checklist proof on the real URL. Live tools: read-public-web-page, check-a-page-for-search-and-answer-engines, check-given-pages-at-every-width, measure-a-checklist."
         },
         "fires_when": [
@@ -33931,7 +33931,7 @@
           {
             "id": "read-facts",
             "title": "Read the business facts",
-            "do": "Call run_resource_operation with address @own-records, method records:read and input {\"id\":\"record:business-setup:facts\"}. Keep the returned value as the facts. If the value is null, stop this stage: submit blocked with reason \"facts row missing\" and tell the person to run the parent workflow workflow:set-up-a-business-on-trillion step write-the-business-facts first.",
+            "do": "Call run_resource_operation with address @own-records, method records:read and input {\"id\":\"record:business-setup:facts\"}. Keep the returned value as the facts. If the value is null, stop this stage: submit blocked with reason \"facts row missing\" and tell the person to run the parent workflow workflow:set-up-a-business-on-the-account step write-the-business-facts first.",
             "submit": {
               "type": "object",
               "required": [
@@ -33952,7 +33952,7 @@
             "why": "Every later step reads its names and values from this one row, so no stage asks the person for the same fact twice.",
             "good_answer": "Passes: facts holds business_name, owner_name and channels exactly as the row keeps them. Fails: facts is an invented or guessed value, or a field this stage uses is absent without a blocker.",
             "came_from": [
-              "workflow:set-up-a-business-on-trillion:write-the-business-facts",
+              "workflow:set-up-a-business-on-the-account:write-the-business-facts",
               "L082"
             ],
             "part_of": [
@@ -33990,7 +33990,7 @@
             "why": "A launch is proved only on the address buyers use.",
             "good_answer": "Passes: status 200 with a title. Fails: a launch claimed from a local file.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:added-launch-proof",
+              "brief:business-on-the-account-2026-11-12:added-launch-proof",
               "L082",
               "tool:read-public-web-page input_schema"
             ],
@@ -34028,7 +34028,7 @@
             "why": "A page that answer engines cannot read is not found by them.",
             "good_answer": "Passes: each failure with its fix. Fails: a failure dropped with no fix.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:added-launch-proof",
+              "brief:business-on-the-account-2026-11-12:added-launch-proof",
               "L082",
               "tool:check-a-page-for-search-and-answer-engines input_schema"
             ],
@@ -34094,7 +34094,7 @@
             "why": "A page that breaks on a phone loses the buyers who arrive on phones.",
             "good_answer": "Passes: three widths checked. Fails: a width skipped.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:added-launch-proof",
+              "brief:business-on-the-account-2026-11-12:added-launch-proof",
               "L082",
               "tool:check-given-pages-at-every-width input_schema"
             ],
@@ -34146,7 +34146,7 @@
             "why": "The checklist is the one count a person reads to know the business is set up.",
             "good_answer": "Passes: not_done lists every stage not Done. Fails: a count that does not match the rows.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:added-launch-proof",
+              "brief:business-on-the-account-2026-11-12:added-launch-proof",
               "L082",
               "tool:measure-a-checklist input_schema"
             ],
@@ -34183,7 +34183,7 @@
             "why": "The checklist is the only place a person sees what is done, not done or open. A stage that is ticked Done with an open step or an unwritten gap makes the checklist false.",
             "good_answer": "Passes: the row reads back with status Done only when every step is Done or Not applicable, and each gap found in the run has a gap row with status open. Fails: status Done while a step is Not done, or a gap found in the run is missing from list list:business-setup-gaps.",
             "came_from": [
-              "workflow:set-up-a-business-on-trillion:make-the-checklist",
+              "workflow:set-up-a-business-on-the-account:make-the-checklist",
               "record:check:every-step-is-banana-explicit",
               "L082"
             ],
@@ -34202,7 +34202,7 @@
         "job": "Write dated articles for the next seven days at the cadence the person chooses (1 to 5 a day), check them against the person's rules, get approval, set them to go, and read the numbers after a week.",
         "produces": "A week of dated articles, approved and set to go on the newsletter platform, with their numbers read back.",
         "source": {
-          "from": "business-on-trillion meta-workflow, generic and public",
+          "from": "business-on-the-account meta-workflow, generic and public",
           "note": "Top of funnel. Live tools: draft-a-post, approve-a-post, set-a-post-to-go-at-its-time, send-a-post, check-copy, see-how-each-post-did. Cadence is set by facts.posts_per_day."
         },
         "fires_when": [
@@ -34245,7 +34245,7 @@
           {
             "id": "read-facts",
             "title": "Read the business facts",
-            "do": "Call run_resource_operation with address @own-records, method records:read and input {\"id\":\"record:business-setup:facts\"}. Keep the returned value as the facts. If the value is null, stop this stage: submit blocked with reason \"facts row missing\" and tell the person to run the parent workflow workflow:set-up-a-business-on-trillion step write-the-business-facts first.",
+            "do": "Call run_resource_operation with address @own-records, method records:read and input {\"id\":\"record:business-setup:facts\"}. Keep the returned value as the facts. If the value is null, stop this stage: submit blocked with reason \"facts row missing\" and tell the person to run the parent workflow workflow:set-up-a-business-on-the-account step write-the-business-facts first.",
             "submit": {
               "type": "object",
               "required": [
@@ -34266,7 +34266,7 @@
             "why": "Every later step reads its names and values from this one row, so no stage asks the person for the same fact twice.",
             "good_answer": "Passes: facts holds business_name, owner_name and channels exactly as the row keeps them. Fails: facts is an invented or guessed value, or a field this stage uses is absent without a blocker.",
             "came_from": [
-              "workflow:set-up-a-business-on-trillion:write-the-business-facts",
+              "workflow:set-up-a-business-on-the-account:write-the-business-facts",
               "L082"
             ],
             "part_of": [
@@ -34317,7 +34317,7 @@
             "why": "A newsletter on a cadence is a list of dated pieces, not a single article repeated.",
             "good_answer": "Passes: 7 articles for posts_per_day 1, each with its own title. Fails: duplicated titles or a missing scheduled_for.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:top-of-funnel",
+              "brief:business-on-the-account-2026-11-12:top-of-funnel",
               "L082"
             ],
             "part_of": [
@@ -34363,7 +34363,7 @@
             "why": "Articles carry the person's name; they pass the same check as posts.",
             "good_answer": "Passes: a title with a banned word is in failing. Fails: failing empty over a banned word.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:top-of-funnel",
+              "brief:business-on-the-account-2026-11-12:top-of-funnel",
               "L082",
               "tool:check-copy input_schema"
             ],
@@ -34406,7 +34406,7 @@
             "why": "Newsletters are posts too; drafting them in the same tool keeps one approval path.",
             "good_answer": "Passes: post_ids equal in count to the articles. Fails: an article drafted with no destination.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:top-of-funnel",
+              "brief:business-on-the-account-2026-11-12:top-of-funnel",
               "L082",
               "tool:draft-a-post input_schema"
             ],
@@ -34445,7 +34445,7 @@
             "why": "The newsletter is sent by the at-its-time send, so a post not set to go never reaches a reader.",
             "good_answer": "Passes: not_ready lists each missing item. Fails: a post set to go with no approval reply.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:top-of-funnel",
+              "brief:business-on-the-account-2026-11-12:top-of-funnel",
               "L082",
               "tool:set-a-post-to-go-at-its-time input_schema"
             ],
@@ -34485,7 +34485,7 @@
             "why": "Each post names its place; a post with no place sends nowhere.",
             "good_answer": "Passes: a post set for the Substack send tool when facts says substack. Fails: a send tool that does not match the platform.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:top-of-funnel",
+              "brief:business-on-the-account-2026-11-12:top-of-funnel",
               "L082",
               "tool:send-a-post input_schema"
             ],
@@ -34517,7 +34517,7 @@
             "why": "A cadence is judged by its numbers over time.",
             "good_answer": "Passes: an article with no numbers is listed with the reason. Fails: invented numbers.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:top-of-funnel",
+              "brief:business-on-the-account-2026-11-12:top-of-funnel",
               "L082",
               "tool:see-how-each-post-did input_schema"
             ],
@@ -34554,7 +34554,7 @@
             "why": "The checklist is the only place a person sees what is done, not done or open. A stage that is ticked Done with an open step or an unwritten gap makes the checklist false.",
             "good_answer": "Passes: the row reads back with status Done only when every step is Done or Not applicable, and each gap found in the run has a gap row with status open. Fails: status Done while a step is Not done, or a gap found in the run is missing from list list:business-setup-gaps.",
             "came_from": [
-              "workflow:set-up-a-business-on-trillion:make-the-checklist",
+              "workflow:set-up-a-business-on-the-account:make-the-checklist",
               "record:check:every-step-is-banana-explicit",
               "L082"
             ],
@@ -35647,7 +35647,7 @@
           {
             "id": "publish",
             "title": "Publish through its owner",
-            "do": "This mode adds no permissions. Follow current user scope, publication rights, accessibility needs and other people's privacy and consent. Apply the exact request and its exclusions. A required but blocked step stays open; record the wall with the run, never submit invented completion. Evidence admission checks structure and references, not the truth of an external observation.\n\nexecution-standard: Apply workflow:trillion-x-mode through the actual workflow:trillion-x-mode run for this applicable stage, then read back its real run result. Publish or deliver through the existing authorized owner and retain exact version and destination identity.\n\ncapability-review-publish: At this stage search the current Marketplace, Yours and Everyone's, for useful tools, workflows, data and connected MCP capabilities. Always review REA, 21st.dev and Mobbin alongside other discovered capabilities: keep the must-review set distinct from the open set of useful capabilities. Describe each relevant candidate's actual job, inputs, licence, running place and observed results, then use the capable licensed owner when it fits. Reuse already verified output when the underlying state is unchanged. Record the exact unavailable route, lost evidence and available equivalent; never claim a tool was used without its actual output. Improve a missing generic capability through its owner rather than hardcoding the example.",
+            "do": "This mode adds no permissions. Follow current user scope, publication rights, accessibility needs and other people's privacy and consent. Apply the exact request and its exclusions. A required but blocked step stays open; record the wall with the run, never submit invented completion. Evidence admission checks structure and references, not the truth of an external observation.\n\nexecution-standard: Apply workflow:x-mode through the actual workflow:x-mode run for this applicable stage, then read back its real run result. Publish or deliver through the existing authorized owner and retain exact version and destination identity.\n\ncapability-review-publish: At this stage search the current Marketplace, Yours and Everyone's, for useful tools, workflows, data and connected MCP capabilities. Always review REA, 21st.dev and Mobbin alongside other discovered capabilities: keep the must-review set distinct from the open set of useful capabilities. Describe each relevant candidate's actual job, inputs, licence, running place and observed results, then use the capable licensed owner when it fits. Reuse already verified output when the underlying state is unchanged. Record the exact unavailable route, lost evidence and available equivalent; never claim a tool was used without its actual output. Improve a missing generic capability through its owner rather than hardcoding the example.",
             "submit": {
               "type": "object",
               "additionalProperties": false,
@@ -36727,7 +36727,7 @@
           {
             "id": "compose",
             "title": "Find and compose current capabilities",
-            "do": "This mode adds no permissions. Each composed workflow retains its own authority, licensed owner, recipient rights, opt-outs, finite resource limits and stop conditions. A stage advances only on actual workflow run readback and outcome evidence. Apply the exact request and its exclusions. A required but blocked step stays open; record the wall with the run, never submit invented completion. Evidence admission checks structure and references, not the truth of an external observation.\n\nfind-composition: Search live Marketplace listings, find tools and find_workflow for the job at hand. Describe the current licensed capable owners, reuse their existing workflow runs, and compose only the modes and actions that resolve this customer's observed bottleneck. Do not create fake IDs or a second engine.\n\nexecution-standard-each-stage: Require workflow:trillion-x-mode through the actual workflow:trillion-x-mode run at every applicable stage and read back each real run result. Preserve run identity, outputs, checks, failures and continuation state; a mode record or queued run is not proof that the workflow ran.\n\nmode-research: Always review whether REA, 21st.dev, Mobbin and other research/design capabilities apply at each stage. Use the actually available declared route when relevant; record attempted failures, their evidential loss and a current equivalent. Never claim use without observed output.\n\ninfinity-child: When continued multidimensional improvement applies, find and describe the current Infinity Mode workflow, workflow:infinity, run it through the existing workflow engine, then read back its actual run. Keep quality, depth, breadth, scale, granularity across nested levels, reliability, continuity, energy, user effort, cost, latency, setup and resource consumption as independent dimensions. Keep chosen improvement directions separately observable rather than combining them into one ratio. Investigate apparent conflicts and recursively question the dimensions, measures, hierarchy, objectives and method itself against actual outcomes. Preserve the person's actual per-level settings and configurable conditions, including choices to tune or disable behavior; per-pass resource bounds do not cap the aspiration.\n\ncapability-review-compose: At this stage search the current Marketplace, Yours and Everyone's, for useful tools, workflows, data and connected MCP capabilities. Always review REA, 21st.dev and Mobbin alongside other discovered capabilities: keep the must-review set distinct from the open set of useful capabilities. Describe each relevant candidate's actual job, inputs, licence, running place and observed results, then use the capable licensed owner when it fits. Reuse already verified output when the underlying state is unchanged. Record the exact unavailable route, lost evidence and available equivalent; never claim a tool was used without its actual output. Improve a missing generic capability through its owner rather than hardcoding the example. For content, compose workflow:grow-the-one-tree: every workflow is a branch it may compose, chosen by the conditions on its own row, and a new branch is a new workflow.",
+            "do": "This mode adds no permissions. Each composed workflow retains its own authority, licensed owner, recipient rights, opt-outs, finite resource limits and stop conditions. A stage advances only on actual workflow run readback and outcome evidence. Apply the exact request and its exclusions. A required but blocked step stays open; record the wall with the run, never submit invented completion. Evidence admission checks structure and references, not the truth of an external observation.\n\nfind-composition: Search live Marketplace listings, find tools and find_workflow for the job at hand. Describe the current licensed capable owners, reuse their existing workflow runs, and compose only the modes and actions that resolve this customer's observed bottleneck. Do not create fake IDs or a second engine.\n\nexecution-standard-each-stage: Require workflow:x-mode through the actual workflow:x-mode run at every applicable stage and read back each real run result. Preserve run identity, outputs, checks, failures and continuation state; a mode record or queued run is not proof that the workflow ran.\n\nmode-research: Always review whether REA, 21st.dev, Mobbin and other research/design capabilities apply at each stage. Use the actually available declared route when relevant; record attempted failures, their evidential loss and a current equivalent. Never claim use without observed output.\n\ninfinity-child: When continued multidimensional improvement applies, find and describe the current Infinity Mode workflow, workflow:infinity, run it through the existing workflow engine, then read back its actual run. Keep quality, depth, breadth, scale, granularity across nested levels, reliability, continuity, energy, user effort, cost, latency, setup and resource consumption as independent dimensions. Keep chosen improvement directions separately observable rather than combining them into one ratio. Investigate apparent conflicts and recursively question the dimensions, measures, hierarchy, objectives and method itself against actual outcomes. Preserve the person's actual per-level settings and configurable conditions, including choices to tune or disable behavior; per-pass resource bounds do not cap the aspiration.\n\ncapability-review-compose: At this stage search the current Marketplace, Yours and Everyone's, for useful tools, workflows, data and connected MCP capabilities. Always review REA, 21st.dev and Mobbin alongside other discovered capabilities: keep the must-review set distinct from the open set of useful capabilities. Describe each relevant candidate's actual job, inputs, licence, running place and observed results, then use the capable licensed owner when it fits. Reuse already verified output when the underlying state is unchanged. Record the exact unavailable route, lost evidence and available equivalent; never claim a tool was used without its actual output. Improve a missing generic capability through its owner rather than hardcoding the example. For content, compose workflow:grow-the-one-tree: every workflow is a branch it may compose, chosen by the conditions on its own row, and a new branch is a new workflow.",
             "submit": {
               "type": "object",
               "additionalProperties": false,
@@ -41496,7 +41496,7 @@
           {
             "id": "opportunity",
             "title": "Select a worthwhile outcome",
-            "do": "This mode adds no permissions. Respect source terms, privacy, consent and the independent rights of people whose cases or data are involved. Apply the exact request and its exclusions. A required but blocked step stays open; record the wall with the run, never submit invented completion. Evidence admission checks structure and references, not the truth of an external observation.\n\nchoose-case: Compare worthwhile cases against actual customer need, evidence strength and available capacity; keep multiple independent cases when worthwhile rather than forcing a single winner. Derive the shared generic primitive from the recurring constraint, while preserving each original task and source identity.\n\nexecution-standard: Apply workflow:trillion-x-mode through the actual workflow:trillion-x-mode run for each applicable case decision and read back its actual result.\n\ninfinity-review: Apply Infinity Mode to worthwhile cases: independently improve relevant quality, depth, breadth, scale, reliability and continuity while reducing effort and resource use against real baselines. Keep bounded passes and attach remaining work to the existing event-based continuation owner.\n\ncapability-review-opportunity: At this stage search the current Marketplace, Yours and Everyone's, for useful tools, workflows, data and connected MCP capabilities. Always review REA, 21st.dev and Mobbin alongside other discovered capabilities: keep the must-review set distinct from the open set of useful capabilities. Describe each relevant candidate's actual job, inputs, licence, running place and observed results, then use the capable licensed owner when it fits. Reuse already verified output when the underlying state is unchanged. Record the exact unavailable route, lost evidence and available equivalent; never claim a tool was used without its actual output. Improve a missing generic capability through its owner rather than hardcoding the example.",
+            "do": "This mode adds no permissions. Respect source terms, privacy, consent and the independent rights of people whose cases or data are involved. Apply the exact request and its exclusions. A required but blocked step stays open; record the wall with the run, never submit invented completion. Evidence admission checks structure and references, not the truth of an external observation.\n\nchoose-case: Compare worthwhile cases against actual customer need, evidence strength and available capacity; keep multiple independent cases when worthwhile rather than forcing a single winner. Derive the shared generic primitive from the recurring constraint, while preserving each original task and source identity.\n\nexecution-standard: Apply workflow:x-mode through the actual workflow:x-mode run for each applicable case decision and read back its actual result.\n\ninfinity-review: Apply Infinity Mode to worthwhile cases: independently improve relevant quality, depth, breadth, scale, reliability and continuity while reducing effort and resource use against real baselines. Keep bounded passes and attach remaining work to the existing event-based continuation owner.\n\ncapability-review-opportunity: At this stage search the current Marketplace, Yours and Everyone's, for useful tools, workflows, data and connected MCP capabilities. Always review REA, 21st.dev and Mobbin alongside other discovered capabilities: keep the must-review set distinct from the open set of useful capabilities. Describe each relevant candidate's actual job, inputs, licence, running place and observed results, then use the capable licensed owner when it fits. Reuse already verified output when the underlying state is unchanged. Record the exact unavailable route, lost evidence and available equivalent; never claim a tool was used without its actual output. Improve a missing generic capability through its owner rather than hardcoding the example.",
             "submit": {
               "type": "object",
               "additionalProperties": false,
@@ -41765,7 +41765,7 @@
         "job": "List failed payments from the last 7 days, email each buyer once in the person's words, record that the retry schedule is set in Stripe, and send one win-back email to each buyer who ended 14 or more days ago.",
         "produces": "One payment-failed email per failed invoice, one win-back per churned subscription, and the retry owner named.",
         "source": {
-          "from": "business-on-trillion meta-workflow, generic and public",
+          "from": "business-on-the-account meta-workflow, generic and public",
           "note": "After the sale. Added by this meta-workflow (not in the original list): payment-failure dunning and churn win-back. Live tools: stripe-events-read_money_since, list-ended-stripe-subscriptions, send-an-email. The retry schedule lives in the Stripe account; no live Trillion tool sets it."
         },
         "fires_when": [
@@ -41809,7 +41809,7 @@
           {
             "id": "read-facts",
             "title": "Read the business facts",
-            "do": "Call run_resource_operation with address @own-records, method records:read and input {\"id\":\"record:business-setup:facts\"}. Keep the returned value as the facts. If the value is null, stop this stage: submit blocked with reason \"facts row missing\" and tell the person to run the parent workflow workflow:set-up-a-business-on-trillion step write-the-business-facts first.",
+            "do": "Call run_resource_operation with address @own-records, method records:read and input {\"id\":\"record:business-setup:facts\"}. Keep the returned value as the facts. If the value is null, stop this stage: submit blocked with reason \"facts row missing\" and tell the person to run the parent workflow workflow:set-up-a-business-on-the-account step write-the-business-facts first.",
             "submit": {
               "type": "object",
               "required": [
@@ -41830,7 +41830,7 @@
             "why": "Every later step reads its names and values from this one row, so no stage asks the person for the same fact twice.",
             "good_answer": "Passes: facts holds business_name, owner_name and channels exactly as the row keeps them. Fails: facts is an invented or guessed value, or a field this stage uses is absent without a blocker.",
             "came_from": [
-              "workflow:set-up-a-business-on-trillion:write-the-business-facts",
+              "workflow:set-up-a-business-on-the-account:write-the-business-facts",
               "L082"
             ],
             "part_of": [
@@ -41882,7 +41882,7 @@
             "why": "A failed payment that is not chased is a lost member, and a failed card is the most common one.",
             "good_answer": "Passes: each entry has an invoice id. Fails: a failed payment with no invoice id.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:added-payment-recovery-and-win-back",
+              "brief:business-on-the-account-2026-11-12:added-payment-recovery-and-win-back",
               "L082",
               "the tool that reads money events since a time (id stripe-events-read_money_since) input_schema"
             ],
@@ -41928,7 +41928,7 @@
             "why": "One email per failed invoice is the rule; the key keeps it true across runs.",
             "good_answer": "Passes: a second run sends 0 for an already emailed invoice. Fails: two emails for one invoice.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:added-payment-recovery-and-win-back",
+              "brief:business-on-the-account-2026-11-12:added-payment-recovery-and-win-back",
               "L082",
               "tool:send-an-email input_schema"
             ],
@@ -41957,7 +41957,7 @@
             "why": "The dunning rule is real money; saying which system owns it prevents a false sense that it is handled.",
             "good_answer": "Passes: the gap names the Stripe dashboard as owner. Fails: a retry claim with no owner named.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:added-payment-recovery-and-win-back",
+              "brief:business-on-the-account-2026-11-12:added-payment-recovery-and-win-back",
               "L082",
               "dunning (no live tool)"
             ],
@@ -42003,7 +42003,7 @@
             "why": "A win-back right after a cancel reads as pushy; the 14 days are the spacing.",
             "good_answer": "Passes: each entry 14 or more days after its end. Fails: a buyer contacted the day they cancelled.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:added-payment-recovery-and-win-back",
+              "brief:business-on-the-account-2026-11-12:added-payment-recovery-and-win-back",
               "L082",
               "tool:list-ended-stripe-subscriptions input_schema"
             ],
@@ -42045,7 +42045,7 @@
             "why": "One offer, once: more than one is a nag and a discount the person did not set.",
             "good_answer": "Passes: one win-back per subscription. Fails: a discount or an offer the person did not write.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:added-payment-recovery-and-win-back",
+              "brief:business-on-the-account-2026-11-12:added-payment-recovery-and-win-back",
               "L082",
               "tool:send-an-email input_schema"
             ],
@@ -42082,7 +42082,7 @@
             "why": "The checklist is the only place a person sees what is done, not done or open. A stage that is ticked Done with an open step or an unwritten gap makes the checklist false.",
             "good_answer": "Passes: the row reads back with status Done only when every step is Done or Not applicable, and each gap found in the run has a gap row with status open. Fails: status Done while a step is Not done, or a gap found in the run is missing from list list:business-setup-gaps.",
             "came_from": [
-              "workflow:set-up-a-business-on-trillion:make-the-checklist",
+              "workflow:set-up-a-business-on-the-account:make-the-checklist",
               "record:check:every-step-is-banana-explicit",
               "L082"
             ],
@@ -42909,7 +42909,7 @@
         "job": "Find buyers who went quiet, follow them up with the existing follow-up workflow, make and count referral codes, apply the person's reward rule, withdraw abused codes, and ask consenting buyers for a testimonial.",
         "produces": "Quiet buyers followed up, referral codes counted, rewards recorded in the person's words, and testimonial asks sent only with consent.",
         "source": {
-          "from": "business-on-trillion meta-workflow, generic and public",
+          "from": "business-on-the-account meta-workflow, generic and public",
           "note": "After the sale. Newly built stage (not in the original list; brief said it is clearly missing). Live tools: see-where-each-customer-is, make-a-referral-code, work-out-referral-codes, withdraw-a-referral-code, send-an-email, start-a-recipe-run. referral-codes-and-rewards and testimonials are not live tools; reward and testimonial stores are named as gaps."
         },
         "fires_when": [
@@ -42952,7 +42952,7 @@
           {
             "id": "read-facts",
             "title": "Read the business facts",
-            "do": "Call run_resource_operation with address @own-records, method records:read and input {\"id\":\"record:business-setup:facts\"}. Keep the returned value as the facts. If the value is null, stop this stage: submit blocked with reason \"facts row missing\" and tell the person to run the parent workflow workflow:set-up-a-business-on-trillion step write-the-business-facts first.",
+            "do": "Call run_resource_operation with address @own-records, method records:read and input {\"id\":\"record:business-setup:facts\"}. Keep the returned value as the facts. If the value is null, stop this stage: submit blocked with reason \"facts row missing\" and tell the person to run the parent workflow workflow:set-up-a-business-on-the-account step write-the-business-facts first.",
             "submit": {
               "type": "object",
               "required": [
@@ -42973,7 +42973,7 @@
             "why": "Every later step reads its names and values from this one row, so no stage asks the person for the same fact twice.",
             "good_answer": "Passes: facts holds business_name, owner_name and channels exactly as the row keeps them. Fails: facts is an invented or guessed value, or a field this stage uses is absent without a blocker.",
             "came_from": [
-              "workflow:set-up-a-business-on-trillion:write-the-business-facts",
+              "workflow:set-up-a-business-on-the-account:write-the-business-facts",
               "L082"
             ],
             "part_of": [
@@ -43020,7 +43020,7 @@
             "why": "Retention starts with the buyers who stopped, not with a newsletter to everyone.",
             "good_answer": "Passes: each entry more than 14 days quiet. Fails: a buyer listed who stepped this week.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:after-the-sale (retention-and-referral, built new)",
+              "brief:business-on-the-account-2026-11-12:after-the-sale (retention-and-referral, built new)",
               "L082",
               "tool:see-where-each-customer-is input_schema"
             ],
@@ -43059,7 +43059,7 @@
             "why": "The existing follow-up workflow already knows how to write to people who did not answer; this stage reuses it.",
             "good_answer": "Passes: job id returned. Fails: follow-up emails sent by this step directly, not through the workflow.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:after-the-sale (retention-and-referral, built new)",
+              "brief:business-on-the-account-2026-11-12:after-the-sale (retention-and-referral, built new)",
               "L082",
               "workflow:follow-up-with-people-who-engaged (live, reused)"
             ],
@@ -43106,7 +43106,7 @@
             "why": "A referral code is the only way a referral is credited to the right buyer.",
             "good_answer": "Passes: a code returned for this buyer's account id. Fails: a code for a different account.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:after-the-sale (retention-and-referral, built new)",
+              "brief:business-on-the-account-2026-11-12:after-the-sale (retention-and-referral, built new)",
               "L082",
               "tool:make-a-referral-code input_schema"
             ],
@@ -43148,7 +43148,7 @@
             "why": "Rewards are owed on referrals the tool counted, not on referrals the person remembers.",
             "good_answer": "Passes: rewards_due equals the tool's count. Fails: a reward counted from memory.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:after-the-sale (retention-and-referral, built new)",
+              "brief:business-on-the-account-2026-11-12:after-the-sale (retention-and-referral, built new)",
               "L082",
               "tool:work-out-referral-codes input_schema"
             ],
@@ -43177,7 +43177,7 @@
             "why": "A reward the person did not write is a promise the person did not make.",
             "good_answer": "Passes: a reward row with the person's words. Fails: a reward row with words the person did not write.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:after-the-sale (retention-and-referral, built new)",
+              "brief:business-on-the-account-2026-11-12:after-the-sale (retention-and-referral, built new)",
               "L082"
             ],
             "part_of": [
@@ -43213,7 +43213,7 @@
             "why": "A withdrawn code stops the abuse without losing the honest referrals already counted.",
             "good_answer": "Passes: withdrawn true for the named code only. Fails: a code withdrawn that the person did not name.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:after-the-sale (retention-and-referral, built new)",
+              "brief:business-on-the-account-2026-11-12:after-the-sale (retention-and-referral, built new)",
               "L082",
               "tool:withdraw-a-referral-code input_schema"
             ],
@@ -43246,7 +43246,7 @@
             "why": "A testimonial is asked for once and only from a buyer who agreed; the gap names the missing store.",
             "good_answer": "Passes: sent false without written consent. Fails: an ask sent with no consent.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:after-the-sale (retention-and-referral, built new)",
+              "brief:business-on-the-account-2026-11-12:after-the-sale (retention-and-referral, built new)",
               "L082",
               "testimonials (no live tool)"
             ],
@@ -43283,7 +43283,7 @@
             "why": "The checklist is the only place a person sees what is done, not done or open. A stage that is ticked Done with an open step or an unwritten gap makes the checklist false.",
             "good_answer": "Passes: the row reads back with status Done only when every step is Done or Not applicable, and each gap found in the run has a gap row with status open. Fails: status Done while a step is Not done, or a gap found in the run is missing from list list:business-setup-gaps.",
             "came_from": [
-              "workflow:set-up-a-business-on-trillion:make-the-checklist",
+              "workflow:set-up-a-business-on-the-account:make-the-checklist",
               "record:check:every-step-is-banana-explicit",
               "L082"
             ],
@@ -47900,7 +47900,7 @@
         "job": "Check a community exists, advance its matchmaker, answer members in the person's words, and record what no live tool gives (creating a community and removing a member).",
         "produces": "A community checked for existence, a matchmaker advance, answered members, and a gap list for what the tools do not do.",
         "source": {
-          "from": "business-on-trillion meta-workflow, generic and public",
+          "from": "business-on-the-account meta-workflow, generic and public",
           "note": "Bottom of funnel. Live tools: read-my-community-matches, advance-a-community-matchmaker, answer-in-a-community. run-a-community is not a live tool (its folder has port records only), so the stage records gaps for creating a community."
         },
         "fires_when": [
@@ -47943,7 +47943,7 @@
           {
             "id": "read-facts",
             "title": "Read the business facts",
-            "do": "Call run_resource_operation with address @own-records, method records:read and input {\"id\":\"record:business-setup:facts\"}. Keep the returned value as the facts. If the value is null, stop this stage: submit blocked with reason \"facts row missing\" and tell the person to run the parent workflow workflow:set-up-a-business-on-trillion step write-the-business-facts first.",
+            "do": "Call run_resource_operation with address @own-records, method records:read and input {\"id\":\"record:business-setup:facts\"}. Keep the returned value as the facts. If the value is null, stop this stage: submit blocked with reason \"facts row missing\" and tell the person to run the parent workflow workflow:set-up-a-business-on-the-account step write-the-business-facts first.",
             "submit": {
               "type": "object",
               "required": [
@@ -47964,7 +47964,7 @@
             "why": "Every later step reads its names and values from this one row, so no stage asks the person for the same fact twice.",
             "good_answer": "Passes: facts holds business_name, owner_name and channels exactly as the row keeps them. Fails: facts is an invented or guessed value, or a field this stage uses is absent without a blocker.",
             "came_from": [
-              "workflow:set-up-a-business-on-trillion:write-the-business-facts",
+              "workflow:set-up-a-business-on-the-account:write-the-business-facts",
               "L082"
             ],
             "part_of": [
@@ -47995,7 +47995,7 @@
             "why": "A community run with no community is a stage with nothing to run; the check says so first.",
             "good_answer": "Passes: exists false plus the gap when no id is set. Fails: exists true for an id the tool did not answer.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:bottom",
+              "brief:business-on-the-account-2026-11-12:bottom",
               "L082",
               "run-a-community (folder has ports only; not a tool row)"
             ],
@@ -48031,7 +48031,7 @@
             "why": "The matchmaker moves members along; one call per day is the cadence.",
             "good_answer": "Passes: advanced true only with the tool's answer. Fails: a second run under a new key the same day.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:bottom",
+              "brief:business-on-the-account-2026-11-12:bottom",
               "L082",
               "tool:advance-a-community-matchmaker input_schema"
             ],
@@ -48068,7 +48068,7 @@
             "why": "A question answered by the person's words keeps the community the person's.",
             "good_answer": "Passes: answered true for the named member. Fails: an answer posted to a member who did not ask.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:bottom",
+              "brief:business-on-the-account-2026-11-12:bottom",
               "L082",
               "tool:answer-in-a-community input_schema"
             ],
@@ -48097,7 +48097,7 @@
             "why": "A stage that hides a missing tool looks finished when it is not.",
             "good_answer": "Passes: two gap texts naming the missing capabilities. Fails: a community stage ticked Done with no gap listed.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:bottom",
+              "brief:business-on-the-account-2026-11-12:bottom",
               "L082"
             ],
             "part_of": [
@@ -48133,7 +48133,7 @@
             "why": "The checklist is the only place a person sees what is done, not done or open. A stage that is ticked Done with an open step or an unwritten gap makes the checklist false.",
             "good_answer": "Passes: the row reads back with status Done only when every step is Done or Not applicable, and each gap found in the run has a gap row with status open. Fails: status Done while a step is Not done, or a gap found in the run is missing from list list:business-setup-gaps.",
             "came_from": [
-              "workflow:set-up-a-business-on-trillion:make-the-checklist",
+              "workflow:set-up-a-business-on-the-account:make-the-checklist",
               "record:check:every-step-is-banana-explicit",
               "L082"
             ],
@@ -48152,7 +48152,7 @@
         "job": "Write five lessons as rows, check them, test one sign-up with the owner's own consent, send lessons on their days, read where a learner stands, and stop a learner who asks.",
         "produces": "A five-day course held in rows, tested with one real sign-up, sent on its days, and stoppable per learner.",
         "source": {
-          "from": "business-on-trillion meta-workflow, generic and public",
+          "from": "business-on-the-account meta-workflow, generic and public",
           "note": "Bottom of funnel. Live tools: sign-someone-up-for-an-email-course, send-due-email-lessons, work-out-where-a-learner-stands, stop-an-email-course, check-copy. The course is a list of lesson rows; no separate course tool is named."
         },
         "fires_when": [
@@ -48196,7 +48196,7 @@
           {
             "id": "read-facts",
             "title": "Read the business facts",
-            "do": "Call run_resource_operation with address @own-records, method records:read and input {\"id\":\"record:business-setup:facts\"}. Keep the returned value as the facts. If the value is null, stop this stage: submit blocked with reason \"facts row missing\" and tell the person to run the parent workflow workflow:set-up-a-business-on-trillion step write-the-business-facts first.",
+            "do": "Call run_resource_operation with address @own-records, method records:read and input {\"id\":\"record:business-setup:facts\"}. Keep the returned value as the facts. If the value is null, stop this stage: submit blocked with reason \"facts row missing\" and tell the person to run the parent workflow workflow:set-up-a-business-on-the-account step write-the-business-facts first.",
             "submit": {
               "type": "object",
               "required": [
@@ -48217,7 +48217,7 @@
             "why": "Every later step reads its names and values from this one row, so no stage asks the person for the same fact twice.",
             "good_answer": "Passes: facts holds business_name, owner_name and channels exactly as the row keeps them. Fails: facts is an invented or guessed value, or a field this stage uses is absent without a blocker.",
             "came_from": [
-              "workflow:set-up-a-business-on-trillion:write-the-business-facts",
+              "workflow:set-up-a-business-on-the-account:write-the-business-facts",
               "L082"
             ],
             "part_of": [
@@ -48260,7 +48260,7 @@
             "why": "A course is lessons on a clock; the rows are the clock's content.",
             "good_answer": "Passes: five rows, days 1 to 5, each with the two placeholders. Fails: a lesson with no unsubscribe placeholder.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:bottom",
+              "brief:business-on-the-account-2026-11-12:bottom",
               "L082"
             ],
             "part_of": [
@@ -48306,7 +48306,7 @@
             "why": "A lesson is read like an email from the person; it passes the same rules.",
             "good_answer": "Passes: a lesson with a banned word in failing. Fails: failing empty over a banned word.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:bottom",
+              "brief:business-on-the-account-2026-11-12:bottom",
               "L082",
               "tool:check-copy input_schema"
             ],
@@ -48364,7 +48364,7 @@
             "why": "The first lesson is the only proof that the course reaches a real inbox.",
             "good_answer": "Passes: signed_up true and consent recorded with its words and version. Fails: consent true for a person who did not agree.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:bottom",
+              "brief:business-on-the-account-2026-11-12:bottom",
               "L082",
               "tool:sign-someone-up-for-an-email-course input_schema"
             ],
@@ -48407,7 +48407,7 @@
             "why": "Each lesson is sent at its own time; this step is the clock's hand.",
             "good_answer": "Passes: failed lists each failing lesson. Fails: sent counted for a lesson that failed.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:bottom",
+              "brief:business-on-the-account-2026-11-12:bottom",
               "L082",
               "tool:send-due-email-lessons input_schema"
             ],
@@ -48445,7 +48445,7 @@
             "why": "The state tells the person who is stuck before a refund request does.",
             "good_answer": "Passes: a state naming a day from 1 to 5. Fails: a state for a day after the track ends.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:bottom",
+              "brief:business-on-the-account-2026-11-12:bottom",
               "L082",
               "tool:work-out-where-a-learner-stands input_schema"
             ],
@@ -48474,7 +48474,7 @@
             "why": "A stop must reach the one learner; stopping by a guessed address stops the wrong person.",
             "good_answer": "Passes: stopped true for the token's learner only. Fails: stopped true with no token.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:bottom",
+              "brief:business-on-the-account-2026-11-12:bottom",
               "L082",
               "tool:stop-an-email-course input_schema"
             ],
@@ -48511,7 +48511,7 @@
             "why": "The checklist is the only place a person sees what is done, not done or open. A stage that is ticked Done with an open step or an unwritten gap makes the checklist false.",
             "good_answer": "Passes: the row reads back with status Done only when every step is Done or Not applicable, and each gap found in the run has a gap row with status open. Fails: status Done while a step is Not done, or a gap found in the run is missing from list list:business-setup-gaps.",
             "came_from": [
-              "workflow:set-up-a-business-on-trillion:make-the-checklist",
+              "workflow:set-up-a-business-on-the-account:make-the-checklist",
               "record:check:every-step-is-banana-explicit",
               "L082"
             ],
@@ -51638,7 +51638,7 @@
     {
       "payload": {
         "kind": "workflow-recipe",
-        "id": "workflow:set-up-a-business-on-trillion",
+        "id": "workflow:set-up-a-business-on-the-account",
         "label": "Set up a business to run entirely on Trillion",
         "job": "Set up a business to run entirely on Trillion, top, middle and bottom of the funnel and after the sale, from one facts row and one checklist, with each stage's own recipe, and close the gaps each run finds.",
         "produces": "A business with its accounts checked, its funnel stages built or run, a checklist that says what is done and not done, and a gap list the next run closes.",
@@ -51761,8 +51761,8 @@
           }
         },
         "source": {
-          "from": "business-on-trillion meta-workflow, generic and public",
-          "note": "Synthetic example data only. Stage recipes: recipes/business-on-trillion-*.json. Reused live workflows: workflow:get-found-in-search-and-answer-engines, workflow:test-prices-and-change-a-page-for-each-visitor, workflow:give-paid-buyers-access, make-a-brand-book-and-decks, follow-up-with-people-who-engaged. Tools named in the stages that the live catalog lacks: resolve-a-brand (source-only); no live tool for: YouTube connection check, DM reply sending, support inbox, community creation, referral reward store, testimonials, send-follow-up-emails-after-sign-up, billing page for one purchase, dunning retry schedule (set in Stripe). The first instance is the person's own list, not this repository."
+          "from": "business-on-the-account meta-workflow, generic and public",
+          "note": "Synthetic example data only. Stage recipes: recipes/business-on-the-account-*.json. Reused live workflows: workflow:get-found-in-search-and-answer-engines, workflow:test-prices-and-change-a-page-for-each-visitor, workflow:give-paid-buyers-access, make-a-brand-book-and-decks, follow-up-with-people-who-engaged. Tools named in the stages that the live catalog lacks: resolve-a-brand (source-only); no live tool for: YouTube connection check, DM reply sending, support inbox, community creation, referral reward store, testimonials, send-follow-up-emails-after-sign-up, billing page for one purchase, dunning retry schedule (set in Stripe). The first instance is the person's own list, not this repository."
         },
         "fires_when": [
           {
@@ -51830,11 +51830,11 @@
             "why": "Every stage reads one facts row, so no stage asks the person for the same fact twice. Person-only: the owner's name, email, channels and the price the person chooses are facts only the person can give; the search above removes every other ask.",
             "good_answer": "Passes: a record whose values equal the answers the person gave, and no field the person did not give. Fails: a guessed domain, price or email.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:stages",
+              "brief:business-on-the-account-2026-11-12:stages",
               "L082"
             ],
             "part_of": [
-              "workflow:set-up-a-business-on-trillion"
+              "workflow:set-up-a-business-on-the-account"
             ]
           },
           {
@@ -51864,12 +51864,12 @@
             "why": "Cost that lands on a person's own life is the cost the business does not show on its own screens; naming the areas makes it countable. Person-only: only the person knows which parts of their own life this business touches.",
             "good_answer": "Passes: each row holds the person's own area words and cost text. Fails: an area the person did not name, or a cost invented.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:owner-life-cost",
+              "brief:business-on-the-account-2026-11-12:owner-life-cost",
               "ev:owner-2026-11-12-no-repo",
               "L082"
             ],
             "part_of": [
-              "workflow:set-up-a-business-on-trillion"
+              "workflow:set-up-a-business-on-the-account"
             ]
           },
           {
@@ -51897,12 +51897,12 @@
             "why": "The daily practice holds on a bad day only if the least step is named and sized, so a missed day is a minimum done, not a stop. Person-only: the least they will still do on a bad day is their own judgement, not a tool's.",
             "good_answer": "Passes: minutes is the number the person gave. Fails: a default number written for the person.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:bad-day-minimum",
+              "brief:business-on-the-account-2026-11-12:bad-day-minimum",
               "ev:owner-2026-11-12-funnel-accounts",
               "L082"
             ],
             "part_of": [
-              "workflow:set-up-a-business-on-trillion"
+              "workflow:set-up-a-business-on-the-account"
             ]
           },
           {
@@ -51933,11 +51933,11 @@
             "why": "Results only change a business when someone reads them on a schedule and knows what a bad number triggers. Person-only: approving the rules that govern how the business contacts people is the person's choice.",
             "good_answer": "Passes: no rule row without the person's approval marked. Fails: a rule written as approved with no answer from the person.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:repeated-contact",
+              "brief:business-on-the-account-2026-11-12:repeated-contact",
               "L082"
             ],
             "part_of": [
-              "workflow:set-up-a-business-on-trillion"
+              "workflow:set-up-a-business-on-the-account"
             ]
           },
           {
@@ -51971,12 +51971,12 @@
             "why": "Results that stay with one person do not reach the next circle; this names the carrier for each. Person-only: choosing who sees what and how far it travels is the person's choice.",
             "good_answer": "Passes: circle three carried_by is a live tool id or a gap. Fails: a carrier named that is not in the live catalog.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:results-carrier",
+              "brief:business-on-the-account-2026-11-12:results-carrier",
               "ev:owner-2026-11-12-no-repo",
               "L082"
             ],
             "part_of": [
-              "workflow:set-up-a-business-on-trillion"
+              "workflow:set-up-a-business-on-the-account"
             ]
           },
           {
@@ -52008,7 +52008,7 @@
               "L082"
             ],
             "part_of": [
-              "workflow:set-up-a-business-on-trillion"
+              "workflow:set-up-a-business-on-the-account"
             ]
           },
           {
@@ -52046,7 +52046,7 @@
               "L082"
             ],
             "part_of": [
-              "workflow:set-up-a-business-on-trillion"
+              "workflow:set-up-a-business-on-the-account"
             ]
           },
           {
@@ -52080,11 +52080,11 @@
             "why": "A stage started through the engine leaves its steps as a job the AI does, so every stage keeps its own checks.",
             "good_answer": "Passes: job id returned for workflow:set-up-business-accounts-and-connections. Fails: a stage marked Done here without its job being done.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:stages",
+              "brief:business-on-the-account-2026-11-12:stages",
               "tool:start-a-recipe-run input_schema"
             ],
             "part_of": [
-              "workflow:set-up-a-business-on-trillion"
+              "workflow:set-up-a-business-on-the-account"
             ]
           },
           {
@@ -52119,11 +52119,11 @@
             "why": "A stage started through the engine leaves its steps as a job the AI does, so every stage keeps its own checks.",
             "good_answer": "Passes: job id returned for workflow:post-on-social-channels-on-a-schedule. Fails: a stage marked Done here without its job being done.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:stages",
+              "brief:business-on-the-account-2026-11-12:stages",
               "tool:start-a-recipe-run input_schema"
             ],
             "part_of": [
-              "workflow:set-up-a-business-on-trillion"
+              "workflow:set-up-a-business-on-the-account"
             ]
           },
           {
@@ -52157,11 +52157,11 @@
             "why": "A stage started through the engine leaves its steps as a job the AI does, so every stage keeps its own checks.",
             "good_answer": "Passes: job id returned for workflow:answer-comments-and-messages. Fails: a stage marked Done here without its job being done.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:stages",
+              "brief:business-on-the-account-2026-11-12:stages",
               "tool:start-a-recipe-run input_schema"
             ],
             "part_of": [
-              "workflow:set-up-a-business-on-trillion"
+              "workflow:set-up-a-business-on-the-account"
             ]
           },
           {
@@ -52195,11 +52195,11 @@
             "why": "A stage started through the engine leaves its steps as a job the AI does, so every stage keeps its own checks.",
             "good_answer": "Passes: job id returned for workflow:make-short-videos-from-footage. Fails: a stage marked Done here without its job being done.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:stages",
+              "brief:business-on-the-account-2026-11-12:stages",
               "tool:start-a-recipe-run input_schema"
             ],
             "part_of": [
-              "workflow:set-up-a-business-on-trillion"
+              "workflow:set-up-a-business-on-the-account"
             ]
           },
           {
@@ -52233,11 +52233,11 @@
             "why": "A stage started through the engine leaves its steps as a job the AI does, so every stage keeps its own checks.",
             "good_answer": "Passes: job id returned for workflow:publish-articles-and-newsletter-on-a-cadence. Fails: a stage marked Done here without its job being done.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:stages",
+              "brief:business-on-the-account-2026-11-12:stages",
               "tool:start-a-recipe-run input_schema"
             ],
             "part_of": [
-              "workflow:set-up-a-business-on-trillion"
+              "workflow:set-up-a-business-on-the-account"
             ]
           },
           {
@@ -52271,11 +52271,11 @@
             "why": "A reused workflow keeps one source of its steps, so a fix there fixes this stage.",
             "good_answer": "Passes: job id returned for workflow:get-found-in-search-and-answer-engines. Fails: the steps of workflow:get-found-in-search-and-answer-engines copied into this workflow.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:reuse",
+              "brief:business-on-the-account-2026-11-12:reuse",
               "workflow:get-found-in-search-and-answer-engines"
             ],
             "part_of": [
-              "workflow:set-up-a-business-on-trillion"
+              "workflow:set-up-a-business-on-the-account"
             ]
           },
           {
@@ -52299,11 +52299,11 @@
             "why": "The checklist is ticked by whoever reads the result, so a reused stage shows on the same list as the rest.",
             "good_answer": "Passes: status Done only when the job's result shows every step done. Fails: Done for a job that is still waiting.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:reuse",
+              "brief:business-on-the-account-2026-11-12:reuse",
               "record-the-stage pattern of this workflow"
             ],
             "part_of": [
-              "workflow:set-up-a-business-on-trillion"
+              "workflow:set-up-a-business-on-the-account"
             ]
           },
           {
@@ -52333,7 +52333,7 @@
               "tool:search-one-of-my-lists input_schema"
             ],
             "part_of": [
-              "workflow:set-up-a-business-on-trillion"
+              "workflow:set-up-a-business-on-the-account"
             ]
           },
           {
@@ -52368,11 +52368,11 @@
             "why": "A stage started through the engine leaves its steps as a job the AI does, so every stage keeps its own checks.",
             "good_answer": "Passes: job id returned for workflow:build-the-landing-page. Fails: a stage marked Done here without its job being done.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:stages",
+              "brief:business-on-the-account-2026-11-12:stages",
               "tool:start-a-recipe-run input_schema"
             ],
             "part_of": [
-              "workflow:set-up-a-business-on-trillion"
+              "workflow:set-up-a-business-on-the-account"
             ]
           },
           {
@@ -52406,11 +52406,11 @@
             "why": "A reused workflow keeps one source of its steps, so a fix there fixes this stage.",
             "good_answer": "Passes: job id returned for workflow:test-prices-and-change-a-page-for-each-visitor. Fails: the steps of workflow:test-prices-and-change-a-page-for-each-visitor copied into this workflow.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:reuse",
+              "brief:business-on-the-account-2026-11-12:reuse",
               "workflow:test-prices-and-change-a-page-for-each-visitor"
             ],
             "part_of": [
-              "workflow:set-up-a-business-on-trillion"
+              "workflow:set-up-a-business-on-the-account"
             ]
           },
           {
@@ -52434,11 +52434,11 @@
             "why": "The checklist is ticked by whoever reads the result, so a reused stage shows on the same list as the rest.",
             "good_answer": "Passes: status Done only when the job's result shows every step done. Fails: Done for a job that is still waiting.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:reuse",
+              "brief:business-on-the-account-2026-11-12:reuse",
               "record-the-stage pattern of this workflow"
             ],
             "part_of": [
-              "workflow:set-up-a-business-on-trillion"
+              "workflow:set-up-a-business-on-the-account"
             ]
           },
           {
@@ -52472,11 +52472,11 @@
             "why": "A stage started through the engine leaves its steps as a job the AI does, so every stage keeps its own checks.",
             "good_answer": "Passes: job id returned for workflow:measure-the-funnel-and-set-a-baseline. Fails: a stage marked Done here without its job being done.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:stages",
+              "brief:business-on-the-account-2026-11-12:stages",
               "tool:start-a-recipe-run input_schema"
             ],
             "part_of": [
-              "workflow:set-up-a-business-on-trillion"
+              "workflow:set-up-a-business-on-the-account"
             ]
           },
           {
@@ -52511,11 +52511,11 @@
             "why": "A stage started through the engine leaves its steps as a job the AI does, so every stage keeps its own checks.",
             "good_answer": "Passes: job id returned for workflow:set-up-brand-and-branded-emails. Fails: a stage marked Done here without its job being done.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:stages",
+              "brief:business-on-the-account-2026-11-12:stages",
               "tool:start-a-recipe-run input_schema"
             ],
             "part_of": [
-              "workflow:set-up-a-business-on-trillion"
+              "workflow:set-up-a-business-on-the-account"
             ]
           },
           {
@@ -52549,11 +52549,11 @@
             "why": "A stage started through the engine leaves its steps as a job the AI does, so every stage keeps its own checks.",
             "good_answer": "Passes: job id returned for workflow:take-payments-with-stripe. Fails: a stage marked Done here without its job being done.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:stages",
+              "brief:business-on-the-account-2026-11-12:stages",
               "tool:start-a-recipe-run input_schema"
             ],
             "part_of": [
-              "workflow:set-up-a-business-on-trillion"
+              "workflow:set-up-a-business-on-the-account"
             ]
           },
           {
@@ -52587,11 +52587,11 @@
             "why": "A reused workflow keeps one source of its steps, so a fix there fixes this stage.",
             "good_answer": "Passes: job id returned for workflow:give-paid-buyers-access. Fails: the steps of workflow:give-paid-buyers-access copied into this workflow.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:reuse",
+              "brief:business-on-the-account-2026-11-12:reuse",
               "workflow:give-paid-buyers-access"
             ],
             "part_of": [
-              "workflow:set-up-a-business-on-trillion"
+              "workflow:set-up-a-business-on-the-account"
             ]
           },
           {
@@ -52615,11 +52615,11 @@
             "why": "The checklist is ticked by whoever reads the result, so a reused stage shows on the same list as the rest.",
             "good_answer": "Passes: status Done only when the job's result shows every step done. Fails: Done for a job that is still waiting.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:reuse",
+              "brief:business-on-the-account-2026-11-12:reuse",
               "record-the-stage pattern of this workflow"
             ],
             "part_of": [
-              "workflow:set-up-a-business-on-trillion"
+              "workflow:set-up-a-business-on-the-account"
             ]
           },
           {
@@ -52653,11 +52653,11 @@
             "why": "A stage started through the engine leaves its steps as a job the AI does, so every stage keeps its own checks.",
             "good_answer": "Passes: job id returned for workflow:run-a-course-from-list-rows. Fails: a stage marked Done here without its job being done.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:stages",
+              "brief:business-on-the-account-2026-11-12:stages",
               "tool:start-a-recipe-run input_schema"
             ],
             "part_of": [
-              "workflow:set-up-a-business-on-trillion"
+              "workflow:set-up-a-business-on-the-account"
             ]
           },
           {
@@ -52691,11 +52691,11 @@
             "why": "A stage started through the engine leaves its steps as a job the AI does, so every stage keeps its own checks.",
             "good_answer": "Passes: job id returned for workflow:run-a-community. Fails: a stage marked Done here without its job being done.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:stages",
+              "brief:business-on-the-account-2026-11-12:stages",
               "tool:start-a-recipe-run input_schema"
             ],
             "part_of": [
-              "workflow:set-up-a-business-on-trillion"
+              "workflow:set-up-a-business-on-the-account"
             ]
           },
           {
@@ -52729,11 +52729,11 @@
             "why": "A stage started through the engine leaves its steps as a job the AI does, so every stage keeps its own checks.",
             "good_answer": "Passes: job id returned for workflow:manage-member-billing. Fails: a stage marked Done here without its job being done.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:stages",
+              "brief:business-on-the-account-2026-11-12:stages",
               "tool:start-a-recipe-run input_schema"
             ],
             "part_of": [
-              "workflow:set-up-a-business-on-trillion"
+              "workflow:set-up-a-business-on-the-account"
             ]
           },
           {
@@ -52767,11 +52767,11 @@
             "why": "A stage started through the engine leaves its steps as a job the AI does, so every stage keeps its own checks.",
             "good_answer": "Passes: job id returned for workflow:onboard-new-buyers-in-five-days. Fails: a stage marked Done here without its job being done.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:stages",
+              "brief:business-on-the-account-2026-11-12:stages",
               "tool:start-a-recipe-run input_schema"
             ],
             "part_of": [
-              "workflow:set-up-a-business-on-trillion"
+              "workflow:set-up-a-business-on-the-account"
             ]
           },
           {
@@ -52805,11 +52805,11 @@
             "why": "A stage started through the engine leaves its steps as a job the AI does, so every stage keeps its own checks.",
             "good_answer": "Passes: job id returned for workflow:retention-and-referral. Fails: a stage marked Done here without its job being done.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:stages",
+              "brief:business-on-the-account-2026-11-12:stages",
               "tool:start-a-recipe-run input_schema"
             ],
             "part_of": [
-              "workflow:set-up-a-business-on-trillion"
+              "workflow:set-up-a-business-on-the-account"
             ]
           },
           {
@@ -52843,11 +52843,11 @@
             "why": "A stage started through the engine leaves its steps as a job the AI does, so every stage keeps its own checks.",
             "good_answer": "Passes: job id returned for workflow:legal-pages-and-support. Fails: a stage marked Done here without its job being done.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:stages",
+              "brief:business-on-the-account-2026-11-12:stages",
               "tool:start-a-recipe-run input_schema"
             ],
             "part_of": [
-              "workflow:set-up-a-business-on-trillion"
+              "workflow:set-up-a-business-on-the-account"
             ]
           },
           {
@@ -52881,11 +52881,11 @@
             "why": "A stage started through the engine leaves its steps as a job the AI does, so every stage keeps its own checks.",
             "good_answer": "Passes: job id returned for workflow:recover-failed-payments-and-win-back. Fails: a stage marked Done here without its job being done.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:stages",
+              "brief:business-on-the-account-2026-11-12:stages",
               "tool:start-a-recipe-run input_schema"
             ],
             "part_of": [
-              "workflow:set-up-a-business-on-trillion"
+              "workflow:set-up-a-business-on-the-account"
             ]
           },
           {
@@ -52919,17 +52919,17 @@
             "why": "A stage started through the engine leaves its steps as a job the AI does, so every stage keeps its own checks.",
             "good_answer": "Passes: job id returned for workflow:prove-the-launch-on-the-real-url. Fails: a stage marked Done here without its job being done.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:stages",
+              "brief:business-on-the-account-2026-11-12:stages",
               "tool:start-a-recipe-run input_schema"
             ],
             "part_of": [
-              "workflow:set-up-a-business-on-trillion"
+              "workflow:set-up-a-business-on-the-account"
             ]
           },
           {
             "id": "close-the-gaps",
             "title": "Close the gaps this run found",
-            "do": "Call records:list at @own-records with input {\"type\":\"record:setup-gap\",\"where\":{\"status\":\"open\"},\"limit\":256}; follow every continuation until none is left. For each open gap: (1) decide the fix the gap's undecided field names; (2) rewrite the step it names in its recipe file under tools/workflows/recipes (business-on-trillion-<stage>.json) as an explicit step, with the choice decided and an if_missing branch; (3) have a second AI judge the rewritten step against record:check:every-step-is-banana-explicit; (4) only after the judge passes, write the gap row with status closed and closed_by the step's new version. A gap still open is not done.",
+            "do": "Call records:list at @own-records with input {\"type\":\"record:setup-gap\",\"where\":{\"status\":\"open\"},\"limit\":256}; follow every continuation until none is left. For each open gap: (1) decide the fix the gap's undecided field names; (2) rewrite the step it names in its recipe file under tools/workflows/recipes (business-on-the-account-<stage>.json) as an explicit step, with the choice decided and an if_missing branch; (3) have a second AI judge the rewritten step against record:check:every-step-is-banana-explicit; (4) only after the judge passes, write the gap row with status closed and closed_by the step's new version. A gap still open is not done.",
             "submit": {
               "type": "object",
               "required": [
@@ -52955,11 +52955,11 @@
             "why": "A gap the run found and did not close becomes the next run's surprise; the workflow closes its own gaps.",
             "good_answer": "Passes: each closed gap names the rewritten step version. Fails: a gap closed with no rewritten step.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:self-recursive-gaps",
+              "brief:business-on-the-account-2026-11-12:self-recursive-gaps",
               "L082 (gaps close themselves)"
             ],
             "part_of": [
-              "workflow:set-up-a-business-on-trillion"
+              "workflow:set-up-a-business-on-the-account"
             ]
           },
           {
@@ -52987,7 +52987,7 @@
               "L082"
             ],
             "part_of": [
-              "workflow:set-up-a-business-on-trillion"
+              "workflow:set-up-a-business-on-the-account"
             ]
           },
           {
@@ -53038,7 +53038,7 @@
               "L082"
             ],
             "part_of": [
-              "workflow:set-up-a-business-on-trillion"
+              "workflow:set-up-a-business-on-the-account"
             ]
           }
         ]
@@ -53317,7 +53317,7 @@
         "job": "Run the brand book job, resolve the brand (source-only tool, gap if absent), send one test email to the owner from the verified domain, and have the owner confirm it reached the inbox.",
         "produces": "A brand book job, a test email the owner confirmed in an inbox, and a gap for each source-only dependency.",
         "source": {
-          "from": "business-on-trillion meta-workflow, generic and public",
+          "from": "business-on-the-account meta-workflow, generic and public",
           "note": "Middle of funnel. Live tools: send-an-email, start-a-recipe-run. resolve-a-brand is source-only (not in the live catalog). make-a-brand-book-and-decks is an existing live workflow, run by reference."
         },
         "fires_when": [
@@ -53361,7 +53361,7 @@
           {
             "id": "read-facts",
             "title": "Read the business facts",
-            "do": "Call run_resource_operation with address @own-records, method records:read and input {\"id\":\"record:business-setup:facts\"}. Keep the returned value as the facts. If the value is null, stop this stage: submit blocked with reason \"facts row missing\" and tell the person to run the parent workflow workflow:set-up-a-business-on-trillion step write-the-business-facts first.",
+            "do": "Call run_resource_operation with address @own-records, method records:read and input {\"id\":\"record:business-setup:facts\"}. Keep the returned value as the facts. If the value is null, stop this stage: submit blocked with reason \"facts row missing\" and tell the person to run the parent workflow workflow:set-up-a-business-on-the-account step write-the-business-facts first.",
             "submit": {
               "type": "object",
               "required": [
@@ -53382,7 +53382,7 @@
             "why": "Every later step reads its names and values from this one row, so no stage asks the person for the same fact twice.",
             "good_answer": "Passes: facts holds business_name, owner_name and channels exactly as the row keeps them. Fails: facts is an invented or guessed value, or a field this stage uses is absent without a blocker.",
             "came_from": [
-              "workflow:set-up-a-business-on-trillion:write-the-business-facts",
+              "workflow:set-up-a-business-on-the-account:write-the-business-facts",
               "L082"
             ],
             "part_of": [
@@ -53420,7 +53420,7 @@
             "why": "The brand is one set of words and colours that every page and email reads; the brand book makes it.",
             "good_answer": "Passes: job id returned with status written or already-there. Fails: a brand made here without the brand book job.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:middle",
+              "brief:business-on-the-account-2026-11-12:middle",
               "L082",
               "workflow:make-a-brand-book-and-decks"
             ],
@@ -53467,7 +53467,7 @@
             "why": "A tool that is not live cannot be a dependency that a run relies on silently.",
             "good_answer": "Passes: live false reported with the gap. Fails: a brand returned from a tool that did not answer.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:middle",
+              "brief:business-on-the-account-2026-11-12:middle",
               "L082",
               "tool:resolve-a-brand (source-only)"
             ],
@@ -53519,7 +53519,7 @@
             "why": "A branded email is only trusted when it is seen once in a real inbox.",
             "good_answer": "Passes: sent true to the owner only. Fails: a test sent to any other address.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:middle",
+              "brief:business-on-the-account-2026-11-12:middle",
               "L082",
               "tool:send-an-email input_schema"
             ],
@@ -53548,7 +53548,7 @@
             "why": "The inbox is the only place a sending fault shows; a sent message is not a received one.",
             "good_answer": "Passes: confirmed true with the owner's words. Fails: confirmed true with no reply from the owner.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:middle",
+              "brief:business-on-the-account-2026-11-12:middle",
               "L082"
             ],
             "part_of": [
@@ -53584,7 +53584,7 @@
             "why": "The checklist is the only place a person sees what is done, not done or open. A stage that is ticked Done with an open step or an unwritten gap makes the checklist false.",
             "good_answer": "Passes: the row reads back with status Done only when every step is Done or Not applicable, and each gap found in the run has a gap row with status open. Fails: status Done while a step is Not done, or a gap found in the run is missing from list list:business-setup-gaps.",
             "came_from": [
-              "workflow:set-up-a-business-on-trillion:make-the-checklist",
+              "workflow:set-up-a-business-on-the-account:make-the-checklist",
               "record:check:every-step-is-banana-explicit",
               "L082"
             ],
@@ -53603,7 +53603,7 @@
         "job": "Check every account and connection the business needs (Stripe seller, Instagram, Facebook, YouTube, the email sending domain and its key) and leave each one either connected or with a named gap.",
         "produces": "One checked account state per connection and a sending key kept in the vault.",
         "source": {
-          "from": "business-on-trillion meta-workflow, generic and public",
+          "from": "business-on-the-account meta-workflow, generic and public",
           "note": "Stage 1 of the business meta-workflow. Live tools: list-every-connection, set-up-someone-i-pay-in-stripe, check-a-connection, add-an-email-sending-domain, check-an-email-sending-domain, make-a-sending-key. No live tool checks a YouTube connection (gap written at run time). DNS changes are done by the person at their DNS host; no tool does that."
         },
         "fires_when": [
@@ -53647,7 +53647,7 @@
           {
             "id": "read-facts",
             "title": "Read the business facts",
-            "do": "Call run_resource_operation with address @own-records, method records:read and input {\"id\":\"record:business-setup:facts\"}. Keep the returned value as the facts. If the value is null, stop this stage: submit blocked with reason \"facts row missing\" and tell the person to run the parent workflow workflow:set-up-a-business-on-trillion step write-the-business-facts first.",
+            "do": "Call run_resource_operation with address @own-records, method records:read and input {\"id\":\"record:business-setup:facts\"}. Keep the returned value as the facts. If the value is null, stop this stage: submit blocked with reason \"facts row missing\" and tell the person to run the parent workflow workflow:set-up-a-business-on-the-account step write-the-business-facts first.",
             "submit": {
               "type": "object",
               "required": [
@@ -53668,7 +53668,7 @@
             "why": "Every later step reads its names and values from this one row, so no stage asks the person for the same fact twice.",
             "good_answer": "Passes: facts holds business_name, owner_name and channels exactly as the row keeps them. Fails: facts is an invented or guessed value, or a field this stage uses is absent without a blocker.",
             "came_from": [
-              "workflow:set-up-a-business-on-trillion:write-the-business-facts",
+              "workflow:set-up-a-business-on-the-account:write-the-business-facts",
               "L082"
             ],
             "part_of": [
@@ -53721,7 +53721,7 @@
             "why": "Every later account step needs an exact account id or a connected flag, and this one step produces both.",
             "good_answer": "Passes: an instagram row with connected false when the person has not connected Instagram, not a guessed true. Fails: a channel named in facts.channels with no row.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:accounts-and-connections",
+              "brief:business-on-the-account-2026-11-12:accounts-and-connections",
               "L082"
             ],
             "part_of": [
@@ -53802,7 +53802,7 @@
             "why": "A seller cannot be paid until Stripe has the seller's account and its verified details; this step is the only place that says so.",
             "good_answer": "Passes: can_be_paid is false and still_due names what Stripe needs, when onboarding is not done. Fails: can_be_paid true with no account, or any key value written into the answer.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:accounts-and-connections",
+              "brief:business-on-the-account-2026-11-12:accounts-and-connections",
               "L082"
             ],
             "part_of": [
@@ -53840,7 +53840,7 @@
             "why": "Instagram posts and replies fail silently when the connection is off; this step makes the state visible before any stage relies on it.",
             "good_answer": "Passes: connected false is reported as false with the tool's reason. Fails: connected true copied from the list-connections row without this check.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:accounts-and-connections",
+              "brief:business-on-the-account-2026-11-12:accounts-and-connections",
               "L082"
             ],
             "part_of": [
@@ -53878,7 +53878,7 @@
             "why": "Facebook page posting depends on this one connection; checking it once avoids a stage that fails later.",
             "good_answer": "Passes: a connected false answer shown as false. Fails: a page posted to before this check says connected.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:accounts-and-connections",
+              "brief:business-on-the-account-2026-11-12:accounts-and-connections",
               "L082"
             ],
             "part_of": [
@@ -53909,7 +53909,7 @@
             "why": "YouTube has no connection check tool today, so the only evidence is the connections list; the gap says so instead of pretending a check ran.",
             "good_answer": "Passes: connected false plus a gap naming the missing check tool. Fails: connected true with no list-connections row behind it.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:accounts-and-connections",
+              "brief:business-on-the-account-2026-11-12:accounts-and-connections",
               "L082",
               "tool:send-a-post input_schema"
             ],
@@ -53974,7 +53974,7 @@
             "why": "The sending service verifies a domain only after its DNS records exist at the DNS host; the records are the instruction the person needs.",
             "good_answer": "Passes: dns_records has one row per record returned, byte for byte. Fails: a record retyped or a record left out.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:accounts-and-connections",
+              "brief:business-on-the-account-2026-11-12:accounts-and-connections",
               "L082"
             ],
             "part_of": [
@@ -54017,7 +54017,7 @@
             "why": "Sending from an unverified domain fails or lands in spam; the check says which case holds.",
             "good_answer": "Passes: verified false is reported as false. Fails: verified true without the tool answering it.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:accounts-and-connections",
+              "brief:business-on-the-account-2026-11-12:accounts-and-connections",
               "L082"
             ],
             "part_of": [
@@ -54048,7 +54048,7 @@
             "why": "Only the person can change the DNS at their host; saying so exactly prevents a false claim that the tool did it.",
             "good_answer": "Passes: the table shows every record exactly as the tool returned it. Fails: a record summarised or a claim that a tool wrote DNS.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:accounts-and-connections",
+              "brief:business-on-the-account-2026-11-12:accounts-and-connections",
               "L082"
             ],
             "part_of": [
@@ -54093,7 +54093,7 @@
             "why": "A sending key pasted into a record is a leaked credential; keep_as keeps the key where the tool keeps it.",
             "good_answer": "Passes: key_kept true and no key text anywhere in the answer. Fails: a key value in the answer.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:accounts-and-connections",
+              "brief:business-on-the-account-2026-11-12:accounts-and-connections",
               "L082"
             ],
             "part_of": [
@@ -54129,7 +54129,7 @@
             "why": "The checklist is the only place a person sees what is done, not done or open. A stage that is ticked Done with an open step or an unwritten gap makes the checklist false.",
             "good_answer": "Passes: the row reads back with status Done only when every step is Done or Not applicable, and each gap found in the run has a gap row with status open. Fails: status Done while a step is Not done, or a gap found in the run is missing from list list:business-setup-gaps.",
             "came_from": [
-              "workflow:set-up-a-business-on-trillion:make-the-checklist",
+              "workflow:set-up-a-business-on-the-account:make-the-checklist",
               "record:check:every-step-is-banana-explicit",
               "L082"
             ],
@@ -54698,7 +54698,7 @@
         "job": "Create the payment links from the person's offers, prove one purchase in Stripe test mode, find the completed checkout, reconcile the money, and handle an offer that pays another seller.",
         "produces": "Payment links for each price option, one proven test purchase, and a money reconciliation.",
         "source": {
-          "from": "business-on-trillion meta-workflow, generic and public",
+          "from": "business-on-the-account meta-workflow, generic and public",
           "note": "Bottom of funnel. Live tools: set-up-stripe-payment-links, find-a-completed-stripe-checkout, stripe-events-read_money_since, start-a-stripe-checkout-that-pays-someone-else. Live route for a buyer is the payment link; start-a-stripe-checkout is live for in-app checkout. take-payments is not a live tool and is not named."
         },
         "fires_when": [
@@ -54741,7 +54741,7 @@
           {
             "id": "read-facts",
             "title": "Read the business facts",
-            "do": "Call run_resource_operation with address @own-records, method records:read and input {\"id\":\"record:business-setup:facts\"}. Keep the returned value as the facts. If the value is null, stop this stage: submit blocked with reason \"facts row missing\" and tell the person to run the parent workflow workflow:set-up-a-business-on-trillion step write-the-business-facts first.",
+            "do": "Call run_resource_operation with address @own-records, method records:read and input {\"id\":\"record:business-setup:facts\"}. Keep the returned value as the facts. If the value is null, stop this stage: submit blocked with reason \"facts row missing\" and tell the person to run the parent workflow workflow:set-up-a-business-on-the-account step write-the-business-facts first.",
             "submit": {
               "type": "object",
               "required": [
@@ -54762,7 +54762,7 @@
             "why": "Every later step reads its names and values from this one row, so no stage asks the person for the same fact twice.",
             "good_answer": "Passes: facts holds business_name, owner_name and channels exactly as the row keeps them. Fails: facts is an invented or guessed value, or a field this stage uses is absent without a blocker.",
             "came_from": [
-              "workflow:set-up-a-business-on-trillion:write-the-business-facts",
+              "workflow:set-up-a-business-on-the-account:write-the-business-facts",
               "L082"
             ],
             "part_of": [
@@ -54820,7 +54820,7 @@
             "why": "A link that is not made is a buyer who cannot pay.",
             "good_answer": "Passes: one link per price option of the offer. Fails: a link for an option the person no longer sells that still takes payments.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:bottom",
+              "brief:business-on-the-account-2026-11-12:bottom",
               "L082",
               "tool:set-up-stripe-payment-links input_schema"
             ],
@@ -54849,7 +54849,7 @@
             "why": "A payment link is trusted only after a purchase has gone through it once in test mode.",
             "good_answer": "Passes: test_purchase_made true with the person's words naming test mode. Fails: a live purchase used as the proof.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:bottom",
+              "brief:business-on-the-account-2026-11-12:bottom",
               "L082"
             ],
             "part_of": [
@@ -54895,7 +54895,7 @@
             "why": "A completed checkout is the proof that the link, the price and the return address work together.",
             "good_answer": "Passes: a checkout id for the test purchase. Fails: a checkout id from before the test.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:bottom",
+              "brief:business-on-the-account-2026-11-12:bottom",
               "L082",
               "tool:find-a-completed-stripe-checkout input_schema"
             ],
@@ -54934,7 +54934,7 @@
             "why": "The books match the checkouts only when this step says so.",
             "good_answer": "Passes: difference_found true with the gap written. Fails: difference_found false with no comparison made.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:bottom",
+              "brief:business-on-the-account-2026-11-12:bottom",
               "L082",
               "the tool that reads money events since a time (id stripe-events-read_money_since) input_schema"
             ],
@@ -54987,7 +54987,7 @@
             "why": "A checkout that pays another seller with a fee is a different money path and needs its own proof.",
             "good_answer": "Passes: Not applicable when no payee is named. Fails: a checkout made for a payee who is not in facts.",
             "came_from": [
-              "brief:business-on-trillion-2026-11-12:bottom",
+              "brief:business-on-the-account-2026-11-12:bottom",
               "L082",
               "tool:start-a-stripe-checkout-that-pays-someone-else input_schema"
             ],
@@ -55024,7 +55024,7 @@
             "why": "The checklist is the only place a person sees what is done, not done or open. A stage that is ticked Done with an open step or an unwritten gap makes the checklist false.",
             "good_answer": "Passes: the row reads back with status Done only when every step is Done or Not applicable, and each gap found in the run has a gap row with status open. Fails: status Done while a step is Not done, or a gap found in the run is missing from list list:business-setup-gaps.",
             "came_from": [
-              "workflow:set-up-a-business-on-trillion:make-the-checklist",
+              "workflow:set-up-a-business-on-the-account:make-the-checklist",
               "record:check:every-step-is-banana-explicit",
               "L082"
             ],
@@ -56249,7 +56249,7 @@
     {
       "payload": {
         "kind": "workflow-recipe",
-        "id": "workflow:trillion-x-mode",
+        "id": "workflow:x-mode",
         "label": "Trillion X mode",
         "job": "Apply the full execution standard to an authorized objective, with checked evidence, scope and reusable mechanisms.",
         "input_schema": {

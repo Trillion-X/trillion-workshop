@@ -51,20 +51,20 @@
    "workshop": "tools/work-on-connected-drives/read-data/drives.mjs",
    "function": "nameWhatHoldsThisDrive"
   },
-  "tool:trillion-media-work": {
+  "tool:media-work": {
    "workshop": "tools/work-on-connected-drives/read-data/drives.mjs",
    "function": "listDriveWork"
   },
-  "tool:trillion-media-work-control": {
+  "tool:media-work-control": {
    "workshop": "tools/work-on-connected-drives/read-data/drives.mjs",
    "function": "controlDriveWork"
   },
-  "tool:trillion-media-transfer": {
+  "tool:media-transfer": {
    "workshop": "tools/work-on-connected-drives/read-data/drives.mjs",
    "function": "copyOrMoveBetweenDrives",
    "hand": { "note_written": { "workshop": "tools/bring-in-new-items-from-this-computer/computer/own-writes.mjs", "export": "noteOwnWrite" } }
   },
-  "tool:trillion-media-eject": {
+  "tool:media-eject": {
    "workshop": "tools/work-on-connected-drives/read-data/drives.mjs",
    "function": "ejectADrive"
   },
@@ -132,7 +132,7 @@
    "export": "listeningTools",
    "name": "hear"
   },
-  "tool:keep-trillion-in-your-instructions": {
+  "tool:keep-my-account-in-your-instructions": {
    "workshop": "tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs",
    "function": "keep"
   },
@@ -165,7 +165,7 @@
    "function": "print",
    "door": ["find_file", "read_file"]
   },
-  "tool:trillion-media-file-places": {
+  "tool:media-file-places": {
    "workshop": "tools/work-on-connected-drives/read-data/file-places.mjs",
    "function": "findEveryPlaceAFileIs"
   },

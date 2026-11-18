@@ -6,7 +6,7 @@
   "workflows": [
     "workflow:real-life-cases",
     "workflow:answer-commenters-with-videos",
-    "workflow:trillion-x-mode",
+    "workflow:x-mode",
     "workflow:turn-something-shared-into-what-you-can-use"
   ],
   "tools": [

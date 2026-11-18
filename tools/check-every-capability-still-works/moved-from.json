@@ -21,7 +21,7 @@
     {
       "from": "records/workshop-job-probe-records.json",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/check-every-capability-still-works/from-old-trillion/records/workshop-job-probe-records.json",
+      "to": "tools/check-every-capability-still-works/from-an-older-version/records/workshop-job-probe-records.json",
       "source_identity": "1f:141a617aba9701a432bad562645ad15a6cac08e7571a95a808ee118e2ad98bfd",
       "identity": "1f:141a617aba9701a432bad562645ad15a6cac08e7571a95a808ee118e2ad98bfd"
     }

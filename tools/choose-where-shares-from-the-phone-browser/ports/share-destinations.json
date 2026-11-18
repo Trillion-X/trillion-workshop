@@ -35,7 +35,7 @@
   ],
   "banned_substitutions": ["A new preference or history store", "A fixture-only implementation", "A cross-account target lookup", "A default private grant", "A legacy runtime fallback", "A successful list read reported as delivery"],
   "baseline": {
-    "path": "tools/choose-where-shares-from-the-phone-browser/from-old-trillion/baseline/src/share-destinations.mjs.held",
+    "path": "tools/choose-where-shares-from-the-phone-browser/from-an-older-version/baseline/src/share-destinations.mjs.held",
     "commit": "d494390943f29701c6b4c2fb74d396822c1ae5e2",
     "copied_before_adaptation": true,
     "source_multihash": "1f:7aa1fd56fc602dbbb8557061ca060918a944bcb47d44f657a24e52e5e2ce1279",

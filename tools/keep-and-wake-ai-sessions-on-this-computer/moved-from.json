@@ -57,21 +57,21 @@
     {
       "from": "harness/README.md",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/from-old-trillion/harness/README.md",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/from-an-older-version/harness/README.md",
       "source_identity": "1f:52faa191032c548107a3da6e2b4aade94482efb31a0fbe0566a5d8417afe7e1e",
       "identity": "1f:52faa191032c548107a3da6e2b4aade94482efb31a0fbe0566a5d8417afe7e1e"
     },
     {
       "from": "records/workshop-chrome-web-store-tool-records.json",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/from-old-trillion/records/workshop-chrome-web-store-tool-records.json",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/from-an-older-version/records/workshop-chrome-web-store-tool-records.json",
       "source_identity": "1f:912a5f7c2f23b4e7730e1714bec5bee44f697825eb1a1441701d4a8c8325f0f0",
       "identity": "1f:912a5f7c2f23b4e7730e1714bec5bee44f697825eb1a1441701d4a8c8325f0f0"
     },
     {
       "from": "records/workshop-harness-setup-tool-records.json",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/from-old-trillion/records/workshop-harness-setup-tool-records.json",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/from-an-older-version/records/workshop-harness-setup-tool-records.json",
       "source_identity": "1f:09319a93a5a5926678d79d2ddc438f827181c8ce620c270f19e3a2869ab7116b",
       "identity": "1f:09319a93a5a5926678d79d2ddc438f827181c8ce620c270f19e3a2869ab7116b"
     },
@@ -97,16 +97,16 @@
       "identity": "1f:820dac3b033e0ac67e6ef69320904aac9d814aa89d6f81466d6c58ad4c9f4ea0"
     },
     {
-      "from": "harness/ask-trillion-first.json",
+      "from": "harness/ask-the-account-first.json",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/harness/ask-trillion-first.json",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/harness/ask-the-account-first.json",
       "source_identity": "1f:e6ff32736a4210487683ca1d8c7b141ba591da665d5b77a703cf32ae95a4451c",
       "identity": "1f:e6ff32736a4210487683ca1d8c7b141ba591da665d5b77a703cf32ae95a4451c"
     },
     {
-      "from": "harness/ask-trillion-first.mjs",
+      "from": "harness/ask-the-account-first.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/harness/ask-trillion-first.mjs",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/harness/ask-the-account-first.mjs",
       "source_identity": "1f:c4b9348e0992989bc8aa22b9564be7ca8d7a28f157fa5a9446fbf4bbb86ad1fc",
       "identity": "1f:c4b9348e0992989bc8aa22b9564be7ca8d7a28f157fa5a9446fbf4bbb86ad1fc"
     },
@@ -1681,9 +1681,9 @@
       "identity": "1f:2b44f472675a0f32a1c85a241cee94763e06a9824c46abda28c64703aad86cb3"
     },
     {
-      "from": "test/ask-trillion-first.test.mjs",
+      "from": "test/ask-the-account-first.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/ask-trillion-first.test.mjs",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/ask-the-account-first.test.mjs",
       "source_identity": "1f:04b202fa973aa2e87abc6cd71020031612fdb9567d95228ddbac832f38d0275f",
       "identity": "1f:04b202fa973aa2e87abc6cd71020031612fdb9567d95228ddbac832f38d0275f"
     },

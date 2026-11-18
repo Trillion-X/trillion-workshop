@@ -171,7 +171,7 @@
   "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
     "workflow:take-payments-with-stripe",
-    "workflow:set-up-a-business-on-trillion"
+    "workflow:set-up-a-business-on-the-account"
   ],
   "tools": [
     "tool:find-a-completed-stripe-checkout",
@@ -182,7 +182,7 @@
     "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Run workflow:set-up-a-business-on-trillion first (or make record:business-setup:facts with business_name, owner_name, seller_return_url and channels); this workflow stops with \"facts row missing\" without it.",
+    "1. Run workflow:set-up-a-business-on-the-account first (or make record:business-setup:facts with business_name, owner_name, seller_return_url and channels); this workflow stops with \"facts row missing\" without it.",
     "2. Make sure the offers are rows of type record:offer in your records with price options in whole cents (for example Member 4000 cents a month, Session 60000 cents one time).",
     "3. Say \"Run workflow:take-payments-with-stripe\". Step set-up-payment-links makes one payment link per price option (a free offer gets none) and is safe to run again: it finds the links it made.",
     "4. Open one link in Stripe test mode and pay with Stripe's published test card, then tell your AI the test purchase was made; it finds the completed checkout and compares the last 7 days of money events to the checkouts.",

@@ -23,7 +23,7 @@
  "targets": [
   {
    "path": "tools/grade-and-repair-speech-audio/read-data/speech-enhance.mjs",
-   "baseline_commit_message": "grade-and-repair-speech-audio: speech-enhance.mjs and .json move byte for byte from from-old-trillion/computer to read-data (F-0478)"
+   "baseline_commit_message": "grade-and-repair-speech-audio: speech-enhance.mjs and .json move byte for byte from from-an-older-version/computer to read-data (F-0478)"
   }
  ],
  "preserve": [
@@ -62,5 +62,5 @@
   "render_refs": [],
   "originality_ref": null
  },
- "_old_copy": "Old trillion deleted computer/speech-enhance.mjs in dc79bb0a87; its Workshop landing in from-old-trillion/ is moved on (not copied) by the baseline commit."
+ "_old_copy": "Old trillion deleted computer/speech-enhance.mjs in dc79bb0a87; its Workshop landing in from-an-older-version/ is moved on (not copied) by the baseline commit."
 }

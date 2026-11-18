@@ -1389,7 +1389,7 @@ mod refusal_tests {
     /// view-as look) is refused 403 for a Workshop run's POST at the signed-in entry, before any operation runs, and may
     /// still read. (The old body words, view-as.json `words.read_only`, are not this refusal's body; named in the port
     /// report. No running sign-in issues a read-only scope today: the old view-as issuer is parked in
-    /// trillion-workshop tools/let-someone-look-at-my-trillion-read/from-old-trillion.)
+    /// trillion-workshop tools/let-someone-look-at-my-account-read/from-an-older-version.)
     #[test]
     fn old_screen_revision_worker_negative_a_read_only_scopes_workshop_run_is_refused_before_any_operation(
     ) {

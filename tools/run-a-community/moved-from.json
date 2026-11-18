@@ -6,7 +6,7 @@
     {
       "id": "made-up-quoted-owner",
       "files": [
-        "tools/run-a-community/from-old-trillion/src/community-own.mjs.held"
+        "tools/run-a-community/from-an-older-version/src/community-own.mjs.held"
       ],
       "find": "\\b[A-Z][a-z]+(?=,? 2026-\\d\\d-\\d\\d[:,]? )",
       "replace": "Alex Example",
@@ -31,7 +31,7 @@
     {
       "from": "src/community-own.mjs",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/run-a-community/from-old-trillion/src/community-own.mjs.held",
+      "to": "tools/run-a-community/from-an-older-version/src/community-own.mjs.held",
       "source_identity": "1f:83f702ffd1374420d05b4c5367938d9cfda28f326c9e753c1b4f133b64932b93",
       "identity": "1f:35426b202cd29d66d088d455bdbfcad1e261834ae6e0802b805f04029b20ff29",
       "calls": [

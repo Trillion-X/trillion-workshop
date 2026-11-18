@@ -174,7 +174,7 @@
   "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
     "workflow:recover-failed-payments-and-win-back",
-    "workflow:set-up-a-business-on-trillion"
+    "workflow:set-up-a-business-on-the-account"
   ],
   "tools": [
     "tool:list-ended-stripe-subscriptions",

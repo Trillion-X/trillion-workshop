@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { profileFill, handleFor } from '../from-old-trillion/src/network-profile-fill.mjs';
+import { profileFill, handleFor } from '../from-an-older-version/src/network-profile-fill.mjs';
 import networkRules from '../../introduce-two-people/src/network-settings.json' with { type: 'json' };
 
 const rules = networkRules.profile_fill;

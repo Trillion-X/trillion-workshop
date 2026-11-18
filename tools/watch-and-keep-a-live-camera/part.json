@@ -1,7 +1,7 @@
 {
   "exports": {
     "README.md": "README.md",
-    "file-pieces-into-trillion": "do-work/capabilities/file-pieces-into-trillion.mjs",
+    "file-pieces-into-the-account": "do-work/capabilities/file-pieces-into-the-account.mjs",
     "part.json": "part.json",
     "public-address-through-tailscale-funnel": "do-work/capabilities/public-address-through-tailscale-funnel.mjs",
     "receive-a-camera-stream": "do-work/receive-a-camera-stream.mjs",
@@ -14,7 +14,7 @@
   "public": [
     "do-work/receive-a-camera-stream.mjs",
     "do-work/take-a-stream.mjs",
-    "do-work/capabilities/file-pieces-into-trillion.mjs",
+    "do-work/capabilities/file-pieces-into-the-account.mjs",
     "do-work/capabilities/relay-to-an-address.mjs",
     "do-work/capabilities/public-address-through-tailscale-funnel.mjs",
     "do-work/capabilities/this-network.mjs",

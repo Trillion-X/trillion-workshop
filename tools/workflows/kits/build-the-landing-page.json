@@ -275,7 +275,7 @@
   ],
   "workflows": [
     "workflow:build-the-landing-page",
-    "workflow:set-up-a-business-on-trillion"
+    "workflow:set-up-a-business-on-the-account"
   ],
   "tools": [
     "tool:start-a-recipe-run",
@@ -288,7 +288,7 @@
     "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Pour the example word checks into the list where you keep your writing rules (see pour), or make list:word-checks from them; run workflow:set-up-a-business-on-trillion first so record:business-setup:facts exists.",
+    "1. Pour the example word checks into the list where you keep your writing rules (see pour), or make list:word-checks from them; run workflow:set-up-a-business-on-the-account first so record:business-setup:facts exists.",
     "2. Say \"Run workflow:build-the-landing-page\".",
     "3. The AI reads the facts, writes seven page-block rows (headline, what you get, who it is for, price, one proof line, buy button label, one question), checks them with tool:check-copy, publishes the site, names it, attaches your domain and critiques the live page.",
     "4. Set the DNS record the attach step names at your DNS host; fix each issue the critique lists in the page-block rows and publish again.",

@@ -49,7 +49,7 @@
     },
     {
       "repository": "trillion-rust",
-      "path": "docs/from-old-trillion/src/",
+      "path": "docs/from-an-older-version/src/",
       "why": "Archived work-object code reads and binds the object\u2019s saved user/concern identity with a different keptWork(sql) function. It does not validate version lists or expose the attribution row adapter."
     },
     {

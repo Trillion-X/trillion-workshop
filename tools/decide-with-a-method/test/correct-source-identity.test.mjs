@@ -8,7 +8,7 @@
 // Left out, no running owner: the first test (POST /cases/:id/correct-source-identity, checking a kept person message
 // and the original Codex handoff before re-deciding the decision as generation 2): searched the three repos for
 // correct-source-identity, already_corrected and putHandoff: only the unwired client script
-// tools/keep-and-wake-ai-sessions-on-this-computer/from-old-trillion/harness/correct-source-identity.mjs; no tool reads
+// tools/keep-and-wake-ai-sessions-on-this-computer/from-an-older-version/harness/correct-source-identity.mjs; no tool reads
 // a handoff or a message to correct a decision's source.
 import test from 'node:test';
 import assert from 'node:assert/strict';

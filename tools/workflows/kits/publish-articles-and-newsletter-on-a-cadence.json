@@ -276,7 +276,7 @@
   "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
     "workflow:publish-articles-and-newsletter-on-a-cadence",
-    "workflow:set-up-a-business-on-trillion"
+    "workflow:set-up-a-business-on-the-account"
   ],
   "tools": [
     "tool:approve-a-post",

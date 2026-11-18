@@ -343,7 +343,7 @@
     }
   ],
   "workflows": [
-    "workflow:set-up-a-business-on-trillion",
+    "workflow:set-up-a-business-on-the-account",
     "workflow:post-on-social-channels-on-a-schedule",
     "workflow:set-up-your-checks"
   ],
@@ -355,7 +355,7 @@
     "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Make sure record:business-setup:facts exists (workflow:set-up-a-business-on-trillion step write-the-business-facts writes it); channels must contain instagram.",
+    "1. Make sure record:business-setup:facts exists (workflow:set-up-a-business-on-the-account step write-the-business-facts writes it); channels must contain instagram.",
     "2. Pour the three example reply templates into the saved-replies list you already keep (see pour), or make list:reply-templates from them, then rewrite each reply in your own words.",
     "3. Pour or make list:word-checks the same way, so every reply is checked before you see it (workflow:set-up-your-checks makes the full list).",
     "4. Say \"Run workflow:answer-comments-and-messages\". The AI pulls the newest 50 messages, picks a template per message, fills and checks each reply.",

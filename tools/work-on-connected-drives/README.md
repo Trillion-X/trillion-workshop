@@ -1,6 +1,6 @@
 # tools/work-on-connected-drives/
 
-The drive tools that change things on a person's computer: copy or move files and folders between drives (each copy checked before it is named), list and pause/resume/stop the file work on drives, find every place the same file is, and eject a drive after stopping what holds it. They run on the person's own Mac as `computer` rows, one process per run, through `tools/records-door`'s `run-an-export.mjs`. Every row holds `see-connected-drives`; `tool:trillion-media-transfer` also holds `change-a-folder` (the person grants the drive folder it may write into). What only reads a drive (list the drives, one folder, what is on one by kind, its icon, what holds it) is `tools/connected-drives`; its code is imported from there, one copy.
+The drive tools that change things on a person's computer: copy or move files and folders between drives (each copy checked before it is named), list and pause/resume/stop the file work on drives, find every place the same file is, and eject a drive after stopping what holds it. They run on the person's own Mac as `computer` rows, one process per run, through `tools/records-door`'s `run-an-export.mjs`. Every row holds `see-connected-drives`; `tool:media-transfer` also holds `change-a-folder` (the person grants the drive folder it may write into). What only reads a drive (list the drives, one folder, what is on one by kind, its icon, what holds it) is `tools/connected-drives`; its code is imported from there, one copy.
 
 Moved here from `Trillion-X/trillion` `computer/drive-tools/` (2026-11-02); run through the engine since 2026-11-03. Old trillion's five read rows of this folder (`tool:trillion-media-drives`, `-drive-icon`, `-drive-kinds`, `-drive-folder`, `-drive-holders`) were the same jobs as `tools/connected-drives`' rows and are gone: the engine already sends those ids to the connected-drives rows (trillion-rust `product/renamed-tools.json`).
 
@@ -13,7 +13,7 @@ Moved here from `Trillion-X/trillion` `computer/drive-tools/` (2026-11-02); run 
 | `read-data/drive-work.mjs` | All the work on the drives (transfers, other programs holding a drive) with pause, resume, stop and resume-at, and the part of eject that stops that work gracefully first. |
 | `read-data/file-transfer.mjs` | Copy or move files and folders to folders on connected drives, inside the run that asks: each copy checked by BLAKE3 before it gets its name, a move's sources trashed only after every copy is checked; progress in `<state>/progress.json`. |
 | `read-data/work-control.mjs` | A job's pause/stop choice in `<state>/control.json` and the checkpoint a worker passes between chunks. |
-| `tool-rows.json` | `tool:trillion-media-file-places`, `-work`, `-work-control`, `-transfer` and `-eject`, `computer` rows. `file-places` also declares `records` rights: `find_file` over the person's files. |
+| `tool-rows.json` | `tool:media-file-places`, `-work`, `-work-control`, `-transfer` and `-eject`, `computer` rows. `file-places` also declares `records` rights: `find_file` over the person's files. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/drives.test.mjs` | Hidden volumes, every row's export and capabilities, and a real copy in a temporary folder. |
 | `test/file-places.test.mjs` | Every place a file is, over pretend drives and a pretend door. |

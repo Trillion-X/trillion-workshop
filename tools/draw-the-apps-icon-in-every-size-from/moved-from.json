@@ -1,0 +1,131 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "assets/stories-share.png",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/draw-the-apps-icon-in-every-size-from/assets/stories-share.png",
+      "source_identity": "1f:d3fd0bf3af63546a48cac7357b45f0443706abf7600fdfeb1fc750f4a0fa7041",
+      "identity": "1f:d3fd0bf3af63546a48cac7357b45f0443706abf7600fdfeb1fc750f4a0fa7041"
+    },
+    {
+      "from": "scripts/make-opening-cover.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/draw-the-apps-icon-in-every-size-from/scripts/make-opening-cover.mjs",
+      "source_identity": "1f:c6c3c567a952cc49240a52c81550632d6dc2c2b7faf2ef33698a73bd45aad309",
+      "identity_at_move": "1f:e5c905e565b42972d55aa8be64f695465fe474f81c876fbcbccf9b52f67df286",
+      "byte_copy_commit": "2e073198c5b780b4ef0e0a1bf7bd569ce68b0cee"
+    },
+    {
+      "from": "scripts/make-stories-share-image.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/draw-the-apps-icon-in-every-size-from/scripts/make-stories-share-image.mjs",
+      "source_identity": "1f:fda9b257eae19c0a2c421b56f4866943aaa35730d486d5331a1698880207dc9b",
+      "identity": "1f:173b874f9e7d4c920cb8d4a5db5aaf03d373660db60bf84b68e222bf6ecfd029",
+      "reads_rows": [
+        "src/story-settings.json"
+      ],
+      "adapted": "Edited after the move so the tool holds no host, name or id of ours; callers pass those in."
+    },
+    {
+      "from": "src/page-look.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/draw-the-apps-icon-in-every-size-from/src/page-look.mjs",
+      "source_identity": "1f:7a145d491c69b42bdb7a5f0b0b4fbcf57f63a6ddadc68069d1777ad6b983acd6",
+      "identity": "1f:34c21aaddbdafb3fda0bda36d267f3d340b78f1b2220f7c87a9f27ef9e4c0447"
+    },
+    {
+      "from": "test/thread-cover.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/draw-the-apps-icon-in-every-size-from/test/thread-cover.test.mjs.held",
+      "source_identity": "1f:311f68154aea6f8fa5709ae5fac7044f207ef3b6d38bf3236b6ea06413691521",
+      "identity": "1f:275f28b52ea4521321fe6c7e982553476c640f37422c3a1ba0f44d9f25efbfc8",
+      "held": "cannot pass here yet; see README"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/assets/README.md",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/draw-the-apps-icon-in-every-size-from/assets/README.md",
+      "source_identity": "1f:f45111be5e25732883830440f15c6a8c6b3d109b4a56c39d6055e108b41c71bd",
+      "identity": "1f:729467f532c0c0b304684c800e1b7a0d30c971aaa3d0caeae1342e5b852800d8",
+      "found_by": "byte copy",
+      "adapted": "Edited after the move so the tool holds no host, name or id of ours; callers pass those in."
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/assets/apple-touch-icon.png",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/draw-the-apps-icon-in-every-size-from/assets/apple-touch-icon.png",
+      "source_identity": "1f:76f2b7e7c369f1b674dc4cdb435c48be024dfcc7d2fc51de8805c7fb351bf6ac",
+      "identity": "1f:76f2b7e7c369f1b674dc4cdb435c48be024dfcc7d2fc51de8805c7fb351bf6ac",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/assets/favicon.ico",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/draw-the-apps-icon-in-every-size-from/assets/favicon.ico",
+      "source_identity": "1f:d869b9d6f2a2b093b1949a91584278316b2ad3c0af1f04e41f75593679ae9eda",
+      "identity": "1f:d869b9d6f2a2b093b1949a91584278316b2ad3c0af1f04e41f75593679ae9eda",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/assets/favicon.svg",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/draw-the-apps-icon-in-every-size-from/assets/favicon.svg",
+      "source_identity": "1f:c2c0b74a2863bbce2e6a4f49fe0ac2921f03e1a8fc90a00820a6a1adee0241b9",
+      "identity": "1f:c2c0b74a2863bbce2e6a4f49fe0ac2921f03e1a8fc90a00820a6a1adee0241b9",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/assets/icon-192.png",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/draw-the-apps-icon-in-every-size-from/assets/icon-192.png",
+      "source_identity": "1f:98ced111c23db2abf066602fc68c7cfcf013f7f112b6a9fc56c7baff5c356937",
+      "identity": "1f:98ced111c23db2abf066602fc68c7cfcf013f7f112b6a9fc56c7baff5c356937",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/assets/icon-48.png",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/draw-the-apps-icon-in-every-size-from/assets/icon-48.png",
+      "source_identity": "1f:5067b708d5589b23bd6ea5a641400422f78429797642e1d60a49f2f78fd3e8c4",
+      "identity": "1f:5067b708d5589b23bd6ea5a641400422f78429797642e1d60a49f2f78fd3e8c4",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/assets/icon-512.png",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/draw-the-apps-icon-in-every-size-from/assets/icon-512.png",
+      "source_identity": "1f:99d6e45aca08f551d2cdb079ff8f28f4aa7bc5ea297a00e6d7a227ad3f49ddff",
+      "identity": "1f:99d6e45aca08f551d2cdb079ff8f28f4aa7bc5ea297a00e6d7a227ad3f49ddff",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/assets/icon-maskable-512.png",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/draw-the-apps-icon-in-every-size-from/assets/icon-maskable-512.png",
+      "source_identity": "1f:4ea939511fcd06c8030faeba4fd00d98447089541305ba9edcf5a2a1fae95ebf",
+      "identity": "1f:4ea939511fcd06c8030faeba4fd00d98447089541305ba9edcf5a2a1fae95ebf",
+      "found_by": "byte copy"
+    },
+    {
+      "source": "Trillion-X/trillion-apps",
+      "from": "web/assets/icon.png",
+      "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
+      "to": "tools/draw-the-apps-icon-in-every-size-from/assets/icon.png",
+      "source_identity": "1f:54732f9d34a5d068378861a3d53b76151fc7e09aa4f38cc1f7235a42b345ce50",
+      "identity": "1f:54732f9d34a5d068378861a3d53b76151fc7e09aa4f38cc1f7235a42b345ce50",
+      "found_by": "byte copy"
+    }
+  ]
+}

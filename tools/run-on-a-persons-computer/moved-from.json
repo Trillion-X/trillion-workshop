@@ -410,14 +410,14 @@
     {
       "from": "records/workshop-mac-program-tool-records.json",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/run-on-a-persons-computer/from-old-trillion/records/workshop-mac-program-tool-records.json",
+      "to": "tools/run-on-a-persons-computer/from-an-older-version/records/workshop-mac-program-tool-records.json",
       "source_identity": "1f:49b24f80e8fbd0d32f4140d12012b1903c7b867a02b13d7f62834196fd01ec55",
       "identity": "1f:49b24f80e8fbd0d32f4140d12012b1903c7b867a02b13d7f62834196fd01ec55"
     },
     {
       "from": "test/local-document-and-catalogue.test.mjs",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/run-on-a-persons-computer/from-old-trillion/test/local-document-and-catalogue.test.mjs",
+      "to": "tools/run-on-a-persons-computer/from-an-older-version/test/local-document-and-catalogue.test.mjs",
       "source_identity": "1f:cc63c5c5b6d60d26981d816fb1dc2f264faff663570c6e0e2324ad7324bb8632",
       "identity": "1f:b835d1de5941e76e24861ee232aadddd4fe20e511fd70500b54c8068d4392037"
     },
@@ -463,7 +463,7 @@
       "to": "tools/run-on-a-persons-computer/test/vendor-table-rows.test.mjs",
       "source_identity": "1f:94c190cd23ab2f87e26a0fc123b06e4806bacac7f7203561e9d2c98d70e7d734",
       "identity": "1f:ed127edbed0bda6717d80320bff77d176887ebf1c015b2642177457a367c93d1",
-      "adapted": "the programs' tables are read from their tools' running readers, held to the old golden values (two tests fail: those tables changed); tests over records files only kept under from-old-trillion, firstChoiceFor and origin settings are left out, and the oauth records are a file of the golden rows."
+      "adapted": "the programs' tables are read from their tools' running readers, held to the old golden values (two tests fail: those tables changed); tests over records files only kept under from-an-older-version, firstChoiceFor and origin settings are left out, and the oauth records are a file of the golden rows."
     },
     {
       "from": "test/fixtures/vendor-tables-golden.json",

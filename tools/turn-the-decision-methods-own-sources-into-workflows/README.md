@@ -1,6 +1,6 @@
 # Turn retained sources into steps
 
-This owner qualifies exact source pins and explicit workflow steps before measuring a supplied source inventory. It imports the existing public `sweepAtoms` from `check-against-a-persons-rules-and-verdicts`, whose original source port and callers already exist. It uses the current workflow step validator and content identity owner. The held originals in `from-old-trillion/` remain evidence.
+This owner qualifies exact source pins and explicit workflow steps before measuring a supplied source inventory. It imports the existing public `sweepAtoms` from `check-against-a-persons-rules-and-verdicts`, whose original source port and callers already exist. It uses the current workflow step validator and content identity owner. The held originals in `from-an-older-version/` remain evidence.
 
 The coverage input is a JSON object with three independent current readbacks:
 

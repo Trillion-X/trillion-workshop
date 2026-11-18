@@ -7,14 +7,14 @@
     {
       "from": "src/tours-tools.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/let-an-ai-write-a-guided-tour-for-the-moment/from-old-trillion/src/tours-tools.mjs",
+      "to": "tools/let-an-ai-write-a-guided-tour-for-the-moment/from-an-older-version/src/tours-tools.mjs",
       "source_identity": "1f:07230e96f5419b896649baa5f7e95ddb209e466b93c41bfd3527f0cff9ae3e9a",
       "identity": "1f:07230e96f5419b896649baa5f7e95ddb209e466b93c41bfd3527f0cff9ae3e9a"
     },
     {
       "from": "src/tours.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/let-an-ai-write-a-guided-tour-for-the-moment/from-old-trillion/src/tours.mjs.held",
+      "to": "tools/let-an-ai-write-a-guided-tour-for-the-moment/from-an-older-version/src/tours.mjs.held",
       "source_identity": "1f:c512520f0b44d5a553595599d96e863ec03e36666ba2f9260b554312c262247a",
       "identity": "1f:0f212c754ee76fd33f45f83e1c78c7e925cc20b2a49103d3371f8d456f56a5dd",
       "held": true

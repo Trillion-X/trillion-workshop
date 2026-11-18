@@ -5,7 +5,7 @@
 // MCP tools test reads src/saved-links-tools.mjs savedLinkTools, which the old src/tools.mjs makeTools listed. Left out: the
 // shared-rows test and the two X bookmark tests (connect, poll on the alarm, a removed newest bookmark), which need the X
 // and save tools as Workshop rows and the event rules; this tool's rows are kept, not wired
-// (from-old-trillion/records/workshop-saved-links-tool-records.json, its README says so), and old scripts/workshop-rows.mjs
+// (from-an-older-version/records/workshop-saved-links-tool-records.json, its README says so), and old scripts/workshop-rows.mjs
 // runs nowhere.
 import test from 'node:test';
 import assert from 'node:assert/strict';

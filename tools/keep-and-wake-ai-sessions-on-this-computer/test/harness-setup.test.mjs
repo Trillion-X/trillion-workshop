@@ -61,7 +61,7 @@ test('old direct Trillion hooks upgrade once; compound and unrelated shell comma
   const f = fixture(t); const desired = desiredHooks({ ...f.options, runtime: process.execPath });
   const old = { hooks: {
     PreToolUse: [{ matcher: 'Edit|Bash', hooks: [{ type: 'command', command: 'node ~/.trillion/hooks/decide-before-building.mjs' }, { type: 'command', command: 'audit-other-work' }] }],
-    Stop: [{ hooks: [{ type: 'command', command: 'node ~/.trillion/hooks/ask-trillion-first.mjs --harness claude-code' }] }, { hooks: [{ type: 'command', command: 'echo node ~/.trillion/hooks/record-every-message.mjs && keep-other-work' }] }],
+    Stop: [{ hooks: [{ type: 'command', command: 'node ~/.trillion/hooks/ask-the-account-first.mjs --harness claude-code' }] }, { hooks: [{ type: 'command', command: 'echo node ~/.trillion/hooks/record-every-message.mjs && keep-other-work' }] }],
   } };
   const next = mergeHooks(old, desired, { ...f.options, action: 'apply' });
   const commands = Object.values(next.hooks).flatMap(groups => groups.flatMap(group => group.hooks.map(hook => hook.command)));
@@ -303,7 +303,7 @@ test('retired decision and consultation payloads remain load-checked but are rem
   assert.deepEqual(desired.map(row => row.id), settings.hooks.map(row => row.id));
   const previous = { hooks: {
     PreToolUse: [{ hooks: [{ type: 'command', command: 'node ~/.trillion/hooks/decide-before-building.mjs' }] }],
-    Stop: [{ hooks: [{ type: 'command', command: 'node ~/.trillion/hooks/ask-trillion-first.mjs --harness claude-code' }] },
+    Stop: [{ hooks: [{ type: 'command', command: 'node ~/.trillion/hooks/ask-the-account-first.mjs --harness claude-code' }] },
       { hooks: [{ type: 'command', command: 'keep-existing-hook' }] }],
   } };
   const next = mergeHooks(previous, desired, { ...f.options, action: 'apply' });

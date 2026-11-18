@@ -165,7 +165,7 @@ test('the apps the account has come from the names its sign-ins were made under,
 
 // The engine's setup_facts carries no setup runtime: Get started read the setup run from where the run itself lives, the
 // setup recipe's run (tools/workflows read-a-recipe-run.mjs) and its kept answers, through the setup runtime moved here
-// from old trillion (from-old-trillion/src/setup-runtime.mjs). A run never started is the true "not started", never "the runtime
+// from old trillion (from-an-older-version/src/setup-runtime.mjs). A run never started is the true "not started", never "the runtime
 // source is unreadable"; a reader with no owner here answers unavailable; nothing is written.
 function engineWithRun(rows = new Map()) {
   const sent = [];

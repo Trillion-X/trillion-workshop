@@ -4,9 +4,9 @@
 // Durable Object that kept one route's members (old src/event-inbox.mjs changeEventRoute/eventRouteStores over
 // src/event-route-members.mjs) is retired with no running successor (searched changeEventRoute, event_route_members,
 // makeEventRouteMembers, EventInbox and event-route across trillion-workshop tools, trillion-rust src and trillion-apps:
-// only events.mjs, which calls it, and from-old-trillion copies), so the harness stands in for it with that object's
+// only events.mjs, which calls it, and from-an-older-version copies), so the harness stands in for it with that object's
 // two methods over the old members table, read from the old tree's own SQL below. Event source rows are read from
-// tools/start-a-new-account-with-the-rules-and-catalog-items/from-old-trillion/records/workshop-event-source-records.json
+// tools/start-a-new-account-with-the-rules-and-catalog-items/from-an-older-version/records/workshop-event-source-records.json
 // instead of through the retired workshop.mjs readToolData. Every assertion is kept.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -16,7 +16,7 @@ import { createHmac } from 'node:crypto';
 import { routeBook, eventRouteStores, receiveEvents, makeEventRules } from '../src/events.mjs';
 import { makeRouteListeners } from '../src/event-route-listeners.mjs';
 
-const published = JSON.parse(await readFile(new URL('../../start-a-new-account-with-the-rules-and-catalog-items/from-old-trillion/records/workshop-event-source-records.json', import.meta.url))).records
+const published = JSON.parse(await readFile(new URL('../../start-a-new-account-with-the-rules-and-catalog-items/from-an-older-version/records/workshop-event-source-records.json', import.meta.url))).records
   .map(row => row.payload).filter(row => row?.kind === 'tool-event-source');
 const source = published.find(row => row.id === 'events:whatsapp-business');
 

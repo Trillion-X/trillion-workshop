@@ -7,7 +7,7 @@
     {
       "from": "records/hear-fetcher-records.json",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/audio-transcription/from-old-trillion/records/hear-fetcher-records.json",
+      "to": "tools/audio-transcription/from-an-older-version/records/hear-fetcher-records.json",
       "source_identity": "1f:7b37ddd413ee89d49192436692ad23b336fba06da7d907d9f0eecac6177d34b9",
       "identity": "1f:7b37ddd413ee89d49192436692ad23b336fba06da7d907d9f0eecac6177d34b9"
     },

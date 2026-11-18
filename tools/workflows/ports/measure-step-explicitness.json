@@ -79,7 +79,7 @@
     },
     {
       "repository": "trillion-workshop",
-      "path": "tools/write-a-job-done-in-several-steps-have/from-old-trillion/test/workflows.test.mjs.held",
+      "path": "tools/write-a-job-done-in-several-steps-have/from-an-older-version/test/workflows.test.mjs.held",
       "why": "Held workflow execution tests; no anatomy-share implementation."
     },
     {
@@ -134,7 +134,7 @@
     },
     {
       "repository": "trillion-rust",
-      "path": "docs/from-old-trillion/src/action-completeness.mjs",
+      "path": "docs/from-an-older-version/src/action-completeness.mjs",
       "why": "Archived action-surface inventory/proof validator; read and distinguished from instruction anatomy."
     },
     {

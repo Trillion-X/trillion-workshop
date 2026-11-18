@@ -7,14 +7,14 @@
     {
       "from": "src/sms-inbound.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/receive-a-text-message-sent-to-the-ais-phone/from-old-trillion/src/sms-inbound.mjs",
+      "to": "tools/receive-a-text-message-sent-to-the-ais-phone/from-an-older-version/src/sms-inbound.mjs",
       "source_identity": "1f:7a84902c2a9be8526ef6c7d5f2d8ad7fa10325ab98fc677f76a822384595021d",
       "identity": "1f:7c4ef82bc6295f8bf98244de6000125a59d47d876f42482af08ee8d72763dcb8"
     },
     {
       "from": "test/sms-inbound.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/receive-a-text-message-sent-to-the-ais-phone/from-old-trillion/test/sms-inbound.test.mjs",
+      "to": "tools/receive-a-text-message-sent-to-the-ais-phone/from-an-older-version/test/sms-inbound.test.mjs",
       "source_identity": "1f:eebc2afa0cbac56d818a0a60c328c41f849c8904cf97d374ffc9243eba6cdae6",
       "identity": "1f:28aa29de8a231a1eb001a219a71787b30d237e8fc6b9f73405f1c0a8578b9cbd"
     }

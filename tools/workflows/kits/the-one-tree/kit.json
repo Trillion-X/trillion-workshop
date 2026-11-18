@@ -186,7 +186,7 @@
  "check": "The recipes in recipes/workflows.json for these three ids pass recipeProblems with no tool gaps.",
  "waiting_to_publish": [],
  "waiting_to_publish_why": "None: the branches are no longer named here. Every workflow the person has (their own rows, for example an inbox workflow kept only in their account) and every workflow the Workshop installs is a candidate, chosen by the conditions on its own row.",
- "modes_are_selectors": "The generic mode workflows (quintillion, infinity, real-life-cases, trillion-x-mode, first-win, follow-through, keep-it-working, make-it-perform, put-it-in-the-world, personalized-reach-out) stay the selectors, each choosing itself by the conditions on its own row; no second registry. Five mode steps gained one pointer sentence each: real-life-cases--case, quintillion--compose, infinity--bottleneck, infinity--continue, personalized-reach-out--follow.",
+ "modes_are_selectors": "The generic mode workflows (quintillion, infinity, real-life-cases, x-mode, first-win, follow-through, keep-it-working, make-it-perform, put-it-in-the-world, personalized-reach-out) stay the selectors, each choosing itself by the conditions on its own row; no second registry. Five mode steps gained one pointer sentence each: real-life-cases--case, quintillion--compose, infinity--bottleneck, infinity--continue, personalized-reach-out--follow.",
  "one_use_of_the_tree": "The content tree is one use of the tree, branches and leaves structure the person named for their gauntlet and decision method; every workflow is a branch and its outputs are the leaves.",
  "views": "Table = the lists; task = the tree's calendar-task rows; canvas = the existing workflow canvas of the recipe. Nothing new is built for them.",
  "new_steps": {

@@ -107,7 +107,7 @@ test('the list of doers and reasons is told back, and a request that is not plai
 });
 
 test('the rows pack what the tools read and run their own samples', () => {
-  assert.deepEqual(rows.map(row => row.id), ['tool:who-does-each-step', 'tool:what-can-trillion-do']);
+  assert.deepEqual(rows.map(row => row.id), ['tool:who-does-each-step', 'tool:what-can-my-account-do']);
   for (const row of rows) assert.deepEqual(row.invoke.files.package_files.paths, ['do-work', 'read-data']);
   assert.equal(whoDoesEachStep(rows[0].verify[0].input).steps[0].who, 'trillion');
   assert.equal(whoCanDo(rows[1].verify[0].input).doers[0].id, 'sample-doer');

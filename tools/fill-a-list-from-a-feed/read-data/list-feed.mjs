@@ -40,7 +40,7 @@ import data from './lists.json' with { type: 'json' };
 import { FEED_ACCEPT, feedItems } from '../../watch-my-sources/read-data/feed-items.mjs';
 import { listsOverDoor } from '../../records-door/read-data/lists-door.mjs';
 import { writeWholeFile } from '../../records-door/read-data/whole-file.mjs';
-import sharedDatasets from '../../show-one-shelf-of-everything-a-person-or-their-ai-can/from-old-trillion/records/shared-dataset-records.json' with { type: 'json' };
+import sharedDatasets from '../../show-one-shelf-of-everything-a-person-or-their-ai-can/from-an-older-version/records/shared-dataset-records.json' with { type: 'json' };
 import { selectDeclaredValue } from '../../ui/read-data/declared-selector.ts';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 

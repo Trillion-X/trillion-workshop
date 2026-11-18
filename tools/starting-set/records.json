@@ -1170,7 +1170,7 @@
     },
     {
      "kind": "tool",
-     "id": "tool:keep-trillion-in-your-instructions",
+     "id": "tool:keep-my-account-in-your-instructions",
      "version": "1f:564c09d0c1b2603dfdacf6e0d13c13e5f45867f410d2dabfb3177aa10b48f643"
     },
     {
@@ -1490,7 +1490,7 @@
     },
     {
      "kind": "tool",
-     "id": "tool:what-can-trillion-do",
+     "id": "tool:what-can-my-account-do",
      "version": "1f:93f8e7dc95115ee10701c2b27d8e0c6fea7251457cf6e24c2a88d143f47cf1e8"
     },
     {
@@ -2118,7 +2118,7 @@
     },
     {
      "kind": "workflow",
-     "id": "workflow:trillion-x-mode",
+     "id": "workflow:x-mode",
      "version": "1f:e059f0c9aa0290e1551c310c4b68974d1061fe11791b22b2ced86a0d9daa2d96"
     },
     {
@@ -2698,7 +2698,7 @@
   },
   {
    "kind": "tool",
-   "id": "tool:keep-trillion-in-your-instructions",
+   "id": "tool:keep-my-account-in-your-instructions",
    "version": "1f:564c09d0c1b2603dfdacf6e0d13c13e5f45867f410d2dabfb3177aa10b48f643",
    "title": "Keep Trillion in your AI's standing instructions",
    "description": "Run this when you connect to Trillion on the person's computer: action apply writes Trillion's current standing instructions as one marked block in this AI's own global instruction file (Claude Code ~/.claude/CLAUDE.md, Codex ~/.codex/AGEN…",
@@ -4507,7 +4507,7 @@
   },
   {
    "kind": "tool",
-   "id": "tool:what-can-trillion-do",
+   "id": "tool:what-can-my-account-do",
    "version": "1f:93f8e7dc95115ee10701c2b27d8e0c6fea7251457cf6e24c2a88d143f47cf1e8",
    "title": "Everything Trillion can do for you",
    "description": "Returns doers, each { id, label, does: the needs it covers, cost, spends, reaches_others }, and only_a_person, the reasons a step may stay the person's. Read it before writing any plan or protocol, and give tool:who-does-each-step needs in…",
@@ -4537,7 +4537,7 @@
    "id": "tool:who-does-each-step",
    "version": "1f:bcc42071a0e53201ed5c45062c50e82e9f252d74153a351a0da86e865f4ab9ba",
    "title": "Who should do each step of a plan",
-   "description": "Give steps, each { words, needs?: [what the step needs, in a few words each, such as \"print at shelf scale\", \"choose a store\", \"directions\", \"observe shoppers\"], only_a_person_because?: one of the reasons tool:what-can-trillion-do lists, g…",
+   "description": "Give steps, each { words, needs?: [what the step needs, in a few words each, such as \"print at shelf scale\", \"choose a store\", \"directions\", \"observe shoppers\"], only_a_person_because?: one of the reasons tool:what-can-my-account-do lists, g…",
    "source": "who-does-it",
    "configuration": "trillion-work"
   },
@@ -5668,7 +5668,7 @@
   },
   {
    "kind": "workflow",
-   "id": "workflow:trillion-x-mode",
+   "id": "workflow:x-mode",
    "version": "1f:e059f0c9aa0290e1551c310c4b68974d1061fe11791b22b2ced86a0d9daa2d96",
    "title": "Trillion X mode",
    "description": "Apply the full Trillion X / Hardcore execution standard to an authorized objective, with checked evidence, scope and reusable mechanisms.",

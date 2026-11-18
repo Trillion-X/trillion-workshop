@@ -7,7 +7,7 @@
     {
       "from": "src/search-cleanup-pages.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/keep-my-search-index-beside-a-copy-of-my-results/from-old-trillion/src/search-cleanup-pages.mjs",
+      "to": "tools/keep-my-search-index-beside-a-copy-of-my-results/from-an-older-version/src/search-cleanup-pages.mjs",
       "source_identity": "1f:c2fdcbf722486307ad8c3503a0145740aaea4e0a02de287d62dc217457ca9da8",
       "identity": "1f:c2fdcbf722486307ad8c3503a0145740aaea4e0a02de287d62dc217457ca9da8"
     }

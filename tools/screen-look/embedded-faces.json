@@ -29,15 +29,15 @@
  ],
  "left_out": [
   {
-   "file": "Trillion-Regular.woff2",
+   "file": "Look-Regular.woff2",
    "why": "fontTools.ttLib.TTLibError: incorrect size of transformed 'glyf' table: expected 44965, received 45053 bytes"
   },
   {
-   "file": "Trillion-Medium.woff2",
+   "file": "Look-Medium.woff2",
    "why": "fontTools.ttLib.TTLibError: incorrect size of transformed 'glyf' table: expected 45086, received 45174 bytes"
   },
   {
-   "file": "Trillion-SemiBold.woff2",
+   "file": "Look-SemiBold.woff2",
    "why": "fontTools.ttLib.TTLibError: incorrect size of transformed 'glyf' table: expected 45126, received 45214 bytes"
   }
  ]

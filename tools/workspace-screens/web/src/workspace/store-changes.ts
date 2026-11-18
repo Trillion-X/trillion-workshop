@@ -242,7 +242,7 @@ function handleFrame(data: unknown) {
   if (step) {
     // Kept for a listener that is not published yet (live-instructions.ts takes it when it starts).
     (window as unknown as { trillionPendingInstruction?: unknown }).trillionPendingInstruction = step;
-    window.dispatchEvent(new CustomEvent('trillion-live-instruction', { detail: step }));
+    window.dispatchEvent(new CustomEvent('live-now-instruction', { detail: step }));
     // What the page does for the instruction is live-instructions.ts's (reload, clear what it kept, sign in); stopping is ours.
     if (step.action === 'stop') { stopListening(); return; }
   }

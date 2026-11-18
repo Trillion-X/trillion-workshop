@@ -174,7 +174,7 @@
   "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
     "workflow:prove-the-launch-on-the-real-url",
-    "workflow:set-up-a-business-on-trillion"
+    "workflow:set-up-a-business-on-the-account"
   ],
   "tools": [
     "tool:check-a-page-for-search-and-answer-engines",
@@ -183,7 +183,7 @@
     "tool:read-public-web-page"
   ],
   "instructions": [
-    "1. Make sure record:business-setup:facts exists with your attached domain (workflow:set-up-a-business-on-trillion writes it) and that list:business-setup-checklist holds one row per stage (pour the example rows, see pour, or make the list from them).",
+    "1. Make sure record:business-setup:facts exists with your attached domain (workflow:set-up-a-business-on-the-account writes it) and that list:business-setup-checklist holds one row per stage (pour the example rows, see pour, or make the list from them).",
     "2. Say \"Run workflow:prove-the-launch-on-the-real-url\". The AI starts it with tool:start-a-recipe-run and works the steps in order: read-facts, read-the-live-page, check-search-and-answer-readiness, check-every-width, measure-the-checklist, record-the-stage.",
     "3. Read each step: the live page must answer 200 with its title; every failing search-readiness check or width problem is fixed in the page rows, the page is published again, and the step is run again.",
     "4. Read the count from measure-the-checklist (done, total and the stages not done); record-the-stage writes the stage and any open gaps to list:business-setup-checklist and list:business-setup-gaps."

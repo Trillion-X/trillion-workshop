@@ -14,7 +14,7 @@
     {
       "from": "records/workshop-notice-records.json",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/notice-what-needs-attention/from-old-trillion/records/workshop-notice-records.json",
+      "to": "tools/notice-what-needs-attention/from-an-older-version/records/workshop-notice-records.json",
       "source_identity": "1f:663faed9374c6597805c5259d4ced6e7cd87bfbc1401934c8033dcef218843a4",
       "identity": "1f:663faed9374c6597805c5259d4ced6e7cd87bfbc1401934c8033dcef218843a4"
     },

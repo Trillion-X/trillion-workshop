@@ -66,7 +66,7 @@ export function LiveFrame({ src, title, height = 720, phoneHeight = 640, allow, 
   if (!poster) {
     return (
       <iframe
-        className={cn('trillion-live-frame', className)}
+        className={cn('live-now-frame', className)}
         src={src}
         title={title}
         loading="lazy"
@@ -78,7 +78,7 @@ export function LiveFrame({ src, title, height = 720, phoneHeight = 640, allow, 
   }
   return (
     <div
-      className={cn('trillion-live-frame', className)}
+      className={cn('live-now-frame', className)}
       style={{ ...sizes, position: 'relative', overflow: 'hidden' }}
       data-live-frame=""
       data-live-frame-ready={ready ? '' : undefined}

@@ -8,14 +8,14 @@
     {
       "from": "src/message-retention.json",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/conversations/from-old-trillion/src/message-retention.json",
+      "to": "tools/conversations/from-an-older-version/src/message-retention.json",
       "source_identity": "1f:e8596d6e876332d0b64d431d3d03dd6d98f98c554459a04eebe8e6186253abbb",
       "identity": "1f:e8596d6e876332d0b64d431d3d03dd6d98f98c554459a04eebe8e6186253abbb"
     },
     {
       "from": "src/message-retention.json",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "to": "tools/conversations/from-old-trillion/src/message-retention.json",
+      "to": "tools/conversations/from-an-older-version/src/message-retention.json",
       "source_identity": "1f:e8596d6e876332d0b64d431d3d03dd6d98f98c554459a04eebe8e6186253abbb",
       "identity": "1f:e8596d6e876332d0b64d431d3d03dd6d98f98c554459a04eebe8e6186253abbb",
       "reused": true
@@ -23,14 +23,14 @@
     {
       "from": "src/message-retention.mjs",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/conversations/from-old-trillion/src/message-retention.mjs",
+      "to": "tools/conversations/from-an-older-version/src/message-retention.mjs",
       "source_identity": "1f:4e5826c50b986f5680914510245e594e0ed429c4a76318ace625f6ded8f78562",
       "identity": "1f:4e5826c50b986f5680914510245e594e0ed429c4a76318ace625f6ded8f78562"
     },
     {
       "from": "src/message-retention.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "to": "tools/conversations/from-old-trillion/src/message-retention.mjs",
+      "to": "tools/conversations/from-an-older-version/src/message-retention.mjs",
       "source_identity": "1f:4e5826c50b986f5680914510245e594e0ed429c4a76318ace625f6ded8f78562",
       "identity": "1f:4e5826c50b986f5680914510245e594e0ed429c4a76318ace625f6ded8f78562",
       "reused": true

@@ -209,7 +209,7 @@
           }
          ]
         },
-        "tools": ["tool:start-a-recipe-run","tool:what-can-trillion-do","tool:who-does-each-step","tool:what-is-waiting-on-me","tool:take-me-there","tool:pour-example-rows-into-my-list","tool:read-documents-as-list-rows","tool:change-a-document-row","tool:check-against-a-persons-rules-and-verdicts"]
+        "tools": ["tool:start-a-recipe-run","tool:what-can-my-account-do","tool:who-does-each-step","tool:what-is-waiting-on-me","tool:take-me-there","tool:pour-example-rows-into-my-list","tool:read-documents-as-list-rows","tool:change-a-document-row","tool:check-against-a-persons-rules-and-verdicts"]
       }
     }
   ]

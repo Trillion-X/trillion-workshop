@@ -1,0 +1,312 @@
+{
+  "drafted_from": "tools/workflows/recipes/workflows.json (the workflow:set-up-a-business-on-the-account row: input_schema, steps write-the-business-facts and make-the-checklist with their stage keys); no test names it",
+  "start_here": "Say to your AI: \"Run workflow:set-up-a-business-on-the-account for Sunrise Bakery: I am Sam, I sell a weekend bread box for $49 once, I post to Instagram and YouTube twice a day, in USD.\"",
+  "lists": [
+    {
+      "list": "list:business-setup-checklist",
+      "label": "Business setup checklist",
+      "row_type": "record:setup-stage",
+      "holds": "One row per stage of setting the business up; this workflow writes the replies row.",
+      "fields": [
+        {
+          "id": "stage",
+          "kind": "text",
+          "label": "Stage"
+        },
+        {
+          "id": "label",
+          "kind": "text",
+          "label": "Stage name",
+          "alike": [
+            "name",
+            "task"
+          ]
+        },
+        {
+          "id": "status",
+          "kind": "choice",
+          "label": "Status",
+          "alike": [
+            "state"
+          ]
+        },
+        {
+          "id": "steps_status",
+          "kind": "long-text",
+          "label": "Steps",
+          "alike": [
+            "notes"
+          ]
+        },
+        {
+          "id": "gaps",
+          "kind": "tags",
+          "label": "Gaps",
+          "alike": [
+            "blockers"
+          ]
+        },
+        {
+          "id": "updated_at",
+          "kind": "date",
+          "label": "Updated",
+          "alike": [
+            "last updated",
+            "date"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "accounts",
+          "values": {
+            "stage": "accounts",
+            "label": "Accounts and connections",
+            "status": "Not done",
+            "steps_status": "",
+            "gaps": [],
+            "updated_at": "2026-11-13"
+          }
+        },
+        {
+          "id": "social-posting",
+          "values": {
+            "stage": "social-posting",
+            "label": "Social posting",
+            "status": "Not done",
+            "steps_status": "",
+            "gaps": [],
+            "updated_at": "2026-11-13"
+          }
+        }
+      ],
+      "alike": [
+        "a launch checklist",
+        "a project board's to-do column",
+        "an onboarding checklist spreadsheet"
+      ]
+    },
+    {
+      "list": "list:business-setup-gaps",
+      "label": "Business setup gaps",
+      "row_type": "record:setup-gap",
+      "holds": "One row per thing a stage could not do itself: the step, what was left undecided, what the run did and the evidence.",
+      "fields": [
+        {
+          "id": "stage",
+          "kind": "text",
+          "label": "Stage"
+        },
+        {
+          "id": "step",
+          "kind": "text",
+          "label": "Step"
+        },
+        {
+          "id": "undecided",
+          "kind": "long-text",
+          "label": "Not decided",
+          "alike": [
+            "issue",
+            "problem",
+            "gap"
+          ]
+        },
+        {
+          "id": "chosen",
+          "kind": "long-text",
+          "label": "What this run did",
+          "alike": [
+            "workaround"
+          ]
+        },
+        {
+          "id": "evidence",
+          "kind": "long-text",
+          "label": "Evidence",
+          "alike": [
+            "proof",
+            "link"
+          ]
+        },
+        {
+          "id": "status",
+          "kind": "choice",
+          "label": "Status",
+          "alike": [
+            "state"
+          ]
+        }
+      ],
+      "example_rows": [
+        {
+          "id": "check-youtube-1",
+          "values": {
+            "stage": "accounts",
+            "step": "check-youtube",
+            "undecided": "No tool in the live catalog checks the YouTube connection.",
+            "chosen": "Submitted connected false and told the owner to reconnect the channel in the app's connections list.",
+            "evidence": "The setup-a-business row lists \"YouTube connection check\" among the tools the live catalog lacks.",
+            "status": "open"
+          }
+        },
+        {
+          "id": "apply-the-reward-rule-1",
+          "values": {
+            "stage": "retention-and-referral",
+            "step": "apply-the-reward-rule",
+            "undecided": "No live tool stores referral rewards.",
+            "chosen": "Wrote the reward as a record:reward row in the owner's own records.",
+            "evidence": "The setup-a-business row lists \"referral reward store\" among the tools the live catalog lacks.",
+            "status": "open"
+          }
+        }
+      ],
+      "alike": [
+        "an issues list",
+        "a blockers column on a board",
+        "a bug tracker"
+      ]
+    }
+  ],
+  "workflows": [
+    "workflow:set-up-a-business-on-the-account",
+    "workflow:answer-comments-and-messages",
+    "workflow:build-the-landing-page",
+    "workflow:get-found-in-search-and-answer-engines",
+    "workflow:give-paid-buyers-access",
+    "workflow:legal-pages-and-support",
+    "workflow:make-short-videos-from-footage",
+    "workflow:manage-member-billing",
+    "workflow:measure-the-funnel-and-set-a-baseline",
+    "workflow:onboard-new-buyers-in-five-days",
+    "workflow:post-on-social-channels-on-a-schedule",
+    "workflow:prove-the-launch-on-the-real-url",
+    "workflow:publish-articles-and-newsletter-on-a-cadence",
+    "workflow:recover-failed-payments-and-win-back",
+    "workflow:retention-and-referral",
+    "workflow:run-a-community",
+    "workflow:run-a-course-from-list-rows",
+    "workflow:set-up-brand-and-branded-emails",
+    "workflow:set-up-business-accounts-and-connections",
+    "workflow:take-payments-with-stripe",
+    "workflow:test-prices-and-change-a-page-for-each-visitor"
+  ],
+  "tools": [
+    "tool:measure-a-checklist",
+    "tool:search-one-of-my-lists",
+    "tool:start-a-recipe-run"
+  ],
+  "instructions": [
+    "1. Pour the two example checklist rows into the checklist you already keep (see pour), or let the workflow make list:business-setup-checklist and list:business-setup-gaps itself.",
+    "2. Say \"Run workflow:set-up-a-business-on-the-account\" with business_name, owner_name, owner_email, first_offer_name, first_offer_price_text, channels, posts_per_day (1 to 5) and currency; it asks for any of these you leave out and never invents one.",
+    "3. It writes your answers once to record:business-setup:facts, then makes one checklist row for each of 20 stages (accounts to launch-proof) and runs each stage's own workflow, ticking its row.",
+    "4. Read the checklist and the gap list: every row says Done, Not done, Gap, Blocked or Not applicable, and each gap names what no live tool did. Run it again to close the gaps."
+  ],
+  "worked_examples": [
+    {
+      "title": "The business facts are written once",
+      "ask": "Set up Sunrise Bakery on Trillion.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:set-up-a-business-on-the-account",
+              "business_name": "Sunrise Bakery",
+              "owner_name": "Sam",
+              "owner_email": "sam@example.com",
+              "first_offer_name": "Weekend bread box",
+              "first_offer_price_text": "$49 once",
+              "channels": [
+                "instagram",
+                "youtube"
+              ],
+              "posts_per_day": 2,
+              "currency": "USD"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:set-up-a-business-on-the-account",
+      "step": "write-the-business-facts",
+      "given": "Read from the step in tools/workflows/recipes/workflows.json: the person gave all 8 required fields, so none is asked for. The step writes record:business-setup:facts at @own-records with business_name \"Sunrise Bakery\", owner_name \"Sam\", owner_email \"sam@example.com\", first_offer_name \"Weekend bread box\", first_offer_price_text \"$49 once\", channels [\"instagram\",\"youtube\"], posts_per_day 2 and currency \"USD\", then reads it back to confirm each field.",
+      "hands_back": "{\"facts_written\":true,\"fields_missing\":[]}"
+    },
+    {
+      "title": "The checklist gets one row per stage",
+      "ask": "Make my business checklist.",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:start-a-recipe-run",
+            "input": {
+              "row": "workflow:set-up-a-business-on-the-account",
+              "business_name": "Sunrise Bakery",
+              "owner_name": "Sam",
+              "owner_email": "sam@example.com",
+              "first_offer_name": "Weekend bread box",
+              "first_offer_price_text": "$49 once",
+              "channels": [
+                "instagram",
+                "youtube"
+              ],
+              "posts_per_day": 2,
+              "currency": "USD"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:set-up-a-business-on-the-account",
+      "step": "make-the-checklist",
+      "given": "Read from the step: list:business-setup-checklist is not there yet, so it is written with fields stage, label, status, steps_status, gaps and updated_at; then one row record:setup-stage:<key> is written for each of the 20 stage keys (accounts, social-posting, replies, short-videos, articles, search-engines, landing-page, price-tests, funnel-and-baseline, brand-and-emails, payments, paid-access, course, community, member-billing, onboarding, retention-and-referral, legal-and-support, payment-recovery, launch-proof), each with status \"Not done\"; list:business-setup-gaps is made the same way.",
+      "hands_back": "{\"stage_rows\":20,\"gap_list_made\":true}"
+    }
+  ],
+  "pour": {
+    "tool": "tool:pour-example-rows-into-my-list",
+    "least_coverage": 0.8,
+    "how": "Name the list you already keep for the same job and read it with records:read (its fields and row type). Run tool:pour-example-rows-into-my-list with that list as into and this kit list as kit_list: it matches each kit field to one of yours (your map, the same id, the same label, or a name in alike), pours nothing under 80% and names the fields with no home, and otherwise answers the one records:write that adds the example rows beside your own.",
+    "example": {
+      "kit_list": "list:business-setup-checklist",
+      "into": {
+        "list": "list:my-business-setup-checklist",
+        "row_type": "record:setup-stage",
+        "fields": [
+          {
+            "id": "stage",
+            "label": "Stage"
+          },
+          {
+            "id": "label",
+            "label": "Stage name"
+          },
+          {
+            "id": "status",
+            "label": "Status"
+          },
+          {
+            "id": "steps_status",
+            "label": "Steps"
+          },
+          {
+            "id": "gaps",
+            "label": "Gaps"
+          },
+          {
+            "id": "updated_at",
+            "label": "Updated"
+          }
+        ]
+      }
+    }
+  }
+}

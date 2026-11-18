@@ -7,7 +7,7 @@
     {
       "from": "src/social-post-tools.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/draft-approve-and-publish-my-social-posts-now/from-old-trillion/src/social-post-tools.mjs.held",
+      "to": "tools/draft-approve-and-publish-my-social-posts-now/from-an-older-version/src/social-post-tools.mjs.held",
       "source_identity": "1f:321b57262e0724bf5c7b3c58aaf250d664d92cbc5af6421293653485235dda7b",
       "identity": "1f:321b57262e0724bf5c7b3c58aaf250d664d92cbc5af6421293653485235dda7b",
       "held": true
@@ -15,7 +15,7 @@
     {
       "from": "src/social-posts.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/draft-approve-and-publish-my-social-posts-now/from-old-trillion/src/social-posts.mjs.held",
+      "to": "tools/draft-approve-and-publish-my-social-posts-now/from-an-older-version/src/social-posts.mjs.held",
       "source_identity": "1f:557f3b2e69c2d62de34e14df3eb5d841a4f219e43c24be0d82cf70b3f3d49194",
       "identity": "1f:f009bec83dc3460e90d29137799d73d026d3f6c7b59eb8b7a9283fa520a8d391",
       "held": true
@@ -23,7 +23,7 @@
     {
       "from": "test/social-posts.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/draft-approve-and-publish-my-social-posts-now/from-old-trillion/test/social-posts.test.mjs.held",
+      "to": "tools/draft-approve-and-publish-my-social-posts-now/from-an-older-version/test/social-posts.test.mjs.held",
       "source_identity": "1f:abbf547e5b8a6d148a45ed60e524461b7f2b579bac4f1549a0b0ffddbda47d99",
       "identity": "1f:9ab2f63d1d2e0c54d26399c015c7324c81c3c436c86ea7a67d0d323c6e1938fd",
       "held": true,
@@ -32,7 +32,7 @@
     {
       "from": "test/social-posts-for-tests.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/draft-approve-and-publish-my-social-posts-now/from-old-trillion/test/social-posts-for-tests.mjs.held",
+      "to": "tools/draft-approve-and-publish-my-social-posts-now/from-an-older-version/test/social-posts-for-tests.mjs.held",
       "source_identity": "1f:65501e5c908d25f90000120e7bc75d6e48990c2c4cf751202f9ace9c4750eb4f",
       "identity": "1f:ab1c1e6da2a601532400472d140bc58b1035132639b7f4430d5751d3c1b4e3ff",
       "held": true
@@ -40,7 +40,7 @@
     {
       "from": "test/social-posts-publish-through-tool.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/draft-approve-and-publish-my-social-posts-now/from-old-trillion/test/social-posts-publish-through-tool.test.mjs.held",
+      "to": "tools/draft-approve-and-publish-my-social-posts-now/from-an-older-version/test/social-posts-publish-through-tool.test.mjs.held",
       "source_identity": "1f:b407d6adbcbe66560c02952bb8398633e8d3225fc3ea1fba99b0fb2818e5a10a",
       "identity": "1f:b407d6adbcbe66560c02952bb8398633e8d3225fc3ea1fba99b0fb2818e5a10a",
       "held": true
@@ -48,14 +48,14 @@
     {
       "from": "records/post-place-records.json",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/draft-approve-and-publish-my-social-posts-now/from-old-trillion/records/post-place-records.json",
+      "to": "tools/draft-approve-and-publish-my-social-posts-now/from-an-older-version/records/post-place-records.json",
       "source_identity": "1f:4033b47cd050b3becd70ef75bf590fcc1d78ab9a7d84d9ac4fe0aeda1a18c167",
       "identity": "1f:4033b47cd050b3becd70ef75bf590fcc1d78ab9a7d84d9ac4fe0aeda1a18c167"
     },
     {
       "from": "records/workshop-publishing-tool-records.json",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/draft-approve-and-publish-my-social-posts-now/from-old-trillion/records/workshop-publishing-tool-records.json",
+      "to": "tools/draft-approve-and-publish-my-social-posts-now/from-an-older-version/records/workshop-publishing-tool-records.json",
       "source_identity": "1f:61505436cd61faaa0c5883d5910a860bf9121f2e2e593ba7c45dc7df6b501702",
       "identity": "1f:61505436cd61faaa0c5883d5910a860bf9121f2e2e593ba7c45dc7df6b501702"
     }

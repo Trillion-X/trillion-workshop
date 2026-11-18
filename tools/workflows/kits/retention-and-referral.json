@@ -174,7 +174,7 @@
   "workflows": [
     "workflow:retention-and-referral",
     "workflow:follow-up-with-people-who-engaged",
-    "workflow:set-up-a-business-on-trillion"
+    "workflow:set-up-a-business-on-the-account"
   ],
   "tools": [
     "tool:make-a-referral-code",
@@ -186,7 +186,7 @@
   ],
   "instructions": [
     "1. Pour the two example setup-checklist rows into the checklist you already keep (see pour), or make list:business-setup-checklist and list:business-setup-gaps from them.",
-    "2. Make sure the facts row record:business-setup:facts exists (workflow:set-up-a-business-on-trillion writes it) and holds referral_reward in your own words, for example \"A free loaf for every 3 friends who buy\".",
+    "2. Make sure the facts row record:business-setup:facts exists (workflow:set-up-a-business-on-the-account writes it) and holds referral_reward in your own words, for example \"A free loaf for every 3 friends who buy\".",
     "3. Say \"Run workflow:retention-and-referral\". It finds buyers quiet for more than 14 days, runs workflow:follow-up-with-people-who-engaged for them, makes and counts referral codes, writes a reward row only from your reward words, withdraws a code you name, and asks for a testimonial only after consent.",
     "4. Read the last step: record-the-stage writes record:setup-stage:retention-and-referral and one record:setup-gap row for each thing no live tool did (testimonial storage is one)."
   ],

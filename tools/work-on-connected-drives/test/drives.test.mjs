@@ -36,11 +36,11 @@ test('every tool the rows name is a function run-an-export can call', async () =
 });
 
 test('every row is a computer row seeing connected drives, and only transfer may change a folder', () => {
-  assert.deepEqual(rows.map(row => row.id).sort(), ['tool:trillion-media-eject', 'tool:trillion-media-file-places', 'tool:trillion-media-transfer', 'tool:trillion-media-work', 'tool:trillion-media-work-control']);
+  assert.deepEqual(rows.map(row => row.id).sort(), ['tool:media-eject', 'tool:media-file-places', 'tool:media-transfer', 'tool:media-work', 'tool:media-work-control']);
   for (const row of rows) {
     assert.equal(row.invoke.kind, 'computer', row.id);
     assert.equal(row.invoke.workdir, '/opt/work-on-connected-drives');
-    assert.deepEqual(row.invoke.capabilities, row.id === 'tool:trillion-media-transfer' ? ['see-connected-drives', 'change-a-folder'] : ['see-connected-drives'], row.id);
+    assert.deepEqual(row.invoke.capabilities, row.id === 'tool:media-transfer' ? ['see-connected-drives', 'change-a-folder'] : ['see-connected-drives'], row.id);
     assert.ok(row.invoke.files.package_files.some(item => item.package === 'connected-drives'), row.id);
   }
 });

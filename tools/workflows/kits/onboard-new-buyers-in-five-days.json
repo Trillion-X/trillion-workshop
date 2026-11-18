@@ -1,5 +1,5 @@
 {
-  "drafted_from": "workflow:onboard-new-buyers-in-five-days's row in tools/workflows/recipes/workflows.json, the checklist and gap lists as workflow:set-up-a-business-on-trillion makes them, and tools/customer-follow-up/test/customer-follow-up-tools.test.mjs and tools/customer-follow-up/do-work/add-a-customer.mjs",
+  "drafted_from": "workflow:onboard-new-buyers-in-five-days's row in tools/workflows/recipes/workflows.json, the checklist and gap lists as workflow:set-up-a-business-on-the-account makes them, and tools/customer-follow-up/test/customer-follow-up-tools.test.mjs and tools/customer-follow-up/do-work/add-a-customer.mjs",
   "start_here": "Say to your AI: \"Run workflow:onboard-new-buyers-in-five-days for the buyer sam@example.com who paid and agreed to the course emails.\"",
   "lists": [
     {
@@ -173,7 +173,7 @@
   ],
   "workflows": [
     "workflow:onboard-new-buyers-in-five-days",
-    "workflow:set-up-a-business-on-trillion"
+    "workflow:set-up-a-business-on-the-account"
   ],
   "tools": [
     "tool:start-a-recipe-run",
@@ -186,7 +186,7 @@
     "tool:pour-example-rows-into-my-list"
   ],
   "instructions": [
-    "1. Run workflow:set-up-a-business-on-trillion first (its write-the-business-facts and make-the-checklist steps) so record:business-setup:facts and list:business-setup-checklist exist; or pour the example rows into your own checklist (see pour).",
+    "1. Run workflow:set-up-a-business-on-the-account first (its write-the-business-facts and make-the-checklist steps) so record:business-setup:facts and list:business-setup-checklist exist; or pour the example rows into your own checklist (see pour).",
     "2. Say \"Run workflow:onboard-new-buyers-in-five-days\". It reads the facts (read-facts), then for the buyer who paid and agreed to the consent words signs them up (sign-up-the-buyer), sends due lessons (send-due-lessons), adds them as a customer (add-the-buyer-as-a-customer) and records onboarding-day-1 (record-day-one).",
     "3. Each later day say it again: send-due-lessons sends that day's lesson and record-day-one is repeated with the next onboarding-day step.",
     "4. Read see-where-each-buyer-is (each customer and last step), then follow-up-after-sign-up: send-follow-up-emails-after-sign-up is not a live tool, so it is recorded as a gap and the follow-up is drafted for you to send.",

@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { DatabaseSync } from 'node:sqlite';
 import memberTypes from '../src/space-member-types.json' with { type: 'json' };
-import { documentMemberTypesOf, readOwnMemberTypeRows, showRuleTypesOf, spaceMemberTypeMethods } from '../../decide-who-may-do-what-in-a-space/from-old-trillion/src/space-member-types.mjs';
+import { documentMemberTypesOf, readOwnMemberTypeRows, showRuleTypesOf, spaceMemberTypeMethods } from '../../decide-who-may-do-what-in-a-space/from-an-older-version/src/space-member-types.mjs';
 import { heldTypes } from '../../set-up-my-account/read-data/show-rules.mjs';
 
 const PAGE = memberTypes.own_types.max;

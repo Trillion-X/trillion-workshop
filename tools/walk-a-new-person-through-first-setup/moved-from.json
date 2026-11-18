@@ -27,7 +27,7 @@
     {
       "from": "test/setup-plan.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/walk-a-new-person-through-first-setup/from-old-trillion/test/setup-plan.test.mjs.held",
+      "to": "tools/walk-a-new-person-through-first-setup/from-an-older-version/test/setup-plan.test.mjs.held",
       "source_identity": "1f:25d75eb390102458e5351e9aedf2b6394c45b569fa6083303bf919dbd9aacfcc",
       "identity": "1f:25d75eb390102458e5351e9aedf2b6394c45b569fa6083303bf919dbd9aacfcc",
       "held": true
@@ -35,7 +35,7 @@
     {
       "from": "test/setup-runtime.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/walk-a-new-person-through-first-setup/from-old-trillion/test/setup-runtime.test.mjs.held",
+      "to": "tools/walk-a-new-person-through-first-setup/from-an-older-version/test/setup-runtime.test.mjs.held",
       "source_identity": "1f:4d1b931e0e22e24a07c609aa0f7d108c521dab76c6632bf783b4a425e888ab6b",
       "identity": "1f:4d1b931e0e22e24a07c609aa0f7d108c521dab76c6632bf783b4a425e888ab6b",
       "held": true

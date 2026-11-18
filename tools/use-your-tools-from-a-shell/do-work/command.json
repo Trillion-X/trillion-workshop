@@ -314,7 +314,7 @@
   "engine": {
     "tool": "run_resource_operation",
     "protocol_version": "2025-06-18",
-    "account_meta": "ai.gettrillion/account",
+    "account_meta": "account",
     "records": "@own-records",
     "list": "records:list",
     "read": "records:read",

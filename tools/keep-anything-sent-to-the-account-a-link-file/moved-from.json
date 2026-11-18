@@ -1,0 +1,56 @@
+{
+  "about": "Files of old trillion's port backlog (docs/worker-retirement-port-backlog.json) whose job is this tool's, moved here byte for byte from the tag old-trillion-before-worker-retire (commit), under their old paths so they import each other as they did. Only import paths differ: a request for a file this repository already holds names that file. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes), and the README says what it waits for. Nothing here is wired into tool-rows.json: wiring a file is adapting it, in a commit that names this receipt.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "product-host-made-example",
+      "find": "app.\u0067ettrillion.ai",
+      "replace": "app.example.com",
+      "means": "One deployment's own host in a test; a public tree holds made-up hosts only."
+    }
+  ],
+  "files": [
+    {
+      "from": "src/share-inbox-presentation.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-anything-sent-to-the-account-a-link-file/from-an-older-version/src/share-inbox-presentation.mjs.held",
+      "source_identity": "1f:e6b8f0eff36cce19087a4e3358954c799a4a1c2d27c5a482acc75b7e10f03af7",
+      "identity": "1f:e6b8f0eff36cce19087a4e3358954c799a4a1c2d27c5a482acc75b7e10f03af7",
+      "held": true
+    },
+    {
+      "from": "src/share-inbox.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-anything-sent-to-the-account-a-link-file/from-an-older-version/src/share-inbox.mjs.held",
+      "source_identity": "1f:aadca01595d97b0ffe3ceeb09a5a4140fd5440cee2b1dcf4cf081c9124c437de",
+      "identity": "1f:0b12364cce504ad2bb9e749de18c155a51b4824ee424c16cf946e85bbf6a48ff",
+      "held": true
+    },
+    {
+      "from": "src/share-input-limits.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-anything-sent-to-the-account-a-link-file/from-an-older-version/src/share-input-limits.mjs",
+      "source_identity": "1f:a50799b39c3892e53b850bb8a6e3e7bb010cf5351f942038468d7da29222d23e",
+      "identity": "1f:a50799b39c3892e53b850bb8a6e3e7bb010cf5351f942038468d7da29222d23e"
+    },
+    {
+      "from": "test/share-inbox.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-anything-sent-to-the-account-a-link-file/from-an-older-version/test/share-inbox.test.mjs.held",
+      "source_identity": "1f:9928b426ca4a9f4857f43fc93d1ac06e4d6e44e1a7504d65d0af8efe40754f13",
+      "identity": "1f:116749a6442dd3a6fd9e3022f2073d841533179a10d570c3911197cb64f4c9bb",
+      "held": true,
+      "calls": [
+        "product-host-made-example"
+      ]
+    },
+    {
+      "from": "records/share-inbox.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-anything-sent-to-the-account-a-link-file/from-an-older-version/records/share-inbox.json",
+      "source_identity": "1f:d77f34dc1dd9e7fc3c352d859c35f82e9f5321ab053f6c5ced1ede63bb57dfd0",
+      "identity": "1f:d77f34dc1dd9e7fc3c352d859c35f82e9f5321ab053f6c5ced1ede63bb57dfd0"
+    }
+  ]
+}

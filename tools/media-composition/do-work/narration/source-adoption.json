@@ -170,7 +170,7 @@
       "changed": false
     },
     {
-      "path": "lib/st/voice/engines/trillion_voice.py",
+      "path": "lib/st/voice/engines/own_voice.py",
       "origin": "New integration source",
       "adopted_blake3": "1f:bfdc9caac5810405b0c62733e2a7a9627f90b646634c0000c2a6272ba06a4523"
     },

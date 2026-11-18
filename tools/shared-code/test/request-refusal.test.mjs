@@ -1,8 +1,8 @@
 // Ported from old trillion test/request-refusal.test.mjs (tag old-trillion-before-worker-retire, b6ae0ebf81),
 // deleted by Trillion-X/trillion #243. The two route tests are the old ones over src/agents.mjs and src/failure.mjs here,
 // on the agents store tests use (test/agent-store-for-tests.mjs). The third test ran an AgentsError through
-// handleMcpMessage (old src/tools.mjs), which is held, not run (tools/list-and-run-trillions-tools-for-any-ai/
-// from-old-trillion/src/tools.mjs.held); no running code turns a JS tool's refusal into an MCP result, so it is left out.
+// handleMcpMessage (old src/tools.mjs), which is held, not run (tools/list-and-run-my-tools-for-any-ai/
+// from-an-older-version/src/tools.mjs.held); no running code turns a JS tool's refusal into an MCP result, so it is left out.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { AgentsError, handleAgentsRequest, makeAgents } from '../src/agents.mjs';

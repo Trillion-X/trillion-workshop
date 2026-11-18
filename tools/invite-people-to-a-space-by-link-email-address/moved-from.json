@@ -7,7 +7,7 @@
     {
       "from": "src/space-invitation.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/invite-people-to-a-space-by-link-email-address/from-old-trillion/src/space-invitation.mjs.held",
+      "to": "tools/invite-people-to-a-space-by-link-email-address/from-an-older-version/src/space-invitation.mjs.held",
       "source_identity": "1f:4cfccdd62f312f689d376fd56937c8567f83ba1543869238dc59446d8d90dc3d",
       "identity": "1f:6cc0ea80a62ced54f6cf0b563e314220d85ece64a430e95f37f61ca50e4b4b5f",
       "held": true
@@ -15,7 +15,7 @@
     {
       "from": "test/space-invitation.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/invite-people-to-a-space-by-link-email-address/from-old-trillion/test/space-invitation.test.mjs.held",
+      "to": "tools/invite-people-to-a-space-by-link-email-address/from-an-older-version/test/space-invitation.test.mjs.held",
       "source_identity": "1f:0f5f9d49f0b8ddd9f661984def14bd0677bbbc4fb7ff875a476948d5cc8c0c14",
       "identity": "1f:80cb389def566dfeb6359441e4e4ea0556ae59b81a7c5d6e537223d99beb91cf",
       "held": true,

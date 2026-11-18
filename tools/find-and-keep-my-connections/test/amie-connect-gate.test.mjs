@@ -5,7 +5,7 @@
 // connectionsFacts) and 'Connections reads the current account plan through its policy owner' (old src/screen-reads.mjs
 // readConnections over ACCOUNT_CONTROL). Searched connectionsFacts, readConnections, 'Needs a paid plan',
 // accountCurrentAccess and account-screens across trillion-workshop tools, trillion-rust src and trillion-apps web/src:
-// only from-old-trillion copies, and trillion-apps tests that still import a web/src/account-screens.mjs that is not there.
+// only from-an-older-version copies, and trillion-apps tests that still import a web/src/account-screens.mjs that is not there.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { addRequest, changeRequest } from '../src/integration-requests.mjs';

@@ -82,14 +82,14 @@
     {
       "from": "records/workshop-tool-records.json",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/connect-a-service-and-seal-its-key/from-old-trillion/records/workshop-tool-records.json",
+      "to": "tools/connect-a-service-and-seal-its-key/from-an-older-version/records/workshop-tool-records.json",
       "source_identity": "1f:1f45e43947224472de641da070edf1458b127dde3af46151bd7445a9adda9bb9",
       "identity": "1f:1f45e43947224472de641da070edf1458b127dde3af46151bd7445a9adda9bb9"
     },
     {
       "from": "records/workshop-tool-records.json",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "to": "tools/connect-a-service-and-seal-its-key/from-old-trillion/records/workshop-tool-records.json",
+      "to": "tools/connect-a-service-and-seal-its-key/from-an-older-version/records/workshop-tool-records.json",
       "source_identity": "1f:1f45e43947224472de641da070edf1458b127dde3af46151bd7445a9adda9bb9",
       "identity": "1f:1f45e43947224472de641da070edf1458b127dde3af46151bd7445a9adda9bb9",
       "reused": true

@@ -14,7 +14,7 @@
     {
       "from": "records/skill-to-live-site-workflow.json",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/let-an-ai-create-and-edit-a-site-its-draft/from-old-trillion/records/skill-to-live-site-workflow.json",
+      "to": "tools/let-an-ai-create-and-edit-a-site-its-draft/from-an-older-version/records/skill-to-live-site-workflow.json",
       "source_identity": "1f:21beedac7dbcef3e1f1d2485915a20d8ac12894db691d5a55bfc195ac43368ba",
       "identity": "1f:21beedac7dbcef3e1f1d2485915a20d8ac12894db691d5a55bfc195ac43368ba"
     }

@@ -12,4 +12,4 @@ No raw baseline commit exists. The baseline-only attempt was refused, as recorde
 
 See `do-work/README.md` and `read-data/README.md` for the existing catalog, derivation, protocol and result functions.
 
-`from-trillion-rust/src/tool_runs/tools/effects.rs` is the engine's screen-refresh rules (what a run changes on a screen, read from a tool row's `effects`), moved whole out of trillion-rust 6cc8609d79 because that is not one of the engine's five jobs. It is not built here; `moved-from.json` names its source commit and the identity of its bytes. `read-data/declared-effects.ts` is the reader that runs.
+`from-the-engine-repository/src/tool_runs/tools/effects.rs` is the engine's screen-refresh rules (what a run changes on a screen, read from a tool row's `effects`), moved whole out of trillion-rust 6cc8609d79 because that is not one of the engine's five jobs. It is not built here; `moved-from.json` names its source commit and the identity of its bytes. `read-data/declared-effects.ts` is the reader that runs.

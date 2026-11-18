@@ -1,7 +1,7 @@
 // Ported from old trillion test/agents.test.mjs (tag old-trillion-before-worker-retire, b6ae0ebf81), deleted by
 // Trillion-X/trillion #243. The tests are the old ones over src/agents.mjs and src/agent-delivery.mjs here, on the agents
 // store tests use (test/agent-store-for-tests.mjs). The MCP initialize test read its waiting list through handleMcpMessage
-// (old src/tools.mjs, held, not run: tools/list-and-run-trillions-tools-for-any-ai/from-old-trillion/src/tools.mjs.held),
+// (old src/tools.mjs, held, not run: tools/list-and-run-my-tools-for-any-ai/from-an-older-version/src/tools.mjs.held),
 // which answered pending_handoffs as agents.pendingForReader gave it; that list is checked here, and the two checks on the
 // greeting's "Work is waiting for this AI" words are left out: no running code writes those words over this module. The
 // starter instructions are read from test/fixtures/saved-instruction-starters.json, the old records/ file's bytes.

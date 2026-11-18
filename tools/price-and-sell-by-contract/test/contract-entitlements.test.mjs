@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { contractAccessRefs, contractEntitlementSnapshot, consumeEntitlement, contractRules, entitlementSummary, quantityFor, usageFor } from '../src/contract-entitlements.mjs';
-import { makeSalesContracts } from '../../build-and-send-a-sales-contract/from-old-trillion/src/sales-contracts.mjs';
+import { makeSalesContracts } from '../../build-and-send-a-sales-contract/from-an-older-version/src/sales-contracts.mjs';
 
 test('contract rules grant a bundled offer and expand its access refs from DATA', () => {
   const contract = {

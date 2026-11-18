@@ -7,7 +7,7 @@
 // read-data/work-screen.mjs, whose test/work-screen.test.mjs already checks a refusal naming a check (revised / refused),
 // below-the-minimum counts and the whole view over every decided decision (seeMyDecisions reads it through the records
 // door, not an engine's mapDecided); nothing running is the DecisionEngine or its /choices route (searched the three
-// repos for DecisionEngine, handleCaseRequest and "/choices": only held copies under from-old-trillion).
+// repos for DecisionEngine, handleCaseRequest and "/choices": only held copies under from-an-older-version).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { agentWorkItem, currentDecisionOutcome, decisionResult, decisionStatus, whatHelped, whatHelpedSections } from '../src/check-uses.mjs';

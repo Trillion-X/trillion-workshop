@@ -14,7 +14,7 @@
     {
       "from": "records/hosted-service-records.json",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/host-tool-servers-and-sites/from-old-trillion/records/hosted-service-records.json",
+      "to": "tools/host-tool-servers-and-sites/from-an-older-version/records/hosted-service-records.json",
       "source_identity": "1f:8fa4ef0379a74e241e47905d44d4374e7c452fd916c3c5adf6b990f34be4c568",
       "identity": "1f:0d79842b5525de9a2513c294978fce790e8ceda2c56443f7a5a105f67b5a289e",
       "changed": "No maker, host or person of any one deployment stays in the file: the sample host is newsletter.example.com."

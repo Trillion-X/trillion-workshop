@@ -7,7 +7,7 @@
     {
       "from": "scripts/run-agent-tool-evals.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/measure-how-well-ai-agents-of-each-model/from-old-trillion/scripts/run-agent-tool-evals.mjs.held",
+      "to": "tools/measure-how-well-ai-agents-of-each-model/from-an-older-version/scripts/run-agent-tool-evals.mjs.held",
       "source_identity": "1f:490ef28f466225b8945701b82f263cbe5c41d436bf049c1d0771230c3727e6d3",
       "identity": "1f:490ef28f466225b8945701b82f263cbe5c41d436bf049c1d0771230c3727e6d3",
       "held": true

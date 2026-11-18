@@ -14,7 +14,7 @@
     {
       "from": "records/workflow-similarity.json",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/let-an-ai-find-a-workflow-for-a-job-read/from-old-trillion/records/workflow-similarity.json",
+      "to": "tools/let-an-ai-find-a-workflow-for-a-job-read/from-an-older-version/records/workflow-similarity.json",
       "source_identity": "1f:f0b09f4dd62b781ea5f3ce355a71367182bb48f6aff7cc77f7f44f8badce8a29",
       "identity": "1f:f0b09f4dd62b781ea5f3ce355a71367182bb48f6aff7cc77f7f44f8badce8a29"
     },

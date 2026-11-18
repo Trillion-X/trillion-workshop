@@ -9,7 +9,7 @@ import { readCardSections } from '../../browse-inspiration-clips/card-sections.m
 import settings from '../../keep-and-wake-ai-sessions-on-this-computer/src/waiting-on-you.json' with { type: 'json' };
 import { whoDoesEachStep } from '../../say-for-each-step-of-a-plan-who-should-do/src/who-does-it.mjs';
 import who from '../../shared-code/src/who-does-it.json' with { type: 'json' };
-import { inOrder, oneOrder, sameOnce, stepOf, weighCards } from '../from-old-trillion/src/waiting-weigh.mjs';
+import { inOrder, oneOrder, sameOnce, stepOf, weighCards } from '../from-an-older-version/src/waiting-weigh.mjs';
 
 const weigh = input => whoDoesEachStep(input);
 

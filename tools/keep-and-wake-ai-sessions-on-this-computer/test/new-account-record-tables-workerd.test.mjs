@@ -5,7 +5,7 @@
 // real Worker) are written, in workerd's Durable Object SQLite, to a store opened on the real record model and indexes
 // (src/record-engine.mjs RECORD_MODEL, RECORD_INDEXES), and its maintenance runs until it has nothing left to do. The
 // earlier owner (tools/record-log/do-work/record-log-store.mjs and record-tables.mjs at 775166f635 of the old Trillion
-// repository, the last commit before a store stopped copying unused kinds; kept as test/fixtures/from-old-trillion/record-*-before-unused-kinds.mjs,
+// repository, the last commit before a store stopped copying unused kinds; kept as test/fixtures/from-an-older-version/record-*-before-unused-kinds.mjs,
 // because a landing checks an export that has no git history) laid out a
 // typed table, its registry rows, its history and a `table-schema-change` log record for every declared table kind;
 // the current owner lays out only a kind the store holds a record of.
@@ -33,7 +33,7 @@ const EARLIER = {
   'tools/record-log/do-work/record-log-store.mjs': 'record-log-store-before-unused-kinds.mjs',
   'tools/record-log/do-work/record-tables.mjs': 'record-tables-before-unused-kinds.mjs',
 };
-const earlierSource = path => readFileSync(new URL(`./fixtures/from-old-trillion/${EARLIER[path]}`, import.meta.url), 'utf8');
+const earlierSource = path => readFileSync(new URL(`./fixtures/from-an-older-version/${EARLIER[path]}`, import.meta.url), 'utf8');
 
 async function bundle(road) {
   const earlier = new Map(Object.keys(EARLIER).map(path => [root + path, earlierSource(path)]));

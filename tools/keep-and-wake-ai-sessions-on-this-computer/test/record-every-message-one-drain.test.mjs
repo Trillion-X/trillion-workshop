@@ -30,7 +30,7 @@ function drainOnItsOwn(args, env, mostMs) {
 }
 
 test('a live read takes a bounded slice of a large transcript and says more is left', t => {
-  const root = mkdtempSync(join(tmpdir(), 'trillion-live-read-'));
+  const root = mkdtempSync(join(tmpdir(), 'live-now-read-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const path = join(root, 'big.jsonl');
   const line = JSON.stringify({ type: 'event_msg', payload: { detail: 'x'.repeat(1000) } }) + '\n';
@@ -63,7 +63,7 @@ test('twenty drains started while one runs all end at once, and the running one 
 });
 
 test('a pass over a 200 MB transcript holds memory to the read window', t => {
-  const root = mkdtempSync(join(tmpdir(), 'trillion-live-memory-'));
+  const root = mkdtempSync(join(tmpdir(), 'live-now-memory-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const path = join(root, 'huge.jsonl');
   const block = (JSON.stringify({ type: 'event_msg', payload: { detail: 'x'.repeat(1000) } }) + '\n').repeat(1000);

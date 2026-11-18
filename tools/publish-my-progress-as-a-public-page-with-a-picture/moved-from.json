@@ -7,7 +7,7 @@
     {
       "from": "src/shares.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/publish-my-progress-as-a-public-page-with-a-picture/from-old-trillion/src/shares.mjs.held",
+      "to": "tools/publish-my-progress-as-a-public-page-with-a-picture/from-an-older-version/src/shares.mjs.held",
       "source_identity": "1f:9a2e96c3eb19ea45dd168c295e6f4d4d9c4f2bcae2835a32530ed4655c913b9b",
       "identity": "1f:9a2e96c3eb19ea45dd168c295e6f4d4d9c4f2bcae2835a32530ed4655c913b9b",
       "held": true

@@ -7,7 +7,7 @@
     {
       "from": "src/said-done.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/close-a-list-row-when-i-say/from-old-trillion/src/said-done.mjs.held",
+      "to": "tools/close-a-list-row-when-i-say/from-an-older-version/src/said-done.mjs.held",
       "source_identity": "1f:2ff15679c0aa925e33cb0ba290e2ed0d5d17f2d6ff0acfdfec03cae823a22a94",
       "identity": "1f:2ff15679c0aa925e33cb0ba290e2ed0d5d17f2d6ff0acfdfec03cae823a22a94",
       "held": true
@@ -15,7 +15,7 @@
     {
       "from": "test/said-done.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/close-a-list-row-when-i-say/from-old-trillion/test/said-done.test.mjs.held",
+      "to": "tools/close-a-list-row-when-i-say/from-an-older-version/test/said-done.test.mjs.held",
       "source_identity": "1f:28c4565b113ed4280a5d1cbd9ca4ef248692e143bb5a8059048852e8e43576f1",
       "identity": "1f:711c20ab37d1a727ae5fbdbfcbb7b1e7ded72bc3f4d3fdffb77118d08ccc27d4",
       "held": true,
@@ -24,7 +24,7 @@
     {
       "from": "src/said-done.json",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/close-a-list-row-when-i-say/from-old-trillion/src/said-done.json",
+      "to": "tools/close-a-list-row-when-i-say/from-an-older-version/src/said-done.json",
       "source_identity": "1f:d01dcd16e21030aa3a65ed5a2f7f4ffdc3d94a0cba2a23e13fac102bd1c50f33",
       "identity": "1f:d01dcd16e21030aa3a65ed5a2f7f4ffdc3d94a0cba2a23e13fac102bd1c50f33"
     }

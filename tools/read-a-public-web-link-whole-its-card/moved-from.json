@@ -22,7 +22,7 @@
     {
       "from": "records/workshop-browse-tool-records.json",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/read-a-public-web-link-whole-its-card/from-old-trillion/records/workshop-browse-tool-records.json",
+      "to": "tools/read-a-public-web-link-whole-its-card/from-an-older-version/records/workshop-browse-tool-records.json",
       "source_identity": "1f:e720f343fd446e595822884f4d3db69084fac032accb540e96df54da683b5a9e",
       "identity": "1f:e720f343fd446e595822884f4d3db69084fac032accb540e96df54da683b5a9e"
     }

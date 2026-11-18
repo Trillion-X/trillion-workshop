@@ -306,11 +306,11 @@
   "starting_rows": {
     "kinds": [
       {
-        "id": "file-pieces-into-trillion",
+        "id": "file-pieces-into-the-account",
         "values": {
           "name": "Your Trillion files, through a computer",
           "side": "Destination",
-          "capability": "file-pieces-into-trillion",
+          "capability": "file-pieces-into-the-account",
           "does": "The computer takes the stream and sends it into your Trillion files in pieces while it arrives, under Recordings/Cameras/<day>. Each piece then goes on like any video you add: heard whole, handed to your AIs and clipped.",
           "needs": "The computer awake and online; FFmpeg on it"
         }
@@ -402,7 +402,7 @@
     "destinations": [
       {
         "id": "trillion-files-{computer}",
-        "kind": "file-pieces-into-trillion",
+        "kind": "file-pieces-into-the-account",
         "values": {
           "name": "Your Trillion files, through {computer_name}",
           "protocol": "MP4 pieces",

@@ -3,7 +3,7 @@
 // keep-and-wake-ai-sessions-on-this-computer/records/workshop-account-tool-records.json; its assertions are the old ones.
 // Left out: the second test (the operator keeps, reads and removes the values; any other account is refused). It ran the
 // retired PersonStore's account action keep-service-values over old src/service-values.mjs, which is held here
-// (from-old-trillion/src/service-values.mjs.held: its imports src/sign-in-again.mjs, src/resource-host.mjs and
+// (from-an-older-version/src/service-values.mjs.held: its imports src/sign-in-again.mjs, src/resource-host.mjs and
 // src/tool-run-call.mjs are not here). Searched the three repos for keep-service-values, keepServiceValues,
 // servicePlainValues, "not a value this service holds", service_values, HELD_VALUES_ROOT_KEY and
 // facebook-login-client-id: only that held file, tool and connection DATA (records.json hosted_client names,

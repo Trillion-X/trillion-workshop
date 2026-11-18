@@ -275,7 +275,7 @@
   ],
   "workflows": [
     "workflow:run-a-course-from-list-rows",
-    "workflow:set-up-a-business-on-trillion"
+    "workflow:set-up-a-business-on-the-account"
   ],
   "tools": [
     "tool:check-copy",
@@ -286,7 +286,7 @@
   ],
   "instructions": [
     "1. Pour the example word-check rows into your own rules list (see pour) or make list:word-checks; tool:check-copy reads the rows that are On.",
-    "2. Write the facts row with workflow:set-up-a-business-on-trillion (it holds owner_email, used for the one test sign-up).",
+    "2. Write the facts row with workflow:set-up-a-business-on-the-account (it holds owner_email, used for the one test sign-up).",
     "3. Say \"Run workflow:run-a-course-from-list-rows\". It writes lessons record:lesson:five-day-start-1 to -5, checks the words, signs the owner up once with the owner's own consent, sends the lessons that are due once a day, reads where a learner stands, and stops a learner who sends the stop token.",
     "4. Read record:setup-stage:course on the checklist: Done only when every step is Done or Not applicable and no gap is open."
   ],

@@ -17,7 +17,7 @@ const A = `1f:${'a'.repeat(64)}`;
 const KEY = 'test-key-that-must-never-show';
 
 async function derivedRows() {
-  const derived = await toolRowsFromSources(payloadsIn(join(root, '../media-composition/from-old-trillion/records/workshop-media-generation-tool-records.json')));
+  const derived = await toolRowsFromSources(payloadsIn(join(root, '../media-composition/from-an-older-version/records/workshop-media-generation-tool-records.json')));
   assert.deepEqual(derived.unread, []);
   assert.deepEqual(derived.refused, []);
   return derived.rows;

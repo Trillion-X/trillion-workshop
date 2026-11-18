@@ -63,7 +63,7 @@ The film's row is the same `list:settings` row the pick gate reads (the previews
 | `do-work/stance-id-from-stdin.mjs` | The bridge: `{ kind, fold, texts }` on stdin, `{ ids: { <text>: { id, artifact } } }` out, from `tools/where-a-person-stands` `artifactRef`, `foldWith` and `stanceRecordId` (`ports/stance-id-from-stdin.json`). |
 | `tool-rows.json` | The rows `tool:put-a-picked-option-into-a-filmcraft-project`, `tool:build-a-filmcraft-option-preview`, `tool:publish-a-checked-filmcraft-preview`, `tool:make-a-working-preview-of-a-stitched-opening` and `tool:make-a-fresh-viewer-review-pack-of-a-preview`, all `on-your-computer`. |
 | `part.json` | Nothing here is imported by other code. |
-| `test/pick-gate.test.mjs` | The script against a throwaway film, a stand-in `trillion` (`test/stand-in-trillion.mjs`) and a stand-in `filmcraft-cli`, and the bridge against `tools/where-a-person-stands`. Made-up films and words. |
+| `test/pick-gate.test.mjs` | The script against a throwaway film, a stand-in `trillion` (`test/stand-in-engine.mjs`) and a stand-in `filmcraft-cli`, and the bridge against `tools/where-a-person-stands`. Made-up films and words. |
 
 ## Key Types / Functions
 

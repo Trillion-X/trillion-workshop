@@ -23,7 +23,7 @@ Every choice is data in a move row (`move-rows/<pair>.json`):
 | `calls` | `{ id, find, replace, means }`: a provider call swapped for the call the records door offers, or a real person's name swapped for a made-up one (a public tree holds made-up data only; `find` may match the name by its place so the receipt does not spell it). A file's receipt entry names the calls applied to it (`calls`); a data or prose file (JSON, a README) takes the call rows as code does, and is proved against its source once they are swapped. |
 | `leave_tests` | `{ path, why }`: a test that moves with no group although it reaches one (a test of another tree's screens, a test that reads the source tree's own import text). |
 
-`move-rows/trillion-to-workshop.json` moves the old Trillion app's features into this repository. Groups come from the
+`move-rows/older-repository-to-workshop.json` moves the old Trillion app's features into this repository. Groups come from the
 rows of its `capabilities.json` that name `moves_to`; sign-in, the stores and the Worker entry stay (they are engine
 work, ported to Rust); KV calls swap for records door reads and writes. The opinion content (methods, the named
 records, communities, cases, the content settings and the tours) is `read_as_rows`: it becomes rows of the account

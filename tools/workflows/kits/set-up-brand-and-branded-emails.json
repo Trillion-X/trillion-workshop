@@ -174,7 +174,7 @@
   "workflows": [
     "workflow:set-up-brand-and-branded-emails",
     "workflow:make-a-brand-book-and-decks",
-    "workflow:set-up-a-business-on-trillion"
+    "workflow:set-up-a-business-on-the-account"
   ],
   "tools": [
     "tool:resolve-a-brand",
@@ -183,7 +183,7 @@
   ],
   "instructions": [
     "1. Pour the example checklist rows into the checklist you already keep (see pour), or make list:business-setup-checklist and list:business-setup-gaps from them.",
-    "2. Write record:business-setup:facts with workflow:set-up-a-business-on-trillion (business_name and owner_email are read from it), and verify the email sending domain with workflow:set-up-business-accounts-and-connections first.",
+    "2. Write record:business-setup:facts with workflow:set-up-a-business-on-the-account (business_name and owner_email are read from it), and verify the email sending domain with workflow:set-up-business-accounts-and-connections first.",
     "3. Say \"Run workflow:set-up-brand-and-branded-emails\". It runs workflow:make-a-brand-book-and-decks, resolves the brand if tool:resolve-a-brand is live (a gap if not), and sends one test email only to the owner's own address.",
     "4. Open your inbox, check the test email is in it (not spam) and shows the business name, and tell your AI yes or no; a no becomes a gap naming the inbox you used."
   ],

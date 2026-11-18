@@ -45,15 +45,15 @@
       "decisions-since.json",
       "decide-before-building.mjs",
       "decide-before-building.json",
-      "ask-trillion-first.mjs",
-      "ask-trillion-first.json"
+      "ask-the-account-first.mjs",
+      "ask-the-account-first.json"
     ],
     "import_checks": [
       "wake-sessions.mjs",
       "record-every-message.mjs",
       "decisions-since.mjs",
       "decide-before-building.mjs",
-      "ask-trillion-first.mjs"
+      "ask-the-account-first.mjs"
     ],
     "import_lists": [
       {
@@ -231,7 +231,7 @@
     {
       "id": "consult",
       "event": "Stop",
-      "script": "ask-trillion-first.mjs",
+      "script": "ask-the-account-first.mjs",
       "args": [
         "--harness",
         "{harness}"

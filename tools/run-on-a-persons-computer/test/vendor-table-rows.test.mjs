@@ -7,7 +7,7 @@
 // change deleted, so that test is gone with them. Left out, each searched in
 // trillion-workshop tools/, trillion-apps web/ and trillion-rust src/ with nothing running found: test a (no
 // oauth-client-records.json or fixedClientIds runs), the dataRows reads of the hear, speech and local-model records files and
-// the records-file family test (those files are only kept, under from-old-trillion/), firstChoiceFor (old
+// the records-file family test (those files are only kept, under from-an-older-version/), firstChoiceFor (old
 // src/model-routes.mjs), test f (post-place-records.json is only kept) and the origin settings (no
 // cloud-files-origin-settings.json runs). The installed-set and refusal tests read a records file of the golden sign-in
 // apps, written here, where the old one read records/oauth-client-records.json.

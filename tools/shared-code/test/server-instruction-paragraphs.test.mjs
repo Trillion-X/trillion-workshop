@@ -1,7 +1,7 @@
 // Ported from old trillion test/server-instruction-paragraphs.test.mjs (tag old-trillion-before-worker-retire, b6ae0ebf81),
 // deleted by Trillion-X/trillion #243. The first two tests are the old ones over src/server-instruction-paragraphs.mjs here.
 // The third read setupPlan (old src/setup-plan.mjs), which is held, not run (tools/walk-a-new-person-through-first-setup/
-// from-old-trillion/src/setup-plan.mjs.held): setupPlan copied instructionParagraph(id) into its fields, so the plan-equality
+// from-an-older-version/src/setup-plan.mjs.held): setupPlan copied instructionParagraph(id) into its fields, so the plan-equality
 // checks are left out and the mission's words are checked on the paragraph itself; the single-source checks are kept.
 import test from 'node:test';
 import assert from 'node:assert/strict';

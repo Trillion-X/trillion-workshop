@@ -249,7 +249,7 @@
    ],
    "payload": {
     "kind": "ai-tool-descriptor",
-    "id": "tool:what-can-trillion-do",
+    "id": "tool:what-can-my-account-do",
     "label": "List what can do steps",
     "status": "active",
     "job": "List everything that can do a step for a person, with what each covers and what it costs, and the reasons a step may stay the person's",

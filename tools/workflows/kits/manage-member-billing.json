@@ -174,7 +174,7 @@
   "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
     "workflow:manage-member-billing",
-    "workflow:set-up-a-business-on-trillion"
+    "workflow:set-up-a-business-on-the-account"
   ],
   "tools": [
     "tool:cancel-a-stripe-subscription",
@@ -185,7 +185,7 @@
     "tool:tag-a-stripe-subscription"
   ],
   "instructions": [
-    "1. Run workflow:set-up-a-business-on-trillion first if record:business-setup:facts does not exist yet; this workflow reads that row.",
+    "1. Run workflow:set-up-a-business-on-the-account first if record:business-setup:facts does not exist yet; this workflow reads that row.",
     "2. Say \"Run workflow:manage-member-billing\" and name the member's Stripe subscription id and their reason in their own words.",
     "3. Read what each step hands back: ended subscriptions, cancelled with ends_at, tagged, paid installments, the offers the member may see.",
     "4. The billing-page view has no live tool: it is written as a gap row, and record-the-stage writes record:setup-stage:member-billing."

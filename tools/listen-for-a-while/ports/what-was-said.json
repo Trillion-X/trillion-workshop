@@ -95,12 +95,12 @@
     },
     {
       "repository": "trillion-workshop",
-      "path": "tools/listen-for-a-while/from-old-trillion/README.md",
+      "path": "tools/listen-for-a-while/from-an-older-version/README.md",
       "why": "This documents the original moved source evidence."
     },
     {
       "repository": "trillion-workshop",
-      "path": "tools/listen-for-a-while/from-old-trillion/moved-from.json",
+      "path": "tools/listen-for-a-while/from-an-older-version/moved-from.json",
       "why": "This is an immutable move inventory, not a record-door adapter."
     },
     {

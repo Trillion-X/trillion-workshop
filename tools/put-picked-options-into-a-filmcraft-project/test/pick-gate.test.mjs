@@ -1,4 +1,4 @@
-// pick_gate.py against a throwaway film, a stand-in records door (stand-in-trillion.mjs) and a stand-in filmcraft-cli:
+// pick_gate.py against a throwaway film, a stand-in records door (stand-in-engine.mjs) and a stand-in filmcraft-cli:
 // it refuses without the person's own pick, applies with one, and logs what it did. Made-up films, options and words.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -13,7 +13,7 @@ import { artifactRef, foldWith } from '../../where-a-person-stands/do-work/artif
 const here = dirname(fileURLToPath(import.meta.url));
 const TOOL = join(here, '..', 'do-work', 'pick_gate.py');
 const BRIDGE = join(here, '..', 'do-work', 'stance-id-from-stdin.mjs');
-const STAND_IN = join(here, 'stand-in-trillion.mjs');
+const STAND_IN = join(here, 'stand-in-engine.mjs');
 chmodSync(STAND_IN, 0o755);
 
 const FOLD = { lowercase: true, collapse_space: true };

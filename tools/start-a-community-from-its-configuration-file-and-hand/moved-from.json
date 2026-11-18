@@ -7,7 +7,7 @@
     {
       "from": "scripts/start-community.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/start-a-community-from-its-configuration-file-and-hand/from-old-trillion/scripts/start-community.mjs.held",
+      "to": "tools/start-a-community-from-its-configuration-file-and-hand/from-an-older-version/scripts/start-community.mjs.held",
       "source_identity": "1f:b1107d738982c21d92bf78b727e387a68457c28cb9b34bae01a3915c1dd06770",
       "identity": "1f:b1107d738982c21d92bf78b727e387a68457c28cb9b34bae01a3915c1dd06770",
       "held": true

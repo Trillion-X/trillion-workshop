@@ -3,7 +3,7 @@
 // byte; only the imports changed. Left out: 'cross-account merge retains recipient MOVE receipts without source replay
 // authority', whose owner src/namespace-account-merge.mjs (namespaceAccountMerge) is retired with no running successor
 // (searched namespaceAccountMerge, namespace-account-merge, move_receipts and account merge across trillion-workshop,
-// trillion-rust src and trillion-apps web: only docs/from-old-trillion copies and port backlogs name them).
+// trillion-rust src and trillion-apps web: only docs/from-an-older-version copies and port backlogs name them).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { sqliteHost } from '../../keep-and-wake-ai-sessions-on-this-computer/src/local-store.mjs';

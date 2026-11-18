@@ -7,7 +7,7 @@
     {
       "from": "records/workshop-drives-tool-records.json",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/connected-drives/from-old-trillion/records/workshop-drives-tool-records.json",
+      "to": "tools/connected-drives/from-an-older-version/records/workshop-drives-tool-records.json",
       "source_identity": "1f:d83528cf014132d0dc136d2d9f858569c50931fcd57035ec5219a8b7fd996e8d",
       "identity": "1f:d83528cf014132d0dc136d2d9f858569c50931fcd57035ec5219a8b7fd996e8d"
     }

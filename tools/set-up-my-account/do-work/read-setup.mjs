@@ -15,7 +15,7 @@
 //     - the account id is the page's admitted account (contract B), old facts()'s owner_user_id;
 //     - the setup runtime, when `setup_facts` carries none: old facts() read it from the account's setup runtime owner
 //       (src/native-setup.mjs:104-158, makeSetupRuntime over makeSetupWorkflow). Here the setup run is a recipe run, so
-//       the runtime moved here (from-old-trillion/src/setup-runtime.mjs) reads its workflow from the run itself: the recipe whose
+//       the runtime moved here (from-an-older-version/src/setup-runtime.mjs) reads its workflow from the run itself: the recipe whose
 //       default_for names the policy's purpose (tools/workflows public-recipes.mjs), its run under the policy's request
 //       key and its kept answers (tools/workflows read-a-recipe-run.mjs). The other readers old trillion had (defaults,
 //       timed work, event intake, agents) have no owner read here yet and answer unavailable, which the screen shows as
@@ -35,7 +35,7 @@ import showRules from '../read-data/show-rules.json' with { type: 'json' };
 import setupSettings from '../read-data/setup-steps.json' with { type: 'json' };
 import { devicesFor, installationObserver, systemOf } from '../../set-up-my-devices-and-cameras/src/devices.mjs';
 import capabilityPolicy from '../read-data/setup-policy.json' with { type: 'json' };
-import { makeSetupRuntime, makeSetupWorkflow } from '../from-old-trillion/src/setup-runtime.mjs';
+import { makeSetupRuntime, makeSetupWorkflow } from '../from-an-older-version/src/setup-runtime.mjs';
 import { readARecipeRun } from '../../workflows/read-data/read-a-recipe-run.mjs';
 import { defaultRecipeFor } from '../../workflows/read-data/public-recipes.mjs';
 import { makeHashCodeHexFromJson } from '../../content-identity/read-data/identity.mjs';

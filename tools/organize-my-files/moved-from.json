@@ -7,7 +7,7 @@
     {
       "from": "records/workshop-file-tidy-tool-records.json",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/organize-my-files/from-old-trillion/records/workshop-file-tidy-tool-records.json",
+      "to": "tools/organize-my-files/from-an-older-version/records/workshop-file-tidy-tool-records.json",
       "source_identity": "1f:e8c943dcfb95bd00edccdddd79a50931636f0702fdf4554b863fd9a111d75f3e",
       "identity": "1f:e8c943dcfb95bd00edccdddd79a50931636f0702fdf4554b863fd9a111d75f3e"
     },

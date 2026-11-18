@@ -3,7 +3,7 @@
 // tools/run-rules-and-schedules-by-themselves/src/automation-health-looks.json and the formula engine's row filter; the old
 // test ran it as the Workshop tool tool:read-source-health (test/engine-tools-for-tests.mjs), which only handed its input to
 // readSourceHealth. The six tests of the health itself are the old ones, but for the check that the tool row's shipped
-// verify sample holds: that row is only kept (run-rules-and-schedules-by-themselves/from-old-trillion/records/
+// verify sample holds: that row is only kept (run-rules-and-schedules-by-themselves/from-an-older-version/records/
 // workshop-engine-tool-records.json), no running row has it. The four that gathered sources through old
 // src/automations.mjs readHealth (with src/inbound.mjs, src/events.mjs and src/messages.mjs over a person's store: computer
 // reader evidence, source_health joins and refusals, a note through the one door) are left out: makeAutomations and inbound

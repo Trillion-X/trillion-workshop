@@ -94,7 +94,7 @@
     },
     {
       "repository": "trillion-workshop",
-      "path": "tools/tell-a-repeated-capture-from-a-new-one/from-old-trillion/test/capture-categories.test.mjs.held",
+      "path": "tools/tell-a-repeated-capture-from-a-new-one/from-an-older-version/test/capture-categories.test.mjs.held",
       "why": "This is a regression test or inactive historical test artifact exercising the underlying behavior; it does not own an independent module-forwarding implementation."
     },
     {

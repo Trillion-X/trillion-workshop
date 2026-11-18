@@ -174,7 +174,7 @@
   ],
   "workflows": [
     "workflow:run-a-community",
-    "workflow:set-up-a-business-on-trillion"
+    "workflow:set-up-a-business-on-the-account"
   ],
   "tools": [
     "tool:advance-a-community-matchmaker",
@@ -183,7 +183,7 @@
   ],
   "instructions": [
     "1. Pour the example checklist rows into the checklist you already keep (see pour), or make list:business-setup-checklist and list:business-setup-gaps from them.",
-    "2. Write record:business-setup:facts first with workflow:set-up-a-business-on-trillion; put your community id in it as community_id when you have one.",
+    "2. Write record:business-setup:facts first with workflow:set-up-a-business-on-the-account; put your community id in it as community_id when you have one.",
     "3. Say \"Run workflow:run-a-community\". With a community id it reads tool:read-my-community-matches, advances the matchmaker once per day (the same request key replays instead of running twice) and answers a member through tool:answer-in-a-community.",
     "4. With no community id it submits a gap instead: no live tool creates a community or removes a member. Read record:setup-stage:community on the checklist for the final status."
   ],

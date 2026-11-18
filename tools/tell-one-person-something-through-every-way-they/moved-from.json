@@ -47,7 +47,7 @@
     {
       "from": "records/glance-feeds.json",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/tell-one-person-something-through-every-way-they/from-old-trillion/records/glance-feeds.json",
+      "to": "tools/tell-one-person-something-through-every-way-they/from-an-older-version/records/glance-feeds.json",
       "source_identity": "1f:540564d3e94a5fb38b0c5148e1699b505ebc36f55a2f86f88dc4ac0de735fab9",
       "identity": "1f:491feb49454309c2a61d3a3806f2a3d64f01ed318591685f54c82bed08624a35",
       "adapted": "Edited after the move so the tool holds no host, name or id of ours; callers pass those in."
@@ -55,14 +55,14 @@
     {
       "from": "records/run-progress.json",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/tell-one-person-something-through-every-way-they/from-old-trillion/records/run-progress.json",
+      "to": "tools/tell-one-person-something-through-every-way-they/from-an-older-version/records/run-progress.json",
       "source_identity": "1f:3a899c36aa5702d9c588bb300cd47b34d63a372fd3703b1c27fc3013d4534bab",
       "identity": "1f:3a899c36aa5702d9c588bb300cd47b34d63a372fd3703b1c27fc3013d4534bab"
     },
     {
       "from": "records/tell-the-person.json",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/tell-one-person-something-through-every-way-they/from-old-trillion/records/tell-the-person.json",
+      "to": "tools/tell-one-person-something-through-every-way-they/from-an-older-version/records/tell-the-person.json",
       "source_identity": "1f:96cd1ac0f4be6ef5a57d6b2e4a8325759a2960b4e07f4b4d1e4362ab4079921c",
       "identity": "1f:4aecb7f2c73ff9be5727bd95a725c7f1bb39cb9d3101123cbbd2b87e5371afcb",
       "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."

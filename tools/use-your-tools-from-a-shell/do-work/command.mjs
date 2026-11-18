@@ -748,7 +748,10 @@ export function engineClient({ door, credential, fetchImpl = fetch, rules = sett
     tool(rules.engine.tool, { address, method, request_key: requestKeyForEngine(requestKey), input }, { idempotent });
   async function whoami() {
     const result = await rpc('initialize', { protocolVersion: rules.engine.protocol_version, capabilities: {}, clientInfo: { name: rules.client_name, version: rules.client_version } }, { once: true });
-    const account = result?._meta?.[rules.engine.account_meta]?.account_id;
+    // Whose account answered: the engine names it under `<its site, reversed>/account`, or `account` when it names no
+    // product; no product's name is kept here (engine.account_meta is the key's last part).
+    const named = Object.entries(result?._meta ?? {}).find(([key, value]) => (key === rules.engine.account_meta || key.endsWith(`/${rules.engine.account_meta}`)) && typeof value?.account_id === 'string');
+    const account = named?.[1].account_id;
     if (typeof account !== 'string' || !account) throw new CommandError(rules.words.no_account, { status: 4, detail: fill(rules.words.details.no_account, { mcp: door.mcp }) });
     return { account, server: result.serverInfo ?? null, capabilities: result.capabilities ?? {} };
   }

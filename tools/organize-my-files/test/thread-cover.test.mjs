@@ -16,7 +16,7 @@ import { test } from 'node:test';
 import { pageShellHtml } from '../parts/ui/show/server-rendered-page/page-sections-html.mjs';
 import { coverNeedleSvg, threadCoverHtml, threadCoverPage } from '../parts/ui/show/thread-cover/thread-cover.mjs';
 import setup from '../parts/ui/show/thread-cover/thread-cover.json' with { type: 'json' };
-import { coverLook, openingCoverFiles } from '../../draw-trillions-app-icon-in-every-size-from/scripts/make-opening-cover.mjs';
+import { coverLook, openingCoverFiles } from '../../draw-the-apps-icon-in-every-size-from/scripts/make-opening-cover.mjs';
 
 const scriptOf = html => html.slice(html.lastIndexOf('<script>') + '<script>'.length, html.lastIndexOf('</script>'));
 

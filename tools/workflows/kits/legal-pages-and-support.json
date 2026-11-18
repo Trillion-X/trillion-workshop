@@ -173,14 +173,14 @@
   "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
     "workflow:legal-pages-and-support",
-    "workflow:set-up-a-business-on-trillion"
+    "workflow:set-up-a-business-on-the-account"
   ],
   "tools": [
     "tool:publish_site",
     "tool:write-legal-documents"
   ],
   "instructions": [
-    "1. Make sure your business facts row exists: record:business-setup:facts with business_name, support_email, first_offer_name and seller_return_url (the parent workflow:set-up-a-business-on-trillion writes it in its step write-the-business-facts).",
+    "1. Make sure your business facts row exists: record:business-setup:facts with business_name, support_email, first_offer_name and seller_return_url (the parent workflow:set-up-a-business-on-the-account writes it in its step write-the-business-facts).",
     "2. Pour the example checklist and gap rows into the lists you keep for launch tasks and blockers (see pour), or make list:business-setup-checklist and list:business-setup-gaps from them.",
     "3. Say \"Run workflow:legal-pages-and-support\". The AI starts it with tool:start-a-recipe-run and works the steps in order: read-facts, write-the-legal-pages, publish-the-legal-pages, name-the-support-address, record-the-stage.",
     "4. Read the three documents it wrote and confirm each fact in them (every page is marked not reviewed by a lawyer); have your lawyer check them before you rely on them.",

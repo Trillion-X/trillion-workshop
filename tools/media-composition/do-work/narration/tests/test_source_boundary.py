@@ -18,7 +18,7 @@ class SourceBoundary(unittest.TestCase):
             (Path(directory) / 'unowned.py').write_text('raise RuntimeError("must never execute")')
             self.assertEqual(registry.search_dirs(), [ROOT / 'lib/st/voice/engines'])
             self.assertNotIn('unowned', registry.discover())
-            self.assertIn('trillion_voice', registry.discover())
+            self.assertIn('own_voice', registry.discover())
 
     def test_dependencies_never_install(self):
         from st import lazy
@@ -44,11 +44,11 @@ class SourceBoundary(unittest.TestCase):
         self.assertEqual(h.hexdigest(), '6437b3ac38465133ffb63b75273a8db548c558465d79db03fd359c6cd5bd9d85')
 
     def test_exact_voice_aliases_are_refused_without_speaker_effect(self):
-        from st.voice.engines.trillion_voice import ENGINE
+        from st.voice.engines.own_voice import ENGINE
         from st.voice.voices import VoiceSpec
         from st.common import ShowtimeError
         with self.assertRaisesRegex(ShowtimeError, 'exact existing'):
-            ENGINE.synth([], VoiceSpec('trillion_voice', 'chosen', 'en'), 1, None)
+            ENGINE.synth([], VoiceSpec('own_voice', 'chosen', 'en'), 1, None)
 
 
 if __name__ == '__main__':

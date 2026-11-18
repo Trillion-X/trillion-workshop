@@ -15,7 +15,7 @@
     {
       "from": "records/workshop-who-does-it-tool-records.json",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/say-for-each-step-of-a-plan-who-should-do/from-old-trillion/records/workshop-who-does-it-tool-records.json",
+      "to": "tools/say-for-each-step-of-a-plan-who-should-do/from-an-older-version/records/workshop-who-does-it-tool-records.json",
       "source_identity": "1f:54982f0303300f30396b16d0c8af4edb5407451a436fb8f08515683c3dc3e60e",
       "identity": "1f:375ae70eeb1d9762009154299649118a3c778b7d2c5caf16b18d35c3a6691c20",
       "adapted": "The bytes here are not the bytes of its source: the receipt named bytes no commit of this checkout ever held, so it names the bytes the file has."

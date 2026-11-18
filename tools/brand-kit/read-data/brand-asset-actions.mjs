@@ -1,7 +1,7 @@
 // The operator's Brand assets list is the source of selections and URLs. The
 // same resolver works for a builder's own list rows; it knows no account name.
 import { resolveScreenLookPalette } from '../../screen-look/read-data/resolve-screen-look-palette.js';
-import { lookFor, lookScheme } from '../../draw-trillions-app-icon-in-every-size-from/src/page-look.mjs';
+import { lookFor, lookScheme } from '../../draw-the-apps-icon-in-every-size-from/src/page-look.mjs';
 import { BRAND_FIELDS, assetForBrand } from '../../brand-kit/read-data/brand-assets.mjs';
 export { BRAND_FIELDS, assetForBrand };
 

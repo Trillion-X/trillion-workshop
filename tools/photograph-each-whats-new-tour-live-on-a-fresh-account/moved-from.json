@@ -7,7 +7,7 @@
     {
       "from": "scripts/picture-whats-new.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/photograph-each-whats-new-tour-live-on-a-fresh-account/from-old-trillion/scripts/picture-whats-new.mjs.held",
+      "to": "tools/photograph-each-whats-new-tour-live-on-a-fresh-account/from-an-older-version/scripts/picture-whats-new.mjs.held",
       "source_identity": "1f:fdff7bb0963d4bb7b4d2e0ccd43119f21ba085b2ee32e6db3718e3de989b1ecb",
       "identity": "1f:fdff7bb0963d4bb7b4d2e0ccd43119f21ba085b2ee32e6db3718e3de989b1ecb",
       "held": true

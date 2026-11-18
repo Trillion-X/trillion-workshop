@@ -5,7 +5,7 @@
  "workflows": [
   "workflow:follow-through",
   "workflow:turn-something-shared-into-what-you-can-use",
-  "workflow:trillion-x-mode"
+  "workflow:x-mode"
  ],
  "tools": [
   "tool:start-a-recipe-run"

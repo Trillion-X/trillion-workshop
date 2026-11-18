@@ -191,7 +191,7 @@
   "workflows": [
     "workflow:make-short-videos-from-footage",
     "workflow:post-on-social-channels-on-a-schedule",
-    "workflow:set-up-a-business-on-trillion",
+    "workflow:set-up-a-business-on-the-account",
     "workflow:set-up-your-checks",
     "workflow:turn-one-long-recording-into-many-pieces"
   ],
@@ -206,7 +206,7 @@
     "tool:check-against-a-persons-rules-and-verdicts"
   ],
   "instructions": [
-    "1. Run workflow:set-up-a-business-on-trillion through its facts step first, so record:business-setup:facts exists; this workflow stops and says so when it does not.",
+    "1. Run workflow:set-up-a-business-on-the-account through its facts step first, so record:business-setup:facts exists; this workflow stops and says so when it does not.",
     "2. Pour the two example b-roll rules and the two example word checks into the lists you already keep (see pour), or make list:b-roll-rules and list:word-checks from them, then edit them to your own rules.",
     "3. Pick the recording the clip comes from; the workflow lists your recordings and keeps each one's identity, and never downloads the file.",
     "4. Say \"Run workflow:make-short-videos-from-footage\". It finds the pauses, proposes cuts, and you choose one clip of 15 to 60 seconds.",

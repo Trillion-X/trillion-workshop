@@ -211,7 +211,7 @@
    "entry": "check-against-a-persons-rules-and-verdicts/do-work/check-against-their-rules-and-verdicts.mjs:28",
    "reason": "door.read/write record:check"
   },
-  "tool:trillion-media-file-places": {
+  "tool:media-file-places": {
    "verdict": "USES_DOOR",
    "entry": "work-on-connected-drives/read-data/file-places.mjs:113",
    "reason": "door.files find_file"

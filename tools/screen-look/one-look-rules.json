@@ -543,57 +543,57 @@
       "why": "Downloads a site project as a JSON file; the text is the file's bytes, never shown on a screen."
     },
     {
-      "file": "tools/assemble-and-publish-an-app-project/from-old-trillion/records/client-examples/longevity/index.html",
+      "file": "tools/assemble-and-publish-an-app-project/from-an-older-version/records/client-examples/longevity/index.html",
       "rule": "no-eyebrow",
       "why": "A client's own site, in the design made with them for their business: their page's look, not the host application's screen."
     },
     {
-      "file": "tools/assemble-and-publish-an-app-project/from-old-trillion/records/client-examples/longevity/styles.css",
+      "file": "tools/assemble-and-publish-an-app-project/from-an-older-version/records/client-examples/longevity/styles.css",
       "rule": "no-eyebrow",
       "why": "A client's own site, in the design made with them for their business: their page's look, not the host application's screen."
     },
     {
-      "file": "tools/assemble-and-publish-an-app-project/from-old-trillion/records/client-examples/longevity/styles.css",
+      "file": "tools/assemble-and-publish-an-app-project/from-an-older-version/records/client-examples/longevity/styles.css",
       "rule": "label-keeps-its-case",
       "why": "A client's own site, in the design made with them for their business: their page's look, not the host application's screen."
     },
     {
-      "file": "tools/assemble-and-publish-an-app-project/from-old-trillion/records/client-examples/bakery/index.html",
+      "file": "tools/assemble-and-publish-an-app-project/from-an-older-version/records/client-examples/bakery/index.html",
       "rule": "no-eyebrow",
       "why": "A client's own site, in the design made with them for their business: their page's look, not the host application's screen."
     },
     {
-      "file": "tools/assemble-and-publish-an-app-project/from-old-trillion/records/client-examples/bakery/styles.css",
+      "file": "tools/assemble-and-publish-an-app-project/from-an-older-version/records/client-examples/bakery/styles.css",
       "rule": "no-eyebrow",
       "why": "A client's own site, in the design made with them for their business: their page's look, not the host application's screen."
     },
     {
-      "file": "tools/assemble-and-publish-an-app-project/from-old-trillion/records/client-examples/bakery/styles.css",
+      "file": "tools/assemble-and-publish-an-app-project/from-an-older-version/records/client-examples/bakery/styles.css",
       "rule": "label-keeps-its-case",
       "why": "A client's own site, in the design made with them for their business: their page's look, not the host application's screen."
     },
     {
-      "file": "tools/assemble-and-publish-an-app-project/from-old-trillion/records/client-examples/sports-club/index.html",
+      "file": "tools/assemble-and-publish-an-app-project/from-an-older-version/records/client-examples/sports-club/index.html",
       "rule": "no-eyebrow",
       "why": "A client's own site, in the design made with them for their business: their page's look, not the host application's screen."
     },
     {
-      "file": "tools/assemble-and-publish-an-app-project/from-old-trillion/records/client-examples/sports-club/styles.css",
+      "file": "tools/assemble-and-publish-an-app-project/from-an-older-version/records/client-examples/sports-club/styles.css",
       "rule": "label-keeps-its-case",
       "why": "A client's own site, in the design made with them for their business: their page's look, not the host application's screen."
     },
     {
-      "file": "tools/assemble-and-publish-an-app-project/from-old-trillion/records/client-examples/sports-club/styles.css",
+      "file": "tools/assemble-and-publish-an-app-project/from-an-older-version/records/client-examples/sports-club/styles.css",
       "rule": "no-eyebrow",
       "why": "A client's own site, in the design made with them for their business: their page's look, not the host application's screen."
     },
     {
-      "file": "tools/assemble-and-publish-an-app-project/from-old-trillion/records/client-examples/sign-up/styles.css",
+      "file": "tools/assemble-and-publish-an-app-project/from-an-older-version/records/client-examples/sign-up/styles.css",
       "rule": "font-not-from-look",
       "why": "A client's own site, set in the client's own brand faces, not the host application's look."
     },
     {
-      "file": "tools/assemble-and-publish-an-app-project/from-old-trillion/records/client-examples/bakery/styles.css",
+      "file": "tools/assemble-and-publish-an-app-project/from-an-older-version/records/client-examples/bakery/styles.css",
       "rule": "font-not-from-look",
       "why": "A client's own site, set in the client's own brand faces, not the host application's look."
     },

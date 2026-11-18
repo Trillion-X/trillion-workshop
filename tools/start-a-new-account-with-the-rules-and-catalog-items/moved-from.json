@@ -7,7 +7,7 @@
     {
       "from": "src/starting-catalog.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/start-a-new-account-with-the-rules-and-catalog-items/from-old-trillion/src/starting-catalog.mjs.held",
+      "to": "tools/start-a-new-account-with-the-rules-and-catalog-items/from-an-older-version/src/starting-catalog.mjs.held",
       "source_identity": "1f:4e090bd8618913ca0ae0561621a91b26c9ae17c6a3f486a37c9f6e985a29687c",
       "identity": "1f:c2ff32b667d553bc686657602ef10dc3e6b25be0e32e9b3bb592f0931e4b1a1e",
       "held": true
@@ -15,7 +15,7 @@
     {
       "from": "src/starting-rules.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/start-a-new-account-with-the-rules-and-catalog-items/from-old-trillion/src/starting-rules.mjs.held",
+      "to": "tools/start-a-new-account-with-the-rules-and-catalog-items/from-an-older-version/src/starting-rules.mjs.held",
       "source_identity": "1f:5d6c107d61f902b2d73540d93ac4e33be27eff7737592346a250d921f8ee7a13",
       "identity": "1f:33c01d3223a2b61a9997022c17b55c714093914c5ce7dacc7046d85d1379b4da",
       "held": true
@@ -23,7 +23,7 @@
     {
       "from": "test/starting-catalog.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/start-a-new-account-with-the-rules-and-catalog-items/from-old-trillion/test/starting-catalog.test.mjs.held",
+      "to": "tools/start-a-new-account-with-the-rules-and-catalog-items/from-an-older-version/test/starting-catalog.test.mjs.held",
       "source_identity": "1f:f8f8742418125ae5ba2728e37e352916c39e41bfbc11ebef6de023771ea443bf",
       "identity": "1f:fd6514d5cbfbeb013bcb353f94871b9908f28cdfcdc6db90acc50de54f150bbb",
       "held": true
@@ -31,7 +31,7 @@
     {
       "from": "test/starting-rules-continuity.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/start-a-new-account-with-the-rules-and-catalog-items/from-old-trillion/test/starting-rules-continuity.test.mjs.held",
+      "to": "tools/start-a-new-account-with-the-rules-and-catalog-items/from-an-older-version/test/starting-rules-continuity.test.mjs.held",
       "source_identity": "1f:e16d4da587263dbace314dc3bcdabf7567064ab14c61074a266cbdd3903cc681",
       "identity": "1f:3f5620f0323caeff0d87bb81f2efe7e3ff315bd1472233fc76197cf3b9746a66",
       "held": true
@@ -39,7 +39,7 @@
     {
       "from": "test/starting-rules-real-automations.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/start-a-new-account-with-the-rules-and-catalog-items/from-old-trillion/test/starting-rules-real-automations.test.mjs.held",
+      "to": "tools/start-a-new-account-with-the-rules-and-catalog-items/from-an-older-version/test/starting-rules-real-automations.test.mjs.held",
       "source_identity": "1f:c2cc84b718a6c6203e72e115b6682dac5b9bed712f70ecfb33263edbe9f8bcba",
       "identity": "1f:f6389f6f64459fea48ecc665b43ec23ad89c437b85d466e0bac93035a5096072",
       "held": true
@@ -47,7 +47,7 @@
     {
       "from": "test/starting-rules.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/start-a-new-account-with-the-rules-and-catalog-items/from-old-trillion/test/starting-rules.test.mjs.held",
+      "to": "tools/start-a-new-account-with-the-rules-and-catalog-items/from-an-older-version/test/starting-rules.test.mjs.held",
       "source_identity": "1f:16a5d029e1903fa8389f345344c1d1232a17e3a1ab41af50c2ac5e1c0b936ffe",
       "identity": "1f:4a4151e8d2171189fd6993b9511e548f939e3daf44ae3c142bc69bfd9a38d324",
       "held": true
@@ -55,7 +55,7 @@
     {
       "from": "records/workshop-event-source-records.json",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/start-a-new-account-with-the-rules-and-catalog-items/from-old-trillion/records/workshop-event-source-records.json",
+      "to": "tools/start-a-new-account-with-the-rules-and-catalog-items/from-an-older-version/records/workshop-event-source-records.json",
       "source_identity": "1f:6321eddd71634df4505a798a36727c717153e194d2302552f83d0d2b6e8b78f7",
       "identity": "1f:6321eddd71634df4505a798a36727c717153e194d2302552f83d0d2b6e8b78f7"
     },

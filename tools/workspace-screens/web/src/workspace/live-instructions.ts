@@ -2,7 +2,7 @@
 //
 // PURPOSE
 //   What the page does when the store steers it from the first frame of its live socket (src/live-protocol.json boot): the
-//   socket announces the instruction as a window event `trillion-live-instruction` with { action, said }, and this is its one
+//   socket announces the instruction as a window event `live-now-instruction` with { action, said }, and this is its one
 //   listener. `reload` reloads, `clear-kept` deletes what this computer kept for any account and then reloads, `sign-in` opens
 //   the sign-in and comes back to this address; `stop` is the socket's own (it stops listening).
 //
@@ -16,7 +16,7 @@ import { signInAddress } from './addresses.mjs';
 import { clearKept } from './api';
 import { notify } from '../../../../ui/show/coss/notifications';
 
-const GUARD = 'trillion-live-instruction-at';
+const GUARD = 'live-now-instruction-at';
 const recently = (): boolean => {
   try {
     const at = Number(window.sessionStorage.getItem(GUARD) ?? 0);
@@ -37,7 +37,7 @@ export async function followInstruction({ action, said }: { action: string; said
 /** Starts the listener once for the page. */
 export function publishLiveInstructions(): void {
   const host = window as unknown as { trillionPendingInstruction?: { action: string; said: string } };
-  window.addEventListener('trillion-live-instruction', event => { host.trillionPendingInstruction = undefined; void followInstruction((event as CustomEvent<{ action: string; said: string }>).detail); });
+  window.addEventListener('live-now-instruction', event => { host.trillionPendingInstruction = undefined; void followInstruction((event as CustomEvent<{ action: string; said: string }>).detail); });
   // An instruction the socket heard before this started.
   if (host.trillionPendingInstruction) { const heard = host.trillionPendingInstruction; host.trillionPendingInstruction = undefined; void followInstruction(heard); }
 }

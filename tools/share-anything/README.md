@@ -53,4 +53,4 @@ It replaces `tool:share-a-record-by-a-sealed-link` (deleted with this change) an
 
 ## Sharing grants moved from the engine (trillion-rust)
 
-`from-trillion-rust/` holds the engine's sharing-grant code byte for byte, but for one made-up address in a test (`src/account_rights/share_grant.rs`, `share_grant/reach.rs`, `share_given.rs`, `share_given/tests.rs`, `share-grant.json`, `share-given.json`, 2,943 lines), removed from the engine on Nov 15 2026 because it is not one of the engine's five jobs. Receipt: `from-trillion-rust/moved-from.json`. Not wired: this tool writes the `sharing:<label>` record the engine read.
+`from-the-engine-repository/` holds the engine's sharing-grant code byte for byte, but for one made-up address in a test (`src/account_rights/share_grant.rs`, `share_grant/reach.rs`, `share_given.rs`, `share_given/tests.rs`, `share-grant.json`, `share-given.json`, 2,943 lines), removed from the engine on Nov 15 2026 because it is not one of the engine's five jobs. Receipt: `from-the-engine-repository/moved-from.json`. Not wired: this tool writes the `sharing:<label>` record the engine read.

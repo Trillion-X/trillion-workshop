@@ -1,6 +1,6 @@
 // tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs
 //
-// tool:keep-trillion-in-your-instructions: keeps the standing instructions as one marked block in the person's own AI
+// tool:keep-my-account-in-your-instructions: keeps the standing instructions as one marked block in the person's own AI
 // harness instruction file. Reads { harness, action, text? } on standard input and prints the report. The input check
 // is moved from Trillion-X/trillion computer/harness-instructions.mjs (makeInstructionTools); that Mac tool also
 // fetched the service's current words from a fixed address, which is left out: a caller passes `text`, else the copy

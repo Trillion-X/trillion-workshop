@@ -2,7 +2,7 @@
 // b6ae0ebf81), deleted by Trillion-X/trillion #243. The harness scripts are this tool's; the client catalogue is
 // tools/set-up-my-account/read-data/ai-clients.json and report-progress is tools/run-on-a-persons-computer's (old
 // computer/). The first test's setup answer (old src/setup-installs.mjs harnessSetup, not moved: tools/set-up-my-account
-// README) is this tool's row tool:connect-an-ai-app-on-this-computer-to-trillion now, so its command checks read that
+// README) is this tool's row tool:connect-an-ai-app-on-this-computer-to-my-account now, so its command checks read that
 // row: the four actions and no --mcp-url. Left out: that the register command names 'claude-code,codex' by default and
 // not gemini-cli or cursor; the row takes the apps from the caller and lists all four (this folder's README, "Rows").
 // Every other assertion is the old one.
@@ -40,9 +40,9 @@ const URL_ = 'https://app.example.com/mcp';
 test('every registration row is an AI app the connect catalogue knows, and the setup answer offers the four commands', () => {
   const ids = aiClients.clients.map(row => row.id);
   for (const row of setupRules.mcp_registration.clients) assert.ok(ids.includes(row.id), `${row.id} is a src/ai-clients.json client`);
-  // The setup answer is this tool's row now (tool-rows.json, tool:connect-an-ai-app-on-this-computer-to-trillion): its
+  // The setup answer is this tool's row now (tool-rows.json, tool:connect-an-ai-app-on-this-computer-to-my-account): its
   // action is one of the four commands, run through harness/setup.mjs with no --mcp-url.
-  const row = toolRows.records.map(record => record.payload).find(payload => payload.id === 'tool:connect-an-ai-app-on-this-computer-to-trillion');
+  const row = toolRows.records.map(record => record.payload).find(payload => payload.id === 'tool:connect-an-ai-app-on-this-computer-to-my-account');
   assert.deepEqual(row.input_schema.properties.action.enum.map(action => action.replace(/^mcp-/, '')), ['inspect', 'preview', 'register', 'unregister']);
   assert.match(row.invoke.run, /--action \{action\} --client \{client\}/);
   assert.doesNotMatch(row.invoke.run, /--mcp-url/);

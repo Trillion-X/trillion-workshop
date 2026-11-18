@@ -32,7 +32,7 @@
   },
   {
    "repository": "trillion-workshop",
-   "path": "tools/show-my-screens-from-a-catalogue-of-reads-and-layouts/from-old-trillion/src/screen.mjs.held",
+   "path": "tools/show-my-screens-from-a-catalogue-of-reads-and-layouts/from-an-older-version/src/screen.mjs.held",
    "why": "Inactive screen source imports pursuitHierarchyRows at line 16 and formats its rows for screen links at line 73. It is a caller of the same reader, not the tool request validator and result projection."
   },
   {

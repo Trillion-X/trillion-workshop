@@ -173,7 +173,7 @@
   ],
   "workflows": [
     "workflow:set-up-business-accounts-and-connections",
-    "workflow:set-up-a-business-on-trillion"
+    "workflow:set-up-a-business-on-the-account"
   ],
   "tools": [
     "tool:add-an-email-sending-domain",
@@ -186,7 +186,7 @@
   ],
   "instructions": [
     "1. Pour the example checklist rows into the checklist you already keep (see pour), or make list:business-setup-checklist and list:business-setup-gaps from them.",
-    "2. Write record:business-setup:facts with workflow:set-up-a-business-on-trillion; include channels, email_sending_domain, country_code, seller_return_url and seller_refresh_url.",
+    "2. Write record:business-setup:facts with workflow:set-up-a-business-on-the-account; include channels, email_sending_domain, country_code, seller_return_url and seller_refresh_url.",
     "3. Say \"Run workflow:set-up-business-accounts-and-connections\". It lists every connection, checks the Stripe seller, Instagram, Facebook and YouTube, adds the email sending domain and hands you its DNS records to add at your own DNS host, then makes the sending key and keeps it in the vault by name.",
     "4. Open the Stripe onboarding link yourself, add the DNS records, reconnect any channel that answered not connected, and run it again; read record:setup-stage:accounts for what is left."
   ],

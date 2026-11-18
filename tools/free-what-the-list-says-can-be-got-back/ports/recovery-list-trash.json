@@ -83,12 +83,12 @@
     },
     {
       "repository": "trillion-rust",
-      "path": "docs/from-old-trillion/scripts/port-before-building-ui.mjs",
+      "path": "docs/from-an-older-version/scripts/port-before-building-ui.mjs",
       "why": "This uses git ls-files --error-unmatch to classify tracked source and instruction ownership. It does not combine pushed recipe checks with recovery-list eligibility or move user files."
     },
     {
       "repository": "trillion-rust",
-      "path": "docs/from-old-trillion/test/worker-static-answers.test.mjs",
+      "path": "docs/from-an-older-version/test/worker-static-answers.test.mjs",
       "why": "This is a test or retained test source for a different UI, record, file or worker mechanism. It does not provide a runnable recovery-list eligibility/Trash owner."
     },
     {

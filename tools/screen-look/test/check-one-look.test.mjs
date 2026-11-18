@@ -57,7 +57,7 @@ test('module-load work remains refused while the same work inside a call remains
 });
 
 test('relocated client sites retain only their original per-file rule exceptions', () => {
-  const home = 'tools/assemble-and-publish-an-app-project/from-old-trillion/records/client-examples/';
+  const home = 'tools/assemble-and-publish-an-app-project/from-an-older-version/records/client-examples/';
   const examples = RULES.kept.filter(row => row.file.startsWith(home));
   assert.equal(examples.length, 11);
   for (const site of ['longevity', 'bakery', 'sports-club']) {

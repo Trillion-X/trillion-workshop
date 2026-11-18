@@ -174,7 +174,7 @@
   "no_lists_because": "The item names no list in its own words, input or steps, so it has no example rows to ship.",
   "workflows": [
     "workflow:measure-the-funnel-and-set-a-baseline",
-    "workflow:set-up-a-business-on-trillion"
+    "workflow:set-up-a-business-on-the-account"
   ],
   "tools": [
     "tool:break-down-visits-and-sales",
@@ -182,7 +182,7 @@
     "tool:measure-funnel-stages"
   ],
   "instructions": [
-    "1. Run workflow:set-up-a-business-on-trillion first if record:business-setup:facts does not exist yet; this workflow reads that row.",
+    "1. Run workflow:set-up-a-business-on-the-account first if record:business-setup:facts does not exist yet; this workflow reads that row.",
     "2. Say \"Run workflow:measure-the-funnel-and-set-a-baseline\"; it uses the four default stages: visit, checkout, paid, opened.",
     "3. Read the counts per stage and the breakdown by source each step hands back; a stage with no records counts as zero.",
     "4. The baseline lands in record:business-setup:baseline and is read back; compare later runs to it."

@@ -7,7 +7,7 @@
     {
       "from": "src/space-tools.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/give-an-ai-the-tools-to-read-and-change-a-pursuits/from-old-trillion/src/space-tools.mjs.held",
+      "to": "tools/give-an-ai-the-tools-to-read-and-change-a-pursuits/from-an-older-version/src/space-tools.mjs.held",
       "source_identity": "1f:8503fe2c611eed354f4249b174c4515428d2fc85c9164d7f327b5d4d5346cc44",
       "identity": "1f:1d86b19fd7bfb24aeb28b5bccf1e68ce57aeb13912427c0abfff5acc89892cc4",
       "held": true
@@ -15,7 +15,7 @@
     {
       "from": "src/spaces.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/give-an-ai-the-tools-to-read-and-change-a-pursuits/from-old-trillion/src/spaces.mjs.held",
+      "to": "tools/give-an-ai-the-tools-to-read-and-change-a-pursuits/from-an-older-version/src/spaces.mjs.held",
       "source_identity": "1f:3c56c45d256478bc122a21f4e86f3ce82d5b68e0603b9fd466826c9caa5b256f",
       "identity": "1f:1f38ef7880d00a7b41fdf0b81fee1b858ae7c37c3c132bbbba3a2989010ba98c",
       "held": true
@@ -23,7 +23,7 @@
     {
       "from": "src/pursuit-rooms.json",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/give-an-ai-the-tools-to-read-and-change-a-pursuits/from-old-trillion/src/pursuit-rooms.json",
+      "to": "tools/give-an-ai-the-tools-to-read-and-change-a-pursuits/from-an-older-version/src/pursuit-rooms.json",
       "source_identity": "1f:1bb1057c0015d03cca9cfc6a3ca224f1ea8079b5930b8963daa50819f717e0d6",
       "identity": "1f:1bb1057c0015d03cca9cfc6a3ca224f1ea8079b5930b8963daa50819f717e0d6"
     }

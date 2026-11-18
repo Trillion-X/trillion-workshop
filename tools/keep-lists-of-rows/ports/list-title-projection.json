@@ -41,7 +41,7 @@
     },
     {
       "repository": "trillion-workshop",
-      "path": "tools/keep-and-wake-ai-sessions-on-this-computer/from-old-trillion/harness/README.md",
+      "path": "tools/keep-and-wake-ai-sessions-on-this-computer/from-an-older-version/harness/README.md",
       "why": "This moved harness documentation describes the same AI naming call, not title projection for arbitrary list rows."
     },
     {

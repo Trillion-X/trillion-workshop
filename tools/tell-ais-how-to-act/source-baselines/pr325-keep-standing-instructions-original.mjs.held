@@ -1,5 +1,5 @@
 // The Mac host's tool that keeps Trillion's standing instructions in the person's own AI harness instruction file
-// (tool:keep-trillion-in-your-instructions). The input only names a supported harness and inspect, apply or remove; the
+// (tool:keep-my-account-in-your-instructions). The input only names a supported harness and inspect, apply or remove; the
 // text is the service's current words (harness/standing-instructions.json, published at /workspace/harness/), read each
 // run so HQ can change it, with the copy this app carries when the service cannot be reached. The file work is
 // harness/standing-instructions.mjs: one marked block, every other byte left alone.

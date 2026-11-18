@@ -3,7 +3,7 @@
 // The one gate between a plan and a person: for every step of a plan, protocol, checklist or workflow, say who should do
 // it. The side that does the work (a tool, a workflow or the person's AIs), that side after one tap (it spends money or
 // reaches someone), the person (only for a reason they alone can meet, with every helping doer attached), or nobody yet
-// (a doer to build, never a to-do). tool:who-does-each-step runs it and tool:what-can-trillion-do lists the doers.
+// (a doer to build, never a to-do). tool:who-does-each-step runs it and tool:what-can-my-account-do lists the doers.
 //
 // Invariants
 //   1. Blind: nothing here names a doer, a need, a reason or a vendor. Doers, reasons, words and ranking are DATA that

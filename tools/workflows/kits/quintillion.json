@@ -113,7 +113,7 @@
   "workflows": [
     "workflow:grow-the-one-tree",
     "workflow:infinity",
-    "workflow:trillion-x-mode",
+    "workflow:x-mode",
     "workflow:turn-something-shared-into-what-you-can-use"
   ],
   "tools": [

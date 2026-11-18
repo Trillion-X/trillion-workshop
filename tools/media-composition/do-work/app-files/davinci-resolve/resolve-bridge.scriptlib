@@ -1,4 +1,4 @@
--- file: parts/media-composition/do-work/app-files/davinci-resolve/trillion-resolve-bridge.scriptlib
+-- file: parts/media-composition/do-work/app-files/davinci-resolve/resolve-bridge.scriptlib
 --
 -- PURPOSE: Lets the person's AIs work in DaVinci Resolve on every edition, including the free one, which runs no
 -- outside program's scripts. Resolve runs every .scriptlib in its Fusion/Scripts folder when it opens, in its own

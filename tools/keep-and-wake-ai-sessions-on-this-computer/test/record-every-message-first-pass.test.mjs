@@ -8,7 +8,7 @@ import { tmpdir } from 'node:os';
 import { settings, drainTranscript } from '../harness/record-every-message.mjs';
 
 test('a turn that begins after its time ran out still tries once', async t => {
-  const root = mkdtempSync(join(tmpdir(), 'trillion-first-pass-'));
+  const root = mkdtempSync(join(tmpdir(), 'app-first-pass-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const path = join(root, 'chat.jsonl');
   writeFileSync(path, [{ type: 'session_meta', payload: { id: 'first-pass-session', source: 'vscode' } },

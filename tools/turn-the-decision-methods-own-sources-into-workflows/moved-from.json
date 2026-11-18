@@ -7,7 +7,7 @@
     {
       "from": "scripts/method-workflows.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/turn-the-decision-methods-own-sources-into-workflows/from-old-trillion/scripts/method-workflows.mjs.held",
+      "to": "tools/turn-the-decision-methods-own-sources-into-workflows/from-an-older-version/scripts/method-workflows.mjs.held",
       "source_identity": "1f:cfb84cb1f1b16afaa3039f205befdf3ae0b6b4eedcc8d9736cfa03906c564312",
       "identity": "1f:9a7c9d4532671a48c503ccfa471f660cb186acf6aed60b79f742a6f0e2431aa4",
       "held": true
@@ -15,7 +15,7 @@
     {
       "from": "test/method-workflows.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/turn-the-decision-methods-own-sources-into-workflows/from-old-trillion/test/method-workflows.test.mjs.held",
+      "to": "tools/turn-the-decision-methods-own-sources-into-workflows/from-an-older-version/test/method-workflows.test.mjs.held",
       "source_identity": "1f:bc394c4443f3137d0823ab1e56f3f8bd1d14d383775a0b6ce028280179514d9d",
       "identity": "1f:f4fb459bc9a8263067fd3b307aa60f14165ec69b7ed96bf03e1d6eb911c082d1",
       "held": true
@@ -23,7 +23,7 @@
     {
       "from": "records/method-workflows.json",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/turn-the-decision-methods-own-sources-into-workflows/from-old-trillion/records/method-workflows.json",
+      "to": "tools/turn-the-decision-methods-own-sources-into-workflows/from-an-older-version/records/method-workflows.json",
       "source_identity": "1f:dcae8d696be72a49573a44eda18a32156663f44b05251e116eb278b96d682721",
       "identity": "1f:dcae8d696be72a49573a44eda18a32156663f44b05251e116eb278b96d682721"
     }

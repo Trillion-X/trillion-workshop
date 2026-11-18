@@ -27,17 +27,17 @@
   },
   {
    "repository": "trillion-workshop",
-   "path": "tools/walk-a-new-person-through-first-setup/from-old-trillion/src/setup-plan.mjs.held",
+   "path": "tools/walk-a-new-person-through-first-setup/from-an-older-version/src/setup-plan.mjs.held",
    "why": "Its readSetup is the AI's read_setup / start_setup answer (old src/setup-plan.mjs: the saved setup workflow and its plan views for an AI), not the Get started screen's read."
   },
   {
    "repository": "trillion-workshop",
-   "path": "tools/set-up-my-account/from-old-trillion/src/setup-runtime.mjs",
+   "path": "tools/set-up-my-account/from-an-older-version/src/setup-runtime.mjs",
    "why": "Its readSetupReference reads one cited setup evidence reference for the setup runtime and gathers no screen facts; the runtime itself (makeSetupRuntime) is what read-setup hands the screen as facts.runtime."
   },
   {
    "repository": "trillion-workshop",
-   "path": "tools/show-each-setup-step-with-the-real-things-found/from-old-trillion/test/setup-capability-evidence.test.mjs.held",
+   "path": "tools/show-each-setup-step-with-the-real-things-found/from-an-older-version/test/setup-capability-evidence.test.mjs.held",
    "why": "A held test of readSetupReference (setup evidence references), the setup runtime's job, not this read."
   },
   {

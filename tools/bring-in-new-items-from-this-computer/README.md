@@ -8,7 +8,7 @@ place on any computer (macOS, Windows, Linux) or a service is one more row and n
 `sources` are only the rows the list starts with, copied in once when the list is made.
 
 Moved here from Trillion-X/trillion's `computer/` by `tools/move-code-between-trees`
-(`move-rows/trillion-computer-places-to-workshop.json`); `moved-from.json` names each file's source path and commit and
+(`move-rows/older-repository-computer-places-to-workshop.json`); `moved-from.json` names each file's source path and commit and
 the identity of its bytes there and here. The folder keeps the source tree's own paths under it, so the files import
 each other as they did. Trillion-X/trillion's computer helper (`computer/read-this-computer.mjs`, which runs the looks,
 and the modules beside it that read the same rows) now lives in `tools/run-on-a-persons-computer` and reads these

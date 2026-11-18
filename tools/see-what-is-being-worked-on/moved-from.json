@@ -14,7 +14,7 @@
     {
       "from": "src/work-item-rows.mjs",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/see-what-is-being-worked-on/from-old-trillion/src/work-item-rows.mjs",
+      "to": "tools/see-what-is-being-worked-on/from-an-older-version/src/work-item-rows.mjs",
       "source_identity": "1f:ab7e3be5f930252184d26aa10470e23aee3902ec5d047a6a44570981e4cd35da",
       "identity": "1f:ab7e3be5f930252184d26aa10470e23aee3902ec5d047a6a44570981e4cd35da"
     },
@@ -292,7 +292,7 @@
     {
       "from": "parts/workflow-canvas/README.md",
       "commit": "924f7f3ca1b0bfb4923c3f8bf9d6d4d8ad0fce9c",
-      "to": "tools/see-what-is-being-worked-on/from-old-trillion/parts/workflow-canvas/README.md",
+      "to": "tools/see-what-is-being-worked-on/from-an-older-version/parts/workflow-canvas/README.md",
       "source_identity": "1f:9c357ce588f9a7318a22e41790de22a2ecded5ebdbf4a9674ab16809ce38e472",
       "identity": "1f:9c357ce588f9a7318a22e41790de22a2ecded5ebdbf4a9674ab16809ce38e472"
     },
@@ -334,7 +334,7 @@
     {
       "from": "parts/workflow-canvas/part.json",
       "commit": "924f7f3ca1b0bfb4923c3f8bf9d6d4d8ad0fce9c",
-      "to": "tools/see-what-is-being-worked-on/from-old-trillion/parts/workflow-canvas/part.json",
+      "to": "tools/see-what-is-being-worked-on/from-an-older-version/parts/workflow-canvas/part.json",
       "source_identity": "1f:a19c47b368a298184a9ecf7e36757d9927df2986c13f9f6509659e643db7c814",
       "identity": "1f:a19c47b368a298184a9ecf7e36757d9927df2986c13f9f6509659e643db7c814"
     },

@@ -1,0 +1,36 @@
+{
+  "drafted_from": "tool:media-work's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
+  "start_here": "Say to your AI: \"List the long file jobs running on this person's computer drives (copies and moves): how far each has got, and whether it can be paused, resumed or stopped now\", with {}. It runs tool:media-work and answers {\"work\":[]}",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input and keeps only its own rows () through the records door.",
+  "workflows": [],
+  "tools": [
+    "tool:media-work"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"List the long file jobs running on this person's computer drives (copies and moves): how far each has got, and whether it can be paused, resumed or stopped now\", and give it nothing more: every input is optional.",
+    "2. The AI calls run_resource_operation at @tools with method tools:run, tool tool:media-work and its input (the worked example shows one).",
+    "3. Read what comes back: Runs on the person's computer.",
+    "4. It reads and writes only its own rows through the records door: undefined (find_file)."
+  ],
+  "worked_examples": [
+    {
+      "title": "Drive work in progress on its own sample",
+      "ask": "List the long file jobs running on this person's computer drives (copies and moves): how far each has got, and whether it can be paused, resumed or stopped now",
+      "mcp": {
+        "server": "trillion",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:media-work",
+            "input": {}
+          }
+        }
+      },
+      "given": "The input {}.",
+      "hands_back": "It answered {\"work\":[]}."
+    }
+  ]
+}

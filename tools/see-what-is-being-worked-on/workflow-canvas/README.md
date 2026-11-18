@@ -39,4 +39,4 @@ Reference anatomy: Sim Studio's workflow renderer (Apache-2.0, studied only, no 
 
 ## Restored: the Automations Map
 
-The Automations Map that old trillion deleted at 03936395c3 is carried back byte for byte from that commit's parent (924f7f3ca1b0bfb4923c3f8bf9d6d4d8ad0fce9c) into this tool's `show/`, `read-data/`, `do-work/` and `web/src/workspace/workflow-canvas-records.ts`; `moved-from.json` names every file. Its README as it was is at `from-old-trillion/parts/workflow-canvas/README.md`. The files import the old parts layout (`../../ui`, `../../graph-canvas`), which is not wired here yet.
+The Automations Map that old trillion deleted at 03936395c3 is carried back byte for byte from that commit's parent (924f7f3ca1b0bfb4923c3f8bf9d6d4d8ad0fce9c) into this tool's `show/`, `read-data/`, `do-work/` and `web/src/workspace/workflow-canvas-records.ts`; `moved-from.json` names every file. Its README as it was is at `from-an-older-version/parts/workflow-canvas/README.md`. The files import the old parts layout (`../../ui`, `../../graph-canvas`), which is not wired here yet.

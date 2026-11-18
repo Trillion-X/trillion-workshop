@@ -42,14 +42,14 @@
     {
       "from": "records/workshop-automation-tool-records.json",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/run-rules-and-schedules-by-themselves/from-old-trillion/records/workshop-automation-tool-records.json",
+      "to": "tools/run-rules-and-schedules-by-themselves/from-an-older-version/records/workshop-automation-tool-records.json",
       "source_identity": "1f:7586aa668a4b183123f3bb8970ecdb48e303d38efb41f4f9c62300f388f4d1fe",
       "identity": "1f:7586aa668a4b183123f3bb8970ecdb48e303d38efb41f4f9c62300f388f4d1fe"
     },
     {
       "from": "records/workshop-engine-tool-records.json",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/run-rules-and-schedules-by-themselves/from-old-trillion/records/workshop-engine-tool-records.json",
+      "to": "tools/run-rules-and-schedules-by-themselves/from-an-older-version/records/workshop-engine-tool-records.json",
       "source_identity": "1f:b5d9cbe51ba3310940b56a6aa9b3b53bea9246462bd60b06fd921204768ad43e",
       "identity": "1f:b5d9cbe51ba3310940b56a6aa9b3b53bea9246462bd60b06fd921204768ad43e"
     },
@@ -75,9 +75,9 @@
       "identity": "1f:427e46c96c3e81947cef04a46fcf9a5d965f5af5154735819f49ce98f2edd429"
     },
     {
-      "from": "test/events-read-by-trillion.test.mjs",
+      "from": "test/events-read-by-the-engine.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/run-rules-and-schedules-by-themselves/test/events-read-by-trillion.test.mjs",
+      "to": "tools/run-rules-and-schedules-by-themselves/test/events-read-by-the-engine.test.mjs",
       "source_identity": "1f:44df65bd685797b27aad4be3f7ecb7a3758170c91ad25605cce0f4ceb072d852",
       "identity": "1f:212643d30d03aa0b97e00a573b63898e947f430cec407ba46d3955e9d41773b6",
       "adapted": "makeEventRules runs over in-memory facts and a stand-in Workshop on a made-up polled source in place of the shipped GitHub row; the six tests over shipped source rows are left out, as no running code ships them"

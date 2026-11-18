@@ -139,14 +139,14 @@
       "contract": "tools/read-other-ais-setups/ports/pr325-file-arguments.json"
     },
     {
-      "old_target": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
-      "canonical_target": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs",
+      "old_target": "tools/register-my-account-in-my-ai-apps/do-work/config-file.mjs",
+      "canonical_target": "tools/register-my-account-in-my-ai-apps/do-work/pr325-config-file-core.mjs",
       "source_commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "source_path": "harness/config-file.mjs",
       "source_ranges": null,
-      "original_artifact": "tools/register-trillion-in-my-ai-apps/source-baselines/pr325-config-file-original.mjs.held",
+      "original_artifact": "tools/register-my-account-in-my-ai-apps/source-baselines/pr325-config-file-original.mjs.held",
       "original_blob": "6d5256c591a6c00617ffd24ee61a198c08b7ac07",
-      "adapted_artifact": "tools/register-trillion-in-my-ai-apps/source-baselines/pr325-config-file-adapted.mjs.held",
+      "adapted_artifact": "tools/register-my-account-in-my-ai-apps/source-baselines/pr325-config-file-adapted.mjs.held",
       "adapted_blob": "5566b5792d8d251dd8cd79265940d442157021e0",
       "retention": {
         "retained": 35,
@@ -155,17 +155,17 @@
       },
       "source_path_present_on_old_main": true,
       "requires_async_callers": false,
-      "contract": "tools/register-trillion-in-my-ai-apps/ports/pr325-config-file.json"
+      "contract": "tools/register-my-account-in-my-ai-apps/ports/pr325-config-file.json"
     },
     {
-      "old_target": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
-      "canonical_target": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs",
+      "old_target": "tools/register-my-account-in-my-ai-apps/do-work/mcp-registration.mjs",
+      "canonical_target": "tools/register-my-account-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs",
       "source_commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "source_path": "harness/mcp-registration.mjs",
       "source_ranges": null,
-      "original_artifact": "tools/register-trillion-in-my-ai-apps/source-baselines/pr325-mcp-registration-original.mjs.held",
+      "original_artifact": "tools/register-my-account-in-my-ai-apps/source-baselines/pr325-mcp-registration-original.mjs.held",
       "original_blob": "a15d4ba4fc8aa4d9b2f5e7e5ef6641592d2ef150",
-      "adapted_artifact": "tools/register-trillion-in-my-ai-apps/source-baselines/pr325-mcp-registration-adapted.mjs.held",
+      "adapted_artifact": "tools/register-my-account-in-my-ai-apps/source-baselines/pr325-mcp-registration-adapted.mjs.held",
       "adapted_blob": "7ab13c07ad9e87e71e9417f08ca291bc71094594",
       "retention": {
         "retained": 195,
@@ -174,11 +174,11 @@
       },
       "source_path_present_on_old_main": true,
       "requires_async_callers": false,
-      "contract": "tools/register-trillion-in-my-ai-apps/ports/pr325-mcp-registration.json"
+      "contract": "tools/register-my-account-in-my-ai-apps/ports/pr325-mcp-registration.json"
     },
     {
-      "old_target": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
-      "canonical_target": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs",
+      "old_target": "tools/register-my-account-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+      "canonical_target": "tools/register-my-account-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs",
       "source_commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "source_path": "harness/setup.mjs",
       "source_ranges": [
@@ -199,9 +199,9 @@
           478
         ]
       ],
-      "original_artifact": "tools/register-trillion-in-my-ai-apps/source-baselines/pr325-register-in-ai-apps-original.mjs.held",
+      "original_artifact": "tools/register-my-account-in-my-ai-apps/source-baselines/pr325-register-in-ai-apps-original.mjs.held",
       "original_blob": "93ed67ba63a51518c771e1322d12b32e33ccd01d",
-      "adapted_artifact": "tools/register-trillion-in-my-ai-apps/source-baselines/pr325-register-in-ai-apps-adapted.mjs.held",
+      "adapted_artifact": "tools/register-my-account-in-my-ai-apps/source-baselines/pr325-register-in-ai-apps-adapted.mjs.held",
       "adapted_blob": "2f9d400c7aa498b29891b111f90ffda8cad49ff4",
       "retention": {
         "retained": 8,
@@ -210,7 +210,7 @@
       },
       "source_path_present_on_old_main": false,
       "requires_async_callers": false,
-      "contract": "tools/register-trillion-in-my-ai-apps/ports/pr325-register-in-ai-apps.json"
+      "contract": "tools/register-my-account-in-my-ai-apps/ports/pr325-register-in-ai-apps.json"
     },
     {
       "old_target": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
@@ -293,16 +293,16 @@
           "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
         },
         {
           "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
@@ -360,16 +360,16 @@
           "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
         },
         {
           "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
@@ -426,16 +426,16 @@
           "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
         },
         {
           "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
@@ -492,16 +492,16 @@
           "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
         },
         {
           "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
@@ -549,16 +549,16 @@
           "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
         },
         {
           "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
@@ -606,16 +606,16 @@
           "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
         },
         {
           "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
@@ -663,16 +663,16 @@
           "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
         },
         {
           "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
@@ -720,16 +720,16 @@
           "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
         },
         {
           "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
@@ -782,16 +782,16 @@
           "to": "read-data/pr325-file-arguments-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
         },
         {
           "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
@@ -805,7 +805,7 @@
       "action": "replace runtime references, descriptions and assertions; preserve historical source paths"
     },
     {
-      "path": "tools/read-other-ais-setups/from-old-trillion/test/ai-setups-import.test.mjs.held",
+      "path": "tools/read-other-ais-setups/from-an-older-version/test/ai-setups-import.test.mjs.held",
       "references": [
         "tools/read-other-ais-setups/read-data/ai-setups.mjs",
         "tools/read-other-ais-setups/read-data/file-arguments.mjs"
@@ -844,16 +844,16 @@
           "to": "read-data/pr325-file-arguments-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
         },
         {
           "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
@@ -906,16 +906,16 @@
           "to": "read-data/pr325-file-arguments-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
         },
         {
           "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
@@ -968,16 +968,16 @@
           "to": "read-data/pr325-file-arguments-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
         },
         {
           "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
@@ -1030,16 +1030,16 @@
           "to": "read-data/pr325-file-arguments-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
         },
         {
           "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
@@ -1091,16 +1091,16 @@
           "to": "read-data/pr325-file-arguments-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
         },
         {
           "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
@@ -1114,11 +1114,11 @@
       "action": "replace runtime references, descriptions and assertions; preserve historical source paths"
     },
     {
-      "path": "tools/register-trillion-in-my-ai-apps/README.md",
+      "path": "tools/register-my-account-in-my-ai-apps/README.md",
       "references": [
-        "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
-        "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
-        "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs"
+        "tools/register-my-account-in-my-ai-apps/do-work/config-file.mjs",
+        "tools/register-my-account-in-my-ai-apps/do-work/mcp-registration.mjs",
+        "tools/register-my-account-in-my-ai-apps/do-work/register-in-ai-apps.mjs"
       ],
       "literal_replacements": [
         {
@@ -1146,24 +1146,24 @@
           "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
         },
         {
           "from": "do-work/config-file.mjs",
           "to": "do-work/pr325-config-file-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
         },
         {
           "from": "do-work/mcp-registration.mjs",
           "to": "do-work/pr325-mcp-registration-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
         },
         {
           "from": "do-work/register-in-ai-apps.mjs",
@@ -1181,10 +1181,10 @@
       "action": "replace runtime references, descriptions and assertions; preserve historical source paths"
     },
     {
-      "path": "tools/register-trillion-in-my-ai-apps/read-data/mcp-registration.json",
+      "path": "tools/register-my-account-in-my-ai-apps/read-data/mcp-registration.json",
       "references": [
-        "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
-        "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs"
+        "tools/register-my-account-in-my-ai-apps/do-work/mcp-registration.mjs",
+        "tools/register-my-account-in-my-ai-apps/do-work/register-in-ai-apps.mjs"
       ],
       "literal_replacements": [
         {
@@ -1212,24 +1212,24 @@
           "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
         },
         {
           "from": "do-work/config-file.mjs",
           "to": "do-work/pr325-config-file-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
         },
         {
           "from": "do-work/mcp-registration.mjs",
           "to": "do-work/pr325-mcp-registration-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
         },
         {
           "from": "do-work/register-in-ai-apps.mjs",
@@ -1247,9 +1247,9 @@
       "action": "replace runtime references, descriptions and assertions; preserve historical source paths"
     },
     {
-      "path": "tools/register-trillion-in-my-ai-apps/test/mcp-registration-loopback.test.mjs",
+      "path": "tools/register-my-account-in-my-ai-apps/test/mcp-registration-loopback.test.mjs",
       "references": [
-        "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs"
+        "tools/register-my-account-in-my-ai-apps/do-work/mcp-registration.mjs"
       ],
       "literal_replacements": [
         {
@@ -1277,24 +1277,24 @@
           "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
         },
         {
           "from": "do-work/config-file.mjs",
           "to": "do-work/pr325-config-file-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
         },
         {
           "from": "do-work/mcp-registration.mjs",
           "to": "do-work/pr325-mcp-registration-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
         },
         {
           "from": "do-work/register-in-ai-apps.mjs",
@@ -1312,10 +1312,10 @@
       "action": "replace runtime references, descriptions and assertions; preserve historical source paths"
     },
     {
-      "path": "tools/register-trillion-in-my-ai-apps/test/mcp-registration.test.mjs",
+      "path": "tools/register-my-account-in-my-ai-apps/test/mcp-registration.test.mjs",
       "references": [
-        "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
-        "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs"
+        "tools/register-my-account-in-my-ai-apps/do-work/mcp-registration.mjs",
+        "tools/register-my-account-in-my-ai-apps/do-work/register-in-ai-apps.mjs"
       ],
       "literal_replacements": [
         {
@@ -1343,24 +1343,24 @@
           "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
         },
         {
           "from": "do-work/config-file.mjs",
           "to": "do-work/pr325-config-file-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
         },
         {
           "from": "do-work/mcp-registration.mjs",
           "to": "do-work/pr325-mcp-registration-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
         },
         {
           "from": "do-work/register-in-ai-apps.mjs",
@@ -1378,11 +1378,11 @@
       "action": "replace runtime references, descriptions and assertions; preserve historical source paths"
     },
     {
-      "path": "tools/register-trillion-in-my-ai-apps/tool-rows.json",
+      "path": "tools/register-my-account-in-my-ai-apps/tool-rows.json",
       "references": [
-        "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
-        "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
-        "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs"
+        "tools/register-my-account-in-my-ai-apps/do-work/config-file.mjs",
+        "tools/register-my-account-in-my-ai-apps/do-work/mcp-registration.mjs",
+        "tools/register-my-account-in-my-ai-apps/do-work/register-in-ai-apps.mjs"
       ],
       "literal_replacements": [
         {
@@ -1410,24 +1410,24 @@
           "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
         },
         {
           "from": "do-work/config-file.mjs",
           "to": "do-work/pr325-config-file-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
         },
         {
           "from": "do-work/mcp-registration.mjs",
           "to": "do-work/pr325-mcp-registration-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
         },
         {
           "from": "do-work/register-in-ai-apps.mjs",
@@ -1476,16 +1476,16 @@
           "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
         },
         {
           "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
@@ -1530,16 +1530,16 @@
           "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
         },
         {
           "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
@@ -1591,16 +1591,16 @@
           "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
         },
         {
           "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
@@ -1652,16 +1652,16 @@
           "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
         },
         {
           "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
@@ -1714,16 +1714,16 @@
           "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
         },
         {
           "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",
@@ -1776,16 +1776,16 @@
           "to": "tools/read-other-ais-setups/read-data/pr325-file-arguments-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/config-file.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/config-file.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-config-file-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/mcp-registration.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/mcp-registration.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-mcp-registration-core.mjs"
         },
         {
-          "from": "tools/register-trillion-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
-          "to": "tools/register-trillion-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
+          "from": "tools/register-my-account-in-my-ai-apps/do-work/register-in-ai-apps.mjs",
+          "to": "tools/register-my-account-in-my-ai-apps/do-work/pr325-register-in-ai-apps-core.mjs"
         },
         {
           "from": "tools/tell-ais-how-to-act/do-work/standing-instructions.mjs",

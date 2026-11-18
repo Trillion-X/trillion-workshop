@@ -4720,9 +4720,9 @@
     },
     {
       "source": "Trillion-X/trillion-apps",
-      "from": "web/src/workspace/walkthroughs/pictures/whats-new-2026-10-03-what-trillion-figured-out.webp",
+      "from": "web/src/workspace/walkthroughs/pictures/whats-new-2026-10-03-what-it-figured-out.webp",
       "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/workspace-screens/web/src/workspace/walkthroughs/pictures/whats-new-2026-10-03-what-trillion-figured-out.webp",
+      "to": "tools/workspace-screens/web/src/workspace/walkthroughs/pictures/whats-new-2026-10-03-what-it-figured-out.webp",
       "source_identity": "1f:a4bf52a93e65efbe937307408df682fc98aa56472e74049e6f4f220edfa8ddf2",
       "identity": "1f:a4bf52a93e65efbe937307408df682fc98aa56472e74049e6f4f220edfa8ddf2",
       "found_by": "byte copy"
@@ -4837,9 +4837,9 @@
     },
     {
       "source": "Trillion-X/trillion-apps",
-      "from": "web/src/workspace/walkthroughs/pictures/whats-new-2026-10-05-ask-trillion-from-siri.webp",
+      "from": "web/src/workspace/walkthroughs/pictures/whats-new-2026-10-05-ask-from-siri.webp",
       "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/workspace-screens/web/src/workspace/walkthroughs/pictures/whats-new-2026-10-05-ask-trillion-from-siri.webp",
+      "to": "tools/workspace-screens/web/src/workspace/walkthroughs/pictures/whats-new-2026-10-05-ask-from-siri.webp",
       "source_identity": "1f:b5e91aa46cb9c8d6b9e9d0284114f5caf2243ff27cd1e5a7adedc7400aac84e1",
       "identity": "1f:b5e91aa46cb9c8d6b9e9d0284114f5caf2243ff27cd1e5a7adedc7400aac84e1",
       "found_by": "byte copy"
@@ -4891,18 +4891,18 @@
     },
     {
       "source": "Trillion-X/trillion-apps",
-      "from": "web/src/workspace/walkthroughs/pictures/whats-new-2026-10-05-open-any-file-with-trillion.webp",
+      "from": "web/src/workspace/walkthroughs/pictures/whats-new-2026-10-05-open-any-file-with-the-app.webp",
       "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/workspace-screens/web/src/workspace/walkthroughs/pictures/whats-new-2026-10-05-open-any-file-with-trillion.webp",
+      "to": "tools/workspace-screens/web/src/workspace/walkthroughs/pictures/whats-new-2026-10-05-open-any-file-with-the-app.webp",
       "source_identity": "1f:ae2e55ef56b08a4b1e660a776c78668ce5a3012b1f6efd3c2b5f7467770010b4",
       "identity": "1f:ae2e55ef56b08a4b1e660a776c78668ce5a3012b1f6efd3c2b5f7467770010b4",
       "found_by": "byte copy"
     },
     {
       "source": "Trillion-X/trillion-apps",
-      "from": "web/src/workspace/walkthroughs/pictures/whats-new-2026-10-05-screenshot-opens-trillion.webp",
+      "from": "web/src/workspace/walkthroughs/pictures/whats-new-2026-10-05-screenshot-opens-the-app.webp",
       "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/workspace-screens/web/src/workspace/walkthroughs/pictures/whats-new-2026-10-05-screenshot-opens-trillion.webp",
+      "to": "tools/workspace-screens/web/src/workspace/walkthroughs/pictures/whats-new-2026-10-05-screenshot-opens-the-app.webp",
       "source_identity": "1f:141dbaedafd37aa971096d3e8b4c0ce4192a1977fc92c23bf9d7339c89eed528",
       "identity": "1f:141dbaedafd37aa971096d3e8b4c0ce4192a1977fc92c23bf9d7339c89eed528",
       "found_by": "byte copy"
@@ -5845,9 +5845,9 @@
     },
     {
       "source": "Trillion-X/trillion-apps",
-      "from": "web/src/workspace/walkthroughs/whats-new-2026-10-03-what-trillion-figured-out.json",
+      "from": "web/src/workspace/walkthroughs/whats-new-2026-10-03-what-it-figured-out.json",
       "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/workspace-screens/web/src/workspace/walkthroughs/whats-new-2026-10-03-what-trillion-figured-out.json",
+      "to": "tools/workspace-screens/web/src/workspace/walkthroughs/whats-new-2026-10-03-what-it-figured-out.json",
       "source_identity": "1f:9d9a15712485e4d170b3e0c2a719691d497f46b45b353183b240394c5a1bfc2b",
       "identity": "1f:9d9a15712485e4d170b3e0c2a719691d497f46b45b353183b240394c5a1bfc2b",
       "found_by": "byte copy"
@@ -6331,9 +6331,9 @@
     },
     {
       "source": "Trillion-X/trillion-apps",
-      "from": "web/src/workspace/walkthroughs/whats-new-2026-10-05-ask-trillion-from-siri.json",
+      "from": "web/src/workspace/walkthroughs/whats-new-2026-10-05-ask-from-siri.json",
       "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/workspace-screens/web/src/workspace/walkthroughs/whats-new-2026-10-05-ask-trillion-from-siri.json",
+      "to": "tools/workspace-screens/web/src/workspace/walkthroughs/whats-new-2026-10-05-ask-from-siri.json",
       "source_identity": "1f:ed26c6b313e9187b8682d8c7d889d321be96ce4341b49edce48e226221fb979e",
       "identity": "1f:ed26c6b313e9187b8682d8c7d889d321be96ce4341b49edce48e226221fb979e",
       "found_by": "byte copy"
@@ -6646,9 +6646,9 @@
     },
     {
       "source": "Trillion-X/trillion-apps",
-      "from": "web/src/workspace/walkthroughs/whats-new-2026-10-05-open-any-file-with-trillion.json",
+      "from": "web/src/workspace/walkthroughs/whats-new-2026-10-05-open-any-file-with-the-app.json",
       "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/workspace-screens/web/src/workspace/walkthroughs/whats-new-2026-10-05-open-any-file-with-trillion.json",
+      "to": "tools/workspace-screens/web/src/workspace/walkthroughs/whats-new-2026-10-05-open-any-file-with-the-app.json",
       "source_identity": "1f:8195f117671bf27f961a33af06580c3802d78ad37b1c99f6017e169ae5bf8623",
       "identity": "1f:8195f117671bf27f961a33af06580c3802d78ad37b1c99f6017e169ae5bf8623",
       "found_by": "byte copy"
@@ -6754,9 +6754,9 @@
     },
     {
       "source": "Trillion-X/trillion-apps",
-      "from": "web/src/workspace/walkthroughs/whats-new-2026-10-05-screenshot-opens-trillion.json",
+      "from": "web/src/workspace/walkthroughs/whats-new-2026-10-05-screenshot-opens-the-app.json",
       "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/workspace-screens/web/src/workspace/walkthroughs/whats-new-2026-10-05-screenshot-opens-trillion.json",
+      "to": "tools/workspace-screens/web/src/workspace/walkthroughs/whats-new-2026-10-05-screenshot-opens-the-app.json",
       "source_identity": "1f:671eb0f790d210196d4c1edd6fcc3d785b0a7cfd6c886fe15c4643fca12da0d2",
       "identity": "1f:671eb0f790d210196d4c1edd6fcc3d785b0a7cfd6c886fe15c4643fca12da0d2",
       "found_by": "byte copy"
@@ -6871,27 +6871,27 @@
     },
     {
       "source": "Trillion-X/trillion-apps",
-      "from": "web/src/workspace/walkthroughs/whats-new-2026-10-05-trillion-live.json",
+      "from": "web/src/workspace/walkthroughs/whats-new-2026-10-05-live-now.json",
       "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/workspace-screens/web/src/workspace/walkthroughs/whats-new-2026-10-05-trillion-live.json",
+      "to": "tools/workspace-screens/web/src/workspace/walkthroughs/whats-new-2026-10-05-live-now.json",
       "source_identity": "1f:9bcbfb0ebab381d165d53fe34bb2a2b9929f119efc4541707e14f66f17f9ef33",
       "identity": "1f:9bcbfb0ebab381d165d53fe34bb2a2b9929f119efc4541707e14f66f17f9ef33",
       "found_by": "byte copy"
     },
     {
       "source": "Trillion-X/trillion-apps",
-      "from": "web/src/workspace/walkthroughs/whats-new-2026-10-05-trillion-on-your-watch.json",
+      "from": "web/src/workspace/walkthroughs/whats-new-2026-10-05-on-your-watch.json",
       "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/workspace-screens/web/src/workspace/walkthroughs/whats-new-2026-10-05-trillion-on-your-watch.json",
+      "to": "tools/workspace-screens/web/src/workspace/walkthroughs/whats-new-2026-10-05-on-your-watch.json",
       "source_identity": "1f:dcac3cd25dd5cebc93d970582d8b76868034e818e73636aa838159f54c34410f",
       "identity": "1f:dcac3cd25dd5cebc93d970582d8b76868034e818e73636aa838159f54c34410f",
       "found_by": "byte copy"
     },
     {
       "source": "Trillion-X/trillion-apps",
-      "from": "web/src/workspace/walkthroughs/whats-new-2026-10-05-trillion-you-can-feel.json",
+      "from": "web/src/workspace/walkthroughs/whats-new-2026-10-05-you-can-feel.json",
       "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/workspace-screens/web/src/workspace/walkthroughs/whats-new-2026-10-05-trillion-you-can-feel.json",
+      "to": "tools/workspace-screens/web/src/workspace/walkthroughs/whats-new-2026-10-05-you-can-feel.json",
       "source_identity": "1f:a925917fc5212709c388954e260d60fbdfd34fe934a6dece60f4fc33cfaf16e5",
       "identity": "1f:a925917fc5212709c388954e260d60fbdfd34fe934a6dece60f4fc33cfaf16e5",
       "found_by": "byte copy"
@@ -6970,9 +6970,9 @@
     },
     {
       "source": "Trillion-X/trillion-apps",
-      "from": "web/src/workspace/walkthroughs/whats-new-2026-10-06-camera-reaches-trillion-anywhere.json",
+      "from": "web/src/workspace/walkthroughs/whats-new-2026-10-06-camera-reaches-it-anywhere.json",
       "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/workspace-screens/web/src/workspace/walkthroughs/whats-new-2026-10-06-camera-reaches-trillion-anywhere.json",
+      "to": "tools/workspace-screens/web/src/workspace/walkthroughs/whats-new-2026-10-06-camera-reaches-it-anywhere.json",
       "source_identity": "1f:5b732d0ac3e527b68c1f03e153f3ecd35463b55e5526177b228b575d2bcb4a0f",
       "identity": "1f:5b732d0ac3e527b68c1f03e153f3ecd35463b55e5526177b228b575d2bcb4a0f",
       "found_by": "byte copy"
@@ -7312,18 +7312,18 @@
     },
     {
       "source": "Trillion-X/trillion-apps",
-      "from": "web/src/workspace/walkthroughs/whats-new-2026-10-06-trillion-does-it.json",
+      "from": "web/src/workspace/walkthroughs/whats-new-2026-10-06-it-does-it.json",
       "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/workspace-screens/web/src/workspace/walkthroughs/whats-new-2026-10-06-trillion-does-it.json",
+      "to": "tools/workspace-screens/web/src/workspace/walkthroughs/whats-new-2026-10-06-it-does-it.json",
       "source_identity": "1f:dfa4e19e804ccdaa45df4521a33b3aaf9d3eaa176394bf99f01cf2df043b11e4",
       "identity": "1f:dfa4e19e804ccdaa45df4521a33b3aaf9d3eaa176394bf99f01cf2df043b11e4",
       "found_by": "byte copy"
     },
     {
       "source": "Trillion-X/trillion-apps",
-      "from": "web/src/workspace/walkthroughs/whats-new-2026-10-06-trillion-wakes-faster.json",
+      "from": "web/src/workspace/walkthroughs/whats-new-2026-10-06-wakes-faster.json",
       "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/workspace-screens/web/src/workspace/walkthroughs/whats-new-2026-10-06-trillion-wakes-faster.json",
+      "to": "tools/workspace-screens/web/src/workspace/walkthroughs/whats-new-2026-10-06-wakes-faster.json",
       "source_identity": "1f:26bcdf5521f5730c83f7e43b970a7ac0eedff322fa2f64a9d90b0caa5713fcb5",
       "identity": "1f:26bcdf5521f5730c83f7e43b970a7ac0eedff322fa2f64a9d90b0caa5713fcb5",
       "found_by": "byte copy"
@@ -7420,9 +7420,9 @@
     },
     {
       "source": "Trillion-X/trillion-apps",
-      "from": "web/src/workspace/walkthroughs/whats-new-2026-10-06-your-trillion-starts-on-its-own.json",
+      "from": "web/src/workspace/walkthroughs/whats-new-2026-10-06-your-account-starts-on-its-own.json",
       "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/workspace-screens/web/src/workspace/walkthroughs/whats-new-2026-10-06-your-trillion-starts-on-its-own.json",
+      "to": "tools/workspace-screens/web/src/workspace/walkthroughs/whats-new-2026-10-06-your-account-starts-on-its-own.json",
       "source_identity": "1f:d3e087060f4668b8652f790ac1a9bf530333cdb7acb378104262700d040f8499",
       "identity": "1f:d3e087060f4668b8652f790ac1a9bf530333cdb7acb378104262700d040f8499",
       "found_by": "byte copy"
@@ -7837,9 +7837,9 @@
     },
     {
       "source": "Trillion-X/trillion-apps",
-      "from": "web/assets/illustrations/iphone-share-08-trillion-first.webp",
+      "from": "web/assets/illustrations/iphone-share-08-app-first.webp",
       "commit": "9bcf27ec7d8e103275ac590161cc7198df863f49",
-      "to": "tools/workspace-screens/web/assets/illustrations/iphone-share-08-trillion-first.webp",
+      "to": "tools/workspace-screens/web/assets/illustrations/iphone-share-08-app-first.webp",
       "source_identity": "1f:c6d3225f2e1ea7134caa441a74022a08561ba821e5baf5a031015f9e4abe9d9c",
       "identity": "1f:c6d3225f2e1ea7134caa441a74022a08561ba821e5baf5a031015f9e4abe9d9c",
       "found_by": "byte copy"
@@ -7995,7 +7995,7 @@
       "to": "tools/workspace-screens/web/scripts/public-icons.mjs",
       "source_identity": "1f:be8c29f76bdd278c1399e5756edc507628595e3533096543e4c23758a940d6f2",
       "identity": "1f:5e4819374a57cc1cb0a519e1ea4430eea59f9a74df9e5a2cd90938b2b533bb15",
-      "adapted": "Only where the icon files are read from differs: draw-trillions-app-icon-in-every-size-from/assets (they left trillion-apps web/assets)."
+      "adapted": "Only where the icon files are read from differs: draw-the-apps-icon-in-every-size-from/assets (they left trillion-apps web/assets)."
     },
     {
       "source": "Trillion-X/trillion-apps",

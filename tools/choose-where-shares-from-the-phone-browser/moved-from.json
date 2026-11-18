@@ -7,14 +7,14 @@
     {
       "from": "records/saved-instruction-starters.json",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/choose-where-shares-from-the-phone-browser/from-old-trillion/records/saved-instruction-starters.json",
+      "to": "tools/choose-where-shares-from-the-phone-browser/from-an-older-version/records/saved-instruction-starters.json",
       "source_identity": "1f:037566bc69d327a21b7ee422789f5ce39f1074c39a17976e4d39b4b48ea2e6ab",
       "identity": "1f:037566bc69d327a21b7ee422789f5ce39f1074c39a17976e4d39b4b48ea2e6ab"
     },
     {
       "from": "records/share-destination-starters.json",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/choose-where-shares-from-the-phone-browser/from-old-trillion/records/share-destination-starters.json",
+      "to": "tools/choose-where-shares-from-the-phone-browser/from-an-older-version/records/share-destination-starters.json",
       "source_identity": "1f:77163e998e302f27918d59477c6daddce45763d45ff97e6fd06e36518e88be31",
       "identity": "1f:fb300ff17c08ab1910045def9308a41250b26b80c87151f70bdb1ee11c4d77cd",
       "adapted": "Edited after the move so the tool holds no host, name or id of ours; callers pass those in."
@@ -22,7 +22,7 @@
     {
       "from": "src/share-destinations.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/choose-where-shares-from-the-phone-browser/from-old-trillion/src/share-destinations.mjs.held",
+      "to": "tools/choose-where-shares-from-the-phone-browser/from-an-older-version/src/share-destinations.mjs.held",
       "source_identity": "1f:7aa1fd56fc602dbbb8557061ca060918a944bcb47d44f657a24e52e5e2ce1279",
       "identity": "1f:46f820616483c59f82a1735b72014d4245293bd3d9139287d3a7638d7c7df467",
       "held": true
@@ -30,7 +30,7 @@
     {
       "from": "src/share-history.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/choose-where-shares-from-the-phone-browser/from-old-trillion/src/share-history.mjs.held",
+      "to": "tools/choose-where-shares-from-the-phone-browser/from-an-older-version/src/share-history.mjs.held",
       "source_identity": "1f:d98c400b82f1c8e216a95b6e78ca19c7b12e983981e3affa39d9e7f4d79c8762",
       "identity": "1f:d98c400b82f1c8e216a95b6e78ca19c7b12e983981e3affa39d9e7f4d79c8762",
       "held": true
@@ -38,7 +38,7 @@
     {
       "from": "src/share-starting-action.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/choose-where-shares-from-the-phone-browser/from-old-trillion/src/share-starting-action.mjs.held",
+      "to": "tools/choose-where-shares-from-the-phone-browser/from-an-older-version/src/share-starting-action.mjs.held",
       "source_identity": "1f:584f0003e73fe14053c54a6e4ff6b1de5a5df4c02ab9f10b6edc0ac8b93ca70c",
       "identity": "1f:584f0003e73fe14053c54a6e4ff6b1de5a5df4c02ab9f10b6edc0ac8b93ca70c",
       "held": true
@@ -46,7 +46,7 @@
     {
       "from": "test/share-destinations.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/choose-where-shares-from-the-phone-browser/from-old-trillion/test/share-destinations.test.mjs.held",
+      "to": "tools/choose-where-shares-from-the-phone-browser/from-an-older-version/test/share-destinations.test.mjs.held",
       "source_identity": "1f:b720cd6fea61febb8366169b849c87ff869b768364eeb36d5ffa774d800f8d5e",
       "identity": "1f:3fec24e625684088d74134011ada21cc02b25e6253be050bcbd6f05b662c4fbb",
       "held": true,

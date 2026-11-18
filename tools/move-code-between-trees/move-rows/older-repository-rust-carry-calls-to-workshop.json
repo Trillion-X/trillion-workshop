@@ -1,0 +1,53 @@
+{
+  "id": "move:older-repository-rust-carry-calls-to-workshop",
+  "about": "The engine keeps launch and listen; carrying a call between computers is a tool (the person's ruling of Nov 15 2026: anything that is not one of the five core jobs is a tool and leaves the engine). The forwarder (src/forwarder and src/forwarder.rs: the public door's route table, the Mac-initiated session, the connected computers, origins, the gateway), the engine's outbound HTTPS client (src/https.rs and src/https/), the signed authority a forwarder connection is admitted by (src/signed_authority.rs), the forwarder binary (src/bin) and the Mac side's two carriers (src/native_boot/forwarder_connection.rs and mcp_outbound.rs) move into one Workshop tool folder, at the same paths under src/ so their include_bytes!, include_str! and #[path] reads still reach their neighbours. Rust files are not followed for imports; the group names every file. This tree is public and holds made-up data only: three call rows swap what a public push refuses (a real first name in one README sentence, an example email shape in two tests, and one literal certificate header in a test string, written as the same bytes with an escape); every other byte is the source's.",
+  "source": {
+    "name": "Trillion-X/trillion-rust",
+    "commit": "5fbc2ff4b1bf16622e2472f0638db9f79da980e9",
+    "test_folders": []
+  },
+  "destination": {
+    "name": "Trillion-X/trillion-workshop",
+    "package": "trillion-workshop",
+    "shared_folder": "tools/shared-code"
+  },
+  "keep": [],
+  "provider_calls": [],
+  "calls": [
+    {
+      "id": "name-of-the-person-in-a-readme-sentence",
+      "find": "\\w+(?=, Nov 13 2026: sign-in is Better Auth)",
+      "replace": "The person",
+      "means": "A real person's first name, matched by its place (the sentence that names the date and the sign-in decision), becomes a made-up role word."
+    },
+    {
+      "id": "example-email-shape-in-a-url-test",
+      "find": "(?<=https://user)@(?:door|site)\\.example\\.test",
+      "replace": "@example.com",
+      "means": "A URL with user information on a made-up .test host reads as a real email address to the public push check; the same test on the example.com host keeps its meaning (user information is refused)."
+    },
+    {
+      "id": "certificate-header-literal-in-a-test-string",
+      "find": "b\"-{5}BEGIN CERTIFICATE-{5}\\\\nnot base64",
+      "replace": "b\"\\x2d----BEGIN CERTIFICATE-----\\nnot base64",
+      "means": "The test's header literal is written with its first dash as a byte escape, so the string holds the same bytes at run time and the source holds no whole certificate header."
+    }
+  ],
+  "groups": [
+    {
+      "id": "carry-calls-between-computers",
+      "owner": [
+        "src/forwarder",
+        "src/forwarder.rs",
+        "src/https",
+        "src/https.rs",
+        "src/signed_authority.rs",
+        "src/bin",
+        "src/native_boot/forwarder_connection.rs",
+        "src/native_boot/mcp_outbound.rs"
+      ],
+      "to": "tools/carry-calls-between-computers",
+      "capability": "carry a call between computers: the public door's route table, a Mac's confidential session to it, the connected computers it routes to, and the one HTTPS client the engine's outbound calls use"
+    }
+  ]
+}

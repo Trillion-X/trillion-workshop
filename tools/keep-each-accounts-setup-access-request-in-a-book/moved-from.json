@@ -7,7 +7,7 @@
     {
       "from": "src/setup-access-records.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/keep-each-accounts-setup-access-request-in-a-book/from-old-trillion/src/setup-access-records.mjs.held",
+      "to": "tools/keep-each-accounts-setup-access-request-in-a-book/from-an-older-version/src/setup-access-records.mjs.held",
       "source_identity": "1f:a38b58eb6f3b4cc5d2ed660ab2115d6678780528034073ddc47f80414851364b",
       "identity": "1f:c4ab4e497a1e038f93eaae2cecbf6536b169e6548f140dd545a424747abc8e88",
       "held": true
@@ -15,7 +15,7 @@
     {
       "from": "test/setup-access-records.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/keep-each-accounts-setup-access-request-in-a-book/from-old-trillion/test/setup-access-records.test.mjs.held",
+      "to": "tools/keep-each-accounts-setup-access-request-in-a-book/from-an-older-version/test/setup-access-records.test.mjs.held",
       "source_identity": "1f:60fa71f5a56ba592c832786934ead4ba08013ebee7b481b33ad3ca373460d461",
       "identity": "1f:00d1825eeff0c93334dc4ef908daff70fb80b7c7ea51d8495798bb336a0479f1",
       "held": true

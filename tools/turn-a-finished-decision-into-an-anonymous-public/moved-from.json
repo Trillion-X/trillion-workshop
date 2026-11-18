@@ -7,7 +7,7 @@
     {
       "from": "src/stories.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/turn-a-finished-decision-into-an-anonymous-public/from-old-trillion/src/stories.mjs.held",
+      "to": "tools/turn-a-finished-decision-into-an-anonymous-public/from-an-older-version/src/stories.mjs.held",
       "source_identity": "1f:09b6a0d7af0f051e0c101823bb0bc72bb25e1a1a7be1921c7a4da656f340826e",
       "identity": "1f:069b918285594e464944aadb78e6f548b6d09c91889c118d801ca8eac636707e",
       "held": true
@@ -15,7 +15,7 @@
     {
       "from": "test/stories.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/turn-a-finished-decision-into-an-anonymous-public/from-old-trillion/test/stories.test.mjs.held",
+      "to": "tools/turn-a-finished-decision-into-an-anonymous-public/from-an-older-version/test/stories.test.mjs.held",
       "source_identity": "1f:a37471b758add98c6837e824139b59b31fcc4e7178ddc5355c0c1c3fbf200672",
       "identity": "1f:1cb0ae69ceb392889ac5ac0b50c915bfdaca54fbbb1a1dcaa5cef6ffb6566837",
       "held": true,

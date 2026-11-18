@@ -114,7 +114,7 @@
     {
       "from": "src/setup-runtime.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/set-up-my-account/from-old-trillion/src/setup-runtime.mjs",
+      "to": "tools/set-up-my-account/from-an-older-version/src/setup-runtime.mjs",
       "source_identity": "1f:df5b990ea245aff9de901e0023ea761208d82aca9510cb4bdac95276eb397a4b",
       "identity": "1f:dc43ad2d85878f601700c21ac5f9cdf6bf5ff693807f52848cd812f3a5a14072",
       "held": false,

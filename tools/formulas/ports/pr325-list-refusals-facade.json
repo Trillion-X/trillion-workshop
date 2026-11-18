@@ -93,7 +93,7 @@
     },
     {
       "repository": "trillion-rust",
-      "path": "docs/from-old-trillion/test/resource-behavior-commands.test.mjs",
+      "path": "docs/from-an-older-version/test/resource-behavior-commands.test.mjs",
       "why": "This test checks refusal outcomes after prior work; it verifies behavior, not facade export identity."
     },
     {

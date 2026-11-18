@@ -1,6 +1,6 @@
 // tools/who-does-each-step/do-work/list-who-can-do.mjs
 //
-// tool:what-can-trillion-do: one JSON request on standard input, { doers, only_a_person? }, and
+// tool:what-can-my-account-do: one JSON request on standard input, { doers, only_a_person? }, and
 // { result: { doers, only_a_person } } as JSON on the last line: what can do steps, and the reasons a step may stay the person's.
 import { text } from 'node:stream/consumers';
 import { whoCanDo } from '../read-data/who-does.mjs';

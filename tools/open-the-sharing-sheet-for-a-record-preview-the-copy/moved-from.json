@@ -7,7 +7,7 @@
     {
       "from": "records/workshop-sharing-tool-records.json",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/open-the-sharing-sheet-for-a-record-preview-the-copy/from-old-trillion/records/workshop-sharing-tool-records.json",
+      "to": "tools/open-the-sharing-sheet-for-a-record-preview-the-copy/from-an-older-version/records/workshop-sharing-tool-records.json",
       "source_identity": "1f:b9c0b933b004dcda0276ad9ef83b7f6ed47869115398e5ff6e837195991dcf1d",
       "identity": "1f:b9c0b933b004dcda0276ad9ef83b7f6ed47869115398e5ff6e837195991dcf1d"
     },

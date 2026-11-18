@@ -79,16 +79,16 @@
    "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
-   "path": "harness/ask-trillion-first.json",
+   "path": "harness/ask-the-account-first.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/harness/ask-trillion-first.json",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/harness/ask-the-account-first.json",
    "why": "AI session harness a person or AI runs",
    "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
-   "path": "harness/ask-trillion-first.mjs",
+   "path": "harness/ask-the-account-first.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/harness/ask-trillion-first.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/harness/ask-the-account-first.mjs",
    "why": "AI session harness a person or AI runs",
    "batch": "1 (harness, trillion-workshop PR #97)"
   },
@@ -1337,14 +1337,14 @@
   {
    "path": "scripts/make-opening-cover.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/draw-trillions-app-icon-in-every-size-from/scripts/make-opening-cover.mjs",
+   "destination": "trillion-workshop:tools/draw-the-apps-icon-in-every-size-from/scripts/make-opening-cover.mjs",
    "why": "a tool a person or AI runs",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
    "path": "scripts/make-stories-share-image.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/draw-trillions-app-icon-in-every-size-from/scripts/make-stories-share-image.mjs",
+   "destination": "trillion-workshop:tools/draw-the-apps-icon-in-every-size-from/scripts/make-stories-share-image.mjs",
    "why": "a tool a person or AI runs",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
@@ -1405,8 +1405,8 @@
   {
    "path": "scripts/method-workflows.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/turn-the-decision-methods-own-sources-into-workflows/from-old-trillion/scripts/method-workflows.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/turn-the-decision-methods-own-sources-into-workflows/from-an-older-version/scripts/method-workflows.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -1442,8 +1442,8 @@
   {
    "path": "scripts/picture-whats-new.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/photograph-each-whats-new-tour-live-on-a-fresh-account/from-old-trillion/scripts/picture-whats-new.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/photograph-each-whats-new-tour-live-on-a-fresh-account/from-an-older-version/scripts/picture-whats-new.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -2583,8 +2583,8 @@
   {
    "path": "scripts/run-agent-tool-evals.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/measure-how-well-ai-agents-of-each-model/from-old-trillion/scripts/run-agent-tool-evals.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/measure-how-well-ai-agents-of-each-model/from-an-older-version/scripts/run-agent-tool-evals.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -2621,8 +2621,8 @@
   {
    "path": "scripts/skills-to-workflows.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/turn-a-folder-of-agent-skills-into-workflows/from-old-trillion/scripts/skills-to-workflows.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/turn-a-folder-of-agent-skills-into-workflows/from-an-older-version/scripts/skills-to-workflows.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -2634,8 +2634,8 @@
   {
    "path": "scripts/start-community.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/start-a-community-from-its-configuration-file-and-hand/from-old-trillion/scripts/start-community.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/start-a-community-from-its-configuration-file-and-hand/from-an-older-version/scripts/start-community.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -2705,7 +2705,7 @@
    "path": "src/account-action-domain.mjs",
    "class": "workshop-tool",
    "destination": "not moved yet (held): trillion-workshop tools (messages, notices, decisions, payment, client programs, practice, boards)",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Facade that assembles account actions for PersonStore/native owners: messages, notices, decision outcome checks, payment/plan, client programs, space mail, subject boards; reads env.APP_KV. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Facade that assembles account actions for PersonStore/native owners: messages, notices, decision outcome checks, payment/plan, client programs, space mail, subject boards; reads env.APP_KV. Held by tools/move-code-between-trees (move-rows/older-repository-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/account-app-erasure.mjs",
@@ -2838,7 +2838,7 @@
    "path": "src/account-plan-usage.mjs",
    "class": "workshop-tool",
    "destination": "not moved yet (held): trillion-workshop tools/paid-access (or a billing tool)",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Counts usage-billed plan meters per subscription and day, funded spots, Namespace bytes via a plan-usage service actor. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/passkey-authority.json, which stays in the source (keep row src/passkey-*); it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Counts usage-billed plan meters per subscription and day, funded spots, Namespace bytes via a plan-usage service actor. Held by tools/move-code-between-trees (move-rows/older-repository-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/passkey-authority.json, which stays in the source (keep row src/passkey-*); it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/account-policy-fanout.json",
@@ -2880,13 +2880,13 @@
    "path": "src/account-routes.mjs",
    "class": "workshop-tool",
    "destination": "not moved yet (held): trillion-apps web screens + Workshop tools (plan, business, connections, decisions, stories, webhooks, looking)",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Worker side of the signed-in guide screens: GET /work/api/screens/<name> and ~50 button actions (plan checkout, business, connections, decisions, stories, webhooks, looking, sign-in ways), plus KV lists of passkeys and sessions. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Worker side of the signed-in guide screens: GET /work/api/screens/<name> and ~50 button actions (plan checkout, business, connections, decisions, stories, webhooks, looking, sign-in ways), plus KV lists of passkeys and sessions. Held by tools/move-code-between-trees (move-rows/older-repository-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/account-screens.mjs",
    "class": "workshop-tool",
    "destination": "not moved yet (held): trillion-apps screens / Workshop (tools/set-up-my-account already took getStartedFacts)",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Words and steps of the signed-in guide screens as data: Get started, Use Trillion in your AI, Connections, Account & security, Plan, Look, Invites. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Words and steps of the signed-in guide screens as data: Get started, Use Trillion in your AI, Connections, Account & security, Plan, Look, Invites. Held by tools/move-code-between-trees (move-rows/older-repository-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/account-share-index-erasure.mjs",
@@ -3085,7 +3085,7 @@
    "path": "src/allowance.mjs",
    "class": "workshop-tool",
    "destination": "not moved yet (held): trillion-workshop take-payments tool / apps account+billing screen",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Free-decision allowance periods, plan-upgrade pitch and refusal words, free-allowance experiment state for /billing/plan. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Free-decision allowance periods, plan-upgrade pitch and refusal words, free-allowance experiment state for /billing/plan. Held by tools/move-code-between-trees (move-rows/older-repository-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/answer-lists.json",
@@ -3870,7 +3870,7 @@
    "path": "src/connect-with-a-key.mjs",
    "class": "workshop-tool",
    "destination": "not moved yet (held): trillion-apps Connections screen; engine side already exists: runtime/workshop connect run + src/secrets.rs",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): POST /work/connections/<service>: typed API-key values sent to one signed-in run of the connect tool row, which checks and seals them. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): POST /work/connections/<service>: typed API-key values sent to one signed-in run of the connect tool row, which checks and seals them. Held by tools/move-code-between-trees (move-rows/older-repository-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/connect.mjs",
@@ -4099,7 +4099,7 @@
    "path": "src/customer-database-catalogue.mjs",
    "class": "workshop-tool",
    "destination": "not moved yet (held): a Workshop tool over records (e.g. tools/records-door clients)",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Discovery index of a person's named databases (create, rename, archive, delete, restore, list, search, view across databases) in a RecordBook DO. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/record-model-tools.mjs, which stays in the source (keep row src/record-model-tools.mjs); it imports parts/record-log/do-work/record-model.mjs, which stays in the source (keep row parts/record-log/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Discovery index of a person's named databases (create, rename, archive, delete, restore, list, search, view across databases) in a RecordBook DO. Held by tools/move-code-between-trees (move-rows/older-repository-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/record-model-tools.mjs, which stays in the source (keep row src/record-model-tools.mjs); it imports parts/record-log/do-work/record-model.mjs, which stays in the source (keep row parts/record-log/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/customer-database-records.mjs",
@@ -4111,7 +4111,7 @@
    "path": "src/customer-database-resource.mjs",
    "class": "workshop-tool",
    "destination": "not moved yet (held): Workshop databases tool",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): A database's identity metadata (name, archived_at, deleted_at, history) and command commitments in its RecordBook, forwarding record actions. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): A database's identity metadata (name, archived_at, deleted_at, history) and command commitments in its RecordBook, forwarding record actions. Held by tools/move-code-between-trees (move-rows/older-repository-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/customer-databases.mjs",
@@ -4321,7 +4321,7 @@
    "path": "src/direct-resource-routing.mjs",
    "class": "workshop-tool",
    "destination": "not moved yet (held): Workshop tool over the records door (database catalogue tools)",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Customer database tools (manage_databases, read_databases, database_records, search_databases) and /api/databases, sent to executeNativeDatabaseResource with idempotency-key request keys; checks env.ACCOUNT_CONTROL. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Customer database tools (manage_databases, read_databases, database_records, search_databases) and /api/databases, sent to executeNativeDatabaseResource with idempotency-key request keys; checks env.ACCOUNT_CONTROL. Held by tools/move-code-between-trees (move-rows/older-repository-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/directory-listing.json",
@@ -4472,19 +4472,19 @@
    "path": "src/execution-mode-tools.mjs",
    "class": "workshop-tool",
    "destination": "not moved yet (held): trillion-workshop tools/workflows; trillion-workshop tools/tell-ais-how-to-act",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): MCP tools list/read/apply_execution_mode over execution-modes.mjs and /workflows/start. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/action-completeness.mjs, which stays in the source (keep row src/action-completeness.mjs); it imports records/action-completeness.json, which stays in the source (keep row records/action-completeness.json)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): MCP tools list/read/apply_execution_mode over execution-modes.mjs and /workflows/start. Held by tools/move-code-between-trees (move-rows/older-repository-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/action-completeness.mjs, which stays in the source (keep row src/action-completeness.mjs); it imports records/action-completeness.json, which stays in the source (keep row records/action-completeness.json)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/execution-modes.mjs",
    "class": "workshop-tool",
    "destination": "not moved yet (held): trillion-workshop tools/workflows/recipes/workflows.json; trillion-workshop tools/tell-ais-how-to-act/rows.json",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Named execution standards (Trillion X / Hardcore mode) as versioned DATA compiled into workflow recipes. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/action-completeness.mjs, which stays in the source (keep row src/action-completeness.mjs); it imports records/action-completeness.json, which stays in the source (keep row records/action-completeness.json)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Named execution standards (Trillion X / Hardcore mode) as versioned DATA compiled into workflow recipes. Held by tools/move-code-between-trees (move-rows/older-repository-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/action-completeness.mjs, which stays in the source (keep row src/action-completeness.mjs); it imports records/action-completeness.json, which stays in the source (keep row records/action-completeness.json)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/execution-tools.mjs",
    "class": "workshop-tool",
    "destination": "not moved yet (held): trillion-workshop tools/see-what-my-ais-did",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): MCP tools record_execution / read_execution: durable source receipts of actions done outside Trillion, over the /executions route. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/record-model-tools.mjs, which stays in the source (keep row src/record-model-tools.mjs); it imports parts/record-log/do-work/record-model.mjs, which stays in the source (keep row parts/record-log/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): MCP tools record_execution / read_execution: durable source receipts of actions done outside Trillion, over the /executions route. Held by tools/move-code-between-trees (move-rows/older-repository-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/record-model-tools.mjs, which stays in the source (keep row src/record-model-tools.mjs); it imports parts/record-log/do-work/record-model.mjs, which stays in the source (keep row parts/record-log/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/export-inventory.mjs",
@@ -5071,7 +5071,7 @@
    "path": "src/invite-routes.mjs",
    "class": "workshop-tool",
    "destination": "not moved yet (held): trillion-apps space invitation pages; Workshop spaces tool",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): /invite page, join, welcome, naming, link-preview card PNG (KV-kept) and space picture routes. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): /invite page, join, welcome, naming, link-preview card PNG (KV-kept) and space picture routes. Held by tools/move-code-between-trees (move-rows/older-repository-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/invites-on-arrival.mjs",
@@ -5570,7 +5570,7 @@
   {
    "path": "src/mail-admission.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/receive-mail-at-the-accounts-own-trillion-address/src/mail-admission.mjs",
+   "destination": "trillion-workshop:tools/receive-mail-at-the-accounts-own-address/src/mail-admission.mjs",
    "why": "a feature a person or AI uses",
    "batch": "slice src m-z, scripts, parts (trillion-workshop PR #122)"
   },
@@ -5605,7 +5605,7 @@
    "path": "src/marketplace-configuration-routes.mjs",
    "class": "workshop-tool",
    "destination": "not moved yet (held): trillion-apps Marketplace screens; Workshop marketplace tools",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Marketplace listing preview pages, install/uninstall of published configurations and public apps, /work/api/marketplace/configurations. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Marketplace listing preview pages, install/uninstall of published configurations and public apps, /work/api/marketplace/configurations. Held by tools/move-code-between-trees (move-rows/older-repository-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/marketplace-configuration-tools.mjs",
@@ -5841,7 +5841,7 @@
    "path": "src/model-routes.mjs",
    "class": "workshop-tool",
    "destination": "not moved yet (held): trillion-workshop tools/keep-and-wake-ai-sessions-on-this-computer/src/model-calls.mjs",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Resolves model routes from model-routes.json: routesFor, modelsFor, askDevice, hedgedRoads. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Resolves model routes from model-routes.json: routesFor, modelsFor, askDevice, hedgedRoads. Held by tools/move-code-between-trees (move-rows/older-repository-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/moments.json",
@@ -6204,7 +6204,7 @@
    "path": "src/native-account-action-mount.mjs",
    "class": "workshop-tool",
    "destination": "not moved yet (held): Workshop tools / trillion-apps screens",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Puts account actions (looks, tours, layouts, sidebar, saved links/examples, controls, voices, billing reads, etc.) on top of native owners via hostOf(book.env,...). Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Puts account actions (looks, tours, layouts, sidebar, saved links/examples, controls, voices, billing reads, etc.) on top of native owners via hostOf(book.env,...). Held by tools/move-code-between-trees (move-rows/older-repository-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/native-account-app-inventory.mjs",
@@ -6222,7 +6222,7 @@
    "path": "src/native-account-apps.mjs",
    "class": "app-screen",
    "destination": "not moved yet (held): trillion-apps (Sites / public apps / source projects)",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Native mount of the public-app and source-project state owner (accountAppState), with a pending public KV copy (env.APP_KV) and pinned site Worker bundles. Held by tools/move-code-between-trees (move-rows/trillion-app-screens-to-apps.json pair): its import closure (730 files) reaches parts/eeaf/do-work/eeaf-sqlite-store.mjs and parts/record-log/do-work/record-log-store.mjs, which stay (the EEAF job); it moves once those reads go through the records door."
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Native mount of the public-app and source-project state owner (accountAppState), with a pending public KV copy (env.APP_KV) and pinned site Worker bundles. Held by tools/move-code-between-trees (move-rows/older-repository-app-screens-to-apps.json pair): its import closure (730 files) reaches parts/eeaf/do-work/eeaf-sqlite-store.mjs and parts/record-log/do-work/record-log-store.mjs, which stay (the EEAF job); it moves once those reads go through the records door."
   },
   {
    "path": "src/native-account-key-issuance.mjs",
@@ -6252,7 +6252,7 @@
    "path": "src/native-account-shared-network.mjs",
    "class": "workshop-tool",
    "destination": "not moved yet (held): Workshop tools (Spaces, invitations, community, network offers)",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): A Proxy that sends Spaces/invitations/community/network-offer operations to their shared-resource owners. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/share-collection-store.mjs, which stays in the source (keep row src/share-collection-store.mjs); it imports src/record-model-tools.mjs, which stays in the source (keep row src/record-model-tools.mjs)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): A Proxy that sends Spaces/invitations/community/network-offer operations to their shared-resource owners. Held by tools/move-code-between-trees (move-rows/older-repository-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/share-collection-store.mjs, which stays in the source (keep row src/share-collection-store.mjs); it imports src/record-model-tools.mjs, which stays in the source (keep row src/record-model-tools.mjs)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/native-addressed-resource-command.mjs",
@@ -6619,7 +6619,7 @@
    "path": "src/native-namespace-evidence.mjs",
    "class": "workshop-tool",
    "destination": "not moved yet (held): Workshop search tool",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Transcript-source index and words-in-results search over the files namespace, with paced catch-up and logs of the cost of each step. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure carries src/device-rows.mjs, which calls KV (env.APP_KV, lines 59 and 63); swapping those calls is a code change, not a byte-for-byte move, so it waits for an adapted port."
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Transcript-source index and words-in-results search over the files namespace, with paced catch-up and logs of the cost of each step. Held by tools/move-code-between-trees (move-rows/older-repository-rust-engine-slice-features.json): its import closure carries src/device-rows.mjs, which calls KV (env.APP_KV, lines 59 and 63); swapping those calls is a code change, not a byte-for-byte move, so it waits for an adapted port."
   },
   {
    "path": "src/native-network-membership-drain.mjs",
@@ -6926,7 +6926,7 @@
    "path": "src/native-resource-profile.mjs",
    "class": "workshop-tool",
    "destination": "not moved yet (held): Workshop tool (network profile)",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Network profile fill and publication (names from signup/purchase, embeddings, shared directory), reads env.APP_KV. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Network profile fill and publication (names from signup/purchase, embeddings, shared directory), reads env.APP_KV. Held by tools/move-code-between-trees (move-rows/older-repository-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/native-resource-quota.mjs",
@@ -6944,7 +6944,7 @@
    "path": "src/native-resource-screen-behavior.mjs",
    "class": "workshop-tool",
    "destination": "not moved yet (held): trillion-apps screens / Workshop tools",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Browser account screens (activity, new work, notifications, job run, message task canvas, responses, sent, spend). Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Browser account screens (activity, new work, notifications, job run, message task canvas, responses, sent, spend). Held by tools/move-code-between-trees (move-rows/older-repository-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/native-resource-screen-consumers.mjs",
@@ -6962,25 +6962,25 @@
    "path": "src/native-resource-source.mjs",
    "class": "workshop-tool",
    "destination": "not moved yet (held): Workshop tools (messages, attention, decisions)",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Message decision, attention classification by rules and the chosen AI, notices, said-done. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports harness/record-every-message.json, which stays in the source (keep row harness/); it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Message decision, attention classification by rules and the chosen AI, notices, said-done. Held by tools/move-code-between-trees (move-rows/older-repository-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports harness/record-every-message.json, which stays in the source (keep row harness/); it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/native-resource-spend.mjs",
    "class": "workshop-tool",
    "destination": "not moved yet (held): Workshop tool (spend / money sources)",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Spend reading, money sources from mail/bank, budgets and cap changes, pool spend stops. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/passkey-authority.json, which stays in the source (keep row src/passkey-*); it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Spend reading, money sources from mail/bank, budgets and cap changes, pool spend stops. Held by tools/move-code-between-trees (move-rows/older-repository-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/passkey-authority.json, which stays in the source (keep row src/passkey-*); it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/native-resource-tell.mjs",
    "class": "workshop-tool",
    "destination": "not moved yet (held): Workshop tool (tell the person: web push, APNs, mail)",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Notification senders (web push, APNs, mail) with device routes and quiet minutes; secrets via worker-secrets. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Notification senders (web push, APNs, mail) with device routes and quiet minutes; secrets via worker-secrets. Held by tools/move-code-between-trees (move-rows/older-repository-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/native-resource-tool-billing-intents.mjs",
    "class": "workshop-tool",
    "destination": "not moved yet (held): Workshop billing tool",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Keeps and scrubs a tool run's monetary recovery material (billing intents) by charge identity. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Keeps and scrubs a tool run's monetary recovery material (billing intents) by charge identity. Held by tools/move-code-between-trees (move-rows/older-repository-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/native-resource-work.mjs",
@@ -7233,7 +7233,7 @@
   {
    "path": "src/network-identity.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/tell-which-network-my-trillion-is-on-trillions-cloud/src/network-identity.mjs",
+   "destination": "trillion-workshop:tools/tell-which-network-my-account-is-on-the-cloud/src/network-identity.mjs",
    "why": "a feature a person or AI uses",
    "batch": "slice src m-z, scripts, parts (trillion-workshop PR #122)"
   },
@@ -7424,7 +7424,7 @@
    "path": "src/outbound-recipient.mjs",
    "class": "workshop-tool",
    "destination": "not moved yet (held): trillion-workshop messages/send tools",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Guards an outbound send: checks a claimed recipient against the person's contact list rows (email/phone matching). Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its own test at the tag (test/outbound-recipient.test.mjs) fails 3 of 5 against the code at the tag, and its fixtures carry phone numbers outside the 555 range that may be a real person's; the Workshop is public, so it waits for a synthetic test that passes."
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Guards an outbound send: checks a claimed recipient against the person's contact list rows (email/phone matching). Held by tools/move-code-between-trees (move-rows/older-repository-rust-engine-slice-features.json): its own test at the tag (test/outbound-recipient.test.mjs) fails 3 of 5 against the code at the tag, and its fixtures carry phone numbers outside the 555 range that may be a real person's; the Workshop is public, so it waits for a synthetic test that passes."
   },
   {
    "path": "src/outcome-checks.mjs",
@@ -7963,7 +7963,7 @@
   {
    "path": "src/private-responses.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/react-privately-to-anything-in-a-persons-own-trillion-so-no/src/private-responses.mjs",
+   "destination": "trillion-workshop:tools/react-privately-to-anything-in-a-persons-own-account-so-no/src/private-responses.mjs",
    "why": "a feature a person or AI uses",
    "batch": "slice src m-z, scripts, parts (trillion-workshop PR #122)"
   },
@@ -8556,7 +8556,7 @@
    "path": "src/record-scope.mjs",
    "class": "workshop-tool",
    "destination": "not moved yet (held): trillion-workshop pursuits tool",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Which pursuits each record belongs to: scope_links index, scope values, saved views, /scope routes. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/record-model-tools.mjs, which stays in the source (keep row src/record-model-tools.mjs); it imports parts/record-log/do-work/record-model.mjs, which stays in the source (keep row parts/record-log/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Which pursuits each record belongs to: scope_links index, scope values, saved views, /scope routes. Held by tools/move-code-between-trees (move-rows/older-repository-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/record-model-tools.mjs, which stays in the source (keep row src/record-model-tools.mjs); it imports parts/record-log/do-work/record-model.mjs, which stays in the source (keep row parts/record-log/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/record-search-index.mjs",
@@ -8705,13 +8705,13 @@
    "path": "src/resource-inbound.mjs",
    "class": "workshop-tool",
    "destination": "not moved yet (held): trillion-workshop tools/send-messages; trillion-workshop tools/messages-screen",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Inbound messages at a resource: keep raw source and provenance, then attention/interpretation once, answer notices and decisions. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Inbound messages at a resource: keep raw source and provenance, then attention/interpretation once, answer notices and decisions. Held by tools/move-code-between-trees (move-rows/older-repository-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/resource-input-capture.mjs",
    "class": "workshop-tool",
    "destination": "not moved yet (held): trillion-workshop tools/send-messages; trillion-workshop tools/admit-attachments-to-a-message",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Raw input capture and resumable interpretation claims for inbound messages (resource-input-interpretation / -erasure records). Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Raw input capture and resumable interpretation claims for inbound messages (resource-input-interpretation / -erasure records). Held by tools/move-code-between-trees (move-rows/older-repository-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/resource-invalidations.mjs",
@@ -8723,7 +8723,7 @@
    "path": "src/resource-model-road.mjs",
    "class": "workshop-tool",
    "destination": "not moved yet (held): trillion-workshop tools/keep-and-wake-ai-sessions-on-this-computer/src/model-calls.mjs",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Chosen-AI routing and paid-model spending at a work resource: asks for your AIs, device asks, hedged roads, budget matching. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/passkey-authority.json, which stays in the source (keep row src/passkey-*); it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Chosen-AI routing and paid-model spending at a work resource: asks for your AIs, device asks, hedged roads, budget matching. Held by tools/move-code-between-trees (move-rows/older-repository-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/passkey-authority.json, which stays in the source (keep row src/passkey-*); it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/resource-operation-owner.mjs",
@@ -8851,8 +8851,8 @@
   {
    "path": "src/said-done.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/close-a-list-row-when-i-say/from-old-trillion/src/said-done.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/close-a-list-row-when-i-say/from-an-older-version/src/said-done.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -8864,8 +8864,8 @@
   {
    "path": "src/sales-contract-templates.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/draft-and-send-a-sales-contract-to-a-customer-from/from-old-trillion/src/sales-contract-templates.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/draft-and-send-a-sales-contract-to-a-customer-from/from-an-older-version/src/sales-contract-templates.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -8912,8 +8912,8 @@
   {
    "path": "src/saved-logins-tools.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-my-own-logins-sealed-so-i-can-always/from-old-trillion/src/saved-logins-tools.mjs",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, not wired yet",
+   "destination": "trillion-workshop:tools/keep-my-own-logins-sealed-so-i-can-always/from-an-older-version/src/saved-logins-tools.mjs",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, not wired yet",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -8926,8 +8926,8 @@
   {
    "path": "src/saved-logins.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-my-own-logins-sealed-so-i-can-always/from-old-trillion/src/saved-logins.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/keep-my-own-logins-sealed-so-i-can-always/from-an-older-version/src/saved-logins.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -9052,8 +9052,8 @@
   {
    "path": "src/screen.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/show-my-screens-from-a-catalogue-of-reads-and-layouts/from-old-trillion/src/screen.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/show-my-screens-from-a-catalogue-of-reads-and-layouts/from-an-older-version/src/screen.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -9080,8 +9080,8 @@
   {
    "path": "src/search-cleanup-pages.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-my-search-index-beside-a-copy-of-my-results/from-old-trillion/src/search-cleanup-pages.mjs",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, not wired yet",
+   "destination": "trillion-workshop:tools/keep-my-search-index-beside-a-copy-of-my-results/from-an-older-version/src/search-cleanup-pages.mjs",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, not wired yet",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -9129,8 +9129,8 @@
   {
    "path": "src/search.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/find-anything-from-one-box-jump-to-a-screen/from-old-trillion/src/search.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/find-anything-from-one-box-jump-to-a-screen/from-an-older-version/src/search.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -9211,43 +9211,43 @@
   {
    "path": "src/service-actor.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/let-trillions-own-code-act-for-an-account-when/from-old-trillion/src/service-actor.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/let-the-products-own-code-act-for-an-account-when/from-an-older-version/src/service-actor.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
    "path": "src/service-check-rows.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/run-trillions-own-capability-checks-each-on-its-own-schedule-and/from-old-trillion/src/service-check-rows.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/run-the-products-own-capability-checks-each-on-its-own-schedule-and/from-an-older-version/src/service-check-rows.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
    "path": "src/service-checks.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/run-trillions-own-capability-checks-each-on-its-own-schedule-and/from-old-trillion/src/service-checks.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/run-the-products-own-capability-checks-each-on-its-own-schedule-and/from-an-older-version/src/service-checks.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
    "path": "src/service-notice.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/tell-the-person-of-an-account-something-from-the-service/from-old-trillion/src/service-notice.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/tell-the-person-of-an-account-something-from-the-service/from-an-older-version/src/service-notice.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
    "path": "src/service-price-experiments.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/run-the-services-own-price-experiments-each-kept-in-its-own-book/from-old-trillion/src/service-price-experiments.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/run-the-services-own-price-experiments-each-kept-in-its-own-book/from-an-older-version/src/service-price-experiments.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
    "path": "src/service-price-rules.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/publish-price-guidance-as-editable-rows/from-old-trillion/src/service-price-rules.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/publish-price-guidance-as-editable-rows/from-an-older-version/src/service-price-rules.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -9266,8 +9266,8 @@
   {
    "path": "src/service-records.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/publish-the-operators-shared-records-such-as/from-old-trillion/src/service-records.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/publish-the-operators-shared-records-such-as/from-an-older-version/src/service-records.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -9286,8 +9286,8 @@
   {
    "path": "src/service-values.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-the-services-own-signing-secrets-and-sign-in-app/from-old-trillion/src/service-values.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/keep-the-services-own-signing-secrets-and-sign-in-app/from-an-older-version/src/service-values.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -9307,8 +9307,8 @@
   {
    "path": "src/service-watch.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/watch-the-service-itself-such-as-the-share/from-old-trillion/src/service-watch.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/watch-the-service-itself-such-as-the-share/from-an-older-version/src/service-watch.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -9326,14 +9326,14 @@
   {
    "path": "src/setup-access-records.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-each-accounts-setup-access-request-in-a-book/from-old-trillion/src/setup-access-records.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/keep-each-accounts-setup-access-request-in-a-book/from-an-older-version/src/setup-access-records.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
    "path": "src/setup-access-tools.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/let-a-person-ask-for-the-trillion-app-to-be-installed/src/setup-access-tools.mjs",
+   "destination": "trillion-workshop:tools/let-a-person-ask-for-the-app-to-be-installed/src/setup-access-tools.mjs",
    "why": "a feature a person or AI uses",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
@@ -9346,15 +9346,15 @@
   {
    "path": "src/setup-access.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/let-a-person-ask-for-the-trillion-app-to-be-installed/src/setup-access.mjs",
+   "destination": "trillion-workshop:tools/let-a-person-ask-for-the-app-to-be-installed/src/setup-access.mjs",
    "why": "a feature a person or AI uses",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
    "path": "src/setup-capability-evidence.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/show-each-setup-step-with-the-real-things-found/from-old-trillion/src/setup-capability-evidence.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/show-each-setup-step-with-the-real-things-found/from-an-older-version/src/setup-capability-evidence.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -9373,22 +9373,22 @@
   {
    "path": "src/setup-installs.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/walk-a-new-person-through-first-setup/from-old-trillion/src/setup-installs.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/walk-a-new-person-through-first-setup/from-an-older-version/src/setup-installs.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
    "path": "src/setup-known.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/show-each-setup-step-with-the-real-things-found/from-old-trillion/src/setup-known.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/show-each-setup-step-with-the-real-things-found/from-an-older-version/src/setup-known.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
    "path": "src/setup-plan.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/walk-a-new-person-through-first-setup/from-old-trillion/src/setup-plan.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/walk-a-new-person-through-first-setup/from-an-older-version/src/setup-plan.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -9400,8 +9400,8 @@
   {
    "path": "src/setup-runtime.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/walk-a-new-person-through-first-setup/from-old-trillion/src/setup-runtime.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/walk-a-new-person-through-first-setup/from-an-older-version/src/setup-runtime.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -9419,29 +9419,29 @@
   {
    "path": "src/setup-week.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/show-each-setup-step-with-the-real-things-found/from-old-trillion/src/setup-week.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/show-each-setup-step-with-the-real-things-found/from-an-older-version/src/setup-week.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
    "path": "src/share-collection-store.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/show-a-big-shared-collection-of-files-page/from-old-trillion/src/share-collection-store.mjs",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, not wired yet",
+   "destination": "trillion-workshop:tools/show-a-big-shared-collection-of-files-page/from-an-older-version/src/share-collection-store.mjs",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, not wired yet",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
    "path": "src/share-destinations.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/choose-where-shares-from-the-phone-browser/from-old-trillion/src/share-destinations.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/choose-where-shares-from-the-phone-browser/from-an-older-version/src/share-destinations.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
    "path": "src/share-history.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/choose-where-shares-from-the-phone-browser/from-old-trillion/src/share-history.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/choose-where-shares-from-the-phone-browser/from-an-older-version/src/share-history.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -9453,22 +9453,22 @@
   {
    "path": "src/share-inbox-presentation.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-anything-sent-to-trillion-a-link-file/from-old-trillion/src/share-inbox-presentation.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/keep-anything-sent-to-the-account-a-link-file/from-an-older-version/src/share-inbox-presentation.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
    "path": "src/share-inbox.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-anything-sent-to-trillion-a-link-file/from-old-trillion/src/share-inbox.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/keep-anything-sent-to-the-account-a-link-file/from-an-older-version/src/share-inbox.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
    "path": "src/share-input-limits.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-anything-sent-to-trillion-a-link-file/from-old-trillion/src/share-input-limits.mjs",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, not wired yet",
+   "destination": "trillion-workshop:tools/keep-anything-sent-to-the-account-a-link-file/from-an-older-version/src/share-input-limits.mjs",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, not wired yet",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -9495,8 +9495,8 @@
   {
    "path": "src/share-starting-action.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/choose-where-shares-from-the-phone-browser/from-old-trillion/src/share-starting-action.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/choose-where-shares-from-the-phone-browser/from-an-older-version/src/share-starting-action.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -9593,8 +9593,8 @@
   {
    "path": "src/shared-policy-maintenance.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/run-each-command-in-a-shared-space-exactly-once/from-old-trillion/src/shared-policy-maintenance.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/run-each-command-in-a-shared-space-exactly-once/from-an-older-version/src/shared-policy-maintenance.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -9650,7 +9650,7 @@
    "path": "src/shared-resource-compatibility.mjs",
    "class": "workshop-tool",
    "destination": "not moved yet (held): a Spaces Workshop tool / trillion-apps Space screens (none exists yet)",
-   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Space HTTP/tool routes (withdraw, fill, facts, board, rules, members, member-types, agents, handoffs) projected onto the shared resource owner. Held by tools/move-code-between-trees (move-rows/trillion-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
+   "why": "a product feature, not engine (trillion-rust docs/PRINCIPLES.md rule 5): Space HTTP/tool routes (withdraw, fill, facts, board, rules, members, member-types, agents, handoffs) projected onto the shared resource owner. Held by tools/move-code-between-trees (move-rows/older-repository-rust-engine-slice-features.json): its import closure reaches files that stay in the source as engine owners (it imports src/decision-store.mjs, which stays in the source (keep row src/decision-store.mjs); it imports parts/eeaf/do-work/eeaf-sqlite-store.mjs, which stays in the source (keep row parts/eeaf/)); it can move once those reads go through the records door, which needs its code adapted, not moved byte for byte."
   },
   {
    "path": "src/shared-resource-composition.mjs",
@@ -9680,15 +9680,15 @@
   {
    "path": "src/shared-workshop-projection.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/publish-the-tools-a-space-shares-as-public/from-old-trillion/src/shared-workshop-projection.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/publish-the-tools-a-space-shares-as-public/from-an-older-version/src/shared-workshop-projection.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
    "path": "src/shares.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/publish-my-progress-as-a-public-page-with-a-picture/from-old-trillion/src/shares.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/publish-my-progress-as-a-public-page-with-a-picture/from-an-older-version/src/shares.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -9714,8 +9714,8 @@
   {
    "path": "src/shipped-workflows.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/give-every-account-ready-made-workflows-and-defaults/from-old-trillion/src/shipped-workflows.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/give-every-account-ready-made-workflows-and-defaults/from-an-older-version/src/shipped-workflows.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -9733,8 +9733,8 @@
   {
    "path": "src/showcase-spare-facts.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/let-a-visitor-try-trillions-own-workspace-live/from-old-trillion/src/showcase-spare-facts.mjs",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, not wired yet",
+   "destination": "trillion-workshop:tools/let-a-visitor-try-the-workspace-live/from-an-older-version/src/showcase-spare-facts.mjs",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, not wired yet",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -9747,8 +9747,8 @@
   {
    "path": "src/showcases.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/let-a-visitor-try-trillions-own-workspace-live/from-old-trillion/src/showcases.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/let-a-visitor-try-the-workspace-live/from-an-older-version/src/showcases.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -9854,8 +9854,8 @@
   {
    "path": "src/site-worker-assets.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/host-a-sites-own-backend-inside-trillion-install/from-old-trillion/src/site-worker-assets.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/host-a-sites-own-backend-inside-the-install/from-an-older-version/src/site-worker-assets.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -9875,57 +9875,57 @@
   {
    "path": "src/site-worker-installation.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/host-a-sites-own-backend-inside-trillion-install/from-old-trillion/src/site-worker-installation.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/host-a-sites-own-backend-inside-the-install/from-an-older-version/src/site-worker-installation.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
    "path": "src/site-worker-runtime.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/host-a-sites-own-backend-inside-trillion-install/from-old-trillion/src/site-worker-runtime.mjs",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, not wired yet",
+   "destination": "trillion-workshop:tools/host-a-sites-own-backend-inside-the-install/from-an-older-version/src/site-worker-runtime.mjs",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, not wired yet",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
    "path": "src/site-worker-source.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/host-a-sites-own-backend-inside-trillion-install/from-old-trillion/src/site-worker-source.mjs",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, not wired yet",
+   "destination": "trillion-workshop:tools/host-a-sites-own-backend-inside-the-install/from-an-older-version/src/site-worker-source.mjs",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, not wired yet",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
    "path": "src/skill-rows.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/read-public-repositories-of-agent-skills-and-offer/from-old-trillion/src/skill-rows.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/read-public-repositories-of-agent-skills-and-offer/from-an-older-version/src/skill-rows.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
    "path": "src/skill-source-config.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/read-public-repositories-of-agent-skills-and-offer/from-old-trillion/src/skill-source-config.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/read-public-repositories-of-agent-skills-and-offer/from-an-older-version/src/skill-source-config.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
    "path": "src/skill-sources.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/read-public-repositories-of-agent-skills-and-offer/from-old-trillion/src/skill-sources.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/read-public-repositories-of-agent-skills-and-offer/from-an-older-version/src/skill-sources.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
    "path": "src/sms-inbound.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/receive-a-text-message-sent-to-the-ais-phone/from-old-trillion/src/sms-inbound.mjs",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, not wired yet",
+   "destination": "trillion-workshop:tools/receive-a-text-message-sent-to-the-ais-phone/from-an-older-version/src/sms-inbound.mjs",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, not wired yet",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
    "path": "src/social-post-tools.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/draft-approve-and-publish-my-social-posts-now/from-old-trillion/src/social-post-tools.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/draft-approve-and-publish-my-social-posts-now/from-an-older-version/src/social-post-tools.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -9937,8 +9937,8 @@
   {
    "path": "src/social-posts.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/draft-approve-and-publish-my-social-posts-now/from-old-trillion/src/social-posts.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/draft-approve-and-publish-my-social-posts-now/from-an-older-version/src/social-posts.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -9971,15 +9971,15 @@
   {
    "path": "src/source-project-edit.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/connect-the-original-repository-behind-an-app-edit/from-old-trillion/src/source-project-edit.mjs",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, not wired yet",
+   "destination": "trillion-workshop:tools/connect-the-original-repository-behind-an-app-edit/from-an-older-version/src/source-project-edit.mjs",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, not wired yet",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
    "path": "src/source-project-host.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/connect-the-original-repository-behind-an-app-edit/from-old-trillion/src/source-project-host.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/connect-the-original-repository-behind-an-app-edit/from-an-older-version/src/source-project-host.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -9992,8 +9992,8 @@
   {
    "path": "src/source-project-tools.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/connect-the-original-repository-behind-an-app-edit/from-old-trillion/src/source-project-tools.mjs",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, not wired yet",
+   "destination": "trillion-workshop:tools/connect-the-original-repository-behind-an-app-edit/from-an-older-version/src/source-project-tools.mjs",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, not wired yet",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -10006,22 +10006,22 @@
   {
    "path": "src/space-ais.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/list-the-ais-in-a-shared-space-for-its-members-and-hand/from-old-trillion/src/space-ais.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/list-the-ais-in-a-shared-space-for-its-members-and-hand/from-an-older-version/src/space-ais.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
    "path": "src/space-assignment-delivery.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/give-shared-tasks-to-people-and-ais-keep/from-old-trillion/src/space-assignment-delivery.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/give-shared-tasks-to-people-and-ais-keep/from-an-older-version/src/space-assignment-delivery.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
    "path": "src/space-board-carry.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/move-a-shared-spaces-content-into-its-own-store/from-old-trillion/src/space-board-carry.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/move-a-shared-spaces-content-into-its-own-store/from-an-older-version/src/space-board-carry.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -10034,8 +10034,8 @@
   {
    "path": "src/space-board-partitions.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-a-shared-boards-cards-consistent-when/from-old-trillion/src/space-board-partitions.mjs",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, not wired yet",
+   "destination": "trillion-workshop:tools/keep-a-shared-boards-cards-consistent-when/from-an-older-version/src/space-board-partitions.mjs",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, not wired yet",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -10062,8 +10062,8 @@
   {
    "path": "src/space-commit-context.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-a-shared-spaces-posts-files-and-tasks/from-old-trillion/src/space-commit-context.mjs",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, not wired yet",
+   "destination": "trillion-workshop:tools/keep-a-shared-spaces-posts-files-and-tasks/from-an-older-version/src/space-commit-context.mjs",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, not wired yet",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -10076,15 +10076,15 @@
   {
    "path": "src/space-content-coordination.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-a-shared-spaces-posts-files-and-tasks/from-old-trillion/src/space-content-coordination.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/keep-a-shared-spaces-posts-files-and-tasks/from-an-older-version/src/space-content-coordination.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
    "path": "src/space-content-directory.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-a-shared-spaces-posts-files-and-tasks/from-old-trillion/src/space-content-directory.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/keep-a-shared-spaces-posts-files-and-tasks/from-an-older-version/src/space-content-directory.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -10104,8 +10104,8 @@
   {
    "path": "src/space-content-policy.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-a-shared-spaces-posts-files-and-tasks/from-old-trillion/src/space-content-policy.mjs",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, not wired yet",
+   "destination": "trillion-workshop:tools/keep-a-shared-spaces-posts-files-and-tasks/from-an-older-version/src/space-content-policy.mjs",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, not wired yet",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -10125,8 +10125,8 @@
   {
    "path": "src/space-content-shards.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-a-shared-spaces-posts-files-and-tasks/from-old-trillion/src/space-content-shards.mjs",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, not wired yet",
+   "destination": "trillion-workshop:tools/keep-a-shared-spaces-posts-files-and-tasks/from-an-older-version/src/space-content-shards.mjs",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, not wired yet",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -10146,8 +10146,8 @@
   {
    "path": "src/space-invitation.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/invite-people-to-a-space-by-link-email-address/from-old-trillion/src/space-invitation.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/invite-people-to-a-space-by-link-email-address/from-an-older-version/src/space-invitation.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -10167,8 +10167,8 @@
   {
    "path": "src/space-list-read.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-a-shared-spaces-posts-files-and-tasks/from-old-trillion/src/space-list-read.mjs",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, not wired yet",
+   "destination": "trillion-workshop:tools/keep-a-shared-spaces-posts-files-and-tasks/from-an-older-version/src/space-list-read.mjs",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, not wired yet",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -10181,8 +10181,8 @@
   {
    "path": "src/space-member-types.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/decide-who-may-do-what-in-a-space/from-old-trillion/src/space-member-types.mjs",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, not wired yet",
+   "destination": "trillion-workshop:tools/decide-who-may-do-what-in-a-space/from-an-older-version/src/space-member-types.mjs",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, not wired yet",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -10195,8 +10195,8 @@
   {
    "path": "src/space-membership-kinds.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/decide-who-may-do-what-in-a-space/from-old-trillion/src/space-membership-kinds.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/decide-who-may-do-what-in-a-space/from-an-older-version/src/space-membership-kinds.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -10216,8 +10216,8 @@
   {
    "path": "src/space-names.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/name-a-space-by-its-name-when-posting-to-it-find/from-old-trillion/src/space-names.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/name-a-space-by-its-name-when-posting-to-it-find/from-an-older-version/src/space-names.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -10230,8 +10230,8 @@
   {
    "path": "src/space-page-size.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-a-shared-spaces-posts-files-and-tasks/from-old-trillion/src/space-page-size.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/keep-a-shared-spaces-posts-files-and-tasks/from-an-older-version/src/space-page-size.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -10250,15 +10250,15 @@
   {
    "path": "src/space-permissions.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/decide-who-may-do-what-in-a-space/from-old-trillion/src/space-permissions.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/decide-who-may-do-what-in-a-space/from-an-older-version/src/space-permissions.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
    "path": "src/space-search.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/name-a-space-by-its-name-when-posting-to-it-find/from-old-trillion/src/space-search.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/name-a-space-by-its-name-when-posting-to-it-find/from-an-older-version/src/space-search.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -10270,22 +10270,22 @@
   {
    "path": "src/space-shard-routing.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-a-shared-spaces-posts-files-and-tasks/from-old-trillion/src/space-shard-routing.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/keep-a-shared-spaces-posts-files-and-tasks/from-an-older-version/src/space-shard-routing.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
    "path": "src/space-shareable.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/name-a-space-by-its-name-when-posting-to-it-find/from-old-trillion/src/space-shareable.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/name-a-space-by-its-name-when-posting-to-it-find/from-an-older-version/src/space-shareable.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
    "path": "src/space-task-command-owner.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/give-shared-tasks-to-people-and-ais-keep/from-old-trillion/src/space-task-command-owner.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/give-shared-tasks-to-people-and-ais-keep/from-an-older-version/src/space-task-command-owner.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -10298,22 +10298,22 @@
   {
    "path": "src/space-task-shard-query.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/give-shared-tasks-to-people-and-ais-keep/from-old-trillion/src/space-task-shard-query.mjs",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, not wired yet",
+   "destination": "trillion-workshop:tools/give-shared-tasks-to-people-and-ais-keep/from-an-older-version/src/space-task-shard-query.mjs",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, not wired yet",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
    "path": "src/space-tools.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/give-an-ai-the-tools-to-read-and-change-a-pursuits/from-old-trillion/src/space-tools.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/give-an-ai-the-tools-to-read-and-change-a-pursuits/from-an-older-version/src/space-tools.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
    "path": "src/spaces.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/give-an-ai-the-tools-to-read-and-change-a-pursuits/from-old-trillion/src/spaces.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/give-an-ai-the-tools-to-read-and-change-a-pursuits/from-an-older-version/src/spaces.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -10326,8 +10326,8 @@
   {
    "path": "src/spend-meter.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/estimate-what-a-persons-services-cost-from/from-old-trillion/src/spend-meter.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/estimate-what-a-persons-services-cost-from/from-an-older-version/src/spend-meter.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -10347,15 +10347,15 @@
   {
    "path": "src/starting-catalog.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/start-a-new-account-with-the-rules-and-catalog-items/from-old-trillion/src/starting-catalog.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/start-a-new-account-with-the-rules-and-catalog-items/from-an-older-version/src/starting-catalog.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
    "path": "src/starting-rules.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/start-a-new-account-with-the-rules-and-catalog-items/from-old-trillion/src/starting-rules.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/start-a-new-account-with-the-rules-and-catalog-items/from-an-older-version/src/starting-rules.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -10385,8 +10385,8 @@
   {
    "path": "src/stored-checks.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-the-shared-tool-rows-a-deploy-ships/from-old-trillion/src/stored-checks.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/keep-the-shared-tool-rows-a-deploy-ships/from-an-older-version/src/stored-checks.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -10398,8 +10398,8 @@
   {
    "path": "src/stories.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/turn-a-finished-decision-into-an-anonymous-public/from-old-trillion/src/stories.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/turn-a-finished-decision-into-an-anonymous-public/from-an-older-version/src/stories.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -10512,7 +10512,7 @@
    "path": "src/tell-the-person.mjs",
    "class": "workshop-tool",
    "destination": "trillion-workshop:tools/tell-one-person-something-through-every-way-they/read-data/tell-the-person.mjs",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -10656,8 +10656,8 @@
   {
    "path": "src/tool-telemetry.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-the-tables-that-record-how-tools-are/from-old-trillion/src/tool-telemetry.mjs",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, not wired yet",
+   "destination": "trillion-workshop:tools/keep-the-tables-that-record-how-tools-are/from-an-older-version/src/tool-telemetry.mjs",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, not wired yet",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -10709,8 +10709,8 @@
   {
    "path": "src/tools.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/list-and-run-trillions-tools-for-any-ai/from-old-trillion/src/tools.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/list-and-run-my-tools-for-any-ai/from-an-older-version/src/tools.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -10728,8 +10728,8 @@
   {
    "path": "src/tours-tools.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/let-an-ai-write-a-guided-tour-for-the-moment/from-old-trillion/src/tours-tools.mjs",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, not wired yet",
+   "destination": "trillion-workshop:tools/let-an-ai-write-a-guided-tour-for-the-moment/from-an-older-version/src/tours-tools.mjs",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, not wired yet",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -10742,8 +10742,8 @@
   {
    "path": "src/tours.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/let-an-ai-write-a-guided-tour-for-the-moment/from-old-trillion/src/tours.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/let-an-ai-write-a-guided-tour-for-the-moment/from-an-older-version/src/tours.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -10807,8 +10807,8 @@
   {
    "path": "src/view-as.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/let-someone-look-at-my-trillion-read/from-old-trillion/src/view-as.mjs",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, not wired yet",
+   "destination": "trillion-workshop:tools/let-someone-look-at-my-account-read/from-an-older-version/src/view-as.mjs",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, not wired yet",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -10826,15 +10826,15 @@
   {
    "path": "src/visitor-mark.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/show-a-visitor-who-is-not-signed-in-the-same/from-old-trillion/src/visitor-mark.mjs",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, not wired yet",
+   "destination": "trillion-workshop:tools/show-a-visitor-who-is-not-signed-in-the-same/from-an-older-version/src/visitor-mark.mjs",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, not wired yet",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
    "path": "src/visitor-offers.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/show-a-visitor-who-is-not-signed-in-the-same/from-old-trillion/src/visitor-offers.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/show-a-visitor-who-is-not-signed-in-the-same/from-an-older-version/src/visitor-offers.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -10963,8 +10963,8 @@
   {
    "path": "src/work-for-ais.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/send-work-tasks-tours-and-instructions-from/from-old-trillion/src/work-for-ais.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/send-work-tasks-tours-and-instructions-from/from-an-older-version/src/work-for-ais.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -11017,8 +11017,8 @@
   {
    "path": "src/work-messages.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/show-the-signed-in-persons-message-inbox-and-tell/from-old-trillion/src/work-messages.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/show-the-signed-in-persons-message-inbox-and-tell/from-an-older-version/src/work-messages.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -11031,8 +11031,8 @@
   {
    "path": "src/work-posts.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/show-the-posts-and-the-posting-calendar-on-the-signed-in-page/from-old-trillion/src/work-posts.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/show-the-posts-and-the-posting-calendar-on-the-signed-in-page/from-an-older-version/src/work-posts.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -11098,8 +11098,8 @@
   {
    "path": "src/work-workflows.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/show-my-automations-on-the-signed-in-page-what-sets/from-old-trillion/src/work-workflows.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/show-my-automations-on-the-signed-in-page-what-sets/from-an-older-version/src/work-workflows.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -11199,8 +11199,8 @@
   {
    "path": "src/workflows.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/write-a-job-done-in-several-steps-have/from-old-trillion/src/workflows.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/write-a-job-done-in-several-steps-have/from-an-older-version/src/workflows.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -11213,8 +11213,8 @@
   {
    "path": "src/workshop-history-serialization.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/write-a-workshop-tasks-history-to-a-file-and-read/from-old-trillion/src/workshop-history-serialization.mjs",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, not wired yet",
+   "destination": "trillion-workshop:tools/write-a-workshop-tasks-history-to-a-file-and-read/from-an-older-version/src/workshop-history-serialization.mjs",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, not wired yet",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
@@ -11238,15 +11238,15 @@
   {
    "path": "src/workshop-task-history.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/write-a-workshop-tasks-history-to-a-file-and-read/from-old-trillion/src/workshop-task-history.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/write-a-workshop-tasks-history-to-a-file-and-read/from-an-older-version/src/workshop-task-history.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {
    "path": "src/workshop-tasks.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-each-workshop-task-whole-and-a-small-index/from-old-trillion/src/workshop-tasks.mjs.held",
-   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
+   "destination": "trillion-workshop:tools/keep-each-workshop-task-whole-and-a-small-index/from-an-older-version/src/workshop-tasks.mjs.held",
+   "why": "a tool a person or AI runs: carried byte for byte to its tool's from-an-older-version folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
   {

@@ -7,7 +7,7 @@
     {
       "from": "src/audience-sends.json",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/send-messages/from-old-trillion/src/audience-sends.json",
+      "to": "tools/send-messages/from-an-older-version/src/audience-sends.json",
       "source_identity": "1f:47b298aed27c0d395e5bb7608d865c24c3a3cdd44b678f480dad14ac57973b92",
       "identity": "1f:47b298aed27c0d395e5bb7608d865c24c3a3cdd44b678f480dad14ac57973b92"
     },

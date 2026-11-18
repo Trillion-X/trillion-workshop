@@ -7,7 +7,7 @@
     {
       "from": "src/service-values.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/keep-the-services-own-signing-secrets-and-sign-in-app/from-old-trillion/src/service-values.mjs.held",
+      "to": "tools/keep-the-services-own-signing-secrets-and-sign-in-app/from-an-older-version/src/service-values.mjs.held",
       "source_identity": "1f:49cfd4b91506d82fd4227ab98b1adc042ba323a0579cb24c91084b3956c188be",
       "identity": "1f:7540f413102fc3633e30cdb3c0fe79a18b51584305d94c974c0261332ab6ca0b",
       "held": true

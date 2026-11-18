@@ -36,7 +36,7 @@
     {
       "from": "records/workshop-page-tool-records.json",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/write-a-sales-page/from-old-trillion/records/workshop-page-tool-records.json",
+      "to": "tools/write-a-sales-page/from-an-older-version/records/workshop-page-tool-records.json",
       "source_identity": "1f:fc333a784c3649600268c219ffde83c5151dcf82e319e72fd2d12ec700d8e6ff",
       "identity": "1f:fc333a784c3649600268c219ffde83c5151dcf82e319e72fd2d12ec700d8e6ff"
     },

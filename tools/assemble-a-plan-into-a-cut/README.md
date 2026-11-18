@@ -101,4 +101,4 @@ python3 tools/assemble-a-plan-into-a-cut/do-work/assemble.py run --request reque
 
 ## Source lineage
 
-This extends the existing assembler mechanisms, introduced in Workshop commit `8489d03ebe01df9e92e0ab8e8b938b2634731904` and extended from the film's cutter in `2738203d`. The JSON command transport reuses `read-data/fill.py` and the existing renderer/check callers; it does not replace the cutter, renderer, rules checker or face reader. The unrelated held `computer/cut-tools.mjs` receipt in `from-old-trillion/` remains its own lineage and is not claimed as the source of these Python callers.
+This extends the existing assembler mechanisms, introduced in Workshop commit `8489d03ebe01df9e92e0ab8e8b938b2634731904` and extended from the film's cutter in `2738203d`. The JSON command transport reuses `read-data/fill.py` and the existing renderer/check callers; it does not replace the cutter, renderer, rules checker or face reader. The unrelated held `computer/cut-tools.mjs` receipt in `from-an-older-version/` remains its own lineage and is not claimed as the source of these Python callers.

@@ -14,7 +14,7 @@ test('committed host and selected cookie captures bind declared identities befor
   assert.deepEqual(hostCapture, readers.targetAtCommit('a9ee2580ee189318d68436451760e084e7bc6ebb', contract.targets[0].path));
   assert.doesNotMatch(hostCapture.toString('utf8'), /export function sharedCookieDomain/);
   const visitorCapture = readers.targetAtCommit(contract.baseline.commit,
-    'tools/show-a-visitor-who-is-not-signed-in-the-same/from-old-trillion/src/visitor-offers.mjs.held');
+    'tools/show-a-visitor-who-is-not-signed-in-the-same/from-an-older-version/src/visitor-offers.mjs.held');
   assert.ok(visitorCapture, 'the earlier held cookie range is readable');
   const [first, last] = contract.sources[1].lines;
   const selected = bytes => Buffer.from(`${bytes.toString('utf8').split('\n').slice(first - 1, last).join('\n')}\n`);

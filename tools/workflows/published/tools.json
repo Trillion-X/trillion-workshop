@@ -551,12 +551,12 @@
     "job": "Answer the Trillion page route POST /work/api/responses/react: add or take away the person's own private reaction to anything in their Trillion, as old Trillion did",
     "description": "A page route tool: the engine runs it for the page's account with { path, method, query, body, browser } and answers the page with { status, body }. POST /responses/react with { record, part?, symbol, glyph?, on? } adds the reaction (or takes it away; on says which, else it toggles) in the person's own private-response record for that anchor, which no space or other account reads, and answers 200 with the anchor's reactions as the person sees them. A vote, an unknown reaction or a bad anchor answers 400 { error }. Any other path or method answers 404 { error: \"Not found.\" }. The write stands on the record it read; a reaction changed meanwhile is decided again.",
     "status": "active",
-    "maker": "maker:react-privately-to-anything-in-a-persons-own-trillion-so-no",
+    "maker": "maker:react-privately-to-anything-in-a-persons-own-account-so-no",
     "licence_class": "licence:maker-own",
     "placements": [
      "placement:small-container"
     ],
-    "folder": "react-privately-to-anything-in-a-persons-own-trillion-so-no"
+    "folder": "react-privately-to-anything-in-a-persons-own-account-so-no"
    }
   },
   {
@@ -2760,7 +2760,7 @@
    }
   },
   {
-   "id": "tool:connect-an-ai-app-on-this-computer-to-trillion",
+   "id": "tool:connect-an-ai-app-on-this-computer-to-my-account",
    "values": {
     "title": "Connect an AI app on this computer to Trillion",
     "job": "Read, preview, add or take out the Trillion MCP entry in AI apps on this computer (Claude Code, Codex, Gemini CLI, Cursor)",
@@ -5606,7 +5606,7 @@
    }
   },
   {
-   "id": "tool:keep-trillion-in-your-instructions",
+   "id": "tool:keep-my-account-in-your-instructions",
    "values": {
     "title": "Keep Trillion's standing instructions in my AI's own instruction file (runs on your computer)",
     "job": "Put, check or take out Trillion's standing instructions as one marked block in my AI harness's own global instruction file, leaving every other line of it as it was",
@@ -7452,7 +7452,7 @@
    "values": {
     "title": "Move a group of files from one code tree to another, with everything they import",
     "job": "Move groups of code files from one repository to another byte for byte, with every file they import and their tests, delete the originals so one copy remains, and prove the moved files are the same bytes and still load and pass their tests",
-    "description": "Give step (plan, apply or check), the move row (row, or row_file such as move-rows/trillion-to-workshop.json), source_folder and destination_folder (git working copies on this computer). The row is data: the two trees, which owner rows go to which folder (its groups, or groups_from an owner index whose rows name a destination), keep (paths that must stay; a group importing one is held), provider_calls (calls that must not be left in a moved file) and calls (find/replace rows that swap a provider call for a records door call). plan changes nothing and answers each group with its owner files, import closure, tests and why it is held; every file with where it lands (its group folder, or shared_folder when more than one group imports it) and how its imports change; and the files that stay and import a moved file from the destination package. apply carries the plan out on both working copies (apply_groups carries out some groups only, placing shared files as the whole plan would), moves owner-index rows whose files all moved, and writes moved-from.json in each destination folder. check proves a move from those receipts on a clean checkout: each file is its source commit bytes but for import paths and swapped calls, every import reaches the same file, the source no longer holds it, every module loads, and its own tests pass.",
+    "description": "Give step (plan, apply or check), the move row (row, or row_file such as move-rows/older-repository-to-workshop.json), source_folder and destination_folder (git working copies on this computer). The row is data: the two trees, which owner rows go to which folder (its groups, or groups_from an owner index whose rows name a destination), keep (paths that must stay; a group importing one is held), provider_calls (calls that must not be left in a moved file) and calls (find/replace rows that swap a provider call for a records door call). plan changes nothing and answers each group with its owner files, import closure, tests and why it is held; every file with where it lands (its group folder, or shared_folder when more than one group imports it) and how its imports change; and the files that stay and import a moved file from the destination package. apply carries the plan out on both working copies (apply_groups carries out some groups only, placing shared files as the whole plan would), moves owner-index rows whose files all moved, and writes moved-from.json in each destination folder. check proves a move from those receipts on a clean checkout: each file is its source commit bytes but for import paths and swapped calls, every import reaches the same file, the source no longer holds it, every module loads, and its own tests pass.",
     "status": "active",
     "maker": "maker:move-code-between-trees",
     "licence_class": "licence:maker-own",
@@ -10739,18 +10739,18 @@
    }
   },
   {
-   "id": "tool:register-trillion-in-my-ai-apps",
+   "id": "tool:register-my-account-in-my-ai-apps",
    "values": {
     "title": "Put Trillion in my AI apps' MCP settings, or take it out (runs on your computer)",
     "job": "Add Trillion's MCP server entry to the config file of each AI app I name, preview exactly what changes first, or take the entry out again",
     "description": "mcp-inspect answers what each named app has now (absent, registered, outdated, custom, blocked or not_installed). mcp-preview writes nothing and answers each file's exact before/after lines and a review_hash of the whole plan; mcp-register with --reviewed <hash> refuses every write when the plan changed meanwhile. An entry under the same name that matches none of Trillion's signatures is the person's own and is never changed or removed; every other key in the file is kept. An app not on this computer is answered not_installed and nothing is created for it. Writes are locked, backed up beside the file, refused for a symbolic link or a file changed meanwhile, and read back. The address is https, or http at the literal loopback host only. An entry is not a signed-in connection: each result names the sign-in still to do in that app. Each app's file, format and entry is a row of read-data/mcp-registration.json.",
     "status": "active",
-    "maker": "maker:register-trillion-in-my-ai-apps",
+    "maker": "maker:register-my-account-in-my-ai-apps",
     "licence_class": "licence:maker-own",
     "placements": [
      "placement:your-computer"
     ],
-    "folder": "register-trillion-in-my-ai-apps"
+    "folder": "register-my-account-in-my-ai-apps"
    }
   },
   {
@@ -12663,7 +12663,7 @@
    }
   },
   {
-   "id": "tool:set-up-trillion-hooks-in-an-ai-app-on-this-computer",
+   "id": "tool:set-up-account-hooks-in-an-ai-app-on-this-computer",
    "values": {
     "title": "Set up Trillion's hooks in an AI app on this computer",
     "job": "Read, add or take out the hooks that keep an AI app's sessions on this computer as the person's records (Claude Code or Codex)",
@@ -13885,7 +13885,7 @@
    }
   },
   {
-   "id": "tool:trillion-media-eject",
+   "id": "tool:media-eject",
    "values": {
     "title": "Eject a drive",
     "job": "Eject one drive connected to this person's computer safely, so it can be unplugged",
@@ -13901,7 +13901,7 @@
    }
   },
   {
-   "id": "tool:trillion-media-file-places",
+   "id": "tool:media-file-places",
    "values": {
     "title": "Where else a file is",
     "job": "Find every other place one file on this person's computer also is (a duplicate): on their other connected drives and in their Trillion space",
@@ -13917,7 +13917,7 @@
    }
   },
   {
-   "id": "tool:trillion-media-transfer",
+   "id": "tool:media-transfer",
    "values": {
     "title": "Copy or move files between drives",
     "job": "Copy or move files and folders to one or more folders on drives connected to this person's computer, as a long job that can be paused and stopped",
@@ -13933,7 +13933,7 @@
    }
   },
   {
-   "id": "tool:trillion-media-work",
+   "id": "tool:media-work",
    "values": {
     "title": "Drive work in progress",
     "job": "List the long file jobs running on this person's computer drives (copies and moves): how far each has got, and whether it can be paused, resumed or stopped now",
@@ -13949,11 +13949,11 @@
    }
   },
   {
-   "id": "tool:trillion-media-work-control",
+   "id": "tool:media-work-control",
    "values": {
     "title": "Pause, resume or stop drive work",
     "job": "Pause, resume or stop one long file job on this person's computer drives (a copy or a move), optionally resuming it at a chosen time",
-    "description": "Runs on the person's computer. id is the job from tool:trillion-media-work; action is one of the controls it lists; check true only says whether that control is ready.",
+    "description": "Runs on the person's computer. id is the job from tool:media-work; action is one of the controls it lists; check true only says whether that control is ready.",
     "status": "active",
     "maker": "maker:work-on-connected-drives",
     "licence_class": "licence:maker-own",
@@ -14315,7 +14315,7 @@
    }
   },
   {
-   "id": "tool:what-can-trillion-do",
+   "id": "tool:what-can-my-account-do",
    "values": {
     "title": "List what can do steps",
     "job": "List everything that can do a step for a person, with what each covers and what it costs, and the reasons a step may stay the person's",
