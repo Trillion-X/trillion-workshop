@@ -6,16 +6,13 @@ Moved byte for byte from Trillion-X/trillion at tag `old-trillion-before-worker-
 
 ## Files
 
-| File | From |
-|------|------|
-| `src/carry-forward.mjs` | `src/carry-forward.mjs` |
-| `test/carry-forward.test.mjs` | `test/carry-forward.test.mjs` |
+The carry of earlier stored records into the store (src/carry-forward.mjs and its test) is removed: an old store is not migrated (the old way is not a requirement). It is at the old tag only.
 
 ## Imported history receipt
 
 `read-data/imported-history-receipt.mjs` keeps the old receipt body, stable archive ordering, inherited head and substitutions, manifest binding and byte readback. `createImportedHistoryReceipts()` uses the current pure content-identity owner; it imports no record-history engine. Its canonical identity retains the old spelling for missing fields.
 
-`do-work/imported-history-receipt.mjs` creates a receipt, lists its archive references, or verifies them against the files handed to its records door. It writes nothing. A file that exceeds the bounded reader is left unverified and reported as an error. A receipt is not a claim that an account migration has finished.
+`do-work/imported-history-receipt.mjs` creates a receipt, lists its archive references, or verifies them against the archive bytes its caller hands in. It writes nothing. An archive that is not handed in is reported as an error, never verified. A receipt is not a claim that an account migration has finished.
 
 The old growth-admission decision already has its Rust owner in `trillion-rust/src/storage/record_store/store_size.rs` (`Level::refuses_growth`, `StoreSize::is_growth`). The current account volume sends growth to a further book in `src/storage/record_store_resources/books.rs`, refusing at the book limit. The old Worker-specific `store-full` route is not reinstated here.
 

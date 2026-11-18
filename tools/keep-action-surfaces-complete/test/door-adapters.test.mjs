@@ -37,12 +37,12 @@ test('echo tool takes its configuration as input and requires actual kept notice
  const result=await checkHeardEcho({settings,notification_rows,notices:[notice],text:notice.body,at:'2026-11-08T12:00:01Z'});assert.equal(result.echo.notice.seq,7);
  await assert.rejects(checkHeardEcho({settings,notification_rows,text:notice.body,at:0}),/actually kept/);
 });
-test('history receipt verifies exact bytes through the file door and refuses a changed receipt without reading files',async()=>{
+test('history receipt verifies exact bytes handed in and refuses a changed receipt without reading any archive',async()=>{
  const bytes=Buffer.from('a kept history page');
  const receipt=await checkImportedHistoryReceipt({operation:'create',import:{run:'import-1',archives:[{key:'history/a',first_id:'a',bytes:bytes.length,identity:makeHashCodeHexFromBytes(bytes)}]}});
  const calls=[];
- const door={async files(method,input){calls.push(method);assert.equal(input.name_or_identity,'history/a');if(method==='find_file')return {names:['history/a']};return {content:bytes.toString('base64'),encoding:'base64',bytes_returned:bytes.length,byte_length:bytes.length};}};
- assert.deepEqual(await checkImportedHistoryReceipt({operation:'verify',receipt},{door}),{verified:true});
- assert.deepEqual(calls,['find_file','read_file']);calls.length=0;
- assert.deepEqual(await checkImportedHistoryReceipt({operation:'verify',receipt:{...receipt,head:'changed'}},{door}),{verified:false});assert.deepEqual(calls,[]);
+ const archives=async key=>{calls.push(key);assert.equal(key,'history/a');return bytes;};
+ assert.deepEqual(await checkImportedHistoryReceipt({operation:'verify',receipt},{archives}),{verified:true});
+ assert.deepEqual(calls,['history/a']);calls.length=0;
+ assert.deepEqual(await checkImportedHistoryReceipt({operation:'verify',receipt:{...receipt,head:'changed'}},{archives}),{verified:false});assert.deepEqual(calls,[]);
 });
