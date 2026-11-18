@@ -17,7 +17,7 @@
       "title": "Check someone is in a space on its own sample",
       "ask": "Say whether a person is a member of a shared space right now, and why not when they are not",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

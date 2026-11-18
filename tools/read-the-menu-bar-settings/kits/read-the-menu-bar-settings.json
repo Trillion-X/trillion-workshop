@@ -17,7 +17,7 @@
       "title": "Read the Mac menu bar's own settings on its own sample",
       "ask": "Say the Mac menu bar item's own settings (on or off, how far ahead meetings count, how long its title may be, its app icon), each with the value it shows, and whether a change I ask for is one its setting allows",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

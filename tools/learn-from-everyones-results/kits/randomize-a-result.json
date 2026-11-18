@@ -17,7 +17,7 @@
       "title": "Make the private bit for a result on its own sample",
       "ask": "Turn whether something worked into the one noisy yes or no that may leave my account to teach everyone, so nobody can tell my real result",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

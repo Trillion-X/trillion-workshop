@@ -17,7 +17,7 @@
       "title": "Read a conversation summary on its own sample",
       "ask": "Read the summary kept of this conversation and whether newer messages have come since it was written",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "Read other AIs' setups on its own sample",
       "ask": "List, read only, the instruction files, slash commands and skills other AI apps keep on the person's computer, each with its text, so the person can bring them in as saved instructions",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

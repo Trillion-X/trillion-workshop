@@ -126,7 +126,7 @@
       "title": "Three candidates ranked; the model's best matches the editor's",
       "ask": "Which candidate clip fits slot 1 best?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

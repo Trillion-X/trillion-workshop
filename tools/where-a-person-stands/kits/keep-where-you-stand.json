@@ -18,7 +18,7 @@
       "title": "Keep where you stand on something on its own sample",
       "ask": "Write down whether a person agrees, disagrees or partly agrees with something made for them, such as a title, a take, a plan or a file, in their own words",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

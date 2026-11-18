@@ -17,7 +17,7 @@
       "title": "Run a session step on its own sample",
       "ask": "Create, change, reschedule, fork, merge, cancel, supersede, confirm, close or ask feedback of a gathering I organize, keeping who came from where",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

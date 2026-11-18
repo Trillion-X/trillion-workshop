@@ -18,7 +18,7 @@
       "title": "One clip matched to the colour of another at 8 seconds",
       "ask": "Make this clip match the colour of my main camera at 8 seconds in.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

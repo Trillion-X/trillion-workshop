@@ -17,7 +17,7 @@
       "title": "Score answers and pick a segment on its own sample",
       "ask": "Score a lead's or respondent's answers with your rules and pick their segment and follow-up, such as hot, warm or not ready",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

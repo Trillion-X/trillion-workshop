@@ -19,7 +19,7 @@
       "title": "Share anything on its own sample",
       "ask": "Share anything of mine read-only, from one record or one piece of text to a whole list or any mix of records, with a person, an AI or anyone holding a link; show who has access; and stop it",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -18,7 +18,7 @@
       "title": "PySceneDetect on a 90 second shop tour video with several cuts",
       "ask": "Use PySceneDetect on tour.mp4.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -18,7 +18,7 @@
       "title": "How results like this turned out for everyone on its own sample",
       "ask": "Say how often things worked for other people in situations like mine, without anyone's own result being readable",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

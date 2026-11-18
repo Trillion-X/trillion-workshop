@@ -18,7 +18,7 @@
       "title": "Choose files for the next commit on its own sample",
       "ask": "Add chosen files in a project on the person's computer to the next commit",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

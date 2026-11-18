@@ -18,7 +18,7 @@
       "title": "Golden hour with grain, a little warmer",
       "ask": "Give my video a golden hour look with grain, slightly warmer and brighter.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -45,7 +45,7 @@
       "title": "A look whose grade file is not supplied",
       "ask": "Give my video the teal and orange look.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

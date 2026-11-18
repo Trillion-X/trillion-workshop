@@ -19,7 +19,7 @@
       "title": "Reword, delete and reorder slides",
       "ask": "Change the harbour tour title, set slide 1's notes, reword slide 2, delete slide 3 and put slide 2 first.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

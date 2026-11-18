@@ -17,7 +17,7 @@
       "title": "Plan what a sent deal sets up on its own sample",
       "ask": "Turn a sales contract's follow-ups into the rules and schedules that run them once the deal is sent: a paid follow-up for this deal only, a dated one at its time, with the deal's own words filled in",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

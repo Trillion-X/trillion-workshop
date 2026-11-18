@@ -19,7 +19,7 @@
       "title": "Add a private result to the pool on its own sample",
       "ask": "Keep one person's noisy yes or no about a shared situation in the pool everyone learns from, under their random contributor id",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

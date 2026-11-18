@@ -17,7 +17,7 @@
       "title": "Check a pick prompt or result for wording the person does not want on its own sample",
       "ask": "Check the words of a free pick prompt, its choices or a result summary against the wording the person does not want used (for example talk of money) before they are written",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "Take the pictures out of a zip archive on its own sample",
       "ask": "Take the pictures out of a zip archive as files to import, without ever unpacking it to disk by entry name",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

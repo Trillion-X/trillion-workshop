@@ -20,7 +20,7 @@
       "title": "Two terms in one captioned episode",
       "ask": "How often do the crackers and storms come up?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -18,7 +18,7 @@
       "title": "Check paper orders with the broker on its own sample",
       "ask": "Check my paper orders with my broker: which are filled, at what price, and which never got there",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

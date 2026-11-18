@@ -24,7 +24,7 @@
    "title": "A second release adds one row with the subjects since the first",
    "ask": "Add my newest release to the changelog.",
    "mcp": {
-    "server": "trillion",
+    "server": "{cli}",
     "tool": "run_resource_operation",
     "input": {
      "address": "@tools",

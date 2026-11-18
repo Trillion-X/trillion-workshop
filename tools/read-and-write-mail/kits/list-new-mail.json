@@ -20,7 +20,7 @@
       "title": "Run list-new-mail on a sample input",
       "ask": "What mail reached my inbox since cursor 482913?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

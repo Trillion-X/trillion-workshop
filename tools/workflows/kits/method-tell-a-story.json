@@ -20,7 +20,7 @@
       "title": "Name the one change a story tells and what it changes in the reader",
       "ask": "Run workflow:method-tell-a-story: write a newsletter story about a bakery owner who stopped writing training manuals.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

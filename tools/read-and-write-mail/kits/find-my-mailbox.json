@@ -19,7 +19,7 @@
       "title": "Run find-my-mailbox on a sample input",
       "ask": "Which address is this mailbox, and where does its mail stand?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

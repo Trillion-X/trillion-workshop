@@ -22,7 +22,7 @@
       "title": "Read my setup on its own sample",
       "ask": "Gather what my account's setup is made of and draw the Get started screen from it",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

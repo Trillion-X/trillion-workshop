@@ -18,7 +18,7 @@
       "title": "One connected Stripe account is listed with can_send true",
       "ask": "Which services is my account connected to?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

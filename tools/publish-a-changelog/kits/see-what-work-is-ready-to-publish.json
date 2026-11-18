@@ -17,7 +17,7 @@
       "title": "See what finished work is ready to publish on its own sample",
       "ask": "See the finished work waiting to be published as a changelog: which group each piece is in, what can be done with it, what stops it (for example no proof yet) and what was already sent",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

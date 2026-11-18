@@ -24,7 +24,7 @@
    "title": "List the pages of a bakery site",
    "ask": "Get my bakery site found by answer engines.",
    "mcp": {
-    "server": "trillion",
+    "server": "{cli}",
     "tool": "run_resource_operation",
     "input": {
      "address": "@tools",

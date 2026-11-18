@@ -17,7 +17,7 @@
       "title": "List completed Stripe checkouts as payment events on its own sample",
       "ask": "List every completed Stripe checkout since a time as a payment event, so a buyer whose purchase no webhook reported still holds the access their offer gives once the events are kept",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "Run a game of Texas Hold'em at a table on its own sample",
       "ask": "Run a game of Texas Hold'em poker for a table of players: open a table, seat players, deal a hand, take each player's action, and deal the next hand",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

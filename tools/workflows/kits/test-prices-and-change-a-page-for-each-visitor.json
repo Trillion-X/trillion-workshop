@@ -26,7 +26,7 @@
       "title": "A newsletter gets its own tracked link to the pricing page",
       "ask": "Make me a tracked link for my newsletter for the price test.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

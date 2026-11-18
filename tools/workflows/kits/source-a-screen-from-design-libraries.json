@@ -22,7 +22,7 @@
    "title": "A whole ready-made fit is looked for first",
    "ask": "Design my notification settings page.",
    "mcp": {
-    "server": "trillion",
+    "server": "{cli}",
     "tool": "run_resource_operation",
     "input": {
      "address": "@tools",

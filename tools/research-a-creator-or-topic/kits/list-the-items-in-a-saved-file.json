@@ -18,7 +18,7 @@
       "title": "Two saved bookmarks become two items",
       "ask": "Read my saved list in bookmarks.json into items to research.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "Work out measures from my records on its own sample",
       "ask": "Work out measures from my records: counts, totals, ratios, ranks, quantiles, the latest value, groups, or a ranked and packed list",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

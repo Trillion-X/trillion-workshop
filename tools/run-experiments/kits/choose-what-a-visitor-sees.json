@@ -17,7 +17,7 @@
       "title": "Choose what one visitor sees on its own sample",
       "ask": "Pick which version of a page, offer, headline or feature one visitor gets, from rules you write as data, keeping the same visitor on the same version",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

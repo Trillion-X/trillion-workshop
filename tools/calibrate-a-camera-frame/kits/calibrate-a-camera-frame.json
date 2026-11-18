@@ -17,7 +17,7 @@
       "title": "Calibrate a camera frame on its own sample",
       "ask": "Calibrate a camera's view of a court, table or screen once from four corners, so every later point is measured in that frame",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

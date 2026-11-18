@@ -18,7 +18,7 @@
       "title": "Drive work in progress on its own sample",
       "ask": "List the long file jobs running on this person's computer drives (copies and moves): how far each has got, and whether it can be paused, resumed or stopped now",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

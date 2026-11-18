@@ -19,7 +19,7 @@
       "title": "Three comments coded",
       "ask": "Code the parrot comments.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

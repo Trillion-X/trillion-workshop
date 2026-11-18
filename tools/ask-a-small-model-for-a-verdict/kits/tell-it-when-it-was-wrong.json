@@ -20,7 +20,7 @@
       "title": "A wrong verdict becomes the third known case, once",
       "ask": "Add this wrong verdict to my rubric as a known case.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

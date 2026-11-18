@@ -132,7 +132,7 @@
       "title": "Start a pass for one real customer",
       "ask": "Run Quintillion for the bakery: get them to 30 weekend pre-orders a week.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -164,7 +164,7 @@
       "title": "The benefit is measured against the baseline",
       "ask": "Did it work?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@own-records",

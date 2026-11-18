@@ -19,7 +19,7 @@
       "title": "How each post did on its own sample",
       "ask": "Show how each of this person's published posts did in each place it went: that place's own counts, the visitors its link brought and what they bought",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

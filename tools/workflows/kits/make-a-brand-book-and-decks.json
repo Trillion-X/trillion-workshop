@@ -25,7 +25,7 @@
       "title": "The brand step picks the black wordmark for a light page and the white one for a dark page",
       "ask": "Make the Harbour brand book and decks and a sales deck copy for two buyers.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

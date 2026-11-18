@@ -20,7 +20,7 @@
       "title": "Each stated requirement is marked observed, assumed or inherited",
       "ask": "Describe the Saturday queue problem before naming it.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

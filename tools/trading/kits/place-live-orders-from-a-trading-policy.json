@@ -18,7 +18,7 @@
       "title": "Place live orders from a trading policy on its own sample",
       "ask": "Place the orders of my trading policy at my broker's live (real money) account",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

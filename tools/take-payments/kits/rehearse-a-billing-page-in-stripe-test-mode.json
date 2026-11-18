@@ -17,7 +17,7 @@
       "title": "Rehearse a billing page in Stripe test mode on its own sample",
       "ask": "Make a test subscription in Stripe test mode and open its billing page, to see the billing page comes back before a real buyer needs it",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

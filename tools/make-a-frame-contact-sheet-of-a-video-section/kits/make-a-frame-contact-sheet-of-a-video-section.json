@@ -18,7 +18,7 @@
       "title": "Forty seconds of a linked video, a frame every four seconds",
       "ask": "Show me what happens from 10 to 50 seconds of https://video.example/watch/abc as one picture.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

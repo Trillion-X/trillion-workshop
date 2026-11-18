@@ -15,7 +15,7 @@
     {
       "title": "Derive one source's rows",
       "ask": "Turn the tools my test source offers into rows.",
-      "mcp": {"server": "trillion", "tool": "run_resource_operation", "input": {"address": "@tools", "method": "tools:run", "input": {"tool": "tool:derive-current-api-description-rows", "input": {"need": "tool:fixture:any", "wait": false}}}},
+      "mcp": {"server": "{cli}", "tool": "run_resource_operation", "input": {"address": "@tools", "method": "tools:run", "input": {"tool": "tool:derive-current-api-description-rows", "input": {"need": "tool:fixture:any", "wait": false}}}},
       "given": "The input {\"need\": \"tool:fixture:any\", \"wait\": false}.",
       "hands_back": "An object whose reads holds the derived tool rows of that one source (draft: the values of a real run are not yet put in)."
     }

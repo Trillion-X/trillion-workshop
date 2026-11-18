@@ -17,7 +17,7 @@
       "title": "Send a notification to my devices on its own sample",
       "ask": "Send one notice to the registered Apple and browser devices the caller passes, and answer what each provider said",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

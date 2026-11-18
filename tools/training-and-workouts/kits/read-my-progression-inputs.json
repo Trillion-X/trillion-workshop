@@ -17,7 +17,7 @@
       "title": "Read what my plan needs to decide the next session on its own sample",
       "ask": "Read my stored progression rules and the last session's result from my training plan, ready for the progress evaluator",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -19,7 +19,7 @@
       "title": "The first unbroken stretch of a synthetic recording becomes the reference",
       "ask": "Pick the cleanest stretch of this speaker's recording to clone their voice from.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "Point editor projects at clips' new places on its own sample",
       "ask": "On the person's own computer, point their Premiere Pro projects and DaVinci Resolve's open project at clips that moved to a new place, such as their Trillion files connected as a drive",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

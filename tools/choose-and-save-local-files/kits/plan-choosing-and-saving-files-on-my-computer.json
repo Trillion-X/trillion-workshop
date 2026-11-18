@@ -17,7 +17,7 @@
       "title": "Plan choosing and saving files on my computer on its own sample",
       "ask": "Make the requests the Mac's local files target gets when a person chooses files on their computer or saves a copy back, and read what the picker answered into the files chosen, without touching any computer",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -41,7 +41,7 @@
       "title": "Plan choosing and saving files on my computer on its own sample",
       "ask": "Make the requests the Mac's local files target gets when a person chooses files on their computer or saves a copy back, and read what the picker answered into the files chosen, without touching any computer",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

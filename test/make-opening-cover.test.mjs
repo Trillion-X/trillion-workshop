@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { openingCoverFiles, ROOT, IOS_COVER, IOS_NEEDLE_SET, IOS_PAPER_SET } from '../tools/draw-trillions-app-icon-in-every-size-from/scripts/make-opening-cover.mjs';
+import { openingCoverFiles, ROOT, IOS_COVER, IOS_NEEDLE_SET, IOS_PAPER_SET } from '../tools/draw-the-apps-icon-in-every-size-from/scripts/make-opening-cover.mjs';
 
 test('an explicit output root changes only the four destinations, preserving the default contract and bytes', t => {
   const root = mkdtempSync(join(tmpdir(), 'opening-cover-owner-'));
@@ -21,7 +21,7 @@ test('an explicit output root changes only the four destinations, preserving the
 test('the real CLI writes every expected byte under its explicit destination and refuses an incomplete option', t => {
   const root = mkdtempSync(join(tmpdir(), 'opening-cover-cli-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
-  const command = fileURLToPath(new URL('../tools/draw-trillions-app-icon-in-every-size-from/scripts/make-opening-cover.mjs', import.meta.url));
+  const command = fileURLToPath(new URL('../tools/draw-the-apps-icon-in-every-size-from/scripts/make-opening-cover.mjs', import.meta.url));
   const absent = spawnSync(process.execPath, [command, '--output-root'], { encoding: 'utf8' });
   assert.notEqual(absent.status, 0);
   assert.match(absent.stderr, /Usage:/);

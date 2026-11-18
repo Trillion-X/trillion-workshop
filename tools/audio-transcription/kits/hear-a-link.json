@@ -18,7 +18,7 @@
       "title": "A link with captions is answered from its captions without hearing the sound",
       "ask": "Get the words said in the video at https://videos.example.com/watch?v=sample.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

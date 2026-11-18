@@ -18,7 +18,7 @@
       "title": "Where a post can go on its own sample",
       "ask": "List the accounts this person can post to, each ready or not and why, and each place they have no account for yet",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

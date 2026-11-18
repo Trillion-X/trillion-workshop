@@ -123,7 +123,7 @@
       "title": "Check a plain 3 second video against generated-video limits",
       "ask": "Check my finished video /work/film.mp4 against my limits and tell me every FAIL and WARN.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

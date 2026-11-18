@@ -18,7 +18,7 @@
       "title": "A deleted file whose receipt sits in the workshop checkout",
       "ask": "Check that the file my last commit deleted from trillion says where it went.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

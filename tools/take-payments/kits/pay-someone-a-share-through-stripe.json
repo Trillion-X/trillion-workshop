@@ -17,7 +17,7 @@
       "title": "Pay someone a share through Stripe on its own sample",
       "ask": "Pay a share of what I took on to a person I pay, out of my own Stripe balance",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

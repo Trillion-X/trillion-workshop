@@ -20,7 +20,7 @@
       "title": "Read one endpoint before paying for it",
       "ask": "Read the treg endpoint dataforseo.web.backlinks.summary and tell me its price.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -18,7 +18,7 @@
       "title": "Record a notice for someone on its own sample",
       "ask": "Record one notification event for the audience the caller names, so it is kept and can be read back; nothing is delivered",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

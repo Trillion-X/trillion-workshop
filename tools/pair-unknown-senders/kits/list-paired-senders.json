@@ -18,7 +18,7 @@
       "title": "Paired senders and waiting codes on its own sample",
       "ask": "List which senders are paired and which pairing codes are waiting, for one source or all",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

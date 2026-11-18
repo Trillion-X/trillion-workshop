@@ -19,7 +19,7 @@
       "title": "Answer the Decisions page on its own sample",
       "ask": "Answer the Trillion page route GET /work/api/decisions: the Decisions screen's rows, as old Trillion answered them",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

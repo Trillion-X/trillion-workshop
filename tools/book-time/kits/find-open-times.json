@@ -19,7 +19,7 @@
       "title": "Find open times on its own sample",
       "ask": "Find the times someone can book with me, from my weekly hours, minus what is already booked and what my calendar shows busy",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

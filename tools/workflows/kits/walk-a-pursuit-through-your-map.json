@@ -125,7 +125,7 @@
       "title": "Grow beans lands on Beds only; Paths and Compost are left empty",
       "ask": "Place my Grow beans pursuit on my map.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

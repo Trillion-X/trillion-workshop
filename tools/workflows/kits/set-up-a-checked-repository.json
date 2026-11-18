@@ -20,7 +20,7 @@
       "title": "Reading a small repository before anything is written",
       "ask": "Set up the bakery-site repository with checks.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -47,7 +47,7 @@
       "title": "Pinning the menu data by content",
       "ask": "Pin the menu data folder.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

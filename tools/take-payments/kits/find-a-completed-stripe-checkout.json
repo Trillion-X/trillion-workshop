@@ -17,7 +17,7 @@
       "title": "Find a completed Stripe checkout on its own sample",
       "ask": "Find the completed Stripe checkout for one buyer and offer when the buyer browser never came back",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

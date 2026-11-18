@@ -17,7 +17,7 @@
       "title": "Prepare the request for a profile of a creator or a topic on its own sample",
       "ask": "Turn what was gathered about a creator or a topic (video words, page text) into the instruction the person's AI writes a profile from",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

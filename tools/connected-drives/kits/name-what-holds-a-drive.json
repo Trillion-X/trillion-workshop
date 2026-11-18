@@ -19,7 +19,7 @@
       "title": "Name the program holding a drive",
       "ask": "Which programs are stopping my SAMPLE DRIVE from ejecting?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

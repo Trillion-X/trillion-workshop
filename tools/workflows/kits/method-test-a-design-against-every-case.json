@@ -20,7 +20,7 @@
       "title": "See the request as one case of a broader need",
       "ask": "Run workflow:method-test-a-design-against-every-case: add a reorder button to a bakery's order history page.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

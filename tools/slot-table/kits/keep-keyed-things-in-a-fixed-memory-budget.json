@@ -17,7 +17,7 @@
       "title": "Keep keyed things inside a fixed memory budget on its own sample",
       "ask": "Keep many keyed things inside a fixed memory budget, each read after the first being one array index, and let the least recently used go first when the budget is full",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

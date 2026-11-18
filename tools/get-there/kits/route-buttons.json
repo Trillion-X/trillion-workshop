@@ -17,7 +17,7 @@
       "title": "Route buttons for a trip on its own sample",
       "ask": "Give one-tap buttons that open the route to a place in each maps app, from a start and through stops on the way",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

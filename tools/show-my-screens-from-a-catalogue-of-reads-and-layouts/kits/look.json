@@ -17,7 +17,7 @@
       "title": "Read the three sections of the Look screen",
       "ask": "Show me how Trillion looks and feels on my screens.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

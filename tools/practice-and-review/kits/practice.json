@@ -18,7 +18,7 @@
       "title": "Keep cards to practise and bring them back on schedule on its own sample",
       "ask": "Keep something a person wants to get right every time (a word, a habit, a fact) as a card, ask for what is due now, grade each recall and see how well it is known",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

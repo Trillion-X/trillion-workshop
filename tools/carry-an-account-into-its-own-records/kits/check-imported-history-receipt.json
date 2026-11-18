@@ -18,7 +18,7 @@
       "title": "A receipt with two archives names both archive keys",
       "ask": "Which archive files does this history receipt reference?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

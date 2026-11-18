@@ -17,7 +17,7 @@
       "title": "Show what a tool would give members on its own sample",
       "ask": "Before I add a tool for my space's members, tell me what it would give each member beyond what they already hold, what it reaches or could cost, and whether I must decide it myself",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

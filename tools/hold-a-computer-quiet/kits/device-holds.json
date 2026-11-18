@@ -17,7 +17,7 @@
       "title": "What holds a device on its own sample",
       "ask": "See which holds are keeping apps closed on the person's computer and when each ends",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

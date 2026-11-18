@@ -17,7 +17,7 @@
       "title": "Record my screen on its own sample",
       "ask": "Record one display or one window of the person's Mac as a movie the person chose, pause, resume and stop it, note the pointer (positions and presses, never keys) beside it, and save it only to a place the person's allow-list names",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

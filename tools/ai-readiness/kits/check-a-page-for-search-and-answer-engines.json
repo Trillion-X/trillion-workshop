@@ -17,7 +17,7 @@
       "title": "Check a page for search and answer engines on its own sample",
       "ask": "Read one public page the way a search or answer engine does, from the HTML it is served with and no script run, and say which checks it passes, which it misses and how to fix each",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

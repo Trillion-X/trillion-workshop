@@ -19,7 +19,7 @@
       "title": "Save a snippet on its own sample",
       "ask": "Save words I send again and again as a snippet, with blanks like {name} to fill each time, or change one I saved",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -18,7 +18,7 @@
       "title": "Five frames pinned and tiled into three labelled pages",
       "ask": "Pin these 5 frames and make review pages of 2.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

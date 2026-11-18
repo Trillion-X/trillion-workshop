@@ -18,7 +18,7 @@
       "title": "Read a prediction market's order book on its own sample",
       "ask": "See the buy and sell offers on one prediction market outcome: the best prices, the gap between them and how much is offered",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

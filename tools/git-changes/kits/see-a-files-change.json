@@ -17,7 +17,7 @@
       "title": "See how one file changed on its own sample",
       "ask": "See the difference between one file in a project on the person's computer and the last commit",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

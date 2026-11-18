@@ -21,7 +21,7 @@
    "title": "A phone's recording becomes one heard row in the answer",
    "ask": "Hear the recording my Phone made at noon on 31 October and tell me who said what.",
    "mcp": {
-    "server": "trillion",
+    "server": "{cli}",
     "tool": "run_resource_operation",
     "input": {
      "address": "@tools",

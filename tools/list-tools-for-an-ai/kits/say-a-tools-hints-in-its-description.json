@@ -17,7 +17,7 @@
       "title": "Say a tool's hints in its description on its own sample",
       "ask": "Make a tool's description say in words what its read-only, destructive, idempotent and open-world hints say",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -30,7 +30,7 @@
       "title": "A Monday read: two paid users, one refund, one channel kept and one without data",
       "ask": "It is Monday: read the week for my hydration app.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

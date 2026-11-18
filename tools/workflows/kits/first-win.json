@@ -22,7 +22,7 @@
    "title": "Baseline of a bakery order page",
    "ask": "Run First Win Mode so a first-time visitor can place one order on my bakery order page.",
    "mcp": {
-    "server": "trillion",
+    "server": "{cli}",
     "tool": "run_resource_operation",
     "input": {
      "address": "@tools",

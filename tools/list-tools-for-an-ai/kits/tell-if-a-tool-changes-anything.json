@@ -17,7 +17,7 @@
       "title": "Tell if a tool changes anything on its own sample",
       "ask": "Tell whether a tool only reads or changes things, from its own operation name",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "Check when I am busy on its own sample",
       "ask": "Read when my own calendar shows me busy between two times",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

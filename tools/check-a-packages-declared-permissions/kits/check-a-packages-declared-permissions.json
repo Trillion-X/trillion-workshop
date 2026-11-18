@@ -17,7 +17,7 @@
       "title": "Check a package's declared permissions on its own sample",
       "ask": "Say whether a package's manifest names only permissions the host has a row for, and what each permission it names lets it do",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -19,7 +19,7 @@
       "title": "One stretch catches the next word",
       "ask": "Check each cut of my plan 'first' against its recording before I render.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

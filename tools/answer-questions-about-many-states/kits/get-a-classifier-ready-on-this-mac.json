@@ -18,7 +18,7 @@
       "title": "Get a questions-first classifier ready on this Mac on its own sample",
       "ask": "Get my question classifier model ready to run on my Mac",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

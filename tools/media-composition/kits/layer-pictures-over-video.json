@@ -18,7 +18,7 @@
       "title": "A logo in the top right for three seconds",
       "ask": "Put my logo in the top right from second 1 to 4.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

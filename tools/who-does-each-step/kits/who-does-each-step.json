@@ -17,7 +17,7 @@
       "title": "Say who should do each step of a plan on its own sample",
       "ask": "For each step of my plan, protocol, checklist or workflow, say who should do it instead of me: a tool or my AIs, a tool after one tap, or only me for a reason only I can meet",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

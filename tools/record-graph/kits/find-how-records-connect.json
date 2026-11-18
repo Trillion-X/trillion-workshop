@@ -18,7 +18,7 @@
       "title": "Find how records connect on its own sample",
       "ask": "Find how two of the person's records connect through relations and things that happened, or what several records all relate to and who else shares it",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

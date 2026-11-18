@@ -19,7 +19,7 @@
       "title": "Look inside the DCIM folder of a drive",
       "ask": "List the files in the DCIM folder on my SAMPLE DRIVE.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

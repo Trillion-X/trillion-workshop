@@ -17,7 +17,7 @@
       "title": "Read a public web page on its own sample",
       "ask": "Open one public web page and return its title, readable text, links, the card it describes itself with, every picture and video it declares and its structured data; or walk an outlet's archive from a start address, following its older pages and reading a chosen, dated sample of its entries",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

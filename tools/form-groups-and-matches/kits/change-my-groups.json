@@ -18,7 +18,7 @@
       "title": "Change my groups: add, move, order, nest and remove on its own sample",
       "ask": "Add things to my groups, lists or collections, move and reorder them, put some into a new group inside, take a group apart, or bring a whole folder tree in as groups",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

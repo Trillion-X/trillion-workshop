@@ -17,7 +17,7 @@
       "title": "Find the event that starts or replays one guided tour on its own sample",
       "ask": "Work out the event a Start or Replay control should send to run one named guided tour on demand",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

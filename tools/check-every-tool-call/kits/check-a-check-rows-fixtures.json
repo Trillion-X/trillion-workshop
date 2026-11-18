@@ -17,7 +17,7 @@
       "title": "Check that a check row proves what it says on its own sample",
       "ask": "Check that each check row a person is about to write judges what it says: every text it should pass passes it, and every text it should refuse is refused",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

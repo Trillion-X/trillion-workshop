@@ -19,7 +19,7 @@
       "title": "Check a buyer may open something on its own sample",
       "ask": "Decide whether a buyer may open one gated thing (a page, a lesson, a publication) from the access it requires",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -173,7 +173,7 @@
       "title": "Two lines answered by a stand-in model: the vague one scores yes 0.9",
       "ask": "Answer my check's vague-line question for these two lines.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

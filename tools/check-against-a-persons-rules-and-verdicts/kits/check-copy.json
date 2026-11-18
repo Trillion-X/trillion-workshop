@@ -18,7 +18,7 @@
       "title": "Check copy before a person reads it on its own sample",
       "ask": "Check text, Markdown, pages, JSON, decks and picture readings against the rules you send, and the whole set against your required lines, audience, offers and counts, and say pass, fail, held or uncertain for each unit",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -52,7 +52,7 @@
       "title": "Check copy before a person reads it on its own sample",
       "ask": "Check text, Markdown, pages, JSON, decks and picture readings against the rules you send, and the whole set against your required lines, audience, offers and counts, and say pass, fail, held or uncertain for each unit",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

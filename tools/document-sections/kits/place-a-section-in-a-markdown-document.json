@@ -17,7 +17,7 @@
       "title": "Put a section into a markdown document on its own sample",
       "ask": "Put one named section into a markdown document without repeating it: replace the section with the same heading, or add it at the end",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -126,7 +126,7 @@
       "title": "Two frames labelled for size and colour by an image-text model",
       "ask": "Label these two frames from my video with my size and colour words.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

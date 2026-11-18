@@ -18,7 +18,7 @@
       "title": "See where the public door runs on its own sample",
       "ask": "See where my public door runs now and which hosting and DNS services it can move between",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

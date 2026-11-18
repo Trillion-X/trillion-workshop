@@ -18,7 +18,7 @@
       "title": "Four photos in a grid of three, names below",
       "ask": "Make a contact sheet of my four cake photos, three to a row.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

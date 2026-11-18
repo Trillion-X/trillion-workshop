@@ -18,7 +18,7 @@
       "title": "Ask the engine to apply one keep rule on its own sample",
       "ask": "Apply my keep rule now",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

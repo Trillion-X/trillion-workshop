@@ -17,7 +17,7 @@
       "title": "Rank records for review on its own sample",
       "ask": "Put a list of suggestions, matches or any records in the order a person should review them, showing the fields they asked for on each row and whether they already accepted or passed on it",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

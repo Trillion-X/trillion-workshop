@@ -17,7 +17,7 @@
       "title": "Put a booking on my calendar on its own sample",
       "ask": "Make the event for a booking on my own calendar and invite the people booked",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

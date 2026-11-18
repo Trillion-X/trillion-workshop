@@ -17,7 +17,7 @@
       "title": "Name a voice on its own sample",
       "ask": "Attach a person's name to one voice cluster after identifying that voice",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

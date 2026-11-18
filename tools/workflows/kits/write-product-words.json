@@ -21,7 +21,7 @@
       "title": "A title without a full stop fails the copy judge, then passes",
       "ask": "Write the tour card for the drawing feature.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

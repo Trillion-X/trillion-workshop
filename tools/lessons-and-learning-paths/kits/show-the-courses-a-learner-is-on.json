@@ -17,7 +17,7 @@
       "title": "Show the courses a learner is on, lesson by lesson on its own sample",
       "ask": "Show the learning page for one learner: each course as its lessons in order, how many are done, the lesson they are on now, and each lesson's words",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

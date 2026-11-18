@@ -18,7 +18,7 @@
       "title": "A 7 second clip becomes a 57 KB MP3",
       "ask": "Take the sound out of my video.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

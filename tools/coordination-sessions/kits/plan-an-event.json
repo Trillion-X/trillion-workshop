@@ -18,7 +18,7 @@
       "title": "Plan an event on its own sample",
       "ask": "Turn my draft of a gathering into its session, its catalog entry, the places to open and the link people will use",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

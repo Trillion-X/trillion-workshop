@@ -19,7 +19,7 @@
       "title": "Two bakery orders become two list rows",
       "ask": "Turn my bakery orders in data/orders.json into rows for my orders list.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

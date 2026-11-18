@@ -22,7 +22,7 @@
       "title": "Three byproducts of a baking pursuit",
       "ask": "What does my baking already make that people would pay for?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -45,7 +45,7 @@
       "title": "Two prices are chosen for the first offer",
       "ask": "Test prices for the bake-notes pack.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

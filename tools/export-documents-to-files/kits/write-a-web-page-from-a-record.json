@@ -18,7 +18,7 @@
       "title": "A rye loaf record becomes a page for bakery.example.com",
       "ask": "Write the web page for my rye loaf record from envelope.json to page.html.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

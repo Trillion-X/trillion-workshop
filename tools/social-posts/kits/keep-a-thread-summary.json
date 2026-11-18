@@ -18,7 +18,7 @@
       "title": "Keep a conversation summary on its own sample",
       "ask": "Keep a short summary of this conversation, so the next AI that opens it reads a few lines instead of every message",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

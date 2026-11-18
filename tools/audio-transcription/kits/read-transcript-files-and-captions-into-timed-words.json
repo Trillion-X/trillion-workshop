@@ -20,7 +20,7 @@
       "title": "A two-cue srt becomes segment-timed words",
       "ask": "Read my transcript file /Transcripts/day1.srt into timed words.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

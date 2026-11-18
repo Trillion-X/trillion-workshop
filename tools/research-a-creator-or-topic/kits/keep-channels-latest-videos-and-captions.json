@@ -18,7 +18,7 @@
       "title": "Keep the newest videos of channels and their captions on its own sample",
       "ask": "List the newest videos of each channel, tab or playlist I name and keep each new video's captions with the times they are said, its description and, if I ask, its top comments, without downloading any video",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

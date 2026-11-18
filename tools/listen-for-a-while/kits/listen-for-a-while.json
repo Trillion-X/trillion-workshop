@@ -20,7 +20,7 @@
    "title": "Listen to the microphone until a time, and tell me who said what on its own sample",
    "ask": "Listen in on a meeting or a room until a time I give, and tell me each person's turn",
    "mcp": {
-    "server": "trillion",
+    "server": "{cli}",
     "tool": "run_resource_operation",
     "input": {
      "address": "@tools",

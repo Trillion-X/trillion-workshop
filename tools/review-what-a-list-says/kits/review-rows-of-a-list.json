@@ -18,7 +18,7 @@
       "title": "Review the rows of a list on its own sample",
       "ask": "Keep what a list of mine says true: set it up for review (an owner, a review state and a check-again date on each row, and views of what needs review), and mark rows verified, outdated or asking to be checked, or name their owner",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

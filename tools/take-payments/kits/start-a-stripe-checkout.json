@@ -17,7 +17,7 @@
       "title": "Start a Stripe checkout on its own sample",
       "ask": "Make the Stripe hosted checkout page a buyer is sent to, for one of my offers, with my own Stripe account",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -18,7 +18,7 @@
       "title": "Read my current screen look on its own sample",
       "ask": "Read this person's current worn screen look, look rules and day plan as the device token payload native screens draw",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

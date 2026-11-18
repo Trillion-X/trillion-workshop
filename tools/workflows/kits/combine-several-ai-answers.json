@@ -20,7 +20,7 @@
       "title": "Two answers on one source count as one",
       "ask": "Combine these three answers on pre-orders.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

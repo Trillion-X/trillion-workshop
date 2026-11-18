@@ -24,7 +24,7 @@
       "title": "Step take-there: Take them there",
       "ask": "Run workflow:lead-me-to-it.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

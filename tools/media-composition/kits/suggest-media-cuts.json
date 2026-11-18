@@ -17,7 +17,7 @@
       "title": "Suggest cuts from a recording's words on its own sample",
       "ask": "Propose cuts in a recording from its kept transcript (long silences or filler words), as typed lines a person can watch, with a typed ending when there is nothing to cut",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

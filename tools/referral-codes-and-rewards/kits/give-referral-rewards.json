@@ -20,7 +20,7 @@
       "title": "Give referral rewards on its own sample",
       "ask": "Work out the rewards my referral reward rules say a code earns and give back the discount and access rows that give them",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

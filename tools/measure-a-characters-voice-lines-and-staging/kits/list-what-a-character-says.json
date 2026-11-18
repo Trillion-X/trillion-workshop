@@ -20,7 +20,7 @@
       "title": "Two caption lines inside one turn",
       "ask": "What does the parrot say?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

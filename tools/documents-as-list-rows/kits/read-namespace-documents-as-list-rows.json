@@ -19,7 +19,7 @@
       "title": "Show a folder of my account's documents as the rows of a list on its own sample",
       "ask": "Read the markdown documents in a folder of my account's files as rows: each document's frontmatter is its fields, with the file's name, folder, size, dates, links, tags and identity, a page at a time",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

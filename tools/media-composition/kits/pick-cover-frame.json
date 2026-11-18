@@ -18,7 +18,7 @@
       "title": "The sharpest, best-exposed frame",
       "ask": "Pick the best cover frame of my video, 160 pixels wide.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -39,7 +39,7 @@
       "title": "The frame at a time you choose",
       "ask": "Use the frame at 3.5 seconds as the cover.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -15,7 +15,7 @@
     {
       "title": "Read every connected source once",
       "ask": "What tools do my connected sources offer right now?",
-      "mcp": {"server": "trillion", "tool": "run_resource_operation", "input": {"address": "@tools", "method": "tools:run", "input": {"tool": "tool:read-my-api-descriptions", "input": {"wait": false}}}},
+      "mcp": {"server": "{cli}", "tool": "run_resource_operation", "input": {"address": "@tools", "method": "tools:run", "input": {"tool": "tool:read-my-api-descriptions", "input": {"wait": false}}}},
       "given": "The input {\"wait\": false} for an account with one connected API description.",
       "hands_back": "An object whose reads holds one entry for that source, listing the tools it offers (draft: the values of a real run are not yet put in)."
     }

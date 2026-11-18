@@ -17,7 +17,7 @@
       "title": "May telemetry send about this page on its own sample",
       "ask": "Say whether a telemetry sink may send or keep anything about a page or event, from how private the page that was served is",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

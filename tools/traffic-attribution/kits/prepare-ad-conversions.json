@@ -19,7 +19,7 @@
       "title": "Prepare a payment to send back to Meta Ads on its own sample",
       "ask": "Prepare sign-ups and payments to send back to Meta Ads and Google Ads",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -25,7 +25,7 @@
    "title": "Who spoke is heard first",
    "ask": "Keep who appeared in my kitchen-tour.mp4 recording.",
    "mcp": {
-    "server": "trillion",
+    "server": "{cli}",
     "tool": "run_resource_operation",
     "input": {
      "address": "@tools",

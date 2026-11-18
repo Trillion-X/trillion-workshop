@@ -18,7 +18,7 @@
       "title": "One app, one group, a public link that is not yet checked against a device",
       "ask": "Read the TestFlight routes of com.example.sample for the group Members.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

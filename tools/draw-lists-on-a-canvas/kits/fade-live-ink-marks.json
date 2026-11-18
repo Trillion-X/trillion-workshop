@@ -21,7 +21,7 @@
       "title": "Fade live ink marks on its own sample",
       "ask": "Work out how visible each ink mark drawn live on a canvas or screen is at a given instant, so live marks fade instead of piling up, and when each is gone",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

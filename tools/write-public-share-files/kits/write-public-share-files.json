@@ -18,7 +18,7 @@
       "title": "Write the public files of my share links on its own sample",
       "ask": "Write the public files of every share link of mine that anyone may open, into the folder my public server serves, and remove the files of links I revoked or that expired",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

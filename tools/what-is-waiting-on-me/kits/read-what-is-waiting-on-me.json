@@ -20,7 +20,7 @@
       "title": "An unread source is said, never hidden",
       "ask": "What is waiting on me?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "Say who said each part of a recording on its own sample",
       "ask": "Name who said each stretch of a call or recording, from the voices of people who agreed to be known",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -18,7 +18,7 @@
       "title": "Pull the messages from the Slack channels my bot is in on its own sample",
       "ask": "Pull the messages from the Slack channels my bot is in",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

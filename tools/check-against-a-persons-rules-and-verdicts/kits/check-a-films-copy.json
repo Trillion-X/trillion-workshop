@@ -254,7 +254,7 @@
       "title": "A two-line script, one line breaks the no-sparkle rule",
       "ask": "Check my film's script against made-up-base.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

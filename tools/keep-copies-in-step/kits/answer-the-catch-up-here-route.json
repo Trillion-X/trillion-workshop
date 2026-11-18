@@ -18,7 +18,7 @@
       "title": "Answer the page that says how this device stands on its own sample",
       "ask": "Answer the Trillion page route POST /work/api/catch-up/here: keep how this device stands and answer the page as old Trillion did",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -18,7 +18,7 @@
       "title": "Let go of a site address on its own sample",
       "ask": "Stop a website answering at one of its addresses",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

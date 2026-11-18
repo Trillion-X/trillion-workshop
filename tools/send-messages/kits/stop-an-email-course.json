@@ -18,7 +18,7 @@
       "title": "Stop sending an email course to someone who unsubscribed on its own sample",
       "ask": "End a person's email course subscription from the token in their unsubscribe link, so no further lesson is sent",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

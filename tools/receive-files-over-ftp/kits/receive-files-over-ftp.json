@@ -18,7 +18,7 @@
       "title": "A scanner pushes a 500 000 byte PDF",
       "ask": "Start the FTP receiver for my front-desk scanner and tell me where its scans land.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

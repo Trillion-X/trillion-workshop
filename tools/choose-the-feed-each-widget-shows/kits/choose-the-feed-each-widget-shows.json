@@ -17,7 +17,7 @@
       "title": "Choose the feed each widget shows on its own sample",
       "ask": "Say which feed each widget on my phone or Mac shows: the one I picked for it, or else the feed its size takes from the surface's feeds in order",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

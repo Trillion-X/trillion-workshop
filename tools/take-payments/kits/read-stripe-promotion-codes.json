@@ -17,7 +17,7 @@
       "title": "Read the promotion codes in Stripe on its own sample",
       "ask": "Read the promotion codes and the coupons they give in your Stripe account, to see whether a code is active, how often it was used and what it takes off",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

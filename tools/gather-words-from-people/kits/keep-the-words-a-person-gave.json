@@ -156,7 +156,7 @@
       "title": "Keep Sam's reply on the row that asked",
       "ask": "Sam Example replied to my ask: keep their words with first-name consent.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

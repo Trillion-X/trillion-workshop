@@ -18,7 +18,7 @@
       "title": "Add evidence to a decision on its own sample",
       "ask": "Add evidence to a decision I am making, at any time, so that its answers can cite it, or bring it in from another of my decisions",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

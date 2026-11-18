@@ -123,7 +123,7 @@
       "title": "Read the settings I keep for one of my tools, from my own lists on its own sample",
       "ask": "Read the settings I keep for one of my tools from my list:settings, trying the most specific scope first",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

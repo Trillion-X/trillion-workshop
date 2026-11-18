@@ -19,7 +19,7 @@
       "title": "A machine the person already runs is forgotten, not touched",
       "ask": "Stop paying for this computer.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "Pack my device copy's settle upload on its own sample",
       "ask": "Work out what my device's copy of my records would send when it settles with my account: where the account's copy is kept on the device and the exact upload for one batch, compressed when that makes it smaller",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -19,7 +19,7 @@
       "title": "Approve a post on its own sample",
       "ask": "Check a drafted post is approved exactly as it was reviewed and answer the approved post row to keep",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

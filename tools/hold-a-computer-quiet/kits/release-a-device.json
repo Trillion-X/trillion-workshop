@@ -17,7 +17,7 @@
       "title": "Free a held device again on its own sample",
       "ask": "End a hold on the person's computer now: apps can open again and Focus turns off",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

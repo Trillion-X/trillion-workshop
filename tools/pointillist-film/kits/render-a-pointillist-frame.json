@@ -18,7 +18,7 @@
       "title": "One frame of a two-cell film at half a second",
       "ask": "Render the frame at 0.5 seconds of my two-cell film.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

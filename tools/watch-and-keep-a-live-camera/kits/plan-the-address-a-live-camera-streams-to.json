@@ -17,7 +17,7 @@
       "title": "Plan the address a live camera streams to on its own sample",
       "ask": "Work out how a live camera's stream would be received: the address this computer listens on for the camera's own key, the FFmpeg listener it is taken with, and a public RTMPS address through Tailscale Funnel that never takes a port serving something else",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

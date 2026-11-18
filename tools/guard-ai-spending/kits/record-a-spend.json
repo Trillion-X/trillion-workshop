@@ -18,7 +18,7 @@
       "title": "Record a spend on its own sample",
       "ask": "After my AI has paid, add what it spent to today's and the all-time totals",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

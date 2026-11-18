@@ -17,7 +17,7 @@
       "title": "Walk through an app like its users on its own sample",
       "ask": "Check that people can still do what they come to my app for after a change: walk each journey in a real browser, keep pictures, a log and a video, and tell my coding agent exactly what to fix, then check the fix",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

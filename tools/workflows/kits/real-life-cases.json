@@ -23,7 +23,7 @@
       "title": "Finding the cases",
       "ask": "Find real cases of bakery owners struggling to train staff.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

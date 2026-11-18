@@ -17,7 +17,7 @@
       "title": "Is this capture a repeat? on its own sample",
       "ask": "Say whether a captured text (screen words, a transcript) is the same as, or nearly the same as, one already seen, before it is kept or uploaded, and forget what was seen in a span when that span is erased",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

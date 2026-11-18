@@ -2,7 +2,7 @@
 // more often than they are today. The list is DATA (test/failed-names.json): each name, the word to use instead, its
 // forms as word parts, and the most uses allowed. A use is the form's word parts in a row, in any identifier
 // (`place_key`, `PlaceKey`, `PLACE_KEY`, `place-key` are all "place" then "key") or in text, in this repository's code
-// and in every screen-words file (`*words*.json`). Byte copies kept from old trillion (`from-old-trillion` folders,
+// and in every screen-words file (`*words*.json`). Byte copies kept from old trillion (`from-an-older-version` folders,
 // `*.held` files), installed packages, and a file moved here whose bytes are still exactly what its moved-from.json
 // receipt records (`to` and `identity`) are not counted: they are originals, not code written here, and a rename inside one
 // would break the receipt that proves it. Once such a file is edited its identity no longer matches and it counts. The numbers only go down: a change that removes uses lowers
@@ -18,7 +18,7 @@ const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const LIST = JSON.parse(readFileSync(join(ROOT, 'test/failed-names.json'), 'utf8'));
 const SELF = 'test/failed-names.test.mjs';
 const CODE = /\.(mjs|cjs|js|jsx|ts|tsx|py|sh|swift|rs|kt|java|m|h|c|go|rb|css|html|svelte|vue)$/;
-const SKIP = new Set(['node_modules', '.git', 'from-old-trillion', 'target', 'dist', 'build', '.build', 'DerivedData']);
+const SKIP = new Set(['node_modules', '.git', 'from-an-older-version', 'target', 'dist', 'build', '.build', 'DerivedData']);
 
 // Every receipt's moved file and the identity it was moved with, from each moved-from.json at any depth under tools/:
 // { 'tools/<tool>/...': '1f:...' } (a receipt names it `identity`, or `identity_at_move` when the copy was changed after).

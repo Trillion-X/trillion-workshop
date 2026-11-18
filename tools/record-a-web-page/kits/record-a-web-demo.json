@@ -18,7 +18,7 @@
       "title": "Four steps on a page with a menu, a name box and a button",
       "ask": "Record a demo of the bakery page: hover Features, type Ada, click Say hello, scroll.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

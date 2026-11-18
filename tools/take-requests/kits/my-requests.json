@@ -18,7 +18,7 @@
       "title": "Requests taken and who owes an answer on its own sample",
       "ask": "List the requests taken, newest first, with their receipts and the ones still waiting on an owner",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

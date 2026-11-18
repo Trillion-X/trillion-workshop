@@ -29,7 +29,7 @@
       "title": "Research first: the first step runs the research-plan-build workflow",
       "ask": "Run workflow:method-build-a-product for the request: let customers of a small bakery pre-order a weekend box from the website.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

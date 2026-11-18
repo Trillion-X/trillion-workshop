@@ -18,7 +18,7 @@
       "title": "Assign helpers to the people who need them, within each helper's capacity on its own sample",
       "ask": "Assign mentors, volunteers or helpers to the people who asked for help when each helper can only take so many, best pairs first, and say who was left without one and why",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

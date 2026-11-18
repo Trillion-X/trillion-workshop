@@ -297,7 +297,7 @@
       "title": "A week of articles, one slot a day",
       "ask": "Write my newsletter articles for the next 7 days.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

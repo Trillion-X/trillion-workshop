@@ -23,7 +23,7 @@
       "title": "Answer the page that shows the one thing that holds me on its own sample",
       "ask": "Answer the Trillion page routes GET and POST /work/api/needs-you-hold: the one thing held for me now, and setting it aside, handing it back, choosing a stake, asking off or turning it on",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

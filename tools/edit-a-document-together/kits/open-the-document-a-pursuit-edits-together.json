@@ -17,7 +17,7 @@
       "title": "Open the document a pursuit edits together on its own sample",
       "ask": "Say which document each page of Write opens, so everyone in a pursuit edits the same document together and a personal page stays personal",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

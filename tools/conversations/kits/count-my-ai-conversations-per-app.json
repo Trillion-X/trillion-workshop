@@ -18,7 +18,7 @@
       "title": "Count my AI conversations per app on its own sample",
       "ask": "Count the AI conversations in my records per app, and how many messages each app's conversations hold",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

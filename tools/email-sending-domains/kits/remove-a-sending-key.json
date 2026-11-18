@@ -19,7 +19,7 @@
       "title": "Turn off one key by its id",
       "ask": "Remove the Resend key 0f1e2d3c-4b5a-4968-8776-a5b4c3d2e1f0.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

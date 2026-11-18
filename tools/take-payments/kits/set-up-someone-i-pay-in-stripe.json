@@ -17,7 +17,7 @@
       "title": "Set up someone I pay in Stripe on its own sample",
       "ask": "Make a Stripe account for a person I pay, or check one, and get their Stripe onboarding page and what Stripe still needs from them",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

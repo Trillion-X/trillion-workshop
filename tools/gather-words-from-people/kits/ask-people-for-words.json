@@ -155,7 +155,7 @@
       "title": "Ask two people about one order",
       "ask": "Ask Sam Example and Bo Sample for their own words about cake order cake-2026.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

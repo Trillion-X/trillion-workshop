@@ -17,7 +17,7 @@
       "title": "See what runs on its own on its own sample",
       "ask": "Show everything my account runs on its own (schedules, record changes, incoming events): what each waits for, whether it is on, its last and next run, which ones should have run and did not, and a switch to turn each off or on",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

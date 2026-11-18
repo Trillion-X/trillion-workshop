@@ -17,7 +17,7 @@
       "title": "Work a session catalog on its own sample",
       "ask": "Offer my sessions in a catalog: publish an entry, read what is current, change it, withdraw it, replace it, or point it to a related offer",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

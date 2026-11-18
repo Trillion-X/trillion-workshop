@@ -156,7 +156,7 @@
       "title": "Approve Sam's words exactly as reviewed",
       "ask": "Approve Sam Example's words on list:praise for showing.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -367,7 +367,7 @@
       "title": "Start the run from a chat",
       "ask": "Answer my new Instagram messages.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -389,7 +389,7 @@
       "title": "A price question gets the price reply",
       "ask": "Someone asked how much it is, answer them.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -415,7 +415,7 @@
       "title": "The reply is checked before it is handed over",
       "ask": "Check these replies against my rules.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "Answer the web chat message routes on a sample input",
       "ask": "Run tool:answer-the-message-page-routes.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -18,7 +18,7 @@
       "title": "Take a person's results out of the pool on its own sample",
       "ask": "Remove every noisy result one person ever gave the pool when they stop sharing",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

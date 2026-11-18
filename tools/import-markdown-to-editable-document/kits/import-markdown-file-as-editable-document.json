@@ -17,7 +17,7 @@
       "title": "Import a Markdown file as an editable document on its own sample",
       "ask": "Turn a Markdown file into the editable document scene tree, keeping its structure and source spans",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

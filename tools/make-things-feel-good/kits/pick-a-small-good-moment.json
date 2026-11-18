@@ -17,7 +17,7 @@
       "title": "Pick the small good moment to play on its own sample",
       "ask": "Pick the small good moment to play when something good happens or a phrase is typed: its words and motion, from the moment rows I give, so once-only moments play once and the words change each time",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

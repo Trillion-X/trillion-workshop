@@ -20,7 +20,7 @@
       "title": "A belief about discounts turns into a checked limit list",
       "ask": "Question my belief that a small bakery cannot win customers without discounts.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

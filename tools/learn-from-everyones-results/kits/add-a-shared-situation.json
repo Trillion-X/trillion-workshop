@@ -19,7 +19,7 @@
       "title": "Add a shared situation to the pool on its own sample",
       "ask": "Keep one situation a person made safe to show strangers, with its meaning, so others can learn how similar decisions turned out",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

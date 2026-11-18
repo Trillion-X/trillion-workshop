@@ -19,7 +19,7 @@
       "title": "Append two reviewed videos to a ledger of four rows",
       "ask": "Add the two videos I reviewed in admission/batch to my packaging ledger under source key ch-example-videos, as a later batch.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

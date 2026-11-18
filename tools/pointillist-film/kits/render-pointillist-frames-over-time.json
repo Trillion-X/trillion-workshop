@@ -19,7 +19,7 @@
       "title": "Three frames of a two-cell film",
       "ask": "Render my two-cell film at 0, 1 and 1.5 seconds.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

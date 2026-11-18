@@ -125,7 +125,7 @@
       "title": "A 13.5 second working preview becomes two contact sheets and a three-line transcript",
       "ask": "Make the fresh-viewer review pack for option x00-r8-2.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "Rank what is still open on a trip on its own sample",
       "ask": "Plan a trip: list everything still open across its schedule, packing list and bookings in the order to deal with it, with the one thing to do first and a count of open things per lane",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

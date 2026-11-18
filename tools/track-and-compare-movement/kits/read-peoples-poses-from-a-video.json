@@ -18,7 +18,7 @@
       "title": "Run again on a video that already has its track",
       "ask": "Read the poses of the people in /work/serve.mp4 with my pose model.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -35,7 +35,7 @@
       "title": "A missing video is refused with what to change",
       "ask": "Read the poses in /work/none.mp4.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "Check what a buyer paid on its own sample",
       "ask": "Check that the money a buyer actually paid is a price my offer declares, before giving them what they bought",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

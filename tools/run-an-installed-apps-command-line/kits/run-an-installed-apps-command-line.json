@@ -18,7 +18,7 @@
       "title": "A made-up app's JavaScript entry gets its arguments exactly",
       "ask": "Run the command line inside my Zorblet app: render --out \"a file with spaces.mp4\".",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

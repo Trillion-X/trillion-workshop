@@ -17,7 +17,7 @@
       "title": "Make a raw control byte in my source files searchable again on its own sample",
       "ask": "Rewrite a raw control character hiding in source files (which makes search tools skip the file as binary) as the escape that means the same character, so the file stays exactly the program it was",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

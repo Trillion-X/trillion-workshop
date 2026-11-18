@@ -18,7 +18,7 @@
       "title": "Find the team number for the balance",
       "ask": "Which treg team does my connection pay from?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -19,7 +19,7 @@
       "title": "The first page of a channel's uploads",
       "ask": "List the videos on my YouTube channel with their privacy status.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

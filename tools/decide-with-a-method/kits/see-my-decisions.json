@@ -18,7 +18,7 @@
       "title": "See my decisions on its own sample",
       "ask": "Show my decisions, what I am working toward, my plans and what has helped me decide",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

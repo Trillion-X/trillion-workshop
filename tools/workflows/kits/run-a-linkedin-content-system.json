@@ -33,7 +33,7 @@
       "title": "Buyer questions are pulled from two sales calls",
       "ask": "What do buyers ask on my calls?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

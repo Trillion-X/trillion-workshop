@@ -17,7 +17,7 @@
       "title": "List the comparisons a rule can use on its own sample",
       "ask": "List the comparisons and the all-of and any-of groups a rule can use, for one kind of field or every kind",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

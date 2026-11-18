@@ -18,7 +18,7 @@
       "title": "Pull the comments on my Instagram posts on its own sample",
       "ask": "Pull the comments on the posts of my Instagram professional account",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

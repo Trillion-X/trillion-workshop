@@ -18,7 +18,7 @@
       "title": "Read a resource usage settlement on its own sample",
       "ask": "Inspect a supplier-cost settlement and its original or corrected version, including exact customer amounts, company expense and unresolved funding, without moving money",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -122,7 +122,7 @@
       "title": "Match every video format I have collected to every idea I could film, and keep the best fits on its own sample",
       "ask": "For every idea I could make a video of, find which of the formats in my library suit it best, and record the best few per idea with why",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -149,7 +149,7 @@
       "title": "Match every video format I have collected to every idea I could film, and keep the best fits on its own sample",
       "ask": "For every idea I could make a video of, find which of the formats in my library suit it best, and record the best few per idea with why",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

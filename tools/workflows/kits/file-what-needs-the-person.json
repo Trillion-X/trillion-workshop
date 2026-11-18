@@ -162,7 +162,7 @@
       "title": "One step is done for you and one stays as your signature",
       "ask": "File what this plan has me doing.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

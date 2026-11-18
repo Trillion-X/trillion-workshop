@@ -18,7 +18,7 @@
       "title": "whisperX on a 2 minute talk by Sam, a baker, about her shop",
       "ask": "Use whisperX on talk.mp4.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

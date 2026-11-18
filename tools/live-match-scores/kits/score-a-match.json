@@ -17,7 +17,7 @@
       "title": "Keep score of a match point by point on its own sample",
       "ask": "Keep the score of a match (tennis, pickleball, padel or any game whose scoring a person writes as a rule): start a match, give a point to a side, undo the last point, type in a score, and link a match to a tournament, schedule, bracket, standings or leaderboard",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

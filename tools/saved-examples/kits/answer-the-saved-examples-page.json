@@ -18,7 +18,7 @@
       "title": "Answer the Saved examples page on its own sample",
       "ask": "Answer the Saved examples page: list my saved examples, save one from its link, remove one",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

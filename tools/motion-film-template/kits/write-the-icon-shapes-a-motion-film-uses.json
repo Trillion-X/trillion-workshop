@@ -18,7 +18,7 @@
       "title": "Two icons written into the film's icons file",
       "ask": "Write the check and dot icon shapes my film uses from lucide-react into the film's icons file.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

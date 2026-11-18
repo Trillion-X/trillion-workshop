@@ -17,7 +17,7 @@
       "title": "Turn a drawn stroke into a line, rectangle or polygon on its own sample",
       "ask": "Turn the points of a drawn stroke into the shape the chosen drawing tool makes: freehand ink, a straight line, a rectangle or a regular polygon or ellipse",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

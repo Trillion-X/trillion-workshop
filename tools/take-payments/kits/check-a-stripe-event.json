@@ -17,7 +17,7 @@
       "title": "Check a Stripe event on its own sample",
       "ask": "Check a Stripe webhook before believing it (its age and its signature), and read it as a payment event to keep",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

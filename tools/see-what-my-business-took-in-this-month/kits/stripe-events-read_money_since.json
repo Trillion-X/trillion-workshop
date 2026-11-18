@@ -19,7 +19,7 @@
       "title": "Five Stripe entries since the 1st of October 2026",
       "ask": "List the money that moved on my Stripe account since October 1, 2026, newest first.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

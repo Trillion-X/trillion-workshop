@@ -18,7 +18,7 @@
       "title": "Show how far my conversation import is on its own sample",
       "ask": "Show how far bringing in my conversations has got: for each source, files done, conversations and messages kept, and whether it stopped",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

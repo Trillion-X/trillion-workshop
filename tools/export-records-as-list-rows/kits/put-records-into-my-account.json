@@ -19,7 +19,7 @@
       "title": "Put prepared records into my account through my door, writing only what it lacks (runs on your computer) on its own sample",
       "ask": "Put the records I prepared into my account so a re-run writes nothing: read what my account holds, send only what differs (or, when I keep edited rows, only what it lacks), in small commands, and stop at the first refusal",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

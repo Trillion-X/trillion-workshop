@@ -193,7 +193,7 @@
       "title": "A spoken line becomes a timed moment row",
       "ask": "Find the moments in my Saturday clip.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

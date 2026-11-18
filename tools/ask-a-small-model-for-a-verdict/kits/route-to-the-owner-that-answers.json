@@ -18,7 +18,7 @@
       "title": "A flour question goes to the supplier book",
       "ask": "Where do I look for who sells flour near the shop?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

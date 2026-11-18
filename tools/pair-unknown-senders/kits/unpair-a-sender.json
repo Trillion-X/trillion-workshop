@@ -18,7 +18,7 @@
       "title": "Unpair a sender on its own sample",
       "ask": "Stop letting a paired sender's messages through, so they are unknown again",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -18,7 +18,7 @@
       "title": "Manage my tool sources on its own sample",
       "ask": "List the API descriptions my tools come from, add an API description for my account, edit it or remove it",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

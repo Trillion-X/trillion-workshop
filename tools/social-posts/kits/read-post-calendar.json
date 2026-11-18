@@ -17,7 +17,7 @@
       "title": "Posting calendar on its own sample",
       "ask": "Show what this person is posting between two times, and which drafts have no time yet, so a post can be given a time or moved to another",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

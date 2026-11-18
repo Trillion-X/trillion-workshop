@@ -17,7 +17,7 @@
       "title": "Decide what happens to a video at ingest on its own sample",
       "ask": "Decide whether an uploaded video is kept as it came, converted to the one playable format (MP4), or kept with the reason it could not be converted, and give the conversion's arguments",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

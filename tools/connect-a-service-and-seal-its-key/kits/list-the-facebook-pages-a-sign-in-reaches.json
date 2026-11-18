@@ -20,7 +20,7 @@
       "title": "List the Facebook Pages a sign-in reaches for a made-up connection",
       "ask": "List the Facebook Pages a sign-in reaches for service_connection:facebook-messenger:7d3c88e1.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

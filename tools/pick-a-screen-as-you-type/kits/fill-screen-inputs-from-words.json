@@ -17,7 +17,7 @@
       "title": "Fill a screen's inputs from my words on its own sample",
       "ask": "Fill a screen's inputs from the words a person typed, such as timer 25 min or lunch with Ruth tomorrow at 1, by each input's format, choices or type, with no model",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -19,7 +19,7 @@
       "title": "The newest release of a shop repository is staged once",
       "ask": "Read what my shop repository shipped and stage it.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -19,7 +19,7 @@
       "title": "Remove a snippet on its own sample",
       "ask": "Remove one of my saved snippets",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

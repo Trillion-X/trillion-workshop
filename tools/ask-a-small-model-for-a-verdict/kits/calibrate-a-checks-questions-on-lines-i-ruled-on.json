@@ -174,7 +174,7 @@
       "title": "The sample-vague check separates two vague lines from two good ones",
       "ask": "Calibrate my vague-line check on the lines I ruled.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

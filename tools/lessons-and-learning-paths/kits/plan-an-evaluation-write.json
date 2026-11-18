@@ -17,7 +17,7 @@
       "title": "Plan the write that accepts an evaluation of a learner's step on its own sample",
       "ask": "Accept the result of judging a learner's work on a step: the receipt to keep and the learner's next progress state, without applying one twice",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

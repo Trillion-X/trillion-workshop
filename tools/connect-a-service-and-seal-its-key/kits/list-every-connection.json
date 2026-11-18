@@ -18,7 +18,7 @@
       "title": "List everything I can connect, services and my computer's places together on its own sample",
       "ask": "Show every service I can connect to Trillion and every place on my own computer it can read (notes, voice memos, messages, photos, downloads), in one list grouped by kind",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

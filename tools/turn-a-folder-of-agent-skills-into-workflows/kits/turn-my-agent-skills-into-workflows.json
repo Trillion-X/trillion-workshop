@@ -140,7 +140,7 @@
       "title": "The skill that names a computer folder stays home",
       "ask": "Turn my agent skills into workflows.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -163,7 +163,7 @@
       "title": "Run the workflow a skill became",
       "ask": "Run workflow:skill-tidy-notes on these notes.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

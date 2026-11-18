@@ -163,7 +163,7 @@
       "title": "A title that breaks a rule of its branch and a rule of the branch above",
       "ask": "Check the title 'A sparkle of zorblax' against my made-up-post branch.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -189,7 +189,7 @@
       "title": "Your own verdict on an exact title decides before the word rules",
       "ask": "Check the titles 'Zorblax rising' and 'A sparkle of calm' with the rule no-sparkle and my verdict on the first.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

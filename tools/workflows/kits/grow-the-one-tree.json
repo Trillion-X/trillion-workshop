@@ -495,7 +495,7 @@
       "title": "One seed fires two workflows",
       "ask": "Grow the tree from this: new staff learn our order sheet faster from filled-in rows than from the how-to.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

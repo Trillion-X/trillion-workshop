@@ -17,7 +17,7 @@
       "title": "Keep a device quiet until a time on its own sample",
       "ask": "Turn Focus on and keep distracting apps closed on the person's computer until a set time, for a work session, a meeting or bedtime",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -21,7 +21,7 @@
       "title": "Five sources read, each with an exact quote",
       "ask": "Research how small bakeries get repeat customers and brief me.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

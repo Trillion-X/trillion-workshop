@@ -22,7 +22,7 @@
       "title": "The capable owner is chosen first",
       "ask": "Put our training sheet in the world as a public page.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

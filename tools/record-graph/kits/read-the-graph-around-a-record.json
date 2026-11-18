@@ -18,7 +18,7 @@
       "title": "Read everything one record is connected to on its own sample",
       "ask": "Read everything one of the person's records is connected to: its relations by side and role in order, everything that happened with it and when they were last in touch, and the records a few steps away",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

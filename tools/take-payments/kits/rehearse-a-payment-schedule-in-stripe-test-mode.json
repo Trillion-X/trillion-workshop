@@ -17,7 +17,7 @@
       "title": "Rehearse a payment schedule in Stripe test mode on its own sample",
       "ask": "Build a payment schedule in Stripe test mode and see what Stripe says it will charge and when, before a real buyer meets it",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

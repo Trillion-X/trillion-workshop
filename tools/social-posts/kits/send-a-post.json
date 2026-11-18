@@ -23,7 +23,7 @@
       "title": "Send a post on its own sample",
       "ask": "Send one of the person's approved posts to one of their accounts at a place once its time has come, and answer where it went as the post to keep",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

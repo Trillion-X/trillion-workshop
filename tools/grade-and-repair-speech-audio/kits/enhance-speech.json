@@ -18,7 +18,7 @@
       "title": "Clean a recording's noise and find where the speech is on its own sample",
       "ask": "Clean the noise out of a recording on my own computer with what it can afford, and tell me where the speech is",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

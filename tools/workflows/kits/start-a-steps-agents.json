@@ -19,7 +19,7 @@
       "title": "Start the agents of one step of a recipe run: one waiting job per lane on its own sample",
       "ask": "When a step of a recipe run says it has several agents, start that many jobs for it in my own database, each with its own lane, so each lane is done by its own AI",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

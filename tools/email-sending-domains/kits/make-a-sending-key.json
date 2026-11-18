@@ -20,7 +20,7 @@
       "title": "A send-only key kept as bakery-newsletter-key",
       "ask": "Make a send-only Resend key named Bakery newsletter and keep it as bakery-newsletter-key.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

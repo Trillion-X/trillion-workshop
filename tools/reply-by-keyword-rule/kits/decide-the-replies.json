@@ -122,7 +122,7 @@
       "title": "A price question in Instagram messages gets the price reply",
       "ask": "Decide which of my Instagram messages the reply rules answer now.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

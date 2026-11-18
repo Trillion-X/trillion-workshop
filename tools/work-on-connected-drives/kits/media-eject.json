@@ -19,7 +19,7 @@
       "title": "Eject a drive on its own sample",
       "ask": "Eject one drive connected to this person's computer safely, so it can be unplugged",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -18,7 +18,7 @@
       "title": "A clean greenhouse library, then one with a dangling crop id",
       "ask": "Check my greenhouse record library.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

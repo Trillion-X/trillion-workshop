@@ -17,7 +17,7 @@
       "title": "Break down visits and sales by source on its own sample",
       "ask": "Break down visitors, leads and sales by where they came from (source, campaign or any tracked field), with conversion rates and revenue",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

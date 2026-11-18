@@ -18,7 +18,7 @@
       "title": "Refreshing a bakery's chores list from a folder of four recipes",
       "ask": "Refresh my chores list from its recipes source.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

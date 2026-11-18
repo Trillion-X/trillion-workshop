@@ -18,7 +18,7 @@
       "title": "Check the Threads connection through the one check tool",
       "ask": "Check that the person's connection to a place still reaches its account, before a post is set to go there or a read is made",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

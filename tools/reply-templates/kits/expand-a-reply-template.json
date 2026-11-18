@@ -17,7 +17,7 @@
       "title": "Expand a canned reply template on its own sample",
       "ask": "Fill a canned reply template with the details of a request, such as a name or a button label, and give back the finished reply",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

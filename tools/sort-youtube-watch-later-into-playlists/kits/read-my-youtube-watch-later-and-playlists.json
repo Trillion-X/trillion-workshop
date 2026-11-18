@@ -125,7 +125,7 @@
       "title": "Read one channel's Watch Later, subscriptions and playlists",
       "ask": "Read my YouTube Watch Later and playlists for my kitchen channel.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

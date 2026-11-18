@@ -193,7 +193,7 @@
       "title": "Two offers become two payment links, the member link returning to its own page",
       "ask": "Make payment links for the Member and Session offers.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

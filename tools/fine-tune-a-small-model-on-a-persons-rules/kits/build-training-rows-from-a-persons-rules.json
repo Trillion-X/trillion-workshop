@@ -18,7 +18,7 @@
       "title": "Build rows for two rules from four ruled lines, a transcript and captions",
       "ask": "Build the training rows for my two writing rules plain-words and said-aloud, holding the test lines out first.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

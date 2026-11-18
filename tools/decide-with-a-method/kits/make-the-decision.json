@@ -18,7 +18,7 @@
       "title": "Make the decision on its own sample",
       "ask": "Record what my AI decided, why, what to do next and how we will know it worked",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

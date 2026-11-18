@@ -18,7 +18,7 @@
       "title": "Two clips, the second at double speed",
       "ask": "Render the first 2 seconds, then 4 to 6.5 seconds at double speed.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

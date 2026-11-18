@@ -18,7 +18,7 @@
       "title": "One claim was known, one was rechecked, one is new",
       "ask": "Do we already offer refunds on the weekend bread box, and since when?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

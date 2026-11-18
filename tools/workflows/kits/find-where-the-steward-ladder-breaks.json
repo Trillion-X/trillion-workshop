@@ -19,7 +19,7 @@
    "title": "Why the newsletter brings no pre-orders",
    "ask": "Find where my bakery newsletter chain breaks.",
    "mcp": {
-    "server": "trillion",
+    "server": "{cli}",
     "tool": "run_resource_operation",
     "input": {
      "address": "@tools",

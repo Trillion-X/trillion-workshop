@@ -17,7 +17,7 @@
       "title": "Keep measurement history current on its own sample",
       "ask": "Collect configured operation evidence and return the observation and forecast rows to keep, on a timed or record wake without an AI",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

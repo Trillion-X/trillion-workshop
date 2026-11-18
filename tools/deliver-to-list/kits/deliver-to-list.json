@@ -19,7 +19,7 @@
       "title": "A sign-in code written as one row",
       "ask": "Write a sign-in code message for sam@example.com as a row of my sign-in-code list.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

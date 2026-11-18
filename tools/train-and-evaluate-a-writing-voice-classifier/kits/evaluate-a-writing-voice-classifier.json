@@ -122,7 +122,7 @@
       "title": "Evaluate a writing-voice classifier on labelled passages on its own sample",
       "ask": "Check how well a small classifier judges a writer's voice: validate the labelled challenge passages, plan the questions, ask the classifier each one, and report its choices, probabilities, abstentions and accuracy by criterion, family and source",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -225,7 +225,7 @@
       "title": "Evaluate a writing-voice classifier on labelled passages on its own sample",
       "ask": "Check how well a small classifier judges a writer's voice: validate the labelled challenge passages, plan the questions, ask the classifier each one, and report its choices, probabilities, abstentions and accuracy by criterion, family and source",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

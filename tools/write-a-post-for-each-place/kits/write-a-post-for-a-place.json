@@ -17,7 +17,7 @@
       "title": "Write a post for one place on its own sample",
       "ask": "Write one message for a pull request thread, a merge request note, a chat or a post from the same blocks, using only what that place can show",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

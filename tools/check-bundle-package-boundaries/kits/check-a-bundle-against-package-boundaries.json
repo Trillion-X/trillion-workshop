@@ -17,7 +17,7 @@
       "title": "Check my app's bundle only uses what each package made public on its own sample",
       "ask": "Stop a build that takes a file from a package that did not declare it public: read the bundler's own list of what went into the finished bundle and report every import that reaches into a package's private files",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

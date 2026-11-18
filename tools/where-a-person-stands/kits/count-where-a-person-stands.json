@@ -19,7 +19,7 @@
       "title": "Count where a person stands on its own sample",
       "ask": "Count the stands a person has taken, by kind of thing and by stand, with how many changed their mind and how many took a stand back",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

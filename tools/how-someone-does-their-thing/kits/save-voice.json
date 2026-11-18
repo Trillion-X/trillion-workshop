@@ -19,7 +19,7 @@
       "title": "Save how someone writes on its own sample",
       "ask": "Save what you learned about how this person writes, for one kind of writing",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

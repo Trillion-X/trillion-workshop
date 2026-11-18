@@ -18,7 +18,7 @@
       "title": "A 20 second watch while a notes window changes",
       "ask": "Watch what I am doing on my Mac for 20 seconds and tell me which windows I used.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -39,7 +39,7 @@
       "title": "Accessibility is off",
       "ask": "Watch my screen for 20 seconds.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

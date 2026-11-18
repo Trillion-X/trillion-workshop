@@ -18,7 +18,7 @@
       "title": "tesseract on a photo of a paper receipt from a bakery",
       "ask": "Use tesseract on receipt.png.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

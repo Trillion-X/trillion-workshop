@@ -17,7 +17,7 @@
       "title": "Total the lines of a quote or invoice on its own sample",
       "ask": "Total the lines of a quote or invoice in order, where each percent line names the base it multiplies (the line above, the lines since the last subtotal, or all above) and a subtotal line resets that base",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

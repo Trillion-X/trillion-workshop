@@ -18,7 +18,7 @@
       "title": "Read my matches in a community, my profile, and the score job I owe on its own sample",
       "ask": "See who a community's matchmaker proposed for me and where each introduction stands, what my profile still misses, the shortlist my AI still has to score, and fellow members who share my categories",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

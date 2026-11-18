@@ -18,7 +18,7 @@
       "title": "Bring back my similar decisions on its own sample",
       "ask": "When I am about to decide something, show what I decided in similar decisions before, what came next and how each turned out",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

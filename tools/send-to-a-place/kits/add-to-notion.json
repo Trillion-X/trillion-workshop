@@ -18,7 +18,7 @@
       "title": "Add a picked note to a Notion database",
       "ask": "Add a picked note to a Notion database",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

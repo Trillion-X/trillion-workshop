@@ -124,7 +124,7 @@
       "title": "A spoken line becomes a template with one number slot",
       "ask": "Make a word template from bakery/transcript.json.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

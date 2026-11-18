@@ -19,7 +19,7 @@
       "title": "Draw a 64 pixel drive icon",
       "ask": "Get the Finder icon of my SAMPLE DRIVE as a 64 pixel picture.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

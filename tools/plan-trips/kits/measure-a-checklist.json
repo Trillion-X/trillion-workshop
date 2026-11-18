@@ -17,7 +17,7 @@
       "title": "Measure how much of a checklist is done on its own sample",
       "ask": "See how much of a packing list or other checklist is done and group its items, for example by category",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

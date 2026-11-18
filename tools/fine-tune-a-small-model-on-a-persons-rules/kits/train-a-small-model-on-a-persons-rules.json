@@ -19,7 +19,7 @@
       "title": "A folder that is not a decider model is refused before any training",
       "ask": "Train an adapter on my train.jsonl with the model folder /work/models.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

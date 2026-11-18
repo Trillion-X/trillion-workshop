@@ -19,7 +19,7 @@
       "title": "Five tennis films, with the query echoed back",
       "ask": "Search the Internet Archive for films about tennis, five results.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

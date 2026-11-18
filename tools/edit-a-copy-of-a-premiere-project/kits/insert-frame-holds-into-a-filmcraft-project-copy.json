@@ -19,7 +19,7 @@
       "title": "One correction becomes a half-second frame hold at 2 seconds",
       "ask": "Insert my rendered correction s1 into a copy of my FilmCraft project.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

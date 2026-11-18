@@ -17,7 +17,7 @@
       "title": "Work in an app on your computer on its own sample",
       "ask": "On the person's own computer, edit a video timeline in DaVinci Resolve and do anything else its scripting allows (projects, media pool, clips, markers, colour, Fusion, Fairlight audio, rendering), or write DaVinci Resolve project, timeline and grade files that import into any edition, or reverse engineer an app or binary, decompile it and explain how a feature works under the hood (native computer, Linux and Windows programs, .NET, Android, Electron and JavaScript apps, firmware, websites), through the app's own tool server",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

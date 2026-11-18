@@ -180,7 +180,7 @@
       "title": "Keep what I said to an AI and what it answered on its own sample",
       "ask": "Keep the messages of a turn with an AI that keeps its chats on its own service (Muse, Grok Bot), my words and its replies, as my messages",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

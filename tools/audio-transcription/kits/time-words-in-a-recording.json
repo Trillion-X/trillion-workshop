@@ -18,7 +18,7 @@
       "title": "A window of a recording gives two timed words",
       "ask": "Time the words of recording.mp4 from 2.5 to 3.25 seconds with the small Whisper model.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

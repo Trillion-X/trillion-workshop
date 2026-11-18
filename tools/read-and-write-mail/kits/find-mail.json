@@ -20,7 +20,7 @@
       "title": "Run find-mail on a sample input",
       "ask": "Find mail from Alex about the invoice.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

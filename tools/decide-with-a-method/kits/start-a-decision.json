@@ -20,7 +20,7 @@
       "title": "Start a decision with my method on its own sample",
       "ask": "Start a decision my AI will make with my method: what is being decided, the facts and constraints, and the options only if I already hold them",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -18,7 +18,7 @@
       "title": "Music at 30%, faded, ducked, and levelled to -14",
       "ask": "Put my music under the video quietly and level it to -14.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

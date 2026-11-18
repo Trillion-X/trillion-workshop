@@ -27,7 +27,7 @@
       "title": "Question a price against who it prices out and what it funds",
       "ask": "Run workflow:method-hold-to-the-hardest-test: decide the monthly price of an ordering app for small bakeries.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

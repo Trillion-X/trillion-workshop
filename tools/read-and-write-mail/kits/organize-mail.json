@@ -18,7 +18,7 @@
       "title": "Run organize-mail on a sample input",
       "ask": "Star message 18c1a2b3d4e5f601 and mark it read.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

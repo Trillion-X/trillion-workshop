@@ -17,7 +17,7 @@
       "title": "Score a questionnaire's answers on its own sample",
       "ask": "Score the answers to a questionnaire, flipping reverse-keyed items and filing each item under its subscale",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "Prepare public content for people and discovery tools on its own sample",
       "ask": "Prepare one explicitly authorized public source page as consistent HTML, Markdown, structured data and discovery-feed data, with exact source versions and continuation state.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

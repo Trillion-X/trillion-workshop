@@ -18,7 +18,7 @@
       "title": "Ask a web address, or give me the last answer it gave on its own sample",
       "ask": "Ask a web address for its answer; when the address cannot answer, give back the last answer it gave, so a feed or service that is down does not leave the person with nothing",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

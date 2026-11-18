@@ -18,7 +18,7 @@
       "title": "Pull the direct messages of my Instagram professional account on its own sample",
       "ask": "Pull the direct messages of my Instagram professional account",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

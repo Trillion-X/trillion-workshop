@@ -122,7 +122,7 @@
       "title": "Draw a motion-graphics overlay for a video from a timed list of paper cut-outs, type, cards, charts and marks on its own sample",
       "ask": "Draw the animated graphics that go over a piece of my video (paper cut-outs, typed words, cards, charts, marker marks) as a see-through overlay with its sound, from a list of what appears when",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

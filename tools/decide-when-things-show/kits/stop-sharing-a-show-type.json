@@ -18,7 +18,7 @@
       "title": "Stop sharing a show type on its own sample",
       "ask": "Stop sharing one of my show-rule presets with someone",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

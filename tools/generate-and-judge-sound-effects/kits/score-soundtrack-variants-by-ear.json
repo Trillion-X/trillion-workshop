@@ -19,7 +19,7 @@
       "title": "Variant A scored at three cues for a hit and a tick",
       "ask": "Score my soundtrack variant A at every cue.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

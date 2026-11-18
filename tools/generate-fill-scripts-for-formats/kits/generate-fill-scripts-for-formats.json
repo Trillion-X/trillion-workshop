@@ -121,7 +121,7 @@
       "title": "Fill video formats with my product's capabilities on its own sample",
       "ask": "Write a draft script for each of my product's capabilities in each video format I picked: the format's own lines filled with the capability's words, the word count of every line against the format's measured budget, the shots, the filming notes, and every fact still missing listed with what would fill it",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

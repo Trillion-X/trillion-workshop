@@ -17,7 +17,7 @@
       "title": "Read my training plan on its own sample",
       "ask": "Read my training plan: its goals, phases, weeks and the sessions prescribed in each week",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

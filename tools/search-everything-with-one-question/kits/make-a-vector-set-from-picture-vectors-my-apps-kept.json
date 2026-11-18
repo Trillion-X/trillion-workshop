@@ -19,7 +19,7 @@
       "title": "An asset index becomes a video set and an image set",
       "ask": "Make my app's kept picture vectors searchable.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

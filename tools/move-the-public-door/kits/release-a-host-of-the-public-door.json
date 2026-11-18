@@ -18,7 +18,7 @@
       "title": "Release a host of the public door on its own sample",
       "ask": "Remove the server and SSH key one of my public door's host leases rented, and only those",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

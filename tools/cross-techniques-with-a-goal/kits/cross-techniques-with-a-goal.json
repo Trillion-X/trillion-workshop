@@ -19,7 +19,7 @@
       "title": "A budgeting app sales page crosses 20 techniques from four media",
       "ask": "Which of my kept techniques would work for a sales page for a budgeting app?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

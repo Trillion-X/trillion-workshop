@@ -18,7 +18,7 @@
       "title": "Promote from the waitlist on its own sample",
       "ask": "Move the next waiting person (or one I name) into a place that is free",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -19,7 +19,7 @@
       "title": "Project two videos into template source",
       "ask": "Make the ch-example-videos rows of my packaging ledger into a source I can build a template from.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

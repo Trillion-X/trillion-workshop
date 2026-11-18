@@ -20,7 +20,7 @@
       "title": "Send the price reply to a YouTube comment, once",
       "ask": "Send the reply my rules chose for the price comment.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

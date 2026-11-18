@@ -17,7 +17,7 @@
       "title": "Set a product's customer target on its own sample",
       "ask": "Set how many customers I want for a product, so progress toward that target can be tracked",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

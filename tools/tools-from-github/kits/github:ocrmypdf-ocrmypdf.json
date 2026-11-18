@@ -18,7 +18,7 @@
       "title": "OCRmyPDF on a 3 page PDF that is only pictures of paper pages",
       "ask": "Use OCRmyPDF on scan.pdf.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

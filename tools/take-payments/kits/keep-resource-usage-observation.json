@@ -18,7 +18,7 @@
       "title": "Check a resource usage observation on its own sample",
       "ask": "Check an attributed measured source attempt, or its unknown outcome, and answer it exact, with a correcting event that points at the earlier one instead of rewriting history",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

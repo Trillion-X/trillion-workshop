@@ -19,7 +19,7 @@
       "title": "A chosen format row whose own workflow finished is kept",
       "ask": "Hand in my answer to the choose step: I chose sample-map-short.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

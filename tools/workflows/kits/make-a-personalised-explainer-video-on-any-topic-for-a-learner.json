@@ -20,7 +20,7 @@
       "title": "A 90-second sourdough lesson plan for a first-time baker",
       "ask": "Make a 90-second explainer on how a sourdough starter works for someone who has baked yeast bread once.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

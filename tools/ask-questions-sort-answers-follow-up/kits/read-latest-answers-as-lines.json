@@ -18,7 +18,7 @@
       "title": "Latest answers as lines on its own sample",
       "ask": "Give the latest answers to a form as plain lines, each starting with the question it answers, ready to hand to a writer or a summary, from the database",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

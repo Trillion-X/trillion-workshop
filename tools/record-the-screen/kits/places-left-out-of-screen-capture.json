@@ -17,7 +17,7 @@
       "title": "Places left out of screen capture on its own sample",
       "ask": "List, check and turn on or off the categories of places (banking, health, social and more) the person's screen capture must leave out, and take new coverage as a cursor diff",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

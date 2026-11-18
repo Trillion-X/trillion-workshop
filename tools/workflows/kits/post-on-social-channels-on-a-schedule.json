@@ -300,7 +300,7 @@
       "title": "The week is written: one post a day on two channels",
       "ask": "Write my social posts for the next 7 days.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

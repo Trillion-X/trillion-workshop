@@ -21,7 +21,7 @@
       "title": "A machine the person already runs is leased and waited for",
       "ask": "Take my spare machine as a builder and tell me its architecture.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

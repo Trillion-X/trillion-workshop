@@ -18,7 +18,7 @@
       "title": "Write a copy of a repository into my files, for citations to be checked against on its own sample",
       "ask": "Write the files of a repository, the dates of its commits and a stamp naming the commit into my own files under /source-copies/<root>/, so a check of what a finding cites can read them on any computer",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

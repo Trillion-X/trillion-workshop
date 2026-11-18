@@ -19,7 +19,7 @@
       "title": "Run a community's matchmaker clock: start or close a round, introduce, follow up on its own sample",
       "ask": "Pair a community's members on its cadence without anyone asking: start a round when it is due, close it at its deadline, make introductions everyone said yes to, and follow up the ones nobody acted on",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

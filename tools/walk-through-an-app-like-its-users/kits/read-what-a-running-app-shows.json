@@ -18,7 +18,7 @@
       "title": "Read what a running app really shows on its own sample",
       "ask": "Drive my running app through some steps and report what is actually on the screen after each: which controls exist, what a click would land on, errors, timing",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

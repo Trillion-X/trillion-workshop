@@ -19,7 +19,7 @@
       "title": "One quote matches its bytes and one does not",
       "ask": "Check the two quotes in bindings.json against menu.txt.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

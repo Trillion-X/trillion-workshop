@@ -17,7 +17,7 @@
       "title": "Check nested input within limits on its own sample",
       "ask": "Check an untrusted nested value (an imported document, pasted rich text, list row values from an AI) before it is rendered or stored: refuse it in plain words when it is nested deeper than 100 levels, holds more than 100,000 values, or refers back to itself",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

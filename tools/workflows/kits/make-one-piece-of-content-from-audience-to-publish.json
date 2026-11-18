@@ -63,7 +63,7 @@
       "given": "Read from the check-words step in tools/workflows/recipes/workflows.json: a title (title-1) and a script line (beat-2) are sent to tool:check-against-a-persons-rules-and-verdicts; beat-2 says \"You will never fail again\", which the person's rule bans as a promise it cannot keep.",
       "hands_back": "{\"checked\":[{\"id\":\"title-1\",\"kind\":\"title\",\"status\":\"passed\"},{\"id\":\"beat-2\",\"kind\":\"script line\",\"status\":\"passed\"}],\"rewrites\":[{\"id\":\"beat-2\",\"before\":\"You will never fail again\",\"after\":\"Most new bakers get the bake right by the second morning\",\"rule\":\"no promise the material cannot keep\"}]}",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -18,7 +18,7 @@
       "title": "An app bundle with only an Info.plist is reported unsigned",
       "ask": "Check how /Applications/Sample.app is hardened.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -18,7 +18,7 @@
       "title": "Three strokes found by the adaptive detector",
       "ask": "Find the strokes in my rally video.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -38,7 +38,7 @@
       "title": "The same clip through the sound-and-motion detector",
       "ask": "Find the strokes with the sound-and-motion detector.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

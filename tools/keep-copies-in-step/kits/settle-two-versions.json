@@ -18,7 +18,7 @@
       "title": "Settle two versions on its own sample",
       "ask": "Work out how to settle a record two of my devices changed apart: keep one version, keep both, or keep a merged one",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

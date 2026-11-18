@@ -20,7 +20,7 @@
       "title": "Trade a Facebook sign-in code for its short token for a made-up connection",
       "ask": "Trade a Facebook sign-in code for its short token for service_connection:facebook-messenger:7d3c88e1.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

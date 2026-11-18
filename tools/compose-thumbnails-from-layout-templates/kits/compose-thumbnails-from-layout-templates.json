@@ -123,7 +123,7 @@
       "title": "One split-claim candidate from made-up frames",
       "ask": "Build thumbnail candidate A for my sample-film.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

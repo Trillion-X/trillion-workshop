@@ -18,7 +18,7 @@
       "title": "Two outliers out of three channels",
       "ask": "Find the videos in videos.tsv that beat their own channel's usual views and write them to outliers.tsv.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

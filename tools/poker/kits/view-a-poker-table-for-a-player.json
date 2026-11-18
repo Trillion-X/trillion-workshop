@@ -17,7 +17,7 @@
       "title": "See a poker table as one player may see it on its own sample",
       "ask": "Show a poker table as one player may see it: the board, the pot, each seat, what that player may do now and only that player's own cards",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

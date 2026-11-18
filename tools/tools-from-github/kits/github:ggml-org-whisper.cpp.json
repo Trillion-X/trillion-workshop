@@ -18,7 +18,7 @@
       "title": "whisper.cpp on a 30 second interview recording of Sam, a baker, talking about her shop",
       "ask": "Use whisper.cpp on interview.wav.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

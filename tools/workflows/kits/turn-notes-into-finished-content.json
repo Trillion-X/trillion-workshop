@@ -23,7 +23,7 @@
       "title": "The final draft goes through the copy judge and is kept under /Content/",
       "ask": "Finish the thread from my notes about the order sheet.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

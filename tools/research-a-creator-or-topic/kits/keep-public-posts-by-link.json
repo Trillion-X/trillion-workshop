@@ -18,7 +18,7 @@
       "title": "Keep public posts by link on its own sample",
       "ask": "Keep the text, numbers and media addresses of public posts I name by link, through a public mirror, without opening the posts' site",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

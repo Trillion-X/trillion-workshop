@@ -17,7 +17,7 @@
       "title": "Join a space on its own sample",
       "ask": "Work out whether a person joins a shared space by the way its join rows allow (free, or holding the access a row names) and answer their member row",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

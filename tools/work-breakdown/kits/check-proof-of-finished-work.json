@@ -17,7 +17,7 @@
       "title": "Check the proof behind finished work on its own sample",
       "ask": "Check whether the proof given for a finished task is something someone else could go and check, or just a claim",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

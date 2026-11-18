@@ -31,7 +31,8 @@ function needsOf(schema) {
   return (Array.isArray(schema?.required) ? schema.required : []).map(name => (properties[name]?.description ? `${name} (${first(properties[name].description)})` : name));
 }
 
-const runCall = (tool, input) => ({ server: 'trillion', tool: 'run_resource_operation', input: { address: '@tools', method: 'tools:run', input: { tool, input } } });
+// `{cli}`: the name the person's AI app gave their own site's server (its command word); a shared kit names no site.
+const runCall = (tool, input) => ({ server: '{cli}', tool: 'run_resource_operation', input: { address: '@tools', method: 'tools:run', input: { tool, input } } });
 const rightsOf = tool => [tool.invoke?.records?.rights ?? []].flat().filter(object);
 
 // How the person (or their AI) runs a tool: through the door, or on their own computer from the commands its row gives.

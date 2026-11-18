@@ -17,7 +17,7 @@
       "title": "Read my workout log on its own sample",
       "ask": "Read my workout log: what still needs checking, my summary views, the rows to export and my progress over time",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -32,7 +32,7 @@
       "title": "A post open 43 days at a company of 40 people is kept with both signals",
       "ask": "Find companies whose job post has been open three weeks or more and who might need my help.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

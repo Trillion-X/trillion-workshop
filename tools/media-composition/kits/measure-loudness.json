@@ -18,7 +18,7 @@
       "title": "A quiet clip fails the -14 LUFS target",
       "ask": "Is this video loud enough to publish?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -38,7 +38,7 @@
       "title": "A quieter target passes",
       "ask": "Is this rally video fine at a target of -26 LUFS?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "Keep the rows that match my rules on its own sample",
       "ask": "Keep the rows of a list that match my rules: a tree of comparisons (is any of, has all of, contains, is more than, is between, is empty, is known and more) joined by all-of and any-of groups, each group optionally negated",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

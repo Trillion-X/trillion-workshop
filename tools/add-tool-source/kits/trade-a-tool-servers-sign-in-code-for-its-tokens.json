@@ -18,7 +18,7 @@
       "title": "The code from one sign-in",
       "ask": "Add the tool server at https://tools.example.com/mcp (it asks for a sign-in)",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

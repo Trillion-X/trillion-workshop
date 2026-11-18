@@ -17,7 +17,7 @@
       "title": "Decide what a paste becomes on its own sample",
       "ask": "Decide what a paste into a message or note becomes: a normal insert for short text, a named text file for a long paste, or attached images when the clipboard's markup has no words of its own, with the words the person reads beside the attachment",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

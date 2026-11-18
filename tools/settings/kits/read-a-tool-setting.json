@@ -39,7 +39,7 @@
       "title": "The film's pace wins over the account's",
       "ask": "Read my make-a-sample settings for film f1, falling back to my account.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -242,7 +242,7 @@
       "title": "Add a 15 minute task, then read the tasks back",
       "ask": "Add a 15 minute task called Water the sample ferns to my calendar, then list my tasks.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

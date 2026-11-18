@@ -17,7 +17,7 @@
       "title": "Add a customer on its own sample",
       "ask": "Add a customer or contact to my customer list, with their name, how to reach them and where they came from",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

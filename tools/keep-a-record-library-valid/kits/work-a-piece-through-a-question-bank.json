@@ -19,7 +19,7 @@
       "title": "Start the herb bed, answer two questions, see one answer go stale",
       "ask": "Walk my herb bed through the spring-planting questions.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

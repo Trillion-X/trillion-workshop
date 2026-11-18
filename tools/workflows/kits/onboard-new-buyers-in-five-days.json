@@ -197,7 +197,7 @@
       "title": "Add a paying buyer as a customer and keep the contact id",
       "ask": "Run workflow:onboard-new-buyers-in-five-days for the buyer Sam who paid and agreed to the course emails.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

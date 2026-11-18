@@ -331,7 +331,7 @@
       "title": "One long recording becomes clips filed under topics",
       "ask": "Turn my longest recording from yesterday into clips.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -362,7 +362,7 @@
       "title": "Spoken moments are filed under the person's own topics",
       "ask": "File what I said under my topics.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

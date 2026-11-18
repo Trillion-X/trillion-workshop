@@ -13,7 +13,7 @@ import { test } from 'node:test';
 import { pageShellHtml } from '../tools/organize-my-files/parts/ui/show/server-rendered-page/page-sections-html.mjs';
 import { threadCoverHtml } from '../tools/organize-my-files/parts/ui/show/thread-cover/thread-cover.mjs';
 import setup from '../tools/organize-my-files/parts/ui/show/thread-cover/thread-cover.json' with { type: 'json' };
-import { openingCoverFiles, ROOT as coverGeneratorRoot } from '../tools/draw-trillions-app-icon-in-every-size-from/scripts/make-opening-cover.mjs';
+import { openingCoverFiles, ROOT as coverGeneratorRoot } from '../tools/draw-the-apps-icon-in-every-size-from/scripts/make-opening-cover.mjs';
 import { hostIosTestSource } from '../test-helpers/host-test-source.mjs';
 
 const scriptOf = html => html.slice(html.lastIndexOf('<script>') + '<script>'.length, html.lastIndexOf('</script>'));

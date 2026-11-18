@@ -19,7 +19,7 @@
       "title": "List the names a stand-in runtime exposes",
       "ask": "Show me the property names my presentation runtime exposes for a slide, a shape's text and speaker notes.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

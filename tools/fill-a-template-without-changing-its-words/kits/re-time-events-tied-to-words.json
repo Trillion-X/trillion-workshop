@@ -124,7 +124,7 @@
       "title": "One event follows its phrase, one is left unmatched",
       "ask": "Move my events to where their words now play.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

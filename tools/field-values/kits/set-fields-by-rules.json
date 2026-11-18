@@ -17,7 +17,7 @@
       "title": "Set fields on the rows my rules match on its own sample",
       "ask": "Set fields on the rows my rules match, like coding transactions by merchant and amount: my rule groups in order, the first matching rule sets each field, never over a value I set myself, with a preview of what each rule would change",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

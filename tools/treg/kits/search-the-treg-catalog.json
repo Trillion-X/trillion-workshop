@@ -19,7 +19,7 @@
       "title": "Find a backlinks endpoint and its price",
       "ask": "Search the treg catalog for a backlinks summary for a domain.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

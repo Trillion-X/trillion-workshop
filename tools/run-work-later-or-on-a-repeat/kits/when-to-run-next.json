@@ -17,7 +17,7 @@
       "title": "Work out what is due and when to run next (schedules) on its own sample",
       "ask": "Scheduler: from recurring schedules (every day or week at a local time in a time zone, daylight saving handled) and one-off timed actions, work out what is due to run now and the next time to run",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

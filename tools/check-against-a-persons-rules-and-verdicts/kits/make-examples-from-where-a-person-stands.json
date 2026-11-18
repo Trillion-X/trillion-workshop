@@ -18,7 +18,7 @@
       "title": "Make labelled examples from where a person stands on its own sample",
       "ask": "Turn the verdicts a person already gave into good and bad examples, to tune a model that answers their reading rules",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

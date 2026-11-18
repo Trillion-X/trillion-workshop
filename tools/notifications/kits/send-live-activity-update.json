@@ -17,7 +17,7 @@
       "title": "Update my Live Activity on its own sample",
       "ask": "Start, update or end the one Live Activity board for running work",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

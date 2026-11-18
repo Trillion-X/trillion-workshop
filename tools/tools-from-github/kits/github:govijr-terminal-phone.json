@@ -18,7 +18,7 @@
       "title": "terminal-phone on a made-up example",
       "ask": "Open an iPhone in my terminal.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

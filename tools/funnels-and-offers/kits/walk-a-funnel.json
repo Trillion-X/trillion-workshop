@@ -17,7 +17,7 @@
       "title": "Walk a sales funnel on its own sample",
       "ask": "Read a sales funnel's offers and see the price a buyer is shown and where an outcome such as buying or declining takes them next",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

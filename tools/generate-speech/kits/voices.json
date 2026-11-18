@@ -195,7 +195,7 @@
       "title": "Make a voice from your own recording",
       "ask": "Make my voice from my recording.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

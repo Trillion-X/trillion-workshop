@@ -17,7 +17,7 @@
       "title": "Import Markdown as an editable document on its own sample",
       "ask": "Turn Markdown into the editable document scene tree, keeping its headings, lists, tables, code and source spans",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

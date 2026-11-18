@@ -17,7 +17,7 @@
       "title": "Listen on its own sample",
       "ask": "Turn listening on or off on this person's computer, or say whether it is on: while on, everything said near the computer is heard, split into moments, each part named by who said it, and sent to the person's AIs as it is said",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

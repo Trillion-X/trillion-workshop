@@ -18,7 +18,7 @@
       "title": "Open a capacity ledger on its own sample",
       "ask": "Set up how many places there are for a class, table, room or any limited thing, so my AI can hold them one by one",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

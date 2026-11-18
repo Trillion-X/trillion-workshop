@@ -17,7 +17,7 @@
       "title": "Programs running on my computer on its own sample",
       "ask": "List the programs running on this person's computer and how much memory each one uses, the largest first, optionally only the programs whose name has some words",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

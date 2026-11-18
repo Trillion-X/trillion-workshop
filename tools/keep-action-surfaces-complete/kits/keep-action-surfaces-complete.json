@@ -18,7 +18,7 @@
       "title": "Keep action surfaces complete on its own sample",
       "ask": "Build the versioned action inventory and proof workflow, decorate a newly selected recipe, or check its inventory and proof without changing frozen runs.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

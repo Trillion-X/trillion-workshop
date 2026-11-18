@@ -17,7 +17,7 @@
       "title": "Printers I can use on its own sample",
       "ask": "List the printers the person's computer can print to, and which one is the default",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

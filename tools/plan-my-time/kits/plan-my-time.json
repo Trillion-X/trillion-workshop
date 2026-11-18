@@ -17,7 +17,7 @@
       "title": "Plan my time on its own sample",
       "ask": "Plan the person's tasks into their free time and judge their meetings against their pursuits, like an auto-scheduling calendar: ASAP first, then hard deadlines, then what serves their most important pursuit, then due date; tasks wait for their blockers, long tasks split into pieces, hard deadlines may use time outside working hours.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

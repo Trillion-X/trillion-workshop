@@ -20,7 +20,7 @@
       "title": "Reason from first principles before comparing with outside examples",
       "ask": "Run workflow:method-research-plan-build: send bakery customers a pickup reminder before their pickup time.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

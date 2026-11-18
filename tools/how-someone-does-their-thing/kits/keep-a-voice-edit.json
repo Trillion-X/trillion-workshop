@@ -18,7 +18,7 @@
       "title": "Keep the person's edit of an AI's words on its own sample",
       "ask": "Keep what the person changed in words an AI wrote for them, so their voice is learned from it",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

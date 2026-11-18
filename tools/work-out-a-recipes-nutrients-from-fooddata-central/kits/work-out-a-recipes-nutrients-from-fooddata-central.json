@@ -122,7 +122,7 @@
       "title": "Work out a recipe's nutrients from USDA FoodData Central on its own sample",
       "ask": "Work out the nutrients in my recipe, per batch and per 100 g, against the daily intakes an adult needs",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

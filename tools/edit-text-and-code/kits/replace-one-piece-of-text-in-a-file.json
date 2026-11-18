@@ -17,7 +17,7 @@
       "title": "Change one piece of text in a file on its own sample",
       "ask": "Change one exact piece of text in a text or code file without sending the whole file: give the words to find and the words to put there",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

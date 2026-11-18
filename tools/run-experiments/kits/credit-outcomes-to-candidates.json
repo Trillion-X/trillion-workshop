@@ -17,7 +17,7 @@
       "title": "Credit what visitors did to the version they saw on its own sample",
       "ask": "Join who saw which version with who bought, signed up or clicked, so each version's results can be read",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

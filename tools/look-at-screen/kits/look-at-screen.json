@@ -18,7 +18,7 @@
       "title": "Two displays, main first, pointer on",
       "ask": "Look at my screen now, small pictures, with the pointer.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

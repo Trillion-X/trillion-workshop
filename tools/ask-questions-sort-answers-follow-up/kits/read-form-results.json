@@ -18,7 +18,7 @@
       "title": "Form results on its own sample",
       "ask": "Show who answered a form, the score each earned and the segment each was sorted into, with a count per segment, from the segment assignments in the database",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "A domain with one record verified and one still waiting",
       "ask": "Is my Resend domain 4dd369bc-aa82-4ff3-97de-514ae3000ee0 verified?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

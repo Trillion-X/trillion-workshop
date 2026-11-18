@@ -17,7 +17,7 @@
       "title": "Report on an accrual or a cash basis on its own sample",
       "ask": "Read the same rows on an accrual basis (by the date each row is due) and on a cash basis (by the date of each allocation to it) for a period, each figure naming its basis and the rows behind it",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

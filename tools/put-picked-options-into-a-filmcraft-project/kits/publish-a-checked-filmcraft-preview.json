@@ -124,7 +124,7 @@
       "title": "A built preview is published; watch is refused until the rendered-video check ran",
       "ask": "Publish option x05-r4-1's preview and then put it in my watch folder.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

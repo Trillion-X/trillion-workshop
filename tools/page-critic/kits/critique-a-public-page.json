@@ -18,7 +18,7 @@
       "title": "One page that follows every rule",
       "ask": "Critique https://bakery.example/ against the craft rules.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

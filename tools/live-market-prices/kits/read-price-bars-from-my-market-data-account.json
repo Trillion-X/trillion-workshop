@@ -17,7 +17,7 @@
       "title": "Read price bars from my market-data account on its own sample",
       "ask": "Read recent price bars (open, high, low, close, volume) and the latest price for symbols from my own market-data account",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

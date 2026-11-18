@@ -19,7 +19,7 @@
       "title": "Run list-send-as-addresses on a sample input",
       "ask": "Which addresses can I send as?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

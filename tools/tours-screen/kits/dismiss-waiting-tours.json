@@ -18,7 +18,7 @@
       "title": "Dismiss waiting tours on its own sample",
       "ask": "Dismiss the tours waiting for me without showing them",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

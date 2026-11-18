@@ -187,7 +187,7 @@
       "title": "One Hermes session is resumed in and finishes",
       "ask": "Bring in my Hermes sessions from this computer.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

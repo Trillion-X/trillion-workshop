@@ -22,7 +22,7 @@
    "title": "State of this week's cake deposits",
    "ask": "Follow through on this week's cake deposits.",
    "mcp": {
-    "server": "trillion",
+    "server": "{cli}",
     "tool": "run_resource_operation",
     "input": {
      "address": "@tools",

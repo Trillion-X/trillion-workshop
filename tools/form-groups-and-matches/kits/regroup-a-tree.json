@@ -18,7 +18,7 @@
       "title": "Regroup a folder tree the way I say, or turn it into groups on its own sample",
       "ask": "Move folders under other folders by their names, the way I describe it, or turn a tree of folders into groups",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

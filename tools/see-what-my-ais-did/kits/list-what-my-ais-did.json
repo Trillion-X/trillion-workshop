@@ -17,7 +17,7 @@
       "title": "List what my AIs did on its own sample",
       "ask": "Turn the tool calls an AI made on a person's account into the activity rows the AI activity screen lists: what it did, the item it made or touched, whether it worked and why not, newest first",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

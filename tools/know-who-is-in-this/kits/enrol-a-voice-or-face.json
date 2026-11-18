@@ -17,7 +17,7 @@
       "title": "Enrol someone's voice or face so they can be named on its own sample",
       "ask": "Let the person's AI name this person later by their voice or face, after they agreed to be known that way",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

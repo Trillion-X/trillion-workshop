@@ -19,7 +19,7 @@
       "title": "A web page becomes one line of plain text",
       "ask": "Make the plain-text copy of my iron fact sheet source.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

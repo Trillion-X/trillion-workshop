@@ -23,7 +23,7 @@
       "title": "A computer started on a machine the person already runs, its engine built there",
       "ask": "Start a computer on my spare machine and tell me if its health page answers.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

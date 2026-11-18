@@ -18,7 +18,7 @@
       "title": "Operate the person's computer screen on its own sample",
       "ask": "Click, press, type, scroll, drag or use keys on the person's computer, finding the target by what it is called and checking afterwards what really changed",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

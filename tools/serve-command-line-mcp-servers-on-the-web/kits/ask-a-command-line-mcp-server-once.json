@@ -17,7 +17,7 @@
       "title": "Ask a command-line MCP server one request on its own sample",
       "ask": "Ask a command-line MCP server one request the way the web gateway answers a caller with no session: start it in a working folder of its own, initialize it, ask, and stop it",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

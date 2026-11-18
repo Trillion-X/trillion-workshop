@@ -18,7 +18,7 @@
       "title": "Pick the best-tagged clip from my own folder",
       "ask": "Find a clip of boats at sunrise in my media folder.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -18,7 +18,7 @@
       "title": "A source piece with no step is reported as uncovered",
       "ask": "Which pieces of my synthetic source have no step?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

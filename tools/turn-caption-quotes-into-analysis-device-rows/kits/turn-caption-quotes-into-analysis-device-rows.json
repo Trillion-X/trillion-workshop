@@ -123,7 +123,7 @@
       "title": "Every quote holds: the tables and the checked rows are written",
       "ask": "Check my garden-tips device rows against the captions and write the tables.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -140,7 +140,7 @@
       "title": "A quote that is not in the captions writes nothing",
       "ask": "Check my garden-tips rows again; I changed a quote.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

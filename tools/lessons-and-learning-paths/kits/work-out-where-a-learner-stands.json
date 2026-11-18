@@ -17,7 +17,7 @@
       "title": "Work out where a learner stands on a track on its own sample",
       "ask": "See how far a learner is along a course, lesson plan or learning path, which step comes next, and what they last showed",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

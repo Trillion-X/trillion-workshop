@@ -18,7 +18,7 @@
       "title": "faster-whisper on a 40 second voice memo from Sam, a baker, about this week's orders",
       "ask": "Use faster-whisper on memo.mp3.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

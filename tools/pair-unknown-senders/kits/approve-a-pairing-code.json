@@ -18,7 +18,7 @@
       "title": "Approve a pairing code on its own sample",
       "ask": "Let a waiting sender's messages through by approving the pairing code they were given",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -19,7 +19,7 @@
       "title": "Three cues over 3 seconds make a layer at -13.9 LUFS",
       "ask": "Place my sound cues into an effects-only track.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

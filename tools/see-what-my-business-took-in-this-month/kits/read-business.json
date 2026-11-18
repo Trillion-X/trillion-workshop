@@ -20,7 +20,7 @@
       "title": "Read this account's business this month on its own sample",
       "ask": "Read what this account's business took in this month on the payment services it connected",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -19,7 +19,7 @@
       "title": "Work out referral codes on its own sample",
       "ask": "See which referral codes are live, what a friend who types one gets, and what each sale earns under my referral reward rules",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -311,7 +311,7 @@
       "title": "A question under a channel's video becomes a lead",
       "ask": "Answer the commenters on @ExampleChannel with videos, at most 5.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

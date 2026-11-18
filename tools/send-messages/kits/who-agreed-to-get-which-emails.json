@@ -18,7 +18,7 @@
       "title": "Who agreed to get which emails on its own sample",
       "ask": "Show who agreed to get which email list, in what words, when and from where, and whether they still do",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

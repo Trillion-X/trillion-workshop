@@ -17,7 +17,7 @@
       "title": "Look up a Stripe checkout on its own sample",
       "ask": "Read a Stripe checkout and the subscription it made: whether it was paid, who by, the metadata set when it began and the real recurring amount",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

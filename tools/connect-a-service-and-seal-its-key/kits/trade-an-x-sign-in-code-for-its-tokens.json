@@ -19,7 +19,7 @@
       "title": "Trade an X sign-in code for its tokens for a made-up connection",
       "ask": "Trade an X sign-in code for its tokens for service_connection:x:sams_bakery.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

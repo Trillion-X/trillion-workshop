@@ -18,7 +18,7 @@
       "title": "Link Signal on this computer on its own sample",
       "ask": "Link my Signal account to this computer so my messages can be read here",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

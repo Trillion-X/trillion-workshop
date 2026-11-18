@@ -22,7 +22,7 @@
    "title": "Health of a bakery order page",
    "ask": "Run workflow:keep-it-working so my bakery order page keeps taking orders.",
    "mcp": {
-    "server": "trillion",
+    "server": "{cli}",
     "tool": "run_resource_operation",
     "input": {
      "address": "@tools",

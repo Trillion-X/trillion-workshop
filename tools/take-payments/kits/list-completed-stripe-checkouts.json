@@ -17,7 +17,7 @@
       "title": "List completed Stripe checkouts on its own sample",
       "ask": "List every completed Stripe checkout since a time, payment links included, so each buyer can be followed up once",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

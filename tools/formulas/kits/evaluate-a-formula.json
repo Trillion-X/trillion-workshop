@@ -17,7 +17,7 @@
       "title": "Evaluate a formula over rows on its own sample",
       "ask": "Evaluate a formula over each row of a list: read a value from the row, then run a pipeline of steps (and, or, not, equals, more than, less than, is in a list, position in a list, lower-case, contains, starts with, join, is empty, is unknown) over it",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

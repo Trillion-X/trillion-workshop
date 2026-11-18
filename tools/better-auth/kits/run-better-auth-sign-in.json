@@ -18,7 +18,7 @@
       "title": "Start it, sign up one person and read their token",
       "ask": "Start my sign-in server and make a test account for Sam.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

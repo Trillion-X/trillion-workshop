@@ -17,7 +17,7 @@
       "title": "Choose which AI answers me on its own sample",
       "ask": "Make the request that sets which AI answers a person, or sends them back to automatic routing, as the selected-agent part sends it to the workflow slot, without sending it",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

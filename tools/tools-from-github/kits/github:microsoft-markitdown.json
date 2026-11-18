@@ -18,7 +18,7 @@
       "title": "markitdown on a one page PDF menu of a bakery",
       "ask": "Use markitdown on menu.pdf.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

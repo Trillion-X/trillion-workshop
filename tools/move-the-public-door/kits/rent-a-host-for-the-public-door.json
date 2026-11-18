@@ -18,7 +18,7 @@
       "title": "Rent a host for the public door on its own sample",
       "ask": "Rent one server for my public door from my hosting service, or adopt a box I already run, and give me its lease",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

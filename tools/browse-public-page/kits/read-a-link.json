@@ -17,7 +17,7 @@
       "title": "Read a link on its own sample",
       "ask": "Read one public link into a card: its title, picture, description, site and the words on the page",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

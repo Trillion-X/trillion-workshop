@@ -19,7 +19,7 @@
       "title": "Check a post on its own sample",
       "ask": "Say whether a post is ready for each place it is going, and what each place will refuse, before it is approved or set to go",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

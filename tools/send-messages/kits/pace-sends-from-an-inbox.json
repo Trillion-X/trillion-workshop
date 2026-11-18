@@ -18,7 +18,7 @@
       "title": "Pace sends from an inbox on its own sample",
       "ask": "Say when each address on a list may be emailed from one sending inbox, so a new inbox warms up slowly, sends only on chosen days and hours, and stops when its mail bounces",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

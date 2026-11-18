@@ -18,7 +18,7 @@
       "title": "Form matches and small groups by grounded expected value on its own sample",
       "ask": "Match people in a community, club, cohort or mentoring program into pairs or small groups who can actually help each other, and prepare introductions that wait for everyone's consent",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

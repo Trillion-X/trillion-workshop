@@ -18,7 +18,7 @@
       "title": "Two forged hits and one distorted generated hit: the low forged one wins",
       "ask": "Judge the hit candidates and pick the best one.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

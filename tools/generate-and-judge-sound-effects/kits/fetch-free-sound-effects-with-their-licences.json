@@ -20,7 +20,7 @@
       "title": "A CC0 sound and a Mixkit sound are kept; a NonCommercial one is blocked; a missing file is unavailable",
       "ask": "Download the four sounds I chose and keep their licences.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

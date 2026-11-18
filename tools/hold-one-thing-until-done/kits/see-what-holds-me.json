@@ -23,7 +23,7 @@
       "title": "See what holds me on its own sample",
       "ask": "Tell me whether my setup still has to be finished before anything else opens, and which one thing I must do now",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

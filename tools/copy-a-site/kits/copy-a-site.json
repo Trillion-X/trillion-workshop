@@ -19,7 +19,7 @@
       "title": "A three-page site copied, scripts removed, links pointing at the copy",
       "ask": "Copy the website at http://copy-a-site.example/ into files I can publish, at most 10 pages.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

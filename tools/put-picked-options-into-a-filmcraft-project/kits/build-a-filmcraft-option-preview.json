@@ -126,7 +126,7 @@
       "title": "Option x05-r4-1 is built on its own copy of the project",
       "ask": "Build option x05-r4-1 of my film on its own copy and export its preview.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

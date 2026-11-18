@@ -18,7 +18,7 @@
       "title": "Follow a white square for three seconds",
       "ask": "In /work/square.mp4 follow the white square I pointed at one second in, for seconds 0 to 3.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -35,7 +35,7 @@
       "title": "A stretch over 30 seconds is refused before anything is made",
       "ask": "Follow the square for seconds 0 to 45.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

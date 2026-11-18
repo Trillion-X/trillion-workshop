@@ -20,7 +20,7 @@
       "title": "Add example.com in us-east-1",
       "ask": "Add example.com to my Resend account and show me the DNS records.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -18,7 +18,7 @@
       "title": "Manage usage pricing on its own sample",
       "ask": "Read, list, set, supersede, retire or delete my resource pricing rules, with effective dates, resource, plan and client overrides, without changing purchased terms",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

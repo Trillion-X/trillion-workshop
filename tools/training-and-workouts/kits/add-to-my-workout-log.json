@@ -17,7 +17,7 @@
       "title": "Add to my workout log on its own sample",
       "ask": "Add new evidence to my workout log, or confirm, discard, correct, split or merge an entry already in it",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

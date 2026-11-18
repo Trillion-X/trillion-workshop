@@ -21,7 +21,7 @@
       "title": "Send each post at its time on its own sample",
       "ask": "When the person's posts change, set each post that is set to go at its time to be sent then, to each of its destinations, by that place's send row",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

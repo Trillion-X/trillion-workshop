@@ -18,7 +18,7 @@
       "title": "Check words for personal data on its own sample",
       "ask": "Before words go to a model that is not on the person's computer, check on the computer whether they hold personal data (email addresses, phone numbers, card numbers that pass the checksum, IBANs, national ids, and by a model on the computer a name with an address or health details), and offer the person the choice: send as it is, do it on this computer only, or keep it back",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

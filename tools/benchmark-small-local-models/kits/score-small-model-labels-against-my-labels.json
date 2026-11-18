@@ -126,7 +126,7 @@
       "title": "A decider that agrees on 2 of 3 sizes, level with the majority baseline",
       "ask": "Score this decider's size labels against my own labels.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

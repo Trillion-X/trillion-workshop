@@ -19,7 +19,7 @@
       "title": "A folder of your own tools",
       "ask": "Add a source of tools from /opt/example-tools/my-tools",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

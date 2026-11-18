@@ -17,7 +17,7 @@
       "title": "Build the request that starts a seller's payment setup on its own sample",
       "ask": "Build, without sending it, the payment provider (Stripe) request that starts a seller's payment setup and gets their hosted onboarding link, or any other request the folder's operation map names",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

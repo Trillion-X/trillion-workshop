@@ -19,7 +19,7 @@
       "title": "Open a paid file for a buyer on its own sample",
       "ask": "Check, each time a buyer opens a paid file link, that they still hold access, and say which sealed bytes to stream",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

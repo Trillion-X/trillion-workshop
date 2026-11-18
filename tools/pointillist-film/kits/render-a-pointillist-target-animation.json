@@ -19,7 +19,7 @@
       "title": "A two-cell film packed at 4 frames a second",
       "ask": "Pack my two-cell film at 4 frames a second into animation.pfat.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

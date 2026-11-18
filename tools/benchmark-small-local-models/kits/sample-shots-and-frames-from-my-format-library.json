@@ -126,7 +126,7 @@
       "title": "Two videos of two creators sampled, shaped by the video's own size",
       "ask": "Pick shots across my format library so I can label their frames.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

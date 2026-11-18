@@ -17,7 +17,7 @@
       "title": "Pick the progress rules that fire on its own sample",
       "ask": "Pick which of my progress rules fire for my current numbers and give the adjustment each carries",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

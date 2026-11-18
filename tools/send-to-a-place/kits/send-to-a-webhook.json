@@ -17,7 +17,7 @@
       "title": "Send to a webhook on its own sample",
       "ask": "Send a note, or anything picked, to a web address as JSON",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

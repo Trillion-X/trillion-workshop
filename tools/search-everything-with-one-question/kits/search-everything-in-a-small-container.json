@@ -18,7 +18,7 @@
       "title": "Search everything I keep with one question (runs in a small container) on its own sample",
       "ask": "Search every list, record and file name I keep with one question, in one ranked list, without my own computer",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

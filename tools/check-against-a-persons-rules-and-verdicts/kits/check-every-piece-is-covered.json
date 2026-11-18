@@ -19,7 +19,7 @@
       "title": "Check every piece of a person's files has a check or a reason on its own sample",
       "ask": "Say, for each of a person's source files, how many of its pieces have a check, how many a recorded reason, and which are uncovered",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

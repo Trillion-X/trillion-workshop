@@ -18,7 +18,7 @@
       "title": "Two clips side by side for 4 seconds",
       "ask": "Put these two videos side by side for 4 seconds.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -18,7 +18,7 @@
       "title": "Build a markdown section from entries, word for word on its own sample",
       "ask": "Write one markdown section out of a list of entries (what people said or wrote), keeping every entry's words exactly as they came in",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

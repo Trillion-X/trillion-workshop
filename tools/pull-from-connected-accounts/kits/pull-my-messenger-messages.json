@@ -18,7 +18,7 @@
       "title": "Pull the Messenger conversations of my Facebook Page on its own sample",
       "ask": "Pull the Messenger conversations of my Facebook Page",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

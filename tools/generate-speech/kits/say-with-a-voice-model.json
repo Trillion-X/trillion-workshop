@@ -195,7 +195,7 @@
       "title": "Say a sentence in the car voice",
       "ask": "Say \"Three stores said yes.\" out loud in the car voice.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

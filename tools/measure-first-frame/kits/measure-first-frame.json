@@ -16,7 +16,7 @@
       "title": "A shared video against the bar",
       "ask": "Measure how fast this shared video starts, 3 samples.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

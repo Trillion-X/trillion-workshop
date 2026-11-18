@@ -136,7 +136,7 @@
       "title": "Start a read-only Gmail sign-in as one named account",
       "ask": "Connect my Gmail by signing in, as someone@example.com, read only.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -165,7 +165,7 @@
       "title": "The callback connects Gmail once the person has signed in",
       "ask": "I signed in; finish connecting my Gmail.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "Check claims cite sources that were read on its own sample",
       "ask": "Check that each claim in an answer cites a source that was really read, and none cites one that was not",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

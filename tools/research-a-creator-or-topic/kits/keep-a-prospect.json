@@ -18,7 +18,7 @@
       "title": "Build a prospect row from what a finder found, on its own sample",
       "ask": "Keep what I know about a prospect as one row of my prospect list: what a finder found, the researched profile, a status I move it through, and my notes",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

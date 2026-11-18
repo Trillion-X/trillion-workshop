@@ -18,7 +18,7 @@
       "title": "List the file formats an export can be written in on its own sample",
       "ask": "Show every format a document can be exported to, with its file ending, its media type and the block kinds it writes itself",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -21,7 +21,7 @@
       "title": "Print a file on its own sample",
       "ask": "Print a file from the person's Trillion files on a printer their computer already has (paper size, fit to page, two-sided, colour, copies), so the person never opens a print dialog",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

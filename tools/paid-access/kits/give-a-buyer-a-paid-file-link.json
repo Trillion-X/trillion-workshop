@@ -21,7 +21,7 @@
       "title": "Give a buyer a paid file link on its own sample",
       "ask": "Give a buyer a short-lived link to a file they paid for, and refuse anyone who has not paid",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

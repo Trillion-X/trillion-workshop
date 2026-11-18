@@ -17,7 +17,7 @@
       "title": "Drives on my computers on its own sample",
       "ask": "List the drives connected to this person's computer: each drive's name, where it is mounted, its size and free space, its kind (USB, disk image, internal) and whether it can be ejected",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

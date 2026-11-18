@@ -19,7 +19,7 @@
       "title": "Two holds in a 7 second clip, then only the first 3.5 seconds at the check's still level",
       "ask": "Where does clips/two-holds.mp4 hold still longest?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

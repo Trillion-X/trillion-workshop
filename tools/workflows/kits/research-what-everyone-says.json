@@ -22,7 +22,7 @@
       "title": "What people say, in their own words",
       "ask": "Research what everyone says about pre-orders for small bakeries.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

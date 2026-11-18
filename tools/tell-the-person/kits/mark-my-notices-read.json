@@ -18,7 +18,7 @@
       "title": "Mark my notices read on its own sample",
       "ask": "Record which notices this person has read and the first surface they saw them on",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -18,7 +18,7 @@
       "title": "A settled video task",
       "ask": "Follow my treg call 0123456789abcdef0123456789abcdef and give me the result.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

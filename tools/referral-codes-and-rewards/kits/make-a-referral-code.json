@@ -18,7 +18,7 @@
       "title": "Make a referral code on its own sample",
       "ask": "Make a referral code that earns what my referral reward rules give, and give back the event to save",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

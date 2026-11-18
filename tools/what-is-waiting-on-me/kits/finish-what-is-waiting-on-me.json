@@ -19,7 +19,7 @@
       "title": "An ask is marked done, and a retry is safe",
       "ask": "I signed the form; mark it done.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

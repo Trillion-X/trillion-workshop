@@ -254,7 +254,7 @@
       "title": "Examples from real rulings; torn and trained lines are left out",
       "ask": "Make examples from my rulings and the lines I said, leaving out the trained lines.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -18,7 +18,7 @@
       "title": "Post a picked note to a Slack channel",
       "ask": "Post a picked note to a Slack channel",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

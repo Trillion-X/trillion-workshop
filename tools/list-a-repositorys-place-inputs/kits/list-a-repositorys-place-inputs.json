@@ -15,7 +15,7 @@
     {
       "title": "Inputs of one granted repository",
       "ask": "Which environment inputs does /Work/demo-repo need?",
-      "mcp": {"server": "trillion", "tool": "run_resource_operation", "input": {"address": "@tools", "method": "tools:run", "input": {"tool": "tool:list-a-repositorys-place-inputs", "input": {}}}},
+      "mcp": {"server": "{cli}", "tool": "run_resource_operation", "input": {"address": "@tools", "method": "tools:run", "input": {"tool": "tool:list-a-repositorys-place-inputs", "input": {}}}},
       "given": "A granted folder /Work/demo-repo whose tracked code reads one named input.",
       "hands_back": "{\"inputs\": [{\"name\": \"DEMO_TOKEN\", \"files\": [\"src/run.mjs\"], \"run_switch\": false, \"set\": false}]} (draft: the values of a real run are not yet put in)."
     }

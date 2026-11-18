@@ -18,7 +18,7 @@
       "title": "Notices recorded for me on its own sample",
       "ask": "List the notification events recorded for one audience, newest first",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

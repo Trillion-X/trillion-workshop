@@ -27,7 +27,7 @@
       "title": "Start the first sub-workflow for a loaf-count feature",
       "ask": "Run method-design-a-feature on: let a bakery show how many loaves are left each morning.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

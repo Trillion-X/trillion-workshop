@@ -17,7 +17,7 @@
       "title": "Show live matches, their scores and a tournament board on its own sample",
       "ask": "Show the current score of live matches for the scorer and for spectators, and a board of matches with their schedule, bracket, standings and leaderboard",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

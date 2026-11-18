@@ -19,7 +19,7 @@
       "title": "Grant paid access to people on its own sample",
       "ask": "Give people paid access by hand, all at once or one by one (members who moved over from another place, a gift, a pass with an end date), and end a grant I gave",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

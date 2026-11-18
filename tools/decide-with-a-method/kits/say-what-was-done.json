@@ -18,7 +18,7 @@
       "title": "Say what was done about a decision on its own sample",
       "ask": "Tell Trillion my AI did the next step of a decision, or the exact wall it reached",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

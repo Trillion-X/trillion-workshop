@@ -18,7 +18,7 @@
       "title": "See if my copies are in step on its own sample",
       "ask": "Show me whether every copy of my things is in step, and which records two of my devices changed apart",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -168,7 +168,7 @@
       "title": "A shipping claim becomes a testable claim and a verdict that waits for tests",
       "ask": "Test this: free shipping over 50 makes customers add one more item to reach it.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

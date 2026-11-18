@@ -24,7 +24,7 @@
       "title": "A 90-minute session on a pricing page",
       "ask": "Lock me in for 90 minutes to finish the bakery pricing page.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

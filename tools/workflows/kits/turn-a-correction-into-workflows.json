@@ -21,7 +21,7 @@
       "title": "One correction is split into two things done wrong",
       "ask": "Here is my correction: you wrote the reply in a hurry and never checked it against my saved replies, and you left the price out of every one.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "Open a prompt in a local AI app on its own sample",
       "ask": "Hand one prompt (an issue, a task) to a coding AI app the person already has on their computer, such as Claude Code or Codex",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

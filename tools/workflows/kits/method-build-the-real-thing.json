@@ -18,7 +18,7 @@
       "title": "Name the change for a pre-order box",
       "ask": "Run workflow:method-build-the-real-thing for the request: let a bakery owner offer a pre-order box that customers pay for online.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

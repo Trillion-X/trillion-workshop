@@ -17,7 +17,7 @@
       "title": "Show me once on its own sample",
       "ask": "Record, for a short bounded time, what the person does on their Mac (clicks, typing, shortcuts, with the app and the control each was in) and give it back as a draft workflow in words an AI can keep after the person has looked at it",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

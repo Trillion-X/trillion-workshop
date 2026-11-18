@@ -18,7 +18,7 @@
       "title": "Save someone's interest in one email update on its own sample",
       "ask": "Keep the consent of a person who asked for one email if a course becomes available, without sending anything",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -19,7 +19,7 @@
       "title": "Two comments on one video",
       "ask": "Read the comments on my YouTube video vid-aaa.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

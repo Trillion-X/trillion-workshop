@@ -18,7 +18,7 @@
       "title": "Correct a resource usage settlement on its own sample",
       "ask": "Answer the next, corrected version of a supplier-cost settlement under the original purchased terms, with the exact customer refund, credit or additional-authority obligation each payer now owes",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

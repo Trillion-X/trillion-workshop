@@ -17,7 +17,7 @@
       "title": "Count a paid installment in Stripe on its own sample",
       "ask": "When a pay-in-N plan invoice is paid, count it, and stop the plan after the last one so no extra invoice is ever made",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -18,7 +18,7 @@
       "title": "The three strongest hits in a 26 second rally clip",
       "ask": "Find the three strongest moments in my rally video.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -39,7 +39,7 @@
       "title": "Only the second half, the two best",
       "ask": "Find the two best moments between 10 and 26 seconds.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

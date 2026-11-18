@@ -18,7 +18,7 @@
       "title": "Switch a kept show type on its own sample",
       "ask": "Switch one of my show-rule presets on or off",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

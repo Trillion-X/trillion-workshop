@@ -17,7 +17,7 @@
       "title": "Read a field's history as lines on its own sample",
       "ask": "Read one field's history of one row as lines a person reads: each value it held, from when until when, who changed it and by which road",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

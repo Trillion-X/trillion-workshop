@@ -17,7 +17,7 @@
       "title": "Observe something I watched or read on its own sample",
       "ask": "Turn one thing a person watched, read, used or saved (a page they visited, words they selected, an app they spent a while in, a feed item) into one observation with a stable identity, so seeing the same thing again is recognised and a changed page is a new revision",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

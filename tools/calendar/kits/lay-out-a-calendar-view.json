@@ -17,7 +17,7 @@
       "title": "Lay out a calendar view on its own sample",
       "ask": "Arrange time blocks for a day, week, month or agenda view, split overlapping blocks into columns, and name the blocks that clash",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

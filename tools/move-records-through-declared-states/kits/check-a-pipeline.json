@@ -17,7 +17,7 @@
       "title": "Check a pipeline's stages for mistakes on its own sample",
       "ask": "Check a sales pipeline or any set of stages for mistakes: stages nothing can reach, a way out of a finished stage, or a move to a stage that does not exist",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "Find a thing on the person's computer screen on its own sample",
       "ask": "Say where a described thing is on the person's screen right now (a button, a field, a line of text) without touching it",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

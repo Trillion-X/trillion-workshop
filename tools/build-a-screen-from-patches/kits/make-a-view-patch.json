@@ -17,7 +17,7 @@
       "title": "Send only what changed in an answer on its own sample",
       "ask": "Turn the next JSON answer a screen will read into just the changes from the answer it already holds, when that is smaller",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

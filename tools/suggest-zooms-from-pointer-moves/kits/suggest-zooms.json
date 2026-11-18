@@ -17,7 +17,7 @@
       "title": "Suggest zooms for a screen recording on its own sample",
       "ask": "Turn the pointer moves and clicks noted beside a screen recording into zoom suggestions (where the pointer settled, for how long, how strong), as plain rows the person can edit before the video is exported",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

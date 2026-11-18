@@ -17,7 +17,7 @@
       "title": "Turn words into a picture vector on its own sample",
       "ask": "Turn words into the vector a picture model (CLIP ViT-B-32, OpenAI weights) gives pictures that show them, to compare with picture vectors kept for recordings",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -18,7 +18,7 @@
       "title": "A landscape clip made 9:16",
       "ask": "Make my video vertical for a reel.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

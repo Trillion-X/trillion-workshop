@@ -36,7 +36,7 @@
       "title": "A gardener's lens handed in, paragraph only",
       "ask": "Give me the paragraph an AI should read to look at what a gardener pursues.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

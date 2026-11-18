@@ -17,7 +17,7 @@
       "title": "A 2000 Hz blip judged whole from its first onset to its tail",
       "ask": "Judge this blip as a whole sound for \"a high blip\".",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

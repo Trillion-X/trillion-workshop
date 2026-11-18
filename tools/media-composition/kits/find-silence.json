@@ -18,7 +18,7 @@
       "title": "Two pauses found in a 7 second clip",
       "ask": "Find the silent parts of my video.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -38,7 +38,7 @@
       "title": "Only pauses over a second, no padding",
       "ask": "Only count pauses longer than a second, keep no extra sound around them.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

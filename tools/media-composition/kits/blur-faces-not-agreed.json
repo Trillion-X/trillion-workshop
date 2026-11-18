@@ -18,7 +18,7 @@
       "title": "No one agreed: every face would be blurred",
       "ask": "Make a copy of my street practice video with every face blurred.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

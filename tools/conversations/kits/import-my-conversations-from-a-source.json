@@ -187,7 +187,7 @@
       "title": "A Claude.ai export of two chats is kept",
       "ask": "Bring my Claude.ai chat export into my records.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "Rebuild a screen recording from its chunks on its own sample",
       "ask": "Keep a screen recording's chunks in order as they are recorded and rebuild the finished recording from them, with the file reference it is published with",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

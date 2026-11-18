@@ -254,7 +254,7 @@
       "title": "Two real bad rulings are not enough for three needed",
       "ask": "Count my real bad rulings on lines.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

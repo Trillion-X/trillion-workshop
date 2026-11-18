@@ -17,7 +17,7 @@
       "title": "Find pictures by colour or likeness on its own sample",
       "ask": "Find my pictures by a colour I type or name, or find pictures like one I pick",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

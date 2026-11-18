@@ -17,7 +17,7 @@
       "title": "Reconcile lines against a statement on its own sample",
       "ask": "Work out closing a set of cleared lines against a statement with any difference explained in words, answer a receipt of each close, find lines changed or removed after they were closed, and answer the undo of the last close",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

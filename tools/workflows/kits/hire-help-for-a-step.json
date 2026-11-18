@@ -21,7 +21,7 @@
    "title": "The task and the price are written first",
    "ask": "Hire someone to photograph the shelf at the market.",
    "mcp": {
-    "server": "trillion",
+    "server": "{cli}",
     "tool": "run_resource_operation",
     "input": {
      "address": "@tools",

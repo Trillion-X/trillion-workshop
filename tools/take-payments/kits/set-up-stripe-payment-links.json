@@ -17,7 +17,7 @@
       "title": "Set up Stripe payment links on its own sample",
       "ask": "Make Stripe hold one lasting payment link for every priced option of my offers, with the buyer plan page and my discount codes",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

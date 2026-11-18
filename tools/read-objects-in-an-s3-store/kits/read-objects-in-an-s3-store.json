@@ -18,7 +18,7 @@
       "title": "Read one page of a site's files, then one file",
       "ask": "List the files under site/ in my R2 store and read index.html.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -19,7 +19,7 @@
       "title": "Read one of my methods on its own sample",
       "ask": "Read the rows of one of my methods, a saved view over my method rows, a page at a time, each row with how strictly an answer to it is checked",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

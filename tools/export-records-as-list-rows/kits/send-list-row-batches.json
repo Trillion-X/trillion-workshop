@@ -19,7 +19,7 @@
       "title": "One batch of two rows is sent after a warm-up",
       "ask": "Send my prepared bakery batches into my orders list.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

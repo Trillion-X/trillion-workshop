@@ -26,7 +26,7 @@
       "title": "Keep only the launch whose own page overlaps the market",
       "ask": "Run workflow:out-launch-a-new-launch for a bakery ordering app.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

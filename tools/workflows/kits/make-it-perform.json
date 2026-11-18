@@ -22,7 +22,7 @@
       "title": "Find what blocks a pre-order page from being found",
       "ask": "Make my bakery's pre-order page easier to find for custom cakes nearby.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

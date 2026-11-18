@@ -19,7 +19,7 @@
       "title": "Run list-mail-drafts on a sample input",
       "ask": "List my drafts.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

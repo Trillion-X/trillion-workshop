@@ -18,7 +18,7 @@
       "title": "Save a member's profile fields on its own sample",
       "ask": "Save the name, about text or email of a member's profile, changing only the fields given and keeping the rest of the profile",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

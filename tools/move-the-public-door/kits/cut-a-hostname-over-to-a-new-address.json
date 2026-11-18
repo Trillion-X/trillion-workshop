@@ -18,7 +18,7 @@
       "title": "Cut a hostname over to a new address on its own sample",
       "ask": "Point one exact hostname of mine at a new server's address, keeping every other DNS record and route, and roll it back if I ask",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

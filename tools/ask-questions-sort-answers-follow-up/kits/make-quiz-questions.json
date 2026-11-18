@@ -17,7 +17,7 @@
       "title": "Make quiz questions from text on its own sample",
       "ask": "Make fill-in-the-blank quiz questions from a piece of text, such as notes, a lesson or an article",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

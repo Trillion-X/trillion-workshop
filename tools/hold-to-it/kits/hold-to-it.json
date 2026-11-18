@@ -18,7 +18,7 @@
       "title": "Hold a group to what it agreed on its own sample",
       "ask": "Work out an agreement a group made, or a session one person planned (a daily meeting, a habit, a deadline): when to remind and check, who kept it, and the scorecard",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

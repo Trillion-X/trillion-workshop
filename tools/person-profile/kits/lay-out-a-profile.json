@@ -17,7 +17,7 @@
       "title": "Lay out a person's profile on its own sample",
       "ask": "Lay out one person's profile page from their record: name, fields with values, related lists such as their activity or deals, and the actions that apply",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

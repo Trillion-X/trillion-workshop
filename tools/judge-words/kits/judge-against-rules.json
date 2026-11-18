@@ -18,7 +18,7 @@
       "title": "Check words or anything made against your rules on its own sample",
       "ask": "Check words, a plan or anything else someone made against the rules a person set, and say what breaks which rule, why, and what to do instead",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -77,7 +77,7 @@
       "title": "Check words or anything made against your rules on its own sample",
       "ask": "Check words, a plan or anything else someone made against the rules a person set, and say what breaks which rule, why, and what to do instead",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

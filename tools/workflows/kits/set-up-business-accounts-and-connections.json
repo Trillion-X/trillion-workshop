@@ -195,7 +195,7 @@
       "title": "YouTube is not connected: the step reports a gap",
       "ask": "Is my YouTube connected?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -217,7 +217,7 @@
       "title": "The sending domain is added and its DNS records are kept",
       "ask": "Add my email sending domain.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -18,7 +18,7 @@
       "title": "Read the facts of one arriving note",
       "ask": "Read the attention facts of the note 'A sample note'",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

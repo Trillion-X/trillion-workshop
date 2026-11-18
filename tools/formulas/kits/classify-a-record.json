@@ -17,7 +17,7 @@
       "title": "Give a record the label of the first rule it meets on its own sample",
       "ask": "Give a record the label of the first of my rules that holds: each rule has clauses over facts read from the record (is present, is absent, at least, at most, equals), and I get the rule's key, label, tone and severity, or none",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

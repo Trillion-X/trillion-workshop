@@ -18,7 +18,7 @@
       "title": "Signing a five-line update record",
       "ask": "Sign this Mac app update record with my release key.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "Measure what ad spend brings back (CAC, LTV, payback) on its own sample",
       "ask": "Measure return on ad spend per source, campaign or keyword: cost per sign-up, CAC, customer lifetime value, LTV to CAC ratio and payback months, flagging what meets 5x",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

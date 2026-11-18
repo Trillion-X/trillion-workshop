@@ -193,7 +193,7 @@
       "title": "Two failed payments in the last 7 days",
       "ask": "Which payments failed this week, and email those buyers.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

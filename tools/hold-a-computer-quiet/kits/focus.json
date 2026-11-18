@@ -17,7 +17,7 @@
       "title": "Turn Focus on or off on its own sample",
       "ask": "Switch Do Not Disturb on the person's computer on or off",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

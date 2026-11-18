@@ -21,7 +21,7 @@
       "title": "Score one recording after seeding",
       "ask": "Find when the parrot speaks in rec-a.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -18,7 +18,7 @@
       "title": "How I chose to be notified on its own sample",
       "ask": "Show the options a notification setting offers this person and which one they chose",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

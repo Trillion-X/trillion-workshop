@@ -18,7 +18,7 @@
       "title": "Saved examples on its own sample",
       "ask": "List every example this person saved of posts, videos and pages that worked, newest first, each with its link, words, pictures and why it worked",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -18,7 +18,7 @@
       "title": "Write the three files for the sample notice models, then check",
       "ask": "Write my message models for the apps and the web from models.json.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -35,7 +35,7 @@
       "title": "A new field on a model makes two files fall behind",
       "ask": "I added a pinned field to Notice; are the models current?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

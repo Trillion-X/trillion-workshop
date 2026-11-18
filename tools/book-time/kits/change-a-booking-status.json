@@ -17,7 +17,7 @@
       "title": "Change a booking's status on its own sample",
       "ask": "Work out a booking's new record for confirming, cancelling, completing or marking a no-show, only in the ways a booking may move",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

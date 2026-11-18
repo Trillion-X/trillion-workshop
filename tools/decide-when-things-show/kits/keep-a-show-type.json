@@ -18,7 +18,7 @@
       "title": "Keep a show type on its own sample",
       "ask": "Keep a preset of show rules I can switch on, or change one I keep",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

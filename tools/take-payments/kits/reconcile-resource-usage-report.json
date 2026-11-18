@@ -18,7 +18,7 @@
       "title": "Reconcile resource usage report on its own sample",
       "ask": "Recover an unknown usage charge by reading the exact provider invoice item without sending it again",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

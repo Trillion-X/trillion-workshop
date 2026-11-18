@@ -17,7 +17,7 @@
       "title": "Read my saved X posts on its own sample",
       "ask": "Read the posts I bookmarked or liked on X, newest first, with their full words, links and quoted posts",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

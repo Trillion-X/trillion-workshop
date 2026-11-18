@@ -20,7 +20,7 @@
       "title": "Score one labelled passage",
       "ask": "Score my one-item challenge with my adapter and write the report.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

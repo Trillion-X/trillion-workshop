@@ -18,7 +18,7 @@
       "title": "Read two numbers",
       "ask": "Add 2 and 3 in my database.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -18,7 +18,7 @@
       "title": "One clip found on a second drive and in the Trillion space",
       "ask": "Where else is /Volumes/Card/DCIM/clip.mov?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

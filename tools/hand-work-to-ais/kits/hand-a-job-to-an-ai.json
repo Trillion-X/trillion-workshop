@@ -18,7 +18,7 @@
       "title": "Hand a job to one of my AIs, or to whichever takes it first on its own sample",
       "ask": "Give a job to another of my AIs (a named one, or any of them) so it is waiting for that AI to take",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

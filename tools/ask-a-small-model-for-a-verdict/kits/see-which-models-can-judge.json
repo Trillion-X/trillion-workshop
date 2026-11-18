@@ -18,7 +18,7 @@
       "title": "One local model, one rubric: it can judge it",
       "ask": "Can my local model judge the claims-done question?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

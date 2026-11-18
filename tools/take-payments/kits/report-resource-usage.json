@@ -18,7 +18,7 @@
       "title": "Report resource usage on its own sample",
       "ask": "Report exact reconciled usage once to its purchased subscription, and answer the retained fractional carry and, when the outcome is unknown, the frozen report to retry or reconcile",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

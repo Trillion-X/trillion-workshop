@@ -123,7 +123,7 @@
       "title": "Three variants of an opening line, one slot changed at a time",
       "ask": "Make candidates of my shop opening line one slot at a time.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

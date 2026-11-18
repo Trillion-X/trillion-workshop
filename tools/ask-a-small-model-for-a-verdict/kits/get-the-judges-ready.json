@@ -19,7 +19,7 @@
       "title": "Calibrate one rubric and keep the chosen model",
       "ask": "Get my judges ready for the claims-done question.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

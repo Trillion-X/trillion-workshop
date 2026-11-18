@@ -18,7 +18,7 @@
       "title": "Release a place on its own sample",
       "ask": "Give a held place back, and offer it to the next person on the waitlist",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

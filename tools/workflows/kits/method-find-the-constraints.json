@@ -20,7 +20,7 @@
       "title": "Name what a course price is chosen to maximize",
       "ask": "Run workflow:method-find-the-constraints: decide the price of a five-lesson online bread-baking course for home bakers.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

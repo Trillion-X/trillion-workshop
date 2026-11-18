@@ -17,7 +17,7 @@
       "title": "Keep a long job resumable on its own sample",
       "ask": "Keep a long job on the person's computer (a meeting summary, a transcription) under a key, so starting it twice gives the same job, its output so far is kept in numbered pieces, and any client can resume reading from a cursor or cancel it",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

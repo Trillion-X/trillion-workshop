@@ -19,7 +19,7 @@
       "title": "A bakery note judged by a model that first passed two known cases",
       "ask": "Does this note say the order is ready without saying it was checked?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

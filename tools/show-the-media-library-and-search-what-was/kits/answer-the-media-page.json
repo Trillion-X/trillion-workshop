@@ -18,7 +18,7 @@
       "title": "Answer the Media page's saved edits on its own sample",
       "ask": "Answer the Media page: check an edit of my recordings and answer it",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

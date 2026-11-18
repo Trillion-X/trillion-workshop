@@ -18,7 +18,7 @@
       "title": "List public prediction markets on its own sample",
       "ask": "See which prediction markets are open right now, what each asks, its outcomes, their prices and its trading volume",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

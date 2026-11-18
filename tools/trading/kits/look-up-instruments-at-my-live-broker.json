@@ -17,7 +17,7 @@
       "title": "Look up instruments at my live broker on its own sample",
       "ask": "Find the instruments my broker lists for trading, such as option contracts, from my live account",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

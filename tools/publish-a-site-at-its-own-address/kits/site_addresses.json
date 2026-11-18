@@ -18,7 +18,7 @@
       "title": "My site addresses on its own sample",
       "ask": "List the addresses my published websites answer at",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

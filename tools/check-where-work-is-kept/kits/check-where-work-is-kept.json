@@ -17,7 +17,7 @@
       "title": "Check that an AI keeps its work in Trillion, not on disk on its own sample",
       "ask": "Check whether a file an AI is about to write belongs on disk or in the person's Trillion lists, and say which list and which records:write call keeps it instead",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

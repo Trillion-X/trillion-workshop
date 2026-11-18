@@ -17,7 +17,7 @@
       "title": "Describe my connected accounts on its own sample",
       "ask": "Say in plain words, for each of my connected accounts, which one is primary, what its sign-in allowed, what Trillion copies from it, what stays live and what Trillion may do with it",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "Fill a column by asking my sources in order on its own sample",
       "ask": "Fill one column of my list row by row by asking my sources in my order until one gives an answer that passes my check, paying only for the sources each row needs: tell me the next calls to run, and turn what they answered into values",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

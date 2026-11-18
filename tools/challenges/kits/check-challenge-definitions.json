@@ -17,7 +17,7 @@
       "title": "Check my challenge definitions on its own sample",
       "ask": "Check my time-boxed challenge definitions are complete before I enroll anyone in them",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

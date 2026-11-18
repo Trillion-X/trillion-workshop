@@ -18,7 +18,7 @@
       "title": "Run delete-a-mail-draft on a sample input",
       "ask": "Delete my draft r-7301442210.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -19,7 +19,7 @@
       "title": "Two folders scored against the speaker's reference",
       "ask": "Which folder sounds most like the real speaker?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

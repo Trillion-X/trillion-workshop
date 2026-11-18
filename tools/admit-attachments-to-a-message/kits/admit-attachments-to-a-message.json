@@ -17,7 +17,7 @@
       "title": "Admit the files sent with a message on its own sample",
       "ask": "Decide how many of the files sent with a message are accepted, and which limit stopped the rest, in words to show the person",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

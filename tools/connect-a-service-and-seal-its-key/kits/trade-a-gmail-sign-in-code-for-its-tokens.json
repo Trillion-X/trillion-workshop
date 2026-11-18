@@ -19,7 +19,7 @@
       "title": "Trade a Gmail sign-in code for its tokens for a made-up connection",
       "ask": "Trade a Gmail sign-in code for its tokens for service_connection:google-account:9c1d4e7a.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

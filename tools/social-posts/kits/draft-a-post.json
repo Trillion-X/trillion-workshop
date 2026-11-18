@@ -20,7 +20,7 @@
       "title": "Draft a post on its own sample",
       "ask": "Work out a post as a draft for the person to look at (its words, its video or picture, where it goes and when) and answer the post row to keep",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

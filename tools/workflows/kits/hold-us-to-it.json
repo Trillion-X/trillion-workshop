@@ -20,7 +20,7 @@
    "title": "A weekly meeting is found in the words",
    "ask": "Hold us to what we agreed yesterday.",
    "mcp": {
-    "server": "trillion",
+    "server": "{cli}",
     "tool": "run_resource_operation",
     "input": {
      "address": "@tools",

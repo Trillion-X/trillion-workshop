@@ -193,7 +193,7 @@
       "title": "The real address answers 200 with its title",
       "ask": "Prove my launch on the real address.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

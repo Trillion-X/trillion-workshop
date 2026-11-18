@@ -20,7 +20,7 @@
       "title": "A rejected phrase in a reviewed post",
       "ask": "Check post.md against my writing profile.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

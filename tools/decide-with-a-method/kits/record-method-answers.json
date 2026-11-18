@@ -19,7 +19,7 @@
       "title": "Record my answers to a method on its own sample",
       "ask": "Record my AI's answers to any number of the rows of a method in one call, each with the rows it cites and the decision's evidence it rests on",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

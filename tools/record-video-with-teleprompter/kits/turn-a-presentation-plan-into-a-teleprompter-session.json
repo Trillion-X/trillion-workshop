@@ -17,7 +17,7 @@
       "title": "Turn a presentation plan into a teleprompter session on its own sample",
       "ask": "Turn a written video presentation plan into the recording session the camera screen runs: the teleprompter script sentence by sentence, the countdown, when to stop on silence, on the final word or on a stop phrase, and whether it may start by itself",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

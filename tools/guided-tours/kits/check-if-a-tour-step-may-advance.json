@@ -17,7 +17,7 @@
       "title": "Check whether a tour step may move on by itself on its own sample",
       "ask": "Decide whether a guided-tour step has met its advance condition: tapped next, touched the highlighted thing, answered, watched enough of a video, waited long enough, finished an embedded form, or a fact someone looked up has the right value",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

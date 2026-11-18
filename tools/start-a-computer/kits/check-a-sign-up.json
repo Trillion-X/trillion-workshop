@@ -20,7 +20,7 @@
       "title": "A passing check: seven steps, a new address, a signed-in read",
       "ask": "Does the sign-up at front.example work end to end?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

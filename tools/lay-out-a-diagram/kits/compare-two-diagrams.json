@@ -17,7 +17,7 @@
       "title": "Compare two versions of a diagram on its own sample",
       "ask": "Tell me what changed between two versions of a diagram: boxes and arrows added, removed or changed, and what changed on each",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

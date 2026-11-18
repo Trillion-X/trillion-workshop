@@ -17,7 +17,7 @@
       "title": "Read the files I keep for my other AI apps on its own sample",
       "ask": "Read the instructions, commands, skills and MCP servers the person already keeps for their other AI apps (Claude Code, Codex, Cursor, Claude Desktop, Gemini CLI, Windsurf), in place, without copying them",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

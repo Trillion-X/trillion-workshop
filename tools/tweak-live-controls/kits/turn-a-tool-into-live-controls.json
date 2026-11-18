@@ -17,7 +17,7 @@
       "title": "Turn a tool into live controls on its own sample",
       "ask": "Turn a tool's inputs into the live controls a person moves, and check the values they moved into the input the tool would run with",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

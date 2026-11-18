@@ -17,7 +17,7 @@
       "title": "Places capture must not read on its own sample",
       "ask": "Say which categories of places (banking, health, social, shopping, adult content, entertainment) a screen or browser capture must not read, whether one address is in them, turn a category on or off for the person, and take in more domains as a cursor diff",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

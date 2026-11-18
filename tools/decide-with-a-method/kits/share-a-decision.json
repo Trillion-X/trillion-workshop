@@ -20,7 +20,7 @@
       "title": "Make a decision safe to share on its own sample",
       "ask": "Make a decided decision safe to show strangers: the plain privacy pass with the person's own private terms, then a second model's re-identification check bound to the exact words",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

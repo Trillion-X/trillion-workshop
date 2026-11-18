@@ -18,7 +18,7 @@
       "title": "Read a one-sheet workbook with its formulas",
       "ask": "Read /work/budget.xlsx and show me every cell, including the formulas I typed.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

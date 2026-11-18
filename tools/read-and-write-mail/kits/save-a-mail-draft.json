@@ -19,7 +19,7 @@
       "title": "Run save-a-mail-draft on a sample input",
       "ask": "Save a draft to alex@example.com saying thanks for the invoice.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "Compile a presentation plan on its own sample",
       "ask": "Compile source material and a selected format into a presentation plan with its claims and setup requirements",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

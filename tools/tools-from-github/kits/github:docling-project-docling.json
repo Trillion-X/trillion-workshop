@@ -18,7 +18,7 @@
       "title": "docling on a two page PDF price list with one table",
       "ask": "Use docling on price-list.pdf.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

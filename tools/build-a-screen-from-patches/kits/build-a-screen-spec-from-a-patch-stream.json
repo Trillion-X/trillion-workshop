@@ -17,7 +17,7 @@
       "title": "Build a screen from lines of changes on its own sample",
       "ask": "Build a screen made of shared parts from the lines of JSON changes an AI wrote for it, and say which lines or parts did not fit",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

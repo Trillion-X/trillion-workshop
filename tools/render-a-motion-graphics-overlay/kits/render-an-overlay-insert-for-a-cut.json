@@ -124,7 +124,7 @@
       "title": "Render a correction insert for a film cut: its overlay, the voice and music stems, freeze plates and a preview in context on its own sample",
       "ask": "Make everything I need to cut a narrated correction into my film: the overlay, the narrator voice and the music and sound stem lined up with it, freeze frames from the camera clip and from my graded export, and a preview with a few seconds of my cut before and after, after checking its claims",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

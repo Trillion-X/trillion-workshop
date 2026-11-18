@@ -17,7 +17,7 @@
       "title": "Plan clock-aligned recording pieces on its own sample",
       "ask": "Plan how recording every camera and microphone without end is cut into clock-aligned pieces that line up across devices: when each input's pieces begin and end, what each is named, which day folder it goes in, and the list that ties them together",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

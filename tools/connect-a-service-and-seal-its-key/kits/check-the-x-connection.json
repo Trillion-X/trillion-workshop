@@ -19,7 +19,7 @@
       "title": "Check a made-up X connection",
       "ask": "Check that my X connection service_connection:x:sams_bakery still works.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -20,7 +20,7 @@
       "title": "A full pass and a slow pass of two clips",
       "ask": "Plan a side by side video of a.mp4 and b.mp4 with a full pass and a slow pass.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

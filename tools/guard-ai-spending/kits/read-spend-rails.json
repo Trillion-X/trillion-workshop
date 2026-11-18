@@ -18,7 +18,7 @@
       "title": "Read spend rails on its own sample",
       "ask": "See which ways my AI may pay (card, bank, x402 and others) and which rail rows are refused",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

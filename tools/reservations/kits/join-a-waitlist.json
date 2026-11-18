@@ -18,7 +18,7 @@
       "title": "Join a waitlist on its own sample",
       "ask": "Put someone on the waitlist for a class or table without trying to hold a place first",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "Fit a tool list in a budget on its own sample",
       "ask": "Shrink a list of tools for an AI so it fits in a number of characters, keeping as much detail as fits",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -18,7 +18,7 @@
       "title": "Check the saved consumer and finish an AI job on its own sample",
       "ask": "Finish an AI job only after its saved acceptance checks pass on the actual persisted consumer",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

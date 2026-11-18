@@ -19,7 +19,7 @@
       "title": "A machine the person runs, asked once at its public name",
       "ask": "Is my computer up and answering?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

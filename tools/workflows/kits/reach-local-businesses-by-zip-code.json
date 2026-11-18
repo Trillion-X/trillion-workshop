@@ -35,7 +35,7 @@
       "title": "A roofer with 3 slow-quote reviews and a spike of new reviews scores 5",
       "ask": "Find roofers in my zip code whose reviews show they need help.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

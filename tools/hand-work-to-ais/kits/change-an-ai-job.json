@@ -18,7 +18,7 @@
       "title": "Finish, fail, give back, withdraw, flag or remove a job handed between my AIs on its own sample",
       "ask": "Record what happened to a job one of my AIs took: finish it with its result, say it failed, give it back, say what blocks it, take back one I sent, or remove it",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -19,7 +19,7 @@
       "title": "A 40 s track with a loud swell at 25 s: the 10 s window starting at 19 s follows the arc",
       "ask": "Find the stretch of this track that follows my film's loudness arc.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

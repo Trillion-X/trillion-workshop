@@ -19,7 +19,7 @@
       "title": "Three synthetic recordings measured side by side",
       "ask": "Measure the speech in my three spans so I can choose what counts as good.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -19,7 +19,7 @@
       "title": "Check one compiled video against the ledger",
       "ask": "Check that the compiled template for source key channel-fixture joins back to my packaging ledger.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

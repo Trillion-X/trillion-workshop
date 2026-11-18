@@ -19,7 +19,7 @@
       "title": "A model that gives no confidence gets a reason, not an invented line",
       "ask": "Where should the confidence line go for the claims-done question?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

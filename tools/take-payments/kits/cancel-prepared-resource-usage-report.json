@@ -18,7 +18,7 @@
       "title": "Cancel prepared resource usage report on its own sample",
       "ask": "Release only an unsent usage report; retain possible provider charges for reconciliation",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

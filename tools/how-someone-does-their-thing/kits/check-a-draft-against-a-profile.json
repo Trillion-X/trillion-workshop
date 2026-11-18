@@ -17,7 +17,7 @@
       "title": "Check a draft carries its profile on its own sample",
       "ask": "Check that a draft made for a person carries the references to the profile that shaped it and the profile it is checked by",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -18,7 +18,7 @@
       "title": "piper1-gpl on a short sentence to speak",
       "ask": "Use piper1-gpl on Welcome to our bakery. We open at seven..",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

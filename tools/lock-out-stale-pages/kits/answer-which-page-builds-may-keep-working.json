@@ -17,7 +17,7 @@
       "title": "Answer which page builds may keep working on its own sample",
       "ask": "Say which builds of the Trillion page may keep working, so an open tab the store moved past shows a reload screen",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

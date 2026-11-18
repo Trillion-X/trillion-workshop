@@ -18,7 +18,7 @@
       "title": "Read an export of my conversations on its own sample",
       "ask": "Read an export of the person's conversations (a chat app's saved messages, a mailbox page or email file, the Messages database, an AI assistant's logs or a captured web chat) from a folder they chose, and give each conversation's messages in order, ready to be kept as the person's messages",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

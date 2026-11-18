@@ -17,7 +17,7 @@
       "title": "Commit the chosen changes on its own sample",
       "ask": "Commit what is chosen for the next commit in a project on the person's computer, with a message",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

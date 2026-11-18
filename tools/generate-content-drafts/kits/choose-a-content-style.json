@@ -17,7 +17,7 @@
       "title": "Choose a content style on its own sample",
       "ask": "Choose a content style manually or from ordered rules for the supplied media shape",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

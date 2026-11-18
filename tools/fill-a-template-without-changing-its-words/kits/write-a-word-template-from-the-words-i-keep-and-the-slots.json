@@ -125,7 +125,7 @@
       "title": "An opening line with a person slot and a time slot",
       "ask": "Write a word template for my opening line.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -46,7 +46,7 @@
       "title": "A vague money request opens one pursuit with its areas",
       "ask": "Put my money in order: the electric bill is past due and a streaming service may still charge me.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

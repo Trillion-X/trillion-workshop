@@ -17,7 +17,7 @@
       "title": "List the latest items of a feed on its own sample",
       "ask": "Get the latest posts, videos or episodes of a creator or a topic from their Atom or RSS feed",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

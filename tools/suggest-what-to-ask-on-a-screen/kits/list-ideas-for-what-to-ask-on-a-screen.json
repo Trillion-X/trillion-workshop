@@ -17,7 +17,7 @@
       "title": "Ideas for what to ask an AI on a screen on its own sample",
       "ask": "Show the written ideas for what to ask an AI on one screen, each with the request a Do this for me button would hand over",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

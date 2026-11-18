@@ -15,7 +15,7 @@
     {
       "title": "One take's word starts tightened",
       "ask": "Make my captions land on each word of the take.",
-      "mcp": {"server": "trillion", "tool": "run_resource_operation", "input": {"address": "@tools", "method": "tools:list", "input": {"tool": "tool:time-words-to-where-the-voice-starts"}}},
+      "mcp": {"server": "{cli}", "tool": "run_resource_operation", "input": {"address": "@tools", "method": "tools:list", "input": {"tool": "tool:time-words-to-where-the-voice-starts"}}},
       "given": "A text-to-speech take /Work/demo/take.wav and its whisper read /Work/demo/take.words.json.",
       "hands_back": "The last line printed: {\"result\": {\"out\": \"/Work/demo/take.tight.json\", \"words\": <count>}} (draft: the count of a real run is not yet put in)."
     }

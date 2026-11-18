@@ -17,7 +17,7 @@
       "title": "Join what is being worked on into one tree on its own sample",
       "ask": "Join the goals, decisions, AIs, jobs, spaces, people, automations and tool runs my records already answered into one tree of what is being worked on and who is doing it, or one goal's branch of it",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

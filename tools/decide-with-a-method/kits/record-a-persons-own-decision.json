@@ -23,7 +23,7 @@
       "title": "A made-up bakery owner says go in chat",
       "ask": "My verdict is go, open on Sundays, it is decided.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -49,7 +49,7 @@
       "title": "An AI claims the person decided, with no message",
       "ask": "Mark this decided, the owner would agree.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

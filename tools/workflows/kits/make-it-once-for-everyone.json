@@ -18,7 +18,7 @@
       "title": "A pickup-time footer treated as raw material",
       "ask": "Add a footer to my bakery's order emails that shows the pickup time.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

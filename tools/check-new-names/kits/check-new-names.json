@@ -17,7 +17,7 @@
       "title": "Check the names a change brings in on its own sample",
       "ask": "Check the folder and file names a change brings into a repository against the person's naming rules, and say which name holds a codename, a status, a time or a technical metaphor, with the word and why",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

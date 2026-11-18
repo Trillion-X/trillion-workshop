@@ -17,7 +17,7 @@
       "title": "Find the ink mark under an eraser on its own sample",
       "ask": "Find which showing ink mark lies nearest a point, so it can be erased without changing any mark",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

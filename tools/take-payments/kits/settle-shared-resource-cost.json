@@ -18,7 +18,7 @@
       "title": "Settle shared resource cost on its own sample",
       "ask": "Allocate one verified supplier invoice among its attributed excess users under purchased limits, with separate platform expense, explicit funding gaps and exact subcent amounts; answers the settlement and every allocation and sends nothing to a payment provider",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

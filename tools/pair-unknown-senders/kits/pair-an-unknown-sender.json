@@ -18,7 +18,7 @@
       "title": "Give an unknown sender a pairing code on its own sample",
       "ask": "Hold a message from a sender the person has not paired yet and give that sender a short code the person can approve",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

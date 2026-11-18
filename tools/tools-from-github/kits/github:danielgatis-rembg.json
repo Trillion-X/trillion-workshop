@@ -18,7 +18,7 @@
       "title": "rembg on a product photo of a loaf of bread on a kitchen table",
       "ask": "Use rembg on loaf.jpg.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

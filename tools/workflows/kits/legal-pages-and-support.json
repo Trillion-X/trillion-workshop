@@ -191,7 +191,7 @@
       "title": "Terms, privacy and refunds written from a coaching business's facts",
       "ask": "Write and publish the legal pages for Harbor Coaching from my saved facts.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

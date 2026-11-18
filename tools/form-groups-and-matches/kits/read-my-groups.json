@@ -18,7 +18,7 @@
       "title": "Read my groups and everything inside them on its own sample",
       "ask": "Show what is in my groups, lists or collections, with the groups inside them, in their order",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

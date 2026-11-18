@@ -17,7 +17,7 @@
       "title": "See where each customer is on its own sample",
       "ask": "See where each customer is: their latest step, every step so far, and how many customers each product has against its target",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

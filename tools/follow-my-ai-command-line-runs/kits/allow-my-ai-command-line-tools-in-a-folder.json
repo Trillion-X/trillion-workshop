@@ -18,7 +18,7 @@
       "title": "Allow Read and Edit in one folder, with a repeated name kept once",
       "ask": "In /srv/bakery-site allow my AI command line only Read and Edit.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

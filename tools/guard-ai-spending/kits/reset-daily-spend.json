@@ -18,7 +18,7 @@
       "title": "Reset today's spend on its own sample",
       "ask": "When a new day starts (UTC), set my AI's spend today back to zero",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

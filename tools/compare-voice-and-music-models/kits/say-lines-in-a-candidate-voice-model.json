@@ -19,7 +19,7 @@
       "title": "Two lines said in a cloned voice, one WAV each",
       "ask": "Say these two lines in the candidate model in my voice.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

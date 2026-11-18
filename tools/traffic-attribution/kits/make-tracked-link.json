@@ -17,7 +17,7 @@
       "title": "Make a tracked link on its own sample",
       "ask": "Make a tracked link with UTM fields for a post, ad, email or bio, so visits and sales can be traced to it",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

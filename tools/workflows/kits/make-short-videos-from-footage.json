@@ -218,7 +218,7 @@
       "title": "A 30-second clip becomes a vertical short",
       "ask": "Make a short from the part where I name the first mistake.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -240,7 +240,7 @@
       "title": "The finished short is handed to the posting stage",
       "ask": "Hand the finished clip to posting.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@own-records",

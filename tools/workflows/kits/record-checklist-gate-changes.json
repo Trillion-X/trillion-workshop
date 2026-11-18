@@ -18,7 +18,7 @@
       "title": "Record a checklist answer or run its checked steps (runs on your computer) on its own sample",
       "ask": "Record a checklist answer or run a declared checker or gate, with the required folder change grant",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "Adapt my next training session on its own sample",
       "ask": "Adapt the next training session from the adjustments my progress rules gave for the session I just did",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

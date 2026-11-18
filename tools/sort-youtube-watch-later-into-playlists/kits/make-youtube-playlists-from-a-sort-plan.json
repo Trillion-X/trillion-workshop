@@ -20,7 +20,7 @@
       "title": "Make one planned playlist, then run again safely",
       "ask": "Make the first playlist of my sort plan on YouTube.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

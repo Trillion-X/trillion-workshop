@@ -125,7 +125,7 @@
       "title": "Fill the loaf count from a log line",
       "ask": "Fill my template with 52 loaves from my Monday log.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

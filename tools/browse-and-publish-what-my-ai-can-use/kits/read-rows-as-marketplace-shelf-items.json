@@ -17,7 +17,7 @@
       "title": "Read rows as Marketplace shelf items on its own sample",
       "ask": "Show rows of one kind (tools, workflows, looks, layouts and more) as the Marketplace shelf shows everything my AI can use: title, what it does, who made it, its price and runs, whether it is mine and published, and whether I can use, publish or withdraw it",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

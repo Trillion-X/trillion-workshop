@@ -115,7 +115,7 @@
       "title": "A memory written in a web chat is read by the computer AI",
       "ask": "Prove my AIs share one memory list.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "Read how AIs are told to act on its own sample",
       "ask": "See the standing instructions every AI is given when it first connects, or read one of them whole",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

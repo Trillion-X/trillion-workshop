@@ -18,7 +18,7 @@
       "title": "Act on one of my notices on its own sample",
       "ask": "Perform one action explicitly offered by one of this person’s kept notices",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

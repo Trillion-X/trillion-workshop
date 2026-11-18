@@ -121,7 +121,7 @@
       "title": "Plan which playlist each Watch Later video goes in on its own sample",
       "ask": "Sort my YouTube Watch Later into playlists: plan which playlist each video goes in",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

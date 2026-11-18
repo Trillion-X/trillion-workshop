@@ -102,7 +102,7 @@
       "title": "Count the orders and sum the amount over the whole list",
       "ask": "How many orders do I have and what do they add up to?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -208,7 +208,7 @@
       "title": "Sum the amount for each kind of order",
       "ask": "Add up the amount for each kind of order.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -315,7 +315,7 @@
       "title": "Sum only the rows a saved view keeps",
       "ask": "What is the total of my Bread only view?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

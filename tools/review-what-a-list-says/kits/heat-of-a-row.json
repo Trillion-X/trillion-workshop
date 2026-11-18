@@ -17,7 +17,7 @@
       "title": "Say how warm a row is on its own sample",
       "ask": "Say how much a row is used as of a moment, its use heat halving with time, and the heat record one more use leaves",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

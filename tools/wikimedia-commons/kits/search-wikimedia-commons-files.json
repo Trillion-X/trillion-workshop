@@ -19,7 +19,7 @@
       "title": "Two Commons files for the Eiffel Tower at night",
       "ask": "Search Wikimedia Commons for real photos of the Eiffel Tower at night, two results.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

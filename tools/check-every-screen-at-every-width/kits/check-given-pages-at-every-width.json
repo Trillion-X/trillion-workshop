@@ -18,7 +18,7 @@
       "title": "A notice with one faint line fails contrast in four views",
       "ask": "Check my garden club notice at phone and desktop width, in light and dark mode.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

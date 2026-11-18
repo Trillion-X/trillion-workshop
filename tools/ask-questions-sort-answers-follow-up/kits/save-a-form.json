@@ -18,7 +18,7 @@
       "title": "Make a form record on its own sample",
       "ask": "Check a form, a list of questions people answer, and keep it in the person's own database, so it can be asked and its answers checked",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

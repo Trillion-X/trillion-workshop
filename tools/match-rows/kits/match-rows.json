@@ -17,7 +17,7 @@
       "title": "Match rows from two places on its own sample",
       "ask": "Pair rows from two places that describe the same thing: a bank or card line and its receipt, both sides of a transfer between accounts, a payment and the invoices it paid, a statement line and a bookkeeping row, a calendar event and a timesheet entry.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

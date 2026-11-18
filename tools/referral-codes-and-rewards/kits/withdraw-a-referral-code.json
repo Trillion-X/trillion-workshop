@@ -17,7 +17,7 @@
       "title": "Withdraw a referral code on its own sample",
       "ask": "Stop a referral code from earning, and give back the event to save",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

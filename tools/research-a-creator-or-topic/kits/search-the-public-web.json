@@ -17,7 +17,7 @@
       "title": "Search the public web on its own sample",
       "ask": "Search the public web for a creator, a topic or a question, and get back at most ten results with the address each one cites",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -18,7 +18,7 @@
       "title": "Read how someone writes on its own sample",
       "ask": "Read how this person writes before drafting anything for them: a post, an email, a message",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

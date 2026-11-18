@@ -17,7 +17,7 @@
       "title": "Delete, archive and put back my files on its own sample",
       "ask": "Delete or archive a person's files and folders into Recently Deleted and Archived, put them back exactly as they were, change how long each keeps things, and say what is due when, with the time left on each",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

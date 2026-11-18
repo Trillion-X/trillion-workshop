@@ -18,7 +18,7 @@
       "title": "Export YouTube and Google cookies from Arc Profile 1",
       "ask": "Give yt-dlp my Arc browser's YouTube login.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

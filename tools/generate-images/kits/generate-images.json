@@ -18,7 +18,7 @@
       "title": "One placeholder picture for \"a red door\"",
       "ask": "Make a picture of a red door and keep it in the images folder.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

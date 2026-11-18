@@ -18,7 +18,7 @@
       "title": "Eleven seconds with one early spike, a late one and a flat stretch between",
       "ask": "Where does the predicted response spike and go flat in clips/cake-cut-a.mp4?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

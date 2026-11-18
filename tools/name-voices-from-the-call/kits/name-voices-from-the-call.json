@@ -18,7 +18,7 @@
       "title": "Name the voices from the call app on its own sample",
       "ask": "Name the unnamed voices of a recorded call from who the call app showed as speaking on screen, only where the screen evidence is enough, one name to one voice",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

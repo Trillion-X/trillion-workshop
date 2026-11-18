@@ -21,7 +21,7 @@
       "title": "Set a post to go at its time on its own sample",
       "ask": "Work out setting an approved post to go out at its scheduled time, once it is ready for every place it is going, and answer the post row to keep; nothing is sent now",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -462,7 +462,7 @@
       "title": "A blog's two new posts wait to be weighed",
       "ask": "Watch my sources and tell me what is new.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -488,7 +488,7 @@
       "title": "The AI answers the question and one post moves the podcast",
       "ask": "Here is my answer to the weighing question; finish the run.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

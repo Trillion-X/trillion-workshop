@@ -23,7 +23,7 @@
       "title": "Find the relevant people from their own comments",
       "ask": "Run workflow:personalized-reach-out: thank the three people who commented on my bakery video, by reply only.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

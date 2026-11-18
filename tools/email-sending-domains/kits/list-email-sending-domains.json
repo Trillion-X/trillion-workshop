@@ -17,7 +17,7 @@
       "title": "List email sending domains on its own sample",
       "ask": "See which domains my email-sending account can send from and whether each is verified",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

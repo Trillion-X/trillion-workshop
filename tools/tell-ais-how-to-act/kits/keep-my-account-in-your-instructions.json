@@ -18,7 +18,7 @@
       "title": "Ask a hosted app where the standing words go",
       "ask": "Put Trillion's standing instructions into ChatGPT for me.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -35,7 +35,7 @@
       "title": "Inspect a Codex file that does not exist yet",
       "ask": "Is Trillion in my Codex instructions yet?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

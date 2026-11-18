@@ -18,7 +18,7 @@
       "title": "An A440 note, a drum hit and an unfinished note become 3.2 seconds of audio",
       "ask": "Turn these note events into a WAV I can measure.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

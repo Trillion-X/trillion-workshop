@@ -18,7 +18,7 @@
       "title": "A two-page site gives four video addresses",
       "ask": "List the videos https://site.example plays.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "Pick the screen for what I am typing on its own sample",
       "ask": "Pick, as a person types, the screen that already does what their words ask from the screens they are offered, the interfaces made for them and the screens they kept, with no model, and keep the shown screen calm",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

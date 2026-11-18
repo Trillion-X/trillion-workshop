@@ -18,7 +18,7 @@
       "title": "Answer the page that reacts privately to something on its own sample",
       "ask": "Answer the Trillion page route POST /work/api/responses/react: add or take away the person's own private reaction to anything in their Trillion, as old Trillion did",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

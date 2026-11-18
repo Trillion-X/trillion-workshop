@@ -20,7 +20,7 @@
       "title": "List what the old Orders page let a person do",
       "ask": "Run workflow:port-without-losing-anything: the old admin Orders page moves to the new dashboard.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

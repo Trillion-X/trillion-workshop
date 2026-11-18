@@ -19,7 +19,7 @@
       "title": "Prepare the research request for a prospect on its own sample",
       "ask": "Get the instruction my AI writes a research profile of a company or a prospect from: fit against my criteria, the biggest problems the material shows, why now, a case study to cite, ways to reach them",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

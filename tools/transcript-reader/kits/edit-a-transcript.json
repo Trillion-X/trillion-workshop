@@ -17,7 +17,7 @@
       "title": "Edit a transcript on its own sample",
       "ask": "Edit a recording's transcript the way the transcript reader does: name a speaker or take the name back, split a passage before a chosen word, and write the passages as plain words to copy or export",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

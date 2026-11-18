@@ -17,7 +17,7 @@
       "title": "Check a community's matchmaker settings before keeping them on its own sample",
       "ask": "Check that a community's matching settings can run: cadence, sizes, the evidence contract and the questions that cover every factor's citations, consent, follow-up hours, words for every job, refusal and state, contact pattern, limits and experiments",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

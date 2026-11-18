@@ -18,7 +18,7 @@
       "title": "The Harbour look with one named face, one unused face and one missing file",
       "ask": "Resolve my Harbour look and write the stylesheet.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -18,7 +18,7 @@
       "title": "List the tours waiting to show on its own sample",
       "ask": "Show me the tours waiting to start by themselves, and which my show rules are holding",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

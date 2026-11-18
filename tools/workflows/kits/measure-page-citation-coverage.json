@@ -19,7 +19,7 @@
       "title": "One page, two questions, two engines: one cited, one not, two unknown",
       "ask": "Run tool:measure-page-citation-coverage for https://example.com/a on engine-one and engine-two with these recorded answers.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

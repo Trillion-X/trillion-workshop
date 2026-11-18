@@ -17,7 +17,7 @@
       "title": "See what is left to set up on its own sample",
       "ask": "Show me what is left to set up in my account, who does each step and what to do next",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

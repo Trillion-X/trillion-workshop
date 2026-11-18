@@ -17,7 +17,7 @@
       "title": "Decide whether my AI may take this action on its own sample",
       "ask": "Decide whether an action my AI is about to take may run, must ask me first, or is refused, from my action policy, the grants I gave and what I declined",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

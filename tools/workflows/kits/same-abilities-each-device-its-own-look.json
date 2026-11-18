@@ -18,7 +18,7 @@
       "title": "The abilities of \"Saved places\" on the device it works best on",
       "ask": "Make saved places the same on every device.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -41,7 +41,7 @@
       "title": "The phone borrows the browser page for one ability",
       "ask": "Check which devices offer these abilities natively.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

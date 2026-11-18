@@ -19,7 +19,7 @@
       "title": "Answer the same questions about many states, in bulk, on this Mac on its own sample",
       "ask": "Ask the same set of questions about every one of these lines or records, all at once, with my classifier model",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

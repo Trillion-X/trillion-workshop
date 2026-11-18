@@ -18,7 +18,7 @@
       "title": "A segment that says one sentence five times is found as a 20 second loop",
       "ask": "Find the Whisper loops in my transcript /Recordings/walk.json.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

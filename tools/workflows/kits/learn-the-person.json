@@ -19,7 +19,7 @@
    "title": "Read the account before changing anything",
    "ask": "Learn about me from my own account.",
    "mcp": {
-    "server": "trillion",
+    "server": "{cli}",
     "tool": "run_resource_operation",
     "input": {
      "address": "@tools",

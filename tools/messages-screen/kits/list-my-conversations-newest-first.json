@@ -17,7 +17,7 @@
       "title": "List my conversations newest first on its own sample",
       "ask": "List every conversation with AIs and in spaces newest first, found by words, participant or project, grouped Today, Yesterday, This Week and Older, as the messages screen's list shows them",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

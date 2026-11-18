@@ -126,7 +126,7 @@
       "title": "Two blanks of a made-up lamp-shop script filled, one left empty below the abstain line",
       "ask": "Fill the blanks of my lamp shop script from my listing, site and git history.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

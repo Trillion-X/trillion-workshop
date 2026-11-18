@@ -158,7 +158,7 @@
       "title": "The price becomes one tap on the Waiting on you list",
       "ask": "Buy boxes and a clipboard for Friday.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -19,7 +19,7 @@
       "title": "Change a price and a formula in a workbook",
       "ask": "In /work/budget.xlsx change the price text to $100/month bundle and make the 999 in the formula say n/a, writing /work/budget-new.xlsx.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

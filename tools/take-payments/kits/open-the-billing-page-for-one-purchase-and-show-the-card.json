@@ -17,7 +17,7 @@
       "title": "Open the billing page for one purchase and show its card on its own sample",
       "ask": "Open the billing page of one purchase, where the buyer can change or cancel it, and show the card that pays it",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

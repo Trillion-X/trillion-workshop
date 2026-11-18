@@ -19,7 +19,7 @@
       "title": "Align a 30 frame swing with a slower 45 frame swing",
       "ask": "Line up my swing track with the coach's and write the alignment.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -134,7 +134,7 @@
    "title": "Every idea source is read overnight",
    "ask": "Serve me 20 post ideas for LinkedIn and X tomorrow morning.",
    "mcp": {
-    "server": "trillion",
+    "server": "{cli}",
     "tool": "run_resource_operation",
     "input": {
      "address": "@tools",

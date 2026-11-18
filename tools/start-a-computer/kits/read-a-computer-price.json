@@ -19,7 +19,7 @@
       "title": "The monthly price of a cax11 in the default location",
       "ask": "What does a cax11 cost per month?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

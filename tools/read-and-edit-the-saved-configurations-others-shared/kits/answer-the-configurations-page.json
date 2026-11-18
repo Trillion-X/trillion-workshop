@@ -38,7 +38,7 @@
       "title": "Save a configuration for the accounts list, then list it",
       "ask": "Save my accounts search as Configuration c1 and list my saved configurations for list:accounts.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "Apply a device's message to a recording session on its own sample",
       "ask": "Update a multi-camera recording session when one device (a camera, a watch, a remote control) joins, leaves, reports its state or hands over the primary role",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

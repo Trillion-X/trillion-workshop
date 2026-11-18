@@ -127,7 +127,7 @@
       "title": "Five question candidates found in two forum posts and two videos' comments",
       "ask": "Find the questions my viewers really ask in the posts and comments saved in ./viewer-questions.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

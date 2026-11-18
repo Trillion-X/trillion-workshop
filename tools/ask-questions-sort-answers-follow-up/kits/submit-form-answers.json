@@ -18,7 +18,7 @@
       "title": "Check and decide a form's answers on its own sample",
       "ask": "Check a person's answers against a form kept in the database and, when they are all valid, keep them with the score and segment they earn and any follow-up the form hands to its owner",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "Move a person through a guided tour, quiz or spotlight on its own sample",
       "ask": "Work out where a person is in a guided tour, walkthrough, spotlight or branching quiz after they start, go on, answer, go back, jump to a step or restart",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

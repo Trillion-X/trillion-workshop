@@ -19,7 +19,7 @@
       "title": "Two of four news rows are published, then nothing changes",
       "ask": "Publish what my news view shows into site/news.json.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

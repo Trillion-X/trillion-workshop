@@ -18,7 +18,7 @@
       "title": "Hand a request to its owner on its own sample",
       "ask": "Ask an owner to run an action with what a form, a check or a person supplied, once",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

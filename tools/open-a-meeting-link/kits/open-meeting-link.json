@@ -19,7 +19,7 @@
       "title": "A join link with a passcode is opened and the passcode stays hidden",
       "ask": "Open this meeting link: zoommtg://zoom.us/join?confno=123456789&pwd=hunter2",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

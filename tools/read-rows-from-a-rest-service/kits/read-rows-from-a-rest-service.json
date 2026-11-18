@@ -18,7 +18,7 @@
       "title": "Five active members, two columns, ordered by id",
       "ask": "Read the first 5 active rows of members in my project, columns id and name.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

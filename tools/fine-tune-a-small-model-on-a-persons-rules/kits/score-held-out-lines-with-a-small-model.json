@@ -19,7 +19,7 @@
       "title": "Report again from kept scores without a model",
       "ask": "Report again on the held-out lines from my earlier scores.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

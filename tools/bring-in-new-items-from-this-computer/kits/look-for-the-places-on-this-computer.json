@@ -17,7 +17,7 @@
       "title": "Look for the places on my computer Trillion can read on its own sample",
       "ask": "Find which places on my computer (notes, voice memos, messages, mail, calendar, photos, downloads, AI apps, browsers) are there for Trillion to read, and which need a switch turned on first",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

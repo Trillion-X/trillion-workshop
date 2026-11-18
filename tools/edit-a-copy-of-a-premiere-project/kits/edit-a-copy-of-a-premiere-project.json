@@ -19,7 +19,7 @@
       "title": "Cut two seconds and move a clip to the start",
       "ask": "Cut 00:00:02:00 to 00:00:04:00 out of my project and put the A002 clip from seconds 10 to 12 first.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

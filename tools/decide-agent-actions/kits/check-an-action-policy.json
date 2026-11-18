@@ -17,7 +17,7 @@
       "title": "Check my AI action policy on its own sample",
       "ask": "Check my AI action policy before I rely on it: rules it cannot evaluate, unknown behaviours, repeated ids and rules that can never decide because an earlier rule always does",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

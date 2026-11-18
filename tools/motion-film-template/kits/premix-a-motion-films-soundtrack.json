@@ -124,7 +124,7 @@
       "title": "Two voice lines and three effects mixed to one 6-second wav with no loudness pass",
       "ask": "Mix the soundtrack for my sample film from its cue sheet.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "Check a model loop's calls for spinning on its own sample",
       "ask": "Say, from the tool calls a model loop made in order, when it should be nudged for repeating itself and when the job should be given back because it keeps repeating or its tools keep failing",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

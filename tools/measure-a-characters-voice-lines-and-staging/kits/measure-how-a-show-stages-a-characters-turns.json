@@ -20,7 +20,7 @@
       "title": "Staging of one episode with three turns",
       "ask": "How does the show stage the parrot in vid-a?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -99,7 +99,7 @@
       "title": "Reading the person comes before searching for ground",
       "ask": "Find unexplored ground near small bakeries.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

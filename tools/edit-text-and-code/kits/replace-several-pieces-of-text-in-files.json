@@ -18,7 +18,7 @@
       "title": "Change several pieces of text in files, all or nothing on its own sample",
       "ask": "Make several exact text changes across one or more text or code files in one go, so either every change is made or none is",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

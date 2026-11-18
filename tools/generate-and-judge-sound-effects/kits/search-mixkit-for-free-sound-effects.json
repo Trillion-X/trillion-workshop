@@ -19,7 +19,7 @@
       "title": "Tag click gives one short sound; a long one and a missing tag page are left out",
       "ask": "Search Mixkit for click sounds under 2 seconds.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

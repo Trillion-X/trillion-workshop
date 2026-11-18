@@ -125,7 +125,7 @@
       "title": "A decider timed over four answers on the cpu",
       "ask": "How fast does this small decider run on my computer?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -18,7 +18,7 @@
       "title": "Type dictated text at the cursor on its own sample",
       "ask": "Put dictated text where the person's cursor is as one clipboard transaction (save, write, paste, restore, verify), never pasting over a clipboard it cannot put back, and note the dictation in their bounded history",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

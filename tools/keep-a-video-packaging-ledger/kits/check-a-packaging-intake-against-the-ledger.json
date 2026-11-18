@@ -19,7 +19,7 @@
       "title": "Check a two-video batch against the ledger",
       "ask": "Check that the two videos I just added under ch-example-videos are in my packaging ledger.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

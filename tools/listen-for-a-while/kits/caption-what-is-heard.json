@@ -18,7 +18,7 @@
    "title": "Captions of what is being heard on its own sample",
    "ask": "Show the captions of a listening and fix a word, a speaker or a line in them",
    "mcp": {
-    "server": "trillion",
+    "server": "{cli}",
     "tool": "run_resource_operation",
     "input": {
      "address": "@tools",

@@ -125,7 +125,7 @@
       "title": "Three takes built from 20 transcripts, two complete and one cut",
       "ask": "Can this small model tell a complete take from a cut-off one?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

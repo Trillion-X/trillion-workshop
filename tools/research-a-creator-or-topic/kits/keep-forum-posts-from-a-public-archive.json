@@ -18,7 +18,7 @@
       "title": "Keep the latest posts of forums I name on its own sample",
       "ask": "Keep the newest posts of the forums I name (subreddits), with their titles, words, scores and comment counts, from a public archive of the site",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

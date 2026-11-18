@@ -17,7 +17,7 @@
       "title": "Sort mail into my built-in task lists on its own sample",
       "ask": "Say which built-in to-do list (calendar, email or other) each email would become a task in when I turn my mail into tasks",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

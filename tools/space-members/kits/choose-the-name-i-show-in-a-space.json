@@ -17,7 +17,7 @@
       "title": "Choose the name I show in a space on its own sample",
       "ask": "Check a member's chosen name for one shared space and answer their member row with it, for other members to read",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

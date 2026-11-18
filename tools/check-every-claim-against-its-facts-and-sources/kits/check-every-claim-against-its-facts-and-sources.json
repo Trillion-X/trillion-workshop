@@ -123,7 +123,7 @@
       "title": "One plain claim passes; an unsupported claim and a hedged claim fail",
       "ask": "Check every claim in my three shots against my facts and sources.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

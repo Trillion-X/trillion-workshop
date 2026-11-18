@@ -25,7 +25,7 @@
       "title": "40 posters go to the shop on the way, price shown first",
       "ask": "Print 40 copies of menu-poster.pdf at 11 x 17 on my way to Sample Avenue.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

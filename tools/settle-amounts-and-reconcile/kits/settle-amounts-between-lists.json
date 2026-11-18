@@ -17,7 +17,7 @@
       "title": "Apply an amount across rows of another list on its own sample",
       "ask": "Work out how the amount one row holds (a payment, a credit, a grant) goes across the open amounts of rows of another list (invoices, bills, budgets) as allocation rows, propose it first, answer allocations to take back, or read what is applied and open on a row",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

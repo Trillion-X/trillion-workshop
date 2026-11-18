@@ -152,7 +152,7 @@
       "title": "One question is answered from a voice note, another is left for the person",
       "ask": "Work through my Morning Routine Handbook for my bakery.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

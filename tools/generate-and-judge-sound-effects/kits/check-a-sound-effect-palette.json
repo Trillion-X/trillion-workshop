@@ -20,7 +20,7 @@
       "title": "A palette of one sound and a 2.2 s music bed passes",
       "ask": "Check my palette and my music bed.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

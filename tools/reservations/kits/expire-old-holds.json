@@ -18,7 +18,7 @@
       "title": "Expire old holds on its own sample",
       "ask": "Free the places whose hold time has run out, and offer each to the waitlist",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

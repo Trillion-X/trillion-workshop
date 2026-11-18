@@ -17,7 +17,7 @@
       "title": "Read records as time blocks on its own sample",
       "ask": "Turn any records that have a start and an end (bookings, scheduled work, reservations, events) into one ordered list of time blocks, and say which rows could not be shown",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

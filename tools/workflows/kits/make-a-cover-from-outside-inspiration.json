@@ -111,7 +111,7 @@
    "title": "A credible source is paired with what people are talking about",
    "ask": "Make the thumbnail for my video about the new study on AI at work.",
    "mcp": {
-    "server": "trillion",
+    "server": "{cli}",
     "tool": "run_resource_operation",
     "input": {
      "address": "@tools",

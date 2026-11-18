@@ -252,7 +252,7 @@
       "title": "The body is the one area no pursuit touches",
       "ask": "What do my pursuits leave out about my body?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

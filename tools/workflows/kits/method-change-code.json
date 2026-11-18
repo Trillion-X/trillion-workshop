@@ -25,7 +25,7 @@
       "title": "Name and question a bug fix before touching code",
       "ask": "Run workflow:method-change-code for the request: fix the bug where the order total shows twice the price when a discount code is applied.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

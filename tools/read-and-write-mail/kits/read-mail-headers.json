@@ -19,7 +19,7 @@
       "title": "Run read-mail-headers on a sample input",
       "ask": "Who sent message 18c1a2b3d4e5f601 and what is it about?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

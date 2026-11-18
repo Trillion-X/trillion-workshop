@@ -18,7 +18,7 @@
       "title": "demucs on a 3 minute song file",
       "ask": "Use demucs on song.mp3.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

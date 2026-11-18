@@ -18,7 +18,7 @@
       "title": "Rebuild an answer from its changes on its own sample",
       "ask": "Rebuild the answer a screen should show from the answer it holds and the changes it was sent",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

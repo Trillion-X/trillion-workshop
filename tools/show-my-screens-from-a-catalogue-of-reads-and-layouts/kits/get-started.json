@@ -20,7 +20,7 @@
       "title": "A new account is asked for the one thing that starts everything",
       "ask": "Show me which setup steps my account still has to finish.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

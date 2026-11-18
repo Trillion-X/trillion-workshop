@@ -18,7 +18,7 @@
       "title": "Seven bad and ten good scored lines separate cleanly",
       "ask": "Fit pass and fail lines from these scores.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "Add up revenue on its own sample",
       "ask": "Add up revenue, refunds, net revenue and active recurring revenue from a list of payments, by plan or any other group",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

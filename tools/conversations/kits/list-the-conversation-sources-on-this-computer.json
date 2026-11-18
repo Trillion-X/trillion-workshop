@@ -17,7 +17,7 @@
       "title": "List the conversation sources on this computer on its own sample",
       "ask": "Find every app's conversations on this computer (AI chat exports, Google Takeout activity, and the sessions local AI apps keep) and say how many files of each there are",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

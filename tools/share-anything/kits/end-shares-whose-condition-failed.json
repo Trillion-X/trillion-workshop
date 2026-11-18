@@ -18,7 +18,7 @@
       "title": "No share holds an end",
       "ask": "End the shares I let people run my tools by, once the end I gave each has passed, so none stays open past its time",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

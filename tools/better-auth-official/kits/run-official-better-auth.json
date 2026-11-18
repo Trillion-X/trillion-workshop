@@ -18,7 +18,7 @@
       "title": "Run the official Better Auth sign-in server (runs on your computer) on a sample input",
       "ask": "Run tool:run-official-better-auth.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

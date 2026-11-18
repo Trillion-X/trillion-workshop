@@ -17,7 +17,7 @@
       "title": "List what can be done on the person's computer screen on its own sample",
       "ask": "List the actions this computer keeps for operating its screen, what each needs, and how to describe a target",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

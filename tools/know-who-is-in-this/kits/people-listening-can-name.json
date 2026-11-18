@@ -18,7 +18,7 @@
       "title": "People listening can name on its own sample",
       "ask": "List the people my voice and face prints can name, without their voice or face numbers",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

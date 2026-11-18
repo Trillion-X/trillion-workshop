@@ -17,7 +17,7 @@
       "title": "Name my next commitment for the menu bar on its own sample",
       "ask": "Say what is happening now or next on my calendar, with a countdown, as the line the Mac menu bar shows",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

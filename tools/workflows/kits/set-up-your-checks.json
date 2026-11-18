@@ -104,7 +104,7 @@
       "title": "A rule of my own is the rule every AI uses next",
       "ask": "Set up my checks so no AI writes the word artisanal.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

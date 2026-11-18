@@ -19,7 +19,7 @@
       "title": "A reply that runs into the next word",
       "ask": "Listen to my cut against its timeline and show me the frames.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

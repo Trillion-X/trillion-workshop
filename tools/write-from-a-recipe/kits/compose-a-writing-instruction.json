@@ -19,7 +19,7 @@
       "title": "Build the instruction to write from on its own sample",
       "ask": "Build the exact instruction to write something from a writing recipe and the person's material, before writing it",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

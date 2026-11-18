@@ -18,7 +18,7 @@
       "title": "Pull the Signal conversations my client printed on its own sample",
       "ask": "Pull the Signal conversations my client printed",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

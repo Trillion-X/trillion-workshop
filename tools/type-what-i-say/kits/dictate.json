@@ -19,7 +19,7 @@
       "title": "Dictation text and dictionary on its own sample",
       "ask": "Turn dictated words into clean text for the app the person is in (spoken commands, the app's style, their dictionary and snippets), give the hearing prompt that biases recognition, learn from the person's edit, and keep their dictionary, snippets and dictation history",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

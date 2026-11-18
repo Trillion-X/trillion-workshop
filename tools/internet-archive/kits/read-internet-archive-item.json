@@ -19,7 +19,7 @@
       "title": "Read one item by identifier",
       "ask": "Read the Internet Archive item example-tennis-film-1952.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

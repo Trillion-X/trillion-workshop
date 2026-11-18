@@ -17,7 +17,7 @@
       "title": "See how carrying this computer's connections is going",
       "ask": "Is this computer carrying my iMessage and WhatsApp to my account?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

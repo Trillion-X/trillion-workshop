@@ -18,7 +18,7 @@
       "title": "A spoken notice heard back one second later is named as our own voice",
       "ask": "Were the words just heard our own notice being read out?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

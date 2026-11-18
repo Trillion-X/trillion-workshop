@@ -20,7 +20,7 @@
       "title": "Trade a Threads sign-in code for its short token for a made-up connection",
       "ask": "Trade a Threads sign-in code for its short token for service_connection:threads:4e9b1f27.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

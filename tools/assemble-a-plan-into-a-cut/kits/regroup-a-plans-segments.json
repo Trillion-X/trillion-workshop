@@ -18,7 +18,7 @@
       "title": "Outline a plan, then regroup it under a new lead",
       "ask": "Show me the numbered segments of plan p1, then regroup it.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

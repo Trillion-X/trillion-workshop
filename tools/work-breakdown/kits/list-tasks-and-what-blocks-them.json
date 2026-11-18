@@ -17,7 +17,7 @@
       "title": "List tasks and what blocks them on its own sample",
       "ask": "Read the facts kept about tasks into one entry per task, and see for each task what it blocks",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

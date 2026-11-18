@@ -18,7 +18,7 @@
       "title": "My notification devices on its own sample",
       "ask": "List the devices registered to show or read my notices",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

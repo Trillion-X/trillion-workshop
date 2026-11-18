@@ -18,7 +18,7 @@
       "title": "Forget a person in a community's matchmaker on its own sample",
       "ask": "Erase a person from a community's matching: what they told it, every match naming them, their asks, answers and jobs, and their place and scores on other members' shortlists and score jobs",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

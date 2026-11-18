@@ -156,7 +156,7 @@
       "title": "Only Sam's approved words come back",
       "ask": "Read the words on list:praise that I may show.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

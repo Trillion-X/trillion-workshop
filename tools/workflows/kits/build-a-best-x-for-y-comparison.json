@@ -27,7 +27,7 @@
       "title": "Three vendors are scored from three provable metrics",
       "ask": "Rank bakery point-of-sale software for a one-shop bakery.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

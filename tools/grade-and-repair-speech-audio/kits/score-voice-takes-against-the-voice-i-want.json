@@ -15,7 +15,7 @@
     {
       "title": "Three takes scored against the voice wanted",
       "ask": "Which of my three takes is closest to the voice I want?",
-      "mcp": {"server": "trillion", "tool": "run_resource_operation", "input": {"address": "@tools", "method": "tools:list", "input": {"tool": "tool:score-voice-takes-against-the-voice-i-want"}}},
+      "mcp": {"server": "{cli}", "tool": "run_resource_operation", "input": {"address": "@tools", "method": "tools:list", "input": {"tool": "tool:score-voice-takes-against-the-voice-i-want"}}},
       "given": "Three takes in /Work/demo/takes, reference recordings in /Work/demo/refs and the voice wanted \"a warm, calm narrator\".",
       "hands_back": "The last line printed: {\"result\": {\"out\": \"/Work/demo/scores.json\", \"takes\": 3}} (draft: the scores of a real run are not yet put in)."
     }

@@ -18,7 +18,7 @@
       "title": "A run today is refused before any Apple call",
       "ask": "Arrange beta access for request request-one.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

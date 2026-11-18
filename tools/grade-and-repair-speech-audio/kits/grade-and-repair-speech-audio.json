@@ -20,7 +20,7 @@
       "title": "Three synthetic recordings graded: one kept as it is, two sent to remaster",
       "ask": "Grade the speech in my three spans against my settings and tell me which sound poor.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

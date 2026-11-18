@@ -18,7 +18,7 @@
       "title": "Read a 12 dollar balance with 5 charges",
       "ask": "Read my treg balance for team 42.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

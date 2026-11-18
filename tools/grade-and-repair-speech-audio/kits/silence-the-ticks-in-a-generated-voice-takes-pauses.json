@@ -15,7 +15,7 @@
     {
       "title": "One take's pauses cleaned",
       "ask": "Clean the ticks out of my voice take's pauses.",
-      "mcp": {"server": "trillion", "tool": "run_resource_operation", "input": {"address": "@tools", "method": "tools:list", "input": {"tool": "tool:silence-the-ticks-in-a-generated-voice-takes-pauses"}}},
+      "mcp": {"server": "{cli}", "tool": "run_resource_operation", "input": {"address": "@tools", "method": "tools:list", "input": {"tool": "tool:silence-the-ticks-in-a-generated-voice-takes-pauses"}}},
       "given": "A text-to-speech take /Work/demo/take.wav with clicks between its words.",
       "hands_back": "The last line printed: {\"result\": {\"out\": \"/Work/demo/take.clean.wav\", \"silenced\": <pauses>}} (draft: the count of a real run is not yet put in)."
     }

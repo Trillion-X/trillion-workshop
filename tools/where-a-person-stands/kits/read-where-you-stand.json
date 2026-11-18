@@ -18,7 +18,7 @@
       "title": "Read where you stand on things on its own sample",
       "ask": "See whether a person agrees, disagrees or partly agrees with one thing made for them, in their own words, with every time they changed their mind",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

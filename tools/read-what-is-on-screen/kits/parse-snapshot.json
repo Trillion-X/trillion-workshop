@@ -17,7 +17,7 @@
       "title": "Read fields out of a screen snapshot on its own sample",
       "ask": "Turn the accessibility elements of one app's window ({ role, label }) into fields through that app's declarative parser row, with emails, card numbers and tokens removed before anything is returned",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

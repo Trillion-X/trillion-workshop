@@ -20,7 +20,7 @@
       "title": "Read my Signal messages on this computer on its own sample",
       "ask": "Read my Signal messages",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

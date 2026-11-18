@@ -18,7 +18,7 @@
       "title": "A low tone and a high tone ranked for \"a low hit\"; the low one is trimmed clean",
       "ask": "Rank my hits folder for \"a low hit\" and find the cleanest trim of the best one.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -18,7 +18,7 @@
       "title": "Reserve a spend within budget on its own sample",
       "ask": "Before my AI spends money, check the spend against my budget and reserve it, or refuse it",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

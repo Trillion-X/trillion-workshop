@@ -17,7 +17,7 @@
       "title": "Scout an opponent from the notes on file on its own sample",
       "ask": "Look up an opponent: list the people scouted, and pull together everything on file about one (what they are good and weak at, what worked and failed against them, their style and ratings) and which notes are trusted enough to plan from",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

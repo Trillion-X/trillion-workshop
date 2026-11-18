@@ -254,7 +254,7 @@
       "title": "One bad line is kept once even when it is given twice",
       "ask": "Keep my ruling that the line \"A line that says too much.\" is bad.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

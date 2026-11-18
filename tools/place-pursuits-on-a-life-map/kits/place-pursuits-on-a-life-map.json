@@ -110,7 +110,7 @@
       "title": "One pursuit on the beds, the herbs left untouched",
       "ask": "Place my pursuits on my life map and tell me what I leave out.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

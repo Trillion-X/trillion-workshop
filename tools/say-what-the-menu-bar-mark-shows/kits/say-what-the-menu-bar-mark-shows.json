@@ -17,7 +17,7 @@
       "title": "Say what the Mac menu bar mark shows on its own sample",
       "ask": "Say what the Mac menu bar item shows right now: how many things are running, the newest one and how far along, the unread count, or the next calendar line when nothing runs",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

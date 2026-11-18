@@ -18,7 +18,7 @@
       "title": "Free AI models that fit my device on its own sample",
       "ask": "See which free AI models fit the person's computer (its chip, memory and free space) and which it already has, and have its model server download them",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

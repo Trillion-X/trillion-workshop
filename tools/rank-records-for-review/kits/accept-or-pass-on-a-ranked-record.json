@@ -17,7 +17,7 @@
       "title": "Accept or pass on a ranked record on its own sample",
       "ask": "Turn a person's accept or pass on one suggestion in a review list into the request that keeps it as their stand, in their own words",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

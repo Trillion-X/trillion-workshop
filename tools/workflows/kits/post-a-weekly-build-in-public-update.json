@@ -23,7 +23,7 @@
       "title": "Pick the numbers that moved and the real setback",
       "ask": "Run workflow:post-a-weekly-build-in-public-update for my tasks and sales, on X and LinkedIn.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

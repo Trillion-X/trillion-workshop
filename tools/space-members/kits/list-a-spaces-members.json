@@ -18,7 +18,7 @@
       "title": "List a space's members on its own sample",
       "ask": "List who is in a shared space, by the name each chose to show, with their type; only members may ask",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

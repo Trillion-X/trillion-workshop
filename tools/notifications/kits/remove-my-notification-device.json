@@ -18,7 +18,7 @@
       "title": "Remove my notification device on its own sample",
       "ask": "Stop sending or queueing notices for one of my devices",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

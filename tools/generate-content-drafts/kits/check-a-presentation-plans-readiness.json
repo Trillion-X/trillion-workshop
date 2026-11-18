@@ -17,7 +17,7 @@
       "title": "Check a presentation plan is ready on its own sample",
       "ask": "Check a compiled presentation plan against available capabilities and fresh observations before authorization",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

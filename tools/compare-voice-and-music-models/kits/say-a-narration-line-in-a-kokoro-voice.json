@@ -126,7 +126,7 @@
       "title": "Three units said as three generations, joined by the line's pauses",
       "ask": "Say my narration line in Kokoro bm_lewis.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

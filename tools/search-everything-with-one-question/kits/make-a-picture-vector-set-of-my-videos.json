@@ -20,7 +20,7 @@
       "title": "Two takes become five timed frames, and a second run adds nothing",
       "ask": "Make my two takes searchable by what they show.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

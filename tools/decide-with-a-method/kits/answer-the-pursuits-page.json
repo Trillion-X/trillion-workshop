@@ -18,7 +18,7 @@
       "title": "Answer the page's pursuits on its own sample",
       "ask": "List what I am pursuing now, and keep a goal I add or change from the page",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

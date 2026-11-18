@@ -17,7 +17,7 @@
       "title": "Check a folder's files against rules I wrote on its own sample",
       "ask": "Check the source files of a project folder against rules the person wrote down, and say which files break which rule, where, and why the rule exists",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

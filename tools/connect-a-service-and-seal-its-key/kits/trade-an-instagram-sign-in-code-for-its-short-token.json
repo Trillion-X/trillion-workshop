@@ -20,7 +20,7 @@
       "title": "Trade an Instagram sign-in code for its short token for a made-up connection",
       "ask": "Trade an Instagram sign-in code for its short token for service_connection:instagram:2a6f0c93.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

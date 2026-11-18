@@ -21,7 +21,7 @@
       "title": "Three items: one becomes a workflow, one a tool, one is left",
       "ask": "Bring in what is in my skills folder.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

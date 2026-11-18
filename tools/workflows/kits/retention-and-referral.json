@@ -195,7 +195,7 @@
       "title": "A buyer earns a reward under the owner's own reward words",
       "ask": "Sam referred friends; apply my reward rule for Sam today.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -217,7 +217,7 @@
       "title": "No reward words yet: the stage stops instead of inventing one",
       "ask": "Apply my reward rule for Sam today.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

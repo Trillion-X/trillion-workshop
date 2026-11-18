@@ -19,7 +19,7 @@
       "title": "Sign someone up for an email course on its own sample",
       "ask": "Sign a person up for an email course after they agreed to it, keep their consent in my records, send the first lesson now and queue the others",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "Suggest connections from links on its own sample",
       "ask": "Offer to connect a service when words I wrote link to one I have not connected",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

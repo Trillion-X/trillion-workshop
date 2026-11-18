@@ -17,7 +17,7 @@
       "title": "Check a move to another stage on its own sample",
       "ask": "See which stage a deal, order or applicant is in, which stages it can move to next, and whether it may move to the stage you want",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

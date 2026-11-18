@@ -20,7 +20,7 @@
       "title": "One word found in three kinds of record and one file name",
       "ask": "Search everything I keep for merlinfalcon.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

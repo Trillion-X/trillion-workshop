@@ -19,7 +19,7 @@
    "title": "Name a voice heard before it was enrolled on its own sample",
    "ask": "Put a person's name on what they said in a listening before I enrolled their voice, and tell me which turns changed",
    "mcp": {
-    "server": "trillion",
+    "server": "{cli}",
     "tool": "run_resource_operation",
     "input": {
      "address": "@tools",

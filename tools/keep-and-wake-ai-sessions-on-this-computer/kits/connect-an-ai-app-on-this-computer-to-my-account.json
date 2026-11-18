@@ -18,7 +18,7 @@
       "title": "Preview the Trillion entry for Cursor on a computer that has Cursor and no entry yet",
       "ask": "Show me what changes in my Cursor config if you add the Trillion connection, and do not write anything until I say yes.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

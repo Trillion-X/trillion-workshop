@@ -20,7 +20,7 @@
       "title": "A grade-only folder: the kept span passes, the two with no audio fail",
       "ask": "Read back the repaired speech and tell me which spans fail.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

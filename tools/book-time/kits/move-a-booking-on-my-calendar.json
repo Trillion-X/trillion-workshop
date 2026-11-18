@@ -18,7 +18,7 @@
       "title": "Move a booking on my calendar on its own sample",
       "ask": "Move a booking's event on my own calendar to a new time",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

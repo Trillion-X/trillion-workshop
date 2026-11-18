@@ -17,7 +17,7 @@
       "title": "Find the faces in a picture or video and say who they are on its own sample",
       "ask": "Find every face in a picture or video and name the ones that belong to people who agreed to be known",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -19,7 +19,7 @@
       "title": "Read the licence of a public-domain Eiffel Tower photo",
       "ask": "Read the Wikimedia Commons metadata for File:Eiffel_Tower_20051010.jpg.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

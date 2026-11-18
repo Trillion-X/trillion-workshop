@@ -17,7 +17,7 @@
       "title": "Read how each version did on its own sample",
       "ask": "Sum what visitors did on each version of an experiment and work out the rate that decides the winner",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

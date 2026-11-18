@@ -19,7 +19,7 @@
       "title": "Find the edits a person repeats on its own sample",
       "ask": "Find the word changes a person keeps making to drafts written for them",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

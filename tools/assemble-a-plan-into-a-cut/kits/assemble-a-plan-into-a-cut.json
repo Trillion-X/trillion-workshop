@@ -20,7 +20,7 @@
       "title": "A plan of five segments is laid out, then built",
       "ask": "Show me the timeline of my plan chain-fixture, then build the cut.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

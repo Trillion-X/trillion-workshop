@@ -20,7 +20,7 @@
    "title": "A research finding reaches the workflow whose condition keeps findings",
    "ask": "Which of my workflows fire for: 'A finding: most small teams never write their plan down.'?",
    "mcp": {
-    "server": "trillion",
+    "server": "{cli}",
     "tool": "run_resource_operation",
     "input": {
      "address": "@tools",

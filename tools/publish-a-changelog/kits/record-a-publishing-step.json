@@ -17,7 +17,7 @@
       "title": "Record a step on the work waiting to be published on its own sample",
       "ask": "Record a step on the finished work waiting to be published: change a field, link its proof, add a receipt that it was sent, correct it, or hand an action to whatever tool does it",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

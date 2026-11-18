@@ -18,7 +18,7 @@
       "title": "Answer the page that lists what Trillion told me on its own sample",
       "ask": "Answer the Trillion page route GET /work/api/tell/notices: the notices the open page shows, or what one channel's devices read, as old Trillion did",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

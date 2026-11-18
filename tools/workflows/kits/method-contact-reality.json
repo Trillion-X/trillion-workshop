@@ -23,7 +23,7 @@
       "title": "Question the assumed limits on a bakery pre-order idea",
       "ask": "Run method-contact-reality on: let customers pre-order bread online for pickup at a small bakery.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

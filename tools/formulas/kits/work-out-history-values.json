@@ -17,7 +17,7 @@
       "title": "Work out values from a field's history on its own sample",
       "ask": "Work out, from the values a field of a row has held over time, the value it held at a moment, the value before the current one, since when it holds it, how long it spent holding a value and whether it ever held one",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "Enroll someone in the challenges that fit them on its own sample",
       "ask": "Decide which time-boxed challenges one person joins from their scores, and build their enrollment records",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "Turn signed events into their effects, once each on its own sample",
       "ask": "Turn signed events into the effects their installed rules name, each effect once, from a verifier answer given in the input, and list a subject's effects from a reader answer given in the input, showing every call that would be sent",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

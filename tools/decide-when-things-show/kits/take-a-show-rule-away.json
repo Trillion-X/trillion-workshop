@@ -18,7 +18,7 @@
       "title": "Take a show rule away on its own sample",
       "ask": "Take away one of my show rules",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

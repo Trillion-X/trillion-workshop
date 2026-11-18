@@ -122,7 +122,7 @@
       "title": "Build the corpus from five captioned videos",
       "ask": "Build a corpus from my folder of captions at ./captions with my views table ./views.tsv.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -139,7 +139,7 @@
       "title": "Find the second a quote is said at",
       "ask": "At what second does vidA1 say \"The secret is patience\"?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

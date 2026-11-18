@@ -18,7 +18,7 @@
       "title": "A finalized page journal adopted as source evidence only",
       "ask": "Adopt this reviewed evidence packet into my herb bed record.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

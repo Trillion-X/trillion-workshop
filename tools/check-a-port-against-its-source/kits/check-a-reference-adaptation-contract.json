@@ -17,7 +17,7 @@
       "title": "Check my port or replica keeps its promises to its reference on its own sample",
       "ask": "Check a contract for work taken from a reference (a source ported, a behaviour ported, a visual replica, an inspiration, an anti-reference): the source and its identity, what must be preserved, and the proof (retained source lines, required mechanisms, measured pictures and pixel difference)",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -122,7 +122,7 @@
       "title": "Make examples from the options a person picked on its own sample",
       "ask": "Make labelled examples for calibrating a small model from which options of a piece a person picked or rejected, and the lines they named",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

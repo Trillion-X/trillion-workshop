@@ -18,7 +18,7 @@
       "title": "terminal-mac on a made-up example",
       "ask": "Give yourself a separate virtual Mac to work in.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

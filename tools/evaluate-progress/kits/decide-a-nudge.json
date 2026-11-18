@@ -17,7 +17,7 @@
       "title": "Decide whether to nudge a person on its own sample",
       "ask": "Decide whether a person should get a nudge now, honouring their opt-out and a rate limit",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

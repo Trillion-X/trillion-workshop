@@ -18,7 +18,7 @@
       "title": "Two derived files missing, rebuilt, then one goes stale when its source changes",
       "ask": "Which derived files in my garden library are stale?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

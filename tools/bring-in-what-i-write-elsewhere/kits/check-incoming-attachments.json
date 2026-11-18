@@ -18,7 +18,7 @@
       "title": "A forged attachment name is replaced by the file's own name and type",
       "ask": "Check the attachment on this incoming message before keeping it.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

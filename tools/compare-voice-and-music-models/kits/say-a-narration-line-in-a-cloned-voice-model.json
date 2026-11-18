@@ -127,7 +127,7 @@
       "title": "Each unit made 3 times, the one whisper heard best kept",
       "ask": "Try the qwen3 clone on my narration line.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

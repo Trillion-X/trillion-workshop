@@ -18,7 +18,7 @@
       "title": "Pull the messages from the Discord text channels my bot can read on its own sample",
       "ask": "Pull the messages from the Discord text channels my bot can read",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

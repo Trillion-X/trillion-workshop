@@ -17,7 +17,7 @@
       "title": "Plan future recurrence windows on its own sample",
       "ask": "Enumerate a bounded set of future recurrence slots from generic schedule data, including local-time daylight-saving policies and explicit coverage.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

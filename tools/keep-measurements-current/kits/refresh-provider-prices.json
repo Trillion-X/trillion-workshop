@@ -17,7 +17,7 @@
       "title": "Refresh provider price book on its own sample",
       "ask": "Read the current version of the declared provider price DATA and return provider-qualified unit prices with source revisions",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

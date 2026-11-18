@@ -18,7 +18,7 @@
       "title": "Writing recipes and instruction blocks on its own sample",
       "ask": "List the ready writing recipes (summarize, translate, rewrite, critique and more) and the instruction blocks a recipe can use",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

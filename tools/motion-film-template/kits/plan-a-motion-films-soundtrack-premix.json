@@ -122,7 +122,7 @@
       "title": "Work out the ffmpeg commands that premix a motion film's soundtrack on its own sample",
       "ask": "Show me exactly how my film's soundtrack will be mixed: the music bed and how loud it is when, every voice line and every sound effect at its time, before anything is rendered",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

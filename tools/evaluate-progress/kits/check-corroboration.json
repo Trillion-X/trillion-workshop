@@ -17,7 +17,7 @@
       "title": "Check a value has enough support on its own sample",
       "ask": "Check that a value has enough independent support before my AI acts on it",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

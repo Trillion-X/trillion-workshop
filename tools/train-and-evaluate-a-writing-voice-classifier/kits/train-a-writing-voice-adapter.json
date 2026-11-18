@@ -20,7 +20,7 @@
       "title": "Train on two made-up rows, one epoch",
       "ask": "Train a writing-voice adapter from my two training rows.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

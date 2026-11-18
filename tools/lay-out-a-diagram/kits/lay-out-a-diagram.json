@@ -17,7 +17,7 @@
       "title": "Lay out a diagram of boxes and arrows on its own sample",
       "ask": "Lay out a diagram of boxes and arrows so few arrows cross, and give me the positions, the arrow routes, how many arrows cross and a picture of it as SVG",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

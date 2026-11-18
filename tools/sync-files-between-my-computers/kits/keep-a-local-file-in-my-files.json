@@ -18,7 +18,7 @@
       "title": "Keep one 100,000-byte video in Files as /site/clip.mp4",
       "ask": "Keep /tmp/shoot/clip.mp4 in my Files as /site/clip.mp4.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -40,7 +40,7 @@
       "title": "A link and a bad name are refused while the good file is kept",
       "ask": "Keep these three files in my Files.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

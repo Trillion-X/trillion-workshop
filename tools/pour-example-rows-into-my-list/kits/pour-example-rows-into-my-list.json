@@ -16,7 +16,7 @@
       "title": "Two reply templates poured into a saved-replies list",
       "ask": "Put the example reply templates into my saved replies list.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

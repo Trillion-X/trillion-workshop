@@ -18,7 +18,7 @@
       "title": "Send the email lessons that have come due on its own sample",
       "ask": "Send each email-course lesson whose time has come to the people still signed up, once each, and retry a failed one later",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

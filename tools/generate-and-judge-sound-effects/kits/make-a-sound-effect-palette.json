@@ -19,7 +19,7 @@
       "title": "Cut a 0.6 s trim of one source into a 48 kHz stereo palette sound",
       "ask": "Render my palette and read each sound back.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

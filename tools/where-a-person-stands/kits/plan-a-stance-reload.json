@@ -18,7 +18,7 @@
       "title": "Plan moving kept stands into stance records on its own sample",
       "ask": "Turn stands a person took that were kept somewhere else into their stance records, with every earlier stand as an earlier version, and show what would change before anything is written",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -240,7 +240,7 @@
       "title": "A voiceover past its due time",
       "ask": "The training video is waiting on my voiceover; don't wait past Saturday 9 am.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

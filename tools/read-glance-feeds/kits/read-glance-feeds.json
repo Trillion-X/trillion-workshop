@@ -18,7 +18,7 @@
       "title": "Read a glance feed on its own sample",
       "ask": "Read one feed or an ordered set of feeds for a glance surface",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

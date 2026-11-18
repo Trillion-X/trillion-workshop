@@ -299,7 +299,7 @@
       "title": "A hype word in the headline fails the word check",
       "ask": "Check my landing page words.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

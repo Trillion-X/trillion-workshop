@@ -17,7 +17,7 @@
       "title": "Schedule the next review of something being learned on its own sample",
       "ask": "Work out when a flashcard, drill, passage or any other thing being learned should come back, from how well the person just recalled it",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

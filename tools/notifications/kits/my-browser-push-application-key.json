@@ -17,7 +17,7 @@
       "title": "My browser push application key on its own sample",
       "ask": "Get the public key browsers need to register for notices",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

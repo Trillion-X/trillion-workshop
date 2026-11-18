@@ -17,7 +17,7 @@
       "title": "Check that a match rests on what people actually said on its own sample",
       "ask": "Turn people's intake answers into scoped profiles and check that a proposed match's scores cite what both people actually said before anyone is matched",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

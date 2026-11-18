@@ -17,7 +17,7 @@
       "title": "Check rules against changed records (trigger engine) on its own sample",
       "ask": "Trigger engine: when something happens to a record (it is added, changed or removed) and a rule's condition holds, say what the rule sends, and to which tool, workflow or target, for every matching rule",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

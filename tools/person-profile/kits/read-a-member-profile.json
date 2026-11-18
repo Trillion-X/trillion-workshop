@@ -18,7 +18,7 @@
       "title": "Read a member's profile on its own sample",
       "ask": "Read the name, about text and email a member keeps in their profile",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

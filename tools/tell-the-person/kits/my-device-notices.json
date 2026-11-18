@@ -18,7 +18,7 @@
       "title": "Notices for this device on its own sample",
       "ask": "Read the newest notices kept for one registered device, oldest first after its cursor",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

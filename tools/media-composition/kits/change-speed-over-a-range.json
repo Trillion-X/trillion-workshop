@@ -18,7 +18,7 @@
       "title": "Two seconds at half speed",
       "ask": "Play seconds 2 to 4 of my video at half speed.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

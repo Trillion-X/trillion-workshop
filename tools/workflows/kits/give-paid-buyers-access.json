@@ -26,7 +26,7 @@
    "title": "One new checkout since the last run",
    "ask": "Give my new Sourdough Club buyers access.",
    "mcp": {
-    "server": "trillion",
+    "server": "{cli}",
     "tool": "run_resource_operation",
     "input": {
      "address": "@tools",

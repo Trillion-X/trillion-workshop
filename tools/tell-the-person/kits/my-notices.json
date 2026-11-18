@@ -18,7 +18,7 @@
       "title": "What I was told, where it reached me and where I saw it on its own sample",
       "ask": "List what Trillion told this person, newest first: each notice with every way it went (sent, waiting its turn, turned off or unavailable) and the surface the person saw it on",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

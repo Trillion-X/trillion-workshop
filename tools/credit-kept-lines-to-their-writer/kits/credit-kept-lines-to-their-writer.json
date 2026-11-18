@@ -17,7 +17,7 @@
       "title": "Credit the kept lines to who wrote them on its own sample",
       "ask": "Credit each line of a text's newest version to whoever first wrote it, an AI or a person, from its versions, and count how many kept lines are each writer's",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

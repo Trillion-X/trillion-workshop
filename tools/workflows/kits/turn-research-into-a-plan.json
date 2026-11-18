@@ -20,7 +20,7 @@
       "title": "Scope names the constraints as outcomes before any research",
       "ask": "Research how customers can find their past orders without asking us, and give me a plan of facts.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

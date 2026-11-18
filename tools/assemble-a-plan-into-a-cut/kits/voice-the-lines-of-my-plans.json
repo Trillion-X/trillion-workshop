@@ -19,7 +19,7 @@
       "title": "One voiced line is made once and then found",
       "ask": "Record a voice take of every line my plans have a voice read.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

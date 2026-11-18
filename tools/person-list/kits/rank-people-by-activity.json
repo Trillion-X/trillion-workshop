@@ -18,7 +18,7 @@
       "title": "Rank people by activity on its own sample",
       "ask": "Rank people by the points their activity earns, all time or over the last days, and give each person their level, like a leaderboard",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

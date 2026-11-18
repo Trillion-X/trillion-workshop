@@ -18,7 +18,7 @@
       "title": "Hold a place on its own sample",
       "ask": "Hold a place for someone, or put them on the waitlist when every place is taken",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

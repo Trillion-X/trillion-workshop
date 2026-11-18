@@ -18,7 +18,7 @@
       "title": "Preview, register and take out Trillion in Cursor",
       "ask": "Add Trillion to my Cursor MCP settings, showing me what changes first.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

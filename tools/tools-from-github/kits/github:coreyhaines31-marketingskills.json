@@ -18,7 +18,7 @@
       "title": "marketingskills on the web address of a company, here the made-up example.com",
       "ask": "Use marketingskills on example.com.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

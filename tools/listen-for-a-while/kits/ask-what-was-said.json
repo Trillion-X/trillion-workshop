@@ -18,7 +18,7 @@
    "title": "What was said since this conversation last asked on its own sample",
    "ask": "Tell me what was said in a listening since I last asked",
    "mcp": {
-    "server": "trillion",
+    "server": "{cli}",
     "tool": "run_resource_operation",
     "input": {
      "address": "@tools",

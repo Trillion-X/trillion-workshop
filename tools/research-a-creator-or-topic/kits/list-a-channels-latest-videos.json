@@ -20,7 +20,7 @@
       "title": "The latest videos of a sourdough channel",
       "ask": "List the latest videos of @sourdough.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

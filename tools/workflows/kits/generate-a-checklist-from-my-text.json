@@ -19,7 +19,7 @@
       "title": "One changed row is found, written, and the file checks clean",
       "ask": "I changed one row in my written checklist. Does the checklist file still match it?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

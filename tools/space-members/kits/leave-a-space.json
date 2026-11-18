@@ -17,7 +17,7 @@
       "title": "Leave a space on its own sample",
       "ask": "Work out a member leaving a shared space and answer their member row marked left; what they put there stays",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

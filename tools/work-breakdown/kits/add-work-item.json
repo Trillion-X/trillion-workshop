@@ -17,7 +17,7 @@
       "title": "Add a requested item to a work tree on its own sample",
       "ask": "Add a requested item to a work tree, keeping who asked for it and in which message, without adding it twice",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -21,7 +21,7 @@
       "title": "Two frames become two slides in story order",
       "ask": "Turn my board's frames into slides.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -38,7 +38,7 @@
       "title": "A name that is not a frame stops the run",
       "ask": "Make just the second-body slide.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

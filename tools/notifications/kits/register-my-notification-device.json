@@ -18,7 +18,7 @@
       "title": "Register my notification device on its own sample",
       "ask": "Register this device to receive or read my notices",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

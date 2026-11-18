@@ -18,7 +18,7 @@
       "title": "Hand in the answer to one step of a recipe run, judged by the step's checks on what the records hold on its own sample",
       "ask": "Hand in my answer to a step of my recipe run, and have it kept only when the step's checks pass, judged on what my own database says ran",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

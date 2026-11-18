@@ -18,7 +18,7 @@
       "title": "Make a sales contract's terms, export request and approval link on its own sample",
       "ask": "Make the terms of an accepted sales contract ready to give out: what the buyer must accept, the terms as rows, the request that turns them into a PDF, Word, spreadsheet, Markdown or text file, and a link the buyer opens to accept",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "See what changed in a project on its own sample",
       "ask": "See every file that changed in a project on the person's computer and where each one stands: staged for the next commit, changed but not staged, or new",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

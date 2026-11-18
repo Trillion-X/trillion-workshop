@@ -23,7 +23,7 @@
    "title": "Two questions on one page make two cells",
    "ask": "Check whether the engine cites my pricing page.",
    "mcp": {
-    "server": "trillion",
+    "server": "{cli}",
     "tool": "run_resource_operation",
     "input": {
      "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "Choose how each file is shown on its own sample",
       "ask": "Classify each file by its name and media type to choose how it is shown: as code, markdown, a diff, a picture, JSON or plain text, with the language, icon and label it is shown under",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

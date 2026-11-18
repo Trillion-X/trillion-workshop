@@ -18,7 +18,7 @@
       "title": "Report how a decision turned out on its own sample",
       "ask": "Tell Trillion how a decision actually turned out, in my words",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

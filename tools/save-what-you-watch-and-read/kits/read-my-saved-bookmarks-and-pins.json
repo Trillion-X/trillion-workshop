@@ -17,7 +17,7 @@
       "title": "Read my saved bookmarks and pins on its own sample",
       "ask": "Read the bookmarks or pins a person saved on a social site (an export file of X bookmarks or Pinterest pins and boards) from a folder they chose, and give each saved item with its words, author and time, ready to be kept and found like anything else they read",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

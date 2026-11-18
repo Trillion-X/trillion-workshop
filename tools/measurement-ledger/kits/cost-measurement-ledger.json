@@ -18,7 +18,7 @@
       "title": "Check a billing record on its own sample",
       "ask": "Check cost observations, forecasts and billing evidence and return their rows, and aggregate only comparable measured units from observations in the request",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

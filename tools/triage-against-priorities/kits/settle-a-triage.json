@@ -17,7 +17,7 @@
       "title": "Settle a triage of one incoming item on its own sample",
       "ask": "Keep the decision made about one incoming item only if it holds up against the person's priorities and dispositions, and otherwise hold the item back",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

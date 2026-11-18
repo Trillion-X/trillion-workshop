@@ -18,7 +18,7 @@
       "title": "A 12.4 second reference video measured",
       "ask": "Measure ref/launch-teaser.mp4 so I can learn from it.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -19,7 +19,7 @@
       "title": "Send an email on its own sample",
       "ask": "Send an email, to one person or a list, through the email provider I connected",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

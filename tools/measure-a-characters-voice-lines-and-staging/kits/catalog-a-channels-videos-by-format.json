@@ -20,7 +20,7 @@
       "title": "Four videos catalogued",
       "ask": "Catalog my channel.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

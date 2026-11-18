@@ -115,7 +115,7 @@
       "title": "One quote matches an existing area and one becomes a new area",
       "ask": "Find my own map.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

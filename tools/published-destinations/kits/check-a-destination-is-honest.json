@@ -17,7 +17,7 @@
       "title": "Check a destination is honest before it is published on its own sample",
       "ask": "Check a progress or results screen description before publishing it: it must not ship made-up numbers, ranks, bars or percents before the owner has worked them out",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

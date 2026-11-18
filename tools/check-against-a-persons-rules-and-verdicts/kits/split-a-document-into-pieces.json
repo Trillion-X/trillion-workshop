@@ -19,7 +19,7 @@
       "title": "Split a document into its pieces on its own sample",
       "ask": "Split a document into its smallest self-contained pieces, a page per call, so every check can name the piece it came from",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -39,7 +39,7 @@
       "title": "Split a document into its pieces on its own sample",
       "ask": "Split a document into its smallest self-contained pieces, a page per call, so every check can name the piece it came from",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

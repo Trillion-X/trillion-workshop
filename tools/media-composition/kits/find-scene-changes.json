@@ -18,7 +18,7 @@
       "title": "Two cuts in a three-shot clip",
       "ask": "Find the cuts in my video.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -38,7 +38,7 @@
       "title": "A very high threshold finds none",
       "ask": "Only find the hardest cuts, threshold 0.9.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

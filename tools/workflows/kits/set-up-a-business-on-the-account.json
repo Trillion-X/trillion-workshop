@@ -208,7 +208,7 @@
       "title": "The business facts are written once",
       "ask": "Set up Sunrise Bakery on Trillion.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -241,7 +241,7 @@
       "title": "The checklist gets one row per stage",
       "ask": "Make my business checklist.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

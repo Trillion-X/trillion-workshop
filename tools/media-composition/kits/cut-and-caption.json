@@ -18,7 +18,7 @@
       "title": "A 2.5 second clip with one caption line",
       "ask": "Cut 3.5 to 6 seconds of my video and caption it.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -86,7 +86,7 @@
       "title": "No transcript: it only cuts",
       "ask": "Just cut 1 to 3 seconds out of my video.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

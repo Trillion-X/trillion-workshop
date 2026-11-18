@@ -18,7 +18,7 @@
       "title": "Kinds of conversation export I can read on its own sample",
       "ask": "List the kinds of conversation export that can be read (chat apps, email, the Messages database, AI assistant logs, captured web chats), what each one's files look like and what the run must say for it",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

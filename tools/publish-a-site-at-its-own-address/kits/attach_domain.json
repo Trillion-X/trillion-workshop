@@ -18,7 +18,7 @@
       "title": "Put my own domain on a site on its own sample",
       "ask": "Put a domain name I own in front of my published website",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

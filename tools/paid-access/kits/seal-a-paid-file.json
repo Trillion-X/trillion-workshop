@@ -20,7 +20,7 @@
       "title": "Seal a paid file on its own sample",
       "ask": "Put a file I sell (a book, an audiobook, a course video) behind paid access so only buyers can open it",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

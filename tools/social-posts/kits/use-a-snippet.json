@@ -18,7 +18,7 @@
       "title": "Use a snippet on its own sample",
       "ask": "Fill in one of my snippets with this time's names and give me its words to put in what I am writing",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

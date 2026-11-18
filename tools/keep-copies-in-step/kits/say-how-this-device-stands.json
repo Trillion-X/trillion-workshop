@@ -18,7 +18,7 @@
       "title": "Say how this device stands on its own sample",
       "ask": "Work out how this device of mine stands (caught up, offline or still holding changes) as the device list to keep",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

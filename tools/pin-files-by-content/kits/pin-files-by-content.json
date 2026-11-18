@@ -19,7 +19,7 @@
       "title": "Check a settings folder against an empty pin file",
       "ask": "Check whether pins.json matches my settings folder.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

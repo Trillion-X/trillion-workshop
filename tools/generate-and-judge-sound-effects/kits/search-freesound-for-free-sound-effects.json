@@ -19,7 +19,7 @@
       "title": "One soft tick found, listed once although the page shows it twice",
       "ask": "Search Freesound for a soft tick under one second.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

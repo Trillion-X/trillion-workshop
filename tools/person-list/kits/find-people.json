@@ -17,7 +17,7 @@
       "title": "Find people in a list on its own sample",
       "ask": "Search a list of people or contacts by name, company or any other field, and show each match with a name and details",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

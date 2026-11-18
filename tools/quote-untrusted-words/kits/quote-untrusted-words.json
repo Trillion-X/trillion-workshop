@@ -17,7 +17,7 @@
       "title": "Quote a stranger's words safely on its own sample",
       "ask": "Make someone else's words safe to quote into what an AI reads, so hidden characters or a fake tag cannot sneak instructions in",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

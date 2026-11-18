@@ -17,7 +17,7 @@
       "title": "Take files out of the next commit on its own sample",
       "ask": "Take chosen files in a project on the person's computer out of the next commit, leaving the files as they are",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -19,7 +19,7 @@
       "title": "Trade a YouTube sign-in code for its tokens for a made-up connection",
       "ask": "Trade a YouTube sign-in code for its tokens for service_connection:youtube:5b7e2d10.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

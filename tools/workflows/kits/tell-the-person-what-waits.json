@@ -22,7 +22,7 @@
       "title": "Step read: Read what is waiting on them",
       "ask": "Run workflow:tell-the-person-what-waits.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

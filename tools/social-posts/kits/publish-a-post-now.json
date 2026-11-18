@@ -19,7 +19,7 @@
       "title": "Publish a post now on its own sample",
       "ask": "Work out queuing an approved post for immediate sending through each destination's existing send row and answer the post row to keep",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

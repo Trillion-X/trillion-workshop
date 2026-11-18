@@ -24,7 +24,7 @@
       "title": "Own-tools route: competitors become public profile addresses",
       "ask": "Find the short-video formats for my app.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

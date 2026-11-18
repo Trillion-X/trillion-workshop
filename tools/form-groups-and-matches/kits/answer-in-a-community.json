@@ -18,7 +18,7 @@
       "title": "Answer a community's matchmaker: profile, scores, yes or no, topics, wrote on its own sample",
       "ask": "Give a community's matchmaker what it asked for: a member's answers and on/off switch, an AI's cited scores for its shortlist, a person's yes or no to an introduction, first topics, or that they wrote in the one-to-one",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

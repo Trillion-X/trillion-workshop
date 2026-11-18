@@ -17,7 +17,7 @@
       "title": "Read a funnel definition on its own sample",
       "ask": "Read a funnel that is written as stages pointing at workflow steps, offers, price options and measures, and see each stage's title, versions, price and conversion",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

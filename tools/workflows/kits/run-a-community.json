@@ -192,7 +192,7 @@
       "title": "No community id yet: the stage reports a gap instead of guessing",
       "ask": "Check my community exists.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -214,7 +214,7 @@
       "title": "A community id is set: the matchmaker advances once",
       "ask": "Advance my community matchmaker for today.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -19,7 +19,7 @@
       "title": "Four items become four tiles, one with its own icon",
       "ask": "Make tiles of my tools and workflows with their icons.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

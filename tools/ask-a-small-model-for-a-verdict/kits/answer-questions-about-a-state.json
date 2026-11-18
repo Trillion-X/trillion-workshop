@@ -19,7 +19,7 @@
       "title": "Three typed questions about a bakery order in one request",
       "ask": "Answer these questions about the order for table 4.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

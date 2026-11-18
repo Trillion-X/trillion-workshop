@@ -18,7 +18,7 @@
       "title": "Pull the posts I bookmarked on X on its own sample",
       "ask": "Pull the posts I bookmarked on X",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -18,7 +18,7 @@
       "title": "Two plans retitled, one to a placeholder",
       "ask": "Apply the new titles to my plans and fix the cards.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

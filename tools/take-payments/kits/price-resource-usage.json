@@ -18,7 +18,7 @@
       "title": "Price resource usage on its own sample",
       "ask": "Price measured resource costs from my versioned resource, plan and client rules or purchased snapshots, and keep one total with expandable detail without charging rollups twice",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

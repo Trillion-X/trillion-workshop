@@ -17,7 +17,7 @@
       "title": "Roll up how much work is finished on its own sample",
       "ask": "See how much of a body of work is really finished, which items were said done with no proof, and what is blocked",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

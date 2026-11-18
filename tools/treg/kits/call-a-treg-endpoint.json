@@ -20,7 +20,7 @@
       "title": "A video task submitted, held at 50 cents and left to be followed",
       "ask": "Generate a short kite video with treg, spend at most a dollar.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

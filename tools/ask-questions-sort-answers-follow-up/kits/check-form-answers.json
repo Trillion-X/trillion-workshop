@@ -17,7 +17,7 @@
       "title": "Check answers to a form on its own sample",
       "ask": "Check a person's answers to a form's questions and say which are missing or not valid, and why",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -20,7 +20,7 @@
       "title": "Tie the change to the person's own messages and words",
       "ask": "Run workflow:method-plan-only-what-helps: let bakery customers change a pre-order until the evening before pickup.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

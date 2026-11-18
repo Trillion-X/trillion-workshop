@@ -18,7 +18,7 @@
       "title": "Two cuts and one missing file become one reel",
       "ask": "Put my finished cuts into one reel with a card between them.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

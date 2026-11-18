@@ -295,7 +295,7 @@
       "title": "Five lessons written as rows",
       "ask": "Write the five lessons of my five-day-start course.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

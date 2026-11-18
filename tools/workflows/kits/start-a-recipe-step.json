@@ -21,7 +21,7 @@
       "title": "Start one step of a recipe run and get its work, with its lane jobs when it has several agents on its own sample",
       "ask": "Begin a step of my recipe run: get the step with what to do, and when it says it has several agents have each agent's own job started in my own database, in the same call",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

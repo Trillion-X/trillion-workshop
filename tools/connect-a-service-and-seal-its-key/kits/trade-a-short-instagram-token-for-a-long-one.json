@@ -20,7 +20,7 @@
       "title": "Trade a short Instagram token for the 60-day one for a made-up connection",
       "ask": "Trade a short Instagram token for the 60-day one for service_connection:instagram:2a6f0c93.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

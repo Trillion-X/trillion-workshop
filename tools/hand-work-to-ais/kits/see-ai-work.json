@@ -18,7 +18,7 @@
       "title": "See the work handed between my AIs: one job, or the newest that match on its own sample",
       "ask": "Show me the jobs my AIs handed each other: what is waiting, who took what, and what each finished with",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

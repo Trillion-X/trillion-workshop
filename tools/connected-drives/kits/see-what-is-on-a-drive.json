@@ -19,7 +19,7 @@
       "title": "See a small drive by kind",
       "ask": "What is on my SAMPLE DRIVE, by kind of file?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

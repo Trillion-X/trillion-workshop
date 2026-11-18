@@ -18,7 +18,7 @@
       "title": "See what this computer did on a sample input",
       "ask": "Run tool:see-what-this-computer-did.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

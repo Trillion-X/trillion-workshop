@@ -19,7 +19,7 @@
       "title": "Two high-pitched runs in one recording",
       "ask": "Find the high-pitched stretches in vid-a.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

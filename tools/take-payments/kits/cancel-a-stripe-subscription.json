@@ -17,7 +17,7 @@
       "title": "Cancel a Stripe subscription on its own sample",
       "ask": "Cancel a buyer Stripe subscription now, or at the end of what they have paid for",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

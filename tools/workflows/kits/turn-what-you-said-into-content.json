@@ -221,7 +221,7 @@
       "title": "A chat message becomes a run",
       "ask": "Turn what I just said about handing people rows into content.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -246,7 +246,7 @@
       "title": "The principle is pulled out with the person's own words",
       "ask": "What is the principle in that?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -269,7 +269,7 @@
       "title": "Each principle is told as a story through the story method",
       "ask": "Write it as a story.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "Price a sale on its own sample",
       "ask": "Work out what a buyer would pay for one of my offers and one of its prices: what is due today, what repeats and when, with a trial, a per-unit count, a code or an amount they choose",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

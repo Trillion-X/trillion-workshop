@@ -17,7 +17,7 @@
       "title": "Keep a profile of how someone does their thing on its own sample",
       "ask": "Keep the profile of how a person does their thing, so drafts made for them are shaped by it and checked against it",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

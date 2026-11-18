@@ -21,7 +21,7 @@
       "title": "Trade a short Facebook token for the 60-day one for a made-up connection",
       "ask": "Trade a short Facebook token for the 60-day one for service_connection:facebook-messenger:7d3c88e1.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -127,7 +127,7 @@
       "title": "The made-up film row lists two takes, a clone and a Kokoro voice",
       "ask": "Make and measure every voice take of my line for made-up-film.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

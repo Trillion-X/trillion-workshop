@@ -18,7 +18,7 @@
       "title": "See when things show on its own sample",
       "ask": "Show me the rules that decide when things show, hide or stay quiet for me, and the types I keep",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

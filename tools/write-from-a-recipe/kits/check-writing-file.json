@@ -18,7 +18,7 @@
       "title": "Check writing from a file on its own sample",
       "ask": "Check a source backed writing request from a file the person granted to be read, without sending the source bytes in the tool call",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

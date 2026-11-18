@@ -20,7 +20,7 @@
       "title": "Define the decision, the chooser and what would prove the idea wrong",
       "ask": "Run workflow:possibility-to-proof: a weekly sourdough box that small cafes pre-order.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

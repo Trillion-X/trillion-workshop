@@ -121,7 +121,7 @@
       "title": "Get one stretch of sound, or one picture, from a camera file in my cloud storage without downloading it on its own sample",
       "ask": "Get the sound of a few seconds, or one still picture, out of a big camera video I keep in cloud storage, reading only the small part of the file that holds it",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -145,7 +145,7 @@
       "title": "Get one stretch of sound, or one picture, from a camera file in my cloud storage without downloading it on its own sample",
       "ask": "Get the sound of a few seconds, or one still picture, out of a big camera video I keep in cloud storage, reading only the small part of the file that holds it",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

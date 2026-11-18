@@ -18,7 +18,7 @@
       "title": "fix-storage on a made-up example",
       "ask": "Show me what is filling my Mac's disk.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

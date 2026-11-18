@@ -122,7 +122,7 @@
       "title": "Find which recording a cited passage of my transcript archive comes from on its own sample",
       "ask": "Tell me which of my recordings a passage of my transcript archive comes from, given the line numbers it was cited by",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -146,7 +146,7 @@
       "title": "Find which recording a cited passage of my transcript archive comes from on its own sample",
       "ask": "Tell me which of my recordings a passage of my transcript archive comes from, given the line numbers it was cited by",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

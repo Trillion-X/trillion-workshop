@@ -23,7 +23,7 @@
    "title": "The whole source is read before any step is written",
    "ask": "Turn this guide at https://example.com/guide into steps.",
    "mcp": {
-    "server": "trillion",
+    "server": "{cli}",
     "tool": "run_resource_operation",
     "input": {
      "address": "@tools",

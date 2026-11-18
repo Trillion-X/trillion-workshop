@@ -17,7 +17,7 @@
       "title": "Hold an output back when risk is too high on its own sample",
       "ask": "Hold an output back, and give the person's own support resources instead, when its risk is too high or unknown",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -21,7 +21,7 @@
       "title": "A weekly email is traced down to its deepest root",
       "ask": "Trace the weekly digest email back through my first principles.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

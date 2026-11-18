@@ -125,7 +125,7 @@
       "title": "Two titles ranked by how strongly the decider says yes",
       "ask": "Rank my title ideas: would a viewer click this?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

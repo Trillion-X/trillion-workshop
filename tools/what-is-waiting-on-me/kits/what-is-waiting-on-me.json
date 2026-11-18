@@ -17,7 +17,7 @@
       "title": "Show everything waiting on me on its own sample",
       "ask": "Show everything waiting on this person that only they can do, gathered from every place it is kept: what their AIs asked them for, drafts to approve, work that is stuck, a sign-in, a decision",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

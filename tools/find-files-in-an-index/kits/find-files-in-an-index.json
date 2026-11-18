@@ -121,7 +121,7 @@
       "title": "Find my files in my index on its own sample",
       "ask": "Find a person's files by words, name, place, kind or spoken words, in a file index that already exists on their computer",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -143,7 +143,7 @@
       "title": "Find my files in my index on its own sample",
       "ask": "Find a person's files by words, name, place, kind or spoken words, in a file index that already exists on their computer",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

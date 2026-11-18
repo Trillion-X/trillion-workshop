@@ -17,7 +17,7 @@
       "title": "List my recordings and media on its own sample",
       "ask": "List a person's recordings and the videos, sounds and pictures their tools made or they saved, newest first, each with what is known about it, as the Media screen shows a page",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

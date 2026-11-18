@@ -19,7 +19,7 @@
       "title": "A quiet variant palette is raised by 12.0 dB to match the reference layer",
       "ask": "Level my variant palette to the reference effects layer.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

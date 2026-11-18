@@ -17,7 +17,7 @@
       "title": "Sort my saved browser tabs into folders by my rules on its own sample",
       "ask": "Sort the tabs a person pinned in their browser into folders by rules they wrote, keep every tab and a backup of the file, and undo it",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

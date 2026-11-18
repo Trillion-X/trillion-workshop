@@ -18,7 +18,7 @@
       "title": "Two of the person's own principles are found for a menu plan",
       "ask": "Plan my autumn bakery menu from my own notes and principles.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

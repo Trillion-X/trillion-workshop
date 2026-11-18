@@ -18,7 +18,7 @@
       "title": "Register or end my Live Activity on its own sample",
       "ask": "Keep this iPhone Live Activity token so this account can update or end it",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "Read events from my Google calendar on its own sample",
       "ask": "Read the events in a time range from one of the person's own Google calendars and give them back as time blocks",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

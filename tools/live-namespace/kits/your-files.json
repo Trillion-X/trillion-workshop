@@ -17,7 +17,7 @@
       "title": "List my files",
       "ask": "List my files",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -40,7 +40,7 @@
       "title": "Follow what changed",
       "ask": "Tell me what changed in my files",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

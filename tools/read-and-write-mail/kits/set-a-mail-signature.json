@@ -19,7 +19,7 @@
       "title": "Run set-a-mail-signature on a sample input",
       "ask": "Set my signature to Sam, Sam's Bakery.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

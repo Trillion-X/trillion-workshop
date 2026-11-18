@@ -18,7 +18,7 @@
       "title": "A moving clip passes against itself; the same bar fails a still grey clip",
       "ask": "Check that clips/flat.mp4 moves as much as clips/reference.mp4, end card at 5 seconds.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -19,7 +19,7 @@
       "title": "A word that starts inside a pause is moved to where the voice starts",
       "ask": "Move the word starts of my take to where the voice really starts.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

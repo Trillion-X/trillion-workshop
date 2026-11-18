@@ -18,7 +18,7 @@
       "title": "The same note on Monday and Tuesday counts as a repeat of one shape",
       "ask": "Have I seen this flagged note before?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

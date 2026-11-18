@@ -19,7 +19,7 @@
       "title": "Record what the owner gave back on its own sample",
       "ask": "Link an owner's receipt to the request it answers",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

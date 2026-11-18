@@ -17,7 +17,7 @@
       "title": "Prepare the notes a match plan is made from, and record the plan on its own sample",
       "ask": "Plan a match against an opponent: gather what the trusted notes say about both sides into the brief a plan is written from, then check and record the plan that was written",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

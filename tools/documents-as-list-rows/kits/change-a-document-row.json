@@ -17,7 +17,7 @@
       "title": "Change fields of documents in my folder list on its own sample",
       "ask": "Change or remove fields of documents' frontmatter in a folder I granted, write a whole document or remove one, each only if the document is still the one I read",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

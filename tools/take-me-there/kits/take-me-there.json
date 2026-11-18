@@ -18,7 +18,7 @@
       "title": "Take me to the thing that needs me on its own sample",
       "ask": "Take a person to the thing that needs them: give the screen to open on one waiting card, the arrangement that puts it beside what the caller names, the walkthrough that points at the card's own control and the notice that links to both, or say in plain words that nothing is waiting there or it opens outside their places",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

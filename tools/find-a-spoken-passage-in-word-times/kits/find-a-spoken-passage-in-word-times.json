@@ -122,7 +122,7 @@
       "title": "Find where a spoken passage starts and ends in a recording's word times on its own sample",
       "ask": "Tell me the exact seconds a passage I quote starts and ends in a recording, read a recording's words back as timed sentences, or keep its word times in the one file shape my plans cut from",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -145,7 +145,7 @@
       "title": "Find where a spoken passage starts and ends in a recording's word times on its own sample",
       "ask": "Tell me the exact seconds a passage I quote starts and ends in a recording, read a recording's words back as timed sentences, or keep its word times in the one file shape my plans cut from",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -123,7 +123,7 @@
       "title": "The plan for a stitched opening cut from a render of the cut",
       "ask": "Show me the commands for a working preview of option x00-r8-1 from my cut render.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

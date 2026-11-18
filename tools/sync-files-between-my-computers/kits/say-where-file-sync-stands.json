@@ -17,7 +17,7 @@
       "title": "Say where file sync stands on its own sample",
       "ask": "Say where the sync of a person's files on one computer stands: starting, synced, syncing, offline, conflict or error, why Trillion was not reached, and how many saves are still moving",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

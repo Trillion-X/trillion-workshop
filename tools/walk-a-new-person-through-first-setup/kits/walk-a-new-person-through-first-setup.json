@@ -17,7 +17,7 @@
       "title": "Walk a new person through first setup on its own sample",
       "ask": "Walk a new person through first setup: the apps to install on their devices, the AIs to connect, and the one saved run that resumes where they stopped",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

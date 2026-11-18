@@ -20,7 +20,7 @@
       "title": "Name the change as a before and after pair",
       "ask": "Run workflow:method-name-question-delete: cut the time a new baker needs to learn the morning bake.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

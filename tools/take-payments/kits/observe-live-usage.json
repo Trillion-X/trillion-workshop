@@ -18,7 +18,7 @@
       "title": "Observe my live usage on its own sample",
       "ask": "Read my account's own usage day rows (stored bytes, work time, source bytes the engine counted) and answer each closed day as one usage observation per billed resource, ready to settle",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

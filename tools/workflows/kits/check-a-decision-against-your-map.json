@@ -115,7 +115,7 @@
       "title": "Leasing a second oven serves money and takes from the body",
       "ask": "Weigh the second-oven decision against my map.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

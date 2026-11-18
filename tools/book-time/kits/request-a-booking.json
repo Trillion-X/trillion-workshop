@@ -18,7 +18,7 @@
       "title": "Request a booking on its own sample",
       "ask": "Check a requested time is open and make the booking record for it",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

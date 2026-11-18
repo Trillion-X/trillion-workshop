@@ -20,7 +20,7 @@
       "title": "One episode, one high-pitched turn of five",
       "ask": "Count the parrot's turns from the caption marks.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "See the ink marks drawn on a page or picture on its own sample",
       "ask": "Work out which ink marks are showing on one page, picture or other space, after later marks hid, restyled, reordered, copied or merged earlier ones",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

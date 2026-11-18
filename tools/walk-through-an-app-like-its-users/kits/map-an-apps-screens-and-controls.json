@@ -18,7 +18,7 @@
       "title": "Map an app's screens and controls on its own sample",
       "ask": "Find the screens of my app and what a person can do on each, so journeys can be written to check it",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

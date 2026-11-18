@@ -18,7 +18,7 @@
       "title": "Read what I pulled from a connected account on its own sample",
       "ask": "Read the conversations, messages and saved items I pulled from a connected account such as Discord, Slack, Telegram, Signal, Instagram, Messenger, X bookmarks or Pinterest",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

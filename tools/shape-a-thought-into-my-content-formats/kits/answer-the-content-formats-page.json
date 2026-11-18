@@ -18,7 +18,7 @@
       "title": "Answer the Formats page on its own sample",
       "ask": "Answer the Formats page: list my content formats, list what can fill them, shape a thought into them and follow a script",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

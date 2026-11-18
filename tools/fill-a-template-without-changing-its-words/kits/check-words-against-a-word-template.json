@@ -124,7 +124,7 @@
       "title": "A rewrite that changed \"before\" to \"after\" and used an unsourced 52",
       "ask": "Check my rewrite against the template.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -18,7 +18,7 @@
       "title": "List what can do steps on its own sample",
       "ask": "List everything that can do a step for a person, with what each covers and what it costs, and the reasons a step may stay the person's",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "Find the rows of a list that need review, by owner on its own sample",
       "ask": "List the rows of a list set up for review that need someone to look at them, for each owner, with why: never checked, flagged outdated or asked about, past the date it must be checked again by, or empty",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

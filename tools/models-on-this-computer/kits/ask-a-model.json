@@ -17,7 +17,7 @@
       "title": "Ask a model on its own sample",
       "ask": "Ask a model served on the person's own computer (a local model, free to run) a conversation or a yes-or-no question about some words, instead of a service billed per word",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

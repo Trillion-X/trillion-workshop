@@ -18,7 +18,7 @@
       "title": "See my AIs: which are live, what each can do and how many jobs each holds on its own sample",
       "ask": "Show me my AIs and computers: which are live now, what each can do and how many jobs each is doing",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

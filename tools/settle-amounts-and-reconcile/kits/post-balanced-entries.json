@@ -17,7 +17,7 @@
       "title": "Post entries whose lines add to zero on its own sample",
       "ask": "Check an entry of signed lines adds to zero and answer it to keep, once per entry id, answer its undo as a new entry with every line negated, and list every entry in the lists that does not add to zero",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

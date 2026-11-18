@@ -127,7 +127,7 @@
       "title": "A take with one 0.6 s pause between its first two words",
       "ask": "Measure these takes of my narration line.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

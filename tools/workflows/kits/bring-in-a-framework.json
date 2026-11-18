@@ -22,7 +22,7 @@
       "title": "A two-part handbook is read into parts with line ranges",
       "ask": "Bring in The Bakery Handbook by Sam as a framework.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "See what is on the person's computer screen on its own sample",
       "ask": "Read the person's computer screen: the app in front (or one named), its controls from the accessibility tree and the text on its windows from the pixels, with where each is",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -124,7 +124,7 @@
       "title": "An option the person agreed to goes into the protected project; one nobody picked is refused",
       "ask": "Put option a, which I agreed to, into my FilmCraft project cut.fcproj with ops.jsonl.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

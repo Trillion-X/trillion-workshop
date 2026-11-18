@@ -18,7 +18,7 @@
       "title": "List what is due for review on its own sample",
       "ask": "See which of the things a person is learning are due for review now, soonest first, from the grades they have given them",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

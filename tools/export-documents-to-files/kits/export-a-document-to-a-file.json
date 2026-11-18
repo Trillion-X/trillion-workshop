@@ -18,7 +18,7 @@
       "title": "Save anything as a file: a list, a table, a document, a board, words or a picture, as PDF, Word, Excel, CSV, Markdown, text, web page, SVG and more on its own sample",
       "ask": "Turn one document made of headings, words, lists, tables, graphs, calendar events and pictures into a file in the format asked for, and give the file back",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -60,7 +60,7 @@
       "title": "Save anything as a file: a list, a table, a document, a board, words or a picture, as PDF, Word, Excel, CSV, Markdown, text, web page, SVG and more on its own sample",
       "ask": "Turn one document made of headings, words, lists, tables, graphs, calendar events and pictures into a file in the format asked for, and give the file back",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

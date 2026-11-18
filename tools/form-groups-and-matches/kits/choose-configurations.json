@@ -17,7 +17,7 @@
       "title": "Choose which options go ahead together on its own sample",
       "ask": "Choose which of several options (a person, a workflow, a tool, a place) go ahead now: every worthwhile one that does not compete for the same thing, the best where they do",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

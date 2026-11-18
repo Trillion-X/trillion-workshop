@@ -17,7 +17,7 @@
       "title": "Read the promotion codes in Stripe test mode on its own sample",
       "ask": "Read the promotion codes and coupons in your Stripe test account, to see a read work before it is run on the real account",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

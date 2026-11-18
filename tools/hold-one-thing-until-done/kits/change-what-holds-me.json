@@ -18,7 +18,7 @@
       "title": "Change what holds me on its own sample",
       "ask": "Set the one thing I must do aside with a reason, hand it back to my AIs, choose what turning the hold off costs me, ask to turn it off, or turn it back on",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

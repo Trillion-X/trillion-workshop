@@ -18,7 +18,7 @@
       "title": "Three clips name a part and one does not",
       "ask": "Find my clips that are parts of a series in a.jsonl and b.jsonl.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

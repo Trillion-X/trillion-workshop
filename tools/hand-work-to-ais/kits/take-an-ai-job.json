@@ -18,7 +18,7 @@
       "title": "Take the next job waiting for me, or one job by its id on its own sample",
       "ask": "Take the next job another of my AIs left for me, so no other AI does it too",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -18,7 +18,7 @@
       "title": "Speak one sentence with the local voice program",
       "ask": "Make speech of \"Fresh bread at seven.\" with the voice program on this computer.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

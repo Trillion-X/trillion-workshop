@@ -18,7 +18,7 @@
       "title": "A heading, a paragraph with symbols, a picture and a closing line",
       "ask": "Turn my update draft into a message body.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

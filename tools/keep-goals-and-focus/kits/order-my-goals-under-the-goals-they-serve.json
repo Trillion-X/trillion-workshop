@@ -17,7 +17,7 @@
       "title": "Order my goals under the goals they serve on its own sample",
       "ask": "Keep my goals in the order they are shown, each one under the goal it serves, so a goal with several parents is shown once and none is hidden by a missing parent or a loop",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "Keep what my devices report about themselves on its own sample",
       "ask": "Keep the facts a new person's devices report about themselves (which cameras a computer sees, whether a phone's switches are on), each report replacing that device's facts, so a setup checklist can tick itself from them",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

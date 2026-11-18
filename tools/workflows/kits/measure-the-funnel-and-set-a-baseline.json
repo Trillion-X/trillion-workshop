@@ -195,7 +195,7 @@
       "given": "Read from the measure-stages step in tools/workflows/recipes/workflows.json: tool:measure-funnel-stages is given one record per visit or sale, stage_ids [\"visit\",\"checkout\",\"paid\",\"opened\"] and amount_field amount_cents. Example records: 40 visits, 6 checkouts, 2 sales of 1200 cents each, 2 first-file opens.",
       "hands_back": "{\"counts\":[{\"stage\":\"visit\",\"count\":40},{\"stage\":\"checkout\",\"count\":6},{\"stage\":\"paid\",\"count\":2,\"amount_cents\":2400},{\"stage\":\"opened\",\"count\":2}]}",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

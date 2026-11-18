@@ -17,7 +17,7 @@
       "title": "Say who set each value and which source wins on its own sample",
       "ask": "Say which value each field of my rows keeps when several sources offered one, who set it, and why the others lost: what I typed beats my rules, my rules beat imported sources, and those beat an AI's guess, with the AI's reasons and confidence kept beside its value",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -21,7 +21,7 @@
       "title": "Answer the search page route on its own sample",
       "ask": "Answer the page's one search (GET /work/api/search) over every list, record and file name I keep",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

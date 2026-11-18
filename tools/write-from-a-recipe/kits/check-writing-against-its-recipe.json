@@ -18,7 +18,7 @@
       "title": "Check writing against its recipe on its own sample",
       "ask": "Check something written from a recipe before it goes anywhere: it cites only the sources given, it keeps the recipe's rules and reviews, and it is shaped for the next tool",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "Link records into people and stage each on its own sample",
       "ask": "Link records that share a key into one person and give each person the highest stage their records reach",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

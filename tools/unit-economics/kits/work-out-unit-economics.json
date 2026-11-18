@@ -17,7 +17,7 @@
       "title": "Work out unit economics on its own sample",
       "ask": "Work out a business's unit economics (ARPU, gross margin, CAC, LTV, LTV to CAC, payback) from one period's revenue, costs, ad spend and customer counts",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

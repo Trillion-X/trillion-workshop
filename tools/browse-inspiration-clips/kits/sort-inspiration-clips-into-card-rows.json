@@ -17,7 +17,7 @@
       "title": "Sort inspiration clips into rows of cards on its own sample",
       "ask": "Sort the clips, recent files, formats, saved examples and prepared posts handed in into the named rows of inspiration cards, marking which clips can start a new edit",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -17,7 +17,7 @@
       "title": "Move a group of files from one code tree to another, with everything they import on its own sample",
       "ask": "Move groups of code files from one repository to another byte for byte, with every file they import and their tests, delete the originals so one copy remains, and prove the moved files are the same bytes and still load and pass their tests",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

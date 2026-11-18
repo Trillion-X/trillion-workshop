@@ -18,7 +18,7 @@
       "title": "FFmpeg on a 5 minute video file",
       "ask": "Use FFmpeg on interview.mp4.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

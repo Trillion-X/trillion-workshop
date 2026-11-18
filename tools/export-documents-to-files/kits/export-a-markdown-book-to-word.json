@@ -210,7 +210,7 @@
       "title": "A current-prose book with a banned word is blocked before any Word file is made",
       "ask": "Export my book rye-cookbook to Word.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

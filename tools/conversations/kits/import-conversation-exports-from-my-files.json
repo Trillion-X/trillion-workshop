@@ -183,7 +183,7 @@
       "title": "A one-chat export in the account files is kept",
       "ask": "Import my chat export /exports/bread.json from my files.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

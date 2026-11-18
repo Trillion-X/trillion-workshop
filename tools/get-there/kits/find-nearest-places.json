@@ -17,7 +17,7 @@
       "title": "Find the nearest places of a brand or name on its own sample",
       "ask": "Find the nearest stores or places of a brand or name around a start, each with route buttons",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

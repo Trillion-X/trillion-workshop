@@ -26,7 +26,7 @@
    "title": "Two people who engaged this week",
    "ask": "Follow up with the people who engaged with my posts this week.",
    "mcp": {
-    "server": "trillion",
+    "server": "{cli}",
     "tool": "run_resource_operation",
     "input": {
      "address": "@tools",

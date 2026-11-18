@@ -17,7 +17,7 @@
       "title": "Upload a file to a signed storage slot on its own sample",
       "ask": "Upload one file from a folder the person granted to a signed storage slot a page hands over, only to a destination the tool's own list allows, so the page never sees the file",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

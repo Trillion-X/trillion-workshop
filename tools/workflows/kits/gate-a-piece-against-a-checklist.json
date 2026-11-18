@@ -18,7 +18,7 @@
       "title": "Run a read-only checklist gate on my files (runs on your computer) on its own sample",
       "ask": "Before I am shown anything I made, list the required checks that apply to it and identify which answers are open, stale or failed, without changing my files",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

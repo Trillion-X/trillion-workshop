@@ -18,7 +18,7 @@
       "title": "Two cuts of one recording as an xmeml timeline",
       "ask": "Export my edit as a Premiere Pro timeline called Bakery reel.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -72,7 +72,7 @@
       "title": "A clip at double speed is refused in words",
       "ask": "Export an edit that has a clip at double speed.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

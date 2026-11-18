@@ -20,7 +20,7 @@
       "title": "Two presumed results are turned into things to test",
       "ask": "Clean my research prompt about new bakery staff so it does not assume the answer.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

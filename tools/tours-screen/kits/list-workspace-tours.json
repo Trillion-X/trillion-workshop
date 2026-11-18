@@ -18,7 +18,7 @@
       "title": "List the workspace tours on its own sample",
       "ask": "Show me every tour in my workspace and which ones I have finished",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

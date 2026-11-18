@@ -18,7 +18,7 @@
       "title": "Show device steps only when they apply on its own sample",
       "ask": "Leave waiting rows about an unowned device out only when the caller reports complete, successful evidence; keep them visible when evidence is unknown.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

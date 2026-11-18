@@ -18,7 +18,7 @@
       "title": "Check a copy of a card to a backup drive without changing anything",
       "ask": "Check what copying my card's DCIM folder to the Backup drive's Footage folder would do, change nothing.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

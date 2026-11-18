@@ -19,7 +19,7 @@
       "title": "Two caption lines, words light up as said",
       "ask": "Caption my video with white words that light up.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

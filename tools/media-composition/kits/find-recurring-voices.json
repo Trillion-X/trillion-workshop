@@ -17,7 +17,7 @@
       "title": "Find recurring voices on its own sample",
       "ask": "Group recurring voices across audio and video files, keep stable voice clusters, and show which files contain the same speaker",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

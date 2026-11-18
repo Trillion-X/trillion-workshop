@@ -20,7 +20,7 @@
       "title": "Two of three top comments name the parrot",
       "ask": "Which comments mention the parrot?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

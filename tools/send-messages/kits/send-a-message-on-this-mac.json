@@ -17,7 +17,7 @@
       "title": "Send a message in Messages on this Mac on its own sample",
       "ask": "Send a message to one person or a list from the Messages app on the person's own Mac",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

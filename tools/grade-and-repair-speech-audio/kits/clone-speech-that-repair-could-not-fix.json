@@ -21,7 +21,7 @@
       "title": "Nothing graded clone: the span grades are left as they were",
       "ask": "Re-voice the spans that repair could not fix, from the reference I picked.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

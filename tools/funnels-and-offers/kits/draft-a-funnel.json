@@ -17,7 +17,7 @@
       "title": "Draft a funnel on its own sample",
       "ask": "Start a new funnel with a title and its steps, or add steps to a funnel I already have",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

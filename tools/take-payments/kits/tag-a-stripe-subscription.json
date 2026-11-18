@@ -17,7 +17,7 @@
       "title": "Tag a Stripe subscription on its own sample",
       "ask": "Add notes (metadata) to a buyer Stripe subscription without changing the ones already there",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

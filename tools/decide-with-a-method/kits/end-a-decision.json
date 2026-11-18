@@ -18,7 +18,7 @@
       "title": "End decisions no one will carry on on its own sample",
       "ask": "Close decisions that will never be carried on, and keep why",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

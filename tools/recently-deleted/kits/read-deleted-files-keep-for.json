@@ -18,7 +18,7 @@
       "title": "How long deleted files are kept on its own sample",
       "ask": "Read how many days this person's Recently Deleted and Archived keep things before they move on",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

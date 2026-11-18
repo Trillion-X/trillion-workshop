@@ -19,7 +19,7 @@
       "title": "Inspect on a computer that is not a Mac",
       "ask": "Inspect whether Trillion's hooks are set up in Claude Code on this computer.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

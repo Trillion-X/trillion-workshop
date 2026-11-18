@@ -18,7 +18,7 @@
       "title": "Ask Resend to verify example.com again",
       "ask": "Ask Resend to check domain 4dd369bc-aa82-4ff3-97de-514ae3000ee0 again.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

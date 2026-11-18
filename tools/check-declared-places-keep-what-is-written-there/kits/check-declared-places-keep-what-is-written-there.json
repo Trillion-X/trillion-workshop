@@ -17,7 +17,7 @@
       "title": "Check the places I let my AI write in keep a history on its own sample",
       "ask": "Check that every place declared writable (on the promise that something keeps what is written there, such as a version history) really keeps it, and say which keep nothing",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

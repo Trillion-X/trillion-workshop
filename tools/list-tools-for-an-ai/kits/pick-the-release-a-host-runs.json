@@ -17,7 +17,7 @@
       "title": "Pick the release a host version runs on its own sample",
       "ask": "Tell which release of a published tool a given Trillion version runs, or which version it needs",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

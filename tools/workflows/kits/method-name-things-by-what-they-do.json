@@ -20,7 +20,7 @@
       "title": "Name a pre-order page by what each part does",
       "ask": "Run workflow:method-name-things-by-what-they-do: name the screens and messages of a bakery's pre-order page.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

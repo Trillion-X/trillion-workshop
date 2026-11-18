@@ -19,7 +19,7 @@
       "title": "Forget how someone writes on its own sample",
       "ask": "Forget part of what is kept about how this person writes",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

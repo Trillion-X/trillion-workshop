@@ -192,7 +192,7 @@
       "title": "The brand tool is not live: the step reports a gap and goes on",
       "ask": "Resolve my brand's words and colours.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
@@ -214,7 +214,7 @@
       "title": "The owner confirms the test email arrived",
       "ask": "Did my test email arrive?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -254,7 +254,7 @@
       "title": "Keep who appeared in a recording",
       "ask": "Keep who appeared in a recording",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

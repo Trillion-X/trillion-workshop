@@ -33,7 +33,7 @@
       "title": "Setting up a quick look at a bakery site on a 3 dollar budget",
       "ask": "Reverse engineer how https://example.com grows, quick mode, 3 dollars.",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

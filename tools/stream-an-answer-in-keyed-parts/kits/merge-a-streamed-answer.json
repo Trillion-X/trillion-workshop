@@ -17,7 +17,7 @@
       "title": "Merge a streamed answer's parts on its own sample",
       "ask": "Merge the events of a streamed answer into keyed parts: text that appends, sources and related questions as parts of their own, patches to parts already sent, and a snapshot to pick up an interrupted stream",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

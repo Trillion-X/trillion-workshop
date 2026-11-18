@@ -17,7 +17,7 @@
       "title": "Read a meeting link on its own sample",
       "ask": "Read a meeting link through the declared meeting-app routes: which app it is for, what it asks (join, start, schedule, launch) and its parameters, with the host checked first and secret parameters hidden",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

@@ -18,7 +18,7 @@
       "title": "See who holds paid access on its own sample",
       "ask": "Work out which paid access one buyer holds right now: what they bought, what renewed, what ended or was refunded, and what I gave them by hand",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

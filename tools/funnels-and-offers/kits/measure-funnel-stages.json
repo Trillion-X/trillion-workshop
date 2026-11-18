@@ -17,7 +17,7 @@
       "title": "Measure funnel stages on its own sample",
       "ask": "Count how many visitors reached each stage of a funnel, how many converted and the revenue each stage brought",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

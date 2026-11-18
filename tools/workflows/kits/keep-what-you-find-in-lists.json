@@ -19,7 +19,7 @@
    "title": "Their own records are read before anything is looked up",
    "ask": "Find the emails of the founding members of the bakery club.",
    "mcp": {
-    "server": "trillion",
+    "server": "{cli}",
     "tool": "run_resource_operation",
     "input": {
      "address": "@tools",

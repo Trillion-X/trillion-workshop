@@ -17,7 +17,7 @@
       "title": "Send a text message on its own sample",
       "ask": "Send a text message, to one number or a list, through the text provider I connected",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

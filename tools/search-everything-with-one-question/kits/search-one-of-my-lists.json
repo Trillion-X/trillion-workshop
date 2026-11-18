@@ -19,7 +19,7 @@
       "title": "Search one of my lists with one question on its own sample",
       "ask": "Find the rows of one of my lists that hold the words I ask, best match first, however far down the list they are",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",

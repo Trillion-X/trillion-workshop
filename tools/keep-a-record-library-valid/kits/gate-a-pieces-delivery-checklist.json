@@ -123,7 +123,7 @@
       "title": "Two open checks, answered, then the gate passes",
       "ask": "Before I show test-piece, which delivery checks are still open at S5?",
       "mcp": {
-        "server": "trillion",
+        "server": "{cli}",
         "tool": "run_resource_operation",
         "input": {
           "address": "@tools",
