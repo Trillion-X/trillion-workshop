@@ -34,25 +34,11 @@
       "identity": "1f:7e473e078e6dc53d4f31cd5fdd3cf0ae6c4dba8e6b1ff81427df8648707991dd"
     },
     {
-      "from": "src/connecting-without-the-store.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/query-and-change-list-rows/src/connecting-without-the-store.mjs",
-      "source_identity": "1f:e0237efa54c792865fe4dd3506e1a26083a58e84c6ff5b3567adb487503b580b",
-      "identity": "1f:a3be46f249dfc5feaa0ef74fdc8702ab1729f6a8dc206aa130c3cdd740495118"
-    },
-    {
       "from": "src/document-properties.json",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/query-and-change-list-rows/src/document-properties.json",
       "source_identity": "1f:47cc38025855d82ddd04760034054736e7c0b311e94acb81e49980a08e78a14b",
       "identity": "1f:47cc38025855d82ddd04760034054736e7c0b311e94acb81e49980a08e78a14b"
-    },
-    {
-      "from": "src/execution-context.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/query-and-change-list-rows/src/execution-context.mjs",
-      "source_identity": "1f:6763c3999501916b79567bffbd397cc85da0a63a34523af9c24d431be38ed3de",
-      "identity": "1f:adaf52cb955ccc820fb7135048bd6c2c8e3beacff5653caf8cc73751a5a8fd02"
     },
     {
       "from": "src/list-aggregates.mjs",
@@ -267,13 +253,6 @@
       "to": "tools/query-and-change-list-rows/src/list-view-parameters.mjs",
       "source_identity": "1f:a54b3f26f3982242b5147352a14667cd28e0f118dd70ad1dc843a00848f7d3f6",
       "identity": "1f:29d36b047663635f0f2c95f03a7af1e8590a6c6950cea00e4f77bb7b01e0fdd4"
-    },
-    {
-      "from": "src/namespace-preview.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/query-and-change-list-rows/src/namespace-preview.mjs",
-      "source_identity": "1f:c4519cf7e6db4093f7db62ccee5218e66ed19c08730fd61e546b637b5192359c",
-      "identity": "1f:18db599cda734960c9be25ffe381184553861f076b921281fb198f377a46ca15"
     },
     {
       "from": "src/record-model-tools.mjs",

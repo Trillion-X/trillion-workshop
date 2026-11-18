@@ -2,7 +2,7 @@
 // Derive the operations from the same declarations and call their supplied owner;
 // do not duplicate List validation, managed configuration writes, views or side effects.
 import { listTools } from './list-tools.mjs';
-import { EXECUTION_HEADER } from './execution-context.mjs';
+import { EXECUTION_HEADER } from '../../keep-and-wake-ai-sessions-on-this-computer/src/execution-context.mjs';
 
 async function callListRoute(store, path, body, task) {
   const headers = new Headers({ 'x-trillion-app': 'Trillion' });
