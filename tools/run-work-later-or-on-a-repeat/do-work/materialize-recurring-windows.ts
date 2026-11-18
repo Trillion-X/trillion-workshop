@@ -232,8 +232,13 @@ export function materializeRecurringWindows(input: RecurringMaterializationInput
     const gap = schedule.dst?.gap ?? 'skip';
     const fold = schedule.dst?.fold ?? 'earlier';
     const times = requestedTimes(schedule);
-    const step = stepMinutes(schedule);
+    // A candidate is passed when its owner proved it, or it starts before resume_from_ms.
+    const passed = (candidate: { start: { instant_ms: number }; key: string }) =>
+      (stateByKey.get(candidate.key) ?? []).some(ownerOutcomeProven) || (resumeFromMs !== null && candidate.start.instant_ms < resumeFromMs);
     let selected = false;
+    // The earliest time not yet passed, held until a later one shows whether it has also come; and how many were passed over.
+    let held: { candidates: Array<{ start: { instant_ms: number; resolved: CivilDateTime; fold: string }; resolvedEnd: CivilDateTime; key: string }>; requestedStart: CivilDateTime; requestedEnd: CivilDateTime } | null = null;
+    let missed = 0;
     // Scanning starts the day before resume_from_ms in the schedule's zone (or at start_local_date when that is later).
     const resumeDate = resumeFromMs === null ? null : localParts(resumeFromMs, schedule.timezone).date;
     const firstOffset = resumeDate === null ? 0 : Math.max(0, civilDaysBetween(schedule.start_local_date, resumeDate) - 1);
@@ -266,40 +271,55 @@ export function materializeRecurringWindows(input: RecurringMaterializationInput
         });
         // A fold configured as both is one logical local window with two branches:
         // do not advance past either until every branch has owner outcome proof.
-        // A candidate is passed when its owner proved it, or it starts before resume_from_ms.
-        const passed = (candidate: { start: { instant_ms: number }; key: string }) =>
-          (stateByKey.get(candidate.key) ?? []).some(ownerOutcomeProven) || (resumeFromMs !== null && candidate.start.instant_ms < resumeFromMs);
         if (candidates.every(passed)) continue;
-        if (step !== null && nowMs !== null && candidates.every((candidate) => candidate.start.instant_ms + step * 60_000 <= nowMs)) continue;
-        for (const candidate of candidates) {
-          const statesForOccurrence = stateByKey.get(candidate.key) ?? [];
-          if (passed(candidate)) continue;
-          const committed = statesForOccurrence.some(materializationCommitted);
-          const occurrence = {
-            occurrence_key: candidate.key,
-            schedule_id: schedule.schedule_id,
-            schedule_label: text(schedule.label) ?? text(schedule.title) ?? text(schedule.name),
-            source_generation: String(schedule.source_generation),
-            schedule_revision: String(schedule.schedule_revision),
-            timezone: schedule.timezone,
-            requested_local_window: { start: requestedStart, end: requestedEnd },
-            resolved_local_window: { start: candidate.start.resolved, end: candidate.resolvedEnd, fold: candidate.start.fold },
-            start: new Date(candidate.start.instant_ms).toISOString(),
-            end: new Date(candidate.start.instant_ms + schedule.local_window.duration_minutes * 60_000).toISOString(),
-            action: schedule.action,
-          };
-          if (!committed) {
-            materializations.push({
-              kind: 'recurring-window-materialization',
-              materialization_key: candidate.key,
-              compare_exchange_key: candidate.key,
-              occurrence,
-              initial_state: { occurrence_key: candidate.key, materialization_key: candidate.key, materialized_at: null },
-            });
+        // A held time whose next time has also come is passed over, for every cadence: a schedule that was asleep runs
+        // once on waking, for its latest time, and says how many it passed over (missed_before), instead of once for
+        // every time it missed. One already dispatched (committed) is never passed over.
+        if (held !== null) {
+          if (nowMs !== null && candidates.some((candidate) => candidate.start.instant_ms <= nowMs)) {
+            held = { candidates, requestedStart, requestedEnd };
+            missed += 1;
+            continue;
           }
-          active_occurrences.push({ ...occurrence, retry_same_occurrence: committed });
+          selected = true;
+          break;
         }
-        selected = true;
+        held = { candidates, requestedStart, requestedEnd };
+        const dispatched = candidates.some((candidate) => (stateByKey.get(candidate.key) ?? []).some(materializationCommitted));
+        if (dispatched || nowMs === null) selected = true;
+      }
+    }
+    if (held !== null) {
+      selected = true;
+      const { candidates, requestedStart, requestedEnd } = held;
+      for (const candidate of candidates) {
+        const statesForOccurrence = stateByKey.get(candidate.key) ?? [];
+        if (passed(candidate)) continue;
+        const committed = statesForOccurrence.some(materializationCommitted);
+        const occurrence = {
+          occurrence_key: candidate.key,
+          schedule_id: schedule.schedule_id,
+          schedule_label: text(schedule.label) ?? text(schedule.title) ?? text(schedule.name),
+          source_generation: String(schedule.source_generation),
+          schedule_revision: String(schedule.schedule_revision),
+          timezone: schedule.timezone,
+          requested_local_window: { start: requestedStart, end: requestedEnd },
+          resolved_local_window: { start: candidate.start.resolved, end: candidate.resolvedEnd, fold: candidate.start.fold },
+          start: new Date(candidate.start.instant_ms).toISOString(),
+          end: new Date(candidate.start.instant_ms + schedule.local_window.duration_minutes * 60_000).toISOString(),
+          action: schedule.action,
+          missed_before: missed,
+        };
+        if (!committed) {
+          materializations.push({
+            kind: 'recurring-window-materialization',
+            materialization_key: candidate.key,
+            compare_exchange_key: candidate.key,
+            occurrence,
+            initial_state: { occurrence_key: candidate.key, materialization_key: candidate.key, materialized_at: null },
+          });
+        }
+        active_occurrences.push({ ...occurrence, retry_same_occurrence: committed });
       }
     }
     if (!selected) rejected_schedules.push({ schedule_id: schedule.schedule_id, reason: 'scan_limit_without_unresolved_occurrence' });

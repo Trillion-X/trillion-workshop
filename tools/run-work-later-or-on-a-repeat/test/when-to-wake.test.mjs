@@ -124,7 +124,27 @@ test('resume_from_ms: a schedule first seen now starts from now, and a caller ke
   }
   assert.deepEqual(ran, ['2026-03-05T14:00:00.000Z', '2026-03-06T14:00:00.000Z', '2026-03-07T14:00:00.000Z', '2026-03-08T13:00:00.000Z'],
     '09:00 New York on both sides of the clock change, one state kept');
-  // Asleep for three days: each day missed is still due, earliest first, as without resume_from_ms.
+  // Asleep for four days: the latest day runs once, and says it passed over the three before it.
   const late = whenToWake({ now: '2026-03-12T15:00:00Z', schedules: [daily], occurrence_states: states, resume_from_ms: resume });
-  assert.deepEqual(late.recurring_due.map(occurrence => occurrence.start), ['2026-03-09T13:00:00.000Z']);
+  assert.deepEqual(late.recurring_due.map(occurrence => [occurrence.start, occurrence.missed_before]), [['2026-03-12T13:00:00.000Z', 3]]);
+});
+
+test('any cadence asleep for a year runs once on waking and says how many times it missed; on time it missed none', () => {
+  const zone = { source_generation: 1, schedule_revision: 1, timezone: 'UTC', start_local_date: '2025-01-01', action: mondayReview.action };
+  const cases = [
+    [{ ...zone, schedule_id: 'schedule:every-6h', cadence: { unit: 'hour', interval: 6 }, local_window: { start: '00:00', duration_minutes: 5 } }, ['2026-01-01T12:00:00.000Z', 1462]],
+    [{ ...zone, schedule_id: 'schedule:daily', cadence: { unit: 'day' }, local_window: { start: '09:00', duration_minutes: 5 } }, ['2026-01-01T09:00:00.000Z', 365]],
+    [{ ...zone, schedule_id: 'schedule:mondays', cadence: { unit: 'week', weekdays: [1] }, local_window: { start: '09:00', duration_minutes: 5 } }, ['2025-12-29T09:00:00.000Z', 51]],
+  ];
+  const slept = Date.parse('2025-01-01T00:00:00Z');
+  for (const [schedule, expected] of cases) {
+    const woke = whenToWake({ now: '2026-01-01T13:00:00Z', schedules: [schedule], resume_from_ms: slept });
+    assert.deepEqual(woke.recurring_due.map(occurrence => [occurrence.start, occurrence.missed_before]), [expected], schedule.schedule_id);
+    // Once that time is proven, the next time asked for on time is due alone, having missed none.
+    const [ran] = woke.recurring_due;
+    const kept = { schedules: [schedule], occurrence_states: [proven(ran.occurrence_key, ran.start)], resume_from_ms: Date.parse(ran.start) };
+    const next = whenToWake({ now: '2026-01-01T13:00:00Z', ...kept }).next_wake_at;
+    const onTime = whenToWake({ now: Date.parse(next) + 60_000, ...kept });
+    assert.deepEqual(onTime.recurring_due.map(occurrence => [occurrence.start, occurrence.missed_before]), [[next, 0]], `${schedule.schedule_id} on time misses none`);
+  }
 });

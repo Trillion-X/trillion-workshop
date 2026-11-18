@@ -71,10 +71,11 @@ test('a restart resumes from the kept state: nothing told twice, the state holds
   assert.equal(new Set(sizes).size, 1, `the state does not grow week to week: ${sizes}`);
 });
 
-test('a weekly schedule asleep for three weeks tells each missed week, earliest first, as timed-action keeps them due', async () => {
+test('a weekly schedule asleep for three weeks is told once, for its latest week, saying it missed the two before', async () => {
   const first = await watch({ schedules: [schedule()] }, { start: '2026-03-01T12:00:00Z', jumps: ['2026-03-02T14:00:00Z'] });
+  assert.equal(first.told[0].detail.missed_before, 0, 'on time it missed none');
   const woke = await watch({ schedules: [schedule()] }, { start: '2026-03-25T12:00:00Z', jumps: [], state: first.last });
-  assert.deepEqual(starts(woke.told), ['2026-03-09T13:00:00.000Z', '2026-03-16T13:00:00.000Z', '2026-03-23T13:00:00.000Z']);
+  assert.deepEqual(woke.told.map((fact) => [fact.detail.start, fact.detail.missed_before]), [['2026-03-23T13:00:00.000Z', 2]]);
 });
 
 test('a schedule that repeats within the day, asleep, runs once on waking', async () => {

@@ -38,6 +38,8 @@
  *     `resume_from_ms`, set when the leaf first sees that schedule, so one a
  *     wake switched on later starts then), never catching up on every time
  *     since its start_local_date.
+ *   - A schedule asleep through many of its times is told once on waking, for its latest time, with how many it
+ *     passed over (`missed_before`, timed-action's own count), never once for every time it missed.
  *   - The state stays bounded however long a schedule runs: per schedule, only
  *     the proof of its last told occurrence and resume_from_ms at that
  *     occurrence's start; per one-off, only the receipts of actions still named.
@@ -58,7 +60,7 @@ const PROOF_OWNER = "notice-when-something-shows-up";
 export function describeMechanism() {
   return {
     mechanism_ref: MECHANISM_REF,
-    detail_fields: ["schedule_id", "start", "end", "record_id", "operation"],
+    detail_fields: ["schedule_id", "start", "end", "missed_before", "record_id", "operation"],
     conditions: ["became-reachable"],
   };
 }
@@ -196,7 +198,8 @@ export async function watchForTransitions(settings, handlers) {
       const eventKey = occurrence.occurrence_key;
       const next = provenRecurring(state, occurrence, observedAt, eventKey);
       const told = await handlers.onTransition({ condition: "became-reachable", observed_identity: {}, event_key: eventKey, state: next,
-        detail: { schedule_id: occurrence.schedule_id, start: occurrence.start, end: occurrence.end, record_id: null, operation: null } });
+        detail: { schedule_id: occurrence.schedule_id, start: occurrence.start, end: occurrence.end, missed_before: occurrence.missed_before ?? 0,
+          record_id: null, operation: null } });
       if (told === false) refused = true;
       else state = next;
     }
@@ -205,7 +208,7 @@ export async function watchForTransitions(settings, handlers) {
       const eventKey = `${fire.record_id}#${fire.operation}`;
       const next = provenOneOff(state, rule, fire);
       const told = await handlers.onTransition({ condition: "became-reachable", observed_identity: {}, event_key: eventKey, state: next,
-        detail: { schedule_id: null, start: fire.due_at ?? null, end: null, record_id: fire.record_id, operation: fire.operation } });
+        detail: { schedule_id: null, start: fire.due_at ?? null, end: null, missed_before: 0, record_id: fire.record_id, operation: fire.operation } });
       if (told === false) refused = true;
       else state = next;
     }
