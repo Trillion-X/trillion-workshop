@@ -46,6 +46,31 @@ function settingsWith(lens) {
   };
 }
 
+/** The field names an answer shows: a record's own, or every field any item of a list has. */
+function fieldsOfValue(value) {
+  const records = Array.isArray(value) ? value.filter(object) : object(value) ? [value] : [];
+  return new Set(records.flatMap(record => Object.keys(record)));
+}
+
+/**
+ * The one lens for `value` from lens rows (the person's saved choices, learned rules, an AI's, the defaults): each row
+ * `{ set_by, when: { fields_all }, lens }` holds for an answer that has every field `fields_all` names. Each lens field is
+ * taken from the first row that sets it, rows ordered by `lens_precedence` (DATA: who wins), then by how many fields
+ * their `when` names (the more particular first), then as given. A row with an unknown `set_by` is not used.
+ */
+export function lensFor(value, rows = [], settings = defaults) {
+  const fields = fieldsOfValue(value);
+  const rank = new Map(settings.lens_precedence.map((who, index) => [who, index]));
+  const matching = (Array.isArray(rows) ? rows : []).map((row, index) => ({ row, index }))
+    .filter(({ row }) => object(row) && rank.has(row.set_by) && object(row.lens)
+      && (Array.isArray(row.when?.fields_all) ? row.when.fields_all : []).every(field => fields.has(String(field))))
+    .sort((a, b) => rank.get(a.row.set_by) - rank.get(b.row.set_by)
+      || (b.row.when?.fields_all?.length ?? 0) - (a.row.when?.fields_all?.length ?? 0) || a.index - b.index);
+  const lens = {};
+  for (const { row } of matching) for (const [name, given] of Object.entries(row.lens)) if (lens[name] === undefined && settings.lens_fields.includes(name)) lens[name] = given;
+  return lens;
+}
+
 /** The title of a value: the first title field it has, as words. */
 function titleOf(value, settings) {
   if (!object(value)) return words(value, settings);

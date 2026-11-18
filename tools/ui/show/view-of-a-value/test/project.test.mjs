@@ -1,7 +1,7 @@
 // Any value is drawn as a parts screen the parts screen itself accepts, chosen by the rows of view-of-a-value.json.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { projectValue, factsOf, holds } from '../project.mjs';
+import { projectValue, factsOf, holds, lensFor } from '../project.mjs';
 import { checkSpec } from '../../../../build-a-screen-from-patches/read-data/screen-spec.mjs';
 import rows from '../view-of-a-value.json' with { type: 'json' };
 
@@ -128,4 +128,22 @@ test('a value offers no request unless it says how to run something', () => {
     const { requests } = projectValue(value);
     assert.deepEqual(requests, {}, JSON.stringify(value));
   }
+});
+
+test('lens rows: the person beats a learned rule beats an AI beats the default, field by field', () => {
+  const dinners = [{ name: 'Soup', minutes: 30, notes: 'x' }, { name: 'Tacos', minutes: 20, notes: 'y' }];
+  const rows = [
+    { set_by: 'default', when: {}, lens: { items: 10, hidden_fields: ['id'] } },
+    { set_by: 'ai', when: { fields_all: ['name'] }, lens: { items: 3, title: 'Dinners' } },
+    { set_by: 'rule', when: { fields_all: ['name', 'minutes'] }, lens: { hidden_fields: ['notes'] } },
+    { set_by: 'person', when: { fields_all: ['name', 'minutes'] }, lens: { items: 2 } },
+    { set_by: 'person', when: { fields_all: ['calories'] }, lens: { items: 1 } },
+    { set_by: 'stranger', when: {}, lens: { items: 99 } },
+    { set_by: 'person', when: {}, lens: { widen: true } },
+  ];
+  assert.deepEqual(lensFor(dinners, rows), { items: 2, hidden_fields: ['notes'], title: 'Dinners' });
+  const { spec } = accepted(dinners, { lens: lensFor(dinners, rows) });
+  assert.ok(!JSON.stringify(spec).includes('"Notes"'), 'the hidden field is not drawn');
+  assert.deepEqual(lensFor(dinners, []), {});
+  assert.deepEqual(lensFor('words', rows), { items: 10, hidden_fields: ['id'] }, 'only rows that need no field hold for an answer with none');
 });
