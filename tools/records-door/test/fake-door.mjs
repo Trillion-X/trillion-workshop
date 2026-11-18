@@ -364,7 +364,8 @@ export async function startFakeDoor({ signingKeys = {}, throttleFirst = 0, retry
   });
   await new Promise(done => server.listen(0, '127.0.0.1', done));
   const descriptor = join(mkdtempSync(join(tmpdir(), 'records-door-')), 'descriptor.json');
-  writeFileSync(descriptor, JSON.stringify({ url: `http://127.0.0.1:${server.address().port}/mcp`, resource: '@own-records', capability,
+  // The engine's own descriptor (trillion-rust account_rights/run_capability.rs): no `resource`, since each right names its own.
+  writeFileSync(descriptor, JSON.stringify({ url: `http://127.0.0.1:${server.address().port}/mcp`, capability,
     ...(fileRights.length ? { files_resource: FILES_RESOURCE } : {}), ...(runs.length ? { tools_resource: TOOLS_RESOURCE } : {}) }));
   // stored: the made-up files by name, the ones a run wrote among them.
   return { descriptor, calls, kept, stored, facts, capability, runsStarted, close: () => new Promise(done => server.close(done)) };

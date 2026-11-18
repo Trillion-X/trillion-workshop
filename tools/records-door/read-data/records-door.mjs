@@ -1,9 +1,12 @@
 // tools/records-door/read-data/records-door.mjs
 //
 // The client a Workshop tool uses to reach the person's own records through the door its run was handed. A row that
-// declares `invoke.records: { fd, rights: [{ kind, operations }] }` gets, on that descriptor, one JSON line
-// { url, resource, capability }. Every call is one `run_resource_operation` at that resource, sent to the door's
-// loopback address with the capability as its bearer. The capability is never printed, logged or returned.
+// declares `invoke.records: { fd, rights: [{ at, id, operations }] }` gets, on that descriptor, one JSON line
+// { url, capability, secrets_resource?, tools_resource? } (trillion-rust account_rights/run_capability.rs). Each right
+// names its own address (`at`), so the descriptor names none: a call that names no address goes to @own-records, the
+// address a right names when it names no other; a descriptor that does name `resource` (an older engine, a test) is
+// kept. Every call is one `run_resource_operation` at that address, sent to the door's loopback address with the
+// capability as its bearer. The capability is never printed, logged or returned.
 //
 //   const door = openRecordsDoor();                       reads descriptor 3
 //   await door.readRecord('post', 'post:abc')              -> { type, value }, or null
@@ -259,8 +262,10 @@ export function openBearerCall({ url, resource, capability, fetchImpl = fetch,
   return { call, callOnce };
 }
 
+const OWN_RECORDS = '@own-records';
+
 export function openBearerDoor({ descriptor = 3, ...options } = {}) {
-  const { url, resource, capability, files_resource: filesResource, tools_resource: toolsResource,
+  const { url, resource = OWN_RECORDS, capability, files_resource: filesResource, tools_resource: toolsResource,
     computer_actions: computerActions, protected_actions: protectedActions } = JSON.parse(readFileSync(descriptor, 'utf8'));
   return { ...openBearerCall({ ...options, url, resource, capability }),
     url, capability, filesResource, resource, toolsResource, computerActions, protectedActions };
