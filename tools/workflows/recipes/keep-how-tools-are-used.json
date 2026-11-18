@@ -1,0 +1,233 @@
+{
+  "about": "workflow:keep-how-tools-are-used: keeps, for each tool, every run (what it was for, its state, whether its contract passed, how long it took) and every report of its result, in the store the person or the owner keeps, with a run key that makes a repeated run once and a refused different one, and a report key with a revision so a late retry cannot restore an earlier result; and reads back per tool how often it ran and how it was reported. It replaces the tables of tools/keep-the-tables-that-record-how-tools-are (from-an-older-version/src/tool-telemetry.mjs, the Durable Object tables tool_run_receipts, tool_runs, tool_reports and tool_jobs, whose whole job was keeping these records). The similar-job count is computed by the search that asks, from the job rows this recipe reads (the cosine is a values-in function in find-pictures-by-colour-and-likeness/src/meaning.mjs), because it reaches no store (rule a-tool-is-only-what-the-store-cannot-do).",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-how-tools-are-used",
+        "label": "Keep how tools are used",
+        "job": "Keep, for each tool, its runs (the job it was for, its state, whether its contract passed, its seconds) and its reports (met, failed or unknown, from a trusted person source with a revision), in the store the owner keeps; a repeated run or report writes nothing, a different result under one key is refused, and a stale revision never restores an earlier result; read back how often each tool ran and was reported, per tool.",
+        "produces": "The store's own objects for tool runs, receipts, reports and job counts, proven on the example attempts, and each run or report kept, repeated or refused and read back.",
+        "source": {
+          "from": "tools/keep-the-tables-that-record-how-tools-are/from-an-older-version/src/tool-telemetry.mjs (the worker-retirement tag of the older repository; the four tables and their rules) and its schema setupToolTelemetry, read on trillion-workshop origin/main bb8022539",
+          "note": "Only the record keeping is the store's job: receipts (one identity per run key), runs, reports (one current result per report key, its revision), and job counts (runs and passes per tool and distinct job). The cosine that ranks similar jobs and the search that asks for the stats are not in the store: the search reads the job rows and counts them, and reaches no store of its own. The job key is the first 200 characters of the job's embedding text."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the tool usage is kept: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                },
+                "place": {
+                  "type": "string",
+                  "description": "Where in the store these are kept, when they already are"
+                }
+              }
+            },
+            "runs": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Runs to keep this run: {run_key (optional, at most 200 characters), tool_id, state, contract_passed, seconds (optional), day (optional, YYYY-MM-DD), bytes_fingerprint (optional), placement (optional), tool_version (optional), job_embedding (optional list of numbers)}"
+            },
+            "reports": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Reports to keep this run: {tool_id, result (met, failed or unknown), report_key and revision (both or neither), answered_by (must be \"person\" for a keyed report), attribution_basis (must be \"trusted_person_source\" for a keyed report), day (optional)}"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the tool usage is already kept (kept_in, or null) and the names of the objects that already keep it, and show them.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing, make the store's own objects in its own form, so that the store itself refuses what the intent refuses wherever it can (keys and checks): receipts (one row per run key, holding the run's identity, so a repeated key is recognised and a different one is refused), runs (day, tool_id, bytes_fingerprint, placement, state, contract_passed as 0 or 1, seconds), reports (day, tool_id, result, and for a keyed report report_key unique, revision at least 1; an unkeyed report is kept as history with no key), and job counts (one row per tool_id and job_key, holding the job's embedding text, runs and contract_passed, the job_key being the first 200 characters of the embedding text, or empty when a run has none). Grant only what the store's holder allows the login. Submit the names of the objects made, or the ones the look step found.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example attempts",
+            "do": "In a throwaway place in the same store, with the same objects, keep these attempts in order, each through the store's own objects. The example attempts, in order: [{\"kind\": \"run\", \"run\": {\"run_key\": \"run-1\", \"tool_id\": \"tool:a\", \"state\": \"done\", \"contract_passed\": true, \"seconds\": 1.5, \"day\": \"2026-11-10\", \"job_embedding\": [0.1, 0.2, 0.3]}}, {\"kind\": \"run\", \"run\": {\"run_key\": \"run-1\", \"tool_id\": \"tool:a\", \"state\": \"done\", \"contract_passed\": true, \"seconds\": 1.5, \"day\": \"2026-11-10\", \"job_embedding\": [0.1, 0.2, 0.3]}}, {\"kind\": \"run\", \"run\": {\"run_key\": \"run-1\", \"tool_id\": \"tool:a\", \"state\": \"failed\", \"contract_passed\": true, \"day\": \"2026-11-10\", \"job_embedding\": [0.1, 0.2, 0.3]}}, {\"kind\": \"run\", \"run\": {\"tool_id\": \"tool:a\", \"state\": \"done\", \"contract_passed\": false, \"day\": \"2026-11-11\", \"job_embedding\": [0.1, 0.2, 0.3]}}, {\"kind\": \"report\", \"report\": {\"tool_id\": \"tool:a\", \"result\": \"met\"}}, {\"kind\": \"report\", \"report\": {\"tool_id\": \"tool:a\", \"result\": \"met\", \"report_key\": \"task-1\", \"revision\": 1, \"answered_by\": \"person\", \"attribution_basis\": \"trusted_person_source\", \"day\": \"2026-11-12\"}}, {\"kind\": \"report\", \"report\": {\"tool_id\": \"tool:a\", \"result\": \"met\", \"report_key\": \"task-1\", \"revision\": 1, \"answered_by\": \"person\", \"attribution_basis\": \"trusted_person_source\", \"day\": \"2026-11-12\"}}, {\"kind\": \"report\", \"report\": {\"tool_id\": \"tool:a\", \"result\": \"failed\", \"report_key\": \"task-1\", \"revision\": 2, \"answered_by\": \"person\", \"attribution_basis\": \"trusted_person_source\", \"day\": \"2026-11-13\"}}, {\"kind\": \"report\", \"report\": {\"tool_id\": \"tool:a\", \"result\": \"met\", \"report_key\": \"task-1\", \"revision\": 1, \"answered_by\": \"person\", \"attribution_basis\": \"trusted_person_source\", \"day\": \"2026-11-12\"}}, {\"kind\": \"report\", \"report\": {\"tool_id\": \"tool:a\", \"result\": \"met\", \"report_key\": \"task-1\", \"revision\": 2, \"answered_by\": \"person\", \"attribution_basis\": \"trusted_person_source\", \"day\": \"2026-11-13\"}}, {\"kind\": \"report\", \"report\": {\"tool_id\": \"tool:b\", \"result\": \"met\", \"report_key\": \"task-1\", \"revision\": 3, \"answered_by\": \"person\", \"attribution_basis\": \"trusted_person_source\", \"day\": \"2026-11-14\"}}, {\"kind\": \"report\", \"report\": {\"tool_id\": \"tool:a\", \"result\": \"met\", \"report_key\": \"task-2\", \"revision\": 1, \"answered_by\": \"ai\", \"attribution_basis\": \"trusted_person_source\", \"day\": \"2026-11-14\"}}]. Rules: a run with a run_key already kept with the same identity (tool_id, bytes_fingerprint, placement, state, contract_passed, seconds, job_embedding, day, tool_version) is repeated and writes nothing; with a different identity it is refused. A run without a run_key is always kept. Every kept run adds one to the tool's job count for its job_key, and to its contract_passed count when contract_passed is true. An unkeyed report is kept as unattributed history. A keyed report needs answered_by \"person\" and attribution_basis \"trusted_person_source\", or it is refused. A keyed report whose report_key already names another tool is refused. A keyed report at the same revision with a different result is refused; the same result is repeated. A keyed report at a higher revision replaces the result and revision of that key; at a lower or equal revision it is repeated and changes nothing. A result other than met, failed or unknown is refused. Then answer for the tools tool:a and tool:b: per tool, runs (the sum of its job counts), contract_passed, reported_met and reported_failed (keyed reports only, each key's current result), and legacy_unattributed_reports (the count of unkeyed reports, only when above zero); and kept_count (the number of attempts kept). Then remove the throwaway place. Submit outcomes (one of kept, repeated or refused per attempt, in order, with the refusal's words for a refused one) and answer.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answer"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "answer": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each attempt is kept, repeated or refused as the intent says",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "kept",
+                    "repeated",
+                    "refused",
+                    "kept",
+                    "kept",
+                    "kept",
+                    "repeated",
+                    "kept",
+                    "repeated",
+                    "refused",
+                    "refused",
+                    "refused"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "The store's own objects give every expected answer",
+                "path": [
+                  "this",
+                  "answer"
+                ],
+                "values": [
+                  {
+                    "tool:a": {
+                      "runs": 2,
+                      "contract_passed": 1,
+                      "reported_met": 0,
+                      "reported_failed": 1,
+                      "legacy_unattributed_reports": 1
+                    },
+                    "tool:b": {
+                      "runs": 0,
+                      "contract_passed": 0,
+                      "reported_met": 0,
+                      "reported_failed": 0
+                    },
+                    "kept_count": 5
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's runs and reports",
+            "do": "Keep each item of runs, then each item of reports, through the store's own objects, in order, and read every kept record back. Submit kept (one entry per item: its run key or report key, and kept or repeated), refused (each refused item and the store's own words for why), and found (each tool's counts read back). With no items, submit empty lists.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept",
+                "refused",
+                "found"
+              ],
+              "properties": {
+                "kept": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "refused": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "found": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Every kept item is read back in the counts",
+                "path": [
+                  "this",
+                  "found"
+                ],
+                "values": [
+                  {}
+                ]
+              }
+            ]
+          }
+        ],
+        "erase": "On the owner's request the store deletes the runs, receipts, reports and job counts of the named tool, or of the named report key; a job counted in a search is removed from that search's next read, nothing else is kept about it."
+      }
+    }
+  ]
+}
