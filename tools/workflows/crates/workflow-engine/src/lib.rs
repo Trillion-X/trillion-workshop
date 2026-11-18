@@ -532,14 +532,9 @@ mod tests {
             "id": "scope-then-plan", "name": "Scope then plan", "kind": "workflow", "is_active": true, "version": 1,
             "steps": [
                 { "id": "scope", "kind": "ask", "config": { "name": "ai", "input": {}, "context": { "step_id": "scope" } } },
-                { "id": "plan", "kind": "ask", "config": { "name": "ai", "input": {}, "context": { "step_id": "plan" } } },
-                { "id": "plan#checks", "kind": "check", "config": { "subject": "plan", "rules": [
-                    { "kind": "subset-of", "says": "Every section is in scope", "path": ["this", "sections", "*"], "of": ["steps", "scope", "areas", "*"] },
-                    { "kind": "excludes-words", "says": "No advice", "path": ["this", "sections", "*"], "words": ["should"] },
-                    { "kind": "exists", "says": "Every tool named exists", "catalog": "tool", "path": ["this", "tools", "*"] }
-                ] } }
+                { "id": "plan", "kind": "ask", "config": { "name": "ai", "input": {}, "context": { "step_id": "plan" } } }
             ],
-            "edges": [{ "from": "scope", "to": "plan", "kind": "always" }, { "from": "plan", "to": "plan#checks", "kind": "always" }]
+            "edges": [{ "from": "scope", "to": "plan", "kind": "always" }]
         })).expect("definition decodes")
     }
 
@@ -576,58 +571,6 @@ mod tests {
             Arc::new(Unreachable { answers, unreachable: None })).await.expect("runs");
         assert_eq!(carried_on["status"], "completed", "{carried_on}");
         assert_eq!(carried_on["execution_context"]["steps"]["scope"]["output"]["areas"][0], "pricing", "the answer kept before the cut is the one used");
-    }
-
-    /// A host that knows which taker finished each job: a read of `{"catalog": "ran-job", "id"}` answers `{"taker"}`.
-    struct Takers(std::collections::HashMap<String, String>);
-    #[async_trait::async_trait]
-    impl Host for Takers {
-        async fn ask(&self, _: &str, _: Vec<u8>, context: Option<Vec<u8>>) -> Result<Vec<u8>, String> {
-            let step: Value = serde_json::from_slice(&context.unwrap_or_default()).unwrap_or(Value::Null);
-            let lanes: Vec<Value> = ["a", "b", "c"].iter().map(|lane| serde_json::json!({ "id": lane, "job": format!("run:dig:{lane}") })).collect();
-            let _ = step;
-            Ok(serde_json::to_vec(&serde_json::json!({ "lanes": lanes })).unwrap())
-        }
-        async fn read(&self, from: &str) -> Result<Vec<u8>, String> {
-            let wanted: Value = serde_json::from_str(from).map_err(|error| error.to_string())?;
-            match self.0.get(wanted["id"].as_str().unwrap_or_default()) {
-                Some(taker) if wanted["catalog"] == "ran-job" => Ok(serde_json::to_vec(&serde_json::json!({ "taker": taker })).unwrap()),
-                _ => Err("no such job".into()),
-            }
-        }
-    }
-
-    fn dig_with_lane_jobs() -> Definition {
-        serde_json::from_value(serde_json::json!({
-            "id": "dig", "name": "Dig", "kind": "workflow", "is_active": true, "version": 1,
-            "steps": [
-                { "id": "dig", "kind": "ask", "config": { "name": "ai", "input": {}, "context": { "step_id": "dig" } } },
-                { "id": "dig#checks", "kind": "check", "config": { "subject": "dig", "rules": [
-                    { "kind": "lane-jobs", "says": "Every lane comes from its own job, finished by its own taker", "path": ["this", "lanes"],
-                      "lane": "id", "job": "job", "lanes": ["a", "b", "c"], "prefix": "run:dig:" }
-                ] } }
-            ],
-            "edges": [{ "from": "dig", "to": "dig#checks", "kind": "always" }]
-        })).expect("definition decodes")
-    }
-
-    async fn dig_with(takers: &[(&str, &str)]) -> Value {
-        let held = takers.iter().map(|(job, taker)| (job.to_string(), taker.to_string())).collect();
-        run_definition(vec![dig_with_lane_jobs()], "dig", serde_json::json!({}), "person:test", "example", Arc::new(Takers(held))).await.expect("runs")
-    }
-
-    #[tokio::test]
-    async fn lane_jobs_pass_only_when_each_lane_job_ran_under_a_different_taker() {
-        let all = dig_with(&[("run:dig:a", "ai:one"), ("run:dig:b", "ai:two"), ("run:dig:c", "ai:three")]).await;
-        assert_eq!(all["status"], "completed", "{all}");
-        let alone = dig_with(&[("run:dig:a", "ai:one"), ("run:dig:b", "ai:one"), ("run:dig:c", "ai:one")]).await;
-        assert_eq!(alone["status"], "failed", "one taker for three lanes must fail: {alone}");
-        assert!(alone.to_string().contains("ai:one finished lanes a, b, c"), "{alone}");
-        let shared = dig_with(&[("run:dig:a", "ai:one"), ("run:dig:b", "ai:one"), ("run:dig:c", "ai:three")]).await;
-        assert_eq!(shared["status"], "failed", "{shared}");
-        let not_run = dig_with(&[("run:dig:a", "ai:one"), ("run:dig:b", "ai:two")]).await;
-        assert_eq!(not_run["status"], "failed", "a lane whose job did not run fails: {not_run}");
-        assert!(not_run.to_string().contains("c: its job did not run"), "{not_run}");
     }
 
     fn wait_then_ask(condition: Value) -> Definition {
@@ -990,15 +933,6 @@ mod tests {
 
         let mut answers = std::collections::HashMap::new();
         answers.insert("scope".to_string(), serde_json::json!({ "areas": ["pricing", "support"] }));
-        answers.insert("plan".to_string(), serde_json::json!({ "sections": ["pricing", "hiring", "you should buy"], "tools": ["tool:real", "tool:ghost"] }));
-        let refused = run_definition(vec![scope_then_plan()], "scope-then-plan", serde_json::json!({}), "person:test", "example", Arc::new(Answers(answers.clone(), vec!["tool:real".into()]))).await.expect("runs");
-        assert_eq!(refused["status"], "failed", "{refused}");
-        let problems = refused["execution_context"]["steps"]["plan#checks"]["output"]["problems"].as_array().expect("problems are data").clone();
-        assert_eq!(problems.len(), 3, "{problems:?}");
-        assert!(problems[0].as_str().unwrap().contains("\"hiring\" is not one of them"), "{problems:?}");
-        assert!(problems[1].as_str().unwrap().contains("says \"should\""), "{problems:?}");
-        assert!(problems[2].as_str().unwrap().contains("\"tool:ghost\" is not a tool this account can find"), "{problems:?}");
-
         answers.insert("plan".to_string(), serde_json::json!({ "sections": ["pricing"], "tools": ["tool:real"] }));
         let done = run_definition(vec![scope_then_plan()], "scope-then-plan", serde_json::json!({}), "person:test", "example", Arc::new(Answers(answers, vec!["tool:real".into()]))).await.expect("runs");
         assert_eq!(done["status"], "completed", "{done}");

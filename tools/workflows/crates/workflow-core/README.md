@@ -76,7 +76,6 @@ The orchestration layer is graph-native. Topology lives in `StepEdge`; node beha
 | **`action`** | Execute a nested `Definition` by ID | `{ definition_id, input?, output_name? }` | Loads referenced definition and executes its steps |
 | **`loop`** | Iterate over a collection | `{ source, item_var, max_iterations, definition_id }` | Re-executes a nested definition per iteration |
 | **`wait`** | Temporal pause | `{ wait_condition }` | Suspends until condition is satisfied |
-| **`check`** | Hold a step's output against the run | `{ subject, rules: [{ kind, says, path, ... }] }` | Passes when every rule holds (subset-of, covers, mentioned-in, excludes-words, distinct-at-least, exists); otherwise fails with `CheckFailed`, each problem in plain words (`src/executor/checks.rs`) |
 
 An `ask` answered `{"$kind": "not-answered-yet"}` (`NOT_ANSWERED_YET`) waits: the step is recorded `paused` with that reply as its output, nothing after it runs, independent branches still do, and the run ends `paused`. A host that keeps the answers it gave runs the same definition again to go on from there (the host's own runner). `{"$kind": "binding", "values": [path], "take": "all"?}` reads every value at a path, `"*"` stepping into lists.
 

@@ -427,6 +427,7 @@
                   "kit-observe.json",
                   "kit-template.json",
                   "kits",
+                  "read-data/check-bindings.mjs",
                   "read-data/draft-a-kit.mjs",
                   "read-data/kit-for-a-run.mjs",
                   "read-data/kit-problems.mjs",
@@ -434,6 +435,7 @@
                   "read-data/recipe-rows.mjs",
                   "read-data/sql.mjs",
                   "read-data/step-outputs.mjs",
+                  "recipe-check-kinds.json",
                   "sql"
                 ],
                 "at": "/opt/workflows"

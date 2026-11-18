@@ -63,7 +63,6 @@ fn legacy_exhaustive_context_and_error_consumers_still_compile() {
             WorkflowError::PayloadTooLarge { .. } => "PayloadTooLarge",
             WorkflowError::ResourcePolicyInvalid { .. } => "ResourcePolicyInvalid",
             WorkflowError::Waiting { .. } => "Waiting",
-            WorkflowError::CheckFailed { .. } => "CheckFailed",
             WorkflowError::Internal { .. } => "Internal",
         }
     }

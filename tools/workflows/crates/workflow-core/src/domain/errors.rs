@@ -254,11 +254,6 @@ pub enum WorkflowError {
     #[serde(rename = "WAITING")]
     Waiting { step_id: String, detail: serde_json::Value },
 
-    /// A check step found values that do not hold; `problems` says each one in plain words.
-    #[error("Step '{step_id}' did not pass its checks: {}", problems.join(" | "))]
-    #[serde(rename = "CHECK_FAILED")]
-    CheckFailed { step_id: String, problems: Vec<String> },
-
     /// Internal error (catch-all for unexpected failures).
     #[error("Internal error: {reason}. Hint: {hint}")]
     #[serde(rename = "INTERNAL")]
@@ -306,7 +301,6 @@ impl WorkflowError {
             Self::PayloadTooLarge { .. } => "FE_PAYLOAD_TOO_LARGE",
             Self::ResourcePolicyInvalid { .. } => "FE_RESOURCE_POLICY_INVALID",
             Self::Waiting { .. } => "WAITING",
-            Self::CheckFailed { .. } => "CHECK_FAILED",
             Self::Internal { .. } => "INTERNAL",
         }
     }
@@ -349,7 +343,6 @@ impl WorkflowError {
             Self::UnknownTransform { op, .. } => op,
             Self::SystemProtected => "System definition cannot be modified",
             Self::Waiting { .. } => "The answer to this step is not there yet",
-            Self::CheckFailed { .. } => "The step's output did not pass its checks",
         }
     }
 
@@ -395,7 +388,6 @@ impl WorkflowError {
                 "Yield — orchestrator will reschedule after probe resolves"
             }
             Self::Waiting { .. } => "Run the definition again once the answer is there; earlier answers are kept by the host",
-            Self::CheckFailed { .. } => "Send output whose values hold against each check",
         }
     }
 
@@ -417,7 +409,6 @@ impl WorkflowError {
     pub fn evidence(&self) -> serde_json::Value {
         match self {
             Self::Waiting { detail, .. } => detail.clone(),
-            Self::CheckFailed { problems, .. } => serde_json::json!({ "problems": problems }),
             Self::PrimitiveDispatchFailed { primitive, reason, .. } => {
                 serde_json::json!({ "dispatch_failed": { "dispatch": primitive, "reason": reason } })
             }

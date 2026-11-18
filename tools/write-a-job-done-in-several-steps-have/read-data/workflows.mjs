@@ -14,8 +14,10 @@
 //     `said`, when given, is the work as the person sees it, kept on the handoff apart from the job the AI reads; its
 //     `once_per`, when given, names the item the work is about, so every run about that item reaches one handoff; its
 //     `case_id` is the decision the work is worked through);
-//   - a step's `checks` become a `check` step over its output (crates/workflow-core/src/executor/checks.rs): subset-of,
-//     covers, mentioned-in, excludes-words, distinct-at-least, exists.
+//   - a step's `checks` become ordinary steps after it (tools/workflows/read-data/check-bindings.mjs): a `return` step
+//     that says rule by rule whether each holds, judged by the bindings its kind row in recipe-check-kinds.json gives,
+//     and a `fail` step reached when one does not, naming the rule and the values that break it; a check that looks
+//     things up adds a `loop` of reads, whose one-step definitions travel in the definition's `uses`.
 // Every answer must also fit the shape its step declares (`submit`, a JSON Schema) before the engine is given it.
 //
 // The engine runs a definition from the start each time something changes (a run starts, an output is sent, the run is
@@ -42,6 +44,8 @@
 // for its own person, or a skill row it started from). That is the only edge kept; a workflow's variations are every
 // row that names it, read from the shelf each time, so the graph grows as AIs save variations and is never written twice.
 import { blake3 } from '@noble/hashes/blake3.js';
+import { checkProblems, checkSteps, refusalsOf } from '../../workflows/read-data/check-bindings.mjs';
+
 import { bytesToHex } from '@noble/hashes/utils.js';
 import { schemaProblems } from '../../keep-and-wake-ai-sessions-on-this-computer/src/workshop.mjs';
 import { finishedRuns, learnedRecipe, learnedSettings, learnedWords, publicShape } from '../../learn-a-workflow-from-a-job/src/learned-workflows.mjs';
@@ -79,36 +83,7 @@ export class WorkflowError extends Error {
   constructor(message, { problems = null, next_call = null } = {}) { super(message); this.problems = problems; this.next_call = next_call; }
 }
 
-const CHECK_KINDS = ['subset-of', 'covers', 'mentioned-in', 'excludes-words', 'distinct-at-least', 'exists'];
-const CATALOGS = ['workflow', 'tool', 'list-row', 'record'];
-const ROOTS = ['this', 'input', 'steps'];
-const PATH_FIELDS = ['path', 'of', 'in'];
 const STEP_ID = /^[a-z0-9][a-z0-9_-]*$/;
-
-// Every problem with one list of check rules (the engine's `check` step config), for step `stepId` whose earlier
-// steps are `earlier`.
-function checkProblems(checks, name, stepId, earlier) {
-  const problems = [];
-  for (const [at, check] of (checks ?? []).entries()) {
-    const where = `${name}.checks[${at}]`;
-    if (!object(check) || !CHECK_KINDS.includes(check.kind)) { problems.push(`${where}.kind must be one of: ${CHECK_KINDS.join(', ')}.`); continue; }
-    if (!nonempty(check.says)) problems.push(`${where}.says must say, in plain words, what the check asks for.`);
-    for (const field of PATH_FIELDS) {
-      if (check[field] === undefined) continue;
-      const paths = Array.isArray(check[field]) && Array.isArray(check[field][0]) ? check[field] : [check[field]];
-      for (const path of paths) if (!Array.isArray(path) || !ROOTS.includes(path[0]) || path.some(key => typeof key !== 'string')) problems.push(`${where}.${field} must be a list of keys starting with ${ROOTS.map(root => `"${root}"`).join(', ')}.`);
-      else if (path[0] === 'steps' && (path[1] === stepId || !earlier.has(path[1]))) problems.push(`${where}.${field} reads step "${path[1]}", which is not an earlier step.`);
-    }
-    if (!Array.isArray(check.path)) problems.push(`${where}.path is required.`);
-    if (check.kind === 'subset-of' && !Array.isArray(check.of)) problems.push(`${where}.of is required.`);
-    if (check.kind === 'covers' && !Array.isArray(check.of) && !Array.isArray(check.values)) problems.push(`${where} needs of or values.`);
-    if (check.kind === 'mentioned-in' && !Array.isArray(check.in)) problems.push(`${where}.in is required.`);
-    if (check.kind === 'excludes-words' && !(Array.isArray(check.words) && check.words.length && check.words.every(nonempty))) problems.push(`${where}.words must list the words to keep out.`);
-    if (check.kind === 'distinct-at-least' && !(Number.isInteger(check.count) && check.count > 0)) problems.push(`${where}.count must be a whole number above 0.`);
-    if (check.kind === 'exists' && !CATALOGS.includes(check.catalog)) problems.push(`${where}.catalog must be one of: ${CATALOGS.join(', ')}.`);
-  }
-  return problems;
-}
 
 // What is wrong with a recipe row, every problem at once. A recipe that passes can be run by any account.
 export function recipeProblems(recipe) {
@@ -152,11 +127,7 @@ function definitionProblems(definition) {
     if (step.kind === 'ask' && !nonempty(step.config?.name)) problems.push(`${name}.config.name must say who answers: "ai", a tool id, or "agent:<agent_id>".`);
     if (step.kind === 'ask') problems.push(...pinProblems(step.config?.context?.pinned, `${name}.config.context.pinned`));
     if (step.kind === 'ask' && step.config?.name === 'ai' && !(nonempty(step.config.input?.do) && object(step.config.input?.submit) && step.config.input.submit.type === 'object')) problems.push(`${name}.config.input must say what the AI does (do) and the shape it hands back (submit, a JSON Schema with "type": "object").`);
-    if (step.kind === 'check') {
-      if (!nonempty(step.config?.subject)) problems.push(`${name}.config.subject must name the step whose output is checked.`);
-      if (!Array.isArray(step.config?.rules)) problems.push(`${name}.config.rules must list the checks.`);
-      else problems.push(...checkProblems(step.config.rules, name, step.config.subject, new Set(definition.steps.map(item => item?.id).filter(id => id !== step.config.subject))));
-    }
+    if (step.kind === 'check') problems.push(`${name} is a check step, which the engine no longer has: put the rules in a step's \`checks\`, or judge them with a \`return\` step and an \`on_result\` edge to a \`fail\` step.`);
   });
   if (!Array.isArray(definition.edges ?? [])) problems.push('definition.edges must be a list of { from, to, kind }.');
   for (const [index, edge] of (definition.edges ?? []).entries()) if (!object(edge) || !ids.has(edge.from) || !ids.has(edge.to)) problems.push(`definition.edges[${index}] must join two steps of the definition.`);
@@ -204,19 +175,22 @@ export function definitionOf(row) {
   }
   const steps = [];
   const edges = [];
-  let last = null;
+  const uses = [];
+  let onwards = null;
   for (const step of row.steps) {
     const shown = { step_id: step.id, title: step.title ?? step.id, do: step.do, submit: step.submit, checks: (step.checks ?? []).map(check => check.says), ...(step.actor_policy ? { actor_policy: step.actor_policy } : {}), ...(step.run_tool?.pinned ? { pinned: step.run_tool.pinned } : {}) };
     steps.push({ id: step.id, kind: 'ask', config: { name: step.run_tool?.tool_id ?? 'ai', input: step.run_tool ? bindingsOf(step.run_tool.input ?? {}) : { do: step.do, submit: step.submit, checks: shown.checks }, context: shown } });
-    if (last) edges.push({ from: last, to: step.id, kind: 'always' });
-    last = step.id;
+    if (onwards) edges.push(onwards(step.id));
+    onwards = to => ({ from: step.id, to, kind: 'always' });
     if (step.checks?.length) {
-      steps.push({ id: `${step.id}#checks`, kind: 'check', config: { subject: step.id, rules: step.checks } });
-      edges.push({ from: last, to: `${step.id}#checks`, kind: 'always' });
-      last = `${step.id}#checks`;
+      const judged = checkSteps(step.id, step.checks);
+      steps.push(...judged.steps);
+      edges.push(...judged.edges);
+      uses.push(...judged.uses.filter(used => !uses.some(known => known.id === used.id)));
+      onwards = judged.onwards;
     }
   }
-  return { ...shell, steps, edges };
+  return { ...shell, steps, edges, ...(uses.length ? { uses } : {}) };
 }
 
 // The asks of a row in the order they are written: the steps a run shows as done or left.
@@ -664,7 +638,7 @@ export function makeWorkflows({ shared, sourced = null, sourceReads = null, sour
     // preserves read rights and lets current child DATA converge without
     // changing the frozen root recipe for this run.
     const definitionsForRun = async () => {
-      const definitions = new Map([[definition.id, definition]]);
+      const definitions = new Map([[definition.id, definition], ...(definition.uses ?? []).map(used => [used.id, used])]);
       const pending = [definition];
       while (pending.length) {
         const current = pending.pop();
@@ -692,6 +666,7 @@ export function makeWorkflows({ shared, sourced = null, sourceReads = null, sour
           if (!row) continue;
           const child = definitionOf(row);
           definitions.set(child.id, child);
+          for (const used of child.uses ?? []) definitions.set(used.id, used);
           pending.push(child);
         }
       }
@@ -739,7 +714,7 @@ export function makeWorkflows({ shared, sourced = null, sourceReads = null, sour
       }
       const steps = result.execution_context?.steps ?? {};
       // A check that failed refuses the answer it checked; every other answer the engine got past is kept.
-      const refusals = new Map(definition.steps.filter(step => step.kind === 'check' && steps[step.id]?.status === 'failed').map(step => [step.config.subject, steps[step.id].output?.problems ?? [steps[step.id].error]]));
+      const refusals = refusalsOf(definition, steps);
       let refused = actorRefusal;
       const at = now().toISOString();
       for (const [step_id, answer] of answered) {

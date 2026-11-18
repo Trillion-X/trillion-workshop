@@ -9,9 +9,9 @@
 //
 // Invariants:
 //   - A recipe with its own `definition` runs as that definition; ordered steps run as definitionOf makes them (an ask
-//     per step, a check step for its checks).
-//   - An answer is given by step id; a step's checks run on the engine (checks.rs), so a bad answer fails the run there
-//     with the engine's own words, never judged here.
+//     per step, and after a step with checks the steps that judge them, with the lookups' definitions in `uses`).
+//   - An answer is given by step id; a step's checks run on the engine as ordinary steps, so a bad answer fails the
+//     run there, naming the rule and the values that break it, never judged here.
 import { readFileSync } from 'node:fs';
 import { definitionOf } from './workflows.mjs';
 import { recipeFromRows } from '../../workflows/read-data/recipe-rows.mjs';
@@ -46,7 +46,7 @@ export async function runAWorkflow({ recipe = null, row = null, steps = [], inpu
   const payload = recipeOf({ recipe, row, steps });
   const definition = definitionOf(payload);
   const runner = makeWorkflowDefinitionRunner(engine);
-  const run = await runner.runWorkflowDefinition({ definitions: [definition], workflow_id: definition.id, input, answers, partition });
+  const run = await runner.runWorkflowDefinition({ definitions: [definition, ...(definition.uses ?? [])], workflow_id: definition.id, input, answers, partition });
   return { definition, run };
 }
 

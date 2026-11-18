@@ -214,11 +214,43 @@ impl EdgeHandler for OnFailureEdgeHandler {
     }
 }
 
+/// The first value a condition selects from somewhere an edge cannot see. An edge sees only `input`, the outcome of
+/// the step it leaves from; any other run scope (`steps`, `loop`, `context`, ...) would select nothing and make the
+/// condition silently false, so it is refused instead, naming what it reads.
+fn unseen_by_an_edge(condition: &Value) -> Option<String> {
+    match condition {
+        Value::Object(map) => {
+            if map.get("$kind").and_then(Value::as_str) == Some("binding") {
+                let from = map.get("select").and_then(|select| select.get("from")).and_then(Value::as_str);
+                if let Some(from @ ("steps" | "loop" | "context" | "start" | "change" | "ambient")) = from {
+                    return Some(format!("{from} {}", map.get("select").map(Value::to_string).unwrap_or_default()));
+                }
+                if let Some(path) = map.get("values").and_then(Value::as_array) {
+                    let root = path.first().and_then(|first| first.as_array().and_then(|inner| inner.first()).or(Some(first)));
+                    if root.and_then(Value::as_str) != Some("input") {
+                        return Some(format!("values {}", Value::Array(path.clone())));
+                    }
+                }
+            }
+            map.values().find_map(unseen_by_an_edge)
+        }
+        Value::Array(items) => items.iter().find_map(unseen_by_an_edge),
+        _ => None,
+    }
+}
+
 fn evaluate_step_output_condition(
     source_id: &str,
     outcome: &StepOutput,
     condition: &Value,
 ) -> Result<bool, WorkflowError> {
+    if let Some(unseen) = unseen_by_an_edge(condition) {
+        return Err(WorkflowError::ConditionEvaluationFailed {
+            step_id: source_id.to_string(),
+            reason: format!("An edge condition leaving '{source_id}' reads {unseen}, which an edge cannot see"),
+            hint: "An edge condition sees only `input`: the step it leaves from (input.output, input.status, input.error). To branch on another step's value, return it from a step first and branch on that step's output.".to_string(),
+        });
+    }
     let input = serde_json::to_value(outcome).map_err(|error| {
         WorkflowError::ConditionEvaluationFailed {
             step_id: source_id.to_string(),
@@ -291,4 +323,31 @@ pub fn default_join_registry() -> JoinHandlerRegistry {
     registry.insert("any".to_string(), Box::new(AnyJoinHandler));
     registry.insert("all".to_string(), Box::new(AllJoinHandler));
     registry
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::domain::types::ExecutionStatus;
+
+    fn outcome(output: Value) -> StepOutput {
+        StepOutput { output, status: ExecutionStatus::Completed, error: None, duration_ms: 0 }
+    }
+
+    #[test]
+    fn a_condition_on_what_the_step_returned_is_judged() {
+        let condition = serde_json::json!({ "$kind": "binding", "select": { "from": "input", "path": "output.posts" }, "transform": [{ "op": "op:core.gte", "args": { "value": 10 } }] });
+        assert!(OnResultEdgeHandler.evaluate("days", &outcome(serde_json::json!({ "posts": 12 })), &Some(condition.clone())).unwrap());
+        assert!(!OnResultEdgeHandler.evaluate("days", &outcome(serde_json::json!({ "posts": 3 })), &Some(condition)).unwrap());
+    }
+
+    #[test]
+    fn a_condition_reading_another_step_is_refused_naming_it_never_silently_false() {
+        let condition = serde_json::json!({ "$kind": "binding", "select": { "from": "steps", "key": "size", "path": "output.posts" }, "transform": [{ "op": "op:core.gte", "args": { "value": 10 } }] });
+        let refused = OnResultEdgeHandler.evaluate("days", &outcome(serde_json::json!({})), &Some(condition)).unwrap_err();
+        assert!(refused.to_string().contains("which an edge cannot see"), "{refused}");
+        assert!(refused.to_string().contains("size"), "{refused}");
+        let nested = serde_json::json!({ "$kind": "binding", "select": { "from": "input", "path": "output.n" }, "transform": [{ "op": "op:core.eq", "args": { "value": { "$kind": "binding", "values": ["steps", "size", "n"] } } }] });
+        assert!(OnResultEdgeHandler.evaluate("days", &outcome(serde_json::json!({ "n": 1 })), &Some(nested)).is_err());
+    }
 }

@@ -190,6 +190,11 @@ fn register_other_names(registry: &mut OperatorRegistry) -> Result<(), RegistryE
         ops_core::structure::merge(input, &source, ctx_fast()).map_err(op_err)
     }))?;
 
+    // A value as text: text as it is, a number without a needless ".0", true/false, null
+    registry.register(FnOperator::new("op:core.to_string", |input, _args, _ctx| {
+        ops_core::conversion::to_string(input, ctx_fast()).map_err(op_err)
+    }))?;
+
     // Text joined: `values` in order, or `prefix` + the value + `suffix`
     registry.register(FnOperator::new("op:core.concat", |input, args, _ctx| {
         if args.is_some_and(|args| !get_arg(Some(args), "values").is_null()) {
@@ -1189,6 +1194,9 @@ fn register_array_operators(registry: &mut OperatorRegistry) -> Result<(), Regis
 
     registry.register(FnOperator::new("op:core.append", |input, args, _ctx| {
         array::append(input, &get_arg(args, "value"), ctx_fast()).map_err(op_err)
+    }))?;
+    registry.register(FnOperator::new("op:core.concat_arrays", |input, args, _ctx| {
+        array::concat_arrays(input, &get_arg(args, "value"), ctx_fast()).map_err(op_err)
     }))?;
     registry.register(FnOperator::new("op:core.take", |input, args, _ctx| {
         array::take(input, &get_arg(args, "count"), ctx_fast()).map_err(op_err)

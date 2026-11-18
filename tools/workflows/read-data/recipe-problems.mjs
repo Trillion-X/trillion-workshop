@@ -6,6 +6,9 @@ import { wakeProblems, WAKE_VOCABULARY } from './wake-problems.mjs';
 import { agentProblems, runsLaneJobs } from './step-agents.mjs';
 import { conditionProblems, FIRES_WHEN } from './fires-when.mjs';
 import { stepOutputsProblems } from './step-outputs.mjs';
+import { CHECK_VOCABULARY, checkProblems } from './check-bindings.mjs';
+
+export { CHECK_VOCABULARY };
 
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const nonempty = value => typeof value === 'string' && value.trim().length > 0;
@@ -63,8 +66,6 @@ export function stepAnatomyProblems(step, { name = 'step', judged = step?.judged
 }
 const PIN = /^1f:[a-f0-9]{64}$/;
 
-// The check vocabulary (kinds, the fields each takes, roots, catalogs) is DATA, not code: adding a kind is adding a row.
-export const CHECK_VOCABULARY = JSON.parse(readFileSync(new URL('../recipe-check-kinds.json', import.meta.url), 'utf8'));
 const STEP_ID = /^[a-z0-9][a-z0-9_-]*$/;
 
 // The tools the host itself offers a person's AI, as DATA (host-tools.json): a recipe may name them though no tool row
@@ -121,68 +122,6 @@ function actorPolicyProblems(policy, { name, step_id, asks, prior }) {
   for (const id of refs) {
     if (id === step_id || !prior(id)) problems.push(`${name}.actor_policy.distinct_from names ${id}, which is not a prior dependency.`);
     if (asks.get(id)?.policy?.authenticated !== true) problems.push(`${name}.actor_policy.distinct_from requires authenticated actor evidence on ${id}.`);
-  }
-  return problems;
-}
-
-// Whether a value has a shape a check field can take. The shapes are the closed set of JSON value forms.
-const SHAPES = {
-  list: value => Array.isArray(value),
-  words: value => Array.isArray(value) && value.length > 0 && value.every(nonempty),
-  count: value => Number.isInteger(value) && value > 0,
-  key: value => nonempty(value),
-  catalog: (value, vocabulary) => vocabulary.catalogs.some(row => row.catalog === value),
-};
-
-// The JSON Schema a path's keys walk down, or undefined once the schema stops saying (no properties, no items): a
-// list key `*` goes to `items`, any other key to `properties`. Only a schema that lists its properties can refuse a key.
-function schemaAt(schema, keys) {
-  let at = schema;
-  for (const key of keys) {
-    if (!object(at)) return { known: false };
-    if (key === '*') { if (!object(at.items)) return { known: false }; at = at.items; continue; }
-    if (!object(at.properties) || at.additionalProperties !== undefined && at.additionalProperties !== false) return { known: false };
-    if (!(key in at.properties)) return { known: true, missing: key };
-    at = at.properties[key];
-  }
-  return { known: true };
-}
-
-// Every problem with the keys of a path-shaped field: a list of keys (or a list of such lists) from a root, reading only
-// earlier steps, and naming only fields the schema it reads declares (the step's or an earlier step's submit, or the
-// input schema), so a check can never read a field nothing hands back.
-function pathProblems(value, where, field, stepId, earlier, vocabulary, schemas) {
-  const roots = vocabulary.roots.map(row => row.root);
-  const problems = [];
-  const paths = Array.isArray(value) && Array.isArray(value[0]) ? value : [value];
-  for (const path of paths) {
-    if (!Array.isArray(path) || !roots.includes(path[0]) || path.some(key => typeof key !== 'string')) { problems.push(`${where}.${field} must be a list of keys starting with ${roots.map(root => `"${root}"`).join(', ')}.`); continue; }
-    if (path[0] === 'steps' && (path[1] === stepId || !earlier.has(path[1]))) { problems.push(`${where}.${field} reads step "${path[1]}", which is not an earlier step.`); continue; }
-    const [schema, keys] = path[0] === 'this' ? [schemas?.this, path.slice(1)] : path[0] === 'input' ? [schemas?.input, path.slice(1)] : [schemas?.steps?.get(path[1]), path.slice(2)];
-    const found = schemaAt(schema, keys);
-    if (found.missing) problems.push(`${where}.${field} reads "${found.missing}", which ${path[0] === 'steps' ? `step "${path[1]}"` : path[0] === 'this' ? 'this step' : 'the input'} does not declare.`);
-  }
-  return problems;
-}
-
-// Every problem with one list of check rules (the engine's `check` step config), for step `stepId` whose earlier
-// steps are `earlier`. What a kind takes comes from its row in the vocabulary; there is no branch on a kind's name.
-function checkProblems(checks, name, stepId, earlier, vocabulary, schemas) {
-  const problems = [];
-  const kinds = new Map(vocabulary.kinds.map(row => [row.kind, row]));
-  for (const [at, check] of (checks ?? []).entries()) {
-    const where = `${name}.checks[${at}]`;
-    const row = object(check) ? kinds.get(check.kind) : undefined;
-    if (!row) { problems.push(`${where}.kind must be one of: ${[...kinds.keys()].join(', ')}.`); continue; }
-    if (!nonempty(check.says)) problems.push(`${where}.says must say, in plain words, what the check asks for.`);
-    const refused = (field, refusal) => `${where}.${field} ${(refusal ?? 'is not the right shape.').replace('{catalogs}', vocabulary.catalogs.map(entry => entry.catalog).join(', '))}`;
-    for (const { field, shape, required, refusal } of row.fields) {
-      const value = check[field];
-      if (value === undefined) { if (required) problems.push(refused(field, refusal)); continue; }
-      if (shape === 'path') problems.push(...pathProblems(value, where, field, stepId, earlier, vocabulary, schemas));
-      else if (!SHAPES[shape](value, vocabulary)) problems.push(refused(field, refusal));
-    }
-    for (const { fields, refusal } of row.one_of ?? []) if (fields.every(field => !(field in check))) problems.push(`${where} ${refusal}`);
   }
   return problems;
 }

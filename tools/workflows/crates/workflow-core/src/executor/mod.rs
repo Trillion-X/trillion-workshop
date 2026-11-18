@@ -51,7 +51,6 @@
 
 pub mod automation;
 pub mod budget;
-pub mod checks;
 pub mod context;
 pub mod interactive;
 pub mod polling;

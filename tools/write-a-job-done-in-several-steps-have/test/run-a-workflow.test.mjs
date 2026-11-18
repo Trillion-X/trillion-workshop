@@ -30,7 +30,7 @@ const input = { allowed: ['rye', 'wheat'] };
 
 test('(a) a recipe row and its step rows run on the engine to paused at the first ask', async () => {
   const { definition, run } = await runAWorkflow({ row, steps, input });
-  assert.deepEqual(definition.steps.map(step => `${step.kind} ${step.id}`), ['ask pick', 'check pick#checks', 'ask bake']);
+  assert.deepEqual(definition.steps.map(step => `${step.kind} ${step.id}`), ['ask pick', 'return pick#checks', 'return pick#wrong', 'fail pick#refused', 'ask bake']);
   assert.equal(run.status, 'paused');
   assert.deepEqual(run.waiting.map(wait => wait.step_id), ['pick']);
   assert.equal(run.waiting[0].input.do, 'Pick the flours the card names.');
@@ -46,7 +46,7 @@ test('(b) with an answer for every step, the run completes', async () => {
 test('(c) a subset-of check fails a bad answer on the engine, naming the value', async () => {
   const { run } = await runAWorkflow({ row, steps, input, answers: { pick: { flours: ['rye', 'sawdust'] }, bake: { done: true } } });
   assert.equal(run.status, 'failed');
-  assert.match(run.error_message, /Only flours the card names \("sawdust" is not one of them\)/);
+  assert.match(run.error_message, /Only flours the card names \("sawdust"\)/);
 });
 
 test('(d) a row holding its own definition runs as that definition', async () => {

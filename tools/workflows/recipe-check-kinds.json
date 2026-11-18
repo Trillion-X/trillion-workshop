@@ -1,124 +1,2204 @@
 {
-  "about": "The vocabulary of recipe checks. A check is { kind, says, ...the fields its kind row names }. Adding a check kind is adding a row here: the validator reads every rule from the row. Field shapes: path = a list of keys starting at one of the roots (and reading only earlier steps); the `of` field of subset-of, covers and differs-from may also be a list of such paths, whose values are taken together, words = a non-empty list of non-empty strings, count = a whole number above 0, catalog = one of the catalogs, list = any list.",
+  "about": "The vocabulary of recipe checks. A check is { kind, says, ...the fields its kind row names }. Adding a check kind is adding a row here: the validator reads every rule from the row. Field shapes: path = a list of keys starting at one of the roots (and reading only earlier steps); the `of` field of subset-of, covers and differs-from may also be a list of such paths, whose values are taken together, words = a non-empty list of non-empty strings, count = a whole number above 0, catalog = one of the catalogs, list = any list. A kind row's `wrong` is the binding whose value lists the values that break the rule (empty when it holds), and `holds`, when given, the binding that says whether it holds faster than `wrong` can; without `holds`, a rule holds when `wrong` is empty. In them {\"$values\": <field>, \"transform\"?} is the values at the rule's path in that field (the `this` root is the checked step's output; `values` stands in for `of` when the rule lists values instead), and {\"$fill\": <field>} is the rule's own value of that field. They are evaluated by the one shared evaluator every engine uses. A kind that has to look things up has `reads`: for each value of `each` the engine reads the address `from` builds from the value (the loop item), and {\"$read\": true, \"transform\"?} in its bindings is the list of what each read answered, a read that failed being {\"tolerated_error\": {\"item\": <the value>, ...}}.",
   "roots": [
-    { "root": "this", "meaning": "The output of the step the check belongs to." },
-    { "root": "input", "meaning": "The input the person gave the workflow." },
-    { "root": "steps", "meaning": "The output of an earlier step; the key after it is that step's id." }
+    {
+      "root": "this",
+      "meaning": "The output of the step the check belongs to."
+    },
+    {
+      "root": "input",
+      "meaning": "The input the person gave the workflow."
+    },
+    {
+      "root": "steps",
+      "meaning": "The output of an earlier step; the key after it is that step's id."
+    }
   ],
   "catalogs": [
-    { "catalog": "workflow", "meaning": "A workflow recipe the account can run." },
-    { "catalog": "tool", "meaning": "A tool the host offers." },
-    { "catalog": "list-row", "meaning": "A row in one of the account's lists." },
-    { "catalog": "record", "meaning": "A record in the account's data." },
-    { "catalog": "ran-job", "meaning": "An ai-job that was taken and finished; the lookup answers the taker that finished it." }
+    {
+      "catalog": "workflow",
+      "meaning": "A workflow recipe the account can run."
+    },
+    {
+      "catalog": "tool",
+      "meaning": "A tool the host offers."
+    },
+    {
+      "catalog": "list-row",
+      "meaning": "A row in one of the account's lists."
+    },
+    {
+      "catalog": "record",
+      "meaning": "A record in the account's data."
+    },
+    {
+      "catalog": "ran-job",
+      "meaning": "An ai-job that was taken and finished; the lookup answers the taker that finished it."
+    }
   ],
   "kinds": [
     {
       "kind": "subset-of",
       "meaning": "Every value at path is also a value at of (or at any of the paths of of, when of is a list of paths).",
       "fields": [
-        { "field": "path", "shape": "path", "required": true, "refusal": "is required." },
-        { "field": "of", "shape": "path", "required": true, "refusal": "is required." }
-      ]
+        {
+          "field": "path",
+          "shape": "path",
+          "required": true,
+          "refusal": "is required."
+        },
+        {
+          "field": "of",
+          "shape": "path",
+          "required": true,
+          "refusal": "is required."
+        }
+      ],
+      "holds": {
+        "$values": "path",
+        "transform": [
+          {
+            "op": "op:core.map_to_nodes",
+            "args": {
+              "item_var": "$v",
+              "template": {
+                "$kind": "binding",
+                "select": {
+                  "from": "vars",
+                  "key": "$v"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.type_of"
+                  },
+                  {
+                    "op": "op:core.equals",
+                    "args": {
+                      "value": "string"
+                    }
+                  },
+                  {
+                    "op": "op:core.if",
+                    "args": {
+                      "then": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "vars",
+                          "key": "$v"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.to_string"
+                          },
+                          {
+                            "op": "op:core.trim"
+                          }
+                        ]
+                      },
+                      "else": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "vars",
+                          "key": "$v"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "op": "op:core.concat_arrays",
+            "args": {
+              "value": {
+                "$values": "of",
+                "transform": [
+                  {
+                    "op": "op:core.map_to_nodes",
+                    "args": {
+                      "item_var": "$v",
+                      "template": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "vars",
+                          "key": "$v"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.type_of"
+                          },
+                          {
+                            "op": "op:core.equals",
+                            "args": {
+                              "value": "string"
+                            }
+                          },
+                          {
+                            "op": "op:core.if",
+                            "args": {
+                              "then": {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "vars",
+                                  "key": "$v"
+                                },
+                                "transform": [
+                                  {
+                                    "op": "op:core.to_string"
+                                  },
+                                  {
+                                    "op": "op:core.trim"
+                                  }
+                                ]
+                              },
+                              "else": {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "vars",
+                                  "key": "$v"
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "op": "op:core.array_unique"
+          },
+          {
+            "op": "op:core.array_length"
+          },
+          {
+            "op": "op:core.eq",
+            "args": {
+              "value": {
+                "$values": "of",
+                "transform": [
+                  {
+                    "op": "op:core.map_to_nodes",
+                    "args": {
+                      "item_var": "$v",
+                      "template": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "vars",
+                          "key": "$v"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.type_of"
+                          },
+                          {
+                            "op": "op:core.equals",
+                            "args": {
+                              "value": "string"
+                            }
+                          },
+                          {
+                            "op": "op:core.if",
+                            "args": {
+                              "then": {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "vars",
+                                  "key": "$v"
+                                },
+                                "transform": [
+                                  {
+                                    "op": "op:core.to_string"
+                                  },
+                                  {
+                                    "op": "op:core.trim"
+                                  }
+                                ]
+                              },
+                              "else": {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "vars",
+                                  "key": "$v"
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "op": "op:core.array_unique"
+                  },
+                  {
+                    "op": "op:core.array_length"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "wrong": {
+        "$values": "path",
+        "transform": [
+          {
+            "op": "op:core.map_to_nodes",
+            "args": {
+              "item_var": "$v",
+              "template": {
+                "$kind": "binding",
+                "select": {
+                  "from": "vars",
+                  "key": "$v"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.type_of"
+                  },
+                  {
+                    "op": "op:core.equals",
+                    "args": {
+                      "value": "string"
+                    }
+                  },
+                  {
+                    "op": "op:core.if",
+                    "args": {
+                      "then": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "vars",
+                          "key": "$v"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.to_string"
+                          },
+                          {
+                            "op": "op:core.trim"
+                          }
+                        ]
+                      },
+                      "else": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "vars",
+                          "key": "$v"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "op": "op:core.filter_where",
+            "args": {
+              "predicate": [
+                {
+                  "op": "op:core.in_list",
+                  "args": {
+                    "values": {
+                      "$values": "of",
+                      "transform": [
+                        {
+                          "op": "op:core.map_to_nodes",
+                          "args": {
+                            "item_var": "$v",
+                            "template": {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "vars",
+                                "key": "$v"
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.type_of"
+                                },
+                                {
+                                  "op": "op:core.equals",
+                                  "args": {
+                                    "value": "string"
+                                  }
+                                },
+                                {
+                                  "op": "op:core.if",
+                                  "args": {
+                                    "then": {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "from": "vars",
+                                        "key": "$v"
+                                      },
+                                      "transform": [
+                                        {
+                                          "op": "op:core.to_string"
+                                        },
+                                        {
+                                          "op": "op:core.trim"
+                                        }
+                                      ]
+                                    },
+                                    "else": {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "from": "vars",
+                                        "key": "$v"
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "op": "op:core.not"
+                }
+              ]
+            }
+          },
+          {
+            "op": "op:core.array_unique"
+          },
+          {
+            "op": "op:core.take",
+            "args": {
+              "count": 8
+            }
+          }
+        ]
+      }
     },
     {
       "kind": "covers",
       "meaning": "The values at path include every value at of (every path of it, when of is a list of paths), or every value listed in values.",
       "fields": [
-        { "field": "path", "shape": "path", "required": true, "refusal": "is required." },
-        { "field": "of", "shape": "path" },
-        { "field": "values", "shape": "list" }
+        {
+          "field": "path",
+          "shape": "path",
+          "required": true,
+          "refusal": "is required."
+        },
+        {
+          "field": "of",
+          "shape": "path"
+        },
+        {
+          "field": "values",
+          "shape": "list"
+        }
       ],
-      "one_of": [{ "fields": ["of", "values"], "refusal": "needs of or values." }]
+      "one_of": [
+        {
+          "fields": [
+            "of",
+            "values"
+          ],
+          "refusal": "needs of or values."
+        }
+      ],
+      "holds": {
+        "$values": "path",
+        "transform": [
+          {
+            "op": "op:core.map_to_nodes",
+            "args": {
+              "item_var": "$v",
+              "template": {
+                "$kind": "binding",
+                "select": {
+                  "from": "vars",
+                  "key": "$v"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.type_of"
+                  },
+                  {
+                    "op": "op:core.equals",
+                    "args": {
+                      "value": "string"
+                    }
+                  },
+                  {
+                    "op": "op:core.if",
+                    "args": {
+                      "then": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "vars",
+                          "key": "$v"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.to_string"
+                          },
+                          {
+                            "op": "op:core.trim"
+                          }
+                        ]
+                      },
+                      "else": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "vars",
+                          "key": "$v"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "op": "op:core.concat_arrays",
+            "args": {
+              "value": {
+                "$values": "of",
+                "transform": [
+                  {
+                    "op": "op:core.map_to_nodes",
+                    "args": {
+                      "item_var": "$v",
+                      "template": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "vars",
+                          "key": "$v"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.type_of"
+                          },
+                          {
+                            "op": "op:core.equals",
+                            "args": {
+                              "value": "string"
+                            }
+                          },
+                          {
+                            "op": "op:core.if",
+                            "args": {
+                              "then": {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "vars",
+                                  "key": "$v"
+                                },
+                                "transform": [
+                                  {
+                                    "op": "op:core.to_string"
+                                  },
+                                  {
+                                    "op": "op:core.trim"
+                                  }
+                                ]
+                              },
+                              "else": {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "vars",
+                                  "key": "$v"
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "op": "op:core.array_unique"
+          },
+          {
+            "op": "op:core.array_length"
+          },
+          {
+            "op": "op:core.eq",
+            "args": {
+              "value": {
+                "$values": "path",
+                "transform": [
+                  {
+                    "op": "op:core.map_to_nodes",
+                    "args": {
+                      "item_var": "$v",
+                      "template": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "vars",
+                          "key": "$v"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.type_of"
+                          },
+                          {
+                            "op": "op:core.equals",
+                            "args": {
+                              "value": "string"
+                            }
+                          },
+                          {
+                            "op": "op:core.if",
+                            "args": {
+                              "then": {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "vars",
+                                  "key": "$v"
+                                },
+                                "transform": [
+                                  {
+                                    "op": "op:core.to_string"
+                                  },
+                                  {
+                                    "op": "op:core.trim"
+                                  }
+                                ]
+                              },
+                              "else": {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "vars",
+                                  "key": "$v"
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "op": "op:core.array_unique"
+                  },
+                  {
+                    "op": "op:core.array_length"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "wrong": {
+        "$values": "of",
+        "transform": [
+          {
+            "op": "op:core.map_to_nodes",
+            "args": {
+              "item_var": "$v",
+              "template": {
+                "$kind": "binding",
+                "select": {
+                  "from": "vars",
+                  "key": "$v"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.type_of"
+                  },
+                  {
+                    "op": "op:core.equals",
+                    "args": {
+                      "value": "string"
+                    }
+                  },
+                  {
+                    "op": "op:core.if",
+                    "args": {
+                      "then": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "vars",
+                          "key": "$v"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.to_string"
+                          },
+                          {
+                            "op": "op:core.trim"
+                          }
+                        ]
+                      },
+                      "else": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "vars",
+                          "key": "$v"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "op": "op:core.filter_where",
+            "args": {
+              "predicate": [
+                {
+                  "op": "op:core.in_list",
+                  "args": {
+                    "values": {
+                      "$values": "path",
+                      "transform": [
+                        {
+                          "op": "op:core.map_to_nodes",
+                          "args": {
+                            "item_var": "$v",
+                            "template": {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "vars",
+                                "key": "$v"
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.type_of"
+                                },
+                                {
+                                  "op": "op:core.equals",
+                                  "args": {
+                                    "value": "string"
+                                  }
+                                },
+                                {
+                                  "op": "op:core.if",
+                                  "args": {
+                                    "then": {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "from": "vars",
+                                        "key": "$v"
+                                      },
+                                      "transform": [
+                                        {
+                                          "op": "op:core.to_string"
+                                        },
+                                        {
+                                          "op": "op:core.trim"
+                                        }
+                                      ]
+                                    },
+                                    "else": {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "from": "vars",
+                                        "key": "$v"
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "op": "op:core.not"
+                }
+              ]
+            }
+          },
+          {
+            "op": "op:core.array_unique"
+          },
+          {
+            "op": "op:core.take",
+            "args": {
+              "count": 8
+            }
+          }
+        ]
+      }
     },
     {
       "kind": "mentioned-in",
       "meaning": "Every value at path appears in the text at in.",
       "fields": [
-        { "field": "path", "shape": "path", "required": true, "refusal": "is required." },
-        { "field": "in", "shape": "path", "required": true, "refusal": "is required." }
-      ]
+        {
+          "field": "path",
+          "shape": "path",
+          "required": true,
+          "refusal": "is required."
+        },
+        {
+          "field": "in",
+          "shape": "path",
+          "required": true,
+          "refusal": "is required."
+        }
+      ],
+      "wrong": {
+        "$values": "path",
+        "transform": [
+          {
+            "op": "op:core.filter_where",
+            "args": {
+              "predicate": [
+                {
+                  "op": "op:core.coalesce",
+                  "args": {
+                    "values": [
+                      {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "literal",
+                          "value": {
+                            "$values": "in"
+                          }
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.array_count_if",
+                            "args": {
+                              "item_var": "$text",
+                              "where": [
+                                {
+                                  "op": "op:core.to_string"
+                                },
+                                {
+                                  "op": "op:core.lower"
+                                },
+                                {
+                                  "op": "op:core.contains",
+                                  "args": {
+                                    "value": {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "from": "vars",
+                                        "key": "$item"
+                                      },
+                                      "transform": [
+                                        {
+                                          "op": "op:core.to_string"
+                                        },
+                                        {
+                                          "op": "op:core.trim"
+                                        },
+                                        {
+                                          "op": "op:core.lower"
+                                        }
+                                      ]
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "op": "op:core.ge",
+                  "args": {
+                    "value": 1
+                  }
+                },
+                {
+                  "op": "op:core.not"
+                }
+              ]
+            }
+          },
+          {
+            "op": "op:core.array_unique"
+          },
+          {
+            "op": "op:core.take",
+            "args": {
+              "count": 8
+            }
+          }
+        ]
+      }
     },
     {
       "kind": "excludes-words",
       "meaning": "The text at path contains none of the listed words.",
       "fields": [
-        { "field": "path", "shape": "path", "required": true, "refusal": "is required." },
-        { "field": "words", "shape": "words", "required": true, "refusal": "must list the words to keep out." }
-      ]
+        {
+          "field": "path",
+          "shape": "path",
+          "required": true,
+          "refusal": "is required."
+        },
+        {
+          "field": "words",
+          "shape": "words",
+          "required": true,
+          "refusal": "must list the words to keep out."
+        }
+      ],
+      "wrong": {
+        "$values": "path",
+        "transform": [
+          {
+            "op": "op:core.filter_where",
+            "args": {
+              "predicate": [
+                {
+                  "op": "op:core.coalesce",
+                  "args": {
+                    "values": [
+                      {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "literal",
+                          "value": {
+                            "$fill": "words"
+                          }
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.array_count_if",
+                            "args": {
+                              "item_var": "$word",
+                              "where": [
+                                {
+                                  "op": "op:core.coalesce",
+                                  "args": {
+                                    "values": [
+                                      {
+                                        "$kind": "binding",
+                                        "select": {
+                                          "from": "vars",
+                                          "key": "$item"
+                                        },
+                                        "transform": [
+                                          {
+                                            "op": "op:core.to_string"
+                                          },
+                                          {
+                                            "op": "op:core.lower"
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "op": "op:core.contains",
+                                  "args": {
+                                    "value": {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "from": "vars",
+                                        "key": "$word"
+                                      },
+                                      "transform": [
+                                        {
+                                          "op": "op:core.lower"
+                                        }
+                                      ]
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "op": "op:core.ge",
+                  "args": {
+                    "value": 1
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "op": "op:core.take",
+            "args": {
+              "count": 8
+            }
+          }
+        ]
+      }
     },
     {
       "kind": "distinct-at-least",
       "meaning": "The values at path hold at least count different values.",
       "fields": [
-        { "field": "path", "shape": "path", "required": true, "refusal": "is required." },
-        { "field": "count", "shape": "count", "required": true, "refusal": "must be a whole number above 0." }
-      ]
+        {
+          "field": "path",
+          "shape": "path",
+          "required": true,
+          "refusal": "is required."
+        },
+        {
+          "field": "count",
+          "shape": "count",
+          "required": true,
+          "refusal": "must be a whole number above 0."
+        }
+      ],
+      "holds": {
+        "$values": "path",
+        "transform": [
+          {
+            "op": "op:core.map_to_nodes",
+            "args": {
+              "item_var": "$v",
+              "template": {
+                "$kind": "binding",
+                "select": {
+                  "from": "vars",
+                  "key": "$v"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.type_of"
+                  },
+                  {
+                    "op": "op:core.equals",
+                    "args": {
+                      "value": "string"
+                    }
+                  },
+                  {
+                    "op": "op:core.if",
+                    "args": {
+                      "then": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "vars",
+                          "key": "$v"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.to_string"
+                          },
+                          {
+                            "op": "op:core.trim"
+                          }
+                        ]
+                      },
+                      "else": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "vars",
+                          "key": "$v"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "op": "op:core.array_unique"
+          },
+          {
+            "op": "op:core.array_length"
+          },
+          {
+            "op": "op:core.ge",
+            "args": {
+              "value": {
+                "$fill": "count"
+              }
+            }
+          }
+        ]
+      },
+      "wrong": {
+        "$values": "path",
+        "transform": [
+          {
+            "op": "op:core.map_to_nodes",
+            "args": {
+              "item_var": "$v",
+              "template": {
+                "$kind": "binding",
+                "select": {
+                  "from": "vars",
+                  "key": "$v"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.type_of"
+                  },
+                  {
+                    "op": "op:core.equals",
+                    "args": {
+                      "value": "string"
+                    }
+                  },
+                  {
+                    "op": "op:core.if",
+                    "args": {
+                      "then": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "vars",
+                          "key": "$v"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.to_string"
+                          },
+                          {
+                            "op": "op:core.trim"
+                          }
+                        ]
+                      },
+                      "else": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "vars",
+                          "key": "$v"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "op": "op:core.array_unique"
+          },
+          {
+            "op": "op:core.take",
+            "args": {
+              "count": 8
+            }
+          }
+        ]
+      }
     },
     {
       "kind": "differs-from",
       "meaning": "No value at path is also a value at of, such as a sending domain that must not be the main domain.",
       "fields": [
-        { "field": "path", "shape": "path", "required": true, "refusal": "is required." },
-        { "field": "of", "shape": "path", "required": true, "refusal": "is required." }
-      ]
+        {
+          "field": "path",
+          "shape": "path",
+          "required": true,
+          "refusal": "is required."
+        },
+        {
+          "field": "of",
+          "shape": "path",
+          "required": true,
+          "refusal": "is required."
+        }
+      ],
+      "holds": {
+        "$values": "path",
+        "transform": [
+          {
+            "op": "op:core.map_to_nodes",
+            "args": {
+              "item_var": "$v",
+              "template": {
+                "$kind": "binding",
+                "select": {
+                  "from": "vars",
+                  "key": "$v"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.type_of"
+                  },
+                  {
+                    "op": "op:core.equals",
+                    "args": {
+                      "value": "string"
+                    }
+                  },
+                  {
+                    "op": "op:core.if",
+                    "args": {
+                      "then": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "vars",
+                          "key": "$v"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.to_string"
+                          },
+                          {
+                            "op": "op:core.trim"
+                          }
+                        ]
+                      },
+                      "else": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "vars",
+                          "key": "$v"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "op": "op:core.concat_arrays",
+            "args": {
+              "value": {
+                "$values": "of",
+                "transform": [
+                  {
+                    "op": "op:core.map_to_nodes",
+                    "args": {
+                      "item_var": "$v",
+                      "template": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "vars",
+                          "key": "$v"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.type_of"
+                          },
+                          {
+                            "op": "op:core.equals",
+                            "args": {
+                              "value": "string"
+                            }
+                          },
+                          {
+                            "op": "op:core.if",
+                            "args": {
+                              "then": {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "vars",
+                                  "key": "$v"
+                                },
+                                "transform": [
+                                  {
+                                    "op": "op:core.to_string"
+                                  },
+                                  {
+                                    "op": "op:core.trim"
+                                  }
+                                ]
+                              },
+                              "else": {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "vars",
+                                  "key": "$v"
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "op": "op:core.array_unique"
+          },
+          {
+            "op": "op:core.array_length"
+          },
+          {
+            "op": "op:core.eq",
+            "args": {
+              "value": {
+                "$values": "path",
+                "transform": [
+                  {
+                    "op": "op:core.map_to_nodes",
+                    "args": {
+                      "item_var": "$v",
+                      "template": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "vars",
+                          "key": "$v"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.type_of"
+                          },
+                          {
+                            "op": "op:core.equals",
+                            "args": {
+                              "value": "string"
+                            }
+                          },
+                          {
+                            "op": "op:core.if",
+                            "args": {
+                              "then": {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "vars",
+                                  "key": "$v"
+                                },
+                                "transform": [
+                                  {
+                                    "op": "op:core.to_string"
+                                  },
+                                  {
+                                    "op": "op:core.trim"
+                                  }
+                                ]
+                              },
+                              "else": {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "vars",
+                                  "key": "$v"
+                                }
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "op": "op:core.array_unique"
+                  },
+                  {
+                    "op": "op:core.array_length"
+                  },
+                  {
+                    "op": "op:core.add",
+                    "args": {
+                      "value": {
+                        "$values": "of",
+                        "transform": [
+                          {
+                            "op": "op:core.map_to_nodes",
+                            "args": {
+                              "item_var": "$v",
+                              "template": {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "vars",
+                                  "key": "$v"
+                                },
+                                "transform": [
+                                  {
+                                    "op": "op:core.type_of"
+                                  },
+                                  {
+                                    "op": "op:core.equals",
+                                    "args": {
+                                      "value": "string"
+                                    }
+                                  },
+                                  {
+                                    "op": "op:core.if",
+                                    "args": {
+                                      "then": {
+                                        "$kind": "binding",
+                                        "select": {
+                                          "from": "vars",
+                                          "key": "$v"
+                                        },
+                                        "transform": [
+                                          {
+                                            "op": "op:core.to_string"
+                                          },
+                                          {
+                                            "op": "op:core.trim"
+                                          }
+                                        ]
+                                      },
+                                      "else": {
+                                        "$kind": "binding",
+                                        "select": {
+                                          "from": "vars",
+                                          "key": "$v"
+                                        }
+                                      }
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          },
+                          {
+                            "op": "op:core.array_unique"
+                          },
+                          {
+                            "op": "op:core.array_length"
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "op": "op:core.to_number"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "wrong": {
+        "$values": "path",
+        "transform": [
+          {
+            "op": "op:core.map_to_nodes",
+            "args": {
+              "item_var": "$v",
+              "template": {
+                "$kind": "binding",
+                "select": {
+                  "from": "vars",
+                  "key": "$v"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.type_of"
+                  },
+                  {
+                    "op": "op:core.equals",
+                    "args": {
+                      "value": "string"
+                    }
+                  },
+                  {
+                    "op": "op:core.if",
+                    "args": {
+                      "then": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "vars",
+                          "key": "$v"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.to_string"
+                          },
+                          {
+                            "op": "op:core.trim"
+                          }
+                        ]
+                      },
+                      "else": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "vars",
+                          "key": "$v"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "op": "op:core.filter_where",
+            "args": {
+              "predicate": [
+                {
+                  "op": "op:core.in_list",
+                  "args": {
+                    "values": {
+                      "$values": "of",
+                      "transform": [
+                        {
+                          "op": "op:core.map_to_nodes",
+                          "args": {
+                            "item_var": "$v",
+                            "template": {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "vars",
+                                "key": "$v"
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.type_of"
+                                },
+                                {
+                                  "op": "op:core.equals",
+                                  "args": {
+                                    "value": "string"
+                                  }
+                                },
+                                {
+                                  "op": "op:core.if",
+                                  "args": {
+                                    "then": {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "from": "vars",
+                                        "key": "$v"
+                                      },
+                                      "transform": [
+                                        {
+                                          "op": "op:core.to_string"
+                                        },
+                                        {
+                                          "op": "op:core.trim"
+                                        }
+                                      ]
+                                    },
+                                    "else": {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "from": "vars",
+                                        "key": "$v"
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "op": "op:core.array_unique"
+          },
+          {
+            "op": "op:core.take",
+            "args": {
+              "count": 8
+            }
+          }
+        ]
+      }
     },
     {
       "kind": "exists",
       "meaning": "Every id at path names something that exists in the catalog.",
       "fields": [
-        { "field": "path", "shape": "path", "required": true, "refusal": "is required." },
-        { "field": "catalog", "shape": "catalog", "required": true, "refusal": "must be one of: {catalogs}." }
-      ]
+        {
+          "field": "path",
+          "shape": "path",
+          "required": true,
+          "refusal": "is required."
+        },
+        {
+          "field": "catalog",
+          "shape": "catalog",
+          "required": true,
+          "refusal": "must be one of: {catalogs}."
+        }
+      ],
+      "reads": {
+        "each": {
+          "$values": "path"
+        },
+        "from": {
+          "$kind": "binding",
+          "select": {
+            "from": "literal",
+            "value": 0
+          },
+          "transform": [
+            {
+              "op": "op:core.concat",
+              "args": {
+                "values": [
+                  "{\"catalog\":\"",
+                  {
+                    "$fill": "catalog"
+                  },
+                  "\",\"id\":",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "loop",
+                      "path": "item"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.stringify",
+                        "args": {
+                          "format": "json"
+                        }
+                      }
+                    ]
+                  },
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "wrong": {
+        "$read": true,
+        "transform": [
+          {
+            "op": "op:core.filter_where",
+            "args": {
+              "predicate": [
+                {
+                  "op": "op:core.get_path",
+                  "args": {
+                    "path": "tolerated_error"
+                  }
+                },
+                {
+                  "op": "op:core.is_not_null"
+                }
+              ]
+            }
+          },
+          {
+            "op": "op:core.map",
+            "args": {
+              "path": "tolerated_error.item"
+            }
+          },
+          {
+            "op": "op:core.take",
+            "args": {
+              "count": 8
+            }
+          }
+        ]
+      }
     },
     {
       "kind": "lane-jobs",
       "meaning": "Each lane of a step that has several agents is handed back with the id of its own job, and every such job ran, each finished by a different taker. The lanes are the step's own (its lanes, or its id and a place) and the number of agents is the step's agents.",
       "fields": [
-        { "field": "path", "shape": "path", "required": true, "refusal": "is required." },
-        { "field": "lane", "shape": "key", "required": true, "refusal": "must name the field holding each lane's id." },
-        { "field": "job", "shape": "key", "required": true, "refusal": "must name the field holding each lane's job id." }
-      ]
+        {
+          "field": "path",
+          "shape": "path",
+          "required": true,
+          "refusal": "is required."
+        },
+        {
+          "field": "lane",
+          "shape": "key",
+          "required": true,
+          "refusal": "must name the field holding each lane's id."
+        },
+        {
+          "field": "job",
+          "shape": "key",
+          "required": true,
+          "refusal": "must name the field holding each lane's job id."
+        }
+      ],
+      "reads": {
+        "each": {
+          "$values": "path"
+        },
+        "from": {
+          "$kind": "binding",
+          "select": {
+            "from": "literal",
+            "value": 0
+          },
+          "transform": [
+            {
+              "op": "op:core.concat",
+              "args": {
+                "values": [
+                  "{\"catalog\":\"",
+                  "ran-job",
+                  "\",\"id\":",
+                  {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "loop",
+                      "path": "item"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.get_path",
+                        "args": {
+                          "path": {
+                            "$fill": "job"
+                          }
+                        }
+                      },
+                      {
+                        "op": "op:core.stringify",
+                        "args": {
+                          "format": "json"
+                        }
+                      }
+                    ]
+                  },
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "wrong": {
+        "$values": "path",
+        "transform": [
+          {
+            "op": "op:core.filter_where",
+            "args": {
+              "predicate": [
+                {
+                  "op": "op:core.get_path",
+                  "args": {
+                    "path": {
+                      "$fill": "lane"
+                    }
+                  }
+                },
+                {
+                  "op": "op:core.in_list",
+                  "args": {
+                    "values": {
+                      "$fill": "lanes"
+                    }
+                  }
+                },
+                {
+                  "op": "op:core.not"
+                }
+              ]
+            }
+          },
+          {
+            "op": "op:core.map",
+            "args": {
+              "path": {
+                "$fill": "lane"
+              }
+            }
+          },
+          {
+            "op": "op:core.concat_arrays",
+            "args": {
+              "value": {
+                "$kind": "binding",
+                "select": {
+                  "from": "literal",
+                  "value": {
+                    "$fill": "lanes"
+                  }
+                },
+                "transform": [
+                  {
+                    "op": "op:core.filter_where",
+                    "args": {
+                      "predicate": [
+                        {
+                          "op": "op:core.in_list",
+                          "args": {
+                            "values": {
+                              "$values": "path",
+                              "transform": [
+                                {
+                                  "op": "op:core.map",
+                                  "args": {
+                                    "path": {
+                                      "$fill": "lane"
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        {
+                          "op": "op:core.not"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "op": "op:core.concat_arrays",
+            "args": {
+              "value": {
+                "$values": "path",
+                "transform": [
+                  {
+                    "op": "op:core.filter_where",
+                    "args": {
+                      "predicate": [
+                        {
+                          "op": "op:core.coalesce",
+                          "args": {
+                            "values": [
+                              {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "literal",
+                                  "value": 0
+                                },
+                                "transform": [
+                                  {
+                                    "op": "op:core.concat",
+                                    "args": {
+                                      "values": [
+                                        {
+                                          "$fill": "prefix"
+                                        },
+                                        {
+                                          "$kind": "binding",
+                                          "select": {
+                                            "from": "vars",
+                                            "key": "$item",
+                                            "path": {
+                                              "$fill": "lane"
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "op": "op:core.equals",
+                          "args": {
+                            "value": {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "vars",
+                                "key": "$item",
+                                "path": {
+                                  "$fill": "job"
+                                }
+                              }
+                            }
+                          }
+                        },
+                        {
+                          "op": "op:core.not"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "op": "op:core.map",
+                    "args": {
+                      "path": {
+                        "$fill": "lane"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "op": "op:core.concat_arrays",
+            "args": {
+              "value": {
+                "$read": true,
+                "transform": [
+                  {
+                    "op": "op:core.filter_where",
+                    "args": {
+                      "predicate": [
+                        {
+                          "op": "op:core.get_path",
+                          "args": {
+                            "path": "tolerated_error"
+                          }
+                        },
+                        {
+                          "op": "op:core.is_not_null"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "op": "op:core.map",
+                    "args": {
+                      "path": "tolerated_error.item"
+                    }
+                  },
+                  {
+                    "op": "op:core.map",
+                    "args": {
+                      "path": {
+                        "$fill": "lane"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "op": "op:core.concat_arrays",
+            "args": {
+              "value": {
+                "$read": true,
+                "transform": [
+                  {
+                    "op": "op:core.filter_where",
+                    "args": {
+                      "predicate": [
+                        {
+                          "op": "op:core.get_path",
+                          "args": {
+                            "path": "tolerated_error"
+                          }
+                        },
+                        {
+                          "op": "op:core.is_null"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "op": "op:core.map",
+                    "args": {
+                      "path": "taker"
+                    }
+                  },
+                  {
+                    "op": "op:core.array_unique"
+                  },
+                  {
+                    "op": "op:core.array_length"
+                  },
+                  {
+                    "op": "op:core.lt",
+                    "args": {
+                      "value": {
+                        "$read": true,
+                        "transform": [
+                          {
+                            "op": "op:core.filter_where",
+                            "args": {
+                              "predicate": [
+                                {
+                                  "op": "op:core.get_path",
+                                  "args": {
+                                    "path": "tolerated_error"
+                                  }
+                                },
+                                {
+                                  "op": "op:core.is_null"
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "op": "op:core.array_length"
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "op": "op:core.if",
+                    "args": {
+                      "then": [
+                        "the same taker finished more than one lane"
+                      ],
+                      "else": []
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "op": "op:core.array_unique"
+          },
+          {
+            "op": "op:core.take",
+            "args": {
+              "count": 8
+            }
+          }
+        ]
+      }
     },
     {
       "kind": "fields-present",
       "meaning": "Every item at path (a finding, a system, a row) carries each listed field with something in it: not missing, not null, not blank text, not an empty list or object. The failing values are `<item id>.<field>` for each missing one, so the refusal names what to add.",
       "fields": [
-        { "field": "path", "shape": "path", "required": true, "refusal": "is required." },
-        { "field": "fields", "shape": "words", "required": true, "refusal": "must list the field names each item has to carry." }
-      ]
+        {
+          "field": "path",
+          "shape": "path",
+          "required": true,
+          "refusal": "is required."
+        },
+        {
+          "field": "fields",
+          "shape": "words",
+          "required": true,
+          "refusal": "must list the field names each item has to carry."
+        }
+      ],
+      "wrong": {
+        "$values": "path",
+        "transform": [
+          {
+            "op": "op:core.filter_where",
+            "args": {
+              "predicate": [
+                {
+                  "op": "op:core.coalesce",
+                  "args": {
+                    "values": [
+                      {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "literal",
+                          "value": {
+                            "$fill": "fields"
+                          }
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.array_count_if",
+                            "args": {
+                              "item_var": "$field",
+                              "where": [
+                                {
+                                  "op": "op:core.coalesce",
+                                  "args": {
+                                    "values": [
+                                      {
+                                        "$kind": "binding",
+                                        "select": {
+                                          "from": "vars",
+                                          "key": "$item"
+                                        },
+                                        "transform": [
+                                          {
+                                            "op": "op:core.get_path",
+                                            "args": {
+                                              "path": {
+                                                "$kind": "binding",
+                                                "select": {
+                                                  "from": "vars",
+                                                  "key": "$field"
+                                                }
+                                              }
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                },
+                                {
+                                  "op": "op:core.is_empty"
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "op": "op:core.ge",
+                  "args": {
+                    "value": 1
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "op": "op:core.take",
+            "args": {
+              "count": 8
+            }
+          }
+        ]
+      }
     },
     {
       "kind": "cites-resolve",
       "refuse_unchecked": true,
       "meaning": "Every citation found in `field` of each item at path resolves, by the resolver rows of citation-resolvers.json: a code line holds the quoted text at the repository's ref, a commit exists and is dated after the item's `after` date, a row exists. An item with fewer than `at_least` citations fails. The failing values are `<item id>.<field>: <citation> (<why>)`. A resolver whose repository is not on the computer running the check leaves the check unevaluated, never passed.",
       "fields": [
-        { "field": "path", "shape": "path", "required": true, "refusal": "is required." },
-        { "field": "field", "shape": "key", "required": true, "refusal": "must name the field of each item that holds the citations." },
-        { "field": "resolver", "shape": "key", "required": true, "refusal": "must name a resolver row of citation-resolvers.json." },
-        { "field": "quote", "shape": "key", "refusal": "must name the field holding the text a cited code line has to contain." },
-        { "field": "after", "shape": "key", "refusal": "must name the field holding the date a cited commit has to be after." },
-        { "field": "at_least", "shape": "count", "refusal": "must be a whole number above 0." }
+        {
+          "field": "path",
+          "shape": "path",
+          "required": true,
+          "refusal": "is required."
+        },
+        {
+          "field": "field",
+          "shape": "key",
+          "required": true,
+          "refusal": "must name the field of each item that holds the citations."
+        },
+        {
+          "field": "resolver",
+          "shape": "key",
+          "required": true,
+          "refusal": "must name a resolver row of citation-resolvers.json."
+        },
+        {
+          "field": "quote",
+          "shape": "key",
+          "refusal": "must name the field holding the text a cited code line has to contain."
+        },
+        {
+          "field": "after",
+          "shape": "key",
+          "refusal": "must name the field holding the date a cited commit has to be after."
+        },
+        {
+          "field": "at_least",
+          "shape": "count",
+          "refusal": "must be a whole number above 0."
+        }
       ]
     },
     {
       "kind": "field-in",
       "meaning": "In every item at path, the field named by `field` holds one of the listed values, such as an evidence kind that is a current measurement or a code read. The failing values are `<item id>.<field>`.",
       "fields": [
-        { "field": "path", "shape": "path", "required": true, "refusal": "is required." },
-        { "field": "field", "shape": "key", "required": true, "refusal": "must name the field to read in each item." },
-        { "field": "values", "shape": "list", "required": true, "refusal": "must list the values the field may hold." }
-      ]
+        {
+          "field": "path",
+          "shape": "path",
+          "required": true,
+          "refusal": "is required."
+        },
+        {
+          "field": "field",
+          "shape": "key",
+          "required": true,
+          "refusal": "must name the field to read in each item."
+        },
+        {
+          "field": "values",
+          "shape": "list",
+          "required": true,
+          "refusal": "must list the values the field may hold."
+        }
+      ],
+      "wrong": {
+        "$values": "path",
+        "transform": [
+          {
+            "op": "op:core.filter_where",
+            "args": {
+              "predicate": [
+                {
+                  "op": "op:core.get_path",
+                  "args": {
+                    "path": {
+                      "$fill": "field"
+                    }
+                  }
+                },
+                {
+                  "op": "op:core.in_list",
+                  "args": {
+                    "values": {
+                      "$fill": "values"
+                    }
+                  }
+                },
+                {
+                  "op": "op:core.not"
+                }
+              ]
+            }
+          },
+          {
+            "op": "op:core.map",
+            "args": {
+              "path": {
+                "$fill": "field"
+              }
+            }
+          },
+          {
+            "op": "op:core.take",
+            "args": {
+              "count": 8
+            }
+          }
+        ]
+      }
     },
     {
       "kind": "slotted-runs",
       "refuse_unchecked": true,
       "meaning": "Every row the step chose (each item at path names a row by its `row` and `type` fields) slots in through its own workflows: the row's `slot` field, read from the account, names one or more workflows, and each runs as a sub-run of this step whose id is made from this run, this step and the row (slottedRunKey). The check passes only when every such sub-run exists and every one of its steps has an answer kept after its own checks passed. The parent workflow names no format, template or row kind: a row with no workflow fails with `<row>: holds no workflow`, which is what the workflow that gives a row its workflows fills. The failing values are `<row>: <reason>` and `<row>: <sub-run id> (not finished)`.",
       "fields": [
-        { "field": "path", "shape": "path", "required": true, "refusal": "is required." },
-        { "field": "row", "shape": "key", "required": true, "refusal": "must name the field of each item holding the row's id." },
-        { "field": "type", "shape": "key", "required": true, "refusal": "must name the field of each item holding the row's type." },
-        { "field": "slot", "shape": "key", "required": true, "refusal": "must name the row's own field that lists its workflows." }
+        {
+          "field": "path",
+          "shape": "path",
+          "required": true,
+          "refusal": "is required."
+        },
+        {
+          "field": "row",
+          "shape": "key",
+          "required": true,
+          "refusal": "must name the field of each item holding the row's id."
+        },
+        {
+          "field": "type",
+          "shape": "key",
+          "required": true,
+          "refusal": "must name the field of each item holding the row's type."
+        },
+        {
+          "field": "slot",
+          "shape": "key",
+          "required": true,
+          "refusal": "must name the row's own field that lists its workflows."
+        }
       ]
     }
   ]

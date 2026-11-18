@@ -513,21 +513,6 @@ impl crate::domain::handlers::StepHandler for LoopStepHandler {
     }
 }
 
-struct CheckStepHandler;
-
-#[async_trait::async_trait]
-impl crate::domain::handlers::StepHandler for CheckStepHandler {
-    async fn execute(
-        &self,
-        step: &Step,
-        exec_ctx: &ExecutionContext,
-        deps: &ExecutorDeps,
-        _actor: &ActorContext,
-    ) -> Result<StepHandlerResult, WorkflowError> {
-        super::checks::execute_check_step(step, exec_ctx, deps).await
-    }
-}
-
 struct WaitStepHandler;
 
 #[async_trait::async_trait]
@@ -563,7 +548,6 @@ pub fn default_step_registry() -> crate::domain::handlers::StepHandlerRegistry {
     );
     registry.insert("loop".to_string(), Box::new(LoopStepHandler));
     registry.insert("wait".to_string(), Box::new(WaitStepHandler));
-    registry.insert("check".to_string(), Box::new(CheckStepHandler));
     registry
 }
 

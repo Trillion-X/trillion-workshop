@@ -652,13 +652,23 @@ impl BindingResolver {
 
         // --- Every value at a path, "*" stepping into lists (`values_in_run` below) ---
         // {"$kind": "binding", "values": ["steps", "draft", "sources", "*", "url"], "take": "all"}
-        // "take": "all" gives the list; anything else the first value (null when the path reaches nothing).
-        if let Some(path) = map.get("values").and_then(|v| v.as_array()) {
-            let found = values_in_run(ctx, None, path);
-            return Ok(match map.get("take").and_then(|v| v.as_str()) {
+        // `values` is one path, or a list of paths whose values are read together. "take": "all" gives the list;
+        // anything else the first value (null when the path reaches nothing). A `transform` then runs on it, as on
+        // any selected value.
+        if let Some(paths) = map.get("values").and_then(|v| v.as_array()) {
+            let found: Vec<Value> = if paths.first().is_some_and(Value::is_array) {
+                paths.iter().filter_map(Value::as_array).flat_map(|path| values_in_run(ctx, None, path)).collect()
+            } else {
+                values_in_run(ctx, None, paths)
+            };
+            let selected = match map.get("take").and_then(|v| v.as_str()) {
                 Some("all") => Value::Array(found),
                 _ => found.into_iter().next().unwrap_or(Value::Null),
-            });
+            };
+            return match map.get("transform").and_then(|v| v.as_array()) {
+                Some(transforms) => Self::evaluate_transform_chain(selected, transforms, ctx),
+                None => Ok(selected),
+            };
         }
 
         // --- Select-based path resolution (existing path) ---
@@ -670,6 +680,16 @@ impl BindingResolver {
         let from = select.get("from").and_then(|v| v.as_str()).unwrap_or("");
         let key = select.get("key").and_then(|v| v.as_str()).unwrap_or("");
         let path = select.get("path").and_then(|v| v.as_str()).unwrap_or("");
+
+        // A value written into the binding itself is the shared evaluator's, like every operator: the run only
+        // fills in what its own scopes hold inside it.
+        if from == "literal" {
+            let value = Self::resolve_run_scoped(select.get("value").unwrap_or(&Value::Null), ctx)?;
+            return match map.get("transform").and_then(|v| v.as_array()) {
+                Some(transforms) => Self::evaluate_transform_chain(value, transforms, ctx),
+                None => Ok(value),
+            };
+        }
 
         // Validate the scope before constructing the expression.
         // For "loop" scope, verify a loop is actually active (select-based bindings only —

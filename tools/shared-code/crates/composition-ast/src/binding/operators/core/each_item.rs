@@ -12,6 +12,8 @@
 //!      as the binding `{select: {from: "vars", key: "$item"}, transform: <chain>}` with `$item` and `$index`
 //!      bound, so it reaches every other value the same way any binding does.
 //!   2. An item is held when its chain yields a truthy value (ops-core truthiness).
+//!   5. `item_var` names the item's variable (default `$item`, with `$index`), so a chain inside a chain can still
+//!      read the outer item: the inner item is bound beside it, never over it.
 //!   3. A chain that reports an error is an error of the operator, never a silent "not held".
 //!   4. These operators name no field, kind or value: what an item is, is the chain's business.
 
@@ -50,10 +52,19 @@ fn chain(args: Option<&OpValue>, name: &str, op: &str) -> Result<Value, Diagnost
     }
 }
 
+/// The variable an item is bound to: `item_var`, or `$item`; its index is `<item_var>_index`, or `$index`.
+fn item_var(args: Option<&OpValue>) -> (String, String) {
+    match args.map(OpValue::as_inner).and_then(|args| args.get("item_var").and_then(Value::as_str).map(str::to_string)) {
+        Some(name) => (name.clone(), format!("{name}_index")),
+        None => ("$item".to_string(), "$index".to_string()),
+    }
+}
+
 /// What one item's chain yields.
-fn run_chain(ctx: &OperatorContext, steps: &Value, item: &Value, index: usize, op: &str) -> Result<Value, Diagnostic> {
-    let binding = json!({ "$kind": "binding", "select": { "from": "vars", "key": "$item" }, "transform": steps });
-    let item_ctx = ctx.with_iteration_vars(item.clone(), index, "$item", "$index");
+fn run_chain(ctx: &OperatorContext, args: Option<&OpValue>, steps: &Value, item: &Value, index: usize, op: &str) -> Result<Value, Diagnostic> {
+    let (name, index_name) = item_var(args);
+    let binding = json!({ "$kind": "binding", "select": { "from": "vars", "key": name }, "transform": steps });
+    let item_ctx = ctx.with_iteration_vars(item.clone(), index, &name, &index_name);
     let value = item_ctx
         .evaluate_nested_bindings(&binding)
         .ok_or_else(|| refused(DiagnosticCode::BindingOperatorError, format!("{op} needs the evaluator to run a chain")))?;
@@ -75,7 +86,7 @@ pub fn filter_where(input: &OpValue, args: Option<&OpValue>, ctx: &OperatorConte
     let steps = chain(args, "predicate", "filter_where")?;
     let mut kept = Vec::new();
     for (index, item) in items(input, "filter_where")?.into_iter().enumerate() {
-        if holds(&run_chain(ctx, &steps, &item, index, "filter_where")?) {
+        if holds(&run_chain(ctx, args, &steps, &item, index, "filter_where")?) {
             kept.push(item);
         }
     }
@@ -85,7 +96,7 @@ pub fn filter_where(input: &OpValue, args: Option<&OpValue>, ctx: &OperatorConte
 pub fn find_where(input: &OpValue, args: Option<&OpValue>, ctx: &OperatorContext) -> OperatorResult {
     let steps = chain(args, "predicate", "find_where")?;
     for (index, item) in items(input, "find_where")?.into_iter().enumerate() {
-        if holds(&run_chain(ctx, &steps, &item, index, "find_where")?) {
+        if holds(&run_chain(ctx, args, &steps, &item, index, "find_where")?) {
             return Ok(OpValue::from(item));
         }
     }
@@ -97,7 +108,7 @@ pub fn flat_map(input: &OpValue, args: Option<&OpValue>, ctx: &OperatorContext) 
     let steps = chain(args, "transform", "flat_map")?;
     let mut made = Vec::new();
     for (index, item) in items(input, "flat_map")?.into_iter().enumerate() {
-        match run_chain(ctx, &steps, &item, index, "flat_map")? {
+        match run_chain(ctx, args, &steps, &item, index, "flat_map")? {
             Value::Array(inner) => made.extend(inner),
             Value::Null => {}
             other => made.push(other),
@@ -118,7 +129,7 @@ pub fn count_if(input: &OpValue, args: Option<&OpValue>, ctx: &OperatorContext) 
     }
     let mut count = 0;
     for (index, item) in items(input, "array_count_if")?.into_iter().enumerate() {
-        if holds(&run_chain(ctx, &steps, &item, index, "array_count_if")?) {
+        if holds(&run_chain(ctx, args, &steps, &item, index, "array_count_if")?) {
             count += 1;
         }
     }
@@ -228,5 +239,22 @@ mod tests {
         assert_eq!(run(json!([{ "op": "op:core.merge", "args": { "source": { "b": 2 } } }]), json!({ "a": 1 })).unwrap(), json!({ "a": 1, "b": 2 }));
         assert_eq!(run(json!([{ "op": "op:core.append", "args": { "value": 3 } }]), json!([1])).unwrap(), json!([1, 3]));
         assert_eq!(run(json!([{ "op": "op:core.take", "args": { "count": 1 } }]), json!([1, 2])).unwrap(), json!([1]));
+    }
+
+    #[test]
+    fn an_inner_chain_reads_the_outer_item_by_its_own_name() {
+        // Which values are mentioned in none of the texts: the inner count runs over the texts as `$text`, beside `$item`.
+        let texts = json!(["I play tennis daily", "a walk"]);
+        let mentioned = json!([
+            { "op": "op:core.coalesce", "args": { "values": [{ "$kind": "binding", "select": { "from": "literal", "value": texts },
+                "transform": [{ "op": "op:core.array_count_if", "args": { "item_var": "$text", "where": [
+                    { "op": "op:core.lower" },
+                    { "op": "op:core.contains", "args": { "value": { "$kind": "binding", "select": { "from": "vars", "key": "$item" }, "transform": [{ "op": "op:core.lower" }] } } }
+                ] } }] }] } },
+            { "op": "op:core.ge", "args": { "value": 1 } }
+        ]);
+        let unmentioned = run(json!([{ "op": "op:core.filter_where", "args": { "predicate": [{ "op": "op:core.identity" }, mentioned.as_array().unwrap()[0].clone(), mentioned.as_array().unwrap()[1].clone(), { "op": "op:core.not" }] } }]), json!(["Tennis", "golf", "WALK"])).unwrap();
+        assert_eq!(unmentioned, json!(["golf"]));
+        assert_eq!(run(json!([{ "op": "op:core.concat_arrays", "args": { "value": [3] } }]), json!([1, 2])).unwrap(), json!([1, 2, 3]));
     }
 }

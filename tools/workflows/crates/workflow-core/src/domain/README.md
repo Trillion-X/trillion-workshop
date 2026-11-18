@@ -20,14 +20,14 @@ The core executable model is collapsed to one generic `Definition` plus graph-na
 |------|---------|
 | `mod.rs` | Module declarations, re-exports |
 | `types.rs` | All domain structs: `Definition`, `Step`, `StepEdge`, `WorkflowInstance`, `ExecutionContext`, `StepOutput`, `DefinitionOutput`, request/response types |
-| `errors.rs` | `WorkflowError` enum — 30 structured variants (incl. `Waiting` and `CheckFailed`, whose `evidence()` a waiting or failed step keeps as data) with named fields (`reason`, `hint`, domain IDs), `code()` for SCREAMING_SNAKE_CASE error codes, `is_recoverable()` for graceful degradation, `reason()`/`hint()` accessors, serde tagged serialization |
+| `errors.rs` | `WorkflowError` enum — 29 structured variants (incl. `Waiting`, whose `evidence()` a waiting step keeps as data) with named fields (`reason`, `hint`, domain IDs), `code()` for SCREAMING_SNAKE_CASE error codes, `is_recoverable()` for graceful degradation, `reason()`/`hint()` accessors, serde tagged serialization |
 
 ## Key Types in `errors.rs`
 
 | Type | Signature / Shape | Role |
 |------|-------------------|------|
 | `WorkflowError` | `enum` (30 variants, `#[serde(tag = "code")]`) | Structured error enum — zero opaque `(String)` variants, all use named fields |
-| `WorkflowError::evidence()` | `fn(&self) -> serde_json::Value` | What a failed or waiting step keeps as its output: `{problems}` for `CheckFailed`, the host's reply for `Waiting`, `{dispatch_failed: {dispatch, reason}}` for `PrimitiveDispatchFailed` (the answerer could not be reached; nothing about the step was decided), null otherwise |
+| `WorkflowError::evidence()` | `fn(&self) -> serde_json::Value` | What a failed or waiting step keeps as its output: the host's reply for `Waiting`, `{dispatch_failed: {dispatch, reason}}` for `PrimitiveDispatchFailed` (the answerer could not be reached; nothing about the step was decided), null otherwise |
 | `WorkflowError::code()` | `fn(&self) -> &'static str` | Unique SCREAMING_SNAKE_CASE error code per variant (e.g., `"READ_ERROR"`, `"WORKFLOW_NOT_FOUND"`) |
 | `WorkflowError::is_recoverable()` | `fn(&self) -> bool` | `true` for `Timeout`, `ExternalCallFailed`, `TemplateResolutionFailed` — caller can retry or use defaults |
 | `WorkflowError::reason()` | `fn(&self) -> &str` | Extract human-readable reason from any variant |

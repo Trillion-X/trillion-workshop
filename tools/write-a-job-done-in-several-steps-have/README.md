@@ -7,10 +7,15 @@ Write a job done in several steps, have my AI, agents and tools answer each step
 `tool:run-workflow-definition` (`tool-rows.json`, kit `kits/run-workflow-definition.json`) runs a person's workflow on the workflow engine in one call. Give it engine definitions and a `workflow_id`, or a recipe (or the person's `record:workflow-recipe` row with its `record:workflow-step` rows), the run's input and the answers known so far. It returns the run: `paused` with `waiting` naming the steps that have no answer yet, `completed`, or `failed` with the engine's own words. Nothing is kept: the caller keeps the answers and calls again with them.
 
 - `read-data/run-a-workflow.mjs`: `runWorkflow` (the tool), `runAWorkflow` (a recipe or its rows, run), `workflowEngine` (the built engine, `tools/build-engine-modules-for-web-hosts/built-stored-bytes/workflow-engine`), `kitOf` (the kit a run carries, chosen before the engine runs, never inside it).
-- `read-data/workflows.mjs`: the older version's `src/workflows.mjs`, moved whole (`moved-from.json`), with its imports pointed at this repository and its stores, sources and engine given to `makeWorkflows`. `definitionOf` makes a recipe a definition: each step an ask (named `ai`, or the tool the step runs), then a `<step>#checks` check step holding its checks, joined by `always` edges; a recipe holding its own `definition` runs as that definition. An ask named `agent:<id>` is handed to that agent by the ask `makeWorkflows` gives the engine; `runWorkflow` has no such host, so it lists that ask in `waiting` like any other.
+- `read-data/workflows.mjs`: the older version's `src/workflows.mjs`, moved whole (`moved-from.json`), with its imports pointed at this repository and its stores, sources and engine given to `makeWorkflows`. `definitionOf` makes a recipe a definition: each step an ask (named `ai`, or the tool the step runs), then, for a step with checks, the steps that judge them (below), joined by edges; a recipe holding its own `definition` runs as that definition. An ask named `agent:<id>` is handed to that agent by the ask `makeWorkflows` gives the engine; `runWorkflow` has no such host, so it lists that ask in `waiting` like any other.
 - The engine runner is `tools/run-a-workflow-definition-on-the-workflow-engine-in-one-call`.
 
-Checks run on the engine (`crates/workflow-core/src/executor/checks.rs`): subset-of, covers, mentioned-in, excludes-words, distinct-at-least, exists, lane-jobs. A check of another kind (cites-resolve, differs-from, field-in, fields-present, slotted-runs) is waiting for the engine: the run fails at that check step and names the kind.
+A step's checks run on the engine as ordinary steps, made by `tools/workflows/read-data/check-bindings.mjs` from each check's kind row in `tools/workflows/recipe-check-kinds.json`. The rows hold the bindings, so the engine has no check kind and the one shared evaluator judges them:
+- `<step>#checks` is a `return` step whose `held` says, rule by rule, whether each holds.
+- Only when one does not, `<step>#wrong` lists the values that break each rule, and `<step>#refused` (a `fail` step) names each failing rule with up to eight of them.
+- A kind that looks things up (exists, lane-jobs) first runs a `loop` of `read`s. Its one-step definitions travel in the definition's `uses`.
+
+Every kind with a binding runs, including differs-from, field-in and fields-present. cites-resolve and slotted-runs have no binding row yet, so a recipe naming them is refused when it is made into a definition.
 
 ## Test
 
