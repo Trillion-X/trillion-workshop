@@ -1,0 +1,210 @@
+{
+  "about": "workflow:keep-that-a-sign-in-or-key-request-arrived: the receipt that a sign-in or key request arrived, kept in the person's own store before the request is dispatched. It replaces tools/remember-that-a-sign-in-or-key-request-arrived-in-whichever (src/receipt-owner.mjs), which chose between two owners of the receipt by whether the store had been carried, a transition of the old Worker that has no meaning once the person's own store is the one place the records are kept. Nothing else in that folder was used: the folder had no live caller (rule a-tool-is-only-what-the-store-cannot-do; the old way is not a requirement).",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-that-a-sign-in-or-key-request-arrived",
+        "label": "Keep that a sign-in or key request arrived",
+        "job": "Keep one receipt per sign-in or key request in the person's own store, with its path and when it arrived, before the request is sent on, so that a request which was received is never lost and one request is never received twice.",
+        "produces": "The store's own receipt objects, proven on the example requests in three kinds of store, and each receipt kept, repeated or refused and read back.",
+        "source": {
+          "from": "tools/remember-that-a-sign-in-or-key-request-arrived-in-whichever (src/receipt-owner.mjs, moved byte for byte from the earlier repository, tag the-tag-before-the-worker-retired, b6ae0ebf81)",
+          "note": "The paths that take a receipt are the person's own rules (the old worker-api receipt owner's paths, now a value the run is given). A request id keeps one path for ever: the same id on the same path is repeated, the same id on another path is refused. A path the rules do not name is refused."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store",
+            "paths"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                },
+                "place": {
+                  "type": "string",
+                  "description": "Where in the store the receipts are kept, when they already are"
+                }
+              }
+            },
+            "paths": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "The request paths that take a receipt, as the person's rules name them"
+            },
+            "requests": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Requests to receipt this run, each {request_id, path, at (ISO time with a zone)}"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the receipts are already kept (kept_in, or null) and the names of the objects that already keep them.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing, make one receipt object in the store's own form: request_id (unique), path, and at (a moment with a zone). The store itself refuses a second receipt for the same request_id (a key), so a receipt can never be written twice. Grant only what the store's holder allows the person's login.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example requests",
+            "do": "In a throwaway place in the same store, with the same objects and the paths [\"/work/api/sign-in/start\", \"/work/api/keys/request\"], keep these requests in order: [{\"request_id\": \"r1\", \"path\": \"/work/api/sign-in/start\", \"at\": \"2026-11-18T10:00:00Z\"}, {\"request_id\": \"r1\", \"path\": \"/work/api/sign-in/start\", \"at\": \"2026-11-18T10:00:00Z\"}, {\"request_id\": \"r2\", \"path\": \"/work/api/keys/request\", \"at\": \"2026-11-18T10:05:00Z\"}, {\"request_id\": \"r1\", \"path\": \"/work/api/keys/request\", \"at\": \"2026-11-18T10:06:00Z\"}, {\"request_id\": \"r3\", \"path\": \"/elsewhere\", \"at\": \"2026-11-18T10:07:00Z\"}]. The same request id on the same path is repeated; the same request id on another path is refused; a path not in the list is refused. Then answer: receipts (how many are kept), first (the request_id received first), latest (the request_id received last), and latest_path. Then remove the throwaway place. Submit outcomes (one of kept, repeated, refused per request, in order) and answer with receipts, first, latest and latest_path.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answer"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "kept",
+                      "repeated",
+                      "refused"
+                    ]
+                  }
+                },
+                "answer": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each request is kept, repeated or refused as the intent says",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "kept",
+                    "repeated",
+                    "kept",
+                    "refused",
+                    "refused"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "The store's own objects give every expected answer",
+                "path": [
+                  "this",
+                  "answer"
+                ],
+                "values": [
+                  {
+                    "receipts": 2,
+                    "first": "r1",
+                    "latest": "r2",
+                    "latest_path": "/work/api/keys/request"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's receipts",
+            "do": "Keep each item of requests through the store's own objects, in order: kept when new, repeated when the same request id is already kept on the same path, refused when the id is kept on another path or the path is not in paths. Submit outcomes (kept, repeated or refused per request, in order), refused (each refused request's request_id and the store's words why) and answer with receipts, first, latest and latest_path. The sign-in or key request itself is sent on only after its receipt is kept. With no requests, submit empty lists.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "refused",
+                "answer"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "refused": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "answer": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": []
+          }
+        ],
+        "erase": "On the person's request the store deletes the receipts; a receipt is a record of the person's own sign-in or key request and goes with the rest of their records."
+      }
+    }
+  ]
+}

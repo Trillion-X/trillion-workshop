@@ -1,0 +1,93 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:keep-that-a-sign-in-or-key-request-arrived with store {\\\"where\\\": \\\"postgresql database example_shop on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-shop-postgres-connection\\\"}, paths [\\\"/work/api/sign-in/start\\\", \\\"/work/api/keys/request\\\"] and requests [{\\\"request_id\\\": \\\"r9\\\", \\\"path\\\": \\\"/work/api/keys/request\\\", \\\"at\\\": \\\"2026-11-18T10:20:00Z\\\"}].\"",
+  "lists": [],
+  "no_lists_because": "It names no list: each receipt is kept in the person's own store, in whatever form that store keeps things, and store says where and in which language.",
+  "workflows": [
+    "workflow:keep-that-a-sign-in-or-key-request-arrived"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:keep-that-a-sign-in-or-key-request-arrived\" with store, paths and requests. Keep the receipt before the sign-in or key request is sent on.",
+    "3. The first run makes the store's own objects once and proves them on the example requests: every answer must match, or the run stops and says which.",
+    "4. Every later run keeps each new receipt through those objects. A request that was already received on its path is repeated, never received twice."
+  ],
+  "worked_examples": [
+    {
+      "title": "A key request arrives",
+      "ask": "A key request r9 came in on the keys path. Keep its receipt.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-that-a-sign-in-or-key-request-arrived",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "paths": [
+                "/work/api/sign-in/start",
+                "/work/api/keys/request"
+              ],
+              "requests": [
+                {
+                  "request_id": "r9",
+                  "path": "/work/api/keys/request",
+                  "at": "2026-11-18T10:20:00Z"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-that-a-sign-in-or-key-request-arrived",
+      "step": "keep",
+      "given": "The look step found the receipts kept by an earlier run.",
+      "hands_back": "outcomes [\"kept\"] for r9, so the key request may be sent on; the answer's receipts count goes up by one."
+    },
+    {
+      "title": "The same request is sent again",
+      "ask": "Receipt r9 again, same path.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-that-a-sign-in-or-key-request-arrived",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "paths": [
+                "/work/api/sign-in/start",
+                "/work/api/keys/request"
+              ],
+              "requests": [
+                {
+                  "request_id": "r9",
+                  "path": "/work/api/keys/request",
+                  "at": "2026-11-18T10:20:00Z"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-that-a-sign-in-or-key-request-arrived",
+      "step": "keep",
+      "given": "r9 is already kept on this path.",
+      "hands_back": "outcomes [\"repeated\"]; nothing new is written."
+    }
+  ]
+}
