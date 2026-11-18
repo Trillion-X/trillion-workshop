@@ -446,9 +446,19 @@
         "maker": "maker:workflows",
         "verify": [
           {
-            "kind": "needs-a-machine",
-            "requires": "a Postgres-wire server on the local port the computer reports as own-rows-postgres, with its connection string held as own-rows-postgres-connection",
-            "proved_on": "2026-11-17"
+            "kind": "sample-run",
+            "input": {
+              "parts": [
+                {
+                  "database": "p_x",
+                  "table_name": "lesson_request",
+                  "op": "INSERT",
+                  "before": null,
+                  "after": { "id": 7, "topic": "tides" }
+                }
+              ],
+              "within": ["workflow:route-each-row-change"]
+            }
           }
         ]
       }
