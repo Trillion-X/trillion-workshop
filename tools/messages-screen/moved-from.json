@@ -66,15 +66,6 @@
       "found_by": "same bytes"
     },
     {
-      "from": "parts/chat/read-data/read-chat-sessions.ts",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/messages-screen/read-data/read-chat-sessions.ts",
-      "source_identity": "1f:a95a2bb79e1245e26db3169e404f07a538d9a422d889eb3db99cc4b9d90e30fa",
-      "identity": "1f:a95a2bb79e1245e26db3169e404f07a538d9a422d889eb3db99cc4b9d90e30fa",
-      "found_by": "same bytes"
-    },
-    {
       "from": "parts/conversations/read-data/record-projection.ts",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",

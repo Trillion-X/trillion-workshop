@@ -492,15 +492,6 @@
     },
     {
       "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/chat/read-data/stream-parse-spec.ts",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/chat/read-data/stream-parse-spec.ts",
-      "source_identity": "1f:f7e8c747893fd1b906a50ac653a7dfb74364b9e8ca8e3d307d97cf84f68f838f",
-      "identity": "1f:f7e8c747893fd1b906a50ac653a7dfb74364b9e8ca8e3d307d97cf84f68f838f",
-      "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
       "from": "web/parts/chat/read-data/use-chat-conversation-projections.ts",
       "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
       "to": "tools/chat/read-data/use-chat-conversation-projections.ts",

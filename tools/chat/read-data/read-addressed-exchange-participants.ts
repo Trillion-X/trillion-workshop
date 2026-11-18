@@ -2,7 +2,7 @@
 // Decodes addressed exchange participant and reachability records used by Chat.
 // Process-backed participants are one way-to-reach, not the exchange root.
 
-import type { StreamParseSpec } from './stream-parse-spec';
+import type { StreamParseSpec } from '../../messages-screen/read-data/stream-parse-spec';
 
 export interface AddressedParticipantModelOption {
   id: string;

@@ -163,7 +163,7 @@ import { emitPlaceableSurfaceIntent, readPlaceableSurfaces, readPublishedRecords
 import { AgentStatusStrip } from './AgentStatusStrip';
 import { buildAgentStatusSessions, type AgentTurnDescriptor, type AgentSessionStatus } from './build-agent-status-sessions';
 import type { AgentMessage, MessageActionDescriptor, MessageIntent, MessagePerformHandler, MessageReaction } from '../read-data/chat-message-types';
-import { EMPTY_STREAM_PARSE_SPEC } from '../read-data/stream-parse-spec';
+import { EMPTY_STREAM_PARSE_SPEC } from '../../messages-screen/read-data/stream-parse-spec';
 import type { ChatSessionConfig } from '../read-data/read-chat-sessions';
 import { decodeChatPresetsFeed, type Preset } from '../read-data/read-chat-presets';
 import {
