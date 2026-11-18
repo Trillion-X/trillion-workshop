@@ -38,8 +38,8 @@ test('a computer with its own engine is carried to its site, with a key made onc
   assert.deepEqual(config.relay_host, { id: 'site', hostname: 'site.example.com' });
   assert.match(config.computer_id, /^[0-9a-f]{16}$/);
   assert.deepEqual(config.credential_command, ['/usr/bin/node', '/p/command.mjs', 'carrier-key']);
-  assert.deepEqual(config.announce.argv.slice(0, 7), ['/usr/bin/node', '/p/command.mjs', 'op', '--origin', 'https://site.example.com', '@meeting', 'computers:announce']);
-  assert.match(config.announce.argv[7], /"carried": \{carried\}/);
+  assert.deepEqual(config.announce.argv.slice(0, 8), ['/usr/bin/node', '/p/command.mjs', 'op', '--origin', 'https://site.example.com', '--address', '@meeting', 'computers:announce']);
+  assert.match(config.announce.argv[8], /"carried": \{carried\}/);
   assert.equal(config.values.public_key, 'ssh-ed25519 AAAAPUBLIC carrier');
   assert.ok(!JSON.stringify(config).includes('PRIVATE KEY TEXT'), 'the private key is never in the carrier config');
   const keyFile = join(home, '.example/cli/carrier/key');

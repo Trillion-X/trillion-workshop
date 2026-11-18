@@ -54,7 +54,8 @@ async function fakeDoor({ ops = {}, oauth = null, sse = false, bearers = [KEY], 
     else {
       const args = message.params.arguments;
       calls.push({ name: message.params.name, ...args });
-      const handler = ops[`${args.address} ${args.method}`];
+      // A call names its method; the stand-in finds the owner by it, as the engine does (an address is only sent to pass a method on).
+      const handler = ops[`${args.address ?? (args.method.startsWith('tools:') ? '@tools' : '')} ${args.method}`];
       const answer = handler ? await handler(args.input, args, calls) : { refused: `No ${args.method} at ${args.address}` };
       if (answer?.status) return send(answer.status, 'busy', 'text/plain');
       // A refusal the engine names by a code alone answers as the engine does: { code, outcome } and no words.
@@ -563,7 +564,7 @@ test('serve: a job taken is run, then finished, blocked on a next step when it c
   const bare = await workCall(workClient, 'see', { id: 'ai-job:1' }, { idempotent: true });
   assert.match(bare.options.requestKey, /^[0-9a-f-]{36}$/, 'the call has one key, which any further page of its answer is asked under');
   assert.deepEqual({ ...bare, options: { idempotent: bare.options.idempotent } },
-    { address: '@tools', method: 'tools:run', input: { tool: 'tool:see-ai-work', input: { id: 'ai-job:1' } }, options: { idempotent: true } }, 'an answer with no result is the answer itself');
+    { address: null, method: 'tools:run', input: { tool: 'tool:see-ai-work', input: { id: 'ai-job:1' } }, options: { idempotent: true } }, 'an answer with no result is the answer itself');
 });
 
 test('login: the browser sign-in with PKCE keeps the sign-in itself, and no key route is asked', async () => {

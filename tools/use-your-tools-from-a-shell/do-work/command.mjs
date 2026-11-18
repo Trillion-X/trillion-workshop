@@ -132,7 +132,14 @@ export const aiIdOf = (id, rules = settings) => (String(id).startsWith(`${rules.
 
 // ── Command line ─────────────────────────────────────────────────────────────────────────────────────────────────
 
-const VALUE_FLAGS = new Set(['job', 'source-file', 'obligations-file', 'continuation-file', 'request-key', 'as', 'timeout', 'wait', 'summary', 'because', 'reason', 'priority', 'key', 'origin', 'harness', 'outcome', 'limit', 'status', 'to', 'from', 'taker', 'label', 'ag-ui', 'since', 'inventory', 'check-file', 'acceptance-file']);
+const VALUE_FLAGS = new Set(['address', 'job', 'source-file', 'obligations-file', 'continuation-file', 'request-key', 'as', 'timeout', 'wait', 'summary', 'because', 'reason', 'priority', 'key', 'origin', 'harness', 'outcome', 'limit', 'status', 'to', 'from', 'taker', 'label', 'ag-ui', 'since', 'inventory', 'check-file', 'acceptance-file']);
+
+/** The method `op` names first. A word that starts with @ is the address the old form put first, which a call no longer names. */
+function opMethod(word) {
+  const method = need(word, `Name the method: ${cliName()} op METHOD JSON, for example ${cliName()} op tools:list '{}'.`);
+  if (method.startsWith('@')) throw new CommandError(`A call names its method, not an address: ${cliName()} op METHOD JSON (for example ${cliName()} op tools:list '{}'). --address ADDRESS is only for passing a method on.`, { status: 2 });
+  return method;
+}
 
 /** argv -> { words, flags, rest }: `--name value` for VALUE_FLAGS, `--name` alone is true, everything after `--` is rest. */
 export function parseArgs(argv) {
@@ -227,8 +234,8 @@ export const WORK_COMMANDS = new Set(['send', 'work', 'take', 'serve', ...Object
  *  row too large for one reply (a long brief) comes as byte pages, which are read through under the call's request key. */
 export async function workCall(client, name, input, { idempotent = false, rules = settings } = {}) {
   const requestKey = randomUUID(), method = rules.engine.tools_run, request = { tool: rules.work.tools[name], input };
-  const first = await client.op(rules.engine.tools, method, request, { idempotent, requestKey });
-  const answer = bytePageOf(first) ? await wholeAnswer(client, rules.engine.tools, method, request, first, { requestKey, rules }) : first;
+  const first = await client.op(null, method, request, { idempotent, requestKey });
+  const answer = bytePageOf(first) ? await wholeAnswer(client, null, method, request, first, { requestKey, rules }) : first;
   return object(answer) && Object.hasOwn(answer, 'result') ? answer.result : answer;
 }
 
@@ -629,7 +636,7 @@ export async function carryThisComputer(context, { rules = settings, home = home
     label: rules.carry.label, way, relay_host: { id: 'site', hostname: new URL(site).hostname },
     computer_id: Buffer.from(blake3(new TextEncoder().encode(key.public))).toString('hex').slice(0, 16), local_port: Number(listen.split(':').at(-1)),
     values: { public_key: key.public }, credential_command: [...self, 'carrier-key'],
-    announce: { argv: [...self, 'op', '--origin', site, announce.address, announce.method, announce.input], every_seconds: announce.every_seconds, settle_seconds: announce.settle_seconds, gives: announce.gives },
+    announce: { argv: [...self, 'op', '--origin', site, '--address', announce.address, announce.method, announce.input], every_seconds: announce.every_seconds, settle_seconds: announce.settle_seconds, gives: announce.gives },
   }, state);
 }
 
@@ -749,8 +756,10 @@ export function engineClient({ door, credential, fetchImpl = fetch, rules = sett
       throw Object.assign(new CommandError(error.message ?? told ?? said ?? answer?.text ?? fill(rules.words.refused_code, { which: door.name }), { answer, detail: `${fill(rules.words.details.refused_code, { mcp: door.mcp, tool: name, code: code ?? 'no code' })}${cause}` }), { code });
     }
   }
+  // A call names its method; the engine finds the owner by it. An address is sent only when one is given: to pass a method
+  // on to a computer whose own owner answers it (a meeting point's announce).
   const op = (address, method, input = {}, { idempotent = false, requestKey = randomUUID() } = {}) =>
-    tool(rules.engine.tool, { address, method, request_key: requestKeyForEngine(requestKey), input }, { idempotent });
+    tool(rules.engine.tool, { ...(address ? { address } : {}), method, request_key: requestKeyForEngine(requestKey), input }, { idempotent });
   async function whoami() {
     const result = await rpc('initialize', { protocolVersion: rules.engine.protocol_version, capabilities: {}, clientInfo: { name: rules.client_name, version: rules.client_version } }, { once: true });
     // Whose account answered: the engine names it under `<its site, reversed>/account`, or `account` when it names no
@@ -1035,7 +1044,7 @@ export async function namesOf(client, values, rules = settings) {
   const binding = field?.kind === rules.who.formula_kind ? field.derive?.request?.binding : null;
   if (!binding) throw new CommandError(fill(rules.who.no_list, { list: rules.who.ai_list }), { status: 4 });
   if (!values.length) return [];
-  const answer = await client.op(rules.engine.tools, rules.engine.tools_run, { tool: rules.who.formula_tool, input: { binding, rows: values } }, { idempotent: true });
+  const answer = await client.op(null, rules.engine.tools_run, { tool: rules.who.formula_tool, input: { binding, rows: values } }, { idempotent: true });
   const named = answer?.result?.values ?? answer?.values;
   if (!Array.isArray(named) || named.length !== values.length) throw new CommandError(fill(rules.who.no_names, { tool: rules.who.formula_tool }), { status: 4 });
   return named.map(name => (typeof name === 'string' && name.trim() ? name : null));
@@ -1223,7 +1232,7 @@ const HELP = `{cli}: see your AIs and their work, and run your {site_name}'s too
   {cli} who [--all]                                   your AIs seen lately (--all: every one): ready or away
   {cli} publish [--dry-run]                           write this AI's own record: its facts and that it was seen now
   {cli} tools | call TOOL JSON|-                      your Workshop tools, and run one by its id
-  {cli} op ADDRESS METHOD JSON|-                      any engine operation (run_resource_operation); op --dry-run shows the request and sends nothing
+  {cli} op METHOD JSON|-                              any engine operation by its method (run_resource_operation); op --dry-run shows the request and sends nothing
   --timeout SECONDS  wait this long for one try of a call (default ${settings.retry.attempt_seconds}); a try with no answer is asked again, up to ${settings.retry.count} more times, under the same request key
   {cli} schedule list | read ID                       list wake schedules or read one with its admitted runs
   {cli} schedule at ID TOOL WAKE_ID TIME BUDGET_JSON INPUT_JSON | repeat ID TOOL WAKE_ID EVERY_MS BUDGET_JSON INPUT_JSON [--from TIME]   create one
@@ -1523,7 +1532,7 @@ export async function schedules(client, words, { requestKey, flags = {}, rules =
     let answer;
     let outcome = 'answered';
     const cancelKey = scheduleChildKey(requestKey, 'cancel');
-    try { answer = await opWhole(client, rules.engine.tools, rules.engine.cancel, { run }, { requestKey: cancelKey }); }
+    try { answer = await opWhole(client, null, rules.engine.cancel, { run }, { requestKey: cancelKey }); }
     catch (error) {
       if (error.status !== 4) throw error;
       outcome = 'unknown';
@@ -1901,8 +1910,8 @@ export async function main(argv, seams = {}) {
     const unknown = Object.keys(flags).find(name => !known.includes(name));
     if (unknown !== undefined) throw new CommandError(fill(settings.words.unknown_flag, { command, flag: unknown, known: known.map(name => `--${name}`).join(', ') }), { status: 2 });
     if (flags['dry-run'] === true) {
-      const request = { address: need(words[0], `Name the address: ${cliName()} op ADDRESS METHOD JSON.`), method: need(words[1], `Name the method: ${cliName()} op ADDRESS METHOD JSON.`),
-        request_key: flags['request-key'] ?? randomUUID(), input: await readJson(words[2], '{"id": "..."}') };
+      const request = { ...(flags.address ? { address: flags.address } : {}), method: opMethod(words[0]),
+        request_key: flags['request-key'] ?? randomUUID(), input: await readJson(words[1], '{"id": "..."}') };
       if (request.method !== settings.direct_calls.dry_run_reads_first.method) return JSON.stringify(request, null, 2);
       return JSON.stringify(await dryRunWrite(await signedInClient(context), request), null, 2);
     }
@@ -1961,17 +1970,15 @@ export async function main(argv, seams = {}) {
     if (requestKey.length > 160) throw new CommandError('A schedule --request-key may be at most 160 characters so its per-step keys remain unique.', { status: 2 });
     return print('schedule', await schedules(client, words, { requestKey, flags, rules: settings }));
   }
-  if (command === 'tools') return print('tools', { tools: await allPages(client, engine.tools, engine.tools_list, {}, 'tools') });
+  if (command === 'tools') return print('tools', { tools: await allPages(client, null, engine.tools_list, {}, 'tools') });
   if (command === 'call' || command === 'op') {
     // An answer too large for one reply is read page by page, joined and checked (opWhole) before it is printed.
     const whole = answer => (typeof answer === 'string' ? answer : JSON.stringify(answer, null, 2));
     if (command === 'call') {
       const tool = need(words[0], `Name the tool: ${cliName()} call TOOL JSON, with an id from ${cliName()} tools.`);
-      return whole(await opWhole(client, engine.tools, engine.tools_run, { tool, input: await readJson(words[1], '{"text": "..."}') }, { requestKey: flags['request-key'] }));
+      return whole(await opWhole(client, null, engine.tools_run, { tool, input: await readJson(words[1], '{"text": "..."}') }, { requestKey: flags['request-key'] }));
     }
-    const address = need(words[0], `Name the address: ${cliName()} op ADDRESS METHOD JSON, for example ${cliName()} op @own-records records:read \'{"id":"..."}\'.`);
-    const method = need(words[1], `Name the method: ${cliName()} op ADDRESS METHOD JSON.`);
-    return whole(await opWhole(client, address, method, await readJson(words[2], '{"id": "..."}'), { requestKey: flags['request-key'] }));
+    return whole(await opWhole(client, flags.address ?? null, opMethod(words[0]), await readJson(words[1], '{"id": "..."}'), { requestKey: flags['request-key'] }));
   }
   if (command === 'who') {
     const now = Date.now();

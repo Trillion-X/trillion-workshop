@@ -101,6 +101,6 @@ test('--timeout SECONDS is how long one try waits: any whole number from 1, no u
     await assert.rejects(run(['call', 'tool:any', '{}', '--timeout', value], silentDoor().fetchImpl), error => { assert.equal(error.status, 2); assert.match(error.message, /whole number of seconds, at least 1/); return true; }, `--timeout ${value}`);
   }
   const silent = silentDoor();
-  await assert.rejects(run(['op', '@own-records', 'records:read', '{"id":"x"}', '--timeout', '1'], silent.fetchImpl), /did not answer after 11 tries/);
+  await assert.rejects(run(['op', 'records:read', '{"id":"x"}', '--timeout', '1'], silent.fetchImpl), /did not answer after 11 tries/);
   assert.equal(silent.bodies.length, settings.retry.count + 1);
 });

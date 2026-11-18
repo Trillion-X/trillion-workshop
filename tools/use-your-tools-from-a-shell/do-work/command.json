@@ -52,6 +52,7 @@
     "_what": "The flags `{cli} op` and `{cli} call` take, per command; any other flag is refused before anything is sent (parseArgs makes every unknown --flag a true, so an unchecked one was silently dropped: `op ... records:write --dry-run` removed a record on 2026-11-13). `--dry-run` is op only: it prints the request it would have sent {address, method, request_key, input} and sends nothing, except that for `dry_run_reads_first.method` (records:write) it reads each target row with `read_method` and prints, per row, the current value, the new value, a field-by-field diff, the fields the write drops, and `removes` for a value null; no write is sent.",
     "flags": {
       "op": [
+        "address",
         "request-key",
         "timeout",
         "origin",
@@ -316,7 +317,6 @@
     "read": "records:read",
     "history": "records:history",
     "files": "@namespace",
-    "tools": "@tools",
     "tools_list": "tools:list",
     "tools_run": "tools:run",
     "ai_type": "ai",

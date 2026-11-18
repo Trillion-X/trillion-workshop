@@ -72,7 +72,7 @@ test('example call reads every page of a byte-paged answer under one request key
   const quarter = Math.ceil(whole.length / 4);
   assert.deepEqual(door.seen.map(row => row.args.input.after_byte), [undefined, quarter, quarter * 2, quarter * 3]);
   for (const row of door.seen) {
-    assert.equal(row.args.address, '@tools');
+    assert.equal(row.args.address, undefined, 'a call names its method, not an address');
     assert.equal(row.args.method, 'tools:run');
     assert.equal(row.args.input.tool, 'tool:check-against-a-persons-rules-and-verdicts');
     assert.deepEqual(row.args.input.input, { person: 'p' });
@@ -95,7 +95,7 @@ test('a job row too large for one reply is read whole, so a move names the claim
 test('example op pages any operation the same way, with nothing particular to one tool', async () => {
   const whole = Buffer.from(JSON.stringify({ value: 'x'.repeat(9000) }));
   const door = fakeDoor({ whole, pageBytes: 4000 });
-  const printed = await run(['op', '@own-records', 'records:read', '{"id":"note:big"}'], door);
+  const printed = await run(['op', 'records:read', '{"id":"note:big"}'], door);
   assert.deepEqual(JSON.parse(printed), { value: 'x'.repeat(9000) });
   assert.equal(new Set(door.seen.map(row => row.args.request_key)).size, 1, 'every page is asked under one key');
   assert.deepEqual(door.seen.map(row => [row.args.input.after_byte, row.args.input.id]),
@@ -105,7 +105,7 @@ test('example op pages any operation the same way, with nothing particular to on
 test('an answer that is not JSON is printed as its text', async () => {
   const whole = Buffer.from('plain words '.repeat(500));
   const door = fakeDoor({ whole, pageBytes: 2500 });
-  assert.equal(await run(['op', '@any', 'thing:read', '{}'], door), whole.toString('utf8'));
+  assert.equal(await run(['op', 'thing:read', '{}'], door), whole.toString('utf8'));
 });
 
 test('an answer that fits one reply is printed as before, in one call', async () => {
