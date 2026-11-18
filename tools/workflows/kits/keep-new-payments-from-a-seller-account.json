@@ -1,0 +1,50 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:keep-new-payments-from-a-seller-account with seller_connection service_connection:stripe:example-school and payments_store {\\\"where\\\": \\\"postgresql database example_school on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-school-postgres-connection\\\", \\\"payments\\\": \\\"payment_events\\\", \\\"offers\\\": \\\"offers\\\"}, then switch its daily wake on.\"",
+  "lists": [],
+  "no_lists_because": "It names no list: the payments are kept in the person's own store, wherever and however that store keeps them, and payments_store says where and in which language.",
+  "workflows": [
+    "workflow:keep-new-payments-from-a-seller-account"
+  ],
+  "tools": [
+    "tool:run-workflow-definition",
+    "tool:keep-completed-stripe-checkouts-as-payment-events"
+  ],
+  "instructions": [
+    "1. Save the seller's payment account as a service connection (service_connection:stripe:<account>) and the store's login in your vault under a name you choose.",
+    "2. Say \"Run workflow:keep-new-payments-from-a-seller-account\" with seller_connection and payments_store: where the payments are kept, the store's language, the login's vault name, and where in the store the payment events and the offers are.",
+    "3. Read what comes back: the since step's newest kept time, the ask step's events, the ids kept and the ids read back. Every id kept must be read back.",
+    "4. Switch its daily wake on, so it runs every morning at 6:00 and tells you only when an event was not kept or a step failed."
+  ],
+  "worked_examples": [
+    {
+      "title": "Two new checkouts kept in a school's database",
+      "ask": "Keep the new payments from my school's payment account in my school database.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "run_resource_operation",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-new-payments-from-a-seller-account",
+              "seller_connection": "service_connection:stripe:example-school",
+              "payments_store": {
+                "where": "postgresql database example_school on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-school-postgres-connection",
+                "payments": "payment_events",
+                "offers": "offers"
+              }
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-new-payments-from-a-seller-account",
+      "step": "keep",
+      "given": "The since step found the newest kept payment at 2026-09-22T16:26:39Z (created_after_unix 1758558399), and the ask step answered two events: payment-event:checkout:cs_test_sample0001 for offer:example-course and payment-event:checkout:cs_test_sample0002 for offer:example-membership, both from buyer@example.com.",
+      "hands_back": "kept_ids [\"payment-event:checkout:cs_test_sample0001\", \"payment-event:checkout:cs_test_sample0002\"], each written once by its id with its whole attributes object and linked to the buyer row for buyer@example.com; the read-back step found both."
+    }
+  ]
+}

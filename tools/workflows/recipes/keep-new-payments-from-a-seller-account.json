@@ -1,0 +1,137 @@
+{
+  "about": "workflow:keep-new-payments-from-a-seller-account: on its schedule, ask the seller's payment account for every completed checkout since the newest payment already kept, and keep each one as a payment event in whatever store the person keeps their payments in, in that store's own language, so a buyer whose purchase no webhook reported still holds what they bought.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-new-payments-from-a-seller-account",
+        "label": "Keep new payments from a seller account",
+        "job": "On its schedule, ask the seller's payment account for every completed checkout since the newest payment already kept, and keep each one as a payment event in the store the person keeps their payments in, so a buyer whose purchase no webhook reported still holds what they bought.",
+        "produces": "One payment event kept per completed checkout, in the person's own payments store, each read back.",
+        "source": {
+          "from": "the owner, 2026-11-18: workflows, formulas, triggers and scheduled actions are the engines that run this; the caller reads and writes the store directly, in the store's own language, and the tool never knows which store it was",
+          "note": "tool:keep-completed-stripe-checkouts-as-payment-events keeps nothing: it answers the events. This recipe is the caller. It names no store and no store's language: payments_store says where the payments are kept and how that store is spoken to, and the run speaks to it that way."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": ["seller_connection", "payments_store"],
+          "properties": {
+            "seller_connection": {
+              "type": "string",
+              "pattern": "^service_connection:stripe(:[^:]+)?$",
+              "description": "The seller's payment account connection, as tool:keep-completed-stripe-checkouts-as-payment-events takes it"
+            },
+            "payments_store": {
+              "type": "object",
+              "required": ["where", "language"],
+              "properties": {
+                "where": { "type": "string", "description": "Where the payments are kept: the store's own address (a database, a sheet, a folder), as the person's own store row names it" },
+                "language": { "type": "string", "description": "How that store is spoken to, in the store's own terms (its query language, its API, its file format)" },
+                "credential_name": { "type": "string", "description": "The vault name of the login the run uses for that store, when it needs one" },
+                "payments": { "type": "string", "description": "Where in the store the payment events are (a table, a tab, a file)" },
+                "offers": { "type": "string", "description": "Where in the store the offers are, so each event carries its offer's pursuits" }
+              }
+            },
+            "start_at": { "type": "string" }
+          }
+        },
+        "wakes": [
+          {
+            "id": "daily",
+            "on": {
+              "fact": {
+                "kind": "due-time",
+                "from": ["run"],
+                "match": { "schedule_id": "schedule:workflow:keep-new-payments-from-a-seller-account:daily" },
+                "watch": {
+                  "schedules": [
+                    {
+                      "schedule_id": "schedule:workflow:keep-new-payments-from-a-seller-account:daily",
+                      "source_generation": 1,
+                      "schedule_revision": 1,
+                      "timezone": "America/Chicago",
+                      "start_local_date": "1969-12-31",
+                      "local_window": { "start": "06:00", "duration_minutes": 1 },
+                      "dst": { "gap": "next-valid", "fold": "earlier" },
+                      "action": {
+                        "operation": "tell-the-engine",
+                        "owner_ref": "workflow:keep-new-payments-from-a-seller-account",
+                        "owner_dispatch": { "name": "workflow:keep-new-payments-from-a-seller-account", "input": {} },
+                        "completion": { "mode": "synchronous-owner-return" }
+                      },
+                      "cadence": { "unit": "day" }
+                    }
+                  ]
+                }
+              }
+            },
+            "budget": { "steps": 20, "wall_ms": 600000 },
+            "input": { "start_at": "since" }
+          }
+        ],
+        "steps": [
+          {
+            "id": "since",
+            "title": "Find the newest payment already kept",
+            "do": "Speak to payments_store in its own language, with the login under its credential_name, and read the newest occurred_at among the payment events kept there. Submit it as created_after_unix, in whole seconds since 1970. When the store keeps none yet, submit 0. Read the store's offers the same way and submit them unchanged.",
+            "submit": {
+              "type": "object",
+              "required": ["created_after_unix", "offers"],
+              "properties": {
+                "created_after_unix": { "type": "number", "minimum": 0 },
+                "offers": { "type": "array", "items": { "type": "object" }, "description": "The store's offer rows as it holds them" }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "ask",
+            "title": "Ask the seller's account for completed checkouts",
+            "do": "Run tool:keep-completed-stripe-checkouts-as-payment-events with seller_connection, created_after_unix from the since step and offers from the since step. Submit its events, left_out and complete exactly as it answered. When complete is false, run it again from its next_created_after_unix and add those events too.",
+            "submit": {
+              "type": "object",
+              "required": ["tool", "events", "complete"],
+              "properties": {
+                "tool": { "type": "string", "const": "tool:keep-completed-stripe-checkouts-as-payment-events" },
+                "events": { "type": "array", "items": { "type": "object" }, "description": "The events the tool answered, unchanged" },
+                "left_out": { "type": "object" },
+                "complete": { "type": "boolean" }
+              }
+            },
+            "checks": [
+              { "kind": "exists", "says": "The tool that reads completed checkouts exists", "path": ["this", "tool"], "catalog": "tool" }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep each event in the payments store",
+            "do": "For each event from the ask step, write it into payments_store's payment events in the store's own language, keyed by the event's id so a second write of the same event changes nothing. Keep its whole attributes object as given, and link it to the buyer the store already holds under the event's customer email, adding the buyer when the store holds none. Submit the id of every event written or already there.",
+            "submit": {
+              "type": "object",
+              "required": ["kept_ids"],
+              "properties": {
+                "kept_ids": { "type": "array", "items": { "type": "string" } }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "read-back",
+            "title": "Read the kept events back",
+            "do": "Read payments_store's payment events back by the ids from the keep step, in the store's own language, and submit every id found. Every event the ask step answered must be among them. Tell the person, through their chosen way of being told, only when one is missing or a step failed, naming which.",
+            "submit": {
+              "type": "object",
+              "required": ["found_ids"],
+              "properties": {
+                "found_ids": { "type": "array", "items": { "type": "string" } }
+              }
+            },
+            "checks": [
+              { "kind": "subset-of", "says": "Every event kept is read back", "path": ["steps", "keep", "kept_ids"], "of": ["this", "found_ids"] }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
