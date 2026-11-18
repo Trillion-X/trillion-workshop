@@ -1,0 +1,43 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:keep-each-payment-where-the-seller-keeps-their-rows for the sign-ups and refunds from my bakery's online checkout.\" It goes step by step, handing back what it found with where each thing came from, and what is still open.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: each step's answers come back in the run, and the last step keeps them wherever the person keeps the pursuit's rows, in that store's own way.",
+  "workflows": [
+    "workflow:keep-each-payment-where-the-seller-keeps-their-rows"
+  ],
+  "tools": [
+    "tool:notice-when-something-shows-up",
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Say what the run is for in plain words, and what is already known, as the input: {\"about\": \"the sign-ups and refunds from my bakery's online checkout\", \"known\": \"what you already know or decided\"}.",
+    "2. Run workflow:keep-each-payment-where-the-seller-keeps-their-rows with tools:run, tool tool:run-workflow-definition, input {row: \"workflow:keep-each-payment-where-the-seller-keeps-their-rows\", about, known}. Each step waits for its answer: what was found, each with where it came from, in found, and what is not settled yet in open with what would settle it.",
+    "3. Answer a step by giving its answer under answers by its step id and running again.",
+    "4. Read what the run kept and what is open; the last step says what matters most next, and choosing what runs next is up to you or your AI."
+  ],
+  "worked_examples": [
+    {
+      "title": "Start to keep each payment once, from signed calls and a daily list read for the sign-ups and refunds from my bakery's online checkout",
+      "ask": "Run keep each payment once, from signed calls and a daily list read for the sign-ups and refunds from my bakery's online checkout.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "run_resource_operation",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-each-payment-where-the-seller-keeps-their-rows",
+              "about": "the sign-ups and refunds from my bakery's online checkout"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-each-payment-where-the-seller-keeps-their-rows",
+      "step": "say-what-counts-and-where-it-is-kept",
+      "given": "No answers yet; run on the workflow engine on 2026-11-18 with this input.",
+      "hands_back": "{\"status\":\"paused\",\"waiting\":[{\"step_id\":\"say-what-counts-and-where-it-is-kept\",\"asks\":\"ai\"}]}: the run waits at 'Say what counts as a payment fact and where the seller keeps their rows' for what was found (found) and what is still open (open)."
+    }
+  ],
+  "drafted_from": "workflow:keep-each-payment-where-the-seller-keeps-their-rows's own rows in published/workflows.json and published/workflow-steps.json, and its run on the workflow engine on 2026-11-18"
+}

@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflows:public",
   "list": "workflows",
-  "blake3": "b8a33d585c278f017f277c45d49e836581c233d28e9b1fe6fa3b8df1fa4ebbeb",
+  "blake3": "1aff6a577f52d34020b8e103732b01b00bd07919f81c4289fb48f9212457418b",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
@@ -21,6 +21,7 @@
     "ask-for-ten-and-keep-the-winner",
     "audit-a-site-against-its-references-for-originality",
     "audit-an-app-store-listing",
+    "bring-an-old-sites-content-into-the-sellers-own-store",
     "bring-in-a-framework",
     "bring-in-my-processes",
     "bring-newly-shared-items-into-one-list",
@@ -95,6 +96,7 @@
     "get-a-rented-room-ready-after-a-stay",
     "get-a-stalled-agent-moving-again",
     "get-past-a-wall-called-impossible",
+    "give-or-end-access-by-hand",
     "give-paid-buyers-access",
     "give-people-a-way-to-find-and-get-it",
     "ground-a-screen-in-real-product-references",
@@ -115,6 +117,7 @@
     "keep-a-change-under-review-until-it-is-clean",
     "keep-a-changelog-from-what-shipped",
     "keep-a-product-positioning-record",
+    "keep-each-payment-where-the-seller-keeps-their-rows",
     "keep-every-pursuit-moving-with-a-board-and-a-weekly-pulse",
     "keep-it-working",
     "keep-what-was-learned-usable-by-others",
@@ -122,11 +125,13 @@
     "lead-me-to-it",
     "learn-the-person",
     "legal-pages-and-support",
+    "let-a-member-in-by-an-emailed-code-and-say-what-they-may-open",
     "list-your-product-in-every-ai-connector-store",
     "lock-in",
     "make-a-font-from-measured-references",
     "make-a-piece-with-a-known-device",
     "make-a-piece-with-a-known-edit-technique",
+    "make-a-service-call-us-and-keep-its-signing-secret",
     "make-a-sound-in-code-and-improve-it-by-listening",
     "make-adapt-or-update-a-skill",
     "make-ads-from-winning-reference-ads",
@@ -175,6 +180,7 @@
     "plan-a-sites-structure",
     "plan-a-text-message-program",
     "plan-run-and-read-paid-ad-campaigns",
+    "point-a-domain-at-a-computer",
     "port-without-losing-anything",
     "possibility-to-proof",
     "post-on-social-channels-on-a-schedule",
@@ -184,6 +190,7 @@
     "publish-a-project-as-a-public-repository",
     "publish-articles-and-newsletter-on-a-cadence",
     "put-a-households-money-in-order",
+    "put-a-sites-commit-live-on-the-sellers-own-computer",
     "put-it-in-the-world",
     "put-it-where-it-belongs",
     "question-the-belief-until-it-holds",
@@ -4551,6 +4558,111 @@
     "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
     "fires_when": "[{\"label\": \"a part asks to record a polished walkthrough video of a real browser\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"video-request\", \"piece-to-make\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from the person's old kept store, table agent_skill; the label is the condition in words.\"}]",
     "source": "{\"from\": \"the person's old kept store, table agent_skill, judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "keep-each-payment-where-the-seller-keeps-their-rows",
+   "values": {
+    "title": "Keep each payment once, from signed calls and a daily list read",
+    "recipe": "workflow:keep-each-payment-where-the-seller-keeps-their-rows",
+    "job": "Turns every completed checkout, renewal, refund and ended subscription at a payment service into one fact kept once in the seller's own records, from signed calls and from reading the service's own list. Made for a seller who takes payments at a service and needs nothing lost or doubled.",
+    "produces": "A finished run hands back the kinds of change and their ids, a call checked and kept as one fact, a list read with its count, each fact kept once on the service id, a daily catch-up count, and a record of what matters most.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to keep each payment once, from signed calls and a daily list read\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"payment-arrived\", \"something-changed\", \"money-to-keep\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from trillion-workshop origin/main:tools/take-payments/README.md\\\", \\\"trillion-workshop origin/main:tools/take-payments/tool-rows.json\\\", \\\"trillion-workshop origin/main:tools/notice-when-something-shows-up/do-work/mechanisms/signed-service-calls.mjs\\\", \\\"trillion-workshop origin/main:tools/notice-when-something-shows-up/do-work/mechanisms/service-lists.mjs\\\", \\\"trillion-workshop origin/main:tools/paid-access/README.md\\\"]; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"trillion-workshop origin/main:tools/take-payments/README.md\\\", \\\"trillion-workshop origin/main:tools/take-payments/tool-rows.json\\\", \\\"trillion-workshop origin/main:tools/notice-when-something-shows-up/do-work/mechanisms/signed-service-calls.mjs\\\", \\\"trillion-workshop origin/main:tools/notice-when-something-shows-up/do-work/mechanisms/service-lists.mjs\\\", \\\"trillion-workshop origin/main:tools/paid-access/README.md\\\"], judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "make-a-service-call-us-and-keep-its-signing-secret",
+   "values": {
+    "title": "Make a service call us and keep its signing secret",
+    "recipe": "workflow:make-a-service-call-us-and-keep-its-signing-secret",
+    "job": "Makes the call-back at an outside service for the events wanted, keeps its signing secret in the vault without ever showing it, writes how that service signs its calls, and proves a real event is accepted and a forged one refused. For a seller who wants a service to tell their computer when things happen.",
+    "produces": "A finished run hands back the events and the address, the secret kept by name, the written verify and shape, one real event accepted as one fact, and two forged calls refused.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to make a service call us and keep its signing secret\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"service-offers-callbacks\", \"new-connection\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from trillion-workshop origin/main:tools/take-payments/README.md\\\", \\\"trillion-workshop origin/main:tools/notice-when-something-shows-up/do-work/mechanisms/signed-service-calls.mjs\\\", \\\"trillion-workshop origin/main:tools/connect-a-service-and-seal-its-key\\\", \\\"trillion-workshop origin/main:tools/workflows/definitions/make-a-signing-key-in-the-vault.json\\\", \\\"trillion-workshop origin/main:tools/workflows/definitions/connect-a-service-by-key.json\\\"]; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"trillion-workshop origin/main:tools/take-payments/README.md\\\", \\\"trillion-workshop origin/main:tools/notice-when-something-shows-up/do-work/mechanisms/signed-service-calls.mjs\\\", \\\"trillion-workshop origin/main:tools/connect-a-service-and-seal-its-key\\\", \\\"trillion-workshop origin/main:tools/workflows/definitions/make-a-signing-key-in-the-vault.json\\\", \\\"trillion-workshop origin/main:tools/workflows/definitions/connect-a-service-by-key.json\\\"], judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "let-a-member-in-by-an-emailed-code-and-say-what-they-may-open",
+   "values": {
+    "title": "Sign a member in by emailed code and say what they may open",
+    "recipe": "workflow:let-a-member-in-by-an-emailed-code-and-say-what-they-may-open",
+    "job": "Signs a member in with a code sent to their email, then works out which paid or granted things that verified email may open, checked fresh at every open. For a seller whose members or customers get access to lessons, files or pages.",
+    "produces": "A finished run hands back a verified sending address, a working code sign-in with four refusals shown, the verified email as the only subject, a fresh access answer at each open, and three members tried.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to sign a member in by emailed code and say what they may open\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"member-signs-in\", \"who-may-open-this\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from trillion-workshop origin/main:tools/better-auth-official/README.md\\\", \\\"trillion-workshop origin/main:tools/paid-access/README.md\\\", \\\"trillion-workshop origin/main:tools/paid-access/tool-rows.json\\\", \\\"trillion-workshop origin/main:tools/send-messages/tool-rows.json\\\", \\\"trillion-workshop origin/main:tools/email-sending-domains/README.md\\\", \\\"trillion-workshop origin/main:tools/start-a-computer/README.md\\\"]; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"trillion-workshop origin/main:tools/better-auth-official/README.md\\\", \\\"trillion-workshop origin/main:tools/paid-access/README.md\\\", \\\"trillion-workshop origin/main:tools/paid-access/tool-rows.json\\\", \\\"trillion-workshop origin/main:tools/send-messages/tool-rows.json\\\", \\\"trillion-workshop origin/main:tools/email-sending-domains/README.md\\\", \\\"trillion-workshop origin/main:tools/start-a-computer/README.md\\\"], judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "give-or-end-access-by-hand",
+   "values": {
+    "title": "Give or end access by hand, with who made each change",
+    "recipe": "workflow:give-or-end-access-by-hand",
+    "job": "Gives owner, staff or complimentary access with no charge and an optional end date, ends a grant, and records who made each change and why. For a seller who must open something for a person without a payment.",
+    "produces": "A finished run hands back a grant with person, access, reason and valid window, its written count, an ended grant checked as denied, and a maker, time and reason beside each change.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to give or end access by hand, with who made each change\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"access-to-give\", \"access-to-end\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from trillion-workshop origin/main:tools/paid-access/README.md\\\", \\\"trillion-workshop origin/main:tools/paid-access/tool-rows.json\\\"]; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"trillion-workshop origin/main:tools/paid-access/README.md\\\", \\\"trillion-workshop origin/main:tools/paid-access/tool-rows.json\\\"], judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "put-a-sites-commit-live-on-the-sellers-own-computer",
+   "values": {
+    "title": "Put a site commit live on the seller's own computer",
+    "recipe": "workflow:put-a-sites-commit-live-on-the-sellers-own-computer",
+    "job": "Builds a chosen commit from a private repository on the seller's own computer, serves each name from its own folder behind a front door with certificates issued on demand, and keeps the program on a socket, all changed from the computer's row and read back. For a seller who runs their own site.",
+    "produces": "A finished run hands back the commit and credential name, the row with build and front door, the applied result with health 200 and an empty difference, each name loaded over https, and any hand change moved into the row.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to put a site commit live on the seller's own computer\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"site-change-to-publish\", \"computer-to-update\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from trillion-workshop origin/main:tools/start-a-computer/README.md\\\", \\\"trillion-workshop origin/main:tools/keep-a-caddy-front-door-on-a-computer/README.md\\\", \\\"trillion-workshop origin/main:tools/keep-a-caddy-front-door-on-a-computer/sites/each-name-its-own-folder.caddy\\\"]; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"trillion-workshop origin/main:tools/start-a-computer/README.md\\\", \\\"trillion-workshop origin/main:tools/keep-a-caddy-front-door-on-a-computer/README.md\\\", \\\"trillion-workshop origin/main:tools/keep-a-caddy-front-door-on-a-computer/sites/each-name-its-own-folder.caddy\\\"], judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "point-a-domain-at-a-computer",
+   "values": {
+    "title": "Point a domain at a computer and prove every name loads",
+    "recipe": "workflow:point-a-domain-at-a-computer",
+    "job": "Makes the records at the domain's DNS host so each name reaches the seller's own computer, redirects the www name, sends extra names to their pages, and proves each by resolving it and loading it over https.",
+    "produces": "A finished run hands back each name with what it shows, the records made and read back, the front door row applied, each name resolved and loaded with a valid certificate, and the records' long life set.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to point a domain at a computer and prove every name loads\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"domain-to-connect\", \"site-address-changed\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from trillion-workshop origin/main:tools/start-a-computer/README.md\\\", \\\"trillion-workshop origin/main:tools/start-a-computer/providers/cloudflare.json\\\", \\\"trillion-workshop origin/main:tools/keep-a-caddy-front-door-on-a-computer/README.md\\\", \\\"trillion-workshop origin/main:tools/keep-a-caddy-front-door-on-a-computer/sites/each-name-its-own-folder.caddy\\\"]; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"trillion-workshop origin/main:tools/start-a-computer/README.md\\\", \\\"trillion-workshop origin/main:tools/start-a-computer/providers/cloudflare.json\\\", \\\"trillion-workshop origin/main:tools/keep-a-caddy-front-door-on-a-computer/README.md\\\", \\\"trillion-workshop origin/main:tools/keep-a-caddy-front-door-on-a-computer/sites/each-name-its-own-folder.caddy\\\"], judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
+   }
+  },
+  {
+   "id": "bring-an-old-sites-content-into-the-sellers-own-store",
+   "values": {
+    "title": "Bring an old site's content into the seller's own place",
+    "recipe": "workflow:bring-an-old-sites-content-into-the-sellers-own-store",
+    "job": "Reads an old site's own store directly, keeps each piece (lessons with their video links and transcripts, posts, products) wherever the seller keeps their rows, and counts what was kept against the source. For a seller leaving a site.",
+    "produces": "A finished run hands back an exact count of each kind, a field map, each piece kept once with its old id, a read-back count against the source with gaps listed, and checked links.",
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"properties\": {\"about\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"What this run is for, in the person's words.\"}, \"known\": {\"type\": \"string\", \"description\": \"What is already known, decided or done, so the run starts from it instead of asking again.\"}}}",
+    "fires_when": "[{\"label\": \"a part asks to bring an old site's content into the seller's own place\", \"condition\": {\"fields\": [{\"id\": \"kinds\", \"kind\": \"tags\", \"path\": [\"kinds\"]}], \"tree\": {\"kind\": \"group\", \"combinator\": \"and\", \"negate\": false, \"rules\": [{\"kind\": \"rule\", \"field\": \"kinds\", \"operator\": \"has_any_of\", \"params\": {\"values\": [\"site-to-leave\", \"content-to-move\"]}}]}}, \"made_by\": \"fires_when\", \"state\": \"On\", \"evidence\": \"Written 2026-11-18 from the workflow's own job when it was drafted from no Workshop tool does the whole job; the reading is done directly in the old store's own way\\\", \\\"trillion-workshop origin/main:tools/keep-a-record-library-valid\\\", \\\"trillion-workshop origin/main:tools/export-records-as-list-rows\\\"]; the label is the condition in words.\"}]",
+    "source": "{\"from\": \"no Workshop tool does the whole job; the reading is done directly in the old store's own way\\\", \\\"trillion-workshop origin/main:tools/keep-a-record-library-valid\\\", \\\"trillion-workshop origin/main:tools/export-records-as-list-rows\\\"], judged and drafted 2026-11-18 from the person's own kept rows\", \"note\": \"Every step is the kept rows' own method in plain words; nothing names a store, a product, a person or another workflow.\"}"
    }
   }
  ]
