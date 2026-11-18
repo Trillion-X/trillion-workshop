@@ -1,5 +1,5 @@
 {
-  "_what": "How any value is drawn as a screen of shared parts (project.mjs). `rules` are tried in order; the first whose `when` holds for the value draws it with its `draw` template. A `when` names facts of the value's own shape (project.mjs `factsOf`: kind, count, items_kind, has_title, empty, is_error, has_range, media) and the value each must have (`*_lte`/`*_gte` bound a number). A `draw` template is an element of tools/ui/declared-props.json with `props` whose values may read the value: {\"$at\": \"/pointer\"} a field, {\"$title\": true} its title (the first of `title_fields` it has), {\"$text\": true} the value as words, {\"$words\": \"key\"} a word below, {\"$label\": true} the field's name in words, {\"$count\": true} how many items it holds. `children` are templates, or {\"each_item\": template} once per item of a list, or {\"each_field\": template} once per field of an object (its value is {key, value}), or {\"$view\": \"/pointer\"} the value at that pointer drawn by these same rules (so any nesting is drawn with no rule naming it). The last rule holds for every value, so nothing is left undrawn. `title_fields` and `hidden_fields` are DATA: a person's lens may narrow them. `limits` bound one screen (the parts screen's own limits are tools/build-a-screen-from-patches/read-data/screen-spec.json).",
+  "_what": "How any value is drawn as a screen of shared parts (project.mjs). `rules` are tried in order; the first whose `when` holds for the value draws it with its `draw` template. A `when` names facts of the value's own shape (project.mjs `factsOf`: kind, count, items_kind, has_title, empty, is_error, has_range, media) and the value each must have (`*_lte`/`*_gte` bound a number). A `draw` template is an element of tools/ui/declared-props.json with `props` whose values may read the value: {\"$at\": \"/pointer\"} a field, {\"$title\": true} its title (the first of `title_fields` it has), {\"$text\": true} the value as words, {\"$words\": \"key\"} a word below, {\"$label\": true} the field's name in words, {\"$count\": true} how many items it holds. `children` are templates, or {\"each_item\": template} once per item of a list, or {\"each_field\": template} once per field of an object (its value is {key, value}), or {\"$view\": \"/pointer\"} the value at that pointer drawn by these same rules (so any nesting is drawn with no rule naming it). The last rule holds for every value, so nothing is left undrawn. `title_fields` and `hidden_fields` are DATA: a person's lens may narrow them. `limits` bound one screen (the parts screen's own limits are tools/build-a-screen-from-patches/read-data/screen-spec.json). An answer that says how to run something (`runs`: its `run` {address, method, input, fill} and its `input_schema`, at the pointers named there; the engine's tools:list {tool} answers them) holds the fact `runnable`: its row draws one control per input ({\"each_input\": template}, the control chosen by `input_rules`, tried in order against facts of that input's schema: kind, has_enum, has_range, long), each bound to the screen's state under `runs.state_at` ({\"$bind\": true}; {\"$choices\": true} is its enum as tiles), and a row's `requests` declares the screen's requests from the value (here `run`, the answer's own), which a button's `on` names.",
   "title_fields": [
     "title",
     "name",
@@ -12,7 +12,8 @@
     "depth": 8,
     "items": 50,
     "fields": 40,
-    "text_chars": 600
+    "text_chars": 600,
+    "long_text_chars": 200
   },
   "words": {
     "empty": "Nothing here yet.",
@@ -20,7 +21,8 @@
     "error": "This did not work",
     "yes": "Yes",
     "no": "No",
-    "none": "None"
+    "none": "None",
+    "run": "Run"
   },
   "rules": [
     {
@@ -57,6 +59,74 @@
                 ]
               },
               "variant": "body"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "a-thing-to-run",
+      "when": {
+        "kind": "object",
+        "runnable": true
+      },
+      "requests": {
+        "run": {
+          "$at": "/run"
+        }
+      },
+      "draw": {
+        "type": "Card",
+        "props": {
+          "variant": "surface",
+          "padding": "md",
+          "layout": "stack"
+        },
+        "children": [
+          {
+            "type": "Text",
+            "props": {
+              "text": {
+                "$title": true
+              },
+              "variant": "title"
+            }
+          },
+          {
+            "type": "Text",
+            "props": {
+              "text": {
+                "$at": [
+                  "/description",
+                  "/job"
+                ]
+              },
+              "variant": "body",
+              "color": "muted"
+            }
+          },
+          {
+            "each_input": {}
+          },
+          {
+            "type": "Button",
+            "props": {
+              "label": {
+                "$words": "run"
+              },
+              "variant": "primary"
+            },
+            "on": {
+              "press": [
+                {
+                  "action": "run",
+                  "params": {
+                    "input": {
+                      "$state": "/input"
+                    }
+                  }
+                }
+              ]
             }
           }
         ]
@@ -300,6 +370,144 @@
             "$text": true
           },
           "variant": "body"
+        }
+      }
+    }
+  ],
+  "runs": {
+    "run_at": "/run",
+    "schema_at": "/input_schema",
+    "state_at": "/input"
+  },
+  "input_rules": [
+    {
+      "id": "choose-one",
+      "when": {
+        "has_enum": true
+      },
+      "draw": {
+        "type": "ChoiceTiles",
+        "props": {
+          "tiles": {
+            "$choices": true
+          },
+          "label": {
+            "$label": true
+          },
+          "chosen": {
+            "$bind": true
+          },
+          "kind": "buttons"
+        }
+      }
+    },
+    {
+      "id": "on-or-off",
+      "when": {
+        "kind": "boolean"
+      },
+      "draw": {
+        "type": "Switch",
+        "props": {
+          "checked": {
+            "$bind": true
+          },
+          "label": {
+            "$label": true
+          }
+        }
+      }
+    },
+    {
+      "id": "a-number-in-a-range",
+      "when": {
+        "kind_in": [
+          "number",
+          "integer"
+        ],
+        "has_range": true
+      },
+      "draw": {
+        "type": "Slider",
+        "props": {
+          "label": {
+            "$label": true
+          },
+          "value": {
+            "$bind": true
+          },
+          "min": {
+            "$at": "#minimum"
+          },
+          "max": {
+            "$at": "#maximum"
+          },
+          "description": {
+            "$at": "#description"
+          }
+        }
+      }
+    },
+    {
+      "id": "a-number",
+      "when": {
+        "kind_in": [
+          "number",
+          "integer"
+        ]
+      },
+      "draw": {
+        "type": "Input",
+        "props": {
+          "label": {
+            "$label": true
+          },
+          "value": {
+            "$bind": true
+          },
+          "type": "number",
+          "hint": {
+            "$at": "#description"
+          }
+        }
+      }
+    },
+    {
+      "id": "long-words",
+      "when": {
+        "long": true
+      },
+      "draw": {
+        "type": "Textarea",
+        "props": {
+          "label": {
+            "$label": true
+          },
+          "value": {
+            "$bind": true
+          },
+          "placeholder": {
+            "$at": "#description"
+          },
+          "autoGrow": true
+        }
+      }
+    },
+    {
+      "id": "words",
+      "when": {},
+      "draw": {
+        "type": "Input",
+        "props": {
+          "label": {
+            "$label": true
+          },
+          "value": {
+            "$bind": true
+          },
+          "hint": {
+            "$at": "#description"
+          }
         }
       }
     }

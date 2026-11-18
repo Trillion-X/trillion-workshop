@@ -15,6 +15,9 @@
 //   4. Bounded: depth, items, fields and characters are DATA limits; what is left out is said ("{count} more").
 //   5. The lens narrows, never widens: it may hide fields, set the title fields, bound the items and put the rows it names
 //      first; it cannot add a part or a request.
+//   6. A request comes only from the value: a row's `requests` are read from the answer being drawn (an answer that says
+//      how to run something, `runs`), so a screen can send only what the answer itself offered, and its input only
+//      through the screen's own bound controls.
 
 import defaults from './view-of-a-value.json' with { type: 'json' };
 
@@ -84,6 +87,26 @@ export function factsOf(value, schema, settings = defaults) {
     is_error: object(value) && (object(value.error) || (typeof value.code === 'string' && typeof value.outcome === 'string')),
     has_range: object(schema) && Number.isFinite(schema.minimum) && Number.isFinite(schema.maximum),
     media: typeof value === 'string' && /^(image|video|audio)\//.test(object(schema) ? String(schema.contentMediaType ?? '') : ''),
+    runnable: runOf(value, settings) !== null,
+  };
+}
+
+/** The run an answer offers ({address, method, input, fill}) and the schema of its input, when it offers one. */
+function runOf(value, settings) {
+  if (!object(value) || !object(settings.runs)) return null;
+  const run = at(value, settings.runs.run_at);
+  const schema = at(value, settings.runs.schema_at);
+  return object(run) && typeof run.address === 'string' && typeof run.method === 'string' && object(schema) ? { run, schema } : null;
+}
+
+/** The facts of one input's schema that input rules may name. */
+export function inputFactsOf(schema, settings = defaults) {
+  const given = object(schema) ? schema : {};
+  return {
+    kind: typeof given.type === 'string' ? given.type : 'string',
+    has_enum: Array.isArray(given.enum) && given.enum.length > 0,
+    has_range: Number.isFinite(given.minimum) && Number.isFinite(given.maximum),
+    long: Number.isFinite(given.maxLength) && given.maxLength > settings.limits.long_text_chars,
   };
 }
 
@@ -92,6 +115,8 @@ export function holds(when, facts) {
   return Object.entries(when ?? {}).every(([name, wanted]) => {
     const bound = name.match(/^(.*)_(lte|gte)$/);
     if (bound) return typeof facts[bound[1]] === 'number' && (bound[2] === 'lte' ? facts[bound[1]] <= wanted : facts[bound[1]] >= wanted);
+    const among = name.match(/^(.*)_in$/);
+    if (among && Array.isArray(wanted)) return wanted.includes(facts[among[1]]);
     return facts[name] === wanted;
   });
 }
@@ -106,6 +131,10 @@ function draw(value, schema, label, settings, out, depth) {
   const facts = factsOf(value, schema, settings);
   const rule = settings.rules.find(one => holds(one.when, facts));
   out.rules.push(rule.id);
+  for (const [name, given] of Object.entries(rule.requests ?? {})) {
+    const declared = propValue(given, { value, schema, label }, settings, true);
+    if (object(declared)) out.requests[name] = declared;
+  }
   return fill(rule.draw, { value, schema, label }, settings, out, depth, key);
 }
 
@@ -126,33 +155,53 @@ function fill(template, here, settings, out, depth, key = `e${out.next++}`) {
         children.push(fill(child.each_field, { value: { key: field, value: here.value[field] }, schema: fieldSchema, label: labelOf(field), field: true }, settings, out, depth + 1));
       }
       if (fields.length > settings.limits.fields) children.push(more(fields.length - settings.limits.fields, settings, out));
+    } else if (object(child) && object(child.each_input)) {
+      const offered = runOf(here.value, settings);
+      const properties = offered && object(offered.schema.properties) ? Object.entries(offered.schema.properties) : [];
+      for (const [field, inputSchema] of properties.slice(0, settings.limits.fields)) {
+        const rule = settings.input_rules.find(one => holds(one.when, inputFactsOf(inputSchema, settings)));
+        out.rules.push(`input:${rule.id}`);
+        const path = `${settings.runs.state_at}/${field.replace(/~/g, '~0').replace(/\//g, '~1')}`;
+        if (object(inputSchema) && inputSchema.default !== undefined) setAt(out.state, path, inputSchema.default);
+        children.push(fill(rule.draw, { value: undefined, schema: inputSchema, label: object(inputSchema) && typeof inputSchema.title === 'string' ? inputSchema.title : labelOf(field), bind: path }, settings, out, depth + 1));
+      }
     } else if (object(child) && typeof child.$view === 'string') {
       children.push(draw(at(here.value, child.$view), here.field ? here.schema : undefined, here.label, settings, out, depth + 1));
     } else if (object(child) && typeof child.type === 'string') {
       children.push(fill(child, here, settings, out, depth + 1));
     }
   }
-  out.elements[key] = { type: template.type, props, ...(children.length ? { children } : {}) };
+  out.elements[key] = { type: template.type, props, ...(children.length ? { children } : {}), ...(object(template.on) ? { on: template.on } : {}) };
   return key;
 }
 
 /** One prop of a template, read from the value it draws. */
-function propValue(given, here, settings) {
+function propValue(given, here, settings, whole = false) {
   if (!object(given)) return given;
   if (given.$at !== undefined) {
     const pointers = Array.isArray(given.$at) ? given.$at : [given.$at];
     for (const pointer of pointers) {
       const found = String(pointer).startsWith('#') ? at(here.schema ?? {}, `/${String(pointer).slice(1)}`) : at(here.value, String(pointer));
-      if (found !== undefined && found !== null) return typeof found === 'object' ? words(found, settings) : found;
+      if (found !== undefined && found !== null) return typeof found === 'object' && !whole ? words(found, settings) : found;
     }
     return undefined;
   }
+  if (given.$bind) return typeof here.bind === 'string' ? { $bindState: here.bind } : undefined;
+  if (given.$choices) return object(here.schema) && Array.isArray(here.schema.enum) ? here.schema.enum.slice(0, 24).map(choice => ({ id: String(choice), label: labelOf(choice) })) : undefined;
   if (given.$title) return titleOf(here.value, settings);
   if (given.$text) return words(here.value, settings);
   if (given.$label) return here.label ?? '';
   if (given.$count) return Array.isArray(here.value) ? here.value.length : object(here.value) ? Object.keys(here.value).length : 1;
   if (typeof given.$words === 'string') return settings.words[given.$words] ?? '';
   return given;
+}
+
+/** Puts `value` at JSON Pointer `pointer` in `target`, making the objects on the way. */
+function setAt(target, pointer, value) {
+  const parts = pointer.split('/').slice(1).map(part => part.replace(/~1/g, '/').replace(/~0/g, '~'));
+  let here = target;
+  for (const part of parts.slice(0, -1)) here = object(here[part]) ? here[part] : (here[part] = {});
+  here[parts.at(-1)] = value;
 }
 
 /** The element that says how many more items or fields were left out. */
@@ -163,13 +212,14 @@ function more(count, settings, out) {
 }
 
 /**
- * The screen of shared parts that shows `value`: `{ spec: { root, elements, state, reads }, rules }`, where `rules` are the
+ * The screen of shared parts that shows `value`: `{ spec: { root, elements, state, reads }, requests, rules }`, where
+ * `requests` are the requests the value itself offers (invariant 6), by the name a button's `on` uses, and `rules` are the
  * ids of the rows that drew it, outermost first. `schema` (a JSON Schema of the value, when its operation declares one)
  * adds what the value alone cannot say, such as a number's range; `lens` narrows what is shown (invariant 5).
  */
 export function projectValue(value, { schema, lens } = {}) {
   const settings = settingsWith(lens);
-  const out = { elements: {}, next: 0, rules: [] };
+  const out = { elements: {}, next: 0, rules: [], state: {}, requests: {} };
   const root = draw(value, schema, typeof lens?.title === 'string' ? lens.title : undefined, settings, out, 0);
-  return { spec: { root, elements: out.elements, state: {}, reads: {} }, rules: out.rules };
+  return { spec: { root, elements: out.elements, state: out.state, reads: {} }, requests: out.requests, rules: out.rules };
 }
