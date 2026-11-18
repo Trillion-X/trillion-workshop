@@ -3578,7 +3578,7 @@
         "listed_on": "2026-11-12T00:00:00Z",
         "label": "Connect an account by signing in to the service",
         "job": "Connect an account (Gmail, YouTube, Instagram, any service whose sign-in is switched on) by signing in on the service's own page, starting it with the values the new connection should have",
-        "description": "The page routes GET /work/api/connect/start and GET /work/api/connect/callback, run for the page's account (or by an AI with { path, method, query }). Start: query service (a descriptor vendor of this folder's records.json whose sign-in is switched on), each starting value of the new row of list:service-connections (its choice and boolean fields: status, read_only, can_send_as, can_be_primary), and optionally account (the account meant: the service is asked to pre-choose it and the callback refuses any other), wait_seconds (how long the link waits to be opened) and return_to (a path on this site). It keeps the state as a service-connection-pending record named by the state's digest, with the PKCE verifier and the starting values, and answers { authorize_url, service, connection_id, expires_at }: the service's own sign-in address for the person to open (the engine lets no route tool answer a redirect). Callback: the service sends the person back with code and state; the pending record is removed first (a state is used once), then an unknown or expired state, a service error, a missing code or a descriptor that no longer matches answers why and saves nothing. Otherwise the code is traded for the tokens by this folder's http rows (kept sealed in the vault as the new connection's fields), the connection is checked with the service, and one records:write creates the service-connection row with its starting values. The answer is a plain page that says connected, or why not. No token, verifier or secret is in any answer.",
+        "description": "The page routes GET /work/api/connect/start and GET /work/api/connect/callback, run for the page's account (or by an AI with { path, method, query }). Start: query service (a descriptor vendor of this folder's records.json whose sign-in is switched on), each starting value of the new row of list:service-connections (its choice and boolean fields: status, read_only, can_send_as, can_be_primary), and optionally account (the account meant: the service is asked to pre-choose it and the callback refuses any other), wait_seconds (how long the link waits to be opened) and return_to (a path on this site). It keeps nothing: the state it hands the service holds the pending sign-in (the service, the new connection's id, the starting values, the scopes, the account meant and when it expires), signed with the vault's own sign-in key (sign-in-state-key, Ed25519 through secrets:sign), and the PKCE verifier is that key's signature over the state, made again at the callback. It answers { authorize_url, service, connection_id, expires_at }: the service's own sign-in address for the person to open (the engine lets no route tool answer a redirect). The list and its sign-in app rows (which hold the app's id in the open) are given as `stored`. Callback: the service sends the person back with code and state; a state whose time has passed, or whose facts the vault does not sign the same, a service error, a missing code or a descriptor that no longer matches answers why and saves nothing. A state is used once because the service takes its code once and the verifier binds the code to that state. Otherwise the code is traded for the tokens by this folder's http rows (kept sealed in the vault as the new connection's fields: the connection is held there), the connection is checked with the service, and the service-connection row with its starting values is answered under `keep`, for a caller that keeps rows. With no sign-in key in the vault, nothing is sent and the answer says how to make one. The answer is a plain page that says connected, or why not. No token, verifier or secret is in any answer.",
         "needs": {
           "expected_seconds": 10,
           "network_egress": false
@@ -3614,6 +3614,10 @@
             "account_id": {
               "type": "string",
               "description": "The page's admitted account, set by the engine"
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of list (the row list:service-connections), record:service-connection (its rows: the sign-in app rows are read), as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -3709,25 +3713,10 @@
             "fd": 3,
             "rights": [
               {
-                "kind": "list",
-                "id": "list:service-connections",
+                "at": "@secrets",
+                "id": "sign-in-state-key",
                 "operations": [
-                  "records:read"
-                ]
-              },
-              {
-                "kind": "record:service-connection",
-                "operations": [
-                  "records:list",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "service-connection-pending",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
+                  "secrets:sign"
                 ]
               }
             ],
@@ -3760,7 +3749,22 @@
         ],
         "provenance": {
           "source": "trillion src/connect.mjs handleConnectStart and handleConnectCallback, src/worker.mjs lines 823-835 and 4411 (tag old-trillion-before-worker-retire); ports/connect-by-signing-in.json in tools/connect-a-service-and-seal-its-key"
-        }
+        },
+        "stored": [
+          {
+            "kind": "list",
+            "id": "list:service-connections",
+            "operations": [
+              "records:read"
+            ]
+          },
+          {
+            "kind": "record:service-connection",
+            "operations": [
+              "records:list"
+            ]
+          }
+        ]
       }
     },
     {

@@ -9,6 +9,7 @@
 // answers usage_days the way the engine's files door pages them: { days, next_after, stored_bytes_now }. find_file
 // finds a made-up file by name or identity, share_file answers a made-up signed link to one (under `shareOrigin`), and write_file_start / _piece / _finish keep a file sent in pieces under
 // one upload id among the made-up files, so a run that keeps what it made reads it back.
+import { createPrivateKey, sign as signWith } from 'node:crypto';
 import { createServer } from 'node:http';
 import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -31,7 +32,9 @@ const FILE_SPAN = 65_536;
 const TOOLS_RESOURCE = '@tools';
 // `fileAnswers` ({ operation: answer | (input) => answer | Error }) answers another files door operation (setup_facts ...)
 // for a run whose files right names it at '/'.
-export async function startFakeDoor({ throttleFirst = 0, retryAfter = null, fileAnswers = {}, runs = [], toolRuns = {}, rights = [], mostWrites = WRITE_CAP, records = [], files = {}, usageDays = [], workspaceRecords = {}, runGrants = {}, workspaceEnvelope = {}, busyFirst = 0, busySourceFirst = 0, unknownFirst = 0, eventStream = false, pageCut = null, bytePage = null, partialBodyFirst = 0, partialBodyAlways = false, pageBytes = null, mostRequestBytes = null, shareOrigin = 'https://files.example.com' } = {}) {
+// `signingKeys` ({ name: 32-byte Ed25519 seed as hex }) are the vault's keys: `secrets:sign` { name, payload } at @secrets
+// answers { signature } (hex) for a name the row's rights grant ({ at: "@secrets", id: name }), and refuses any other.
+export async function startFakeDoor({ signingKeys = {}, throttleFirst = 0, retryAfter = null, fileAnswers = {}, runs = [], toolRuns = {}, rights = [], mostWrites = WRITE_CAP, records = [], files = {}, usageDays = [], workspaceRecords = {}, runGrants = {}, workspaceEnvelope = {}, busyFirst = 0, busySourceFirst = 0, unknownFirst = 0, eventStream = false, pageCut = null, bytePage = null, partialBodyFirst = 0, partialBodyAlways = false, pageBytes = null, mostRequestBytes = null, shareOrigin = 'https://files.example.com' } = {}) {
   const capability = 'run_fake_capability';
   // The ids of each kind, sorted once for every page of a list until anything kept changes (a test may change it too).
   const sorted = new Map();
@@ -299,6 +302,12 @@ export async function startFakeDoor({ throttleFirst = 0, retryAfter = null, file
       return { structuredContent: { days: page, next_after: more ? page.at(-1).day : null, stored_bytes_now: days.at(-1)?.stored_bytes ?? 0 } };
     },
   };
+  const secretOperation = ({ name, payload }) => {
+    if (!rights.some(item => item.at === '@secrets' && item.id === name && (item.operations ?? []).includes('secrets:sign'))) return refuse(OUTSIDE);
+    if (!Object.hasOwn(signingKeys, name)) return refuse('secret_not_found');
+    const key = createPrivateKey({ key: Buffer.from(`302e020100300506032b657004220420${signingKeys[name]}`, 'hex'), format: 'der', type: 'pkcs8' });
+    return { structuredContent: { name, signature: signWith(null, Buffer.from(String(payload), 'utf8'), key).toString('hex') } };
+  };
   const runOperation = ({ tool, input }, key) => {
     if (typeof tool !== 'string' || !runs.includes(tool)) return refuse(OUTSIDE);
     runsStarted.push({ tool, input, key });
@@ -325,7 +334,7 @@ export async function startFakeDoor({ throttleFirst = 0, retryAfter = null, file
         const answer = typeof fileAnswers[args.method] === 'function' ? fileAnswers[args.method](input) : fileAnswers[args.method];
         return answer instanceof Error ? refuse(answer.message) : { structuredContent: answer };
       } : null;
-      const operation = answered ?? (args.address === TOOLS_RESOURCE ? (args.method === 'tools:run' && runs.length ? runOperation : null)
+      const operation = answered ?? (args.address === '@secrets' ? (args.method === 'secrets:sign' ? secretOperation : null) : args.address === TOOLS_RESOURCE ? (args.method === 'tools:run' && runs.length ? runOperation : null)
         : args.method === 'tools:run' ? null
         : args.address === FILES_RESOURCE && fileRights.length ? fileOperations[args.method] : operations[args.method]);
       const { after_byte: afterByte, ...input } = args.input ?? {};

@@ -391,6 +391,7 @@ export function openParentActions(options) {
 
 // Shared record operations for a bearer door or an operator's authenticated MCP client.
 const WORKSHOP_TOOLS = '@tools';
+const SECRETS = '@secrets';
 
 export function recordsDoorFromCall(call, { filesResource, resource, toolsResource = WORKSHOP_TOOLS, wait = pause } = {}) {
   async function readRecord(type, id) {
@@ -517,6 +518,11 @@ export function recordsDoorFromCall(call, { filesResource, resource, toolsResour
     async files(method, input, { key } = {}) {
       if (typeof filesResource !== 'string') throw new RecordsDoorError('no_files', WORDS.no_files);
       return call(method, input, key, filesResource);
+    },
+    // One operation at the person's vault, for a key the row names in its rights ({ at: "@secrets", id: <name>,
+    // operations: ["secrets:sign"] }): the vault answers what it made with the key (a signature), never the key.
+    async secrets(method, input, { key } = {}) {
+      return call(method, input, key, SECRETS);
     },
     // Another Workshop tool's run (the brief's contract A): `tools:run` { tool, input } at the Workshop's address, for a
     // tool id the row declares in `runs`. The engine holds it to this run's grant and deadline and derives its

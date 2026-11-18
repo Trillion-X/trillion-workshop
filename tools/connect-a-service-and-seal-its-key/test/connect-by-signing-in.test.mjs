@@ -1,12 +1,13 @@
 // tool:connect-an-account-by-signing-in-to-the-service, run as the engine's container runner runs it (test-helpers/run-a-row.mjs)
-// over the stand-in records door: the start keeps a pending sign-in and answers the service's own sign-in address; the
-// callback uses a state once, refuses an unknown, expired, refused or mismatched sign-in with nothing saved, trades the
-// code through this folder's http rows (stood in here, as the engine would answer them: every token already replaced by
-// the held word) and writes the connection row once, with the starting values the start was given. Every name, account
-// and value here is made up.
+// over the stand-in records door, with a made-up vault key standing in for the vault's sign-in key: the start keeps
+// nothing and answers the service's own sign-in address with a signed state; the callback refuses a state the vault did
+// not sign, an expired, refused or mismatched sign-in with nothing saved, trades the code through this folder's http rows
+// (stood in here, as the engine would answer them: every token already replaced by the held word) and answers the
+// connection row once, under keep, with the starting values the start was given. Every name, account and value here is
+// made up.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createHash } from 'node:crypto';
+import { createHash, createPrivateKey, sign as signWith } from 'node:crypto';
 import { runRow, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 import settings from '../sign-in-settings.json' with { type: 'json' };
@@ -62,14 +63,22 @@ const toolRuns = ({ pages = onePage, email = 'someone@example.com', traded = { a
   'tool:check-a-connection': input => (input.place === 'instagram' ? { user_id: '17800000000000001', username: 'made_up_account', id: '1' } : { id: '17800000000000002', username: 'made_up_threads_account' }),
 });
 
-const route = (path, query, sample) => runRow(row, { path, method: 'GET', query, body: {}, browser: { user_agent: 'test', origin: ORIGIN, visitor: '' }, account_id: 'made-up-account' }, sample);
+// The vault's sign-in key, made up: the stand-in door signs with it as secrets:sign does (Ed25519, hex).
+const SEED = '9d61b19deffd5a60ba844af492ec2cc44449c5697b326919703bac031cae7f60';
+const signed = text => signWith(null, Buffer.from(text), createPrivateKey({ key: Buffer.from(`302e020100300506032b657004220420${SEED}`, 'hex'), format: 'der', type: 'pkcs8' }));
+const vault = { signingKeys: { [settings.state_key]: SEED } };
+const route = (path, query, sample) => runRow(row, { path, method: 'GET', query, body: {}, browser: { user_agent: 'test', origin: ORIGIN, visitor: '' }, account_id: 'made-up-account' }, { doorOptions: vault, ...sample });
 const start = (query = startQuery, records = seeded) => route(settings.routes.start, query, { records, tool_runs: toolRuns() });
 const callback = (query, records, runs = toolRuns()) => route(settings.routes.callback, query, { records, tool_runs: runs });
+// What a state carries, and a state made the way the start makes one (for a made-up expired sign-in).
+const factsOf = state => JSON.parse(Buffer.from(state.split('.')[0], 'base64url').toString('utf8'));
+const stateWith = facts => { const body = Buffer.from(JSON.stringify(facts)).toString('base64url'); return `${body}.${signed(`state:${body}`).toString('base64url')}`; };
+const verifierOf = state => signed(`pkce:${state}`).toString('base64url');
 const writesOf = run => run.calls.filter(call => call.method === 'records:write');
 const typed = (run, type) => run.kept.filter(record => record.type === type);
 const stateOf = answer => new URL(answer.last.result.body.authorize_url).searchParams.get('state');
 
-test('the start keeps one pending sign-in and answers the service\'s own sign-in address, with S256 PKCE and the client id held in the open', async () => {
+test('the start keeps nothing and answers the service\'s own sign-in address, with a signed state, S256 PKCE and the client id held in the open', async () => {
   const run = await start();
   assert.equal(run.code, 0, run.stderr);
   const { status, body } = run.last.result;
@@ -84,18 +93,20 @@ test('the start keeps one pending sign-in and answers the service\'s own sign-in
   assert.equal(address.searchParams.get('access_type'), 'offline');
   assert.equal(address.searchParams.get('login_hint'), 'someone@example.com');
   assert.equal(address.searchParams.get('code_challenge_method'), 'S256');
-  const [pending] = typed(run, settings.pending.type);
-  assert.ok(pending, 'one pending sign-in is kept');
-  assert.equal(pending.value.service, 'google-account');
-  assert.deepEqual(pending.value.initial, { status: 'Active', read_only: true, can_send_as: false, can_be_primary: false });
-  assert.equal(pending.value.connection_id, body.connection_id);
+  assert.equal(writesOf(run).length, 0, 'nothing is kept while the person signs in');
+  assert.deepEqual(run.kept, seeded);
+  const pending = factsOf(stateOf(run));
+  assert.equal(pending.service, 'google-account');
+  assert.deepEqual(pending.initial, { status: 'Active', read_only: true, can_send_as: false, can_be_primary: false });
+  assert.equal(pending.connection_id, body.connection_id);
+  assert.equal(pending.code_verifier, undefined, 'the state carries no verifier');
   assert.match(body.connection_id, /^service_connection:google-account:[0-9a-f]+$/);
-  // The challenge is the verifier's SHA-256 (RFC 7636 S256); the verifier waits only in the pending record.
-  const challenge = createHash('sha256').update(pending.value.code_verifier).digest('base64url');
-  assert.equal(address.searchParams.get('code_challenge'), challenge);
-  assert.ok(!JSON.stringify(run.last).includes(pending.value.code_verifier), 'the verifier is in no answer');
-  assert.ok(!pending.id.includes(stateOf(run)), 'the state is kept only as its digest');
-  assert.equal(typed(run, 'record:service-connection').length, APP_ROWS, 'the start writes no connection row');
+  // The challenge is the verifier's SHA-256 (RFC 7636 S256); the verifier is the vault key's signature over the state.
+  const verifier = verifierOf(stateOf(run));
+  assert.equal(verifier.length, 86);
+  assert.equal(address.searchParams.get('code_challenge'), createHash('sha256').update(verifier).digest('base64url'));
+  assert.ok(!JSON.stringify(run.last).includes(verifier), 'the verifier is in no answer');
+  assert.deepEqual(run.calls.filter(call => call.method === 'secrets:sign').map(call => call.input.name), [settings.state_key, settings.state_key]);
 });
 
 test('the start refuses a service it cannot sign in to, one with no sign-in app id, and a missing starting value', async () => {
@@ -107,50 +118,58 @@ test('the start refuses a service it cannot sign in to, one with no sign-in app 
   const missing = await start(partial);
   assert.equal(missing.last.result.status, 400);
   assert.match(missing.last.result.body.error, /read_only/);
-  for (const refused of [unknown, noApp, missing]) assert.equal(typed(refused, settings.pending.type).length, 0, 'nothing is kept');
+  for (const refused of [unknown, noApp, missing]) assert.equal(refused.calls.filter(call => call.method === 'secrets:sign').length, 0, 'nothing is signed');
 });
 
-test('a state that matches no pending sign-in is refused, and nothing is traded or saved', async () => {
+test('a state the vault did not sign is refused, and nothing is traded or saved', async () => {
   const started = await start();
-  const run = await callback({ state: 'not-the-state', code: CODE }, started.kept);
-  assert.equal(run.last.result.status, 410);
-  assert.equal(run.runs.length, 0, 'no token request was made');
-  assert.equal(writesOf(run).length, 0);
-  assert.equal(typed(run, settings.pending.type).length, 1, 'the real pending sign-in is untouched');
+  const [, signature] = stateOf(started).split('.');
+  const changed = Buffer.from(JSON.stringify({ ...factsOf(stateOf(started)), account: 'someone-else@example.com' })).toString('base64url');
+  for (const state of ['not-the-state', `${changed}.${signature}`, `${stateOf(started)}x`]) {
+    const run = await callback({ state, code: CODE }, started.kept);
+    assert.equal(run.last.result.status, 410, state.slice(0, 20));
+    assert.equal(run.runs.length, 0, 'no token request was made');
+    assert.equal(run.last.result.keep, undefined);
+  }
 });
 
-test('an expired state is refused and used up, and nothing is traded or saved', async () => {
+test('with no sign-in key in the vault, nothing is sent and the answer says how to make one', async () => {
+  const run = await route(settings.routes.start, startQuery, { records: seeded, tool_runs: toolRuns(), doorOptions: {} });
+  assert.equal(run.last.result.status, 503, JSON.stringify(run.last));
+  assert.match(run.last.result.body.error, new RegExp(`Nothing was sent anywhere: .*${settings.state_key}.*generate-ed25519`));
+  assert.equal(run.last.result.body.authorize_url, undefined);
+});
+
+test('an expired state is refused before the vault is asked, and nothing is traded or saved', async () => {
   const started = await start();
-  const expired = started.kept.map(record => (record.type === settings.pending.type ? { ...record, value: { ...record.value, expires_at: '2020-01-01T00:00:00.000Z' } } : record));
-  const run = await callback({ state: stateOf(started), code: CODE }, expired);
+  const run = await callback({ state: stateWith({ ...factsOf(stateOf(started)), expires_at: '2020-01-01T00:00:00.000Z' }), code: CODE }, started.kept);
   assert.equal(run.last.result.status, 410);
   assert.equal(run.runs.length, 0);
-  assert.equal(typed(run, settings.pending.type).length, 0, 'the expired sign-in is removed');
+  assert.equal(run.calls.filter(call => call.method === 'secrets:sign').length, 0);
   assert.equal(typed(run, 'record:service-connection').length, APP_ROWS, 'no connection row');
 });
 
-test('a service error or a missing code is refused after the state is used up', async () => {
+test('a service error or a missing code is refused, and nothing is traded or saved', async () => {
   const started = await start();
   for (const query of [{ state: stateOf(started), error: 'access_denied' }, { state: stateOf(started) }]) {
     const run = await callback(query, started.kept);
     assert.equal(run.last.result.status, 400);
     assert.equal(run.runs.length, 0);
-    assert.equal(typed(run, settings.pending.type).length, 0);
     assert.equal(typed(run, 'record:service-connection').length, APP_ROWS);
   }
 });
 
-test('the connection row is created by one write that already holds the starting values, never created and then changed', async () => {
+test('the connection row is answered once, under keep, already holding the starting values, never made and then changed', async () => {
   const started = await start();
   const run = await callback({ state: stateOf(started), code: CODE }, started.kept);
   assert.equal(run.code, 0, run.stderr);
   assert.equal(run.last.result.status, 200, JSON.stringify(run.last));
   assert.equal(run.last.result.http.format, 'text');
   assert.match(run.last.result.body, /Gmail is connected as someone@example\.com/);
-  const connectionWrites = writesOf(run).filter(call => call.input.records.some(record => record.type === 'record:service-connection'));
-  assert.equal(connectionWrites.length, 1, 'one write touches the connection row');
-  const [written] = connectionWrites[0].input.records;
-  assert.equal(written.expected, null, 'the row did not exist before');
+  assert.equal(writesOf(run).length, 0, 'the run writes nothing itself');
+  assert.equal(run.last.result.keep.length, 1, 'one connection row is answered');
+  const [written] = run.last.result.keep;
+  assert.equal(written.type, 'record:service-connection');
   assert.equal(written.value.status, 'Active');
   assert.equal(written.value.read_only, true);
   assert.equal(written.value.can_send_as, false);
@@ -164,26 +183,26 @@ test('the connection row is created by one write that already holds the starting
   assert.equal(trade.tool, 'tool:trade-a-gmail-sign-in-code-for-its-tokens');
   assert.deepEqual(trade.input.connection, { connection_id: written.value.connection_id });
   assert.equal(trade.input.code, CODE);
-  assert.equal(trade.input.code_verifier, typed(started, settings.pending.type)[0].value.code_verifier);
+  assert.equal(trade.input.code_verifier, verifierOf(stateOf(started)), 'the verifier made again at the callback is the start\'s');
   assert.equal(verify.tool, 'tool:find-my-mailbox');
   assert.equal(verify.input.provider, 'gmail');
-  assert.equal(typed(run, settings.pending.type).length, 0, 'the pending sign-in is used up');
 });
 
-test('a pending sign-in is used once: the same callback again is refused and trades nothing', async () => {
+test('a sign-in is used once: the service takes its code once, so the same callback again keeps nothing', async () => {
   const started = await start();
   const query = { state: stateOf(started), code: CODE };
   const first = await callback(query, started.kept);
   assert.equal(first.last.result.status, 200);
-  const again = await callback(query, first.kept);
-  assert.equal(again.last.result.status, 410);
-  assert.equal(again.runs.length, 0, 'the replay made no token request');
+  // The service refuses a code it already traded (RFC 6749 section 4.1.2), as its token address answers invalid_grant.
+  const again = await callback(query, first.kept, toolRuns({ tradeError: 'invalid_grant' }));
+  assert.equal(again.last.result.status, 400);
+  assert.equal(again.last.result.keep, undefined, 'the replay keeps nothing');
   assert.equal(typed(again, 'record:service-connection').length, APP_ROWS + 1, 'still the one connection row');
 });
 
 test('no secret, token, code or verifier is in any answer or log line', async () => {
   const started = await start();
-  const verifier = typed(started, settings.pending.type)[0].value.code_verifier;
+  const verifier = verifierOf(stateOf(started));
   const done = await callback({ state: stateOf(started), code: CODE }, started.kept);
   const refused = await callback({ state: stateOf(started), code: CODE }, started.kept, toolRuns({ tradeError: `refused ${HELD}` }));
   for (const run of [started, done, refused]) {
@@ -224,10 +243,10 @@ test('a connection asks for only the scopes its start names, and a scope the des
   const run = await start({ ...startQuery, scopes: readOnly.join(' ') });
   assert.equal(run.last.result.status, 200, JSON.stringify(run.last));
   assert.equal(new URL(run.last.result.body.authorize_url).searchParams.get('scope'), readOnly.join(' '));
-  assert.deepEqual(typed(run, settings.pending.type)[0].value.scopes, readOnly);
+  assert.deepEqual(factsOf(stateOf(run)).scopes, readOnly);
   const refused = await start({ ...startQuery, scopes: 'https://mail.google.com/' });
   assert.equal(refused.last.result.status, 400);
-  assert.equal(typed(refused, settings.pending.type).length, 0);
+  assert.equal(refused.last.result.body.authorize_url, undefined);
 });
 
 test('any other route or method is not found', async () => {

@@ -159,7 +159,7 @@
         }
       },
       "given": "From tools/connect-a-service-and-seal-its-key/test/connect-by-signing-in.test.mjs (the start test): list:service-connections holds a sign-in-app row for google-sign-in-client-id with client id made-up-client-id.apps.example.com; the query above is the test's startQuery.",
-      "hands_back": "status 200 and body {authorize_url, service: \"google-account\", connection_id: \"service_connection:google-account:<hex>\", expires_at}. authorize_url is https://accounts.google.com/o/oauth2/v2/auth with client_id=made-up-client-id.apps.example.com, redirect_uri=https://app.example.com/work/api/connect/callback, response_type=code, access_type=offline, login_hint=someone@example.com, code_challenge_method=S256 and the descriptor's scopes. One service-connection-pending record is kept (the PKCE verifier and the starting values wait in it only); no connection row is written yet."
+      "hands_back": "status 200 and body {authorize_url, service: \"google-account\", connection_id: \"service_connection:google-account:<hex>\", expires_at}. authorize_url is https://accounts.google.com/o/oauth2/v2/auth with client_id=made-up-client-id.apps.example.com, redirect_uri=https://app.example.com/work/api/connect/callback, response_type=code, access_type=offline, login_hint=someone@example.com, code_challenge_method=S256 and the descriptor's scopes. Nothing is kept: the state holds the starting values and expiry, signed by the vault's sign-in key, and the PKCE verifier is that key's signature over the state; no connection row is made yet."
     },
     {
       "title": "The callback connects Gmail once the person has signed in",
@@ -184,7 +184,7 @@
         }
       },
       "given": "From the same test (the one-write test): the callback follows the start above; the Gmail check finds the mailbox someone@example.com, the same as the account named at the start.",
-      "hands_back": "status 200 and a plain text page: \"Gmail is connected as someone@example.com. Your AI can use it now. You can close this tab.\" Exactly one records:write created the service-connection row with status Active, read_only true, can_send_as false, can_be_primary false, account_label someone@example.com and granted_scopes openid, email and gmail.readonly; the pending sign-in is removed, and a second call with the same state answers 410 with nothing traded."
+      "hands_back": "status 200 and a plain text page: \"Gmail is connected as someone@example.com. Your AI can use it now. You can close this tab.\" The answer's keep holds the one service-connection row, with status Active, read_only true, can_send_as false, can_be_primary false, account_label someone@example.com and granted_scopes openid, email and gmail.readonly; a second call with the same code is refused by the service and keeps nothing."
     }
   ],
   "pour": {

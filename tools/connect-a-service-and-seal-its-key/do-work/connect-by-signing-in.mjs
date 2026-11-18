@@ -21,16 +21,22 @@
 // field the access token fills. Which services are switched on here, and the http rows that trade each one's code, are
 // sign-in-settings.json. Nothing here names a service.
 //
+// What it reads of the person's own rows (the service-connections list and its sign-in app rows) is given as `stored`;
+// nothing is kept anywhere while the person signs in. The state the service carries back is the whole pending sign-in:
+// its facts and expiry, signed with the vault's own sign-in key (settings.state_key, Ed25519 through secrets:sign, so
+// only the signature leaves the vault). The PKCE verifier is that same key's signature over "pkce:" and the state: made
+// again at the callback, never kept or sent anywhere but the token request.
+//
 // Non-Negotiable Invariants:
 // - The code, the tokens and the sign-in app's secret never reach this program: the trade rows place the secret from
 //   the vault as their request leaves and keep the reply's tokens in the vault (reply_holds_values) before the reply
-//   is read. This program sees only the held word where a token was.
-// - A state is kept only as its digest (the pending record's id), and is used once: the callback removes the pending
-//   record, conditional on what it read, before anything else, so a second callback with the same state is refused.
-// - Nothing sendable is written on a refusal: the connection row is written only after the code was traded and the
-//   connection checked, by ONE records:write that already holds the starting values the start was given.
+//   is read. This program sees only the held word where a token was. The connection is those held values.
+// - A state is believed only when its expiry has not passed and the vault signs its facts to the same signature. It is
+//   used once: the service takes its code once (RFC 6749 section 4.1.2), and the verifier binds the code to this state.
+// - Nothing sendable is kept on a refusal: the connection row is answered only after the code was traded and the
+//   connection checked, as ONE row under `keep` that already holds the starting values the start was given.
 import { readFileSync } from 'node:fs';
-import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
+import { timingSafeEqual } from 'node:crypto';
 
 const settings = JSON.parse(readFileSync(new URL('../sign-in-settings.json', import.meta.url), 'utf8'));
 const descriptors = Object.values(JSON.parse(readFileSync(new URL('../records.json', import.meta.url), 'utf8')).things ?? {})
@@ -40,14 +46,30 @@ const descriptors = Object.values(JSON.parse(readFileSync(new URL('../records.js
 const encoder = new TextEncoder();
 const words = settings.words;
 const said = (text, fills = {}) => Object.entries(fills).reduce((out, [name, value]) => out.replaceAll(`{${name}}`, String(value)), text);
-const digest = text => makeHashCodeHexFromBytes(Buffer.from(text));
 const random = () => Buffer.from(crypto.getRandomValues(new Uint8Array(24))).toString('hex');
 const base64url = bytes => Buffer.from(bytes).toString('base64url');
 const json = (body, status = 200) => ({ status, body });
 // The page the person reads after the service sends them back: plain words, never an active document.
 const page = (text, status) => ({ status, body: text, http: { format: 'text', content_type: 'text/plain; charset=utf-8' } });
 const text = value => (typeof value === 'string' && value.trim() ? value.trim() : null);
-const pendingId = state => `${settings.pending.id_prefix}${digest(state)}`;
+const fromBase64url = text => Buffer.from(text, 'base64url');
+class NoSigningKey extends Error {}
+// The vault's signature of `text` with the sign-in key, as bytes; a vault that cannot sign is said in plain words.
+async function signed(door, text) {
+  let answer;
+  try { answer = await door.secrets('secrets:sign', { name: settings.state_key, payload: text }); } catch (error) {
+    throw new NoSigningKey(said(words.no_signing_key, { key: settings.state_key, code: error?.code ?? 'refused' }));
+  }
+  if (!/^[0-9a-f]{128}$/.test(answer?.signature ?? '')) throw new NoSigningKey(said(words.no_signing_key, { key: settings.state_key, code: 'no_signature' }));
+  return Buffer.from(answer.signature, 'hex');
+}
+// The state: the pending sign-in's facts as base64url JSON, a dot, and the vault's signature of them.
+const stateFor = async (door, facts) => {
+  const body = base64url(Buffer.from(JSON.stringify(facts)));
+  return `${body}.${base64url(await signed(door, `state:${body}`))}`;
+};
+// RFC 7636: 43 to 128 unreserved characters; a 64-byte signature in base64url is 86.
+const verifierFor = async (door, state) => base64url(await signed(door, `pkce:${state}`));
 // A list's rows are records of type record:<row_type>, each with an id under that same prefix.
 const rowTypeOf = list => `record:${list.row_type}`;
 
@@ -145,21 +167,14 @@ async function handleConnectStart(input, { door }) {
   const now = Date.now();
   const expiresAt = new Date(now + (waited + settings.pending.state_seconds) * 1000).toISOString();
   const connectionId = `service_connection:${service}:${random()}`;
-  const state = random();
-  // PKCE (RFC 7636 S256): the challenge is SHA-256 because the protocol fixes it; it is the service's check, not an
-  // identity this service mints. The verifier waits with the state for the callback, then goes to the token request.
-  const verifier = acquire.pkce ? base64url(crypto.getRandomValues(new Uint8Array(32))) : null;
   const pending = {
     service, connection_id: connectionId, initial: starting.values, scopes, expires_at: expiresAt, public_origin: publicOrigin,
-    ...(account ? { account } : {}), ...(returnTo ? { return_to: returnTo } : {}), ...(verifier ? { code_verifier: verifier } : {}),
+    ...(account ? { account } : {}), ...(returnTo ? { return_to: returnTo } : {}),
   };
-  // A pending sign-in whose time has passed is removed with this write, as the Worker KV let its states expire.
-  const expired = [];
-  for await (const record of door.list({ type: settings.pending.type })) {
-    if (!(Date.parse(record.value?.expires_at) > now)) expired.push({ id: record.id, type: settings.pending.type, value: null, expected: { type: settings.pending.type, value: record.value } });
-  }
-  const id = pendingId(state);
-  await door.write([{ id, type: settings.pending.type, value: pending, expected: null }, ...expired], { key: `connect-start:${id}` });
+  const state = await stateFor(door, pending);
+  // PKCE (RFC 7636 S256): the challenge is SHA-256 because the protocol fixes it; it is the service's check, not an
+  // identity this service mints.
+  const verifier = acquire.pkce ? await verifierFor(door, state) : null;
   const address = new URL(acquire.authorize_url);
   const params = {
     client_id: clientId, redirect_uri: `${redirectOrigin}${acquire.redirect.path}`, response_type: 'code', scope: scopes.join(acquire.scope_separator ?? ' '), state,
@@ -240,20 +255,28 @@ async function tradeAndCheck(door, descriptor, saved, code) {
   return { label, plain, grantedScopes };
 }
 
+// The pending sign-in a state carries, once its expiry has not passed and the vault signs its facts the same; else null.
+async function pendingOf(door, state) {
+  const [body, signature, ...rest] = state.split('.');
+  if (!body || !signature || rest.length) return null;
+  let facts;
+  try { facts = JSON.parse(fromBase64url(body).toString('utf8')); } catch { return null; }
+  if (!facts || typeof facts !== 'object' || !(Date.parse(facts.expires_at) > Date.now())) return null;
+  const given = fromBase64url(signature);
+  const made = await signed(door, `state:${body}`);
+  return given.length === made.length && timingSafeEqual(given, made) ? facts : null;
+}
+
 async function handleConnectCallback(input, { door }) {
   const query = input.query ?? {};
   const state = String(query.state ?? '');
-  const id = state ? pendingId(state) : null;
-  const saved = id ? await door.readRecord(settings.pending.type, id) : null;
-  if (!saved) return page(words.expired, 410);
-  // Used once: removed, conditional on what was read, before anything else; a second callback finds nothing.
-  await door.write([{ id, type: settings.pending.type, value: null, expected: saved }], { key: `connect-callback:${id}:${random()}` });
-  const value = saved.value;
-  if (!(Date.parse(value.expires_at) > Date.now())) return page(words.expired, 410);
+  const value = state ? await pendingOf(door, state) : null;
+  if (!value) return page(words.expired, 410);
   const descriptor = signInDescriptor(value.service);
   const name = descriptor?.name ?? value.service;
   if (!descriptor || query.error || !text(query.code)) return page(said(words.not_connected, { service: name }), 400);
-  const done = await tradeAndCheck(door, descriptor, value, String(query.code));
+  const verifier = descriptor.acquire.pkce ? await verifierFor(door, state) : null;
+  const done = await tradeAndCheck(door, descriptor, { ...value, ...(verifier ? { code_verifier: verifier } : {}) }, String(query.code));
   if (done.why) return page(said(words.refused, { service: name, why: done.why }), 400);
   const list = await door.read('list', settings.list);
   const account = done.label ?? value.connection_id;
@@ -269,17 +292,19 @@ async function handleConnectCallback(input, { door }) {
     ...value.initial,
   };
   const rowId = `${rowTypeOf(list)}:${value.connection_id.split(':').slice(1).join('-')}`;
-  await door.write([{ id: rowId, type: rowTypeOf(list), value: row, expected: null }], { key: `connect-row:${rowId}` });
-  return page(value.return_to
+  return { ...page(value.return_to
     ? said(words.connected_back, { service: name, account, back: `${value.public_origin}${value.return_to}` })
-    : said(words.connected, { service: name, account }), 200);
+    : said(words.connected, { service: name, account }), 200), keep: [{ id: rowId, type: rowTypeOf(list), value: row }] };
 }
 
 /** The page route { path, method, query } -> { status, body } (or a plain page). */
 export async function answerConnectRoute(input = {}, { door } = {}) {
   const method = String(input.method ?? 'GET').toUpperCase();
   const path = String(input.path ?? '').split('?')[0];
-  if (method === 'GET' && path === settings.routes.start) return handleConnectStart(input, { door });
-  if (method === 'GET' && path === settings.routes.callback) return handleConnectCallback(input, { door });
-  return json({ error: words.not_found }, 404);
+  const handle = method !== 'GET' ? null : path === settings.routes.start ? handleConnectStart : path === settings.routes.callback ? handleConnectCallback : null;
+  if (!handle) return json({ error: words.not_found }, 404);
+  try { return await handle(input, { door }); } catch (error) {
+    if (!(error instanceof NoSigningKey)) throw error;
+    return handle === handleConnectStart ? json({ error: error.message }, 503) : page(error.message, 503);
+  }
 }
