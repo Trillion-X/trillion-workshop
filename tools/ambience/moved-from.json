@@ -30,15 +30,6 @@
       "source_identity": "1f:d01d2e9cf465b8651933f67771321b0d4b9a9079c3ffbf0d070494adc9a5cdc6",
       "identity": "1f:d01d2e9cf465b8651933f67771321b0d4b9a9079c3ffbf0d070494adc9a5cdc6",
       "found_by": "byte copy"
-    },
-    {
-      "source": "Trillion-X/trillion-apps",
-      "from": "web/parts/ambience/show/voices-panel.tsx",
-      "commit": "a89474c0211e2353c9ce96b8c21fc21ee9021f91",
-      "to": "tools/ambience/show/voices-panel.tsx",
-      "source_identity": "1f:47c2e1b7696dfc482b849db6e108462aef856fdfeea1f295b7f1ae5b528f2d05",
-      "identity": "1f:47c2e1b7696dfc482b849db6e108462aef856fdfeea1f295b7f1ae5b528f2d05",
-      "found_by": "byte copy"
     }
   ]
 }

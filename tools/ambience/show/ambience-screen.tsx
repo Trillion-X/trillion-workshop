@@ -38,7 +38,7 @@ import {
   type SoundLook, type SoundState,
 } from '../../ui/show/sound-signal';
 import { followLights, lightKinds, lightServices, musicPlaces, nowPlaying, type NowPlaying } from './sound-followers';
-import { VoicesPanel } from './voices-panel';
+import { VoicesPanel } from '../../make-things-feel-good/show/voices-panel';
 
 const KEPT = 'trillion-ambience';
 const PLAYING_EVERY_MS = 15_000;
