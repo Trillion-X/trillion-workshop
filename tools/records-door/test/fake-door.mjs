@@ -55,13 +55,26 @@ export async function startFakeDoor({ throttleFirst = 0, retryAfter = null, file
     && (item.prefix === undefined || (order === undefined && (id ?? prefix ?? '').startsWith(item.prefix))));
   // A refusal is a code and an outcome, with no words.
   const refuse = (code, outcome = 'not_started') => ({ isError: true, structuredContent: { code, outcome } });
+  // The facts runs told (wake:arrive), as the engine's fact inbox holds them.
+  const facts = [];
   const OUTSIDE = 'current_workspace_rights_refused';
   const EVERY_KIND = '*';
-  // A run grant right names one label and the grant operations a run may make on it (share-grant.json `act.run_operations`).
-  // A grant right's label may end in `*` to name every label that starts so, for the operations that only end or read a grant.
-  const mayGrant = (operation, label) => rights.some(item => typeof item.grant === 'string' && item.operations.includes(operation)
-    && (item.grant === label || (item.grant.endsWith('*') && ['sharing.withdraw', 'sharing.list'].includes(operation) && label.startsWith(item.grant.slice(0, -1)))));
+  // A run's right names its door and one name there, {at, id, operations} (trillion-rust run_capability.rs `Rights::declared`):
+  // a grant right names one label at @own-records (share-grant.json `act.run_operations`), and may end in `*` to name every
+  // label that starts so, for the operations that only end or read a grant; a fact right names one fact kind there
+  // (wake.json `run_operations`).
+  const named = (operation, name) => rights.some(item => item.at === '@own-records' && typeof item.id === 'string' && item.operations.includes(operation)
+    && (item.id === name || (item.id.endsWith('*') && ['sharing.withdraw', 'sharing.list'].includes(operation) && name.startsWith(item.id.slice(0, -1)))));
+  const mayGrant = named;
   const operations = {
+    // The engine's wake:arrive: one fact of a kind the run's row names, kept in its fact inbox (`facts`, in the order told).
+    'wake:arrive': ({ kind, event_id: eventId, payload = {}, ...rest }) => {
+      if (Object.keys(rest).length || typeof kind !== 'string' || !kind || typeof eventId !== 'string' || !eventId
+        || Object.values(payload).some(value => typeof value !== 'string') || Object.keys(payload).length > 8) return refuse('original_input_refused');
+      if (!named('wake:arrive', kind)) return refuse(OUTSIDE);
+      facts.push({ kind, event_id: eventId, from: 'run', payload });
+      return { structuredContent: { kind, event_id: eventId, from: 'run', kept: true } };
+    },
     // The engine's keep: `{label, on: true, sharing}` keeps the record whole, `{label, on: false}` withdraws it.
     'sharing.keep': ({ label, on, sharing }) => {
       if (typeof label !== 'string' || !label || typeof on !== 'boolean') return refuse('original_input_refused');
@@ -345,5 +358,5 @@ export async function startFakeDoor({ throttleFirst = 0, retryAfter = null, file
   writeFileSync(descriptor, JSON.stringify({ url: `http://127.0.0.1:${server.address().port}/mcp`, resource: '@own-records', capability,
     ...(fileRights.length ? { files_resource: FILES_RESOURCE } : {}), ...(runs.length ? { tools_resource: TOOLS_RESOURCE } : {}) }));
   // stored: the made-up files by name, the ones a run wrote among them.
-  return { descriptor, calls, kept, stored, capability, runsStarted, close: () => new Promise(done => server.close(done)) };
+  return { descriptor, calls, kept, stored, facts, capability, runsStarted, close: () => new Promise(done => server.close(done)) };
 }

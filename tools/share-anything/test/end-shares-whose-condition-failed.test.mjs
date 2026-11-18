@@ -19,7 +19,6 @@ const sweepRights = sweepRow.invoke.records.rights;
 // The share tool's rights for the labels it is asked for, as its row declares them, and the sweep's, side by side on one door.
 const shareRights = labels => labels.flatMap(label => shareRow.invoke.records.rights.map(right => ({
   ...right, ...(right.id && typeof right.id === 'object' ? { id: label } : {}),
-  ...(right.grant && typeof right.grant === 'object' ? { grant: label } : {}),
 })));
 
 async function open(rights, runGrants = {}) {
@@ -154,7 +153,7 @@ test('a rule that cannot be read is left alone, a share listed with no last use 
 });
 
 test('the sweep row can only end or read a share, never keep one, and wakes at the engine\'s own grain of a last use', async () => {
-  assert.deepEqual(sweepRights, [{ grant: 'sharing:*', operations: ['sharing.withdraw', 'sharing.list'] }], 'no records right: the shares and their rules come from the engine\'s share list');
+  assert.deepEqual(sweepRights, [{ at: '@own-records', id: 'sharing:*', operations: ['sharing.withdraw', 'sharing.list'] }], 'no records right: the shares and their rules come from the engine\'s share list');
   assert.equal(data.run.check_every_ms, 3_600_000);
   assert.deepEqual(sweepRow.wakes, [{ id: 'check-unused-grants', on: { time: { every_ms: data.run.check_every_ms } }, budget: { steps: 1, wall_ms: 120000 } }]);
   const { door, records_door } = await open(sweepRights);

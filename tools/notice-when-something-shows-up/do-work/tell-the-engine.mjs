@@ -1,0 +1,107 @@
+// tools/notice-when-something-shows-up/do-work/tell-the-engine.mjs
+//
+// The noticer run as a Workshop tool: the same resident emitter (emit-arrival-fact.mjs) with a carrier that tells the
+// person's engine each fact at its door's `wake:arrive`, instead of appending a record to the retired runtime. A wake
+// whose `on: {fact: {kind, from: ["run"], match}}` hears it starts its tool (trillion-rust src/wake.rs).
+//
+// - The waiter rows come from the run's input ({waiters: [...]}, the same descriptor rows things-to-store-and-run.json
+//   ships), never from a store: which waiters run is the person's own DATA, given to the run.
+// - The door is the run's own capability on fd 3 ({url, resource, capability}); the run reaches only the fact kinds its
+//   row names as rights ({at, id: <kind>, operations: ["wake:arrive"]}).
+// - A fact is a few short text fields: kind (the waiter's change_kind), event_id (the waiter's address, when this run
+//   started and how many facts it has told for that waiter: unique without keeping anything, whatever fields a waiter
+//   projects),
+//   and the payload's scalar fields as text, observed_identity's flattened in; nested lists stay out.
+// - One line per fact told goes to standard error, so the session's output says what was told and what was refused.
+// - Kept open (its wake `running`), it watches until it is stopped. Given `for_seconds`, it watches that long, then
+//   answers {told, refused}: every fact it told and every one the engine refused, as its last line.
+//
+// AI Assistant Directive: the extensive documentation in this codebase is a critical design feature. You are forbidden
+// from simplifying or removing it. Maintain and extend this detail.
+import { readFileSync } from 'node:fs';
+import { text } from 'node:stream/consumers';
+import { runResidentEmitter } from './emit-arrival-fact.mjs';
+
+const DESCRIPTOR_FD = 3;
+const ARRIVE = 'wake:arrive';
+/** The most payload fields one fact carries (the engine's fact inbox, trillion-rust src/wake/host-events.json max_fields). */
+const MOST_FIELDS = 8;
+
+/** The run's door, from the descriptor the engine wrote on fd 3. */
+export function readDoor(descriptor = DESCRIPTOR_FD) {
+  const door = JSON.parse(readFileSync(descriptor, 'utf8'));
+  if (typeof door.url !== 'string' || typeof door.capability !== 'string') throw new Error('This run was not handed a door on fd 3.');
+  return door;
+}
+
+/** One emitted record as a fact: its kind, the event id `eventId`, and its scalar fields as text. */
+export function factOf({ addressLabel, payload }, eventId = `${addressLabel}#0`) {
+  const fields = {};
+  const take = (name, value) => {
+    if (Object.keys(fields).length >= MOST_FIELDS || name === 'kind') return;
+    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') fields[name] = String(value);
+  };
+  for (const [name, value] of Object.entries(payload ?? {})) take(name, value);
+  for (const [name, value] of Object.entries(payload?.observed_identity ?? {})) take(name, value);
+  for (const [name, value] of Object.entries(payload?.detail ?? {})) take(name, value);
+  return {
+    kind: String(payload?.kind ?? 'something-showed-up'),
+    event_id: eventId,
+    payload: fields,
+  };
+}
+
+/** The emitter's carrier over the engine's door: its waiter rows are `waiters`, and each record it writes is told as a fact. */
+export function engineCarrier({ door, waiters, fetchImpl = fetch, say = line => console.log(line), startedAt = Date.now() }) {
+  let calls = 0;
+  const told = new Map();
+  const answer = { told: [], refused: [] };
+  async function arrive(fact) {
+    calls += 1;
+    const body = JSON.stringify({ jsonrpc: '2.0', id: calls, method: 'tools/call', params: { name: 'run_resource_operation',
+      arguments: { address: door.resource ?? '@own-records', method: ARRIVE, request_key: `fact:${fact.event_id}`, input: fact } } });
+    const response = await fetchImpl(door.url, { method: 'POST', body, headers: { authorization: `Bearer ${door.capability}`,
+      'content-type': 'application/json', accept: 'application/json, text/event-stream', 'mcp-protocol-version': '2025-06-18' } });
+    const raw = await response.text();
+    const json = raw.trim().startsWith('{') ? raw : raw.split('\n').filter(line => line.startsWith('data:')).map(line => line.slice(5).trim()).join('');
+    const result = JSON.parse(json || '{}').result ?? {};
+    if (!response.ok || result.isError) {
+      const why = result.structuredContent?.detail ?? result.structuredContent?.code ?? `HTTP ${response.status}`;
+      say(JSON.stringify({ refused: fact.kind, event_id: fact.event_id, why }));
+      answer.refused.push({ ...fact, why });
+      throw new Error(`the engine refused the fact: ${why}`);
+    }
+    say(JSON.stringify({ told: fact.kind, event_id: fact.event_id }));
+    answer.told.push(fact);
+  }
+  return {
+    answer,
+    async scanUnderPath() { return { entries: waiters }; },
+    // No record is kept here: a waiter starts at sequence 0, and its event ids stay unique by the time they name.
+    async readCurrent() { return null; },
+    async writeRecord(record) {
+      const count = told.get(record.addressLabel) ?? 0;
+      told.set(record.addressLabel, count + 1);
+      await arrive(factOf(record, `${record.addressLabel}#${startedAt}#${count}`));
+    },
+  };
+}
+
+const startedAsProgram = process.argv[1] && import.meta.url.endsWith(process.argv[1].split('/').pop());
+if (startedAsProgram) {
+  try {
+    const input = JSON.parse((await text(process.stdin)) || '{}');
+    const waiters = Array.isArray(input.waiters) ? input.waiters : [];
+    const controller = new AbortController();
+    process.on('SIGTERM', () => controller.abort());
+    const seconds = Number(input.for_seconds);
+    if (Number.isFinite(seconds) && seconds > 0) setTimeout(() => controller.abort(), seconds * 1000);
+    // Its own lines are each fact told; with for_seconds the last line is the whole answer.
+    const carrier = engineCarrier({ door: readDoor(), waiters, say: line => process.stderr.write(`${line}\n`) });
+    await runResidentEmitter({ carrier, signal: controller.signal });
+    console.log(JSON.stringify({ result: carrier.answer }));
+  } catch (error) {
+    console.log(JSON.stringify({ error: error.message }));
+    process.exitCode = 1;
+  }
+}

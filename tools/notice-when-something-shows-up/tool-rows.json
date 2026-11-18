@@ -1,0 +1,207 @@
+{
+  "kind": "tool-rows",
+  "record_set": "notice-when-something-shows-up",
+  "what_this_is": "The noticer as a Workshop tool: kept running by its wake, it tells the engine one fact per thing that showed up or went away.",
+  "records": [
+    {
+      "id": "package::notice-when-something-shows-up::tool::notice-when-something-shows-up",
+      "address": "package::notice-when-something-shows-up::tool::notice-when-something-shows-up",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 0,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "id": "tool:notice-when-something-shows-up",
+        "listed_on": "2026-11-18T06:30:00Z",
+        "label": "Notice when something shows up, and tell the engine",
+        "job": "Keep watching for things outside (a stretch of time passing, a drive attached or removed, files someone finished putting in a place, a delivery over the network) and tell the person's engine one fact each time, so any tool whose wake hears that kind of fact starts",
+        "description": "Give waiters: the standing orders the noticer keeps (notice-when-something-shows-up.waiter-descriptor rows, each naming one mechanism in do-work/mechanisms, its settings and the kind of fact it emits). It runs as a kept-open program: while its wake is on, each waiter waits, and each time something shows up or goes away it tells the engine one fact at wake:arrive, of the waiter's kind, with the change's fields as text. A tool hears it by declaring a wake {fact: {kind, from: [\"run\"], match}}. This row may tell only the kinds its rights name. Each fact told or refused is one line of the program's output. Given for_seconds, it watches that long and answers {told, refused}.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "waiters": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "kind",
+                  "id",
+                  "is_active",
+                  "mechanism_capability_ref",
+                  "mechanism_leaf",
+                  "emitted_record"
+                ]
+              },
+              "minItems": 1
+            },
+            "for_seconds": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Watch this long, then answer every fact told; left out, it watches until it is stopped (its wake keeps it running)."
+            }
+          },
+          "required": [
+            "waiters"
+          ]
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "notice-when-something-shows-up",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/notice-when-something-shows-up"
+              }
+            ]
+          },
+          "workdir": "/opt/notice-when-something-shows-up",
+          "internet": false,
+          "argv": [
+            "node",
+            "do-work/tell-the-engine.mjs"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "session": {
+            "keep_open": true
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "at": "@own-records",
+                "id": "clock-tick",
+                "operations": [
+                  "wake:arrive"
+                ]
+              },
+              {
+                "at": "@own-records",
+                "id": "something-showed-up",
+                "operations": [
+                  "wake:arrive"
+                ]
+              }
+            ]
+          },
+          "stdout": "json"
+        },
+        "wakes": [
+          {
+            "id": "keep-noticing",
+            "on": {
+              "running": {}
+            },
+            "budget": {
+              "steps": 2,
+              "wall_ms": 600000
+            },
+            "input": {
+              "waiters": [
+                {
+                  "kind": "notice-when-something-shows-up.waiter-descriptor",
+                  "id": "waiter:elapsed-time",
+                  "is_active": true,
+                  "mechanism_capability_ref": "package::notice-when-something-shows-up::mechanism::elapsed-time",
+                  "mechanism_leaf": "elapsed-time.mjs",
+                  "mechanism_settings": {
+                    "interval_seconds": 60,
+                    "every": "minute"
+                  },
+                  "emitted_record": {
+                    "change_kind": "clock-tick",
+                    "address_label": "clock::tick",
+                    "path_labels": [
+                      "current-item",
+                      "clock-tick"
+                    ],
+                    "payload_fields": [
+                      "iso_time",
+                      "epoch_ms",
+                      "counter",
+                      "every"
+                    ]
+                  },
+                  "candidate_identity_feed": null,
+                  "supersedes": "package::clock-ticker::workflow-action::start-clock",
+                  "why": "This row IS the clock. Its projection writes the exact clock-tick record at the exact address and path labels clock-ticker wrote, so every trigger rule matching clock-tick keeps firing with no edit."
+                }
+              ]
+            }
+          }
+        ],
+        "provenance": {
+          "source": "bitfield-packages packages/notice-when-something-shows-up (moved byte for byte, moved-from.json): its resident emitter and mechanisms, with do-work/tell-the-engine.mjs as the carrier to the engine's wake:arrive in place of the retired runtime's record writes"
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "told": {
+              "type": "array"
+            },
+            "refused": {
+              "type": "array"
+            }
+          }
+        },
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "waiters": [
+                {
+                  "kind": "notice-when-something-shows-up.waiter-descriptor",
+                  "id": "waiter:elapsed-time",
+                  "is_active": true,
+                  "mechanism_capability_ref": "package::notice-when-something-shows-up::mechanism::elapsed-time",
+                  "mechanism_leaf": "elapsed-time.mjs",
+                  "mechanism_settings": {
+                    "interval_seconds": 1,
+                    "every": "second"
+                  },
+                  "emitted_record": {
+                    "change_kind": "clock-tick",
+                    "address_label": "clock::tick",
+                    "path_labels": [
+                      "current-item",
+                      "clock-tick"
+                    ],
+                    "payload_fields": [
+                      "iso_time",
+                      "epoch_ms",
+                      "counter",
+                      "every"
+                    ]
+                  },
+                  "candidate_identity_feed": null,
+                  "supersedes": "package::clock-ticker::workflow-action::start-clock",
+                  "why": "This row IS the clock. Its projection writes the exact clock-tick record at the exact address and path labels clock-ticker wrote, so every trigger rule matching clock-tick keeps firing with no edit."
+                }
+              ],
+              "for_seconds": 3.5
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
