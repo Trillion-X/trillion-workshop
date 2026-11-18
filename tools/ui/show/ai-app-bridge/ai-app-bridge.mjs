@@ -17,7 +17,8 @@
 // - `callTool` asks the app over the MCP Apps road; when that road has not answered `ui/initialize` and the app offers
 //   `window.openai.callTool`, it asks there. A call the app refuses, or answers as an error, rejects with the app's or
 //   the tool's own words. The view never holds a credential: the app makes the call as the person who connected it.
-// - The height told is where `content` (the element the view fills) ends, never the frame the app first gave it.
+// - The height told is where `content` (the element the view fills) ends with all it holds, even when `content` scrolls
+//   inside a shorter frame, never the frame the app first gave it.
 // - What the app says about where the view sits (`hostContext`: its display mode and the most height it gives) is kept
 //   as the app last said it, from `ui/initialize`, `ui/notifications/host-context-changed` or `window.openai`, so a view
 //   sizes itself to what the app allows. A display mode is asked for, never assumed: the app answers which it gave.
@@ -103,7 +104,8 @@ export function connectToAiApp(win, { appName = 'view', protocolVersion = '2026-
   // never called back before it is ready (ChatGPT's view stayed blank on 'Cannot access before initialization').
   win.queueMicrotask(fromOpenAi);
   const root = win.document.documentElement;
-  const heightNeeded = () => Math.ceil(content ? content.getBoundingClientRect().bottom + (win.scrollY ?? 0) : root.scrollHeight);
+  // Where `content` would end were it not held to its frame: its top plus all it holds, scrolled or not.
+  const heightNeeded = () => Math.ceil(content ? content.getBoundingClientRect().top + content.scrollHeight + (win.scrollY ?? 0) : root.scrollHeight);
   // The words a failed call result carries, else a plain line.
   const failureOf = result => [result?.content?.find?.(block => typeof block?.text === 'string')?.text, result?.structuredContent?.error]
     .find(text => typeof text === 'string' && text.trim())?.trim() ?? 'Trillion could not answer this. Try again.';

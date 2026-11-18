@@ -25,6 +25,8 @@
 // - A request of the page's own that is refused (keeping a screen, reading a kept one) says so above the screen, in the
 //   app's words; nothing the page asks fails silently.
 // - The page follows the app's light or dark theme (`color-scheme`), so the code's default colors are readable in either.
+// - The screen never runs past its frame: it scrolls inside the height the app gives, its full height is told to the app
+//   on every change, and when it is taller than its frame and the app can show it full screen, one press asks for that.
 // - A script that throws shows its words above the screen, with one press that asks for a new version, through the
 //   words' `fix_order` (else `order`), given the error and the code that threw.
 // - Nothing here branches on what an answer, a screen or an operation is.
@@ -39,6 +41,22 @@ export function runScreens(win, { connect, words = {} }) {
   let code = null, ran = null, wanted = null, call = null, answer = null, text = '', madeBy = null, tried = false;
   const hearers = new Set();
   const app = connect({ onToolInput, onToolResult, content: host });
+  // The screen scrolls inside the frame the app gives it, which may be shorter than it asked for (ChatGPT keeps an inline
+  // frame at a height it chooses and never scrolls it), and each change of its size is told to the app, once a frame.
+  host.style.maxHeight = '100vh';
+  host.style.overflowY = 'auto';
+  let telling = null, offered = false;
+  const tell = () => { telling = null; app.reportSize(); offerAll(); };
+  new win.MutationObserver(() => { if (telling === null) telling = win.requestAnimationFrame(tell); })
+    .observe(host, { childList: true, subtree: true, characterData: true, attributes: true });
+  win.addEventListener('resize', () => offerAll());
+  // When the screen is taller than its frame and the app can show it whole, one press asks for that.
+  function offerAll() {
+    const place = app.placement?.();
+    if (offered || host.scrollHeight <= win.innerHeight + 1 || !place?.modes?.includes('fullscreen') || place.mode === 'fullscreen') return;
+    offered = true;
+    say('', words.see_all ?? 'See all', () => { offered = false; app.askDisplayMode('fullscreen').catch(() => {}); });
+  }
   // The app's theme, as it says it (`theme` in its host context): the page and the code drawn in it follow it, so default
   // text is never dark on a dark app. Until it says, the device's own preference.
   doc.documentElement.style.colorScheme = 'light dark';

@@ -28,7 +28,9 @@ const f = document.getElementById('f');
 window.addEventListener('message', async event => {
   const m = event.data; if (!m || m.jsonrpc !== '2.0') return;
   const reply = result => f.contentWindow.postMessage({ jsonrpc: '2.0', id: m.id, result }, '*');
-  if (m.method === 'ui/initialize') reply({ protocolVersion: '2026-01-26', hostContext: { displayMode: 'inline', theme: 'dark' } });
+  if (m.method) (window.heard ??= []).push(m);
+  if (m.method === 'ui/initialize') reply({ protocolVersion: '2026-01-26', hostContext: { displayMode: 'inline', theme: 'dark', availableDisplayModes: ['inline', 'fullscreen'] } });
+  if (m.method === 'ui/request-display-mode') reply({ mode: m.params.mode });
   if (m.method === 'tools/call') { window.calls.push(m.params); reply(await window.door(m.params)); }
 });
 window.say = (method, params) => f.contentWindow.postMessage({ jsonrpc: '2.0', method, params }, '*');
@@ -45,7 +47,7 @@ async function app(browser, words, door) {
   await tab.evaluate(html => window.load(html), page(words));
   await tab.waitForTimeout(100);
   const frame = () => tab.frames().find(one => one !== tab.mainFrame());
-  return { tab, frame, errors, say: (method, params) => tab.evaluate(([m, p]) => window.say(m, p), [method, params]), calls: () => tab.evaluate(() => window.calls) };
+  return { tab, frame, errors, heard: () => tab.evaluate(() => window.heard ?? []), say: (method, params) => tab.evaluate(([m, p]) => window.say(m, p), [method, params]), calls: () => tab.evaluate(() => window.calls) };
 }
 
 const words = { order: ['kept'], kept: { method: 'tools:run', input: { sql: 'select code', params: ['{for_operation}'] }, code_at: '/rows' }, mine: ['ai:chat'] };
@@ -183,6 +185,23 @@ test('a show tool\'s answer is kept when ChatGPT hands its one-line result as th
     await tab.goto(`file://${file}`);
     await tab.waitForTimeout(300);
     assert.equal(await tab.textContent('#n'), '3', 'the answer the call carried, not the result\'s words');
+  } finally { await browser.close(); }
+});
+
+test('a screen taller than its frame scrolls inside it, tells its whole height on each change, and offers to be seen whole', async () => {
+  const browser = await chromium.launch();
+  try {
+    const tall = await app(browser, words);
+    const rows = '<div id="rows"></div><script>const r = document.getElementById("rows"); for (let i = 0; i < 5; i++) r.insertAdjacentHTML("beforeend", "<p style=\\"height:100px;margin:0\\">row</p>"); setTimeout(() => { for (let i = 0; i < 20; i++) r.insertAdjacentHTML("beforeend", "<p style=\\"height:100px;margin:0\\">later</p>"); }, 200);</script>';
+    await tall.say('ui/notifications/tool-input', { arguments: { ...callArgs, screen: rows } });
+    await tall.tab.waitForTimeout(600);
+    const heights = (await tall.heard()).filter(m => m.method === 'ui/notifications/size-changed').map(m => m.params.height);
+    assert.ok(Math.max(...heights) >= 2500, `the whole height is told after the screen grew by itself: ${heights}`);
+    const box = await tall.frame().evaluate(() => { const h = document.getElementById('screen'); return { client: h.clientHeight, scroll: h.scrollHeight }; });
+    assert.ok(box.client <= 400 && box.scroll >= 2500, `the screen scrolls inside the 400px frame: ${JSON.stringify(box)}`);
+    await tall.frame().click('text=See all');
+    await tall.tab.waitForTimeout(100);
+    assert.ok((await tall.heard()).some(m => m.method === 'ui/request-display-mode' && m.params.mode === 'fullscreen'), 'the press asked to be shown whole');
   } finally { await browser.close(); }
 });
 
