@@ -3930,6 +3930,22 @@
               "steps": 33,
               "wall_ms": 3960000
             }
+          },
+          {
+            "id": "at-its-time-something-changed",
+            "on": {
+              "fact": {
+                "kind": "something-changed",
+                "from": ["run"],
+                "match": {
+                  "place": "post"
+                }
+              }
+            },
+            "budget": {
+              "steps": 33,
+              "wall_ms": 3960000
+            }
           }
         ],
         "invoke": {
