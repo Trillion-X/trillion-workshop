@@ -180,6 +180,7 @@ export function withReach(runs) {
     if (machine.firewall_allow === null) throw new Error('a reach entry opens a port, and this computer\'s firewall is kept by another program (machine.firewall_allow null)');
     machine.firewall_allow = [...(machine.firewall_allow ?? []), ...firewall];
   }
+  if (routes.length && !runs.caddy) throw new Error('a reach entry adds a Caddy route, and this computer\'s row names no caddy');
   const caddy = routes.length ? { ...runs.caddy, routes: [...(runs.caddy.routes ?? []), ...routes] } : runs.caddy;
   return { ...runs, units, caddy, machine };
 }
@@ -249,7 +250,8 @@ const withCredentials = (unit, where) => {
 /** Every file a computer's `runs` declares: { path, text }. A unit's drop-ins are the names it lists in `drop_ins`. */
 export function renderWhatItRuns(given, siteBlock, pages) {
   const runs = withSlots(given);
-  const files = [{ path: '/etc/caddy/Caddyfile', text: renderCaddy(siteBlock, runs.caddy) + innerDoors(runs.caddy ?? {}) }];
+  // A computer that serves no web pages names no `caddy`: no Caddy file is written for it.
+  const files = runs.caddy ? [{ path: '/etc/caddy/Caddyfile', text: renderCaddy(siteBlock, runs.caddy) + innerDoors(runs.caddy) }] : [];
   if (runs.caddy?.pages_root) files.push(...pageFiles(runs.caddy, pages));
   const door = runs.caddy?.front_door;
   if (door) files.push({ path: `${SYSTEMD}/caddy.service.d/front-door.conf`, text: fill(TEMPLATE('caddy-front-door.conf'), door, 'caddy.front_door') });

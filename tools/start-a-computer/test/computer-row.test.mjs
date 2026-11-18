@@ -35,10 +35,16 @@ test('a request may name the computer row as a file beside it: the row is that f
   assert.equal(read.computer_row_file, undefined);
 });
 
-test('a computer row that is an id, a missing value, or has no runs with units and caddy is refused', () => {
-  for (const given of ['record:computer:example-computer', undefined, null, {}, { runs: { units: [] } }, { runs: { caddy: {} } }, runs]) {
-    assert.throws(() => runsOf({ computer_row: given }), /computer_row is the computer's own row: its `runs` names the units and caddy/);
+test('a computer row that is an id, a missing value, or has no runs with units is refused', () => {
+  for (const given of ['record:computer:example-computer', undefined, null, {}, { runs: { caddy: {} } }, runs]) {
+    assert.throws(() => runsOf({ computer_row: given }), /computer_row is the computer's own row: its `runs` names the units/);
   }
+});
+
+test('a computer that serves no web pages names no caddy, and no Caddy file is written for it', () => {
+  const quiet = { units: [] };
+  assert.deepEqual(runsOf({ computer_row: { runs: quiet } }), quiet);
+  assert.equal(renderWhatItRuns(quiet, SITE_BLOCK).some(({ path }) => path === '/etc/caddy/Caddyfile'), false);
 });
 
 test('applying and comparing a computer use its row: a computer that runs it has no differences', async () => {
