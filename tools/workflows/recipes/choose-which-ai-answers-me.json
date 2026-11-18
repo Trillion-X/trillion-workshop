@@ -1,0 +1,159 @@
+{
+  "about": "workflow:choose-which-ai-answers-me: keeps which AI answers the person, or automatic routing, as one choice in the person's own store. It replaces the request-building tool tool:choose-which-ai-answers-me in tools/selected-agent (run/, tool-rows.json), which sent the choice to a retired workflow slot (rule a-tool-is-only-what-the-store-cannot-do).",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:choose-which-ai-answers-me",
+        "label": "Choose which AI answers me",
+        "job": "Keep which AI answers the person, in the person's own store: one choice, the id of the AI, or the empty choice that sends the person back to automatic routing. A choice that is not text is refused in words. Reading gives the choice as it is kept, or automatic when none is kept yet. The choice is the person's own; an AI may keep it only when the person has asked for it.",
+        "produces": "The one kept choice, read back as an AI id or as automatic; proven on the same six example steps in PostgreSQL, a markdown folder and a JSON file, with the same answers in each.",
+        "source": "tools/selected-agent (do-work/set-selected-agent.ts and run/plan-selected-agent.mjs, its kit kits/choose-which-ai-answers-me.json). The request the old tool built was sent to the retired workflow slot of the old runtime; the recipe keeps the choice in the person's own store instead. The screen that offers the choice (packages/selected-agent/show) stays with its owner, see the commit message.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language",
+                "credential_name"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps this choice: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The name in the person's vault under which the store's login is kept"
+                }
+              }
+            },
+            "agent_id": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "The AI to answer the person, or \"\" for automatic routing; leave out to read the choice"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the choice is kept (kept_in, or null) and the names of the objects that keep it.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "make",
+            "title": "Make the store's own object, once, and keep the choice",
+            "do": "When the look step found nothing, make the store's own object in its own form: one row holding the one choice, with a key that allows one row only. To keep a choice: refuse, in words, any agent_id that is not text (the message says: give the id of the AI to answer, or \"\" for automatic routing); otherwise replace the row with the new choice, where \"\" means automatic routing. A read returns the kept choice, or automatic when no row exists. Submit the names of the objects made, or the ones the look step found.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the choice on the example steps",
+            "do": "In a throwaway place in the same store, with the same object, run these six steps in order and record each outcome and answer: (1) read before any choice: automatic. (2) keep agent:sample-writer: kept. (3) keep \"\": kept, automatic. (4) keep the number 5: refused. (5) keep agent:sample-writer again: kept. (6) read back: agent:sample-writer. Submit outcomes (one per step, in the words given: automatic, kept, kept, refused, kept, agent:sample-writer) and answer (the choice read back at step 6, and the refusal words given at step 4).",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answer"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "answer": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each step has the outcome the rule gives",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "automatic",
+                    "kept",
+                    "kept",
+                    "refused",
+                    "kept",
+                    "agent:sample-writer"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "The store's read-back and refusal words give the expected answers",
+                "path": [
+                  "this",
+                  "answer"
+                ],
+                "values": [
+                  {
+                    "read_back": "agent:sample-writer",
+                    "refusal": "Give agent_id: the id of the AI to answer, or \"\" for automatic routing."
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "erase": "On the person's request the store deletes the kept choice, and the choice reads as automatic routing again."
+      }
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:choose-which-ai-answers-me with store {\\\"where\\\": \\\"postgresql database example_shop on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-shop-postgres-connection\\\"} and agent_id \\\"agent:sample-writer\\\".\"",
+  "lists": [],
+  "no_lists_because": "It names no list: the one choice is kept in the person's own store, in whatever form that store keeps one value, and store says where and in which language.",
+  "workflows": [
+    "workflow:choose-which-ai-answers-me"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:choose-which-ai-answers-me\" with store and the agent_id the person chose, or \"\" for automatic routing. Ask the person first.",
+    "3. The first run makes the store's own object once and proves the choice on the example steps; every step must give its outcome, or the run stops and says which.",
+    "4. Every later run keeps the new choice and reads it back."
+  ],
+  "worked_examples": [
+    {
+      "title": "Choose an AI to answer me",
+      "ask": "Let agent:sample-writer answer me from now on.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:choose-which-ai-answers-me",
+              "store": {
+                "where": "a text field",
+                "language": "the store's own",
+                "credential_name": "the store's login"
+              },
+              "agent_id": "agent:sample-writer"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:choose-which-ai-answers-me",
+      "step": "make",
+      "given": {
+        "store": {
+          "where": "a text field",
+          "language": "the store's own",
+          "credential_name": "the store's login"
+        },
+        "agent_id": "agent:sample-writer"
+      },
+      "hands_back": "Kept: \"agent:sample-writer\", not automatic. Read back: \"agent:sample-writer\"."
+    }
+  ]
+}
