@@ -2,7 +2,7 @@
 // files laid on this repository; the relate row gets the fake records door with exactly its rights, the read rows none. Every record is made up.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
+import { answerOf, rowOf, rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 import MODEL from '../read-data/record-graph.json' with { type: 'json' };
 
@@ -37,7 +37,7 @@ test('the read rows hold no records door, and the relate row reaches only relati
     assert.equal(row.invoke.records, undefined, `${row.id} holds no records door`);
     assert.ok(row.input_schema.required.includes('records'), `${row.id} takes the rows as input`);
   }
-  assert.deepEqual(relateRow.invoke.records.rights.map(right => right.kind).sort(), ['activity', ...MODEL.relations.entity_kinds, 'relation'].sort());
+  assert.deepEqual(rightsOf(relateRow).map(right => right.kind).sort(), ['activity', ...MODEL.relations.entity_kinds, 'relation'].sort());
   const refused = await answerOf(relateRow, { relations: [{ subject: 'a/b', role: 'x', object: 'me' }] });
   assert.equal(refused.status, 1);
   assert.match(refused.error, /A subject or object is a record id, me, or <entity kind>:<name>/);

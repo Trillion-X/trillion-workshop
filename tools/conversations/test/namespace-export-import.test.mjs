@@ -5,7 +5,7 @@ import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
 import { openRecordsDoor } from '../../records-door/read-data/records-door.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { importNamespaceExports } from '../read-data/chat-import.mjs';
-import { runRow } from '../../../test-helpers/run-a-row.mjs';
+import { runRow, rightsOf } from '../../../test-helpers/run-a-row.mjs';
 
 const row = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url))).records.map(r => r.payload)
   .find(r => r.id === 'tool:import-conversation-exports-from-my-files');
@@ -17,7 +17,7 @@ const page = { conversation_id: 'bakery-1', title: 'Bread', messages: [
 ] };
 
 async function fixture(t, { badBytes = false, fail = false } = {}) {
-  const fake = await startFakeDoor({ rights: row.invoke.records.rights });
+  const fake = await startFakeDoor({ rights: rightsOf(row) });
   t.after(() => fake.close());
   const base = openRecordsDoor({ descriptor: fake.descriptor });
   const bytes = Buffer.from(JSON.stringify(page));

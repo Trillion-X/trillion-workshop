@@ -238,6 +238,10 @@
       "body": {},
       "browser": {
        "type": "object"
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of told-the-person, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -361,17 +365,6 @@
       "fill": {
        "from": "input"
       }
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "told-the-person",
-        "operations": [
-         "records:list"
-        ]
-       }
-      ]
      }
     },
     "needs": {
@@ -400,6 +393,14 @@
       "output_selector": "$.status",
       "contains": "200"
      }
+    ],
+    "stored": [
+      {
+        "kind": "told-the-person",
+        "operations": [
+          "records:list"
+        ]
+      }
     ]
    }
   }

@@ -1303,6 +1303,10 @@
             "things": {
               "type": "object",
               "description": "Full authoritative waiting answer; preserves every source section and finish control."
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of setting (the row setting:needs_you_hold), setting (the row setting:needs_you_held), setting (the row setting:needs_you_hold_rules), record:waiting-on-you, ai-job (ids starting ai-job:hold-), told-the-person, told-the-person (the row told-the-person), told-the-person (ids starting told-the-person:), record:waiting-sources, ai-job, post, as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -1316,7 +1320,11 @@
             "status": {
               "type": "integer"
             },
-            "body": {}
+            "body": {},
+            "keep": {
+              "type": "array",
+              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
+            }
           }
         },
         "invoke": {
@@ -1499,83 +1507,6 @@
           },
           "records": {
             "fd": 3,
-            "rights": [
-              {
-                "kind": "setting",
-                "id": "setting:needs_you_hold",
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "setting",
-                "id": "setting:needs_you_held",
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "setting",
-                "id": "setting:needs_you_hold_rules",
-                "operations": [
-                  "records:read"
-                ]
-              },
-              {
-                "kind": "record:waiting-on-you",
-                "operations": [
-                  "records:list"
-                ]
-              },
-              {
-                "kind": "ai-job",
-                "prefix": "ai-job:hold-",
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "told-the-person",
-                "operations": [
-                  "records:list"
-                ]
-              },
-              {
-                "kind": "told-the-person",
-                "id": "told-the-person",
-                "operations": [
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "told-the-person",
-                "prefix": "told-the-person:",
-                "operations": [
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "record:waiting-sources",
-                "operations": [
-                  "records:list"
-                ]
-              },
-              {
-                "kind": "ai-job",
-                "operations": [
-                  "records:list"
-                ]
-              },
-              {
-                "kind": "post",
-                "operations": [
-                  "records:list"
-                ]
-              }
-            ],
             "runs": [
               "tool:hold-a-device-quiet",
               "tool:take-me-there",
@@ -1598,7 +1529,84 @@
         "provenance": {
           "source": "trillion src/worker.mjs:1100-1121 GET and POST /work/api/needs-you-hold over src/native-waiting-account-owner.mjs needsYouHold (tag old-trillion-before-worker-retire), with the decisions in read-data/needs-you-hold.mjs that owner imported from here"
         },
-        "verify": [{"kind": "sample-run", "input": {"path": "/needs-you-hold", "method": "GET", "query": {}, "body": {}, "browser": {}}, "records": [{"id": "setting:needs_you_hold_rules", "type": "setting", "value": {"value": {"after_minutes": 0, "words": {"free": "Nothing is holding you."}}}}], "output_selector": "$.body.said", "contains": "Nothing is holding"}]
+        "verify": [{"kind": "sample-run", "input": {"path": "/needs-you-hold", "method": "GET", "query": {}, "body": {}, "browser": {}}, "records": [{"id": "setting:needs_you_hold_rules", "type": "setting", "value": {"value": {"after_minutes": 0, "words": {"free": "Nothing is holding you."}}}}], "output_selector": "$.body.said", "contains": "Nothing is holding"}],
+        "stored": [
+          {
+            "kind": "setting",
+            "id": "setting:needs_you_hold",
+            "operations": [
+              "records:read",
+              "records:write"
+            ]
+          },
+          {
+            "kind": "setting",
+            "id": "setting:needs_you_held",
+            "operations": [
+              "records:read",
+              "records:write"
+            ]
+          },
+          {
+            "kind": "setting",
+            "id": "setting:needs_you_hold_rules",
+            "operations": [
+              "records:read"
+            ]
+          },
+          {
+            "kind": "record:waiting-on-you",
+            "operations": [
+              "records:list"
+            ]
+          },
+          {
+            "kind": "ai-job",
+            "prefix": "ai-job:hold-",
+            "operations": [
+              "records:read",
+              "records:write"
+            ]
+          },
+          {
+            "kind": "told-the-person",
+            "operations": [
+              "records:list"
+            ]
+          },
+          {
+            "kind": "told-the-person",
+            "id": "told-the-person",
+            "operations": [
+              "records:write"
+            ]
+          },
+          {
+            "kind": "told-the-person",
+            "prefix": "told-the-person:",
+            "operations": [
+              "records:write"
+            ]
+          },
+          {
+            "kind": "record:waiting-sources",
+            "operations": [
+              "records:list"
+            ]
+          },
+          {
+            "kind": "ai-job",
+            "operations": [
+              "records:list"
+            ]
+          },
+          {
+            "kind": "post",
+            "operations": [
+              "records:list"
+            ]
+          }
+        ]
       }
     }
   ]

@@ -211,7 +211,7 @@
         "job": "See where my public door runs now and which hosting services it can move between",
         "description": "Reads the person's Service connections list and answers where their public door runs now (its hosting row, its address and what proves it) and each hosting row with whether the door can move there and why not. It never reads or shows a key and changes nothing.",
         "status": "active",
-        "input_schema": { "type": "object", "additionalProperties": false, "properties": {} },
+        "input_schema": { "type": "object", "additionalProperties": false, "properties": { "stored": { "type": "object", "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of record:service-connection, as this row's `stored` lists. What is not given is not there." } } },
         "output_schema": {
           "type": "object",
           "required": ["current", "hosting_providers"],
@@ -285,8 +285,7 @@
           "workdir": "/opt/move-the-public-door",
           "stdout": "json",
           "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/move-the-public-door/do-work/door-tools.mjs", "seeWhereTheDoorRuns"],
-          "stdin": { "fill": { "from": "input" } },
-          "records": { "fd": 3, "rights": [{ "kind": "record:service-connection", "operations": ["records:list"] }] }
+          "stdin": { "fill": { "from": "input" } }
         },
         "result_selector": "$.result",
         "verify": [{
@@ -302,7 +301,15 @@
         "needs": { "expected_seconds": 5 },
         "maker": "maker:move-the-public-door",
         "licence_class": "licence:maker-own",
-        "placements": ["placement:your-computer"]
+        "placements": ["placement:your-computer"],
+        "stored": [
+          {
+            "kind": "record:service-connection",
+            "operations": [
+              "records:list"
+            ]
+          }
+        ]
       }
     },
     {

@@ -6,7 +6,7 @@ import { makePrintTools, printArguments, printersFrom, printSettings, readWhole 
 const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
 const listing = 'printer SAMPLE_OFFICE is idle.  enabled since Mon Jan  5 09:00:00 2026\nprinter SAMPLE_PHOTO disabled since Mon Jan  5 09:00:00 2026 -\nsystem default destination: SAMPLE_OFFICE\n';
 
-test('both rows run on the person\'s computer with only the print system, and print reads files through the door', () => {
+test('both rows run on the person\'s computer with only the print system, and print is given the file it prints', () => {
   for (const row of rows) {
     assert.equal(row.invoke.kind, 'computer');
     assert.deepEqual(row.invoke.capabilities, ['use-the-print-system']);
@@ -16,8 +16,8 @@ test('both rows run on the person\'s computer with only the print system, and pr
     assert.equal(row.result_selector, '$.result');
   }
   const print = rows.find(row => row.id === 'tool:print');
-  assert.deepEqual(print.invoke.records, { fd: 3, rights: [{ files: '/', operations: ['find_file', 'read_file'] }] });
-  assert.equal(rows.find(row => row.id === 'tool:printers').invoke.records, undefined, 'listing printers reads no files');
+  assert.deepEqual(print.stored, [{ files: '/', operations: ['find_file', 'read_file'] }]);
+  assert.equal(rows.find(row => row.id === 'tool:printers').stored, undefined, 'listing printers reads no files');
 });
 
 test('reads the printers and the default from the print system\'s words', () => {

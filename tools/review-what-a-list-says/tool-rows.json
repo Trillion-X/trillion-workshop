@@ -254,6 +254,10 @@
             },
             "expires_days": {
               "type": "number"
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of list, the kind the request names, as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -280,6 +284,10 @@
             },
             "kept": {
               "type": "array"
+            },
+            "keep": {
+              "type": "array",
+              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
             }
           }
         },
@@ -368,31 +376,6 @@
                 "at": "/opt/browse-and-upload-my-files"
               }
             ]
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "list",
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": {
-                  "fill": {
-                    "from": "input",
-                    "field": "row_kind"
-                  }
-                },
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              }
-            ]
           }
         },
         "result_selector": "$.result",
@@ -435,6 +418,28 @@
                   "body": "Steps"
                 }
               }
+            ]
+          }
+        ],
+        "stored": [
+          {
+            "kind": "list",
+            "operations": [
+              "records:read",
+              "records:write"
+            ]
+          },
+          {
+            "kind": {
+              "fill": {
+                "from": "input",
+                "field": "row_kind"
+              }
+            },
+            "operations": [
+              "records:read",
+              "records:list",
+              "records:write"
             ]
           }
         ]

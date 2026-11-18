@@ -4,6 +4,7 @@
 // (tools/records-door/test/fake-door.mjs) that holds exactly the rights the sweep's row declares. How long a share lasts is the
 // person's choice and by default it has no end; the engine keeps the rule beside the grant and reads none of it, so a share
 // ends when the sweep withdraws it. Every name, label and time is made up.
+import { rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
@@ -15,9 +16,9 @@ import rows from '../tool-rows.json' with { type: 'json' };
 
 const shareRow = rows.records[0].payload;
 const sweepRow = rows.records.find(row => row.payload.id === 'tool:end-shares-whose-condition-failed').payload;
-const sweepRights = sweepRow.invoke.records.rights;
+const sweepRights = rightsOf(sweepRow);
 // The share tool's rights for the labels it is asked for, as its row declares them, and the sweep's, side by side on one door.
-const shareRights = labels => labels.flatMap(label => shareRow.invoke.records.rights.map(right => ({
+const shareRights = labels => labels.flatMap(label => rightsOf(shareRow).map(right => ({
   ...right, ...(right.id && typeof right.id === 'object' ? { id: label } : {}),
 })));
 

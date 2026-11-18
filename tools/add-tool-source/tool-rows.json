@@ -259,6 +259,10 @@
               "required": [
                 "state"
               ]
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of record:tool-source-request (ids starting record:tool-source-request:), tool-server-sign-in-pending, record:setting (the row record:setting:tool-server-sign-in), as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -300,6 +304,10 @@
             "sign_in": {
               "type": "object",
               "description": "The address to sign in at, when the server asks for a sign-in"
+            },
+            "keep": {
+              "type": "array",
+              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
             }
           }
         },
@@ -397,31 +405,6 @@
           },
           "records": {
             "fd": 3,
-            "rights": [
-              {
-                "kind": "record:tool-source-request",
-                "prefix": "record:tool-source-request:",
-                "operations": [
-                  "records:list",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "tool-server-sign-in-pending",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "record:setting",
-                "id": "record:setting:tool-server-sign-in",
-                "operations": [
-                  "records:read"
-                ]
-              }
-            ],
             "runs": [
               "tool:trade-a-tool-servers-sign-in-code-for-its-tokens"
             ]
@@ -449,6 +432,31 @@
             "output_selector": "$.source.kind",
             "contains": "folder",
             "records": []
+          }
+        ],
+        "stored": [
+          {
+            "kind": "record:tool-source-request",
+            "prefix": "record:tool-source-request:",
+            "operations": [
+              "records:list",
+              "records:write"
+            ]
+          },
+          {
+            "kind": "tool-server-sign-in-pending",
+            "operations": [
+              "records:read",
+              "records:list",
+              "records:write"
+            ]
+          },
+          {
+            "kind": "record:setting",
+            "id": "record:setting:tool-server-sign-in",
+            "operations": [
+              "records:read"
+            ]
           }
         ]
       }

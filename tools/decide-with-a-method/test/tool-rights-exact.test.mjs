@@ -1,6 +1,7 @@
 // Each decision tool row runs its step of one decision with exactly the rights its row declares (records.rights), over the
 // same records the stand-in keeps. Every record kind a call reads, lists or writes must be granted to the row making the
 // call, so a kind a write path needs but no row grants (decision-refs, when the layout names it) fails here, not live.
+import { rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -17,7 +18,7 @@ const settings = JSON.parse(readFileSync(new URL('../read-data/decide-with-a-met
 function granted(door, toolId) {
   const row = rows.find(each => each.id === toolId);
   assert.ok(row, `${toolId} has a row`);
-  const rights = new Map((row.invoke?.records?.rights ?? []).map(item => [item.kind, new Set(item.operations)]));
+  const rights = new Map(rightsOf(row).map(item => [item.kind, new Set(item.operations)]));
   const need = (kind, operation) => {
     if (!rights.get(kind)?.has(operation)) throw Object.assign(new Error(`${toolId} is not granted ${operation} on ${kind}`), { code: 'not_granted' });
   };

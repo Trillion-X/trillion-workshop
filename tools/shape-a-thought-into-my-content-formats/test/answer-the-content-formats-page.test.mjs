@@ -4,7 +4,7 @@
 // tag old-trillion-before-worker-retire: its route cases, here through the row).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
+import { answerOf, rowOf, rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 import starters from '../data/content-format-starters.json' with { type: 'json' };
 
@@ -82,9 +82,9 @@ test('follow answers how far the words heard reach, and an unknown spelling or m
 });
 
 test('the row holds no records right and reads only the source kinds\' folders', () => {
-  const folders = row.invoke.records.rights.filter(item => item.files).map(item => item.files);
-  assert.deepEqual(row.invoke.records.rights.filter(item => item.kind), []);
-  assert.ok(row.invoke.records.rights.every(item => item.operations.every(operation => !operation.startsWith('records:'))));
+  const folders = rightsOf(row).filter(item => item.files).map(item => item.files);
+  assert.deepEqual(rightsOf(row).filter(item => item.kind), []);
+  assert.ok(rightsOf(row).every(item => item.operations.every(operation => !operation.startsWith('records:'))));
   assert.deepEqual(folders, ['/Recordings from the web/', '/Recordings from iPhone/', '/Notes/', '/Notes from members/']);
   assert.equal(row.invoke.internet, false);
 });

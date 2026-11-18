@@ -29,10 +29,12 @@ try {
   if (!Number.isSafeInteger(parentActionsFd) || parentActionsFd < 3) throw new Error('Supply --parent-actions-fd with the row\'s declared file descriptor.');
   const fn = (await import(pathToFileURL(file).href))[name];
   if (typeof fn !== 'function') throw new Error(`${file} has no function ${name}.`);
-  // `stored` is in the run's input, at the top or under `input` when the row's stdin is { input, task }.
+  // `stored` is in the run's input: at the top, or in the one field the row's stdin put the input in ({ input, task }).
   const given = JSON.parse((await text(process.stdin)) || '{}');
-  const nested = given && typeof given.input === 'object' && given.input !== null && !Array.isArray(given.input) && 'stored' in given.input;
-  const { stored, ...input } = nested ? { stored: given.input.stored, ...given, input: Object.fromEntries(Object.entries(given.input).filter(([name]) => name !== 'stored')) } : given;
+  const holder = given && typeof given === 'object' && !Array.isArray(given) && !('stored' in given)
+    ? Object.keys(given).find(name => given[name] && typeof given[name] === 'object' && !Array.isArray(given[name]) && 'stored' in given[name]) : undefined;
+  const { stored, ...input } = holder === undefined ? given
+    : { stored: given[holder].stored, ...given, [holder]: Object.fromEntries(Object.entries(given[holder]).filter(([name]) => name !== 'stored')) };
   let own, parentActions;
   const values = valuesDoor(stored, { other: (...asked) => (own ??= openBearerDoor()).call(...asked) });
   const context = {

@@ -9,7 +9,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { recordsDoorFromCall } from 'trillion-workshop/tools/records-door/read-data/records-door.mjs';
-import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
+import { answerOf, rowOf, rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import { answerTheSearchRoute } from '../do-work/search-everything.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 
@@ -73,7 +73,7 @@ test('a question left out is the empty question, which asks no lane; any other r
 
 test('the route row runs as the engine runs it, with the same read-only rights as the one search', async () => {
   const row = rowOf(rows, 'tool:answer-the-search-page-route');
-  assert.deepEqual(row.invoke.records.rights, rowOf(rows, 'tool:search-everything-with-one-question').invoke.records.rights);
+  assert.deepEqual(rightsOf(row), rightsOf(rowOf(rows, 'tool:search-everything-with-one-question')));
   const [sample] = row.verify;
   const ran = await answerOf(row, sample.input, sample);
   assert.equal(ran.status, 0, 'the run ends well');

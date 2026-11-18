@@ -1163,12 +1163,22 @@
       "policy_id": {
        "type": "string",
        "description": "Which kept policy record to use; the default one when left out"
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of record:practice-cards, record:practice-grades, record:practice-policy, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
     "output_schema": {
      "type": "object",
-     "description": "add: { card_id, deck, kept_progress }; grade: { card_id, prompt, grade, grade_in_policy, lapsed, due_at, mastery }; due: { due_count, cards }; cards: { cards }; remove: { card_id, removed }; remind: { due_count, said }"
+     "description": "add: { card_id, deck, kept_progress }; grade: { card_id, prompt, grade, grade_in_policy, lapsed, due_at, mastery }; due: { due_count, cards }; cards: { cards }; remove: { card_id, removed }; remind: { due_count, said }",
+     "properties": {
+       "keep": {
+         "type": "array",
+         "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
+       }
+     }
     },
     "invoke": {
      "kind": "container",
@@ -1185,34 +1195,6 @@
       "fill": {
        "from": "input"
       }
-     },
-     "records": {
-      "fd": 3,
-      "most_writes": 2,
-      "rights": [
-       {
-        "kind": "record:practice-cards",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "record:practice-grades",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "record:practice-policy",
-        "operations": [
-         "records:read"
-        ]
-       }
-      ]
      },
      "files": {
       "package_files": [
@@ -1283,7 +1265,31 @@
     "provenance": {
      "source": "the app's practice tool, as cards kept in the person's records over this folder's review schedule"
     },
-    "verify": [{"kind": "sample-run", "input": {"operation": "add", "prompt": "A sample word", "answer": "Its sample meaning", "deck": "sample-deck"}}]
+    "verify": [{"kind": "sample-run", "input": {"operation": "add", "prompt": "A sample word", "answer": "Its sample meaning", "deck": "sample-deck"}}],
+    "stored": [
+      {
+        "kind": "record:practice-cards",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "record:practice-grades",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "record:practice-policy",
+        "operations": [
+          "records:read"
+        ]
+      }
+    ]
    }
   }
  ]

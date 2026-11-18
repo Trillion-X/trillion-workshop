@@ -13,7 +13,7 @@ import { createHmac } from 'node:crypto';
 import { heldFetch, publisherFor, sendAPost as sendAPostRun, sendEachPostAtItsTime } from '../read-data/send-a-post.mjs';
 import { publishAPostNow as publishAPostNowRun } from '../read-data/posts.mjs';
 import { approvalValues } from '../read-data/post-shape.mjs';
-import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
+import { answerOf, rowOf, rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import settings from '../read-data/posts.json' with { type: 'json' };
 import { heldFields } from '../read-data/posts.mjs';
 import { resolvedInvoke } from './by-input.mjs';
@@ -231,7 +231,7 @@ test('a run told one place for another place\'s account sends nothing and writes
 });
 
 test('the send row may share and read the person\'s files, and nothing else of them', () => {
-  const filesRights = rowOf(rows, 'tool:send-a-post').invoke.records.rights.filter(right => 'files' in right);
+  const filesRights = rightsOf(rowOf(rows, 'tool:send-a-post')).filter(right => 'files' in right);
   assert.deepEqual(filesRights, [{ files: '/', operations: ['share_file', 'read_file'] }]);
 });
 
@@ -331,7 +331,7 @@ test('the wake is the person\'s to switch on, on their posts, and grants exactly
   assert.equal(timed.invoke.internet, false);
   assert.equal(timed.invoke.credential_mounts, undefined, 'the wake\'s run holds no account\'s values');
   const sendRow = rowOf(rows, settings.at_its_time.send_tool);
-  assert.deepEqual(timed.invoke.records.rights, sendRow.invoke.records.rights, 'a timed send reaches only what the wake was granted');
+  assert.deepEqual(rightsOf(timed), rightsOf(sendRow), 'a timed send reaches only what the wake was granted');
   assert.equal(sendRow.input_schema.properties.armed_at.type, 'string');
   assert.ok(sendRow.input_schema.required.includes('place'), 'the one send row is told which place');
   assert.ok(places.places.every(item => !('send_tool' in item)), 'a place row names no send tool of its own');

@@ -2,6 +2,7 @@
 //
 // Run the actual archive method with its storage dependencies: the person's records are the fake records door with the
 // import rows' rights, reached the way the import reaches them (stagedRecords, listsOverDoor), instead of the Worker's store.
+import { rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
@@ -10,8 +11,8 @@ import { openRecordsDoor } from '../../records-door/read-data/records-door.mjs';
 import { listsOverDoor } from '../../records-door/read-data/lists-door.mjs';
 import { importConversation, stagedRecords } from '../read-data/chat-import.mjs';
 
-const RIGHTS = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload)
-  .find(row => row.id === 'tool:import-my-conversations-from-a-source').invoke.records.rights;
+const RIGHTS = rightsOf(JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload)
+  .find(row => row.id === 'tool:import-my-conversations-from-a-source'));
 
 // The account's importer as the import wires it (read-data/chat-import.mjs importOneSource).
 async function world(t) {

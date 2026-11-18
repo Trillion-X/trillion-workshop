@@ -390,6 +390,10 @@
          }
         }
        }
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of relation, activity, organisation, group, place, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -505,6 +509,10 @@
          }
         }
        }
+      },
+      "keep": {
+        "type": "array",
+        "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
       }
      }
     },
@@ -580,47 +588,6 @@
       "fill": {
        "from": "input"
       }
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "relation",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "activity",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "organisation",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "group",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "place",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       }
-      ]
      }
     },
     "needs": {
@@ -819,7 +786,45 @@
       "summary_most": 2000
      },
      "_what_moved": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it."
-    }
+    },
+    "stored": [
+      {
+        "kind": "relation",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "activity",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "organisation",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "group",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "place",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      }
+    ]
    }
   },
   {

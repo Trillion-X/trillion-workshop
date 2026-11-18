@@ -230,6 +230,10 @@
             "now": {
               "type": "string",
               "description": "The time to decide at (ISO); now when left out"
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: workspace: {label: value} for show-rules, as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -406,18 +410,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "@own-records",
-                "id": "show-rules",
-                "operations": [
-                  "workspace:read"
-                ]
-              }
-            ]
           }
         },
         "needs": {
@@ -513,7 +505,16 @@
               "_read_by": "src/configurations.mjs: bounded target-specific saved configuration pages with stable identity cursors"
             }
           ]
-        }
+        },
+        "stored": [
+          {
+            "kind": "@own-records",
+            "id": "show-rules",
+            "operations": [
+              "workspace:read"
+            ]
+          }
+        ]
       }
     },
     {
@@ -746,6 +747,10 @@
             "now": {
               "type": "string",
               "description": "The time to decide at (ISO); now when left out"
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: workspace: {label: value} for show-rules, as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -932,18 +937,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "@own-records",
-                "id": "show-rules",
-                "operations": [
-                  "workspace:read"
-                ]
-              }
-            ]
           }
         },
         "needs": {
@@ -997,6 +990,15 @@
                 }
               }
             }
+          }
+        ],
+        "stored": [
+          {
+            "kind": "@own-records",
+            "id": "show-rules",
+            "operations": [
+              "workspace:read"
+            ]
           }
         ]
       }
@@ -1229,6 +1231,10 @@
             "now": {
               "type": "string",
               "description": "The time to decide at (ISO); now when left out"
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: workspace: {label: value} for show-rules, as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -1412,18 +1418,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "@own-records",
-                "id": "show-rules",
-                "operations": [
-                  "workspace:read"
-                ]
-              }
-            ]
           }
         },
         "needs": {
@@ -1471,6 +1465,15 @@
                 }
               }
             }
+          }
+        ],
+        "stored": [
+          {
+            "kind": "@own-records",
+            "id": "show-rules",
+            "operations": [
+              "workspace:read"
+            ]
           }
         ]
       }
@@ -1703,6 +1706,10 @@
             "now": {
               "type": "string",
               "description": "The time to decide at (ISO); now when left out"
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: workspace: {label: value} for show-rules, as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -1886,18 +1893,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "@own-records",
-                "id": "show-rules",
-                "operations": [
-                  "workspace:read"
-                ]
-              }
-            ]
           }
         },
         "needs": {
@@ -1949,6 +1944,15 @@
                 }
               }
             }
+          }
+        ],
+        "stored": [
+          {
+            "kind": "@own-records",
+            "id": "show-rules",
+            "operations": [
+              "workspace:read"
+            ]
           }
         ]
       }
@@ -2181,6 +2185,10 @@
             "now": {
               "type": "string",
               "description": "The time to decide at (ISO); now when left out"
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: workspace: {label: value} for show-rules, as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -2364,18 +2372,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "@own-records",
-                "id": "show-rules",
-                "operations": [
-                  "workspace:read"
-                ]
-              }
-            ]
           }
         },
         "needs": {
@@ -2423,6 +2419,15 @@
                 }
               }
             }
+          }
+        ],
+        "stored": [
+          {
+            "kind": "@own-records",
+            "id": "show-rules",
+            "operations": [
+              "workspace:read"
+            ]
           }
         ]
       }
@@ -2666,6 +2671,10 @@
             "now": {
               "type": "string",
               "description": "The time to decide at (ISO); now when left out"
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: workspace: {label: value} for show-rules, as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -2853,18 +2862,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "@own-records",
-                "id": "show-rules",
-                "operations": [
-                  "workspace:read"
-                ]
-              }
-            ]
           }
         },
         "needs": {
@@ -2915,6 +2912,15 @@
                 }
               }
             }
+          }
+        ],
+        "stored": [
+          {
+            "kind": "@own-records",
+            "id": "show-rules",
+            "operations": [
+              "workspace:read"
+            ]
           }
         ]
       }
@@ -3157,6 +3163,10 @@
             "now": {
               "type": "string",
               "description": "The time to decide at (ISO); now when left out"
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: workspace: {label: value} for show-rules, the label the request names, as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -3344,30 +3354,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "@own-records",
-                "id": "show-rules",
-                "operations": [
-                  "workspace:read"
-                ]
-              },
-              {
-                "kind": "@own-records",
-                "id": {
-                  "fill": {
-                    "from": "input",
-                    "field": "grant"
-                  }
-                },
-                "operations": [
-                  "workspace:read"
-                ]
-              }
-            ]
           }
         },
         "needs": {
@@ -3417,6 +3403,27 @@
                 }
               }
             }
+          }
+        ],
+        "stored": [
+          {
+            "kind": "@own-records",
+            "id": "show-rules",
+            "operations": [
+              "workspace:read"
+            ]
+          },
+          {
+            "kind": "@own-records",
+            "id": {
+              "fill": {
+                "from": "input",
+                "field": "grant"
+              }
+            },
+            "operations": [
+              "workspace:read"
+            ]
           }
         ]
       }
@@ -3659,6 +3666,10 @@
             "now": {
               "type": "string",
               "description": "The time to decide at (ISO); now when left out"
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: workspace: {label: value} for the label the request names, as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -3838,23 +3849,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "@own-records",
-                "id": {
-                  "fill": {
-                    "from": "input",
-                    "field": "grant"
-                  }
-                },
-                "operations": [
-                  "workspace:read"
-                ]
-              }
-            ]
           }
         },
         "needs": {
@@ -3894,6 +3888,20 @@
                 }
               }
             }
+          }
+        ],
+        "stored": [
+          {
+            "kind": "@own-records",
+            "id": {
+              "fill": {
+                "from": "input",
+                "field": "grant"
+              }
+            },
+            "operations": [
+              "workspace:read"
+            ]
           }
         ]
       }

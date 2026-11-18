@@ -224,6 +224,10 @@
               "items": {
                 "type": "object"
               }
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: files: {name: text or {base64}} under /, as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -292,17 +296,6 @@
                 "at": "/opt/node_modules/@noble/hashes"
               }
             ]
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "files": "/",
-                "operations": [
-                  "find_file"
-                ]
-              }
-            ]
           }
         },
         "result_selector": "$.result",
@@ -316,6 +309,14 @@
                 }
               ]
             }
+          }
+        ],
+        "stored": [
+          {
+            "files": "/",
+            "operations": [
+              "find_file"
+            ]
           }
         ]
       }

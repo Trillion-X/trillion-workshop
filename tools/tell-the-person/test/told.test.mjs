@@ -1,7 +1,7 @@
 // tool:my-notices run as the container runs it, against the fake records door with exactly the row's rights.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
+import { answerOf, rowOf, rightsOf, said } from '../../../test-helpers/run-a-row.mjs';
 import { readKeptNotices } from '../read-data/told.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 
@@ -51,7 +51,7 @@ test('a head kept whole by an earlier version is read as it is, and an empty acc
 });
 
 test('the row only lists told-the-person records', () => {
-  assert.deepEqual(row.invoke.records.rights, [{ kind: 'told-the-person', operations: ['records:list'] }]);
+  assert.deepEqual(rightsOf(row), [{ kind: 'told-the-person', operations: ['records:list'] }]);
 });
 
 test('device notices require that device to be registered and return only its queued notices oldest first', async () => {
@@ -97,15 +97,15 @@ test('only a specific offered open action completes; unknown and source-owned ac
   const items = [notice(1, 'report', { open: '/work/reports/1', actions: [{ id: 'open', label: 'Open report', open: '/work/reports/1' }, { id: 'approve', label: 'Approve', post: { path: '/work/api/approve', body: { id: '1' } } }, { id: 'road-then-open', label: 'Answer then open', opens: true }] })];
   const opened = await answerOf(actionRow, { id: 'told:1', action: 'open' }, { records: told(items) });
   assert.equal(opened.status, 0, opened.error);
-  assert.deepEqual(opened.result, { done: true, said: 'Opening Open report.', open: '/work/reports/1' });
+  assert.deepEqual(said(opened.result), { done: true, said: 'Opening Open report.', open: '/work/reports/1' });
   assert.equal(opened.kept.find(record => record.id === 'told-the-person:1').value.item.read, true);
-  assert.equal(opened.calls.filter(call => call.method === 'records:write').length, 1);
+  assert.equal(opened.result.keep.length, 1);
   const retried = await answerOf(actionRow, { id: 'told:1', action: 'open' }, { records: opened.kept });
-  assert.deepEqual(retried.result, opened.result);
-  assert.equal(retried.calls.filter(call => call.method === 'records:write').length, 0, 'a repeated open uses the read receipt and writes nothing');
+  assert.deepEqual(retried.result, said(opened.result));
+  assert.equal(retried.result.keep, undefined, 'a repeated open uses the read receipt and keeps nothing new');
   const legacyHead = [{ id: 'told-the-person', type: 'told-the-person', value: { items } }];
   const legacyOpened = await answerOf(actionRow, { id: 'told:1', action: 'open' }, { records: legacyHead });
-  assert.deepEqual(legacyOpened.result, opened.result);
+  assert.deepEqual(said(legacyOpened.result), said(opened.result));
   assert.equal(legacyOpened.kept[0].value.items[0].read, true);
   const unknown = await answerOf(actionRow, { id: 'told:1', action: 'delete' }, { records: told(items) });
   assert.equal(unknown.status, 1);

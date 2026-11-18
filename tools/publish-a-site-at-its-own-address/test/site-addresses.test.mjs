@@ -1,3 +1,4 @@
+import { rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -136,7 +137,7 @@ test('every row runs the export it names, through the run\'s own door, with the 
   for (const row of rows) {
     assert.equal(row.result_selector, '$.result');
     assert.notEqual(row.invoke.internet, true);
-    for (const right of row.invoke.records.rights) {
+    for (const right of rightsOf(row)) {
       if (right.operations.some(operation => operation.startsWith('write_file'))) assert.equal(right.files, '/installations/');
     }
   }

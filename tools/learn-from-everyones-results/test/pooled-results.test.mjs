@@ -2,6 +2,7 @@
 // answer counts only situations close to the asked one, gives no row, no contributor and nothing under the minimum
 // number of people, stays the same while the rows stay the same, and a withdrawal removes every row of one
 // contributor. All people here are synthetic. The door is an in-memory stand-in for the records door.
+import { rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -134,7 +135,7 @@ test('the answer is made from the result rows in the request alone: no records d
 });
 
 test('the tool rows reach only the two row types the pool tools keep, and the answering tools reach none', () => {
-  const rights = id => rows.find(row => row.id === id).invoke.records?.rights ?? [];
+  const rights = id => rightsOf(rows.find(row => row.id === id)) ?? [];
   const kinds = id => new Set(rights(id).map(right => right.kind));
   assert.deepEqual([...kinds('tool:add-a-pooled-result')].sort(), [resultType, situationType].sort());
   assert.deepEqual([...kinds('tool:withdraw-pooled-results')], [resultType]);

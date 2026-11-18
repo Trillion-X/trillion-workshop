@@ -1332,6 +1332,10 @@
             "body": {},
             "browser": {
               "type": "object"
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of setting (the row setting:catch_up_devices), as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -1345,7 +1349,11 @@
             "status": {
               "type": "integer"
             },
-            "body": {}
+            "body": {},
+            "keep": {
+              "type": "array",
+              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
+            }
           }
         },
         "invoke": {
@@ -1420,19 +1428,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "setting",
-                "id": "setting:catch_up_devices",
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              }
-            ]
           }
         },
         "needs": {
@@ -1448,7 +1443,17 @@
         "provenance": {
           "source": "trillion src/catch-up.mjs handleCatchUpRequest 'POST /catch-up/here' (tag old-trillion-before-worker-retire), reached from src/worker.mjs:1185 and src/person-store.mjs:8189; the decision is read-data/catch-up.mjs here(), unchanged"
         },
-        "verify": [{"kind": "sample-run", "input": {"path": "/catch-up/here", "method": "POST", "query": {}, "body": {"device_id": "d-sample01", "state": "caught-up"}, "browser": {}}, "output_selector": "$.body.device.device_id", "contains": "d-sample01"}]
+        "verify": [{"kind": "sample-run", "input": {"path": "/catch-up/here", "method": "POST", "query": {}, "body": {"device_id": "d-sample01", "state": "caught-up"}, "browser": {}}, "output_selector": "$.body.device.device_id", "contains": "d-sample01"}],
+        "stored": [
+          {
+            "kind": "setting",
+            "id": "setting:catch_up_devices",
+            "operations": [
+              "records:read",
+              "records:write"
+            ]
+          }
+        ]
       }
     }
   ]

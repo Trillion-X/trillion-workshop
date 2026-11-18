@@ -3,6 +3,7 @@
 // The one sharing tool over a stand-in records door (tools/records-door/test/fake-door.mjs) that holds exactly the rights the row
 // grants: a list shared read-only with a named person and an AI by a key each, the link, a text, a collection, who has access, and
 // stop. Every record is made up.
+import { rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
@@ -17,7 +18,7 @@ const digest = key => makeHashCodeHexFromBytes(new TextEncoder().encode(key)).sl
 const list = { label: 'Sample list', row_type: 'sample-row', fields: [{ id: 'title', label: 'Title' }] };
 
 // The run's rights as the row declares them, with the one label the caller names filled in.
-const rightsFor = grant => rows.records[0].payload.invoke.records.rights.map(right => ({
+const rightsFor = grant => rightsOf(rows.records[0].payload).map(right => ({
   ...right, ...(right.id && typeof right.id === 'object' ? { id: grant } : {}),
 }));
 
@@ -169,14 +170,14 @@ test('the run is granted exactly one workspace label, and never a record it shar
 
 test('the row declares the rights this tool needs and nothing wider', () => {
   const [row] = rows.records;
-  const rights = row.payload.invoke.records.rights;
-  assert.deepEqual(rights.map(right => right.kind), ['@own-records', 'list', 'shared-text', undefined]);
-  assert.deepEqual(rights[0].operations, ['workspace:read', 'workspace:write']);
-  assert.deepEqual(rights[0].id, { fill: { from: 'input', field: 'grant' } });
-  assert.deepEqual(rights[1], { kind: 'list', prefix: 'list:', operations: ['records:read'] });
-  assert.deepEqual(rights[2], { kind: 'shared-text', prefix: 'shared-text:', operations: ['records:write'] });
+  const stored = row.payload.stored;
+  assert.deepEqual(stored.map(right => right.kind), ['@own-records', 'list', 'shared-text']);
+  assert.deepEqual(stored[0].operations, ['workspace:read', 'workspace:write']);
+  assert.deepEqual(stored[0].id, { fill: { from: 'input', field: 'grant' } });
+  assert.deepEqual(stored[1], { kind: 'list', prefix: 'list:', operations: ['records:read'] });
+  assert.deepEqual(stored[2], { kind: 'shared-text', prefix: 'shared-text:', operations: ['records:write'] });
   // A run share's keep and list, for the one label the caller names (trillion-rust share-grant.json act.run_operations).
-  assert.deepEqual(rights[3], { at: '@own-records', id: { fill: { from: 'input', field: 'grant' } }, operations: ['sharing.keep', 'sharing.list'] });
+  assert.deepEqual(row.payload.invoke.records.rights, [{ at: '@own-records', id: { fill: { from: 'input', field: 'grant' } }, operations: ['sharing.keep', 'sharing.list'] }]);
   // A run share's end rule is kept beside its grant by the same keep, so no other right is needed for it.
 });
 

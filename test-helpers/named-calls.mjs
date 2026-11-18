@@ -34,7 +34,6 @@ const CALLS = [
   new RegExp(String.raw`\b(?:call|calls|calling|with|use|uses|using|through|via)\s+` + OP, 'g'),
   new RegExp(OP + String.raw`\s+(?:at|on)\s+@`, 'g'),
 ];
-const RIGHTS = /"operations"\s*:\s*\[([^\]]*)\]/g;
 const ADDRESSED = /(?:"address"\s*:\s*"|\bat\s+|\baddress\s+)@([a-z][a-z0-9-]*)/g;
 const TOOL = /(?<![\w-])tool:([a-z0-9][a-z0-9:_.-]*[a-z0-9])/g;
 const FLOW = /(?<![\w-])workflow:([a-z0-9][a-z0-9-]*[a-z0-9])/g;
@@ -66,6 +65,15 @@ const idsOf = (value, prefix, out, runs = () => true) => {
   return out;
 };
 const parsed = text => { try { return JSON.parse(text); } catch { return null; } };
+/** Every tool row in a value whose run asks the door for records rights. */
+const rowsIn = (value, out = []) => {
+  if (Array.isArray(value)) for (const item of value) rowsIn(item, out);
+  else if (value && typeof value === 'object') {
+    if (typeof value.id === 'string' && value.id.startsWith('tool:') && value.invoke?.records && typeof value.invoke.records === 'object') out.push(value);
+    for (const item of Object.values(value)) rowsIn(item, out);
+  }
+  return out;
+};
 
 export function namedCallFindings({ repo, ref = 'HEAD' } = {}) {
   const files = git(repo, ['ls-tree', '-r', '--name-only', ref, 'tools']).toString().split('\n')
@@ -97,7 +105,8 @@ export function namedCallFindings({ repo, ref = 'HEAD' } = {}) {
     const at = new Map();
     for (const pattern of CALLS) for (const match of text.matchAll(pattern)) at.set(match.index + match[0].indexOf(match[1]), match[1]);
     for (const method of at.values()) if (!answers(method)) dead.push(method);
-    for (const [, list] of text.matchAll(RIGHTS)) for (const [, method] of list.matchAll(/"([a-z][a-z-]*[:.][a-z][a-z_-]*)"/g)) if (!answers(method)) dead.push(method);
+    // A run's rights ask the engine's door: each operation a row's invoke.records.rights names that the door does not list.
+    for (const row of rowsIn(parsed(text))) for (const right of row.invoke.records.rights ?? []) if (!offered(right)) for (const method of right.operations ?? []) dead.push(method);
     for (const [, id] of text.matchAll(TOOL)) if (!tools.has(id)) dead.push(`tool:${id}`);
     for (const [, id] of text.matchAll(FLOW)) if (!flows.has(id)) dead.push(`workflow:${id}`);
     if (dead.length) found[path] = dead;

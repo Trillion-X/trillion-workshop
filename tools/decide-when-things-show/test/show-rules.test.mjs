@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
+import { answerOf, rowOf, rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import data from '../../set-up-my-account/read-data/show-rules.json' with { type: 'json' };
 import shippedDefaults from '../../starting-set/shipped-defaults.json' with { type: 'json' };
 import { profileRules, ruleProblem } from '../../set-up-my-account/read-data/show-rules.mjs';
@@ -41,7 +41,7 @@ test('every action is one row, and every row reads only the show-rules record or
   assert.deepEqual(ids, ['see-when-things-show', 'keep-a-show-rule', 'take-a-show-rule-away', 'keep-a-show-type', 'take-a-show-type-away',
     'switch-a-kept-show-type', 'share-a-kept-show-type', 'stop-sharing-a-show-type'].map(slug => `tool:${slug}`));
   for (const one of ROWS.records.map(record => record.payload)) {
-    for (const right of one.invoke.records?.rights ?? []) {
+    for (const right of rightsOf(one) ?? []) {
       if (right.kind === '@own-records') {
         assert.deepEqual(right.operations, ['workspace:read'], `${one.id} only reads`);
         assert.ok(right.id === data.record || right.id?.fill?.field === 'grant', `${one.id} reads its record or the grant named`);
@@ -144,7 +144,7 @@ test('a switch is the request\'s own use: no wake, no record read, and the answe
   const one = row('switch-a-kept-show-type');
   assert.equal(one.wakes, undefined);
   assert.deepEqual(one.input_schema.required, ['use']);
-  assert.deepEqual(one.invoke.records.rights, [{ kind: '@own-records', id: data.record, operations: ['workspace:read'] }]);
+  assert.deepEqual(rightsOf(one), [{ kind: '@own-records', id: data.record, operations: ['workspace:read'] }]);
   const { status, result, calls } = await run('switch-a-kept-show-type', { use: { type: 'child', on: true } });
   assert.equal(status, 0);
   assert.deepEqual(result.in_use, [...SHIPPED_ON, 'child']);

@@ -6,7 +6,7 @@
 // door with exactly its rights.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
+import { answerOf, rowOf, rightsOf, said } from '../../../test-helpers/run-a-row.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 import { makeConfigurations } from '../../query-and-change-list-rows/src/configurations.mjs';
 import { recordsInMemory } from '../do-work/answer-the-configurations-page.mjs';
@@ -95,7 +95,7 @@ test('the page saves, reads, lists, updates at its revision, copies and removes 
   assert.equal(copied.result.body.configuration.copied_from, 'record:configuration:c1');
 
   const removed = await answerOf(row, route('/configurations/c1', 'POST', { remove: true, expected_revision: 2 }), { records: renamed.kept });
-  assert.deepEqual(removed.result, { status: 200, body: { removed: 'record:configuration:c1' } });
+  assert.deepEqual(said(removed.result), { status: 200, body: { removed: 'record:configuration:c1' } });
   assert.ok(!removed.kept.some(record => record.id === 'record:configuration:c1'));
 });
 
@@ -106,7 +106,7 @@ test('configurations shared with this account answer the old handler\'s unavaila
 });
 
 test('the row lists and writes only configurations and reads only lists', () => {
-  assert.deepEqual(row.invoke.records.rights, [
+  assert.deepEqual(rightsOf(row), [
     { kind: 'record:configuration', operations: ['records:list', 'records:write'] },
     { kind: 'list', id: 'list:saved-configurations', operations: ['records:read', 'records:write'] },
     { kind: 'list', prefix: 'list:', operations: ['records:read'] },

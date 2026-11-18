@@ -238,6 +238,10 @@
       "body": {},
       "browser": {
        "type": "object"
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of private-response (ids starting private-response:), as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -251,7 +255,11 @@
       "status": {
        "type": "integer"
       },
-      "body": {}
+      "body": {},
+      "keep": {
+        "type": "array",
+        "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
+      }
      }
     },
     "invoke": {
@@ -332,20 +340,6 @@
       "fill": {
        "from": "input"
       }
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "private-response",
-        "prefix": "private-response:",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       }
-      ],
-      "most_writes": 1
      }
     },
     "needs": {
@@ -377,6 +371,16 @@
       "output_selector": "$.status",
       "contains": "200"
      }
+    ],
+    "stored": [
+      {
+        "kind": "private-response",
+        "prefix": "private-response:",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      }
     ]
    }
   }

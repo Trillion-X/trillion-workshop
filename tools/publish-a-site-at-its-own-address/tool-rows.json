@@ -230,6 +230,10 @@
        "type": "string",
        "pattern": "^[0-9a-f]{32}$",
        "description": "The site's installation id, as publish_site answered it"
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: files: {name: text or {base64}} under /, /installations/, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -257,6 +261,10 @@
       },
       "llms": {
        "type": "boolean"
+      },
+      "keep": {
+        "type": "array",
+        "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
       }
      }
     },
@@ -351,29 +359,6 @@
         "at": "/opt/browse-and-upload-my-files"
        }
       ]
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "files": "/",
-        "operations": [
-         "find_file",
-         "read_file"
-        ]
-       },
-       {
-        "files": "/installations/",
-        "operations": [
-         "list_files",
-         "find_file",
-         "read_file",
-         "write_file_start",
-         "write_file_piece",
-         "write_file_finish"
-        ]
-       }
-      ]
      }
     },
     "result_selector": "$.result",
@@ -401,6 +386,26 @@
        "/installations/origins.json": "{\"origins\": [{\"host\": \"field-notes.sites.example.com\", \"installation\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}]}"
       }
      }
+    ],
+    "stored": [
+      {
+        "files": "/",
+        "operations": [
+          "find_file",
+          "read_file"
+        ]
+      },
+      {
+        "files": "/installations/",
+        "operations": [
+          "list_files",
+          "find_file",
+          "read_file",
+          "write_file_start",
+          "write_file_piece",
+          "write_file_finish"
+        ]
+      }
     ]
    }
   },
@@ -638,6 +643,10 @@
       "title": {
        "type": "string",
        "description": "Words to make a name from, like the site's title"
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: files: {name: text or {base64}} under /installations/, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -690,6 +699,10 @@
       },
       "said": {
        "type": "string"
+      },
+      "keep": {
+        "type": "array",
+        "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
       }
      }
     },
@@ -784,22 +797,6 @@
         "at": "/opt/browse-and-upload-my-files"
        }
       ]
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "files": "/installations/",
-        "operations": [
-         "list_files",
-         "find_file",
-         "read_file",
-         "write_file_start",
-         "write_file_piece",
-         "write_file_finish"
-        ]
-       }
-      ]
      }
     },
     "result_selector": "$.result",
@@ -825,6 +822,19 @@
        "/installations/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/index.html": "<title>Field Notes</title><h1>made up</h1>"
       }
      }
+    ],
+    "stored": [
+      {
+        "files": "/installations/",
+        "operations": [
+          "list_files",
+          "find_file",
+          "read_file",
+          "write_file_start",
+          "write_file_piece",
+          "write_file_finish"
+        ]
+      }
     ]
    }
   },
@@ -1079,6 +1089,10 @@
       "proof_value_prefix": {
        "type": "string",
        "description": "The start of the DNS proof value the forwarder checks, ending in =, such as account="
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: files: {name: text or {base64}} under /installations/, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -1129,6 +1143,10 @@
       },
       "said": {
        "type": "string"
+      },
+      "keep": {
+        "type": "array",
+        "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
       }
      }
     },
@@ -1223,22 +1241,6 @@
         "at": "/opt/browse-and-upload-my-files"
        }
       ]
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "files": "/installations/",
-        "operations": [
-         "list_files",
-         "find_file",
-         "read_file",
-         "write_file_start",
-         "write_file_piece",
-         "write_file_finish"
-        ]
-       }
-      ]
      }
     },
     "result_selector": "$.result",
@@ -1268,6 +1270,19 @@
        "/installations/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/index.html": "<title>Field Notes</title><h1>made up</h1>"
       }
      }
+    ],
+    "stored": [
+      {
+        "files": "/installations/",
+        "operations": [
+          "list_files",
+          "find_file",
+          "read_file",
+          "write_file_start",
+          "write_file_piece",
+          "write_file_finish"
+        ]
+      }
     ]
    }
   },
@@ -1491,6 +1506,10 @@
      "properties": {
       "host": {
        "type": "string"
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: files: {name: text or {base64}} under /installations/, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -1528,6 +1547,10 @@
          }
         }
        }
+      },
+      "keep": {
+        "type": "array",
+        "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
       }
      }
     },
@@ -1622,22 +1645,6 @@
         "at": "/opt/browse-and-upload-my-files"
        }
       ]
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "files": "/installations/",
-        "operations": [
-         "list_files",
-         "find_file",
-         "read_file",
-         "write_file_start",
-         "write_file_piece",
-         "write_file_finish"
-        ]
-       }
-      ]
      }
     },
     "result_selector": "$.result",
@@ -1661,6 +1668,19 @@
        "/installations/origins.json": "{\"origins\": [{\"host\": \"field-notes.sites.example.com\", \"installation\": \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}]}"
       }
      }
+    ],
+    "stored": [
+      {
+        "files": "/installations/",
+        "operations": [
+          "list_files",
+          "find_file",
+          "read_file",
+          "write_file_start",
+          "write_file_piece",
+          "write_file_finish"
+        ]
+      }
     ]
    }
   },
@@ -1878,7 +1898,7 @@
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
-     "properties": {}
+     "properties": { "stored": { "type": "object", "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: files: {name: text or {base64}} under /installations/, as this row's `stored` lists. What is not given is not there." } }
     },
     "output_schema": {
      "type": "object",
@@ -2027,19 +2047,6 @@
         "at": "/opt/browse-and-upload-my-files"
        }
       ]
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "files": "/installations/",
-        "operations": [
-         "list_files",
-         "find_file",
-         "read_file"
-        ]
-       }
-      ]
      }
     },
     "result_selector": "$.result",
@@ -2062,6 +2069,16 @@
        "/installations/origins-told.json": "{\"state\": \"refused\", \"why\": \"host_taken\", \"told_at_ms\": 1762257600000}"
       }
      }
+    ],
+    "stored": [
+      {
+        "files": "/installations/",
+        "operations": [
+          "list_files",
+          "find_file",
+          "read_file"
+        ]
+      }
     ]
    }
   }

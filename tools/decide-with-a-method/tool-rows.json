@@ -229,6 +229,10 @@
        "minimum": 1,
        "maximum": 50,
        "description": "How many to bring back"
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of decision, decision-revision, decision-option, decision-candidate, decision-report, decision-part, decision-refs, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -354,54 +358,6 @@
         "at": "/opt/browse-and-upload-my-files"
        }
       ]
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "decision",
-        "operations": [
-         "records:read",
-         "records:list"
-        ]
-       },
-       {
-        "kind": "decision-revision",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "decision-option",
-        "operations": [
-         "records:list"
-        ]
-       },
-       {
-        "kind": "decision-candidate",
-        "operations": [
-         "records:list"
-        ]
-       },
-       {
-        "kind": "decision-report",
-        "operations": [
-         "records:list"
-        ]
-       },
-       {
-        "kind": "decision-part",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "decision-refs",
-        "operations": [
-         "records:read"
-        ]
-       }
-      ]
      }
     },
     "needs": {
@@ -465,6 +421,51 @@
        }
       ]
      }
+    ],
+    "stored": [
+      {
+        "kind": "decision",
+        "operations": [
+          "records:read",
+          "records:list"
+        ]
+      },
+      {
+        "kind": "decision-revision",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "decision-option",
+        "operations": [
+          "records:list"
+        ]
+      },
+      {
+        "kind": "decision-candidate",
+        "operations": [
+          "records:list"
+        ]
+      },
+      {
+        "kind": "decision-report",
+        "operations": [
+          "records:list"
+        ]
+      },
+      {
+        "kind": "decision-part",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "decision-refs",
+        "operations": [
+          "records:read"
+        ]
+      }
     ]
    }
   },
@@ -743,6 +744,10 @@
        "type": "string",
        "minLength": 1,
        "description": "A decision of the person's this one is a child of (never itself)"
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of decision, decision-revision, decision-step, decision-call, decision-evidence, decision-answered-step, decision-option, decision-candidate, decision-report, decision-carried-out, decision-history, decision-cited-pursuit, decision-method, decision-part, decision-refs, pursuit, list-view, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -754,6 +759,10 @@
      "properties": {
       "case_id": {
        "type": "string"
+      },
+      "keep": {
+        "type": "array",
+        "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
       }
      }
     },
@@ -867,137 +876,6 @@
          "send-settings.json"
         ],
         "at": "/opt/browse-and-upload-my-files"
-       }
-      ]
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "decision",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-revision",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-step",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-call",
-        "operations": [
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-evidence",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-answered-step",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-option",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-candidate",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-report",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-carried-out",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-history",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-cited-pursuit",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-method",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-part",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-refs",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "pursuit",
-        "operations": [
-         "records:read",
-         "records:list"
-        ]
-       },
-       {
-        "kind": "list-view",
-        "operations": [
-         "records:read"
-        ]
        }
       ]
      }
@@ -1436,6 +1314,134 @@
       "contains": "source:",
       "output_selector": "$.case_id"
      }
+    ],
+    "stored": [
+      {
+        "kind": "decision",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-revision",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-step",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-call",
+        "operations": [
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-evidence",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-answered-step",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-option",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-candidate",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-report",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-carried-out",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-history",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-cited-pursuit",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-method",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-part",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-refs",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "pursuit",
+        "operations": [
+          "records:read",
+          "records:list"
+        ]
+      },
+      {
+        "kind": "list-view",
+        "operations": [
+          "records:read"
+        ]
+      }
     ]
    }
   },
@@ -1702,6 +1708,10 @@
          }
         }
        }
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of decision, decision-revision, decision-step, decision-call, decision-evidence, decision-answered-step, decision-option, decision-candidate, decision-report, decision-carried-out, decision-history, decision-cited-pursuit, decision-method, decision-part, decision-refs, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -1713,6 +1723,10 @@
      "properties": {
       "case_id": {
        "type": "string"
+      },
+      "keep": {
+        "type": "array",
+        "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
       }
      }
     },
@@ -1826,124 +1840,6 @@
          "send-settings.json"
         ],
         "at": "/opt/browse-and-upload-my-files"
-       }
-      ]
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "decision",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-revision",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-step",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-call",
-        "operations": [
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-evidence",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-answered-step",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-option",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-candidate",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-report",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-carried-out",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-history",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-cited-pursuit",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-method",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-part",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-refs",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
        }
       ]
      }
@@ -2220,6 +2116,121 @@
        }
       ]
      }
+    ],
+    "stored": [
+      {
+        "kind": "decision",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-revision",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-step",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-call",
+        "operations": [
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-evidence",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-answered-step",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-option",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-candidate",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-report",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-carried-out",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-history",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-cited-pursuit",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-method",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-part",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-refs",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      }
     ]
    }
   },
@@ -2483,6 +2494,10 @@
       "expected_generation": {
        "type": "integer",
        "minimum": 1
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of decision, decision-revision, decision-step, decision-call, decision-evidence, decision-answered-step, decision-option, decision-candidate, decision-report, decision-carried-out, decision-history, decision-cited-pursuit, decision-method, decision-part, decision-refs, pursuit, list, list-view, record:method-row, method-answer, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -2494,6 +2509,10 @@
      "properties": {
       "case_id": {
        "type": "string"
+      },
+      "keep": {
+        "type": "array",
+        "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
       }
      }
     },
@@ -2607,155 +2626,6 @@
          "send-settings.json"
         ],
         "at": "/opt/browse-and-upload-my-files"
-       }
-      ]
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "decision",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-revision",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-step",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-call",
-        "operations": [
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-evidence",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-answered-step",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-option",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-candidate",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-report",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-carried-out",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-history",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-cited-pursuit",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-method",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-part",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-refs",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "pursuit",
-        "operations": [
-         "records:read",
-         "records:list"
-        ]
-       },
-       {
-        "kind": "list",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "list-view",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "record:method-row",
-        "operations": [
-         "records:list"
-        ]
-       },
-       {
-        "kind": "method-answer",
-        "operations": [
-         "records:read"
-        ]
        }
       ]
      }
@@ -2989,6 +2859,152 @@
       "contains": "raise",
       "output_selector": "$.decision.option_id"
      }
+    ],
+    "stored": [
+      {
+        "kind": "decision",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-revision",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-step",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-call",
+        "operations": [
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-evidence",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-answered-step",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-option",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-candidate",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-report",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-carried-out",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-history",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-cited-pursuit",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-method",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-part",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-refs",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "pursuit",
+        "operations": [
+          "records:read",
+          "records:list"
+        ]
+      },
+      {
+        "kind": "list",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "list-view",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "record:method-row",
+        "operations": [
+          "records:list"
+        ]
+      },
+      {
+        "kind": "method-answer",
+        "operations": [
+          "records:read"
+        ]
+      }
     ]
    }
   },
@@ -3246,6 +3262,10 @@
       "expected_generation": {
        "type": "integer",
        "minimum": 1
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of decision, decision-revision, decision-step, decision-call, decision-evidence, decision-answered-step, decision-option, decision-candidate, decision-report, decision-carried-out, decision-history, decision-cited-pursuit, decision-method, decision-part, decision-refs, pursuit, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -3257,6 +3277,10 @@
      "properties": {
       "case_id": {
        "type": "string"
+      },
+      "keep": {
+        "type": "array",
+        "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
       }
      }
     },
@@ -3370,131 +3394,6 @@
          "send-settings.json"
         ],
         "at": "/opt/browse-and-upload-my-files"
-       }
-      ]
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "decision",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-revision",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-step",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-call",
-        "operations": [
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-evidence",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-answered-step",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-option",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-candidate",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-report",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-carried-out",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-history",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-cited-pursuit",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-method",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-part",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-refs",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "pursuit",
-        "operations": [
-         "records:read",
-         "records:list"
-        ]
        }
       ]
      }
@@ -4058,6 +3957,128 @@
        }
       ]
      }
+    ],
+    "stored": [
+      {
+        "kind": "decision",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-revision",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-step",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-call",
+        "operations": [
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-evidence",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-answered-step",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-option",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-candidate",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-report",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-carried-out",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-history",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-cited-pursuit",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-method",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-part",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-refs",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "pursuit",
+        "operations": [
+          "records:read",
+          "records:list"
+        ]
+      }
     ]
    }
   },
@@ -4300,6 +4321,10 @@
       "expected_generation": {
        "type": "integer",
        "minimum": 1
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of decision, decision-revision, decision-step, decision-call, decision-evidence, decision-answered-step, decision-option, decision-candidate, decision-report, decision-carried-out, decision-history, decision-cited-pursuit, decision-method, decision-part, decision-refs, pursuit, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -4311,6 +4336,10 @@
      "properties": {
       "case_id": {
        "type": "string"
+      },
+      "keep": {
+        "type": "array",
+        "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
       }
      }
     },
@@ -4424,131 +4453,6 @@
          "send-settings.json"
         ],
         "at": "/opt/browse-and-upload-my-files"
-       }
-      ]
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "decision",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-revision",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-step",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-call",
-        "operations": [
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-evidence",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-answered-step",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-option",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-candidate",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-report",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-carried-out",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-history",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-cited-pursuit",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-method",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-part",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-refs",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "pursuit",
-        "operations": [
-         "records:read",
-         "records:list"
-        ]
        }
       ]
      }
@@ -5112,6 +5016,128 @@
        }
       ]
      }
+    ],
+    "stored": [
+      {
+        "kind": "decision",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-revision",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-step",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-call",
+        "operations": [
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-evidence",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-answered-step",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-option",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-candidate",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-report",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-carried-out",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-history",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-cited-pursuit",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-method",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-part",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-refs",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "pursuit",
+        "operations": [
+          "records:read",
+          "records:list"
+        ]
+      }
     ]
    }
   },
@@ -5358,6 +5384,10 @@
       "by": {
        "type": "string",
        "minLength": 1
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of decision, decision-revision, decision-step, decision-call, decision-evidence, decision-answered-step, decision-option, decision-candidate, decision-report, decision-carried-out, decision-history, decision-cited-pursuit, decision-method, decision-part, decision-refs, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -5377,6 +5407,10 @@
       },
       "decisions": {
        "type": "array"
+      },
+      "keep": {
+        "type": "array",
+        "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
       }
      }
     },
@@ -5490,124 +5524,6 @@
          "send-settings.json"
         ],
         "at": "/opt/browse-and-upload-my-files"
-       }
-      ]
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "decision",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-revision",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-step",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-call",
-        "operations": [
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-evidence",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-answered-step",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-option",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-candidate",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-report",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-carried-out",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-history",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-cited-pursuit",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-method",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-part",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-refs",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
        }
       ]
      }
@@ -6001,6 +5917,121 @@
        }
       ]
      }
+    ],
+    "stored": [
+      {
+        "kind": "decision",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-revision",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-step",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-call",
+        "operations": [
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-evidence",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-answered-step",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-option",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-candidate",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-report",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-carried-out",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-history",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-cited-pursuit",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-method",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-part",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-refs",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      }
     ]
    }
   },
@@ -6231,6 +6262,10 @@
       "reidentification": {
        "type": "object",
        "description": "The whole answer of tool:ask-a-small-model-for-a-verdict for the check this tool named"
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of decision, decision-revision, decision-step, decision-evidence, decision-answered-step, decision-option, decision-candidate, decision-report, decision-carried-out, decision-history, decision-cited-pursuit, decision-method, decision-part, decision-refs, record:never-publish, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -6257,6 +6292,10 @@
       },
       "send": {
        "type": "object"
+      },
+      "keep": {
+        "type": "array",
+        "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
       }
      }
     },
@@ -6372,123 +6411,6 @@
          "read-data/settings.mjs"
         ],
         "at": "/opt/settings"
-       }
-      ]
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "decision",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-revision",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-step",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "decision-evidence",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-answered-step",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-option",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-candidate",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-report",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-carried-out",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-history",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-cited-pursuit",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-method",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-part",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-refs",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "record:never-publish",
-        "operations": [
-         "records:list"
-        ]
        }
       ]
      }
@@ -6883,6 +6805,120 @@
        }
       ]
      }
+    ],
+    "stored": [
+      {
+        "kind": "decision",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-revision",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-step",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "decision-evidence",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-answered-step",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-option",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-candidate",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-report",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-carried-out",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-history",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-cited-pursuit",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-method",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-part",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-refs",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "record:never-publish",
+        "operations": [
+          "records:list"
+        ]
+      }
     ]
    }
   },
@@ -7123,6 +7159,10 @@
       "space_pursuits": {
        "type": "array",
        "description": "The pursuits your spaces share, shown beside your own"
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of decision, decision-revision, decision-step, decision-evidence, decision-answered-step, decision-option, decision-candidate, decision-report, decision-carried-out, decision-history, decision-cited-pursuit, decision-method, decision-part, decision-refs, pursuit, record-scope, record-stance, plan, record:check, setting (ids starting setting:agent-work:), as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -7290,134 +7330,6 @@
         "at": "/opt/browse-and-upload-my-files"
        }
       ]
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "decision",
-        "operations": [
-         "records:read",
-         "records:list"
-        ]
-       },
-       {
-        "kind": "decision-revision",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "decision-step",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "decision-evidence",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "decision-answered-step",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "decision-option",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "decision-candidate",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "decision-report",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "decision-carried-out",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "decision-history",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "decision-cited-pursuit",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "decision-method",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "decision-part",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "decision-refs",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "pursuit",
-        "operations": [
-         "records:read",
-         "records:list"
-        ]
-       },
-       {
-        "kind": "record-scope",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "record-stance",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "plan",
-        "operations": [
-         "records:list"
-        ]
-       },
-       {
-        "kind": "record:check",
-        "operations": [
-         "records:list"
-        ]
-       },
-       {
-        "kind": "setting",
-        "prefix": "setting:agent-work:",
-        "operations": [
-         "records:list"
-        ]
-       }
-      ]
      }
     },
     "needs": {
@@ -7446,6 +7358,131 @@
       "output_selector": "$.pursuits_words.text",
       "contains": "working toward"
      }
+    ],
+    "stored": [
+      {
+        "kind": "decision",
+        "operations": [
+          "records:read",
+          "records:list"
+        ]
+      },
+      {
+        "kind": "decision-revision",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "decision-step",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "decision-evidence",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "decision-answered-step",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "decision-option",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "decision-candidate",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "decision-report",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "decision-carried-out",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "decision-history",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "decision-cited-pursuit",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "decision-method",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "decision-part",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "decision-refs",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "pursuit",
+        "operations": [
+          "records:read",
+          "records:list"
+        ]
+      },
+      {
+        "kind": "record-scope",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "record-stance",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "plan",
+        "operations": [
+          "records:list"
+        ]
+      },
+      {
+        "kind": "record:check",
+        "operations": [
+          "records:list"
+        ]
+      },
+      {
+        "kind": "setting",
+        "prefix": "setting:agent-work:",
+        "operations": [
+          "records:list"
+        ]
+      }
     ]
    }
   },
@@ -7678,6 +7715,10 @@
       "body": {},
       "browser": {
        "type": "object"
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of decision, decision-revision, decision-step, decision-evidence, decision-answered-step, decision-option, decision-candidate, decision-report, decision-carried-out, decision-history, decision-cited-pursuit, decision-method, decision-part, decision-refs, pursuit, record-scope, record-stance, plan, record:check, setting (ids starting setting:agent-work:), as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -7796,134 +7837,6 @@
         "at": "/opt/browse-and-upload-my-files"
        }
       ]
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "decision",
-        "operations": [
-         "records:read",
-         "records:list"
-        ]
-       },
-       {
-        "kind": "decision-revision",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "decision-step",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "decision-evidence",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "decision-answered-step",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "decision-option",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "decision-candidate",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "decision-report",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "decision-carried-out",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "decision-history",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "decision-cited-pursuit",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "decision-method",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "decision-part",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "decision-refs",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "pursuit",
-        "operations": [
-         "records:read",
-         "records:list"
-        ]
-       },
-       {
-        "kind": "record-scope",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "record-stance",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "plan",
-        "operations": [
-         "records:list"
-        ]
-       },
-       {
-        "kind": "record:check",
-        "operations": [
-         "records:list"
-        ]
-       },
-       {
-        "kind": "setting",
-        "prefix": "setting:agent-work:",
-        "operations": [
-         "records:list"
-        ]
-       }
-      ]
      }
     },
     "needs": {
@@ -7952,6 +7865,131 @@
       "output_selector": "$.body.pursuits_words.text",
       "contains": "working toward"
      }
+    ],
+    "stored": [
+      {
+        "kind": "decision",
+        "operations": [
+          "records:read",
+          "records:list"
+        ]
+      },
+      {
+        "kind": "decision-revision",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "decision-step",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "decision-evidence",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "decision-answered-step",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "decision-option",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "decision-candidate",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "decision-report",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "decision-carried-out",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "decision-history",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "decision-cited-pursuit",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "decision-method",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "decision-part",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "decision-refs",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "pursuit",
+        "operations": [
+          "records:read",
+          "records:list"
+        ]
+      },
+      {
+        "kind": "record-scope",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "record-stance",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "plan",
+        "operations": [
+          "records:list"
+        ]
+      },
+      {
+        "kind": "record:check",
+        "operations": [
+          "records:list"
+        ]
+      },
+      {
+        "kind": "setting",
+        "prefix": "setting:agent-work:",
+        "operations": [
+          "records:list"
+        ]
+      }
     ]
    }
   },
@@ -8209,6 +8247,10 @@
       "browser": {
        "type": "object",
        "description": "The asking browser's own facts: user_agent, origin, visitor"
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of pursuit, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -8222,7 +8264,11 @@
       "status": {
        "type": "integer"
       },
-      "body": {}
+      "body": {},
+      "keep": {
+        "type": "array",
+        "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
+      }
      }
     },
     "invoke": {
@@ -8294,18 +8340,6 @@
       "fill": {
        "from": "input"
       }
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "pursuit",
-        "operations": [
-         "records:list",
-         "records:write"
-        ]
-       }
-      ]
      }
     },
     "result_selector": "$.result",
@@ -8338,6 +8372,15 @@
       "output_selector": "$.body.pursuits[0].title",
       "contains": "Grow a sample newsletter"
      }
+    ],
+    "stored": [
+      {
+        "kind": "pursuit",
+        "operations": [
+          "records:list",
+          "records:write"
+        ]
+      }
     ]
    }
   },
@@ -8600,6 +8643,10 @@
          "description": "The message row the person sent (type message, speaker person)"
         }
        }
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of decision, message, decision-revision, decision-step, decision-call, decision-evidence, decision-answered-step, decision-option, decision-candidate, decision-report, decision-carried-out, decision-history, decision-cited-pursuit, decision-method, decision-part, decision-refs, pursuit, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -8625,6 +8672,10 @@
        "items": {
         "type": "string"
        }
+      },
+      "keep": {
+        "type": "array",
+        "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
       }
      }
     },
@@ -8752,137 +8803,6 @@
          "send-settings.json"
         ],
         "at": "/opt/browse-and-upload-my-files"
-       }
-      ]
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "decision",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "message",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "decision-revision",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-step",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-call",
-        "operations": [
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-evidence",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-answered-step",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-option",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-candidate",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-report",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-carried-out",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-history",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-cited-pursuit",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-method",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-part",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "decision-refs",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "pursuit",
-        "operations": [
-         "records:read",
-         "records:list"
-        ]
        }
       ]
      }
@@ -9994,7 +9914,135 @@
     "placements": [
      "placement:small-container"
     ],
-    "maker": "maker:decide-with-a-method"
+    "maker": "maker:decide-with-a-method",
+    "stored": [
+      {
+        "kind": "decision",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "message",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "decision-revision",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-step",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-call",
+        "operations": [
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-evidence",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-answered-step",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-option",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-candidate",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-report",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-carried-out",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-history",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-cited-pursuit",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-method",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-part",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "decision-refs",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "pursuit",
+        "operations": [
+          "records:read",
+          "records:list"
+        ]
+      }
+    ]
    }
   },
   {
@@ -10228,6 +10276,10 @@
        "minimum": 1,
        "maximum": 200,
        "description": "How many rows at most in this page"
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of list, list-view, record:method-row, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -10341,29 +10393,6 @@
         "at": "/opt/browse-and-upload-my-files"
        }
       ]
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "list",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "list-view",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "record:method-row",
-        "operations": [
-         "records:list"
-        ]
-       }
-      ]
      }
     },
     "needs": {
@@ -10467,6 +10496,26 @@
       "contains": "First made-up section",
       "output_selector": "$.rows[0].values.title"
      }
+    ],
+    "stored": [
+      {
+        "kind": "list",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "list-view",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "record:method-row",
+        "operations": [
+          "records:list"
+        ]
+      }
     ]
    }
   },
@@ -10742,6 +10791,10 @@
          }
         }
        }
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of list, list-view, record:method-row, decision, decision-revision, decision-evidence, decision-option, decision-refs, decision-part, pursuit, method-answer, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -10771,6 +10824,10 @@
       },
       "rows": {
        "type": "integer"
+      },
+      "keep": {
+        "type": "array",
+        "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
       }
      }
     },
@@ -10861,78 +10918,6 @@
          "send-settings.json"
         ],
         "at": "/opt/browse-and-upload-my-files"
-       }
-      ]
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "list",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "list-view",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "record:method-row",
-        "operations": [
-         "records:list"
-        ]
-       },
-       {
-        "kind": "decision",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "decision-revision",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "decision-evidence",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "decision-option",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "decision-refs",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "decision-part",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "pursuit",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "method-answer",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
        }
       ]
      }
@@ -11064,6 +11049,75 @@
       "contains": "record:method-row:sample-method-rows~first",
       "output_selector": "$.recorded[0].row"
      }
+    ],
+    "stored": [
+      {
+        "kind": "list",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "list-view",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "record:method-row",
+        "operations": [
+          "records:list"
+        ]
+      },
+      {
+        "kind": "decision",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "decision-revision",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "decision-evidence",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "decision-option",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "decision-refs",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "decision-part",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "pursuit",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "method-answer",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      }
     ]
    }
   }

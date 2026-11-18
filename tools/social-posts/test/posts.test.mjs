@@ -26,7 +26,7 @@ const storedAfter = (records, ran) => [...records.filter(one => !(ran.result?.ke
 // stored by the run itself.
 async function ask(rowToRun, input, records) {
   const ran = await answerOf(rowToRun, { ...input, records });
-  assert.deepEqual(ran.kept, [], 'the run stores nothing');
+  assert.deepEqual(ran.calls, [], 'the run stores nothing: it calls no door');
   assert.equal(ran.calls.filter(call => call.method.startsWith('records:')).length, 0, 'the run touches no records');
   return { ...ran, records: storedAfter(records, ran) };
 }

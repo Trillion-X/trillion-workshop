@@ -10,7 +10,7 @@ import { mkdtempSync, openSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
+import { answerOf, rowOf, said, rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 import { encryptPrivateObjectCtr } from '../read-data/encrypt-private-object.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
@@ -82,9 +82,9 @@ test('a sealed file opens only for a buyer whose payments give the access, a ref
     const stranger = await answerOf(open, { token, email_verified: true, subject: 'bo@example.com', ...rows });
     assert.equal(stranger.result.authorized, false, 'a link passed to someone who has not paid does not open');
     const unpaid = await answerOf(link, { object_key: 'chapter-one.pdf', email_verified: true, subject: 'bo@example.com', ...rows });
-    assert.deepEqual(unpaid.result, { status: 'denied', reason: 'not-entitled' });
+    assert.deepEqual(said(unpaid.result), { status: 'denied', reason: 'not-entitled' });
     const anonymous = await answerOf(link, { object_key: 'chapter-one.pdf', email_verified: true, subject: '', ...rows });
-    assert.deepEqual(anonymous.result, { status: 'denied', reason: 'anonymous' });
+    assert.deepEqual(said(anonymous.result), { status: 'denied', reason: 'anonymous' });
 
     const refunded = await answerOf(open, { token, email_verified: true, subject: ANA, ...rows, payment_events: [paid, refund] });
     assert.equal(refunded.result.authorized, false, 'the refund stops the very next open');
@@ -135,9 +135,9 @@ test('the sample runs answer as the rows say, with no records at all', async () 
   }
 });
 
-test('only the grant row has a records door, and no row holds a key or a person', () => {
+test('only the grant row reads stored records, and no row holds a key or a person', () => {
   const all = rows.records.map(item => item.payload);
-  assert.deepEqual(all.filter(row => row.invoke.records).map(row => [row.id, row.invoke.records.rights.map(right => right.kind)]), [['tool:grant-paid-access-to-people', ['access-grant']]]);
+  assert.deepEqual(all.filter(row => rightsOf(row).length).map(row => [row.id, rightsOf(row).map(right => right.kind)]), [['tool:grant-paid-access-to-people', ['access-grant']]]);
   for (const row of all) {
     for (const mount of row.invoke.credential_mounts ?? []) assert.equal(mount.secret_name, 'paid-files-key');
     assert.doesNotMatch(JSON.stringify(row), /\b(?:sk|rk|whsec)_[A-Za-z0-9]/);

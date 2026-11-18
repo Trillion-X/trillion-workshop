@@ -536,6 +536,10 @@
             "tool": {
               "type": "string",
               "description": "The tool row that will use the settings; a row naming another tool is refused."
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of record:setting (ids the request names), as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -571,23 +575,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "record:setting",
-                "prefix": {
-                  "fill": {
-                    "from": "input",
-                    "field": "settings_prefix"
-                  }
-                },
-                "operations": [
-                  "records:read"
-                ]
-              }
-            ]
           },
           "files": {
             "package_files": [
@@ -691,6 +678,20 @@
             ],
             "output_selector": "$.settings.pace",
             "equals": 1
+          }
+        ],
+        "stored": [
+          {
+            "kind": "record:setting",
+            "prefix": {
+              "fill": {
+                "from": "input",
+                "field": "settings_prefix"
+              }
+            },
+            "operations": [
+              "records:read"
+            ]
           }
         ]
       }

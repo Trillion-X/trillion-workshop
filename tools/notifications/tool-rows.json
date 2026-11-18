@@ -240,6 +240,10 @@
               "type": "string",
               "minLength": 1,
               "description": "The setting's name"
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of notification-setting, notification-choice, as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -375,23 +379,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "notification-setting",
-                "operations": [
-                  "records:read"
-                ]
-              },
-              {
-                "kind": "notification-choice",
-                "operations": [
-                  "records:read"
-                ]
-              }
-            ]
           }
         },
         "provenance": {
@@ -478,7 +465,21 @@
               "_read_by": "tools/record-log record-log-store erase (a job erased takes the notices that quote its words with it: src/record-model.json erase_with)"
             }
           ]
-        }
+        },
+        "stored": [
+          {
+            "kind": "notification-setting",
+            "operations": [
+              "records:read"
+            ]
+          },
+          {
+            "kind": "notification-choice",
+            "operations": [
+              "records:read"
+            ]
+          }
+        ]
       }
     },
     {
@@ -721,6 +722,10 @@
             "choice": {
               "type": "string",
               "minLength": 1
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of notification-setting, notification-choice, as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -750,6 +755,10 @@
             },
             "said": {
               "type": "string"
+            },
+            "keep": {
+              "type": "array",
+              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
             }
           }
         },
@@ -822,24 +831,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "notification-setting",
-                "operations": [
-                  "records:read"
-                ]
-              },
-              {
-                "kind": "notification-choice",
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              }
-            ]
           }
         },
         "provenance": {
@@ -880,7 +871,22 @@
             ]
           }
         ],
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "stored": [
+          {
+            "kind": "notification-setting",
+            "operations": [
+              "records:read"
+            ]
+          },
+          {
+            "kind": "notification-choice",
+            "operations": [
+              "records:read",
+              "records:write"
+            ]
+          }
+        ]
       }
     },
     {
@@ -1230,6 +1236,10 @@
             },
             "idempotencyKey": {
               "type": "string"
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of notification-event, notification-event-rules, as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -1249,6 +1259,10 @@
             },
             "said": {
               "type": "string"
+            },
+            "keep": {
+              "type": "array",
+              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
             }
           }
         },
@@ -1321,24 +1335,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "notification-event",
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "notification-event-rules",
-                "operations": [
-                  "records:read"
-                ]
-              }
-            ]
           }
         },
         "provenance": {
@@ -1372,7 +1368,22 @@
             }
           }
         ],
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "stored": [
+          {
+            "kind": "notification-event",
+            "operations": [
+              "records:read",
+              "records:write"
+            ]
+          },
+          {
+            "kind": "notification-event-rules",
+            "operations": [
+              "records:read"
+            ]
+          }
+        ]
       }
     },
     {
@@ -1616,6 +1627,10 @@
               "type": "integer",
               "minimum": 1,
               "maximum": 100
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of notification-event, as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -1710,17 +1725,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "notification-event",
-                "operations": [
-                  "records:list"
-                ]
-              }
-            ]
           }
         },
         "provenance": {
@@ -1763,7 +1767,15 @@
             ]
           }
         ],
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "stored": [
+          {
+            "kind": "notification-event",
+            "operations": [
+              "records:list"
+            ]
+          }
+        ]
       }
     },
     {
@@ -1995,7 +2007,7 @@
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
-          "properties": {}
+          "properties": { "stored": { "type": "object", "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of notification-device (ids starting notification-device:), as this row's `stored` lists. What is not given is not there." } }
         },
         "output_schema": {
           "type": "object",
@@ -2094,18 +2106,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "notification-device",
-                "prefix": "notification-device:",
-                "operations": [
-                  "records:list"
-                ]
-              }
-            ]
           }
         },
         "provenance": {
@@ -2119,7 +2119,16 @@
             "contains": "registered"
           }
         ],
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "stored": [
+          {
+            "kind": "notification-device",
+            "prefix": "notification-device:",
+            "operations": [
+              "records:list"
+            ]
+          }
+        ]
       }
     },
     {
@@ -2397,6 +2406,10 @@
               "type": "string",
               "maxLength": 200,
               "description": "Required for apns-activity: the exact native Swift ActivityAttributes type, optionally module-qualified."
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of notification-device (ids starting notification-device:), as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -2423,6 +2436,10 @@
             },
             "said": {
               "type": "string"
+            },
+            "keep": {
+              "type": "array",
+              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
             }
           }
         },
@@ -2505,20 +2522,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "notification-device",
-                "prefix": "notification-device:",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              }
-            ]
           }
         },
         "provenance": {
@@ -2535,7 +2538,18 @@
             "contains": "registered"
           }
         ],
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "stored": [
+          {
+            "kind": "notification-device",
+            "prefix": "notification-device:",
+            "operations": [
+              "records:read",
+              "records:list",
+              "records:write"
+            ]
+          }
+        ]
       }
     },
     {
@@ -2773,6 +2787,10 @@
             "device_id": {
               "type": "string",
               "minLength": 1
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of notification-device (ids starting notification-device:), as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -2792,6 +2810,10 @@
             },
             "said": {
               "type": "string"
+            },
+            "keep": {
+              "type": "array",
+              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
             }
           }
         },
@@ -2874,20 +2896,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "notification-device",
-                "prefix": "notification-device:",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              }
-            ]
           }
         },
         "provenance": {
@@ -2903,7 +2911,18 @@
             "contains": "not registered"
           }
         ],
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "stored": [
+          {
+            "kind": "notification-device",
+            "prefix": "notification-device:",
+            "operations": [
+              "records:read",
+              "records:list",
+              "records:write"
+            ]
+          }
+        ]
       }
     },
     {
@@ -3161,6 +3180,10 @@
             },
             "ended": {
               "type": "boolean"
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of notification-live-activity (ids starting notification-live-activity:), as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -3187,6 +3210,10 @@
             },
             "said": {
               "type": "string"
+            },
+            "keep": {
+              "type": "array",
+              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
             }
           }
         },
@@ -3269,20 +3296,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "notification-live-activity",
-                "prefix": "notification-live-activity:",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              }
-            ]
           }
         },
         "provenance": {
@@ -3300,7 +3313,18 @@
             "contains": "registered"
           }
         ],
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "stored": [
+          {
+            "kind": "notification-live-activity",
+            "prefix": "notification-live-activity:",
+            "operations": [
+              "records:read",
+              "records:list",
+              "records:write"
+            ]
+          }
+        ]
       }
     },
     {

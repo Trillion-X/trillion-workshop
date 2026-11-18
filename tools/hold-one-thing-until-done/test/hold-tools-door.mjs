@@ -1,11 +1,12 @@
 // The generic records stand-in currently answers records operations only. Device lifecycle tests bind the real
 // route to that records door plus an explicitly granted tool-run stand-in; ordinary row tests still run containers.
+import { rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
 import { openRecordsDoor } from '../../records-door/read-data/records-door.mjs';
 import { answerNeedsYouHoldRoute } from '../do-work/needs-you-hold-route.mjs';
 
 export async function answerHoldWithTools(row, input, { records = [], tool_runs = {} } = {}) {
-  const fake = await startFakeDoor({ rights: row.invoke.records.rights, records });
+  const fake = await startFakeDoor({ rights: rightsOf(row), records });
   const runs = [];
   try {
     const recordsDoor = openRecordsDoor({ descriptor: fake.descriptor });

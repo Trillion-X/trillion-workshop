@@ -232,7 +232,7 @@
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
-     "properties": {}
+     "properties": { "stored": { "type": "object", "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of saved-example, as this row's `stored` lists. What is not given is not there." } }
     },
     "output_schema": {
      "type": "object",
@@ -384,17 +384,6 @@
       "fill": {
        "from": "input"
       }
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "saved-example",
-        "operations": [
-         "records:list"
-        ]
-       }
-      ]
      }
     },
     "screen": {
@@ -416,7 +405,15 @@
      },
      {"kind":"sample-run","input":{},"records":[{"id":"example:0123456789abcdef0123456789abcdef","type":"saved-example","value":{"id":"example:0123456789abcdef0123456789abcdef","url":"https://example.com/posts/sample","host":"example.com","site":"Example","title":"A sample post","words":"Made-up words.","pictures":[],"why_it_worked":"A made-up reason.","collection":null,"added_from":"sample","added_at":"2026-11-01T00:00:00.000Z","updated_at":"2026-11-01T00:00:00.000Z"}}]}
     ],
-    "result_selector": "$.result"
+    "result_selector": "$.result",
+    "stored": [
+      {
+        "kind": "saved-example",
+        "operations": [
+          "records:list"
+        ]
+      }
+    ]
    }
   },
   {
@@ -656,6 +653,10 @@
        "type": "string",
        "pattern": "^example:[0-9a-f]{32}$",
        "title": "Example"
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of saved-example, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -671,6 +672,10 @@
       },
       "removed": {
        "type": "boolean"
+      },
+      "keep": {
+        "type": "array",
+        "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
       }
      }
     },
@@ -743,18 +748,6 @@
       "fill": {
        "from": "input"
       }
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "saved-example",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       }
-      ]
      }
     },
     "provenance": {
@@ -768,7 +761,16 @@
      },
      {"kind":"sample-run","input":{"id":"example:0123456789abcdef0123456789abcdef"},"records":[{"id":"example:0123456789abcdef0123456789abcdef","type":"saved-example","value":{"id":"example:0123456789abcdef0123456789abcdef","url":"https://example.com/posts/sample","host":"example.com","site":"Example","title":"A sample post","words":"Made-up words.","pictures":[],"why_it_worked":"A made-up reason.","collection":null,"added_from":"sample","added_at":"2026-11-01T00:00:00.000Z","updated_at":"2026-11-01T00:00:00.000Z"}}]}
     ],
-    "result_selector": "$.result"
+    "result_selector": "$.result",
+    "stored": [
+      {
+        "kind": "saved-example",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      }
+    ]
    }
   },
   {
@@ -1026,6 +1028,10 @@
       "browser": {
        "type": "object",
        "description": "The asking browser's own facts: user_agent, origin, visitor"
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of saved-example, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -1039,7 +1045,11 @@
       "status": {
        "type": "integer"
       },
-      "body": {}
+      "body": {},
+      "keep": {
+        "type": "array",
+        "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
+      }
      }
     },
     "invoke": {
@@ -1142,18 +1152,6 @@
       "fill": {
        "from": "input"
       }
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "saved-example",
-        "operations": [
-         "records:list",
-         "records:write"
-        ]
-       }
-      ]
      }
     },
     "provenance": {
@@ -1190,7 +1188,16 @@
       ]
      }
     ],
-    "result_selector": "$.result"
+    "result_selector": "$.result",
+    "stored": [
+      {
+        "kind": "saved-example",
+        "operations": [
+          "records:list",
+          "records:write"
+        ]
+      }
+    ]
    }
   }
  ]

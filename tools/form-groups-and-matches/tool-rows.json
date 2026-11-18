@@ -234,6 +234,10 @@
                 "$ref": "#/$defs/address"
               },
               "description": "The groups to start from"
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of group, as this row's `stored` lists. What is not given is not there."
             }
           },
           "$defs": {
@@ -354,17 +358,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "group",
-                "operations": [
-                  "records:read"
-                ]
-              }
-            ]
           }
         },
         "result_selector": "$.result",
@@ -396,6 +389,14 @@
             },
             "output_selector": "$.count",
             "contains": "0"
+          }
+        ],
+        "stored": [
+          {
+            "kind": "group",
+            "operations": [
+              "records:read"
+            ]
           }
         ]
       }
@@ -704,6 +705,10 @@
                   }
                 }
               }
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of group, as this row's `stored` lists. What is not given is not there."
             }
           },
           "$defs": {
@@ -756,6 +761,10 @@
               "items": {
                 "type": "object"
               }
+            },
+            "keep": {
+              "type": "array",
+              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
             }
           }
         },
@@ -831,18 +840,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "group",
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              }
-            ]
           }
         },
         "result_selector": "$.result",
@@ -877,6 +874,15 @@
             },
             "output_selector": "$.groups[0].groupRef.parts.id",
             "contains": "verify"
+          }
+        ],
+        "stored": [
+          {
+            "kind": "group",
+            "operations": [
+              "records:read",
+              "records:write"
+            ]
           }
         ]
       }

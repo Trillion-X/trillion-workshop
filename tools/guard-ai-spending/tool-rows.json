@@ -256,6 +256,10 @@
        "type": "integer",
        "minimum": 1,
        "description": "How long the reservation stays current (300 when left out)"
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of spend-authority, spend-budget-reservation, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -367,23 +371,6 @@
       "fill": {
        "from": "input"
       }
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "spend-authority",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "spend-budget-reservation",
-        "operations": [
-         "records:read"
-        ]
-       }
-      ]
      }
     },
     "needs": {
@@ -428,6 +415,20 @@
        }
       ]
      }
+    ],
+    "stored": [
+      {
+        "kind": "spend-authority",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "spend-budget-reservation",
+        "operations": [
+          "records:read"
+        ]
+      }
     ]
    }
   },
@@ -663,6 +664,10 @@
       },
       "idempotency_key": {
        "type": "string"
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of spend-budget-check, spend-budget-reservation, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -764,23 +769,6 @@
       "fill": {
        "from": "input"
       }
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "spend-budget-check",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "spend-budget-reservation",
-        "operations": [
-         "records:read"
-        ]
-       }
-      ]
      }
     },
     "needs": {
@@ -864,6 +852,20 @@
        }
       ]
      }
+    ],
+    "stored": [
+      {
+        "kind": "spend-budget-check",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "spend-budget-reservation",
+        "operations": [
+          "records:read"
+        ]
+      }
     ]
    }
   },
@@ -1114,6 +1116,10 @@
       },
       "facilitator_response": {
        "description": "What the rail answered, kept with the payment"
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of spend-authority, spend-payment, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -1221,23 +1227,6 @@
       "fill": {
        "from": "input"
       }
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "spend-authority",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "spend-payment",
-        "operations": [
-         "records:read"
-        ]
-       }
-      ]
      }
     },
     "needs": {
@@ -1282,6 +1271,20 @@
        }
       ]
      }
+    ],
+    "stored": [
+      {
+        "kind": "spend-authority",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "spend-payment",
+        "operations": [
+          "records:read"
+        ]
+      }
     ]
    }
   },
@@ -1509,6 +1512,10 @@
      "properties": {
       "spend_authority_ref": {
        "type": "string"
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of spend-authority, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -1608,17 +1615,6 @@
       "fill": {
        "from": "input"
       }
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "spend-authority",
-        "operations": [
-         "records:read"
-        ]
-       }
-      ]
      }
     },
     "needs": {
@@ -1661,6 +1657,14 @@
        }
       ]
      }
+    ],
+    "stored": [
+      {
+        "kind": "spend-authority",
+        "operations": [
+          "records:read"
+        ]
+      }
     ]
    }
   },
@@ -1882,7 +1886,7 @@
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
-     "properties": {}
+     "properties": { "stored": { "type": "object", "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of payment-rail, as this row's `stored` lists. What is not given is not there." } }
     },
     "output_schema": {
      "type": "object",
@@ -1971,17 +1975,6 @@
       "fill": {
        "from": "input"
       }
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "payment-rail",
-        "operations": [
-         "records:list"
-        ]
-       }
-      ]
      }
     },
     "needs": {
@@ -2004,6 +1997,14 @@
       "output_selector": "$.rails[0].id",
       "contains": "payment-rail:"
      }
+    ],
+    "stored": [
+      {
+        "kind": "payment-rail",
+        "operations": [
+          "records:list"
+        ]
+      }
     ]
    }
   }

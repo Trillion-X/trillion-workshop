@@ -35,7 +35,7 @@ test('a named post can be approved as reviewed and comes back under keep, withou
   assert.equal(accepted.result.post.status, 'approved');
   assert.equal(accepted.result.post.approved_by, 'Sample AI');
   assert.equal(accepted.result.keep.find(record => record.id === postId).value.approved_from, undefined);
-  assert.deepEqual(accepted.kept, [], 'the run stores nothing');
+  assert.deepEqual(accepted.calls, [], 'the run stores nothing: it calls no door');
 });
 
 test('a post changed after review cannot be approved from the stale snapshot', async () => {

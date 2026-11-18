@@ -725,6 +725,10 @@
                 "type": "string"
               },
               "description": "Paths written by earlier non-final runs of the same head, added to the stamp's files"
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: files: {name: text or {base64}} under /source-copies/, as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -748,6 +752,10 @@
             },
             "bytes": {
               "type": "integer"
+            },
+            "keep": {
+              "type": "array",
+              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
             }
           }
         },
@@ -824,22 +832,6 @@
                 "at": "/opt/browse-and-upload-my-files"
               }
             ]
-          },
-          "records": {
-            "fd": 3,
-            "most_writes": 256,
-            "rights": [
-              {
-                "files": "/source-copies/",
-                "operations": [
-                  "find_file",
-                  "read_file",
-                  "write_file_start",
-                  "write_file_piece",
-                  "write_file_finish"
-                ]
-              }
-            ]
           }
         },
         "result_selector": "$.result",
@@ -871,6 +863,18 @@
               },
               "complete": true
             }
+          }
+        ],
+        "stored": [
+          {
+            "files": "/source-copies/",
+            "operations": [
+              "find_file",
+              "read_file",
+              "write_file_start",
+              "write_file_piece",
+              "write_file_finish"
+            ]
           }
         ]
       }

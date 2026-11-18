@@ -3,7 +3,7 @@
 // a row that reads records, the stand-in door with exactly the row's rights.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { answerOf } from '../../../test-helpers/run-a-row.mjs';
+import { answerOf, rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 
 const descriptors = rows.records.map(record => record.payload);
@@ -33,7 +33,7 @@ test('every row packs its own files and the records door runner, offers no netwo
     const packed = row.invoke.files.package_files.map(spec => spec.package ?? spec.module ?? spec.packages?.[0]?.replace(/^node_modules\//, ""));
     assert.deepEqual(packed, ['form-groups-and-matches', 'records-door', 'content-identity', '@noble/hashes', 'browse-and-upload-my-files'], row.id);
     assert.equal(row.maker, 'maker:form-groups-and-matches');
-    assert.equal(row.invoke.records !== undefined, REACH_RECORDS.has(row.id), `${row.id}: which rows reach records`);
+    assert.equal(rightsOf(row).length > 0, REACH_RECORDS.has(row.id), `${row.id}: which rows read stored records`);
   }
 });
 

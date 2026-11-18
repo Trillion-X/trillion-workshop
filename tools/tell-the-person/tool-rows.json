@@ -240,6 +240,10 @@
       "kind": {
        "type": "string",
        "description": "Only notices of this kind, such as take-me-there"
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of told-the-person, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -376,17 +380,6 @@
       "fill": {
        "from": "input"
       }
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "told-the-person",
-        "operations": [
-         "records:list"
-        ]
-       }
-      ]
      }
     },
     "provenance": {
@@ -402,7 +395,15 @@
       "contains": "notice"
      }
     ],
-    "result_selector": "$.result"
+    "result_selector": "$.result",
+    "stored": [
+      {
+        "kind": "told-the-person",
+        "operations": [
+          "records:list"
+        ]
+      }
+    ]
    }
   },  {
     "id": "package::tell-the-person::tool::my-device-notices",
@@ -652,6 +653,10 @@
             "type": "integer",
             "minimum": 1,
             "maximum": 100
+          },
+          "stored": {
+            "type": "object",
+            "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of notification-device (ids starting notification-device:), told-the-person, as this row's `stored` lists. What is not given is not there."
           }
         }
       },
@@ -750,24 +755,6 @@
           "fill": {
             "from": "input"
           }
-        },
-        "records": {
-          "fd": 3,
-          "rights": [
-            {
-              "kind": "notification-device",
-              "prefix": "notification-device:",
-              "operations": [
-                "records:read"
-              ]
-            },
-            {
-              "kind": "told-the-person",
-              "operations": [
-                "records:list"
-              ]
-            }
-          ]
         }
       },
       "provenance": {
@@ -831,7 +818,22 @@
           ]
         }
       ],
-      "result_selector": "$.result"
+      "result_selector": "$.result",
+      "stored": [
+        {
+          "kind": "notification-device",
+          "prefix": "notification-device:",
+          "operations": [
+            "records:read"
+          ]
+        },
+        {
+          "kind": "told-the-person",
+          "operations": [
+            "records:list"
+          ]
+        }
+      ]
     }
   },
   {
@@ -1090,6 +1092,10 @@
                 "type": "string"
               }
             }
+          },
+          "stored": {
+            "type": "object",
+            "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of told-the-person, told-the-person (the row told-the-person), told-the-person (ids starting told-the-person:), as this row's `stored` lists. What is not given is not there."
           }
         }
       },
@@ -1119,6 +1125,10 @@
           },
           "said": {
             "type": "string"
+          },
+          "keep": {
+            "type": "array",
+            "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
           }
         }
       },
@@ -1191,34 +1201,6 @@
           "fill": {
             "from": "input"
           }
-        },
-        "records": {
-          "fd": 3,
-          "rights": [
-            {
-              "kind": "told-the-person",
-              "operations": [
-                "records:list"
-              ]
-            },
-            {
-              "kind": "told-the-person",
-              "id": "told-the-person",
-              "operations": [
-                "records:read",
-                "records:write"
-              ]
-            },
-            {
-              "kind": "told-the-person",
-              "prefix": "told-the-person:",
-              "operations": [
-                "records:read",
-                "records:write"
-              ]
-            }
-          ],
-          "most_writes": 100
         }
       },
       "provenance": {
@@ -1321,7 +1303,31 @@
           "_what": "The record the engine's live screen heads read the told list's newest seq from (trillion-rust src/local_account/live_heads.rs, old trillion keptList.lastSeq over the told list): moved from the engine, which named it in code. With this tool not installed, the screen has no told head.",
           "told": "told-the-person"
         }
-      }
+      },
+      "stored": [
+        {
+          "kind": "told-the-person",
+          "operations": [
+            "records:list"
+          ]
+        },
+        {
+          "kind": "told-the-person",
+          "id": "told-the-person",
+          "operations": [
+            "records:read",
+            "records:write"
+          ]
+        },
+        {
+          "kind": "told-the-person",
+          "prefix": "told-the-person:",
+          "operations": [
+            "records:read",
+            "records:write"
+          ]
+        }
+      ]
     }
   },
   {
@@ -1540,8 +1546,8 @@
     "label": "Act on one of my notices",
     "job": "Perform one action explicitly offered by one of this person’s kept notices",
     "description": "Pass a notice id (told:<seq>) and the exact action id it offers; include text and a stable submission_id UUID for a reply. An explicit local open action returns done=true and its local path. Actions whose effect belongs to another source owner are refused unless that owner is available to this run; this tool never claims a post or agent action ran without its owner’s result.",
-    "input_schema": {"type": "object", "required": ["id", "action"], "additionalProperties": false, "properties": {"id": {"type": "string", "pattern": "^told:[0-9]+$"}, "action": {"type": "string", "minLength": 1}, "text": {"type": "string"}, "submission_id": {"type": "string", "format": "uuid"}}},
-    "output_schema": {"type": "object", "required": ["done", "said"], "properties": {"done": {"type": "boolean"}, "asked": {"type": "boolean"}, "said": {"type": "string"}, "open": {"type": "string"}}},
+    "input_schema": { "type": "object", "required": ["id", "action"], "additionalProperties": false, "properties": { "id": { "type": "string", "pattern": "^told:[0-9]+$" }, "action": { "type": "string", "minLength": 1 }, "text": { "type": "string" }, "submission_id": { "type": "string", "format": "uuid" }, "stored": { "type": "object", "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of told-the-person, told-the-person (the row told-the-person), told-the-person (ids starting told-the-person:), as this row's `stored` lists. What is not given is not there." } } },
+    "output_schema": { "type": "object", "required": ["done", "said"], "properties": { "done": { "type": "boolean" }, "asked": { "type": "boolean" }, "said": { "type": "string" }, "open": { "type": "string" }, "keep": { "type": "array", "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing." } } },
     "invoke": {
      "kind": "container",
      "files": {"package_files": [
@@ -1600,8 +1606,7 @@
      "internet": false,
      "stdout": "json",
      "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/tell-the-person/read-data/told.mjs", "actOnMyNotice"],
-     "stdin": {"fill": {"from": "input"}},
-     "records": {"fd": 3, "rights": [{"kind": "told-the-person", "operations": ["records:list"]}, {"kind": "told-the-person", "id": "told-the-person", "operations": ["records:read", "records:write"]}, {"kind": "told-the-person", "prefix": "told-the-person:", "operations": ["records:read", "records:write"]}], "most_writes": 1}
+     "stdin": {"fill": {"from": "input"}}
     },
     "provenance": {"source": "src/tell-the-person.mjs act() semantics; explicit open behavior is portable through the records door, while source action roads and agent events require their own owner."},
     "verify": [
@@ -1654,7 +1659,31 @@
         ]
       }
     ],
-    "result_selector": "$.result"
+    "result_selector": "$.result",
+    "stored": [
+      {
+        "kind": "told-the-person",
+        "operations": [
+          "records:list"
+        ]
+      },
+      {
+        "kind": "told-the-person",
+        "id": "told-the-person",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "told-the-person",
+        "prefix": "told-the-person:",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      }
+    ]
    }
   }
  ]

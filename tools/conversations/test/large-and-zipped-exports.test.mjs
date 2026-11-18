@@ -4,6 +4,7 @@
 // a ChatGPT conversations.json read one conversation at a time (read-data/json-array-stream.mjs), its cursor keeping
 // the byte the next conversation starts after so a stopped run starts there; a zipped ChatGPT export whose files are
 // found and copied from inside the zip; and a Grok message of only an image, with no words, kept with its file.
+import { rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
@@ -17,7 +18,7 @@ import { exportFilesInZip, importConversationsFrom } from '../read-data/chat-imp
 import { NotAJsonArray, firstByteOf, jsonArrayElements } from '../read-data/json-array-stream.mjs';
 
 const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
-const RIGHTS = rows.find(row => row.id === 'tool:import-my-conversations-from-a-source').invoke.records.rights;
+const RIGHTS = rightsOf(rows.find(row => row.id === 'tool:import-my-conversations-from-a-source'));
 const NOW = new Date('2026-11-04T12:00:00Z');
 const PNG = Buffer.concat([Buffer.from('89504e470d0a1a0a', 'hex'), Buffer.alloc(5_000, 7)]);
 const JPEG = Buffer.concat([Buffer.from('ffd8ffe0', 'hex'), Buffer.alloc(2_000, 3)]);

@@ -509,10 +509,14 @@
      "properties": {
       "contributor": { "type": "string", "pattern": "^[0-9a-f]{64}$", "description": "The person's random contributor id" },
       "situation": { "type": "string", "minLength": 1, "description": "The shared situation's row id in pooled-situations" },
-      "worked": { "type": "boolean", "description": "The randomized bit, as the person's store drew it" }
+      "worked": { "type": "boolean", "description": "The randomized bit, as the person's store drew it" },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of record:pooled-situation, record:pooled-result, as this row's `stored` lists. What is not given is not there."
+      }
      }
     },
-    "output_schema": { "type": "object", "required": ["added"], "properties": { "added": { "type": "boolean" } } },
+    "output_schema": { "type": "object", "required": ["added"], "properties": { "added": { "type": "boolean" }, "keep": { "type": "array", "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing." } } },
     "invoke": {
      "kind": "container",
      "internet": false,
@@ -573,13 +577,6 @@
         "at": "/opt/browse-and-upload-my-files"
        }
       ]
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       { "kind": "record:pooled-situation", "operations": ["records:read"] },
-       { "kind": "record:pooled-result", "operations": ["records:write"] }
-      ]
      }
     },
     "needs": { "expected_seconds": 10, "network_egress": false, "memory_mb": 256 },
@@ -588,6 +585,20 @@
     "maker": "maker:learn-from-everyones-results",
     "verify": [
      {"kind":"sample-run","input":{"contributor":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","situation":"sample-situation-1","worked":true},"records":[{"id":"record:pooled-situation:sample-situation-1","type":"record:pooled-situation","value":{"entry":{"what":"A made-up shared situation"},"embedding":[1,0,0],"day":"2026-11-01"}}]}
+    ],
+    "stored": [
+      {
+        "kind": "record:pooled-situation",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "record:pooled-result",
+        "operations": [
+          "records:write"
+        ]
+      }
     ]
    }
   },
@@ -804,9 +815,9 @@
      "type": "object",
      "required": ["contributor"],
      "additionalProperties": false,
-     "properties": { "contributor": { "type": "string", "pattern": "^[0-9a-f]{64}$", "description": "The person's random contributor id" } }
+     "properties": { "contributor": { "type": "string", "pattern": "^[0-9a-f]{64}$", "description": "The person's random contributor id" }, "stored": { "type": "object", "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of record:pooled-result, as this row's `stored` lists. What is not given is not there." } }
     },
-    "output_schema": { "type": "object", "required": ["removed"], "properties": { "removed": { "type": "integer", "minimum": 0 } } },
+    "output_schema": { "type": "object", "required": ["removed"], "properties": { "removed": { "type": "integer", "minimum": 0 }, "keep": { "type": "array", "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing." } } },
     "invoke": {
      "kind": "container",
      "internet": false,
@@ -867,12 +878,6 @@
         "at": "/opt/browse-and-upload-my-files"
        }
       ]
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       { "kind": "record:pooled-result", "operations": ["records:list", "records:write"] }
-      ]
      }
     },
     "needs": { "expected_seconds": 30, "network_egress": false, "memory_mb": 256 },
@@ -881,6 +886,15 @@
     "maker": "maker:learn-from-everyones-results",
     "verify": [
      {"kind":"sample-run","input":{"contributor":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},"records":[{"id":"record:pooled-result:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:00000000-0000-4000-8000-000000000001","type":"record:pooled-result","value":{"contributor":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","situation":"sample-situation-1","worked":1,"embedding":[1,0,0],"day":"2026-11-01"}},{"id":"record:pooled-result:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb:00000000-0000-4000-8000-000000000002","type":"record:pooled-result","value":{"contributor":"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb","situation":"sample-situation-1","worked":0,"embedding":[1,0,0],"day":"2026-11-01"}}]}
+    ],
+    "stored": [
+      {
+        "kind": "record:pooled-result",
+        "operations": [
+          "records:list",
+          "records:write"
+        ]
+      }
     ]
    }
   },

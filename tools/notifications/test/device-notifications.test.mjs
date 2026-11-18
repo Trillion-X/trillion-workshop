@@ -7,14 +7,14 @@ import { openSync } from 'node:fs';
 import { createServer } from 'node:net';
 import { openRecordsDoor } from 'trillion-workshop/tools/records-door/read-data/records-door.mjs';
 import { startFakeDoor } from 'trillion-workshop/tools/records-door/test/fake-door.mjs';
-import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
+import { answerOf, rowOf, rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import { registerMyNotificationDevice, registerMyLiveActivity, sendNotificationToMyDevices, sendLiveActivityUpdate, myBrowserPushApplicationServerKey, heldNotificationSigningKeys } from '../read-data/device-notifications.mjs';
 import { base64url, makeSigningKey, publicPoint } from '../read-data/web-push.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 import deliveryContract from '../read-data/delivery-contract.json' with { type: 'json' };
 
 const row = id => rowOf(rows, id);
-const rights = id => row(id).invoke.records.rights;
+const rights = id => rightsOf(row(id));
 const event = {
   notification_id: 'n-1', kind: 'work-finished', audience_refs: ['person:owner'], conversation_ref: 'conversation:1',
   privacy_class: 'private', title: 'The report is ready', body: 'Your report is ready to read.', occurred_at: '2026-10-31T18:00:00Z',

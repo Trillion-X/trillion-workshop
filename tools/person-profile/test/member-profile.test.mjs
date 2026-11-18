@@ -4,7 +4,7 @@
 // profile); the browser cache the old test also checked belongs to the screen.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
+import { answerOf, rowOf, said, rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 
 const read = rowOf(rows, 'tool:read-a-member-profile');
@@ -14,7 +14,7 @@ const held = { id: 'member-profile:account:sample', type: 'member-profile', valu
 test('a save changes the fields given and keeps the rest of the record', async () => {
   const ran = await answerOf(save, { who: 'account:sample', fields: { display_name: ' Sam Example ', about: 'Makes videos' } }, { records: [held] });
   assert.equal(ran.status, 0, ran.error);
-  assert.deepEqual(ran.result, { saved: true, profile: { display_name: 'Sam Example', about: 'Makes videos', email: 'old@example.test' } });
+  assert.deepEqual(said(ran.result), { saved: true, profile: { display_name: 'Sam Example', about: 'Makes videos', email: 'old@example.test' } });
   const kept = ran.kept.find(record => record.id === held.id).value;
   assert.equal(kept.role, 'Creator');
   assert.equal(kept.email, 'old@example.test');
@@ -30,20 +30,12 @@ test('a first save makes the record, and an empty value is saved as empty', asyn
 test('reading a member with no profile answers null instead of inventing fields', async () => {
   const ran = await answerOf(read, { who: 'local:none' });
   assert.equal(ran.status, 0, ran.error);
-  assert.deepEqual(ran.result, { profile: null });
+  assert.deepEqual(said(ran.result), { profile: null });
 });
 
 test('a profile is read back without the rest of the record', async () => {
   const ran = await answerOf(read, { who: 'account:sample' }, { records: [held] });
-  assert.deepEqual(ran.result, { profile: { display_name: 'Old', about: '', email: 'old@example.test' } });
-});
-
-test('a write the door refuses is not a saved profile', async () => {
-  const readOnly = { ...save, invoke: { ...save.invoke, records: { fd: 3, rights: [{ kind: 'member-profile', operations: ['records:read'] }] } } };
-  const ran = await answerOf(readOnly, { who: 'local:one', fields: { display_name: 'Sam Example' } });
-  assert.equal(ran.status, 1);
-  assert.match(ran.error, /may not reach those records/);
-  assert.deepEqual(ran.kept, []);
+  assert.deepEqual(said(ran.result), { profile: { display_name: 'Old', about: '', email: 'old@example.test' } });
 });
 
 test('a field that is not a profile field, no fields and a bad identity are refused with what to give', async () => {
@@ -58,6 +50,6 @@ test('a stored record that is not a profile of that member is not trusted', asyn
 });
 
 test('the rows only reach member-profile records, the read row cannot write', () => {
-  assert.deepEqual(read.invoke.records.rights, [{ kind: 'member-profile', operations: ['records:read'] }]);
-  assert.deepEqual(save.invoke.records.rights, [{ kind: 'member-profile', operations: ['records:read', 'records:write'] }]);
+  assert.deepEqual(rightsOf(read), [{ kind: 'member-profile', operations: ['records:read'] }]);
+  assert.deepEqual(rightsOf(save), [{ kind: 'member-profile', operations: ['records:read', 'records:write'] }]);
 });

@@ -235,6 +235,10 @@
             "body": {},
             "browser": {
               "type": "object"
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of list (ids starting list:calendar-), list, record:calendar-task, record:calendar-task-list, record:calendar-day-hours, record:calendar-working-hours, entity-list (ids starting entity-list:calendar-), entity-row (ids starting entity-row:record:calendar-), entity-spelling, list-open-mark (ids starting list-open-mark:calendar-), list-open-mark (ids starting list-open-mark:ordering-calendar-), naming-fields-mark (the row naming-fields-mark:lists), list-key (ids starting list-key:calendar-), list-trash (ids starting list-trash:calendar-), list-tombstone (ids starting list-tombstone:calendar-), list-proposal (ids starting list-proposal:calendar-), list-heat (ids starting list-heat:calendar-), list-view (ids starting list-view:calendar-), list-filter (ids starting list-filter:calendar-), list-snapshot (ids starting list-snapshot:calendar-), workspace-preference (the row workspace-preference:calendar-selections), as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -248,7 +252,11 @@
             "status": {
               "type": "integer"
             },
-            "body": {}
+            "body": {},
+            "keep": {
+              "type": "array",
+              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
+            }
           }
         },
         "invoke": {
@@ -531,186 +539,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "list",
-                "prefix": "list:calendar-",
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "list",
-                "operations": [
-                  "records:list"
-                ]
-              },
-              {
-                "kind": "record:calendar-task",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "record:calendar-task-list",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "record:calendar-day-hours",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "record:calendar-working-hours",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "entity-list",
-                "prefix": "entity-list:calendar-",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "entity-row",
-                "prefix": "entity-row:record:calendar-",
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "entity-spelling",
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "list-open-mark",
-                "prefix": "list-open-mark:calendar-",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "list-open-mark",
-                "prefix": "list-open-mark:ordering-calendar-",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "naming-fields-mark",
-                "id": "naming-fields-mark:lists",
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "list-key",
-                "prefix": "list-key:calendar-",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "list-trash",
-                "prefix": "list-trash:calendar-",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "list-tombstone",
-                "prefix": "list-tombstone:calendar-",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "list-proposal",
-                "prefix": "list-proposal:calendar-",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "list-heat",
-                "prefix": "list-heat:calendar-",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "list-view",
-                "prefix": "list-view:calendar-",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "list-filter",
-                "prefix": "list-filter:calendar-",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "list-snapshot",
-                "prefix": "list-snapshot:calendar-",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "workspace-preference",
-                "id": "workspace-preference:calendar-selections",
-                "operations": [
-                  "records:read"
-                ]
-              }
-            ]
           }
         },
         "needs": {
@@ -744,6 +572,183 @@
             "records": [],
             "output_selector": "$.status",
             "contains": "200"
+          }
+        ],
+        "stored": [
+          {
+            "kind": "list",
+            "prefix": "list:calendar-",
+            "operations": [
+              "records:read",
+              "records:write"
+            ]
+          },
+          {
+            "kind": "list",
+            "operations": [
+              "records:list"
+            ]
+          },
+          {
+            "kind": "record:calendar-task",
+            "operations": [
+              "records:read",
+              "records:list",
+              "records:write"
+            ]
+          },
+          {
+            "kind": "record:calendar-task-list",
+            "operations": [
+              "records:read",
+              "records:list",
+              "records:write"
+            ]
+          },
+          {
+            "kind": "record:calendar-day-hours",
+            "operations": [
+              "records:read",
+              "records:list",
+              "records:write"
+            ]
+          },
+          {
+            "kind": "record:calendar-working-hours",
+            "operations": [
+              "records:read",
+              "records:list",
+              "records:write"
+            ]
+          },
+          {
+            "kind": "entity-list",
+            "prefix": "entity-list:calendar-",
+            "operations": [
+              "records:read",
+              "records:list",
+              "records:write"
+            ]
+          },
+          {
+            "kind": "entity-row",
+            "prefix": "entity-row:record:calendar-",
+            "operations": [
+              "records:read",
+              "records:write"
+            ]
+          },
+          {
+            "kind": "entity-spelling",
+            "operations": [
+              "records:read",
+              "records:write"
+            ]
+          },
+          {
+            "kind": "list-open-mark",
+            "prefix": "list-open-mark:calendar-",
+            "operations": [
+              "records:read",
+              "records:list",
+              "records:write"
+            ]
+          },
+          {
+            "kind": "list-open-mark",
+            "prefix": "list-open-mark:ordering-calendar-",
+            "operations": [
+              "records:read",
+              "records:list",
+              "records:write"
+            ]
+          },
+          {
+            "kind": "naming-fields-mark",
+            "id": "naming-fields-mark:lists",
+            "operations": [
+              "records:read",
+              "records:write"
+            ]
+          },
+          {
+            "kind": "list-key",
+            "prefix": "list-key:calendar-",
+            "operations": [
+              "records:read",
+              "records:list",
+              "records:write"
+            ]
+          },
+          {
+            "kind": "list-trash",
+            "prefix": "list-trash:calendar-",
+            "operations": [
+              "records:read",
+              "records:list",
+              "records:write"
+            ]
+          },
+          {
+            "kind": "list-tombstone",
+            "prefix": "list-tombstone:calendar-",
+            "operations": [
+              "records:read",
+              "records:list",
+              "records:write"
+            ]
+          },
+          {
+            "kind": "list-proposal",
+            "prefix": "list-proposal:calendar-",
+            "operations": [
+              "records:read",
+              "records:list",
+              "records:write"
+            ]
+          },
+          {
+            "kind": "list-heat",
+            "prefix": "list-heat:calendar-",
+            "operations": [
+              "records:read",
+              "records:list",
+              "records:write"
+            ]
+          },
+          {
+            "kind": "list-view",
+            "prefix": "list-view:calendar-",
+            "operations": [
+              "records:read",
+              "records:list",
+              "records:write"
+            ]
+          },
+          {
+            "kind": "list-filter",
+            "prefix": "list-filter:calendar-",
+            "operations": [
+              "records:read",
+              "records:list",
+              "records:write"
+            ]
+          },
+          {
+            "kind": "list-snapshot",
+            "prefix": "list-snapshot:calendar-",
+            "operations": [
+              "records:read",
+              "records:list",
+              "records:write"
+            ]
+          },
+          {
+            "kind": "workspace-preference",
+            "id": "workspace-preference:calendar-selections",
+            "operations": [
+              "records:read"
+            ]
           }
         ]
       }

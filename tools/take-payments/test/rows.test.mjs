@@ -1,6 +1,7 @@
 // The rows as the container runs them: each row's sample run is executed through the records-door command with the
 // row's own argv, and the money rules are read off the rows themselves: a row that can reach Stripe mounts the
 // person's key by name and no row carries a key.
+import { rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
@@ -71,7 +72,7 @@ test('the usage tools that compute keep nothing and read no records', () => {
   for (const id of keepNothing) {
     const row = rows.find(item => item.id === id);
     assert.ok(row, `${id} is a row of this folder`);
-    const rights = row.invoke.records?.rights ?? [];
+    const rights = rightsOf(row) ?? [];
     assert.ok(rights.every(right => right.files === '/' && right.operations.join() === 'usage_days'), `${id} declares no records right`);
     assert.ok(id === 'tool:observe-live-usage' ? rights.length === 1 : rights.length === 0, `${id} declares only what it needs`);
   }
@@ -81,7 +82,7 @@ const paymentToolsKeepingNothing = ['tool:price-a-sale', 'tool:start-a-stripe-ch
 test('payment tools open no records door; usage writers can append only their declared accounting/configuration records', () => {
   for (const id of paymentToolsKeepingNothing) assert.equal(rows.find(row => row.id === id).invoke.records, undefined, `${id} opens no records door`);
   for (const row of rows) {
-    for (const right of row.invoke.records?.rights ?? []) {
+    for (const right of rightsOf(row) ?? []) {
       // The one files right a payment row holds: reading the account's own usage day rows, nothing else of its files.
       if (right.files !== undefined) { assert.ok(row.id === 'tool:observe-live-usage' && right.files === '/' && right.operations.join() === 'usage_days', `${row.id} reads only its usage rows from the files door`); continue; }
       const allowed = usageWriters.has(row.id) ? ['records:list', 'records:read', 'records:write'] : ['records:read', 'records:list'];

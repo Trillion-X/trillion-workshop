@@ -677,6 +677,10 @@
        "minLength": 1,
        "maxLength": 200,
        "description": "The member's id"
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of member-profile, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -778,17 +782,6 @@
       "fill": {
        "from": "input"
       }
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "member-profile",
-        "operations": [
-         "records:read"
-        ]
-       }
-      ]
      }
     },
     "result_selector": "$.result",
@@ -814,6 +807,14 @@
       "output_selector": "$.profile",
       "contains": "null"
      }
+    ],
+    "stored": [
+      {
+        "kind": "member-profile",
+        "operations": [
+          "records:read"
+        ]
+      }
     ]
    }
   },
@@ -1061,6 +1062,10 @@
          "type": "string"
         }
        }
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of member-profile, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -1090,6 +1095,10 @@
          "type": "string"
         }
        }
+      },
+      "keep": {
+        "type": "array",
+        "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
       }
      }
     },
@@ -1166,18 +1175,6 @@
       "fill": {
        "from": "input"
       }
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "member-profile",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       }
-      ]
      }
     },
     "result_selector": "$.result",
@@ -1207,6 +1204,15 @@
       "output_selector": "$.saved",
       "contains": "true"
      }
+    ],
+    "stored": [
+      {
+        "kind": "member-profile",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      }
     ]
    }
   }

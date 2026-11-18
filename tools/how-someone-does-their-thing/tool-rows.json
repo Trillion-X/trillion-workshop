@@ -1278,6 +1278,10 @@
        "type": "integer",
        "minimum": 1,
        "maximum": 50
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of voice-profile, voice-edit, post, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -1382,31 +1386,6 @@
       "fill": {
        "from": "input"
       }
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "voice-profile",
-        "operations": [
-         "records:read",
-         "records:list"
-        ]
-       },
-       {
-        "kind": "voice-edit",
-        "operations": [
-         "records:read",
-         "records:list"
-        ]
-       },
-       {
-        "kind": "post",
-        "operations": [
-         "records:list"
-        ]
-       }
-      ]
      }
     },
     "result_selector": "$.result",
@@ -1423,7 +1402,29 @@
     "provenance": {
      "source": "Trillion-X/trillion src/voice.mjs (the person's writing voice, learned from what they change), moved here; reads and writes the person's voice-edit and voice-profile records through the records door"
     },
-    "verify": [{"kind": "sample-run", "input": {}, "output_selector": "$.said", "contains": "No profile is saved yet"}]
+    "verify": [{"kind": "sample-run", "input": {}, "output_selector": "$.said", "contains": "No profile is saved yet"}],
+    "stored": [
+      {
+        "kind": "voice-profile",
+        "operations": [
+          "records:read",
+          "records:list"
+        ]
+      },
+      {
+        "kind": "voice-edit",
+        "operations": [
+          "records:read",
+          "records:list"
+        ]
+      },
+      {
+        "kind": "post",
+        "operations": [
+          "records:list"
+        ]
+      }
+    ]
    }
   },
   {
@@ -1677,6 +1678,10 @@
         "ai",
         "person"
        ]
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of voice-profile, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -1692,6 +1697,10 @@
       },
       "said": {
        "type": "string"
+      },
+      "keep": {
+        "type": "array",
+        "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
       }
      }
     },
@@ -1766,19 +1775,6 @@
       "fill": {
        "from": "input"
       }
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "voice-profile",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       }
-      ]
      }
     },
     "result_selector": "$.result",
@@ -1812,7 +1808,17 @@
        }
       }
      ]
-    }
+    },
+    "stored": [
+      {
+        "kind": "voice-profile",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      }
+    ]
    }
   },
   {
@@ -2047,6 +2053,10 @@
        "type": "string",
        "pattern": "^[a-z][a-z0-9-]{0,39}$",
        "description": "What is written, like post or email; leave out for every kind (or, saving, the general profile)"
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of voice-profile, voice-edit, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -2062,6 +2072,10 @@
       },
       "said": {
        "type": "string"
+      },
+      "keep": {
+        "type": "array",
+        "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
       }
      }
     },
@@ -2136,26 +2150,6 @@
       "fill": {
        "from": "input"
       }
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "voice-profile",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "voice-edit",
-        "operations": [
-         "records:read",
-         "records:list",
-         "records:write"
-        ]
-       }
-      ]
      }
     },
     "result_selector": "$.result",
@@ -2172,7 +2166,24 @@
     "provenance": {
      "source": "Trillion-X/trillion src/voice.mjs (the person's writing voice, learned from what they change), moved here; reads and writes the person's voice-edit and voice-profile records through the records door"
     },
-    "verify": [{"kind": "sample-run", "input": {"all_edits": true}, "output_selector": "$.forgot", "contains": "1", "records": [{"id": "voice-edit:sample-1", "type": "voice-edit", "value": {"before": "Stronger together", "after": "Short and plain.", "kind": "post"}}]}]
+    "verify": [{"kind": "sample-run", "input": {"all_edits": true}, "output_selector": "$.forgot", "contains": "1", "records": [{"id": "voice-edit:sample-1", "type": "voice-edit", "value": {"before": "Stronger together", "after": "Short and plain.", "kind": "post"}}]}],
+    "stored": [
+      {
+        "kind": "voice-profile",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "voice-edit",
+        "operations": [
+          "records:read",
+          "records:list",
+          "records:write"
+        ]
+      }
+    ]
    }
   },
   {
@@ -2420,6 +2431,10 @@
         "string",
         "null"
        ]
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of voice-edit, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -2434,6 +2449,10 @@
         "object",
         "null"
        ]
+      },
+      "keep": {
+        "type": "array",
+        "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
       }
      }
     },
@@ -2508,18 +2527,6 @@
       "fill": {
        "from": "input"
       }
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "voice-edit",
-        "operations": [
-         "records:list",
-         "records:write"
-        ]
-       }
-      ]
      }
     },
     "result_selector": "$.result",
@@ -2554,7 +2561,16 @@
        }
       }
      ]
-    }
+    },
+    "stored": [
+      {
+        "kind": "voice-edit",
+        "operations": [
+          "records:list",
+          "records:write"
+        ]
+      }
+    ]
    }
   },
   {

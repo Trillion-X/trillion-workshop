@@ -252,19 +252,10 @@ function throughRunner(name, input, descriptor) {
   });
 }
 
-test('the actual Marketplace export runner mounts the records capability only for pricing configuration and refuses foreign record rights', async () => {
-  const rights = Object.values(usageRecordTypes).map(kind => ({ kind, operations: ['records:read', 'records:list', 'records:write'] }));
-  const server = await startFakeDoor({ rights, unknownFirst: 1, eventStream: true, pageCut: 1 });
-  try {
-    const saved = await throughRunner('manageUsagePricing', { action: 'save', rule_id: 'runner', expected_version: 0, request_key: 'runner-create', rule: rule('runner') }, server.descriptor);
-    assert.equal(saved.code, 0, saved.stderr); assert.equal(saved.answer.result.rule.version, 1);
-    assert.ok(server.calls.some((call, index, calls) => call.method === 'records:write' && calls.some((other, j) => j !== index && other.key === call.key)), 'the unknown write retries one key');
-  } finally { await server.close(); }
-  const readOnly = await startFakeDoor({ rights: Object.values(usageRecordTypes).map(kind => ({ kind, operations: ['records:read', 'records:list'] })) });
-  try {
-    const refused = await throughRunner('manageUsagePricing', { action: 'save', rule_id: 'refused', expected_version: 0, request_key: 'refused', rule: rule('refused') }, readOnly.descriptor);
-    assert.equal(refused.code, 1); assert.match(refused.answer.error, /may not reach/); assert.equal(readOnly.kept.size, 0);
-  } finally { await readOnly.close(); }
+test('the actual Marketplace export runner answers a saved pricing rule as rows to keep, given no door', async () => {
+  const saved = await throughRunner('manageUsagePricing', { action: 'save', rule_id: 'runner', expected_version: 0, request_key: 'runner-create', rule: rule('runner') });
+  assert.equal(saved.code, 0, saved.stderr); assert.equal(saved.answer.result.rule.version, 1);
+  assert.ok(saved.answer.result.keep.some(item => Object.values(usageRecordTypes).includes(item.type)), JSON.stringify(saved.answer.result.keep));
 });
 
 test('pricing, observation checking and settlement run through the export runner with no records door at all', async () => {

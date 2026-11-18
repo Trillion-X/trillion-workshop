@@ -272,6 +272,10 @@
       "pursuits": {
        "type": "array",
        "description": "The person's pursuit rows the sources list and shape read, each { id, ...value }, as the caller read them from their store"
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: files: {name: text or {base64}} under /Notes from members/, /Notes/, /Recordings from iPhone/, /Recordings from the web/, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -394,39 +398,6 @@
       "fill": {
        "from": "input"
       }
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "files": "/Recordings from the web/",
-        "operations": [
-         "list_files",
-         "read_file"
-        ]
-       },
-       {
-        "files": "/Recordings from iPhone/",
-        "operations": [
-         "list_files",
-         "read_file"
-        ]
-       },
-       {
-        "files": "/Notes/",
-        "operations": [
-         "list_files",
-         "read_file"
-        ]
-       },
-       {
-        "files": "/Notes from members/",
-        "operations": [
-         "list_files",
-         "read_file"
-        ]
-       }
-      ]
      }
     },
     "provenance": {
@@ -452,7 +423,37 @@
       }
      }
     ],
-    "result_selector": "$.result"
+    "result_selector": "$.result",
+    "stored": [
+      {
+        "files": "/Recordings from the web/",
+        "operations": [
+          "list_files",
+          "read_file"
+        ]
+      },
+      {
+        "files": "/Recordings from iPhone/",
+        "operations": [
+          "list_files",
+          "read_file"
+        ]
+      },
+      {
+        "files": "/Notes/",
+        "operations": [
+          "list_files",
+          "read_file"
+        ]
+      },
+      {
+        "files": "/Notes from members/",
+        "operations": [
+          "list_files",
+          "read_file"
+        ]
+      }
+    ]
    }
   }
  ]

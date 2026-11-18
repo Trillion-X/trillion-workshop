@@ -5,7 +5,7 @@
 // first, then the row runs as the container runs it, against the fake records door with exactly its rights.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
+import { answerOf, rowOf, said, rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 import { exampleId, handleSavedExamplesRequest, makeSavedExamples } from '../do-work/answer-the-saved-examples-page.mjs';
 
@@ -133,7 +133,7 @@ test('the page and any AI reach the same saved-example records, with the origina
   assert.deepEqual(invalid.kept, updated.kept);
 
   const removed = await answerOf(row, route('/saved-examples/remove', 'POST', { id: example.id }), { records: updated.kept });
-  assert.deepEqual(removed.result, { status: 200, body: { id: example.id, removed: true } });
+  assert.deepEqual(said(removed.result), { status: 200, body: { id: example.id, removed: true } });
   assert.deepEqual(removed.kept, []);
   const again = await answerOf(row, route('/saved-examples/remove', 'POST', { id: example.id }));
   assert.equal(again.result.status, 400);
@@ -141,7 +141,7 @@ test('the page and any AI reach the same saved-example records, with the origina
 });
 
 test('the route row reads and writes only saved examples, and reaches the internet only to read a link', () => {
-  assert.deepEqual(row.invoke.records.rights, [{ kind: 'saved-example', operations: ['records:list', 'records:write'] }]);
+  assert.deepEqual(rightsOf(row), [{ kind: 'saved-example', operations: ['records:list', 'records:write'] }]);
   assert.equal(row.invoke.internet, true);
   assert.equal(row.needs.network_egress, true);
 });

@@ -237,6 +237,10 @@
             "body": {},
             "browser": {
               "type": "object"
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of message, message-source-key, ai-job; files: {name: text or {base64}} under /, as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -250,7 +254,11 @@
             "status": {
               "type": "integer"
             },
-            "body": {}
+            "body": {},
+            "keep": {
+              "type": "array",
+              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
+            }
           }
         },
         "invoke": {
@@ -349,39 +357,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "message",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "message-source-key",
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "ai-job",
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              },
-              {
-                "files": "/",
-                "operations": [
-                  "find_file"
-                ]
-              }
-            ]
           }
         },
         "needs": {
@@ -415,6 +390,36 @@
             "records": [],
             "output_selector": "$.status",
             "contains": "200"
+          }
+        ],
+        "stored": [
+          {
+            "kind": "message",
+            "operations": [
+              "records:read",
+              "records:list",
+              "records:write"
+            ]
+          },
+          {
+            "kind": "message-source-key",
+            "operations": [
+              "records:read",
+              "records:write"
+            ]
+          },
+          {
+            "kind": "ai-job",
+            "operations": [
+              "records:read",
+              "records:write"
+            ]
+          },
+          {
+            "files": "/",
+            "operations": [
+              "find_file"
+            ]
           }
         ]
       }

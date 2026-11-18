@@ -369,6 +369,10 @@
                 "none"
               ],
               "description": "With can [\"run\"]: input (default) keeps a digest of what they sent in your journal; none keeps none"
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of list (ids starting list:), shared-text (ids starting shared-text:); workspace: {label: value} for the label the request names, as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -503,6 +507,10 @@
             },
             "said": {
               "type": "string"
+            },
+            "keep": {
+              "type": "array",
+              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
             }
           }
         },
@@ -581,33 +589,6 @@
             "fd": 3,
             "rights": [
               {
-                "kind": "@own-records",
-                "id": {
-                  "fill": {
-                    "from": "input",
-                    "field": "grant"
-                  }
-                },
-                "operations": [
-                  "workspace:read",
-                  "workspace:write"
-                ]
-              },
-              {
-                "kind": "list",
-                "prefix": "list:",
-                "operations": [
-                  "records:read"
-                ]
-              },
-              {
-                "kind": "shared-text",
-                "prefix": "shared-text:",
-                "operations": [
-                  "records:write"
-                ]
-              },
-              {
                 "at": "@own-records",
                 "id": {
                   "fill": {
@@ -667,6 +648,35 @@
                   ]
                 }
               }
+            ]
+          }
+        ],
+        "stored": [
+          {
+            "kind": "@own-records",
+            "id": {
+              "fill": {
+                "from": "input",
+                "field": "grant"
+              }
+            },
+            "operations": [
+              "workspace:read",
+              "workspace:write"
+            ]
+          },
+          {
+            "kind": "list",
+            "prefix": "list:",
+            "operations": [
+              "records:read"
+            ]
+          },
+          {
+            "kind": "shared-text",
+            "prefix": "shared-text:",
+            "operations": [
+              "records:write"
             ]
           }
         ]

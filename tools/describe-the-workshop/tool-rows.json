@@ -627,6 +627,10 @@
               "type": "string",
               "minLength": 1,
               "description": "Keep this key unchanged when retrying the same change"
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of tool-source (ids starting tool-source:), tool-source-change (ids starting tool-source-change:), as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -646,6 +650,10 @@
             },
             "kinds": {
               "type": "array"
+            },
+            "keep": {
+              "type": "array",
+              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
             }
           }
         },
@@ -715,28 +723,6 @@
                 "field": "source_data"
               }
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "tool-source",
-                "prefix": "tool-source:",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "tool-source-change",
-                "prefix": "tool-source-change:",
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              }
-            ]
           }
         },
         "needs": {
@@ -809,6 +795,25 @@
               }
             },
             "output_selector": "$.yours"
+          }
+        ],
+        "stored": [
+          {
+            "kind": "tool-source",
+            "prefix": "tool-source:",
+            "operations": [
+              "records:read",
+              "records:list",
+              "records:write"
+            ]
+          },
+          {
+            "kind": "tool-source-change",
+            "prefix": "tool-source-change:",
+            "operations": [
+              "records:read",
+              "records:write"
+            ]
           }
         ]
       }
@@ -1039,6 +1044,10 @@
             },
             "wait": {
               "type": "boolean"
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of tool-source (ids starting tool-source:), tool-source-read (ids starting tool-source-read:), as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -1062,6 +1071,10 @@
             },
             "configuration_identity": {
               "type": "string"
+            },
+            "keep": {
+              "type": "array",
+              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
             }
           }
         },
@@ -1186,27 +1199,6 @@
                 "at": "/opt/node_modules/@noble/hashes"
               }
             ]
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "tool-source",
-                "prefix": "tool-source:",
-                "operations": [
-                  "records:read",
-                  "records:list"
-                ]
-              },
-              {
-                "kind": "tool-source-read",
-                "prefix": "tool-source-read:",
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              }
-            ]
           }
         },
         "needs": {
@@ -1266,6 +1258,24 @@
               "request_key": "sample-live-source-read"
             },
             "output_selector": "$.reads"
+          }
+        ],
+        "stored": [
+          {
+            "kind": "tool-source",
+            "prefix": "tool-source:",
+            "operations": [
+              "records:read",
+              "records:list"
+            ]
+          },
+          {
+            "kind": "tool-source-read",
+            "prefix": "tool-source-read:",
+            "operations": [
+              "records:read",
+              "records:write"
+            ]
           }
         ]
       }

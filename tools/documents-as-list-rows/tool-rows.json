@@ -487,7 +487,11 @@
             "exclude": {"type":"array","items":{"type":"string"},"description":"Exclude document paths relative to folder by glob, using the same semantics as match."},
             "paths": {"type":"array","items":{"type":"string"},"description":"Read only these exact absolute-within-root document names, without recursively walking other folders. Every path still obeys the granted root and symlink checks."},
             "text_extensions": {"type":"array","items":{"type":"string","pattern":"^[a-z0-9]*$"},"description":"The text-file extensions the source reads instead of the document extensions (md, markdown, txt), such as json, py or mjs, in a folder scan and among paths alike; an empty string explicitly admits extensionless text files. Content must be valid UTF-8 and is never executed."},
-            "paths_file": {"type":"string","description":"Name of a JSON array positive catalogue under the granted root, instead of embedding paths in a bounded list record. Read through the same files owner, identity checked and refused if it exceeds the existing per-document byte bound."}
+            "paths_file": {"type":"string","description":"Name of a JSON array positive catalogue under the granted root, instead of embedding paths in a bounded list record. Read through the same files owner, identity checked and refused if it exceeds the existing per-document byte bound."},
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: files: {name: text or {base64}} under /, as this row's `stored` lists. What is not given is not there."
+            }
           }
         },
         "output_schema": {"type": "object", "required": ["rows", "next"], "properties": {"rows": {"type": "array"}, "next": {"type": ["string", "null"]}}},
@@ -498,7 +502,6 @@
           "stdout": "json",
           "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/tools/documents-as-list-rows/read-data/rows.mjs", "readNamespaceDocumentRows"],
           "stdin": {"fill": {"from": "input"}},
-          "records": {"fd": 3, "rights": [{"files": "/", "operations": ["list_files", "read_file"]}]},
           "files": {
             "package_files": [
               {
@@ -563,7 +566,16 @@
         },
         "result_selector": "$.result",
         "provenance": {"source": "Written for the Workshop: the documents row source over the files door, as the earlier lists read a Namespace folder"},
-        "verify": [{"kind": "sample-run", "input": {"folder": "/Notes"}, "door_files": {"/Notes/plan.md": "---\nstatus: draft\n---\n# Sample plan\n\nA made-up note.\n"}}]
+        "verify": [{"kind": "sample-run", "input": {"folder": "/Notes"}, "door_files": {"/Notes/plan.md": "---\nstatus: draft\n---\n# Sample plan\n\nA made-up note.\n"}}],
+        "stored": [
+          {
+            "files": "/",
+            "operations": [
+              "list_files",
+              "read_file"
+            ]
+          }
+        ]
       }
     },
     {

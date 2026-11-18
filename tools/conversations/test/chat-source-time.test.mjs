@@ -1,6 +1,7 @@
 // tools/conversations/test/chat-source-time.test.mjs (moved from Trillion-X/trillion test/chat-source-time.test.mjs)
 //
 // The message owner runs over the fake records door the way the import runs it (stagedRecords), instead of the Worker's store.
+import { rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -10,8 +11,8 @@ import { stagedRecords } from '../read-data/chat-import.mjs';
 import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
 import { openRecordsDoor } from '../../records-door/read-data/records-door.mjs';
 
-const RIGHTS = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload)
-  .find(row => row.id === 'tool:import-my-conversations-from-a-source').invoke.records.rights;
+const RIGHTS = rightsOf(JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload)
+  .find(row => row.id === 'tool:import-my-conversations-from-a-source'));
 async function localStore(t) {
   const fake = await startFakeDoor({ rights: RIGHTS });
   t.after(() => fake.close());

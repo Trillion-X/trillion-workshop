@@ -227,6 +227,10 @@
       "path": {
        "type": "string",
        "description": "A full path on a connected drive, like /Volumes/Drive/DCIM"
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: files: {name: text or {base64}} under /, as this row's `stored` lists. What is not given is not there."
       }
      },
      "required": [
@@ -314,21 +318,18 @@
         "at": "/opt/browse-and-upload-my-files"
        }
       ]
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "files": "/",
-        "operations": [
-         "find_file"
-        ]
-       }
-      ]
      }
     },
     "result_selector": "$.result",
-    "verify": [{"kind": "needs-a-machine", "requires": "macOS with a drive attached and mounted under /Volumes (the program lists /Volumes and calls /sbin/mount, /usr/sbin/diskutil and /usr/sbin/lsof by absolute path, so no stand-in program or granted folder can supply one); exits 1 when the file is not on a connected drive", "proved_on": null}]
+    "verify": [{"kind": "needs-a-machine", "requires": "macOS with a drive attached and mounted under /Volumes (the program lists /Volumes and calls /sbin/mount, /usr/sbin/diskutil and /usr/sbin/lsof by absolute path, so no stand-in program or granted folder can supply one); exits 1 when the file is not on a connected drive", "proved_on": null}],
+    "stored": [
+      {
+        "files": "/",
+        "operations": [
+          "find_file"
+        ]
+      }
+    ]
    }
   },
   {
@@ -554,41 +555,30 @@
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
-     "properties": {}
+     "properties": { "stored": { "type": "object", "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: files: {name: text or {base64}} under /, as this row's `stored` lists. What is not given is not there." } }
     },
     "output_schema": {
      "type": "object"
     },
     "invoke": {
-      "records": {
-        "fd": 3,
-        "rights": [
-          {
-            "files": "/",
-            "operations": [
-              "find_file"
-            ]
-          }
-        ]
-      },
-     "kind": "computer",
-     "capabilities": [
+      "kind": "computer",
+      "capabilities": [
       "see-connected-drives"
      ],
-     "workdir": "/opt/work-on-connected-drives",
-     "stdout": "json",
-     "argv": [
+      "workdir": "/opt/work-on-connected-drives",
+      "stdout": "json",
+      "argv": [
       "node",
       "/opt/records-door/do-work/run-an-export.mjs",
       "/opt/work-on-connected-drives/read-data/drives.mjs",
       "listDriveWork"
      ],
-     "stdin": {
+      "stdin": {
       "fill": {
        "from": "input"
       }
      },
-     "files": {
+      "files": {
       "package_files": [
        {
         "package": "work-on-connected-drives",
@@ -651,7 +641,15 @@
      }
     },
     "result_selector": "$.result",
-    "verify": [{"kind": "sample-run", "input": {}}]
+    "verify": [{"kind": "sample-run", "input": {}}],
+    "stored": [
+      {
+        "files": "/",
+        "operations": [
+          "find_file"
+        ]
+      }
+    ]
    }
   },
   {
@@ -895,6 +893,10 @@
       "check": {
        "type": "boolean",
        "description": "true only looks: says what would happen and changes nothing"
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: files: {name: text or {base64}} under /, as this row's `stored` lists. What is not given is not there."
       }
      },
      "required": [
@@ -906,35 +908,24 @@
      "type": "object"
     },
     "invoke": {
-      "records": {
-        "fd": 3,
-        "rights": [
-          {
-            "files": "/",
-            "operations": [
-              "find_file"
-            ]
-          }
-        ]
-      },
-     "kind": "computer",
-     "capabilities": [
+      "kind": "computer",
+      "capabilities": [
       "see-connected-drives"
      ],
-     "workdir": "/opt/work-on-connected-drives",
-     "stdout": "json",
-     "argv": [
+      "workdir": "/opt/work-on-connected-drives",
+      "stdout": "json",
+      "argv": [
       "node",
       "/opt/records-door/do-work/run-an-export.mjs",
       "/opt/work-on-connected-drives/read-data/drives.mjs",
       "controlDriveWork"
      ],
-     "stdin": {
+      "stdin": {
       "fill": {
        "from": "input"
       }
      },
-     "files": {
+      "files": {
       "package_files": [
        {
         "package": "work-on-connected-drives",
@@ -997,7 +988,15 @@
      }
     },
     "result_selector": "$.result",
-    "verify": [{"kind": "sample-run", "input": {"id": "copy-sample-1", "action": "pause", "check": true}}]
+    "verify": [{"kind": "sample-run", "input": {"id": "copy-sample-1", "action": "pause", "check": true}}],
+    "stored": [
+      {
+        "files": "/",
+        "operations": [
+          "find_file"
+        ]
+      }
+    ]
    }
   },
   {
@@ -1245,6 +1244,10 @@
       "check": {
        "type": "boolean",
        "description": "true only looks: says what would happen and changes nothing"
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: files: {name: text or {base64}} under /, as this row's `stored` lists. What is not given is not there."
       }
      },
      "required": [
@@ -1256,36 +1259,25 @@
      "type": "object"
     },
     "invoke": {
-      "records": {
-        "fd": 3,
-        "rights": [
-          {
-            "files": "/",
-            "operations": [
-              "find_file"
-            ]
-          }
-        ]
-      },
-     "kind": "computer",
-     "capabilities": [
+      "kind": "computer",
+      "capabilities": [
       "see-connected-drives",
       "change-a-folder"
      ],
-     "workdir": "/opt/work-on-connected-drives",
-     "stdout": "json",
-     "argv": [
+      "workdir": "/opt/work-on-connected-drives",
+      "stdout": "json",
+      "argv": [
       "node",
       "/opt/records-door/do-work/run-an-export.mjs",
       "/opt/work-on-connected-drives/read-data/drives.mjs",
       "copyOrMoveBetweenDrives"
      ],
-     "stdin": {
+      "stdin": {
       "fill": {
        "from": "input"
       }
      },
-     "files": {
+      "files": {
       "package_files": [
        {
         "package": "work-on-connected-drives",
@@ -1348,7 +1340,15 @@
      }
     },
     "result_selector": "$.result",
-    "verify": [{"kind": "needs-a-machine", "requires": "macOS with a drive attached and mounted under /Volumes (the program lists /Volumes and calls /sbin/mount, /usr/sbin/diskutil and /usr/sbin/lsof by absolute path, so no stand-in program or granted folder can supply one); a copy or move exits 1 unless its sources and destinations are on connected drives", "proved_on": null}]
+    "verify": [{"kind": "needs-a-machine", "requires": "macOS with a drive attached and mounted under /Volumes (the program lists /Volumes and calls /sbin/mount, /usr/sbin/diskutil and /usr/sbin/lsof by absolute path, so no stand-in program or granted folder can supply one); a copy or move exits 1 unless its sources and destinations are on connected drives", "proved_on": null}],
+    "stored": [
+      {
+        "files": "/",
+        "operations": [
+          "find_file"
+        ]
+      }
+    ]
    }
   },
   {
@@ -1582,6 +1582,10 @@
       "check": {
        "type": "boolean",
        "description": "true only looks: says what would happen and changes nothing"
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: files: {name: text or {base64}} under /, as this row's `stored` lists. What is not given is not there."
       }
      },
      "required": [
@@ -1592,35 +1596,24 @@
      "type": "object"
     },
     "invoke": {
-      "records": {
-        "fd": 3,
-        "rights": [
-          {
-            "files": "/",
-            "operations": [
-              "find_file"
-            ]
-          }
-        ]
-      },
-     "kind": "computer",
-     "capabilities": [
+      "kind": "computer",
+      "capabilities": [
       "see-connected-drives"
      ],
-     "workdir": "/opt/work-on-connected-drives",
-     "stdout": "json",
-     "argv": [
+      "workdir": "/opt/work-on-connected-drives",
+      "stdout": "json",
+      "argv": [
       "node",
       "/opt/records-door/do-work/run-an-export.mjs",
       "/opt/work-on-connected-drives/read-data/drives.mjs",
       "ejectADrive"
      ],
-     "stdin": {
+      "stdin": {
       "fill": {
        "from": "input"
       }
      },
-     "files": {
+      "files": {
       "package_files": [
        {
         "package": "work-on-connected-drives",
@@ -1683,7 +1676,15 @@
      }
     },
     "result_selector": "$.result",
-    "verify": [{"kind": "sample-run", "input": {"mount": "/Volumes/Example Drive"}}]
+    "verify": [{"kind": "sample-run", "input": {"mount": "/Volumes/Example Drive"}}],
+    "stored": [
+      {
+        "files": "/",
+        "operations": [
+          "find_file"
+        ]
+      }
+    ]
    }
   }
  ]

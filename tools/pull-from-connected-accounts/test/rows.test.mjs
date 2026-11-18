@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
+import { answerOf, rowOf, rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 import * as pulls from '../do-work/pull.mjs';
 import * as reads from '../do-work/read.mjs';
@@ -86,7 +86,7 @@ test('every pull row says in its output what was left out, as { conversation, re
 
 test('the read row can only list the records, and reaches no network and no secret', () => {
   assert.equal(readRow.invoke.internet, false);
-  assert.deepEqual(readRow.invoke.records.rights, [{ kind: PART_KIND, prefix: 'account-snapshot:', operations: ['records:list'] }]);
+  assert.deepEqual(rightsOf(readRow), [{ kind: PART_KIND, prefix: 'account-snapshot:', operations: ['records:list'] }]);
   assert.equal(readRow.invoke.credential_mounts, undefined);
   assert.deepEqual(readRow.input_schema.properties.source.enum, sourceIds());
 });

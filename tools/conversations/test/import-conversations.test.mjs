@@ -7,6 +7,7 @@
 // Gemini CLI and Hermes. It checks what each source keeps, that a second run adds nothing, that a door that answers
 // 503 midway stops the run with its cursor rows where they were and a resume finishes with nothing kept twice, that a
 // write the door does not answer in time is sent again with its own request key, and the counts read back per app.
+import { rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync, appendFileSync, utimesSync } from 'node:fs';
@@ -18,7 +19,7 @@ import { conversationImportProgress, countConversationsPerApp, importConversatio
 
 const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
 const importRow = rows.find(row => row.id === 'tool:import-my-conversations-from-a-source');
-const RIGHTS = importRow.invoke.records.rights;
+const RIGHTS = rightsOf(importRow);
 const NOW = new Date('2026-11-04T12:00:00Z');
 
 const lines = list => list.map(row => JSON.stringify(row) + '\n').join('');
@@ -301,7 +302,7 @@ test('a file named directly is read, and a path that leaves the granted folder i
 // next turn of the same conversation adds only itself.
 test('an AI with no store here keeps a turn through the tool, and the same turn sent again adds nothing', async t => {
   const keepRow = rows.find(row => row.id === 'tool:keep-what-i-said-to-an-ai');
-  const fake = await startFakeDoor({ rights: keepRow.invoke.records.rights });
+  const fake = await startFakeDoor({ rights: rightsOf(keepRow) });
   t.after(() => fake.close());
   const door = openRecordsDoor({ descriptor: fake.descriptor, wait: async () => {} });
   const context = { door, wait: async () => {}, now: () => NOW };

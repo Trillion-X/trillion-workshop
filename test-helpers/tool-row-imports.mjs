@@ -7,9 +7,10 @@
 // relative import whose target is not in the tree). Read-only; the tree is read from git at `ref`.
 //
 // door-without-records (gate): the row's entry export reaches a call on the person's records door through the call graph
-// (run-an-export's named export, or a direct script's top-level code), and the row declares no invoke.records. Rows named
+// (run-an-export's named export, or a direct script's top-level code), and the row declares neither invoke.records nor a
+// `stored` list (the person's things it is given as values, records-door/read-data/values-door.mjs). Rows named
 // in tool-row-door-exceptions.json are exempt, each with its reason. records-without-door (report only): the row declares
-// invoke.records and its entry reaches no door call. The walk follows named calls only, so a dynamic call it cannot name is
+// invoke.records or `stored` and its entry reaches no door call. The walk follows named calls only, so a dynamic call it cannot name is
 // not followed: such a row runs with no records descriptor and is refused at run time, never given broader rights.
 //
 // Non-Negotiable Invariants:
@@ -369,8 +370,9 @@ function checkRow(rowFile, desc) {
   // A row whose entry export reaches a records door call (function level, through the call graph) needs invoke.records;
   // a row that declares invoke.records with no such call holds rights it never uses. Both are gate findings.
   const touches = doorReachFor(desc, visited, text, fileSet);
-  if (!desc.invoke?.records && touches && !doorExceptions.has(desc.id)) findings.push({ kind: 'door-without-records' });
-  if (desc.invoke?.records && !touches) findings.push({ kind: 'records-without-door' });
+  const declares = Boolean(desc.invoke?.records) || (Array.isArray(desc.stored) && desc.stored.length > 0);
+  if (!declares && touches && !doorExceptions.has(desc.id)) findings.push({ kind: 'door-without-records' });
+  if (declares && !touches) findings.push({ kind: 'records-without-door' });
   return { findings, items };
 }
 

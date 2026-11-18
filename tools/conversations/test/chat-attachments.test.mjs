@@ -10,6 +10,7 @@
 // message kept again gains only the links it did not have. The two space tests (a file item members read from the
 // importer's store until withdrawn or the importer leaves) stay behind: the Worker's space owner did not move here.
 // Every person, file and chat here is made up.
+import { rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
@@ -22,8 +23,8 @@ import { messages } from '../../keep-and-wake-ai-sessions-on-this-computer/src/m
 import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
 import { openRecordsDoor } from '../../records-door/read-data/records-door.mjs';
 
-const RIGHTS = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload)
-  .find(row => row.id === 'tool:import-my-conversations-from-a-source').invoke.records.rights;
+const RIGHTS = rightsOf(JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload)
+  .find(row => row.id === 'tool:import-my-conversations-from-a-source'));
 const NOW = new Date('2026-11-04T12:00:00Z');
 const identityOf = text => makeHashCodeHexFromBytes(new TextEncoder().encode(text));
 

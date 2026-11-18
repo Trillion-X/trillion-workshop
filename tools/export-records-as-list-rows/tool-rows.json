@@ -1892,11 +1892,16 @@
             "target_type": { "type": "string", "description": "The one target record type this run is granted to read and write; the run right is filled from this field." },
             "target_prefix": { "type": "string", "description": "The target record id prefix this run is granted to read and write; the run right is filled from this field." },
             "keep_held": { "type": "boolean", "description": "When true, leave every target record already held as it is, including rows edited since they were first written." },
-            "baseline": { "type": "object", "description": "The previous imported builder payload. Refresh source fields only where the live value still matches this baseline; retain live edits/deletions and report conflicts. Cannot be combined with keep_held." }
+            "baseline": { "type": "object", "description": "The previous imported builder payload. Refresh source fields only where the live value still matches this baseline; retain live edits/deletions and report conflicts. Cannot be combined with keep_held." },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of the kind the request names (ids the request names), as this row's `stored` lists. What is not given is not there."
+            }
           }
         },
         "output_schema": {
-          "type": "object", "required": ["state", "to_write", "commands", "written", "out_of_scope", "readback"],
+          "type": "object",
+          "required": ["state", "to_write", "commands", "written", "out_of_scope", "readback"],
           "properties": {
             "state": { "type": "string", "enum": ["all_written", "written_with_conflicts", "readback_differs", "stopped_on_refusal"] },
             "to_write": { "type": "integer", "minimum": 0 },
@@ -1905,18 +1910,21 @@
             "out_of_scope": { "type": "integer", "minimum": 0 },
             "last_refusal": { "type": "object" },
             "conflicts": { "type": "array", "items": { "type": "object" } },
-            "readback": { "type": "object" }
+            "readback": { "type": "object" },
+            "keep": {
+              "type": "array",
+              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
+            }
           }
         },
         "invoke": {
-          "kind": "computer", "capabilities": [], "workdir": "/opt/tools/export-records-as-list-rows", "internet": false, "stdout": "json",
+          "kind": "computer",
+          "capabilities": [],
+          "workdir": "/opt/tools/export-records-as-list-rows",
+          "internet": false,
+          "stdout": "json",
           "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/tools/export-records-as-list-rows/do-work/send_built_record_write.mjs", "sendBuiltRecordWrite"],
           "stdin": { "fill": { "from": "input" } },
-          "records": { "fd": 3, "rights": [{
-            "kind": { "fill": { "from": "input", "field": "target_type" } },
-            "prefix": { "fill": { "from": "input", "field": "target_prefix" } },
-            "operations": ["records:list", "records:write"]
-          }] },
           "files": { "package_files": [
             {
               "package": "export-records-as-list-rows",
@@ -1976,7 +1984,27 @@
         "licence_class": "licence:maker-own",
         "placements": ["placement:your-computer"],
         "provenance": { "source": "Written for the Workshop: the records:write sender that writes only what an account lacks" },
-        "verify": [{"kind": "sample-run", "input": {"payload": {"commands": [{"input": {"records": [{"id": "sample-list:row-1", "type": "sample-row", "value": {"title": "Sample row"}}]}}]}, "target_type": "sample-row", "target_prefix": "sample-list:"}}]
+        "verify": [{"kind": "sample-run", "input": {"payload": {"commands": [{"input": {"records": [{"id": "sample-list:row-1", "type": "sample-row", "value": {"title": "Sample row"}}]}}]}, "target_type": "sample-row", "target_prefix": "sample-list:"}}],
+        "stored": [
+          {
+            "kind": {
+              "fill": {
+                "from": "input",
+                "field": "target_type"
+              }
+            },
+            "prefix": {
+              "fill": {
+                "from": "input",
+                "field": "target_prefix"
+              }
+            },
+            "operations": [
+              "records:list",
+              "records:write"
+            ]
+          }
+        ]
       }
     }
   ]

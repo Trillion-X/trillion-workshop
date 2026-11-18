@@ -1664,6 +1664,10 @@
         "type": "string"
        },
        "description": "The verdict words that mark a line a checker escalated (default [escalated]): kept as kind escalated-line"
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of record:setting, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -1686,19 +1690,8 @@
      }
     },
     "invoke": {
-      "records": {
-        "fd": 3,
-        "rights": [
-          {
-            "kind": "record:setting",
-            "operations": [
-              "records:read"
-            ]
-          }
-        ]
-      },
-     "kind": "container",
-     "files": {
+      "kind": "container",
+      "files": {
       "package_files": [
        {
         "package": "where-a-person-stands",
@@ -1760,16 +1753,16 @@
        }
       ]
      },
-     "workdir": "/opt/where-a-person-stands",
-     "internet": false,
-     "stdout": "json",
-     "argv": [
+      "workdir": "/opt/where-a-person-stands",
+      "internet": false,
+      "stdout": "json",
+      "argv": [
       "node",
       "/opt/records-door/do-work/run-an-export.mjs",
       "/opt/where-a-person-stands/do-work/ruling-records.mjs",
       "keepRulings"
      ],
-     "stdin": {
+      "stdin": {
       "fill": {
        "from": "input"
       }
@@ -1828,6 +1821,14 @@
       "output_selector": "$.write.records[0].value.kind",
       "contains": "escalated-line"
      }
+    ],
+    "stored": [
+      {
+        "kind": "record:setting",
+        "operations": [
+          "records:read"
+        ]
+      }
     ]
    }
   },
@@ -2103,6 +2104,10 @@
         "array"
        ],
        "description": "The person's row of list:settings for this tool (record:setting:where-a-person-stands~<scope kind>~<scope id>) as records:read gives it, its value, or a list of them; read by tools/settings. The input's own fields win over it"
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of record:setting, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -2125,19 +2130,8 @@
      }
     },
     "invoke": {
-      "records": {
-        "fd": 3,
-        "rights": [
-          {
-            "kind": "record:setting",
-            "operations": [
-              "records:read"
-            ]
-          }
-        ]
-      },
-     "kind": "container",
-     "files": {
+      "kind": "container",
+      "files": {
       "package_files": [
        {
         "package": "where-a-person-stands",
@@ -2199,16 +2193,16 @@
        }
       ]
      },
-     "workdir": "/opt/where-a-person-stands",
-     "internet": false,
-     "stdout": "json",
-     "argv": [
+      "workdir": "/opt/where-a-person-stands",
+      "internet": false,
+      "stdout": "json",
+      "argv": [
       "node",
       "/opt/records-door/do-work/run-an-export.mjs",
       "/opt/where-a-person-stands/do-work/rulings.mjs",
       "makeExamplesFromRulings"
      ],
-     "stdin": {
+      "stdin": {
       "fill": {
        "from": "input"
       }
@@ -2252,6 +2246,14 @@
       "output_selector": "$.items[0].bad_for[0]",
       "contains": "real-bad"
      }
+    ],
+    "stored": [
+      {
+        "kind": "record:setting",
+        "operations": [
+          "records:read"
+        ]
+      }
     ]
    }
   },
@@ -2520,6 +2522,10 @@
         "array"
        ],
        "description": "The person's row of list:settings for this tool (record:setting:where-a-person-stands~<scope kind>~<scope id>) as records:read gives it, its value, or a list of them; read by tools/settings. The input's own fields win over it"
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of record:setting, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -2549,19 +2555,8 @@
      }
     },
     "invoke": {
-      "records": {
-        "fd": 3,
-        "rights": [
-          {
-            "kind": "record:setting",
-            "operations": [
-              "records:read"
-            ]
-          }
-        ]
-      },
-     "kind": "container",
-     "files": {
+      "kind": "container",
+      "files": {
       "package_files": [
        {
         "package": "where-a-person-stands",
@@ -2623,16 +2618,16 @@
        }
       ]
      },
-     "workdir": "/opt/where-a-person-stands",
-     "internet": false,
-     "stdout": "json",
-     "argv": [
+      "workdir": "/opt/where-a-person-stands",
+      "internet": false,
+      "stdout": "json",
+      "argv": [
       "node",
       "/opt/records-door/do-work/run-an-export.mjs",
       "/opt/where-a-person-stands/do-work/picks.mjs",
       "makeExamplesFromPicks"
      ],
-     "stdin": {
+      "stdin": {
       "fill": {
        "from": "input"
       }
@@ -2692,6 +2687,14 @@
       "output_selector": "$.items[0].source",
       "contains": "pick-implied"
      }
+    ],
+    "stored": [
+      {
+        "kind": "record:setting",
+        "operations": [
+          "records:read"
+        ]
+      }
     ]
    }
   },
@@ -2967,6 +2970,10 @@
         "type": "object"
        },
        "description": "The check's results on bad_lines: [{ text, uncertain: [{ rule, p_fail }] }]"
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of record:setting, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -3010,19 +3017,8 @@
      }
     },
     "invoke": {
-      "records": {
-        "fd": 3,
-        "rights": [
-          {
-            "kind": "record:setting",
-            "operations": [
-              "records:read"
-            ]
-          }
-        ]
-      },
-     "kind": "container",
-     "files": {
+      "kind": "container",
+      "files": {
       "package_files": [
        {
         "package": "where-a-person-stands",
@@ -3084,16 +3080,16 @@
        }
       ]
      },
-     "workdir": "/opt/where-a-person-stands",
-     "internet": false,
-     "stdout": "json",
-     "argv": [
+      "workdir": "/opt/where-a-person-stands",
+      "internet": false,
+      "stdout": "json",
+      "argv": [
       "node",
       "/opt/records-door/do-work/run-an-export.mjs",
       "/opt/where-a-person-stands/do-work/ruling-status.mjs",
       "countRealRulings"
      ],
-     "stdin": {
+      "stdin": {
       "fill": {
        "from": "input"
       }
@@ -3153,6 +3149,14 @@
       "output_selector": "$.per_rule.quiet",
       "contains": "1"
      }
+    ],
+    "stored": [
+      {
+        "kind": "record:setting",
+        "operations": [
+          "records:read"
+        ]
+      }
     ]
    }
   },
@@ -3383,6 +3387,10 @@
         "type": "object"
        },
        "description": "The stands read back: standFrom answers or stance record values"
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of record:setting, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -3410,19 +3418,8 @@
      }
     },
     "invoke": {
-      "records": {
-        "fd": 3,
-        "rights": [
-          {
-            "kind": "record:setting",
-            "operations": [
-              "records:read"
-            ]
-          }
-        ]
-      },
-     "kind": "container",
-     "files": {
+      "kind": "container",
+      "files": {
       "package_files": [
        {
         "package": "where-a-person-stands",
@@ -3484,16 +3481,16 @@
        }
       ]
      },
-     "workdir": "/opt/where-a-person-stands",
-     "internet": false,
-     "stdout": "json",
-     "argv": [
+      "workdir": "/opt/where-a-person-stands",
+      "internet": false,
+      "stdout": "json",
+      "argv": [
       "node",
       "/opt/records-door/do-work/run-an-export.mjs",
       "/opt/where-a-person-stands/do-work/where-a-person-stands.mjs",
       "countStands"
      ],
-     "stdin": {
+      "stdin": {
       "fill": {
        "from": "input"
       }
@@ -3540,6 +3537,14 @@
       "output_selector": "$.by_kind.title.agree",
       "contains": "1"
      }
+    ],
+    "stored": [
+      {
+        "kind": "record:setting",
+        "operations": [
+          "records:read"
+        ]
+      }
     ]
    }
   }

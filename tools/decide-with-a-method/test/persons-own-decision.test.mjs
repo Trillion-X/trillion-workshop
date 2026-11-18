@@ -2,6 +2,7 @@
 // signed-in page started, is kept as the decision with their exact words and time as its evidence, and the method's
 // method is marked not walked, never answered. An AI saying the person decided is refused, and a decision
 // an AI makes still needs every row of its method answered. Every name, message and decision here is made up.
+import { rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -17,7 +18,7 @@ const TOOL = 'tool:record-a-persons-own-decision';
 // The door as the row's container gives it: a kind the row does not declare for an operation is refused.
 function granted(door, toolId) {
   const row = rows.find(each => each.id === toolId);
-  const rights = new Map((row.invoke?.records?.rights ?? []).map(item => [item.kind, new Set(item.operations)]));
+  const rights = new Map(rightsOf(row).map(item => [item.kind, new Set(item.operations)]));
   const need = (kind, operation) => { if (!rights.get(kind)?.has(operation)) throw new Error(`${toolId} is not granted ${operation} on ${kind}`); };
   return {
     read: async (type, id) => { need(type, 'records:read'); return door.read(type, id); },
@@ -121,5 +122,5 @@ test('the row fills the call\'s input as the verdict and the origin only from th
   assert.deepEqual(row.input_schema, settings.input_schemas[TOOL]);
   assert.equal(row.input_schema.additionalProperties, false);
   assert.ok(!('origin' in row.input_schema.properties));
-  assert.deepEqual(row.invoke.records.rights.find(item => item.kind === 'message').operations, ['records:read']);
+  assert.deepEqual(rightsOf(row).find(item => item.kind === 'message').operations, ['records:read']);
 });

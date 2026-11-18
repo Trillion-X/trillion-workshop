@@ -3,7 +3,7 @@
 // and oven manager are the owners, and a note left by the baker.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
+import { answerOf, rowOf, rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import { myRequests } from '../read-data/requests.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 
@@ -19,7 +19,7 @@ const note = (extra = {}) => ({ request_id: 'note-1', source_ref: 'notebook', me
 const handing = { disposition: 'ask', reason: 'The baker asked for it plainly', hand_to_owner: true, owner_ref: 'oven-manager', acceptance_criteria: 'Sourdough is on the Friday bake list' };
 const handOff = { action_ref: 'add-to-bake-list', input: { list: 'friday' } };
 const kept = (answer, id) => answer.kept.find(record => record.id === id);
-const writes = answer => answer.calls.filter(call => call.method === 'records:write').length;
+const writes = answer => (answer.result?.keep ?? []).length;
 
 test('a plain acknowledgement is kept with no hand-off and no owner request', async () => {
   const answer = await answerOf(takeRow, { request: note({ request_id: 'thanks', text: 'Thanks!' }), decision: { disposition: 'context', reason: 'Acknowledgement, no work asked' } }, { records: [origins] });
@@ -39,7 +39,7 @@ test('a request handed to an owner on file is kept and the owner is asked once w
   assert.deepEqual([asked.input.list, asked.input.proof_links, asked.input.record_ref], ['friday', ['atom:line-2'], 'note-1']);
   const record = kept(answer, 'intake-request:note-1').value;
   assert.deepEqual([record.status, record.owner_ref, record.owner_request, record.receipt_refs], ['handed', 'oven-manager', 'owner-action-request:intake-request:note-1:0', []]);
-  assert.equal(writes(answer), 1);
+  assert.equal(writes(answer), 2);
 });
 
 test('an owner who is not on file, or is not active, gets no request and nothing is kept, so taking it again later is a first take', async () => {
@@ -228,7 +228,7 @@ test('the list answers the requests and who owes an answer from the rows handed 
 });
 
 test('each row asks the door for no more than its job needs', () => {
-  const kinds = row => row.invoke.records.rights.map(right => `${right.kind}:${right.operations.join('+')}`);
+  const kinds = row => rightsOf(row).map(right => `${right.kind}:${right.operations.join('+')}`);
   assert.deepEqual(kinds(takeRow), ['intake-origins:records:read', 'intake-owner:records:read', 'intake-request:records:read+records:write', 'owner-action-request:records:read+records:write']);
   assert.deepEqual(kinds(handRow), ['owner-action-request:records:read+records:write']);
   assert.deepEqual(kinds(receiptRow), ['intake-request:records:read+records:write', 'intake-receipt:records:read+records:write']);

@@ -7,6 +7,7 @@
 // with an image pasted into it. It checks where each file is kept and under which name, that a message names its files
 // by identity, that a message of only files is kept once its file is, that a rerun copies nothing again, and that a
 // door that answers 503 in the middle of a file's pieces stops the run and a resume keeps each file once, whole.
+import { rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
@@ -18,7 +19,7 @@ import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/ident
 import { exportFilesBeside, importConversationsFrom, mediaTypeOf, resumeConversationImports } from '../read-data/chat-import.mjs';
 
 const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
-const RIGHTS = rows.find(row => row.id === 'tool:import-my-conversations-from-a-source').invoke.records.rights;
+const RIGHTS = rightsOf(rows.find(row => row.id === 'tool:import-my-conversations-from-a-source'));
 const NOW = new Date('2026-11-04T12:00:00Z');
 
 // Bytes that start the way their kind does, and are long enough to take several door pieces (40 KiB each).

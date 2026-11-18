@@ -9029,75 +9029,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "usage-pricing-rule",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "usage-pricing-rule-version",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "resource-usage-observation",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "resource-usage-settlement",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "resource-usage-settlement-version",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "resource-usage-receipt",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "resource-usage-allocation",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "resource-usage-settlement-evidence",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              }
-            ]
           }
         },
         "result_selector": "$.result",
@@ -9220,6 +9151,10 @@
             "versions": {
               "type": "boolean",
               "description": "With action list, list every immutable rule version (what price-resource-usage prices from) instead of each rule's current version."
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of usage-pricing-rule, usage-pricing-rule-version, resource-usage-observation, resource-usage-settlement, resource-usage-settlement-version, resource-usage-receipt, resource-usage-allocation, resource-usage-settlement-evidence, as this row's `stored` lists. What is not given is not there."
             }
           },
           "required": [
@@ -9250,6 +9185,10 @@
                 "string",
                 "null"
               ]
+            },
+            "keep": {
+              "type": "array",
+              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
             }
           },
           "anyOf": [
@@ -9283,7 +9222,73 @@
             }
           }
         ],
-        "kind": "ai-tool-descriptor"
+        "kind": "ai-tool-descriptor",
+        "stored": [
+          {
+            "kind": "usage-pricing-rule",
+            "operations": [
+              "records:read",
+              "records:list",
+              "records:write"
+            ]
+          },
+          {
+            "kind": "usage-pricing-rule-version",
+            "operations": [
+              "records:read",
+              "records:list",
+              "records:write"
+            ]
+          },
+          {
+            "kind": "resource-usage-observation",
+            "operations": [
+              "records:read",
+              "records:list",
+              "records:write"
+            ]
+          },
+          {
+            "kind": "resource-usage-settlement",
+            "operations": [
+              "records:read",
+              "records:list",
+              "records:write"
+            ]
+          },
+          {
+            "kind": "resource-usage-settlement-version",
+            "operations": [
+              "records:read",
+              "records:list",
+              "records:write"
+            ]
+          },
+          {
+            "kind": "resource-usage-receipt",
+            "operations": [
+              "records:read",
+              "records:list",
+              "records:write"
+            ]
+          },
+          {
+            "kind": "resource-usage-allocation",
+            "operations": [
+              "records:read",
+              "records:list",
+              "records:write"
+            ]
+          },
+          {
+            "kind": "resource-usage-settlement-evidence",
+            "operations": [
+              "records:read",
+              "records:list",
+              "records:write"
+            ]
+          }
+        ]
       }
     },
     {
@@ -12309,67 +12314,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "usage-pricing-rule",
-                "operations": [
-                  "records:read",
-                  "records:list"
-                ]
-              },
-              {
-                "kind": "usage-pricing-rule-version",
-                "operations": [
-                  "records:read",
-                  "records:list"
-                ]
-              },
-              {
-                "kind": "resource-usage-observation",
-                "operations": [
-                  "records:read",
-                  "records:list"
-                ]
-              },
-              {
-                "kind": "resource-usage-settlement",
-                "operations": [
-                  "records:read",
-                  "records:list"
-                ]
-              },
-              {
-                "kind": "resource-usage-settlement-version",
-                "operations": [
-                  "records:read",
-                  "records:list"
-                ]
-              },
-              {
-                "kind": "resource-usage-receipt",
-                "operations": [
-                  "records:read",
-                  "records:list"
-                ]
-              },
-              {
-                "kind": "resource-usage-allocation",
-                "operations": [
-                  "records:read",
-                  "records:list"
-                ]
-              },
-              {
-                "kind": "resource-usage-settlement-evidence",
-                "operations": [
-                  "records:read",
-                  "records:list"
-                ]
-              }
-            ]
           }
         },
         "result_selector": "$.result",
@@ -12406,6 +12350,10 @@
               "type": "integer",
               "minimum": 1,
               "maximum": 100
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of usage-pricing-rule, usage-pricing-rule-version, resource-usage-observation, resource-usage-settlement, resource-usage-settlement-version, resource-usage-receipt, resource-usage-allocation, resource-usage-settlement-evidence, as this row's `stored` lists. What is not given is not there."
             }
           },
           "required": [
@@ -12687,7 +12635,65 @@
             ]
           }
         ],
-        "kind": "ai-tool-descriptor"
+        "kind": "ai-tool-descriptor",
+        "stored": [
+          {
+            "kind": "usage-pricing-rule",
+            "operations": [
+              "records:read",
+              "records:list"
+            ]
+          },
+          {
+            "kind": "usage-pricing-rule-version",
+            "operations": [
+              "records:read",
+              "records:list"
+            ]
+          },
+          {
+            "kind": "resource-usage-observation",
+            "operations": [
+              "records:read",
+              "records:list"
+            ]
+          },
+          {
+            "kind": "resource-usage-settlement",
+            "operations": [
+              "records:read",
+              "records:list"
+            ]
+          },
+          {
+            "kind": "resource-usage-settlement-version",
+            "operations": [
+              "records:read",
+              "records:list"
+            ]
+          },
+          {
+            "kind": "resource-usage-receipt",
+            "operations": [
+              "records:read",
+              "records:list"
+            ]
+          },
+          {
+            "kind": "resource-usage-allocation",
+            "operations": [
+              "records:read",
+              "records:list"
+            ]
+          },
+          {
+            "kind": "resource-usage-settlement-evidence",
+            "operations": [
+              "records:read",
+              "records:list"
+            ]
+          }
+        ]
       }
     },
     {
@@ -13603,60 +13609,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "resource-usage-settlement",
-                "operations": [
-                  "records:read",
-                  "records:list"
-                ]
-              },
-              {
-                "kind": "resource-usage-settlement-version",
-                "operations": [
-                  "records:read",
-                  "records:list"
-                ]
-              },
-              {
-                "kind": "resource-usage-allocation",
-                "operations": [
-                  "records:read",
-                  "records:list"
-                ]
-              },
-              {
-                "kind": "usage-billing-agreement",
-                "operations": [
-                  "records:read",
-                  "records:list"
-                ]
-              },
-              {
-                "kind": "resource-usage-cash",
-                "operations": [
-                  "records:read",
-                  "records:list"
-                ]
-              },
-              {
-                "kind": "resource-usage-applied-source",
-                "operations": [
-                  "records:read",
-                  "records:list"
-                ]
-              },
-              {
-                "kind": "resource-usage-provider-report",
-                "operations": [
-                  "records:read",
-                  "records:list"
-                ]
-              }
-            ]
           }
         },
         "result_selector": "$.result",
@@ -13682,6 +13634,10 @@
             "report_id": {
               "type": "string",
               "minLength": 1
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of resource-usage-settlement, resource-usage-settlement-version, resource-usage-allocation, usage-billing-agreement, resource-usage-cash, resource-usage-applied-source, resource-usage-provider-report, as this row's `stored` lists. What is not given is not there."
             }
           },
           "required": [
@@ -14068,7 +14024,58 @@
             ]
           }
         ],
-        "kind": "ai-tool-descriptor"
+        "kind": "ai-tool-descriptor",
+        "stored": [
+          {
+            "kind": "resource-usage-settlement",
+            "operations": [
+              "records:read",
+              "records:list"
+            ]
+          },
+          {
+            "kind": "resource-usage-settlement-version",
+            "operations": [
+              "records:read",
+              "records:list"
+            ]
+          },
+          {
+            "kind": "resource-usage-allocation",
+            "operations": [
+              "records:read",
+              "records:list"
+            ]
+          },
+          {
+            "kind": "usage-billing-agreement",
+            "operations": [
+              "records:read",
+              "records:list"
+            ]
+          },
+          {
+            "kind": "resource-usage-cash",
+            "operations": [
+              "records:read",
+              "records:list"
+            ]
+          },
+          {
+            "kind": "resource-usage-applied-source",
+            "operations": [
+              "records:read",
+              "records:list"
+            ]
+          },
+          {
+            "kind": "resource-usage-provider-report",
+            "operations": [
+              "records:read",
+              "records:list"
+            ]
+          }
+        ]
       }
     },
     {
@@ -14897,63 +14904,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "resource-usage-settlement",
-                "operations": [
-                  "records:read",
-                  "records:list"
-                ]
-              },
-              {
-                "kind": "resource-usage-settlement-version",
-                "operations": [
-                  "records:read",
-                  "records:list"
-                ]
-              },
-              {
-                "kind": "resource-usage-allocation",
-                "operations": [
-                  "records:read",
-                  "records:list"
-                ]
-              },
-              {
-                "kind": "usage-billing-agreement",
-                "operations": [
-                  "records:read",
-                  "records:list"
-                ]
-              },
-              {
-                "kind": "resource-usage-cash",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "resource-usage-applied-source",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "resource-usage-provider-report",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              }
-            ]
           }
         },
         "result_selector": "$.result",
@@ -14979,6 +14929,10 @@
             "report_id": {
               "type": "string",
               "minLength": 1
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of resource-usage-settlement, resource-usage-settlement-version, resource-usage-allocation, usage-billing-agreement, resource-usage-cash, resource-usage-applied-source, resource-usage-provider-report, as this row's `stored` lists. What is not given is not there."
             }
           },
           "required": [
@@ -15023,6 +14977,10 @@
             },
             "payment_state": {
               "const": "not_proved_collected"
+            },
+            "keep": {
+              "type": "array",
+              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
             }
           }
         },
@@ -15389,7 +15347,61 @@
             ]
           }
         ],
-        "kind": "ai-tool-descriptor"
+        "kind": "ai-tool-descriptor",
+        "stored": [
+          {
+            "kind": "resource-usage-settlement",
+            "operations": [
+              "records:read",
+              "records:list"
+            ]
+          },
+          {
+            "kind": "resource-usage-settlement-version",
+            "operations": [
+              "records:read",
+              "records:list"
+            ]
+          },
+          {
+            "kind": "resource-usage-allocation",
+            "operations": [
+              "records:read",
+              "records:list"
+            ]
+          },
+          {
+            "kind": "usage-billing-agreement",
+            "operations": [
+              "records:read",
+              "records:list"
+            ]
+          },
+          {
+            "kind": "resource-usage-cash",
+            "operations": [
+              "records:read",
+              "records:list",
+              "records:write"
+            ]
+          },
+          {
+            "kind": "resource-usage-applied-source",
+            "operations": [
+              "records:read",
+              "records:list",
+              "records:write"
+            ]
+          },
+          {
+            "kind": "resource-usage-provider-report",
+            "operations": [
+              "records:read",
+              "records:list",
+              "records:write"
+            ]
+          }
+        ]
       }
     },
     {

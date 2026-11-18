@@ -1,6 +1,7 @@
 // A method is a saved view over the person's method rows, read a page at a time and answered for any number of its rows in
 // one call (method-rows/view.mjs, method-rows/answers.mjs). Every name, row and answer here is made up. The door is the
 // one the tool's row declares: a kind or an operation the row does not name is refused, as the engine refuses it.
+import { rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -16,7 +17,7 @@ const DECISION = 'source:c2FtcGxlOm1ldGhvZC0x';
 
 function granted(door, toolId) {
   const row = rows.find(each => each.id === toolId);
-  const rights = new Map(row.invoke.records.rights.map(item => [item.kind, new Set(item.operations)]));
+  const rights = new Map(rightsOf(row).map(item => [item.kind, new Set(item.operations)]));
   const need = (kind, operation) => { if (!rights.get(kind)?.has(operation)) throw new Error(`${toolId} is not granted ${operation} on ${kind}`); };
   return {
     read: async (type, id) => { need(type, 'records:read'); return door.read(type, id); },
@@ -252,9 +253,9 @@ test('the two rows declare exactly the kinds and operations their code uses, and
   for (const id of ['tool:read-a-method', 'tool:record-method-answers']) {
     const row = rows.find(each => each.id === id);
     assert.ok(row, `${id} has a row`);
-    assert.equal(row.invoke.records.rights.some(item => item.operations.includes('records:write')), id === 'tool:record-method-answers', `${id} writes only if it records`);
+    assert.equal(rightsOf(row).some(item => item.operations.includes('records:write')), id === 'tool:record-method-answers', `${id} writes only if it records`);
   }
-  const rights = Object.fromEntries(rows.find(each => each.id === 'tool:record-method-answers').invoke.records.rights.map(item => [item.kind, item.operations]));
+  const rights = Object.fromEntries(rightsOf(rows.find(each => each.id === 'tool:record-method-answers')).map(item => [item.kind, item.operations]));
   assert.deepEqual(rights['method-answer'], ['records:read', 'records:write']);
   assert.deepEqual(Object.keys(rights).filter(kind => rights[kind].includes('records:write')), ['method-answer']);
 });

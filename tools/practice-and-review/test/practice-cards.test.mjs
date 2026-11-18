@@ -1,4 +1,5 @@
 // tool:practice against the stand-in records door. Every card, deck and grade here is made up.
+import { rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -12,7 +13,7 @@ const policy = { initial_ease: 2.5, min_ease: 1.3, first_interval_days: 1, secon
 const day = n => new Date(Date.UTC(2026, 0, 1 + n, 9));
 
 async function withDoor(records, run) {
-  const door = await startFakeDoor({ rights: row.invoke.records.rights, mostWrites: row.invoke.records.most_writes, records });
+  const door = await startFakeDoor({ rights: rightsOf(row), mostWrites: row.invoke.records?.most_writes, records });
   try { await run(openRecordsDoor({ descriptor: door.descriptor }), door); } finally { await door.close(); }
 }
 const ask = (door, input, n = 0) => practice({ policy, ...input }, { door, now: () => day(n) });
@@ -93,8 +94,8 @@ test('a request that is not plainly shaped is refused', async () => {
 
 test('the row packs what the tool reads and holds only the rights of its three record types', () => {
   const { invoke } = row;
-  assert.deepEqual(invoke.records.rights.map(item => item.kind).sort(), Object.values(settings.types).sort());
-  assert.deepEqual(invoke.records.rights.find(item => item.kind === settings.types.policy).operations, ['records:read']);
+  assert.deepEqual(rightsOf(row).map(item => item.kind).sort(), Object.values(settings.types).sort());
+  assert.deepEqual(rightsOf(row).find(item => item.kind === settings.types.policy).operations, ['records:read']);
   const packs = invoke.files.package_files.map(item => item.package ?? item.module);
   for (const name of ['practice-and-review', 'content-identity', 'records-door', '@noble/hashes']) assert.ok(packs.includes(name), name);
 });

@@ -257,6 +257,10 @@
       "browser": {
        "type": "object",
        "description": "The asking browser's own facts: user_agent, origin, visitor"
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of record:configuration, list (the row list:saved-configurations), list (ids starting list:), as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -270,7 +274,11 @@
       "status": {
        "type": "integer"
       },
-      "body": {}
+      "body": {},
+      "keep": {
+        "type": "array",
+        "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
+      }
      }
     },
     "invoke": {
@@ -389,33 +397,6 @@
       "fill": {
        "from": "input"
       }
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "record:configuration",
-        "operations": [
-         "records:list",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "list",
-        "id": "list:saved-configurations",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       },
-       {
-        "kind": "list",
-        "prefix": "list:",
-        "operations": [
-         "records:read"
-        ]
-       }
-      ]
      }
     },
     "provenance": {
@@ -459,7 +440,31 @@
       ]
      }
     ],
-    "result_selector": "$.result"
+    "result_selector": "$.result",
+    "stored": [
+      {
+        "kind": "record:configuration",
+        "operations": [
+          "records:list",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "list",
+        "id": "list:saved-configurations",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      },
+      {
+        "kind": "list",
+        "prefix": "list:",
+        "operations": [
+          "records:read"
+        ]
+      }
+    ]
    }
   }
  ]

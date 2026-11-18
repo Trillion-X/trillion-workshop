@@ -212,7 +212,13 @@
         "job": "Create an imported account history receipt or verify its immutable archive references by reading the files through this run\u2019s records door.",
         "description": "Create an imported account history receipt or verify its immutable archive references by reading the files through this run\u2019s records door. All opinion settings are caller rows or explicitly selected content-setting records. No old Worker store is imported.",
         "input_schema": {
-          "type": "object"
+          "type": "object",
+          "properties": {
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: files: {name: text or {base64}} under /, as this row's `stored` lists. What is not given is not there."
+            }
+          }
         },
         "output_schema": {
           "type": "object"
@@ -273,18 +279,6 @@
                 "at": "/opt/node_modules/@noble/hashes"
               }
             ]
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "files": "/",
-                "operations": [
-                  "find_file",
-                  "read_file"
-                ]
-              }
-            ]
           }
         },
         "result_selector": "$.result",
@@ -314,6 +308,15 @@
                 "manifests": []
               }
             }
+          }
+        ],
+        "stored": [
+          {
+            "files": "/",
+            "operations": [
+              "find_file",
+              "read_file"
+            ]
           }
         ]
       }

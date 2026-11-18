@@ -2156,7 +2156,7 @@
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
-     "properties": {}
+     "properties": { "stored": { "type": "object", "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of voice-print, face-print, as this row's `stored` lists. What is not given is not there." } }
     },
     "output_schema": {
      "type": "object",
@@ -2207,23 +2207,6 @@
       "fill": {
        "from": "input"
       }
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "voice-print",
-        "operations": [
-         "records:list"
-        ]
-       },
-       {
-        "kind": "face-print",
-        "operations": [
-         "records:list"
-        ]
-       }
-      ]
      },
      "files": {
       "package_files": [
@@ -2295,7 +2278,21 @@
     "maker": "maker:know-who-is-in-this",
     "provenance": {
      "source": "know-who-is-in-this/read-data/people.mjs, moved from the product repo's computer/know-who.py people"
-    }
+    },
+    "stored": [
+      {
+        "kind": "voice-print",
+        "operations": [
+          "records:list"
+        ]
+      },
+      {
+        "kind": "face-print",
+        "operations": [
+          "records:list"
+        ]
+      }
+    ]
    }
   },
   {
@@ -2999,6 +2996,10 @@
       "include_superseded": {
        "type": "boolean",
        "description": "Also the rows a later keep replaced"
+      },
+      "stored": {
+        "type": "object",
+        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of record:appearance, as this row's `stored` lists. What is not given is not there."
       }
      }
     },
@@ -3121,26 +3122,23 @@
         "at": "/opt/browse-and-upload-my-files"
        }
       ]
-     },
-     "records": {
-      "fd": 3,
-      "rights": [
-       {
-        "kind": "record:appearance",
-        "operations": [
-         "records:list",
-         "records:read",
-         "records:search"
-        ]
-       }
-      ]
      }
     },
     "result_selector": "$.result",
     "verify": [{"kind": "sample-run", "input": {"person": "sample-one"}, "records": [{"id": "record:appearance:sample-row", "type": "record:appearance", "value": {"person": "sample-one", "subject": "Ada Example", "status": "named", "how": "voice", "recording": "1f:abababababababababababababababababababababababababababababababab", "recording_name": "sample-call.wav", "start": 0, "end": 5}}]}],
     "provenance": {
      "source": "know-who-is-in-this/do-work/where-someone-appeared.mjs"
-    }
+    },
+    "stored": [
+      {
+        "kind": "record:appearance",
+        "operations": [
+          "records:list",
+          "records:read",
+          "records:search"
+        ]
+      }
+    ]
    }
   }
  ]

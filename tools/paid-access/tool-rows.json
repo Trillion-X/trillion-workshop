@@ -913,6 +913,10 @@
                   "grant_ref": { "type": "string", "description": "The grant's reference, as it was given or as \"grant:\" and the access ref" }
                 }
               }
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of access-grant, as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -929,6 +933,10 @@
                 "required": ["index", "reason"],
                 "properties": { "index": { "type": "integer", "minimum": 0 }, "reason": { "type": "string" } }
               }
+            },
+            "keep": {
+              "type": "array",
+              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
             }
           }
         },
@@ -965,11 +973,7 @@
           "internet": false,
           "stdout": "json",
           "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/paid-access/do-work/paid-access.mjs", "grantPaidAccessToPeople"],
-          "stdin": { "fill": { "from": "input" } },
-          "records": {
-            "fd": 3,
-            "rights": [{ "kind": "access-grant", "operations": ["records:read", "records:write"] }]
-          }
+          "stdin": { "fill": { "from": "input" } }
         },
         "needs": { "expected_seconds": 10, "network_egress": false },
         "licence_class": "licence:maker-own",
@@ -983,6 +987,15 @@
             "input": { "grants": [{ "subject": "member@example.com", "access_ref": "access:sample-course" }] },
             "output_selector": "$.written",
             "contains": "1"
+          }
+        ],
+        "stored": [
+          {
+            "kind": "access-grant",
+            "operations": [
+              "records:read",
+              "records:write"
+            ]
           }
         ]
       }

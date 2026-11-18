@@ -4303,6 +4303,10 @@
             "expected_set_at": {
               "type": "string",
               "description": "The set_at last read; the change is refused when it was saved since"
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of snippet, as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -4314,6 +4318,10 @@
           "properties": {
             "snippet": {
               "type": "object"
+            },
+            "keep": {
+              "type": "array",
+              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
             }
           }
         },
@@ -4388,19 +4396,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "snippet",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              }
-            ]
           }
         },
         "provenance": {
@@ -4417,7 +4412,17 @@
             "contains": "Thanks"
           }
         ],
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "stored": [
+          {
+            "kind": "snippet",
+            "operations": [
+              "records:read",
+              "records:list",
+              "records:write"
+            ]
+          }
+        ]
       }
     },
     {
@@ -4660,6 +4665,10 @@
               "type": "integer",
               "minimum": 1,
               "maximum": 100
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of snippet, as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -4751,18 +4760,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "snippet",
-                "operations": [
-                  "records:read",
-                  "records:list"
-                ]
-              }
-            ]
           }
         },
         "provenance": {
@@ -4794,7 +4791,16 @@
             ]
           }
         ],
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "stored": [
+          {
+            "kind": "snippet",
+            "operations": [
+              "records:read",
+              "records:list"
+            ]
+          }
+        ]
       }
     },
     {
@@ -5417,6 +5423,10 @@
             "snippet_id": {
               "type": "string",
               "description": "A snippet_id from tool:find-snippets"
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of snippet, as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -5435,6 +5445,10 @@
             },
             "said": {
               "type": "string"
+            },
+            "keep": {
+              "type": "array",
+              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
             }
           }
         },
@@ -5509,19 +5523,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "snippet",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              }
-            ]
           }
         },
         "provenance": {
@@ -5553,7 +5554,17 @@
             ]
           }
         ],
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "stored": [
+          {
+            "kind": "snippet",
+            "operations": [
+              "records:read",
+              "records:list",
+              "records:write"
+            ]
+          }
+        ]
       }
     },
     {
@@ -5816,6 +5827,10 @@
                 }
               },
               "description": "The conversation's newest message now: its id and time"
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of thread-summary, as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -5831,6 +5846,10 @@
             },
             "said": {
               "type": "string"
+            },
+            "keep": {
+              "type": "array",
+              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
             }
           }
         },
@@ -5905,19 +5924,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "thread-summary",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              }
-            ]
           }
         },
         "provenance": {
@@ -5939,7 +5945,17 @@
             "contains": "message:2"
           }
         ],
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "stored": [
+          {
+            "kind": "thread-summary",
+            "operations": [
+              "records:read",
+              "records:list",
+              "records:write"
+            ]
+          }
+        ]
       }
     },
     {
@@ -6570,6 +6586,10 @@
             "app": {
               "type": "string",
               "description": "The app the conversation is in, like Email (optional)"
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of thread-summary, as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -6585,6 +6605,10 @@
             },
             "said": {
               "type": "string"
+            },
+            "keep": {
+              "type": "array",
+              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
             }
           }
         },
@@ -6659,19 +6683,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "thread-summary",
-                "operations": [
-                  "records:read",
-                  "records:list",
-                  "records:write"
-                ]
-              }
-            ]
           }
         },
         "provenance": {
@@ -6703,7 +6714,17 @@
             ]
           }
         ],
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "stored": [
+          {
+            "kind": "thread-summary",
+            "operations": [
+              "records:read",
+              "records:list",
+              "records:write"
+            ]
+          }
+        ]
       }
     },
     {

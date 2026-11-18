@@ -2,6 +2,7 @@
 // Ported from the old app's run-decision, one-pass and outcome tests where they do not depend on the old store: one source
 // opens one decision, a decision is made when every row of its method has an answer, a decision needs its fields, a known
 // option and its own evidence, a new decision needs a failed result first, and the records keep the old store's layout.
+import { rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -157,7 +158,7 @@ test('the tool rows reach only the decision records, the person\'s pursuits and 
   for (const id of tools) {
     const row = rows.find(each => each.id === id);
     assert.ok(row, `${id} has a row`);
-    const rights = row.invoke.records.rights;
+    const rights = rightsOf(row);
     for (const right of rights) assert.ok([...decisionKinds, 'pursuit', ...methodKinds].includes(right.kind), `${id} reaches ${right.kind}`);
     // Ending a large old-layout decision goes through its record layout, so every decision tool reaches each laid-apart kind.
     for (const kind of decisionKinds.filter(each => each !== 'decision-call')) assert.ok(rights.some(right => right.kind === kind), `${id} reaches ${kind}, where a decision keeps its parts`);
@@ -204,7 +205,7 @@ test('a decided decision is shared only after the plain pass and a re-identifica
 
 test('sharing reads only the decision and the person\'s never-publish rows, and packs the tools it imports', () => {
   const row = rows.find(each => each.id === 'tool:share-a-decision');
-  const rights = row.invoke.records.rights;
+  const rights = rightsOf(row);
   for (const right of rights) assert.ok([...decisionKinds, `record:${settings.share.never_publish_row}`].includes(right.kind), right.kind);
   assert.deepEqual(rights.find(right => right.kind === `record:${settings.share.never_publish_row}`).operations, ['records:list']);
   const packed = row.invoke.files.package_files.map(item => item.package ?? item.module);
@@ -859,10 +860,10 @@ test('a write too large for one message, made from an older read of the case, la
 
 test('every decision tool declares the revision record beside its root, with the root\'s operations minus listing', () => {
   const revision = settings.records.record_revision.type;
-  const declaring = rows.filter(row => (row.invoke?.records?.rights ?? []).some(item => item.kind === 'decision'));
+  const declaring = rows.filter(row => rightsOf(row).some(item => item.kind === 'decision'));
   assert.ok(declaring.length >= 12, `the decision tools are declared: ${declaring.length}`);
   for (const row of declaring) {
-    const rights = row.invoke.records.rights;
+    const rights = rightsOf(row);
     const root = rights.find(item => item.kind === 'decision');
     const record = rights.find(item => item.kind === revision);
     assert.ok(record, `${row.id} declares ${revision}, or its read of a case is refused as not granted`);
@@ -942,10 +943,10 @@ test('a write refused before its root does not move the revision: a writer that 
 test('every decision tool row that writes the decision declares the kinds every write puts: the root, its revision, parts and refs', () => {
   // A write always adds its parts and refs record and moves the root and revision; a row that writes must declare each one.
   const everyWrite = ['decision', settings.records.record_revision.type, settings.records.part.type, settings.records.refs];
-  const writers = rows.filter(row => (row.invoke?.records?.rights ?? []).some(right => right.kind === settings.records.record_revision.type && right.operations.includes('records:write')));
+  const writers = rows.filter(row => rightsOf(row).some(right => right.kind === settings.records.record_revision.type && right.operations.includes('records:write')));
   assert.ok(writers.length >= 1, 'some decision tools write the decision');
   for (const row of writers) {
-    const declared = new Set(row.invoke.records.rights.map(right => right.kind));
+    const declared = new Set(rightsOf(row).map(right => right.kind));
     const missing = everyWrite.filter(kind => !declared.has(kind));
     assert.deepEqual(missing, [], `${row.id} does not declare: ${missing.join(', ')}`);
   }

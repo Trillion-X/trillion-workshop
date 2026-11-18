@@ -2,7 +2,7 @@
 // The setting and the people are made up: a bakery that lets its owner choose how orders are announced.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
+import { answerOf, rowOf, rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 
 const choiceRow = rowOf(rows, 'tool:my-notification-choice');
@@ -188,8 +188,8 @@ test('events are read for the audience they name, newest occurrence first, with 
 });
 
 test('each row asks the door for no more than its job needs', () => {
-  assert.deepEqual(choiceRow.invoke.records.rights, [{ kind: 'notification-setting', operations: ['records:read'] }, { kind: 'notification-choice', operations: ['records:read'] }]);
-  assert.deepEqual(chooseRow.invoke.records.rights, [{ kind: 'notification-setting', operations: ['records:read'] }, { kind: 'notification-choice', operations: ['records:read', 'records:write'] }]);
-  assert.deepEqual(recordRow.invoke.records.rights, [{ kind: 'notification-event', operations: ['records:read', 'records:write'] }, { kind: 'notification-event-rules', operations: ['records:read'] }]);
-  assert.deepEqual(eventsRow.invoke.records.rights, [{ kind: 'notification-event', operations: ['records:list'] }]);
+  assert.deepEqual(rightsOf(choiceRow), [{ kind: 'notification-setting', operations: ['records:read'] }, { kind: 'notification-choice', operations: ['records:read'] }]);
+  assert.deepEqual(rightsOf(chooseRow), [{ kind: 'notification-setting', operations: ['records:read'] }, { kind: 'notification-choice', operations: ['records:read', 'records:write'] }]);
+  assert.deepEqual(rightsOf(recordRow), [{ kind: 'notification-event', operations: ['records:read', 'records:write'] }, { kind: 'notification-event-rules', operations: ['records:read'] }]);
+  assert.deepEqual(rightsOf(eventsRow), [{ kind: 'notification-event', operations: ['records:list'] }]);
 });

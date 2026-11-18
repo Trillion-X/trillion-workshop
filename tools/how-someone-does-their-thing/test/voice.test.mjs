@@ -5,7 +5,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
+import { answerOf, rowOf, rightsOf } from '../../../test-helpers/run-a-row.mjs';
 
 const rows = JSON.parse(await readFile(new URL('../tool-rows.json', import.meta.url), 'utf8'));
 const run = async (id, input, records = [], row = rowOf(rows, `tool:${id}`)) => {
@@ -90,14 +90,8 @@ test('a word change counts once per draft, and only one in enough different draf
   assert.match((await answerOf(row, {}, {})).error, /Send the edits to count/);
 });
 
-test('a run reaches only the record kinds its row names', async () => {
-  const row = rowOf(rows, 'tool:read-voice');
-  const ungranted = { ...row, invoke: { ...row.invoke, records: { fd: 3, rights: [] } } };
-  assert.match((await run(null, {}, [], ungranted)).error, /may not reach those records/);
-});
-
 test('each voice row\'s sample gives the text it promises against its sample account', async () => {
-  for (const { payload } of rows.records.filter(({ payload }) => payload.invoke.records)) {
+  for (const { payload } of rows.records.filter(({ payload }) => rightsOf(payload).length)) {
     const [sample] = payload.verify;
     const ran = await answerOf(payload, sample.input, { records: sample.records ?? [] });
     const value = sample.output_selector === '$' ? ran : sample.output_selector.replace('$.', '').split('.').reduce((at, key) => at?.[key], ran.result);

@@ -1,6 +1,7 @@
 // tools/workflows: the source-copy writer puts a repository's files, commit dates and a stamp into the person's own
 // files at /source-copies/<root>/, where the citation resolver reads them. The files door here is a made-up in-memory
 // one; the folder the writer may write is derived from the resolver DATA (citation-resolvers.json), not listed again.
+import { rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
@@ -55,10 +56,10 @@ test('the tool row writes only where the resolver reads', () => {
   const row = ROWS.find(item => item.id === 'tool:write-a-source-copy');
   const folders = RESOLVERS.resolvers.flatMap(entry => Object.values(entry.roots ?? {})).flatMap(root => root.sources ?? []).filter(source => source.files).map(source => source.files);
   assert.ok(folders.length > 0);
-  const right = row.invoke.records.rights.find(item => typeof item.files === 'string');
+  const right = rightsOf(row).find(item => typeof item.files === 'string');
   for (const folder of folders) assert.ok(`${folder}/`.startsWith(right.files), `${folder} is under the right ${right.files}`);
-  assert.deepEqual(row.invoke.records.rights.filter(item => item.kind), [], 'no records kinds');
-  assert.ok(row.invoke.records.rights.every(item => item.operations.every(op => /^(find_file|read_file|write_file_(start|piece|finish))$/.test(op))));
+  assert.deepEqual(rightsOf(row).filter(item => item.kind), [], 'no records kinds');
+  assert.ok(rightsOf(row).every(item => item.operations.every(op => /^(find_file|read_file|write_file_(start|piece|finish))$/.test(op))));
 });
 
 test('a written copy is read by the resolver: a file line and a commit', async () => {

@@ -3,7 +3,7 @@
 // group read back, no-op, a loop across two stored groups), with a tree import and the read path added.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
+import { answerOf, rowOf, rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 import { groupRecordId } from '../read-data/group-records.mjs';
 
@@ -81,6 +81,6 @@ test('reading follows nested groups and names records that are not their own gro
 });
 
 test('the rows read and write only group records, and the read row only reads', () => {
-  assert.deepEqual(read.invoke.records.rights, [{ kind: 'group', operations: ['records:read'] }]);
-  assert.deepEqual(change.invoke.records.rights, [{ kind: 'group', operations: ['records:read', 'records:write'] }]);
+  assert.deepEqual(rightsOf(read), [{ kind: 'group', operations: ['records:read'] }]);
+  assert.deepEqual(rightsOf(change), [{ kind: 'group', operations: ['records:read', 'records:write'] }]);
 });

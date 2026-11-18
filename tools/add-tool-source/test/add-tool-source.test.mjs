@@ -3,6 +3,7 @@
 // The tool that adds a source of tools from one address, over a stand-in records door (tools/records-door/test/fake-door.mjs) that
 // holds exactly the rights the row declares and a stand-in web whose servers answer as an MCP server, as a git repository, as both
 // or as neither. Every address, host, commit and label is made up.
+import { rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import test from 'node:test';
 import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
@@ -64,7 +65,7 @@ const REDIRECT = 'https://signin.example.test/connect/tool-server/callback';
 const SETTING = { id: 'record:setting:tool-server-sign-in', type: 'record:setting', value: { redirect_uri: REDIRECT } };
 
 async function open(records = [], toolRuns = {}) {
-  const door = await startFakeDoor({ rights: row.invoke.records.rights, records, runs: row.invoke.records.runs, toolRuns });
+  const door = await startFakeDoor({ rights: rightsOf(row), records, runs: row.invoke.records.runs, toolRuns });
   return { door, records_door: openRecordsDoor({ descriptor: door.descriptor }) };
 }
 
@@ -157,7 +158,7 @@ test('the source is kept as one request waiting for the person, once, and the ro
     assert.match(added.said, /Nothing is added until you approve it/);
     await assert.rejects(add(records_door, { address: '/tmp/other', label: 'made-up' }), /already waiting or added/);
     assert.equal(door.kept.size, 1);
-    assert.deepEqual(row.invoke.records.rights, [{ kind: 'record:tool-source-request', prefix: 'record:tool-source-request:', operations: ['records:list', 'records:write'] }, { kind: 'tool-server-sign-in-pending', operations: ['records:read', 'records:list', 'records:write'] }, { kind: 'record:setting', id: 'record:setting:tool-server-sign-in', operations: ['records:read'] }]);
+    assert.deepEqual(rightsOf(row), [{ kind: 'record:tool-source-request', prefix: 'record:tool-source-request:', operations: ['records:list', 'records:write'] }, { kind: 'tool-server-sign-in-pending', operations: ['records:read', 'records:list', 'records:write'] }, { kind: 'record:setting', id: 'record:setting:tool-server-sign-in', operations: ['records:read'] }]);
     assert.equal(row.invoke.internet, true);
   } finally { await door.close(); }
 });

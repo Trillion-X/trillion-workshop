@@ -3,7 +3,7 @@
 // conditional on the record as read. Every record here is made up.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
+import { answerOf, rowOf, rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 
 const reserve = rowOf(rows, 'tool:reserve-a-spend-within-budget');
@@ -25,7 +25,7 @@ const wroteNothingItself = answer => assert.ok(answer.calls.every(call => !Strin
 
 test('no row declares a records write: each tool reads the person\'s records and keeps nothing', () => {
   for (const row of rows.records.map(item => item.payload)) {
-    for (const right of row.invoke.records.rights) assert.ok(right.operations.every(operation => operation !== 'records:write'), `${row.id} ${right.kind}`);
+    for (const right of rightsOf(row)) assert.ok(right.operations.every(operation => operation !== 'records:write'), `${row.id} ${right.kind}`);
   }
 });
 
@@ -119,7 +119,7 @@ test('the shipped x402 rail is listed disabled; a person\'s rail that pays aroun
 test('no row may set a limit or turn a budget on, and none reaches the internet', () => {
   for (const row of rows.records.map(item => item.payload)) {
     assert.equal(row.invoke.internet, false, row.id);
-    for (const right of row.invoke.records.rights) {
+    for (const right of rightsOf(row)) {
       assert.ok(!right.operations.includes('records:write'), `${row.id} holds no write right`);
     }
   }

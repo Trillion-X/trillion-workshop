@@ -614,7 +614,7 @@
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
-     "properties": {}
+     "properties": { "stored": { "type": "object", "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of record:waiting-sources, record:waiting-on-you, ai-job, post, setting (the row setting:needs_you_hold_rules), ai-job (ids starting ai-job:hold-), as this row's `stored` lists. What is not given is not there." } }
     },
     "output_schema": {
      "type": "object",
@@ -652,6 +652,10 @@
       },
       "waiting_sources": {
        "type": "object"
+      },
+      "keep": {
+        "type": "array",
+        "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
       }
      }
     },
@@ -807,47 +811,6 @@
      },
      "records": {
       "fd": 3,
-      "rights": [
-       {
-        "kind": "record:waiting-sources",
-        "operations": [
-         "records:list"
-        ]
-       },
-       {
-        "kind": "record:waiting-on-you",
-        "operations": [
-         "records:list"
-        ]
-       },
-       {
-        "kind": "ai-job",
-        "operations": [
-         "records:list"
-        ]
-       },
-       {
-        "kind": "post",
-        "operations": [
-         "records:list"
-        ]
-       },
-       {
-        "kind": "setting",
-        "id": "setting:needs_you_hold_rules",
-        "operations": [
-         "records:read"
-        ]
-       },
-       {
-        "kind": "ai-job",
-        "prefix": "ai-job:hold-",
-        "operations": [
-         "records:read",
-         "records:write"
-        ]
-       }
-      ],
       "runs": [
        "tool:my-notification-devices",
        "tool:see-my-decisions"
@@ -972,6 +935,47 @@
       "output_selector": "$.sections.1.cards.0.id",
       "contains": "record:waiting-on-you:sample-signed-form"
      }
+    ],
+    "stored": [
+      {
+        "kind": "record:waiting-sources",
+        "operations": [
+          "records:list"
+        ]
+      },
+      {
+        "kind": "record:waiting-on-you",
+        "operations": [
+          "records:list"
+        ]
+      },
+      {
+        "kind": "ai-job",
+        "operations": [
+          "records:list"
+        ]
+      },
+      {
+        "kind": "post",
+        "operations": [
+          "records:list"
+        ]
+      },
+      {
+        "kind": "setting",
+        "id": "setting:needs_you_hold_rules",
+        "operations": [
+          "records:read"
+        ]
+      },
+      {
+        "kind": "ai-job",
+        "prefix": "ai-job:hold-",
+        "operations": [
+          "records:read",
+          "records:write"
+        ]
+      }
     ]
    }
   },

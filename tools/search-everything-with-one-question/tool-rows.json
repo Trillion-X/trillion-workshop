@@ -292,6 +292,10 @@
                   }
                 }
               }
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of *, semantic-index-descriptor; files: {name: text or {base64}} under /, as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -408,27 +412,6 @@
           },
           "records": {
             "fd": 3,
-            "rights": [
-              {
-                "kind": "*",
-                "operations": [
-                  "records:search"
-                ]
-              },
-              {
-                "kind": "semantic-index-descriptor",
-                "operations": [
-                  "records:list"
-                ]
-              },
-              {
-                "files": "/",
-                "operations": [
-                  "search",
-                  "read_file"
-                ]
-              }
-            ],
             "runs": [
               "tool:words-as-picture-vector"
             ]
@@ -494,6 +477,27 @@
             },
             "output_selector": "$.results[0].found_in[0]",
             "contains": "written"
+          }
+        ],
+        "stored": [
+          {
+            "kind": "*",
+            "operations": [
+              "records:search"
+            ]
+          },
+          {
+            "kind": "semantic-index-descriptor",
+            "operations": [
+              "records:list"
+            ]
+          },
+          {
+            "files": "/",
+            "operations": [
+              "search",
+              "read_file"
+            ]
           }
         ]
       }
@@ -724,6 +728,10 @@
               "minimum": 1,
               "maximum": 200,
               "description": "The most results (60 when left out)"
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of *; files: {name: text or {base64}} under /, as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -837,23 +845,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "*",
-                "operations": [
-                  "records:search"
-                ]
-              },
-              {
-                "files": "/",
-                "operations": [
-                  "search"
-                ]
-              }
-            ]
           }
         },
         "needs": {
@@ -915,6 +906,20 @@
             },
             "output_selector": "$.results[0].found_in[0]",
             "contains": "written"
+          }
+        ],
+        "stored": [
+          {
+            "kind": "*",
+            "operations": [
+              "records:search"
+            ]
+          },
+          {
+            "files": "/",
+            "operations": [
+              "search"
+            ]
           }
         ]
       }
@@ -1151,6 +1156,10 @@
               "minimum": 1,
               "maximum": 200,
               "description": "The most results (60 when left out)"
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of the kind the request names, as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -1264,22 +1273,6 @@
             "fill": {
               "from": "input"
             }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": {
-                  "fill": {
-                    "from": "input",
-                    "field": "type"
-                  }
-                },
-                "operations": [
-                  "records:search"
-                ]
-              }
-            ]
           }
         },
         "needs": {
@@ -1319,6 +1312,19 @@
                   "body": "Plant beans"
                 }
               }
+            ]
+          }
+        ],
+        "stored": [
+          {
+            "kind": {
+              "fill": {
+                "from": "input",
+                "field": "type"
+              }
+            },
+            "operations": [
+              "records:search"
             ]
           }
         ]
@@ -1558,6 +1564,10 @@
             "body": {},
             "browser": {
               "type": "object"
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of *, semantic-index-descriptor; files: {name: text or {base64}} under /, as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -1650,27 +1660,6 @@
           },
           "records": {
             "fd": 3,
-            "rights": [
-              {
-                "kind": "*",
-                "operations": [
-                  "records:search"
-                ]
-              },
-              {
-                "kind": "semantic-index-descriptor",
-                "operations": [
-                  "records:list"
-                ]
-              },
-              {
-                "files": "/",
-                "operations": [
-                  "search",
-                  "read_file"
-                ]
-              }
-            ],
             "runs": [
               "tool:words-as-picture-vector"
             ]
@@ -1739,6 +1728,27 @@
             ],
             "output_selector": "$.body.results[0].found_in[0]",
             "contains": "written"
+          }
+        ],
+        "stored": [
+          {
+            "kind": "*",
+            "operations": [
+              "records:search"
+            ]
+          },
+          {
+            "kind": "semantic-index-descriptor",
+            "operations": [
+              "records:list"
+            ]
+          },
+          {
+            "files": "/",
+            "operations": [
+              "search",
+              "read_file"
+            ]
           }
         ]
       }

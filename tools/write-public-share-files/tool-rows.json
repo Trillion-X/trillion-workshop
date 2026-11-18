@@ -224,7 +224,11 @@
           "additionalProperties": false,
           "properties": {
             "origin": { "type": "string", "format": "uri", "description": "The https address the public server answers on, with no path, like https://example.com. Every address in the files is under <origin>/share/." },
-            "row_kind": { "type": "string", "description": "The record kind of the shared Lists' rows (record:<the List's row_type>), the one row kind this run is granted to list. A shared List whose rows are another kind is left out with its reason and has no files in this folder; a person who shares Lists of several row kinds gives each kind its own folder." }
+            "row_kind": { "type": "string", "description": "The record kind of the shared Lists' rows (record:<the List's row_type>), the one row kind this run is granted to list. A shared List whose rows are another kind is left out with its reason and has no files in this folder; a person who shares Lists of several row kinds gives each kind its own folder." },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of sharing, list, the kind the request names; files: {name: text or {base64}} under /, as this row's `stored` lists. What is not given is not there."
+            }
           }
         },
         "output_schema": {
@@ -255,15 +259,6 @@
           "stdin": {
             "input": { "fill": { "from": "input" } },
             "folder": { "fill": { "from": "task", "field": "grants.change-a-folder.folder" } }
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              { "kind": "sharing", "operations": ["records:list", "records:read"] },
-              { "kind": "list", "operations": ["records:list", "records:read"] },
-              { "kind": { "fill": { "from": "input", "field": "row_kind" } }, "operations": ["records:list"] },
-              { "files": "/", "operations": ["read_file"] }
-            ]
           },
           "files": {
             "package_files": [
@@ -411,7 +406,40 @@
             }
           ],
           "_what_moved": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it."
-        }
+        },
+        "stored": [
+          {
+            "kind": "sharing",
+            "operations": [
+              "records:list",
+              "records:read"
+            ]
+          },
+          {
+            "kind": "list",
+            "operations": [
+              "records:list",
+              "records:read"
+            ]
+          },
+          {
+            "kind": {
+              "fill": {
+                "from": "input",
+                "field": "row_kind"
+              }
+            },
+            "operations": [
+              "records:list"
+            ]
+          },
+          {
+            "files": "/",
+            "operations": [
+              "read_file"
+            ]
+          }
+        ]
       }
     }
   ]

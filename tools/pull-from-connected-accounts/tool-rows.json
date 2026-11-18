@@ -5226,6 +5226,10 @@
               "type": "integer",
               "minimum": 1,
               "maximum": 500
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of account-snapshot-part (ids starting account-snapshot:), as this row's `stored` lists. What is not given is not there."
             }
           }
         },
@@ -5364,18 +5368,6 @@
                 "at": "/opt/browse-and-upload-my-files"
               }
             ]
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "account-snapshot-part",
-                "prefix": "account-snapshot:",
-                "operations": [
-                  "records:list"
-                ]
-              }
-            ]
           }
         },
         "result_selector": "$.result",
@@ -5431,6 +5423,15 @@
                   }
                 }
               }
+            ]
+          }
+        ],
+        "stored": [
+          {
+            "kind": "account-snapshot-part",
+            "prefix": "account-snapshot:",
+            "operations": [
+              "records:list"
             ]
           }
         ]

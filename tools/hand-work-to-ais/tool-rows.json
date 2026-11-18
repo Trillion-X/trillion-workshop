@@ -216,7 +216,11 @@
           "additionalProperties": false,
           "properties": {
             "can": { "type": "array", "items": { "type": "string", "minLength": 1 }, "description": "Words the AI must be able to do, such as [\"code\"]" },
-            "live_only": { "type": "boolean", "description": "Only AIs seen recently enough to count as live" }
+            "live_only": { "type": "boolean", "description": "Only AIs seen recently enough to count as live" },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of ai, ai-job, as this row's `stored` lists. What is not given is not there."
+            }
           }
         },
         "output_schema": {
@@ -316,13 +320,6 @@
                 ],
                 "at": "/opt/browse-and-upload-my-files"
               }
-            ]
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              { "kind": "ai", "operations": ["records:list"] },
-              { "kind": "ai-job", "operations": ["records:list"] }
             ]
           }
         },
@@ -454,10 +451,24 @@
             "agent_card": "agent-card"
           }
         },
-    "verify": [
+        "verify": [
      {"kind":"sample-run","input":{"can":["code"]},"records":[{"id":"ai:sample-sender","type":"ai","value":{"label":"Sample sample-sender","can":["code"],"order":1,"live":{"seen_at":"2026-11-03T00:00:00.000Z","minutes":10}}},{"id":"ai:sample-taker","type":"ai","value":{"label":"Sample sample-taker","can":["code"],"order":2,"live":{"seen_at":"2026-11-03T00:00:00.000Z","minutes":10}}},{"id":"ai-job:sample-1","type":"ai-job","value":{"kind":"ai-job","status":"taken","job":"Write a made-up sample report","to":null,"from":"ai:sample-sender","priority":5,"sent_at":"2026-11-03T00:00:00.000Z","taker":"ai:sample-taker","taken_at":"2026-11-03T00:05:00.000Z"}}]}
-    ]
-   }
+    ],
+        "stored": [
+          {
+            "kind": "ai",
+            "operations": [
+              "records:list"
+            ]
+          },
+          {
+            "kind": "ai-job",
+            "operations": [
+              "records:list"
+            ]
+          }
+        ]
+      }
     },
     {
       "payload": {
@@ -720,7 +731,11 @@
             "priority": { "type": "integer", "minimum": 0, "maximum": 9 },
             "outcome": { "type": "string", "minLength": 1, "description": "What done looks like" },
             "label": { "type": "string", "minLength": 1, "description": "A short name for the job" },
-            "key": { "type": "string", "pattern": "^[A-Za-z0-9._:-]+$", "description": "The job's key; the same key sends it once" }
+            "key": { "type": "string", "pattern": "^[A-Za-z0-9._:-]+$", "description": "The job's key; the same key sends it once" },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of ai, ai-job, as this row's `stored` lists. What is not given is not there."
+            }
           }
         },
         "output_schema": {
@@ -729,7 +744,11 @@
           "properties": {
             "job_id": { "type": "string" },
             "status": { "type": "string", "enum": ["written", "already-there"] },
-            "job": { "type": ["object", "null"] }
+            "job": { "type": ["object", "null"] },
+            "keep": {
+              "type": "array",
+              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
+            }
           }
         },
         "invoke": {
@@ -811,14 +830,6 @@
                 ],
                 "at": "/opt/browse-and-upload-my-files"
               }
-            ]
-          },
-          "records": {
-            "fd": 3,
-            "most_writes": 1,
-            "rights": [
-              { "kind": "ai", "operations": ["records:read"] },
-              { "kind": "ai-job", "operations": ["records:read", "records:write"] }
             ]
           }
         },
@@ -1937,10 +1948,25 @@
             }
           ]
         },
-    "verify": [
+        "verify": [
      {"kind":"sample-run","input":{"as":"ai:sample-sender","job":"Write a made-up sample report","to":"ai:sample-taker","key":"sample-1"},"records":[{"id":"ai:sample-sender","type":"ai","value":{"label":"Sample sample-sender","can":["code"],"order":1,"live":{"seen_at":"2026-11-03T00:00:00.000Z","minutes":10}}},{"id":"ai:sample-taker","type":"ai","value":{"label":"Sample sample-taker","can":["code"],"order":2,"live":{"seen_at":"2026-11-03T00:00:00.000Z","minutes":10}}}]}
-    ]
-   }
+    ],
+        "stored": [
+          {
+            "kind": "ai",
+            "operations": [
+              "records:read"
+            ]
+          },
+          {
+            "kind": "ai-job",
+            "operations": [
+              "records:read",
+              "records:write"
+            ]
+          }
+        ]
+      }
     },
     {
       "payload": {
@@ -2159,7 +2185,11 @@
             "to": { "type": "string", "pattern": "^ai:" },
             "from": { "type": "string", "pattern": "^ai:" },
             "taker": { "type": "string", "pattern": "^ai:" },
-            "limit": { "type": "integer", "minimum": 1, "maximum": 200 }
+            "limit": { "type": "integer", "minimum": 1, "maximum": 200 },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of ai-job, as this row's `stored` lists. What is not given is not there."
+            }
           }
         },
         "output_schema": {
@@ -2250,12 +2280,6 @@
                 "at": "/opt/browse-and-upload-my-files"
               }
             ]
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              { "kind": "ai-job", "operations": ["records:read", "records:list"] }
-            ]
           }
         },
         "result_selector": "$.result",
@@ -2263,10 +2287,19 @@
         "licence_class": "licence:maker-own",
         "placements": ["placement:small-container"],
         "maker": "maker:hand-work-to-ais",
-    "verify": [
+        "verify": [
      {"kind":"sample-run","input":{"status":"waiting"},"records":[{"id":"ai-job:sample-1","type":"ai-job","value":{"kind":"ai-job","status":"waiting","job":"Write a made-up sample report","to":null,"from":"ai:sample-sender","priority":5,"sent_at":"2026-11-03T00:00:00.000Z"}}]}
-    ]
-   }
+    ],
+        "stored": [
+          {
+            "kind": "ai-job",
+            "operations": [
+              "records:read",
+              "records:list"
+            ]
+          }
+        ]
+      }
     },
     {
       "payload": {
@@ -2483,7 +2516,11 @@
           "properties": {
             "as": { "type": "string", "pattern": "^ai:", "description": "The taking AI's record id" },
             "id": { "type": "string", "pattern": "^ai-job:", "description": "Take this job rather than the next one" },
-            "only_mine": { "type": "boolean", "description": "Only jobs addressed to this AI by name" }
+            "only_mine": { "type": "boolean", "description": "Only jobs addressed to this AI by name" },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of ai-job, as this row's `stored` lists. What is not given is not there."
+            }
           }
         },
         "output_schema": {
@@ -2494,7 +2531,11 @@
             "tried": { "type": "integer", "minimum": 0 },
             "job_id": { "type": "string" },
             "reason": { "type": "string", "enum": ["changed", "gone"] },
-            "job": { "type": ["object", "null"] }
+            "job": { "type": ["object", "null"] },
+            "keep": {
+              "type": "array",
+              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
+            }
           }
         },
         "invoke": {
@@ -2577,13 +2618,6 @@
                 "at": "/opt/browse-and-upload-my-files"
               }
             ]
-          },
-          "records": {
-            "fd": 3,
-            "most_writes": 1,
-            "rights": [
-              { "kind": "ai-job", "operations": ["records:read", "records:list", "records:write"] }
-            ]
           }
         },
         "result_selector": "$.result",
@@ -2591,10 +2625,20 @@
         "licence_class": "licence:maker-own",
         "placements": ["placement:small-container"],
         "maker": "maker:hand-work-to-ais",
-    "verify": [
+        "verify": [
      {"kind":"sample-run","input":{"as":"ai:sample-taker"},"records":[{"id":"ai-job:sample-1","type":"ai-job","value":{"kind":"ai-job","status":"waiting","job":"Write a made-up sample report","to":null,"from":"ai:sample-sender","priority":5,"sent_at":"2026-11-03T00:00:00.000Z"}}]}
-    ]
-   }
+    ],
+        "stored": [
+          {
+            "kind": "ai-job",
+            "operations": [
+              "records:read",
+              "records:list",
+              "records:write"
+            ]
+          }
+        ]
+      }
     },
     {
       "payload": {
@@ -2816,17 +2860,17 @@
                 "minLength": 1,
                 "description": "What the AI is to do, in plain words"
               },
-              "outcome": {
+            "outcome": {
                 "type": "string",
                 "minLength": 1,
                 "description": "What done looks like"
               },
-              "label": {
+            "label": {
                 "type": "string",
                 "minLength": 1,
                 "description": "A short name for the job"
               },
-              "source": {
+            "source": {
                 "type": "object",
                 "required": [
                   "kind",
@@ -2844,7 +2888,7 @@
                   }
                 }
               },
-              "obligations": {
+            "obligations": {
                 "type": "array",
                 "minItems": 1,
                 "maxItems": 64,
@@ -2867,14 +2911,14 @@
                   }
                 }
               },
-              "to": {
+            "to": {
                 "type": [
                   "string",
                   "null"
                 ],
                 "description": "An existing ai record id, or null for any AI"
               },
-              "priority": {
+            "priority": {
                 "type": "integer",
                 "minimum": 0,
                 "maximum": 9
@@ -3002,7 +3046,11 @@
             "result": { "type": "string", "minLength": 1, "maxLength": 60000, "description": "What was done (finish) or why it could not be (fail). At most this many characters fit on the job row; `trillion finish ID` keeps a longer result as a file and records the line that names it." },
             "summary": { "type": "string", "minLength": 1, "description": "One line about the result" },
             "because": { "type": "string", "minLength": 1, "description": "Why it is given back or withdrawn" },
-            "words": { "type": "string", "minLength": 1, "description": "What blocks it (stuck)" }
+            "words": { "type": "string", "minLength": 1, "description": "What blocks it (stuck)" },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of ai-job, ai, as this row's `stored` lists. What is not given is not there."
+            }
           }
         },
         "output_schema": {
@@ -3014,7 +3062,11 @@
             "from": { "type": "string" },
             "to": { "type": ["string", "null"] },
             "reason": { "type": "string", "enum": ["changed", "gone"] },
-            "job": { "type": ["object", "null"] }
+            "job": { "type": ["object", "null"] },
+            "keep": {
+              "type": "array",
+              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
+            }
           }
         },
         "invoke": {
@@ -3097,25 +3149,6 @@
                 "at": "/opt/browse-and-upload-my-files"
               }
             ]
-          },
-          "records": {
-            "fd": 3,
-            "most_writes": 1,
-            "rights": [
-              {
-                "kind": "ai-job",
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": "ai",
-                "operations": [
-                  "records:read"
-                ]
-              }
-            ]
           }
         },
         "result_selector": "$.result",
@@ -3123,10 +3156,25 @@
         "licence_class": "licence:maker-own",
         "placements": ["placement:small-container"],
         "maker": "maker:hand-work-to-ais",
-    "verify": [
+        "verify": [
      {"kind":"sample-run","input":{"as":"ai:sample-taker","id":"ai-job:sample-1","action":"release","taken_at":"2026-11-03T00:05:00.000Z","because":"Synthetic sample returns its claim"},"records":[{"id":"ai-job:sample-1","type":"ai-job","value":{"kind":"ai-job","status":"taken","job":"Write a made-up sample report","to":null,"from":"ai:sample-sender","priority":5,"sent_at":"2026-11-03T00:00:00.000Z","taker":"ai:sample-taker","taken_at":"2026-11-03T00:05:00.000Z"}}]}
-    ]
-   }
+    ],
+        "stored": [
+          {
+            "kind": "ai-job",
+            "operations": [
+              "records:read",
+              "records:write"
+            ]
+          },
+          {
+            "kind": "ai",
+            "operations": [
+              "records:read"
+            ]
+          }
+        ]
+      }
     },
     { "payload": {
       "uses_tools": [
@@ -3476,6 +3524,10 @@
                 }
               }
             }
+          },
+          "stored": {
+            "type": "object",
+            "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of ai-job, the kind the request names (the row the request names), ai, as this row's `stored` lists. What is not given is not there."
           }
         }
       },
@@ -3516,6 +3568,10 @@
               "object",
               "null"
             ]
+          },
+          "keep": {
+            "type": "array",
+            "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
           }
         }
       },
@@ -3594,42 +3650,6 @@
               "at": "/opt/node_modules/@noble/hashes"
             }
           ]
-        },
-        "records": {
-          "fd": 3,
-          "most_writes": 1,
-          "rights": [
-              {
-                "kind": "ai-job",
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              },
-              {
-                "kind": {
-                  "fill": {
-                    "from": "input",
-                    "field": "check.target.type"
-                  }
-                },
-                "id": {
-                  "fill": {
-                    "from": "input",
-                    "field": "check.target.id"
-                  }
-                },
-                "operations": [
-                  "records:read"
-                ]
-              },
-              {
-                "kind": "ai",
-                "operations": [
-                  "records:read"
-                ]
-              }
-            ]
         }
       },
       "result_selector": "$.result",
@@ -3643,7 +3663,39 @@
         "placement:small-container"
       ],
       "maker": "maker:hand-work-to-ais",
-      "verify": [{"kind": "sample-run", "input": {"as": "ai:sample-taker", "id": "ai-job:sample-finish", "taken_at": "2026-11-03T00:05:00.000Z", "result": "Observed the readable sample consumer", "check": {"outcome": "The sample consumer is readable", "target": {"type": "sample-consumer", "id": "sample-consumer:one"}, "checked_at": "2026-11-03T00:06:00.000Z", "evidence": [{"ref": "sample-consumer:one", "observation": "The consumer is readable."}]}}, "records": [{"id": "ai-job:sample-finish", "type": "ai-job", "value": {"kind": "ai-job", "status": "taken", "job": "Read the sample consumer", "outcome": "The sample consumer is readable", "acceptance": {"outcome": "The sample consumer is readable", "target": {"type": "sample-consumer", "id": "sample-consumer:one"}, "rules": [{"id": "outcome", "path": "readable", "equals": [true], "says": "The consumer must be readable."}]}, "from": "ai:sample-sender", "to": null, "sent_at": "2026-11-03T00:00:00.000Z", "taker": "ai:sample-taker", "taken_at": "2026-11-03T00:05:00.000Z"}}, {"id": "sample-consumer:one", "type": "sample-consumer", "value": {"readable": true}}]}]
+      "verify": [{"kind": "sample-run", "input": {"as": "ai:sample-taker", "id": "ai-job:sample-finish", "taken_at": "2026-11-03T00:05:00.000Z", "result": "Observed the readable sample consumer", "check": {"outcome": "The sample consumer is readable", "target": {"type": "sample-consumer", "id": "sample-consumer:one"}, "checked_at": "2026-11-03T00:06:00.000Z", "evidence": [{"ref": "sample-consumer:one", "observation": "The consumer is readable."}]}}, "records": [{"id": "ai-job:sample-finish", "type": "ai-job", "value": {"kind": "ai-job", "status": "taken", "job": "Read the sample consumer", "outcome": "The sample consumer is readable", "acceptance": {"outcome": "The sample consumer is readable", "target": {"type": "sample-consumer", "id": "sample-consumer:one"}, "rules": [{"id": "outcome", "path": "readable", "equals": [true], "says": "The consumer must be readable."}]}, "from": "ai:sample-sender", "to": null, "sent_at": "2026-11-03T00:00:00.000Z", "taker": "ai:sample-taker", "taken_at": "2026-11-03T00:05:00.000Z"}}, {"id": "sample-consumer:one", "type": "sample-consumer", "value": {"readable": true}}]}],
+      "stored": [
+        {
+          "kind": "ai-job",
+          "operations": [
+            "records:read",
+            "records:write"
+          ]
+        },
+        {
+          "kind": {
+            "fill": {
+              "from": "input",
+              "field": "check.target.type"
+            }
+          },
+          "id": {
+            "fill": {
+              "from": "input",
+              "field": "check.target.id"
+            }
+          },
+          "operations": [
+            "records:read"
+          ]
+        },
+        {
+          "kind": "ai",
+          "operations": [
+            "records:read"
+          ]
+        }
+      ]
     } }
   ]
 }

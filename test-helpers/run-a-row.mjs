@@ -359,6 +359,10 @@ function keptAfter(records, keep, fake) {
   return [...held.values()];
 }
 
+/** A run's answer apart from the rows it hands back to keep (read-data/values-door.mjs `keep`): what it said. */
+export const said = result => (result && typeof result === 'object' && !Array.isArray(result) && 'keep' in result
+  ? Object.fromEntries(Object.entries(result).filter(([name]) => name !== 'keep')) : result);
+
 /** The row with this id in a tool-rows.json file. */
 export const rowOf = (file, id) => file.records.find(record => record.payload.id === id).payload;
 
@@ -371,3 +375,7 @@ export async function answerOf(row, sampleInput, sample = {}) {
   if (run.last === undefined || run.last === null || typeof run.last !== 'object') throw new Error(`${row.id} printed no JSON line (exit ${run.code}): ${run.stderr.trim().slice(-400)}`);
   return { status: run.code, ...run.last, kept: run.kept, calls: run.calls, runs: run.runs };
 }
+
+/** What a row declares it reads and writes of the person's own things: the rights its run asks the door for, then the
+ * ones it is given as values (its `stored` list, read-data/values-door.mjs), each { kind | files | at, operations, ... }. */
+export const rightsOf = row => [...(row.invoke?.records?.rights ?? []), ...(row.stored ?? [])];

@@ -3,7 +3,7 @@
 // a window the reader would never hold is refused with why, and a revoke ends the grant. Every value here is made up.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
+import { answerOf, rowOf, said, rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
 import { heldAccess } from '../read-data/who-holds-access.mjs';
 import { grantId, revokeId } from '../read-data/access-grants.mjs';
@@ -24,7 +24,7 @@ test('a written grant is held, in exactly the shape the reader reads, and a seco
   ] };
   const first = await answerOf(grant, input);
   assert.equal(first.status, 0, first.error);
-  assert.deepEqual(first.result, { written: 2, already: 0, refused: [] });
+  assert.deepEqual(said(first.result), { written: 2, already: 0, refused: [] });
   assert.deepEqual(first.kept.map(item => item.type), ['access-grant', 'access-grant']);
   assert.deepEqual(first.kept.find(item => item.id === grantId(ANA, 'grant:access:course-a')).value,
     { kind: 'license_access', subject: ANA, object: 'access:course-a', material: { grant_ref: 'grant:access:course-a' } });
@@ -34,7 +34,7 @@ test('a written grant is held, in exactly the shape the reader reads, and a seco
 
   const second = await answerOf(grant, input, { records: first.kept });
   assert.equal(second.status, 0, second.error);
-  assert.deepEqual(second.result, { written: 0, already: 2, refused: [] });
+  assert.deepEqual(said(second.result), { written: 0, already: 2, refused: [] });
   assert.deepEqual(second.kept, first.kept, 'nothing new is kept');
   assert.ok(!second.calls.some(call => call.method === 'records:write'), 'the second run does not write');
 });
@@ -66,14 +66,14 @@ test('a revoke ends the grant, stays ended, and a grant kept with other terms is
 
   const ended = await answerOf(grant, { grants: [{ subject: BO, access_ref: 'access:course-a' }], revoke: [{ subject: ANA, grant_ref: 'grant:access:course-a' }, { subject: ANA, grant_ref: '' }] }, { records: given.kept });
   assert.equal(ended.status, 0, ended.error);
-  assert.deepEqual(ended.result, { written: 2, already: 0, refused: [{ index: 2, reason: 'grant_ref must name the grant to end (a grant given without one is named "grant:" and its access ref)' }] });
+  assert.deepEqual(said(ended.result), { written: 2, already: 0, refused: [{ index: 2, reason: 'grant_ref must name the grant to end (a grant given without one is named "grant:" and its access ref)' }] });
   assert.deepEqual(ended.kept.find(item => item.id === revokeId(ANA, 'grant:access:course-a')).value,
     { kind: 'revoke', subject: ANA, material: { revokes_grant_ref: 'grant:access:course-a' } });
   assert.deepEqual(heldBy(ended.kept, ANA), ['access:course-b'], 'only the ended grant is gone');
   assert.deepEqual(heldBy(ended.kept, BO), ['access:course-a']);
 
   const again = await answerOf(grant, { grants: [{ subject: BO, access_ref: 'access:course-a' }], revoke: [{ subject: ANA, grant_ref: 'grant:access:course-a' }] }, { records: ended.kept });
-  assert.deepEqual(again.result, { written: 0, already: 2, refused: [] });
+  assert.deepEqual(said(again.result), { written: 0, already: 2, refused: [] });
 
   const regrant = await answerOf(grant, { grants: [{ subject: ANA, access_ref: 'access:course-a' }] }, { records: ended.kept });
   assert.equal(regrant.result.written, 0);
@@ -88,18 +88,15 @@ test('a revoke ends the grant, stays ended, and a grant kept with other terms is
 test('one request names a grant once: the same item twice is already, the same reference with other terms is refused', async () => {
   const same = { subject: ANA, access_ref: 'access:course-a' };
   const answer = await answerOf(grant, { grants: [same, { ...same }, { ...same, note: 'other terms' }] });
-  assert.deepEqual(answer.result, { written: 1, already: 1, refused: [{ index: 2, reason: `an earlier item in this request gives ${grantId(ANA, 'grant:access:course-a')} different terms` }] });
+  assert.deepEqual(said(answer.result), { written: 1, already: 1, refused: [{ index: 2, reason: `an earlier item in this request gives ${grantId(ANA, 'grant:access:course-a')} different terms` }] });
 });
 
-test('a request of 256 grants is written whole, in writes small enough for the door, and a 257th item is refused', async () => {
+test('a request of 256 grants is answered whole as rows to keep, and a 257th item is refused', async () => {
   const many = Array.from({ length: 256 }, (_, at) => ({ subject: `member-${at}@example.com`, access_ref: 'access:course-a', note: 'x'.repeat(200) }));
   const answer = await answerOf(grant, { grants: many });
   assert.equal(answer.status, 0, answer.error);
-  assert.deepEqual(answer.result, { written: 256, already: 0, refused: [] });
-  const writes = answer.calls.filter(call => call.method === 'records:write');
-  assert.deepEqual(writes.map(call => call.input.records.length), [100, 100, 56]);
-  assert.ok(writes.every(call => JSON.stringify(call.input).length < 65_536));
-  assert.ok(writes.every(call => call.input.records.every(record => record.expected === null)), 'a grant already there is never overwritten');
+  assert.deepEqual(said(answer.result), { written: 256, already: 0, refused: [] });
+  assert.equal(new Set(answer.kept.filter(item => item.type === 'access-grant').map(item => item.id)).size, 256);
 
   const tooMany = await answerOf(grant, { grants: [...many, many[0]] });
   assert.equal(tooMany.status, 1);
@@ -108,7 +105,7 @@ test('a request of 256 grants is written whole, in writes small enough for the d
 });
 
 test('the row reads and writes only access-grant records and holds no key, network or person', () => {
-  assert.deepEqual(grant.invoke.records.rights, [{ kind: 'access-grant', operations: ['records:read', 'records:write'] }]);
+  assert.deepEqual(rightsOf(grant), [{ kind: 'access-grant', operations: ['records:read', 'records:write'] }]);
   assert.equal(grant.invoke.internet, false);
   assert.equal(grant.invoke.credential_mounts, undefined);
   assert.doesNotMatch(grant.maker, /trillion|bitfield/i);
@@ -117,7 +114,7 @@ test('the row reads and writes only access-grant records and holds no key, netwo
 test('a revoke with no grant is a permanent tombstone; a later grant needs a fresh reference', async () => {
   const ended = await answerOf(grant, { grants: [], revoke: [{ subject: ANA, grant_ref: 'grant:access:course-a' }] });
   assert.equal(ended.status, 0, ended.error);
-  assert.deepEqual(ended.result, { written: 1, already: 0, refused: [] });
+  assert.deepEqual(said(ended.result), { written: 1, already: 0, refused: [] });
   assert.deepEqual(heldBy(ended.kept, ANA), []);
 
   const sameRef = await answerOf(grant, { grants: [{ subject: ANA, access_ref: 'access:course-a' }] }, { records: ended.kept });
@@ -126,7 +123,7 @@ test('a revoke with no grant is a permanent tombstone; a later grant needs a fre
   assert.deepEqual(heldBy(sameRef.kept, ANA), []);
 
   const fresh = await answerOf(grant, { grants: [{ subject: ANA, access_ref: 'access:course-a', grant_ref: 'grant:replacement' }] }, { records: ended.kept });
-  assert.deepEqual(fresh.result, { written: 1, already: 0, refused: [] });
+  assert.deepEqual(said(fresh.result), { written: 1, already: 0, refused: [] });
   assert.deepEqual(heldBy(fresh.kept, ANA), ['access:course-a']);
 
   const empty = await answerOf(grant, { grants: [] }, { records: ended.kept });
@@ -137,37 +134,27 @@ test('a revoke with no grant is a permanent tombstone; a later grant needs a fre
 test('a grant and its revoke in one request are both accepted, and the projection ends access', async () => {
   const answer = await answerOf(grant, { grants: [{ subject: ANA, access_ref: 'access:course-a' }], revoke: [{ subject: ANA, grant_ref: 'grant:access:course-a' }] });
   assert.equal(answer.status, 0, answer.error);
-  assert.deepEqual(answer.result, { written: 2, already: 0, refused: [] });
+  assert.deepEqual(said(answer.result), { written: 2, already: 0, refused: [] });
   assert.deepEqual(heldBy(answer.kept, ANA), [], 'a revoke terminates the matching instance regardless of the two records being written together');
 });
 
-test('large Unicode grants batch by encoded bytes and rows under the real door cap', async () => {
+test('large Unicode grants are kept with their identity parts encoded, and a record over the write limit is refused', async () => {
   const grants = Array.from({ length: 8 }, (_, at) => ({
     subject: `客户-é-${at}`,
     access_ref: `access:课程-${at}`,
     grant_ref: `会员🎾-${at}`,
     note: '🎾'.repeat(5_000),
   }));
-  const answer = await answerOf(grant, { grants }, { doorOptions: { mostRequestBytes: 65_536 } });
+  const answer = await answerOf(grant, { grants });
   assert.equal(answer.status, 0, answer.error);
-  assert.deepEqual(answer.result, { written: 8, already: 0, refused: [] });
-  const writes = answer.calls.filter(call => call.method === 'records:write');
-  assert.ok(writes.length > 1, 'large Unicode records are split by bytes');
-  assert.ok(writes.every(call => call.input.records.length <= 100));
-  assert.ok(writes.every(call => call.input.records.every(record => record.expected === null)));
-  assert.ok(writes.every(call => call.input.records.some(record => record.id.includes('%'))), 'Unicode identity parts are encoded in record ids');
-  assert.ok(!answer.calls.some(call => Object.hasOwn(call, 'refused_bytes')), 'the records door accepted every actual request body under 64 KiB');
-  for (const call of writes) {
-    const wire = { jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'run_resource_operation', arguments: {
-      address: '@own-records', method: call.method, request_key: call.key, input: call.input,
-    } } };
-    assert.ok(Buffer.byteLength(JSON.stringify(wire), 'utf8') <= 65_536, 'the complete UTF-8 door request fits the 64 KiB cap');
-  }
+  assert.deepEqual(said(answer.result), { written: 8, already: 0, refused: [] });
+  assert.equal(answer.kept.length, 8);
+  assert.ok(answer.kept.every(record => record.id.includes('%')), 'Unicode identity parts are encoded in record ids');
 
   const oversized = await answerOf(grant, { grants: [{ subject: 'é'.repeat(10_000), access_ref: 'access:course-a' }] });
   assert.equal(oversized.status, 0, oversized.error);
-  assert.deepEqual(oversized.result, { written: 0, already: 0, refused: [{ index: 0, reason: 'this access-grant record exceeds the 60000-byte write limit; shorten its subject, grant_ref or note' }] });
-  assert.ok(!oversized.calls.some(call => call.method === 'records:write'));
+  assert.deepEqual(said(oversized.result), { written: 0, already: 0, refused: [{ index: 0, reason: 'this access-grant record exceeds the 60000-byte write limit; shorten its subject, grant_ref or note' }] });
+  assert.deepEqual(oversized.kept, []);
 });
 
 test('stored grants reach the actual reader and authorization rows, and revocation closes the consumer', async () => {
@@ -181,7 +168,7 @@ test('stored grants reach the actual reader and authorization rows, and revocati
   };
   const given = await answerOf(grant, { grants: [{ subject, access_ref: access }] });
   assert.equal(given.status, 0, given.error);
-  assert.deepEqual(given.result, { written: 1, already: 0, refused: [] });
+  assert.deepEqual(said(given.result), { written: 1, already: 0, refused: [] });
   const grantRows = answer => answer.kept.filter(item => item.type === 'access-grant').map(item => item.value);
   const observed = await answerOf(read, { subject, grants: grantRows(given) });
   assert.equal(observed.status, 0, observed.error);
@@ -199,7 +186,7 @@ test('stored grants reach the actual reader and authorization rows, and revocati
   assert.equal(withoutRows.result.authorized, false);
   const ended = await answerOf(grant, { grants: [], revoke: [{ subject, grant_ref: `grant:${access}` }] }, { records: given.kept });
   assert.equal(ended.status, 0, ended.error);
-  assert.deepEqual(ended.result, { written: 1, already: 0, refused: [] });
+  assert.deepEqual(said(ended.result), { written: 1, already: 0, refused: [] });
   const after = await answerOf(read, { subject, grants: grantRows(ended) });
   assert.equal(after.status, 0, after.error);
   assert.deepEqual(after.result.held_access_refs, []);
@@ -223,13 +210,4 @@ test('the authorization row reads only the access rows of its request, never a c
   assert.equal(answer.status, 0, answer.error);
   assert.equal(answer.result.authorized, false);
   assert.deepEqual(answer.calls, []);
-});
-
-test('grant write denial propagates without creating a grant', async () => {
-  const readonly = structuredClone(grant);
-  readonly.invoke.records.rights = [{ kind: 'access-grant', operations: ['records:read'] }];
-  const answer = await answerOf(readonly, { grants: [{ subject: 'member@example.test', access_ref: 'access:synthetic-member' }] });
-  assert.equal(answer.status, 1);
-  assert.deepEqual(answer.kept, []);
-  assert.ok(answer.calls.some(call => call.method === 'records:write'));
 });

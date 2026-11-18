@@ -8,6 +8,7 @@
 // there is reported, a repeat adds nothing twice (no message and no file written again), a name the person gave is
 // read by that name, and with no folder searched none is walked.
 // Every person, file and chat here is made up.
+import { rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
@@ -18,8 +19,8 @@ import { importConversation, importConversationsFrom, stagedRecords } from '../r
 import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
 import { openRecordsDoor } from '../../records-door/read-data/records-door.mjs';
 
-const RIGHTS = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload)
-  .find(row => row.id === 'tool:import-my-conversations-from-a-source').invoke.records.rights;
+const RIGHTS = rightsOf(JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload)
+  .find(row => row.id === 'tool:import-my-conversations-from-a-source'));
 const NOW = new Date('2026-11-04T12:00:00Z');
 const identityOf = text => makeHashCodeHexFromBytes(new TextEncoder().encode(text));
 

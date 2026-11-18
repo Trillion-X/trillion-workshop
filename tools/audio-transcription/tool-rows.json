@@ -718,7 +718,11 @@
             "model_path": {"type":"string","maxLength":400,"description":"The ggml Whisper model file on this computer, in the models folder the person granted","x-free-text-because":"A file path on this computer."},
             "whisper_cli": {"type":"string","maxLength":400,"description":"The whisper-cli program the person granted (default: the one on PATH)","x-free-text-because":"A file path on this computer."},
             "ffmpeg": {"type":"string","maxLength":400,"description":"The ffmpeg program the person granted (default: the one on PATH)","x-free-text-because":"A file path on this computer."},
-            "language": {"type":"string","maxLength":12,"description":"The language spoken, when known (for example en)"}
+            "language": {"type":"string","maxLength":12,"description":"The language spoken, when known (for example en)"},
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: files: {name: text or {base64}} under /, as this row's `stored` lists. What is not given is not there."
+            }
           }
         },
         "output_schema": {"type":"object","required":["text","segments","heard_whole"],"properties":{"text":{"type":"string"},"segments":{"type":"array","items":{"type":"object","properties":{"start":{"type":"number"},"end":{"type":"number"},"text":{"type":"string"}}}},"language":{"type":["string","null"]},"heard_whole":{"type":"boolean"},"produced_by":{"type":"string"}}},
@@ -729,7 +733,6 @@
           "stdout": "json",
           "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/audio-transcription/read-data/hear-here.mjs", "hearARecording"],
           "stdin": {"fill": {"from": "input"}},
-          "records": {"fd": 3, "rights": [{"files":"/","operations":["find_file","read_file"]}]},
           "files": {
             "package_files": [
               {
@@ -807,7 +810,16 @@
         "licence_class": "licence:maker-own",
         "placements": ["placement:your-computer"],
         "maker": "maker:audio-transcription",
-        "provenance": {"source": "audio-transcription/read-data/hear-here.mjs, moved from the product repo's computer/listen.mjs and computer/hear-a-link.mjs"}
+        "provenance": {"source": "audio-transcription/read-data/hear-here.mjs, moved from the product repo's computer/listen.mjs and computer/hear-a-link.mjs"},
+        "stored": [
+          {
+            "files": "/",
+            "operations": [
+              "find_file",
+              "read_file"
+            ]
+          }
+        ]
       }
     },
     {

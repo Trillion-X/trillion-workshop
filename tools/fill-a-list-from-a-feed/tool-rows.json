@@ -262,11 +262,21 @@
             },
             "files_into": {
               "type": "string"
+            },
+            "stored": {
+              "type": "object",
+              "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of list, the kind the request names; files: {name: text or {base64}} under /, as this row's `stored` lists. What is not given is not there."
             }
           }
         },
         "output_schema": {
-          "type": "object"
+          "type": "object",
+          "properties": {
+            "keep": {
+              "type": "array",
+              "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
+            }
+          }
         },
         "placements": [
           "placement:small-container"
@@ -360,37 +370,6 @@
               }
             ]
           },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "list",
-                "operations": [
-                  "records:read"
-                ]
-              },
-              {
-                "kind": {
-                  "fill": {
-                    "from": "input",
-                    "field": "row_kind"
-                  }
-                },
-                "operations": [
-                  "records:read",
-                  "records:write"
-                ]
-              },
-              {
-                "files": "/",
-                "operations": [
-                  "write_file_start",
-                  "write_file_piece",
-                  "write_file_finish"
-                ]
-              }
-            ]
-          },
           "internet": true
         },
         "result_selector": "$.result",
@@ -441,6 +420,34 @@
             ],
             "shape_read_at": "2026-11-08",
             "shape_source": "Synthetic generic JSON feed fixture exercised by this port; no third-party service response is claimed."
+          }
+        ],
+        "stored": [
+          {
+            "kind": "list",
+            "operations": [
+              "records:read"
+            ]
+          },
+          {
+            "kind": {
+              "fill": {
+                "from": "input",
+                "field": "row_kind"
+              }
+            },
+            "operations": [
+              "records:read",
+              "records:write"
+            ]
+          },
+          {
+            "files": "/",
+            "operations": [
+              "write_file_start",
+              "write_file_piece",
+              "write_file_finish"
+            ]
           }
         ]
       }

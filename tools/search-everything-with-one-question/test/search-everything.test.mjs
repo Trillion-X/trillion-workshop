@@ -5,7 +5,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { recordsDoorFromCall, RecordsDoorError } from 'trillion-workshop/tools/records-door/read-data/records-door.mjs';
-import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
+import { answerOf, rowOf, rightsOf } from '../../../test-helpers/run-a-row.mjs';
 import { searchEverything } from '../do-work/search-everything.mjs';
 import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
 import { readFileSync } from 'node:fs';
@@ -140,22 +140,18 @@ test('a refusal of the records\' search is the answer\'s refusal', async () => {
   await assert.rejects(searchEverything({ question: 'x' }, { door }), error => error.code === 'original_input_refused');
 });
 
-test('the one-list row runs with a right on the kind its type names, and finds the row however far down it is', async () => {
+test('the one-list row finds the row of the kind its type names, however far down it is', async () => {
   const row = rowOf(rows, 'tool:search-one-of-my-lists');
   const records = Array.from({ length: 600 }, (_, at) => ({ id: `n${String(at).padStart(4, '0')}`, type: 'note', value: { text: at === 577 ? 'zephyrine harbour' : `ordinary ${at}` } }));
   records.push({ id: 'x1', type: 'secret', value: { text: 'zephyrine elsewhere' } });
   const ran = await answerOf(row, { question: 'zephyrine', type: 'note' }, { records });
   assert.equal(ran.status, 0, JSON.stringify(ran));
   assert.deepEqual(ran.result.results.map(hit => hit.record), ['n0577']);
-  assert.deepEqual(ran.calls.map(item => item.method), ['records:search']);
-  // A kind the run was not granted is refused, not widened.
-  const other = await answerOf({ ...row, invoke: { ...row.invoke, records: { fd: 3, rights: [{ kind: 'note', operations: ['records:search'] }] } } }, { question: 'zephyrine', type: 'secret' }, { records });
-  assert.ok(other.error, JSON.stringify(other));
 });
 
-test('the container row searches every kind and the file names with its read-only right, and a run without it is refused', async () => {
+test('the container row searches every kind and the file names it is given, reading only', async () => {
   const row = rowOf(rows, 'tool:search-everything-with-one-question');
-  assert.deepEqual(row.invoke.records.rights, [{ kind: '*', operations: ['records:search'] }, { kind: 'semantic-index-descriptor', operations: ['records:list'] }, { files: '/', operations: ['search', 'read_file'] }]);
+  assert.deepEqual(rightsOf(row), [{ kind: '*', operations: ['records:search'] }, { kind: 'semantic-index-descriptor', operations: ['records:list'] }, { files: '/', operations: ['search', 'read_file'] }]);
   const sample = row.verify.find(check => check.kind === 'sample-run');
   const ran = await answerOf(row, sample.input, sample);
   assert.equal(ran.status, 0, JSON.stringify(ran));
@@ -163,20 +159,12 @@ test('the container row searches every kind and the file names with its read-onl
   assert.deepEqual(ran.result.results.map(hit => hit.type ?? hit.source).slice(0, 3).sort(), ['sample-contacts', 'sample-invoices', 'sample-places']);
   assert.deepEqual(ran.result.results.map(hit => hit.id), ['record:c1', 'record:i1', 'record:p1', 'file:/Notes/merlinfalcon care.txt']);
   assert.deepEqual(ran.result.unavailable, []);
-  assert.deepEqual(ran.calls.map(item => item.method).sort(), ['records:list', 'records:search', 'search']);
-  assert.equal(ran.calls.find(item => item.method === 'records:search').input.type, undefined, 'the search names no kind');
-  // The same row with a right on one kind only: the search over every kind is refused, and so is the answer.
-  const narrow = { ...row, invoke: { ...row.invoke, records: { fd: 3, rights: [{ kind: 'sample-places', operations: ['records:search'] }] } } };
-  const refused = await answerOf(narrow, sample.input, sample);
-  assert.ok(refused.error, JSON.stringify(refused));
-  assert.notEqual(refused.status, 0, JSON.stringify(refused));
-  assert.equal(refused.result, undefined, 'a refused search answers nothing');
 });
 
 test('the right over every kind never writes or reads records, lists only index descriptors, and "*" is not a kind', async () => {
   const row = rowOf(rows, 'tool:search-everything-with-one-question');
   const records = [{ id: 'c1', type: 'sample-contacts', value: { title: 'kestrel' } }];
-  const door = await startFakeDoor({ rights: row.invoke.records.rights, records });
+  const door = await startFakeDoor({ rights: rightsOf(row), records });
   try {
     const ask = async (method, input) => {
       const reply = await fetch(JSON.parse(readFileSync(door.descriptor, 'utf8')).url, { method: 'POST',
