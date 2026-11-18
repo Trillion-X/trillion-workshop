@@ -264,7 +264,7 @@ fn reply(status: StatusCode, content_type: &'static str, body: Vec<u8>, headers:
 /// Only source identity and the status are logged; a body, cookie or location is never formatted.
 fn named_refusal(mut response: Response, cause: crate::refusal_cause::Cause) -> Response {
     if response.status().is_client_error() || response.status().is_server_error() {
-        response.headers_mut().insert("x-trillion-refusal-cause",
+        response.headers_mut().insert("refusal-cause",
             cause.id().parse().expect("validated source identity is a header value"));
         crate::quiet_eprintln!("sign-in-refusal status={} cause={cause}", response.status().as_u16());
     }
@@ -1728,7 +1728,7 @@ mod tests {
         let first = without_words(StatusCode::SERVICE_UNAVAILABLE);
         let second = without_words(StatusCode::SERVICE_UNAVAILABLE);
         let read_cause = |response: &Response| crate::refusal_cause::Cause::from_wire(
-            response.headers()["x-trillion-refusal-cause"].to_str().unwrap()).unwrap();
+            response.headers()["refusal-cause"].to_str().unwrap()).unwrap();
         assert_ne!(read_cause(&first), read_cause(&second), "tracked raw helpers retain their calling conditions");
         for response in [first, second] {
             assert_eq!(response.status(), StatusCode::SERVICE_UNAVAILABLE);

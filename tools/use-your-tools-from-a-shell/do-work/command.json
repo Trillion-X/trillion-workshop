@@ -9,7 +9,7 @@
   "env": {"_what": "The environment names this command reads and sets, filled from the brand ({CLI} is its command in capitals): a key given to a computer with no Keychain or file, the address of another engine, the AI it acts as, the job a serve run is working, and the mark a run started again under the app\u0027s own node carries, so it never starts another.", "key": "{CLI}_KEY", "origin": "{CLI}_ORIGIN", "agent": "{CLI}_AGENT", "job_id": "{CLI}_JOB_ID", "rerun": "{CLI}_RERUN"},
   "made_key_file": "made-key.json",
   "connection": {
-    "schema": "trillion.connection/v1",
+    "schema": "connection/v1",
     "file": "connection.json",
     "recipes": [
       {

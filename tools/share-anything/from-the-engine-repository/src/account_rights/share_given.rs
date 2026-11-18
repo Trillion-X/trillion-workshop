@@ -382,7 +382,7 @@ impl SharerDoor for HttpsDoor {
             &host, port, &receiving.door_path, &bearer, &body, receiving.most_answer_bytes, receiving.wait(), None,
         )
         .map_err(|error| crate::carry_cause!(Refusal::Unavailable, error))?;
-        let reported = answer.header("x-trillion-refusal-cause").and_then(crate::refusal_cause::Cause::from_wire);
+        let reported = answer.header("refusal-cause").and_then(crate::refusal_cause::Cause::from_wire);
         door_answer_reported(answer.status, &answer.body, reported)
     }
 }

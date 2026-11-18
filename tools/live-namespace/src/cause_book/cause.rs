@@ -21,7 +21,7 @@ pub struct Site {
     normalized_file: std::sync::OnceLock<Cow<'static, str>>,
 }
 const fn release_label() -> &'static str {
-    match option_env!("TRILLION_RELEASE_COMMIT") {
+    match option_env!("RELEASE_COMMIT") {
         Some(value) => { let bytes = value.as_bytes(); if bytes.len() == 7 && bytes[0] == b'u' && bytes[1] == b'n' && bytes[2] == b'k' && bytes[3] == b'n' && bytes[4] == b'o' && bytes[5] == b'w' && bytes[6] == b'n' { "" } else { value } },
         None => "",
     }
@@ -81,7 +81,7 @@ impl Cause {
     pub fn __site(module: &'static str, file: &'static str, line: u32, column: u32, condition: &'static str) -> Self {
         Self { inner: CauseInner::Owned(std::sync::Arc::new(OwnedSite { retry: Retry::Other,
             module: Cow::Borrowed(module), file: source_file(file), line, column, condition: Cow::Borrowed(condition),
-            release: Cow::Borrowed(option_env!("TRILLION_RELEASE_COMMIT").filter(|release| *release != "unknown").unwrap_or("")) })) }
+            release: Cow::Borrowed(option_env!("RELEASE_COMMIT").filter(|release| *release != "unknown").unwrap_or("")) })) }
     }
     #[doc(hidden)]
     pub const fn __from_site(site: &'static Site) -> Self { Self { inner: CauseInner::Static(site) } }
@@ -94,7 +94,7 @@ impl Cause {
         Self { inner: CauseInner::Owned(std::sync::Arc::new(OwnedSite { retry: Retry::Other,
             module: Cow::Borrowed(module), file: source_file(site.file()), line: site.line(), column: site.column(),
             condition: Cow::Owned(detail),
-            release: Cow::Borrowed(option_env!("TRILLION_RELEASE_COMMIT").filter(|release| *release != "unknown").unwrap_or("")) })) }
+            release: Cow::Borrowed(option_env!("RELEASE_COMMIT").filter(|release| *release != "unknown").unwrap_or("")) })) }
     }
     #[doc(hidden)]
     #[track_caller]
