@@ -1,9 +1,7 @@
 // package-set://bitfield-studio/packages/package-dependencies/read-data/read-relation-projection.ts
 //
-// This module only reads generic descriptor-shaped records. Package words stay
+// This module only reads generic descriptor-shaped records handed in as values. Package words stay
 // in JSON data and owner-fed records.
-
-import packageData from '@/packages/package-dependencies/things-to-store-and-run.json';
 
 export interface PackageThing {
   payload?: unknown;
@@ -25,11 +23,7 @@ function text(value: unknown): string {
   return typeof value === 'string' && value.trim().length > 0 ? value.trim() : '';
 }
 
-function packageThings(): PackageThing[] {
-  return Array.isArray(packageData.things) ? packageData.things as PackageThing[] : [];
-}
-
-export function readPackageDependencyDescriptors(things: readonly PackageThing[] = packageThings()): DescriptorSet {
+export function readPackageDependencyDescriptors(things: readonly PackageThing[]): DescriptorSet {
   const descriptors: DescriptorSet = {
     relations: [],
     rules: [],
