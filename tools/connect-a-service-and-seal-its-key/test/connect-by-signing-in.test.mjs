@@ -136,7 +136,7 @@ test('a state the vault did not sign is refused, and nothing is traded or saved'
 test('with no sign-in key in the vault, nothing is sent and the answer says how to make one', async () => {
   const run = await route(settings.routes.start, startQuery, { records: seeded, tool_runs: toolRuns(), doorOptions: {} });
   assert.equal(run.last.result.status, 503, JSON.stringify(run.last));
-  assert.match(run.last.result.body.error, new RegExp(`Nothing was sent anywhere: .*${settings.state_key}.*generate-ed25519`));
+  assert.match(run.last.result.body.error, new RegExp(`Nothing was sent anywhere: .*${settings.state_key}.*make-a-signing-key-in-the-vault`));
   assert.equal(run.last.result.body.authorize_url, undefined);
 });
 

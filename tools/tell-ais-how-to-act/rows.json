@@ -70,7 +70,7 @@
         "kind": "ai-instruction",
         "id": "decide-first",
         "order": 10,
-        "text": "Use run_resource_operation({address,method,request_key,input}). @tools: tools:list ({tool:ID}: one), tools:run, tools:read, tools:cancel. @secrets: secrets:put/remove/sign. @own-records: wake:*, sharing.*, instructions:read."
+        "text": "Use run_resource_operation({address,method,request_key,input}). @tools: tools:list ({tool:ID}), tools:run/read/cancel. @secrets: secrets:put/remove/sign/generate/names. @own-records: wake:*, sharing.*, instructions:read."
       }
     },
     {

@@ -48,7 +48,7 @@
   "no_origin": "The request did not say which address this computer answers on, so no sign-in was started. Nothing was sent anywhere.",
   "bad_return": "return_to must be a path on this site that starts with one /.",
   "expired": "This sign-in has expired or was already used. Nothing was saved. Ask for a new link to connect.",
-  "no_signing_key": "Nothing was sent anywhere: this account's vault could not sign the sign-in with its key {key} ({code}). Make that key once in the vault (an Ed25519 key made inside it, generate-ed25519 {key}), then ask for a new link.",
+  "no_signing_key": "Nothing was sent anywhere: this account's vault could not sign the sign-in with its key {key} ({code}). Make that key once in the vault (workflow:make-a-signing-key-in-the-vault with name {key}, which asks the vault's secrets:generate), then ask for a new link.",
   "not_connected": "{service} was not connected: the sign-in was cancelled, refused, or no longer matches this service. Nothing was saved. Ask for a new link to try again.",
   "refused": "{service} was not connected: {why} Nothing was saved. Ask for a new link to try again.",
   "no_token": "the service answered without a token.",

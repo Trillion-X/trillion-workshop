@@ -1,0 +1,34 @@
+{
+  "_what": "Make a signing key inside the person's vault, under the name the input gives: an Ed25519 key the vault makes and never lets out (the door's secrets:generate {name}, which answers {name, scheme, public_key} and refuses a name already held, keeping its value). Input: {name}. Used by a saved setup list's choice for what needs a key of the account's own, such as connecting accounts by signing in (sign-in-state-key, the key that signs a sign-in's state). The step asks the door method itself: the AI walking the run calls it at @secrets and answers the step with what the vault said.",
+  "definitions": [
+    {
+      "id": "workflow:make-a-signing-key-in-the-vault",
+      "name": "Make a signing key in the vault",
+      "kind": "workflow",
+      "is_active": true,
+      "version": 1,
+      "steps": [
+        {
+          "id": "make-the-key",
+          "kind": "ask",
+          "config": {
+            "name": "secrets:generate",
+            "input": {
+              "name": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input",
+                  "path": "name"
+                }
+              }
+            },
+            "context": {
+              "step_id": "make-the-key"
+            }
+          }
+        }
+      ],
+      "edges": []
+    }
+  ]
+}
