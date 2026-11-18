@@ -53,3 +53,9 @@ test('a zero-length event has DTSTART only: no DTEND and no DURATION', () => {
   assert.ok(lines.includes('DTSTART:20260812T150000Z'));
   assert.equal(lines.some(line => line.startsWith('DTEND:') || line.startsWith('DURATION:')), false);
 });
+
+test('a time that is not finite, or not a date the file can hold, is refused and never written', () => {
+  assert.throws(() => calendarInviteFile({ ...base, start_ms: Number.NaN, end_ms: Number.NaN }), TypeError);
+  assert.throws(() => calendarInviteFile({ ...base, now_ms: Number.POSITIVE_INFINITY }), TypeError);
+  assert.throws(() => calendarInviteFile({ ...base, end_ms: Date.UTC(10000, 0, 1) }), RangeError);
+});

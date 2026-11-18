@@ -1,4 +1,6 @@
-// packages/calendar-booker/do-work/calendar-invite-file.ts
+// The one owner of this file is tools/book-time/do-work/calendar-invite-file.ts. The shipped parts that need a
+// self-contained copy (tools/booking-slots-and-invitations/do-work and tools/book-time/packages/calendar-booker/do-work)
+// hold the same bytes; tools/book-time/test/calendar-invite-file-copies.test.mjs fails if they differ.
 //
 // A calendar invitation as a file (RFC 5545 iCalendar, METHOD REQUEST or CANCEL) that any mail client turns
 // into an event: the route a booking takes onto the host's calendar when no calendar connection is held,
@@ -110,7 +112,7 @@ export function calendarInviteFile(input: CalendarInviteInput): string {
   const lines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//trillion//calendar-booker//EN',
+    'PRODID:-//calendar-invite-file//EN',
     'CALSCALE:GREGORIAN',
     `METHOD:${input.method}`,
     'BEGIN:VEVENT',
