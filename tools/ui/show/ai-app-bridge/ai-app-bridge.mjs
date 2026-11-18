@@ -98,7 +98,10 @@ export function connectToAiApp(win, { appName = 'view', protocolVersion = '2026-
   win.addEventListener('openai:set_globals', fromOpenAiPlacement);
   win.addEventListener('message', onMessage);
   post({ id: initializeId, method: 'ui/initialize', params: { protocolVersion, appInfo: { name: appName, version: '1' }, appCapabilities: { availableDisplayModes: displayModes } } });
-  fromOpenAi();
+  // What the app already holds (ChatGPT sets window.openai's input and output before the view's script runs) is handed
+  // over once this call has returned, never during it: a view that is still setting itself up when connect answers is
+  // never called back before it is ready (ChatGPT's view stayed blank on 'Cannot access before initialization').
+  win.queueMicrotask(fromOpenAi);
   const root = win.document.documentElement;
   const heightNeeded = () => Math.ceil(content ? content.getBoundingClientRect().bottom + (win.scrollY ?? 0) : root.scrollHeight);
   // The words a failed call result carries, else a plain line.

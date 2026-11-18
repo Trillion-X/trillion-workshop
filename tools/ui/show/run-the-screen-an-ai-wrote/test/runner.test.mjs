@@ -141,6 +141,22 @@ test('a show tool\'s call hands the screen the answer it carries, and the page w
   } finally { await browser.close(); }
 });
 
+test('in an app that holds the call before the page starts (ChatGPT: window.openai), the screen still paints', async () => {
+  const browser = await chromium.launch();
+  try {
+    const tab = await browser.newPage();
+    const errors = [];
+    tab.on('pageerror', error => errors.push(error.message));
+    const html = page(words).replace('<head>', `<head><script>window.openai = { toolInput: { address: '@tools', method: 'tools:list', answer: { n: 2 }, screen: '<p id="n"></p><script>door.onAnswer(a => { document.getElementById("n").textContent = a.n; });<\\/script>' }, toolOutput: null };</script>`);
+    const file = join(folder, 'held.html');
+    writeFileSync(file, html);
+    await tab.goto(`file://${file}`);
+    await tab.waitForTimeout(300);
+    assert.deepEqual(errors, []);
+    assert.equal(await tab.textContent('#n'), '2', 'painted from what the app held before the page started');
+  } finally { await browser.close(); }
+});
+
 test('opened as a page, the answer in the address fragment is shown as text', async () => {
   const browser = await chromium.launch();
   try {
