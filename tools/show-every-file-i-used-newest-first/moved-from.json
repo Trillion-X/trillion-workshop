@@ -12,13 +12,6 @@
       "identity": "1f:30537e11edba88f8ffb10217fbf017e4bebca145a0e91d9d8298f6add803973a"
     },
     {
-      "from": "src/recent-files.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/show-every-file-i-used-newest-first/src/recent-files.mjs",
-      "source_identity": "1f:4bf6ca7ba69d285431512811501c0344dc76468e7124904de5d6ed6cabc30fd8",
-      "identity": "1f:649c8d4ee45922b7899d4ff7d2ba0982e3dd980666fdf8cf34e8cc9ec18fe03b"
-    },
-    {
       "from": "web/src/workspace/recent-screen.tsx",
       "commit": "792aae2aa2497c8329698e51f782aea49e45dec3",
       "to": "tools/show-every-file-i-used-newest-first/web/src/workspace/recent-screen.tsx",
