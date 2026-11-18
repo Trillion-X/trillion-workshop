@@ -5,7 +5,6 @@
 // policy is primary, with an honest unavailable state during boot.
 
 import React from 'react';
-import { sendRequestToBitfieldTarget } from '@bitfield/runtime-kit';
 import { SectionShell, TextColumn } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
 import { Text, Button, Container, ShowcaseStrip } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
 import { LANDING_PRICING_SECTION_ID } from '../../../../ui/show/marketing-page/MarketingPagePrimitives';
@@ -30,22 +29,10 @@ type DirectCheckoutRequest = {
 
 type DirectCheckoutResult = { redirectUrl?: string; status?: string };
 
-async function startCheckoutThroughThisHost(request: DirectCheckoutRequest): Promise<DirectCheckoutResult> {
-  const reply = await sendRequestToBitfieldTarget({
-    target: 'checkout.start-checkout',
-    payload: request,
-  });
-  const text = new TextDecoder().decode(reply.payload);
-  let result: DirectCheckoutResult & { error?: string } = {};
-  try {
-    result = text.trim() ? JSON.parse(text) : {};
-  } catch {
-    throw new Error('Checkout could not start. Please try again.');
-  }
-  if (result.error) {
-    throw new Error(result.error || 'Checkout could not start. Please try again.');
-  }
-  return result;
+// The page's host starts a checkout: it sets window.__programStartCheckout__ before the page mounts (the host's own address
+// for it, such as POST /target/checkout.start-checkout). A page whose host set none says so instead of waiting on nothing.
+async function startCheckoutThroughThisHost(_request: DirectCheckoutRequest): Promise<DirectCheckoutResult> {
+  throw new Error('Checkout is not connected on this page yet.');
 }
 
 declare global {
