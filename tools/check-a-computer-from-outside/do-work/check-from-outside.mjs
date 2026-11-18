@@ -105,7 +105,7 @@ async function domainExpiry(domain, options) {
     const location = /\r\nlocation:\s*(\S+)/i.exec(head)?.[1];
     if (status >= 300 && status < 400 && location && hops < 3) { const next = new URL(location, `https://${host}`); return get(next.pathname + next.search, next.hostname, hops + 1); }
     const body = /\r\ntransfer-encoding:\s*chunked/i.test(head) ? unchunk(rest.join('\r\n\r\n')) : rest.join('\r\n\r\n');
-    if (status !== 200) throw new Error(`the registry answered ${status}`);
+    if (status !== 200) throw Object.assign(new Error(`the registry answered ${status}`), { status });
     return JSON.parse(body);
   };
   const answer = await get(url.pathname, url.hostname);
@@ -122,12 +122,25 @@ function unchunk(body) {
   return out;
 }
 
-/** The registered domain of a name: its last two labels (the last three under a two-letter country's second level). */
-export const domainOf = name => {
+/** The registration a name stands under: the registry is asked for the name itself, then for each parent in turn, until
+ *  one is registered; a status of settings.json `not_registered_statuses` says the name asked is not (measured Nov 18 2026
+ *  through rdap.org: www.bbc.co.uk 404 then bbc.co.uk 200; a www. name under .ai 400 then its domain 200;
+ *  www.unimelb.edu.au 400 then unimelb.edu.au 200). So which label is registered is the registry's own word, never a list
+ *  of second levels. The last label alone is never asked. `asked` keeps each answer, so two names under one domain ask it
+ *  once; `ask` is domainExpiry unless a caller gives its own. */
+export async function registrationOf(name, ask, asked = new Map()) {
   const labels = name.toLowerCase().replace(/\.$/, '').split('.');
-  const take = labels.length > 2 && labels.at(-1).length === 2 && ['co', 'com', 'org', 'net', 'ac', 'gov'].includes(labels.at(-2)) ? 3 : 2;
-  return labels.slice(-take).join('.');
-};
+  let last = new Error(`${name} has no parent a registry could hold`);
+  for (let at = 0; at < labels.length - 1; at += 1) {
+    const domain = labels.slice(at).join('.');
+    if (!asked.has(domain)) asked.set(domain, ask(domain).then(found => ({ found }), error => ({ error })));
+    const { found, error } = await asked.get(domain);
+    if (found) return found;
+    if (!SETTINGS.not_registered_statuses.includes(error.status)) throw error;
+    last = error;
+  }
+  throw last;
+}
 
 /** The check of one computer: what is open, served and registered, and the findings against what its row declares. */
 export async function checkFromOutside({ name, address, declared_ports: declared = [], names = [], also_try = [] } = {}, options = {}) {
@@ -152,12 +165,15 @@ export async function checkFromOutside({ name, address, declared_ports: declared
   const sshPort = ports.find(port => port.open && port.port === 22) ? 22 : null;
   const ssh = sshPort ? { port: sshPort, banner: await sshBanner(address, sshPort, options).catch(() => null) } : null;
   const domains = [];
-  for (const domain of [...new Set(names.map(domainOf))]) {
+  const asked = new Map();
+  const ask = options.registry ?? (domain => domainExpiry(domain, options));
+  for (const host of [...new Set(names)]) {
     try {
-      const found = await domainExpiry(domain, options);
+      const found = await registrationOf(host, ask, asked);
+      if (domains.some(kept => kept.domain === found.domain)) continue;
       domains.push(found);
-      if (found.days_left === null || found.days_left < SETTINGS.domain_warn_days) findings.push({ kind: 'domain-ends-soon', about: domain, said: `${domain} is registered until ${found.expires ?? 'an unreadable date'} (${found.days_left} days).` });
-    } catch (error) { findings.push({ kind: 'domain-unreadable', about: domain, said: `${domain}'s registration could not be read: ${error.message}.` }); }
+      if (found.days_left === null || found.days_left < SETTINGS.domain_warn_days) findings.push({ kind: 'domain-ends-soon', about: found.domain, said: `${found.domain} is registered until ${found.expires ?? 'an unreadable date'} (${found.days_left} days).` });
+    } catch (error) { findings.push({ kind: 'domain-unreadable', about: host, said: `${host}'s registration could not be read: ${error.message}.` }); }
   }
   const firstOpen = ports.find(port => port.open);
   const checkedAt = new Date().toISOString();
