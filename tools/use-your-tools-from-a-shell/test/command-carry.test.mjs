@@ -9,7 +9,7 @@ import test from 'node:test';
 import { carrierKeyStore, carryThisComputer, speakFor } from '../do-work/command.mjs';
 import settings from '../do-work/command.json' with { type: 'json' };
 
-speakFor({ cli: 'example', brand: 'Example' });
+speakFor({ cli: 'example', site_name: 'Example' });
 
 const homeWith = engine => {
   const home = mkdtempSync(join(tmpdir(), 'carry-home-'));
@@ -71,8 +71,8 @@ test('the carrier runs the program as it was invoked, so it signs in under the s
   } finally { process.argv[1] = invoked; }
 });
 
-test('the brand is filled into every part of the settings, so no part a person or an AI reads keeps a raw {cli}', () => {
+test('the site is filled into every part of the settings, so no part a person or an AI reads keeps a raw {cli}', () => {
   const text = JSON.stringify(settings);
-  for (const token of ['{cli}', '{CLI}', '{brand}']) assert.ok(!text.includes(token), `a part still holds ${token}`);
+  for (const token of ['{cli}', '{CLI}', '{site_name}']) assert.ok(!text.includes(token), `a part still holds ${token}`);
   assert.match(settings.connection.recipes.find(row => row.id === 'cli').template, /^example setup/);
 });

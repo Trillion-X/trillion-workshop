@@ -27,7 +27,7 @@
 // Non-negotiable invariants
 //   1. One road: run_resource_operation over MCP JSON-RPC at the door. The only other addresses are the public origin's
 //      own sign-in (OAuth, at the endpoints its /.well-known documents name), used by login and to renew the sign-in it kept.
-//   2. The credential is the account's existing key (the Keychain item the brand's Mac app keeps, else a 0600 file, else
+//   2. The credential is the account's existing key (the Keychain item the site's Mac app keeps, else a 0600 file, else
 //      {CLI}_KEY) or the sign-in login kept. It is read into memory only, never printed, never put in a command line
 //      or a log; the Keychain is written through `security -i` on standard input. logout forgets only a credential this
 //      program made, never the Mac app's key.
@@ -56,8 +56,8 @@ import settings from './command.json' with { type: 'json' };
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const fill = (template, values) => template.replace(/\{(\w+)\}/g, (whole, name) => (values[name] === undefined ? whole : String(values[name])));
-/** The command's own name, from the brand row of the site it came from (`speakFor`). */
-export const cliName = () => settings.brand?.cli ?? 'command';
+/** The command's own name, from the site row of the site it came from (`speakFor`). */
+export const cliName = () => settings.site?.cli ?? 'command';
 const pause = ms => new Promise(done => setTimeout(done, ms));
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 
@@ -1185,40 +1185,40 @@ export async function serveOnce({ client, me, command, state, rules = settings, 
   return true;
 }
 
-// ── The brand ────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── The site ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-/** The brand this command speaks for: the site file's `brand` and `cli` (written by the install line of the site it came from),
- *  else the command's own name as it was run (`invoked`, the link's name). No product is named in this tool: every {brand} and
+/** The site this command speaks for: the site file's `site` and `cli` (written by the install line of the site it came from),
+ *  else the command's own name as it was run (`invoked`, the link's name). No product is named in this tool: every {site_name} and
  *  {cli} in a sentence a person reads, and in the folders it keeps, is filled from this. */
-export function brandOf({ invoked = process.argv[1] ?? '', home = homedir(), rules = settings } = {}) {
+export function siteOf({ invoked = process.argv[1] ?? '', home = homedir(), rules = settings } = {}) {
   const cli = basename(invoked).replace(/\.m?js$/, '');
   let site = null;
   try { site = JSON.parse(readFileSync(join(expand(rules.state_folder.replaceAll('{cli}', cli), home), rules.site_file), 'utf8')); } catch { /* not installed from a site */ }
-  // The command name is a shell word; the brand is words in any script (only quotes, backslashes, dollars and control
+  // The command name is a shell word; the site is words in any script (only quotes, backslashes, dollars and control
   // characters are refused).
   const command = value => (typeof value === 'string' && /^[a-z][a-z0-9-]{0,31}$/.test(value) ? value : null);
   const words = value => (typeof value === 'string' && /^[^\p{C}"\\`$]{1,64}$/u.test(value) ? value : null);
-  return { cli: command(site?.cli) ?? cli, brand: words(site?.brand) ?? command(site?.cli) ?? cli };
+  return { cli: command(site?.cli) ?? cli, site_name: words(site?.site_name) ?? command(site?.cli) ?? cli };
 }
 
-/** Fills {brand} and {cli} in this program's settings, once: the sentences a person reads and the places it keeps. */
-export function speakFor(brand, rules = settings) {
-  if (rules.brand) return;
-  const values = { ...brand, CLI: brand.cli.toUpperCase().replace(/-/g, '_') };
+/** Fills {site_name} and {cli} in this program's settings, once: the sentences a person reads and the places it keeps. */
+export function speakFor(site, rules = settings) {
+  if (rules.site) return;
+  const values = { ...site, CLI: site.cli.toUpperCase().replace(/-/g, '_') };
   const filled = value => (typeof value === 'string' ? fill(value, values)
     : Array.isArray(value) ? value.map(filled)
     : value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).map(([name, child]) => [name, filled(child)])) : value);
   // Every part, never a list of parts: a part left off a list keeps a raw {cli} in what a person or an AI reads.
   for (const part of Object.keys(rules)) rules[part] = filled(rules[part]);
-  rules.brand = brand;
+  rules.site = site;
 }
 
 // ── The commands ─────────────────────────────────────────────────────────────────────────────────────────────────
 
-const HELP = `{cli}: see your AIs and their work, and run your {brand}'s tools, from any shell.
+const HELP = `{cli}: see your AIs and their work, and run your {site_name}'s tools, from any shell.
 
   {cli} setup [--harness claude-code,codex,cursor]   sign in once, put {cli} on PATH, write each app's skill
-  {cli} login [--origin ADDRESS] | logout | whoami    sign in to {brand} (to another one with its address), sign out, or say who is signed in
+  {cli} login [--origin ADDRESS] | logout | whoami    sign in to {site_name} (to another one with its address), sign out, or say who is signed in
   {cli} connection [--write]                          the address and key source local bridges read, with a command per app
   {cli} who [--all]                                   your AIs seen lately (--all: every one): ready or away
   {cli} publish [--dry-run]                           write this AI's own record: its facts and that it was seen now
@@ -1837,7 +1837,7 @@ function printResult(bytes, stdout) {
 /** Runs one command line; answers the text to print. `seams` carries what tests replace: store, grants, state, open, env,
  *  fetchImpl, wait, place, localDoor (the local door's MCP address, or null), computerName and model. */
 export async function main(argv, seams = {}) {
-  if (seams.brand) speakFor(seams.brand);
+  if (seams.site) speakFor(seams.site);
   const parsed = parseArgs(argv);
   const [command = 'help', ...spoken] = parsed.words;
   // finish and fail with no result words (or `-`) take the result from standard input, as bytes of any size.
@@ -1856,7 +1856,7 @@ export async function main(argv, seams = {}) {
   context.carry = seams.carry ?? (seams.state ? null : () => carryThisComputer(context));
   const print = (name, answer) => (flags.json ? JSON.stringify(answer, null, 2) : render(name, answer));
   const engine = settings.engine;
-  if (command === 'help' || flags.help) return fill(HELP, settings.brand ? { ...settings.brand, CLI: settings.brand.cli.toUpperCase().replace(/-/g, '_') } : {});
+  if (command === 'help' || flags.help) return fill(HELP, settings.site ? { ...settings.site, CLI: settings.site.cli.toUpperCase().replace(/-/g, '_') } : {});
   if (command === 'login') return login(context, { again: flags.again === true });
   if (command === 'logout') return logout(context);
   if (command === 'connection') {
@@ -2008,9 +2008,9 @@ export function appNodeToRunUnder({ rules = settings, execPath = process.execPat
 // Run when started as a program (directly, or through the link setup puts on PATH).
 const startedAsProgram = (() => { try { return realpathSync(process.argv[1] ?? '') === realpathSync(fileURLToPath(import.meta.url)); } catch { return false; } })();
 if (startedAsProgram) {
-  // The brand this command speaks for, first: its folders, its app and what it follows are the brand's.
-  const brand = brandOf();
-  speakFor(brand);
+  // The site this command speaks for, first: its folders, its app and what it follows are the site's.
+  const site = siteOf();
+  speakFor(site);
   // The engine on this computer admits only code the Mac app signed, so a shell's own node runs this program again under the app's.
   const appNode = appNodeToRunUnder();
   if (appNode !== null) {
@@ -2021,7 +2021,7 @@ if (startedAsProgram) {
   let run = { main, CommandError };
   const followed = workshopProgram();
   if (followed !== null) run = await import(pathToFileURL(followed).href).catch(() => run);
-  run.main(process.argv.slice(2), { brand }).then(text => { if (text) process.stdout.write(`${text}\n`); }, error => {
+  run.main(process.argv.slice(2), { site }).then(text => { if (text) process.stdout.write(`${text}\n`); }, error => {
     const known = error instanceof run.CommandError || error instanceof CommandError;
     const words = known ? error.message : `${run.cliName?.() ?? 'command'}: ${error.stack ?? error}`;
     // The technical line of a refusal is printed only with --verbose.

@@ -12,8 +12,8 @@ import { foldRun, sseEvents, sseFrame } from '../../offer-my-work-as-ag-ui-event
 import { serveOnce, speakFor } from '../do-work/command.mjs';
 import settings from '../do-work/command.json' with { type: 'json' };
 
-// These tests speak for one brand, as an install from that brand's site makes the command do.
-speakFor({ cli: 'example', brand: 'Example' });
+// These tests speak for one site, as an install from that site's site makes the command do.
+speakFor({ cli: 'example', site_name: 'Example' });
 
 // An AG-UI agent written by hand, as the protocol's server starter writes one: each POST is one run. `script(input)`
 // returns the events after RUN_STARTED; the inputs it was sent are kept.

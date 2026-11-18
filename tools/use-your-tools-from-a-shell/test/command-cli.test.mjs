@@ -13,8 +13,8 @@ import {
   installSkills, jobLines, keyStore, main, modelOf, namesOf, parseArgs, pkce, placeOf, providerOf, publishRecord, render, repliesOf, sendNote,
   opWhole, serveOnce, signInWithBrowser, addPersonHere, findAgentSocket, audiencesOf, stateOf, engineClient, waitFor, workCall, speakFor } from '../do-work/command.mjs';
 
-// These tests speak for one brand, as an install from that brand's site makes the command do.
-speakFor({ cli: 'example', brand: 'Example' });
+// These tests speak for one site, as an install from that site's site makes the command do.
+speakFor({ cli: 'example', site_name: 'Example' });
 
 const KEY = `nm_${'ab'.repeat(32)}`;
 const ACCOUNT = 'f'.repeat(64);

@@ -11,8 +11,8 @@ import { join } from 'node:path';
 import test from 'node:test';
 import { main, stateOf, CommandError, speakFor } from '../do-work/command.mjs';
 
-// These tests speak for one brand, as an install from that brand's site makes the command do.
-speakFor({ cli: 'example', brand: 'Example' });
+// These tests speak for one site, as an install from that site's site makes the command do.
+speakFor({ cli: 'example', site_name: 'Example' });
 
 const ORIGIN = 'http://127.0.0.1:8788';
 const KEY = `nm_${'ab'.repeat(16)}`;

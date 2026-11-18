@@ -1,6 +1,6 @@
 {
   "client_id": "{origin}/cli/client.json",
-  "client_name": "{brand} command line",
+  "client_name": "{site_name} command line",
   "redirect_uris": [
     "http://127.0.0.1:54718/callback"
   ],

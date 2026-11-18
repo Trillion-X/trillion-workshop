@@ -11,8 +11,8 @@ import test from 'node:test';
 import { installProgram, updateWords, speakFor } from '../do-work/command.mjs';
 import settings from '../do-work/command.json' with { type: 'json' };
 
-// These tests speak for one brand, as an install from that brand's site makes the command do.
-speakFor({ cli: 'example', brand: 'Example' });
+// These tests speak for one site, as an install from that site's site makes the command do.
+speakFor({ cli: 'example', site_name: 'Example' });
 
 const home = () => mkdtempSync(join(tmpdir(), 'trillion-workshop-install-'));
 const programOf = folder => join(folder, '.example/cli/program');

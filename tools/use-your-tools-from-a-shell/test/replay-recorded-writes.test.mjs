@@ -9,8 +9,8 @@ import {
   batchesOf, credentialLike, dryRun, inventoryOf, shellCommands, shellWrites, writeInventory,
 } from '../do-work/replay-recorded-writes.mjs';
 
-// These tests speak for one brand, as an install from that brand's site makes the command do.
-speakFor({ cli: 'example', brand: 'Example' });
+// These tests speak for one site, as an install from that site's site makes the command do.
+speakFor({ cli: 'example', site_name: 'Example' });
 
 const host = { parseArgs, expand, settings: cli, programs: new Set(['example', 'command.mjs']) };
 const folder = () => mkdtempSync(join(tmpdir(), 'replay-writes-test-'));

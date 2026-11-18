@@ -6,8 +6,8 @@ import { join } from 'node:path';
 import settings from '../do-work/command.json' with { type: 'json' };
 import { CommandError, argumentsFor, schedules, validateAcceptance, validateCheck, validateContinuation, speakFor } from '../do-work/command.mjs';
 
-// These tests speak for one brand, as an install from that brand's site makes the command do.
-speakFor({ cli: 'example', brand: 'Example' });
+// These tests speak for one site, as an install from that site's site makes the command do.
+speakFor({ cli: 'example', site_name: 'Example' });
 
 const me = { agent_id: 'lane-a', ai_id: 'ai:lane-a', held_as: [] };
 const folder = mkdtempSync(join(tmpdir(), 'example-job-commands-'));

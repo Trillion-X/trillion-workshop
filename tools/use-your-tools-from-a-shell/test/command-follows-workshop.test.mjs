@@ -12,8 +12,8 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { workshopProgram, speakFor } from '../do-work/command.mjs';
 
-// These tests speak for one brand, as an install from that brand's site makes the command do.
-speakFor({ cli: 'example', brand: 'Example' });
+// These tests speak for one site, as an install from that site's site makes the command do.
+speakFor({ cli: 'example', site_name: 'Example' });
 
 const DO_WORK = fileURLToPath(new URL('../do-work/', import.meta.url));
 const STUB = "export class CommandError extends Error {}\nexport const main = async argv => `FOLLOWED ${argv.join(' ')}`;\n";
@@ -35,7 +35,7 @@ function computer({ stub = STUB } = {}) {
   }
   return { home, installed };
 }
-// The command is run as a person runs it: by the link named after it (the name is the brand's command, here a made-up one).
+// The command is run as a person runs it: by the link named after it (the name is the site's command, here a made-up one).
 const runInstalled = ({ home, installed }, ...argv) => {
   const link = join(home, '.local/bin/example');
   if (!existsSync(link)) { mkdirSync(join(home, '.local/bin'), { recursive: true }); symlinkSync(join(installed, 'command.mjs'), link); }

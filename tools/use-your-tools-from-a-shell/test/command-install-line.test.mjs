@@ -19,8 +19,8 @@ const serve = folder => new Promise(resolve => {
 });
 
 // Run without blocking: the stand-in site answers in this same process.
-// A made-up brand: the tool names no product, so a site's brand row is all its pages and its command wear.
-const BRAND = { name: 'Acme Co', cli: 'acmeco' };
+// A made-up site: the tool names no product, so the site's own name and command word are all its pages and its command wear.
+const SITE = { name: 'Acme Co', cli: 'acmeco' };
 
 const run = (command, args, env) => new Promise(resolve => {
   const child = spawn(command, args, { env });
@@ -32,18 +32,18 @@ const run = (command, args, env) => new Promise(resolve => {
 const install = (origin, home, path) => run('sh', ['-c', `curl -fsSL ${origin}/cli/install | sh`], { HOME: home, PATH: path, SHELL: '/bin/zsh' });
 
 test('the site pages name only their own site, and carry every file the program needs', () => {
-  const pages = sitePages('https://acme.test', BRAND);
+  const pages = sitePages('https://acme.test', SITE);
   const named = Object.fromEntries(pages.map(row => [row.page, row.bytes.toString('utf8')]));
   assert.equal(JSON.parse(named['cli/client.json']).client_id, 'https://acme.test/cli/client.json');
   assert.equal(JSON.parse(named['cli/client.json']).client_name, 'Acme Co command line');
   assert.match(named['cli/install'], /^origin='https:\/\/acme\.test'$/m);
   assert.match(named['cli/install'], /^cli='acmeco'$/m);
-  assert.ok(!/\{(origin|brand|cli|program)\}/.test(named['cli/install']));
-  assert.ok(!/example/i.test(named['cli/install'].split('\n').filter(line => !line.startsWith('#')).join('\n').replace(`'${settings.install.files[0]}'`, '')), 'the install line names no product but the brand');
+  assert.ok(!/\{(origin|site|cli|program)\}/.test(named['cli/install']));
+  assert.ok(!/example/i.test(named['cli/install'].split('\n').filter(line => !line.startsWith('#')).join('\n').replace(`'${settings.install.files[0]}'`, '')), 'the install line names no product but the site');
   assert.deepEqual(named['cli/program/files.txt'].trim().split('\n'), settings.install.files);
   for (const name of settings.install.files) assert.ok(pages.some(row => row.page === `cli/program/${name}`), name);
-  for (const bad of ['http://acme.test', 'https://acme.test/path', 'acme.test']) assert.throws(() => sitePages(bad, BRAND), /not an origin/, bad);
-  for (const bad of [{ name: "O'Neil", cli: 'x' }, { name: 'X', cli: 'Bad Name' }, {}]) assert.throws(() => sitePages('https://acme.test', bad), /brand row/, JSON.stringify(bad));
+  for (const bad of ['http://acme.test', 'https://acme.test/path', 'acme.test']) assert.throws(() => sitePages(bad, SITE), /not an origin/, bad);
+  for (const bad of [{ name: "O'Neil", cli: 'x' }, { name: 'X', cli: 'Bad Name' }, {}]) assert.throws(() => sitePages('https://acme.test', bad), /the site's (name|command word) must be/, JSON.stringify(bad));
 });
 
 test('the install line puts the site\'s command on PATH and names its site; run again it changes nothing it should not', async () => {
@@ -51,7 +51,7 @@ test('the install line puts the site\'s command on PATH and names its site; run 
   const server = await serve(pages);
   const origin = `http://127.0.0.1:${server.address().port}`;
   try {
-    writeSitePages(origin, BRAND, pages);
+    writeSitePages(origin, SITE, pages);
     const home = mkdtempSync(join(tmpdir(), 'example-home-'));
     const bin = join(home, '.local/bin');
     mkdirSync(bin, { recursive: true });
@@ -63,19 +63,19 @@ test('the install line puts the site\'s command on PATH and names its site; run 
     assert.equal(first.stdout.trim(), 'Acme Co is installed. Now type: acmeco login', '~/.local/bin is on PATH, so no new terminal');
     assert.ok(!existsSync(join(other, 'acmeco')), 'another program\'s folder on PATH is never used');
     assert.equal(readlinkSync(join(bin, 'acmeco')), join(home, '.acmeco/cli/program', settings.install.files[0]));
-    assert.deepEqual(JSON.parse(readFileSync(join(home, '.acmeco/cli', settings.site_file), 'utf8')), { origin, brand: 'Acme Co', cli: 'acmeco' });
+    assert.deepEqual(JSON.parse(readFileSync(join(home, '.acmeco/cli', settings.site_file), 'utf8')), { origin, site_name: 'Acme Co', cli: 'acmeco' });
     const help = await run(join(bin, 'acmeco'), ['help'], { HOME: home, PATH: path });
     assert.equal(help.status, 0, help.stderr);
     assert.match(help.stdout, /^acmeco: .* your Acme Co's tools/);
     assert.match(help.stdout, /acmeco login/);
-    assert.ok(!/example/i.test(help.stdout), 'the installed command speaks only for its brand');
+    assert.ok(!/example/i.test(help.stdout), 'the installed command speaks only for its site');
     assert.equal((await install(origin, home, path)).status, 0, 'a second install replaces the first');
-    // Another site whose brand chose the same command word: it would take this one's link and state, so nothing changes.
+    // Another site whose site chose the same command word: it would take this one's link and state, so nothing changes.
     const otherPages = mkdtempSync(join(tmpdir(), 'other-site-'));
     const otherServer = await serve(otherPages);
     try {
       const otherOrigin = `http://127.0.0.1:${otherServer.address().port}`;
-      writeSitePages(otherOrigin, BRAND, otherPages);
+      writeSitePages(otherOrigin, SITE, otherPages);
       const refused = await install(otherOrigin, home, path);
       assert.equal(refused.status, 1);
       assert.match(refused.stdout, new RegExp(`acmeco on this computer is already the command of ${origin}`));
@@ -89,7 +89,7 @@ test('with no folder of its own on PATH it adds ~/.local/bin to the shell\'s sta
   const server = await serve(pages);
   const origin = `http://127.0.0.1:${server.address().port}`;
   try {
-    writeSitePages(origin, BRAND, pages);
+    writeSitePages(origin, SITE, pages);
     const home = mkdtempSync(join(tmpdir(), 'example-home-'));
     const path = `/usr/bin:/bin:${join(process.execPath, '..')}`;
     const said = await install(origin, home, path);
@@ -111,14 +111,14 @@ test('with no Node.js 22 the install line says where to get it and changes nothi
   const home = mkdtempSync(join(tmpdir(), 'example-home-'));
   const fakeBin = mkdtempSync(join(tmpdir(), 'old-node-'));
   writeFileSync(join(fakeBin, 'node'), '#!/bin/sh\necho 18\n', { mode: 0o755 });
-  const script = sitePages('https://acme.test', BRAND).find(row => row.page === 'cli/install').bytes.toString('utf8');
+  const script = sitePages('https://acme.test', SITE).find(row => row.page === 'cli/install').bytes.toString('utf8');
   const said = spawnSync('sh', ['-c', script], { env: { HOME: home, PATH: `${fakeBin}:/usr/bin:/bin` }, encoding: 'utf8' });
   assert.equal(said.status, 1);
   assert.match(said.stdout, /Node\.js 22 or newer.*nodejs\.org/);
   assert.ok(!existsSync(join(home, '.acmeco')));
 });
 
-test('a brand named in any script gets its pages, and a name that could break the install line is refused', () => {
+test('a site named in any script gets its pages, and a name that could break the install line is refused', () => {
   for (const name of ['Café Lumière', '日本ラボ', 'Ωmega Co']) {
     const pages = sitePages('https://acme.test', { name, cli: 'acmeco' });
     assert.ok(pages.find(row => row.page === 'cli/client.json').bytes.toString('utf8').includes(name), name);
