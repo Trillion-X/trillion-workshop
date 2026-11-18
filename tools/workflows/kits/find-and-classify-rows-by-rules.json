@@ -1,0 +1,115 @@
+{
+  "drafted_from": "the six kits of tools/formulas (filter-rows-by-rules, evaluate-a-formula, list-comparisons, classify-a-record, read-a-fields-history, work-out-history-values) and tool-rows.json, read on origin/main bb8022539c",
+  "start_here": "Say to your AI: \"Keep the rows of my list that are not Lost and have a value over 1000, and label each one big or other\", with store {\\\"where\\\": \\\"postgresql database example_shop on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-shop-postgres-connection\\\"}.\"",
+  "lists": [],
+  "no_lists_because": "It names no list you must already have: the list you name is read from your own store, in whatever form it keeps its rows.",
+  "workflows": [
+    "workflow:find-and-classify-rows-by-rules"
+  ],
+  "tools": [
+    "tool:run-workflow-definition",
+    "tool:hand-a-job-to-an-ai"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:find-and-classify-rows-by-rules\" with store, the list, the rule tree, an optional formula and the labels.",
+    "3. Every attempt in the prove step must come out as it says, or the run stops and says which.",
+    "4. Every later run reads the list's rows through the store and answers the kept rows, the labels and the rules left out."
+  ],
+  "worked_examples": [
+    {
+      "title": "Rows over a value and not Lost",
+      "ask": "Keep the rows that are not Lost and have a value over 1000, and label each big or other.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:find-and-classify-rows-by-rules",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "list": "deals",
+              "rules": {
+                "combinator": "all-of",
+                "rules": [
+                  {
+                    "field": "stage",
+                    "op": "is none of",
+                    "value": [
+                      "Lost"
+                    ]
+                  },
+                  {
+                    "field": "value",
+                    "op": "is more than",
+                    "value": 1000
+                  }
+                ]
+              },
+              "labels": [
+                {
+                  "label": "big",
+                  "rules": {
+                    "field": "value",
+                    "op": "is more than",
+                    "value": 1000
+                  }
+                },
+                {
+                  "label": "other",
+                  "rules": {
+                    "field": "stage",
+                    "op": "is",
+                    "value": "Won"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:find-and-classify-rows-by-rules",
+      "step": "keep",
+      "given": "The list deals holds r1 (Negotiation, 5000), r2 (Won, null) and r3 (Lost, 300).",
+      "hands_back": "kept [\"r1\"], labels {\"r1\": \"big\"}, incomplete [], error_rows 0; r2 is not kept because its value is unknown."
+    },
+    {
+      "title": "A rule that names no field",
+      "ask": "Keep the rows where the colour is red.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:find-and-classify-rows-by-rules",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "list": "deals",
+              "rules": {
+                "field": "colour",
+                "op": "is",
+                "value": "red"
+              }
+            }
+          }
+        }
+      },
+      "workflow": "workflow:find-and-classify-rows-by-rules",
+      "step": "keep",
+      "given": "The list deals has no colour field.",
+      "hands_back": "kept [], incomplete [\"colour is not a field of deals\"]."
+    }
+  ]
+}
