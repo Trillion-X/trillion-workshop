@@ -8,21 +8,21 @@
 // that sees the failure come back adds its own address and operation, so the failure reaches the top naming the whole chain.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { withHopTrail } from '../src/failure.mjs';
+import { withHopTrail } from '../../shared-code/src/failure.mjs';
 
 test('another failure is passed on as it is, without a trail', async () => {
   assert.equal(withHopTrail('x', new Error('plain')).hop_trail, undefined);
 });
 
 test('a long hop keeps its method: the middle of the address is cut, not the end', async () => {
-  const {withHopTrail, hopTrailOf} = await import('../src/failure.mjs');
+  const {withHopTrail, hopTrailOf} = await import('../../shared-code/src/failure.mjs');
   const error = withHopTrail('gate:["0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef","key:abc","shared-policy-address-that-is-long"].checkResourcePermit', new Error('Subrequest depth limit exceeded'));
   const [hop] = hopTrailOf(error);
   assert.ok(hop.length <= 90 && hop.startsWith('gate:') && hop.endsWith('.checkResourcePermit'), hop);
 });
 
 test('a dependency command carries its depth, increments it on every level, and is refused retryably past the most', async () => {
-  const {nextDependencyDepth, MOST_DEPENDENCY_DEPTH, DEPENDENCY_TOO_DEEP, platformTransient} = await import('../src/failure.mjs');
+  const {nextDependencyDepth, MOST_DEPENDENCY_DEPTH, DEPENDENCY_TOO_DEEP, platformTransient} = await import('../../shared-code/src/failure.mjs');
   let commitment = {};
   const seen = [];
   for (let level = 1; level <= MOST_DEPENDENCY_DEPTH; level++) {
@@ -40,7 +40,7 @@ test('a dependency command carries its depth, increments it on every level, and 
 });
 
 test('twenty sibling dependencies of one command all run at depth 1: siblings do not nest', async () => {
-  const {nextDependencyDepth} = await import('../src/failure.mjs');
+  const {nextDependencyDepth} = await import('../../shared-code/src/failure.mjs');
   const parent = {};
   const depths = Array.from({length: 20}, () => nextDependencyDepth(parent));
   assert.deepEqual([...new Set(depths)], [1]);

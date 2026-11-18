@@ -3,7 +3,7 @@
 import { canonical, identityOf } from '../../shared-code/src/record-identity.mjs';
 import { yourRecordsStore } from '../../keep-and-wake-ai-sessions-on-this-computer/src/your-records.mjs';
 import { currentAudienceSource, keepAudienceSource, readAudienceSource, publicSourceUrl, readPublicAudiencePage } from './audience-question-sources.mjs';
-import { failureOf } from '../../keep-and-wake-ai-sessions-on-this-computer/src/failure.mjs';
+import { failureOf } from '../../shared-code/src/failure.mjs';
 
 const text = value => typeof value === 'string' ? value.trim() : '';
 const keyOf = value => text(value).normalize('NFKC').toLocaleLowerCase('en').replace(/\s+/g, ' ');

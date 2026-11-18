@@ -880,13 +880,6 @@
       "identity": "1f:6763c3999501916b79567bffbd397cc85da0a63a34523af9c24d431be38ed3de"
     },
     {
-      "from": "src/failure.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/failure.mjs",
-      "source_identity": "1f:b2d2caec290a2a4fad02a20a2f2d9992086dfe091ae7d0038e060b1d86e3479c",
-      "identity": "1f:cc08f431988cb888be8ce80797a55636a1fc7a001e2de7e7516561d4ad092fa7"
-    },
-    {
       "from": "src/harnesses.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/harnesses.mjs",
@@ -1263,13 +1256,6 @@
       "identity": "1f:91056a46c9296022906c791c5d5dc18a4426a52476f542ca32a91f6f313d6199"
     },
     {
-      "from": "src/repo-explorer.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/repo-explorer.mjs",
-      "source_identity": "1f:22acb2f564cf47c9b5924821bc0e3cd5fd4ce99d4ae6fe8ca15feab0884151f8",
-      "identity": "1f:22acb2f564cf47c9b5924821bc0e3cd5fd4ce99d4ae6fe8ca15feab0884151f8"
-    },
-    {
       "from": "src/responses.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/responses.mjs",
@@ -1428,13 +1414,6 @@
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/tool-releases.mjs",
       "source_identity": "1f:8736e35cab74eedfdceaa706d08dc0507bf3b082a53926a1a3c44f73f7554de8",
       "identity": "1f:0369720206043c97df926ad8c38c6752faa2ee724ef5b8c742de9af437889dda"
-    },
-    {
-      "from": "src/typed-operation-contract.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/typed-operation-contract.mjs",
-      "source_identity": "1f:7ef560a846842cb6da043716be7509ad582fa0a74d41f081b7bec63fa3852b27",
-      "identity": "1f:9584ba671c32f951e830c39de1904bc14e501990e3eaab1dd20f066f6be10ad5"
     },
     {
       "from": "src/view-patch.mjs",

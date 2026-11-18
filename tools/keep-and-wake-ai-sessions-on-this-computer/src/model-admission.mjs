@@ -1,6 +1,6 @@
 // SQL backed reservations for paid inference. The caller supplies the surrounding SQLite transaction
 // so reservations serialize with the counters whose limits they protect.
-import {identityOf} from './typed-operation-contract.mjs';
+import {identityOf} from '../../shared-code/src/typed-operation-contract.mjs';
 export function modelAdmissionTables(sql) {
   sql.exec(`CREATE TABLE IF NOT EXISTS model_call_reservations (
     id TEXT PRIMARY KEY, day TEXT NOT NULL, purpose TEXT NOT NULL, model TEXT NOT NULL,

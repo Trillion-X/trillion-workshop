@@ -1,5 +1,5 @@
-import { canonical, identityOf, workshopTaskId, workshopToolVersion, workshopToolDefinition, schemaProblems } from './typed-operation-contract.mjs';
-export { workshopTaskId, workshopToolVersion, workshopToolDefinition, schemaProblems } from './typed-operation-contract.mjs';
+import { canonical, identityOf, workshopTaskId, workshopToolVersion, workshopToolDefinition, schemaProblems } from '../../shared-code/src/typed-operation-contract.mjs';
+export { workshopTaskId, workshopToolVersion, workshopToolDefinition, schemaProblems } from '../../shared-code/src/typed-operation-contract.mjs';
 import { bindAdmittedTool, boundToolId, boundToolParts, connectionVendor, requireCurrentConnection } from './source-connection.mjs';
 // A concrete connection identity is private execution authority, never shared
 // learning metadata. Keep the public executable definition and its version.
@@ -34,7 +34,7 @@ import { bytesToHex } from '@noble/hashes/utils.js';
 import { admitToolDescriptor, readToolData, toolLineProblems } from '../../ai-tool-catalog/read-data/read-ai-tool-catalog.ts';
 import { selectDeclaredValue } from '../../ui/read-data/declared-selector.ts';
 import { tarGz, untarGz } from './tar-gz.mjs';
-import { InputStagingPending, inputPlacement, NAMESPACE_FILE, NAMESPACE_IDENTITY, runsSealed } from './repo-explorer.mjs';
+import { InputStagingPending, inputPlacement, NAMESPACE_FILE, NAMESPACE_IDENTITY, runsSealed } from '../../shared-code/src/repo-explorer.mjs';
 import { sharedNamespaceFileInput, placeSharedNamespaceFileInput } from './shared-namespace-file-input.mjs';
 import SAVE_TOOL_EXAMPLE from './save-tool-example.json' with { type: 'json' };
 import { decideExternalEffectAttempt, recordExternalEffectResult } from '../../connect-a-service-and-seal-its-key/do-work/external-effect-attempt.ts';

@@ -45,7 +45,7 @@ import { buildInvocation, WorkshopError } from './workshop.mjs';
 import { selectDeclaredValue } from '../../ui/read-data/declared-selector.ts';
 import { withoutSecrets } from './scheduler.mjs';
 import { hasRouteCollection, makeRouteListeners } from './event-route-listeners.mjs';
-import { failureOf } from './failure.mjs';
+import { failureOf } from '../../shared-code/src/failure.mjs';
 import operators from 'trillion-workshop/tools/formula-engine/rules/rule-operators.json' with { type: 'json' };
 import { makeRowFilter, ruleTreeOfTests } from 'trillion-workshop/tools/formula-engine/rules/filter-rows-by-rules.mjs';
 

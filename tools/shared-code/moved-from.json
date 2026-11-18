@@ -452,22 +452,6 @@
       "identity": "1f:393178655c65a86c787fcb08707060f5b787babe38016261ec6809fdbed51f81"
     },
     {
-      "from": "src/renamed-tools.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/shared-code/src/renamed-tools.mjs",
-      "source_identity": "1f:91056a46c9296022906c791c5d5dc18a4426a52476f542ca32a91f6f313d6199",
-      "identity": "1f:0414c7fdc3853dc30f7407311807702643c343c8f27db7017e13e80b02deee12",
-      "reused": true
-    },
-    {
-      "from": "src/renamed-tools.mjs",
-      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "to": "tools/shared-code/src/renamed-tools.mjs",
-      "source_identity": "1f:91056a46c9296022906c791c5d5dc18a4426a52476f542ca32a91f6f313d6199",
-      "identity": "1f:0414c7fdc3853dc30f7407311807702643c343c8f27db7017e13e80b02deee12",
-      "reused": true
-    },
-    {
       "from": "src/repo-explorer.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/shared-code/src/repo-explorer.mjs",
@@ -567,14 +551,6 @@
       "to": "tools/shared-code/src/service-resource-pricing.mjs",
       "source_identity": "1f:9aaae31fd333ba43833270015e676f420cae3659e24ab3b7a2c2328bb988f4a7",
       "identity": "1f:603ec70a45796dfa5ec417bb0002b20a599cb968259cc2712cbca9fca33f490b"
-    },
-    {
-      "from": "src/sold-copies.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/shared-code/src/sold-copies.mjs",
-      "source_identity": "1f:c84c4a57262eb1822b9daa97aa7d38bd3f965e257a5e1467746a4c0607626dcd",
-      "identity": "1f:fde449d83f9d4ce0d9bbfabed092c3ed21afda9a37b6990afbd58eef087ff847",
-      "reused": true
     },
     {
       "from": "src/spend-meter.json",

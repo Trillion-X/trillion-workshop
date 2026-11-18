@@ -6,7 +6,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {sqliteHost} from '../../keep-and-wake-ai-sessions-on-this-computer/src/local-store.mjs';
-import {WorkFailure,failureOf} from '../../keep-and-wake-ai-sessions-on-this-computer/src/failure.mjs';
+import {WorkFailure,failureOf} from '../../shared-code/src/failure.mjs';
 import {publicAppDomains,publicAppDomainKey,publicAppDomainProbePath} from '../src/public-app-domains.mjs';
 
 const host='shop.example.com',installationId='a'.repeat(32),ownerUserId='domain-probe-owner',token='fixture-probe-proof';

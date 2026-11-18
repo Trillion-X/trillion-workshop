@@ -19,8 +19,8 @@
 //                  licence class comes from the repository's SPDX licence id.
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
-import { saleOf, soldNote, withSoldNote } from './sold-copies.mjs';
-import { currentPlacement } from './renamed-tools.mjs';
+import { saleOf, soldNote, withSoldNote } from '../../keep-and-wake-ai-sessions-on-this-computer/src/sold-copies.mjs';
+import { currentPlacement } from '../../keep-and-wake-ai-sessions-on-this-computer/src/renamed-tools.mjs';
 
 const decoder = new TextDecoder();
 const text = bytes => (typeof bytes === 'string' ? bytes : decoder.decode(bytes ?? new Uint8Array()));

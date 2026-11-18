@@ -8643,7 +8643,7 @@
   {
    "path": "src/repo-explorer.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/repo-explorer.mjs",
+   "destination": "trillion-workshop:tools/shared-code/src/repo-explorer.mjs",
    "why": "a feature a person or AI uses",
    "batch": "1 (harness, trillion-workshop PR #97)"
   },

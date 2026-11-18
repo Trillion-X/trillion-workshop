@@ -2,7 +2,7 @@
 // Execution opens it through its current Space/item grant and uses the existing
 // staging placement; no transferable lease belongs in a durable task input.
 import { sharedReference } from '../parts/live-namespace/do-work/shared-file-reference.mjs';
-import { inputPlacement, NAMESPACE_IDENTITY } from './repo-explorer.mjs';
+import { inputPlacement, NAMESPACE_IDENTITY } from '../../shared-code/src/repo-explorer.mjs';
 
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const fields = new Set(['identity', 'space_id', 'item_id']);

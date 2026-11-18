@@ -8,7 +8,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import codes from '../../shared-code/src/failure-codes.json' with { type: 'json' };
-import { failureOf, payloadOf } from '../src/failure.mjs';
+import { failureOf, payloadOf } from '../../shared-code/src/failure.mjs';
 
 test('every registered code has a domain and a payload list', () => {
   for (const [code, row] of Object.entries(codes)) {

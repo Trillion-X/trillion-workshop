@@ -14,7 +14,7 @@
 // charged once; it is given back when the work fails, and lowered to what the call actually cost when that is less.
 import { chargeRefusal, creditOf, dollars, withMarkup } from '../../price-and-sell-by-contract/src/credit.mjs';
 import { WorkshopError } from '../../keep-and-wake-ai-sessions-on-this-computer/src/workshop.mjs';
-import { deliveredIdentities } from '../../shared-code/src/sold-copies.mjs';
+import { deliveredIdentities } from '../../keep-and-wake-ai-sessions-on-this-computer/src/sold-copies.mjs';
 
 /** A tool charged per call it sends through the gateway, not as a whole (`billing.per`). */
 export const PER_GATEWAY_CALL = 'gateway-call';

@@ -28,7 +28,7 @@
 //      result, so an older app keeps working until it updates.
 
 import { reachabilityOf } from '../../shared-code/src/agent-delivery.mjs';
-import { cardSkillFor, currentToolId, formerAgentIds } from '../../shared-code/src/renamed-tools.mjs';
+import { cardSkillFor, currentToolId, formerAgentIds } from '../../keep-and-wake-ai-sessions-on-this-computer/src/renamed-tools.mjs';
 
 const FROM = 'trillion-workshop';
 

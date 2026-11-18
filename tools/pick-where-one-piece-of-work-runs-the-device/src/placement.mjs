@@ -28,7 +28,7 @@
 //
 import data from './placement.json' with { type: 'json' };
 import placementRecords from '../records/workshop-placement-records.json' with { type: 'json' };
-import { cardSkillFor, formerAgentIds } from '../../shared-code/src/renamed-tools.mjs';
+import { cardSkillFor, formerAgentIds } from '../../keep-and-wake-ai-sessions-on-this-computer/src/renamed-tools.mjs';
 
 const AGENT_OF = new Map(placementRecords.records.map(record => [record.payload.id, record.payload.settings?.agent_id ?? null]));
 

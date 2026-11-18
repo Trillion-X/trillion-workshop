@@ -15,7 +15,7 @@
 //   3. Excluding a component writes only over the exact row the caller checked (expected: the configurationIdentity of its current row, currentInstallRow): a
 //      row that changed since is refused (409), so a check made on an older set never removes from a newer one.
 import { configurationIdentity } from '../../see-what-an-account-has-installed/src/marketplace-configurations.mjs';
-import { currentInstallRow } from '../../shared-code/src/renamed-tools.mjs';
+import { currentInstallRow } from '../../keep-and-wake-ai-sessions-on-this-computer/src/renamed-tools.mjs';
 
 const fail = (message, status = 400) => Object.assign(new Error(message), { status });
 const entityOf = row => row.pursuit_id

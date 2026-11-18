@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { workshopTaskId } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/typed-operation-contract.mjs';
+import { workshopTaskId } from '../../../shared-code/src/typed-operation-contract.mjs';
 import { calendarSelectionSourceId } from '../../../keep-my-calendar-in-my-accounts-own-records-with-its-lists-files/src/calendar-connections.mjs';
 import { createNativeAvailabilityCalendar } from '../src/native-availability-calendar.mjs';
 

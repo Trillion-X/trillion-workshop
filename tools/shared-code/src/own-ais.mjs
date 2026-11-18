@@ -31,7 +31,7 @@ import { teamReviewActorProblem } from './team-review.mjs';
 //
 
 import settings from './own-ais.json' with { type: 'json' };
-import { cardSkillFor, formerAgentIds } from './renamed-tools.mjs';
+import { cardSkillFor, formerAgentIds } from '../../keep-and-wake-ai-sessions-on-this-computer/src/renamed-tools.mjs';
 import { effective, refusal } from './delegation-ceilings.mjs';
 
 export const OWN_AIS_PATH = '/own-ais';

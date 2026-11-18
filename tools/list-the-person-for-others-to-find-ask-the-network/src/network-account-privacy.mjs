@@ -1,7 +1,7 @@
 // Account-side Network privacy algorithms shared by native and legacy hosts.
 // Storage, current authorization, agent work and shared membership are supplies;
 // this module cannot pick an account store or general Network dispatcher.
-import {identityOf} from '../../keep-and-wake-ai-sessions-on-this-computer/src/typed-operation-contract.mjs';
+import {identityOf} from '../../shared-code/src/typed-operation-contract.mjs';
 const fail=message=>Object.assign(new Error(message),{status:403});
 export function networkAccountPrivacy({profile,setting,setSetting,aiWork,pursuits,records,relay,bothMembers,current=async()=>{}}={}){
  if(typeof profile!=='function'||typeof setting!=='function'||typeof setSetting!=='function'

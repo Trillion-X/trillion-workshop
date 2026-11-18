@@ -3,7 +3,7 @@
 // Calendar owner and its DATA; mutations stay inside Workshop's effect ledger.
 import calendarSettings from '../../../keep-my-calendar-in-my-accounts-own-records-with-its-lists-files/src/calendar.json' with { type: 'json' };
 import { prepareCalendarAction } from '../../../keep-my-calendar-in-my-accounts-own-records-with-its-lists-files/src/calendar-actions.mjs';
-import { workshopTaskId, canonical } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/typed-operation-contract.mjs';
+import { workshopTaskId, canonical } from '../../../shared-code/src/typed-operation-contract.mjs';
 import { zonedWallClockToUtcMs } from '../../do-work/derive-open-slots.ts';
 
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);

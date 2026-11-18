@@ -6,7 +6,7 @@
 // with Retry-After so its queue can drain.
 // A call cut off this way that is not repeated here answers 503 with this Retry-After, at the Worker's one catch
 // (somethingBroke in src/worker.mjs), so its sender sends it again.
-import { failureOf } from './failure.mjs';
+import { failureOf } from '../../shared-code/src/failure.mjs';
 
 export const SEND_AGAIN_AFTER_SECONDS = failureOf({ failure_code: 'service-busy' }).retry_after_seconds;
 // What the sender of such a call is told, over HTTP (somethingBroke) and as an MCP tool's answer (src/tools.mjs).

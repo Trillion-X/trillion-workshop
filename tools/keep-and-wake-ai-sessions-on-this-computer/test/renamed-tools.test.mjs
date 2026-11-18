@@ -5,7 +5,7 @@ import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import renamed from '../src/renamed-tools.json' with { type: 'json' };
 import { agentForTool } from '../../hand-off-jobs-between-agents/src/agent-tool-runs.mjs';
-import { cardSkillFor, currentToolId, formerAgentIds } from '../../shared-code/src/renamed-tools.mjs';
+import { cardSkillFor, currentToolId, formerAgentIds } from '../src/renamed-tools.mjs';
 import { workshopRows } from '../../workflows/read-data/workshop-tool-ids.mjs';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));

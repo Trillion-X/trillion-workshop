@@ -12,7 +12,7 @@
 //      the platform's count need not fall when pages are freed for reuse.
 //   3. A full store is one failure code (src/failure.mjs `store-full`, from src/platform-failures.json), whatever words
 //      the host used.
-import { failureOf } from './failure.mjs';
+import { failureOf } from '../../shared-code/src/failure.mjs';
 import settings from '../../record-log/do-work/store-size.json' with { type: 'json' };
 
 export const limitBytes = settings.limit_bytes;

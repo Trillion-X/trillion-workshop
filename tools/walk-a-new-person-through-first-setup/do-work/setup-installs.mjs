@@ -9,7 +9,7 @@ import harness from '../../keep-and-wake-ai-sessions-on-this-computer/harness/se
 import { devicesStep } from '../../set-up-my-devices-and-cameras/src/devices.mjs';
 import placements from '../../pick-where-one-piece-of-work-runs-the-device/records/workshop-placement-records.json' with { type: 'json' };
 import { agentForTool } from '../../hand-off-jobs-between-agents/src/agent-tool-runs.mjs';
-import { formerAgentIds } from '../../shared-code/src/renamed-tools.mjs';
+import { formerAgentIds } from '../../keep-and-wake-ai-sessions-on-this-computer/src/renamed-tools.mjs';
 
 export const nativeHarnessPlacement = placements.records.find(row => row.payload.settings?.computer_scope)?.payload;
 export const nativeHarnessTool = nativeHarnessPlacement.settings.computer_scope.tool_ids[0];

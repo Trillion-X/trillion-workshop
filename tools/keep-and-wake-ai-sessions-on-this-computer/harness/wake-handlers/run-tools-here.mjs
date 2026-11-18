@@ -30,7 +30,7 @@ import { accessSync, constants, mkdirSync, rmSync, writeFileSync } from 'node:fs
 import { homedir } from 'node:os';
 import { delimiter, dirname, join, relative, resolve } from 'node:path';
 import { buildInvocation } from '../../src/workshop.mjs';
-import { argvText, lastJson } from '../../src/repo-explorer.mjs';
+import { argvText, lastJson } from '../../../shared-code/src/repo-explorer.mjs';
 import { untarGz } from '../../src/tar-gz.mjs';
 import { approvalOf, argumentRefusal, declaredReach, fingerprintOf, interpreterRoot, sandboxProfile, sandboxed, trillionProxy } from './tool-reach.mjs';
 import { egressProxy } from './egress-proxy.mjs';

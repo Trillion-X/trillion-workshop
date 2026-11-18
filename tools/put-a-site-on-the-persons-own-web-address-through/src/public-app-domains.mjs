@@ -1,5 +1,5 @@
 import { normalizeShareDomain } from './share-link-routing.mjs';
-import { failureFromReply, failureOf } from '../../keep-and-wake-ai-sessions-on-this-computer/src/failure.mjs';
+import { failureFromReply, failureOf } from '../../shared-code/src/failure.mjs';
 
 const PREFIX = 'public-app-domain:';
 const PROBE = '/.well-known/trillion-public-app-domain';

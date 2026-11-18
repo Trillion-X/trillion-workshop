@@ -18,7 +18,7 @@
 //   5. One scan of the install rows serves every reader until `invalidate` (an install or uninstall) says it moved.
 //
 
-import { currentInstallRow } from '../../shared-code/src/renamed-tools.mjs';
+import { currentInstallRow } from '../../keep-and-wake-ai-sessions-on-this-computer/src/renamed-tools.mjs';
 import { configurationIdentity } from './marketplace-configurations.mjs';
 
 const isStartingRow = (row, manifest) => Boolean(row && row.context === 'private'
