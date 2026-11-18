@@ -1,0 +1,47 @@
+{
+  "_what": "Set up everything a saved setup list names, in one run. A saved setup list is one row of choices; each choice is {job, definition_id, input}: the job in words, the workflow that does it, and that workflow's own input. This workflow goes through input.choices (in order when input.in_order is true, else all at once) and runs the workflow each choice names with that choice's input; a choice whose workflow asks the person something (an account, a payment, a key) pauses the run there until it is answered. Changing a choice changes which workflow runs; nothing here names a kind of choice. The caller passes these two definitions and the definition of every workflow the choices name to tool:run-workflow-definition.",
+  "definitions": [
+    {
+      "id": "workflow:set-up-from-a-saved-list",
+      "name": "Set up everything a saved setup list names",
+      "kind": "workflow",
+      "is_active": true,
+      "version": 1,
+      "steps": [
+        {
+          "id": "each-choice",
+          "kind": "loop",
+          "config": {
+            "source": { "$kind": "binding", "select": { "from": "input", "path": "choices" } },
+            "item_var": "choice",
+            "definition_id": "workflow:set-up-one-choice",
+            "parallel": true
+          }
+        }
+      ],
+      "edges": []
+    },
+    {
+      "id": "workflow:set-up-one-choice",
+      "name": "Run the workflow one choice names",
+      "kind": "workflow",
+      "is_active": true,
+      "version": 1,
+      "steps": [
+        {
+          "id": "run-the-choice",
+          "kind": "run-owner-requested-definition",
+          "config": {
+            "request": {
+              "$kind": "binding",
+              "select": { "from": "loop", "path": "choice" },
+              "transform": [{ "op": "op:core.merge", "args": { "value": { "operation": "execute_definition" } } }],
+              "resolve_nested_bindings": false
+            }
+          }
+        }
+      ],
+      "edges": []
+    }
+  ]
+}
