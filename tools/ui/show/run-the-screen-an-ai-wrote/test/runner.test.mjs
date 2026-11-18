@@ -199,6 +199,11 @@ test('a screen taller than its frame scrolls inside it, tells its whole height o
     assert.ok(Math.max(...heights) >= 2500, `the whole height is told after the screen grew by itself: ${heights}`);
     const box = await tall.frame().evaluate(() => { const h = document.getElementById('screen'); return { client: h.clientHeight, scroll: h.scrollHeight }; });
     assert.ok(box.client <= 400 && box.scroll >= 2500, `the screen scrolls inside the 400px frame: ${JSON.stringify(box)}`);
+    await tall.tab.evaluate(() => { document.getElementById('f').style.height = '3200px'; });
+    await tall.tab.waitForTimeout(200);
+    assert.equal(await tall.frame().locator('text=See all').count(), 0, 'once the frame holds all of it, the press goes');
+    await tall.tab.evaluate(() => { document.getElementById('f').style.height = '400px'; });
+    await tall.tab.waitForTimeout(200);
     await tall.frame().click('text=See all');
     await tall.tab.waitForTimeout(100);
     assert.ok((await tall.heard()).some(m => m.method === 'ui/request-display-mode' && m.params.mode === 'fullscreen'), 'the press asked to be shown whole');

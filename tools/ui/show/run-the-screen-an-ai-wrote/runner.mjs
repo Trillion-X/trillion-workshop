@@ -45,17 +45,19 @@ export function runScreens(win, { connect, words = {} }) {
   // frame at a height it chooses and never scrolls it), and each change of its size is told to the app, once a frame.
   host.style.maxHeight = '100vh';
   host.style.overflowY = 'auto';
-  let telling = null, offered = false;
+  let telling = null, offered = null;
   const tell = () => { telling = null; app.reportSize(); offerAll(); };
   new win.MutationObserver(() => { if (telling === null) telling = win.requestAnimationFrame(tell); })
     .observe(host, { childList: true, subtree: true, characterData: true, attributes: true });
   win.addEventListener('resize', () => offerAll());
   // When the screen is taller than its frame and the app can show it whole, one press asks for that.
+  // Once the frame holds all of it (the app grew it), the press goes.
   function offerAll() {
     const place = app.placement?.();
-    if (offered || host.scrollHeight <= win.innerHeight + 1 || !place?.modes?.includes('fullscreen') || place.mode === 'fullscreen') return;
-    offered = true;
-    say('', words.see_all ?? 'See all', () => { offered = false; app.askDisplayMode('fullscreen').catch(() => {}); });
+    const fits = host.scrollHeight <= win.innerHeight + 1;
+    if (offered && (fits || place?.mode === 'fullscreen')) { offered.remove(); offered = null; app.reportSize(); }
+    if (offered || fits || !place?.modes?.includes('fullscreen') || place.mode === 'fullscreen') return;
+    offered = say('', words.see_all ?? 'See all', () => { offered = null; app.askDisplayMode('fullscreen').catch(() => {}); });
   }
   // The app's theme, as it says it (`theme` in its host context): the page and the code drawn in it follow it, so default
   // text is never dark on a dark app. Until it says, the device's own preference.
@@ -98,6 +100,7 @@ export function runScreens(win, { connect, words = {} }) {
     }
     host.before(line);
     app.reportSize();
+    return line;
   }
 
   // A call a screen not the person's own wants to make, and the press that lets it.
