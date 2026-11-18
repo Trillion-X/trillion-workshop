@@ -65,12 +65,16 @@ function show(value: unknown, isError = false, canRun = true) {
   requestAnimationFrame(() => app.reportSize());
 }
 
+/** A fresh request key: 128 random bits as hex. getRandomValues works in every frame (randomUUID only in a secure
+ * context, which an app's sandboxed frame may not be). */
+const requestKey = () => Array.from(crypto.getRandomValues(new Uint8Array(16)), byte => byte.toString(16).padStart(2, '0')).join('');
+
 /** A press: the one tool, as the person who connected the app, with a key of its own so a repeat never runs twice. Its
  * answer is drawn in place by the same rows. */
 async function press(name: string, params: Record<string, unknown> = {}) {
   const offer = offered[name] as Offer | undefined;
   if (!offer || typeof offer.address !== 'string' || typeof offer.method !== 'string') throw new Error('This answer offers nothing by that name.');
-  const answer = await app.callTool('run_resource_operation', { address: offer.address, method: offer.method, request_key: crypto.randomUUID(), input: filled(offer, params.input) });
+  const answer = await app.callTool('run_resource_operation', { address: offer.address, method: offer.method, request_key: requestKey(), input: filled(offer, params.input) });
   show(answer);
   return answer;
 }
