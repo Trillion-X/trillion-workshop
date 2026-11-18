@@ -353,3 +353,23 @@ test('a slot that runs its row\'s release is left alone', async () => {
   assert.deepEqual(await applyWhatItRuns(machine, slotted, run), { written: [], restarted: [] });
   assert.equal(commands.some(({ command }) => /^systemctl (restart|disable|enable)/.test(command)), false);
 });
+
+test('a folder a unit owns whole keeps only the files the row renders: a stray is a difference and the apply removes it', async () => {
+  const owner = { ...runs.units[0], owned_folders: ['/var/lib/example-pages'], files: [{ path: '/var/lib/example-pages/kept.html', text: 'kept\n', then: [] }] };
+  const row = { ...runs, units: [owner] };
+  const live = Object.fromEntries(renderWhatItRuns(row).map(({ path, text }) => [path, text]));
+  const commands = [];
+  const run = async (_machine, command) => {
+    commands.push(command);
+    if (command.startsWith('if [ -f ')) { const p = command.match(/if \[ -f '([^']+)' \]/)[1]; if (live[p] === undefined) throw Object.assign(new Error('absent'), { code: 3 }); return live[p]; }
+    if (command.startsWith("if [ -d '/var/lib/example-pages' ]")) return '/var/lib/example-pages/kept.html\n/var/lib/example-pages/old/left.html\n';
+    if (command.includes('curl')) return '200';
+    return '';
+  };
+  const found = await runsDifferences(machine, row, run);
+  assert.deepEqual(found.map(item => item.path), ['/var/lib/example-pages/old/left.html']);
+  const answer = await applyWhatItRuns(machine, row, run);
+  assert.deepEqual(answer.removed, ['/var/lib/example-pages/old/left.html']);
+  assert.ok(commands.includes("rm -rf -- '/var/lib/example-pages/old/left.html'"));
+  assert.ok(!commands.some(command => command.includes("rm -rf -- '/var/lib/example-pages/kept.html'")));
+});

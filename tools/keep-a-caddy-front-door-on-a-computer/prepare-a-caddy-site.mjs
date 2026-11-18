@@ -101,7 +101,8 @@ const wholeFile = (site, texts) => {
 };
 
 /** The Caddy unit as the computer runs it: its `files` are the site file (checked by the site's Caddy, `binary`, and applied by
- * a reload of the unit) and every page under `pages_root` (applied by being written). The unit's other fields are its own. */
+ * a reload of the unit) and every page under `pages_root` (applied by being written), and `pages_root` is a folder it owns whole
+ * (`owned_folders`: a file there that is not one of the pages is removed). The unit's other fields are its own. */
 export async function prepare(given, { pages } = {}) {
   const { site, ...unit } = given;
   if (site === null || typeof site !== 'object') throw new Error(`unit ${given.unit} needs site: the names, routes and pools Caddy serves`);
@@ -109,5 +110,6 @@ export async function prepare(given, { pages } = {}) {
   const text = (site.site_file ? wholeFile(site, texts) : blockPerName(site, texts)) + innerDoors(site);
   const caddyfile = { path: CADDYFILE, text, check: [site.binary ?? 'caddy', 'validate', '--config', '{file}', '--adapter', 'caddyfile'], then: [['systemctl', 'reload', unit.unit]] };
   const served = site.pages_root ? pageFiles(site, pages).map(file => ({ ...file, then: [] })) : [];
-  return { unit: { ...unit, files: [...(unit.files ?? []), caddyfile, ...served] } };
+  // The pages folder is the site's whole: a page that left the person's pages folder leaves the computer too (owned_folders).
+  return { unit: { ...unit, files: [...(unit.files ?? []), caddyfile, ...served], ...(site.pages_root ? { owned_folders: [...(unit.owned_folders ?? []), site.pages_root] } : {}) } };
 }

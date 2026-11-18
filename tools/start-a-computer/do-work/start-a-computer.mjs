@@ -108,7 +108,16 @@ export async function runsState(machine, given, run = onMachine, { pages } = {})
   for (const path of runs.absent ?? []) {
     if (await run(machine, `test -e ${q(path)} || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; })) present.push(path);
   }
-  found.push(...present.map(path => ({ path, reason: 'present; the computer row says absent' })));
+  // A folder a unit owns whole (`owned_folders`: a web server's pages, say) holds only the files the row renders: a file left
+  // there by an earlier row (a page that left the pages folder) is a difference, and the apply removes it.
+  const renderedPaths = new Set(rendered.map(({ path }) => path));
+  const strays = [];
+  for (const folder of new Set(units.flatMap(unit => unit.owned_folders ?? []))) {
+    const listed = (await run(machine, `if [ -d ${q(folder)} ]; then find ${q(folder)} -type f; fi`)).split('\n').filter(Boolean);
+    strays.push(...listed.filter(file => !renderedPaths.has(file)));
+  }
+  present.push(...strays);
+  found.push(...present.map(path => ({ path, reason: strays.includes(path) ? 'in a folder the row owns, and not rendered by it' : 'present; the computer row says absent' })));
   // A user the row says is absent (`absent_users`, a tunnel user an old setup made) is a difference while the computer has it.
   const usersPresent = [];
   for (const user of runs.absent_users ?? []) {
