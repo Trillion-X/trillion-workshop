@@ -4,8 +4,7 @@
 //   Under the message box (Home's box and the box every screen opens), the working screen the words pick while they
 //   are typed, before Send and before any AI: the person types "timer 25 min" and their timer is there with 25
 //   minutes in it, to use at once, open in its own tab, keep for these words, rename or remove. Pressing Send still
-//   asks their AIs, and a screen an AI makes for those words is saved with them (`screen.asked`, a made interface's
-//   intent), so the same words pick it at once next time. The pick and its share are src/instant-screens.mjs; the
+//   asks their AIs, and a screen an AI makes for those words is saved with them (`screen.asked`), so the same words pick it at once next time. The pick and its share are src/instant-screens.mjs; the
 //   values are src/input-parsers.mjs; the screen itself is the same screen a pane mounts (screen-mounts.ts), so it
 //   acts on the person's real records through its own validated owner.
 //
@@ -19,7 +18,7 @@
 //      drawn (or after `swap_after_ms`); until then the screen shown stays.
 //   3. Complete actions: Open (its own tab, with the filled values), Keep (the words and values, as the person's
 //      kept screen), Rename and Remove a kept screen, and Delete a screen an AI made through that screen's owner
-//      (remove-workflow for a made interface, delete-tool for a saved tool screen). Every write goes through the
+//      (delete-tool for a saved tool screen). Every write goes through the
 //      shared owners (records.ts preferences, the Workshop and workflow routes); a refusal is said in words.
 //   4. Words are DATA (instant-screens.json `words`); everything is drawn with the shared parts.
 //   5. Bounded: answers are kept for `remembered_answers` texts, descriptions for the same number of tools.
@@ -45,11 +44,10 @@ import { reasonOf } from './failure';
 import { screens } from './screen-mounts';
 import type { Unmount } from './lazy-screen';
 
-type Entry = { key: string; kind: 'kept' | 'made' | 'screen'; screen: string; input: Record<string, unknown>; label: string; icon?: string; about: string; source: { tool_id?: string; made?: boolean; ask_id?: string; workflow_id?: string } };
+type Entry = { key: string; kind: 'kept' | 'screen'; screen: string; input: Record<string, unknown>; label: string; icon?: string; about: string; source: { tool_id?: string; made?: boolean; ask_id?: string } };
 type Pick = { entry: Entry; score: number; matched: [number, number][] };
 type Ranked = { text: string; picks: Pick[] };
 type Memory = { shown: Pick | null; challenger: { key: string; wins: number } | null; forced: string | null };
-type Made = { interface_id: string; title: string; intent: string; tool_id: string };
 type Described = { descriptor: { input_schema?: ToolInputSchema; screen?: { inputs?: Record<string, { choices?: { value: string; label: string }[] }> } } };
 
 const settings = INSTANT_SCREENS;
@@ -64,27 +62,9 @@ const mark = (name: string, detail: Record<string, unknown>) => {
 };
 const afterPaint = (then: () => void) => requestAnimationFrame(() => setTimeout(then, 0));
 
-/** The person's made interfaces (src/made-controls.mjs list): read when the box first draws and when the store changes. */
-function useMade(): Made[] {
-  const [made, setMade] = React.useState<Made[]>([]);
-  React.useEffect(() => {
-    let gone = false;
-    const read = async () => {
-      try {
-        const answer = await postJson<{ interfaces: Made[] }>(settings.made.read, {});
-        if (!gone) setMade(Array.isArray(answer.interfaces) ? answer.interfaces : []);
-      } catch { /* The made interfaces stay as last read; every other screen is still a candidate. */ }
-    };
-    void read();
-    const stop = onStoreChange(read);
-    return () => { gone = true; stop(); };
-  }, []);
-  return made;
-}
-
 /** The calm pick for the words: ranked on this device (remembered per text), then decided against what is shown. */
-function usePick(words: string, rows: OfferedScreen[], made: Made[], asks: ReturnType<typeof keptAsks>) {
-  const catalog = React.useMemo(() => catalogOf({ rows, made, asks }), [rows, made, asks]);
+function usePick(words: string, rows: OfferedScreen[], asks: ReturnType<typeof keptAsks>) {
+  const catalog = React.useMemo(() => catalogOf({ rows, asks }), [rows, asks]);
   const answers = React.useMemo(() => createAnswers(settings.remembered_answers), [catalog]);
   const memory = React.useRef<Memory>(NO_PICK);
   const [shown, setShown] = React.useState<{ memory: Memory; ranked: Ranked }>({ memory: NO_PICK, ranked: { text: '', picks: [] } });
@@ -167,8 +147,8 @@ function useFilled(pick: Pick | null, row: OfferedScreen | undefined, typed: str
   return React.useMemo(() => ({ ...kept, ...added, ...parsed }), [kept, added, parsed]);
 }
 
-// What the screen is opened with: its row's own input, the picked entry's (a kept screen's or a made interface's),
-// and the filled values for its boxes.
+// What the screen is opened with: its row's own input, the picked entry's (a kept screen's), and
+// the filled values for its boxes.
 const inputOf = (row: OfferedScreen | undefined, entry: Entry, filled: Record<string, unknown>) => {
   const { [FILLED_INPUTS]: _kept, ...own } = entry.input;
   return { ...(row?.surface_input ?? {}), ...own, ...(Object.keys(filled).length ? { [FILLED_INPUTS]: filled } : {}) };
@@ -237,10 +217,9 @@ function PickedScreen({ entry, row, filled }: { entry: Entry; row: OfferedScreen
 /** The answer under a message box to the words being written: the screen they pick, ready to use (invariant 1). */
 export function InstantScreen({ words: typed }: { words: string }) {
   const rows = useOfferedScreens();
-  const made = useMade();
   const preference = useWorkspacePreference<{ asks?: unknown[] }>(settings.asks.preference);
   const asks = React.useMemo(() => keptAsks(preference), [preference]);
-  const { memory, ranked, choose: chooseOne } = usePick(typed, rows, made, asks);
+  const { memory, ranked, choose: chooseOne } = usePick(typed, rows, asks);
   const pick = memory.shown;
   const row = pick ? rows.find(one => one.id === pick.entry.screen) : undefined;
   const filled = useFilled(pick, row, typed);
@@ -274,16 +253,13 @@ export function InstantScreen({ words: typed }: { words: string }) {
       if (entry.kind === 'kept') {
         await updateWorkspacePreferenceDurably(settings.asks.preference, current => removeAsk(current, entry.source.ask_id!));
         notify(words.removed, { kind: 'done' });
-      } else if (entry.kind === 'made') {
-        await postJson('/work/api/workflows/remove-workflow', { workflow_id: entry.source.workflow_id });
-        notify(words.removed_made, { kind: 'done' });
       } else {
         await postJson(`/work/api/workshop/delete-tool/${encodeURIComponent(entry.source.tool_id!)}`, {});
         notify(words.removed_made, { kind: 'done' });
       }
     } catch (error) { failed(error); }
   };
-  const made_by_ai = entry.kind === 'made' || (entry.kind === 'screen' && entry.source.made === true);
+  const made_by_ai = entry.kind === 'screen' && entry.source.made === true;
   const menu: ActionMenuItem[] = [
     ...(entry.kind === 'kept' ? [
       { id: 'rename', label: words.rename, icon: 'Pencil', panel: (close: () => void) => <RenamePanel value={entry.label} onCommit={label => { close(); void rename(label); }} onCancel={close} /> },

@@ -4,9 +4,8 @@
 //   As a person types what they want, the screen that already does it, picked on their own device in well under a
 //   frame, with no model: "timer 25 min" opens the timer they saved with 25 minutes in it, "lunch with Ruth tomorrow"
 //   opens their calendar's new-event screen filled. The catalog is OPEN: every screen the person is offered (the app's
-//   own, each tool's, each Marketplace tool they installed, each screen an AI saved with `screen.asked`), every
-//   interface of controls an AI made (src/made-controls.mjs, by its intent) and every screen the person kept from here
-//   (by their words). A screen an AI makes for some words is saved with them, so the same words next time pick it at
+//   own, each tool's, each Marketplace tool they installed, each screen an AI saved with `screen.asked`) and every screen the person kept from
+//   here (by their words). A screen an AI makes for some words is saved with them, so the same words next time pick it at
 //   once: the instant answer gets better every time an AI makes a screen.
 //   The pick is shown at once; the screen's inputs are then filled from the words by the one parser registry
 //   (src/input-parsers.mjs). This file is pure (no page, no store): src/workspace/instant-screen.tsx draws it.
@@ -22,7 +21,7 @@
 //   5. Words match through the one word matcher (src/word-match.mjs).
 //
 // Shapes
-//   catalogOf({ rows, made, asks }) -> catalog            rows: offered screen rows; made: [{ interface_id, title, intent }];
+//   catalogOf({ rows, asks }) -> catalog                  rows: offered screen rows;
 //                                                         asks: the kept screens (keptAsks)
 //   rank(catalog, text) -> { text, picks: [{ entry, score, matched: [[at, end]] }] }   best first
 //   decide(memory, ranked) -> memory                      memory: { shown, challenger, forced } (NO_PICK to start)
@@ -59,17 +58,13 @@ function entryOf({ key, kind, screen, input = {}, label, icon, about = '', asked
   };
 }
 
-/** The open catalog (invariant 1): the person's offered screens, their made interfaces and their kept screens, with
+/** The open catalog (invariant 1): the person's offered screens and their kept screens, with
  *  every word they are found by indexed once, so a keystroke weighs each distinct word once, not each screen's words. */
-export function catalogOf({ rows = [], made = [], asks = [] } = {}) {
+export function catalogOf({ rows = [], asks = [] } = {}) {
   const entries = [];
   for (const ask of asks) {
     if (!text(ask?.id) || !text(ask?.screen) || !text(ask?.words)) continue;
     entries.push(entryOf({ key: `kept:${ask.id}`, kind: 'kept', screen: ask.screen, input: object(ask.input) ? ask.input : {}, label: text(ask.label) || ask.words, ...(text(ask.icon) ? { icon: ask.icon } : {}), asked: [ask.words], source: { ask_id: ask.id } }));
-  }
-  for (const one of made) {
-    if (!text(one?.interface_id) || !text(one?.title)) continue;
-    entries.push(entryOf({ key: `made:${one.interface_id}`, kind: 'made', screen: settings.made.screen, input: { [settings.made.input]: one.interface_id }, label: one.title, icon: 'SlidersHorizontal', about: text(one.tool_label), asked: [text(one.intent)].filter(Boolean), source: { workflow_id: one.interface_id } }));
   }
   for (const row of rows) {
     if (!object(row) || !text(row.id) || row.listed === false || typeof row.label !== 'string' || !row.label.trim()) continue;
@@ -169,7 +164,7 @@ export function rank(catalog, typed) {
     const score = Math.min(1, (earned / Math.max(owed, 1)) * (1 - settings.label_cover + settings.label_cover * cover));
     picks.push({ entry, score, matched: terms.filter((_term, position) => scores[position] > 0).map(term => [term.at, term.end]) });
   }
-  const order = { kept: 0, made: 1, screen: 2 };
+  const order = { kept: 0, screen: 1 };
   picks.sort((a, b) => b.score - a.score || order[a.entry.kind] - order[b.entry.kind] || a.entry.label.localeCompare(b.entry.label));
   return { text: source, picks: picks.slice(0, settings.alternatives + 1) };
 }

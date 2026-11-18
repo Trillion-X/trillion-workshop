@@ -1132,29 +1132,6 @@ pub fn tool_card(
     } else {
         insert(&mut card, "next_call", Value::Null);
     }
-    if let Some(controls) = get(payload, "controls").filter(|value| is_record(value)) {
-        let mut arguments = Object::new();
-        insert(&mut arguments, "tool_id", string_value(tool.id()));
-        insert(
-            &mut arguments,
-            "intent",
-            Value::String(key("(what the person wants to adjust, in their words)")),
-        );
-        if let Some(Value::Array(subject)) = get(controls, "subject") {
-            if !subject.is_empty() {
-                let mut bind = Object::new();
-                for name in subject {
-                    let bind_key = js_to_string(name)?;
-                    bind.insert(bind_key, Value::String(key("(what it works on)")));
-                }
-                insert(&mut arguments, "bind", Value::Object(bind));
-            }
-        }
-        let mut call = Object::new();
-        insert(&mut call, "tool", Value::String(key("make_controls")));
-        insert(&mut call, "arguments", Value::Object(arguments));
-        insert(&mut card, "controls_call", Value::Object(call));
-    }
     Ok(Value::Object(card))
 }
 
@@ -1558,7 +1535,6 @@ mod tests {
             &JsString::from("$2.5500")
         );
         assert!(get(&card, "next_call").is_some());
-        assert!(get(&card, "controls_call").is_some());
         assert_eq!(
             get(&card, "earlier_runs").and_then(|value| get(value, "runs")),
             Some(&Value::Number(0.0))

@@ -52,9 +52,6 @@
     ]
   },
   "tools": {
-    "make_controls": {
-      "result_screen": true
-    },
     "open_trillion": {
       "address": [
         "/"

@@ -34,7 +34,7 @@ const POST_READS = new Set([
   '/carried/status', '/carried/read-incoming', '/carried/read', '/shared-with-me/read', '/content-formats/shape',
   '/content-formats/follow', '/score', '/local-choices/coverage', '/workflows/find', '/workflows/describe', '/workflows/snapshot',
   '/shared-library/search', '/posts/connect', '/posts/check', '/posts/read', '/posts/voice/read', '/posts/snippet/list', '/posts/summary/read', '/looks/read', '/mcp-events/list',
-  '/work-for-ais/read', '/activation/waiting', '/controls/read', '/controls/inspect', '/layouts/history', '/show-rules/accounts',
+  '/work-for-ais/read', '/activation/waiting', '/layouts/history', '/show-rules/accounts',
   '/namespace/files/lookup', '/namespace/contents/read', '/namespace/listing', '/namespace/folders-under', '/namespace/names-starting', '/namespace/tags/read',
 ]);
 // Synchronization retains the original records' actors; adding receipts for its own empty pulls would change

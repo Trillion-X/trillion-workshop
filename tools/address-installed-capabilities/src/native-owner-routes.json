@@ -52,27 +52,6 @@
       ]
     },
     {
-      "family": "controls",
-      "exact": [
-        "/controls/make",
-        "/controls/read",
-        "/controls/inspect",
-        "/controls/keep",
-        "/controls/run",
-        "/controls/list"
-      ],
-      "prefix": [],
-      "addressed": [
-        {
-          "method": "GET",
-          "prefix": "/controls/",
-          "to_method": "POST",
-          "to_path": "/controls/read",
-          "rest_field": "id"
-        }
-      ]
-    },
-    {
       "family": "content-formats",
       "exact": [
         "/content-formats",

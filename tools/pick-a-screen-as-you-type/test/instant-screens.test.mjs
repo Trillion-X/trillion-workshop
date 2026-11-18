@@ -1,17 +1,16 @@
 // test/instant-screens.test.mjs
 //
 // The screen a person's words pick as they type (src/instant-screens.mjs) and the values those words give its inputs
-// (src/input-parsers.mjs): picked on the device with no model, from an open catalog (every offered screen, every made
-// interface by its intent, every kept screen by its words); calm (a challenger must win twice); bounded; and better
-// every time an AI saves a screen with the words that asked for it. Also the owners it reads and writes through:
-// made-controls `list` (POST /controls/list) and the Workshop's screen rows carrying `asked`.
+// (src/input-parsers.mjs): picked on the device with no model, from an open catalog (every offered screen, every kept
+// screen by its words); calm (a challenger must win twice); bounded; and better every time an AI saves a screen with
+// the words that asked for it. Also the owner it reads through: the Workshop's screen rows carrying `asked`.
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { fillInputs, parserOf } from '../src/input-parsers.mjs';
 import { createAnswers, keepAsk, keptAsks, removeAsk, renameAsk, INSTANT_SCREENS } from '../src/instant-screens.mjs';
 // Ported from Trillion-X/trillion test/instant-screens.test.mjs: the cases over the two moved modules alone. The cases that rank
-// the app's own screen catalog (src/workspace/screens.mjs), made-controls and the Workshop screen rows stay with the old tree.
+// the app's own screen catalog (src/workspace/screens.mjs) and the Workshop screen rows stay with the old tree.
 
 // Tuesday 20 October 2026, 2:05 PM on the device.
 const NOW = new Date(2026, 9, 20, 14, 5);

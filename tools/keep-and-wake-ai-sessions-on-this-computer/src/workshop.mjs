@@ -549,8 +549,6 @@ function toolCard(tool, placementsById, stats, host, madeBy) {
     ...(madeBy === 'a public source' && object(tool.provenance) ? { source: { api: tool.provenance.api ?? null, licence: tool.provenance.licence ?? null, url: tool.provenance.page ?? tool.provenance.description ?? tool.provenance.server ?? null, read_at: tool.provenance.read_at ?? null } } : {}),
     // A row that is only a screen has nothing to run.
     next_call: tool.invoke ? { tool: 'run_tool', arguments: { tool_id: tool.id, ...RUN_HINT } } : null,
-    // A tool that says what a person adjusts by hand (its `controls`) is one call from live controls for it.
-    ...(object(tool.controls) ? { controls_call: { tool: 'make_controls', arguments: { tool_id: tool.id, intent: '(what the person wants to adjust, in their words)', ...(Array.isArray(tool.controls.subject) && tool.controls.subject.length ? { bind: Object.fromEntries(tool.controls.subject.map(name => [name, '(what it works on)'])) } : {}) } } } : {}),
   };
 }
 
