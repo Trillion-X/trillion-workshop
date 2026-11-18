@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:f97fb0ef8f42b1a92c6bc3cb0644a0d14dd690bebdceab067b05986056bd9cb0"
+  "blake3": "1f:d210ec842203ab2fe73c72b376564ab042d5311f833ef8b9bff12e6ca58eee7e"
  },
  "fields": [
   {
@@ -497,21 +497,6 @@
     ],
     "listed_on": "2026-11-05T00:00:00Z",
     "folder": "decide-with-a-method"
-   }
-  },
-  {
-   "id": "tool:answer-the-react-privately-route",
-   "values": {
-    "title": "Answer the page that reacts privately to something",
-    "job": "Answer the Trillion page route POST /work/api/responses/react: add or take away the person's own private reaction to anything in their Trillion, as old Trillion did",
-    "description": "A page route tool: the engine runs it for the page's account with { path, method, query, body, browser } and answers the page with { status, body }. POST /responses/react with { record, part?, symbol, glyph?, on? } adds the reaction (or takes it away; on says which, else it toggles) in the person's own private-response record for that anchor, which no space or other account reads, and answers 200 with the anchor's reactions as the person sees them. A vote, an unknown reaction or a bad anchor answers 400 { error }. Any other path or method answers 404 { error: \"Not found.\" }. The write stands on the record it read; a reaction changed meanwhile is decided again.",
-    "status": "active",
-    "maker": "maker:react-privately-to-anything-in-a-persons-own-account-so-no",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "react-privately-to-anything-in-a-persons-own-account-so-no"
    }
   },
   {
