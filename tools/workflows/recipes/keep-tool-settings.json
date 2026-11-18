@@ -1,0 +1,226 @@
+{
+  "about": "workflow:keep-tool-settings: keeps each tool's settings for a piece, a film, a person or an account in the person's own store, and reads the most specific scope that has a row: a retired row is refused, an active row answers its settings and scope, and no row gives the tool's default. It is the store half of tools/settings (read-data/settings.mjs and settings.py: settingId, makeRecord, setting and chosen), whose values reader stays in that folder, because about 40 files name its door readers (rule a-tool-is-only-what-the-store-cannot-do). Settings are rows of the person's list of settings, never files beside the code.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-tool-settings",
+        "label": "Keep a tool's settings",
+        "job": "Keep a tool's settings for a piece, a film, a person or an account in the person's own store, and read the most specific scope that has an active row, falling back to the tool's default.",
+        "produces": "The settings rows in the person's own store, proven on the example writes and reads in three stores of different kinds, with each write kept or refused and each read answered, refused or defaulted.",
+        "source": {
+          "from": "tools/settings (read-data/settings.mjs settingId, makeRecord, setting; read-data/settings.py), read on trillion-workshop origin/main",
+          "note": "The scope kinds are piece, film, person and account, most specific first in the order the caller gives. A retired row is refused rather than skipped, because running on defaults would silently change the answer."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store",
+            "folder"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps the settings rows: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                }
+              }
+            },
+            "folder": {
+              "type": "string",
+              "description": "The tool's folder name, without ~ or /"
+            },
+            "scopes": {
+              "type": "array",
+              "items": {
+                "type": "array"
+              },
+              "description": "[scope kind, scope id] pairs, most specific first"
+            },
+            "settings": {
+              "type": "object",
+              "description": "The settings to keep, for a write"
+            },
+            "default": {
+              "type": "object",
+              "description": "The tool's own defaults, for a read with no row"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read the tool settings the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read the settings rows already kept for the tool's folder: each row's id (folder, scope kind and scope id), its settings and its status (active or retired). Submit where they are kept (or null) and how many rows were read.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "rows_read"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "rows_read": {
+                  "type": "integer"
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own settings rows, once",
+            "do": "When the look step found none, make the store's own objects in its own form: one row per settings id (folder, scope kind and scope id), holding the settings with their keys sorted, the status and where they came from, with the scope kind limited to piece, film, person or account. Grant the person's login only what the store's holder allows. Submit the names of the objects made.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the settings on the example writes and reads",
+            "do": "In a throwaway place in the same store, with the same objects, run these operations in order, each at the time given: [{\"at\": \"2026-11-18T10:00:00Z\", \"op\": \"write\", \"folder\": \"cite\", \"scope_kind\": \"film\", \"scope_id\": \"f1\", \"settings\": {\"a\": 1, \"b\": 2}, \"status\": \"active\"}, {\"at\": \"2026-11-18T10:01:00Z\", \"op\": \"write\", \"folder\": \"cite\", \"scope_kind\": \"piece\", \"scope_id\": \"p1\", \"settings\": {\"a\": 9}, \"status\": \"retired\"}, {\"at\": \"2026-11-18T10:02:00Z\", \"op\": \"read\", \"folder\": \"cite\", \"scopes\": [[\"piece\", \"p1\"], [\"film\", \"f1\"]], \"default\": {\"a\": 0}}, {\"at\": \"2026-11-18T10:03:00Z\", \"op\": \"read\", \"folder\": \"cite\", \"scopes\": [[\"film\", \"f1\"], [\"account\", \"main\"]], \"default\": {\"a\": 0}}, {\"at\": \"2026-11-18T10:04:00Z\", \"op\": \"read\", \"folder\": \"cite\", \"scopes\": [[\"person\", \"x\"]], \"default\": {\"a\": 0}}, {\"at\": \"2026-11-18T10:05:00Z\", \"op\": \"write\", \"folder\": \"cite\", \"scope_kind\": \"planet\", \"scope_id\": \"z\", \"settings\": {\"a\": 3}, \"status\": \"active\"}, {\"at\": \"2026-11-18T10:06:00Z\", \"op\": \"read\", \"folder\": \"cite\", \"scopes\": [[\"account\", \"main\"]], \"default\": {\"a\": 0}}]. A write keeps the settings row for its scope, and is refused when the scope kind is not one of piece, film, person or account. A read takes the first scope in the order given that has a row: a retired row is refused, a row that is active is answered with its settings and its scope, and no row gives the default. Each operation must give the outcome the intent gives, and the store's own rows must give every expected answer below.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answers"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "answers": {
+                  "type": "array",
+                  "items": {}
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each operation is kept, answered or refused as the intent says",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "kept",
+                    "kept",
+                    "refused",
+                    "answered",
+                    "answered",
+                    "refused",
+                    "answered"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "Each read answers the most specific active scope's settings, the default when no scope has a row, or the refusal; each write's answer is nothing",
+                "path": [
+                  "this",
+                  "answers"
+                ],
+                "values": [
+                  [
+                    null,
+                    null,
+                    {
+                      "reason": "the row cite~piece~p1 is retired"
+                    },
+                    {
+                      "settings": {
+                        "a": 1,
+                        "b": 2
+                      },
+                      "scope": "film:f1"
+                    },
+                    {
+                      "settings": {
+                        "a": 0
+                      },
+                      "scope": null
+                    },
+                    {
+                      "reason": "scope_kind planet is not one of piece, film, person, account"
+                    },
+                    {
+                      "settings": {
+                        "a": 0
+                      },
+                      "scope": null
+                    }
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's settings",
+            "do": "Write or read the settings the request names through the store's own rows, and read the answer back. Submit outcome (kept, answered or refused, with the store's words when refused) and the settings and scope that answered.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcome"
+              ],
+              "properties": {
+                "outcome": {
+                  "type": "string"
+                },
+                "settings": {
+                  "type": "object"
+                },
+                "scope": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "reason": {
+                  "type": "string"
+                }
+              }
+            },
+            "checks": []
+          }
+        ]
+      }
+    }
+  ]
+}

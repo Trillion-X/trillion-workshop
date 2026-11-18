@@ -1,0 +1,91 @@
+{
+  "drafted_from": "tools/settings (read-data/settings.mjs, read-data/settings.py, README.md)",
+  "start_here": "Say to your AI: \"Run workflow:keep-tool-settings with store {\\\"where\\\": \\\"postgresql database example_me on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-me-postgres-connection\\\"}, folder \\\"cite\\\" and set the film f1 to {\\\"a\\\": 1, \\\"b\\\": 2}.\" It keeps those settings for the film in your own database.",
+  "lists": [],
+  "no_lists_because": "It names no list of its own: the settings rows are kept in the person's own store, in whatever form that store keeps them, and store says where and in which language.",
+  "workflows": [
+    "workflow:keep-tool-settings"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the settings rows are kept and how the store is spoken to.",
+    "2. Say \"Run workflow:keep-tool-settings\" with store, the folder and either the settings to keep for one scope, or the scopes to read, most specific first, with the tool's defaults.",
+    "3. The first run makes the settings rows once and proves the writes and reads on the example: every expected outcome and answer must match, or the run stops and says which.",
+    "4. Every later run keeps the settings for the scope you name, or answers the most specific active scope it finds, or says it is retired or falls back to the defaults."
+  ],
+  "worked_examples": [
+    {
+      "title": "Keep the settings for one film",
+      "ask": "For the cite tool, keep a 1 and b 2 for film f1.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-tool-settings",
+              "store": {
+                "where": "postgresql database example_me on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-me-postgres-connection"
+              },
+              "folder": "cite",
+              "settings": {
+                "a": 1,
+                "b": 2
+              }
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-tool-settings",
+      "step": "keep",
+      "given": "The look step found no settings for cite; the prove step matched every expected outcome and answer.",
+      "hands_back": "outcome \"kept\" for the row cite~film~f1 with the settings a 1 and b 2."
+    },
+    {
+      "title": "Read the settings for a film with the account as the fallback",
+      "ask": "What settings does the cite tool use for film f1?",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-tool-settings",
+              "store": {
+                "where": "postgresql database example_me on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-me-postgres-connection"
+              },
+              "folder": "cite",
+              "scopes": [
+                [
+                  "film",
+                  "f1"
+                ],
+                [
+                  "account",
+                  "main"
+                ]
+              ],
+              "default": {
+                "a": 0
+              }
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-tool-settings",
+      "step": "keep",
+      "given": "The film f1 has an active row; the account has none.",
+      "hands_back": "outcome \"answered\" with the settings a 1 and b 2, from the scope \"film:f1\"."
+    }
+  ]
+}
