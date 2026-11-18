@@ -33,3 +33,16 @@ test('each condition that is not off gets one wake on the chosen fact, with its 
   const again = withDerivedRecords({ ...recipe, wakes: [{ id: 'kept' }, { id: 'chosen--gone' }] });
   assert.deepEqual(again.wakes.map(wake => wake.id), ['kept', 'chosen--a-row-is-added', 'chosen--no-input']);
 });
+
+test('a tools:run step naming a server by its address adds that server\'s tool by the engine\'s key; a list needs no right', () => {
+  const step = (id, name, input = {}) => ({ id, kind: 'ask', config: { name, input, context: { step_id: id } } });
+  const bind = path => ({ $kind: 'binding', select: { from: 'input', path } });
+  const recipe = { id: 'workflow:made-up', label: 'Made up', definition: { id: 'workflow:made-up', version: 1, edges: [], steps: [
+    step('list', 'tools:list', { address: 'https://mcp.example.test/mcp', credential: 'made-up-key' }),
+    step('run', 'tools:run', { address: 'https://mcp.example.test:8443/mcp', tool: 'search', input: {} }),
+    step('own', 'tools:run', { tool: 'tool:made-up-c', input: {} }),
+    step('bound', 'tools:run', { address: bind('address'), tool: 'search' }),
+    step('local', 'tools:run', { address: 'http://localhost/mcp', tool: 'search' }),
+  ] } };
+  assert.deepEqual(recordsOf(recipe), { runs: ['mcp.example.test/search', 'tool:made-up-c'] });
+});

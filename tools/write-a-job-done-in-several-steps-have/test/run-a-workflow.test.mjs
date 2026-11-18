@@ -232,3 +232,19 @@ test('a door ask a step may name (wake:arrive) runs as that door operation; the 
   assert.equal(ran.status, 'completed');
   assert.deepEqual(calls, [['wake:arrive', 'made-up', 'tell']]);
 });
+
+test('tools:list and an addressed tools:run step send the door its whole input; the answer is the result and an error fails the step', async () => {
+  const step = (id, name, input) => ({ id, kind: 'ask', config: { name, input, context: { step_id: id } } });
+  const definition = { id: 'workflow:made-up-server', name: 'Server', kind: 'workflow', is_active: true, version: 1,
+    steps: [step('list', 'tools:list', { address: 'https://mcp.example.test/mcp' }), step('run', 'tools:run', { address: 'https://mcp.example.test/mcp', tool: 'search', input: { q: 'x' } })],
+    edges: [{ from: 'list', to: 'run', kind: 'always' }] };
+  const sent = [];
+  const door = { run() { throw new Error('not by id'); }, async operation(method, input) { sent.push([method, input]); return method === 'tools:list' ? { tools: [] } : { result: { found: 1 } }; } };
+  const ran = await runAsTheTool({ run: { definitions: [definition], workflow_id: definition.id } }, { door });
+  assert.equal(ran.status, 'completed');
+  assert.deepEqual(sent, [['tools:list', { address: 'https://mcp.example.test/mcp' }], ['tools:run', { address: 'https://mcp.example.test/mcp', tool: 'search', input: { q: 'x' } }]]);
+  const failing = { run() {}, async operation(method) { return method === 'tools:list' ? { tools: [] } : { error: 'the server refused' }; } };
+  const failed = await runAsTheTool({ run: { definitions: [definition], workflow_id: definition.id } }, { door: failing });
+  assert.equal(failed.status, 'failed');
+  assert.match(failed.error_message, /tools:run did not finish: the server refused/);
+});

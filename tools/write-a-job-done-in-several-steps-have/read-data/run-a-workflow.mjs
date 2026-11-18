@@ -22,8 +22,9 @@
 //     fact's payload, so a step binds {from: input, path: fact.<field>}; when later facts were folded into it, `folded`
 //     (how many) and `last` (the last one's payload). A run nothing woke is given its input unchanged.
 //   - An ask named by a tool id (tool:...) is answered in the same call by running that tool through the run's own door
-//     (door.run), and an ask named by a door method a step may ask (workflows/ask-rights.json: wake:arrive) by that
-//     operation (door.operation); each is keyed by the step and the BLAKE3 of what it asks, so a retried run repeats
+//     (door.run), and an ask named by a door method a step may ask (workflows/ask-rights.json: wake:arrive, tools:list,
+//     tools:run with a server's address) by that operation (door.operation), its input the door's whole input and its
+//     answer the result (an error fails the step); each is keyed by the step and the BLAKE3 of what it asks, so a retried run repeats
 //     nothing. An answer already given for the step wins. When the call did not happen (the run holds no door, or no
 //     right to it), the ask waits like any other, with the door's words as `why`; a call that ran and failed fails the
 //     run. Every other ask (the person, an AI, an agent) waits, as it does with no door. The rights a run holds are its
@@ -101,7 +102,12 @@ function toolHost(door, answers) {
       const asked = TOOL.test(name) ? 'run' : Object.hasOwn(DOOR_ASKS, name) && typeof door.operation === 'function' ? 'operation' : null;
       if (!asked) return wait(step, name, payload);
       try {
-        return text(await door[asked](name, payload, { key: `${step}:${bytesToHex(blake3(payloadBytes ?? new Uint8Array()))}` }));
+        const answer = await door[asked](name, payload, { key: `${step}:${bytesToHex(blake3(payloadBytes ?? new Uint8Array()))}` });
+        // A door operation that ran a tool answers {result} or {error}, as door.run reads it: an error fails the step.
+        if (asked === 'operation' && answer && typeof answer === 'object' && Object.hasOwn(answer, 'error')) {
+          throw Object.assign(new Error(`${name} did not finish: ${String(typeof answer.error === 'string' ? answer.error : JSON.stringify(answer.error)).slice(0, 300)}`), { outcome: 'committed' });
+        }
+        return text(asked === 'operation' && answer && typeof answer === 'object' && Object.hasOwn(answer, 'result') ? answer.result : answer);
       } catch (error) {
         if (error?.outcome === 'committed') throw error;
         return wait(step, name, payload, String(error?.message ?? error));

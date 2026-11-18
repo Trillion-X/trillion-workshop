@@ -3,8 +3,9 @@
 // What a workflow row holds that is made from the rest of it, never written by hand, when recipes are published
 // (do-work/rebuild-recipes.mjs) and checked on every shipped recipe (test/derived-records.test.mjs):
 //   - `records`: the rights a run of the row holds when its tool takes them from the row (trillion-rust from_listed_row):
-//     `runs`, every tool id a step asks, and `rights`, one per ask the run's door answers (ask-rights.json) whose input
-//     names what it is over with a value given in the step. A row with neither holds none.
+//     `runs`, every tool id a step asks and every tool a tools:run step names with values given in the step (a server's
+//     tool keyed `<host>/<tool>`), and `rights`, one per ask the run's door answers (ask-rights.json) whose input names
+//     what it is over with a value given in the step. A row with neither holds none.
 //   - the wakes of its conditions: one per fires_when condition that is not off, on the fact the choosing run tells
 //     (branches/fires-when.json chosen_wake), matching this workflow and that condition, with the condition's input.
 // Every other wake the row declares is kept as written. Nothing here names a workflow, a tool or a condition.
@@ -35,18 +36,29 @@ function asksOf(definition) {
 /** The rights a run of `recipe` holds, made from its asks: { runs?, rights? }, or null when it needs none. */
 export function recordsOf(recipe) {
   const asks = asksOf(definitionOf(recipe));
-  const runs = [...new Set(asks.map(ask => ask.name).filter(name => TOOL.test(name)))].sort();
+  const runs = new Set(asks.map(ask => ask.name).filter(name => TOOL.test(name)));
   const rights = [];
   for (const { name, input } of asks) {
     const right = ASK_RIGHTS[name];
-    const id = right && object(input) ? input[right.id_from] : undefined;
+    if (right?.runs_from && object(input)) {
+      const tool = input[right.runs_from];
+      const address = right.host_from ? input[right.host_from] : undefined;
+      if (typeof tool === 'string' && tool && address === undefined) { if (TOOL.test(tool)) runs.add(tool); }
+      else if (typeof tool === 'string' && tool && typeof address === 'string') {
+        const host = URL.canParse(address) ? new URL(address).hostname : '';
+        if (host.includes('.')) runs.add(`${host}/${tool}`);
+      }
+      continue;
+    }
+    const id = right?.at && object(input) ? input[right.id_from] : undefined;
     if (typeof id !== 'string' || !id) continue;
     const held = rights.find(item => item.at === right.at && item.id === id);
     if (held) { if (!held.operations.includes(name)) held.operations.push(name); continue; }
     rights.push({ at: right.at, id, operations: [name] });
   }
   rights.sort((a, b) => `${a.at} ${a.id}`.localeCompare(`${b.at} ${b.id}`));
-  return runs.length || rights.length ? { ...(rights.length ? { rights } : {}), ...(runs.length ? { runs } : {}) } : null;
+  const ran = [...runs].sort();
+  return ran.length || rights.length ? { ...(rights.length ? { rights } : {}), ...(ran.length ? { runs: ran } : {}) } : null;
 }
 
 const slug = text => String(text).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
