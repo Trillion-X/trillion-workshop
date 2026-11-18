@@ -2,8 +2,7 @@
 // Memberships remain the space's existing records; this owner owns no store.
 import { eventTimes } from './event-times.mjs';
 import { memberDecision, checkedMemberDecision } from './community-access.mjs';
-// HELD: calendarInviteFile from the declared booking invitation owner awaits
-// shared public-import admission proof. The exporter is intentionally unbound.
+import { calendarInviteFile } from '../../book-time/do-work/calendar-invite-file.ts';
 
 const HOUR = 3600000;
 const fail = (message, status = 400) => Object.assign(new Error(message), { status });

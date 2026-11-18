@@ -68,3 +68,34 @@ test('native calendar transport preserves opaque UTF-8 body bytes using the gene
   assert.deepEqual(result.http, { format: 'text', content_type: 'text/calendar; charset=utf-8', download_name: 'event.ics' });
   assert.equal('headers' in result, false);
 });
+
+test('the first real read and create reach the space permission owner and answer, without a missing binding', async () => {
+  const spaces = new Map([['space-1', { id: 'space-1', label: 'team', parent_id: null, created_by: 'owner', title: 'Shared learning', created_at: '2026-11-01T00:00:00.000Z' }]]);
+  const members = new Map([['space-1|member-1', { membership_id: 'space-1', relay: 'member-1', role: 'member', state: 'member' }]]);
+  const events = new Map();
+  let rules = null;
+  const records = {
+    read: async id => spaces.get(id) ?? null, member: async (spaceId, relay) => members.get(`${spaceId}|${relay}`) ?? null,
+    members: async spaceId => [...members.values()].filter(row => row.membership_id === spaceId),
+    events: async parentId => [...events.values()].filter(row => row.parent_id === parentId),
+    putEvents: async rows => { for (const row of rows) events.set(row.id, structuredClone(row)); },
+    putMember: async () => {}, removeEvent: async id => { events.delete(id); },
+    transaction: async run => run(), community: async () => null,
+    rules: async () => rules, ensureRules: async (_id, row) => (rules ??= row), compareAndSetRules: async () => true,
+    ownMemberTypes: async () => [],
+  };
+  const route = await createCommunityEventRoute({
+    records, resource: 'space:space-1', membership_labels: { membership_labels: { team: { joined_by: 'invitation', configuration: { title: 'Shared learning', spaces: { events: 'members' } } } } },
+    task: { task_id: 'synthetic-first-call', request_key: 'synthetic-first-call', context: { account_id: 'member-1', admission: 'account', actor: { kind: 'account', id: 'member-1' } } },
+    current: async () => true, resolveIdentity: async () => ({ relay: 'member-1', holds: [] }),
+    permissionOptions: () => ({ openToEveryone: async () => false, captureSpaceCommit: async () => {}, sourceAuthority: async () => false, memberNames: async () => relay => relay }),
+    spaces: async () => ({ spaces: [{ space_id: 'space-1', title: 'Shared learning' }], complete: true }),
+    spaceChanged: () => {}, tellEventCalendars: () => {}, tellMembersOfMeetingChange: async () => {}, calendarUidDomain: 'example.test',
+    newId: prefix => prefix + '_first', acceptedInvitation: async () => false, readMailRow: async () => undefined,
+  });
+  const created = await route.request({ method: 'POST', path: '/community/space-1/events', body: { community_id: 'space-1', title: 'Meet', starts_at: '2026-11-10T22:00:00Z', ends_at: '2026-11-10T23:00:00Z' } });
+  assert.equal(created.status, 200);
+  const listed = await route.request({ method: 'GET', path: '/community/events', query: { from: '2026-11-01T00:00:00Z', to: '2026-12-01T00:00:00Z' } });
+  assert.equal(listed.status, 200);
+  assert.deepEqual(listed.body.events.map(event => event.event_id), [created.body.event_id]);
+});

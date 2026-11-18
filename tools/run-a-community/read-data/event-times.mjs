@@ -1,6 +1,7 @@
 // Recurring event times from the immutable community-activity source named in
 // source-baselines/events.provenance.json; copied before this fresh active core.
-// HELD: add the canonical public wall-time import after its common admission repair.
+import { addCivilDays, addCivilMonths, instantAt, timeZoneName, wallTimeOf } from '../../wall-time/read-data/wall-time.mjs';
+
 const REPEATS = { day: 1, week: 7 };
 
 export const activityMethods = {

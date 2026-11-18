@@ -1,9 +1,9 @@
 // Original event HTTP clauses, freshly adapted only after normal baseline
 // 64fecded. The separately archived preliminary draft is not source evidence.
 import { nativeCommunityEvents } from '../read-data/community-events.mjs';
-import { communityOf, joinedByRules, checkedMemberDecision, isMemberNow } from '../read-data/community-access.mjs';
-// HELD: nativeSpacePermissions from the declared space-permissions public owner.
-// HELD: mailSettings from the maintained sender owner's public read-only API.
+import { communityOf, joinedByRules, checkedMemberDecision, isMemberNow, stateText } from '../read-data/community-access.mjs';
+import { nativeSpacePermissions } from '../../decide-who-may-do-what-in-a-space/read-data/space-permissions.mjs';
+import { mailSettings as accountMailSettings } from '../../send-messages/do-work/mail-sender.mjs';
 
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const fail = (message, status, code) => Object.assign(new Error(message), { status, code });
@@ -140,13 +140,15 @@ export function communityAccessOver(records, { labels, acceptedInvitation } = {}
 export async function createCommunityEventRoute({
   records, resource, task, membership_labels, current, resolveIdentity,
   permissionOptions, spaces, spaceChanged, tellEventCalendars, tellMembersOfMeetingChange,
-  calendarUidDomain, newId, acceptedInvitation, mailSettings,
+  calendarUidDomain, newId, acceptedInvitation, readMailRow,
 } = {}) {
   const context = nativeCommunityTask(task);
-  if (!records || typeof resource !== 'string' || !resource)
+  const RECORD_METHODS = ['read', 'member', 'members', 'events', 'putEvents', 'putMember', 'removeEvent', 'transaction',
+    'community', 'rules', 'ensureRules', 'compareAndSetRules', 'ownMemberTypes'];
+  if (!records || RECORD_METHODS.some(name => typeof records[name] !== 'function') || typeof resource !== 'string' || !resource)
     throw fail('The current space records and their resource are unavailable.', 503, 'community_resource_unavailable');
   if ([current, resolveIdentity, permissionOptions, spaces, spaceChanged,
-    tellEventCalendars, tellMembersOfMeetingChange, newId].some(fn => typeof fn !== 'function')
+    tellEventCalendars, tellMembersOfMeetingChange, newId, readMailRow].some(fn => typeof fn !== 'function')
     || typeof calendarUidDomain !== 'string' || !calendarUidDomain || /[\r\n]/.test(calendarUidDomain))
     throw fail('The current community runtime bindings are unavailable.', 503, 'community_bindings_unavailable');
   const memberships = communityAccessOver(records, { labels: membership_labels, acceptedInvitation });
@@ -174,14 +176,29 @@ export async function createCommunityEventRoute({
   };
   await refresh('community:request', {});
   const principal = () => snapshot;
+  // The permission owner's record reads, over the caller's records. accessState is the stable state the decision was
+  // made on (community-access.mjs stateText), so a change between the reads of one decision is seen.
+  const permissionRecords = {
+    read: id => records.read(id), member: (spaceId, relay) => records.member(spaceId, relay),
+    members: spaceId => records.members(spaceId), rules: spaceId => records.rules(spaceId),
+    ensureRules: (spaceId, row) => records.ensureRules(spaceId, row),
+    compareAndSetRules: (spaceId, write) => records.compareAndSetRules(spaceId, write),
+    community: spaceId => records.community(spaceId), ownMemberTypes: spaceId => records.ownMemberTypes(spaceId),
+    accessState: async (spaceId, relay, thing) => stateText({
+      read: await records.read(spaceId), members: await records.members(spaceId), member: await records.member(spaceId, relay),
+      maker: thing?.by === undefined ? null : await records.member(spaceId, thing.by), rules: await records.rules(spaceId),
+      community: await records.community(spaceId), own_member_types: await records.ownMemberTypes(spaceId), thing: thing ?? null,
+    }),
+  };
   const permissions = new Map();
   const permissionsFor = spaceId => {
     if (!permissions.has(spaceId)) {
       const options = permissionOptions(spaceId);
-      if (!object(options)) throw fail('The current space permission bindings are unavailable.', 503, 'community_permission_unavailable');
+      if (!object(options) || ['openToEveryone', 'captureSpaceCommit', 'sourceAuthority', 'memberNames'].some(name => typeof options[name] !== 'function'))
+        throw fail('The current space permission bindings are unavailable.', 503, 'community_permission_unavailable');
       permissions.set(spaceId, nativeSpacePermissions({
-        ...options, records: memberships, spaceId, resource, principal, current: refresh,
-        joinedByRules: memberships.joinedByRules,
+        ...options, records: permissionRecords, spaceId, resource, principal, spaceChanged,
+        current: () => refresh('community:permission', {}), joinedByRules: memberships.joinedByRules,
       }));
     }
     return permissions.get(spaceId);
@@ -206,7 +223,7 @@ export async function createCommunityEventRoute({
       const name = community.config.owner_name ?? community.config.title;
       if (typeof community.config.mail?.reply_to === 'string' && community.config.mail.reply_to.trim())
         return { name, email: community.config.mail.reply_to };
-      const settings = await mailSettings(records, undefined, { initialize: false });
+      const settings = accountMailSettings(await readMailRow());
       if (typeof settings?.from?.email !== 'string' || !settings.from.email.trim())
         throw fail('The account has no current calendar organizer.', 503, 'community_organizer_unavailable');
       return { name, email: settings.from.email };
