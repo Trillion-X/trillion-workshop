@@ -666,7 +666,7 @@
       "payload": {
         "entry_name": "screen-arrangement",
         "kind": "bitfield-package-entry",
-        "source_path": "show/mount-screen-arrangement.tsx",
+        "source_path": "../screen-arrangement/show/mount-screen-arrangement.tsx",
         "entry_bytes": {
           "stored_bytes": "entry-bytes-screen-arrangement"
         }
@@ -687,7 +687,7 @@
       "payload": {
         "entry_name": "workspace-shell",
         "kind": "bitfield-package-entry",
-        "source_path": "show/mount-workspace-shell.tsx",
+        "source_path": "../screen-arrangement/show/mount-workspace-shell.tsx",
         "dynamic_read_selector_policy": "declared-provider-input-membership",
         "entry_bytes": {
           "stored_bytes": "entry-bytes-workspace-shell"
@@ -709,7 +709,7 @@
       "payload": {
         "entry_name": "worker-console",
         "kind": "bitfield-package-entry",
-        "source_path": "show/mount-worker-console.tsx",
+        "source_path": "../screen-arrangement/show/mount-worker-console.tsx",
         "dynamic_read_selector_policy": "declared-provider-input-membership",
         "entry_bytes": {
           "stored_bytes": "entry-bytes-worker-console"

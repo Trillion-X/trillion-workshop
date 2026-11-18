@@ -176,7 +176,7 @@
       ],
       "payload": {
         "kind": "bitfield-package-public-source",
-        "source_path": "show/input/unified-agent-picker"
+        "source_path": "packages/chat/show/input/unified-agent-picker"
       },
       "remove": false
     },
@@ -191,7 +191,7 @@
       ],
       "payload": {
         "kind": "bitfield-package-public-source",
-        "source_path": "read-data/read-cli-registry-participants"
+        "source_path": "packages/chat/read-data/read-cli-registry-participants"
       },
       "remove": false
     },
@@ -206,7 +206,7 @@
       ],
       "payload": {
         "kind": "bitfield-package-public-source",
-        "source_path": "read-data/read-agent-profile-participants"
+        "source_path": "packages/chat/read-data/read-agent-profile-participants"
       },
       "remove": false
     },
@@ -221,7 +221,7 @@
       ],
       "payload": {
         "kind": "bitfield-package-public-source",
-        "source_path": "read-data/read-addressed-exchange-participants"
+        "source_path": "packages/chat/read-data/read-addressed-exchange-participants"
       },
       "remove": false
     },
@@ -236,7 +236,7 @@
       ],
       "payload": {
         "kind": "bitfield-package-public-source",
-        "source_path": "do-work/migrate-chat-ledger-conversation-to-conversations"
+        "source_path": "packages/chat/do-work/migrate-chat-ledger-conversation-to-conversations"
       },
       "remove": false
     },
@@ -251,7 +251,7 @@
       ],
       "payload": {
         "kind": "bitfield-package-public-source",
-        "source_path": "read-data/merge-agent-selection-participants"
+        "source_path": "packages/chat/read-data/merge-agent-selection-participants"
       },
       "remove": false
     },
@@ -2280,7 +2280,7 @@
       "payload": {
         "entry_name": "chat",
         "kind": "bitfield-package-entry",
-        "source_path": "show/mount-chat.tsx",
+        "source_path": "packages/chat/show/mount-chat.tsx",
         "entry_bytes": {
           "stored_bytes": "entry-bytes-chat"
         }
@@ -2355,7 +2355,7 @@
       "payload": {
         "entry_name": "chat-ios",
         "kind": "bitfield-package-entry",
-        "source_path": "show-ios-jscore/mount-chat-jscore.js",
+        "source_path": "packages/chat/show-ios-jscore/mount-chat-jscore.js",
         "entry_bytes": {
           "stored_bytes": "built-show-ios-jscore-mount-chat-jscore"
         }
@@ -2377,7 +2377,7 @@
         "entry_name": "answer-one-addressed-turn",
         "export_name": "answerOneAddressedTurn",
         "kind": "package-target-descriptor",
-        "source_path": "do-work/answer-one-addressed-turn.ts",
+        "source_path": "packages/chat/do-work/answer-one-addressed-turn.ts",
         "target": "chat.answer-one-addressed-turn"
       },
       "payload_text": null,
@@ -2397,7 +2397,7 @@
         "entry_name": "take-one-part-of-an-answer",
         "export_name": "takeOnePartOfAnAnswer",
         "kind": "package-target-descriptor",
-        "source_path": "do-work/take-one-part-of-an-answer.ts",
+        "source_path": "packages/chat/do-work/take-one-part-of-an-answer.ts",
         "target": "chat.take-one-part-of-an-answer"
       },
       "payload_text": null,
@@ -2417,7 +2417,7 @@
         "entry_name": "answer-one-addressed-turn",
         "export_name": "answerOneAddressedTurn",
         "kind": "bitfield-package-entry",
-        "source_path": "do-work/answer-one-addressed-turn.ts",
+        "source_path": "packages/chat/do-work/answer-one-addressed-turn.ts",
         "entry_bytes": {
           "stored_bytes": "entry-bytes-answer-one-addressed-turn"
         }
@@ -2439,7 +2439,7 @@
         "entry_name": "take-one-part-of-an-answer",
         "export_name": "takeOnePartOfAnAnswer",
         "kind": "bitfield-package-entry",
-        "source_path": "do-work/take-one-part-of-an-answer.ts",
+        "source_path": "packages/chat/do-work/take-one-part-of-an-answer.ts",
         "entry_bytes": {
           "stored_bytes": "entry-bytes-take-one-part-of-an-answer"
         }
@@ -4814,27 +4814,27 @@
     {
       "type": "stored_bytes",
       "name": "prepare-file-range-acquisition-script",
-      "source_path": "do-work/process-scripts/prepare-file-range-acquisition.py"
+      "source_path": "packages/chat/do-work/process-scripts/prepare-file-range-acquisition.py"
     },
     {
       "type": "stored_bytes",
       "name": "materialize-conversations-script",
-      "source_path": "do-work/process-scripts/materialize-conversations.py"
+      "source_path": "packages/chat/do-work/process-scripts/materialize-conversations.py"
     },
     {
       "type": "stored_bytes",
       "name": "build-conversation-descriptors-script",
-      "source_path": "do-work/process-scripts/build-conversation-descriptors.py"
+      "source_path": "packages/chat/do-work/process-scripts/build-conversation-descriptors.py"
     },
     {
       "type": "stored_bytes",
       "name": "expand-connected-source-descriptors-script",
-      "source_path": "do-work/process-scripts/expand-connected-source-descriptors.py"
+      "source_path": "packages/chat/do-work/process-scripts/expand-connected-source-descriptors.py"
     },
     {
       "type": "stored_bytes",
       "name": "decode-one-source-script",
-      "source_path": "do-work/process-scripts/decode-one-source.py"
+      "source_path": "packages/chat/do-work/process-scripts/decode-one-source.py"
     },
     {
       "type": "stored_bytes",
@@ -4844,37 +4844,37 @@
     {
       "type": "stored_bytes",
       "name": "conversation-page-script",
-      "source_path": "do-work/process-scripts/conversation-page.py"
+      "source_path": "packages/chat/do-work/process-scripts/conversation-page.py"
     },
     {
       "type": "stored_bytes",
       "name": "materialize-transcript-script",
-      "source_path": "do-work/process-scripts/materialize-transcript.py"
+      "source_path": "packages/chat/do-work/process-scripts/materialize-transcript.py"
     },
     {
       "type": "stored_bytes",
       "name": "noop-overlay-decoder-script",
-      "source_path": "do-work/process-scripts/noop-overlay-decoder.py"
+      "source_path": "packages/chat/do-work/process-scripts/noop-overlay-decoder.py"
     },
     {
       "type": "stored_bytes",
       "name": "observe-inline-script",
-      "source_path": "do-work/process-scripts/observe-inline.py"
+      "source_path": "packages/chat/do-work/process-scripts/observe-inline.py"
     },
     {
       "type": "stored_bytes",
       "name": "decode-viewer-reactions-script",
-      "source_path": "do-work/process-scripts/decode_viewer_reactions.py"
+      "source_path": "packages/chat/do-work/process-scripts/decode_viewer_reactions.py"
     },
     {
       "type": "stored_bytes",
       "name": "resolve-transcript-owner-script",
-      "source_path": "do-work/process-scripts/resolve-transcript-owner.py"
+      "source_path": "packages/chat/do-work/process-scripts/resolve-transcript-owner.py"
     },
     {
       "type": "stored_bytes",
       "name": "publish-send-route-participants-script",
-      "source_path": "do-work/process-scripts/publish-send-route-participants.py"
+      "source_path": "packages/chat/do-work/process-scripts/publish-send-route-participants.py"
     },
     {
       "type": "record",
