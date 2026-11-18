@@ -4,15 +4,15 @@
 //   The person's notifications: one list, newest first, of what happened for them that Trillion already keeps a record
 //   of, each with the person's own read mark. The list is read from the records themselves every time (a request sent
 //   to them in the network, a space with items they have not seen, work handed to their AIs), so a notification
-//   can never say something the records do not; the only thing kept here is which ones the person has read.
+//   can never say something the records do not. Nothing is kept here: the read marks are a value the caller gives.
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. No row is made up: every row is one record a reader below found, and its id names that record (and the state
 //      it is in, when a new state is news: an invitation accepted, new items in a space, work finished).
 //   2. What a kind says and offers is DATA (src/person-notifications.json); a missing fact leaves its words out rather
 //      than showing a blank or a guess.
-//   3. Read state is one mark per notification id in the person's own store (src/seen-marks.mjs); marking unread
-//      removes the mark. A mark on a row that no longer exists does nothing.
+//   3. Read state is a value: the caller gives the marks it keeps (notification id to the time it was read). A mark on a
+//      row that no longer exists does nothing. The marks are kept by workflow:keep-which-notifications-the-person-has-read.
 //   4. A source that cannot be read leaves its rows out; the rest of the list still answers.
 //   5. Work handed to an AI speaks by its `said` (the work as the person sees it); its `job`, the instructions written
 //      for the AI with their tool names and ids, is never a fact here, so no row can show it.
@@ -22,10 +22,7 @@
 // Security
 //   Reads only this person's own store and the network's answers about this person's relay; nothing across people.
 import settings from '../../shared-code/src/person-notifications.json' with { type: 'json' };
-import { seenMarks } from '../../shared-code/src/seen-marks.mjs';
 
-export const NOTIFICATION_READ = { table: 'notification_read', place: 'notification', reader: 'reader' };
-const READER = 'person';
 const DAY_MS = 86_400_000;
 
 // "{from} invited you to {space}" with the row's facts; a line whose fact is missing uses the kind's `_without` words
@@ -89,10 +86,10 @@ const fromWork = (work, agents, since) => {
 };
 
 /**
- * The list. `read` answers the sources the store hands in: { requests(since), spaces(), work({ since, limit, exclude_from }) } (each async); a source
- * that throws is left out. Returns { items: [{ id, about, kind, at, title, detail, face, chips, actions, read, waiting, running, working }], unread }.
+ * The list. `read` answers the sources the caller hands in: { requests(since), spaces(), work({ since, limit, exclude_from }) } (each async); a source
+ * that throws is left out. `marks` is { notification id: the time it was read }, the person's read marks as the caller keeps them. Returns { items: [{ id, about, kind, at, title, detail, face, chips, actions, read, waiting, running, working }], unread }.
  */
-export async function readPersonNotifications(sql, read, { now = new Date(), config = settings } = {}) {
+export async function readPersonNotifications(read, { marks = {}, now = new Date(), config = settings } = {}) {
   const since = new Date(now.getTime() - config.window_days * DAY_MS).toISOString();
   const settled = async (reader, shape) => {
     try { return shape(await reader()); }
@@ -109,7 +106,6 @@ export async function readPersonNotifications(sql, read, { now = new Date(), con
     settled(() => read.work({ since, limit: config.most, exclude_from: config.not_work_from ?? [] }), ({ work, agents }) => fromWork(work.filter(item => !(config.not_work_from ?? []).includes(item.from_agent)), agents, since)),
   ])).flat().filter(row => config.kinds[row.kind] && row.at);
   const visible = rows.sort((a, b) => b.at.localeCompare(a.at)).slice(0, config.most);
-  const marks = seenMarks(sql, NOTIFICATION_READ).marksFor(READER, visible.map(row => row.id));
   const items = visible.map(row => {
     const kind = config.kinds[row.kind];
     return {
@@ -122,12 +118,4 @@ export async function readPersonNotifications(sql, read, { now = new Date(), con
     };
   }).filter(item => item.title);
   return { items, unread: items.filter(item => !item.read).length };
-}
-
-/** The person has read (or, with read false, not read) the notifications `ids`. */
-export function markPersonNotifications(sql, { ids, read = true, now = new Date() } = {}) {
-  if (!Array.isArray(ids) || !ids.length || ids.some(id => typeof id !== 'string' || !id || id.length > 300)) throw new Error('Name the notifications as a list of their ids.');
-  const marks = seenMarks(sql, NOTIFICATION_READ);
-  for (const id of ids) read === false ? marks.forget(id, READER) : marks.mark(id, READER, now.toISOString());
-  return { ids, read: read !== false };
 }

@@ -1,0 +1,209 @@
+{
+  "about": "workflow:keep-which-notifications-the-person-has-read: the person's read mark on each notification, one mark per notification in the person's own store: marking read keeps it, marking unread takes it away, and the notification list reads the marks it is given. It replaces the mark keeping of tools/show-the-person-one-list-of-what-happened-for-them (markPersonNotifications and the seen-marks read in readPersonNotifications), whose only kept thing was which notifications the person has read. The list itself stays in that folder as values in and values out (rule a-tool-is-only-what-the-store-cannot-do).",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-which-notifications-the-person-has-read",
+        "label": "Keep which notifications the person has read",
+        "job": "Keep the person's read mark on each of their notifications in the person's own store: marking one read keeps the mark, marking it unread takes it away, and the list reads the marks it is given.",
+        "produces": "The store's own read-mark objects, proven on the example marks in three kinds of store, and each mark kept, repeated or refused and read back.",
+        "source": {
+          "from": "tools/show-the-person-one-list-of-what-happened-for-them (src/person-notifications.mjs markPersonNotifications, read on trillion-workshop origin/main bb8022539)",
+          "note": "One mark per notification and person. Marking again is repeated; marking unread that was never marked is repeated. A mark on a notification that no longer exists does nothing; the list simply does not show it."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                },
+                "place": {
+                  "type": "string",
+                  "description": "Where in the store the marks are kept, when they already are"
+                }
+              }
+            },
+            "marks": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Marks to keep this run, each {notification (its id), read (true to mark read, false to mark unread), at (optional ISO time with a zone)}"
+            },
+            "listed": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "The notification ids the list is showing, to read their marks"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the read marks are already kept (kept_in, or null) and the names of the objects that already keep them.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing, make one read-mark object in the store's own form: the notification id and the person, unique together, with the time it was read. A notification is read when its mark exists and unread when it does not. Grant only what the store's holder allows the person's login.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example marks",
+            "do": "In a throwaway place in the same store, with the same objects, keep these marks in order, each for the person owner: [{\"notification\": \"a\", \"read\": true}, {\"notification\": \"a\", \"read\": true}, {\"notification\": \"b\", \"read\": true}, {\"notification\": \"b\", \"read\": false}, {\"notification\": \"b\", \"read\": false}, {\"notification\": \"c\", \"read\": true}]. Then answer for the listed ids [\"a\", \"b\", \"c\"]: marks (each id true when it is read, false when not) and unread (how many of the listed ids are unread). Then remove the throwaway place. Submit outcomes (one of kept, repeated, refused per mark, in order) and answer with marks and unread.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answer"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "kept",
+                      "repeated",
+                      "refused"
+                    ]
+                  }
+                },
+                "answer": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each mark is kept, repeated or refused as the intent says",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "kept",
+                    "repeated",
+                    "kept",
+                    "kept",
+                    "repeated",
+                    "kept"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "The store's own objects give every expected answer",
+                "path": [
+                  "this",
+                  "answer"
+                ],
+                "values": [
+                  {
+                    "marks": {
+                      "a": true,
+                      "b": false,
+                      "c": true
+                    },
+                    "unread": 1
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's marks and read the list's marks",
+            "do": "Keep each item of marks through the store's own objects, in order: read true keeps the mark (kept, or repeated when it is already kept), read false takes it away (kept when it was there, repeated when it was not). Then read the marks of the listed ids. Submit outcomes (one per mark, in order), marks (each listed id true or false) and unread (how many listed ids are unread). With no marks, submit empty lists.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "marks",
+                "unread"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "marks": {
+                  "type": "object"
+                },
+                "unread": {
+                  "type": "integer"
+                }
+              }
+            },
+            "checks": []
+          }
+        ],
+        "erase": "On the person's request the store deletes the person's read marks."
+      }
+    }
+  ]
+}

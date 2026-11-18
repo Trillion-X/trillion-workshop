@@ -1,0 +1,55 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:keep-which-notifications-the-person-has-read with store {\\\"where\\\": \\\"postgresql database example_shop on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-shop-postgres-connection\\\"}, marks [{\\\"notification\\\": \\\"request:r9\\\", \\\"read\\\": true}] and listed [\\\"request:r9\\\", \\\"space:s1:2026-11-18T09:00:00Z\\\"].\"",
+  "lists": [],
+  "no_lists_because": "It names no list: each read mark is kept in the person's own store, in whatever form that store keeps things, and store says where and in which language.",
+  "workflows": [
+    "workflow:keep-which-notifications-the-person-has-read"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:keep-which-notifications-the-person-has-read\" with store, marks and listed. Send read true only when the person has read the notification, and false only when they asked to mark it unread.",
+    "3. The first run makes the store's own objects once and proves them on the example marks: every answer must match, or the run stops and says which.",
+    "4. Every later run keeps the marks through those objects and reads the marks of the listed notifications."
+  ],
+  "worked_examples": [
+    {
+      "title": "The person reads a space invitation",
+      "ask": "Mark the invitation request:r9 as read, and show the list's unread count.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-which-notifications-the-person-has-read",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "marks": [
+                {
+                  "notification": "request:r9",
+                  "read": true
+                }
+              ],
+              "listed": [
+                "request:r9",
+                "space:s1:2026-11-18T09:00:00Z"
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-which-notifications-the-person-has-read",
+      "step": "keep",
+      "given": "The look step found the marks kept by an earlier run.",
+      "hands_back": "outcomes [\"kept\"], marks {\"request:r9\": true, \"space:s1:2026-11-18T09:00:00Z\": false} and unread 1."
+    }
+  ]
+}

@@ -17,7 +17,7 @@ import { readPersonNotifications } from '../../show-the-person-one-list-of-what-
 
 const now = new Date('2026-10-07T23:30:00.000Z');
 const result = { handoff_id: 'legacy-kept', job: 'A checked result', said: 'A checked result', state: 'finished', handed_at: '2026-10-01T00:00:00.000Z', finished_at: '2026-10-07T23:20:00.000Z', from_agent: 'trillion-workflow', summary: 'Checked outcome' };
-const projection = (sql, agents) => readPersonNotifications(sql, { requests: async () => [], spaces: async () => [], work: async options => agents.notificationWork(options) }, { now });
+const projection = (_sql, agents) => readPersonNotifications({ requests: async () => [], spaces: async () => [], work: async options => agents.notificationWork(options) }, { now });
 function oldSqlFixture(count = 1) {
   const host = sqliteHost(':memory:');
   host.sql.exec('CREATE TABLE agent_handoffs (handoff_id TEXT PRIMARY KEY, open INTEGER NOT NULL, parent TEXT, handed_at TEXT NOT NULL, value TEXT NOT NULL)');

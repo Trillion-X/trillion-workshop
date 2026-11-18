@@ -8,14 +8,8 @@
 // request accepted or forgets a declined one, as the old Network's records then read.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { DatabaseSync } from 'node:sqlite';
 import kinds from '../../shared-code/src/person-notifications.json' with { type: 'json' };
-import { markPersonNotifications, readPersonNotifications } from '../src/person-notifications.mjs';
-
-function sqlite() {
-  const db = new DatabaseSync(':memory:');
-  return { exec: (query, ...binds) => { const statement = db.prepare(query); const rows = /^\s*(select|pragma)|returning/i.test(query) ? statement.all(...binds) : (statement.run(...binds), []); return { toArray: () => rows, [Symbol.iterator]: () => rows[Symbol.iterator]() }; } };
-}
+import { readPersonNotifications } from '../src/person-notifications.mjs';
 
 // Ana's space "A snack brand", and Bo's view of the network: the requests sent to Bo and the spaces Bo is in.
 function world() {
@@ -28,21 +22,20 @@ function world() {
     answer: (id, accept) => { if (!accept) { requests.delete(id); return; } Object.assign(requests.get(id), { status: 'accepted', answered_at: at() }); joined = true; },
     addSpaceItems: count => { unread += count; activity = at(); },
   };
-  const boStore = sqlite();
   const work = { work: [], agents: [] };
   const sources = {
     requests: async () => [...requests.values()].map(record => ({ record: structuredClone(record) })),
     spaces: async () => (joined ? [{ space_id: space, title: 'A snack brand', unread, last_activity_at: activity }] : []),
     work: async () => work,
   };
-  return { network, space, boStore, work, sources };
+  return { network, space, work, sources };
 }
 
 test('an invitation into a space is one unread notification with Accept and Decline, and accepting turns it into "You joined"', async () => {
-  const { network, space, boStore, sources } = world();
-  assert.deepEqual((await readPersonNotifications(boStore, sources)).items, [], 'nothing happened, nothing is listed');
+  const { network, space, sources } = world();
+  assert.deepEqual((await readPersonNotifications(sources)).items, [], 'nothing happened, nothing is listed');
   const invite = network.request({ why: 'Work on the brand with me' });
-  const before = await readPersonNotifications(boStore, sources);
+  const before = await readPersonNotifications(sources);
   assert.equal(before.unread, 1);
   const [row] = before.items;
   assert.equal(row.id, `request:${invite.request_id}`);
@@ -57,7 +50,7 @@ test('an invitation into a space is one unread notification with Accept and Decl
   assert.deepEqual(row.actions.filter(action => action.press).map(action => action.open.surface_id), ['trillion.network']);
 
   network.answer(invite.request_id, true);
-  const after = await readPersonNotifications(boStore, sources);
+  const after = await readPersonNotifications(sources);
   const joined = after.items.find(item => item.id === row.id);
   assert.equal(joined.kind, 'space-joined');
   assert.equal(joined.title, 'You joined A snack brand');
@@ -72,21 +65,18 @@ test('every kind of notification opens its thing from a press on its body: one a
   }
 });
 
-test('read marks are the person\'s own: marking read lowers the count, unread raises it again; a decline leaves nothing', async () => {
-  const { network, boStore, sources } = world();
+test('read marks are the values the caller gives: a notification marked read in them is read, one not marked is unread, and a decline leaves nothing', async () => {
+  const { network, sources } = world();
   const invite = network.request({ why: 'Join us' });
   const id = `request:${invite.request_id}`;
-  markPersonNotifications(boStore, { ids: [id] });
-  assert.equal((await readPersonNotifications(boStore, sources)).unread, 0);
-  markPersonNotifications(boStore, { ids: [id], read: false });
-  assert.equal((await readPersonNotifications(boStore, sources)).unread, 1);
-  assert.throws(() => markPersonNotifications(boStore, { ids: [] }), /list of their ids/);
+  assert.equal((await readPersonNotifications(sources, { marks: {} })).unread, 1);
+  assert.equal((await readPersonNotifications(sources, { marks: { [id]: '2026-11-18T10:00:00Z' } })).unread, 0);
   network.answer(invite.request_id, false);
-  assert.deepEqual((await readPersonNotifications(boStore, sources)).items, []);
+  assert.deepEqual((await readPersonNotifications(sources, { marks: {} })).items, []);
 });
 
 test('new items in a space and work handed to an AI are listed from their records; a source that fails leaves only its rows out', async () => {
-  const { network, space, boStore, work, sources } = world();
+  const { network, space, work, sources } = world();
   const invite = network.request({ why: 'Join us' });
   network.answer(invite.request_id, true);
   network.addSpaceItems(2);
@@ -100,7 +90,7 @@ test('new items in a space and work handed to an AI are listed from their record
   work.work.push({ handoff_id: 'h2', state: 'finished', job: forTheAi('Sort the receipts'), said: 'Sort the receipts', to_agent: 'agent_1', taken_by: 'agent_1', handed_at: now, finished_at: now, summary: '42 receipts sorted', steps: 1 });
   work.work.push({ handoff_id: 'h5', state: 'open', job: forTheAi('Tidy the folder'), said: null, to_agent: null, handed_at: now });
   work.work.push({ handoff_id: 'h6', state: 'open', job: forTheAi('Look into the goal'), said: 'Look into the goal', input: { arrived: { asked_id: 'asked:9' } }, handed_at: now });
-  const { items } = await readPersonNotifications(boStore, sources);
+  const { items } = await readPersonNotifications(sources);
   const byKind = Object.fromEntries(items.map(item => [item.kind, item]));
   assert.equal(byKind['space-new-items'].title, '2 new in A snack brand');
   const byHandoff = Object.fromEntries(items.map(item => [item.id, item]));
@@ -137,7 +127,7 @@ test('new items in a space and work handed to an AI are listed from their record
   assert.equal(byId['handoff:h1:waiting'].about, 'h1');
   assert.equal(byKind['space-new-items'].running, false);
   const broken = { ...sources, spaces: async () => { throw new Error('network away'); } };
-  const partial = await readPersonNotifications(boStore, broken);
+  const partial = await readPersonNotifications(broken);
   assert.ok(!partial.items.some(item => item.kind === 'space-new-items'));
   assert.ok(partial.items.some(item => item.kind === 'work-finished'));
 });
