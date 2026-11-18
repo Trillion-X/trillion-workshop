@@ -14,7 +14,7 @@ const PAGES = [
   { name: 'assets/site.css', bytes: Buffer.from('body { margin: 0 }') },
   { name: 'icon.png', bytes: Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0xff]) },
 ];
-const ENGINE = 'tools/keep-a-caddy-front-door-on-a-computer/routes/engine.caddy';
+const ENGINE = 'tools/keep-an-engine-on-a-computer/caddy-route-engine.caddy';
 const filesOf = async (site, pages = PAGES) => (await prepare({ unit: 'caddy.service', user: 'caddy', site }, { pages })).unit.files;
 const siteFile = async (site, pages) => (await filesOf(site, pages))[0];
 
@@ -97,7 +97,7 @@ test('a single-name front door renders its own name, pages, sign-in routes and e
 
 test('a routes slot the site leaves empty is no line at all; a missing field or an unknown site file is refused', async () => {
   const { engine_paths, ...noPaths } = single;
-  await assert.rejects(siteFile(noPaths), /routes\/engine\.caddy needs engine_paths/);
+  await assert.rejects(siteFile(noPaths), /caddy-route-engine\.caddy needs engine_paths/);
   const noEngine = await siteFile({ ...noPaths, engine_routes: [] });
   assert.doesNotMatch(noEngine.text, /@engine|7199/);
   assert.doesNotMatch(noEngine.text, /^\{\{engine_routes\}\}$/m);

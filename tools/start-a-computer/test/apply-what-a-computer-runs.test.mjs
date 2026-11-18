@@ -11,7 +11,7 @@ const machine = { address: '192.0.2.9', ssh: { known_hosts: '/dev/null' } };
 const runs = {
   health_listen: '127.0.0.1:7199',
   units: [{
-    unit: 'example-place.service', template: 'tools/start-a-computer/read-data/unit-templates/serve-computer.service', description: 'Example place', user: 'example-place',
+    unit: 'example-place.service', template: 'tools/keep-an-engine-on-a-computer/serve-computer.service', description: 'Example place', user: 'example-place',
     state: '/var/lib/example-place', builds: '/var/lib/example-place/builds', program: 'example-engine',
     settings_file: '/etc/example-place/computer.json', settings: { listen: '127.0.0.1:7199' }, writable: '/var/lib/example-place',
     drop_ins: ['tools/start-a-computer/read-data/unit-templates/nofile.conf'],
