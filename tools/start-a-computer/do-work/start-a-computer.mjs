@@ -521,17 +521,21 @@ export function readRequest(file) {
     rowHere = dirname(rowFile);
     delete request.computer_row_file;
   }
-  // A unit's `settings_parts` names files the person keeps (a provider description) that go into its settings: each key is a
-  // dotted place in `settings`, each value a path relative to the computer row's file, whose JSON is put at that place, or
-  // { file, fields } to put only those fields of it (a unit that reads a brand's name needs none of its pictures).
+  // A unit's `settings_parts` fills its settings from what the person keeps (any file: their own description, a provider's):
+  // each key is a JSON Pointer (RFC 6901) into `settings`, each value `{ file, pointer }`, the value at that pointer of the
+  // file's JSON (pointer "" or none: the whole file), read relative to the computer row's file. The tool names no setting and
+  // no field: which value goes where is the person's.
   for (const unit of request.computer_row?.runs?.units ?? []) {
-    for (const [place, path] of Object.entries(unit.settings_parts ?? {})) {
-      const keys = place.split('.'), last = keys.pop();
+    for (const [target, part] of Object.entries(unit.settings_parts ?? {})) {
+      const where = `${unit.unit} settings_parts ${target}`;
+      if (!target.startsWith('/') || !part || typeof part.file !== 'string' || (part.pointer !== undefined && typeof part.pointer !== 'string')) {
+        throw refused(`${where}: each key is a JSON Pointer into the unit's settings (it starts with /) and each value { file, pointer }.`);
+      }
+      const value = pointed(JSON.parse(readFileSync(resolvePath(rowHere, part.file), 'utf8')), part.pointer ?? '', `${where} reads ${part.file}`);
+      const keys = pointerKeys(target), last = keys.pop();
       const holder = keys.reduce((held, key) => held?.[key], unit.settings);
-      if (!holder || typeof holder !== 'object') throw refused(`${unit.unit} settings_parts names ${place}, and its settings hold no ${keys.join('.') || 'settings'} object to put it in.`);
-      const part = typeof path === 'string' ? { file: path } : path;
-      const whole = JSON.parse(readFileSync(resolvePath(rowHere, part.file), 'utf8'));
-      holder[last] = Array.isArray(part.fields) ? Object.fromEntries(part.fields.filter(field => field in whole).map(field => [field, whole[field]])) : whole;
+      if (!holder || typeof holder !== 'object') throw refused(`${where}: the unit's settings hold nothing at ${target.slice(0, target.lastIndexOf('/')) || '/'} to put it in.`);
+      holder[Array.isArray(holder) ? Number(last) : last] = value;
     }
     delete unit.settings_parts;
   }
@@ -541,6 +545,20 @@ export function readRequest(file) {
   resolveIn(request.ssh, 'known_hosts');
   resolveIn(request.ssh, 'identity_file');
   return request;
+}
+
+/** The reference tokens of a JSON Pointer (RFC 6901): `~1` is `/` and `~0` is `~`. */
+const pointerKeys = pointer => pointer === '' ? [] : pointer.slice(1).split('/').map(key => key.replaceAll('~1', '/').replaceAll('~0', '~'));
+
+/** The value at `pointer` in `whole`; a pointer that names nothing is refused with where it was read. */
+function pointed(whole, pointer, where) {
+  if (pointer !== '' && !pointer.startsWith('/')) throw refused(`${where}: ${pointer} is not a JSON Pointer.`);
+  let at = whole;
+  for (const key of pointerKeys(pointer)) {
+    if (at === null || typeof at !== 'object' || !(key in at)) throw refused(`${where}: nothing is at ${pointer}.`);
+    at = at[key];
+  }
+  return at;
 }
 
 /** The values descriptor 5 hands, as one JSON object of vault name to value; anything else is refused without echoing it. */

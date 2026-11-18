@@ -31,8 +31,8 @@
         "kind": "ai-instruction-fill",
         "id": "name",
         "source": "data",
-        "from": "brand",
-        "field": "name"
+        "from": "door",
+        "field": "server_name"
       }
     },
     {
@@ -41,8 +41,8 @@
         "kind": "ai-instruction-fill",
         "id": "word",
         "source": "data",
-        "from": "brand",
-        "field": "cli"
+        "from": "door",
+        "field": "command_word"
       }
     },
     {
@@ -51,7 +51,7 @@
         "kind": "ai-instruction-fill",
         "id": "app_host",
         "source": "data",
-        "from": "brand",
+        "from": "door",
         "field": "app_host"
       }
     },
@@ -61,7 +61,7 @@
         "kind": "ai-instruction-fill",
         "id": "site_host",
         "source": "data",
-        "from": "brand",
+        "from": "door",
         "field": "site_host"
       }
     },

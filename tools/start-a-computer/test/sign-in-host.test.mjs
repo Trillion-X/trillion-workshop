@@ -230,25 +230,30 @@ test('a unit\'s settings_parts puts a file the person keeps into its settings, r
   mkdirSync(join(dir, 'rows', 'providers'), { recursive: true });
   const sender = { name: 'Example sender', vault_key: 'example-sender-key', request: { url: 'https://mail.example.test/send', method: 'POST' } };
   writeFileSync(join(dir, 'rows', 'providers', 'example-sender.json'), JSON.stringify(sender));
-  const unit = signInUnit('', { settings: { port: 7201, email: { from: 'Example <sign-in@example.test>' } }, settings_parts: { 'email.sender': 'providers/example-sender.json' } });
+  const unit = signInUnit('', { settings: { port: 7201, email: { from: 'Example <sign-in@example.test>' } }, settings_parts: { '/email/sender': { file: 'providers/example-sender.json' } } });
   writeFileSync(join(dir, 'rows', 'computer.json'), JSON.stringify({ name: 'example-computer', runs: runsFor(unit) }));
   writeFileSync(join(dir, 'request.json'), JSON.stringify({ computer_row_file: 'rows/computer.json' }));
   const [read] = readRequest(join(dir, 'request.json')).computer_row.runs.units;
   assert.deepEqual(read.settings.email, { from: 'Example <sign-in@example.test>', sender });
   assert.equal(read.settings_parts, undefined, 'the rendered settings carry the file, not its name');
   writeFileSync(join(dir, 'rows', 'computer.json'), JSON.stringify({ name: 'example-computer', runs: runsFor({ ...unit, settings: { port: 7201 } }) }));
-  assert.throws(() => readRequest(join(dir, 'request.json')), /settings_parts names email\.sender/);
+  assert.throws(() => readRequest(join(dir, 'request.json')), /settings_parts \/email\/sender: the unit's settings hold nothing at \/email/);
 });
 
-test('a settings part may take only some fields of its file, into a list item by its place', () => {
-  const dir = mkdtempSync(join(tmpdir(), 'settings-parts-fields-'));
-  mkdirSync(join(dir, 'rows', 'brands'), { recursive: true });
-  writeFileSync(join(dir, 'rows', 'brands', 'acme.json'), JSON.stringify({ name: 'Acme', cli: 'acme', hosts: ['acme.example.test'], look_css: 'x'.repeat(50000) }));
-  const engine = { unit: 'engine.service', settings: { doors: [{ id: 'front', accepts_hosts: ['acme.example.test'] }] }, settings_parts: { 'doors.0.brand': { file: 'brands/acme.json', fields: ['name', 'cli', 'hosts', 'absent'] } } };
+test('a settings part puts any value of any file at any place in the settings, each by a JSON Pointer, and names no field itself', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'settings-parts-pointers-'));
+  mkdirSync(join(dir, 'rows', 'mine'), { recursive: true });
+  writeFileSync(join(dir, 'rows', 'mine', 'what-we-are.json'), JSON.stringify({ called: 'Acme', 'a/b': { '~x': 'escaped' }, look: { css: 'x'.repeat(50000) } }));
+  const parts = { '/doors/0/server_name': { file: 'mine/what-we-are.json', pointer: '/called' }, '/doors/0/odd': { file: 'mine/what-we-are.json', pointer: '/a~1b/~0x' } };
+  const engine = { unit: 'engine.service', settings: { doors: [{ id: 'front', accepts_hosts: ['acme.example.test'] }] }, settings_parts: parts };
   writeFileSync(join(dir, 'rows', 'computer.json'), JSON.stringify({ name: 'example-computer', runs: { units: [engine] } }));
   writeFileSync(join(dir, 'request.json'), JSON.stringify({ computer_row_file: 'rows/computer.json' }));
   const [read] = readRequest(join(dir, 'request.json')).computer_row.runs.units;
-  assert.deepEqual(read.settings.doors[0].brand, { name: 'Acme', cli: 'acme', hosts: ['acme.example.test'] });
+  assert.deepEqual(read.settings.doors[0], { id: 'front', accepts_hosts: ['acme.example.test'], server_name: 'Acme', odd: 'escaped' });
+  for (const [bad, said] of [[{ 'doors.0.name': { file: 'mine/what-we-are.json' } }, /starts with \//], [{ '/doors/0/x': { file: 'mine/what-we-are.json', pointer: '/missing' } }, /nothing is at \/missing/]]) {
+    writeFileSync(join(dir, 'rows', 'computer.json'), JSON.stringify({ name: 'example-computer', runs: { units: [{ ...engine, settings_parts: bad }] } }));
+    assert.throws(() => readRequest(join(dir, 'request.json')), said);
+  }
 });
 
 // The vault is the original: a credential the computer holds that differs from the value now handed is sealed again and its unit
