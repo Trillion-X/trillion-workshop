@@ -40,7 +40,7 @@
 //
 import { spawn, spawnSync } from 'node:child_process';
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
-import { chmodSync, existsSync, writeSync, lstatSync, mkdirSync, readFileSync, readlinkSync, realpathSync, renameSync, rmSync, statSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, writeSync, lstatSync, mkdirSync, readFileSync, readdirSync, readlinkSync, realpathSync, renameSync, rmSync, statSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
 import { createServer, request as httpRequest } from 'node:http';
 import { createInterface } from 'node:readline';
 import { homedir, hostname } from 'node:os';
@@ -1982,15 +1982,23 @@ export function workshopProgram({ rules = settings, home = homedir(), here = HER
   const follow = rules.install.follow;
   const real = path => { try { return realpathSync(path); } catch { return null; } };
   if (real(here) !== real(expand(rules.install.folder, home))) return null;
-  for (const file of follow.runtime_files) {
-    let state;
-    try { state = JSON.parse(readFileSync(expand(file, home), 'utf8'))[follow.state_field]; } catch { continue; }
-    if (typeof state !== 'string') continue;
+  // Each person's state folder the engine config names, with the Workshop install its engine keeps current.
+  const installed = state => {
     let current;
-    try { current = JSON.parse(readFileSync(join(state, follow.installs_folder, follow.state_file), 'utf8'))[follow.current_field]; } catch { continue; }
-    if (typeof current !== 'string' || !/^[\w.-]+$/.test(current)) continue;
-    const program = real(join(state, follow.installs_folder, current, follow.program));
-    if (program !== null && program !== real(self)) return program;
+    try { current = JSON.parse(readFileSync(join(state, follow.installs_folder, follow.state_file), 'utf8'))[follow.current_field]; } catch { return null; }
+    if (typeof current !== 'string' || !/^[\w.-]+$/.test(current)) return null;
+    return real(join(state, follow.installs_folder, current, follow.program));
+  };
+  for (const file of rules.computer_config_files) {
+    let persons;
+    try { persons = JSON.parse(readFileSync(expand(file, home), 'utf8'))[follow.persons_field]; } catch { continue; }
+    if (typeof persons !== 'string') continue;
+    let names;
+    try { names = readdirSync(persons); } catch { continue; }
+    const programs = names.map(name => installed(join(persons, name))).filter(program => program !== null);
+    // One person: their copy. Several: none, rather than a guess of whose.
+    if (programs.length === 1 && programs[0] !== real(self)) return programs[0];
+    return null;
   }
   return null;
 }

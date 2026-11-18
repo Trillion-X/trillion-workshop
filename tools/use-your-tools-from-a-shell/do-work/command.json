@@ -80,12 +80,8 @@
   },
   "install": {
     "follow": {
-      "_what": "Where the installed command finds the Workshop copy it runs: the first of runtime_files that exists names the engine's state folder in `state_field`; <state>/<installs_folder>/<current> is the Workshop install the engine keeps current (current is `current_field` of <state>/<installs_folder>/<state_file>), and `program` is the command inside it. Nothing found, or the copy is this file: the installed copy runs itself.",
-      "runtime_files": [
-        "~/Library/Application Support/{site_name}/local-runtime.json",
-        "~/.config/{cli}/local-runtime.json"
-      ],
-      "state_field": "state",
+      "_what": "Where the installed command finds the Workshop copy it runs, from this computer's engine config (the first of `computer_config_files` that exists, the same file the agent socket is read from): its `persons_field` is the folder that holds one state folder per person the engine serves, and a person's <state>/<installs_folder>/<current> is the Workshop install the engine keeps current for them (current is `current_field` of <state>/<installs_folder>/<state_file>); `program` is the command inside it. It follows only when exactly one person's state holds a current install, so it never guesses between people. Nothing found, or the copy is this file: the installed copy runs itself. (It read a local-runtime.json the engine no longer writes, so on 2026-11-17 every Workshop update to this command was skipped on the Mac.)",
+      "persons_field": "persons",
       "installs_folder": "workshop-installs",
       "state_file": "state.json",
       "current_field": "current",

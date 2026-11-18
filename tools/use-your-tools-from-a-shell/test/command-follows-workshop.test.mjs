@@ -18,20 +18,24 @@ speakFor({ cli: 'example', site_name: 'Example' });
 const DO_WORK = fileURLToPath(new URL('../do-work/', import.meta.url));
 const STUB = "export class CommandError extends Error {}\nexport const main = async argv => `FOLLOWED ${argv.join(' ')}`;\n";
 
-/** A fake computer: the installed command folder (a copy of this program), and optionally an engine state folder whose current Workshop install holds `stub`. */
-function computer({ stub = STUB } = {}) {
+/** A fake computer: the installed command folder (a copy of this program), and optionally an engine config whose persons
+ *  folder holds one person (or `people` of them) whose current Workshop install holds `stub`. */
+function computer({ stub = STUB, people = 1 } = {}) {
   const home = mkdtempSync(join(tmpdir(), 'example-follow-'));
   const installed = join(home, '.example/cli/program');
   mkdirSync(join(home, '.example/cli'), { recursive: true });
   cpSync(DO_WORK, installed, { recursive: true });
   if (stub !== null) {
-    const state = join(home, 'state');
-    const program = join(state, 'workshop-installs/abc123/tools/use-your-tools-from-a-shell/do-work');
-    mkdirSync(program, { recursive: true });
-    writeFileSync(join(program, 'command.mjs'), stub);
-    writeFileSync(join(state, 'workshop-installs/state.json'), JSON.stringify({ current: 'abc123' }));
-    mkdirSync(join(home, 'Library/Application Support/Example'), { recursive: true });
-    writeFileSync(join(home, 'Library/Application Support/Example/local-runtime.json'), JSON.stringify({ state }));
+    const persons = join(home, 'Library/Application Support/Example/computer/persons');
+    for (let one = 0; one < people; one += 1) {
+      const state = join(persons, `person-${one}`);
+      const program = join(state, 'workshop-installs/abc123/tools/use-your-tools-from-a-shell/do-work');
+      mkdirSync(program, { recursive: true });
+      writeFileSync(join(program, 'command.mjs'), stub);
+      writeFileSync(join(state, 'workshop-installs/state.json'), JSON.stringify({ current: 'abc123' }));
+    }
+    // The engine's own computer config names the persons folder, as the Mac app's engine writes it.
+    writeFileSync(join(home, 'Library/Application Support/Example/computer/computer.json'), JSON.stringify({ persons }));
   }
   return { home, installed };
 }
@@ -66,4 +70,10 @@ test('a copy run from anywhere but the install folder never follows', () => {
   assert.equal(workshopProgram({ home: machine.home, here: DO_WORK }), null);
   const real = workshopProgram({ home: machine.home, here: join(machine.home, '.example/cli/program'), self: join(machine.home, 'elsewhere.mjs') });
   assert.match(real, /workshop-installs\/abc123\/tools\/use-your-tools-from-a-shell\/do-work\/command\.mjs$/);
+});
+
+test('with two people on the computer the installed command runs itself rather than guess whose copy', () => {
+  const machine = computer({ people: 2 });
+  const run = runInstalled(machine, 'help');
+  assert.doesNotMatch(run.stdout, /FOLLOWED/);
 });
