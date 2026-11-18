@@ -68,8 +68,8 @@ import {
   dispatchAgentMessage,
   readMessageDispatchConfig,
 } from '../../../../agents-hub/packages/agents-hub/do-work/dispatch-agent-message';
-import { AgentCard } from './AgentCard';
-import { AgentEditView } from './AgentEditView';
+import { AgentCard } from '../../../../agents-hub/packages/agents-hub/show/AgentCard';
+import { AgentEditView } from '../../../../agents-hub/packages/agents-hub/show/AgentEditView';
 
 
 /** Max entity cards rendered at once (Runs can hold thousands of sessions).

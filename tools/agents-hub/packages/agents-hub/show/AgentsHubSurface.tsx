@@ -53,9 +53,9 @@ import {
   type AgentProfileRecord,
   type PublishedRecordRow,
 } from '../read-data/resolve-agent-cards';
-import { AgentManagerView } from './AgentManagerView';
-import { EntityCard, type EntityCardProps } from './EntityCard';
-import { EntityDetailView, type EntityDetailModel } from './EntityDetailView';
+import { AgentManagerView } from '../../../../see-what-is-being-worked-on/packages/agents-hub/show/AgentManagerView';
+import { EntityCard, type EntityCardProps } from '../../../../see-what-is-being-worked-on/packages/agents-hub/show/EntityCard';
+import { EntityDetailView, type EntityDetailModel } from '../../../../see-what-is-being-worked-on/packages/agents-hub/show/EntityDetailView';
 import {
   archivedCopy,
   blankAgentProfile,

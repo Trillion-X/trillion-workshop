@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import React from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
-import { AgentEditView } from '../AgentEditView';
+import { AgentEditView } from '../../../../../agents-hub/packages/agents-hub/show/AgentEditView';
 
 import { readRequestedAgentId } from '../AgentsHubSurface';
 

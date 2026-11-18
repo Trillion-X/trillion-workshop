@@ -18,7 +18,7 @@ One surface to see, configure, compose, and message every AI agent: a responsive
 | `show/AgentsHubSurface.tsx` | Main surface: feeds → view models, search, Active/Archived filter, selection + bulk bar, modals |
 | `show/AgentCard.tsx` | Card: SelectableAvatar, name, 2-line description, model + local/cloud mark, capability icons, usage row, overflow menu (icon/tint data items) |
 | `show/AgentQuickView.tsx` | Quick view: stat strip, capability icons, tools, ordered instructions, memories, message input + send, "See everything" → manager |
-| `show/AgentManagerView.tsx` | Owner-composed manager: left rail · Profile/Tools/Models/Runs/Memory/Instructions/Permissions tabs · right detail; selected agent persists across tabs; phone-narrow stacked layout (ui useNarrowViewport) |
+| `tools/see-what-is-being-worked-on/packages/agents-hub/show/AgentManagerView.tsx` | Owner-composed manager: left rail · Profile/Tools/Models/Runs/Memory/Instructions/Permissions tabs · right detail; selected agent persists across tabs; phone-narrow stacked layout (ui useNarrowViewport) |
 | `show/AgentEditView.tsx` | Edit/create: identity, grouped model picker (capabilities + local/cloud per row), DragReorderList instructions + block picker, tool pills, unsaved-changes Save/Clear |
 | `show/mount-agents-hub.tsx` | Material mount (FloatingMaterialFrame + ErrorBoundary) |
 | `entry-to-package-data-map.json` | Entry → package data map |
