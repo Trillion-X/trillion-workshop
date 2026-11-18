@@ -17,7 +17,7 @@
 // usage: start-a-computer.mjs price REQUEST_FILE | rent REQUEST_FILE | start REQUEST_FILE | apply REQUEST_FILE | differences REQUEST_FILE | status LEASE_FILE | unit LEASE_FILE REQUEST_FILE | remove LEASE_FILE
 import { differences, renderWhatItRuns, dropInName, withPrepared, withSlots } from './render-what-a-computer-runs.mjs';
 import { fill } from './fill-fields.mjs';
-import { readFileSync, readdirSync, createReadStream } from 'node:fs';
+import { readFileSync, readdirSync, statSync, createReadStream } from 'node:fs';
 import { isAbsolute, dirname, relative, resolve as resolvePath } from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -491,12 +491,16 @@ export function runsOf(request) {
 }
 
 /** The pages a web server answers itself, handed in as `pages_folder` (the person's own folder, resolved against the request
- * file): every file of it, as { name, bytes }; undefined when the request names none. */
+ * file): every file of it, as { name, bytes }; undefined when the request names none. A link in it is followed, so a folder
+ * kept where its owner keeps it (a site's own repository) is handed in by a link, never copied. */
 export function readPages(request) {
   if (request.pages_folder === undefined) return undefined;
   const folder = absolute(request.pages_folder, 'pages_folder');
-  return readdirSync(folder, { recursive: true, withFileTypes: true }).filter(entry => entry.isFile())
-    .map(entry => ({ name: relative(folder, `${entry.parentPath}/${entry.name}`), bytes: readFileSync(`${entry.parentPath}/${entry.name}`) }));
+  const walk = at => readdirSync(at).flatMap(name => {
+    const path = `${at}/${name}`, kind = statSync(path);
+    return kind.isDirectory() ? walk(path) : kind.isFile() ? [{ name: relative(folder, path), bytes: readFileSync(path) }] : [];
+  });
+  return walk(folder);
 }
 
 /** Apply a computer's row to the computer the request names (`machine.address`, `ssh`), already running: the same

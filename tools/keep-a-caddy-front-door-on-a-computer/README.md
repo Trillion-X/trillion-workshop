@@ -33,6 +33,8 @@ A site that names `site_file` gets that whole file from `sites/`, each `{{field}
 
 `site_file: "certificate-only"` keeps the certificate of one name or IP address (`door_host`) with the ACME profile `certificate_profile` and serves nothing (every request is 404), for another program on the computer that reads the certificate and key from Caddy's storage, such as a database server's TLS listener (its unit's `files_read_at_start`, restarted by a `watch-a-file` path when Caddy renews). Let's Encrypt issues an IP address only the `shortlived` profile.
 
+`site_file: "each-name-its-own-folder"` answers every name that has a folder of its own under `pages_root` (`pages_root/<name>/`, with `www.<name>` sent on to `<name>`), read-only, and gets each name's certificate the first time it is asked for (Caddy's on-demand certificates, after a loopback check that the folder exists, so a name with no folder gets none). The computer's own address (`door_host`) keeps its certificate (`certificate_profile`) and answers 404. Neither this file nor the computer's row names a site: a site is a folder in the request's `pages_folder`, which may be a link to the folder its owner keeps.
+
 ## Routes and pools
 
 A site names each route by path, like a unit's template: a file the program it sends to publishes (a relative path inside the Workshop, or an absolute path of the person's own), filled from the site's fields. A route that is a module (`.mjs`) answers its text from `route()`, so a program that computes its route from its own data keeps that data. This kit names no route of its own:

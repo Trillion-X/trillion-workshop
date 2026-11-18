@@ -138,3 +138,14 @@ test('a made page is made at the apply by the module the site names, from this W
   const twice = [...PAGES, { name: 'cli/install', bytes: Buffer.from('a kept copy') }];
   await assert.rejects(filesOf({ ...single, made_pages: [made] }, twice), /cli\/install is given twice/);
 });
+
+test('each name its own folder: the site file names no site, asks before each certificate, and serves pages_root/<name>', async () => {
+  const pages = [{ name: 'place.example.test/index.html', bytes: Buffer.from('<p>place</p>') }];
+  const files = await filesOf({ site_file: 'each-name-its-own-folder', door_host: '192.0.2.10', certificate_profile: 'shortlived', grace_period: '5s', pages_root: '/var/lib/example-sites' }, pages);
+  const text = files[0].text;
+  assert.match(text, /on_demand_tls \{\n\t\task http:\/\/127\.0\.0\.1:5601\/\n\t\}/);
+  assert.match(text, /@has_folder file \/var\/lib\/example-sites\/\{site\}\/index\.html/);
+  assert.match(text, /^192\.0\.2\.10 \{$/m);
+  assert.doesNotMatch(text, /place\.example\.test|\{\{|reverse_proxy/, 'no site is named in the file');
+  assert.ok(files.some(file => file.path === '/var/lib/example-sites/place.example.test/index.html'), 'a site is its folder');
+});

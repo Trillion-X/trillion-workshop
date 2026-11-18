@@ -59,3 +59,18 @@ test('applying and comparing a computer use its row: a computer that runs it has
   delete live['/etc/example-place/computer.json'];
   assert.deepEqual(await computerRowDifferences(request, { run }), { differences: [{ path: '/etc/example-place/computer.json', reason: 'missing on the computer' }] });
 });
+
+// A pages folder may hold a link to a folder kept elsewhere (a site's own repository): its files are read through the link,
+// named by where they sit in the pages folder, never copied there first.
+test('the pages folder follows a link to a folder kept elsewhere', async () => {
+  const { mkdtempSync, mkdirSync, writeFileSync, symlinkSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const { readPages } = await import('../do-work/start-a-computer.mjs');
+  const kept = mkdtempSync(`${tmpdir()}/kept-`), pages = mkdtempSync(`${tmpdir()}/pages-`);
+  mkdirSync(`${kept}/assets`);
+  writeFileSync(`${kept}/index.html`, '<p>home</p>');
+  writeFileSync(`${kept}/assets/site.css`, 'body{}');
+  symlinkSync(kept, `${pages}/place.example.test`);
+  const read = readPages({ pages_folder: pages }).map(({ name, bytes }) => [name, bytes.toString()]).sort();
+  assert.deepEqual(read, [['place.example.test/assets/site.css', 'body{}'], ['place.example.test/index.html', '<p>home</p>']]);
+});

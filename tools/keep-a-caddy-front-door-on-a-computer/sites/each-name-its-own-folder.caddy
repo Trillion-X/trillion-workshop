@@ -1,0 +1,61 @@
+# Every name this computer is asked for that has a folder of its own under {{pages_root}} (pages_root/<name>/, or the bare name
+# for www.<name>, which is sent on to it) is answered from that folder, read-only, with a certificate Caddy gets the first time
+# the name is asked for; a name with no folder gets no certificate. The computer's own address {{door_host}} keeps its
+# certificate (ACME profile {{certificate_profile}}) and answers 404. So this file and the computer's row name no site: a site
+# is a folder, and adding or removing one is adding or removing its folder (the request's pages_folder).
+{
+	admin localhost:2019
+	grace_period {{grace_period}}
+	on_demand_tls {
+		ask http://127.0.0.1:5601/
+	}
+}
+
+# The question Caddy asks before getting a certificate for a name: 200 when the name (or, for www.<name>, the bare name) has
+# its folder, 404 otherwise. Loopback only.
+http://127.0.0.1:5601 {
+	bind 127.0.0.1
+	map {query.domain} {site} {
+		~^www\.(.+)$ ${1}
+		default {query.domain}
+	}
+	@has_folder file {{pages_root}}/{site}/index.html
+	respond @has_folder 200
+	respond 404
+}
+
+{{door_host}} {
+	tls {
+		issuer acme {
+			profile {{certificate_profile}}
+		}
+	}
+	respond 404
+}
+
+https:// {
+	tls {
+		on_demand
+	}
+	map {host} {site} {
+		~^www\.(.+)$ ${1}
+		default {host}
+	}
+	@www header_regexp Host ^www\.
+	redir @www https://{site}{uri} 308
+	@not_read not method GET HEAD
+	respond @not_read 405
+	@page file {
+		root {{pages_root}}/{site}
+		try_files {path} {path}.html {path}/index.html
+	}
+	handle @page {
+		header Cache-Control "public, max-age=300"
+		root * {{pages_root}}/{site}
+		rewrite @page {file_match.relative}
+		file_server
+	}
+	handle {
+		respond "Not found" 404
+	}
+}
