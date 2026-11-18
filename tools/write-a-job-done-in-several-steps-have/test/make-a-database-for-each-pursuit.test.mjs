@@ -28,14 +28,21 @@ test('then the operator\'s login makes the login and the database it owns with t
   assert.deepEqual(asked.input, { credential_name: 'made-up-operator-connection', role_credential_name: 'made-up-pursuit-connection', recipe: { name: 'own-database', action: 'create' } });
 });
 
-test('then the pursuit\'s own login turns on search by meaning and reads back who and where it is', async () => {
+test('then the pursuit\'s own login turns on search by meaning, makes the change table and its trigger function, and reads back who and where it is', async () => {
   const [vector] = (await run({ 'keep-the-login': kept, 'make-the-database': made })).waiting;
   assert.equal(vector.asks, 'tool:run-sql-in-my-database');
   assert.deepEqual(vector.input, { credential_name: 'made-up-pursuit-connection', sql: 'CREATE EXTENSION IF NOT EXISTS vector' });
-  const [back] = (await run({ 'keep-the-login': kept, 'make-the-database': made, 'search-by-meaning': { columns: [], rows: [], row_count: 0 } })).waiting;
+  const none = { columns: [], rows: [], row_count: 0 };
+  const changes = { 'keep-changes': none, 'keep-changes-in-commit-order': none, 'record-each-change': none };
+  const [table] = (await run({ 'keep-the-login': kept, 'make-the-database': made, 'search-by-meaning': none })).waiting;
+  assert.equal(table.input.credential_name, 'made-up-pursuit-connection', 'the change table is the pursuit login\'s own');
+  assert.match(table.input.sql, /^CREATE TABLE IF NOT EXISTS row_changes .*txid xid8 NOT NULL DEFAULT pg_current_xact_id\(\)/);
+  const [record] = (await run({ 'keep-the-login': kept, 'make-the-database': made, 'search-by-meaning': none, 'keep-changes': none, 'keep-changes-in-commit-order': none })).waiting;
+  assert.match(record.input.sql, /record_row_change\(\) RETURNS trigger .*pg_notify\('row_changes'/);
+  const [back] = (await run({ 'keep-the-login': kept, 'make-the-database': made, 'search-by-meaning': none, ...changes })).waiting;
   assert.equal(back.input.credential_name, 'made-up-pursuit-connection');
   assert.match(back.input.sql, /current_user .* current_database\(\) .* extname = 'vector'/);
-  const done = await run({ 'keep-the-login': kept, 'make-the-database': made, 'search-by-meaning': { row_count: 0 }, 'read-it-back': { rows: [{ login: 'p_made_up', database: 'p_made_up', vector: '0.8.0' }] } });
+  const done = await run({ 'keep-the-login': kept, 'make-the-database': made, 'search-by-meaning': { row_count: 0 }, ...changes, 'read-it-back': { rows: [{ login: 'p_made_up', database: 'p_made_up', vector: '0.8.0' }] } });
   assert.equal(done.status, 'completed');
 });
 
