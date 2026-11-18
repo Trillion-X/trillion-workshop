@@ -1,0 +1,217 @@
+{
+  "about": "workflow:keep-my-changes-to-the-shipped-defaults: the ready-made workflows and defaults every account has come from the deploy, and the person's store keeps only what the person changed to them: turned off, edited in their own words, removed, or put back to the shipped version. A default the person changed stays changed on the next deploy; a default they never touched follows the deploy. It replaces tools/give-every-account-ready-made-workflows-and-defaults (from-an-older-version/src/shipped-workflows.mjs.held and its change rules, whose whole job after the deploy list was keeping the person's changes in the retired record store) (rule a-tool-is-only-what-the-store-cannot-do). The shipped list itself is deploy DATA, handed in by the run, never a store row.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-my-changes-to-the-shipped-defaults",
+        "label": "Keep my changes to the shipped defaults",
+        "job": "Keep only the person's own changes to the defaults the deploy ships (turned off, edited in their words, removed, or restored to the shipped version), and read back each shipped default's state: on, off, edited or removed, with the person's words when they edited it.",
+        "produces": "The store's own objects for default changes, proven on the example attempts, and each change kept, repeated or refused and read back; a change to a default the deploy does not ship is refused.",
+        "source": {
+          "from": "tools/give-every-account-ready-made-workflows-and-defaults (from-an-older-version/src/shipped-workflows.mjs.held: the deploy list is loaded from the shipped rows; the change rules are the invariants of the starting-rules header: a default turned off stays off, one edited keeps the person's words, one removed stays removed, and every default carries default true), read on trillion-workshop origin/main",
+          "note": "Only the person's change is the store's job: one change per default, the latest wins, and a restore removes it. The shipped list is handed in with each run (shipped_ids), so a default edited in the deploy reaches every account that never changed it, with no row written. Loading the shipped rows and their execution modes stays with the deploy, not with a tool."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store",
+            "shipped_ids"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                },
+                "place": {
+                  "type": "string",
+                  "description": "Where in the store the changes are kept, when they already are"
+                }
+              }
+            },
+            "shipped_ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "The ids of every default the deploy ships now, read from the shipped rows; a change to any other id is refused"
+            },
+            "changes": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Changes to keep this run: {default_id, change (off, edit, remove or restore), words (for edit), by (must be \"person\")}"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the changes are already kept (kept_in, or null) and the names of the objects that already keep them, and show them.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing, make the store's own objects in its own form: one row per default the person changed, keyed by default_id, holding the change (off, edit or remove), the words for an edit, by and at. A restore deletes the row. The store refuses what the intent refuses wherever it can (the key, the change values). Grant only what the store's holder allows the login. Submit the names of the objects made, or the ones the look step found.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example attempts",
+            "do": "In a throwaway place in the same store, with the same objects, keep these attempts in order, each through the store's own objects. The shipped ids for the attempts: [\"rule:a\", \"rule:b\", \"schedule:c\"]. The example attempts, in order: [{\"default_id\": \"rule:a\", \"change\": \"off\"}, {\"default_id\": \"rule:a\", \"change\": \"off\"}, {\"default_id\": \"rule:b\", \"change\": \"edit\", \"words\": \"my words\"}, {\"default_id\": \"schedule:c\", \"change\": \"remove\"}, {\"default_id\": \"rule:a\", \"change\": \"restore\"}, {\"default_id\": \"rule:b\", \"change\": \"edit\", \"words\": \"my words\"}, {\"default_id\": \"unknown:x\", \"change\": \"edit\", \"words\": \"x\"}, {\"default_id\": \"rule:b\", \"change\": \"remove\"}, {\"default_id\": \"schedule:c\", \"change\": \"restore\"}, {\"default_id\": \"schedule:c\", \"change\": \"restore\"}]. Rules: a default id not in shipped_ids is refused. A change equal to the one already kept is repeated and changes nothing. A new change replaces the kept one for that default; a remove or edit replaces the earlier change. A restore deletes the kept change; restoring a default with no change is repeated. Every answer keeps the person's by as \"person\". Then answer for each shipped id its state (on when no change is kept, off, edited with its words, or removed), changes_kept (the number of kept changes) and kept_count (the number of attempts kept). Then remove the throwaway place. Submit outcomes (one of kept, repeated or refused per attempt, in order, with the refusal's words for a refused one) and answer.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answer"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "answer": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each attempt is kept, repeated or refused as the intent says",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "kept",
+                    "repeated",
+                    "kept",
+                    "kept",
+                    "kept",
+                    "repeated",
+                    "refused",
+                    "kept",
+                    "kept",
+                    "repeated"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "The store's own objects give every expected answer",
+                "path": [
+                  "this",
+                  "answer"
+                ],
+                "values": [
+                  {
+                    "rule:a": {
+                      "state": "on"
+                    },
+                    "rule:b": {
+                      "state": "removed"
+                    },
+                    "schedule:c": {
+                      "state": "on"
+                    },
+                    "changes_kept": 1,
+                    "kept_count": 6
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's changes",
+            "do": "Keep each item of changes through the store's own objects, in order, and read every kept change back. Submit kept (each default_id kept or repeated), refused (each refused change and the store's own words for why) and found (each default's state read back). With no changes, submit empty lists.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept",
+                "refused",
+                "found"
+              ],
+              "properties": {
+                "kept": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "refused": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "found": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": []
+          }
+        ],
+        "erase": "On the person's request the store deletes every change they made to the named default, or to all of them; the deploy's shipped defaults are not the store's and are not touched."
+      }
+    }
+  ]
+}

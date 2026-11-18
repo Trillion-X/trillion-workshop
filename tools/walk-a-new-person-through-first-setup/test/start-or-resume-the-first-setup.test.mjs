@@ -8,7 +8,7 @@ import { startOrResumeTheFirstSetup } from '../do-work/start-or-resume-the-first
 const fresh = { workflow: { exists: false, state: 'not_started' } };
 // The owner tools the caller found in the Workshop catalogue (tools:list). A step whose owner is not in this list is not called.
 // tool:run-at-a-time is not in the account Workshop, so timed_work is unavailable here.
-const OWNED = ['tool:give-every-account-ready-made-workflows-and-defaults', 'tool:run-workflow-definition'];
+const OWNED = ['tool:run-workflow-definition'];
 const account = 'acct-sample';
 const ids = plan => plan.steps.map(step => step.id);
 
@@ -18,7 +18,7 @@ test('a fresh account gets the ordered owner steps, each with its read-back, and
   assert.equal(plan.action, 'start');
   assert.deepEqual(ids(plan), ['defaults', 'event_intake', 'workflow', 'timed_work']);
   const called = plan.steps.filter(step => step.status === 'call');
-  assert.deepEqual(called.map(ids1 => ids1.id), ['defaults', 'workflow']);
+  assert.deepEqual(called.map(ids1 => ids1.id), ['workflow']);
   assert.ok(called.every(step => step.read_back && step.read_back.tool === 'tool:read-setup'), 'every called step names its read-back');
   assert.equal(plan.wrote, false);
 });
@@ -30,7 +30,7 @@ test('a step whose owner tool is not in the Workshop is marked unavailable and i
   assert.equal(eventIntake.status, 'unavailable');
   assert.equal(eventIntake.call, undefined);
   assert.equal(timed.status, 'unavailable');
-  assert.equal(plan.steps.find(step => step.id === 'defaults').status, 'call');
+  assert.equal(plan.steps.find(step => step.id === 'defaults').status, 'unavailable');
 });
 
 test('steps already read back are not asked again, and the next step is the first one still to do', () => {

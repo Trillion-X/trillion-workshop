@@ -19,7 +19,7 @@ const object = value => Boolean(value) && typeof value === 'object' && !Array.is
 
 // The owner of each prepare step, in the order the old ensure() runs them.
 const STEPS = [
-  { id: 'defaults', owner: 'tool:give-every-account-ready-made-workflows-and-defaults' },
+  { id: 'defaults', owner: 'workflow:keep-my-changes-to-the-shipped-defaults' },
   { id: 'event_intake', owner: null },
   { id: 'workflow', owner: 'tool:run-workflow-definition' },
   { id: 'timed_work', owner: 'tool:run-at-a-time' },
