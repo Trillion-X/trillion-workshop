@@ -607,6 +607,10 @@ async function startWaiter({ carrier, resolved, signal, nowMs, onWriteOutcome })
   await mechanism.watchForTransitions(declared.mechanism_settings, {
     signal,
     nextSequence: sequence,
+    // What this waiter kept with its last fact (a carrier with a kept folder keeps it across restarts), and a way to
+    // keep more before anything is told: a mechanism's own memory, never a second store.
+    state: current?.state ?? null,
+    keepState: (state) => carrier.keepState?.(emitted.address_label, state),
     async onTransition(transition) {
       const observedAt = nextObservedAt(nowMs(), previousObservedAt);
       const matched = matchedSourceRefs(transition?.observed_identity, candidates);
@@ -620,23 +624,29 @@ async function startWaiter({ carrier, resolved, signal, nowMs, onWriteOutcome })
           error?.message ?? error,
         );
         onWriteOutcome(false);
-        return;
+        return false;
       }
       try {
+        // The transition's own event key (a due time's instant) names the fact, so telling it again is one fact; its
+        // state is kept with it once it is told.
         await carrier.writeRecord({
           addressLabel: emitted.address_label,
           pathLabels: emitted.path_labels,
           payload,
+          eventKey: transition?.event_key ?? null,
+          state: transition?.state,
         });
         previousObservedAt = observedAt;
         sequence += 1;
         onWriteOutcome(true);
+        return true;
       } catch (error) {
         console.error(
           `notice-when-something-shows-up: could not append the fact for ${declared.waiter_ref}:`,
           error?.message ?? error,
         );
         onWriteOutcome(false);
+        return false;
       }
     },
   });

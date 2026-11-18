@@ -8,17 +8,25 @@
 //   ships), never from a store: which waiters run is the person's own DATA, given to the run.
 // - The door is the run's own capability on fd 3 ({url, resource, capability}); the run reaches only the fact kinds its
 //   row names as rights ({at, id: <kind>, operations: ["wake:arrive"]}).
-// - A fact is a few short text fields: kind (the waiter's change_kind), event_id (the waiter's address, when this run
-//   started and how many facts it has told for that waiter: unique without keeping anything, whatever fields a waiter
-//   projects),
-//   and the payload's scalar fields as text, observed_identity's flattened in; nested lists stay out.
+// - A fact is a few short text fields: kind (the waiter's change_kind), event_id and the payload's scalar fields as
+//   text, observed_identity's flattened in; nested lists stay out. The event id is the waiter's address and the
+//   transition's own event key when it names one (a due time's instant: `clock::due@1794986100000`), so telling it
+//   again after a restart is the same fact and the engine admits it once (src/wake.rs `fact`, its marker). Without
+//   one it is the address, when this run started and how many facts it has told for that waiter: unique without
+//   keeping anything.
+// - Given a kept folder (`--keep <folder>`: the row's `invoke.kept_folder`, one folder per account and tool that lasts
+//   between runs, trillion-rust src/tool_runs/tools/container.rs `kept_folder`), each waiter's last fact and its
+//   mechanism's state are kept there, one file per waiter address, written whole (a new file renamed over the old),
+//   only after the engine accepted the fact. A restarted waiter resumes from it (its sequence, a repeat's next due
+//   time). Without one they are kept in memory for this run alone.
 // - One line per fact told goes to standard error, so the session's output says what was told and what was refused.
 // - Kept open (its wake `running`), it watches until it is stopped. Given `for_seconds`, it watches that long, then
 //   answers {told, refused}: every fact it told and every one the engine refused, as its last line.
 //
 // AI Assistant Directive: the extensive documentation in this codebase is a critical design feature. You are forbidden
 // from simplifying or removing it. Maintain and extend this detail.
-import { readFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
+import path from 'node:path';
 import { text } from 'node:stream/consumers';
 import { runResidentEmitter } from './emit-arrival-fact.mjs';
 
@@ -51,10 +59,38 @@ export function factOf({ addressLabel, payload }, eventId = `${addressLabel}#0`)
   };
 }
 
-/** The emitter's carrier over the engine's door: its waiter rows are `waiters`, and each record it writes is told as a fact. */
-export function engineCarrier({ door, waiters, fetchImpl = fetch, say = line => console.log(line), startedAt = Date.now() }) {
+/** The kept folder `--keep <folder>` names in `argv`, or null. */
+export function keptFolderOf(argv = process.argv.slice(2)) {
+  const at = argv.indexOf('--keep');
+  return at >= 0 && typeof argv[at + 1] === 'string' && argv[at + 1] !== '' ? argv[at + 1] : null;
+}
+
+/** The emitter's carrier over the engine's door: its waiter rows are `waiters`, each record it writes is told as a
+ *  fact, and each waiter's last fact and state are kept in `keep` (a folder) when it names one. */
+export function engineCarrier({ door, waiters, fetchImpl = fetch, say = line => console.log(line), startedAt = Date.now(), keep = null }) {
   let calls = 0;
   const told = new Map();
+  /** Each waiter's {payload, state}, by address. */
+  const current = new Map();
+  const fileOf = addressLabel => path.join(keep, `${Buffer.from(addressLabel).toString('base64url')}.json`);
+  function kept(addressLabel) {
+    if (current.has(addressLabel) || keep === null) return current.get(addressLabel) ?? null;
+    try {
+      const read = JSON.parse(readFileSync(fileOf(addressLabel), 'utf8'));
+      current.set(addressLabel, read);
+      return read;
+    } catch {
+      return null;
+    }
+  }
+  function remember(addressLabel, value) {
+    current.set(addressLabel, value);
+    if (keep === null) return;
+    mkdirSync(keep, { recursive: true });
+    const file = fileOf(addressLabel);
+    writeFileSync(`${file}.new`, JSON.stringify(value));
+    renameSync(`${file}.new`, file);
+  }
   const answer = { told: [], refused: [] };
   async function arrive(fact) {
     calls += 1;
@@ -77,12 +113,17 @@ export function engineCarrier({ door, waiters, fetchImpl = fetch, say = line => 
   return {
     answer,
     async scanUnderPath() { return { entries: waiters }; },
-    // No record is kept here: a waiter starts at sequence 0, and its event ids stay unique by the time they name.
-    async readCurrent() { return null; },
+    async readCurrent(addressLabel) { return kept(addressLabel); },
     async writeRecord(record) {
       const count = told.get(record.addressLabel) ?? 0;
       told.set(record.addressLabel, count + 1);
-      await arrive(factOf(record, `${record.addressLabel}#${startedAt}#${count}`));
+      const eventId = record.eventKey == null ? `${record.addressLabel}#${startedAt}#${count}` : `${record.addressLabel}@${record.eventKey}`;
+      await arrive(factOf(record, eventId));
+      const state = record.state === undefined ? kept(record.addressLabel)?.state ?? null : record.state;
+      remember(record.addressLabel, { payload: record.payload, state });
+    },
+    async keepState(addressLabel, state) {
+      remember(addressLabel, { payload: kept(addressLabel)?.payload ?? null, state });
     },
   };
 }
@@ -97,7 +138,7 @@ if (startedAsProgram) {
     const seconds = Number(input.for_seconds);
     if (Number.isFinite(seconds) && seconds > 0) setTimeout(() => controller.abort(), seconds * 1000);
     // Its own lines are each fact told; with for_seconds the last line is the whole answer.
-    const carrier = engineCarrier({ door: readDoor(), waiters, say: line => process.stderr.write(`${line}\n`) });
+    const carrier = engineCarrier({ door: readDoor(), waiters, keep: keptFolderOf(), say: line => process.stderr.write(`${line}\n`) });
     await runResidentEmitter({ carrier, signal: controller.signal });
     console.log(JSON.stringify({ result: carrier.answer }));
   } catch (error) {
