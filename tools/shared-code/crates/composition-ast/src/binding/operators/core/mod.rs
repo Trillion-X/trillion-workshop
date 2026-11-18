@@ -340,6 +340,12 @@ fn register_math_operators(registry: &mut OperatorRegistry) -> Result<(), Regist
         math::sum(&values, ctx_strict()).map_err(op_err)
     }))?;
 
+    registry.register(FnOperator::new("op:core.product", |input, _args, _ctx| {
+        let arr = input.as_array("product").map_err(op_err)?;
+        let values: Vec<OpValue> = arr.iter().map(|v| OpValue::from_arc(v.clone())).collect();
+        math::product(&values, ctx_strict()).map_err(op_err)
+    }))?;
+
     registry.register(FnOperator::new("op:core.average", |input, _args, _ctx| {
         let arr = input.as_array("average").map_err(op_err)?;
         let values: Vec<OpValue> = arr.iter().map(|v| OpValue::from_arc(v.clone())).collect();

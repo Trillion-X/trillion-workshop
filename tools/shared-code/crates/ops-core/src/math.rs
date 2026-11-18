@@ -395,6 +395,28 @@ pub fn sum(values: &[OpValue], ctx: &EvalContext) -> Result<OpValue, OpError> {
     }
 }
 
+/// Product of values (a spreadsheet's PRODUCT), nulls skipped as `sum` skips them; null for none. Strict mode multiplies
+/// exact decimals and refuses a product past the decimal range (about 7.9e28) as an overflow, never a rounded number.
+pub fn product(values: &[OpValue], ctx: &EvalContext) -> Result<OpValue, OpError> {
+    let nums = collect_numbers(values, ctx, "product")?;
+    if nums.is_empty() {
+        return Ok(OpValue::null());
+    }
+    match ctx.float_mode {
+        FloatMode::Strict => {
+            let mut acc = Decimal::ONE;
+            for (d, _) in nums {
+                acc = acc.checked_mul(d).ok_or_else(|| OpError::NumericOverflow {
+                    operation: "product".to_string(),
+                    details: "product overflow".to_string(),
+                })?;
+            }
+            Ok(OpValue::from_decimal(acc))
+        }
+        FloatMode::Fast => Ok(OpValue::number(nums.iter().map(|(_, f)| f).product())),
+    }
+}
+
 /// Average of values.
 ///
 /// Nulls are skipped. Returns null if all values are null or empty.
@@ -994,6 +1016,15 @@ mod tests {
         let result = sum(&[arr], &strict()).unwrap();
         let d = result.as_decimal("test").unwrap();
         assert_eq!(d.to_string(), "6");
+    }
+
+    #[test]
+    fn test_product_skips_nulls_and_refuses_overflow() {
+        let arr = OpValue::from(json!([12, 6, null, 5]));
+        assert_eq!(product(&[arr], &strict()).unwrap().as_decimal("test").unwrap().to_string(), "360");
+        assert!(product(&[OpValue::from(json!([]))], &strict()).unwrap().is_null());
+        let huge = OpValue::from(json!([1e20, 1e20]));
+        assert!(matches!(product(&[huge], &strict()), Err(OpError::NumericOverflow { .. })));
     }
 
     #[test]
