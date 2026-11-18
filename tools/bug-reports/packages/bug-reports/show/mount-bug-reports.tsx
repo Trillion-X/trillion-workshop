@@ -1,6 +1,6 @@
 import React from 'react';
 import { ErrorBoundary, FloatingMaterialFrame, mountReactSurface } from '../../../../ui';
-import { BugReportsSurface } from './BugReportsSurface';
+import { BugReportsSurface } from '../../../../send-a-report-or-a-note-to-the-people-who-make/packages/bug-reports/show/BugReportsSurface';
 
 type MountArgs = {
   el: HTMLElement;

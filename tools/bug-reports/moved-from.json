@@ -40,20 +40,6 @@
       "identity": "1f:9192acbb1b410dc67c2e319dfab5fd8039db10a4da208bac79805844ff93f6fa"
     },
     {
-      "from": "packages/bug-reports/show/BugReportModal.tsx",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/bug-reports/packages/bug-reports/show/BugReportModal.tsx",
-      "source_identity": "1f:eee5b8d9dfecf58fadec71e111df5379d737f58d084e70b403a6a77a9870bf4f",
-      "identity": "1f:eee5b8d9dfecf58fadec71e111df5379d737f58d084e70b403a6a77a9870bf4f"
-    },
-    {
-      "from": "packages/bug-reports/show/BugReportsSurface.tsx",
-      "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
-      "to": "tools/bug-reports/packages/bug-reports/show/BugReportsSurface.tsx",
-      "source_identity": "1f:9fe6b9a9616d1e4bfb2b880a6e3692058e210a559117da0b9ff61bee1f142668",
-      "identity": "1f:9fe6b9a9616d1e4bfb2b880a6e3692058e210a559117da0b9ff61bee1f142668"
-    },
-    {
       "from": "packages/bug-reports/show/mount-bug-reports.tsx",
       "commit": "d926b7adb8ca24159ee64f47e7d9cae254f5b641",
       "to": "tools/bug-reports/packages/bug-reports/show/mount-bug-reports.tsx",
