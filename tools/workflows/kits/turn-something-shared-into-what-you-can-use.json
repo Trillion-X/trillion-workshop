@@ -1,0 +1,56 @@
+{
+  "start_here": "Say to your AI: \"Turn this post into what I can use: https://example.com/a-post-about-pricing-pages.\" It reads what was shared in full, splits it into its claims, keeps what fits your own work as workflows and changes, says what it did not adopt and why, and proves what changed.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: what it finds and makes comes back in the run, and its steps keep it wherever the person keeps the pursuit's rows.",
+  "workflows": [
+    "workflow:cambrian-mode",
+    "workflow:describe-what-happens-before-naming-it",
+    "workflow:infinity",
+    "workflow:make-it-once-for-everyone",
+    "workflow:method-contact-reality",
+    "workflow:method-test-a-design-against-every-case",
+    "workflow:quintillion",
+    "workflow:start-from-the-persons-own-work",
+    "workflow:turn-something-shared-into-what-you-can-use",
+    "workflow:x-mode"
+  ],
+  "tools": [
+    "tool:gate-a-piece-against-a-checklist",
+    "tool:run-workflow-definition",
+    "tool:tell-the-person"
+  ],
+  "instructions": [
+    "1. Give what was shared (links or pasted text) and, if you like, why it matters to you: {\"shared\": [\"https://example.com/a-post-about-pricing-pages\"], \"why\": \"use what fits my coaching site\"}. It also wakes by itself when something is shared into your account.",
+    "2. Run workflow:turn-something-shared-into-what-you-can-use with tools:run, tool tool:run-workflow-definition, input {row: \"workflow:turn-something-shared-into-what-you-can-use\", shared, why}. Each step waits for its answer.",
+    "3. Answer a step by giving its answer under answers by its step id and running again.",
+    "4. Read what it made, what it adopted and what it did not, and the proof that the change works."
+  ],
+  "worked_examples": [
+    {
+      "title": "Start turning a shared post into usable work",
+      "ask": "Turn this post into what I can use: https://example.com/a-post-about-pricing-pages.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "run_resource_operation",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:turn-something-shared-into-what-you-can-use",
+              "shared": [
+                "https://example.com/a-post-about-pricing-pages"
+              ],
+              "why": "use what fits my coaching site"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:turn-something-shared-into-what-you-can-use",
+      "step": "gather",
+      "given": "No answers yet; run on the workflow engine on 2026-11-18 with this input (a made-up link).",
+      "hands_back": "{\"status\":\"paused\",\"waiting\":[{\"step_id\":\"gather\",\"asks\":\"ai\"}]}: the run waits at its first step for what was gathered."
+    }
+  ],
+  "drafted_from": "workflow:turn-something-shared-into-what-you-can-use's own rows in published/workflows.json and published/workflow-steps.json, and its run on the workflow engine on 2026-11-18"
+}

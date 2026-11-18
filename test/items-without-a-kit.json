@@ -4,8 +4,7 @@
  "workflows": [
   "workflow:plan-a-launch-as-a-content-campaign",
   "workflow:read-the-week-and-make-more-of-what-won",
-  "workflow:run-a-slideshow-page-that-sells-a-small-digital-product",
-  "workflow:turn-something-shared-into-what-you-can-use"
+  "workflow:run-a-slideshow-page-that-sells-a-small-digital-product"
  ],
  "tools": [
  ]
