@@ -5,7 +5,7 @@
 import { createServer } from 'node:http';
 import { toNodeHandler } from 'better-auth/node';
 import { auth, pool, settings } from './auth.mjs';
-import { migrateStore, refuseWhileLegacyWaits } from './store.mjs';
+import { migrateStore } from './store.mjs';
 import { pageAnswer } from './pages.mjs';
 import { relatedOrigins } from './attached-origins.mjs';
 import { serveInternal } from './internal-verify.mjs';
@@ -13,7 +13,6 @@ import { readiness, stopWithoutDropping } from './stop-without-dropping.mjs';
 
 // Every start makes or updates the tables for the options it runs, one process at a time (store.mjs), before it answers anything.
 await migrateStore(auth, pool);
-await refuseWhileLegacyWaits(settings, pool);
 
 const handler = toNodeHandler(auth);
 const ours = url => url.startsWith(`${settings.base_path}/`) || url.startsWith('/.well-known/');

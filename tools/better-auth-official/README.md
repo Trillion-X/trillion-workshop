@@ -29,14 +29,12 @@ Auth's tables for the options that process runs, holding an advisory lock so pro
 (`schema.sql` is what `npx auth generate` writes for them). `session.cookie_cache_seconds` is how long a signed session cookie answers
 without a store read; the store stays the authority for revocation.
 
-`migrate-sqlite-to-postgres.mjs <better-auth.db>` is the one-time move from the old SQLite file: every table, every id, the jwks keys
-byte for byte, read back before it commits, refused when the store already holds a user (test/store-migration.test.mjs). Run it with the
-tool stopped on a copy of the file made when nothing was writing. The tests run on a real Postgres (the embedded-postgres package,
+The tests run on a real Postgres (the embedded-postgres package,
 test-fixtures/embedded-store.mjs), with no install and no sudo.
 
 ## settings.json
 
-`port`, `base_url`, `base_path`, `issuer`, `audience`, `store` (`credential`, `env`, `pool_size`, `migrate_from`: an old SQLite file whose rows are not yet moved, null otherwise; while set and holding users, the server refuses to listen on a store with none), `session_cookie_name`, `api_key` (`prefix`, `rate_limit` in the plugin's own `rateLimit` shape, `default_permissions`: the scope names a new key reaches, `{"<resource>": [names]}`, none by default), `internal` (`host`, `port`, `verify_path`), `passkey` (`rp_id`, `rp_name`),
+`port`, `base_url`, `base_path`, `issuer`, `audience`, `store` (`credential`, `env`, `pool_size`), `session_cookie_name`, `api_key` (`prefix`, `rate_limit` in the plugin's own `rateLimit` shape, `default_permissions`: the scope names a new key reaches, `{"<resource>": [names]}`, none by default), `internal` (`host`, `port`, `verify_path`), `passkey` (`rp_id`, `rp_name`),
 `trusted_origins`, `attached_origins` (`ask_url`, `cache_ms`, `related_url`), `two_factor_issuer`, `mcp` (`login_page`, `consent_page`, `resource`, `scopes`: what a client may ask for, `resource_scopes`: what the MCP resource allows), `disabled_paths`, `device` (`verification_uri`), `admin` (`user_ids`: the users the admin plugin treats as admins, its `adminUserIds`; none by default), `delete_user` (`enabled`: Better Auth's `user.deleteUser`, so a signed-in person may delete their own user; false by default) and
 `email` (`from`: the address mail comes from; `sender`: a description of an email provider's request, the published one at
 email-providers/resend.json or the person's own, named in their computer's layout row: `name`, `vault_key` (the name of the credential its auth header carries, read at each
