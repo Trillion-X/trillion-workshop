@@ -424,7 +424,6 @@
                 "package": "workflows",
                 "paths": [
                   "ask-rights.json",
-                  "fact-values.json",
                   "kit-observe.json",
                   "kit-template.json",
                   "kits",

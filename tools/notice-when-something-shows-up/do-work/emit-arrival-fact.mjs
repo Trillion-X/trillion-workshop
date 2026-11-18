@@ -336,9 +336,9 @@ export function selectPayload(changeKind, payloadFields, scope) {
 /** Assemble the value scope one transition makes available to a projection.
  *
  *  Owner fields are written last so a mechanism can never shadow one even if
- *  the contract check above were somehow bypassed. `connection` is the vault
- *  name the run was given for what it watches (null when none), so a fact can
- *  name where a reader finds what the fact is too small to carry. */
+ *  the contract check above were somehow bypassed. `where` (and its older name
+ *  `connection`) is the vault name the run was given for what it watches (null
+ *  when none), so a fact can name where its change happened. */
 export function buildScope(declared, transition, { observedAt, sequence, matched, connection = null }) {
   return {
     ...(transition?.detail ?? {}),
@@ -348,6 +348,7 @@ export function buildScope(declared, transition, { observedAt, sequence, matched
     observed_identity: transition?.observed_identity ?? {},
     matched_source_refs: matched,
     sequence,
+    where: connection,
     connection,
   };
 }

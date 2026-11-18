@@ -479,17 +479,17 @@
                       "row-changes"
                     ],
                     "payload_fields": [
-                      "database",
+                      "where",
                       "table_name",
                       "op",
                       "at",
-                      "txid",
-                      "position",
-                      "connection"
+                      "key",
+                      "before",
+                      "after"
                     ]
                   },
                   "candidate_identity_feed": null,
-                  "why": "Each change of a table the person's AI attached record_row_change() to, in the database whose connection the person keeps under own-rows-postgres-connection (made by workflow:make-a-database-for-each-pursuit), told once in commit order. The fact names where the change is, never the row: the engine admits at most 8 text fields of 1,024 bytes each, so a reader takes before and after from the change table at `position`, through the vault name in `connection`. A tool hears it with a wake {fact: {kind: row-changes, from: [run], match: {table_name}}}."
+                  "why": "Each change of a table the person's AI attached record_row_change() to, in the database whose connection the person keeps under own-rows-postgres-connection (made by workflow:make-a-database-for-each-pursuit), told once in commit order. The fact carries the change itself: where (the vault name of what is watched), table_name, op, at, key (the change's own key in that database), and before and after as JSON text when each fits the engine's 1,024 bytes a field (else left out, and a run that needs more reads it by key in the store's own language). No reader tool is needed. This waiter is one way a Postgres database tells its changes; another store tells its own (workflow:tell-me-when-something-changes). A tool hears it with a wake {fact: {kind: row-changes, from: [run], match: {table_name}}}."
                 }
               ]
             }

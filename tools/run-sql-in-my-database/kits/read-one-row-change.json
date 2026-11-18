@@ -11,7 +11,7 @@
   ],
   "instructions": [
     "1. Your database records each change of a table you attached record_row_change() to in its row_changes table, and the noticer tells each one as a row-changes fact naming its connection and position.",
-    "2. A workflow woken by a change gets the change's row as input.change before its first step: tool:run-workflow-definition runs this tool with the fact's connection and position.",
+    "2. It is one Postgres database's own reader, for a person who chose record_row_change() and the change table: nothing shared names it, and no workflow is given it before its first step (a change fact carries before and after itself when they fit).",
     "3. To read one yourself, call tools:run with tool tool:read-one-row-change, credential_name (your database connection's vault name) and position. It answers {columns, rows: [{table_name, op, before, after}], row_count}; no other SQL runs."
   ],
   "worked_examples": [

@@ -2,7 +2,7 @@
 // again, the kept place resumed after a restart, a NOTIFY waking it before look_again. Made-up rows.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { clientOptions, describeMechanism, readSettings, readSql, watchForTransitions } from '../do-work/mechanisms/row-changes.mjs';
+import { carried, clientOptions, describeMechanism, readSettings, readSql, watchForTransitions } from '../do-work/mechanisms/row-changes.mjs';
 
 const change = (txid, position, op = 'INSERT') => ({ database: 'p_made_up', txid: String(txid), position: String(position), at: '2026-11-18T14:00:00Z', table_name: 'notes', op, before: null, after: { id: position } });
 // A stand-in client: answers each read with the committed changes after the place asked, and can announce on a channel.
@@ -48,7 +48,8 @@ test('each committed change is told once, in transaction order, under its own ke
   const { done, told } = await run(stand, { stopAfter: 3 });
   await done;
   assert.deepEqual(told.map(item => item.event_key), ['p_made_up:9:3', 'p_made_up:10:1', 'p_made_up:10:2']);
-  assert.deepEqual(told[0].detail.after, { id: 3 });
+  assert.equal(told[0].detail.after, '{"id":3}');
+  assert.equal(told[0].detail.key, 'p_made_up:9:3');
   assert.equal(stand.asked[0], 'LISTEN row_changes');
 });
 
@@ -99,4 +100,10 @@ test("a sandboxed run reaches the database only through the run's proxy: each co
   } finally {
     proxy.close();
   }
+});
+
+test('a change too big for a fact field goes without that side; the rest of the change is still told', () => {
+  assert.equal(carried({ wide: 'x'.repeat(2000) }), null);
+  assert.equal(carried(null), null);
+  assert.equal(carried({ id: 1 }), '{"id":1}');
 });

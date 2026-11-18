@@ -449,12 +449,7 @@
               "start_at": "set-watched-accounts"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -896,8 +891,7 @@
           "runs": [
             "tool:check-copy",
             "tool:expand-a-reply-template",
-            "tool:pull-my-instagram-messages",
-            "tool:read-one-row-change"
+            "tool:pull-my-instagram-messages"
           ]
         }
       }
@@ -1199,12 +1193,7 @@
               "start_at": "sources"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -1734,12 +1723,7 @@
               "start_at": "inventory"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -2609,12 +2593,7 @@
               "start_at": "scope"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -3068,8 +3047,7 @@
           "runs": [
             "tool:check-copy",
             "tool:copy-a-site",
-            "tool:critique-a-public-page",
-            "tool:read-one-row-change"
+            "tool:critique-a-public-page"
           ]
         }
       }
@@ -3232,12 +3210,7 @@
               "start_at": "find"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -3479,12 +3452,7 @@
               "start_at": "read"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -3790,12 +3758,7 @@
               "start_at": "collect"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -4303,12 +4266,7 @@
               "start_at": "the-list"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -4592,12 +4550,7 @@
               "start_at": "observe"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -5234,7 +5187,6 @@
         ],
         "records": {
           "runs": [
-            "tool:read-one-row-change",
             "tool:take-me-there",
             "tool:who-does-each-step"
           ]
@@ -6372,12 +6324,7 @@
               }
             ]
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -6652,12 +6599,7 @@
               "start_at": "inspect"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -6887,12 +6829,7 @@
               "start_at": "look"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -7250,12 +7187,7 @@
               "start_at": "person"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -7551,12 +7483,7 @@
               "start_at": "read"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -7850,12 +7777,7 @@
               "start_at": "stages"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -8571,12 +8493,7 @@
               "start_at": "goal"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -9292,12 +9209,7 @@
               "start_at": "state"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -9928,12 +9840,7 @@
               }
             ]
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -10536,12 +10443,7 @@
               "start_at": "list-pages"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -12324,12 +12226,7 @@
               "start_at": "account"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -13219,12 +13116,7 @@
               "record:workflow-recipe:grow-the-one-tree"
             ]
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -13444,12 +13336,7 @@
               "start_at": "handle"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -13915,12 +13802,7 @@
               }
             ]
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -14086,12 +13968,7 @@
               "start_at": "task"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -14296,12 +14173,7 @@
               "start_at": "find"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -15129,12 +15001,7 @@
               "start_at": "baseline"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -15388,12 +15255,7 @@
               }
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -16108,12 +15970,7 @@
               "start_at": "health"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -17096,12 +16953,7 @@
               "start_at": "read"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -17345,7 +17197,6 @@
         ],
         "records": {
           "runs": [
-            "tool:read-one-row-change",
             "tool:take-me-there"
           ]
         }
@@ -17753,12 +17604,7 @@
               "start_at": "read"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -18070,7 +17916,6 @@
         ],
         "records": {
           "runs": [
-            "tool:read-one-row-change",
             "tool:write-legal-documents"
           ]
         }
@@ -18298,12 +18143,7 @@
               "start_at": "before"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -18940,12 +18780,7 @@
               "start_at": "brand"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -19708,12 +19543,7 @@
               "start_at": "plan-the-lesson"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -20075,12 +19905,7 @@
               "start_at": "raw-material"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -20796,12 +20621,7 @@
               "start_at": "discover"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -24090,12 +23910,7 @@
               "start_at": "read-records"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -24696,7 +24511,6 @@
             "tool:find-silence",
             "tool:list-my-recordings-and-media",
             "tool:pick-cover-frame",
-            "tool:read-one-row-change",
             "tool:reframe-video",
             "tool:render-an-edit",
             "tool:suggest-media-cuts"
@@ -25043,12 +24857,7 @@
               "start_at": "read-the-piece"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -25417,7 +25226,6 @@
             "tool:cancel-a-stripe-subscription",
             "tool:count-a-paid-installment-in-stripe",
             "tool:list-ended-stripe-subscriptions",
-            "tool:read-one-row-change",
             "tool:tag-a-stripe-subscription"
           ]
         }
@@ -25757,8 +25565,7 @@
           "runs": [
             "tool:break-down-visits-and-sales",
             "tool:draft-a-funnel",
-            "tool:measure-funnel-stages",
-            "tool:read-one-row-change"
+            "tool:measure-funnel-stages"
           ]
         }
       }
@@ -26075,12 +25882,7 @@
               "start_at": "research-plan-build"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -26486,12 +26288,7 @@
               "start_at": "outcome"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -26706,12 +26503,7 @@
               "start_at": "name-question-delete"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -27061,12 +26853,7 @@
               "start_at": "alignment"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -27331,12 +27118,7 @@
               "start_at": "name-question-delete"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -27608,12 +27390,7 @@
               "start_at": "delete"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -28201,12 +27978,7 @@
               "start_at": "outcome"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -28920,12 +28692,7 @@
               "start_at": "alignment"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -29477,12 +29244,7 @@
               "start_at": "outcome"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -29711,12 +29473,7 @@
               "start_at": "naming"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -30280,12 +30037,7 @@
               "start_at": "outcome"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -30596,12 +30348,7 @@
               "start_at": "baseline"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -30980,12 +30727,7 @@
               "start_at": "story-change"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -31751,12 +31493,7 @@
               "start_at": "outcome"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -32158,7 +31895,6 @@
         "records": {
           "runs": [
             "tool:add-a-customer",
-            "tool:read-one-row-change",
             "tool:record-a-customer-step",
             "tool:see-where-each-customer-is",
             "tool:send-due-email-lessons",
@@ -32940,12 +32676,7 @@
               }
             ]
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -33839,12 +33570,7 @@
               "start_at": "fit"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -34766,12 +34492,7 @@
               "start_at": "inventory"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -35094,12 +34815,7 @@
               "start_at": "first-principles"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -35630,12 +35346,7 @@
               }
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -36108,7 +35819,6 @@
           "runs": [
             "tool:check-against-a-persons-rules-and-verdicts",
             "tool:draft-a-post",
-            "tool:read-one-row-change",
             "tool:set-a-post-to-go-at-its-time"
           ]
         }
@@ -36295,12 +36005,7 @@
               "start_at": "choose"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -36644,7 +36349,6 @@
             "tool:check-a-page-for-search-and-answer-engines",
             "tool:check-given-pages-at-every-width",
             "tool:measure-a-checklist",
-            "tool:read-one-row-change",
             "tool:read-public-web-page"
           ]
         }
@@ -37047,7 +36751,6 @@
           "runs": [
             "tool:check-copy",
             "tool:draft-a-post",
-            "tool:read-one-row-change",
             "tool:send-a-post"
           ]
         }
@@ -37764,12 +37467,7 @@
               "workflow:put-a-households-money-in-order"
             ]
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -38596,12 +38294,7 @@
               "start_at": "reuse"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -38804,12 +38497,7 @@
               "start_at": "job"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -39094,12 +38782,7 @@
               "start_at": "state"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -40239,12 +39922,7 @@
               "start_at": "customer"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -41567,12 +41245,7 @@
               "start_at": "find"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -43116,12 +42789,7 @@
               "start_at": "identity"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -44511,12 +44179,7 @@
               "start_at": "case"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -44880,7 +44543,6 @@
         "records": {
           "runs": [
             "tool:list-ended-stripe-subscriptions",
-            "tool:read-one-row-change",
             "tool:send-an-email"
           ]
         }
@@ -45280,12 +44942,7 @@
               "start_at": "research"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -45746,12 +45403,7 @@
               "start_at": "people"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -46172,7 +45824,6 @@
         "records": {
           "runs": [
             "tool:make-a-referral-code",
-            "tool:read-one-row-change",
             "tool:run-workflow-definition",
             "tool:see-where-each-customer-is",
             "tool:withdraw-a-referral-code",
@@ -50712,12 +50363,7 @@
               "start_at": "setup"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -50868,12 +50514,7 @@
               "arrival_source": "record:arrival-sources:broad-conditions-waiting"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -51153,8 +50794,7 @@
         "records": {
           "runs": [
             "tool:advance-a-community-matchmaker",
-            "tool:answer-in-a-community",
-            "tool:read-one-row-change"
+            "tool:answer-in-a-community"
           ]
         }
       }
@@ -51562,7 +51202,6 @@
         "records": {
           "runs": [
             "tool:check-copy",
-            "tool:read-one-row-change",
             "tool:send-due-email-lessons",
             "tool:sign-someone-up-for-an-email-course",
             "tool:work-out-where-a-learner-stands"
@@ -52925,12 +52564,7 @@
               "start_at": "voice-sources"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -54191,12 +53825,7 @@
               "start_at": "abilities"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -54607,12 +54236,7 @@
               "start_at": "read"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -54794,12 +54418,7 @@
               "start_at": "find"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -56236,7 +55855,6 @@
         "records": {
           "runs": [
             "tool:measure-a-checklist",
-            "tool:read-one-row-change",
             "tool:run-workflow-definition"
           ]
         }
@@ -56528,12 +56146,7 @@
               "start_at": "read-the-repository"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -56846,7 +56459,6 @@
         ],
         "records": {
           "runs": [
-            "tool:read-one-row-change",
             "tool:resolve-a-brand",
             "tool:run-workflow-definition",
             "tool:send-an-email"
@@ -57428,7 +57040,6 @@
             "tool:check-an-email-sending-domain",
             "tool:list-every-connection",
             "tool:make-a-sending-key",
-            "tool:read-one-row-change",
             "tool:set-up-someone-i-pay-in-stripe"
           ]
         }
@@ -58006,12 +57617,7 @@
               "start_at": "search"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -58384,7 +57990,6 @@
         "records": {
           "runs": [
             "tool:find-a-completed-stripe-checkout",
-            "tool:read-one-row-change",
             "tool:set-up-stripe-payment-links",
             "tool:start-a-stripe-checkout-that-pays-someone-else"
           ]
@@ -58970,12 +58575,7 @@
               "start_at": "capture"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -59389,12 +58989,7 @@
               "start_at": "write-the-versions"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -59689,12 +59284,7 @@
               "start_at": "read"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -60049,12 +59639,7 @@
               "start_at": "name"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -60377,12 +59962,7 @@
               "start_at": "own-work"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -61087,12 +60667,7 @@
               }
             ]
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -62169,12 +61744,7 @@
               "start_at": "scope"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -64049,12 +63619,7 @@
               "start_at": "worth"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -64827,12 +64392,7 @@
               }
             ]
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -65100,12 +64660,7 @@
               "start_at": "read"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -65573,12 +65128,7 @@
               "start_at": "read"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -65827,12 +65377,7 @@
               "start_at": "goal"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -66108,12 +65653,7 @@
               "start_at": "facts"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -69455,12 +68995,7 @@
               "start_at": "scope"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -69970,12 +69505,7 @@
               "start_at": "establish-what-you-re-investigating"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -70556,12 +70086,7 @@
               "start_at": "find-possible-changes-worth-making"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -71211,12 +70736,7 @@
               "start_at": "start-from-the-desired-result"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -71866,12 +71386,7 @@
               "start_at": "determine-what-the-work-requires"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -72592,12 +72107,7 @@
               "start_at": "define-the-result-to-produce"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -73316,12 +72826,7 @@
               "start_at": "determine-who-needs-the-explanation"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -73970,12 +73475,7 @@
               "start_at": "determine-what-the-presentation-needs-to"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -74625,12 +74125,7 @@
               "start_at": "determine-what-should-be-preserved"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -75210,12 +74705,7 @@
               "start_at": "decide-what-the-person-needs-to-do"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -76216,12 +75706,7 @@
               "start_at": "identify-where-the-right-people-already-are"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -77081,12 +76566,7 @@
               "start_at": "define-the-exchange"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -77736,12 +77216,7 @@
               "start_at": "decide-what-evidence-matters"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -78461,12 +77936,7 @@
               "start_at": "identify-what-was-learned"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -81356,12 +80826,7 @@
               "start_at": "find-possible-starting-points"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -82081,12 +81546,7 @@
               "start_at": "customer-segments-who-exactly-are-the-customers"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -82596,12 +82056,7 @@
               "start_at": "write-down-your-current-best-explanation-of-the"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -82886,12 +82341,7 @@
               "start_at": "read-the-message-and-its-source"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -83241,12 +82691,7 @@
               "start_at": "start-from-what-is-already-moving"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -83921,12 +83366,7 @@
               "start_at": "read-everything-first"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -84276,12 +83716,7 @@
               "start_at": "find-each-changeover-window"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -84826,12 +84261,7 @@
               "start_at": "see-what-is-happening"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -85181,12 +84611,7 @@
               "start_at": "pick-the-device"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -85536,12 +84961,7 @@
               "start_at": "pick-the-technique"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -85956,12 +85376,7 @@
               "start_at": "map-the-people-around-them"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -86311,12 +85726,7 @@
               "start_at": "gather-what-arrived-close-together"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     },
     {
@@ -86731,12 +86141,7 @@
               "start_at": "pick-the-person-and-the-purpose"
             }
           }
-        ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change"
-          ]
-        }
+        ]
       }
     }
   ]

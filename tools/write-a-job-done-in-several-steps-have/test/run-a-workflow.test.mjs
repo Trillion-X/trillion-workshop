@@ -249,22 +249,17 @@ test('tools:list and an addressed tools:run step send the door its whole input; 
   assert.match(failed.error_message, /tools:run did not finish: the server refused/);
 });
 
-test('a run woken by a fact that only points at a row is given the row first, as input.change', async () => {
+test('a run woken by a change is given the change the fact carries, and reads nothing before its first step', async () => {
   const bind = path => ({ $kind: 'binding', select: { from: 'input', path } });
   const definition = { id: 'workflow:made-up-reader', name: 'Reader', kind: 'workflow', is_active: true, version: 1, edges: [],
-    steps: [{ id: 'see', kind: 'ask', config: { name: 'ai', input: { topic: bind('change.after.topic'), op: bind('change.op') }, context: { step_id: 'see' } } }] };
+    steps: [{ id: 'see', kind: 'ask', config: { name: 'ai', input: { after: bind('fact.after'), op: bind('fact.op') }, context: { step_id: 'see' } } }] };
   const detail = { kind: 'workflow-chosen', from: 'run', event_id: 'd:9:4:w:c', coalesced: 0,
-    payload: { workflow: 'workflow:made-up-reader', condition: 'c', database: 'd', table_name: 'lesson_request', op: 'INSERT', position: '4', connection: 'made-up-connection' } };
+    payload: { workflow: 'workflow:made-up-reader', condition: 'c', where: 'made-up-connection', table_name: 'lesson_request', op: 'INSERT', key: 'd:9:4', after: '{"topic":"how tides work"}' } };
   const reads = [];
-  const door = { async run(tool, input, { key }) { reads.push([tool, input, key]); return { columns: ['table_name', 'op', 'before', 'after'], rows: [{ table_name: 'lesson_request', op: 'INSERT', before: null, after: { topic: 'how tides work' } }], row_count: 1 }; } };
+  const door = { async run(tool, input, { key }) { reads.push([tool, input, key]); return {}; } };
   const ran = await runAsTheTool({ run: { definitions: [definition], workflow_id: definition.id }, woken_by: detail }, { door });
-  assert.deepEqual(reads, [['tool:read-one-row-change', { credential_name: 'made-up-connection', position: '4' }, 'fact-value:d:9:4:w:c']]);
-  assert.deepEqual(ran.waiting[0].input, { topic: 'how tides work', op: 'INSERT' });
-  const refused = { async run() { throw Object.assign(new Error('This run may not start tool:read-one-row-change.'), { outcome: 'unknown' }); } };
-  const without = await runAsTheTool({ run: { definitions: [definition], workflow_id: definition.id }, woken_by: detail }, { door: refused });
-  assert.equal(without.status, 'paused', 'a run that may not read the row starts without it');
-  await assert.rejects(runAsTheTool({ run: { definitions: [definition], workflow_id: definition.id }, woken_by: detail },
-    { door: { async run() { throw Object.assign(new Error('did not finish'), { outcome: 'committed' }); } } }));
+  assert.deepEqual(reads, []);
+  assert.deepEqual(ran.waiting[0].input, { after: '{"topic":"how tides work"}', op: 'INSERT' });
 });
 
 test('a refusal of the step\'s own call fails the step with the door\'s code; a right not granted still waits', async () => {

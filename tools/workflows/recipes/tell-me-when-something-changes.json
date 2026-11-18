@@ -1,0 +1,136 @@
+{
+  "about": "workflow:tell-me-when-something-changes: have any store a person keeps tell its own changes, so the workflows that follow a change start from it. The person's AI renders it once into the store's own way of telling (a trigger and a listener, a change stream, a watch, IMAP IDLE, a calendar sync token, a file-system watch, a webhook), or, where the store has none, a read on a schedule compared with the last read. Nothing shared ships a noticer for any store: this is intent with proofs, and the proof is the example changes giving the expected facts.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:tell-me-when-something-changes",
+        "label": "Tell me when something changes",
+        "job": "Have the person's own store tell each change of the things the person names, once, as a row-changes fact the workflows that follow it hear, using the store's own way of telling, or a scheduled read and compare where it has none.",
+        "produces": "The store's own way of telling its changes, made once and proven on the example changes, and each later change told once as a fact.",
+        "source": {
+          "from": "the owner, 2026-11-18 about 2:35 and 2:55 PM CST (relayed by session 68): shared parts must not know about any store and must not be solved store by store; a person's whose store is Cassandra, Notion, a CSV folder or Firestore must also get \"a row changed, wake a workflow\"",
+          "note": "Replaces the Postgres-only road as the general way (row_changes, tool:read-one-row-change, fact-values.json). A Postgres database's record_row_change() with the noticer's keep-noticing-row-changes stays one person's own choice of how their database tells. Measured on 8 store kinds on 2026-11-18 (store matrix, change_feed): Postgres LISTEN, CalDAV sync-token, IMAP IDLE and Cassandra CDC tell; a markdown or CSV folder, IndexedDB and Google Sheets (through its API) need a read and compare."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store",
+            "watch"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things, as the person's own store row names it; it becomes the fact's where (a vault name is fine)"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses for that store, when it needs one"
+                }
+              }
+            },
+            "watch": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "The things whose changes to tell, in the store's own names (a table, a sheet, a folder, a calendar, a mailbox)"
+            },
+            "every_seconds": {
+              "type": "number",
+              "description": "For a store with no way of its own to tell: how often to read and compare (the person's choice)"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Find how the store tells its changes",
+            "do": "Speak to the store in its own language and find whether it has its own way of telling a change: a change stream, a watch, a notify, IMAP IDLE, a sync token, webhooks, file-system events, revision history. Submit the way found, or none.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "way"
+              ],
+              "properties": {
+                "way": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store tell, once",
+            "do": "Make the store tell each change of the watched things, once, in commit order where the store has one, as a fact of kind row-changes told through wake:arrive with at most 8 text fields of at most 1,024 bytes each: where (input.store.where), table_name (the watched thing's own name), op (INSERT, UPDATE or DELETE, or the store's own word for added, changed, removed), at (ISO time), key (the change's own key in the store's words, unique, so the same change told twice is one fact), before and after (the entry as JSON text when it fits, else left out). Use the way the look step found. Where it found none, make a scheduled read (a due-time wake every input.every_seconds) that reads the watched things, compares them with what the last read kept, tells each difference, and keeps what it read. Make nothing server-wide that the store's holder does not allow the person's login.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "made"
+              ],
+              "properties": {
+                "made": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove it on the example changes",
+            "do": "Make each example change of the kit in a scratch copy of a watched thing and read the facts told. Each example's expected fact must be told once, with the same op and the same after when it fits, and a repeat of the same change must be no new fact. Submit each example with pass or fail; stop and say which failed.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "examples"
+              ],
+              "properties": {
+                "examples": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "example",
+                      "pass"
+                    ],
+                    "properties": {
+                      "example": {
+                        "type": "string"
+                      },
+                      "pass": {
+                        "type": "boolean"
+                      },
+                      "why": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "checks": []
+          }
+        ]
+      }
+    }
+  ]
+}

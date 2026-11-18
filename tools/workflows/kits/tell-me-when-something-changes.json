@@ -1,0 +1,92 @@
+{
+  "drafted_from": "workflow:tell-me-when-something-changes's own file, tools/workflows/recipes/tell-me-when-something-changes.json, and the store matrix of 2026-11-18 (each store's own change_feed)",
+  "start_here": "Say to your AI: \"Run workflow:tell-me-when-something-changes with store {\\\"where\\\": \\\"notes folder on my computer\\\", \\\"language\\\": \\\"markdown files\\\"} and watch [\\\"lesson-requests\\\"].\" From then on, each lesson request added there is told once, and the workflows that follow it start.",
+  "lists": [],
+  "no_lists_because": "It keeps nothing in lists: the store tells its own changes as facts, and a store that cannot tell keeps its own last read beside the watched things.",
+  "workflows": [
+    "workflow:tell-me-when-something-changes",
+    "workflow:route-each-row-change"
+  ],
+  "tools": [],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is, how it is spoken to, and which things to watch.",
+    "2. Say \"Run workflow:tell-me-when-something-changes\" with store and watch.",
+    "3. The first run finds the store's own way of telling (or makes a scheduled read and compare), makes it once, and proves it on the example changes below: each must give its expected fact once.",
+    "4. Turn on workflow:route-each-row-change's wake a-row-changed: each fact then starts every workflow whose conditions follow that change."
+  ],
+  "examples": [
+    {
+      "change": "an entry {\"id\":7,\"topic\":\"tides\"} added to lesson-requests",
+      "expected_fact": {
+        "kind": "row-changes",
+        "where": "<input.store.where>",
+        "table_name": "lesson-requests",
+        "op": "INSERT",
+        "after": "{\"id\":7,\"topic\":\"tides\"}"
+      }
+    },
+    {
+      "change": "the same entry's topic changed to \"moon tides\"",
+      "expected_fact": {
+        "kind": "row-changes",
+        "table_name": "lesson-requests",
+        "op": "UPDATE",
+        "before": "{\"id\":7,\"topic\":\"tides\"}",
+        "after": "{\"id\":7,\"topic\":\"moon tides\"}"
+      }
+    },
+    {
+      "change": "the entry removed",
+      "expected_fact": {
+        "kind": "row-changes",
+        "table_name": "lesson-requests",
+        "op": "DELETE",
+        "before": "{\"id\":7,\"topic\":\"moon tides\"}"
+      }
+    },
+    {
+      "change": "an entry whose text is 5,000 characters added",
+      "expected_fact": {
+        "kind": "row-changes",
+        "table_name": "lesson-requests",
+        "op": "INSERT",
+        "after": "left out: it does not fit; a run reads it by key"
+      }
+    },
+    {
+      "change": "nothing changes between two reads",
+      "expected_fact": "no fact"
+    }
+  ],
+  "worked_examples": [
+    {
+      "title": "A folder of markdown files tells each lesson request added",
+      "ask": "Tell my workflows whenever I add a lesson request to my notes folder.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:tell-me-when-something-changes",
+              "store": {
+                "where": "notes folder on my computer",
+                "language": "markdown files"
+              },
+              "watch": [
+                "lesson-requests"
+              ],
+              "every_seconds": 60
+            }
+          }
+        }
+      },
+      "workflow": "workflow:tell-me-when-something-changes",
+      "step": "render",
+      "given": "The look step found that a folder of files has no way of its own to tell a change.",
+      "hands_back": "made [\"a due-time wake every 60 seconds that reads lesson-requests, compares it with the last read kept beside it, and tells each added, changed or removed file as row-changes\"]; the prove step then passes all five examples."
+    }
+  ]
+}

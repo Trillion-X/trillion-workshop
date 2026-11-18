@@ -20,6 +20,12 @@
  *   - It names no table of the person's: the change table and channel are
  *     settings (row_changes by default), and each change says its own table.
  *   - It never writes to the database. Its login needs to read the change table.
+ *   - A change carries itself: before and after as JSON text when each fits a fact
+ *     field (CARRIED_BYTES), else null, so a woken run needs no reader tool; key is
+ *     the change's own key in this database's words, for a run that reads more.
+ *     This leaf is one way a Postgres database tells its changes, one transport
+ *     among many: nothing shared names it, and another store tells its changes
+ *     its own way (workflow:tell-me-when-something-changes).
  *
  * Settings (mechanism_settings)
  *   connection_fd       the descriptor holding the connection string (default 4)
@@ -31,11 +37,18 @@ import { readFileSync } from "node:fs";
 
 export const MECHANISM_REF = "package::notice-when-something-shows-up::mechanism::row-changes";
 const NAME = /^[a-z_][a-z0-9_]*$/;
+// A told fact holds at most 1,024 bytes a field (the engine's fact inbox, src/wake/host-events.json); a value longer than this is left out.
+export const CARRIED_BYTES = 1000;
+export const carried = (value) => {
+  if (value === null || value === undefined) return null;
+  const text = typeof value === "string" ? value : JSON.stringify(value);
+  return Buffer.byteLength(text) <= CARRIED_BYTES ? text : null;
+};
 
 export function describeMechanism() {
   return {
     mechanism_ref: MECHANISM_REF,
-    detail_fields: ["database", "table_name", "op", "at", "before", "after", "txid", "position"],
+    detail_fields: ["database", "table_name", "op", "at", "key", "before", "after", "txid", "position"],
     conditions: ["became-reachable"],
   };
 }
@@ -102,7 +115,8 @@ export async function watchForTransitions(settings, handlers) {
           event_key: `${change.database}:${change.txid}:${change.position}`,
           state: next,
           detail: { database: change.database, table_name: change.table_name, op: change.op, at: new Date(change.at).toISOString(),
-            before: change.before ?? null, after: change.after ?? null, txid: change.txid, position: change.position },
+            key: `${change.database}:${change.txid}:${change.position}`,
+            before: carried(change.before), after: carried(change.after), txid: change.txid, position: change.position },
         });
         if (told === false) { refused = true; break; }
         state = next;

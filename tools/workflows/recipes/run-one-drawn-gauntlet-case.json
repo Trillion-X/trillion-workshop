@@ -6,27 +6,28 @@
         "kind": "workflow-recipe",
         "id": "workflow:run-one-drawn-gauntlet-case",
         "label": "Run one drawn gauntlet case",
-        "job": "Run one case a gauntlet's generator drew, as the real call it stands for, and keep what it answered. A gauntlet keeps its axes, formulas, drawn cases and results as tables in the person's own database (gauntlet_<name>_axes, _formulas, _cases, _results); the formula engine draws each case as a row of _cases holding its number k, its words per axis and `call`, the input of one tools:list that has no effect. When such a row is added, this run reads it, makes that list call, and writes the whole answer to the gauntlet's _results table under the same k; a call the door refuses is kept the same way, as {error}, so a refusal is a result too. A split is then read from the results with the gauntlet's own property, in the database's own language.",
+        "job": "Run one case a gauntlet's generator drew, as the real call it stands for, and keep what it answered beside the case. A gauntlet keeps its axes, formulas, drawn cases and results in the person's own store, in that store's own form; the formula engine draws each case as one entry holding its number k, its words per axis, `call` (the input of one tools:list that has no effect) and drawn_by. When such an entry is added, its change wakes this run carrying the entry itself; this run makes that list call and keeps the whole answer with the case's k in the gauntlet's results, in the store's own language; a call the door refuses is kept the same way, as {error}, so a refusal is a result too.",
         "produces": "One result row per drawn case: the real answer of the call the case stands for.",
         "input_schema": {
           "type": "object",
           "properties": {
             "fact": {
               "type": "object",
-              "description": "The workflow-chosen fact that woke this run: database, table_name, op, position and connection (the vault name of the connection that reads that database)"
+              "description": "The workflow-chosen fact that woke this run: where (the vault name of the store), table_name (what changed, in the store's own name), op, key, and after: the drawn case as JSON text"
             }
           }
         },
         "fires_when": [
           {
-            "label": "a gauntlet case row is added",
+            "label": "a drawn gauntlet case is added",
             "condition": {
               "fields": [
                 {
-                  "id": "table_name",
+                  "id": "drawn_by",
                   "kind": "text",
                   "path": [
-                    "table_name"
+                    "after",
+                    "drawn_by"
                   ]
                 },
                 {
@@ -44,11 +45,8 @@
                 "rules": [
                   {
                     "kind": "rule",
-                    "field": "table_name",
-                    "operator": "matches_glob",
-                    "params": {
-                      "text": "gauntlet_*_cases"
-                    }
+                    "field": "drawn_by",
+                    "operator": "is_not_empty"
                   },
                   {
                     "kind": "rule",
@@ -56,7 +54,8 @@
                     "operator": "is_any_of",
                     "params": {
                       "values": [
-                        "INSERT"
+                        "INSERT",
+                        "added"
                       ]
                     }
                   }
@@ -68,199 +67,12 @@
             "input": {
               "start_at": "read-the-case"
             },
-            "evidence": "Written on 2026-11-18 for the e2e skill's generated cases (W0.3): the trigger engine fires on a drawn case row through the row-change road (record_row_change, the noticer, route-each-row-change), and this workflow is the workflow engine's run of each case."
+            "evidence": "Written on 2026-11-18 for the e2e skill's generated cases (W0.3); on 2026-11-18 it stopped naming a table pattern and a change table (rule nothing-shared-is-coupled-to-a-store): it fires on any added entry the formula engine drew (it carries drawn_by), told by whatever store keeps the cases."
           }
         ],
-        "definition": {
-          "id": "workflow:run-one-drawn-gauntlet-case",
-          "name": "Run one drawn gauntlet case",
-          "kind": "workflow",
-          "is_active": true,
-          "version": 1,
-          "steps": [
-            {
-              "id": "read-the-case",
-              "kind": "ask",
-              "config": {
-                "name": "tool:run-sql-in-my-database",
-                "input": {
-                  "credential_name": {
-                    "$kind": "binding",
-                    "select": {
-                      "from": "input",
-                      "path": "fact.connection"
-                    }
-                  },
-                  "sql": "SELECT table_name, after FROM row_changes WHERE position = $1",
-                  "params": [
-                    {
-                      "$kind": "binding",
-                      "select": {
-                        "from": "input",
-                        "path": "fact.position"
-                      }
-                    }
-                  ]
-                }
-              }
-            },
-            {
-              "id": "list",
-              "kind": "ask",
-              "config": {
-                "name": "tools:list",
-                "input": {
-                  "$kind": "binding",
-                  "select": {
-                    "from": "steps",
-                    "key": "read-the-case",
-                    "path": "output.rows.0.after.call"
-                  }
-                }
-              }
-            },
-            {
-              "id": "write-the-result",
-              "kind": "ask",
-              "config": {
-                "name": "tool:run-sql-in-my-database",
-                "input": {
-                  "credential_name": {
-                    "$kind": "binding",
-                    "select": {
-                      "from": "input",
-                      "path": "fact.connection"
-                    }
-                  },
-                  "sql": {
-                    "$kind": "binding",
-                    "select": {
-                      "from": "steps",
-                      "key": "read-the-case",
-                      "path": "output.rows.0.table_name"
-                    },
-                    "transform": [
-                      {
-                        "op": "op:core.text_substitute",
-                        "args": {
-                          "old": "_cases",
-                          "new": "_results"
-                        }
-                      },
-                      {
-                        "op": "op:core.concat",
-                        "args": {
-                          "prefix": "INSERT INTO ",
-                          "suffix": " (k, answered, run_by) VALUES ($1, $2, $3) ON CONFLICT (k) DO UPDATE SET answered = EXCLUDED.answered, run_by = EXCLUDED.run_by, written_at = now()"
-                        }
-                      }
-                    ]
-                  },
-                  "params": [
-                    {
-                      "$kind": "binding",
-                      "select": {
-                        "from": "steps",
-                        "key": "read-the-case",
-                        "path": "output.rows.0.after.k"
-                      }
-                    },
-                    {
-                      "$kind": "binding",
-                      "select": {
-                        "from": "steps",
-                        "key": "list",
-                        "path": "output"
-                      }
-                    },
-                    "workflow:run-one-drawn-gauntlet-case"
-                  ]
-                }
-              }
-            },
-            {
-              "id": "write-the-refusal",
-              "kind": "ask",
-              "config": {
-                "name": "tool:run-sql-in-my-database",
-                "input": {
-                  "credential_name": {
-                    "$kind": "binding",
-                    "select": {
-                      "from": "input",
-                      "path": "fact.connection"
-                    }
-                  },
-                  "sql": {
-                    "$kind": "binding",
-                    "select": {
-                      "from": "steps",
-                      "key": "read-the-case",
-                      "path": "output.rows.0.table_name"
-                    },
-                    "transform": [
-                      {
-                        "op": "op:core.text_substitute",
-                        "args": {
-                          "old": "_cases",
-                          "new": "_results"
-                        }
-                      },
-                      {
-                        "op": "op:core.concat",
-                        "args": {
-                          "prefix": "INSERT INTO ",
-                          "suffix": " (k, answered, run_by) VALUES ($1, $2, $3) ON CONFLICT (k) DO UPDATE SET answered = EXCLUDED.answered, run_by = EXCLUDED.run_by, written_at = now()"
-                        }
-                      }
-                    ]
-                  },
-                  "params": [
-                    {
-                      "$kind": "binding",
-                      "select": {
-                        "from": "steps",
-                        "key": "read-the-case",
-                        "path": "output.rows.0.after.k"
-                      }
-                    },
-                    {
-                      "error": {
-                        "$kind": "binding",
-                        "select": {
-                          "from": "steps",
-                          "key": "list",
-                          "path": "error"
-                        }
-                      }
-                    },
-                    "workflow:run-one-drawn-gauntlet-case"
-                  ]
-                }
-              }
-            }
-          ],
-          "edges": [
-            {
-              "from": "read-the-case",
-              "to": "list",
-              "kind": "always"
-            },
-            {
-              "from": "list",
-              "to": "write-the-result",
-              "kind": "always"
-            },
-            {
-              "from": "list",
-              "to": "write-the-refusal",
-              "kind": "on_failure"
-            }
-          ]
-        },
         "wakes": [
           {
-            "id": "chosen--a-gauntlet-case-row-is-added",
+            "id": "chosen--a-drawn-gauntlet-case-is-added",
             "on": {
               "fact": {
                 "kind": "workflow-chosen",
@@ -269,7 +81,7 @@
                 ],
                 "match": {
                   "workflow": "workflow:run-one-drawn-gauntlet-case",
-                  "condition": "a gauntlet case row is added"
+                  "condition": "a drawn gauntlet case is added"
                 }
               }
             },
@@ -282,12 +94,63 @@
             }
           }
         ],
-        "records": {
-          "runs": [
-            "tool:read-one-row-change",
-            "tool:run-sql-in-my-database"
-          ]
-        }
+        "steps": [
+          {
+            "id": "read-the-case",
+            "title": "Read the drawn case from the change",
+            "do": "Parse input.fact.after (JSON text): it is the drawn case, {k, words, call, drawn_by}. If after is missing (the case was too big to carry in the fact), read the entry whose key is input.fact.key from input.fact.table_name in the store named by input.fact.where, in that store's own language. Submit the case.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "case"
+              ],
+              "properties": {
+                "case": {
+                  "type": "object",
+                  "required": [
+                    "k",
+                    "call"
+                  ]
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "list",
+            "title": "Make the call the case stands for",
+            "do": "Make the one tools:list call the case's call holds, exactly as written, and keep its whole answer; when the door refuses it, keep {error: the refusal's words} instead.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "answered"
+              ],
+              "properties": {
+                "answered": {}
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "keep-the-result",
+            "title": "Keep the answer beside the case",
+            "do": "In the store named by input.fact.where, in its own language, keep the answer as the result of case k in the gauntlet's results, the object kept beside the gauntlet's cases (for cases named <gauntlet>_cases, the results are <gauntlet>_results; the person's own store may say otherwise), with run_by workflow:run-one-drawn-gauntlet-case. A result already kept for k is replaced by this one. Read it back and submit what was kept.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "k",
+                "kept"
+              ],
+              "properties": {
+                "k": {},
+                "kept": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "checks": []
+          }
+        ]
       }
     }
   ]
