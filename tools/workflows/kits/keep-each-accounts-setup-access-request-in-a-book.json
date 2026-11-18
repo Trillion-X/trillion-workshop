@@ -1,0 +1,83 @@
+{
+  "drafted_from": "tools/keep-each-accounts-setup-access-request-in-a-book (from-an-older-version/src/setup-access-records.mjs.held, its README and the held test)",
+  "start_here": "Say to your AI: \"Run workflow:keep-each-accounts-setup-access-request-in-a-book with store {\\\"where\\\": \\\"postgresql database example_me on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-me-postgres-connection\\\"}, label \\\"setup-access.json:acme\\\" and the request {\\\"status\\\": \\\"draft\\\", \\\"steps\\\": 1}.\" It keeps that request in its own book and reads it back.",
+  "lists": [],
+  "no_lists_because": "It names no list of its own: each request is kept in its own book in the person's own store, in whatever form that store keeps things, and store says where and in which language.",
+  "workflows": [
+    "workflow:keep-each-accounts-setup-access-request-in-a-book"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the books are kept and how the store is spoken to.",
+    "2. Say \"Run workflow:keep-each-accounts-setup-access-request-in-a-book\" with store, the label (it starts with setup-access.json) and the request.",
+    "3. The first run makes one book per label once and proves the writes on the example labels: every expected outcome and answer must match, or the run stops and says which.",
+    "4. Every later run writes the request to its own book at the identity you read, or refuses it and says the current identity, and reads the book back."
+  ],
+  "worked_examples": [
+    {
+      "title": "A new account's setup request kept in its own book",
+      "ask": "Keep the setup request for acme as a draft with one step.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-each-accounts-setup-access-request-in-a-book",
+              "store": {
+                "where": "postgresql database example_me on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-me-postgres-connection"
+              },
+              "label": "setup-access.json:acme",
+              "value": {
+                "status": "draft",
+                "steps": 1
+              }
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-each-accounts-setup-access-request-in-a-book",
+      "step": "keep",
+      "given": "The look step found no book for acme, so the write has no expected identity; the prove step matched every expected outcome and answer.",
+      "hands_back": "outcome kept, with the identity v1 and the value status draft with one step."
+    },
+    {
+      "title": "A write on a stale identity is refused",
+      "ask": "Mark the acme setup ready, from the draft I read earlier.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-each-accounts-setup-access-request-in-a-book",
+              "store": {
+                "where": "postgresql database example_me on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-me-postgres-connection"
+              },
+              "label": "setup-access.json:acme",
+              "value": {
+                "status": "ready",
+                "steps": 2
+              },
+              "expected_identity": "v0"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-each-accounts-setup-access-request-in-a-book",
+      "step": "keep",
+      "given": "The book for acme holds identity v1, so the expected identity v0 is stale.",
+      "hands_back": "outcome refused, with the reason that the kept value differs, and identity v1 so the request can be read and written again."
+    }
+  ]
+}

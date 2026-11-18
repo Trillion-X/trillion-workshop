@@ -1,0 +1,229 @@
+{
+  "about": "workflow:keep-each-accounts-setup-access-request-in-a-book: keeps each account's setup access request in a book of its own, one book per request label, so that preparing, reading and fulfilling one request reaches only that request's book and never another's. A write names the identity of the value it read and is refused when the kept value differs; a label without the setup-access.json prefix is refused; an adopt brings a value over only where the book holds none. It replaces the record-book half of tools/keep-each-accounts-setup-access-request-in-a-book (from-an-older-version/src/setup-access-records.mjs.held), whose whole job was keeping these requests in books in the retired record store (rule a-tool-is-only-what-the-store-cannot-do). The folder is kept, because its held old files are the only copy in this repository until they are adapted.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-each-accounts-setup-access-request-in-a-book",
+        "label": "Keep each account's setup access request in a book of its own",
+        "job": "Keep each account's setup access request in a book of its own, one for each request label, so that a write touches only its own book, a write on a stale identity is refused, and a request label outside the setup-access prefix is never kept.",
+        "produces": "One book per request label in the person's own store, proven on the example writes in three stores of different kinds, with each write kept, refused or adopted and read back.",
+        "source": {
+          "from": "tools/keep-each-accounts-setup-access-request-in-a-book (from-an-older-version/src/setup-access-records.mjs.held and its test), read on trillion-workshop origin/main",
+          "note": "The identity of a value is the content identity the declared owner gives it (BLAKE3, never SHA-256); the proof stands v1, v2 in for it. The old adopt step, which brought a request from the operator's store, is kept as the adopt rule: it fills a book only where the book is empty, so a request written first is never replaced by an older copy."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store",
+            "label",
+            "value"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these books: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                }
+              }
+            },
+            "label": {
+              "type": "string",
+              "description": "The request's label, starting with setup-access.json"
+            },
+            "value": {
+              "type": "object",
+              "description": "The request as it should now be"
+            },
+            "expected_identity": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "The identity of the value read, or null when the book holds none"
+            },
+            "adopt": {
+              "type": "boolean",
+              "description": "true to bring the value over only where the book holds none"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read which request books the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read which request books already exist, one for each setup-access request label, with the identity of the value each holds. Submit where the books are kept (or null) and the labels that already have a book.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "labels"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "labels": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make one book per request label, once",
+            "do": "When the look step found none, make the store's own objects in its own form: one book per request label, named setup-access-request:<label>, each holding one value and its identity, so a write to one book touches only that book, and a book holds only the one label it was made for. Grant the person's login only what the store's holder allows. Submit the names of the objects made.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the books on the example writes",
+            "do": "In a throwaway place in the same store, with the same objects, make these writes in order, each at the time given: [{\"at\": \"2026-11-18T10:00:00Z\", \"label\": \"setup-access.json:acme\", \"value\": {\"status\": \"draft\", \"steps\": 1}, \"expected_identity\": null}, {\"at\": \"2026-11-18T10:01:00Z\", \"label\": \"setup-access.json:acme\", \"value\": {\"status\": \"ready\", \"steps\": 2}, \"expected_identity\": null}, {\"at\": \"2026-11-18T10:02:00Z\", \"label\": \"setup-access.json:acme\", \"value\": {\"status\": \"ready\", \"steps\": 2}, \"expected_identity\": \"v1\"}, {\"at\": \"2026-11-18T10:03:00Z\", \"label\": \"setup-access.json:acme\", \"value\": {\"status\": \"stale\"}, \"expected_identity\": \"v1\"}, {\"at\": \"2026-11-18T10:04:00Z\", \"label\": \"other-thing\", \"value\": {\"status\": \"draft\"}, \"expected_identity\": null}, {\"at\": \"2026-11-18T10:05:00Z\", \"label\": \"setup-access.json:globex\", \"value\": {\"status\": \"draft\", \"steps\": 1}, \"expected_identity\": null}, {\"at\": \"2026-11-18T10:06:00Z\", \"adopt\": true, \"label\": \"setup-access.json:acme\", \"value\": {\"status\": \"old\"}}, {\"at\": \"2026-11-18T10:07:00Z\", \"adopt\": true, \"label\": \"setup-access.json:initech\", \"value\": {\"status\": \"adopted\"}}]. A write is kept when expected_identity is the identity of the kept value (or null when the book holds none), refused when the kept value differs, and refused for a label without the setup-access.json prefix. An adopt brings a value over only where the book holds none, and says not adopted otherwise. Identities here are v1, v2 and so on, stand-ins for the content identity the declared owner gives each value. Each write must give the outcome the intent gives, and the books must give every expected answer below.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answer"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "answer": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each write is kept, refused, adopted or not adopted as the intent says",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "kept",
+                    "refused",
+                    "kept",
+                    "refused",
+                    "refused",
+                    "kept",
+                    "not adopted",
+                    "adopted"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "Each book holds its own label's latest value and identity, and the books are the request labels' own",
+                "path": [
+                  "this",
+                  "answer"
+                ],
+                "values": [
+                  {
+                    "acme": {
+                      "identity": "v2",
+                      "value": {
+                        "status": "ready",
+                        "steps": 2
+                      }
+                    },
+                    "globex": {
+                      "identity": "v1",
+                      "value": {
+                        "status": "draft",
+                        "steps": 1
+                      }
+                    },
+                    "initech": {
+                      "identity": "v1",
+                      "value": {
+                        "status": "adopted"
+                      }
+                    },
+                    "books": [
+                      "setup-access-request:setup-access.json:acme",
+                      "setup-access-request:setup-access.json:globex",
+                      "setup-access-request:setup-access.json:initech"
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's request",
+            "do": "Write the request to its own book, at the identity it was read at, and read the book back. Submit outcome (kept, refused or adopted, with the store's words when refused), the identity of the book's value after the write, and the value.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcome",
+                "identity"
+              ],
+              "properties": {
+                "outcome": {
+                  "type": "string"
+                },
+                "reason": {
+                  "type": "string"
+                },
+                "identity": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "value": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": []
+          }
+        ]
+      }
+    }
+  ]
+}
