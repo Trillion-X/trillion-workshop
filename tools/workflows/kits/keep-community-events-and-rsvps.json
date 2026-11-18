@@ -1,0 +1,112 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:keep-community-events-and-rsvps with store {\\\"where\\\": \\\"postgresql database example_me on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-me-postgres-connection\\\"} and the operations on the Ledger club space.\"",
+  "lists": [],
+  "no_lists_because": "It names no list: the events and RSVPs are kept in the space's own store, in whatever form that store keeps things, and store says where and in which language.",
+  "workflows": [
+    "workflow:keep-community-events-and-rsvps"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:keep-community-events-and-rsvps\" with store, the community and the operations to keep.",
+    "3. The first run makes the store's own objects once and proves them on the example operations and probes: the prove step must give every expected answer, or the run stops and says which.",
+    "4. Every later run writes each operation as one whole batch on the revision it read, and reads the space's events back from the store's own objects."
+  ],
+  "worked_examples": [
+    {
+      "title": "Two people going to one event, and the second refused when it is full",
+      "ask": "Set up the club for Saturday, and put m1 and m2 down for it; m3 is turned away when it is full.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-community-events-and-rsvps",
+              "store": {
+                "where": "postgresql database example_me on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-me-postgres-connection"
+              },
+              "community": {
+                "id": "c1",
+                "title": "Ledger club",
+                "events": "members"
+              },
+              "operations": [
+                {
+                  "op": "create",
+                  "relay": "owner",
+                  "event_ids": [
+                    "e1"
+                  ],
+                  "title": "Club",
+                  "size_limit": 2,
+                  "series_id": null,
+                  "times": [
+                    {
+                      "starts_at": "2026-11-20T10:00:00.000Z",
+                      "ends_at": "2026-11-20T11:00:00.000Z"
+                    }
+                  ],
+                  "now": "2026-11-18T09:00:00.000Z"
+                },
+                {
+                  "op": "create",
+                  "relay": "owner",
+                  "event_ids": [
+                    "e2a",
+                    "e2b"
+                  ],
+                  "title": "Weekly",
+                  "size_limit": null,
+                  "series_id": "s1",
+                  "times": [
+                    {
+                      "starts_at": "2026-11-21T18:00:00.000Z",
+                      "ends_at": "2026-11-21T19:00:00.000Z"
+                    },
+                    {
+                      "starts_at": "2026-11-28T18:00:00.000Z",
+                      "ends_at": "2026-11-28T19:00:00.000Z"
+                    }
+                  ],
+                  "now": "2026-11-18T09:01:00.000Z"
+                },
+                {
+                  "op": "rsvp",
+                  "event": "e1",
+                  "relay": "m1",
+                  "going": true,
+                  "now": "2026-11-18T09:02:00.000Z"
+                },
+                {
+                  "op": "rsvp",
+                  "event": "e1",
+                  "relay": "m2",
+                  "going": true,
+                  "now": "2026-11-18T09:03:00.000Z"
+                },
+                {
+                  "op": "rsvp",
+                  "event": "e1",
+                  "relay": "m3",
+                  "going": true,
+                  "now": "2026-11-18T09:04:00.000Z"
+                }
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-community-events-and-rsvps",
+      "step": "keep",
+      "given": "The look step found the space's event and RSVP objects already kept in the example database from the prove step.",
+      "hands_back": "results: m1 and m2 going; refused: m3's going refused (This event is full.); kept_ids: the two RSVP rows and the event's revision; found_ids: the same"
+    }
+  ]
+}

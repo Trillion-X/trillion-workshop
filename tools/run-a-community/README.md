@@ -4,6 +4,12 @@ This owner keeps the community tool definitions and the shared event actions. An
 
 `moved-from.json` records the earlier moved files. `source-baselines/` records the complete original methods and route clauses at immutable source commits. Held originals are evidence, not executable implementations or retained active code.
 
+## Event and RSVP records (values)
+
+`workflow:keep-community-events-and-rsvps` keeps the events and RSVPs in the space's own store: one batch per operation, each row written only on the revision it was read at, a full event refusing a new going, and an RSVP leaving only with its event. `read-data/community-event-records.mjs` decides which rows a step writes, with which revision, and reads no store. Its proof (`node --test tools/run-a-community/test/community-event-records.test.mjs` covers the rules) is in the lane notes, not here.
+
+The adapter over the records door (`read-data/community-memberships.mjs`), the event owner's store calls and the route's door use are the next family to convert (they still read the door).
+
 ## Event actions
 
 `read-data/community-events.mjs` exposes `nativeCommunityEvents`, with these direct methods and `community:<method>` operations:
