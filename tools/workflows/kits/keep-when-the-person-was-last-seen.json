@@ -1,0 +1,75 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:keep-when-the-person-was-last-seen with store {\\\"where\\\": \\\"postgresql database example_shop on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-shop-postgres-connection\\\"}, seen \\\"2026-11-18T10:45:00Z\\\" and now \\\"2026-11-18T11:20:00Z\\\".\"",
+  "lists": [],
+  "no_lists_because": "It names no list: the last-seen time and the away summaries are kept in the person's own store, in whatever form that store keeps things, and store says where and in which language.",
+  "workflows": [
+    "workflow:keep-when-the-person-was-last-seen"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:keep-when-the-person-was-last-seen\" with store, seen and now. Send seen only when the person's runtime reports a time they were last seen, and never move it back.",
+    "3. The first run makes the store's own objects once and proves them on the example attempts: every attempt must be kept, repeated or refused as the intent says, and the banner answers must match, or the run stops and says which.",
+    "4. Every later run keeps the seen time through those objects, reads the banner at now, and shows the summary it names. Nothing is shown when less than five minutes have passed since the time kept."
+  ],
+  "worked_examples": [
+    {
+      "title": "The person comes back after an hour away",
+      "ask": "The person was last seen at 10:45 and it is now 11:20. What did their AIs do while they were away?",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-when-the-person-was-last-seen",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "seen": "2026-11-18T10:45:00Z",
+              "now": "2026-11-18T11:20:00Z"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-when-the-person-was-last-seen",
+      "step": "keep",
+      "given": "The look step found the last-seen time and the summaries kept by an earlier run.",
+      "hands_back": "outcome kept (or repeated when the same time was kept already), last_seen 2026-11-18T10:45:00Z and shown summary:s1, the summary whose period ends last among the two that reach the kept time."
+    },
+    {
+      "title": "The person is back within five minutes",
+      "ask": "The person was last seen at 10:45 and it is now 10:48. Show the banner?",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-when-the-person-was-last-seen",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "seen": null,
+              "now": "2026-11-18T10:48:00Z"
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-when-the-person-was-last-seen",
+      "step": "keep",
+      "given": "The kept last-seen time is 10:45 and no new time is sent.",
+      "hands_back": "outcome null, last_seen 2026-11-18T10:45:00Z and shown null: three minutes is under the five-minute gap."
+    }
+  ]
+}

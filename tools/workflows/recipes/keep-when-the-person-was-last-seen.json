@@ -1,0 +1,215 @@
+{
+  "about": "workflow:keep-when-the-person-was-last-seen: the time the person was last seen, kept once per person in the person's own store and never moved back, and the newest away summary that reaches that time once the person has been away for five minutes or more. It replaces the record-keeping half of tools/away-summary: do-work/update-away-summary-last-seen.ts (the write, which reached the retired runtime's slot::workflow) and the store reads that feed the banner. The selection rule and the feed decoding stay in tools/away-summary (read-data/select-away-summary.ts, read-away-summary.ts) as values in and values out, because the banner renders what they return (rule a-tool-is-only-what-the-store-cannot-do).",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-when-the-person-was-last-seen",
+        "label": "Keep when the person was last seen",
+        "job": "Keep the time the person was last seen in the person's own store, one time per person that never moves back, and find the newest away summary whose period reaches that time, once the person has been away for at least five minutes.",
+        "produces": "The store's own last-seen and away-summary objects, proven on the example attempts in three kinds of store, and each last-seen time kept, repeated or refused and read back, and the summary the banner shows.",
+        "source": {
+          "from": "tools/away-summary (packages/away-summary/read-data/select-away-summary.ts, read-away-summary.ts, do-work/update-away-summary-last-seen.ts), read on trillion-workshop origin/main bb8022539",
+          "note": "The gap is AWAY_SUMMARY_GAP_THRESHOLD_MS, five minutes, in select-away-summary.ts. A summary's period starts at its since time and ends at its created time (read-away-summary.ts decodeAwaySummaryFeed). A summary whose period ends before it starts is not kept. The banner shows the summary whose period ends last among those that overlap the away window."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                },
+                "place": {
+                  "type": "string",
+                  "description": "Where in the store the last-seen time is kept, when it already is"
+                }
+              }
+            },
+            "seen": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "The time the person was last seen, as an ISO-8601 time with a zone, to keep this run; null to keep nothing"
+            },
+            "now": {
+              "type": "string",
+              "description": "The time of this read, as an ISO-8601 time with a zone"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the last-seen time and the away summaries are already kept (kept_in, or null) and the names of the objects that already keep them.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing, make two objects in the store's own form: one last-seen time per person, and the away summaries, each with its since time, its created time and its totals (cost, minutes, errors, commits, sessions, tasks). Keep a last-seen time as a moment with a zone, so that the store itself compares times as moments. Grant only what the store's holder allows the person's login.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example attempts",
+            "do": "In a throwaway place in the same store, with the same objects, keep these last-seen attempts in order, each at the time given, with the away summaries already kept as the example summaries: [{\"seen\": \"2026-11-18T10:30:00Z\"}, {\"seen\": \"2026-11-18T10:30:00Z\"}, {\"seen\": \"2026-11-18T10:10:00Z\"}, {\"seen\": \"2026-11-18T10:45:00Z\"}, {\"seen\": \"2026-11-18T10:45:00Z\"}]. The example summaries are s1 (since 2026-11-18T10:40:00Z, created 2026-11-18T11:00:00Z), s2 (since 2026-11-18T10:50:00Z, created 2026-11-18T10:55:00Z) and s3 (since 2026-11-18T09:00:00Z, created 2026-11-18T09:30:00Z). A time equal to the one kept is repeated; a later time is kept; an earlier time is refused, and the store keeps the later one. Then read the banner answer at now 2026-11-18T11:20:00Z and at now 2026-11-18T10:48:00Z. Then remove the throwaway place. Submit outcomes (one of kept, repeated, refused per attempt, in order) and answer: last_seen (the time kept for the person), shown (the id of the summary the banner shows at now 2026-11-18T11:20:00Z, or null), overlapping (how many summaries reach last_seen), and short_gap_shown (the id shown at now 2026-11-18T10:48:00Z, or null).",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answer"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "kept",
+                      "repeated",
+                      "refused"
+                    ]
+                  }
+                },
+                "answer": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each attempt is kept, repeated or refused as the intent says",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "kept",
+                    "repeated",
+                    "refused",
+                    "kept",
+                    "repeated"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "The store's own objects give every expected answer",
+                "path": [
+                  "this",
+                  "answer"
+                ],
+                "values": [
+                  {
+                    "last_seen": "2026-11-18T10:45:00Z",
+                    "shown": "summary:s1",
+                    "overlapping": 2,
+                    "short_gap_shown": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's last-seen time and read the banner",
+            "do": "If seen is a time, keep it through the store's own objects: kept when later than the one kept (or none kept), repeated when equal, refused when earlier, and the refusal says the stored time stays. Then read the banner at now: the summaries that reach the kept time (created at or after it, or since at or after it), newest period end first, the first one shown; nothing is shown when now is less than five minutes after the kept time. Submit outcome (kept, repeated or refused; or null when seen is null), last_seen (the time kept after this run) and shown (the summary id, or null).",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcome",
+                "last_seen",
+                "shown"
+              ],
+              "properties": {
+                "outcome": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "enum": [
+                    "kept",
+                    "repeated",
+                    "refused",
+                    null
+                  ]
+                },
+                "last_seen": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "shown": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            },
+            "checks": []
+          }
+        ],
+        "erase": "On the person's request the store deletes the person's last-seen time; the away summaries are that store's own records and are erased with the rest of the person's records."
+      }
+    }
+  ]
+}
