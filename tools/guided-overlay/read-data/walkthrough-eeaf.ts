@@ -19,7 +19,7 @@
 //   definition  { kind:'walkthrough-definition', id, entry_step, steps[], triggers[] , ... }
 //   progress    { kind:'walkthrough-progress', consumed_once_keys[], consumed_at{key: ISO}, cursors{definition id: cursor} }
 
-import type { StepShape, WalkthroughShape } from '../engine/branch-resolver';
+import type { StepShape, WalkthroughShape } from '../../tours-screen/engine/branch-resolver';
 import type { Trigger } from '../engine/trigger-intake';
 import { selectTrigger } from '../engine/trigger-intake';
 import type { HostEvent } from '../engine/trigger-intake';

@@ -20,7 +20,7 @@ import {
   type WalkthroughRecord,
 } from '../read-data/walkthrough-eeaf.ts';
 import { startEventForWalkthrough } from '../engine/trigger-intake.ts';
-import { emitWalkthroughEvent } from './WalkthroughHost.tsx';
+import { emitWalkthroughEvent } from '../../guided-overlay/show/WalkthroughHost.tsx';
 
 /** Normalize `useBitfieldData` rows into fold records (mirror of the host's own). */
 function toRecords(raw: unknown): WalkthroughRecord[] {

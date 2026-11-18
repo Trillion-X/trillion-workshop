@@ -8,7 +8,7 @@
 
 import React, {useEffect, useRef, useState} from 'react';
 import { ErrorBoundary, mountReactSurface } from '../../ui';
-import { WalkthroughHost } from './WalkthroughHost';
+import { WalkthroughHost } from '../../guided-overlay/show/WalkthroughHost';
 import type { OwnerSignalBridge, WalkthroughWords } from './WalkthroughSurface';
 import {currentPresentationRows} from '../../ui/show/request/current-presentation-rows.mjs';
 

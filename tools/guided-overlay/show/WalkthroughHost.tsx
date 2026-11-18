@@ -30,16 +30,16 @@ import type { HostEvent } from 'trillion-workshop/tools/tours-screen/engine/trig
 import { eventMatchesTrigger } from 'trillion-workshop/tools/tours-screen/engine/trigger-intake.ts';
 import { WALKTHROUGH_DEFINITIONS_OFFERED, WALKTHROUGH_DISMISS_REQUESTED, WALKTHROUGH_EVENT, WALKTHROUGH_HOST_AVAILABLE, announceWalkthroughEnded, toWalkthroughRecords } from './walkthrough-events';
 import { commitWalkthroughProgress, consumeWalkthroughProgressKey } from '../do-work/walkthrough-progress';
-import { WalkthroughSurface, type WalkthroughExitReason, type OwnerSignalBridge, type WalkthroughWords } from './WalkthroughSurface';
-import { tourAsChanged } from './changed-tour';
+import { WalkthroughSurface, type WalkthroughExitReason, type OwnerSignalBridge, type WalkthroughWords } from '../../tours-screen/show/WalkthroughSurface';
+import { tourAsChanged } from '../../tours-screen/show/changed-tour';
 import { onLockChange, setArrangementLockTourActive, tourMayShow } from '../../screen-arrangement/show/arrangement-lock';
-import type { WalkthroughCursor } from '../engine/cursor-machine';
+import type { WalkthroughCursor } from '../../tours-screen/engine/cursor-machine';
 import type { StepContentComponent } from '../../ui/show/step-content-renderer/StepContent';
 import type { StepContentRegistry } from '../../ui/show/step-content-renderer/step-content-renderer';
 import type { StepProgressComponent } from '../../ui/show/step-progress/StepProgress';
 import type { StepProgressRegistry } from '../../ui/show/step-progress/step-progress';
 import type { AnchorResolverRegistry } from '../../ui/show/anchor-resolver/anchor-resolver';
-import type { WalkthroughPresentationRegistry } from './presentation-registry';
+import type { WalkthroughPresentationRegistry } from '../../tours-screen/show/presentation-registry';
 import defaults from 'trillion-workshop/tools/tours-screen/guided-overlay-defaults.json';
 
 const HOST_OWNER_ATTRIBUTE = 'data-guided-overlay-host-owner';

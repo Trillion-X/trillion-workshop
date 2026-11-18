@@ -125,15 +125,6 @@
       "found_by": "same bytes"
     },
     {
-      "from": "parts/guided-overlay/show/WalkthroughHost.tsx",
-      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
-      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
-      "to": "tools/tours-screen/show/WalkthroughHost.tsx",
-      "source_identity": "1f:a672b7cbc887c89488d16517367f94a9634adbc82d5ee75a2deabbaa72dba06e",
-      "identity": "1f:a672b7cbc887c89488d16517367f94a9634adbc82d5ee75a2deabbaa72dba06e",
-      "found_by": "same bytes"
-    },
-    {
       "from": "parts/guided-overlay/show/WalkthroughSurface.tsx",
       "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
       "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",

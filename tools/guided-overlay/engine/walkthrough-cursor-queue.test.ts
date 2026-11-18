@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { createCursorTransitionQueue } from './walkthrough-cursor-queue';
+import { createCursorTransitionQueue } from '../../tours-screen/engine/walkthrough-cursor-queue';
 
 type Cursor = { currentStepId: string; history: string[]; status: 'active' | 'complete' };
 const cursor = (currentStepId: string, history: string[] = [], status: Cursor['status'] = 'active'): Cursor => ({

@@ -9,13 +9,13 @@
 
 import { createStepContentRegistry } from '../../ui/show/step-content-renderer/step-content-renderer';
 import { createStepProgressRegistry } from '../../ui/show/step-progress/step-progress';
-import { FallbackContent, registerDefaultContentRenderers } from './default-content-renderers';
-import { FallbackProgress, registerDefaultProgressVisuals } from './default-progress-visuals';
+import { FallbackContent, registerDefaultContentRenderers } from '../../tours-screen/show/default-content-renderers';
+import { FallbackProgress, registerDefaultProgressVisuals } from '../../tours-screen/show/default-progress-visuals';
 
-export { StepCardBody, type StepCardBodyProps } from './StepCardBody';
-export { stepButtonsOf, paperOf, paperStyle, exitControlOf, type Paper } from './WalkthroughSurface';
-export { buttonLooksOf, lookOfRole, type ButtonLook, type ButtonLooks } from './NavButtons';
-export { STEP_SUBJECT, stepAsChanged, stepFacts, tourAsChanged, tourBy } from './changed-tour';
+export { StepCardBody, type StepCardBodyProps } from '../../tours-screen/show/StepCardBody';
+export { stepButtonsOf, paperOf, paperStyle, exitControlOf, type Paper } from '../../tours-screen/show/WalkthroughSurface';
+export { buttonLooksOf, lookOfRole, type ButtonLook, type ButtonLooks } from '../../tours-screen/show/NavButtons';
+export { STEP_SUBJECT, stepAsChanged, stepFacts, tourAsChanged, tourBy } from '../../tours-screen/show/changed-tour';
 
 /** The content kinds and progress styles a tour step draws with, as the running tour has them. */
 export const defaultStepRegistries = () => ({
