@@ -44,7 +44,7 @@ async function newClient(name) {
   return (await (await call('/oauth2/create-client', { cookie, body: { redirect_uris: [REDIRECT], token_endpoint_auth_method: 'none', application_type: 'native', client_name: name } })).json()).client_id;
 }
 // An AI's connect to the end: authorize, the consent screen's answer (readOnly: the switch), the code, the tokens.
-async function connect(clientId, { readOnly = false, scope = 'openid records tools vault namespace-read' } = {}) {
+async function connect(clientId, { readOnly = false, scope = 'openid wake:* tools:* secrets:*' } = {}) {
   const verifier = randomBytes(32).toString('base64url');
   const query = new URLSearchParams({ response_type: 'code', client_id: clientId, redirect_uri: REDIRECT, scope, state: 's', code_challenge: createHash('sha256').update(verifier).digest('base64url'), code_challenge_method: 'S256', resource: settings.mcp.resource });
   const asked = await call(`/oauth2/authorize?${query}`, { cookie });
@@ -61,13 +61,13 @@ test('the owner\'s AI gets everything it asked for, and Read only swaps each sco
   const full = await newClient('Full AI');
   const { token } = await connect(full);
   const everything = token.scope.split(' ');
-  for (const scope of ['records', 'tools', 'vault', 'namespace-read']) assert.ok(everything.includes(scope), `${scope} is granted to the owner's AI`);
+  for (const scope of ['wake:*', 'tools:*', 'secrets:*']) assert.ok(everything.includes(scope), `${scope} is granted to the owner's AI`);
   for (const variant of Object.values(rules.read_only_swaps)) assert.ok(!everything.includes(variant), `${variant} is not added to a full grant`);
   const narrow = await newClient('Reading AI');
   const granted = (await connect(narrow, { readOnly: true })).token.scope.split(' ');
   for (const [fullScope, variant] of Object.entries(rules.read_only_swaps)) { assert.ok(!granted.includes(fullScope), `${fullScope} is not granted when Read only is on`); assert.ok(granted.includes(variant), `${variant} is`); }
   for (const dropped of rules.read_only_drops) assert.ok(!granted.includes(dropped), `${dropped} is not granted when Read only is on`);
-  assert.ok(granted.includes('namespace-read'), 'what is only reading stays');
+  assert.ok(granted.includes('tools:list'), 'what only reads is given in place of what runs');
 });
 
 test('the connected AIs are listed with their name, what they can do and when they last used their pass; a remembered AI is asked about again', async () => {
@@ -77,7 +77,7 @@ test('the connected AIs are listed with their name, what they can do and when th
   assert.equal(byName['Reading AI'].read_only, true);
   assert.ok(byName['Full AI'].last_used_at && byName['Full AI'].connected_at);
   assert.equal((await call('/connected')).status, 401, 'a stranger sees nothing');
-  const again = await call(`/oauth2/authorize?${new URLSearchParams({ response_type: 'code', client_id: byName['Full AI'].client_id, redirect_uri: REDIRECT, scope: 'openid records', state: 's', code_challenge: 'x'.repeat(43), code_challenge_method: 'S256', resource: settings.mcp.resource })}`, { cookie });
+  const again = await call(`/oauth2/authorize?${new URLSearchParams({ response_type: 'code', client_id: byName['Full AI'].client_id, redirect_uri: REDIRECT, scope: 'openid wake:*', state: 's', code_challenge: 'x'.repeat(43), code_challenge_method: 'S256', resource: settings.mcp.resource })}`, { cookie });
   assert.ok(again.headers.get('location').startsWith(settings.mcp.consent_page), 'an AI the person allowed still goes through the consent page, which shows it Connecting with an Undo');
   const consents = await (await call('/oauth2/get-consents', { cookie })).json();
   assert.ok(consents.some(consent => consent.clientId === byName['Full AI'].client_id), 'and the page can see it was allowed');
@@ -85,8 +85,8 @@ test('the connected AIs are listed with their name, what they can do and when th
 
 test('one write disconnects an AI: its pass stops standing, its refresh token stops working, it asks again, and only that AI is touched', async () => {
   const goner = await newClient('Goner AI'), keeper = await newClient('Keeper AI');
-  const { token } = await connect(goner, { scope: 'openid records offline_access' });
-  await connect(keeper, { scope: 'openid records offline_access' });
+  const { token } = await connect(goner, { scope: 'openid wake:* offline_access' });
+  await connect(keeper, { scope: 'openid wake:* offline_access' });
   const standing = settings.credential_standing;
   assert.equal((await credentialStands(auth, standing, `mcp-access:${user.id}:${goner}`)), true);
   const done = await call('/connected/revoke', { cookie, body: { clientId: goner } });
@@ -102,7 +102,7 @@ test('one write disconnects an AI: its pass stops standing, its refresh token st
 
 test('a consent answered from another site is refused, and nothing is allowed', async () => {
   const client = await newClient('Framed AI');
-  const query = new URLSearchParams({ response_type: 'code', client_id: client, redirect_uri: REDIRECT, scope: 'openid records', state: 's', code_challenge: 'x'.repeat(43), code_challenge_method: 'S256', resource: settings.mcp.resource });
+  const query = new URLSearchParams({ response_type: 'code', client_id: client, redirect_uri: REDIRECT, scope: 'openid wake:*', state: 's', code_challenge: 'x'.repeat(43), code_challenge_method: 'S256', resource: settings.mcp.resource });
   const location = (await call(`/oauth2/authorize?${query}`, { cookie })).headers.get('location');
   const body = { accept: true, oauth_query: signedQuery(new URL(location, ORIGIN).search) };
   for (const origin of ['https://evil.example', 'null']) {

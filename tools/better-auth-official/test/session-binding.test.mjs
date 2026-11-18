@@ -43,7 +43,7 @@ async function newClient(name, uri) {
 }
 async function connect(clientId) {
   const verifier = randomBytes(32).toString('base64url');
-  const query = new URLSearchParams({ response_type: 'code', client_id: clientId, redirect_uri: REDIRECT, scope: 'openid records offline_access', state: 's', code_challenge: createHash('sha256').update(verifier).digest('base64url'), code_challenge_method: 'S256', resource: settings.mcp.resource });
+  const query = new URLSearchParams({ response_type: 'code', client_id: clientId, redirect_uri: REDIRECT, scope: 'openid wake:* offline_access', state: 's', code_challenge: createHash('sha256').update(verifier).digest('base64url'), code_challenge_method: 'S256', resource: settings.mcp.resource });
   const location = (await call(`/oauth2/authorize?${query}`, { cookie })).headers.get('location');
   const answered = await (await call('/oauth2/consent', { cookie, body: { accept: true, oauth_query: signedQuery(new URL(location, ORIGIN).search) } })).json();
   const code = new URL(answered.url).searchParams.get('code');

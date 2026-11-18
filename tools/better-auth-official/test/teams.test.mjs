@@ -49,7 +49,7 @@ const alone = await signUp('alone@example.test');
 // An AI's connect to the end as `who`: its access token.
 async function accessTokenOf(who, clientId) {
   const verifier = randomBytes(32).toString('base64url');
-  const query = new URLSearchParams({ response_type: 'code', client_id: clientId, redirect_uri: REDIRECT, scope: 'openid records offline_access', state: 's', code_challenge: createHash('sha256').update(verifier).digest('base64url'), code_challenge_method: 'S256', resource: settings.mcp.resource });
+  const query = new URLSearchParams({ response_type: 'code', client_id: clientId, redirect_uri: REDIRECT, scope: 'openid wake:* offline_access', state: 's', code_challenge: createHash('sha256').update(verifier).digest('base64url'), code_challenge_method: 'S256', resource: settings.mcp.resource });
   const asked = await call(`/oauth2/authorize?${query}`, { cookie: who.cookie });
   const location = asked.headers.get('location') ?? '';
   const answered = await ok(await call('/oauth2/consent', { cookie: who.cookie, body: { accept: true, oauth_query: signedQuery(new URL(location, ORIGIN).search) } }));

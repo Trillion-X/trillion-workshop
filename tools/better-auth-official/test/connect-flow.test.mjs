@@ -38,7 +38,7 @@ const person = await call('/sign-up/email', { body: { email: 'connect@example.te
 const cookie = cookieOf(person);
 const client = await (await call('/oauth2/create-client', { cookie, body: { redirect_uris: [REDIRECT], token_endpoint_auth_method: 'none', application_type: 'native', client_name: 'Scratch AI' } })).json();
 const request = (extra = {}) => new URLSearchParams({
-  response_type: 'code', client_id: client.client_id, redirect_uri: REDIRECT, scope: 'openid records tools', state: 'asked',
+  response_type: 'code', client_id: client.client_id, redirect_uri: REDIRECT, scope: 'openid wake:* tools:*', state: 'asked',
   code_challenge: createHash('sha256').update(randomBytes(32).toString('base64url')).digest('base64url'), code_challenge_method: 'S256', resource: settings.mcp.resource, ...extra,
 });
 const searchOf = location => new URL(location, ORIGIN).search;
@@ -60,7 +60,7 @@ test('the request authorize gets back is the AI\'s own, without the signature pa
   const location = await goTo(`${settings.base_path}/oauth2/authorize?${sent}`);
   const back = new URLSearchParams(authorizeQuery(searchOf(location)));
   for (const [key, value] of sent) if (!['prompt', 'scope'].includes(key)) assert.equal(back.get(key), value, key);
-  assert.equal(back.get('scope'), `${sent.get('scope')} offline_access records-read tools-list`, 'the scope is the AI\'s own, with the offline_access that keeps the person connected and the read-only variants Read only chooses');
+  assert.equal(back.get('scope'), `${sent.get('scope')} offline_access tools:list`, 'the scope is the AI\'s own, with the offline_access that keeps the person connected and the read-only variants Read only chooses');
   assert.equal(back.get('prompt'), 'consent');
   for (const key of ['sig', 'exp', 'ba_iat', 'ba_param', 'ba_pl']) assert.ok(!back.has(key), `${key} is left out`);
   assert.equal(new URLSearchParams(authorizeQuery(searchOf(await goTo(`${settings.base_path}/oauth2/authorize?${request({ prompt: 'login' })}`)))).get('prompt'), 'consent', 'login is taken out, and consent, which every connect goes through, stays');
@@ -82,7 +82,7 @@ test('after sign-in, and after the passkey step, the carried request resumes: au
   assert.ok(resumed.startsWith(settings.mcp.consent_page), `consent is asked at ${settings.mcp.consent_page}: ${resumed}`);
   const consentQuery = searchOf(resumed);
   assert.equal(new URLSearchParams(consentQuery).get('client_id'), client.client_id);
-  assert.equal(new URLSearchParams(consentQuery).get('scope'), 'openid records tools offline_access records-read tools-list');
+  assert.equal(new URLSearchParams(consentQuery).get('scope'), 'openid wake:* tools:* offline_access tools:list');
   assert.equal((await (await call(`/oauth2/public-client?client_id=${client.client_id}`, { cookie })).json()).client_name, 'Scratch AI');
   const allowed = await (await call('/oauth2/consent', { cookie, body: { accept: true, oauth_query: signedQuery(consentQuery) } })).json();
   const back = new URL(allowed.url);
@@ -97,15 +97,15 @@ test('after sign-in, and after the passkey step, the carried request resumes: au
 });
 
 test('a device\'s code is claimed by the person who opens it, who sees its client and scopes and approves or denies it', async () => {
-  const issued = await (await call('/device/code', { body: { client_id: 'a-device', scope: 'records tools' } })).json();
+  const issued = await (await call('/device/code', { body: { client_id: 'a-device', scope: 'wake:* tools:*' } })).json();
   assert.equal(new URL(issued.verification_uri, ORIGIN).pathname, settings.device.verification_uri);
   assert.deepEqual(await (await call(`/device?user_code=${issued.user_code}`)).json(), { user_code: issued.user_code, status: 'pending' }, 'with no session nothing but its status is shown');
   const seen = await (await call(`/device?user_code=${issued.user_code}`, { cookie })).json();
   assert.equal(seen.client_id, 'a-device');
-  assert.equal(seen.scope, 'records tools');
+  assert.equal(seen.scope, 'wake:* tools:*');
   assert.equal((await call('/device/approve', { cookie, body: { userCode: issued.user_code } })).status, 200);
   assert.equal((await (await call(`/device?user_code=${issued.user_code}`, { cookie })).json()).status, 'approved');
-  const refused = await (await call('/device/code', { body: { client_id: 'a-device', scope: 'records' } })).json();
+  const refused = await (await call('/device/code', { body: { client_id: 'a-device', scope: 'wake:*' } })).json();
   await call(`/device?user_code=${refused.user_code}`, { cookie });
   assert.equal((await call('/device/deny', { cookie, body: { userCode: refused.user_code } })).status, 200);
   assert.equal((await (await call(`/device?user_code=${refused.user_code}`, { cookie })).json()).status, 'denied');

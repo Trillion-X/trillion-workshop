@@ -81,7 +81,7 @@ test('an email code is used once: asked on A, used on B and on A at the same mom
 const consenting = cookieOf(await call(a, '/sign-up/email', { body: { email: 'consenting@example.test', password: PASSWORD, name: 'Consenting' } }));
 const verifier = base64url(randomBytes(32));
 const REDIRECT = 'http://127.0.0.1:9/callback';
-async function authorized(scope = 'openid offline_access records') {
+async function authorized(scope = 'openid offline_access wake:*') {
   const client = await (await call(a, '/oauth2/create-client', { cookie: consenting, body: { redirect_uris: [REDIRECT], token_endpoint_auth_method: 'none', application_type: 'native', client_name: 'Scratch AI' } })).json();
   const query = new URLSearchParams({ response_type: 'code', client_id: client.client_id, redirect_uri: REDIRECT, scope, state: 's', code_challenge: base64url(sha256(verifier)), code_challenge_method: 'S256', resource: settings.mcp.resource });
   // Asked by fetch, Better Auth answers the redirect as JSON {url}.
@@ -133,7 +133,7 @@ test('a session read is answered from the signed cookie for cookie_cache_seconds
 });
 
 test('a client that does not ask for offline_access still gets a refresh token (settings.mcp.always_offline_access adds the scope)', async () => {
-  const { client, code } = await authorized('openid records');
+  const { client, code } = await authorized('openid wake:*');
   const issued = await (await tokens(a, client, { grant_type: 'authorization_code', code, code_verifier: verifier })).json();
   assert.ok(issued.access_token);
   assert.ok(issued.refresh_token);

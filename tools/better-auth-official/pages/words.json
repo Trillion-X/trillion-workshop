@@ -18,13 +18,11 @@
     "profile": "See your name",
     "email": "See your email address",
     "offline_access": "Stay connected while you keep using it",
-    "records": "Read and change what you keep in {{name}}",
-    "tools": "Run tools for you",
-    "records-read": "Read what you keep in {{name}}",
-    "tools-list": "See your tools",
-    "account": "See your account and your computers",
-    "vault": "Use the logins and keys you keep",
-    "namespace-read": "Read your files"
+    "wake:*": "Turn your tools' timers and triggers on and off",
+    "tools:*": "Run tools for you",
+    "tools:list": "See your tools",
+    "sharing.*": "Share what you choose and see what you share",
+    "secrets:*": "Use the logins and keys you keep"
   },
   "code_wrong_login": "That code is not right. Check it and try again.",
   "code_ran_out": "That code ran out. Send a new one.",

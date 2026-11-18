@@ -58,8 +58,8 @@ Empty `disabled_paths` and `GET /api/auth/token` hands back a session JWT (EdDSA
 
 A pass names the person by its subject: the user's id. The session JWT is its default payload, and MCP access tokens (`at+jwt`,
 `aud` holding `mcp.resource`) add the user's `email` and `email_verified` through the OAuth provider's `customAccessTokenClaims`
-(auth.mjs), so a door can tell a proven inbox from a typed one. The access token's `scope` names the product's scopes (`records`,
-`tools`, `account`, `vault`, `namespace-read`) the client was granted. A computer serves a person when someone at that computer
+(auth.mjs), so a door can tell a proven inbox from a typed one. The access token's `scope` names the method patterns (`wake:*`,
+`tools:*`, `tools:list`, `sharing.*`, `secrets:*`) the client was granted; the engine reaches a method only through a pattern that matches it. A computer serves a person when someone at that computer
 added them (the engine's `POST /persons/add` at its own loopback address); the pass carries no
 computer or account address, and this tool keeps none.
 
@@ -142,8 +142,8 @@ no page) and `/sign-out` (Better Auth's sign-out, then `/sign-in`), and the conn
   a loopback one) is called "We don't know this app." with Deny as the main button. A program named in settings `mcp.first_party_clients`
   (empty in the shared tool; the computer that runs it names its own programs' client documents; `GET /first-party?client_id=`
   says whether one is) is answered Allow at once and the person sees "You're signed in. You can close this tab.". Read only sends
-  `read_only` with the answer: `pages/sign-in-rules.json` `read_only_swaps` replaces each full scope that has a read variant (`records`
-  by `records-read`, `tools` by `tools-list`) and `read_only_drops` leaves out those with none (`account`, `vault`). The authorize
+  `read_only` with the answer: `pages/sign-in-rules.json` `read_only_swaps` replaces each pattern that has a reading-only one
+  (`tools:*` by `tools:list`) and `read_only_drops` leaves out those with none (`wake:*`, `sharing.*`, `secrets:*`). The authorize
   hook asks the variants alongside the full scope, because Better Auth accepts only scopes the signed request named, and a full grant
   leaves the variants out. `prompt=consent` is added to an external authorize GET, so an AI that is already connected shows
   "Connecting ..." with an Undo for `remembered_seconds` and then continues; Undo revokes it and denies. The consent POST needs the

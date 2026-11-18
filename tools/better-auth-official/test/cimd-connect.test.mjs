@@ -56,7 +56,7 @@ test('a client that is only a metadata document address registers itself, and th
   const id = 'https://claude.example.test/oauth/metadata-a.json';
   documents.set(id, document(id));
   const verifier = randomBytes(32).toString('base64url');
-  const query = new URLSearchParams({ response_type: 'code', client_id: id, redirect_uri: REDIRECT, scope: 'openid records', state: 's', code_challenge: createHash('sha256').update(verifier).digest('base64url'), code_challenge_method: 'S256', resource: settings.mcp.resource });
+  const query = new URLSearchParams({ response_type: 'code', client_id: id, redirect_uri: REDIRECT, scope: 'openid wake:*', state: 's', code_challenge: createHash('sha256').update(verifier).digest('base64url'), code_challenge_method: 'S256', resource: settings.mcp.resource });
   const asked = await handle(`/oauth2/authorize?${query}`, { headers: { cookie } });
   assert.ok(asked.headers.get('location').startsWith(settings.mcp.consent_page), 'a new AI is asked about');
   assert.equal((await (await handle(`/oauth2/public-client?client_id=${encodeURIComponent(id)}`, { headers: { cookie } })).json()).client_name, 'Claude');
@@ -67,7 +67,7 @@ test('a client that is only a metadata document address registers itself, and th
 test('an AI that asked for offline_access and lists the refresh_token grant gets a refresh token, and refreshing works', async () => {
   const id = 'https://claude.example.test/oauth/metadata-b.json';
   documents.set(id, document(id));
-  const { token } = await connect(id, 'openid records tools offline_access');
+  const { token } = await connect(id, 'openid wake:* tools:* offline_access');
   assert.ok(token.refresh_token, `a refresh token: ${JSON.stringify(Object.keys(token))}`);
   const refreshed = await (await handle('/oauth2/token', { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ grant_type: 'refresh_token', refresh_token: token.refresh_token, client_id: id, resource: settings.mcp.resource }) })).json();
   assert.ok(refreshed.access_token, JSON.stringify(refreshed));
@@ -77,12 +77,12 @@ test('an AI that did not ask for offline_access still gets a refresh token (the 
   const id = 'https://claude.example.test/oauth/metadata-c.json';
   documents.set(id, document(id));
   const verifier = randomBytes(32).toString('base64url');
-  const query = new URLSearchParams({ response_type: 'code', client_id: id, redirect_uri: REDIRECT, scope: 'openid records tools', state: 's', code_challenge: createHash('sha256').update(verifier).digest('base64url'), code_challenge_method: 'S256', resource: settings.mcp.resource });
+  const query = new URLSearchParams({ response_type: 'code', client_id: id, redirect_uri: REDIRECT, scope: 'openid wake:* tools:*', state: 's', code_challenge: createHash('sha256').update(verifier).digest('base64url'), code_challenge_method: 'S256', resource: settings.mcp.resource });
   const consent = (await handle(`/oauth2/authorize?${query}`, { headers: { cookie } })).headers.get('location');
   assert.ok(new URL(consent, ORIGIN).searchParams.get('scope').split(' ').includes('offline_access'), 'the consent is asked for offline_access too');
-  const { token } = await connect(id, 'openid records tools');
+  const { token } = await connect(id, 'openid wake:* tools:*');
   assert.ok(token.refresh_token, 'a refresh token');
-  assert.match(token.scope, /records/);
+  assert.match(token.scope, /wake:\*/);
 });
 
 test('the AI product\'s own document must name the address it is served from', async () => {

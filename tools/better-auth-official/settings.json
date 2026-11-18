@@ -65,23 +65,19 @@
       "profile",
       "email",
       "offline_access",
-      "records",
-      "records-read",
-      "tools",
-      "tools-list",
-      "account",
-      "vault",
-      "namespace-read"
+      "wake:*",
+      "tools:*",
+      "tools:list",
+      "sharing.*",
+      "secrets:*"
     ],
     "resource_scopes": [
       "offline_access",
-      "records",
-      "records-read",
-      "tools",
-      "tools-list",
-      "account",
-      "vault",
-      "namespace-read"
+      "wake:*",
+      "tools:*",
+      "tools:list",
+      "sharing.*",
+      "secrets:*"
     ],
     "access_token_seconds": 3600
   },

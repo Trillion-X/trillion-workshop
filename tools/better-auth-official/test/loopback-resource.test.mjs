@@ -42,7 +42,7 @@ const clientId = (await (await call('/oauth2/create-client', { cookie, body: { r
 // An AI's connect to the end for `resource`: { refused } when authorize turns it away, else the token answer.
 async function connect(resource) {
   const verifier = randomBytes(32).toString('base64url');
-  const query = new URLSearchParams({ response_type: 'code', client_id: clientId, redirect_uri: REDIRECT, scope: 'openid records offline_access', state: 's', code_challenge: createHash('sha256').update(verifier).digest('base64url'), code_challenge_method: 'S256', resource });
+  const query = new URLSearchParams({ response_type: 'code', client_id: clientId, redirect_uri: REDIRECT, scope: 'openid wake:* offline_access', state: 's', code_challenge: createHash('sha256').update(verifier).digest('base64url'), code_challenge_method: 'S256', resource });
   const asked = await call(`/oauth2/authorize?${query}`, { cookie });
   const location = asked.headers.get('location') ?? '';
   if (!location.startsWith(settings.mcp.consent_page)) return { refused: location || asked.status };
