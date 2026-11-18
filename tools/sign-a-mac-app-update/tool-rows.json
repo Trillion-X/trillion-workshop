@@ -69,7 +69,8 @@
             "fd": 3,
             "rights": [
               {
-                "secret": "mac-app-update-signing-key",
+                "at": "@secrets",
+                "id": "mac-app-update-signing-key",
                 "operations": [
                   "secrets:sign"
                 ]

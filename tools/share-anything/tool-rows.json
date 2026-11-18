@@ -608,7 +608,8 @@
                 ]
               },
               {
-                "grant": {
+                "at": "@own-records",
+                "id": {
                   "fill": {
                     "from": "input",
                     "field": "grant"
@@ -992,7 +993,8 @@
             "fd": 3,
             "rights": [
               {
-                "grant": "sharing:*",
+                "at": "@own-records",
+                "id": "sharing:*",
                 "operations": [
                   "sharing.withdraw",
                   "sharing.list"
