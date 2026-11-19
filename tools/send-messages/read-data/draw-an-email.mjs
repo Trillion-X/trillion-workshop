@@ -253,10 +253,10 @@ export const currentPalette = async (readLook = async () => null) => {
   return { error: BRAND_UNREAD };
 };
 
-/** One email drawn by the email part in the look's colours, with the account's mark (`brand`, its name and picture)
+/** One email drawn by the email part in the look's colours, with the account's mark (`site`, its name and picture)
  * and its made-with line (`made_with`: label, href, image, alt), each when the account names one: { html, text }. */
-export function drawEmail(message, brand = null, palette = emailPalette(), madeWith = null) {
-  return emailMessageHtml({ ...message, brand: brand ?? {}, palette,
+export function drawEmail(message, site = null, palette = emailPalette(), madeWith = null) {
+  return emailMessageHtml({ ...message, site: site ?? {}, palette,
     ...(madeWith ? { made_with: { label: madeWith.label, href: madeWith.href, image: madeWith.image, alt: madeWith.alt } } : {}) });
 }
 
@@ -271,7 +271,7 @@ function lettersOf(value) {
 
 /**
  * message: { preheader, markdown, action: {label, href}, footer_lines[], footer_links[{label, href}],
- *            brand: {name, image}, palette: {ink, accent, muted, paper, line, on_accent, card?},
+ *            site: {name, image}, palette: {ink, accent, muted, paper, line, on_accent, card?},
  *            mark?: {name, src?, alt?}, people?: {faces: [{name, src?}], more?, line} }
  * `mark` opens the message with what it is about (a picture, else the name's first letters on a tile); `people`
  * shows who is in it as a row of faces and one line, after the words and before the action.
@@ -339,8 +339,8 @@ export function emailMessageHtml(message) {
   const footerLines = list(message?.footer_lines).map((l) => `<p style="margin:4px 0;font-size:12px;line-height:1.5;color:${muted}">${escapeHtml(l)}</p>`).join('');
   const madeWith = message?.made_with && safeHref(message.made_with.href)
     ? `<p style="margin:20px 0 0;font-size:12px;line-height:1.5;color:${muted}"><a href="${escapeHtml(message.made_with.href)}" style="color:${muted};text-decoration:none">${escapeHtml(message.made_with.label ?? '')}${safeHref(message.made_with.image) ? ` <img src="${escapeHtml(message.made_with.image)}" alt="${escapeHtml(message.made_with.alt ?? '')}" height="16" style="height:16px;width:auto;vertical-align:middle;border:0"/>` : ''}</a></p>` : '';
-  const brand = message?.brand ?? {};
-  const mark = safeHref(brand.image) ? `<img src="${escapeHtml(brand.image)}" alt="${escapeHtml(brand.name ?? '')}" height="24" style="height:24px;width:auto;border:0"/>` : `<strong style="color:${ink}">${escapeHtml(brand.name ?? '')}</strong>`;
+  const site = message?.site ?? {};
+  const mark = safeHref(site.image) ? `<img src="${escapeHtml(site.image)}" alt="${escapeHtml(site.name ?? '')}" height="24" style="height:24px;width:auto;border:0"/>` : `<strong style="color:${ink}">${escapeHtml(site.name ?? '')}</strong>`;
   const html = '<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>'
     + `<meta name="color-scheme" content="${p.scheme === 'dark' ? 'dark' : 'light'}"/></head>`
     + `<body style="margin:0;padding:0;background:${paper}">`

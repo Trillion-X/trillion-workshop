@@ -8,7 +8,7 @@
 //   which names no sender, so nothing is sent), read here and nowhere else. Nothing is kept here: the caller's AI reads
 //   the rows the limits count (the `mail-sent` rows and the day's `mail-day` row) from the person's store and hands
 //   them in as `mail_sent` and `mail_day`; the answer's `keep` holds the rows as the send left them. Every email
-//   is drawn here (read-data/draw-an-email.mjs) in the person's look, with the account's mark (`brand`, `made_with`).
+//   is drawn here (read-data/draw-an-email.mjs) in the person's look, with the account's mark (`site`, `made_with`).
 //
 // Non-negotiable invariants
 //   1. The sender comes only from the mail row (the one `from`, or for a written email the
@@ -283,7 +283,7 @@ export function mailSender({ row, door, binding, provider, readLook }) {
   function composeMail(mail, { to, subject, bcc = null, text = null, markdown = null, headers = null, ...shown }, palette) {
     const own = Boolean(shown.html || shown.template);
     const { preheader, action, footer_lines, footer_links, mark, people, ...kept } = shown;
-    const drawn = own ? null : drawEmail({ preheader, action, footer_lines, footer_links, mark, people, markdown: markdown ?? text }, settings.brand ?? null, palette, settings.made_with ?? null);
+    const drawn = own ? null : drawEmail({ preheader, action, footer_lines, footer_links, mark, people, markdown: markdown ?? text }, settings.site ?? null, palette, settings.made_with ?? null);
     return {
       from: mail?.sender_name ? { email: settings.from.email, name: mail.sender_name } : mail?.from ?? settings.from, to, ...(bcc?.length ? { bcc } : {}), ...(mail?.reply_to ? { replyTo: mail.reply_to } : {}), subject,
       ...(own ? { ...kept, ...(text ? { text } : {}) } : { ...kept, text: drawn.text, html: drawn.html }),

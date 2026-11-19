@@ -249,7 +249,7 @@ describe('every email is drawn in the look (older owner: test/mail-sender.test.m
     '--font-mono': 'ui-monospace, monospace', '--radius-control': '10px', '--radius-card': '14px', '--radius-pill': '999px',
     '--button-sheen': 'linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(0, 0, 0, 0.1))',
     '--button-highlight': 'inset 0 0 0 1px rgba(0, 0, 0, 0.22)', '--button-shadow': '0 1px 1px rgba(0, 0, 0, 0.3)' };
-  const marked = settingsWith({ brand: { name: 'Example', image: 'https://example.com/brand/wordmark.png' },
+  const marked = settingsWith({ site: { name: 'Example', image: 'https://example.com/brand/wordmark.png' },
     made_with: { label: 'Made with', href: 'https://example.com/', image: 'https://example.com/brand/wordmark.png', alt: 'Example' } });
 
   it('the sent email uses the worn dark look, shared button depth and Made with wordmark', async () => {
@@ -274,6 +274,17 @@ describe('every email is drawn in the look (older owner: test/mail-sender.test.m
     const sent = await early.sender.sendWrittenEmail({ to: 'brand-proof@example.org', subject: 'Brand', markdown: 'A message.' });
     assert.equal(sent.sent, true, 'no email waits for the first publication');
     assert.match(early.binding.sends[0].html, /background:#f4f0e8/, 'drawn in the shipped look');
+  });
+
+  it('a mail row with no site field sends an email drawn with no mark, and the words still reach the provider', async () => {
+    const bare = settingsWith();
+    delete bare.site;
+    const { sender, binding } = await senderWith(bare);
+    const result = await sender.sendWrittenEmail({ to: 'no-site@example.org', subject: 'No site', markdown: 'A message.' });
+    assert.equal(result.sent, true);
+    assert.equal(binding.sends.length, 1);
+    assert.match(binding.sends[0].text, /A message\./);
+    assert.doesNotMatch(binding.sends[0].html, /undefined|<img /);
   });
 
   it('an email draws every kind of block the markdown reader makes, rules and code included', async () => {
