@@ -1,5 +1,5 @@
 {
-  "_what": "Set up everything a saved setup list names, in one run. A saved setup list is one row of choices; each choice is {job, definition_id, input}: the job in words, the workflow that does it, and that workflow's own input. This workflow goes through input.choices (in order when input.in_order is true, else all at once) and runs the workflow each choice names with that choice's input; a choice whose workflow asks the person something (an account, a payment, a key) pauses the run there until it is answered. Changing a choice changes which workflow runs; nothing here names a kind of choice. The caller passes these two definitions and the definition of every workflow the choices name to tool:run-workflow-definition.",
+  "_what": "Set up everything a saved setup list names, in one run. A saved setup list is one row of choices; each choice is {job, definition_id, input}: the job in words, the workflow that does it, and that workflow's own input. This workflow goes through input.choices (in order when input.in_order is true, else all at once) and runs the workflow each choice names with that choice's input; a choice whose workflow asks the person something (an account, a payment, a key) pauses the run there until it is answered. Before anything runs, input.secret_shapes (a list of { says, pattern }, kept by the caller as their own rows) is matched against the choices, and the run is refused when any shape matches, so a saved setup list never holds a secret value; when no shapes are handed in nothing is checked, so the run is refused too. A choice whose workflow does not exist is refused in the words of its job. Changing a choice changes which workflow runs; nothing here names a kind of choice. The caller passes these two definitions and the definition of every workflow the choices name to tool:run-workflow-definition.",
   "definitions": [
     {
       "id": "workflow:set-up-from-a-saved-list",
@@ -9,13 +9,282 @@
       "version": 1,
       "steps": [
         {
+          "id": "check-shapes-were-handed-in",
+          "kind": "return",
+          "config": {
+            "value": {
+              "handed_in": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input",
+                  "path": "secret_shapes"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.coalesce",
+                    "args": {
+                      "values": [
+                        {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "input",
+                            "path": "secret_shapes"
+                          },
+                          "transform": [
+                            {
+                              "op": "op:core.array_length"
+                            }
+                          ]
+                        },
+                        0
+                      ]
+                    }
+                  },
+                  {
+                    "op": "op:core.gt",
+                    "args": {
+                      "value": 0
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": "refuse-no-shapes",
+          "kind": "fail",
+          "config": {
+            "error": "No secret shapes were handed in; nothing is checked, so nothing runs."
+          }
+        },
+        {
+          "id": "look-for-secret-values",
+          "kind": "loop",
+          "config": {
+            "source": {
+              "$kind": "binding",
+              "select": {
+                "from": "input",
+                "path": "secret_shapes"
+              }
+            },
+            "item_var": "shape",
+            "definition_id": "workflow:match-one-secret-shape",
+            "parallel": true
+          }
+        },
+        {
+          "id": "refuse-a-secret-value",
+          "kind": "fail",
+          "config": {
+            "error": {
+              "$kind": "binding",
+              "select": {
+                "from": "literal",
+                "value": 0
+              },
+              "transform": [
+                {
+                  "op": "op:core.concat",
+                  "args": {
+                    "values": [
+                      "A saved setup list holds vault names only, and this one holds a value shaped like a secret (",
+                      {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "steps",
+                          "key": "look-for-secret-values",
+                          "path": "output"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.filter_where",
+                            "args": {
+                              "predicate": [
+                                {
+                                  "op": "op:core.get_path",
+                                  "args": {
+                                    "path": "hit"
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "op": "op:core.map",
+                            "args": {
+                              "path": "says"
+                            }
+                          },
+                          {
+                            "op": "op:core.join",
+                            "args": {
+                              "delimiter": ", "
+                            }
+                          }
+                        ]
+                      },
+                      "). Nothing was shared or run; put the value in the vault and name it here."
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
           "id": "each-choice",
           "kind": "loop",
           "config": {
-            "source": { "$kind": "binding", "select": { "from": "input", "path": "choices" } },
+            "source": {
+              "$kind": "binding",
+              "select": {
+                "from": "input",
+                "path": "choices"
+              }
+            },
             "item_var": "choice",
             "definition_id": "workflow:set-up-one-choice",
             "parallel": true
+          }
+        }
+      ],
+      "edges": [
+        {
+          "from": "check-shapes-were-handed-in",
+          "to": "refuse-no-shapes",
+          "kind": "on_result",
+          "config": {
+            "$kind": "binding",
+            "select": {
+              "from": "input",
+              "path": "output.handed_in"
+            },
+            "transform": [
+              {
+                "op": "op:core.not"
+              }
+            ]
+          }
+        },
+        {
+          "from": "check-shapes-were-handed-in",
+          "to": "look-for-secret-values",
+          "kind": "on_result",
+          "config": {
+            "$kind": "binding",
+            "select": {
+              "from": "input",
+              "path": "output.handed_in"
+            },
+            "transform": []
+          }
+        },
+        {
+          "from": "look-for-secret-values",
+          "to": "refuse-a-secret-value",
+          "kind": "on_result",
+          "config": {
+            "$kind": "binding",
+            "select": {
+              "from": "input",
+              "path": "output"
+            },
+            "transform": [
+              {
+                "op": "op:core.map",
+                "args": {
+                  "path": "hit"
+                }
+              },
+              {
+                "op": "op:core.array_contains",
+                "args": {
+                  "value": true
+                }
+              }
+            ]
+          }
+        },
+        {
+          "from": "look-for-secret-values",
+          "to": "each-choice",
+          "kind": "on_result",
+          "config": {
+            "$kind": "binding",
+            "select": {
+              "from": "input",
+              "path": "output"
+            },
+            "transform": [
+              {
+                "op": "op:core.map",
+                "args": {
+                  "path": "hit"
+                }
+              },
+              {
+                "op": "op:core.array_contains",
+                "args": {
+                  "value": true
+                }
+              },
+              {
+                "op": "op:core.not"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "workflow:match-one-secret-shape",
+      "name": "Match one secret shape against the choices",
+      "kind": "workflow",
+      "is_active": true,
+      "version": 1,
+      "steps": [
+        {
+          "id": "match",
+          "kind": "return",
+          "config": {
+            "value": {
+              "says": {
+                "$kind": "binding",
+                "select": {
+                  "from": "loop",
+                  "path": "shape.says"
+                }
+              },
+              "hit": {
+                "$kind": "binding",
+                "select": {
+                  "from": "input",
+                  "path": "choices"
+                },
+                "transform": [
+                  {
+                    "op": "op:core.stringify",
+                    "args": {
+                      "format": "json"
+                    }
+                  },
+                  {
+                    "op": "op:core.text_regex_match",
+                    "args": {
+                      "pattern": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "loop",
+                          "path": "shape.pattern"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
           }
         }
       ],
@@ -29,19 +298,120 @@
       "version": 1,
       "steps": [
         {
+          "id": "find-the-workflow",
+          "kind": "read",
+          "config": {
+            "from": {
+              "$kind": "binding",
+              "select": {
+                "from": "literal",
+                "value": 0
+              },
+              "transform": [
+                {
+                  "op": "op:core.concat",
+                  "args": {
+                    "values": [
+                      "{\"catalog\":\"workflow\",\"id\":",
+                      {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "loop",
+                          "path": "choice.definition_id"
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.stringify",
+                            "args": {
+                              "format": "json"
+                            }
+                          }
+                        ]
+                      },
+                      "}"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "name-the-missing-workflow",
+          "kind": "fail",
+          "config": {
+            "error": {
+              "$kind": "binding",
+              "select": {
+                "from": "literal",
+                "value": 0
+              },
+              "transform": [
+                {
+                  "op": "op:core.concat",
+                  "args": {
+                    "values": [
+                      "Cannot set up \"",
+                      {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "loop",
+                          "path": "choice.job"
+                        }
+                      },
+                      "\": the workflow it names (",
+                      {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "loop",
+                          "path": "choice.definition_id"
+                        }
+                      },
+                      ") does not exist."
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
           "id": "run-the-choice",
           "kind": "run-owner-requested-definition",
           "config": {
             "request": {
               "$kind": "binding",
-              "select": { "from": "loop", "path": "choice" },
-              "transform": [{ "op": "op:core.merge", "args": { "value": { "operation": "execute_definition" } } }],
+              "select": {
+                "from": "loop",
+                "path": "choice"
+              },
+              "transform": [
+                {
+                  "op": "op:core.merge",
+                  "args": {
+                    "value": {
+                      "operation": "execute_definition"
+                    }
+                  }
+                }
+              ],
               "resolve_nested_bindings": false
             }
           }
         }
       ],
-      "edges": []
+      "edges": [
+        {
+          "from": "find-the-workflow",
+          "to": "run-the-choice",
+          "kind": "on_result"
+        },
+        {
+          "from": "find-the-workflow",
+          "to": "name-the-missing-workflow",
+          "kind": "on_failure"
+        }
+      ]
     }
   ]
 }
