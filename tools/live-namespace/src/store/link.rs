@@ -243,18 +243,22 @@ impl Link {
     /// A statement that changes nothing: sent once more on a new connection when the first one ended under it, while nothing
     /// sent with it changed a row (outside a transaction, or in one that has only begun and read: it is begun again).
     fn unchanging(&mut self, last: Waiting, want: Want) -> Result<Answer, Error> {
+        self.unchanging_together(vec![(last, want)])?.pop().ok_or(crate::cause!(Error::Unavailable))
+    }
+
+    fn unchanging_together(&mut self, asked: Vec<(Waiting, Want)>) -> Result<Vec<Answer>, Error> {
         self.ready()?;
         let again = (!self.in_transaction || self.fresh) && self.waiting.iter().all(|waiting| waiting.text == BEGIN);
-        let retry = again.then(|| last.clone());
-        match self.send(last, want) {
-            Err(_) if retry.is_some() && self.ended() => {
+        let retry = again.then(|| asked.clone());
+        match (self.send_together(asked), retry) {
+            (Err(_), Some(retry)) if self.ended() => {
                 self.open_again()?;
                 if self.in_transaction {
                     self.waiting.push(Waiting::plain(BEGIN));
                 }
-                self.send(retry.unwrap_or_else(|| Waiting::plain("")), want).map_err(|_| crate::cause!(Error::Unavailable))
+                self.send_together(retry).map_err(|_| crate::cause!(Error::Unavailable))
             }
-            sent => sent.map_err(|_| crate::cause!(Error::Unavailable)),
+            (sent, _) => sent.map_err(|_| crate::cause!(Error::Unavailable)),
         }
     }
 
@@ -263,7 +267,66 @@ impl Link {
     /// connection); a direct connection sends `last` alone, since nothing waits on it. `Unsent::Before` when a statement
     /// sent before `last` failed (inside a transaction, the database then refuses the rest and a COMMIT answers ROLLBACK).
     fn send(&mut self, last: Waiting, want: Want) -> Result<Answer, Unsent> {
-        let Self { inner, statements, waiting, lost, .. } = self;
+        self.send_together(vec![(last, want)])?.pop().ok_or(Unsent::Last)
+    }
+
+    /// Send what waits and then each of `asked`, and answer each of `asked` in order: through the run's proxy all in one round
+    /// trip, on a direct connection one after another.
+    fn send_together(&mut self, asked: Vec<(Waiting, Want)>) -> Result<Vec<Answer>, Unsent> {
+        if !matches!(self.inner, Inner::Tunneled(_)) {
+            return asked.into_iter().map(|(waiting, want)| self.send_direct(waiting, want)).collect();
+        }
+        let Self { inner: Inner::Tunneled(client), statements, waiting, lost, .. } = self else { return Err(Unsent::Last) };
+        let mut gone = |error: &postgres::Error| {
+            *lost |= error.is_closed() || error.as_db_error().is_some_and(|db| db.severity() == "FATAL");
+        };
+        let answering = asked.len();
+        let mut steps: Vec<(Waiting, Want)> = std::mem::take(waiting).into_iter().map(|step| {
+            let want = if step.plain { Want::Done } else { Want::Count };
+            (step, want)
+        }).collect();
+        steps.extend(asked);
+        let unprepared: Vec<&str> = {
+            let mut texts: Vec<&str> = steps.iter().filter(|(step, _)| !step.plain && !statements.contains_key(&step.text)).map(|(step, _)| step.text.as_str()).collect();
+            texts.sort_unstable();
+            texts.dedup();
+            texts
+        };
+        if !unprepared.is_empty() {
+            if statements.len() + unprepared.len() > MOST_STATEMENTS {
+                statements.retain(|text, _| unprepared.contains(&text.as_str()));
+            }
+            for (text, prepared) in unprepared.iter().zip(client.prepare_all(&unprepared)) {
+                statements.insert((*text).to_owned(), prepared.map_err(|error| { gone(&error); Unsent::Before })?);
+            }
+        }
+        let bound: Vec<Vec<Bound>> = steps.iter().map(|(step, _)| postgres_values(&step.params)).collect();
+        let mut asks = Vec::with_capacity(steps.len());
+        for ((step, want), values) in steps.iter().zip(&bound) {
+            let refs: Vec<&(dyn postgres::types::ToSql + Sync)> = values.iter().map(Bound::as_ref).collect();
+            asks.push(match (step.plain, want) {
+                (true, _) => Ask::Simple(&step.text),
+                (false, Want::Rows) => Ask::Rows(&statements[&step.text], refs),
+                (false, _) => Ask::Count(&statements[&step.text], refs),
+            });
+        }
+        let told = client.send_all(&asks);
+        told.iter().filter_map(|told| told.as_ref().err()).for_each(&mut gone);
+        let before = told.len() - answering;
+        if told[..before].iter().any(Result::is_err) {
+            return Err(Unsent::Before);
+        }
+        told.into_iter().skip(before).map(|told| match told {
+            Ok(Told::Rows(rows)) => rows_of(rows).map(Answer::Rows).map_err(|_| Unsent::Last),
+            Ok(Told::Count(count)) => Ok(Answer::Count(count)),
+            Ok(Told::Done) => Ok(Answer::Done),
+            Err(_) => Err(Unsent::Last),
+        }).collect()
+    }
+
+    /// One statement on a connection that sends one at a time (SQLite, or Postgres reached directly).
+    fn send_direct(&mut self, last: Waiting, want: Want) -> Result<Answer, Unsent> {
+        let Self { inner, statements, lost, .. } = self;
         // A failure that says the connection is gone (closed, or ended by the database with a FATAL) is known at once, before the
         // driver has seen the connection close.
         let mut gone = |error: &postgres::Error| {
@@ -319,47 +382,7 @@ impl Link {
                     _ => client.execute(statement, &refs).map(Answer::Count).map_err(|error| { gone(&error); Unsent::Last }),
                 }
             }
-            Inner::Tunneled(client) => {
-                let mut steps = std::mem::take(waiting);
-                steps.push(last);
-                let unprepared: Vec<&str> = {
-                    let mut texts: Vec<&str> = steps.iter().filter(|step| !step.plain && !statements.contains_key(&step.text)).map(|step| step.text.as_str()).collect();
-                    texts.sort_unstable();
-                    texts.dedup();
-                    texts
-                };
-                if !unprepared.is_empty() {
-                    if statements.len() + unprepared.len() > MOST_STATEMENTS {
-                        statements.retain(|text, _| unprepared.contains(&text.as_str()));
-                    }
-                    for (text, prepared) in unprepared.iter().zip(client.prepare_all(&unprepared)) {
-                        statements.insert((*text).to_owned(), prepared.map_err(|error| { gone(&error); Unsent::Before })?);
-                    }
-                }
-                let bound: Vec<Vec<Bound>> = steps.iter().map(|step| postgres_values(&step.params)).collect();
-                let lastly = steps.len() - 1;
-                let mut asks = Vec::with_capacity(steps.len());
-                for (at, (step, values)) in steps.iter().zip(&bound).enumerate() {
-                    let refs: Vec<&(dyn postgres::types::ToSql + Sync)> = values.iter().map(Bound::as_ref).collect();
-                    asks.push(match (step.plain, at == lastly && want == Want::Rows) {
-                        (true, _) => Ask::Simple(&step.text),
-                        (false, true) => Ask::Rows(&statements[&step.text], refs),
-                        (false, false) => Ask::Count(&statements[&step.text], refs),
-                    });
-                }
-                let mut told = client.send_all(&asks);
-                told.iter().filter_map(|told| told.as_ref().err()).for_each(&mut gone);
-                let answered = told.pop();
-                if told.iter().any(Result::is_err) {
-                    return Err(Unsent::Before);
-                }
-                match answered {
-                    Some(Ok(Told::Rows(rows))) => rows_of(rows).map(Answer::Rows).map_err(|_| Unsent::Last),
-                    Some(Ok(Told::Count(count))) => Ok(Answer::Count(count)),
-                    Some(Ok(Told::Done)) => Ok(Answer::Done),
-                    _ => Err(Unsent::Last),
-                }
-            }
+            Inner::Tunneled(_) => Err(Unsent::Last),
         }
     }
 
@@ -381,6 +404,17 @@ impl Link {
             Answer::Rows(rows) => Ok(rows),
             _ => Err(crate::cause!(Error::Unavailable)),
         }
+    }
+
+    /// Run statements that answer rows, all sent before any answer is awaited (one round trip through the run's proxy); their
+    /// rows in the same order.
+    pub fn query_together(&mut self, asked: &[(&str, &[Cell])]) -> Result<Vec<Vec<Vec<Cell>>>, Error> {
+        let dialect = self.dialect();
+        let asked = asked.iter().map(|(sql, params)| (Waiting::bound(numbered(dialect, sql, params), params), Want::Rows)).collect();
+        self.unchanging_together(asked)?.into_iter().map(|answer| match answer {
+            Answer::Rows(rows) => Ok(rows),
+            _ => Err(crate::cause!(Error::Unavailable)),
+        }).collect()
     }
 
     /// Run a statement that changes rows; answers how many.

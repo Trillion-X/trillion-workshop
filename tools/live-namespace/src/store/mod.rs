@@ -515,18 +515,31 @@ impl SqlStore {
         Ok(rows)
     }
 
-    /// The tombstone of a removed row: its version, the request that removed it and its change order.
-    fn tombstone(link: &mut Link, scope: &str, id: &str, lock: &str) -> Result<Option<Gone>, Error> {
-        let rows = link.query(
-            &format!("SELECT version, request_key, request_identity, changed FROM ns_gone WHERE scope = ? AND id = ?{lock}"),
-            &[Cell::text(scope), Cell::text(id)],
-        )?;
-        Ok(rows.first().map(|cells| Gone {
+    /// The row `id` of `scope` (with the request that last changed it) and its tombstone, read together: both statements are sent
+    /// before either answer is awaited, so a database far away costs one round trip for the two. `lock` is the dialect's lock a read
+    /// inside a transaction takes, or empty.
+    fn row_and_tombstone(&self, link: &mut Link, scope: &str, id: &str, lock: &str) -> Result<(Option<(Record, Option<String>, Option<String>)>, Option<Gone>), Error> {
+        let table = Self::table_of(scope);
+        let read = match table {
+            Some(table) => format!("SELECT {} FROM {} WHERE scope = ? AND id = ?{lock}", table.selected(), table.table),
+            None => format!("SELECT id, version, request_key, request_identity, value, changed FROM {} WHERE scope = ? AND id = ?{lock}", declared().generic),
+        };
+        let gone = format!("SELECT version, request_key, request_identity, changed FROM ns_gone WHERE scope = ? AND id = ?{lock}");
+        let params = [Cell::text(scope), Cell::text(id)];
+        let mut answered = link.query_together(&[(read.as_str(), &params[..]), (gone.as_str(), &params[..])])?.into_iter();
+        let (rows, gone_rows) = (answered.next().unwrap_or_default(), answered.next().unwrap_or_default());
+        let row = match (rows.first(), table) {
+            (Some(cells), Some(table)) => Some(Self::record(table, cells)?),
+            (Some(cells), None) => Some(Self::generic_record(cells)?),
+            (None, _) => None,
+        };
+        let gone = gone_rows.first().map(|cells| Gone {
             version: cells[0].as_int().unwrap_or(0),
             key: cells[1].as_text(),
             identity: cells[2].as_text(),
             changed: cells[3].as_int().unwrap_or(0),
-        }))
+        });
+        Ok((row, gone))
     }
 
     fn identity_of(input: &Mutation) -> String {
@@ -548,9 +561,8 @@ impl SqlStore {
         let identity = Self::identity_of(input);
         let table = Self::table_of(scope);
         let minted = table.and_then(|table| table.minted.as_deref());
-        let rows = self.read_rows(link, scope, &format!(" AND id = ?{lock}"), &[Cell::text(&input.id)])?;
-        let current = rows.into_iter().next();
-        let gone = if current.is_none() { Self::tombstone(link, scope, &input.id, lock)? } else { None };
+        let (current, gone) = self.row_and_tombstone(link, scope, &input.id, lock)?;
+        let gone = if current.is_none() { gone } else { None };
         let held = current.as_ref().map(|(record, _, _)| record.version).or(gone.as_ref().map(|gone| gone.version)).unwrap_or(0);
         let (last_key, last_identity) = match (&current, &gone) {
             (Some((_, key, identity)), _) => (key.clone(), identity.clone()),
@@ -706,11 +718,10 @@ impl Rows for SqlStore {
 
     fn held_record_with_version(&self, scope: &str, id: &str) -> Result<(i64, Option<Record>), Error> {
         let mut link = self.link.lock().map_err(unavailable)?;
-        let rows = self.read_rows(&mut link, scope, " AND id = ?", &[Cell::text(id)])?;
-        if let Some((record, _, _)) = rows.into_iter().next() {
-            return Ok((record.version, Some(record)));
+        match self.row_and_tombstone(&mut link, scope, id, "")? {
+            (Some((record, _, _)), _) => Ok((record.version, Some(record))),
+            (None, gone) => Ok((gone.map_or(0, |gone| gone.version), None)),
         }
-        Ok((Self::tombstone(&mut link, scope, id, "")?.map_or(0, |gone| gone.version), None))
     }
 
     fn list_page(&self, scope: &str, after: &str, limit: usize) -> Result<Page<Record, String>, Error> {
