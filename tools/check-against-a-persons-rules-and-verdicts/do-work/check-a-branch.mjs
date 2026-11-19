@@ -11,8 +11,8 @@
 //   per step and src/private-method.mjs:25 (`extends`).
 //
 // Non-negotiable invariants
-//   1. The branch rows are read once with the door's `where { kind: branch }`, then only the rows of the branches of
-//      the lineage, each with `where { part_of }`, never the whole list. A branch part of a branch is a branch below,
+//   1. The branch rows are found once among the records handed in by `kind: branch`, then only the rows of the branches
+//      of the lineage, each the rows whose link names it, never a whole list. A branch part of a branch is a branch below,
 //      never judged: it is counted in rows_used.skipped.branch. Until the rows are rewritten, the old link fields
 //      (read-data/branch.json `old_link_fields`) are read too, one `where` each; a row's parent is its first link that
 //      names one, so a row read by an old field whose `part_of` names another branch is not this branch's row.
@@ -28,21 +28,22 @@
 //      reading_settings they carry, or null). Any other such row is counted in rows_used.skipped.no_test; a branch with
 //      only those answers status no-applicable-rule, never a refusal.
 //   4. A row id is judged once: the nearest branch's row wins over an inherited row with the same id.
-//   5. This file reads; it writes nothing to the person's records, and names no method, list or check of anyone: the
+//   5. This file reads the records it is handed and writes nothing, and names no method, list or check of anyone: the
 //      record types and words are DATA in read-data/branch.json.
 //
 // Shapes
-//   rulesOfBranch(door, branch) -> { rules, verdict_rules | null, lineage, rows_used, read_by_a_model }
+//   rulesOfBranch(records, branch) -> { rules, verdict_rules | null, lineage, rows_used, read_by_a_model }
 //     rows_used: { branches: { <branch id>: n }, lists: { <list id>: n }, skipped: { branch: n, step: n, off: n, no_test: n } }
 //     read_by_a_model: { rows: [{ id, says, kind? }], more: n, settings_from: <branch id> | null }
 //   readingRow(row, settings)   -> the row with its `ask` ({ question, options, fail, per, calibration?, model?, ... })
-//   checkABranch(input, door)   -> rulesOfBranch, then check; the answer of the rules mode plus branch, lineage, rows_used,
+//   checkABranch(input, records) -> rulesOfBranch, then check; the answer of the rules mode plus branch, lineage, rows_used,
 //                                  read_by_a_model; its `questions` are one entry a rule in one page (rules-and-verdicts.mjs
 //                                  askedOf; input `questions_after` the next), with questions_page and ask_all; with no row
 //                                  to judge or read, status no-applicable-rule
 import { lineageOf, linksOf, wheresOfLink } from './branch.mjs';
 import { askedOf, check, CheckRefusal, compileVerdictRules, linesOf, statusOf } from './rules-and-verdicts.mjs';
 import { SELECTOR_NAMES } from '../../judge-words/do-work/judge-words.mjs';
+import { recordOf, recordsOf } from './records-in-hand.mjs';
 import SETTINGS from '../read-data/branch.json' with { type: 'json' };
 
 const WORDS = SETTINGS.words;
@@ -72,17 +73,16 @@ export function readingRow(row, settings = null) {
   return { ...row, [SETTINGS.ask_field]: { question: readingQuestion(row), options: READING.options, fail: READING.fail, per: READING.per, ...carried } };
 }
 
-async function valuesOf(door, query) {
-  const values = [];
-  for await (const row of door.list(query)) if (object(row.value)) values.push(row.value);
-  return values;
+// The values of the records handed in of `type` matching `where`; a record whose value is not an object is not a row.
+function valuesOf(records, type, where = null) {
+  return recordsOf(records, type, where).map(record => record.value).filter(object);
 }
 
 // The rows part of branch `id`: one read a field of the link, each row once, kept only when its first link names `id`.
-async function rowsPartOf(door, branchRows, id) {
+function rowsPartOf(records, branchRows, id) {
   const byId = new Map();
   for (const where of wheresOfLink(branchRows, LINK, id)) {
-    for (const row of await valuesOf(door, { type: SETTINGS.check_type, where })) {
+    for (const row of valuesOf(records, SETTINGS.check_type, where)) {
       if (!byId.has(row.id) && linksOf(row, LINK).includes(id)) byId.set(row.id, row);
     }
   }
@@ -90,20 +90,20 @@ async function rowsPartOf(door, branchRows, id) {
 }
 
 // A list a branch names: `list:<id>` or its bare id, read as the list record, then its rows by its row type.
-async function rowsOfList(door, method, listId) {
+function rowsOfList(records, method, listId) {
   const id = listId.startsWith(SETTINGS.list_prefix) ? listId : `${SETTINGS.list_prefix}${listId}`;
-  const list = await door.read(SETTINGS.list_type, id);
+  const list = recordOf(records, SETTINGS.list_type, id)?.value ?? null;
   if (!object(list) || typeof list.row_type !== 'string') throw new CheckRefusal(fill(WORDS.check_list_missing, { method, list: id }));
   if (!SETTINGS.check_list_row_types.includes(list.row_type)) {
     throw new CheckRefusal(fill(WORDS.check_list_row_type, { method, list: id, row_type: list.row_type, allowed: SETTINGS.check_list_row_types.join(', ') }));
   }
-  return { id, rows: await valuesOf(door, { type: `record:${list.row_type}` }) };
+  return { id, rows: valuesOf(records, `record:${list.row_type}`) };
 }
 
-/** The rules and the person's rule document of one branch, read from their records through `door`. */
-export async function rulesOfBranch(door, branch) {
+/** The rules and the person's rule document of one branch, read from the records handed in (`records`). */
+export function rulesOfBranch(records, branch) {
   if (typeof branch !== 'string' || !branch.trim()) throw new CheckRefusal(WORDS.branch);
-  const methods = await valuesOf(door, { type: SETTINGS.check_type, where: SETTINGS.branch_where });
+  const methods = valuesOf(records, SETTINGS.check_type, SETTINGS.branch_where);
   if (!methods.length) throw new CheckRefusal(WORDS.no_methods);
   let lineage;
   try { lineage = lineageOf(methods, branch, LINK); } catch (error) { throw new CheckRefusal(error.message); }
@@ -132,14 +132,14 @@ export async function rulesOfBranch(door, branch) {
   const listsRead = new Set();
   for (const [at, id] of lineage.entries()) {
     const isVerdict = judgeAt >= 0 && at <= judgeAt;
-    const own = (await rowsPartOf(door, methods, id))
+    const own = rowsPartOf(records, methods, id)
       .sort((a, b) => (String(a.id) < String(b.id) ? -1 : 1));
     rows_used.branches[id] = own.length;
     take(own, isVerdict);
     for (const listId of methodById.get(id).check_lists ?? []) {
       if (listsRead.has(listId)) continue;
       listsRead.add(listId);
-      const list = await rowsOfList(door, id, listId);
+      const list = rowsOfList(records, id, listId);
       rows_used.lists[list.id] = list.rows.length;
       take(list.rows, isVerdict);
     }
@@ -153,9 +153,9 @@ export async function rulesOfBranch(door, branch) {
 }
 
 /** The input of the branch mode ({ branch, units, stage?, stands?, answers?, ... }), judged by the one `check`. */
-export async function checkABranch(input, door) {
+export function checkABranch(input, records) {
   if (input.rules !== undefined || input.verdict_rules !== undefined) throw new CheckRefusal(WORDS.rules_and_branch);
-  const { rules, verdict_rules, lineage, rows_used, read_by_a_model } = await rulesOfBranch(door, input.branch);
+  const { rules, verdict_rules, lineage, rows_used, read_by_a_model } = rulesOfBranch(records, input.branch);
   if (!rules.length) {
     return { status: SETTINGS.no_applicable_status, passed: false, results: [], questions: [], questions_page: { rules: 0, returned: 0, next: null },
       lines: [fill(WORDS.no_applicable_rule, { branch: input.branch, lineage: lineage.join(' <- '), count: rows_used.skipped.no_test })],

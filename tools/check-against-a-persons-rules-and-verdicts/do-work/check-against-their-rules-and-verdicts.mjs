@@ -10,16 +10,17 @@
 // { error } and what to send instead.
 //
 // With `branch` (and no rules) it is the branch mode (do-work/check-a-branch.mjs): the rules and the rule document are
-// read from the person's own method and check rows, given in the input's `stored` (records-door/read-data/values-door.mjs:
-// the engine keeps none of them), and the answer adds branch, lineage, rows_used and read_by_a_model.
+// read from the person's own method and check rows, given in the input's `records` (the rows the caller read from its
+// own store; a run reads no store), and the answer adds branch, lineage, rows_used and read_by_a_model.
 //
-// The two piece rows run the same command with their name as its one argument:
-//   split-a-document-into-pieces  { text | name, file?, file_identity? } -> the document's pieces in the answer, nothing kept
-//                                 (do-work/pieces.mjs splitIntoPieces), a named document's bytes from `stored` files
-//   check-every-piece-is-covered  { records, file?, after?, most_bytes? } -> coverage of the person's piece rows, the
-//                                 check rows given as `records` (do-work/piece-sweep.mjs coverageOfRecords)
-//   check-a-films-copy            { branch, settings_record, files, ... } -> a film's copy checked against the branch, with
-//                                 its report (do-work/check-a-films-copy.mjs checkAFilmsCopy), the rows from `stored`
+// The two piece rows and the film row run the same command with their name as its one argument:
+//   split-a-document-into-pieces  { text | name, file?, file_identity?, stored? } -> the document's pieces in the answer,
+//                                 nothing kept (do-work/pieces.mjs splitIntoPieces); a named document's bytes from the
+//                                 files given in `stored`
+//   check-every-piece-is-covered  { records, file?, after?, most_bytes? } -> coverage of the person's piece rows
+//                                 (do-work/piece-sweep.mjs coverageOfRecords)
+//   check-a-films-copy            { branch, settings_record, files, records, ... } -> a film's copy checked against the
+//                                 branch, with its report (do-work/check-a-films-copy.mjs checkAFilmsCopy)
 // Every mode only reads: what it reads is given, so nothing is kept.
 import { text } from 'node:stream/consumers';
 import { recordsHandedIn } from './records-in-hand.mjs';
@@ -36,12 +37,10 @@ try {
     console.log(JSON.stringify({ result: coverageOfRecords(recordsHandedIn(input.records), { file: input.file, after: input.after, most_bytes: input.most_bytes }) }));
   } else if (process.argv[2] === 'check-a-films-copy') {
     const { checkAFilmsCopy } = await import('./check-a-films-copy.mjs');
-    const { valuesDoor } = await import('../../records-door/read-data/values-door.mjs');
-    console.log(JSON.stringify({ result: await checkAFilmsCopy(input, valuesDoor(stored).door) }));
+    console.log(JSON.stringify({ result: checkAFilmsCopy(input, recordsHandedIn(input.records)) }));
   } else if (input.branch !== undefined) {
     const { checkABranch } = await import('./check-a-branch.mjs');
-    const { valuesDoor } = await import('../../records-door/read-data/values-door.mjs');
-    console.log(JSON.stringify({ result: await checkABranch(input, valuesDoor(stored).door) }));
+    console.log(JSON.stringify({ result: checkABranch(input, recordsHandedIn(input.records)) }));
   } else {
     const { check, compileVerdictRules, linesOf, statusOf } = await import('./rules-and-verdicts.mjs');
     const verdictRules = input.verdict_rules === undefined ? null : compileVerdictRules(input.verdict_rules);

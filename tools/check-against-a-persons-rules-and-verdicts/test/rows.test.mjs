@@ -16,8 +16,8 @@ const run = (argv, input) => spawnSync(process.execPath, argv, { cwd: folder, in
 for (const row of rows) {
   test(`${row.id} answers its own sample on the last line`, async () => {
     for (const sample of row.verify.filter(item => item.kind === 'sample-run')) {
-      // A sample that seeds records or files runs as the container does, with the stand-in door holding them.
-      const ran = sample.records || sample.door_files ? await runRow(row, sample.input, { records: sample.records, door_files: sample.door_files }) : run(row.invoke.argv.slice(1), sample.input);
+      // A sample that seeds files runs as the container does, with the stand-in files door holding them; records are in its input.
+      const ran = sample.door_files ? await runRow(row, sample.input, { door_files: sample.door_files }) : run(row.invoke.argv.slice(1), sample.input);
       assert.equal(ran.status ?? ran.code, 0, ran.stderr ?? ran.stdout);
       const answer = at(JSON.parse(ran.stdout.trim().split('\n').at(-1)), row.result_selector);
       assert.ok(String(at(answer, sample.output_selector)).includes(sample.contains), JSON.stringify(answer));
@@ -43,13 +43,13 @@ test('in the branch mode, run as the container runs it, a made-up reading row is
   ];
   const units = [{ text: 'One made-up sentence. Two made-up sentences. Three made-up sentences.', kind: 'line' }];
   const answerOf = ran => JSON.parse(ran.stdout.trim().split('\n').at(-1)).result;
-  const first = answerOf(await runRow(row, { branch: 'made-up-base', units }, { records }));
+  const first = answerOf(await runRow(row, { branch: 'made-up-base', units, records }, {}));
   assert.equal(first.status, 'uncertain');
   assert.deepEqual(first.rows_used.skipped, { branch: 0, step: 0, off: 0, no_test: 0 });
   assert.deepEqual(first.questions.map(entry => [entry.rule, entry.asked]), [['made-up-note', [{ id: '0:made-up-note:0' }]]]);
-  const pass = answerOf(await runRow(row, { branch: 'made-up-base', units, answers: { '0:made-up-note:0': { yes: 0.05 } } }, { records }));
+  const pass = answerOf(await runRow(row, { branch: 'made-up-base', units, answers: { '0:made-up-note:0': { yes: 0.05 } }, records }, {}));
   assert.equal(pass.status, 'passed');
-  const fail = answerOf(await runRow(row, { branch: 'made-up-base', units, answers: { '0:made-up-note:0': { yes: 0.9 } } }, { records }));
+  const fail = answerOf(await runRow(row, { branch: 'made-up-base', units, answers: { '0:made-up-note:0': { yes: 0.9 } }, records }, {}));
   assert.equal(fail.status, 'failed');
   assert.deepEqual(fail.results[0].breaks.map(finding => finding.rule), ['made-up-note']);
 });
@@ -61,7 +61,7 @@ test('the packed film descriptor reads public plans and recordings from stdin an
   settings.spoken_spans = { cites_plan: 'never', words_json: ['takes/{clip}.json'],
     tsv: { path: 'tables/moments.tsv', clip: 'clip', from: 'start', to: 'end', text: 'text' }, speaker_unverified: '^UNCHECKED' };
   settings.origin_words = { own: 'recorded', added: 'added', unverified: 'unverified' };
-  sample.records.find(record => record.id === 'record:check:no-sparkle').value.held_when = { path: 'origin', where: 'recorded' };
+  sample.input.records.find(record => record.id === 'record:check:no-sparkle').value.held_when = { path: 'origin', where: 'recorded' };
   const plan = { segments: [{ clip: 'C1', from: 2, to: 3 }, { clip: 'C2', from: 2, to: 3 }] };
   const input = { ...sample.input, files: [{ name: 'SCRIPT.md',
     text: '| # | line |\n|---|---|\n| 1 | Word sparkle. |\n| 2 | Moment sparkle. |\n' }],
@@ -78,7 +78,7 @@ test('the packed film descriptor reads public plans and recordings from stdin an
     ['unverified speakers', { plans: { 'public.json': { segments: plan.segments.map(segment => ({ ...segment, speaker: 'UNCHECKED: who' })) } } },
       'failed', 'unverified', 'fail'],
   ]) {
-    const ran = await runRow(row, { ...input, ...extra }, { records: sample.records });
+    const ran = await runRow(row, { ...input, ...extra, records: sample.input.records }, {});
     assert.equal(ran.code, 0, `${name}: ${ran.stderr}`);
     const answer = JSON.parse(ran.stdout.trim().split('\n').at(-1)).result;
     assert.equal(answer.status, status, name);

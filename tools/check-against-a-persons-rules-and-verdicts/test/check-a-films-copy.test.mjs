@@ -1,6 +1,6 @@
 // tools/check-against-a-persons-rules-and-verdicts: tool:check-a-films-copy and its parts, on made-up films only. The
 // person's layouts, spans, profiles, owners, origin words and reader-knowledge rows are a made-up settings row; their
-// rules are made-up rows of a made-up branch of their one Checks list, kept in an in-memory records door. Ported from
+// rules are made-up rows of a made-up branch of their one Checks list, handed in as the records a run is given. Ported from
 // the launch-video copy gate's tests (tests/check.test.mjs, decider-kinds.test.mjs, place-reports.test.mjs), which ran
 // on the person's own rules: here every rule and line is made up, and each test names the old one it carries.
 import test from 'node:test';
@@ -63,17 +63,8 @@ function records({ settings = SETTINGS, checks = CHECKS } = {}) {
     ...checks.map(value => ({ id: `record:check:${value.id}`, type: 'record:check', value }))];
 }
 const settingOf = held => held.find(record => record.type === 'record:setting');
-function memoryDoor(held = records()) {
-  const matches = (record, where) => !where || Object.entries(where).every(([name, value]) => JSON.stringify(record.value?.[name]) === JSON.stringify(value));
-  return {
-    held,
-    async read(type, id) { return held.find(record => record.type === type && record.id === id)?.value ?? null; },
-    async *list(query) { for (const record of held) if (record.type === query.type && matches(record, query.where)) yield record; },
-    write() { throw new Error('a film check writes nothing'); },
-  };
-}
-const run = (files, extra = {}, door = memoryDoor()) => checkAFilmsCopy({ branch: 'made-up-video', settings_record: settingOf(door.held), files,
-  reader_knowledge: { findings: [] }, ...extra }, door);
+const run = (files, extra = {}, held = records()) => checkAFilmsCopy({ branch: 'made-up-video', settings_record: settingOf(held), files,
+  reader_knowledge: { findings: [] }, ...extra }, held);
 const script = (rows, header = '| # | line | words |') => `${header}\n|---|---|---|\n${rows.map((row, at) => `| ${at + 1} | ${row} | 3 |`).join('\n')}\n`;
 
 // ---- The film readers (old tests 'SCRIPT.md: the line column is read...' and 'POST.md: fenced post text...') ---------
@@ -142,8 +133,8 @@ test('a line inside a cited span is the person\'s words in their own origin word
 });
 
 // ---- The whole film check through the branch (old CLI and check tests) ------------------------------------------------
-test('a film\'s rules are read from the branch through the door; a branch\'s rows are verdict rows and the rows above are generic rules', async () => {
-  const answer = await run([{ name: 'TITLES.md', text: '| # | Title |\n|---|---|\n| 1 | A wibble title |\n| 2 | A fine title |\n| 3 | a glorp title |\n' }]);
+test('a film\'s rules are read from the branch among the records; a branch\'s rows are verdict rows and the rows above are generic rules', async () => {
+  const answer = run([{ name: 'TITLES.md', text: '| # | Title |\n|---|---|\n| 1 | A wibble title |\n| 2 | A fine title |\n| 3 | a glorp title |\n' }]);
   assert.deepEqual(answer.lineage, ['made-up-video', 'made-up-writing', 'made-up-universal']);
   assert.deepEqual(answer.results.map(r => [r.text, r.verdict, r.breaks.map(f => f.rule).sort()]), [
     ['A wibble title', 'fail', ['title-no-wibble']], ['A fine title', 'pass', []], ['a glorp title', 'fail', ['no-glorp', 'starts-with-capital']]]);
@@ -151,19 +142,19 @@ test('a film\'s rules are read from the branch through the door; a branch\'s row
   assert.equal(answer.exit_code, 1);
   assert.equal(answer.rules.count, 3);
   assert.equal(answer.verdict_rules.count, 3);
-  await assert.rejects(checkAFilmsCopy({ branch: 'made-up-video', settings_record: settingRecord(), files: [], rules: [] }, memoryDoor()), /Send a branch/);
+  assert.throws(() => checkAFilmsCopy({ branch: 'made-up-video', settings_record: settingRecord(), files: [], rules: [] }, records()), /Send a branch/);
 });
 
 test('a row for added words holds, never fails, on the person\'s own recorded words named in their own origin word', async () => {
   const files = [{ name: 'lines.txt', text: 'Plan: `plan.json`\nThree months zorblax.\nA zorblax line.\n' }];
   const words = { C1: [...WORDS.C1, { text: 'zorblax', start: 2.8, end: 3 }] };
-  const answer = await run(files, { kind: 'voiceover', sources: sources({ 'plan.json': { segments: [{ clip: 'C1', from: 2, to: 3 }] } }, { words }) });
+  const answer = run(files, { kind: 'voiceover', sources: sources({ 'plan.json': { segments: [{ clip: 'C1', from: 2, to: 3 }] } }, { words }) });
   const [own, added] = answer.results.filter(r => r.text.includes('zorblax'));
   assert.equal(own.facts.origin, 'my-words');
   assert.deepEqual([own.verdict, own.advisory, own.breaks], ['uncertain', true, []]);
   assert.ok(own.uncertain.some(f => f.rule === 'no-zorblax'));
   assert.deepEqual(added.breaks.map(f => f.rule), ['no-zorblax']);
-  const missing = await run(files, { kind: 'voiceover' });
+  const missing = run(files, { kind: 'voiceover' });
   assert.equal(missing.status, 'unqualified', 'a plan the piece names but nobody handed in is unqualified, never guessed');
 });
 
@@ -175,10 +166,10 @@ test('declared plans and recordings reach origins through the settings word temp
   const extra = { plans: { 'cuts/public.json': plan }, recordings: {
     words: { C1: [{ text: 'Three', start: 2, end: 2.4 }, { text: 'zorblax', start: 2.4, end: 3 }] },
     tsv: 'clip\tstart_s\tend_s\ttext\nC2\t2\t3\tMoment zorblax.\n' } };
-  const answer = await run(files, extra, memoryDoor(records({ settings })));
+  const answer = run(files, extra, records({ settings }));
   assert.deepEqual(answer.results.map(r => [r.facts.origin, r.verdict]),
     [['my-words', 'uncertain'], ['my-words', 'uncertain'], ['added-words', 'fail']]);
-  const textPlan = await run(files, { ...extra, plan: 'cuts/public.json', plans: { 'cuts/public.json': JSON.stringify(plan) } }, memoryDoor(records({ settings })));
+  const textPlan = run(files, { ...extra, plan: 'cuts/public.json', plans: { 'cuts/public.json': JSON.stringify(plan) } }, records({ settings }));
   assert.deepEqual(textPlan.results, answer.results, 'a named plan may already be JSON text');
 });
 
@@ -186,11 +177,11 @@ test('declared plans refuse a missing plan, missing recordings never soften a ru
   const files = [{ name: 'SCRIPT.md', text: script(['Three zorblax.']) }];
   const plan = { segments: [{ clip: 'C1', from: 2, to: 3 }] };
   const input = { plan: 'public.json', plans: { 'public.json': plan } };
-  const missing = await run(files, { ...input, plan: 'absent.json' });
+  const missing = run(files, { ...input, plan: 'absent.json' });
   assert.deepEqual([missing.status, missing.exit_code, missing.results], ['unqualified', 2, []]);
-  const noRecording = await run(files, input);
+  const noRecording = run(files, input);
   assert.deepEqual([noRecording.results[0].facts.origin, noRecording.results[0].verdict], ['added-words', 'fail']);
-  const unverified = await run(files, { ...input, plans: { 'public.json': { segments: [{ ...plan.segments[0], speaker: 'UNCHECKED: who' }] } },
+  const unverified = run(files, { ...input, plans: { 'public.json': { segments: [{ ...plan.segments[0], speaker: 'UNCHECKED: who' }] } },
     recordings: { words: { C1: { words: [{ text: 'Three', start: 2, end: 2.4 }, { text: 'zorblax', start: 2.4, end: 3 }] } } } });
   assert.deepEqual([unverified.results[0].facts.origin, unverified.results[0].verdict], ['unverified-speaker', 'fail']);
 });
@@ -205,32 +196,32 @@ test('the film descriptor declares the plans and recordings request used by the 
   assert.equal(row.input_schema.additionalProperties, false);
   for (const name of Object.keys(input)) assert.ok(Object.hasOwn(row.input_schema.properties, name), `${name} is declared`);
   assert.ok(!Object.hasOwn(row.input_schema.properties, 'sources'), 'the public request needs no internal sources field');
-  const answer = await checkAFilmsCopy(input, memoryDoor());
+  const answer = checkAFilmsCopy(input, records());
   assert.deepEqual(answer.results.map(r => [r.facts.origin, r.verdict]), [['my-words', 'uncertain'], ['my-words', 'uncertain']]);
 });
 
 test('an ask row\'s questions go back by id with the unit\'s context, and its answers pass, hold or fail the title; without answers it never passes (exit 3)', async () => {
-  const door = memoryDoor(records({ checks: [...CHECKS, ASK] }));
+  const held = records({ checks: [...CHECKS, ASK] });
   const files = [{ name: 'TITLES.md', text: '| # | Title |\n|---|---|\n| 1 | A fine title |\n' }];
   const context = [{ text: 'A fine title', context: { on_screen_with: ['Another'] } }];
-  const first = await run(files, { context }, door);
+  const first = run(files, { context }, held);
   assert.equal(first.status, 'uncertain');
   assert.equal(first.exit_code, 3);
   const id = first.questions[0].asked[0].id;
   assert.equal(first.results[0].context.on_screen_with[0], 'Another');
   for (const [p, verdict] of [[0.1, 'pass'], [0.4, 'uncertain'], [0.9, 'fail']]) {
-    assert.equal((await run(files, { context, answers: { [id]: { yes: 1 - p, no: p } } }, door)).results[0].verdict, verdict, String(p));
+    assert.equal((run(files, { context, answers: { [id]: { yes: 1 - p, no: p } } }, held)).results[0].verdict, verdict, String(p));
   }
-  assert.equal((await run(files, { context, no_model: true, answers: { [id]: { yes: 1, no: 0 } } }, door)).results[0].verdict, 'uncertain', 'no-model keeps every question unknown');
+  assert.equal((run(files, { context, no_model: true, answers: { [id]: { yes: 1, no: 0 } } }, held)).results[0].verdict, 'uncertain', 'no-model keeps every question unknown');
 });
 
 test('an ask row reaches only the kinds it lists: a title is asked, a JSON plan and a kind it does not list are not (old decider-kinds)', async () => {
-  const door = memoryDoor(records({ checks: [...CHECKS, ASK] }));
-  const titled = await run([{ name: 'TITLES.md', text: '| # | Title |\n|---|---|\n| 1 | A fine title |\n' }], {}, door);
+  const held = records({ checks: [...CHECKS, ASK] });
+  const titled = run([{ name: 'TITLES.md', text: '| # | Title |\n|---|---|\n| 1 | A fine title |\n' }], {}, held);
   assert.equal(titled.questions.length, 1);
-  const plan = await run([{ name: 'plan.json', text: JSON.stringify({ events: [{ type: 'pause' }] }) }], { artifact_kind: 'plan' }, door);
+  const plan = run([{ name: 'plan.json', text: JSON.stringify({ events: [{ type: 'pause' }] }) }], { artifact_kind: 'plan' }, held);
   assert.equal(plan.questions.length, 0);
-  const other = await run([{ name: 'lines.txt', text: 'Some made-up words.\n' }], { kind: 'plan-notes' }, door);
+  const other = run([{ name: 'lines.txt', text: 'Some made-up words.\n' }], { kind: 'plan-notes' }, held);
   assert.equal(other.questions.length, 0);
 });
 
@@ -238,50 +229,50 @@ test('reader-knowledge findings reach each line in reading order; a check that c
   const files = [{ name: 'lines.txt', text: 'A plain line.\nA second line.\nA third line.\n' }];
   const findings = [{ rule: 'unintroduced-reference', outcome: 'uncertain', line: 1, span: 'the thing', why: 'not mentioned before', sentence: 'A second line.' },
     { rule: 'label-colon-command', outcome: 'fail', line: 2, span: 'A third line.', why: 'a command', sentence: 'A third line.' }];
-  const answer = await run(files, { reader_knowledge: { findings } });
+  const answer = run(files, { reader_knowledge: { findings } });
   assert.deepEqual(answer.results.map(r => r.verdict), ['pass', 'uncertain', 'fail']);
   assert.equal(answer.results[2].breaks[0].rule, 'reader-knowledge/label-colon-command');
-  const notRun = await run(files, { reader_knowledge: { not_run: 'no spaCy here' } });
+  const notRun = run(files, { reader_knowledge: { not_run: 'no spaCy here' } });
   assert.ok(notRun.results.every(r => r.verdict === 'uncertain' && r.uncertain.some(f => f.rule === 'reader-knowledge-not-run')));
   const { reader_knowledge: _, ...without } = SETTINGS;
-  assert.deepEqual((await run(files, {}, memoryDoor(records({ settings: without })))).results.map(r => r.verdict), ['pass', 'pass', 'pass'], 'a person with no reader-knowledge rows is not held by them');
+  assert.deepEqual((run(files, {}, records({ settings: without }))).results.map(r => r.verdict), ['pass', 'pass', 'pass'], 'a person with no reader-knowledge rows is not held by them');
   assert.deepEqual(knowledgeOf(2, null, 'why').map(found => found[0].rule), ['reader-knowledge-not-run', 'reader-knowledge-not-run']);
 });
 
 test('a file with no copy, or with a source quote the reader cannot place, is unqualified (exit 2) and its report keeps none of its text', async () => {
-  const empty = await run([{ name: 'empty.txt', text: '' }]);
+  const empty = run([{ name: 'empty.txt', text: '' }]);
   assert.deepEqual([empty.status, empty.exit_code, empty.results.length], ['unqualified', 2, 0]);
-  const quoted = await run([{ name: 'prose.md', text: '# A made-up title\n\nPrivate preamble words.\n\n## Article\nAuthored words.\n> Quoted source words.\n\n## Spoken video script\nSpoken words.\n' }],
+  const quoted = run([{ name: 'prose.md', text: '# A made-up title\n\nPrivate preamble words.\n\n## Article\nAuthored words.\n> Quoted source words.\n\n## Spoken video script\nSpoken words.\n' }],
     { reader: 'sectioned-prose' });
   assert.equal(quoted.status, 'unqualified');
   const said = JSON.stringify(quoted);
   assert.ok(!said.includes('Private preamble words.') && !said.includes('Quoted source words.'));
-  assert.equal((await run([{ name: 'w.json', text: '{"title":"A title"}' }], { reader: 'json-words' })).status, 'unqualified', 'json-words needs an owner');
-  assert.equal((await run([{ name: 'w.json', text: '{"title":"A title"}' }], { reader: 'json-words', owner: 'not-an-owner' })).status, 'unqualified');
-  assert.equal((await run([{ name: 'w.json', text: '{"title":"A made-up title"}' }], { reader: 'json-words', owner: 'made-up-titles' })).results[0].field, 'title');
+  assert.equal((run([{ name: 'w.json', text: '{"title":"A title"}' }], { reader: 'json-words' })).status, 'unqualified', 'json-words needs an owner');
+  assert.equal((run([{ name: 'w.json', text: '{"title":"A title"}' }], { reader: 'json-words', owner: 'not-an-owner' })).status, 'unqualified');
+  assert.equal((run([{ name: 'w.json', text: '{"title":"A made-up title"}' }], { reader: 'json-words', owner: 'made-up-titles' })).results[0].field, 'title');
 });
 
 test('auto reads the declared prose shape or the film tables, and cue narration keeps its cue ids', async () => {
-  const prose = await run([{ name: 'prose.md', text: '# A made-up title\n\n## Article\nAuthored words.\n\n## Spoken video script\nSpoken words.\n' }], { reader: 'auto' });
+  const prose = run([{ name: 'prose.md', text: '# A made-up title\n\n## Article\nAuthored words.\n\n## Spoken video script\nSpoken words.\n' }], { reader: 'auto' });
   assert.equal(prose.coverage.files[0].reader, 'sectioned-prose');
-  const table = await run([{ name: 'any.md', text: script(['A made-up line.']) }], { reader: 'auto' });
+  const table = run([{ name: 'any.md', text: script(['A made-up line.']) }], { reader: 'auto' });
   assert.equal(table.coverage.files[0].reader, 'film');
-  const cues = await run([{ name: 'n.md', text: '---\nvoice: made-up\n---\n## one\nA made-up cue line.\n' }], { reader: 'cue-narration' });
+  const cues = run([{ name: 'n.md', text: '---\nvoice: made-up\n---\n## one\nA made-up cue line.\n' }], { reader: 'cue-narration' });
   assert.deepEqual([cues.coverage.files[0].cue_ids, cues.coverage.files[0].frontmatter, cues.results[0].cue_id], [['one'], { voice: 'made-up' }, 'one']);
 });
 
 test('the report binds its inputs by BLAKE3 and is the same on a repeat; the settings come from the person\'s row, refused when missing', async () => {
   const files = [{ name: 'lines.txt', text: 'A made-up line.\n' }];
-  const [first, again] = [await run(files), await run(files)];
+  const [first, again] = [run(files), run(files)];
   for (const key of ['checker_blake3', 'settings_blake3']) assert.match(first[key], /^[0-9a-f]{64}$/);
   assert.match(first.coverage.files[0].source_blake3, /^[0-9a-f]{64}$/);
   assert.deepEqual([first.rules, first.coverage, first.reader], [again.rules, again.coverage, again.reader]);
   assert.equal(first.schema, 'copy-check-report-v1');
-  await assert.rejects(checkAFilmsCopy({ branch: 'made-up-video', settings_record: SETTINGS_ID, files }, memoryDoor()), /is a row's id: give the row itself/);
-  await assert.rejects(checkAFilmsCopy({ branch: 'made-up-video', files }, memoryDoor()), /is not a settings row/);
-  const door = memoryDoor();
-  door.read = () => { throw new Error('the tool read a row for its setting'); };
-  assert.equal((await run(files, {}, door)).schema, 'copy-check-report-v1', 'the setting comes in the request; nothing is read for it');
+  assert.throws(() => checkAFilmsCopy({ branch: 'made-up-video', settings_record: SETTINGS_ID, files }, records()), /is a row's id: give the row itself/);
+  assert.throws(() => checkAFilmsCopy({ branch: 'made-up-video', files }, records()), /is not a settings row/);
+  const handed = records(), before = structuredClone(handed);
+  assert.equal(run(files, {}, handed).schema, 'copy-check-report-v1', 'the setting comes in the request; nothing is read for it');
+  assert.deepEqual(handed, before, 'the records are read, never changed');
 });
 
 test('the units the computer run hands reader_knowledge.py are the ones the check reads, in the same order', () => {
@@ -310,10 +301,10 @@ test('unit-context reads a line\'s neighbours within its own line, and an on-scr
 function computer(files, extra = [], held = records()) {
   const dir = mkdtempSync(join(tmpdir(), 'film-copy-'));
   const paths = files.map(([name, text]) => { const path = join(dir, name); writeFileSync(path, text); return path; });
-  const door = join(dir, 'records.json'), report = join(dir, 'report.json');
-  writeFileSync(door, JSON.stringify(held));
+  const recordsFile = join(dir, 'records.json'), report = join(dir, 'report.json');
+  writeFileSync(recordsFile, JSON.stringify(held));
   const cli = join(here, 'do-work/check-a-films-copy.mjs');
-  const done = spawnSync(process.execPath, [cli, ...paths, '--branch', 'made-up-video', '--settings-record', SETTINGS_ID, '--door-records', door,
+  const done = spawnSync(process.execPath, [cli, ...paths, '--branch', 'made-up-video', '--settings-record', SETTINGS_ID, '--records', recordsFile,
     '--reader-knowledge-python', '/nonexistent/python', '--report', report, ...extra], { encoding: 'utf8', cwd: dir });
   let read = null;
   try { read = JSON.parse(readFileSync(report, 'utf8')); } catch { read = null; }

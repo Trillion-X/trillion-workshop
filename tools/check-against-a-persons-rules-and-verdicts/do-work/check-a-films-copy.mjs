@@ -4,23 +4,24 @@
 // Purpose
 //   tool:check-a-films-copy: a film's copy files (a script table, titles, cards, a post, a description, plain lines,
 //   prose, cue narration or an owner's JSON) checked against the person's own branch of their one Checks list. The rules
-//   are read at run time through the door by the branch mode (do-work/check-a-branch.mjs rulesOfBranch: the branch's own
+//   are read from the records handed in by the branch mode (do-work/check-a-branch.mjs rulesOfBranch: the branch's own
 //   leaves and every leaf of the branches above it; the nearest branch with judge_settings makes the person's verdict
 //   rows), never from a file copy. The film layouts, the spans' settings, the reader profiles, the JSON owners, the field
 //   of each kind, the person's origin words and the reader-knowledge rows are their settings row (settings_record, the
 //   record itself as the person's AI read it; read through tools/settings). The tool row reads no settings row; the run on
-//   the person's computer is given the row's id by their gate and reads it on its own door (settingRecordOnTheirDoor). It reads the units (do-work/read-film-copy.mjs, do-work/read-words.mjs), marks where each
+//   the person's computer is given the row's id and finds the row among the records it is handed (settingRecordOf). It reads the units (do-work/read-film-copy.mjs, do-work/read-words.mjs), marks where each
 //   line's words come from (do-work/spans-of-a-plan.mjs, do-work/spoken-origins.mjs), attaches each line's context
 //   (do-work/unit-context.mjs build, handed in) and what the reader knows by then (do-work/reader_knowledge.py, handed
 //   in), runs the one `check`, and answers the report with its identities (BLAKE3 of every input, the reader settings,
 //   the rules and this file) and the exit code of its status. Moved from source-repo-a tools/copy-gate/check.mjs
 //   (its command, report, safe source read, reader-knowledge call and decider call) one to one.
 //
-//   As a tool row: one JSON request on standard input, the records door on descriptor 3 (the branch's check rows only),
+//   As a tool row: one JSON request on standard input, its records handed in as `records` (the branch's check rows and
+//   list rows, the writing-voice rows and the settings row given by id),
 //   { result } on the last line
 //   (do-work/check-against-their-rules-and-verdicts.mjs check-a-films-copy).
 //   On the person's computer (its files on disk, the model there):
-//   node do-work/check-a-films-copy.mjs <file>... --branch B --settings-record ID (--door-mcp '<argv JSON>' | --door-records F)
+//   node do-work/check-a-films-copy.mjs <file>... --branch B --settings-record ID --records F
 //     [--reader film|auto|sectioned-prose|cue-narration|json-words] [--owner ID] [--kind K] [--artifact-kind K] [--stage review|final]
 //     [--plan plan.json] [--root DIR] [--context context.json] [--stands stands.json] [--decider live|cache | --no-model]
 //     [--decider-python P --decider-layer F] [--reader-knowledge-python P] [--json out] [--report out] [--quiet]
@@ -28,7 +29,7 @@
 //   3: no fail, but a question or a held row could not establish a pass.
 //
 // Non-negotiable invariants
-//   1. No rule, layout, word list, kind or person is in this file: rules come from the person's branch through the door,
+//   1. No rule, layout, word list, kind or person is in this file: rules come from the person's branch among the records,
 //      layouts and the rest from their settings row, the words this file says from read-data/film-copy.json.
 //   2. A source file is read only as a stable regular file within the 8 MiB read budget: a link, a special file or a
 //      file that changes while it is read is refused (readSourceBytes).
@@ -51,6 +52,7 @@ import { fileURLToPath } from 'node:url';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { isSettingId, parseId, RECORD_TYPE, settingsOf } from '../../settings/read-data/settings.mjs';
 import { rulesOfBranch } from './check-a-branch.mjs';
+import { recordOf, recordsHandedIn } from './records-in-hand.mjs';
 import { askedOf, check as checkUnits, CheckRefusal, compileVerdictRules, statusOf } from './rules-and-verdicts.mjs';
 import { dedupe, norm, readFile } from './read-film-copy.mjs';
 import { wordsOfCueNarration, wordsOfJsonRoles, wordsOfSections } from './read-words.mjs';
@@ -89,7 +91,7 @@ function readSourceBytes(path) {
 
 /**
  * The person's settings for this tool: their list:settings row (tools/settings) as the record itself, { id, type, value },
- * the way records:read gives it to their AI. The tool reads no row: an id alone, a retired row or a row for another tool
+ * as the person's AI reads it from its own store and hands it in. The tool reads no row: an id alone, a retired row or a row for another tool
  * is refused.
  */
 export function settingsFor(given) {
@@ -237,10 +239,10 @@ export function knowledgeOf(count, findings, why = '') {
  * questions_after? }. Answers { result } with the report and its exit code; never throws on the person's files, only on a
  * request it cannot read.
  */
-export async function checkAFilmsCopy(input, door) {
+export function checkAFilmsCopy(input, records) {
   if (input.rules !== undefined || input.verdict_rules !== undefined) throw new CheckRefusal('Send a branch: a film check reads its rules from the person\'s branch, never from a copy.');
   const settings = settingsFor(input.settings_record);
-  const { rules, verdict_rules, lineage, rows_used, read_by_a_model } = await rulesOfBranch(door, input.branch);
+  const { rules, verdict_rules, lineage, rows_used, read_by_a_model } = rulesOfBranch(records, input.branch);
   const verdictRules = verdict_rules === null ? null : compileVerdictRules(verdict_rules);
   const reader = input.reader ?? 'film', owner = input.owner ?? null;
   const noModel = input.no_model === true;
@@ -352,34 +354,18 @@ function report(results, said) {
   return lines.join('\n');
 }
 
-/** The computer run's own door gives the settings row it names by id (the gate that runs this on their computer holds the id, not the row). */
-async function settingRecordOnTheirDoor(door, id) {
+/** The settings row a computer run names by id (the gate that runs this on their computer holds the id), found among the records handed in. */
+function settingRecordOf(records, id) {
   parseId(id);
-  const value = await door.read(RECORD_TYPE, id);
-  if (!value) throw new CheckRefusal(fill(WORDS.no_settings, { id }));
-  return { id, type: RECORD_TYPE, value };
-}
-
-/** The records door of a computer run: the person's door through their MCP client, or a stand-in seeded from a records file. */
-export async function openDoor({ mcp, records }) {
-  if (mcp) {
-    const { openStdioRecordsDoor } = await import('../../records-door/read-data/stdio-mcp-door.mjs');
-    return openStdioRecordsDoor({ argv: JSON.parse(mcp) });
-  }
-  const held = JSON.parse(readFileSync(records, 'utf8'));
-  const all = Array.isArray(held) ? held : held.records;
-  const matches = (record, where) => !where || Object.entries(where).every(([name, value]) => JSON.stringify(record.value?.[name]) === JSON.stringify(value));
-  return {
-    async read(type, id) { return all.find(record => record.type === type && record.id === id)?.value ?? null; },
-    async *list(query) { for (const record of all) if (record.type === query.type && matches(record, query.where)) yield record; },
-    write() { throw new Error('a film check writes nothing'); },
-  };
+  const record = recordOf(records, RECORD_TYPE, id);
+  if (!record) throw new CheckRefusal(fill(WORDS.no_settings, { id }));
+  return { id, type: RECORD_TYPE, value: record.value };
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   const args = process.argv.slice(2);
   const value = name => (args.includes(name) ? args[args.indexOf(name) + 1] : null);
-  const valueFlags = new Set(['--kind', '--branch', '--settings-record', '--door-mcp', '--door-records', '--decider', '--decider-python', '--decider-layer', '--json', '--report', '--reader', '--owner', '--context', '--stage', '--stands', '--artifact-kind', '--plan', '--root', '--reader-knowledge-python']);
+  const valueFlags = new Set(['--kind', '--branch', '--settings-record', '--records', '--decider', '--decider-python', '--decider-layer', '--json', '--report', '--reader', '--owner', '--context', '--stage', '--stands', '--artifact-kind', '--plan', '--root', '--reader-knowledge-python']);
   const boolFlags = new Set(['--no-model', '--quiet']);
   const files = [];
   for (let at = 0; at < args.length; at++) {
@@ -388,7 +374,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
     if (args[at].startsWith('--')) { console.error(`unknown option: ${args[at]}`); process.exit(2); }
     files.push(args[at]);
   }
-  if (!files.length || !value('--branch') || !value('--settings-record') || !(value('--door-mcp') || value('--door-records'))) { console.error('usage: node check-a-films-copy.mjs <file>... --branch B --settings-record ID (--door-mcp \'<argv JSON>\' | --door-records F) [--reader film|auto|sectioned-prose|cue-narration|json-words] [--owner DATA-ID] [--kind K] [--artifact-kind K] [--stage final|review] [--plan plan.json] [--root DIR] [--context context.json] [--stands stands.json] [--decider live|cache] [--decider-python P --decider-layer F] [--no-model] [--reader-knowledge-python P] [--json out] [--report out] [--quiet]'); process.exit(2); }
+  if (!files.length || !value('--branch') || !value('--settings-record') || !value('--records')) { console.error('usage: node check-a-films-copy.mjs <file>... --branch B --settings-record ID --records F [--reader film|auto|sectioned-prose|cue-narration|json-words] [--owner DATA-ID] [--kind K] [--artifact-kind K] [--stage final|review] [--plan plan.json] [--root DIR] [--context context.json] [--stands stands.json] [--decider live|cache] [--decider-python P --decider-layer F] [--no-model] [--reader-knowledge-python P] [--json out] [--report out] [--quiet]'); process.exit(2); }
   const reader = value('--reader') ?? 'film';
   const owner = value('--owner');
   const noModel = args.includes('--no-model');
@@ -408,9 +394,10 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   let selectedReader, ruleSet, coverage, verdictRules = null;
   try {
     if (argumentError) throw new Error(argumentError);
-    const door = await openDoor({ mcp: value('--door-mcp'), records: value('--door-records') });
-    readers = settingsFor(await settingRecordOnTheirDoor(door, value('--settings-record')));
-    const branch = await rulesOfBranch(door, value('--branch'));
+    const held = JSON.parse(readFileSync(value('--records'), 'utf8'));
+    const records = recordsHandedIn(Array.isArray(held) ? held : held.records);
+    readers = settingsFor(settingRecordOf(records, value('--settings-record')));
+    const branch = rulesOfBranch(records, value('--branch'));
     if (branch.verdict_rules) verdictRules = compileVerdictRules(branch.verdict_rules);
     selectedReader = value('--artifact-kind') ? { blake3: null } : readerProfile(readers, reader, owner);
     ruleSet = { rules: branch.rules, said: `rules: branch ${value('--branch')} (${branch.lineage.join(' <- ')}), ${branch.rules.length} rows${verdictRules ? ` + ${verdictRules.doc.rows.length} verdict rows` : ''}` };

@@ -1,6 +1,6 @@
 // tools/check-against-a-persons-rules-and-verdicts: one judge for every check, reading one check list by branch.
 // Made-up rows only: a made-up base, a made-up branch extending it, and a made-up grandchild carrying check_lists and
-// judge_settings, kept in an in-memory records door that counts its calls.
+// judge_settings, handed in as the records a run is given.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { BranchRefusal, checksOfBranch, lineageOf } from '../do-work/branch.mjs';
@@ -29,24 +29,13 @@ const checks = () => [
 ];
 const voiceRows = () => [{ id: 'no-blorp', kinds: ['title'], words: ['blorp'], says: 'Never blorp.' }];
 
-function memoryDoor({ methodRows = methods(), checkRows = checks(), lists = { 'list:made-up-voice': { row_type: 'writing-voice' } }, listRows = { 'writing-voice': voiceRows() } } = {}) {
-  const records = [
+function memoryRecords({ methodRows = methods(), checkRows = checks(), lists = { 'list:made-up-voice': { row_type: 'writing-voice' } }, listRows = { 'writing-voice': voiceRows() } } = {}) {
+  return [
     ...methodRows.map(value => ({ id: `record:check:${value.id}`, type: 'record:check', value: { kind: 'branch', ...value } })),
     ...checkRows.map(value => ({ id: `record:check:${value.id}`, type: 'record:check', value })),
     ...Object.entries(lists).map(([id, value]) => ({ id, type: 'list', value })),
     ...Object.entries(listRows).flatMap(([rowType, rows]) => rows.map(value => ({ id: `record:${rowType}:${value.id}`, type: `record:${rowType}`, value }))),
   ];
-  const calls = [];
-  const matches = (record, where) => !where || Object.entries(where).every(([name, value]) => JSON.stringify(record.value?.[name]) === JSON.stringify(value));
-  return {
-    calls,
-    async read(type, id) { calls.push({ op: 'read', type, id }); return records.find(record => record.type === type && record.id === id)?.value ?? null; },
-    async *list(query) {
-      calls.push({ op: 'list', ...query });
-      for (const record of records) if (record.type === query.type && matches(record, query.where)) yield record;
-    },
-    write() { throw new Error('the branch mode writes nothing'); },
-  };
 }
 
 test('a lineage is nearest first, up to the root, through part_of; an unknown id, an unknown parent or a cycle is refused', () => {
@@ -62,39 +51,34 @@ test('a lineage is nearest first, up to the root, through part_of; an unknown id
   assert.deepEqual(checksOfBranch([...checks(), { id: 'everyone' }], lineage, link).map(row => row.id), ['no-glitter', 'base-question', 'no-sparkle', 'no-wibble', 'everyone']);
 });
 
-// The fields a node's parent is read from: the link, then the old fields still read until the rows are rewritten.
-const LINK_FIELDS = [SETTINGS_OF_BRANCH.link_field, ...SETTINGS_OF_BRANCH.old_link_fields];
-
-test('the branch rows are read once from the Checks list, then each branch of the lineage with where { part_of } and each old field, never the whole list, and nothing is written', async () => {
-  const door = memoryDoor();
-  const { lineage, rows_used } = await rulesOfBranch(door, 'made-up-grandchild');
-  const checkCalls = door.calls.filter(call => call.type === 'record:check');
-  assert.deepEqual(checkCalls.map(call => call.where), [SETTINGS_OF_BRANCH.branch_where, ...lineage.flatMap(id => LINK_FIELDS.map(field => ({ [field]: id })))]);
-  assert.equal(checkCalls.length, 1 + 3 * LINK_FIELDS.length);
+test('the branch rows are found once among the records handed in, the branches of the lineage are read from them, and no record is changed', () => {
+  const records = memoryRecords();
+  const before = structuredClone(records);
+  const { lineage, rows_used } = rulesOfBranch(records, 'made-up-grandchild');
+  assert.deepEqual(lineage, ['made-up-grandchild', 'made-up-branch', 'made-up-base']);
   // made-up-base holds two branches below it (made-up-branch, made-up-other) and made-up-branch one (made-up-grandchild).
   assert.deepEqual(rows_used, { branches: { 'made-up-grandchild': 1, 'made-up-branch': 3, 'made-up-base': 4 }, lists: { 'list:made-up-voice': 1 }, skipped: { branch: 3, step: 1, off: 1, no_test: 0 } });
-  assert.equal(door.calls.length, 1 + 3 * LINK_FIELDS.length + 2, 'the branches once, each branch\'s rows once a link field, the list record and its rows once');
-  assert.ok(!door.calls.some(call => call.type === 'record:method'), 'no Methods list is read: the branches are nodes of the one Checks list');
+  assert.deepEqual(records, before, 'the records are read, never changed');
 });
 
 test('a step row never reaches makeJudge and an Off row is not judged', async () => {
-  const { rules, verdict_rules } = await rulesOfBranch(memoryDoor(), 'made-up-grandchild');
+  const { rules, verdict_rules } = rulesOfBranch(memoryRecords(), 'made-up-grandchild');
   const ids = [...rules, ...verdict_rules.rows].map(row => row.id);
   assert.ok(!ids.includes('base-question'));
   assert.ok(!ids.includes('no-wibble'));
   assert.throws(() => makeJudge([checks().find(row => row.step)]), /names the check/, 'the step row would break the judge');
   // Judged whole: a question row's check would be refused by judge-words as an unknown check, so this run proves it never got there.
-  const answer = await checkABranch({ branch: 'made-up-grandchild', units: [{ text: 'A wibble of things', kind: 'title' }], stage: 'review' }, memoryDoor());
+  const answer = checkABranch({ branch: 'made-up-grandchild', units: [{ text: 'A wibble of things', kind: 'title' }], stage: 'review' }, memoryRecords());
   assert.ok(!answer.results.flatMap(result => result.breaks).some(item => item.rule === 'no-wibble'));
 });
 
 test('the rows of the grandchild and of its check_lists are verdict rows under its judge_settings; inherited rows are generic rules', async () => {
-  const { rules, verdict_rules } = await rulesOfBranch(memoryDoor(), 'made-up-grandchild');
+  const { rules, verdict_rules } = rulesOfBranch(memoryRecords(), 'made-up-grandchild');
   assert.deepEqual(verdict_rules.rows.map(row => row.id), ['no-zorblax', 'no-blorp']);
   assert.deepEqual(rules.map(row => row.id), ['no-sparkle', 'no-glitter']);
   assert.equal(verdict_rules.kept_at, 'made-up-place');
   assert.equal(verdict_rules.stance_rule, 'their-stance');
-  const answer = await checkABranch({ branch: 'made-up-grandchild', units: [{ text: 'Blorp', kind: 'title' }] }, memoryDoor());
+  const answer = checkABranch({ branch: 'made-up-grandchild', units: [{ text: 'Blorp', kind: 'title' }] }, memoryRecords());
   assert.equal(answer.status, 'failed');
   assert.deepEqual(answer.results[0].breaks.map(item => item.rule), ['no-blorp']);
   assert.deepEqual(answer.lineage, ['made-up-grandchild', 'made-up-branch', 'made-up-base']);
@@ -102,37 +86,38 @@ test('the rows of the grandchild and of its check_lists are verdict rows under i
 });
 
 test('a branch with no judge_settings judges every row of its lineage as a generic rule, and leaves out other branches', async () => {
-  const { rules, verdict_rules, lineage } = await rulesOfBranch(memoryDoor(), 'made-up-branch');
+  const { rules, verdict_rules, lineage } = rulesOfBranch(memoryRecords(), 'made-up-branch');
   assert.equal(verdict_rules, null);
   assert.deepEqual(lineage, ['made-up-branch', 'made-up-base']);
   assert.deepEqual(rules.map(row => row.id), ['no-sparkle', 'no-glitter']);
-  const answer = await checkABranch({ branch: 'made-up-branch', units: [{ text: 'Sparkle and frobnicate', kind: 'line' }] }, memoryDoor());
+  const answer = checkABranch({ branch: 'made-up-branch', units: [{ text: 'Sparkle and frobnicate', kind: 'line' }] }, memoryRecords());
   assert.deepEqual(answer.results[0].breaks.map(item => item.rule), ['no-sparkle']);
 });
 
 test('the nearest branch row wins over an inherited row with the same id', async () => {
   const rows = [...checks(), { id: 'no-sparkle', part_of: 'made-up-grandchild', kinds: ['title'], words: ['shimmer'], says: 'No shimmer here.' }];
-  const { rules, verdict_rules } = await rulesOfBranch(memoryDoor({ checkRows: rows }), 'made-up-grandchild');
+  const { rules, verdict_rules } = rulesOfBranch(memoryRecords({ checkRows: rows }), 'made-up-grandchild');
   assert.deepEqual(verdict_rules.rows.find(row => row.id === 'no-sparkle').words, ['shimmer']);
   assert.ok(!rules.some(row => row.id === 'no-sparkle'));
 });
 
 test('an unknown branch, a missing check list, a list of another row type, and rules beside a branch are refused', async () => {
-  await assert.rejects(rulesOfBranch(memoryDoor(), 'made-up-nowhere'), /no branch made-up-nowhere/);
-  await assert.rejects(rulesOfBranch(memoryDoor(), ''), /branch must be/);
-  await assert.rejects(rulesOfBranch(memoryDoor({ lists: {} }), 'made-up-grandchild'), /names the check list list:made-up-voice, which is not/);
-  await assert.rejects(rulesOfBranch(memoryDoor({ lists: { 'list:made-up-voice': { row_type: 'made-up-secret' } } }), 'made-up-grandchild'), /rows are made-up-secret/);
-  await assert.rejects(rulesOfBranch(memoryDoor({ methodRows: [] }), 'made-up-base'), /no branch rows/);
-  await assert.rejects(rulesOfBranch(memoryDoor({ checkRows: [] }), 'made-up-base'), /has no check rows/);
-  await assert.rejects(checkABranch({ branch: 'made-up-base', rules: [{ id: 'x', words: ['x'] }], units: [{ text: 'x', kind: 'line' }] }, memoryDoor()), /not both/);
+  assert.throws(() => rulesOfBranch(memoryRecords(), 'made-up-nowhere'), /no branch made-up-nowhere/);
+  assert.throws(() => rulesOfBranch(memoryRecords(), ''), /branch must be/);
+  assert.throws(() => rulesOfBranch(memoryRecords({ lists: {} }), 'made-up-grandchild'), /names the check list list:made-up-voice, which is not/);
+  assert.throws(() => rulesOfBranch(memoryRecords({ lists: { 'list:made-up-voice': { row_type: 'made-up-secret' } } }), 'made-up-grandchild'), /rows are made-up-secret/);
+  assert.throws(() => rulesOfBranch(memoryRecords({ methodRows: [] }), 'made-up-base'), /no branch rows/);
+  assert.throws(() => rulesOfBranch(memoryRecords({ checkRows: [] }), 'made-up-base'), /has no check rows/);
+  assert.throws(() => checkABranch({ branch: 'made-up-base', rules: [{ id: 'x', words: ['x'] }], units: [{ text: 'x', kind: 'line' }] }, memoryRecords()), /not both/);
 });
 
-test('the row is given, and only reads, the Checks list (its branches among its rows), lists and every check list row type it allows', () => {
+test('the rows declare no store right: their records are given as input, and each row names only what it reads', () => {
   const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
-  const rights = rows.find(row => row.id === 'tool:check-against-a-persons-rules-and-verdicts').stored;
-  const kinds = [SETTINGS_OF_BRANCH.check_type, ...SETTINGS_OF_BRANCH.check_list_row_types.map(type => `record:${type}`)];
-  assert.deepEqual(rights.map(right => right.kind).sort(), [...kinds, SETTINGS_OF_BRANCH.list_type].sort());
-  for (const right of rights) assert.deepEqual(right.operations, right.kind === SETTINGS_OF_BRANCH.list_type ? ['records:read'] : ['records:list']);
+  for (const id of ['tool:check-against-a-persons-rules-and-verdicts', 'tool:check-a-films-copy']) {
+    const row = rows.find(item => item.id === id);
+    assert.equal(row.stored, undefined, `${id} reads no store`);
+    assert.equal(row.input_schema.properties.records.type, 'array', `${id} is given its records`);
+  }
 });
 
 // A made-up row that states no test but says something, with the made-up words it is about.
@@ -144,8 +129,8 @@ test('a row that states no test but says something becomes a reading row; a piec
   const silent = { id: 'made-up-silent', part_of: 'made-up-branch', says: '  ', tags: ['made-up'] };
   const piece = { id: 'piece-000000000000000000000000', kind: 'piece', part_of: 'made-up-base', says: 'Made-up lead', text: 'Made-up lead text.', tags: [], kinds: [], checked_by: [] };
   assert.throws(() => makeJudge([noTest]), /needs words/, 'the row would refuse the whole branch if it reached makeJudge');
-  const door = memoryDoor({ checkRows: [...checks(), noTest, silent, piece] });
-  const { rules, rows_used, read_by_a_model } = await rulesOfBranch(door, 'made-up-branch');
+  const records = memoryRecords({ checkRows: [...checks(), noTest, silent, piece] });
+  const { rules, rows_used, read_by_a_model } = rulesOfBranch(records, 'made-up-branch');
   assert.deepEqual(rules.map(row => row.id), ['made-up-belief', 'no-sparkle', 'no-glitter']);
   assert.equal(rows_used.skipped.no_test, 2, 'only the piece and the row with no words are skipped');
   assert.deepEqual(read_by_a_model, { rows: [{ id: 'made-up-belief', says: 'A made-up belief with no test to run.' }], more: 0, settings_from: null });
@@ -156,7 +141,7 @@ test('a row that states no test but says something becomes a reading row; a piec
   assert.equal(reading.ask.fail, SETTINGS_OF_BRANCH.reading.fail);
   assert.deepEqual(reading.ask.options, SETTINGS_OF_BRANCH.reading.options);
   assert.ok(reading.ask.question.includes('A made-up belief with no test to run.'));
-  const answer = await checkABranch({ branch: 'made-up-branch', units: [{ text: 'Sparkle', kind: 'line' }] }, memoryDoor({ checkRows: [...checks(), noTest] }));
+  const answer = checkABranch({ branch: 'made-up-branch', units: [{ text: 'Sparkle', kind: 'line' }] }, memoryRecords({ checkRows: [...checks(), noTest] }));
   assert.equal(answer.status, 'failed');
   assert.deepEqual(answer.read_by_a_model.rows.map(row => row.id), ['made-up-belief']);
 });
@@ -180,15 +165,15 @@ test('a reading row\'s question is made from read-data/branch.json: each string 
 test('the nearest branch\'s reading_settings give every reading row of its lineage their calibration and model', async () => {
   const methodRows = methods().map(row => (row.id === 'made-up-branch' ? { ...row, reading_settings: CALIBRATED }
     : row.id === 'made-up-base' ? { ...row, reading_settings: { calibration: { status: 'unseparable' } } } : row));
-  const door = memoryDoor({ methodRows, checkRows: [...checks(), noted('made-up-a', 'made-up-base'), noted('made-up-b', 'made-up-branch')] });
-  const { rules, read_by_a_model } = await rulesOfBranch(door, 'made-up-branch');
+  const records = memoryRecords({ methodRows, checkRows: [...checks(), noted('made-up-a', 'made-up-base'), noted('made-up-b', 'made-up-branch')] });
+  const { rules, read_by_a_model } = rulesOfBranch(records, 'made-up-branch');
   assert.equal(read_by_a_model.settings_from, 'made-up-branch');
   for (const id of ['made-up-a', 'made-up-b']) {
     const ask = rules.find(row => row.id === id).ask;
     assert.deepEqual(ask.calibration, CALIBRATED.calibration);
     assert.deepEqual(ask.model, CALIBRATED.model);
   }
-  const base = await rulesOfBranch(memoryDoor({ methodRows, checkRows: [noted('made-up-a', 'made-up-base')] }), 'made-up-base');
+  const base = rulesOfBranch(memoryRecords({ methodRows, checkRows: [noted('made-up-a', 'made-up-base')] }), 'made-up-base');
   assert.equal(base.read_by_a_model.settings_from, 'made-up-base');
   assert.equal(base.rules[0].ask.calibration.status, 'unseparable');
 });
@@ -197,47 +182,47 @@ test('reading rows are asked once a unit, never once a sentence, and no unit pas
   const rows = [noted('made-up-a', 'made-up-base'), noted('made-up-b', 'made-up-base'), noted('made-up-c', 'made-up-base')];
   const units = [{ text: 'One made-up sentence. Two made-up sentences. Three.', kind: 'line' }, { text: 'Another made-up unit.', kind: 'line' }];
   // Uncalibrated: every question is asked, and the units are uncertain, never passed, whatever the answers say.
-  const bare = await checkABranch({ branch: 'made-up-base', units }, memoryDoor({ checkRows: rows }));
+  const bare = checkABranch({ branch: 'made-up-base', units }, memoryRecords({ checkRows: rows }));
   const askedIds = answer => answer.questions.flatMap(entry => entry.asked.map(question => question.id));
   assert.equal(askedIds(bare).length, rows.length * units.length, 'one question a reading row a unit');
   assert.deepEqual(bare.questions.map(entry => entry.rule), rows.map(row => row.id), 'one entry a rule, the ask said once');
   assert.ok(bare.questions.every(entry => entry.asked.every(question => question.text === undefined)), 'a question about the whole unit carries no copy of its text');
   const allPass = Object.fromEntries(askedIds(bare).map(id => [id, { yes: 0.01 }]));
-  const uncalibrated = await checkABranch({ branch: 'made-up-base', units, answers: allPass }, memoryDoor({ checkRows: rows }));
+  const uncalibrated = checkABranch({ branch: 'made-up-base', units, answers: allPass }, memoryRecords({ checkRows: rows }));
   assert.equal(uncalibrated.status, 'uncertain');
   assert.ok(uncalibrated.results.every(result => result.uncertain.some(finding => finding.qualified === false && finding.rule === 'reading-questions-unsettled' && finding.count === rows.length)));
   // Calibrated: unanswered is uncertain, low answers pass, one answer at or over t_fail fails the unit on that row.
   const methodRows = methods().map(row => (row.id === 'made-up-base' ? { ...row, reading_settings: CALIBRATED } : row));
-  const door = () => memoryDoor({ methodRows, checkRows: rows });
-  const asked = await checkABranch({ branch: 'made-up-base', units }, door());
+  const records = () => memoryRecords({ methodRows, checkRows: rows });
+  const asked = checkABranch({ branch: 'made-up-base', units }, records());
   assert.equal(asked.status, 'uncertain');
   assert.equal(asked.ask_all.model.name, 'made-up-model', 'the model every rule has is said once');
   assert.ok(asked.questions.every(entry => entry.model === undefined));
-  const passed = await checkABranch({ branch: 'made-up-base', units, answers: allPass }, door());
+  const passed = checkABranch({ branch: 'made-up-base', units, answers: allPass }, records());
   assert.equal(passed.status, 'passed');
   const oneBad = { ...allPass, [asked.questions.find(entry => entry.rule === 'made-up-b').asked.find(question => question.id.startsWith('0:')).id]: { yes: 0.93 } };
-  const failed = await checkABranch({ branch: 'made-up-base', units, answers: oneBad }, door());
+  const failed = checkABranch({ branch: 'made-up-base', units, answers: oneBad }, records());
   assert.equal(failed.status, 'failed');
   assert.deepEqual(failed.results[0].breaks.map(finding => [finding.rule, finding.p_fail]), [['made-up-b', 0.93]]);
   assert.equal(failed.results[1].verdict, 'pass');
   const missing = Object.fromEntries(Object.entries(allPass).slice(1));
-  assert.equal((await checkABranch({ branch: 'made-up-base', units, answers: missing }, door())).status, 'uncertain');
+  assert.equal((checkABranch({ branch: 'made-up-base', units, answers: missing }, records())).status, 'uncertain');
 });
 
 test('reading rows under judge_settings are the person\'s reading rows, asked once a unit', async () => {
   const methodRows = methods().map(row => (row.id === 'made-up-grandchild' ? { ...row, reading_settings: CALIBRATED } : row));
-  const door = memoryDoor({ methodRows, checkRows: [...checks(), noted('made-up-own', 'made-up-grandchild')] });
-  const { verdict_rules } = await rulesOfBranch(door, 'made-up-grandchild');
+  const records = memoryRecords({ methodRows, checkRows: [...checks(), noted('made-up-own', 'made-up-grandchild')] });
+  const { verdict_rules } = rulesOfBranch(records, 'made-up-grandchild');
   assert.ok(verdict_rules.rows.some(row => row.id === 'made-up-own' && row.ask.per === 'unit'));
   const unit = { text: 'A made-up title. With two sentences.', kind: 'title' };
-  const answer = await checkABranch({ branch: 'made-up-grandchild', units: [unit] }, memoryDoor({ methodRows, checkRows: [...checks(), noted('made-up-own', 'made-up-grandchild')] }));
+  const answer = checkABranch({ branch: 'made-up-grandchild', units: [unit] }, memoryRecords({ methodRows, checkRows: [...checks(), noted('made-up-own', 'made-up-grandchild')] }));
   assert.deepEqual(answer.questions.map(entry => [entry.rule, entry.asked.map(question => question.id)]), [['made-up-own', ['0:made-up-own:0']]]);
 });
 
 test('a row with ask or part states its test and is not skipped', async () => {
   const asks = { id: 'made-up-ask', part_of: 'made-up-base', says: 'Reads oddly.', ask: { question: 'Does it read oddly?', options: ['yes', 'no'], fail: 'yes' } };
   const part = { id: 'made-up-part', part_of: 'made-up-base', says: 'Read the voice.', part: { kind: 'voice' } };
-  const { rules, rows_used } = await rulesOfBranch(memoryDoor({ checkRows: [asks, part] }), 'made-up-base');
+  const { rules, rows_used } = rulesOfBranch(memoryRecords({ checkRows: [asks, part] }), 'made-up-base');
   assert.deepEqual(rules.map(row => row.id), ['made-up-ask', 'made-up-part']);
   assert.equal(rows_used.skipped.no_test, 0);
 });
@@ -245,7 +230,7 @@ test('a row with ask or part states its test and is not skipped', async () => {
 test('a branch with only rows that neither state a test nor say anything answers no-applicable-rule, never a refusal; its list of reading rows is bounded', async () => {
   const most = SETTINGS_OF_BRANCH.read_by_a_model_at_most;
   const silent = Array.from({ length: 4 }, (_, at) => ({ id: `made-up-silent-${at}`, part_of: 'made-up-base', tags: ['made-up'] }));
-  const answer = await checkABranch({ branch: 'made-up-base', units: [{ text: 'Anything', kind: 'line' }] }, memoryDoor({ checkRows: silent }));
+  const answer = checkABranch({ branch: 'made-up-base', units: [{ text: 'Anything', kind: 'line' }] }, memoryRecords({ checkRows: silent }));
   assert.equal(answer.status, 'no-applicable-rule');
   assert.equal(answer.passed, false);
   assert.deepEqual(answer.results, []);
@@ -253,14 +238,14 @@ test('a branch with only rows that neither state a test nor say anything answers
   assert.deepEqual(answer.read_by_a_model, { rows: [], more: 0, settings_from: null });
   assert.match(answer.lines[0], /no row that states a test or says anything/);
   const many = Array.from({ length: most + 3 }, (_, at) => noted(`made-up-note-${String(at).padStart(3, '0')}`, 'made-up-base'));
-  const read = await checkABranch({ branch: 'made-up-base', units: [{ text: 'Anything', kind: 'line' }] }, memoryDoor({ checkRows: many }));
+  const read = checkABranch({ branch: 'made-up-base', units: [{ text: 'Anything', kind: 'line' }] }, memoryRecords({ checkRows: many }));
   assert.equal(read.status, 'uncertain');
   assert.equal(read.rows_used.skipped.no_test, 0);
   assert.equal(read.read_by_a_model.rows.length, most);
   assert.equal(read.read_by_a_model.more, 3);
   assert.equal(read.questions.length, most + 3);
   // A branch with no rows at all is still refused: there is nothing to read either.
-  await assert.rejects(rulesOfBranch(memoryDoor({ checkRows: [] }), 'made-up-base'), /has no check rows/);
+  assert.throws(() => rulesOfBranch(memoryRecords({ checkRows: [] }), 'made-up-base'), /has no check rows/);
 });
 
 test('a piece row from pieceRow, in a branch with one word row, never reaches makeJudge, and the branch judges the word row', async () => {
@@ -271,19 +256,19 @@ test('a piece row from pieceRow, in a branch with one word row, never reaches ma
   const { tags, ...untagged } = piece;
   assert.throws(() => makeJudge([word, { ...untagged, kind: undefined, groups: tags }]), /groups/);
   // A piece names no selector, so it is not a test, and it is never read by a model as a rule.
-  const { rules, rows_used, read_by_a_model } = await rulesOfBranch(memoryDoor({ checkRows: [word, piece] }), 'made-up-base');
+  const { rules, rows_used, read_by_a_model } = rulesOfBranch(memoryRecords({ checkRows: [word, piece] }), 'made-up-base');
   assert.deepEqual(rules.map(rule => rule.id), ['no-glitter']);
   assert.equal(rows_used.skipped.no_test, 1);
   assert.deepEqual(read_by_a_model.rows, [], 'a piece is never a reading row');
   // Without its kind it is a row that says something, so it is read, never judged by makeJudge.
-  const unkinded = await rulesOfBranch(memoryDoor({ checkRows: [word, { ...piece, kind: undefined }] }), 'made-up-base');
+  const unkinded = rulesOfBranch(memoryRecords({ checkRows: [word, { ...piece, kind: undefined }] }), 'made-up-base');
   assert.deepEqual(unkinded.rules.map(rule => [rule.id, rule.ask?.per ?? null]), [['no-glitter', null], [piece.id, 'unit']].sort((a, b) => (a[0] < b[0] ? -1 : 1)));
   assert.equal(unkinded.rows_used.skipped.no_test, 0);
-  const door = memoryDoor({ checkRows: [word, piece] });
-  const failed = await checkABranch({ branch: 'made-up-base', units: [{ text: 'Made-up glitter', kind: 'line' }] }, door);
+  const records = memoryRecords({ checkRows: [word, piece] });
+  const failed = checkABranch({ branch: 'made-up-base', units: [{ text: 'Made-up glitter', kind: 'line' }] }, records);
   assert.equal(failed.status, 'failed');
   assert.ok(failed.results.some(result => result.rule === 'no-glitter' || JSON.stringify(result).includes('no-glitter')));
-  const passed = await checkABranch({ branch: 'made-up-base', units: [{ text: 'Made-up plain words', kind: 'line' }] }, door);
+  const passed = checkABranch({ branch: 'made-up-base', units: [{ text: 'Made-up plain words', kind: 'line' }] }, records);
   assert.notEqual(passed.status, 'failed');
 });
 
@@ -309,18 +294,16 @@ test('a link kept as a list: the lineage follows its one parent, a leaf belongs 
   assert.deepEqual(checksOfBranch(rows, lineage, link).map(row => row.id), ['no-glitter', 'base-question', 'no-sparkle', 'no-wibble', 'everyone', 'shared']);
 });
 
-test('the branch mode judges branches whose part_of is a list, asking the door where { part_of: [id] } as the rows keep it', async () => {
-  const door = memoryDoor({ methodRows: listed(methods()), checkRows: listed(checks()) });
-  const { lineage, rows_used } = await rulesOfBranch(door, 'made-up-grandchild');
+test('the branch mode judges branches whose part_of is a list, as the rows keep it', () => {
+  const records = memoryRecords({ methodRows: listed(methods()), checkRows: listed(checks()) });
+  const { lineage, rows_used } = rulesOfBranch(records, 'made-up-grandchild');
   assert.deepEqual(lineage, ['made-up-grandchild', 'made-up-branch', 'made-up-base']);
-  const checkCalls = door.calls.filter(call => call.type === 'record:check');
-  assert.deepEqual(checkCalls.slice(1).filter(call => 'part_of' in call.where).map(call => call.where), lineage.map(id => ({ part_of: [id] })));
   assert.deepEqual(rows_used.branches, { 'made-up-grandchild': 1, 'made-up-branch': 3, 'made-up-base': 4 });
 });
 
 test('the branch mode refuses a branch whose part_of names two branches', async () => {
   const methodRows = listed(methods()).map(row => (row.id === 'made-up-grandchild' ? { ...row, part_of: ['made-up-branch', 'made-up-other'] } : row));
-  await assert.rejects(rulesOfBranch(memoryDoor({ methodRows, checkRows: listed(checks()) }), 'made-up-grandchild'), /made-up-branch and made-up-other/);
+  assert.throws(() => rulesOfBranch(memoryRecords({ methodRows, checkRows: listed(checks()) }), 'made-up-grandchild'), /made-up-branch and made-up-other/);
 });
 
 // Rows not yet rewritten: a branch names its parent in `extends`, a leaf its branch in `method` (read-data/branch.json old_link_fields).
@@ -329,8 +312,8 @@ test('old rows still read: a lineage through extends, leaves through method, the
   const oldChecks = checks().map(({ part_of, ...row }) => ({ ...row, method: part_of }));
   const link = [SETTINGS_OF_BRANCH.link_field, ...SETTINGS_OF_BRANCH.old_link_fields];
   assert.deepEqual(lineageOf(oldMethods, 'made-up-grandchild', link), ['made-up-grandchild', 'made-up-branch', 'made-up-base']);
-  const now = await rulesOfBranch(memoryDoor(), 'made-up-grandchild');
-  const then = await rulesOfBranch(memoryDoor({ methodRows: oldMethods, checkRows: oldChecks }), 'made-up-grandchild');
+  const now = rulesOfBranch(memoryRecords(), 'made-up-grandchild');
+  const then = rulesOfBranch(memoryRecords({ methodRows: oldMethods, checkRows: oldChecks }), 'made-up-grandchild');
   assert.deepEqual(then.lineage, now.lineage);
   assert.deepEqual(then.rows_used, now.rows_used);
   assert.deepEqual(then.rules.map(row => row.id), now.rules.map(row => row.id));
@@ -346,13 +329,13 @@ test('a row rewritten to part_of wins over its stale method; a branch is never a
     { id: 'a-piece', kind: SETTINGS_OF_BRANCH.piece_kind, part_of: 'made-up-branch', on: SETTINGS_OF_BRANCH.off, says: 'a piece of a file' },
     { id: 'old-piece', kind: SETTINGS_OF_BRANCH.piece_kind, method: 'made-up-branch', on: SETTINGS_OF_BRANCH.off, says: 'an old piece' },
   ];
-  const { rules, verdict_rules, rows_used, read_by_a_model } = await rulesOfBranch(memoryDoor({ checkRows }), 'made-up-grandchild');
+  const { rules, verdict_rules, rows_used, read_by_a_model } = rulesOfBranch(memoryRecords({ checkRows }), 'made-up-grandchild');
   const judged = [...rules, ...verdict_rules.rows];
   assert.ok(!judged.some(row => row.id === 'moved'), 'its part_of names another branch');
   assert.ok(!judged.some(row => row.kind === 'branch' || methods().some(branch => branch.id === row.id)), 'no branch row is a rule');
   assert.ok(!judged.some(row => row.id === 'a-piece' || row.id === 'old-piece'), 'no piece is judged');
   assert.ok(!read_by_a_model.rows.some(row => row.kind === SETTINGS_OF_BRANCH.piece_kind));
   assert.equal(rows_used.skipped.off, 3, 'no-wibble and the two pieces');
-  const other = await rulesOfBranch(memoryDoor({ checkRows }), 'made-up-other');
+  const other = rulesOfBranch(memoryRecords({ checkRows }), 'made-up-other');
   assert.ok(other.rules.some(row => row.id === 'moved'));
 });
