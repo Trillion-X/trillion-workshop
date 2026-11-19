@@ -378,6 +378,11 @@
     "provenance": {
      "source": "trillion src/tell-the-person.mjs handleTellRequest 'GET /tell/notices' (recent, forDevice), tag old-trillion-before-worker-retire, moved here as read-data/tell-the-person.mjs"
     },
+    "stored": [
+     {
+      "kind": "told-the-person"
+     }
+    ],
     "verify": [
      {
       "kind": "sample-run",
