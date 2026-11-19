@@ -1,0 +1,112 @@
+{
+  "what_this_is": "The rules of doing a task, as DATA read by task-moves.mjs. A task is one record of kind `task_kind`, the same row the task lists show (calendar-tasks.json). Who may do it is the task's `assignees`: a list of record ids of anyone, a person, an AI, a workflow or anything else that has a record; an empty list or none means anyone may take it. Nothing here asks what kind of thing an id names. A task's `status` is one of `states`, and it changes only by a declared `transitions` row: { action, from, to, when, set, clear }. `when` is a condition of tools/move-records-through-declared-states (all, any, equals, at_least, at_most, absent) over the signals of the call: `is_taker` (the task's taken_by is the caller), `is_sender` (the task's sent_by is the caller), `is_assignee` (the caller is one of its assignees), `addressed_to_me` (it names no assignees, or names the caller), `is_continuation_owner`, `is_releaser`, `resume_due` and `taken_minutes` (minutes since the task was taken; absent when it is not). A row with no `when` holds for everyone: anyone may say a task they watch is stuck, or clear that, and the note keeps who said it and when. Handing a task on (human to AI to human, or any other way) is the `hand-on` move: it changes the assignees and gives the task back to waiting, nothing more. `read_as` maps a stored status word that is not a state to the declared state it means, so the rules, listings and counts read it as that state; a move to the state it is already in keeps its stored word, and any other move writes the declared state. The first row of the action from the task's status whose condition holds is the move. `set` names the fields the move writes, each from `as` (the caller's id), `now` (the time of the call), `input` (a field of the request), `job` (a field of the task as it was) or `note` ({ by, at, words }: the caller, the time and a field of the request), `required` when the move needs that field and `most_chars` its longest (else `limits.words_chars`), and `clear` the fields it removes. Every move is one write of the whole task conditioned on the value just read (`expected`), so of two callers who read the same task only the first changes it. `remove_when` says who may delete a task, with the signal `terminal` too. `take_order` sorts the waiting tasks a caller may take, first row first: a row with `rank` sorts by the place of the value in that list (first is taken first), else by `direction`; `take_tries` is how many of them one take tries when someone else wins the one it tried. `most_tasks_read` and `most_people_read` bound one call's reads, `tasks_shown` how many tasks a listing answers, and `live_minutes_default` how long after it was last seen someone counts as live when their record names no minutes. Change a rule here, not in code: the stale-take time is the `taken_minutes` value of the take and release rows.",
+  "task_kind": "calendar-task",
+  "start": "To do",
+  "states": [
+    {"key": "To do", "label": "Waiting for someone to take it"},
+    {"key": "In progress", "label": "Someone is doing it"},
+    {"key": "Waiting", "label": "Waiting for an owned recovery action"},
+    {"key": "Done", "label": "Done", "terminal": true},
+    {"key": "Broken", "label": "Could not be done", "terminal": true},
+    {"key": "Not needed", "label": "Taken back by whoever gave it", "terminal": true}
+  ],
+  "read_as": { "Not started": "To do", "Blocked": "Waiting" },
+  "transitions": [
+    {
+      "action": "take", "from": "To do", "to": "In progress",
+      "when": {"kind":"group","combinator":"and","negate":false,"rules":[{"kind":"rule","field":"addressed_to_me","operator":"equals","params":{"value":true}},{"kind":"rule","field":"resume_due","operator":"equals","params":{"value":true}}]},
+      "set": {"taken_by": {"from": "as"}, "taken_at": {"from": "now"}},
+      "clear": ["stuck", "released"]
+    },
+    {
+      "action": "take", "from": "In progress", "to": "In progress",
+      "when": {"kind":"group","combinator":"and","negate":false,"rules":[{"kind":"rule","field":"addressed_to_me","operator":"equals","params":{"value":true}},{"kind":"rule","field":"taken_minutes","operator":"at_least","params":{"value":120}}]},
+      "set": {"taken_by": {"from": "as"}, "taken_at": {"from": "now"}},
+      "clear": ["stuck", "released"]
+    },
+    {
+      "action": "release", "from": "In progress", "to": "To do",
+      "when": {"kind":"group","combinator":"or","negate":false,"rules":[{"kind":"rule","field":"is_taker","operator":"equals","params":{"value":true}},{"kind":"rule","field":"taken_minutes","operator":"at_least","params":{"value":120}}]},
+      "set": {"released": {"from": "note", "field": "because"}, "continuation": {"from": "input", "field": "continuation", "format": "continuation"}, "released_taken_at": {"from": "job", "field": "taken_at"}},
+      "clear": ["taken_by", "taken_at", "stuck"]
+    },
+    {
+      "action": "hand-on", "from": "In progress", "to": "To do",
+      "when": {"kind":"group","combinator":"and","negate":false,"rules":[{"kind":"rule","field":"is_taker","operator":"equals","params":{"value":true}}]},
+      "set": {"assignees": {"from": "input", "field": "assignees", "required": true, "format": "assignees"}, "handed_on": {"from": "note", "field": "because"}, "released_taken_at": {"from": "job", "field": "taken_at"}},
+      "clear": ["taken_by", "taken_at", "stuck", "continuation"]
+    },
+    {
+      "action": "hand-on", "from": "To do", "to": "To do",
+      "when": {"kind":"group","combinator":"or","negate":false,"rules":[{"kind":"rule","field":"is_sender","operator":"equals","params":{"value":true}},{"kind":"rule","field":"is_assignee","operator":"equals","params":{"value":true}}]},
+      "set": {"assignees": {"from": "input", "field": "assignees", "required": true, "format": "assignees"}, "handed_on": {"from": "note", "field": "because"}},
+      "clear": ["released", "released_taken_at"]
+    },
+    {
+      "action": "finish", "from": "In progress", "to": "Done",
+      "when": {"kind":"group","combinator":"and","negate":false,"rules":[{"kind":"rule","field":"is_taker","operator":"equals","params":{"value":true}}]},
+      "set": {"result": {"from": "input", "field": "result", "required": true, "most_chars": 60000}, "summary": {"from": "input", "field": "summary"}, "finished_at": {"from": "now"}, "finished_by": {"from": "as"}, "check": {"from": "input", "field": "check", "required": true, "format": "check"}},
+      "clear": ["stuck", "continuation"]
+    },
+    {
+      "action": "fail", "from": "In progress", "to": "Broken",
+      "when": {"kind":"group","combinator":"and","negate":false,"rules":[{"kind":"rule","field":"is_taker","operator":"equals","params":{"value":true}}]},
+      "set": {"result": {"from": "input", "field": "result", "required": true, "most_chars": 60000}, "summary": {"from": "input", "field": "summary"}, "finished_at": {"from": "now"}, "finished_by": {"from": "as"}},
+      "clear": ["stuck"]
+    },
+    {
+      "action": "stuck", "from": "In progress", "to": "In progress",
+      "set": { "stuck": { "from": "note", "field": "words", "required": true } },
+      "clear": []
+    },
+    {
+      "action": "unstuck", "from": "In progress", "to": "In progress",
+      "set": {},
+      "clear": ["stuck"]
+    },
+    {
+      "action": "withdraw", "from": "To do", "to": "Not needed",
+      "when": {"kind":"group","combinator":"and","negate":false,"rules":[{"kind":"rule","field":"is_sender","operator":"equals","params":{"value":true}}]},
+      "set": {"withdrawn": {"from": "note", "field": "because"}},
+      "clear": []
+    },
+    {
+      "action": "wait", "from": "In progress", "to": "Waiting",
+      "when": {"kind":"group","combinator":"and","negate":false,"rules":[{"kind":"rule","field":"is_taker","operator":"equals","params":{"value":true}}]},
+      "set": {"continuation": {"from": "input", "field": "continuation", "required": true, "format": "continuation"}},
+      "clear": ["stuck"]
+    },
+    {
+      "action": "resume", "from": "Waiting", "to": "To do",
+      "when": {"kind":"group","combinator":"and","negate":false,"rules":[{"kind":"rule","field":"resume_due","operator":"equals","params":{"value":true}},{"kind":"group","combinator":"or","negate":false,"rules":[{"kind":"rule","field":"is_taker","operator":"equals","params":{"value":true}},{"kind":"rule","field":"is_sender","operator":"equals","params":{"value":true}},{"kind":"rule","field":"is_continuation_owner","operator":"equals","params":{"value":true}}]}]},
+      "set": {"resumed": {"from": "note", "field": "because", "required": true}},
+      "clear": ["taken_by", "taken_at", "stuck"]
+    },
+    {
+      "action": "withdraw", "from": "Waiting", "to": "Not needed",
+      "when": {"kind":"group","combinator":"and","negate":false,"rules":[{"kind":"rule","field":"is_sender","operator":"equals","params":{"value":true}}]},
+      "set": {"withdrawn": {"from": "note", "field": "because"}},
+      "clear": ["continuation"]
+    },
+    {"action": "edit", "from": "To do", "to": "To do", "when": {"kind":"group","combinator":"and","negate":false,"rules":[{"kind":"rule","field":"is_sender","operator":"equals","params":{"value":true}}]}, "needs_any": ["description", "outcome", "title", "source", "obligations", "assignees", "priority", "acceptance"], "set": {"description": {"from": "input", "field": "description", "most_chars": 20000}, "outcome": {"from": "input", "field": "outcome"}, "title": {"from": "input", "field": "title"}, "source": {"from": "input", "field": "source", "format": "source"}, "obligations": {"from": "input", "field": "obligations", "format": "obligations"}, "assignees": {"from": "input", "field": "assignees", "format": "assignees"}, "priority": {"from": "input", "field": "priority", "format": "priority"}, "acceptance": {"from": "input", "field": "acceptance", "format": "acceptance"}}, "clear": ["released", "released_taken_at"]},
+    {"action": "edit", "from": "Waiting", "to": "Waiting", "when": {"kind":"group","combinator":"and","negate":false,"rules":[{"kind":"rule","field":"is_sender","operator":"equals","params":{"value":true}}]}, "needs_any": ["description", "outcome", "title", "source", "obligations", "assignees", "priority", "acceptance"], "set": {"description": {"from": "input", "field": "description", "most_chars": 20000}, "outcome": {"from": "input", "field": "outcome"}, "title": {"from": "input", "field": "title"}, "source": {"from": "input", "field": "source", "format": "source"}, "obligations": {"from": "input", "field": "obligations", "format": "obligations"}, "assignees": {"from": "input", "field": "assignees", "format": "assignees"}, "priority": {"from": "input", "field": "priority", "format": "priority"}, "acceptance": {"from": "input", "field": "acceptance", "format": "acceptance"}}, "clear": ["released", "released_taken_at"]},
+    {"action": "wait", "from": "To do", "to": "Waiting", "when": {"kind":"group","combinator":"or","negate":false,"rules":[{"kind":"rule","field":"is_sender","operator":"equals","params":{"value":true}},{"kind":"rule","field":"is_continuation_owner","operator":"equals","params":{"value":true}},{"kind":"rule","field":"is_releaser","operator":"equals","params":{"value":true}}]}, "set": {"continuation": {"from": "input", "field": "continuation", "required": true, "format": "continuation"}}, "clear": []},
+    {"action": "plan", "from": "In progress", "to": "In progress", "when": {"kind":"group","combinator":"and","negate":false,"rules":[{"kind":"rule","field":"is_taker","operator":"equals","params":{"value":true}}]}, "set": {"acceptance": {"from": "input", "field": "acceptance", "required": true, "format": "acceptance", "preserve_existing": true}}, "clear": []}
+  ],
+  "remove_when": {"kind":"group","combinator":"or","negate":false,"rules":[{"kind":"rule","field":"terminal","operator":"equals","params":{"value":true}},{"kind":"rule","field":"is_sender","operator":"equals","params":{"value":true}}]},
+  "priorities": ["urgent", "high", "medium", "low"],
+  "default_priority": "medium",
+  "take_order": [
+    { "field": "priority", "rank": ["urgent", "high", "medium", "low"], "missing": "medium" },
+    { "field": "sent_at", "direction": "ascending", "missing": "" }
+  ],
+  "take_tries": 5,
+  "most_tasks_read": 2000,
+  "most_people_read": 2000,
+  "most_assignees": 1000,
+  "tasks_shown": { "default": 20, "most": 200 },
+  "live_minutes_default": 60,
+  "holder_actions": ["finish", "fail", "release", "hand-on", "stuck", "unstuck", "wait", "plan"],
+  "completion": {"max_evidence": 32, "max_obligations": 64, "means": "A finish names the exact saved requested outcome and current consumer observations. This validates coverage, ownership and timing; whoever finishes must inspect evidence for semantic truth. Work with a recoverable boundary uses wait/release and an owned bounded continuation on this same task, never an automatically generated chain.", "max_resume_minutes": 1440},
+  "limits": {"description_chars": 20000, "words_chars": 2000, "title_chars": 200, "id_chars": 200, "result_chars": 60000}
+}
