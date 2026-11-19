@@ -7,6 +7,8 @@ import { ensureOfferCodes, ensureOfferPaymentLinks, pricedOptions } from '../do-
 import { buildStripeHttpRequest } from '../../shared-code/src/build-provider-request.mjs';
 
 // A small Stripe: objects kept in memory, answering the built requests by method and address.
+// Stripe answers its booleans as booleans; the form on the wire carries them as text, so a stored feature is typed back.
+const typed = value => (value === 'true' ? true : value === 'false' ? false : Array.isArray(value) ? value.map(typed) : value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).map(([key, item]) => [key, typed(item)])) : value);
 function fakeStripe() {
   const state = { prices: [], products: [], payment_links: [], coupons: [], promotion_codes: [], portals: [], calls: [], pageSize: 100, repeatCursor: false, duplicateCursor: false, failPromotionCreate: false, losePromotionCreateResponse: false, idempotentReplies: new Map() };
   let n = 0;
@@ -66,7 +68,9 @@ function fakeStripe() {
       return code;
     }
     if (request.method === 'GET' && route === 'billing_portal/configurations') return { data: state.portals };
-    if (request.method === 'POST' && route === 'billing_portal/configurations') { const portal = { id: id('bpc'), metadata: body.metadata, login_page: { url: 'https://billing.example/p' } }; state.portals.push(portal); return portal; }
+    if (request.method === 'POST' && route === 'billing_portal/configurations') { const portal = { id: id('bpc'), metadata: body.metadata, features: typed(body.features), login_page: { url: 'https://billing.example/p' } }; state.portals.push(portal); return portal; }
+    if (request.method === 'GET' && route.startsWith('billing_portal/configurations/')) { const portal = state.portals.find(item => item.id === route.split('/')[2]); return portal; }
+    if (request.method === 'POST' && route.startsWith('billing_portal/configurations/')) { const portal = state.portals.find(item => item.id === route.split('/')[2]); portal.features = typed(body.features); return portal; }
     throw new Error(`unexpected ${request.method} ${route}`);
   };
   return { state, send };
@@ -386,4 +390,81 @@ test('a code row read by the one code reader keeps its scope, duration, cap and 
   assert.deepEqual([coupon.amount_off, coupon.currency, coupon.duration, coupon.duration_in_months, coupon.applies_to.products], ['1000', 'usd', 'repeating', '2', [member]]);
   const code = state.promotion_codes.at(-1);
   assert.deepEqual([code.code, code.max_redemptions, code.restrictions.first_time_transaction], ['BAKER10', 5, 'true']);
+});
+
+test('the billing page can move a subscriber between the business own subscription prices, and only those', async () => {
+  const { state, send } = fakeStripe();
+  await setup(send);
+  const [portal] = state.portals;
+  assert.equal(portal.features.subscription_update.enabled, true);
+  assert.equal(portal.features.subscription_update.default_allowed_updates[0], 'price');
+  assert.deepEqual(portal.features.subscription_update.products, [{ product: state.prices[0].product, prices: [state.prices[0].id] }]);
+  assert.equal(portal.features.subscription_cancel.mode, 'at_period_end');
+  assert.equal(portal.features.payment_method_update.enabled, true);
+});
+
+test('a business with no subscription prices leaves plan changes off on the billing page', async () => {
+  const { state, send } = fakeStripe();
+  await ensureOfferPaymentLinks({ offers: [offers[2]], owner: 'bakery-a', afterPaymentUrl: 'https://app.example/', send });
+  assert.equal(state.portals[0].features.subscription_update.enabled, false);
+  assert.equal(state.portals[0].features.subscription_update.products, undefined);
+});
+
+test('an existing billing page is kept as it is by default, with its features and address, and nothing is written to it', async () => {
+  const { state, send } = fakeStripe();
+  state.portals.push({ id: 'bpc_old', metadata: { owner: 'bakery-a' }, features: { subscription_cancel: { enabled: 'true', mode: 'immediately' } }, login_page: { url: 'https://billing.example/old' } });
+  const result = await setup(send);
+  assert.equal(state.portals.length, 1, 'the page the business already has is kept');
+  assert.deepEqual(state.portals[0].features, { subscription_cancel: { enabled: 'true', mode: 'immediately' } }, 'its features are not written');
+  assert.equal(state.calls.some(call => call.startsWith('POST /v1/billing_portal')), false, 'no write to any billing page');
+  assert.deepEqual(result.portal, { mode: 'kept', changes: [], applied: false });
+  assert.equal(result.portal_configuration, 'bpc_old');
+  assert.equal(result.portal_url, 'https://billing.example/old');
+});
+
+test('reconcile reads the existing billing page and reports what differs, and writes nothing without apply', async () => {
+  const { state, send } = fakeStripe();
+  state.portals.push({ id: 'bpc_old', metadata: { owner: 'bakery-a' }, features: { subscription_cancel: { enabled: 'true', mode: 'immediately' } }, login_page: { url: 'https://billing.example/old' } });
+  const result = await setup(send, { portal: 'reconcile' });
+  assert.equal(state.calls.some(call => call.startsWith('POST /v1/billing_portal')), false);
+  assert.equal(state.portals[0].features.subscription_cancel.mode, 'immediately');
+  assert.equal(result.portal.mode, 'reconciled');
+  assert.equal(result.portal.applied, false);
+  assert.ok(result.portal.changes.some(change => change.field === 'subscription_cancel.mode' && change.from === 'immediately' && change.to === 'at_period_end'));
+  assert.ok(result.portal.changes.some(change => change.field === 'subscription_update.enabled' && change.to === true));
+});
+
+test('reconcile with apply writes the differences once, and a second apply finds nothing to change', async () => {
+  const { state, send } = fakeStripe();
+  state.portals.push({ id: 'bpc_old', metadata: { owner: 'bakery-a' }, features: { subscription_cancel: { enabled: 'true', mode: 'immediately' } }, login_page: { url: 'https://billing.example/old' } });
+  const first = await setup(send, { portal: 'reconcile', apply: true });
+  assert.equal(first.portal.applied, true);
+  assert.equal(state.portals[0].features.subscription_cancel.mode, 'at_period_end');
+  assert.equal(state.portals[0].features.subscription_update.enabled, true);
+  const writes = state.calls.filter(call => call.startsWith('POST /v1/billing_portal')).length;
+  const second = await setup(send, { portal: 'reconcile', apply: true });
+  assert.deepEqual(second.portal, { mode: 'reconciled', changes: [], applied: false });
+  assert.equal(state.calls.filter(call => call.startsWith('POST /v1/billing_portal')).length, writes, 'nothing written when nothing differs');
+});
+
+test('a billing page made fresh by setup gets plan changes, and an unknown portal mode is refused', async () => {
+  const { state, send } = fakeStripe();
+  const result = await setup(send);
+  assert.equal(result.portal.mode, 'created');
+  assert.equal(state.portals[0].features.subscription_update.enabled, true);
+  await assert.rejects(setup(fakeStripe().send, { portal: 'overwrite' }), /portal must be keep or reconcile/);
+});
+
+test('more subscription prices than the billing page can change among are refused before any Stripe call, only where plan changes would be written', async () => {
+  const many = Array.from({ length: 11 }, (_, index) => ({ id: `offer:tier-${index}`, label: `Tier ${index}`, price_options: [{ id: `price:tier-${index}`, amount_cents: 1000 + index, currency: 'usd', payment_timing: 'subscription', interval: 'month' }] }));
+  const fresh = fakeStripe();
+  await assert.rejects(ensureOfferPaymentLinks({ offers: many, owner: 'bakery-a', afterPaymentUrl: 'https://app.example/', send: fresh.send }), /at most 10 subscription prices/);
+  assert.deepEqual(fresh.state.calls.filter(call => !call.startsWith('GET')), [], 'no write before the refusal');
+
+  const kept = fakeStripe();
+  kept.state.portals.push({ id: 'bpc_old', metadata: { owner: 'bakery-a' }, features: {}, login_page: { url: 'https://billing.example/old' } });
+  const result = await ensureOfferPaymentLinks({ offers: many, owner: 'bakery-a', afterPaymentUrl: 'https://app.example/', send: kept.send });
+  assert.equal(result.links.length, 11, 'links for a business over the limit still set up when its billing page is kept');
+
+  await assert.rejects(ensureOfferPaymentLinks({ offers: many, owner: 'bakery-a', afterPaymentUrl: 'https://app.example/', send: kept.send, portal: 'reconcile', apply: true }), /at most 10 subscription prices/);
 });

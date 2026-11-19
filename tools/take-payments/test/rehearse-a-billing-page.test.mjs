@@ -14,13 +14,13 @@ function stripeStandIn({ schedule = { id: 'sub_sched_1', subscription: 'sub_1' }
     sent.push(request);
     const key = `${request.method} ${new URL(request.url).pathname}`;
     const replies = {
-      'POST /v1/customers': { id: 'cus_1' },
+      'POST /v1/customers': { id: 'cus_1', email: 'billing-rehearsal@example.com' },
       'POST /v1/products': { id: 'prod_1' },
       'POST /v1/prices': { id: 'price_1' },
       'POST /v1/subscription_schedules': schedule,
       'GET /v1/subscriptions': { data: [{ id: 'sub_listed' }] },
-      'GET /v1/subscriptions/sub_1': { id: 'sub_1', customer: 'cus_1', default_payment_method: null },
-      'GET /v1/subscriptions/sub_listed': { id: 'sub_listed', customer: 'cus_1', default_payment_method: null },
+      'GET /v1/subscriptions/sub_1': { id: 'sub_1', customer: { id: 'cus_1', object: 'customer', email: 'billing-rehearsal@example.com' }, default_payment_method: null },
+      'GET /v1/subscriptions/sub_listed': { id: 'sub_listed', customer: { id: 'cus_1', object: 'customer', email: 'billing-rehearsal@example.com' }, default_payment_method: null },
       'GET /v1/billing_portal/configurations': { data: configurations },
       'POST /v1/billing_portal/configurations': { id: 'bpc_made' },
       'POST /v1/billing_portal/sessions': { id: 'bps_1', url: 'https://billing.stripe.com/p/session/test_1' },

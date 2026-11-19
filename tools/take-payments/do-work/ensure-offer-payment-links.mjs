@@ -20,13 +20,18 @@
 // reply). This module holds no secret and makes no network call itself.
 //
 // Idempotent: a price is found again by its lookup key (the price option id), a link by its metadata, a
-// promotion code by its code (one made from a row no row lists any more stops being usable), the plan page by its
-// metadata. Webhook endpoints are not made here (README, Money rules).
+// promotion code by its code (one made from a row no row lists any more stops being usable), the billing page by its
+// metadata (its features brought up to the offers each setup). The billing page lets a buyer change plan among the
+// business's own subscription prices, the same prices the links sell. Webhook endpoints are not made here (README,
+// Money rules).
 //
-//   ensureOfferPaymentLinks({ offers, codeOffers, adjustments, owner, afterPaymentUrl, send, retireLinksWhere })
+//   ensureOfferPaymentLinks({ offers, codeOffers, adjustments, owner, afterPaymentUrl, send, retireLinksWhere, portal, apply })
 //   (codeOffers: the offer rows a code may come off, sold or not, so a code keeps working for people already on an offer
 //   no longer sold; `offers` when left out)
-//   → { links: [{ offer_id, price_option_id, url }], retired: [url], portal_url, portal_configuration, codes: [{ code, active, used, max }], retired_codes: [code] }
+//   portal: 'keep' (the default) never writes a billing page the business already has; 'reconcile' reads its features and
+//   reports the difference, and writes them only when apply is true. A billing page made fresh by this setup gets plan
+//   changes; an existing one gets them only through 'reconcile' with apply.
+//   → { links: [{ offer_id, price_option_id, url }], retired: [url], portal_url, portal_configuration, portal: { mode, changes, applied }, codes: [{ code, active, used, max }], retired_codes: [code] }
 //   ensureOfferCodes({ adjustments, offers, owner, send }) → { codes, retired }: only the codes, for a run that changes nothing else;
 //   each code comes off only the products of the offers its row's applies_to.offer_ids (read as scope.offer_ids) names.
 import { call } from '../../shared-code/src/build-provider-request.mjs';
@@ -96,6 +101,82 @@ async function ensurePrice(send, owner, { offer, option, recurring }) {
     transfer_lookup_key: true,
     metadata: { owner, offer_id: offer.id, price_option_id: option.id },
   });
+}
+
+/** The recurring prices of each product the offers sell, for the billing page's plan change (keyed by product id). */
+function addPlanPrice(planPrices, price) {
+  const product = typeof price.product === 'string' ? price.product : price.product?.id;
+  if (!product) throw new Error(`Price ${price.id} has no product to change a plan within.`);
+  planPrices.set(product, [...(planPrices.get(product) ?? []), price.id]);
+}
+
+/** The billing page's plan change: each product's own recurring prices, or off when the business sells no subscription. */
+function planChanges(planPrices) {
+  if (!planPrices.size) return { enabled: false };
+  return {
+    enabled: true,
+    default_allowed_updates: ['price'],
+    proration_behavior: 'create_prorations',
+    products: [...planPrices].map(([product, prices]) => ({ product, prices: [...new Set(prices)].sort() })),
+  };
+}
+
+// Stripe's billing page changes a subscription among at most this many products (Stripe's API reference for the
+// portal's subscription_update feature). Checked only where this setup would write plan changes.
+const PLAN_CHANGE_PRODUCT_LIMIT = 10;
+
+// The billing page's features as this setup wants them.
+const billingPageFeatures = planPrices => ({
+  subscription_cancel: { enabled: true, mode: 'at_period_end' },
+  payment_method_update: { enabled: true },
+  invoice_history: { enabled: true },
+  subscription_update: planChanges(planPrices),
+});
+
+// The features as Stripe holds them, flattened to the fields this setup sets, so two configurations compare field by field.
+function flatFeatures(features = {}) {
+  const plan = features.subscription_update ?? {};
+  const flat = {
+    'subscription_cancel.enabled': features.subscription_cancel?.enabled === true,
+    'subscription_cancel.mode': features.subscription_cancel?.mode ?? null,
+    'payment_method_update.enabled': features.payment_method_update?.enabled === true,
+    'invoice_history.enabled': features.invoice_history?.enabled === true,
+    'subscription_update.enabled': plan.enabled === true,
+  };
+  if (plan.enabled === true) {
+    flat['subscription_update.products'] = (plan.products ?? []).map(item => `${item.product}:${[...(item.prices ?? [])].sort().join(',')}`).sort();
+    flat['subscription_update.default_allowed_updates'] = [...(plan.default_allowed_updates ?? [])].sort();
+    flat['subscription_update.proration_behavior'] = plan.proration_behavior ?? null;
+  }
+  return flat;
+}
+
+/** Each field that differs between the configuration Stripe holds and the one this setup wants: { field, from, to }. */
+export function featureChanges(current, wanted) {
+  const now = flatFeatures(current);
+  const want = flatFeatures(wanted);
+  return Object.keys(want)
+    .filter(field => JSON.stringify(now[field] ?? null) !== JSON.stringify(want[field]))
+    .map(field => ({ field, from: now[field] ?? null, to: want[field] }));
+}
+
+/**
+ * The owner's billing page, by the portal mode: a page made fresh gets the features; an existing one is kept as it is
+ * unless 'reconcile' is asked, and then it is written only when apply is true.
+ * → { url, configuration, portal: { mode, changes, applied } }
+ */
+async function billingPage({ portals, portal, apply, features, owner, send }) {
+  const [existing] = portals;
+  if (!existing) {
+    const made = await call(send, 'operation:create-portal-configuration', { features, login_page: { enabled: true }, metadata: { owner } });
+    return { url: made.login_page?.url ?? null, configuration: made.id, portal: { mode: 'created', changes: [], applied: true } };
+  }
+  if (portal !== 'reconcile') return { url: existing.login_page?.url ?? null, configuration: existing.id, portal: { mode: 'kept', changes: [], applied: false } };
+  const current = await call(send, 'operation:read-portal-configuration', {}, { ref: existing.id });
+  const changes = featureChanges(current.features, features);
+  if (!apply || !changes.length) return { url: current.login_page?.url ?? null, configuration: existing.id, portal: { mode: 'reconciled', changes, applied: false } };
+  const updated = await call(send, 'operation:update-portal-configuration', { features }, { ref: existing.id });
+  return { url: updated.login_page?.url ?? null, configuration: existing.id, portal: { mode: 'reconciled', changes, applied: true } };
 }
 
 /** What a subscription option takes at checkout before its trial ends (`charges` entry on day 0), in cents, or 0. */
@@ -294,16 +375,27 @@ export async function ensureOfferCodes({ adjustments = [], offers = [], owner, s
   return { codes, retired };
 }
 
-export async function ensureOfferPaymentLinks({ offers, codeOffers = offers, adjustments = [], owner, afterPaymentUrl, send, retireLinksWhere = [] }) {
+export async function ensureOfferPaymentLinks({ offers, codeOffers = offers, adjustments = [], owner, afterPaymentUrl, send, retireLinksWhere = [], portal = 'keep', apply = false }) {
   if (typeof owner !== 'string' || !owner) throw new Error('owner names whose Stripe objects these are.');
   if (typeof send !== 'function') throw new Error('send delivers one built request and returns its decoded reply.');
+  if (portal !== 'keep' && portal !== 'reconcile') throw new Error('portal must be keep or reconcile.');
+  const options = pricedOptions(offers);
+  const recurringOptions = options.filter(option => option.recurring).length;
+  const portals = await allPages(send, 'operation:find-portal-configurations', { active: true, limit: 100 }, item => item.metadata?.owner === owner);
+  // Refused before any Stripe call, and only where this setup would write plan changes: a fresh billing page, or an
+  // existing one brought up by 'reconcile' with apply.
+  if ((!portals[0] || (portal === 'reconcile' && apply)) && recurringOptions > PLAN_CHANGE_PRODUCT_LIMIT) {
+    throw new Error(`Stripe's billing page changes plans among at most ${PLAN_CHANGE_PRODUCT_LIMIT} subscription prices; these offers sell ${recurringOptions}.`);
+  }
   const retiredPattern = link => retireLinksWhere.some(pattern => Object.entries(pattern).every(([key, value]) => link.metadata?.[key] === value));
   const existingLinks = await allPages(send, 'operation:find-payment-links', { active: true, limit: 100 }, link => link.metadata?.owner === owner || retiredPattern(link));
   const links = [];
-  for (const priced of pricedOptions(offers)) {
+  const planPrices = new Map();
+  for (const priced of options) {
     const price = await ensurePrice(send, owner, priced);
     const link = await ensureLink(send, owner, afterPaymentUrl, priced, price, existingLinks);
     links.push({ offer_id: priced.offer.id, price_option_id: priced.option.id, url: link.url, id: link.id });
+    if (priced.recurring) addPlanPrice(planPrices, price);
   }
   // A link this owner made for an option no offer row has any more stops taking payments, as does any link matching
   // a `retireLinksWhere` metadata pattern (links an earlier setup made under other metadata). Past buyers keep what
@@ -318,12 +410,7 @@ export async function ensureOfferPaymentLinks({ offers, codeOffers = offers, adj
 
   const { codes, retired: retiredCodes } = await ensureOfferCodes({ adjustments, offers: codeOffers, owner, send });
 
-  const portals = await allPages(send, 'operation:find-portal-configurations', { active: true, limit: 100 }, item => item.metadata?.owner === owner);
-  const portal = portals[0] ?? await call(send, 'operation:create-portal-configuration', {
-    features: { subscription_cancel: { enabled: true, mode: 'at_period_end' }, payment_method_update: { enabled: true }, invoice_history: { enabled: true } },
-    login_page: { enabled: true },
-    metadata: { owner },
-  });
+  const billing = await billingPage({ portals, portal, apply, features: billingPageFeatures(planPrices), owner, send });
 
-  return { links: links.map(({ id, ...link }) => link), retired, portal_url: portal.login_page?.url ?? null, portal_configuration: portal.id, codes, retired_codes: retiredCodes };
+  return { links: links.map(({ id, ...link }) => link), retired, portal_url: billing.url, portal_configuration: billing.configuration, portal: billing.portal, codes, retired_codes: retiredCodes };
 }

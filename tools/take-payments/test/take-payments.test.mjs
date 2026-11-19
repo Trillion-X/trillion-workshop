@@ -157,9 +157,10 @@ test('payment links are made once per priced option and carry no key', async () 
     ['GET /v1/payment_links', { data: [] }],
     ['GET /v1/prices', { data: [] }],
     ['POST /v1/products', { id: 'prod_1' }],
-    ['POST /v1/prices', { id: 'price_1' }],
+    ['POST /v1/prices', { id: 'price_1', product: 'prod_1' }],
     ['POST /v1/payment_links', { id: 'plink_1', url: 'https://buy.example/1' }],
     ['GET /v1/billing_portal/configurations', { data: [{ id: 'bpc_1', metadata: { owner: 'bakery-a' }, login_page: { url: 'https://billing.example/p' } }] }],
+    ['POST /v1/billing_portal/configurations/bpc_1', { id: 'bpc_1', login_page: { url: 'https://billing.example/p' } }],
   ]);
   const sent = [];
   const context = { send: async request => { sent.push(request); return stripeAnswers.get(`${request.method} ${new URL(request.url).pathname}`) ?? { data: [] }; } };

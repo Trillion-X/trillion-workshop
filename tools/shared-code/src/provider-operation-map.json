@@ -163,6 +163,22 @@
       "object_ref_key": null
     },
     {
+      "operation_id": "operation:update-portal-configuration",
+      "comment": "Brings an existing billing portal configuration to the features the offers need (plan changes included), so a configuration made before a feature existed gets it on the next setup.",
+      "method": "POST",
+      "endpoint": "https://api.stripe.com/v1/billing_portal/configurations/{provider_object_ref}",
+      "subject_key": "operation_subject",
+      "object_ref_key": "provider_object_ref"
+    },
+    {
+      "operation_id": "operation:read-portal-configuration",
+      "comment": "Reads one billing portal configuration with its features, so a reconcile can show what differs before it writes.",
+      "method": "GET",
+      "endpoint": "https://api.stripe.com/v1/billing_portal/configurations/{provider_object_ref}",
+      "subject_key": null,
+      "object_ref_key": "provider_object_ref"
+    },
+    {
       "operation_id": "operation:create-connected-account",
       "comment": "A payee account on the v1 Accounts API, configured by controller properties (who pays fees, who covers losses, which dashboard, who collects requirements) instead of legacy account types. The v2 row above needs the platform enabled for Accounts v2 and a JSON body; a platform that refuses v2 fields still creates payees here.",
       "method": "POST",
@@ -340,6 +356,14 @@
       "endpoint": "https://api.stripe.com/v1/invoices/{provider_object_ref}",
       "subject_key": null,
       "object_ref_key": "provider_object_ref"
+    },
+    {
+      "operation_id": "operation:find-invoices",
+      "comment": "Lists the invoices of one subscription ({ subscription, limit }), newest first: the receipts a buyer sees on their billing page.",
+      "method": "GET",
+      "endpoint": "https://api.stripe.com/v1/invoices",
+      "subject_key": "operation_subject",
+      "object_ref_key": null
     },
     {
       "operation_id": "operation:read-event",

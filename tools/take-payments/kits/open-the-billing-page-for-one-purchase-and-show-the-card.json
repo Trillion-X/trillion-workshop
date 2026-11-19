@@ -1,6 +1,6 @@
 {
   "drafted_from": "tool:open-the-billing-page-for-one-purchase-and-show-the-card's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Open the billing page of one purchase, where the buyer can change or cancel it, and show the card that pays it\", with {\"subscription_id\":\"sub_sample0001\",\"return_url\":\"https://app.example.com/billing\"}. It runs tool:open-the-billing-page-for-one-purchase-and-show-the-card and answers {\"subscription_id\":\"sub_sample0001\",\"redirect\":\"https://billing.stripe.com/p/session/test_sample0001\",\"card\":{\"brand\":\"visa\",\"last4\":\"4242\",\"exp_month\":12,\"exp_year\":2030}}",
+  "start_here": "Say to your AI: \"Open the billing page of one purchase, where the buyer can change or cancel it, and show the card that pays it\", with {\"subscription_id\":\"sub_sample0001\",\"return_url\":\"https://app.example.com/billing\",\"subject_email\":\"buyer@example.com\"}. It runs tool:open-the-billing-page-for-one-purchase-and-show-the-card and answers {\"subscription_id\":\"sub_sample0001\",\"redirect\":\"https://billing.stripe.com/p/session/test_sample0001\",\"card\":{\"brand\":\"visa\",\"last4\":\"4242\",\"exp_month\":12,\"exp_year\":2030}}. Add \"flow\" to open the page on one step: payment_method_update, subscription_update or subscription_cancel.",
   "lists": [],
   "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
@@ -8,13 +8,13 @@
     "tool:open-the-billing-page-for-one-purchase-and-show-the-card"
   ],
   "instructions": [
-    "1. Say to your AI: \"Open the billing page of one purchase, where the buyer can change or cancel it, and show the card that pays it\", and give it subscription_id; return_url.",
-    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:open-the-billing-page-for-one-purchase-and-show-the-card and its input (the worked example shows one).",
-    "3. Read what comes back: Give subscription_id (the sub_ id of one purchase) and return_url (an https address the billing page returns to)."
+    "1. Say to your AI: \"Open the billing page of one purchase, where the buyer can change or cancel it, and show the card that pays it\", and give it subscription_id, return_url and subject_email (the signed-in buyer's verified email).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:open-the-billing-page-for-one-purchase-and-show-the-card and its input (the worked examples show two).",
+    "3. The purchase must belong to subject_email, or the tool refuses and opens nothing. Read what comes back: the redirect address is where the buyer goes to confirm the change on Stripe's page, and card is the card that pays (brand, last four, expiry only)."
   ],
   "worked_examples": [
     {
-      "title": "Open the billing page for one purchase and show its card on its own sample",
+      "title": "Open the billing page for one purchase and show its card",
       "ask": "Open the billing page of one purchase, where the buyer can change or cancel it, and show the card that pays it",
       "mcp": {
         "server": "{cli}",
@@ -25,13 +25,36 @@
             "tool": "tool:open-the-billing-page-for-one-purchase-and-show-the-card",
             "input": {
               "subscription_id": "sub_sample0001",
-              "return_url": "https://app.example.com/billing"
+              "return_url": "https://app.example.com/billing",
+              "subject_email": "buyer@example.com"
             }
           }
         }
       },
-      "given": "The input {\"subscription_id\":\"sub_sample0001\",\"return_url\":\"https://app.example.com/billing\"}, the web answering from 3 recorded replies.",
+      "given": "The input {\"subscription_id\":\"sub_sample0001\",\"return_url\":\"https://app.example.com/billing\",\"subject_email\":\"buyer@example.com\"}, the web answering from 3 recorded replies.",
       "hands_back": "It answered {\"subscription_id\":\"sub_sample0001\",\"redirect\":\"https://billing.stripe.com/p/session/test_sample0001\",\"card\":{\"brand\":\"visa\",\"last4\":\"4242\",\"exp_month\":12,\"exp_year\":2030}}."
+    },
+    {
+      "title": "Open the cancel step for the same purchase",
+      "ask": "Cancel my plan on the billing page",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:open-the-billing-page-for-one-purchase-and-show-the-card",
+            "input": {
+              "subscription_id": "sub_sample0001",
+              "return_url": "https://app.example.com/billing",
+              "subject_email": "buyer@example.com",
+              "flow": "subscription_cancel"
+            }
+          }
+        }
+      },
+      "given": "The same purchase and buyer, with flow set to subscription_cancel.",
+      "hands_back": "It answered {\"subscription_id\":\"sub_sample0001\",\"redirect\":\"https://billing.stripe.com/p/session/test_sample0001\",\"card\":{\"brand\":\"visa\",\"last4\":\"4242\",\"exp_month\":12,\"exp_year\":2030}}; the redirect opens Stripe's cancel step, where the buyer confirms."
     }
   ]
 }

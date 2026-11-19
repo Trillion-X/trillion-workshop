@@ -24,7 +24,7 @@ async function configurationFor(send) {
 }
 
 /**
- * @param {{ product_name: string, amount_cents: number, return_url: string, currency?: string }} input
+ * @param {{ product_name: string, amount_cents: number, return_url: string, currency?: string, buyer_email?: string }} input
  * @param {(request: object) => Promise<object>} send delivers one built request (made with a test key)
  * @returns what Stripe made and said: the subscription, the billing page's address, the card that pays it (none yet)
  */
@@ -35,7 +35,9 @@ export async function rehearseABillingPage(input, send) {
   const returnUrl = httpsAddress(input.return_url);
   const currency = text(input.currency) || 'usd';
 
-  const customer = await call(send, 'operation:create-customer', { description: 'billing page rehearsal, test mode' });
+  // The rehearsal's own customer is the buyer the billing page is opened for, so it carries the email that buyer is checked by.
+  const buyerEmail = text(input.buyer_email) || 'billing-rehearsal@example.com';
+  const customer = await call(send, 'operation:create-customer', { description: 'billing page rehearsal, test mode', email: buyerEmail });
   const product = await call(send, 'operation:create-product', { name: productName });
   const price = await call(send, 'operation:create-price', { currency, unit_amount: input.amount_cents, product: product.id, recurring: { interval: 'month', interval_count: 1 } });
   const schedule = await call(send, 'operation:create-subscription-schedule', {
@@ -49,6 +51,6 @@ export async function rehearseABillingPage(input, send) {
   if (!subscriptionId) throw new Error('Stripe made the schedule but named no subscription for it.');
 
   const configuration = await configurationFor(send);
-  const page = await openBillingPage({ subscription_id: subscriptionId, return_url: returnUrl, configuration }, { send });
+  const page = await openBillingPage({ subscription_id: subscriptionId, return_url: returnUrl, configuration, subject_email: buyerEmail }, { send });
   return { ...page, customer_id: customer.id, schedule_id: schedule.id, portal_configuration: configuration };
 }

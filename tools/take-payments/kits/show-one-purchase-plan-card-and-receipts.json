@@ -1,0 +1,38 @@
+{
+  "drafted_from": "tool:show-one-purchase-plan-card-and-receipts's own row (its words, input schema and sample run) and the billing page tool it hands the buyer on to",
+  "start_here": "Say to your AI: \"Show the plan, card and receipts of this purchase\", with {\"subscription_id\":\"sub_sample0001\",\"subject_email\":\"buyer@example.com\"}. It runs tool:show-one-purchase-plan-card-and-receipts and answers the plan (Bread box, 1200 cents a month), when it renews, the card that pays it and the latest receipts.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it reads one purchase from Stripe and keeps no row.",
+  "workflows": [],
+  "tools": [
+    "tool:show-one-purchase-plan-card-and-receipts",
+    "tool:open-the-billing-page-for-one-purchase-and-show-the-card"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Show the plan, card and receipts of this purchase\", and give it subscription_id and subject_email (the signed-in buyer's verified email).",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:show-one-purchase-plan-card-and-receipts and its input (the worked example shows one).",
+    "3. To change the card, the plan or cancel, the buyer's button runs tool:open-the-billing-page-for-one-purchase-and-show-the-card with the matching flow; Stripe's page then asks the buyer to confirm."
+  ],
+  "worked_examples": [
+    {
+      "title": "Show the plan, card and receipts of one purchase",
+      "ask": "Show the plan, card and receipts of this purchase",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:show-one-purchase-plan-card-and-receipts",
+            "input": {
+              "subscription_id": "sub_sample0001",
+              "subject_email": "buyer@example.com"
+            }
+          }
+        }
+      },
+      "given": "The input {\"subscription_id\":\"sub_sample0001\",\"subject_email\":\"buyer@example.com\"}, the web answering from the sample replies of the tool's row.",
+      "hands_back": "It answered the plan {\"label\":\"Bread box\",\"amount_cents\":1200,\"currency\":\"usd\",\"interval\":\"month\",\"quantity\":1}, status \"active\", renews_at 2026-12-23T04:26:40Z, the card visa ending 4242 (exp 12/2030), and one receipt in_sample0002 for 1200 cents, status paid."
+    }
+  ]
+}

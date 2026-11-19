@@ -1,0 +1,6 @@
+{
+  "about": "Which Workshop tool answers the billing screen: the page of one purchase, and the step its buttons open. Adding or moving an answer is one row here; no tool is named in the code beside this file.",
+  "seller_connection": "service_connection:stripe",
+  "page": { "tool": "tool:show-one-purchase-plan-card-and-receipts" },
+  "open": { "tool": "tool:open-the-billing-page-for-one-purchase-and-show-the-card" }
+}

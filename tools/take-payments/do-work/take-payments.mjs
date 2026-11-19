@@ -18,7 +18,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import { openBillingPage } from './billing-portal.mjs';
+import { openBillingPage, readBillingPage } from './billing-portal.mjs';
 import { readCheckoutOffers } from '../../funnels-and-offers/read-data/read-offers.ts';
 import { suggestionListsFrom } from '../read-data/suggestion-lists.mjs';
 import { readCheckoutCodeAdjustments } from '../read-data/read-code-adjustments.ts';
@@ -162,6 +162,7 @@ export const scheduleLaterPayments = async (input, context = {}) => createSubscr
 export const countAPaidInstallment = async (input, context = {}) => advanceInstallment(input, { send: sender(context) });
 export const cancelAStripeSubscription = async (input, context = {}) => cancelSubscription(input, { send: sender(context) });
 export const openABillingPage = async (input, context = {}) => openBillingPage(input, { send: sender(context) });
+export const showOnePurchaseBilling = async (input, context = {}) => readBillingPage(input, { send: sender(context) });
 /** Every completed checkout since a time, and every subscription that ended since a time: what a seller follows up. */
 export const listCompletedStripeCheckouts = async (input, context = {}) => listCompletedHostedSessions(input, { send: sender(context) });
 export const listEndedStripeSubscriptions = async (input, context = {}) => listEndedSubscriptions(input, { send: sender(context) });
@@ -186,6 +187,8 @@ export async function setUpStripePaymentLinks(input, context = {}) {
     owner: input.owner,
     afterPaymentUrl: input.after_payment_url,
     retireLinksWhere: input.retire_links_where ?? [],
+    portal: input.portal ?? 'keep',
+    apply: input.apply === true,
     send: sender(context),
   });
 }

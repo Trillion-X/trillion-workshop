@@ -4051,7 +4051,8 @@
             "kind": "sample-run",
             "input": {
               "seller_connection": "service_connection:stripe:sample",
-              "subscription_id": "sub_sample0001"
+              "subscription_id": "sub_sample0001",
+              "subject_email": "buyer@example.com"
             },
             "shape_read_at": "2026-11-03",
             "replies": [
@@ -4280,7 +4281,7 @@
         "id": "tool:open-the-billing-page-for-one-purchase-and-show-the-card",
         "label": "Open the billing page for one purchase and show its card",
         "job": "Open the billing page of one purchase, where the buyer can change or cancel it, and show the card that pays it",
-        "description": "Give subscription_id (the sub_ id of one purchase) and return_url (an https address the billing page returns to). Reads the purchase with the card that pays it, opens a Stripe customer billing-portal session for the customer that bills it, and gives back the redirect address and the card (brand, last four, expiry only). The configuration is the account default unless configuration names one; an account with none is refused, never given a made-up one. It changes no subscription and moves no money. Uses the Stripe key of the seller connection that seller_connection names (service_connection:stripe is your own).",
+        "description": "Give subscription_id (the sub_ id of one purchase), return_url (an https address the billing page returns to) and subject_email (the signed-in buyer's verified email; the purchase must be theirs, or nothing is opened or read). Reads the purchase with the card that pays it, opens a Stripe customer billing-portal session for the customer that bills it, and gives back the redirect address and the card (brand, last four, expiry only). flow opens the page on one step: payment_method_update (change the card), subscription_update (change the plan) or subscription_cancel (cancel); leave it out for the page itself. The configuration is the account default unless configuration names one; an account with none is refused, never given a made-up one. It changes no subscription and moves no money: the buyer confirms the change on Stripe's page. Uses the Stripe key of the seller connection that seller_connection names (service_connection:stripe is your own).",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -4297,6 +4298,20 @@
               "type": "string",
               "pattern": "^bpc_[A-Za-z0-9]+$"
             },
+            "subject_email": {
+              "type": "string",
+              "format": "email",
+              "description": "The signed-in buyer's verified email. The purchase must belong to it, or nothing is opened or read."
+            },
+            "flow": {
+              "type": "string",
+              "enum": [
+                "payment_method_update",
+                "subscription_update",
+                "subscription_cancel"
+              ],
+              "description": "The step the billing page opens on: payment_method_update changes the card, subscription_update changes the plan, subscription_cancel cancels. Leave it out for the page itself."
+            },
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
@@ -4306,7 +4321,8 @@
           "required": [
             "seller_connection",
             "subscription_id",
-            "return_url"
+            "return_url",
+            "subject_email"
           ]
         },
         "output_schema": {
@@ -5142,6 +5158,15 @@
             },
             "after_payment_url": {
               "type": "string"
+            },
+            "portal": {
+              "type": "string",
+              "enum": ["keep", "reconcile"],
+              "description": "keep (the default) never writes a billing page the business already has. reconcile reads that page's features and reports what differs; it writes them only with apply true. A billing page this setup makes fresh gets plan changes either way."
+            },
+            "apply": {
+              "type": "boolean",
+              "description": "With portal reconcile: write the differences to the existing billing page. Plan changes among more than 10 subscription prices are refused under this."
             },
             "retire_links_where": {
               "type": "array"
@@ -15082,6 +15107,557 @@
             ]
           }
         ]
+      }
+    },
+    {
+      "payload": {
+        "uses_tools": [
+          "trillion-workshop/account-session",
+          "trillion-workshop/addressed-marks",
+          "trillion-workshop/agents-hub",
+          "trillion-workshop/ai-execution-history",
+          "trillion-workshop/ai-guided-work",
+          "trillion-workshop/ai-memory",
+          "trillion-workshop/ai-records-producer",
+          "trillion-workshop/ai-tool-catalog",
+          "trillion-workshop/ambience",
+          "trillion-workshop/arrange-screens-in-panes",
+          "trillion-workshop/ask-a-small-model-for-a-verdict",
+          "trillion-workshop/audio-transcription",
+          "trillion-workshop/away-summary",
+          "trillion-workshop/background-runner-control",
+          "trillion-workshop/bring-in-new-items-from-this-computer",
+          "trillion-workshop/browse-and-upload-my-files",
+          "trillion-workshop/browse-inspiration-clips",
+          "trillion-workshop/browse-public-page",
+          "trillion-workshop/build-a-screen-from-patches",
+          "trillion-workshop/build-engine-modules-for-web-hosts",
+          "trillion-workshop/calibrate-a-camera-frame",
+          "trillion-workshop/chat",
+          "trillion-workshop/check-a-packages-declared-permissions",
+          "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+          "trillion-workshop/check-bundle-package-boundaries",
+          "trillion-workshop/choose-and-publish-screen-looks",
+          "trillion-workshop/command-palette",
+          "trillion-workshop/composition-scene-renderer",
+          "trillion-workshop/computer-programs",
+          "trillion-workshop/connect-a-service-and-seal-its-key",
+          "trillion-workshop/content-identity",
+          "trillion-workshop/content-media-evidence",
+          "trillion-workshop/conversations",
+          "trillion-workshop/copy-a-site",
+          "trillion-workshop/decide-when-things-show",
+          "trillion-workshop/decide-with-a-method",
+          "trillion-workshop/delight-moments",
+          "trillion-workshop/describe-the-workshop",
+          "trillion-workshop/documents",
+          "trillion-workshop/documents-as-list-rows",
+          "trillion-workshop/draw-lists-on-a-canvas",
+          "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+          "trillion-workshop/drive-the-screen",
+          "trillion-workshop/edit-a-document-together",
+          "trillion-workshop/edit-a-site-visually",
+          "trillion-workshop/feel",
+          "trillion-workshop/file-content-renderer",
+          "trillion-workshop/find-anything-from-one-box",
+          "trillion-workshop/formula-engine",
+          "trillion-workshop/formulas",
+          "trillion-workshop/founder-growth-engine-screens",
+          "trillion-workshop/funnel-offer-graph",
+          "trillion-workshop/funnels-and-offers",
+          "trillion-workshop/funnels-screen",
+          "trillion-workshop/graph-canvas",
+          "trillion-workshop/guided-overlay",
+          "trillion-workshop/hand-off-jobs-between-agents",
+          "trillion-workshop/hand-work-to-ais",
+          "trillion-workshop/headless-browser",
+          "trillion-workshop/hold-one-thing-until-done",
+          "trillion-workshop/http-client",
+          "trillion-workshop/introduce-two-people",
+          "trillion-workshop/judge-words",
+          "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+          "trillion-workshop/keep-copies-in-step",
+          "trillion-workshop/keep-lists-of-rows",
+          "trillion-workshop/keep-records-only-my-devices-can-read",
+          "trillion-workshop/know-the-projects-on-this-computer",
+          "trillion-workshop/know-who-is-in-this",
+          "trillion-workshop/learn-a-workflow-from-a-job",
+          "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/leave-a-makers-private-starting-values-out",
+          "trillion-workshop/let-someone-look-at-my-account-read",
+          "trillion-workshop/list-tools-for-an-ai",
+          "trillion-workshop/listen-for-a-while",
+          "trillion-workshop/live-namespace",
+          "trillion-workshop/local-files",
+          "trillion-workshop/look-at-screen",
+          "trillion-workshop/make-a-video-playable-at-ingest",
+          "trillion-workshop/make-screen-layouts-and-controls",
+          "trillion-workshop/make-things-feel-good",
+          "trillion-workshop/marketplace-defaults",
+          "trillion-workshop/media-composition",
+          "trillion-workshop/media-identity",
+          "trillion-workshop/media-playback",
+          "trillion-workshop/messages-screen",
+          "trillion-workshop/move-records-through-declared-states",
+          "trillion-workshop/native-space-source-release",
+          "trillion-workshop/operation-records",
+          "trillion-workshop/organize-my-files",
+          "trillion-workshop/organize-the-sidebar",
+          "trillion-workshop/outside-conversations",
+          "trillion-workshop/paid-access",
+          "trillion-workshop/pair-unknown-senders",
+          "trillion-workshop/permission-lease",
+          "trillion-workshop/person-list",
+          "trillion-workshop/pick-a-screen-as-you-type",
+          "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+          "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/process-session",
+          "trillion-workshop/query-and-change-list-rows",
+          "trillion-workshop/quote-untrusted-words",
+          "trillion-workshop/read-and-write-mail",
+          "trillion-workshop/recently-deleted-and-storage",
+          "trillion-workshop/record-audio",
+          "trillion-workshop/record-graph",
+          "trillion-workshop/record-log",
+          "trillion-workshop/record-video",
+          "trillion-workshop/record-video-with-teleprompter",
+          "trillion-workshop/record-voice-and-meetings",
+          "trillion-workshop/refuse-requests-to-private-addresses",
+          "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+          "trillion-workshop/review-what-a-list-says",
+          "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+          "trillion-workshop/run-experiments",
+          "trillion-workshop/run-on-a-persons-computer",
+          "trillion-workshop/run-tools-in-my-signed-in-browser",
+          "trillion-workshop/run-work-later-or-on-a-repeat",
+          "trillion-workshop/screen-arrangement",
+          "trillion-workshop/screen-look",
+          "trillion-workshop/screen-looks",
+          "trillion-workshop/screen-ready-records",
+          "trillion-workshop/screen-recording",
+          "trillion-workshop/sealed-records",
+          "trillion-workshop/see-a-pursuit-through-the-lens",
+          "trillion-workshop/see-what-is-being-worked-on",
+          "trillion-workshop/see-what-my-ais-did",
+          "trillion-workshop/selected-agent",
+          "trillion-workshop/send-requests-to-an-engine",
+          "trillion-workshop/send-to-trillion-from-my-browser",
+          "trillion-workshop/serialized-content",
+          "trillion-workshop/set-up-my-account",
+          "trillion-workshop/set-up-my-devices-and-cameras",
+          "trillion-workshop/settings",
+          "trillion-workshop/settle-amounts-and-reconcile",
+          "trillion-workshop/shared-code",
+          "trillion-workshop/show-any-file-as-itself",
+          "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+          "trillion-workshop/show-ideas-as-records",
+          "trillion-workshop/sidebar",
+          "trillion-workshop/slot-table",
+          "trillion-workshop/social-posts",
+          "trillion-workshop/start-from-any-landing-page",
+          "trillion-workshop/starting-set",
+          "trillion-workshop/stream-an-answer-in-keyed-parts",
+          "trillion-workshop/take-pictures-out-of-a-zip-archive",
+          "trillion-workshop/tell-one-person-something-through-every-way-they",
+          "trillion-workshop/tell-the-person",
+          "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+          "trillion-workshop/tours-screen",
+          "trillion-workshop/transcript-reader",
+          "trillion-workshop/turn-a-list-column-that-holds-names-into",
+          "trillion-workshop/turn-frames-into-slides",
+          "trillion-workshop/tweak-live-controls",
+          "trillion-workshop/ui",
+          "trillion-workshop/view-as",
+          "trillion-workshop/walk-a-new-person-through-first-setup",
+          "trillion-workshop/walk-nested-input-within-limits",
+          "trillion-workshop/wall-time",
+          "trillion-workshop/watch-my-sources",
+          "trillion-workshop/what-is-waiting-on-me",
+          "trillion-workshop/where-a-person-stands",
+          "trillion-workshop/who-does-each-step",
+          "trillion-workshop/work-map",
+          "trillion-workshop/workflow-canvas",
+          "trillion-workshop/workflow-interruptions",
+          "trillion-workshop/workflows",
+          "trillion-workshop/workspace-pieces",
+          "trillion-workshop/workspace-screens",
+          "trillion-workshop/write-a-job-done-in-several-steps-have",
+          "trillion-workshop/write-a-post-for-each-place"
+        ],
+        "kind": "ai-tool-descriptor",
+        "id": "tool:show-one-purchase-plan-card-and-receipts",
+        "label": "Show one purchase's plan, card and receipts",
+        "job": "Show the buyer the plan of one of my purchases, when it renews or ends, the card that pays it and its receipts",
+        "description": "Give subscription_id (the sub_ id of one purchase) and subject_email (the signed-in buyer's verified email; the purchase must be theirs). Reads the purchase from Stripe: its plan, status, renewal date (or end date when it is set to end), the card that pays it (brand, last four, expiry only) and its latest receipts (up to 12, with a receipt address when Stripe gives an https one). It changes nothing and opens no billing page; the buttons that change the card, the plan or cancel open tool:open-the-billing-page-for-one-purchase-and-show-the-card with a flow. Uses the Stripe key of the seller connection that seller_connection names (service_connection:stripe is your own).",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "subscription_id": {
+              "type": "string",
+              "pattern": "^sub_[A-Za-z0-9]+$"
+            },
+            "subject_email": {
+              "type": "string",
+              "format": "email",
+              "description": "The signed-in buyer's verified email. The purchase must belong to it, or nothing is read."
+            },
+            "seller_connection": {
+              "type": "string",
+              "pattern": "^service_connection:stripe(:[^:]+)?$",
+              "description": "The seller's Stripe connection: service_connection:stripe is the person's own, service_connection:stripe:<account> another business's. The key comes from that connection's row in the person's service connections."
+            }
+          },
+          "required": [
+            "seller_connection",
+            "subscription_id",
+            "subject_email"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "subscription_id": {
+              "type": "string"
+            },
+            "status": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "cancel_at_period_end": {
+              "type": "boolean"
+            },
+            "renews_at": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "date-time"
+            },
+            "ends_at": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "date-time"
+            },
+            "plan": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "properties": {
+                "label": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "amount_cents": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
+                },
+                "currency": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "interval": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "quantity": {
+                  "type": "integer"
+                }
+              }
+            },
+            "card": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "properties": {
+                "brand": {
+                  "type": "string"
+                },
+                "last4": {
+                  "type": "string"
+                },
+                "exp_month": {
+                  "type": "integer"
+                },
+                "exp_year": {
+                  "type": "integer"
+                }
+              }
+            },
+            "receipts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "number": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "created_at": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "format": "date-time"
+                  },
+                  "status": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "amount_paid_cents": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "currency": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "receipt_url": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "required": [
+            "subscription_id",
+            "status",
+            "cancel_at_period_end",
+            "plan",
+            "card",
+            "receipts"
+          ]
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "take-payments",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/take-payments"
+              },
+              {
+                "package": "funnels-and-offers",
+                "paths": [
+                  "read-data/read-offers.ts",
+                  "read-data/offer-variants.mjs"
+                ],
+                "at": "/opt/funnels-and-offers"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "do-work/run-a-function.mjs"
+                ],
+                "at": "/opt/workflows"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "package": "shared-code",
+                "paths": [
+                  "src/build-provider-request.mjs",
+                  "src/encode-provider-form.mjs",
+                  "src/provider-operation-map.json",
+                  "src/provider-request-mapper.mjs"
+                ],
+                "at": "/opt/shared-code"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          },
+          "workdir": "/opt/take-payments",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/workflows/do-work/run-a-function.mjs",
+            "/opt/take-payments/do-work/take-payments.mjs",
+            "showOnePurchaseBilling"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "fd": 4,
+              "field_id": "secret_key"
+            }
+          ],
+          "connection": {
+            "vendor": "stripe",
+            "from_input": "seller_connection"
+          }
+        },
+        "screen": {
+          "group": "sell",
+          "kind": "module",
+          "module": {
+            "package": "take-payments",
+            "entry": "web/src/workspace/billing-screen-mount.tsx"
+          },
+          "icon": "CreditCard",
+          "label": "Billing",
+          "about": "See the plan, renewal, card and receipts of one purchase; change the card or the plan, or cancel, on Stripe's page."
+        },
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:take-payments",
+        "licence_class": "licence:maker-own",
+        "provenance": {
+          "source": "new in take-payments: reads the subscription, its invoices and the card that pays it, with the billing page's own operations (operation:read-subscription-card, operation:find-invoices). The sample run's replies are shaped as the stand-in in test/billing-portal.test.mjs; they were not recorded from a live or test-mode Stripe account."
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "seller_connection": "service_connection:stripe:sample",
+              "subscription_id": "sub_sample0001",
+              "subject_email": "buyer@example.com"
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.stripe.com/v1/subscriptions/sub_sample0001?expand%5B0%5D=default_payment_method&expand%5B1%5D=items.data.price.product"
+                },
+                "status": 200,
+                "body": {
+                  "id": "sub_sample0001",
+                  "object": "subscription",
+                  "customer": "cus_sample0001",
+                  "status": "active",
+                  "cancel_at_period_end": false,
+                  "default_payment_method": {
+                    "id": "pm_sample0001",
+                    "type": "card",
+                    "card": {
+                      "brand": "visa",
+                      "last4": "4242",
+                      "exp_month": 12,
+                      "exp_year": 2030
+                    }
+                  },
+                  "items": {
+                    "data": [
+                      {
+                        "quantity": 1,
+                        "current_period_end": 1798000000,
+                        "price": {
+                          "unit_amount": 1200,
+                          "currency": "usd",
+                          "recurring": {
+                            "interval": "month"
+                          },
+                          "product": {
+                            "id": "prod_sample0001",
+                            "name": "Bread box"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.stripe.com/v1/invoices?subscription=sub_sample0001&limit=12"
+                },
+                "status": 200,
+                "body": {
+                  "object": "list",
+                  "data": [
+                    {
+                      "id": "in_sample0002",
+                      "object": "invoice",
+                      "number": "ABC-0002",
+                      "created": 1795400000,
+                      "status": "paid",
+                      "amount_paid": 1200,
+                      "currency": "usd",
+                      "hosted_invoice_url": "https://invoice.stripe.com/i/sample0002"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ],
+        "needs": {
+          "expected_seconds": 20,
+          "network_egress": true
+        },
+        "result_selector": "$.result"
       }
     }
   ]
