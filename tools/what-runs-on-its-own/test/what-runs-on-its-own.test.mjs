@@ -1,68 +1,60 @@
-// What runs on its own: each cause's state from the engine's wake book, red for the ones that should have run and
-// did not, the engine's own key for a wake, the state-and-step graph (every state reachable, at most 20 arrows), and
-// the row's sample run as the tool container runs it. Every value here is made up.
+// What runs on its own: each cause's state from its wake:list row, red for the ones that should have run and did not,
+// the state-and-step graph (every state reachable, at most 20 arrows), and the row's sample run as the tool container
+// runs it. Every value here is made up.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { seeWhatRunsOnItsOwn, wakeKey } from '../do-work/what-runs-on-its-own.mjs';
+import { seeWhatRunsOnItsOwn } from '../do-work/what-runs-on-its-own.mjs';
 
 const folder = resolve(import.meta.dirname, '..');
 const states = JSON.parse(readFileSync(resolve(folder, 'read-data/states.json'), 'utf8'));
-const HOUR = 3_600_000;
 const NOW = 1_800_000_000_000;
-const hourly = { tool: 'tool:sample', id: 'every-hour', on: { time: { every_ms: HOUR } }, budget: { steps: 1 } };
-const notes = { tool: 'tool:sample', id: 'on-note', on: { record: { resource: 'notes', kind: 'note' } }, budget: { steps: 1 } };
-const inbox = { tool: 'tool:sample', id: 'inbox', on: { arrival: { source: 'mail' } }, budget: { steps: 1 } };
-const book = (marks, live = {}) => ({ marks: Object.fromEntries(Object.entries(marks).map(([id, mark]) => [wakeKey('tool:sample', id), mark])), live });
-const one = (wake, theBook, extra = {}) => seeWhatRunsOnItsOwn({ now_ms: NOW, wakes: [wake], book: theBook, ...extra }).causes[0];
+const daily = { kind: 'due-time', from: ['run'], watch: { schedules: [{ cadence: { unit: 'day' }, local_window: { start: '14:00', duration_minutes: 1 }, timezone: 'UTC' }] } };
+const wake = (id, on, switched_on, mark = {}) => ({ tool: 'tool:sample', id, on, budget: { steps: 1 }, switched_on, mark });
+const one = row => seeWhatRunsOnItsOwn({ wakes: [row] }).causes[0];
 
-test('a wake is found by the engine\'s key: BLAKE3 of tool, zero, id, zero', () => {
-  // The same bytes through b3sum: printf 'tool:sample\0every-hour\0' | b3sum
-  assert.equal(wakeKey('tool:sample', 'every-hour'), '5d779854c55f759d0d6ea808b8cab04402b50d3f866b155e0f71e06ce634fe01');
-  // The engine's own test of its key uses this pair (trillion-rust src/wake/tests.rs).
-  assert.equal(wakeKey('sample-tool', 'every-hour'), '0266f22d38ce04dcbd4810dd1d16c9ee661cf7719b61d3d8f93237f22ff2477b');
+test('a fact wake says what it hears, and a due time says its schedule', () => {
+  assert.equal(one(wake('daily', { fact: daily }, true)).waits_for, 'every day at 14:00 UTC');
+  const weekly = { ...daily, watch: { schedules: [{ cadence: { unit: 'week', weekdays: [1] }, local_window: { start: '09:00' }, timezone: 'UTC' }] } };
+  assert.equal(one(wake('weekly', { fact: weekly }, true)).waits_for, 'every week on Monday at 09:00 UTC');
+  const added = one(wake('added', { fact: { kind: 'something-changed', from: ['run'], match: { place: 'launch', change: 'added' } } }, true));
+  assert.equal(added.waits_for, 'when run tells something-changed (place launch, change added)');
+  assert.equal(one(wake('keep', { running: {} }, true, { running: 'k' })).waits_for, 'kept running, started again if it stops');
 });
 
-test('a wake waiting for its cause is on, with its next run', () => {
-  const cause = one(hourly, book({ 'every-hour': { next_ms: NOW + HOUR, ran_ms: NOW - HOUR, outcome: 'ran' } }));
-  assert.deepEqual([cause.state, cause.red, cause.next_run_ms, cause.last_run_ms, cause.last_outcome], ['on', false, NOW + HOUR, NOW - HOUR, 'ran']);
-  assert.equal(cause.waits_for, 'every hour');
-  assert.deepEqual(cause.switch, { tool: 'tool:sample', id: 'every-hour', on: true, turn: 'off', label: 'Turn off' });
+test('a switched-on fact wake that has heard nothing yet is on, not red: it has no mark until its first fact', () => {
+  const cause = one(wake('daily', { fact: daily }, true));
+  assert.deepEqual([cause.state, cause.red, cause.last_run_ms], ['on', false, null]);
+  assert.deepEqual(cause.switch, { tool: 'tool:sample', id: 'daily', on: true, turn: 'off', label: 'Turn off' });
 });
 
 test('a cause that should have run and did not is red, and says why', () => {
-  // Past due by more than late_after_ms: the engine stopped running causes.
-  const late = one(hourly, book({ 'every-hour': { next_ms: NOW - 2 * HOUR } }));
-  assert.deepEqual([late.state, late.red], ['late', true]);
-  assert.match(late.why, /nothing ran it/);
-  // A watched resource changed long ago and the wake's cursor never read it.
-  const unread = one(notes, book({ 'on-note': { after: 0 } }), { stamps: { notes: (NOW - HOUR) * 65536 } });
-  assert.deepEqual([unread.state, unread.red], ['late', true]);
-  // Due with the period's budget spent; a failed run; a lost answer; a wake the engine never picked up.
-  assert.equal(one(hourly, book({ 'every-hour': { next_ms: NOW, unfunded_ms: NOW - HOUR } })).state, 'unfunded');
-  assert.equal(one(hourly, book({ 'every-hour': { next_ms: NOW + HOUR, outcome: 'failed' } })).state, 'failed');
-  assert.equal(one(hourly, book({ 'every-hour': { next_ms: NOW + HOUR, outcome: 'unknown' } })).state, 'unknown');
-  const unplaced = one(hourly, null);
-  assert.deepEqual([unplaced.state, unplaced.red, unplaced.label], ['unplaced', true, 'Not picked up yet']);
-  // An arrival wake has no mark until its first event, so no mark is not a fault.
-  assert.deepEqual([one(inbox, null).state, one(inbox, null).waits_for], ['on', 'when mail sends something']);
+  const failed = one(wake('daily', { fact: daily }, true, { outcome: 'failed', outcome_cause: 'tool_runner.rs:264 declaration_changed_switch_on_again', ran_ms: NOW }));
+  assert.deepEqual([failed.state, failed.red, failed.last_run_ms], ['failed', true, NOW]);
+  assert.match(failed.why, /declaration_changed_switch_on_again/);
+  assert.equal(one(wake('daily', { fact: daily }, true, { outcome: 'unknown' })).state, 'unknown');
+  const unfunded = one(wake('daily', { fact: daily }, true, { unfunded_ms: NOW }));
+  assert.deepEqual([unfunded.state, unfunded.red, unfunded.label], ['unfunded', true, 'Came with no budget left']);
+  const unstarted = one(wake('keep', { running: {} }, true, { on: true }));
+  assert.deepEqual([unstarted.state, unstarted.red, unstarted.label], ['unplaced', true, 'Not picked up yet']);
 });
 
-test('off wins over everything and shows the switch to turn it on; a running cause shows as running', () => {
-  const off = one(hourly, book({ 'every-hour': { off: true, next_ms: NOW - 5 * HOUR, outcome: 'failed' } }));
+test('off wins over everything and shows the switch to turn it on; a fired cause not yet ran shows as running', () => {
+  const off = one(wake('daily', { fact: daily }, false, { outcome: 'failed' }));
   assert.deepEqual([off.state, off.red, off.also, off.switch.turn, off.switch.label], ['off', false, [], 'on', 'Turn on']);
-  const running = one(hourly, book({ 'every-hour': { next_ms: NOW + HOUR } }, { k: { tool: 'tool:sample', wake: 'every-hour' } }));
-  assert.equal(running.state, 'running');
+  assert.equal(one(wake('daily', { fact: daily }, true, { fired_ms: NOW, ran_ms: NOW - 1 })).state, 'running');
+  assert.equal(one(wake('keep', { running: {} }, true, { running: 'k', fired_ms: NOW, ran_ms: NOW })).state, 'running');
 });
 
-test('red causes come first, with counts', () => {
-  const all = seeWhatRunsOnItsOwn({ now_ms: NOW, wakes: [inbox, hourly, notes],
-    book: book({ 'every-hour': { next_ms: NOW - 2 * HOUR }, 'on-note': { after: 0, off: true } }) });
-  assert.deepEqual(all.causes.map(cause => cause.id), ['every-hour', 'inbox', 'on-note']);
+test('red causes come first, then switched-on ones, with counts', () => {
+  const all = seeWhatRunsOnItsOwn({ wakes: [
+    wake('quiet', { fact: daily }, false), wake('daily', { fact: daily }, true), wake('broken', { fact: daily }, true, { outcome: 'failed' }),
+  ] });
+  assert.deepEqual(all.causes.map(cause => cause.id), ['broken', 'daily', 'quiet']);
   assert.deepEqual([all.red, all.on, all.off], [1, 2, 1]);
-  assert.throws(() => seeWhatRunsOnItsOwn({ wakes: [] }), /now_ms/);
+  assert.throws(() => seeWhatRunsOnItsOwn({}), /wakes/);
 });
 
 test('the state-and-step graph: every state is reachable from a new wake and has a way out, in at most 20 arrows', () => {

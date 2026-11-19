@@ -11,30 +11,22 @@
     "published-record"
    ],
    "payload": {
-    "uses_tools": [
-      "trillion-workshop/content-identity"
-    ],
     "kind": "ai-tool-descriptor",
     "id": "tool:see-what-runs-on-its-own",
     "label": "See what runs on its own",
     "status": "active",
-    "job": "Show everything my account runs on its own (schedules, record changes, incoming events): what each waits for, whether it is on, its last and next run, which ones should have run and did not, and a switch to turn each off or on",
-    "description": "Give now_ms, wakes (the causes tool rows declare: [{tool, id, on, budget}]), book (the engine's wake book record, or null) and, optionally, stamps (each watched resource's newest change stamp) and late_after_ms. Returns one row per cause: what it waits for in plain words, its state (on, running, off, last run failed, outcome unknown, due and waiting for budget, should have run and did not, not picked up yet), red when it needs the person, why, its last run and outcome, its next run, and the switch that turns it off or on; red rows first, with counts of red, on and off.",
+    "job": "Show everything my account runs on its own (due times, facts it hears, programs it keeps running): what each waits for, whether it is on, its last run, which ones should have run and did not, and a switch to turn each off or on",
+    "description": "Give wakes, the rows wake:list answers ([{tool, id, on, switched_on, mark}]). Returns one row per cause: what it waits for in plain words (a due time as its schedule), its state (on, running, off, last run failed, outcome unknown, came with no budget left, not picked up yet), red when it needs the person, why (a failed run says its cause), its last run and outcome, and the switch that turns it off or on; red rows first, then switched-on ones, with counts of red, on and off.",
     "input_schema": {
      "type": "object",
      "required": [
-      "now_ms",
       "wakes"
      ],
      "additionalProperties": false,
      "properties": {
-      "now_ms": {
-       "type": "number",
-       "description": "The engine's time now, in milliseconds"
-      },
       "wakes": {
        "type": "array",
-       "description": "The causes the tool rows declare: [{tool, id, on, budget}]",
+       "description": "The rows wake:list answers: [{tool, id, on, budget, switched_on, mark}]",
        "items": {
         "type": "object",
         "required": [
@@ -43,21 +35,6 @@
          "on"
         ]
        }
-      },
-      "book": {
-       "type": [
-        "object",
-        "null"
-       ],
-       "description": "The engine's wake book record, as the record read gives it"
-      },
-      "stamps": {
-       "type": "object",
-       "description": "Optional: each watched resource's newest change stamp"
-      },
-      "late_after_ms": {
-       "type": "number",
-       "description": "Optional: how long past due a cause may be before it shows as late"
       }
      }
     },
@@ -108,27 +85,6 @@
          "read-data"
         ],
         "at": "/opt/what-runs-on-its-own"
-       },
-       {
-        "package": "content-identity",
-        "paths": [
-         "read-data"
-        ],
-        "at": "/opt/content-identity"
-       },
-       {
-        "packages": ["node_modules/@noble/hashes"],
-        "paths": [
-         "LICENSE",
-         "package.json",
-         "blake3.js",
-         "blake2.js",
-         "_blake.js",
-         "_md.js",
-         "_u64.js",
-         "utils.js"
-        ],
-        "at": "/opt/node_modules/@noble/hashes"
        }
       ]
      },
@@ -157,31 +113,51 @@
     ],
     "maker": "maker:what-runs-on-its-own",
     "provenance": {
-     "source": "the engine's wake book (every cause, its mark and its live runs), shown the way onit (MIT) shows a computer's background jobs: what is on, its state, and a switch"
+     "source": "the engine's wake:list rows (each declared wake, whether it is switched on, and its mark), shown the way onit (MIT) shows a computer's background jobs: what is on, its state, and a switch"
     },
     "verify": [
      {
       "kind": "sample-run",
       "input": {
-       "now_ms": 1800000000000,
        "wakes": [
         {
          "tool": "tool:sample",
-         "id": "every-hour",
+         "id": "daily",
          "on": {
-          "time": {
-           "every_ms": 3600000
+          "fact": {
+           "kind": "due-time",
+           "from": [
+            "run"
+           ],
+           "watch": {
+            "schedules": [
+             {
+              "cadence": {
+               "unit": "day"
+              },
+              "local_window": {
+               "start": "14:00",
+               "duration_minutes": 1
+              },
+              "timezone": "UTC"
+             }
+            ]
+           }
           }
          },
          "budget": {
           "steps": 1
+         },
+         "switched_on": true,
+         "mark": {
+          "outcome": "failed",
+          "outcome_cause": "the run was refused"
          }
         }
-       ],
-       "book": null
+       ]
       },
       "output_selector": "$.causes[0].label",
-      "contains": "Not picked up yet"
+      "contains": "Last run failed"
      }
     ],
     "record_model": {

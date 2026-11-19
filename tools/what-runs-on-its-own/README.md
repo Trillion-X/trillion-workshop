@@ -1,61 +1,58 @@
 # tools/what-runs-on-its-own/
 
-One screen of everything a person's account runs on its own: each schedule, record change and incoming event the engine wakes a tool for. Each row shows what the cause waits for, whether it is on, its last run and how it ended, its next run, and a switch to turn it off or on.
+One screen of everything a person's account runs on its own: each due time, each fact the engine hears and each program it keeps running for a tool. Each row shows what the cause waits for (a due time as its schedule, "every day at 14:00 UTC"), whether it is on, its last run and how it ended, and a switch to turn it off or on.
 
-A cause that should have run and did not is red. That covers a run that failed, a run whose answer was lost, a cause due while the period's budget is spent, a cause past due that nothing ran, and a cause the engine never picked up. So a guard that quietly stops shows at the moment it stops, not days later. The idea is borrowed from onit (MIT, github.com/neethanwu/onit), which shows a Mac's background jobs and their state in the notch.
+A cause that should have run and did not is red. That covers a run that failed (with the cause the engine kept for it), a run whose answer was lost, a fact that came with the period's budget spent, and a kept-running program the engine never started. So a guard that quietly stops shows at the moment it stops, not days later. A fact wake that has not heard its first fact has no mark yet; that is not a fault and shows as on. The idea is borrowed from onit (MIT, github.com/neethanwu/onit), which shows a Mac's background jobs and their state in the notch.
 
-The tool only reads. The engine keeps the causes (`src/wake.rs` in the engine, one wake book record per account). The caller hands the tool that record, the declared wakes and the time now. The switch is the engine's `switch`, called by the door with the row's `{tool, id, on}`.
+The tool only reads. The engine keeps the causes (`src/wake.rs` in the engine) and answers them with `wake:list`: each declared wake, whether it is switched on, and its mark. The caller hands the tool those rows. The switch is the engine's `wake:switch`, called with the row's `{tool, id, on}`.
 
 ## Files
 
 | File | Purpose |
 |------|---------|
-| `do-work/what-runs-on-its-own.mjs` | `tool:see-what-runs-on-its-own`: one row per declared wake, red first. `wakeKey` is the engine's key for a wake: BLAKE3 of tool, a zero byte, id, a zero byte. |
-| `read-data/states.json` | The states (words, red or not), which state wins when several hold, how long past due counts as late, and the steps between states. A new state is one row. |
-| `tool-rows.json` | The Workshop row Trillion reads. It packs `tools/content-identity` (BLAKE3) and `@noble/hashes` into the container. |
+| `do-work/what-runs-on-its-own.mjs` | `tool:see-what-runs-on-its-own`: one row per wake:list row, red first, then switched-on ones. |
+| `read-data/states.json` | The states (words, red or not), which state wins when several hold, and the steps between states. A new state is one row. |
+| `tool-rows.json` | The Workshop row the engine reads. The container holds this folder alone. |
 | `part.json` | The tool and its states are public. |
-| `test/what-runs-on-its-own.test.mjs` | Every state and why it holds, off winning, red first with counts, the key against b3sum, the state graph (every state reachable, each with a way out, at most 20 arrows), and the sample run as the container runs it. |
+| `test/what-runs-on-its-own.test.mjs` | What each kind of wake waits for, every state and why it holds, off winning, red first with counts, the state graph (every state reachable, each with a way out, at most 20 arrows), and the sample run as the container runs it. |
 
 ## Key Types / Functions
 
 | Name | Shape | Role |
 |------|-------|------|
-| Input | `{ now_ms, wakes: [{tool, id, on, budget}], book, stamps?, late_after_ms? }` | `book` is the wake book record, or null before the engine first wrote it. `stamps` gives each watched resource's newest change stamp, so an unread change shows as late. |
-| A row | `{ tool, id, waits_for, state, label, red, why, also, last_run_ms, last_outcome, next_run_ms, switch: {tool, id, on, turn, label} }` | `also` lists the other states that hold, for example a failed run under an off switch. |
-| Mark (read from the book) | `{ after?, next_ms?, done?, off?, fired_ms?, ran_ms?, outcome?: "ran" \| "failed" \| "unknown", unfunded_ms? }` | Kept by the engine for each wake. |
+| Input | `{ wakes: [{tool, id, on, budget, switched_on, mark}] }` | The rows `wake:list` answers. `on` is `{fact: {kind, from, match?, watch?}}` or `{running: {}}`. |
+| A row | `{ tool, id, waits_for, state, label, red, why, also, last_run_ms, last_outcome, switch: {tool, id, on, turn, label} }` | `also` lists the other states that hold. |
+| Mark (from wake:list) | `{ on?, fired_ms?, ran_ms?, outcome?: "ran" \| "failed" \| "unknown", outcome_cause?, unfunded_ms?, running? }` | Kept by the engine for each wake. |
 
 ## The states
 
-The chart is drawn from `read-data/states.json` (17 arrows). Red states are marked.
+The chart is drawn from `read-data/states.json` (15 arrows). Red states are marked.
 
 ```mermaid
 stateDiagram-v2
-    [*] --> unplaced
-    unplaced: Not picked up yet (red)
+    [*] --> on
     on: On
     running: Running
     off: Off
     failed: Last run failed (red)
     unknown: Last run's outcome is unknown (red)
-    unfunded: Due, waiting for budget (red)
-    late: Should have run and did not (red)
-    unplaced --> on: the engine picks it up
-    unplaced --> late: it comes due before the engine picks it up
+    unfunded: Came with no budget left (red)
+    unplaced: Not picked up yet (red)
+    unplaced --> running: the engine starts its program
     on --> running: its cause happens
-    on --> unfunded: it comes due [the period's budget is spent]
-    on --> late: it comes due and nothing runs it
+    on --> unfunded: its cause happens [the period's budget is spent]
     running --> on: the run finishes
     running --> failed: the run fails
     running --> unknown: the run's answer is lost
     failed --> running: its cause happens again
     unknown --> running: its cause happens again
-    unfunded --> running: a new period starts
-    late --> running: the engine runs again
+    unfunded --> running: its cause happens in a new period
     on --> off: you turn it off
     failed --> off: you turn it off
     unfunded --> off: you turn it off
-    late --> off: you turn it off
+    unplaced --> off: you turn it off
     off --> on: you turn it on
+    off --> unplaced: you turn on a kept-running one
 ```
 
 ## Run

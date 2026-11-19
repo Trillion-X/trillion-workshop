@@ -1,6 +1,6 @@
 {
   "drafted_from": "tool:see-what-runs-on-its-own's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Show everything my account runs on its own (schedules, record changes, incoming events): what each waits for, whether it is on, its last and next run, which ones should have run and did not, and a switch to turn each off or on\", with {\"now_ms\":1800000000000,\"wakes\":[{\"tool\":\"tool:sample\",\"id\":\"every-hour\",\"on\":{\"time\":{\"every_ms\":3600000}},\"budget\":{\"steps\":1}}],\"book\":null}. It runs tool:see-what-runs-on-its-own and answers {\"causes\":[{\"tool\":\"tool:sample\",\"id\":\"every-hour\",\"waits_for\":\"every hour\",\"state\":\"unplaced\",\"label\":\"Not picked up yet\",\"red\":true,\"why\":\"the engine has not picked it up; if this stays, the engine is not running its causes\",\"also\":[],\"last_run_ms\":null,\"last_outcome\":null,\"next_run_ms\":null,\"switch\":{\"tool\":\"tool:sample\",\"id\":\"every-hour\",\"on\":true,\"turn\":\"off\",\"label\":\"Turn off\"}}],\"red\":1 ...",
+  "start_here": "Say to your AI: \"Show everything my account runs on its own (due times, facts it hears, programs it keeps running): what each waits for, whether it is on, its last run, which ones should have run and did not, and a switch to turn each off or on\", with {\"wakes\":[{\"tool\":\"tool:sample\",\"id\":\"daily\",\"on\":{\"fact\":{\"kind\":\"due-time\",\"from\":[\"run\"],\"watch\":{\"schedules\":[{\"cadence\":{\"unit\":\"day\"},\"local_window\":{\"start\":\"14:00\",\"duration_minutes\":1},\"timezone\":\"UTC\"}]}}},\"budget\":{\"steps\":1},\"switched_on\":true,\"mark\":{\"outcome\":\"failed\",\"outcome_cause\":\"the run was refused\"}}]}. It runs tool:see-what-runs-on-its-own and answers {\"causes\":[{\"tool\":\"tool:sample\",\"id\":\"daily\",\"waits_for\":\"every day at 14:00 UTC\",\"state\":\"failed\",\"label\":\"Last run failed\",\"red\":true,\"why\":\"its last run failed: the run was refused\",\"also\":[],\"last_run_ms\":null,\"last_outcome\":\"failed\",\"switch\":{\"tool\":\"tool:sample\",\"id\":\"daily\",\"on\":true,\"turn\":\"off\",\"label\":\"Turn off\"}}],\"red\":1,\"on\":1,\"off\":0} ...",
   "lists": [],
   "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
@@ -8,14 +8,14 @@
     "tool:see-what-runs-on-its-own"
   ],
   "instructions": [
-    "1. Say to your AI: \"Show everything my account runs on its own (schedules, record changes, incoming events): what each waits for, whether it is on, its last and next run, which ones should have run and did not, and a switch to turn each off or on\", and give it now_ms (The engine's time now, in milliseconds); wakes (The causes the tool rows declare: [{tool, id, on, budget}]).",
+    "1. Say to your AI: \"Show everything my account runs on its own (due times, facts it hears, programs it keeps running): what each waits for, whether it is on, its last run, which ones should have run and did not, and a switch to turn each off or on\", and give it wakes (the rows wake:list answers: [{tool, id, on, budget, switched_on, mark}]).",
     "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:see-what-runs-on-its-own and its input (the worked example shows one).",
-    "3. Read what comes back: Give now_ms, wakes (the causes tool rows declare: [{tool, id, on, budget}]), book (the engine's wake book record, or null) and, optionally, stamps (each watched resource's newest change stamp) and late_after_ms."
+    "3. Read what comes back: Give wakes, the rows wake:list answers ([{tool, id, on, switched_on, mark}]). Returns one row per cause: what it waits for in plain words (a due time as its schedule), its state (on, running, off, last run failed, outcome unknown, came with no budget left, not picked up yet), red when it needs the person, why (a failed run says its cause), its last run and outcome, and the switch that turns it off or on; red rows first, then switched-on ones, with counts of red, on and off."
   ],
   "worked_examples": [
     {
       "title": "See what runs on its own on its own sample",
-      "ask": "Show everything my account runs on its own (schedules, record changes, incoming events): what each waits for, whether it is on, its last and next run, which ones should have run and did not, and a switch to turn each off or on",
+      "ask": "Show everything my account runs on its own (due times, facts it hears, programs it keeps running): what each waits for, whether it is on, its last run, which ones should have run and did not, and a switch to turn each off or on",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -24,28 +24,48 @@
           "input": {
             "tool": "tool:see-what-runs-on-its-own",
             "input": {
-              "now_ms": 1800000000000,
               "wakes": [
                 {
                   "tool": "tool:sample",
-                  "id": "every-hour",
+                  "id": "daily",
                   "on": {
-                    "time": {
-                      "every_ms": 3600000
+                    "fact": {
+                      "kind": "due-time",
+                      "from": [
+                        "run"
+                      ],
+                      "watch": {
+                        "schedules": [
+                          {
+                            "cadence": {
+                              "unit": "day"
+                            },
+                            "local_window": {
+                              "start": "14:00",
+                              "duration_minutes": 1
+                            },
+                            "timezone": "UTC"
+                          }
+                        ]
+                      }
                     }
                   },
                   "budget": {
                     "steps": 1
+                  },
+                  "switched_on": true,
+                  "mark": {
+                    "outcome": "failed",
+                    "outcome_cause": "the run was refused"
                   }
                 }
-              ],
-              "book": null
+              ]
             }
           }
         }
       },
-      "given": "The input {\"now_ms\":1800000000000,\"wakes\":[{\"tool\":\"tool:sample\",\"id\":\"every-hour\",\"on\":{\"time\":{\"every_ms\":3600000}},\"budget\":{\"steps\":1}}],\"book\":null}.",
-      "hands_back": "It answered {\"causes\":[{\"tool\":\"tool:sample\",\"id\":\"every-hour\",\"waits_for\":\"every hour\",\"state\":\"unplaced\",\"label\":\"Not picked up yet\",\"red\":true,\"why\":\"the engine has not picked it up; if this stays, the engine is not running its causes\",\"also\":[],\"last_run_ms\":null,\"last_outcome\":null,\"next_run_ms\":null,\"switch\":{\"tool\":\"tool:sample\",\"id\":\"every-hour\",\"on\":true,\"turn\":\"off\",\"label\":\"Turn off\"}}],\"red\":1,\"on\":1,\"off\":0}."
+      "given": "The input {\"wakes\":[{\"tool\":\"tool:sample\",\"id\":\"daily\",\"on\":{\"fact\":{\"kind\":\"due-time\",\"from\":[\"run\"],\"watch\":{\"schedules\":[{\"cadence\":{\"unit\":\"day\"},\"local_window\":{\"start\":\"14:00\",\"duration_minutes\":1},\"timezone\":\"UTC\"}]}}},\"budget\":{\"steps\":1},\"switched_on\":true,\"mark\":{\"outcome\":\"failed\",\"outcome_cause\":\"the run was refused\"}}]}.",
+      "hands_back": "It answered {\"causes\":[{\"tool\":\"tool:sample\",\"id\":\"daily\",\"waits_for\":\"every day at 14:00 UTC\",\"state\":\"failed\",\"label\":\"Last run failed\",\"red\":true,\"why\":\"its last run failed: the run was refused\",\"also\":[],\"last_run_ms\":null,\"last_outcome\":\"failed\",\"switch\":{\"tool\":\"tool:sample\",\"id\":\"daily\",\"on\":true,\"turn\":\"off\",\"label\":\"Turn off\"}}],\"red\":1,\"on\":1,\"off\":0}."
     }
   ]
 }
