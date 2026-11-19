@@ -1,0 +1,31 @@
+// package-files.json is what test-helpers/write-package-files.mjs makes from this tree: every tool row's laid-out files, the
+// row's declared package_files plus every file its programs reach. The engine lays rows out with it, so a stale file starts a
+// row without a module it imports.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { existsSync, mkdtempSync, readFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
+import { PACKAGE_FILES, packageFilesText } from '../test-helpers/write-package-files.mjs';
+
+const repo = resolve(import.meta.dirname, '..');
+
+test('package-files.json is the laid-out files every tool row needs, made from this tree', () => {
+  const env = {};
+  let ref = 'HEAD';
+  if (!existsSync(join(repo, '.git'))) {
+    const gitDir = mkdtempSync(join(tmpdir(), 'package-files-git-'));
+    Object.assign(env, { GIT_DIR: gitDir, GIT_WORK_TREE: repo, GIT_INDEX_FILE: join(gitDir, 'index'), GIT_AUTHOR_NAME: 'check', GIT_AUTHOR_EMAIL: 'check@example.test', GIT_COMMITTER_NAME: 'check', GIT_COMMITTER_EMAIL: 'check@example.test' });
+    const git = args => execFileSync('git', args, { env: { ...process.env, ...env }, maxBuffer: 2 ** 30 }).toString().trim();
+    git(['init', '-q']); git(['add', '-A', '-f', '.']);
+    ref = git(['commit-tree', git(['write-tree']), '-m', 'check tree']);
+  }
+  const saved = { ...process.env };
+  Object.assign(process.env, env);
+  let made;
+  try { made = packageFilesText({ repo, ref }); } finally { for (const key of Object.keys(env)) { if (key in saved) process.env[key] = saved[key]; else delete process.env[key]; } }
+  assert.equal(readFileSync(join(repo, PACKAGE_FILES), 'utf8'), made, `${PACKAGE_FILES} is stale: run node test-helpers/write-package-files.mjs and commit it.`);
+  const rows = JSON.parse(made);
+  assert.ok(rows['tool:run-workflow-definition'].some(item => item.package === 'decide-with-a-method' && item.paths.includes('read-data/decision-outcome.mjs')), 'the workflow runner is laid out with the decision outcome module its kit check imports');
+});
