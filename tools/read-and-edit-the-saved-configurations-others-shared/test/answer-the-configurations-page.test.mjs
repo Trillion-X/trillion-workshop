@@ -2,8 +2,8 @@
 // test/configurations-record-engine.test.mjs (tag old-trillion-before-worker-retire), ported: there they ran the owner on
 // the real SQLite record engine; here on the run's records as the route reads them (recordsInMemory), which is the
 // store the route gives the owner. The cases that tested the record engine itself (sealing, rollback) and the Lists and
-// your-records adapters stay with those owners. Then the row runs as the container runs it, against the fake records
-// door with exactly its rights.
+// your-records adapters stay with those owners. Then the row runs as the container runs it, with its records given as
+// input and no store reached.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { answerOf, rowOf, rightsOf, said } from '../../../test-helpers/run-a-row.mjs';
@@ -62,55 +62,70 @@ test('strict configuration model survives a colliding user summary list without 
 
 const row = rowOf(rows, 'tool:answer-the-configurations-page');
 const route = (path, method = 'GET', body = {}, query = {}) => ({ path, method, query, body, browser: { user_agent: 'sample', origin: 'https://app.example', visitor: 'visitor-sample' } });
+// The records the caller holds after a run: the ones it handed in, changed by the keep the run answered.
+const after = (records, keep = []) => {
+  const held = new Map(records.map(record => [record.id, record]));
+  for (const { id, type, value } of keep) { if (value === null) held.delete(id); else held.set(id, { id, type, value }); }
+  return [...held.values()];
+};
 
 test('the page saves, reads, lists, updates at its revision, copies and removes configurations as own records', async () => {
-  const saved = await answerOf(row, route('/configurations', 'POST', definition('c1')), { records: [accounts] });
+  const saved = await answerOf(row, { ...route('/configurations', 'POST', definition('c1')), records: [accounts] });
   assert.equal(saved.status, 0, saved.error);
   assert.equal(saved.result.status, 200, JSON.stringify(saved.result));
   const one = saved.result.body.configuration;
   assert.equal(one.id, 'record:configuration:c1');
   assert.deepEqual(one.field_ids, ['title', 'owner'], 'a list target\'s fields come from its list record');
   assert.equal(one.owner_name, 'You');
-  assert.deepEqual(saved.kept.map(record => record.id).sort(), ['list:accounts', 'list:saved-configurations', 'record:configuration:c1']);
+  const kept = after([accounts], saved.result.keep);
+  assert.deepEqual(kept.map(record => record.id).sort(), ['list:accounts', 'list:saved-configurations', 'record:configuration:c1']);
+  assert.deepEqual(saved.result.keep.find(record => record.id === 'record:configuration:c1').expected, null, 'a new record is kept against nothing');
 
-  const read = await answerOf(row, route('/configurations/c1'), { records: saved.kept });
-  assert.deepEqual(read.result, { status: 200, body: { configuration: one } });
-  const missing = await answerOf(row, route('/configurations/nowhere'), { records: saved.kept });
-  assert.deepEqual(missing.result, { status: 404, body: { error: 'This configuration is no longer available.', code: 'configuration_not_found' } });
+  const read = await answerOf(row, { ...route('/configurations/c1'), records: kept });
+  assert.deepEqual(read.result, { status: 200, body: { configuration: one }, keep: [] });
+  const missing = await answerOf(row, { ...route('/configurations/nowhere'), records: kept });
+  assert.deepEqual(missing.result, { status: 404, body: { error: 'This configuration is no longer available.', code: 'configuration_not_found' }, keep: [] });
 
-  const listed = await answerOf(row, route('/configurations', 'GET', {}, { target: 'list:accounts' }), { records: saved.kept });
+  const listed = await answerOf(row, { ...route('/configurations', 'GET', {}, { target: 'list:accounts' }), records: kept });
   assert.deepEqual(listed.result.body, { configurations: [one], next_before: null });
-  const badLimit = await answerOf(row, route('/configurations', 'GET', {}, { limit: '0' }), { records: saved.kept });
+  const badLimit = await answerOf(row, { ...route('/configurations', 'GET', {}, { limit: '0' }), records: kept });
   assert.equal(badLimit.result.status, 400);
 
-  const stale = await answerOf(row, route('/configurations/c1', 'POST', { label: 'Old editor', expected_revision: 0 }), { records: saved.kept });
+  const stale = await answerOf(row, { ...route('/configurations/c1', 'POST', { label: 'Old editor', expected_revision: 0 }), records: kept });
   assert.equal(stale.result.status, 409);
   assert.equal(stale.result.body.code, 'configuration_conflict');
-  assert.deepEqual(stale.kept, saved.kept, 'a refused change writes nothing');
+  assert.deepEqual(stale.result.keep, [], 'a refused change keeps nothing');
 
-  const renamed = await answerOf(row, route('/configurations/c1', 'POST', { label: 'Renamed', expected_revision: 1 }), { records: saved.kept });
+  const renamed = await answerOf(row, { ...route('/configurations/c1', 'POST', { label: 'Renamed', expected_revision: 1 }), records: kept });
   assert.equal(renamed.result.body.configuration.revision, 2);
-  const copied = await answerOf(row, route('/configurations/c1/duplicate', 'POST', {}), { records: renamed.kept });
+  assert.deepEqual(renamed.result.keep.find(record => record.id === 'record:configuration:c1').expected, { type: 'record:configuration', value: kept.find(record => record.id === 'record:configuration:c1').value }, 'a change keeps the record against the value it was handed in');
+  const renamedRecords = after(kept, renamed.result.keep);
+  const copied = await answerOf(row, { ...route('/configurations/c1/duplicate', 'POST', {}), records: renamedRecords });
   assert.equal(copied.result.body.configuration.label, 'Renamed copy');
   assert.equal(copied.result.body.configuration.copied_from, 'record:configuration:c1');
 
-  const removed = await answerOf(row, route('/configurations/c1', 'POST', { remove: true, expected_revision: 2 }), { records: renamed.kept });
+  const removed = await answerOf(row, { ...route('/configurations/c1', 'POST', { remove: true, expected_revision: 2 }), records: renamedRecords });
   assert.deepEqual(said(removed.result), { status: 200, body: { removed: 'record:configuration:c1' } });
-  assert.ok(!removed.kept.some(record => record.id === 'record:configuration:c1'));
+  assert.ok(removed.result.keep.some(record => record.id === 'record:configuration:c1' && record.value === null), 'a removal keeps the record with a null value');
+  assert.ok(!after(renamedRecords, removed.result.keep).some(record => record.id === 'record:configuration:c1'));
 });
 
 test('configurations shared with this account answer the old handler\'s unavailable, never a made-up list', async () => {
   const shared = await answerOf(row, route('/configurations', 'GET', {}, { visibility: 'shared' }));
-  assert.deepEqual(shared.result, { status: 503, body: { error: 'Saved configurations are temporarily unavailable. Try again.', code: 'configuration_unavailable' } });
+  assert.deepEqual(shared.result, { status: 503, body: { error: 'Saved configurations are temporarily unavailable. Try again.', code: 'configuration_unavailable' }, keep: [] });
   assert.equal((await answerOf(row, route('/configurations/shared/some-code'))).result.status, 503);
 });
 
-test('the row names the kinds of stored values it is given, and no store operation', () => {
-  assert.deepEqual(rightsOf(row), [
-    { kind: 'record:configuration' },
-    { kind: 'list', id: 'list:saved-configurations' },
-    { kind: 'list', prefix: 'list:' },
-  ]);
+test('a record handed in that is not a record is refused, and a null record is no record', async () => {
+  const bad = await answerOf(row, { ...route('/configurations'), records: [{ id: 'record:configuration:x' }] });
+  assert.match(bad.error, /records must be/);
+  const gone = await answerOf(row, { ...route('/configurations/c1'), records: [{ id: 'record:configuration:c1', type: 'record:configuration', value: null }] });
+  assert.equal(gone.result.status, 404);
+});
+
+test('the row reads and writes no store: it names no records operation and takes what it needs as input', () => {
+  assert.equal(row.stored, undefined);
+  assert.deepEqual(rightsOf(row), []);
   assert.ok(!/records:(read|write|list|search)\b/.test(JSON.stringify(row)));
   assert.equal(row.invoke.internet, false);
 });

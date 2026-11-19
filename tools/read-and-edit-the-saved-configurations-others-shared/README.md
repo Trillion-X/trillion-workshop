@@ -9,11 +9,12 @@ Moved here byte for byte from Trillion-X/trillion by `tools/move-code-between-tr
 `tool:answer-the-configurations-page` (`do-work/answer-the-configurations-page.mjs`, `tool-rows.json`) answers the
 saved-configurations routes, `/configurations` and `/configurations/...`, the way the old account owner did. It uses the
 old owner itself, `makeConfigurations` and `handleConfigurationsRequest` from `tools/query-and-change-list-rows/src/configurations.mjs`,
-over the person's `record:configuration` records and their `list:` records, which the caller gives the run as stored values
-(the run reaches no store itself) and which the run keeps back from its answer. The engine runs it as a `@workshop-routes` tool.
+over the person's `record:configuration` records and their `list:` records, which the caller hands in as `records` (the run
+reaches no store itself) and whose changes the run answers as `keep`, each with the value it expected, for the caller to put in
+its store. The engine runs it as a `@workshop-routes` tool.
 
 Configurations other accounts shared with this one by link or offer (`?visibility=shared`, `/configurations/shared/<code>`,
 `/configurations/offers/<code>`) and the time-bound context go through record sharing between accounts. A run given the
-person's rows cannot reach record sharing, so those routes return the old handler's own 503 `configuration_unavailable`.
+person's records cannot reach record sharing, so those routes return the old handler's own 503 `configuration_unavailable`.
 `test/answer-the-configurations-page.test.mjs` ports the tag's `test/configurations-record-engine.test.mjs` owner cases
-and runs the row against the fake records door.
+and runs the row with its records as input.

@@ -1,7 +1,7 @@
 {
  "kind": "tool-rows",
  "record_set": "read-and-edit-the-saved-configurations-others-shared-tool-rows",
- "what_this_is": "The Workshop row for tools/read-and-edit-the-saved-configurations-others-shared: the saved-configurations routes, answered by the old configurations owner over the person's own record:configuration records, which the caller gives the run as stored values and keeps from its answer (no store is reached by the run).",
+ "what_this_is": "The Workshop row for tools/read-and-edit-the-saved-configurations-others-shared: the saved-configurations routes, answered by the old configurations owner over the person's own record:configuration records, which the caller hands in as records and puts the answer's keep in its store (the run reads and writes no store).",
  "records": [
   {
    "id": "package::read-and-edit-the-saved-configurations-others-shared::tool::answer-the-configurations-page",
@@ -195,7 +195,7 @@
     "listed_on": "2026-11-05T00:00:00Z",
     "label": "Answer the saved configurations routes",
     "job": "Answer the saved configurations routes: list, read, save, remove and copy my saved configurations",
-    "description": "The /configurations routes, as the old account owner answered them (tools/query-and-change-list-rows/src/configurations.mjs): GET /configurations?target=&limit=&before= lists this account's own configurations, newest id first, with next_before; GET /configurations/<id> reads one (404 configuration_not_found); POST /configurations saves one ({ label, target, settings, aspects, field_ids, format, open_path }); POST /configurations/<id> updates it at expected_revision (409 configuration_conflict when stale) or removes it with { remove: true, expected_revision }; POST /configurations/<id>/duplicate copies it. Each is one record:configuration record, and the Saved configurations list record is made with the first. Configurations shared with this account by link or offer, and the time-bound context, answer 503 configuration_unavailable: they are reached through record sharing, which a run given the person's rows does not reach. Answers { status, body }.",
+    "description": "The /configurations routes, as the old account owner answered them (tools/query-and-change-list-rows/src/configurations.mjs): GET /configurations?target=&limit=&before= lists this account's own configurations, newest id first, with next_before; GET /configurations/<id> reads one (404 configuration_not_found); POST /configurations saves one ({ label, target, settings, aspects, field_ids, format, open_path }); POST /configurations/<id> updates it at expected_revision (409 configuration_conflict when stale) or removes it with { remove: true, expected_revision }; POST /configurations/<id>/duplicate copies it. Each is one record:configuration record, and the Saved configurations list record is made with the first. Configurations shared with this account by link or offer, and the time-bound context, answer 503 configuration_unavailable: they are reached through record sharing, which this run does not reach. Answers { status, body, keep }.",
     "needs": {
      "expected_seconds": 2,
      "network_egress": false
@@ -230,9 +230,9 @@
        "type": "object",
        "description": "The asking browser's own facts: user_agent, origin, visitor"
       },
-      "stored": {
-        "type": "object",
-        "description": "What this run reads of the person's own things, read by the caller from where the person keeps them (the engine keeps none) and given here: records: [{id, type, value}] of record:configuration, list (the row list:saved-configurations), list (ids starting list:), as this row's `stored` lists. What is not given is not there."
+      "records": {
+        "type": "array",
+        "description": "The configuration records (type record:configuration) and the list records the route needs (the list a configuration's target names, and list:saved-configurations), read by the caller from where the person keeps them and handed in as [{id, type, value}]. What is not given is not there."
       }
      }
     },
@@ -249,7 +249,7 @@
       "body": {},
       "keep": {
         "type": "array",
-        "description": "What the run made, for the caller to keep where the person keeps it: rows {id, type, value} (value null removes), settings {label, value}, files {file, base64}. The run itself writes nothing."
+        "description": "The records to keep where the person keeps them: { id, type, value, expected } each (value null removes; expected is the record as it was handed in, null when new; a store refuses a keep whose expected record has moved). The run itself writes nothing."
       }
      }
     },
@@ -372,7 +372,7 @@
      }
     },
     "provenance": {
-     "source": "trillion src/configurations.mjs makeConfigurations and handleConfigurationsRequest (tag old-trillion-before-worker-retire, moved to tools/query-and-change-list-rows/src/configurations.mjs), answered over the records door"
+     "source": "trillion src/configurations.mjs makeConfigurations and handleConfigurationsRequest (tag old-trillion-before-worker-retire, moved to tools/query-and-change-list-rows/src/configurations.mjs), answered over the records handed in as input"
     },
     "verify": [
      {
@@ -381,9 +381,8 @@
        "path": "/configurations",
        "method": "GET",
        "query": {},
-       "body": {}
-      },
-      "records": [
+       "body": {},
+       "records": [
        {
         "id": "record:configuration:sample",
         "type": "record:configuration",
@@ -409,23 +408,11 @@
          "open_path": "/connections?configuration=record%3Aconfiguration%3Asample"
         }
        }
-      ]
+       ]
+      }
      }
     ],
-    "result_selector": "$.result",
-    "stored": [
-      {
-        "kind": "record:configuration"
-      },
-      {
-        "kind": "list",
-        "id": "list:saved-configurations"
-      },
-      {
-        "kind": "list",
-        "prefix": "list:"
-      }
-    ]
+    "result_selector": "$.result"
    }
   }
  ]

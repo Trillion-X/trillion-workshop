@@ -2,22 +2,24 @@
 //
 // The saved-configurations routes (/configurations and /configurations/...), answered by old trillion's own owner:
 // makeConfigurations and handleConfigurationsRequest (tools/query-and-change-list-rows/src/configurations.mjs, moved
-// byte for byte from src/configurations.mjs at tag old-trillion-before-worker-retire), over the person's own records
-// that the caller gives this run as stored values (the run reaches no store itself). The engine runs this as a
-// @workshop-routes tool: input { path, method, query, body, browser }, result { status, body }.
+// byte for byte from src/configurations.mjs at tag old-trillion-before-worker-retire). The engine runs this as a
+// @workshop-routes tool: input { path, method, query, body, browser, records }, result { status, body, keep }.
 //
 // A configuration was already an own record (type record:configuration, id record:configuration:<id>), so it is the
-// same record here. The owner reads and writes its store synchronously; this run reads every configuration record and
-// the Saved configurations list once from the given values into `recordsInMemory`, lets the owner work on that, and
-// hands back what it wrote in one keep write. A refused change writes nothing.
+// same record here. The caller reads the configuration records and the list records the route needs from where the
+// person keeps them and hands them in as `records` ([{ id, type, value }]). The owner reads and writes its store
+// synchronously; this run holds those records in `recordsInMemory`, lets the owner work on that, and answers what it
+// wrote as `keep` ({ id, type, value, expected }: value null removes one, expected is the record as it was handed in,
+// null for a new one) for the caller to put in its store. A store refuses a keep whose expected record has moved. A
+// refused change answers no keep. The run reads and writes no store.
 //
 // What the old account gave the owner, and what it is here:
 //   - owner (the account's network relay and profile name): the old owner's own fallback { id: 'self', name: 'You' }:
 //     the local engine has no network relay, and a profile is no record this run is handed;
-//   - fieldsForTarget (a `list:` target's field ids): read from that list record (kind `list`);
+//   - fieldsForTarget (a `list:` target's field ids): read from that list record, when the caller hands it in;
 //   - shared (configurations shared with this account by link or offer, src/native-configurations.mjs over record
-//     sharing) and the time-bound context: not reachable from a run given the person's rows, so those requests answer the old
-//     handler's own "temporarily unavailable" (503 configuration_unavailable), never a made-up answer.
+//     sharing) and the time-bound context: not reachable from a run given the person's records, so those requests answer
+//     the old handler's own "temporarily unavailable" (503 configuration_unavailable), never a made-up answer.
 import { CONFIGURATION_TYPE, handleConfigurationsRequest, makeConfigurations } from '../../query-and-change-list-rows/src/configurations.mjs';
 
 const LIST_ID = 'list:saved-configurations';
@@ -48,31 +50,35 @@ export function recordsInMemory(records) {
   };
 }
 
-async function listAll(door, query) {
-  const found = [];
-  for await (const record of door.list(query)) found.push(record);
-  return found;
+// The records handed in (none when left out), each checked to be { id, type, value } and held by id: a later record with
+// a null value removes an earlier one, as it would in a store.
+function heldOf(records) {
+  if (records === undefined) return new Map();
+  if (!Array.isArray(records) || !records.every(record => object(record) && typeof record.id === 'string' && typeof record.type === 'string')) {
+    throw new Error('records must be the configuration and list records read from the person\'s store, each { id, type, value }.');
+  }
+  const held = new Map();
+  for (const record of records) {
+    if (record.value === null || record.value === undefined) held.delete(record.id);
+    else held.set(record.id, { type: record.type, value: record.value });
+  }
+  return held;
 }
 
-/** tool:answer-the-configurations-page: run by tools/records-door/do-work/run-an-export.mjs as fn(input, { door }). */
-export async function answerTheConfigurationsPage(input, { door }) {
-  const { path = '', method = 'GET', query = {}, body } = object(input) ? input : {};
-  const kept = await listAll(door, { type: CONFIGURATION_TYPE });
-  const list = await door.read('list', LIST_ID);
-  const eeaf = recordsInMemory([...kept, ...(list ? [{ id: LIST_ID, type: 'list', value: list }] : [])]);
-  const lists = new Map();
-  for (const target of new Set([body?.target, ...kept.map(record => record.value?.target)].filter(target => typeof target === 'string' && target.startsWith('list:') && target !== LIST_ID))) {
-    lists.set(target, await door.read('list', target).catch(() => null));
-  }
+/** tool:answer-the-configurations-page: called as fn(input) by tools/records-door/do-work/run-an-export.mjs. */
+export async function answerTheConfigurationsPage(input) {
+  const { path = '', method = 'GET', query = {}, body, records } = object(input) ? input : {};
+  const held = heldOf(records);
+  const eeaf = recordsInMemory([...held].map(([id, { type, value }]) => ({ id, type, value })));
   const configurations = makeConfigurations({
     eeaf,
     owner: () => ({ id: 'self', name: 'You' }),
-    fieldsForTarget: target => (target.startsWith('list:') ? ((target === LIST_ID ? eeaf.read(target) : lists.get(target))?.fields ?? []).map(field => field.id) : null),
+    fieldsForTarget: target => (target.startsWith('list:') ? (eeaf.read(target)?.fields ?? []).map(field => field.id) : null),
   });
   const search = new URLSearchParams(object(query) ? query : {}).toString();
   const request = new Request(`https://person${path}${search ? `?${search}` : ''}`, method === 'GET'
     ? {} : { method, headers: { 'content-type': 'application/json', 'x-trillion-app': 'person' }, body: JSON.stringify(body ?? {}) });
   const response = await handleConfigurationsRequest(configurations, request, unreachableShares, {});
-  if (response.status < 400 && eeaf.written.size) await door.write([...eeaf.written.values()]);
-  return { status: response.status, body: await response.json() };
+  const keep = response.status < 400 ? [...eeaf.written.values()].map(record => ({ ...record, expected: held.get(record.id) ?? null })) : [];
+  return { status: response.status, body: await response.json(), keep };
 }
