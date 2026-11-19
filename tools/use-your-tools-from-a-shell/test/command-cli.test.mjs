@@ -371,7 +371,7 @@ const nameOf = value => value.nickname ?? [value.app, value.model, value.compute
 // tools:run as the engine answers it: the tool's own answer under `result`.
 const ran = result => ({ exit_code: 0, replayed: false, result });
 
-test('who: the AIs tool:see-my-ais answers, named by the list:ais formula handed in, in one call, grouped by owner with yours first, ready chats beneath, the rest counted', async () => {
+test('who: the AIs tool:see-who-can-take-work answers, named by the list:ais formula handed in, in one call, grouped by owner with yours first, ready chats beneath, the rest counted', async () => {
   const now = Date.now();
   const recent = new Date(now - 10 * 60_000).toISOString(), earlier = new Date(now - 5 * 3_600_000).toISOString(), old = new Date(now - 10 * 86_400_000).toISOString();
   const codex = { app: 'Codex', model: 'gpt-6.1-sol', computer: 'Studio' };
@@ -382,7 +382,8 @@ test('who: the AIs tool:see-my-ais answers, named by the list:ais formula handed
     { id: 'ai:old', value: { agent_id: 'take-open-work-preflight', label: 'take-open-work-preflight', kind: 'account' }, live: false, seen_at: old, busy: 0 },
   ];
   const fake = await fakeDoor({ ops: {
-    '@tools tools:run': input => (input.tool === 'tool:see-my-ais' ? ran({ ais })
+    '@own-records records:list': () => ({ records: [], next: null }),
+    '@tools tools:run': input => (input.tool === 'tool:see-who-can-take-work' ? ran({ who: ais })
       : input.tool === 'tool:evaluate-a-formula' ? ran({ values: input.input.rows.map(row => nameOf(row) || null), errors: [] }) : { refused: `no ${input.tool}` }),
   } });
   try {
@@ -418,15 +419,15 @@ test('who: the AIs tool:see-my-ais answers, named by the list:ais formula handed
     const before = fake.calls.length;
     const unnamed = (await main(['who'], seams)).split('\n');
     assert.match(unnamed[1], /^ {2}An AI with no app, model or computer recorded/);
-    assert.deepEqual(fake.calls.slice(before).filter(call => call.method !== 'initialize').map(call => [call.method, call.input?.tool]), [['tools:run', 'tool:see-my-ais']]);
+    assert.deepEqual(fake.calls.slice(before).filter(call => call.method === 'tools:run').map(call => call.input?.tool), ['tool:see-who-can-take-work'], 'only the task row is run; the records it needs are read and handed in');
     const client = engineClient({ door: doorAt(fake.mcp), credential: keyCredential, rules: quick, wait: noWait });
     assert.deepEqual(await namesOf(client, [], AI_LIST.value), [], 'no AI shown: nothing to name');
   } finally { await fake.close(); }
   // A Workshop without the work tool says which tool is missing, in plain words, never "log in".
-  const bare = await fakeDoor({ ops: { '@tools tools:run': () => ({ code: 'tools_tool_unknown' }) } });
+  const bare = await fakeDoor({ ops: { '@own-records records:list': () => ({ records: [], next: null }), '@tools tools:run': () => ({ code: 'tools_tool_unknown' }) } });
   try {
     await assert.rejects(main(['who'], seamsFor(home(), { localDoor: () => bare.mcp })),
-      error => error.code === 'tools_tool_unknown' && error.message === 'tool:see-my-ais is not set up in your Example yet.');
+      error => error.code === 'tools_tool_unknown' && /^tool:see-who-can-take-work is not set up in your Example yet\./.test(error.message) && !/log ?in/i.test(error.message));
   } finally { await bare.close(); }
 });
 

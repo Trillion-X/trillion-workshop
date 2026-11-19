@@ -29,13 +29,7 @@ service-watch, service-check and other handlers need their own current feature
 owners before the registry can be moved without importing the retired engine.
 This folder does not claim those missing handlers.
 
-The `prepareProducedTask` host dependency is present in shared work but is absent from published Workshop main at `1083a00a`. The tests use a synthetic binding to qualify the answer and the refusals; this does not qualify operator installation.
-
-That publication observation is historical: the public projection at
-`fba3eca9e7037b8c80761fe488e414db7733ec81` exports `prepareProducedJob` from
-`tools/hand-work-to-ais/read-data/ai-work.mjs`. The operator still supplies that
-function to this port. Its presence does not prove that an operator has installed
-the client-health binding.
+`prepareProducedTask` is exported by `tools/plan-tasks-and-todo-lists/task-moves.mjs` on Workshop main since `fc75b6c2e` (Nov 19 2026, when the separate AI job ended). The operator still supplies that function to this port. The tests use a synthetic binding to qualify the answer and the refusals; this does not prove that an operator has installed the client-health binding.
 
 The folder's own `test/client-health.test.mjs` also checks that private facts do
 not enter work, every declared grouping value is validated, asynchronous durable

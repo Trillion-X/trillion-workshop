@@ -567,7 +567,7 @@
     "account_chars": 8,
     "ai_line": "{name}  {ready} of {chats} chats ready{seen}",
     "seen": "  last seen {at}",
-    "tool": "tool:see-my-ais",
+    "tool": "tool:see-who-can-take-work",
     "ai_list": "list:ais",
     "formula_kind": "formula",
     "formula_tool": "tool:evaluate-a-formula",

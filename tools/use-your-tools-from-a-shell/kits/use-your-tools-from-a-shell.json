@@ -27,8 +27,8 @@
           }
         }
       },
-      "given": "From tools/use-your-tools-from-a-shell/test/command-cli.test.mjs (the work-table test, run against its stand-in door as the AI app Claude Code on a computer named mac): {cli} send any Fix the build --key k1. The command makes one tools:run call at @tools of tool:hand-a-job-to-an-ai with input {as: \"ai:claude-code-on-mac\", job: \"Fix the build\", key: \"k1\", to: null}.",
-      "hands_back": "It prints four lines: \"Sent ai-job:k1.\", then \"ai-job:k1  waiting  for any AI  from ai:claude-code-on-mac\", then \"  job: Fix the build\", then \"Any of your AIs can take it.\" Running {cli} work ai-job:k1 afterwards prints the job's own lines, and once another AI finished it: \"ai-job:k1  done  for any AI  from ai:claude-code-on-mac\", \"  job: Fix the build\" and \"  result: Built.\"."
+      "given": "From tools/use-your-tools-from-a-shell/test/command-cli.test.mjs (the give, take and hand-on test, run against its stand-in door as the AI app Claude Code): {cli} give Fix the build --key k1 --acceptance-file FILE. The command reads the records the move needs at @own-records, makes one tools:run call at @tools of tool:give-a-task with input {as: \"ai:claude-code-on-<computer>\", description: \"Fix the build\", key: \"k1\", acceptance, records}, and keeps the row's write with one records:write conditioned on what was read.",
+      "hands_back": "It prints \"Gave record:calendar-task:k1.\" then \"record:calendar-task:k1  To do  for anyone  from ai:claude-code-on-<computer>\". {cli} take then prints \"Took record:calendar-task:k1.\"; {cli} hand-on record:calendar-task:k1 --to person:someone prints \"record:calendar-task:k1: In progress -> To do.\" and the task's assignees are [person:someone]; that person's {cli} take and {cli} finish record:calendar-task:k1 Built. move it to Done with result Built."
     },
     {
       "title": "List the Workshop tools through the command",

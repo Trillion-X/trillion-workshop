@@ -1233,7 +1233,7 @@ export async function namesOf(client, values, list, rules = settings) {
   return named.map(name => (typeof name === 'string' && name.trim() ? name : null));
 }
 
-/** One AI as `who` reads it, from tool:see-my-ais ({ id, value, live, seen_at, busy }) and a `name` when one is given. Its
+/** One AI as `who` reads it, from tool:see-who-can-take-work ({ id, type, value, live, seen_at, busy }) and a `name` when one is given. Its
  *  owner is the row's `owner` cell, else the account the door answered for; the AI never types it. Liveness is the
  *  tool's, computed when read; `recent` is within `who.seen_within_days`. */
 export function aiOf(row, { name = null, now = Date.now(), owner = null, rules = settings } = {}) {
@@ -1896,7 +1896,9 @@ export async function main(argv, seams = {}) {
   if (command === 'who') {
     const now = Date.now();
     const { account } = await client.whoami();
-    const rows = (await toolCall(client, settings.who.tool, {}, { idempotent: true }))?.ais ?? [];
+    // Who may take work: the records of who_types, handed in with the tasks held now, so each one's busy count is read too.
+    const { result } = await runTaskMove(resourceOf(client), { tool: settings.who.tool, input: {}, read: { types: settings.tasks.who_types, tasks: { statuses: wordsOfStates([takenState]) } } });
+    const rows = result?.who ?? [];
     const recent = row => flags.all === true || aiOf(row, { now }).recent;
     const shown = rows.filter(recent);
     const list = flags.list === undefined ? null : readJsonFile(flags.list, 'the list', '{"title_field": "name", "fields": [...]}');
