@@ -15,6 +15,8 @@
 //   - a package path (`trillion-workshop/tools/ui/...`, `tools/ui/...`) in a code or build file;
 //   - a package_files item of its tool-rows.json whose `package` is the other folder.
 // Documents (.md), held files (.held) and json data that only mentions a path as prose are not read for `tools/<name>/`.
+// Test folders and test files are not read at all: a test that imports another tool is not a need of the tool it tests.
+// Which names are tests is DATA in the tree (test-helpers/test-names.json: folder names, and file-name globs).
 //
 // Non-Negotiable Invariants:
 //   1. Complete over small: a mention that is not a real import only adds a folder; a missed import fails a run.
@@ -26,6 +28,7 @@ import { dirname, extname, join, relative, resolve, sep } from 'node:path';
 
 export const USES_TOOLS = 'uses_tools';
 const ROWS_FILE = 'tool-rows.json';
+const TEST_NAMES_FILE = join('test-helpers', 'test-names.json');
 const SKIPPED_FOLDERS = new Set(['node_modules', 'target', '.git']);
 const CODE = new Set(['.js', '.mjs', '.cjs', '.ts', '.tsx', '.jsx', '.mts', '.cts', '.py', '.css', '.html', '.sh', '.rs', '.toml']);
 const RELATIVE = /\.\.\/[A-Za-z0-9_@.\-/]*/g;
@@ -33,11 +36,18 @@ const ABSOLUTE = /(?:^|[^A-Za-z0-9_-])tools\/([a-z0-9][a-z0-9-]*)\//g;
 
 const subfolders = dir => readdirSync(dir, { withFileTypes: true }).filter(entry => entry.isDirectory() && !SKIPPED_FOLDERS.has(entry.name));
 
-function* filesUnder(dir) {
+/** The test names of the tree at `top`: folder names, and file-name patterns where `*` is any run of characters. */
+function testNamesOf(top) {
+  const names = JSON.parse(readFileSync(join(top, TEST_NAMES_FILE), 'utf8'));
+  const pattern = glob => new RegExp(`^${glob.split('*').map(part => part.replace(/[.+?^${}()|[\]\\]/g, '\\$&')).join('[^/]*')}$`);
+  return { folders: new Set(names.folders), files: names.files.map(pattern) };
+}
+
+function* filesUnder(dir, tests) {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     if (entry.isDirectory()) {
-      if (!SKIPPED_FOLDERS.has(entry.name)) yield* filesUnder(join(dir, entry.name));
-    } else if (entry.isFile()) yield join(dir, entry.name);
+      if (!SKIPPED_FOLDERS.has(entry.name) && !tests.folders.has(entry.name)) yield* filesUnder(join(dir, entry.name), tests);
+    } else if (entry.isFile() && !tests.files.some(pattern => pattern.test(entry.name))) yield join(dir, entry.name);
   }
 }
 
@@ -78,10 +88,11 @@ function packagesIn(source, folder, folders) {
 export function toolClosures(top) {
   const toolsDir = resolve(top, 'tools');
   const folders = new Set(subfolders(toolsDir).map(entry => entry.name));
+  const tests = testNamesOf(top);
   const direct = new Map();
   for (const folder of [...folders].sort()) {
     const needs = new Set();
-    for (const file of filesUnder(join(toolsDir, folder))) {
+    for (const file of filesUnder(join(toolsDir, folder), tests)) {
       const extension = extname(file);
       if (!CODE.has(extension) && extension !== '.json') continue;
       const source = readFileSync(file, 'utf8');

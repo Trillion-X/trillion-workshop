@@ -1,0 +1,5 @@
+{
+  "_what": "Which names inside a tool folder are tests, so the closure scanner (test-helpers/tool-closures.mjs) reads neither a test folder nor a test file: a test that imports another tool would otherwise make that tool a need of the folder it tests. folders: a directory with one of these names is skipped at any depth. files: a glob on the file name (`*` is any run of characters) for a file that is a test.",
+  "folders": ["test", "tests", "__tests__"],
+  "files": ["*.test.*", "*.spec.*", "test_*"]
+}
