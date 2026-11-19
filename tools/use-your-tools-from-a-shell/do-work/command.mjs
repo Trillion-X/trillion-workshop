@@ -231,6 +231,15 @@ export const holdingOf = (me, held) => Object.entries(held).flatMap(([key, kept]
  *  and moves jobs through the same rows. `work.actions` are the commands that move a job with tool:change-an-ai-job. */
 export const WORK_COMMANDS = new Set(['send', 'work', 'take', 'serve', ...Object.keys(settings.work.actions)]);
 
+/** The route a call of one Workshop tool is sent with: the `need` of the tool's run template (tools:list with `tool`, the
+ *  row's invoke block as the engine gives it), passed through untouched. A need that names no door is no route (the same
+ *  as none), so such a call is sent exactly as it was before routes existed. */
+export async function routeOf(client, tool, { rules = settings } = {}) {
+  const row = await client.op(null, rules.engine.tools_list, { tool }, { idempotent: true });
+  const need = row?.run?.need;
+  return Array.isArray(need?.local_doors) && need.local_doors.length > 0 ? { need } : {};
+}
+
 /** Runs one work tool (`work.tools[name]`) with `input`: tools:run at the door. Answers the tool's own answer, whole: a job
  *  row too large for one reply (a long brief) comes as byte pages, which are read through under the call's request key. */
 export async function workCall(client, name, input, { idempotent = false, rules = settings } = {}) {
@@ -786,9 +795,10 @@ export function engineClient({ door, credential, fetchImpl = fetch, rules = sett
     }
   }
   // A call names its method; the engine finds the owner by it. An address is sent only when one is given: to pass a method
-  // on to a computer whose own owner answers it (a meeting point's announce).
-  const op = (address, method, input = {}, { idempotent = false, requestKey = randomUUID() } = {}) =>
-    tool(rules.engine.tool, { ...(address ? { address } : {}), method, request_key: requestKeyForEngine(requestKey), input }, { idempotent });
+  // on to a computer whose own owner answers it (a meeting point's announce). A route (`need`, `pins`: see routeOf) is sent
+  // only when given, so every other call's envelope is unchanged.
+  const op = (address, method, input = {}, { idempotent = false, requestKey = randomUUID(), route = {} } = {}) =>
+    tool(rules.engine.tool, { ...(address ? { address } : {}), method, request_key: requestKeyForEngine(requestKey), input, ...route }, { idempotent });
   async function whoami() {
     const result = await rpc('initialize', { protocolVersion: rules.engine.protocol_version, capabilities: {}, clientInfo: { name: rules.client_name, version: rules.client_version } }, { once: true });
     // Whose account answered: the engine names it under `<its site, reversed>/account`, or `account` when it names no
@@ -833,7 +843,7 @@ const bytePageOf = answer => (object(answer) && object(answer.byte_page) ? answe
  * BLAKE3; the joined bytes must be that many and hash to that BLAKE3, or nothing is answered. The bytes are read as
  * JSON, else answered as text.
  */
-async function wholeAnswer(client, address, method, input, first, { requestKey, rules = settings } = {}) {
+async function wholeAnswer(client, address, method, input, first, { requestKey, rules = settings, route = {} } = {}) {
   const broken = why => new CommandError(rules.words.byte_page_broken, { status: 4, detail: fill(rules.words.details.byte_page_broken, { method, why }) });
   const head = bytePageOf(first);
   const { total, blake3 } = head;
@@ -853,7 +863,7 @@ async function wholeAnswer(client, address, method, input, first, { requestKey, 
     if (at === total) break;
     if (page.next_after_byte !== at) throw broken(`next_after_byte is ${page.next_after_byte ?? 'null'} at byte ${at} of ${total}`);
     if (count >= rules.engine.most_pages) throw new CommandError(rules.words.too_many_pages, { status: 4, detail: fill(rules.words.details.too_many_pages, { method, pages: rules.engine.most_pages }) });
-    const next = await client.op(address, method, { ...input, after_byte: at }, { idempotent: true, requestKey });
+    const next = await client.op(address, method, { ...input, after_byte: at }, { idempotent: true, requestKey, route });
     page = bytePageOf(next);
     if (!page) throw broken(`the page after byte ${at} is not a byte_page`);
   }
@@ -866,9 +876,9 @@ async function wholeAnswer(client, address, method, input, first, { requestKey, 
 
 /** One operation answered whole: `op` under one request key for the call and every page of its answer, and when the
  *  answer is a byte page, every page after it (wholeAnswer). */
-export async function opWhole(client, address, method, input, { requestKey = randomUUID(), rules = settings } = {}) {
+export async function opWhole(client, address, method, input, { requestKey = randomUUID(), rules = settings, route = {} } = {}) {
   try {
-    return await opWholeOnce(client, address, method, input, { requestKey, rules });
+    return await opWholeOnce(client, address, method, input, { requestKey, rules, route });
   } catch (error) {
     // Every refusal names the key it was sent under, so a caller can quote it. A call that times out may still have landed under
     // this key: the same key answers it, so the way to ask again is the key.
@@ -881,15 +891,15 @@ export async function opWhole(client, address, method, input, { requestKey = ran
   }
 }
 
-async function opWholeOnce(client, address, method, input, { requestKey, rules }) {
+async function opWholeOnce(client, address, method, input, { requestKey, rules, route }) {
   // A write the engine keeps answers accepted and pending until its writer settles it: the same key then answers the outcome, or the
   // writer's refusal, which the call throws. The wait is the records client's (settled-write.mjs), so no write is reported as kept while pending.
-  const first = await settledWrite(answerKey => client.op(address, method, input, { requestKey: answerKey }), requestKey, {
+  const first = await settledWrite(answerKey => client.op(address, method, input, { requestKey: answerKey, route }), requestKey, {
     sleep: client.wait,
     pending: answer => answer?.accepted === true && answer?.pending === true,
     expired: () => new CommandError(rules.words.write_pending, { status: 4 }),
   });
-  return bytePageOf(first) ? wholeAnswer(client, address, method, input, first, { requestKey, rules }) : first;
+  return bytePageOf(first) ? wholeAnswer(client, address, method, input, first, { requestKey, rules, route }) : first;
 }
 
 // ── Signing in once ──────────────────────────────────────────────────────────────────────────────────────────────
@@ -2069,7 +2079,8 @@ export async function main(argv, seams = {}) {
     const whole = answer => (typeof answer === 'string' ? answer : JSON.stringify(answer, null, 2));
     if (command === 'call') {
       const tool = need(words[0], `Name the tool: ${cliName()} call TOOL JSON, with an id from ${cliName()} tools.`);
-      return whole(await opWhole(client, null, engine.tools_run, { tool, input: await readJson(words[1], '{"text": "..."}') }, { requestKey: flags['request-key'] }));
+      const input = await readJson(words[1], '{"text": "..."}');
+      return whole(await opWhole(client, null, engine.tools_run, { tool, input }, { requestKey: flags['request-key'], route: await routeOf(client, tool) }));
     }
     return whole(await opWhole(client, flags.address ?? null, opMethod(words[0]), await readJson(words[1], '{"id": "..."}'), { requestKey: flags['request-key'] }));
   }

@@ -14,6 +14,10 @@ The `{cli}` command: any AI that can run a shell (Claude Code, Codex, Cursor, Ge
 
 The local door itself (the Mac app's loopback server, its bind interface and how it checks the bearer) is the Mac app's and the engine's, not this folder's: this folder is the client.
 
+## Routes (`need`)
+
+`{cli} call TOOL JSON` sends the tool's run template `need` (the row's invoke block, read from tools:list with `tool`) as the `need` of the engine's one call tool, passed through untouched. A tool whose row needs nothing sends no route, so the engine's envelope is what it was. Pins (the person's computer order) are not sent yet: the CLI keeps no person settings, so there is no road to read them from.
+
 ## Replaying recorded writes
 
 When an account's rows must be brought back (a restore from an older copy), the AIs' own transcripts on this computer hold every row they wrote. `records replay-from-transcripts --since TIME` reads each transcript file changed since TIME (subagent transcripts included) and keeps every records:write whose own result proves it succeeded:
@@ -34,6 +38,7 @@ Input built at run time (jq, a variable, a loop) is listed as unresolved, never 
 | `do-work/local-door.mjs` | `localDoorAddress({ runtime, home })`: the Mac app's loopback MCP address, read from its own declaration each call. Also used by `tools/register-my-account-in-my-ai-apps`. |
 | `do-work/replay-recorded-writes.mjs` | `records replay-from-transcripts`: brings back the rows this computer's AIs wrote, from their own transcripts (see Replaying recorded writes). |
 | `do-work/replay-recorded-writes.json` | Its DATA: where in each AI app's own folder (the app's `skills` row in `command.json`) its transcripts are, which transcript rows are calls, results and file writes (`shapes`), what proves a write succeeded or was refused, the credential shapes, the inventory folder name, the batch limits and request-key prefix, and how many rows of each type are read back. |
+| `test/command-call-sends-the-need.test.mjs` | `call TOOL JSON`: the tool's run template `need` (tools:list with `tool`, `routeOf`) is sent in the engine envelope, unchanged; a row with no need sends none. |
 | `test/command-cli.test.mjs`, `test/command-cli-workshop-install.test.mjs` | The old repository's tests of the command, moved with it. |
 | `test/replay-recorded-writes.test.mjs` | Synthetic transcripts: a success is kept in each shape, a refused, unknown or unanswered call is skipped and listed, the newest write wins across files, removals are carried, malformed lines and shell escapes are tolerated, file inputs come only from the transcript or an unchanged file, credential-like rows stay out, and a dry run is written back in batches, resumed and read back. |
 | `ports/replay-recorded-writes.json` | The NO_PRIOR_OWNER claim for `do-work/replay-recorded-writes.mjs`, with the search that found no older owner. |
