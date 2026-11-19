@@ -106,7 +106,8 @@ export function computerScopeSkill(settings, read = readFileSync, home = homedir
 // A tools (or on_start) row that names `workshop` runs a function of a Workshop tool folder: the trillion-workshop package
 // this folder depends on (computer/package.json), carried in the app's node_modules beside computer/, so the code has one
 // home and the Mac runs that copy. `workshop` is the module's path inside the package (tools/<folder>/...mjs) and
-// `function` its exported function, called as fn(input, context) the way the Workshop's run-an-export.mjs calls it.
+// `function` its exported function, called as fn(input, context): the input as the Workshop's run-a-function.mjs hands it,
+// and this host's context.
 // This folder is itself a Workshop tool folder (tools/run-on-a-persons-computer), so a path is first looked for in the
 // tree it sits in, and only then in the package.
 const inTree = path => { const here = new URL(`../../${path}`, import.meta.url); return existsSync(here) ? here.href : import.meta.resolve(`trillion-workshop/${path}`); };
@@ -217,7 +218,7 @@ export async function runHere(settings, run, context = {}, { places = makePlaces
     const { input: expanded } = await expandFileArguments(input ?? {});
     try { answer = (await call(expanded)) ?? {}; } finally { place?.acted(row.place); }
     if (told && answer && typeof answer === 'object' && !Array.isArray(answer)) answer = { ...answer, told };
-    // A Workshop function answers as that repository's run-an-export.mjs prints it, { result }, which its row selects.
+    // A Workshop function answers as that repository's run-a-function.mjs prints it, { result }, which its row selects.
     if (row.workshop) answer = { result: answer };
   } catch (error) {
     // A refusal that names what the caller owes it (reaction: retry, ask_user, use_different_tool, stop) and whether the

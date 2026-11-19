@@ -49,10 +49,9 @@ import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { computerSources } from '../bring-in-new-items-from-this-computer/computer/computer-sources.mjs';
 import { readNewItems } from '../bring-in-new-items-from-this-computer/computer/read-new-items.mjs';
-import { isRead, liveInputs, readersWith, serviceReader, toolRunner } from '../bring-in-new-items-from-this-computer/computer/inputs.mjs';
-import { openRecordsDoorAt } from '../records-door/read-data/records-door.mjs';
-import { listsOverDoor } from '../records-door/read-data/lists-door.mjs';
-import { hearWith, hearingHere, hearingState, resultsOver, startKeepers } from './keep-drive-files.mjs';
+import { isRead, readersWith, serviceReader, sourceOfRow } from '../bring-in-new-items-from-this-computer/computer/inputs.mjs';
+import { makeHashCodeHexFromBytes } from '../content-identity/read-data/identity.mjs';
+import { hearWith, hearingHere, hearingState, resultsOver, startKeepers, toolCaller } from './keep-drive-files.mjs';
 import { observeVisual, captionWith } from './observe-visual.mjs';
 import { startListening } from './listen.mjs';
 import { followPresence } from './follow-presence.mjs';
@@ -143,10 +142,31 @@ export const accountCaller = (origin, key, fetchImpl = fetch) => async (route, {
   } catch { return null; }
 };
 
-/** The person's own records door, reached at the account's one address with their key: { lists, run }. */
-export function accountDoor({ origin, key, fetchImpl = fetch }) {
-  const door = openRecordsDoorAt({ url: `${origin.replace(/\/$/, '')}/mcp`, resource: '@own-records', capability: key, fetchImpl });
-  return { lists: listsOverDoor(door), run: toolRunner(door) };
+/**
+ * run(tool, input) over the account's one tool (tools:run): the tool's result, or a throw saying why it did not finish.
+ * call(name, args) is the account's MCP tool call (keep-drive-files.mjs toolCaller); the request key is made from what
+ * is run, so a read sent again after an unknown outcome is answered once.
+ */
+export const toolRunOver = call => async (tool, input) => {
+  const asked = { tool, input };
+  const answer = await call('do_one_thing_in_my_account', { method: 'tools:run', request_key: `read-this-computer:${makeHashCodeHexFromBytes(new TextEncoder().encode(JSON.stringify(asked)))}`, input: asked });
+  if (answer && typeof answer === 'object' && Object.hasOwn(answer, 'error')) throw new Error(`${tool} did not finish: ${String(typeof answer.error === 'string' ? answer.error : JSON.stringify(answer.error)).slice(0, 300)}`);
+  return answer && typeof answer === 'object' && Object.hasOwn(answer, 'result') ? answer.result : answer;
+};
+
+/**
+ * The places this computer reads: the rows of the person's `inputs` list ([{ id, values }], inputs-list.json) the program
+ * that starts the reader hands in, kept in cacheFile so a restart without them reads them again; with none handed in, the
+ * last rows kept there, else the starting rows of computer-sources.json.
+ * Which of the person's own databases keeps the `inputs` list is the open "which database" question; nothing here reads it.
+ */
+export function placesOf({ rows, places = null, cacheFile }) {
+  if (Array.isArray(places)) {
+    const sources = places.map(sourceOfRow);
+    writeJson(cacheFile, { sources, at: new Date().toISOString() });
+    return sources;
+  }
+  return readJson(cacheFile)?.sources ?? rows.sources;
 }
 
 /** Keeps one small file in the person's files under `folder` (POST /namespace/write): { id, name }. */
@@ -200,10 +220,11 @@ export function installedGate({ settings = null, home = homedir(), read = readFi
 // running is not stopped here (only the helper stops programs).
 const gatedPiece = (on, make, idle) => { let made = on() ? make() : null; return { look: (...args) => (on() ? (made ??= make()).look(...args) : idle) }; };
 const hearingOnce = rows => { let row; return () => (row === undefined ? (row = hearingHere(rows.hearing ?? [])) : row); };
-export function startReading({ rows = rowsOf(), key = null, origin, account = accountCaller(origin, key), keep = fileKeeper(account, rows.files_folder, { origin, key }), hearing = hearingOnce(rows), hear = async recording => { const row = hearing(); return row ? hearWith(row, recording) : null; }, keepWords = origin && key ? (identity, { produced_by: producedBy, ...value }) => resultsOver(bearerControl({ origin, authorization: async () => `Bearer ${key}` })).put(identity, value, producedBy ?? hearing()?.produced_by ?? 'this computer') : null, see = (picture, type, { caption = true, caption_timeout_seconds: timeout } = {}) => observeVisual(picture, type, { captionRow: rows.visual_caption, captionAlways: true, caption: rows.visual_caption && caption ? (pixels, words) => captionWith(timeout ? { ...rows.visual_caption, timeout_seconds: timeout } : rows.visual_caption, pixels, words) : null }), keepSeen = origin && key ? (identity, value) => resultsOver(bearerControl({ origin, authorization: async () => `Bearer ${key}` }), 'visual-observation').put(identity, value, 'Vision OCR on this Mac') : null, shared = sharedFolder(), stateFolder = shared, adoptFrom = null, program = programOf(), timers = true, log = line => process.stderr.write(`${line}\n`), doorOf = origin && key ? accountDoor({ origin, key }) : null, inputs = doorOf ? liveInputs({ lists: doorOf.lists, rows, cacheFile: join(stateFolder, 'inputs-cache.json'), log }) : null, readers = doorOf ? readersWith({ tool: serviceReader(doorOf.run) }) : undefined, look, gate = installedGate(), keepers = timers ? gatedPiece(() => gate('keepers'), () => startKeepers({ rows, key, origin, log }), []) : { look: () => [] }, listener = timers ? gatedPiece(() => gate('listener'), () => startListening({ rows, key, origin, log }), false) : { look: () => false }, offer = timers ? () => (gate('offer') ? offerInBrowsers({ stateFile: join(shared, 'offered-in-browsers.json'), log }) : []) : () => [] } = {}) {
+export function startReading({ rows = rowsOf(), key = null, origin, account = accountCaller(origin, key), keep = fileKeeper(account, rows.files_folder, { origin, key }), hearing = hearingOnce(rows), hear = async recording => { const row = hearing(); return row ? hearWith(row, recording) : null; }, keepWords = origin && key ? (identity, { produced_by: producedBy, ...value }) => resultsOver(bearerControl({ origin, authorization: async () => `Bearer ${key}` })).put(identity, value, producedBy ?? hearing()?.produced_by ?? 'this computer') : null, see = (picture, type, { caption = true, caption_timeout_seconds: timeout } = {}) => observeVisual(picture, type, { captionRow: rows.visual_caption, captionAlways: true, caption: rows.visual_caption && caption ? (pixels, words) => captionWith(timeout ? { ...rows.visual_caption, timeout_seconds: timeout } : rows.visual_caption, pixels, words) : null }), keepSeen = origin && key ? (identity, value) => resultsOver(bearerControl({ origin, authorization: async () => `Bearer ${key}` }), 'visual-observation').put(identity, value, 'Vision OCR on this Mac') : null, shared = sharedFolder(), stateFolder = shared, adoptFrom = null, program = programOf(), timers = true, log = line => process.stderr.write(`${line}\n`), places = null, inputs = null, call = origin && key ? toolCaller(origin, key) : null, readers = call ? readersWith({ tool: serviceReader(toolRunOver(call)) }) : undefined, look, gate = installedGate(), keepers = timers ? gatedPiece(() => gate('keepers'), () => startKeepers({ rows, key, origin, log }), []) : { look: () => [] }, listener = timers ? gatedPiece(() => gate('listener'), () => startListening({ rows, key, origin, log }), false) : { look: () => false }, offer = timers ? () => (gate('offer') ? offerInBrowsers({ stateFile: join(shared, 'offered-in-browsers.json'), log }) : []) : () => [] } = {}) {
   const lock = join(shared, 'reading.lock');
-  // The places are the rows of the account's list `inputs` (inputs.mjs); the file's rows are only where the list starts.
-  if (inputs) rows = { ...rows, sources: inputs.sources };
+  // The places are the rows of the person's list `inputs` (inputs.mjs), live when a starter hands in `inputs` (its
+  // { sources, carriers, refresh }), else as placesOf finds them; the file's rows are only where the list starts.
+  rows = { ...rows, sources: inputs ? inputs.sources : placesOf({ rows, places, cacheFile: join(stateFolder, 'inputs-cache.json') }) };
   adoptProgress(adoptFrom, stateFolder);
   const seed = readJson(join(stateFolder, 'computer-sources.json'))?.computer_id ?? null;
   const reading = readNewItems({ carriers: inputs ? inputs.carriers : rows.sources.filter(isRead).map(row => row.read), account, keep, stateFile: join(stateFolder, 'written-elsewhere.json'), workdir: join(stateFolder, 'written-elsewhere-previews'), hear, keepWords, see, keepSeen, longText: rows.long_text ?? null, ...(rows.turned_away ? { turnedAway: rows.turned_away } : {}), ...(rows.item_trouble ? { itemTrouble: rows.item_trouble } : {}), ...(rows.inputs?.warn_after_hours ? { warnAfterHours: rows.inputs.warn_after_hours } : {}), log, ...(readers ? { readers } : {}) });
@@ -249,7 +270,7 @@ export function startReading({ rows = rowsOf(), key = null, origin, account = ac
 // runs it beside the helper's connection for as long as the helper runs.
 export const wants = () => false;
 export const handle = () => null;
-export const start = ({ key, origin, log }) => startReading({ key, origin, log });
+export const start = ({ key, origin, log, places }) => startReading({ key, origin, log, places });
 
 async function keyFromStdin() { let text = ''; for await (const chunk of process.stdin) text += chunk; return text.trim(); }
 
@@ -261,6 +282,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url) && (keepReading || proces
   if (keepReading) endWithTheApp();
   const option = name => { const at = process.argv.indexOf(name); return at > 0 ? process.argv[at + 1] : undefined; };
   const given = Object.fromEntries([['stateFolder', option('--state')], ['shared', option('--shared')]].filter(([, value]) => value));
+  if (option('--inputs')) given.places = JSON.parse(readFileSync(option('--inputs'), 'utf8'));
   const reader = startReading({ key, rows, origin: process.env.TRILLION_ORIGIN ?? rows.origin, timers: keepReading, ...given });
   if (keepReading) {
     // Reads until it is told to stop or the program that started it is gone (its parent becomes another process),
