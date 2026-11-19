@@ -218,16 +218,16 @@ export async function connectionsOf(run, { connection_records: connectionRecords
 
 /**
  * tool:read-business, the one read of the Business screen: { now?, connection_records?, held_connections? } → Business's
- * facts for the page's account. The person's connections and each money read are nested runs through this run's door
+ * facts for the page's account. The person's connections and each money read are nested runs through this run's host actions
  * (contract A), keyed by the tool and its input, so a retried read asks again under the same key. `now` (an ISO time)
  * is only for a sample run; the month is this one otherwise.
  */
-export async function readBusinessForScreen(input = {}, { door } = {}) {
+export async function readBusinessForScreen(input = {}, host = {}) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) throw new Error('Send one JSON object: { now?, connection_records?, held_connections? }.');
   const now = input.now === undefined ? new Date() : new Date(input.now);
   if (!Number.isFinite(now.getTime())) throw new Error('now must be an ISO time, for example 2026-10-15T00:00:00.000Z.');
   if (input.connection_records !== undefined && !Array.isArray(input.connection_records)) throw new Error('connection_records is a list of the person\'s connection records, each { id, value }.');
   if (input.held_connections !== undefined && !Array.isArray(input.held_connections)) throw new Error('held_connections is a list of the connections the account\'s vault holds, each { connection_id, fields }.');
-  const run = (toolId, given) => door.run(toolId, given, { key: `${toolId}:${JSON.stringify(given)}` });
+  const run = (toolId, given) => host.run(toolId, given, { key: `${toolId}:${JSON.stringify(given)}` });
   return readBusiness({ connections: await connectionsOf(run, input), now, run });
 }

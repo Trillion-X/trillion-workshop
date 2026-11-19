@@ -264,13 +264,15 @@
         "at": "/opt/connect-a-service-and-seal-its-key"
        },
        {
-        "package": "records-door",
-        "paths": [
-         "do-work",
-         "read-data"
-        ],
-        "at": "/opt/records-door"
-       },
+ "package": "workflows",
+ "paths": [
+   "do-work/run-a-function.mjs",
+   "read-data/host-actions.mjs",
+   "read-data/whole-file.mjs",
+   "read-data/large-file.json"
+ ],
+ "at": "/opt/workflows"
+},
        {
         "package": "content-identity",
         "paths": [
@@ -313,7 +315,7 @@
      "stdout": "json",
      "argv": [
       "node",
-      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/workflows/do-work/run-a-function.mjs",
       "/opt/see-what-my-business-took-in-this-month/do-work/business-screen.mjs",
       "readBusinessForScreen"
      ],

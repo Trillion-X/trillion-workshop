@@ -162,10 +162,10 @@ test('the operator sees each price test: every price, who saw it and paid, money
   assert.match(unread.sections.find(section => section.heading === 'Price tests').note, /could not be read/);
 });
 
-// The screen's own read, as the engine runs it: the connections list and each money read are nested runs through the door.
-function doorAnswering(answer) {
+// The screen's own read, as the engine runs it: the connections list and each money read are nested runs through the run's host actions.
+function runAnswering(answer) {
   const runs = [];
-  return { runs, door: { run: async (tool, input, options) => { runs.push({ tool, input, options }); return answer(tool, input); } } };
+  return { runs, host: { run: async (tool, input, options) => { runs.push({ tool, input, options }); return answer(tool, input); } } };
 }
 
 // The person's connections as tool:list-connections answers them (tools/connections), or a refusal.
@@ -178,8 +178,8 @@ const LISTS = { connection_records: [], held_connections: HELD };
 
 test('the screen\'s read hands both lists to tool:list-connections, which answers them, and reads the money with the person\'s own connection', async () => {
   // tool:list-connections itself (tools/connections) answers the nested run, so a call it would refuse fails here.
-  const { runs, door } = doorAnswering((tool, input) => (tool === LIST_CONNECTIONS ? listConnections(input) : { object: 'list', has_more: false, data: MONTH }));
-  const facts = await readBusinessForScreen({ now: '2026-10-15T12:00:00.000Z', ...LISTS }, { door });
+  const { runs, host } = runAnswering((tool, input) => (tool === LIST_CONNECTIONS ? listConnections(input) : { object: 'list', has_more: false, data: MONTH }));
+  const facts = await readBusinessForScreen({ now: '2026-10-15T12:00:00.000Z', ...LISTS }, host);
   const october = Date.UTC(2026, 9, 1) / 1000;
   assert.deepEqual(runs, [
     { tool: LIST_CONNECTIONS, input: LISTS, options: { key: `${LIST_CONNECTIONS}:${JSON.stringify(LISTS)}` } },
@@ -196,30 +196,30 @@ test('the screen\'s read hands both lists to tool:list-connections, which answer
 });
 
 test('Stripe not in the person\'s connections is drawn not connected, live, and its money is not read', async () => {
-  const { runs, door } = doorAnswering(listing({ connections: [{ connection_id: 'service_connection:notion', service: 'Notion', vendor: 'notion', can_send: false, grant_scopes_known: false }] }, () => assert.fail('no money read')));
-  const shown = drawCatalogueScreen('tool:business', { business: await readBusinessForScreen({ now: '2026-10-15T12:00:00.000Z', ...LISTS }, { door }) });
+  const { runs, host } = runAnswering(listing({ connections: [{ connection_id: 'service_connection:notion', service: 'Notion', vendor: 'notion', can_send: false, grant_scopes_known: false }] }, () => assert.fail('no money read')));
+  const shown = drawCatalogueScreen('tool:business', { business: await readBusinessForScreen({ now: '2026-10-15T12:00:00.000Z', ...LISTS }, host) });
   assert.deepEqual(shown.sections[0].rows, [{ id: 'connect', title: 'Stripe is not connected', actions: [{ label: 'Open Connections', tone: 'primary', open: SCREENS.connections }] }]);
   assert.deepEqual(runs.map(run => run.tool), [LIST_CONNECTIONS]);
   // A Stripe connection whose values were removed is still the person's connection (old list kept it), so it is read.
-  const kept = doorAnswering(listing({ connections: [{ ...LISTED.connections[0], status: 'disconnected', can_send: false }] }, () => ({ object: 'list', has_more: false, data: [] })));
-  await readBusinessForScreen({ now: '2026-10-15T12:00:00.000Z', ...LISTS }, { door: kept.door });
+  const kept = runAnswering(listing({ connections: [{ ...LISTED.connections[0], status: 'disconnected', can_send: false }] }, () => ({ object: 'list', has_more: false, data: [] })));
+  await readBusinessForScreen({ now: '2026-10-15T12:00:00.000Z', ...LISTS }, kept.host);
   assert.deepEqual(kept.runs.map(run => run.tool), [LIST_CONNECTIONS, MONEY_READ]);
 });
 
 test('with no list of connections, a money read that fails is drawn as a failed read, never as connected or not', async () => {
   // The list cannot be read (the run is refused), and the engine refuses a run whose key it does not hold
   // (tools_tool_credential_unavailable), as any other refusal.
-  const { door } = doorAnswering(() => { throw Object.assign(new Error('The records door refused the call.'), { code: 'tools_tool_credential_unavailable' }); });
-  const shown = drawCatalogueScreen('tool:business', { business: await readBusinessForScreen({ now: '2026-10-15T12:00:00.000Z' }, { door }) });
+  const { host } = runAnswering(() => { throw Object.assign(new Error('The run refused the call.'), { code: 'tools_tool_credential_unavailable' }); });
+  const shown = drawCatalogueScreen('tool:business', { business: await readBusinessForScreen({ now: '2026-10-15T12:00:00.000Z' }, host) });
   assert.deepEqual(shown.sections, [{ heading: 'Stripe since October 1', rows: [{ id: 'unread:Stripe', title: 'Your Stripe money could not be read just now' }] }]);
-  await assert.rejects(readBusinessForScreen({ now: 'not a time' }, { door }), /now must be an ISO time/);
-  await assert.rejects(readBusinessForScreen({ held_connections: 'stripe' }, { door }), /held_connections is a list/);
+  await assert.rejects(readBusinessForScreen({ now: 'not a time' }, host), /now must be an ISO time/);
+  await assert.rejects(readBusinessForScreen({ held_connections: 'stripe' }, host), /held_connections is a list/);
 });
 
 test('a list left out is never taken as no connections: the listing is not run, and each service\'s money is still read', async () => {
   for (const given of [{ connection_records: [] }, { held_connections: HELD }, {}]) {
-    const { runs, door } = doorAnswering(listing(new Error('no listing without both lists'), () => ({ object: 'list', has_more: false, data: MONTH })));
-    const shown = drawCatalogueScreen('tool:business', { business: await readBusinessForScreen({ now: '2026-10-15T12:00:00.000Z', ...given }, { door }) });
+    const { runs, host } = runAnswering(listing(new Error('no listing without both lists'), () => ({ object: 'list', has_more: false, data: MONTH })));
+    const shown = drawCatalogueScreen('tool:business', { business: await readBusinessForScreen({ now: '2026-10-15T12:00:00.000Z', ...given }, host) });
     assert.deepEqual(runs.map(run => run.tool), [MONEY_READ], JSON.stringify(given));
     assert.equal(shown.sections[0].heading, 'Stripe since October 1', 'never drawn as not connected');
     assert.equal(shown.sections[0].rows?.[0]?.id === 'connect', false);
