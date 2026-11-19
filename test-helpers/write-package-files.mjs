@@ -15,7 +15,7 @@
 import { readFileSync, realpathSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { packageFilesByRow } from './tool-row-imports.mjs';
+import { packageFilesByRow, refusedModules } from './tool-row-imports.mjs';
 
 export const PACKAGE_FILES = 'package-files.json';
 
@@ -27,6 +27,8 @@ export function packageFilesText({ repo, ref = 'HEAD' }) {
 
 if (import.meta.url === (process.argv[1] ? pathToFileURL(realpathSync(process.argv[1])).href : '')) {
   const repo = resolve(import.meta.dirname, '..');
+  // A module a row imports that its lockfile tree cannot make is left out of the row: say so, never silently.
+  for (const line of refusedModules({ repo })) console.error(`REFUSED module, row runs without it: ${line}`);
   const made = packageFilesText({ repo });
   const file = join(repo, PACKAGE_FILES);
   if (process.argv.includes('--check')) {

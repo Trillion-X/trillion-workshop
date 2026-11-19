@@ -41,7 +41,7 @@
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import fs from 'node:fs';
-import { MODULES, treeOf } from './pinned-files.mjs';
+import { MODULES, SCRIPTS_NOT_NEEDED, treeOf } from './pinned-files.mjs';
 
 const SYSTEM_DATA = 'test-helpers/tool-row-imports.json';
 const DOOR_EXCEPTIONS = 'test-helpers/tool-row-door-exceptions.json';
@@ -176,18 +176,23 @@ const systemNames = new Set(JSON.parse(text(SYSTEM_DATA)).provided_by_the_system
 const doorExceptions = new Set(text(DOOR_EXCEPTIONS) === null ? [] : Object.keys(JSON.parse(text(DOOR_EXCEPTIONS)).rows));
 const lockPackages = JSON.parse(text(LOCKFILE)).packages ?? {};
 
-// The Workshop module a bare name resolves to: the lockfile's pinned version and the lockfile keys of its tree.
+// The Workshop module a bare name resolves to: the lockfile's pinned version and the lockfile keys of its tree. A module the row
+// declares by name may run its install script (the owner chose it by declaring it, so its tree is kept); one the row only
+// imports is refused unless install-scripts-not-needed.json names it.
 const trees = new Map();
-const resolvesToModule = (name) => {
+const resolvesToModule = (name, declared = new Set()) => {
   const entry = lockPackages[`${MODULES}${name}`];
   if (!entry) return null;
-  if (!trees.has(name)) {
+  const kept = declared.has(name);
+  const cacheKey = `${name}|${kept}`;
+  if (!trees.has(cacheKey)) {
+    const notNeeded = kept ? { ...SCRIPTS_NOT_NEEDED, [`${MODULES}${name}`]: 'declared by name by the tool row' } : SCRIPTS_NOT_NEEDED;
     // A tree the lockfile cannot make (a package that runs an install script, a dependency it does not install) is a finding
     // on the row that imports it, `module-tree-refused`, and places nothing: the row runs without it, as before.
-    try { trees.set(name, { name, version: entry.version, keys: treeOf(lockPackages, name) }); }
-    catch (error) { trees.set(name, { name, version: entry.version, keys: [], refused: error.message }); }
+    try { trees.set(cacheKey, { name, version: entry.version, keys: treeOf(lockPackages, name, notNeeded) }); }
+    catch (error) { trees.set(cacheKey, { name, version: entry.version, keys: [], refused: error.message }); }
   }
-  return trees.get(name);
+  return trees.get(cacheKey);
 };
 
 const isBuiltin = (s) => s.startsWith('node:') || ['fs', 'path', 'crypto', 'child_process', 'os', 'url', 'util', 'http', 'https', 'net', 'stream', 'events', 'zlib', 'buffer', 'readline', 'assert', 'worker_threads', 'module', 'tty', 'process'].includes(s);
@@ -354,6 +359,11 @@ function checkRow(rowFile, desc) {
   const pf = rawFiles?.package_files;
   const files = Array.isArray(pf) ? pf : pf && typeof pf === "object" ? [pf] : [];
   const { covers, modules } = coverageOf(files);
+  // The module names the row declares by name: its invoke.packages, and the lockfile keys of its package_files packages items.
+  const declared = new Set([
+    ...Object.keys(desc.invoke?.packages ?? {}),
+    ...files.flatMap(item => item.packages ?? []).map(key => key.startsWith(MODULES) ? key.slice(MODULES.length) : key),
+  ]);
   const findings = [];
   const seen = new Set();
   const queue = [];
@@ -401,7 +411,7 @@ function checkRow(rowFile, desc) {
         const top = spec.startsWith('@') ? spec.split('/').slice(0, 2).join('/') : spec.split('/')[0];
         if (systemNames.has(top) || modules.has(top) || modules.has(spec)) continue;
         const key = `bare|${ws}|${top}`;
-        const resolves = resolvesToModule(top);
+        const resolves = resolvesToModule(top, declared);
         if (resolves) needed.set(top, resolves);
         if (!seen.has(key)) {
           seen.add(key);
@@ -473,3 +483,9 @@ return { results, shapes, byRow };
 }
 
 export const packageFilesByRow = (args) => toolRowFindings(args).byRow;
+
+// The modules a tool row imports whose tree cannot be laid out (an install script the row does not declare, a dependency the
+// lockfile does not install), one line each: the row, the module and why. The row runs without the module, so this is printed.
+export const refusedModules = (args) => toolRowFindings(args).results.flatMap(row => (row.findings || [])
+  .filter(f => f.kind === 'module-tree-refused')
+  .map(f => `${row.id} ${f.spec}: ${f.why}`));
