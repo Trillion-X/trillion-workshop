@@ -1,5 +1,5 @@
 // tools/workflows: the business-setup meta-workflow (rows read from the published recipes)
-// tools/workflows: the business-setup meta-workflow (workflow:set-up-a-business-on-trillion) and its stage recipes.
+// tools/workflows: the business-setup meta-workflow (workflow:set-up-a-business-on-the-account) and its stage recipes.
 // Every stage passes the strict step anatomy; every stage the parent starts exists; every workflow id a step names is
 // shipped here or already in the public recipes; the parent's tool list is the set of tool ids the stages name; and no
 // step uses a phrase that leaves a choice open or names a private identifier.
@@ -7,6 +7,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { recipeProblems, CHECK_VOCABULARY } from '../read-data/recipe-problems.mjs';
+import { publicRecipes } from '../read-data/public-recipes.mjs';
 
 // The banana-level anatomy every step must carry (L082): the text fields, the references, a position, the submit
 // object, and a good_answer with a Passes and a Fails example. Written out here so the test does not depend on a
@@ -37,14 +38,15 @@ const BUNDLE = [
   'workflow:retention-and-referral',
   'workflow:run-a-community',
   'workflow:run-a-course-from-list-rows',
-  'workflow:set-up-a-business-on-trillion',
+  'workflow:set-up-a-business-on-the-account',
   'workflow:set-up-brand-and-branded-emails',
   'workflow:take-payments-with-stripe',
 ];
 const published = JSON.parse(readFileSync(new URL('../recipes/workflows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
 const recipes = published.filter(recipe => BUNDLE.includes(recipe.id));
-const parent = recipes.find(recipe => recipe.id === 'workflow:set-up-a-business-on-trillion');
-const shipped = new Set(published.map(recipe => recipe.id));
+const parent = recipes.find(recipe => recipe.id === 'workflow:set-up-a-business-on-the-account');
+// Every shipped recipe, the hand-made recipe files as well as workflows.json (send-each-post-at-its-time is one).
+const shipped = new Set(publicRecipes().map(recipe => recipe.id));
 const TOOL = /tool:[a-z0-9][a-z0-9_.:-]*[a-z0-9]/g;
 const WORKFLOW = /workflow:[a-z0-9][a-z0-9-]*[a-z0-9]/g;
 
