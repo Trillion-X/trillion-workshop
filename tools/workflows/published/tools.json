@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:52fd53bd1aad14584ec2079cb558da8d27afc0b0980241e463226b818b5074fa"
+  "blake3": "1f:cd3c32d8cd6406bab75d6792b056c469f631d250a3fd28a142c5b13c7aac42a4"
  },
  "fields": [
   {
@@ -71,6 +71,22 @@
      "placement:small-container"
     ],
     "folder": "rank-records-for-review"
+   }
+  },
+  {
+   "id": "tool:act-in-my-browser",
+   "values": {
+    "title": "Act on a page in my browser",
+    "job": "Click, type, press keys, scroll and choose on a page in the person's own browser, signed in as they are, and read the page again after",
+    "description": "Opens the page at url in a window of its own that is not brought forward, validates steps (page-actions.json), does them in order, reads the page again and answers what each step did with the page after. dry_run only locates every target and acts on none. Refused in words when no browser is connected to this computer.",
+    "status": "active",
+    "maker": "maker:run-tools-in-my-signed-in-browser",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-11-18T00:00:00Z",
+    "folder": "run-tools-in-my-signed-in-browser"
    }
   },
   {
@@ -3183,6 +3199,22 @@
      "placement:small-container"
     ],
     "folder": "social-posts"
+   }
+  },
+  {
+   "id": "tool:drive-my-browser",
+   "values": {
+    "title": "Drive my browser",
+    "job": "Drive a web page across several calls through the person's own signed-in browser, in a window of its own, until they take it back",
+    "description": "One call of a browser session (browser-session.json): do is tabs, open, close, navigate, back, forward, act, read, lock, release or end, with the session, tab, url and steps that verb needs. The session owns an unfocused window and only the tabs it opened; the person's own tabs are never touched; the person's lock takes the browser back at once. Refused in words when no browser is connected to this computer.",
+    "status": "active",
+    "maker": "maker:run-tools-in-my-signed-in-browser",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-11-18T00:00:00Z",
+    "folder": "run-tools-in-my-signed-in-browser"
    }
   },
   {
@@ -9222,6 +9254,22 @@
      "placement:small-container"
     ],
     "folder": "decide-with-a-method"
+   }
+  },
+  {
+   "id": "tool:read-a-page-in-my-browser",
+   "values": {
+    "title": "Read a page in my browser",
+    "job": "Open a page in the person's own browser, signed in as they are, and read what it shows",
+    "description": "Opens the page at url in a window of its own that is not brought forward, in the browser the person is signed in to, waits for it to load, reads it and closes the window. Answers { url, title, text, links } as the loaded page shows them, so a page that needs the person's sign-in or refuses requests from servers can still be read. Refused in words when no browser is connected to this computer.",
+    "status": "active",
+    "maker": "maker:run-tools-in-my-signed-in-browser",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-11-18T00:00:00Z",
+    "folder": "run-tools-in-my-signed-in-browser"
    }
   },
   {

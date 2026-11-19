@@ -9,8 +9,9 @@
 //   1. An item describes itself: kind, url, and whatever the browser told us about it. No list of known sites.
 //   2. Adding the same thing twice keeps one (src/tray.mjs).
 //   3. Recording (src/recorder-worker.mjs), the page tools (src/page-tool-runs.mjs) and Trillion's notices
-//      (src/notice-worker.mjs), the runs the person's Trillion hands to this browser (src/browser-runs.mjs) and asks of
-//      the person's own computer (src/computer-host.mjs) are their own modules; this file only loads them.
+//      (src/notice-worker.mjs), the requests the person's own computer relays to this browser (tools/run-tools-in-my-signed-in-browser/computer-relay.mjs,
+//      answered by src/browser-runs.mjs) and what this asks of that computer (src/computer-host.mjs) are their own
+//      modules; this file only loads them.
 //   4. What the popup was doing on a tab (its draft, session `draft:<tab id>`) is forgotten when that tab closes.
 //   5. The tray's count is one mark on the toolbar badge (src/badge.mjs, mark `tray`); the badge has one owner.
 //   6. A send kept on this device (local `outbox`, src/outbox.mjs) is sent again every minute and at startup with its own
@@ -26,6 +27,9 @@ import './page-tool-runs.mjs';
 import './notice-worker.mjs';
 import './browser-runs.mjs';
 import './computer-host.mjs';
+import { startComputerRelay } from '../../run-tools-in-my-signed-in-browser/computer-relay.mjs';
+import settings from '../settings.json' with { type: 'json' };
+import { runBrowserTool } from './browser-runs.mjs';
 
 // An update that changed what the extension may do is loaded before anything uses it (src/loaded-current.mjs).
 reloadIfUpdated();
@@ -94,3 +98,6 @@ chrome.storage.onChanged.addListener((changes, area) => {
 sendKept();
 
 chrome.tabs.onRemoved.addListener(tabId => { chrome.storage.session.remove(`draft:${tabId}`); });
+
+// The person's own computer can ask this browser to read or act on a page, once the person has allowed the computer.
+startComputerRelay({ host: settings.computer_host, run: runBrowserTool });

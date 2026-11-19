@@ -1,0 +1,324 @@
+{
+  "kind": "tool-rows",
+  "record_set": "run-tools-in-my-signed-in-browser-tool-rows",
+  "what_this_is": "The Workshop rows that reach the person's own signed-in browser from a tool run on their computer: reading a page, acting on one and driving a session. Each runs ask-my-browser.mjs, which posts to the browser relay door the extension's native messaging host opens on this computer (browser-relay.mjs).",
+  "records": [
+    {
+      "id": "package::run-tools-in-my-signed-in-browser::tool::read-a-page-in-my-browser",
+      "address": "package::run-tools-in-my-signed-in-browser::tool::read-a-page-in-my-browser",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-a-page-in-my-browser",
+        "label": "Read a page in my browser",
+        "status": "active",
+        "job": "Open a page in the person's own browser, signed in as they are, and read what it shows",
+        "description": "Opens the page at url in a window of its own that is not brought forward, in the browser the person is signed in to, waits for it to load, reads it and closes the window. Answers { url, title, text, links } as the loaded page shows them, so a page that needs the person's sign-in or refuses requests from servers can still be read. Refused in words when no browser is connected to this computer.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "url": {
+              "type": "string",
+              "description": "The page's address (http or https)"
+            }
+          },
+          "required": [
+            "url"
+          ]
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [],
+          "local_doors": [
+            "browser-relay"
+          ],
+          "workdir": "/opt/run-tools-in-my-signed-in-browser",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/run-tools-in-my-signed-in-browser/ask-my-browser.mjs",
+            "tool:read-a-page-in-my-browser"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "run-tools-in-my-signed-in-browser",
+                "paths": [
+                  "ask-my-browser.mjs",
+                  "browser-relay.json"
+                ],
+                "at": "/opt/run-tools-in-my-signed-in-browser"
+              }
+            ]
+          },
+          "max_run_ms": 150000,
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "at": "@secrets",
+                "id": "browser-relay-key",
+                "operations": [
+                  "secrets:sign"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "needs-a-machine",
+            "requires": "a computer whose report names the port `browser-relay` (browser-relay.json `port`), and a browser the person is signed in to with the browser extension that holds this computer's connection allowed to talk to it; with no browser connected every run is refused in words, so no sample can exit 0; and the Ed25519 key `browser-relay-key` made in the person's vault (secrets:generate), its public half kept in the file the computer's settings name",
+            "proved_on": null
+          }
+        ],
+        "needs": {
+          "expected_seconds": 60,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:run-tools-in-my-signed-in-browser",
+        "listed_on": "2026-11-18T00:00:00Z",
+        "provenance": {
+          "source": "a browser extension's page-reading code, whose runs reached the browser over an account route that is retired; now relayed through the person's own computer (browser-relay.mjs)"
+        }
+      }
+    },
+    {
+      "id": "package::run-tools-in-my-signed-in-browser::tool::act-in-my-browser",
+      "address": "package::run-tools-in-my-signed-in-browser::tool::act-in-my-browser",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:act-in-my-browser",
+        "label": "Act on a page in my browser",
+        "status": "active",
+        "job": "Click, type, press keys, scroll and choose on a page in the person's own browser, signed in as they are, and read the page again after",
+        "description": "Opens the page at url in a window of its own that is not brought forward, validates steps (page-actions.json), does them in order, reads the page again and answers what each step did with the page after. dry_run only locates every target and acts on none. Refused in words when no browser is connected to this computer.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "url": {
+              "type": "string",
+              "description": "The page's address (http or https)"
+            },
+            "steps": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "The steps to do: a list of { do, target, ... }"
+            },
+            "dry_run": {
+              "type": "boolean",
+              "description": "true locates every target and does nothing"
+            }
+          },
+          "required": [
+            "url",
+            "steps"
+          ]
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [],
+          "local_doors": [
+            "browser-relay"
+          ],
+          "workdir": "/opt/run-tools-in-my-signed-in-browser",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/run-tools-in-my-signed-in-browser/ask-my-browser.mjs",
+            "tool:act-in-my-browser"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "run-tools-in-my-signed-in-browser",
+                "paths": [
+                  "ask-my-browser.mjs",
+                  "browser-relay.json"
+                ],
+                "at": "/opt/run-tools-in-my-signed-in-browser"
+              }
+            ]
+          },
+          "max_run_ms": 150000,
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "at": "@secrets",
+                "id": "browser-relay-key",
+                "operations": [
+                  "secrets:sign"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "needs-a-machine",
+            "requires": "a computer whose report names the port `browser-relay` (browser-relay.json `port`), and a browser the person is signed in to with the browser extension that holds this computer's connection allowed to talk to it; with no browser connected every run is refused in words, so no sample can exit 0; and the Ed25519 key `browser-relay-key` made in the person's vault (secrets:generate), its public half kept in the file the computer's settings name",
+            "proved_on": null
+          }
+        ],
+        "needs": {
+          "expected_seconds": 90,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:run-tools-in-my-signed-in-browser",
+        "listed_on": "2026-11-18T00:00:00Z",
+        "provenance": {
+          "source": "a browser extension's page-reading code, whose runs reached the browser over an account route that is retired; now relayed through the person's own computer (browser-relay.mjs)"
+        }
+      }
+    },
+    {
+      "id": "package::run-tools-in-my-signed-in-browser::tool::drive-my-browser",
+      "address": "package::run-tools-in-my-signed-in-browser::tool::drive-my-browser",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:drive-my-browser",
+        "label": "Drive my browser",
+        "status": "active",
+        "job": "Drive a web page across several calls through the person's own signed-in browser, in a window of its own, until they take it back",
+        "description": "One call of a browser session (browser-session.json): do is tabs, open, close, navigate, back, forward, act, read, lock, release or end, with the session, tab, url and steps that verb needs. The session owns an unfocused window and only the tabs it opened; the person's own tabs are never touched; the person's lock takes the browser back at once. Refused in words when no browser is connected to this computer.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "session": {
+              "type": "string"
+            },
+            "do": {
+              "type": "string",
+              "description": "tabs, open, close, navigate, back, forward, act, read, lock, release or end"
+            },
+            "tab": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string"
+            },
+            "steps": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          },
+          "required": [
+            "do"
+          ]
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [],
+          "local_doors": [
+            "browser-relay"
+          ],
+          "workdir": "/opt/run-tools-in-my-signed-in-browser",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/run-tools-in-my-signed-in-browser/ask-my-browser.mjs",
+            "tool:drive-my-browser"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "run-tools-in-my-signed-in-browser",
+                "paths": [
+                  "ask-my-browser.mjs",
+                  "browser-relay.json"
+                ],
+                "at": "/opt/run-tools-in-my-signed-in-browser"
+              }
+            ]
+          },
+          "max_run_ms": 150000,
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "at": "@secrets",
+                "id": "browser-relay-key",
+                "operations": [
+                  "secrets:sign"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "needs-a-machine",
+            "requires": "a computer whose report names the port `browser-relay` (browser-relay.json `port`), and a browser the person is signed in to with the browser extension that holds this computer's connection allowed to talk to it; with no browser connected every run is refused in words, so no sample can exit 0; and the Ed25519 key `browser-relay-key` made in the person's vault (secrets:generate), its public half kept in the file the computer's settings name",
+            "proved_on": null
+          }
+        ],
+        "needs": {
+          "expected_seconds": 60,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:run-tools-in-my-signed-in-browser",
+        "listed_on": "2026-11-18T00:00:00Z",
+        "provenance": {
+          "source": "a browser extension's page-reading code, whose runs reached the browser over an account route that is retired; now relayed through the person's own computer (browser-relay.mjs)"
+        }
+      }
+    }
+  ]
+}

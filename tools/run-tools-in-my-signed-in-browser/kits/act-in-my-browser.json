@@ -1,0 +1,45 @@
+{
+  "drafted_from": "tool:act-in-my-browser's own row and the answer its relay path gave on a stand-in browser (tools/run-tools-in-my-signed-in-browser/test and a run of the relay with a stand-in browser: the door, the vault proof and the extension's own page code); read it before relying on it",
+  "start_here": "Say to your AI: \"On a page in my own browser, find the link I name and show me what clicking it would touch, without clicking\", with {\"url\":\"https://example.com/\",\"steps\":[{\"do\":\"click\",\"target\":{\"text\":\"More information\"}}],\"dry_run\":true}. It runs tool:act-in-my-browser and answers {\"steps\":[{\"do\":\"click\",\"target\":{\"text\":\"More information\"},\"done\":false,\"found\":1}]}",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input, asks your browser and answers, and keeps no row.",
+  "workflows": [],
+  "tools": [
+    "tool:act-in-my-browser"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"On a page in my own browser, find the link I name and show me what clicking it would touch, without clicking\", and give it the input.",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:act-in-my-browser and its input (the worked example shows one).",
+    "3. Read what comes back: the page's answer in result, or error in words when no browser is connected to your computer, when the door has no key set up, or when the page could not be read."
+  ],
+  "worked_examples": [
+    {
+      "title": "Act on a page in my browser on its own sample",
+      "ask": "On a page in my own browser, find the link I name and show me what clicking it would touch, without clicking",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:act-in-my-browser",
+            "input": {
+              "url": "https://example.com/",
+              "steps": [
+                {
+                  "do": "click",
+                  "target": {
+                    "text": "More information"
+                  }
+                }
+              ],
+              "dry_run": true
+            }
+          }
+        }
+      },
+      "given": "The input {\"url\":\"https://example.com/\",\"steps\":[{\"do\":\"click\",\"target\":{\"text\":\"More information\"}}],\"dry_run\":true}.",
+      "hands_back": "It answered {\"steps\":[{\"do\":\"click\",\"target\":{\"text\":\"More information\"},\"done\":false,\"found\":1}]}."
+    }
+  ]
+}

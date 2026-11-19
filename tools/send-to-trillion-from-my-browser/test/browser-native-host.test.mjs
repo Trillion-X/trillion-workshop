@@ -10,6 +10,10 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { nativeHostManifest, nativeHosts, offerInBrowsers, placeNativeHosts, removeNativeHosts, restoreNativeHosts } from '../native-host/offer-in-browsers.mjs';
 import { answerMessage, answers, frame, serve } from '../native-host/browser-native-host.mjs';
+import { PassThrough } from 'node:stream';
+import { generateKeyPairSync, sign as edSign } from 'node:crypto';
+import relayConfig from '../../run-tools-in-my-signed-in-browser/browser-relay.json' with { type: 'json' };
+import { makeRelay } from '../../run-tools-in-my-signed-in-browser/browser-relay.mjs';
 
 const settings = {
   offers: [{ id: 'send', extension_id: 'abcdefghijklmnopabcdefghijklmnop', update_url: 'https://store.example/update' }, { id: 'other', extension_id: 'zzzz', update_url: 'https://store.example/update' }],
@@ -235,4 +239,97 @@ test('the shipped DATA: the door is the engine on this computer, the key comes f
   assert.equal(part.exports['offer-in-browsers'], 'native-host/offer-in-browsers.mjs');
   for (const file of ['browser-native-host.mjs', 'engine-door.mjs', 'offer-in-browsers.mjs', 'offer-in-browsers.json', 'install-ledger.mjs', 'settings-file.mjs'])
     assert.ok(existsSync(new URL(`../native-host/${file}`, import.meta.url)), `${file} is in the part`);
+});
+
+// The relay a host opens for the extension that holds its connection (tools/run-tools-in-my-signed-in-browser/browser-relay.mjs),
+// over real pipes in the browser's framing and a real loopback port.
+const relayHost = { ...settings, most_message_bytes: 1024, native_hosts: [{ ...settings.native_hosts[0], actions: ['here', 'relay_open'] }] };
+const NAME = relayHost.native_hosts[0].name;
+const { publicKey, privateKey } = generateKeyPairSync('ed25519');
+const PUBLIC_HEX = publicKey.export({ format: 'der', type: 'spki' }).subarray(-32).toString('hex');
+
+function framesFrom(stream) {
+  let held = Buffer.alloc(0);
+  const waiting = [];
+  const kept = [];
+  stream.on('data', chunk => {
+    held = Buffer.concat([held, chunk]);
+    while (held.length >= 4 && held.length >= 4 + held.readUInt32LE(0)) {
+      const size = held.readUInt32LE(0);
+      const message = JSON.parse(held.subarray(4, 4 + size).toString('utf8'));
+      held = held.subarray(4 + size);
+      const next = waiting.shift();
+      if (next) next(message); else kept.push(message);
+    }
+  });
+  return () => kept.length ? Promise.resolve(kept.shift()) : new Promise(resolve => waiting.push(resolve));
+}
+
+async function openedHost(origin = ORIGIN) {
+  const input = new PassThrough();
+  const output = new PassThrough();
+  const config = { ...relayConfig, port: 0, most_seconds: 5 };
+  const relay = makeRelay({ config, send: message => output.write(frame(message)), readPublicKey: () => PUBLIC_HEX });
+  const served = serve({ settings: relayHost, name: NAME, origin, input, output, actions: { relay_open: () => relay.open() }, relay });
+  const next = framesFrom(output);
+  input.write(frame({ action: 'relay_open' }));
+  return { input, relay, served, next, opened: await next(), config };
+}
+
+const askDoor = async (port, config, tool, input) => {
+  const post = async (path, body) => {
+    const answer = await fetch(`http://127.0.0.1:${port}${path}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+    return { status: answer.status, body: await answer.json() };
+  };
+  const { body: { nonce } } = await post(config.challenge_path, {});
+  const signature = edSign(null, Buffer.from(`${nonce}\n${tool}\n${JSON.stringify(input)}`, 'utf8'), privateKey).toString('hex');
+  return post(config.path, { tool, input, nonce, signature });
+};
+
+test('the host opens the relay for its pinned extension and carries a request and an answer larger than a plain message', async () => {
+  const { input, next, served, opened, config } = await openedHost();
+  assert.equal(opened.ok, true);
+  const asked = askDoor(opened.port, config, 'tool:read-a-page-in-my-browser', { url: 'https://example.com/' });
+  const relayed = await next();
+  assert.deepEqual(relayed.relay.input, { url: 'https://example.com/' });
+  const big = 'y'.repeat(10_000);
+  input.write(frame({ relay_answer: { request_key: relayed.relay.request_key, result: { text: big } } }));
+  assert.equal((await asked).body.result.text, big);
+  input.write(frame({ action: 'here', padding: 'z'.repeat(2000) }));
+  await served;
+});
+
+test('a second host cannot take the door while another holds it, and an origin the host does not pin opens nothing', async () => {
+  const first = await openedHost();
+  const input = new PassThrough();
+  const output = new PassThrough();
+  const relay = makeRelay({ config: { ...relayConfig, port: first.opened.port }, send: () => {} });
+  const served = serve({ settings: relayHost, name: NAME, origin: ORIGIN, input, output, actions: { relay_open: () => relay.open() }, relay });
+  const next = framesFrom(output);
+  input.write(frame({ action: 'relay_open' }));
+  assert.deepEqual(await next(), { ok: false, error: relayConfig.words.held });
+  input.end();
+  await served;
+  first.input.end();
+  await first.served;
+
+  const strangerInput = new PassThrough();
+  const strangerOutput = new PassThrough();
+  const stranger = makeRelay({ config: { ...relayConfig, port: 0 }, send: () => {} });
+  const strangerServed = serve({ settings: relayHost, name: NAME, origin: 'chrome-extension://zzzz/', input: strangerInput, output: strangerOutput, actions: { relay_open: () => stranger.open() }, relay: stranger });
+  const strangerNext = framesFrom(strangerOutput);
+  strangerInput.write(frame({ action: 'relay_open' }));
+  assert.equal((await strangerNext()).ok, false);
+  assert.equal(stranger.open_now, false);
+  strangerInput.end();
+  await strangerServed;
+});
+
+test('a relay answer from an origin the host does not pin is dropped, and closing the pipe closes the door', async () => {
+  const mine = await openedHost();
+  const { port } = mine.opened;
+  mine.input.end();
+  await mine.served;
+  assert.equal(mine.relay.open_now, false);
+  await assert.rejects(fetch(`http://127.0.0.1:${port}${relayConfig.path}`, { method: 'POST' }));
 });

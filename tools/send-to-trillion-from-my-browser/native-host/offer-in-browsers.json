@@ -19,7 +19,7 @@
       "description": "Lets Trillion's Send to Trillion extension ask this computer which computer it is, and read the person's lists from their Trillion on this computer.",
       "entry": "browser-native-host.mjs",
       "offers": ["send-to-trillion"],
-      "actions": ["here", "own_lists"],
+      "actions": ["here", "own_lists", "relay_open"],
       "door_actions": {
         "own_lists": { "address": "@own-records", "method": "records:list" }
       }

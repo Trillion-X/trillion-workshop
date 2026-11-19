@@ -1,0 +1,13 @@
+{
+  "exports": {
+    "browser-relay": "browser-relay.mjs",
+    "computer-relay": "computer-relay.mjs",
+    "ask-my-browser": "ask-my-browser.mjs"
+  },
+  "public": [
+    "browser-relay.mjs",
+    "computer-relay.mjs",
+    "ask-my-browser.mjs"
+  ],
+  "imported_by": []
+}

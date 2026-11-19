@@ -1,0 +1,37 @@
+{
+  "drafted_from": "tool:drive-my-browser's own row and the answer its relay path gave on a stand-in browser (tools/run-tools-in-my-signed-in-browser/test and a run of the relay with a stand-in browser: the door, the vault proof and the extension's own page code); read it before relying on it",
+  "start_here": "Say to your AI: \"Open a page in a window of its own in my browser and keep it for my next steps\", with {\"do\":\"open\",\"url\":\"https://example.com/\"}. It runs tool:drive-my-browser and answers {\"session\":\"s1\",\"tab\":\"t1\",\"tabs\":[{\"tab\":\"t1\",\"url\":\"https://example.com/\",\"title\":\"Example Domain\"}],\"locked\":false}",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input, asks your browser and answers, and keeps no row.",
+  "workflows": [],
+  "tools": [
+    "tool:drive-my-browser"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Open a page in a window of its own in my browser and keep it for my next steps\", and give it the input.",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:drive-my-browser and its input (the worked example shows one).",
+    "3. Read what comes back: the page's answer in result, or error in words when no browser is connected to your computer, when the door has no key set up, or when the page could not be read."
+  ],
+  "worked_examples": [
+    {
+      "title": "Drive my browser on its own sample",
+      "ask": "Open a page in a window of its own in my browser and keep it for my next steps",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:drive-my-browser",
+            "input": {
+              "do": "open",
+              "url": "https://example.com/"
+            }
+          }
+        }
+      },
+      "given": "The input {\"do\":\"open\",\"url\":\"https://example.com/\"}.",
+      "hands_back": "It answered {\"session\":\"s1\",\"tab\":\"t1\",\"tabs\":[{\"tab\":\"t1\",\"url\":\"https://example.com/\",\"title\":\"Example Domain\"}],\"locked\":false}."
+    }
+  ]
+}

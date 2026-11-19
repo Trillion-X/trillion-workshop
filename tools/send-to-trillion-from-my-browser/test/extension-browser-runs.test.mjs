@@ -1,36 +1,23 @@
-// Send to Trillion as a place the person's Trillion runs work (extension/src/browser-runs.mjs, placement:your-browser):
-// it takes only the runs handed to this browser, answers each with the function its tool id names, finishes every run
-// with the answer or why not, and reads a page in a window of its own that it closes. The browser below is a stand-in.
+// The browser extension answering what the person's own computer relays to it (extension/src/browser-runs.mjs): each request is
+// answered with the function its tool id names, with the answer or why not, and a page is read in a window of its own that it closes. The browser below is a stand-in.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readPage, takeRuns } from '../src/browser-runs.mjs';
+import { readPage, runBrowserTool } from '../src/browser-runs.mjs';
 import settings from '../browser-runs.json' with { type: 'json' };
 
-function account(jobs) {
-  const calls = [];
-  const call = async (path, body) => {
-    calls.push({ path, body });
-    if (path === '/handoffs/take') { const job = jobs.shift(); return job ? { handoff: job, generation: 1 } : { handoff: null }; }
-    return { ok: true };
-  };
-  return { calls, call };
-}
+test('a relayed request is answered by the function its tool id names, and one this browser does not run is answered with why', async () => {
+  const runs = { readPage: async input => ({ url: input.url, title: 'Example', text: 'words', links: [] }) };
+  assert.deepEqual(await runBrowserTool('tool:read-a-page-in-my-browser', { url: 'https://example.com/' }, { runs }),
+    { result: { url: 'https://example.com/', title: 'Example', text: 'words', links: [] } });
+  assert.deepEqual(await runBrowserTool('tool:something-else', {}, { runs }), { error: 'This browser does not run tool:something-else.' });
+  assert.deepEqual(await runBrowserTool('tool:read-a-page-in-my-browser', {}, { runs: { readPage: async () => { throw new Error('no page'); } } }), { error: 'no page' });
+  assert.deepEqual(Object.keys(settings.tools), ['tool:read-a-page-in-my-browser', 'tool:act-in-my-browser', 'tool:drive-my-browser']);
+});
 
-test('each run handed to this browser is answered by its tool, and one it does not run is finished with why', async () => {
-  const { calls, call } = account([
-    { handoff_id: 'h_1', input: { tool_id: 'tool:read-a-page-in-my-browser', input: { url: 'https://example.com/' } } },
-    { handoff_id: 'h_2', input: { tool_id: 'tool:something-else', input: {} } },
-  ]);
-  const taken = await takeRuns({ call, runs: { readPage: async input => ({ url: input.url, title: 'Example', text: 'words', links: [] }) }, now: Date.now() + 3_600_000 });
-  assert.equal(taken, 2);
-  assert.deepEqual(calls.filter(entry => entry.path === '/handoffs/take').map(entry => entry.body), [{ agent_id: 'this-browser', only_mine: true }, { agent_id: 'this-browser', only_mine: true }]);
-  const finished = calls.filter(entry => entry.path === '/handoffs/finish').map(entry => entry.body);
-  assert.deepEqual(finished[0].result, { url: 'https://example.com/', title: 'Example', text: 'words', links: [] });
-  assert.equal(finished[0].generation, 1);
-  assert.equal(finished[1].result.error, 'This browser does not run tool:something-else.');
-  const card = calls.find(entry => entry.path === '/agents/publish').body;
-  assert.equal(card.agent_id, settings.agent.agent_id);
-  assert.deepEqual(card.skills.map(skill => skill.id), Object.keys(settings.tools));
+test('the account routes that were retired are not called from this browser', async () => {
+  const { readFileSync } = await import('node:fs');
+  const source = readFileSync(new URL('../src/browser-runs.mjs', import.meta.url), 'utf8');
+  for (const route of ['/agents/publish', '/handoffs/take', '/handoffs/finish', 'takeRuns']) assert.equal(source.includes(route), false, route);
 });
 
 test('a page is read in its own window, which is closed whether or not it could be read', async () => {

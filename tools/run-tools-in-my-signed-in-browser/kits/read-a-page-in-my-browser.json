@@ -1,0 +1,36 @@
+{
+  "drafted_from": "tool:read-a-page-in-my-browser's own row and the answer its relay path gave on a stand-in browser (tools/run-tools-in-my-signed-in-browser/test and a run of the relay with a stand-in browser: the door, the vault proof and the extension's own page code); read it before relying on it",
+  "start_here": "Say to your AI: \"Read the page at an address in my own browser, signed in as I am, and give me its title, words and links\", with {\"url\":\"https://example.com/\"}. It runs tool:read-a-page-in-my-browser and answers {\"url\":\"https://example.com/\",\"title\":\"Example Domain\",\"text\":\"Example Domain. This domain is for use in illustrative examples.\",\"links\":[{\"text\":\"More information\",\"href\":\"https://www.iana.org/domains/example\"}]}",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input, asks your browser and answers, and keeps no row.",
+  "workflows": [],
+  "tools": [
+    "tool:read-a-page-in-my-browser"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"Read the page at an address in my own browser, signed in as I am, and give me its title, words and links\", and give it the input.",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:read-a-page-in-my-browser and its input (the worked example shows one).",
+    "3. Read what comes back: the page's answer in result, or error in words when no browser is connected to your computer, when the door has no key set up, or when the page could not be read."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read a page in my browser on its own sample",
+      "ask": "Read the page at an address in my own browser, signed in as I am, and give me its title, words and links",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-a-page-in-my-browser",
+            "input": {
+              "url": "https://example.com/"
+            }
+          }
+        }
+      },
+      "given": "The input {\"url\":\"https://example.com/\"}.",
+      "hands_back": "It answered {\"url\":\"https://example.com/\",\"title\":\"Example Domain\",\"text\":\"Example Domain. This domain is for use in illustrative examples.\",\"links\":[{\"text\":\"More information\",\"href\":\"https://www.iana.org/domains/example\"}]}."
+    }
+  ]
+}
