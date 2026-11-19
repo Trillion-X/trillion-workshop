@@ -12,7 +12,7 @@
 // login's rule in the database (a SELECT-only role cannot write); nothing here checks it, wraps it or adds a flag.
 //
 // A second shape runs a role recipe (read-data/role-recipes.json) as the connection's login: { recipe: { name, action, role?,
-// valid_until? } }. `create` with a held role connection (role_credential_name, handed on descriptor 4) makes that standing
+// valid_until?, limits? } }. `create` with a held role connection (role_credential_name, handed on descriptor 4) makes that standing
 // login with the password the person holds; `create` with valid_until and no held one mints a login that stops working then,
 // and answers it once; `drop` takes a role away. Every value goes into the recipe's SQL through the server's own format().
 // A recipe runs in one transaction unless it says `in_one_transaction: false`: Postgres runs CREATE DATABASE and DROP
@@ -25,6 +25,8 @@ import { throughProxy } from './through-the-run-proxy.mjs';
 
 const CONNECTION_DESCRIPTOR = 3;
 const ROLE_CONNECTION_DESCRIPTOR = 4;
+// 32 random bytes written as base64url are 43 characters; a standing login's password shorter than that is refused.
+const MIN_PASSWORD_LENGTH = 43;
 const RECIPES = JSON.parse(readFileSync(new URL('../read-data/role-recipes.json', import.meta.url), 'utf8')).recipes;
 
 const held = descriptor => {
@@ -45,12 +47,20 @@ export function shapeOf(input) {
   const hasRecipe = Object.hasOwn(asked, 'recipe');
   if (hasSql + hasRecipe > 1) throw new Error('Give one of: sql (with params), or recipe.');
   if (hasRecipe) {
-    const { name, action, role, valid_until: validUntil } = asked.recipe ?? {};
+    const { name, action, role, valid_until: validUntil, limits: givenLimits } = asked.recipe ?? {};
+    const limits = givenLimits ?? {}; // null is none: a workflow binding an input it was not given hands null
     if (!Object.hasOwn(RECIPES, name ?? '')) throw new Error(`recipe.name must be one of ${Object.keys(RECIPES).join(', ')}.`);
     if (!['create', 'drop'].includes(action)) throw new Error('recipe.action must be create or drop.');
     if (role !== undefined && (typeof role !== 'string' || role === '')) throw new Error('recipe.role must be a role name.');
     if (validUntil !== undefined && Number.isNaN(Date.parse(validUntil))) throw new Error('recipe.valid_until must be a time, like 2026-12-01T00:00:00Z.');
-    return { kind: 'recipe', name, action, role, validUntil };
+    if (limits === null || typeof limits !== 'object' || Array.isArray(limits)) throw new Error('recipe.limits must be an object of limit names and whole numbers.');
+    const known = RECIPES[name].limits ?? {};
+    for (const [limit, value] of Object.entries(limits)) {
+      if (!Object.hasOwn(known, limit)) throw new Error(`recipe.limits.${limit} is not a limit of the ${name} recipe (${Object.keys(known).join(', ') || 'it has none'}).`);
+      if (!(Number.isInteger(value) && value > 0)) throw new Error(`recipe.limits.${limit} must be a whole number above zero.`);
+    }
+    if (Object.keys(limits).length && action !== 'create') throw new Error('recipe.limits are set when a login is made: give them with create.');
+    return { kind: 'recipe', name, action, role, validUntil, limits };
   }
   if (hasSql) {
     if (typeof asked.sql !== 'string' || asked.sql.trim() === '') throw new Error('sql must be a statement as text.');
@@ -72,6 +82,7 @@ const recipeLogin = (shape, roleConnection) => {
   if (roleConnection) {
     const { role, password } = loginOf(roleConnection);
     if (shape.role !== undefined && shape.role !== role) throw new Error('recipe.role is not the role the held role connection names.');
+    if (shape.action === 'create' && password.length < MIN_PASSWORD_LENGTH) throw new Error(`A standing login's password must be at least ${MIN_PASSWORD_LENGTH} characters, 32 random bytes as base64url or more: make a longer one on the computer that keeps it.`);
     if (shape.validUntil !== undefined) throw new Error('A standing login (role_credential_name) stops only when it is dropped; give no valid_until.');
     return { role, password, validUntil: 'infinity', minted: false };
   }
@@ -80,7 +91,7 @@ const recipeLogin = (shape, roleConnection) => {
     return { role: shape.role, password: '', validUntil: 'infinity', minted: false };
   }
   if (shape.validUntil === undefined) throw new Error('A minted login needs recipe.valid_until; a standing one needs role_credential_name.');
-  return { role: shape.role ?? `${shape.name.replace(/[^a-z0-9]/g, '_')}_${randomBytes(6).toString('hex')}`, password: randomBytes(24).toString('hex'), validUntil: shape.validUntil, minted: true };
+  return { role: shape.role ?? `${shape.name.replace(/[^a-z0-9]/g, '_')}_${randomBytes(6).toString('hex')}`, password: randomBytes(32).toString('base64url'), validUntil: shape.validUntil, minted: true };
 };
 
 // One recipe action, in one transaction unless the recipe says otherwise: each statement is filled by the server's format()
@@ -97,12 +108,17 @@ const runRecipe = async (client, shape, connection, roleConnection) => {
       const { rows: [{ statement }] } = await runOne(client, 'SELECT format($1, $2::text, $3::text, $4::text, $5::text, $6::text) AS statement', [template, login.role, login.password, login.validUntil, database, roleDatabase]);
       await runOne(client, statement);
     }
+    for (const [limit, value] of Object.entries(shape.limits ?? {})) {
+      const { rows: [{ statement }] } = await runOne(client, 'SELECT format($1, $2::text, $3::text, $4::text, $5::text, $6::text, $7::text) AS statement', [recipe.limits[limit], login.role, login.password, login.validUntil, database, roleDatabase, String(value)]);
+      await runOne(client, statement);
+    }
     if (together) await runOne(client, 'COMMIT');
   } catch (error) {
     if (together) await runOne(client, 'ROLLBACK').catch(() => {});
     throw error;
   }
   const row = { role: login.role, recipe: shape.name, action: shape.action, valid_until: shape.action === 'create' ? login.validUntil : null };
+  if (Object.keys(shape.limits ?? {}).length) row.limits = shape.limits;
   if (login.minted) {
     const url = new URL(connection);
     url.username = encodeURIComponent(login.role);

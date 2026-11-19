@@ -148,7 +148,7 @@ test('the command reads the connection from descriptor 3 and the request from st
 // Role recipes, run as the owner login: a standing read-only login with the password the person holds, a minted one that stops
 // working at its time, and the drop that takes each away; every value goes through the server's format().
 const SHARE = 'p_example_share';
-const SHARE_PW = "made-up-share-pw-with-'quote";
+const SHARE_PW = "made-up-share-pw-with-'quote-and-long-enough-to-pass";
 const shareConnection = connectionFor(SHARE, encodeURIComponent(SHARE_PW));
 const roles = async () => (await runSql({ connection: ownerConnection, input: { sql: "SELECT rolname, rolvaliduntil FROM pg_roles WHERE rolname LIKE 'p_example_share%' OR rolname LIKE 'read_only_%' ORDER BY rolname" } })).rows;
 
@@ -217,17 +217,43 @@ test('own-database: the operator makes a login and the database it owns, closed 
   await admin.query('CREATE DATABASE p_example_operator OWNER p_example_operator');
   await admin.end();
   const operator = `postgres://p_example_operator:made-up-operator-pw@127.0.0.1:${PORT}/p_example_operator`;
-  const pursuit = `postgres://p_example_pursuit:made-up-pursuit-pw@127.0.0.1:${PORT}/p_example_pursuit`;
+  const PURSUIT_PW = 'made-up-pursuit-password-of-forty-three-chars';
+  const pursuit = `postgres://p_example_pursuit:${PURSUIT_PW}@127.0.0.1:${PORT}/p_example_pursuit`;
   await assert.rejects(runSql({ connection: operator, input: { recipe: { name: 'own-database', action: 'create', valid_until: '2099-01-01T00:00:00Z' } } }), /names the held role connection's database: give role_credential_name/);
   const made = await runSql({ connection: operator, roleConnection: pursuit, input: { recipe: { name: 'own-database', action: 'create' } } });
   assert.deepEqual(made.rows, [{ role: 'p_example_pursuit', recipe: 'own-database', action: 'create', valid_until: 'infinity' }]);
   await runSql({ connection: pursuit, input: { sql: 'CREATE TABLE notes (id int)' } });
   assert.deepEqual((await runSql({ connection: pursuit, input: { sql: 'SELECT current_user AS u, current_database() AS d' } })).rows, [{ u: 'p_example_pursuit', d: 'p_example_pursuit' }]);
-  await assert.rejects(runSql({ connection: pursuit.replace('p_example_pursuit:made-up-pursuit-pw', 'p_example_operator:made-up-operator-pw'), input: { sql: 'SELECT 1' } }), /permission denied for database "p_example_pursuit"/);
-  await assert.rejects(runSql({ connection: pursuit.replace('p_example_pursuit:made-up-pursuit-pw', `${OWNER}:${OWNER_PW}`), input: { sql: 'SELECT 1' } }), /permission denied for database "p_example_pursuit"/);
+  await assert.rejects(runSql({ connection: pursuit.replace(`p_example_pursuit:${PURSUIT_PW}`, 'p_example_operator:made-up-operator-pw'), input: { sql: 'SELECT 1' } }), /permission denied for database "p_example_pursuit"/);
+  await assert.rejects(runSql({ connection: pursuit.replace(`p_example_pursuit:${PURSUIT_PW}`, `${OWNER}:${OWNER_PW}`), input: { sql: 'SELECT 1' } }), /permission denied for database "p_example_pursuit"/);
   assert.deepEqual((await runSql({ connection: operator, input: { sql: "SELECT pg_has_role('p_example_pursuit', 'SET') AS can_set, pg_has_role('p_example_pursuit', 'USAGE') AS inherits" } })).rows, [{ can_set: false, inherits: false }]);
   await runSql({ connection: operator, roleConnection: pursuit, input: { recipe: { name: 'own-database', action: 'drop' } } });
   assert.deepEqual((await runSql({ connection: operator, input: { sql: "SELECT (SELECT count(*)::int FROM pg_database WHERE datname = 'p_example_pursuit') AS dbs, (SELECT count(*)::int FROM pg_roles WHERE rolname = 'p_example_pursuit') AS roles" } })).rows, [{ dbs: 0, roles: 0 }]);
+});
+
+// Per-login limits (role-recipes.json limits rows): set when the login is made, each only when the caller gives a whole number,
+// read back from the server; a limit the recipe does not list, a number that is not whole, a limit on a drop and a standing
+// password shorter than 32 random bytes are refused before anything is made.
+test('own-database with limits: the login is made holding the connection limit and statement timeout it was given', async () => {
+  const operator = `postgres://p_example_operator:made-up-operator-pw@127.0.0.1:${PORT}/p_example_operator`;
+  const pursuit = `postgres://p_example_limited:made-up-limited-password-of-forty-three-chars@127.0.0.1:${PORT}/p_example_limited`;
+  const create = limits => ({ recipe: { name: 'own-database', action: 'create', limits } });
+  await assert.rejects(runSql({ connection: operator, roleConnection: pursuit, input: create({ max_rows: 5 }) }), /recipe.limits.max_rows is not a limit of the own-database recipe/);
+  await assert.rejects(runSql({ connection: operator, roleConnection: pursuit, input: create({ connection_limit: 2.5 }) }), /whole number above zero/);
+  await assert.rejects(runSql({ connection: operator, roleConnection: pursuit, input: create({ connection_limit: '5; DROP ROLE x' }) }), /whole number above zero/);
+  await assert.rejects(runSql({ connection: operator, roleConnection: pursuit, input: { recipe: { name: 'own-database', action: 'drop', limits: { connection_limit: 5 } } } }), /give them with create/);
+  await assert.rejects(runSql({ connection: operator, roleConnection: pursuit.replace('made-up-limited-password-of-forty-three-chars', 'short-pw'), input: create({}) }), /at least 43 characters/);
+  const made = await runSql({ connection: operator, roleConnection: pursuit, input: create({ connection_limit: 7, statement_timeout_ms: 1500 }) });
+  assert.deepEqual(made.rows[0].limits, { connection_limit: 7, statement_timeout_ms: 1500 });
+  assert.deepEqual((await runSql({ connection: operator, input: { sql: "SELECT rolconnlimit AS n, rolconfig AS config FROM pg_roles WHERE rolname = 'p_example_limited'" } })).rows, [{ n: 7, config: ['statement_timeout=1500'] }]);
+  await assert.rejects(runSql({ connection: pursuit, input: { sql: 'SELECT pg_sleep(3)' } }), /statement timeout/);
+  await runSql({ connection: operator, roleConnection: pursuit, input: { recipe: { name: 'own-database', action: 'drop' } } });
+});
+
+test('a minted login\'s password is 32 random bytes, and limits given as null are none', async () => {
+  const minted = await runSql({ connection: ownerConnection, input: { recipe: { name: 'read-only', action: 'create', role: 'p_example_share_bytes', valid_until: '2099-01-01T00:00:00Z', limits: null } } });
+  assert.equal(Buffer.from(decodeURIComponent(new URL(minted.rows[0].connection).password), 'base64url').length, 32);
+  await runSql({ connection: ownerConnection, input: { recipe: { name: 'read-only', action: 'drop', role: 'p_example_share_bytes' } } });
 });
 
 // A sandboxed run reaches its database by address through the run's own proxy (HTTPS_PROXY): one CONNECT tunnel per connection.

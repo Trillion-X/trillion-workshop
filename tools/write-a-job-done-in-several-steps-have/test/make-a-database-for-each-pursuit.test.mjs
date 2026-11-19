@@ -25,7 +25,15 @@ test('the pursuit\'s connection is kept first, by name and hosts only', async ()
 test('then the operator\'s login makes the login and the database it owns with the own-database recipe', async () => {
   const [asked] = (await run({ 'keep-the-login': kept })).waiting;
   assert.equal(asked.asks, 'tool:run-sql-in-my-database');
-  assert.deepEqual(asked.input, { credential_name: 'made-up-operator-connection', role_credential_name: 'made-up-pursuit-connection', recipe: { name: 'own-database', action: 'create' } });
+  assert.deepEqual(asked.input, { credential_name: 'made-up-operator-connection', role_credential_name: 'made-up-pursuit-connection', recipe: { name: 'own-database', action: 'create', limits: null } });
+});
+
+test('limits given to the run reach the recipe as the pursuit login\'s own, and no number is chosen in the workflow', async () => {
+  const limits = { connection_limit: 20, statement_timeout_ms: 30000 };
+  const result = await makeWorkflowDefinitionRunner(workflowEngine).runWorkflowDefinition(
+    { definitions, workflow_id: 'workflow:make-a-database-for-each-pursuit', input: { ...input, limits }, answers: { 'keep-the-login': kept } });
+  assert.deepEqual(result.waiting[0].input.recipe.limits, limits);
+  assert.doesNotMatch(JSON.stringify(definitions[0].steps), /connection_limit|statement_timeout/);
 });
 
 test('then the pursuit\'s own login turns on search by meaning, and reads back who and where it is', async () => {
