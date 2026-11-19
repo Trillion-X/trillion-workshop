@@ -73,5 +73,5 @@ export async function auditApp(app, { settings = hardeningSettings(), facts = si
 
 export const hardeningTools = { audit: ({ app } = {}) => auditApp(String(app ?? '')).then(findings => ({ app, findings, ok: findings.length === 0 })) };
 
-/** tool:check-an-app, run by tools/records-door run-an-export.mjs as audit(input). */
+/** tool:check-an-app, run by tools/workflows run-a-function.mjs as audit(input). */
 export const { audit } = hardeningTools;
