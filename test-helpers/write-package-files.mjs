@@ -16,7 +16,7 @@ import { execFileSync } from 'node:child_process';
 import { readFileSync, realpathSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { packageFilesByRow, refusedModules } from './tool-row-imports.mjs';
+import { layoutDuplicates, packageFilesByRow, refusedModules } from './tool-row-imports.mjs';
 
 export const PACKAGE_FILES = 'package-files.json';
 
@@ -26,7 +26,7 @@ export const PACKAGE_FILES = 'package-files.json';
 // names the checkout whose origin/main that commit must hold. Returns a plain reason when the tree is older, else null.
 export function olderThanMain({ repo, env = process.env }) {
   const git = (folder, args) => execFileSync('git', ['-C', folder, ...args], { stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 2 ** 20 }).toString().trim();
-  const isCheckout = (() => { try { return realpathSync(git(repo, ['rev-parse', '--show-toplevel'])) === realpathSync(repo); } catch { return false; } })();
+  const isCheckout = !env.BASE && (() => { try { return realpathSync(git(repo, ['rev-parse', '--show-toplevel'])) === realpathSync(repo); } catch { return false; } })();
   if (!isCheckout && !env.BASE) return 'this tree is an export: set BASE to the commit it was made from, and MAIN_REPO to the checkout that holds origin/main.';
   const checkout = isCheckout ? repo : env.MAIN_REPO;
   if (!checkout) return 'set MAIN_REPO to the checkout that holds origin/main, so the export can be judged against it.';
@@ -39,6 +39,9 @@ export function olderThanMain({ repo, env = process.env }) {
 
 export function packageFilesText({ repo, ref = 'HEAD' }) {
   const byRow = packageFilesByRow({ repo, ref });
+  // A row that lays the same thing twice is refused: the engine refuses that row's every run (layoutDuplicates).
+  const doubled = Object.entries(byRow).flatMap(([id, items]) => layoutDuplicates(items).map(key => `${id}: ${key}`));
+  if (doubled.length) throw new Error(`a row lays the same thing twice, and the engine refuses every run of it:\n${doubled.join('\n')}`);
   const sorted = Object.fromEntries(Object.keys(byRow).sort().map(id => [id, byRow[id]]));
   return `${JSON.stringify(sorted, null, 1)}\n`;
 }
