@@ -8,7 +8,7 @@ Opens one prompt in a local AI app the person already has (Claude Code, Codex, a
 |------|---------|
 | `read-data/open-in-ai.mjs` | `openInAi(input, { spawnImpl?, home?, rules? })`: the tool, answering `launched`, `app_missing` or `refused`; `launchOf(row, { prompt, folder })`: the command a launch runs. The header states the invariants. |
 | `read-data/open-in-ai.json` | The apps (one row each; the rows are the allowlist), the opener, the longest prompt, and every word said. A new app is one more row. |
-| `tool-rows.json` | `tool:open-in-ai`: a `computer` row with the `open-a-local-app` capability, run by `tools/records-door`'s `run-an-export.mjs`. |
+| `tool-rows.json` | `tool:open-in-ai`: a `computer` row with the `open-a-local-app` capability, run by `tools/workflows`'s `run-a-function.mjs`. |
 | `test/open-in-ai.test.mjs` | A url launch is one percent-encoded argument to the opener; an unknown, missing or badly asked app is typed and nothing runs; an argv row runs in the folder named; `dry_run` runs nothing; the row runs `openInAi`. |
 | `part.json` | Nothing here is imported by other code. |
 
@@ -28,6 +28,6 @@ Trillion-X/trillion `computer/open-in-ai.mjs`, `computer/open-in-ai.json` and `t
 
 ## Dependencies
 
-**Depends on:** `tools/records-door` (`run-an-export.mjs`), Node's standard library, and the operating system's opener (`/usr/bin/open`).
+**Depends on:** `tools/workflows` (`run-a-function.mjs`), Node's standard library, and the operating system's opener (`/usr/bin/open`).
 
 **Depended on by:** `tool-rows.json` only.

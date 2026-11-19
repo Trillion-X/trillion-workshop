@@ -63,7 +63,7 @@ test('dry_run shows the argv without running it', async () => {
   assert.equal(launchOf({ launch: { kind: 'url', url: 'codex://new?prompt={prompt}' } }, { prompt: 'a b' }).args[0], 'codex://new?prompt=a%20b');
 });
 
-test('the Workshop row runs openInAi through the records-door command, on the person\'s computer', async () => {
+test('the Workshop row runs openInAi through the run-a-function command, on the person\'s computer', async () => {
   const rows = (await import('../tool-rows.json', { with: { type: 'json' } })).default.records.map(row => row.payload);
   const row = rows.find(each => each.id === 'tool:open-in-ai');
   assert.equal(row.invoke.kind, 'computer');

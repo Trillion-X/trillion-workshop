@@ -2,7 +2,7 @@
 //
 // PURPOSE
 //   Hands one prompt to a local AI app the person already has (Claude Code, Codex, any app with a row), opened through
-//   a launcher the DATA allowlists. Run by tools/records-door's run-an-export.mjs as tool:open-in-ai; the apps are
+//   a launcher the DATA allowlists. Run by tools/workflows's `run-a-function.mjs` as tool:open-in-ai; the apps are
 //   read-data/open-in-ai.json.
 //
 // NON-NEGOTIABLE INVARIANTS
