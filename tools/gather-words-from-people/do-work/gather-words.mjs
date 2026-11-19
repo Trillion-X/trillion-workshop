@@ -2,7 +2,7 @@
 //
 // The four tools that ask people for their words, keep each answer with the consent that came with it, approve the words
 // exactly as they were reviewed, and read back only what may be shown. Each export is called by
-// tools/records-door/do-work/run-an-export.mjs as fn(input), with no records door: a tool reads nothing and keeps
+// tools/workflows/do-work/run-a-function.mjs as fn(input), with no records door: a tool reads nothing and keeps
 // nothing. The caller's AI reads the list's definition and rows from a store and hands them in as `list` (the list's
 // definition) and `rows` ([{ id, value }], the list's rows); a tool that changes a row answers `keep`, the records
 // ({ id, type, value, expected }) for the AI to put in the store, each conditional on the row as it was handed in. The list
@@ -24,10 +24,12 @@ const text = (value, name) => {
 // The list's own gathers words, its row type and the rows handed in by id.
 function openList(input) {
   if (!object(input) || !object(input.list)) throw new Error('Give list (the list\'s definition) and what to do.');
+  // A missing rows is refused, never read as an empty list: a tool that shows or changes words checks the rows it is given.
+  if (!Array.isArray(input.rows)) throw new Error('Give rows (the list\'s rows as [{ id, value }], [] when it has none).');
   const gathers = readGathers(input.list);
   const rowType = text(input.list.row_type, 'list.row_type');
   const rows = new Map();
-  for (const [index, row] of (input.rows ?? []).entries()) {
+  for (const [index, row] of input.rows.entries()) {
     if (!object(row) || typeof row.id !== 'string' || !object(row.value)) throw new Error(`rows[${index}] needs an id and a value.`);
     rows.set(row.id, row.value);
   }

@@ -72,7 +72,15 @@ test('a list with no gathers block is refused, and every problem with a block is
 test('the call must hand in the list\'s definition', () => {
   assert.throws(() => askPeopleForWords({ people, case: 'c1' }), /list/);
   assert.throws(() => askPeopleForWords({ list: 'list:bakery-praise', people, case: 'c1' }), /list/);
-  assert.throws(() => askPeopleForWords({ list: listValue({ gathers: undefined }), people, case: 'c1' }), /gathers/);
+  assert.throws(() => askPeopleForWords({ list: listValue({ gathers: undefined }), rows: [], people, case: 'c1' }), /gathers/);
+});
+
+test('a call that leaves out the rows is refused, never read as an empty list; rows given as [] are answered', () => {
+  assert.throws(() => askPeopleForWords({ list: listValue(), people, case: 'c1' }), /rows/);
+  assert.throws(() => keepTheWordsAPersonGave({ list: listValue(), row_id: 'record:bakery-praise:x', words: 'Nice.', consent: 'full-name', consent_note: 'yes' }), /rows/);
+  assert.throws(() => approveWordsToShow({ list: listValue(), row_id: 'record:bakery-praise:x', decision: 'approve', reviewed_words: 'Nice.' }), /rows/);
+  assert.throws(() => readWordsThatMayShow({ list: listValue() }), /rows/);
+  assert.deepEqual(readWordsThatMayShow({ list: listValue(), rows: [] }), { items: [], shown: 0, may_show_total: 0, held_back: {} });
 });
 
 test('asking answers one asked row to keep per person with each draft, writes nothing itself and sends nothing', () => {

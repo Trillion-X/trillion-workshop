@@ -29,7 +29,8 @@ const list = {
 async function run(toolId, input) {
   const row = rows[toolId];
   assert.equal(row.invoke.records, undefined, `${toolId} declares no records door`);
-  const [, driver, entry, name] = row.invoke.argv.map(part => part.replace('/opt/records-door/', `${tools}/records-door/`).replace('/opt/gather-words-from-people/', `${folder}/`));
+  assert.ok(!row.invoke.argv.some(part => part.includes('records-door')), `${toolId} runs no records-door program`);
+  const [, driver, entry, name] = row.invoke.argv.map(part => part.replace('/opt/workflows/', `${tools}/workflows/`).replace('/opt/gather-words-from-people/', `${folder}/`));
   return new Promise((done, fail) => {
     const child = spawn(process.execPath, [driver, entry, name], { stdio: ['pipe', 'pipe', 'pipe'] });
     let out = '';

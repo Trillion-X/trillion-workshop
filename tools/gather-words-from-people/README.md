@@ -27,7 +27,7 @@ Every value is the person's: a field id from the list's `fields`, a consent id a
 | File | Purpose |
 |------|---------|
 | `read-data/gathered-words.mjs` | `readGathers` (the list's block checked against the list's own fields, every problem named in one refusal), `shownIdentity` (the BLAKE3 identity of the speaker, words and consent together), `headingFor`, and the row ids for an asked person and for words nobody asked for. Pure. |
-| `do-work/gather-words.mjs` | The four tools as functions with no records door, run by `tools/records-door/do-work/run-an-export.mjs`; the list's definition and rows come in as `list` and `rows`, and a tool that changes a row answers `keep` (records with `expected`) for the caller's AI to keep in its store: `askPeopleForWords`, `keepTheWordsAPersonGave`, `approveWordsToShow`, `readWordsThatMayShow`. |
+| `do-work/gather-words.mjs` | The four tools as functions with no records door, run by `tools/workflows/do-work/run-a-function.mjs`; the list's definition and rows come in as `list` and `rows`, and a tool that changes a row answers `keep` (records with `expected`) for the caller's AI to keep in its store: `askPeopleForWords`, `keepTheWordsAPersonGave`, `approveWordsToShow`, `readWordsThatMayShow`. |
 | `tool-rows.json` | The four tool rows. Each is granted the list (read) and the list's own row type, which it names in its input (`type`, `record:<row_type>`), so a row type is never guessed. |
 | `part.json` | No public files: only the tools run this code. |
 | `test/gather-words.test.mjs` | The four tools over a made-up list handed in as input, with a small in-memory store applying each answer's `keep`: asking once, consent, approval pinned to the exact words, withdrawal, the held-back reasons, and a keep refused when the row moved. Every name and line is invented. |
@@ -59,6 +59,6 @@ Every value is the person's: a field id from the list's `fields`, a consent id a
 
 ## Dependencies
 
-**Depends on:** `tools/records-door` (`do-work/run-an-export.mjs`, which opens no door here), `tools/content-identity` (the BLAKE3 identity of JSON), Node in the tool container.
+**Depends on:** `tools/workflows` (`do-work/run-a-function.mjs`, which reaches no door), `tools/content-identity` (the BLAKE3 identity of JSON), Node in the tool container.
 
 **Depended on by:** Trillion's deploy (it reads `tool-rows.json` and bundles the files a row names).
