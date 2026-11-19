@@ -13,7 +13,6 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync, appendFile
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import * as chat from '../read-data/chat-import.mjs';
-import { runHeld } from '../do-work/run-held.mjs';
 import { heldStore, runKept } from './support/held-store.mjs';
 
 const { conversationImportProgress, countConversationsPerApp, importConversationsFrom, keepWhatISaidToAnAi, listConversationSourcesHere, resumeConversationImports } = chat;
@@ -76,7 +75,7 @@ function makeHome() {
 
 // The store a run keeps into: the test is the person's AI, answering each need from the store and keeping each write.
 // `fake` is that store (its `kept` rows); `context` is the same store, the second argument of each run below.
-async function doorFor() {
+async function storeFor() {
   const store = heldStore();
   return { fake: store, context: store, trouble: null };
 }
@@ -114,7 +113,7 @@ test('the sources on this computer are found where their rows say, each export t
 
 test('each source keeps one row per conversation and its messages, and a second run adds nothing', async t => {
   const { home } = makeHome();
-  const { fake, context } = await doorFor();
+  const { fake, context } = await storeFor();
   t.after(async () => { rmSync(home, { recursive: true, force: true }); await fake.close(); });
   const kept = {};
   for (const source of SOURCES) {
@@ -129,7 +128,7 @@ test('each source keeps one row per conversation and its messages, and a second 
     'google-assistant-activity': [1, 2], 'google-ai-mode-activity': [1, 2], 'claude-code-sessions': [1, 2],
     'codex-sessions': [2, 4], 'gemini-cli-sessions': [1, 2], 'hermes-sessions': [1, 2],
   });
-  // ChatGPT's long message is kept in parts that each fit one door write; 8 messages are 10 kept messages.
+  // ChatGPT's long message is kept in parts that each fit one store write; 8 messages are 10 kept messages.
   const messages = ofType(fake, 'message').map(record => record.value);
   assert.equal(messages.length, 34);
   const parts = messages.filter(message => message.source_ref?.startsWith('cg-3-1:part-'));
@@ -170,7 +169,7 @@ test('each source keeps one row per conversation and its messages, and a second 
 
 test('a session that grew is read on from its byte offset, and only the new rows are kept', async t => {
   const { home, codexLive } = makeHome();
-  const { fake, context } = await doorFor();
+  const { fake, context } = await storeFor();
   t.after(async () => { rmSync(home, { recursive: true, force: true }); await fake.close(); });
   await importConversationsFromKept(request(home, { source: 'codex-sessions' }), context);
   appendFileSync(join(home, codexLive), lines([
@@ -186,7 +185,7 @@ test('a session that grew is read on from its byte offset, and only the new rows
 // since the last run is kept and nothing before it again, and a run with no window still reads the older session.
 test('a sweep reads only the sessions changed within its window, and keeps each new turn once', async t => {
   const { home } = makeHome();
-  const { fake, context } = await doorFor();
+  const { fake, context } = await storeFor();
   t.after(async () => { rmSync(home, { recursive: true, force: true }); await fake.close(); });
   const daysBefore = days => new Date(NOW.getTime() - days * 86_400_000);
   const claudeLive = '.claude/projects/-bakery/11111111-2222-3333-4444-555555555555.jsonl';
@@ -219,7 +218,7 @@ test('a sweep reads only the sessions changed within its window, and keeps each 
 // are under, so the apps' roots are found where their rows say; a home the granted folder is not inside is refused.
 test('a run granted only a session folder reads the apps under the home it names, and refuses a home outside the grant', async t => {
   const { home } = makeHome();
-  const { fake, context } = await doorFor();
+  const { fake, context } = await storeFor();
   t.after(async () => { rmSync(home, { recursive: true, force: true }); await fake.close(); });
   const granted = join(home, '.claude/projects');
   const run = await resumeConversationImportsKept({ input: { sources: ['claude-code-sessions'], home }, folder: granted }, context);
@@ -228,7 +227,7 @@ test('a run granted only a session folder reads the apps under the home it names
 });
 test('a file named directly is read, and a path that leaves the granted folder is refused in words', async t => {
   const { home } = makeHome();
-  const { fake, context } = await doorFor();
+  const { fake, context } = await storeFor();
   t.after(async () => { rmSync(home, { recursive: true, force: true }); await fake.close(); });
   put(home, 'elsewhere/my-claude.json', readFileSync(join(home, 'Downloads/claude-data/conversations.json')));
   const named = await importConversationsFromKept(request(home, { source: 'claude-ai-export', files: ['elsewhere/my-claude.json'] }), context);
@@ -256,7 +255,7 @@ test('a run that is not handed what it needs writes nothing and answers what it 
   const { home } = makeHome();
   t.after(() => rmSync(home, { recursive: true, force: true }));
   const store = heldStore();
-  const first = await runHeld((input, context) => chat.importConversationsFrom(input, { ...context, now: () => NOW }), { ...request(home, { source: 'chatgpt-export' }), stored: {} });
+  const first = await chat.importConversationsFrom(request(home, { source: 'chatgpt-export' }), { now: () => NOW });
   assert.equal(first.complete, false);
   assert.deepEqual(first.keep, []);
   assert.ok(first.needs.lists.some(query => query.type === 'conversation-import-cursor'), 'the cursor rows of the source are asked for');

@@ -1,27 +1,24 @@
 // tools/conversations/read-data/chat-import.mjs (moved from Trillion-X/trillion src/chat-import.mjs)
 //
-// A whole chat export brought into Trillion: read here on the person's own computer, inside the folder they granted,
-// then kept one conversation at a time through the same road one chat's archive takes, into the private Trillion or
-// into the one space the person names. The person's records are the values the run is handed (read-data/held-door.mjs; the caller
-// reads them from the person's own store): the message owner that keeps them (src/messages.mjs, moved to
-// tools/keep-and-wake-ai-sessions-on-this-computer) runs unchanged over a staged view of the door (stagedRecords).
+// A whole chat export brought into the person's store: read here on the person's own computer, inside the folder they
+// granted, then kept one conversation at a time through the message owner (src/messages.mjs, in
+// tools/keep-and-wake-ai-sessions-on-this-computer). The person's rows are handed in (input.stored, read-data/rows-in-hand.mjs)
+// and what the run writes comes back as `keep` for the person's AI to keep in the store they already use.
 //
 // The export is a file on the person's computer. It is read a page of conversations at a time, so an export of
 // thousands of chats goes in over several runs and a repeat adds nothing twice: each file has a cursor row
-// (record conversation-import-cursor) that moves only past conversations the door kept, so a run that stops (the run's time box, or a
-// record the run was not handed yet) continues where it stopped. Every app's conversations come in this way: the
+// (record conversation-import-cursor) that moves only past conversations already kept, so a run that stops (the run's time
+// box, or a row the run was not handed yet) continues where it stopped. Every app's conversations come in this way: the
 // account exports, and the sessions local AI apps keep (read by the harness rules old Trillion recorded them by).
 // Where each one is, is DATA (read-data/conversation-sources-on-this-computer.json).
 //
 // Attachments: a chat's messages name the files they carried (src/chat-archives.mjs attachmentsOf). An account export
 // puts each file beside conversations.json, named with its id first (file-XXXX-photo.png), sometimes in a folder under
-// it. attachmentFinder finds each one among the person's own files: by the name or identity the person gave for that
-// id, or by that id at the start of a file's name in the export's folder (or the folder the person names) and the
-// folders under it. Bytes are never copied: a private message links the file, a space gets a file item whose bytes
-// stay in the importer's store. A file that cannot be found is reported, never an error. Handed as values (the run
-// on the person's computer below), the export's files are on the computer beside it: each one a message names is found
-// there and copied into the person's files through the files door (fileKeeper, exportFilesBeside), and an image pasted
-// into a local AI app's session is copied the way old Trillion's recorder kept it (/messages/<conversation>/<message>-<n>).
+// it. exportAttachmentFinder finds each one on this computer, in the export's folder (or the folder the person names)
+// and the folders under it, by the name the person gave for that id or by the id at the start of a file's name. The bytes
+// are read here (outside the store), and each copy comes back as a keep file entry. A file that cannot be found is reported,
+// never an error. An image pasted into a local AI app's session is copied the way old Trillion's recorder kept it
+// (<attachments folder>/<conversation>/<message>-<n>).
 import { spawn } from 'node:child_process';
 import { closeSync, openSync, readFileSync, readSync, readdirSync, realpathSync, statSync } from 'node:fs';
 import { basename, dirname, extname, isAbsolute, join, relative, resolve, sep } from 'node:path';
@@ -29,9 +26,6 @@ import { fileURLToPath } from 'node:url';
 import { conversationFrom } from './chat-archives.mjs';
 import { isMarkdownChatExport, markdownChatExport } from './markdown-chat-export.mjs';
 import { messages, sourceKeyOfMessage } from '../../keep-and-wake-ai-sessions-on-this-computer/src/messages.mjs';
-import { listsOverDoor } from '../../records-door/read-data/lists-door.mjs';
-import { writeBatches } from '../../records-door/read-data/write-batches.mjs';
-import { readWholeFile, writeWholeFile } from '../../records-door/read-data/whole-file.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import conversationList from './ai-conversations-list.json' with { type: 'json' };
 import places from './conversation-sources-on-this-computer.json' with { type: 'json' };
@@ -39,50 +33,28 @@ import { archiveEntries, profile } from '../../take-pictures-out-of-a-zip-archiv
 import { unzipSync } from 'fflate';
 import { firstByteOf, jsonArrayElements } from './json-array-stream.mjs';
 import { messagesOf, personSpeaksIn, rowsFrom, sessionOfTranscript, settings as harnessRules } from '../../keep-and-wake-ai-sessions-on-this-computer/harness/record-every-message.mjs';
+import { answering } from './rows-in-hand.mjs';
 
-const cleanFolder = value => (typeof value === 'string' && value.trim().startsWith('/') ? value.trim().replace(/\/+$/, '') || '/' : null);
+const settings = places.settings;
+const CURSOR_TYPE = 'conversation-import-cursor';
+const LIST_TYPE = 'list';
+const SOURCE_TYPE = 'conversation-import-source';
+const MOST_EXPORT_BYTES = 32 * 1024 * 1024;
 
-/**
- * Finds the file one attachment reference names among this person's files (namespace: src/namespace-store.mjs).
- * attachments: { <attachment id>: a file name ("/exports/file-XXXX-photo.png") or identity } the person gave.
- * folder: where the export's files are (its folder and the folders under it are searched by id at the start of a
- * name). namespace answers byName, locate, foldersUnder and namesStartingWith, directly or as promises.
- * Returns async ref => { identity, name, byte_length, media_type } | null. Files still being uploaded are not found.
- */
-export function attachmentFinder(namespace, { attachments, folder } = {}) {
-  const given = attachments && typeof attachments === 'object' && !Array.isArray(attachments) ? attachments : {};
-  const root = cleanFolder(folder);
-  let folders = null;
-  const found = (row, name) => (row && !row.growing ? { identity: row.identity, name: name ?? row.names?.[0] ?? null, byte_length: row.byte_length, media_type: row.media_type ?? null } : null);
-  return async ref => {
-    const named = typeof given[ref.id] === 'string' ? given[ref.id].trim() : '';
-    if (named) return named.startsWith('/') ? found(await namespace.byName(named), named) : found(await namespace.locate(named));
-    if (!root) return null;
-    folders ??= await namespace.foldersUnder(root);
-    for (const collection of folders) {
-      for (const hit of await namespace.namesStartingWith(collection, ref.id)) {
-        // The id must end where the name's id ends: file-AB never finds file-ABC-photo.png.
-        const after = hit.name.charAt(hit.name.lastIndexOf('/') + 1 + ref.id.length);
-        if (/[A-Za-z0-9]/.test(after) || !hit.identity) continue;
-        const file = found(await namespace.locate(hit.identity), hit.name);
-        if (file) return file;
-      }
-    }
-    return null;
-  };
-}
+const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+const listRecordId = id => `${LIST_TYPE}:${id}`;
 
 /**
- * One row per imported conversation in the AI conversations list (read-data/ai-conversations-list.json), made once with
- * ensure. Only facts read from the chat are written, so labels, people, pursuits and follow-ups the person or an AI
- * set stay as they are on a re-import. chat: conversationFrom's shape; conversationId: the id its messages carry.
- * lists: the person's lists over the door (tools/records-door listsOverDoor). totals, when given, are the facts of the
- * whole conversation where this chat is only the part read this time (a long transcript read a piece at a time);
- * original_file names the export file it came from.
+ * One row per imported conversation in the AI conversations list (read-data/ai-conversations-list.json). The list is made
+ * once, when it is not in the store yet; then each import writes only the facts read from the chat (title, app, conversation,
+ * first and last message, count, models). Labels, people, pursuits and follow-ups the person or an AI set stay as they are
+ * on a re-import. chat: conversationFrom's shape; conversationId: the id its messages carry.
+ * totals, when given, are the facts of the whole conversation where this chat is only the part read this time (a long
+ * transcript read a piece at a time); original_file names the export file it came from.
  */
-export async function keepConversationRow(lists, chat, conversationId, { totals = null, original_file: originalFile = null } = {}) {
+export function keepConversationRow(hand, chat, conversationId, { totals = null, original_file: originalFile = null } = {}) {
   const { _what, row_id_max: max, ...definition } = conversationList;
-  await lists.ensure(definition);
+  ensureList(hand, definition);
   const times = chat.messages.map(message => message.at).filter(Boolean).sort();
   const models = [...new Set(chat.messages.map(message => message.model).filter(Boolean))];
   const facts = totals ?? { messages: chat.messages.length, started: times[0], last: times.at(-1), models };
@@ -90,27 +62,42 @@ export async function keepConversationRow(lists, chat, conversationId, { totals 
     ...(facts.started ? { started: facts.started, last: facts.last } : {}), ...(facts.models?.length ? { models: facts.models } : {}),
     ...(originalFile ? { original_file: originalFile } : {}) };
   const id = String(chat.conversation_id).replace(/[^A-Za-z0-9_-]+/g, '-').slice(0, max);
-  return lists.putRows(definition.id, { rows: [{ id, values }] });
+  return putListRows(hand, definition.id, [{ id, values }]);
+}
+
+// A list is kept once: an existing one is never rewritten, so a field the person added or changed stays.
+function ensureList(hand, { id, ...definition }) {
+  if (hand.valueOf(listRecordId(id), LIST_TYPE)) return;
+  hand.keepRecord({ id: listRecordId(id), type: LIST_TYPE, value: { row_type: id, indexes: [], ...definition } });
+}
+
+// Each row's values merged over what it holds now (a null takes the field out).
+function putListRows(hand, listId, rows) {
+  const list = hand.valueOf(listRecordId(listId), LIST_TYPE);
+  if (!object(list)) throw new Error(`There is no list ${listId} in the person's records.`);
+  const type = `record:${list.row_type}`;
+  for (const row of rows) {
+    const recordId = `${type}:${row.id}`;
+    const held = hand.valueOf(recordId, type);
+    const value = { ...(object(held) ? held : {}) };
+    for (const [field, given] of Object.entries(row.values ?? {})) {
+      if (given === null || given === undefined) delete value[field];
+      else value[field] = given;
+    }
+    hand.keepRecord({ id: recordId, type, value });
+  }
+  return { written: rows.length, kept: rows.map(row => ({ id: row.id })) };
 }
 
 /**
- * One chat's archive kept in the private Trillion or one space (the bring_in_chat road), by whichever store keeps the
- * account's records: eeaf is its records, namespace its files (attachmentFinder), addSpaceItems the space owner's write and
- * relay() the account's network relay. A repeat adds nothing twice; files not found are listed, never an error.
- * A private import's writes are synchronous, so `commit` keeps them with their answer in one step (CHAT_RECEIPTED_WRITES):
- * a lost import is answered from that receipt, never imported again. Handed as values, eeaf is stagedRecords(door)
- * .eeaf and commit its commit, which runs the step again until everything it reads has been read from the door, then
- * sends its writes; `now` is the one time the step runs at, so each run of it makes the same records. lists keeps the
- * conversation's row (keep_row false leaves that to the caller, which knows the whole conversation's facts).
+ * One chat's archive kept as the person's messages, through the message owner (messages(eeaf)) over the rows in hand. A
+ * repeat adds nothing twice; files not found are listed, never an error. find(ref) answers the file an attachment names
+ * ({ identity, name, byte_length, media_type } | null). now is the one time the step runs at, so each run of it makes the
+ * same records. keep_row false leaves the conversation's row to the caller, which knows the whole conversation's facts.
  */
-export const CHAT_RECEIPTED_WRITES = ['chats:import'];
-export async function importConversation({ conversation, space_id: spaceId = null, reach, app = 'ChatGPT', attachments, attachments_folder: folder, preserve_conversation_id = false, most_text, keep_row = true, original_file }, { eeaf, namespace, addSpaceItems, relay, commit = change => change(), lists, now = () => new Date(), find: findFile = null }) {
+export async function importConversation({ conversation, app = 'ChatGPT', preserve_conversation_id = false, most_text, keep_row = true, original_file }, { hand, eeaf, find = () => null, now = () => new Date() }) {
   const chat = conversationFrom(conversation, app, most_text ? { most_text } : {});
   const label = chat.title ?? chat.conversation_id;
-  if (!spaceId && !reach.private) throw new Error('This sign-in reaches shared pursuits only, so it cannot keep messages in the private Trillion.');
-  // Finding a file reads the private files, so a sign-in held to shared spaces finds none.
-  // Handed as values, the run hands its own finder (the export's files on this computer, copied through the door).
-  const find = findFile ?? (reach.private && namespace ? attachmentFinder(namespace, { attachments, folder }) : () => null);
   const files = new Map();
   const missing = [];
   for (const ref of chat.messages.flatMap(message => message.attachments)) {
@@ -126,57 +113,22 @@ export async function importConversation({ conversation, space_id: spaceId = nul
   let added = 0;
   let already = 0;
   const times = kept.map(message => message.at).filter(Boolean).sort();
-  const answer = () => ({ conversation: label, conversation_id: preserve_conversation_id ? chat.conversation_id : `${chat.app}:${chat.conversation_id}`, into: spaceId ? { space_id: spaceId } : 'private', messages: kept.length, added, already_there: already, attachments_found: files.size, missing_attachments: missing,
-    started: times[0] ?? null, last: times.at(-1) ?? null, models: [...new Set(kept.map(message => message.model).filter(Boolean))],
-    ...(reach.private || !missing.length ? {} : { attachments_note: 'This sign-in reaches shared pursuits only, so your files were not searched for the chat\'s attachments.' }) });
-  if (spaceId) {
-    const at = { relay: await relay(), space_id: spaceId, origin: 'import' };
-    const itemOf = new Map();
-    const found = [...files];
-    for (let start = 0; start < found.length; start += 100) {
-      const page = found.slice(start, start + 100);
-      const { ids } = await addSpaceItems({ ...at, items: page.map(([id, file]) => ({
-        kind: 'file', title: file.name, source_ref: `chat-file:${chat.conversation_id}:${id}`,
-        body: { identity: file.identity, name: file.name, byte_length: file.byte_length, media_type: file.media_type } })) });
-      page.forEach(([id], index) => itemOf.set(id, ids[index]));
-    }
-    for (const batch of batches) {
-      const result = await addSpaceItems({ ...at, items: batch.map(message => ({
-        kind: 'message', title: chat.title, source_ref: `chat:${chat.conversation_id}:${message.node}`,
-        about: message.attachments.filter(ref => itemOf.has(ref.id)).map(ref => itemOf.get(ref.id)),
-        body: { app: chat.app, conversation_id: chat.conversation_id, conversation: chat.title, speaker: message.speaker, text: message.text, at: message.at, ...(message.source_at ? { source_at: message.source_at } : {}), attachments: message.attachments.filter(ref => files.has(ref.id)).map(ref => files.get(ref.id).identity), ...(message.model ? { model: message.model } : {}) } })) });
-      added += result.added.length; already += result.already_there;
-    }
-    return answer();
+  const conversationId = preserve_conversation_id ? chat.conversation_id : `${chat.app}:${chat.conversation_id}`;
+  const store = messages(eeaf, { now });
+  for (const batch of batches) {
+    const result = store.record({ messages: batch.map(message => {
+      const about = message.attachments.filter(ref => files.has(ref.id)).map(ref => ({ kind: 'file', id: files.get(ref.id).identity }));
+      const attachments = message.attachments.filter(ref => files.has(ref.id)).map(ref => {
+        const file = files.get(ref.id);
+        return { identity: file.identity, ...(file.name ? { name: file.name } : {}), ...(file.media_type ? { media_type: file.media_type } : {}) };
+      });
+      return { conversation_id: conversationId, app: chat.app, speaker: message.speaker, text: message.text, source_ref: message.node, ...(message.at ? { at: message.at } : {}), ...(message.source_at ? { source_at: message.source_at } : {}), ...(message.model ? { model: message.model } : {}), ...(attachments.length ? { attachments } : {}), ...(about.length ? { about } : {}) };
+    }) }, { app: chat.app, road: 'chat_import' });
+    added += result.recorded; already += result.already_kept;
   }
-  const kept_answer = await commit(() => {
-    added = 0; already = 0;
-    const store = messages(eeaf, { now });
-    for (const batch of batches) {
-      const result = store.record({ messages: batch.map(message => {
-        const about = message.attachments.filter(ref => files.has(ref.id)).map(ref => ({ kind: 'file', id: files.get(ref.id).identity }));
-        const attachments = message.attachments.filter(ref => files.has(ref.id)).map(ref => {
-          const file = files.get(ref.id);
-          return { identity: file.identity, ...(file.name ? { name: file.name } : {}), ...(file.media_type ? { media_type: file.media_type } : {}) };
-        });
-        return { conversation_id: preserve_conversation_id ? chat.conversation_id : `${chat.app}:${chat.conversation_id}`, app: chat.app, speaker: message.speaker, text: message.text, source_ref: message.node, ...(message.at ? { at: message.at } : {}), ...(message.source_at ? { source_at: message.source_at } : {}), ...(message.model ? { model: message.model } : {}), ...(attachments.length ? { attachments } : {}), ...(about.length ? { about } : {}) };
-      }) }, { app: chat.app, road: 'chat_import' });
-      added += result.recorded; already += result.already_kept;
-    }
-    return answer();
-  }, { operation: 'chats:import' });
-  if (keep_row && lists && kept.length) await keepConversationRow(lists, chat, preserve_conversation_id ? chat.conversation_id : `${chat.app}:${chat.conversation_id}`, { original_file });
-  return kept_answer;
-}
-
-export const CHAT_IMPORT_PATHS = ['/chats/import', '/chats/import-history'];
-/** POST /chats/import (and /chats/import-history, which keeps the conversation id as given) for the private Trillion,
- *  answered by whichever store keeps the account's records: keeps() says whether its plan keeps messages. */
-export async function handleChatImportRequest({ keeps, reach, keep }, request) {
-  const path = new URL(request.url).pathname;
-  if (request.method !== 'POST' || !CHAT_IMPORT_PATHS.includes(path)) return Response.json({ error: 'Not found' }, { status: 404 });
-  if (!(await keeps())) return Response.json({ error: 'On the free plan nothing is kept, so chats are not brought in. A paid plan keeps every message.', upgrade_needed: true }, { status: 402 });
-  try { return Response.json(await keep({ ...(await request.json()), ...(path === '/chats/import-history' ? { preserve_conversation_id: true } : {}), space_id: null, reach })); } catch (error) { return Response.json({ error: error.message }, { status: 400 }); }
+  if (keep_row && kept.length) keepConversationRow(hand, chat, conversationId, { original_file });
+  return { conversation: label, conversation_id: conversationId, into: 'private', messages: kept.length, added, already_there: already, attachments_found: files.size, missing_attachments: missing,
+    started: times[0] ?? null, last: times.at(-1) ?? null, models: [...new Set(kept.map(message => message.model).filter(Boolean))] };
 }
 
 /** The conversations an export file holds: a JSON file's own, or, for an account export zip (it starts with PK), those of every
@@ -195,95 +147,40 @@ export function exportedConversations(bytes) {
   }); } catch (error) { if (error.message.startsWith('Unsupported Markdown') || error.message.startsWith('Corrupt Markdown')) throw error; throw new Error('This file is not a chat export (it is not JSON or a supported Markdown export).'); }
 }
 
-// (importChatExport, the Worker's read of an export from the person's hosted files a page at a time, is the run below:
-// importConversationsFrom reads the export where it is on this computer and keeps its place in a cursor row.)
-
 // ---------------------------------------------------------------------------------------------------------------------
-// Handed as values
+// The records the message owner reads and writes, from the rows in hand
 // ---------------------------------------------------------------------------------------------------------------------
-
-const settings = places.settings;
-const CURSOR_TYPE = 'conversation-import-cursor';
 
 const typeOfId = id => (id.startsWith('setting:') ? 'setting' : id.slice(0, id.indexOf(':')));
-const keyOfWrite = records => `conversations-import:${makeHashCodeHexFromBytes(new TextEncoder().encode(JSON.stringify(records))).slice(3, 51)}`;
 
 /**
- * The person's records as the message owner reads and writes them (messages(eeaf, { fields })), over the door. The
- * owner reads and writes synchronously, the door answers later, so `commit(step)` runs the step against what has been
- * read so far, notes every record it asked for that has not been read yet, reads those from the door and runs the step
- * again, until a run asks for nothing new; then it sends that run's writes, in order, in door writes that each fit one
- * message. A record the step writes before a later one (a message before its source key) is never sent after it.
+ * The person's records as the message owner reads and writes them (messages(eeaf, { fields })). Its reads are answered by
+ * the rows in hand: a record or list it asks for that was not handed in is a need, and the run is answered as needing it.
+ * Its writes are kept in the order it made them.
  */
-export function stagedRecords(door, { rules = settings } = {}) {
-  const held = new Map();
-  const queries = new Map();
-  let overlay = new Map();
-  let missing = new Set();
-  let writes = [];
-  const known = id => {
-    if (overlay.has(id)) return overlay.get(id);
-    if (held.has(id)) return held.get(id);
-    missing.add(id);
-    return null;
-  };
-  const asked = (key, fallback) => { if (queries.has(key)) return queries.get(key); missing.add(key); return fallback; };
-  const eeaf = {
-    read: known,
-    ids: (type, { limit = 1 } = {}) => asked(JSON.stringify(['ids', type, limit]), []),
+export function ownerRecords(hand) {
+  return {
+    read: id => hand.valueOf(id, typeOfId(id)),
+    ids: (type, { limit = 1 } = {}) => hand.rowsOf({ type, limit }).map(record => record.id),
     // The voice stretches the owner keeps for speakers a live voice session names; an import names none.
     scan: () => [],
-    write(batch) { for (const record of batch) { overlay.set(record.id, record.value); writes.push(record); } return { written: batch.length }; },
+    write(batch) { for (const record of batch) hand.keepRecord(record); return { written: batch.length }; },
     fields: {
       fieldsOf(type, ids, names) {
         const found = new Map();
         for (const id of ids) {
-          const value = known(id);
+          const value = hand.valueOf(id, type);
           if (value && typeof value === 'object') found.set(id, Object.fromEntries(names.filter(name => name in value).map(name => [name, value[name]])));
         }
         return found;
       },
-      idsWhere: (type, field, value, { limit = 20 } = {}) => asked(JSON.stringify(['where', type, field, value, limit]), []),
-    },
-  };
-  async function fetchMissing() {
-    for (const key of missing) {
-      if (key.startsWith('[')) {
-        const [how, type, ...rest] = JSON.parse(key);
-        const ids = [];
-        const query = how === 'ids' ? { type, limit: rest[0] } : { type, where: { [rest[0]]: rest[1] }, fields: [], limit: rest[2] };
-        for await (const record of door.list(query, { most: query.limit })) { ids.push(record.id); if (ids.length >= query.limit) break; }
-        queries.set(key, ids);
-      } else held.set(key, await door.read(typeOfId(key), key));
-    }
-  }
-  return {
-    eeaf,
-    async commit(step) {
-      for (let round = 0; ; round += 1) {
-        overlay = new Map(); missing = new Set(); writes = [];
-        let result, failure = null;
-        try { result = step(); } catch (error) { failure = error; }
-        if (missing.size) {
-          if (round > 50) throw new Error('The message owner kept asking for records it had not read; nothing was written.');
-          await fetchMissing();
-          continue;
-        }
-        if (failure) throw failure;
-        const batches = writeBatches(writes, { rows: rules.write_rows, bytes: rules.write_bytes });
-        try { for (const batch of batches) await door.write(batch, { key: keyOfWrite(batch) }); }
-        catch (error) { held.clear(); queries.clear(); throw error; }
-        for (const [id, value] of overlay) held.set(id, value);
-        // The newest message changes with every write; read it again when it is next asked for.
-        for (const key of [...queries.keys()]) if (key.startsWith('["ids"')) queries.delete(key);
-        return result;
-      }
+      idsWhere: (type, field, value, { limit = 20 } = {}) => hand.rowsOf({ type, where: { [field]: value }, fields: [], limit }).map(record => record.id),
     },
   };
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
-// The files a message carried, copied into the person's files through the files door
+// The files a message carried, copied into the person's files
 // ---------------------------------------------------------------------------------------------------------------------
 
 const safePart = value => String(value ?? '').replace(/[^A-Za-z0-9._-]/g, '_').slice(0, 100) || 'file';
@@ -300,30 +197,23 @@ export function mediaTypeOf(name, bytes, rules = settings) {
 }
 
 /**
- * Keeps bytes as one of the person's files at `name` through the run's files door. A file already there with the same
- * identity (BLAKE3 of its bytes) is not written again, so a rerun copies nothing twice; otherwise it is written in pieces
- * (records-door whole-file.mjs writeWholeFile) under an upload id made of its name and identity, so a write sent again
- * resumes the same upload. Returns async ({ name, bytes, media_type }) => { identity, name, byte_length, media_type, already }.
+ * Keeps bytes as one of the person's files at `name`. A file already kept under that name with the same identity (BLAKE3
+ * of its bytes) is not kept again, so a rerun keeps nothing twice. Returns async ({ name, bytes, media_type }) =>
+ * { identity, name, byte_length, media_type, already }.
  */
-export function fileKeeper(door) {
+export function fileKeeper(hand) {
   return async function keepFile({ name, bytes, media_type: mediaType }) {
     const identity = makeHashCodeHexFromBytes(bytes);
-    let there = null;
-    try { there = await door.files('find_file', { name_or_identity: name }); }
-    catch { there = null; }
-    const thereIdentity = there?.identity ?? there?.names?.[0]?.identity ?? null;
-    if (thereIdentity === identity) return { identity, name, byte_length: bytes.length, media_type: mediaType, already: true };
-    const uploadId = `conversations-${makeHashCodeHexFromBytes(new TextEncoder().encode(`${name}\n${identity}`)).slice(3, 35)}`;
-    const finished = await writeWholeFile(door, name, bytes, { mediaType, uploadId });
-    return { identity: finished?.identity ?? identity, name, byte_length: bytes.length, media_type: mediaType, already: false };
+    if (hand.identityOf(name) === identity) return { identity, name, byte_length: bytes.length, media_type: mediaType, already: true };
+    hand.keepFile(name, bytes);
+    return { identity, name, byte_length: bytes.length, media_type: mediaType, already: false };
   };
 }
 
 /**
  * The files beside an export on this computer: its folder and the folders under it, settings.attachment_depth deep.
  * locate(id) is the file an attachment id names: one whose name starts with the id and goes on with no further letter or
- * digit (file-AB never finds file-ABC-photo.png, as attachmentFinder above), or one in a folder named the id (a Grok
- * asset's <id>/content).
+ * digit (file-AB never finds file-ABC-photo.png), or one in a folder named the id (a Grok asset's <id>/content).
  */
 export function exportFilesBeside(home, exportPath, rules = settings) {
   const granted = homeOf(home);
@@ -394,8 +284,8 @@ export function exportFilesInZip(zip, rules = settings) {
 
 /** The finder importConversation takes for one export's messages: each attachment at the path the person gave for its
  *  id (`given`: { id: a path in the granted folder }), else found beside the export (or inside it, `beside` being
- *  exportFilesInZip for a zipped export), and copied to <attachments_folder>/<app>/<its name>; a file not found, too
- *  large or refused by the door is missing. */
+ *  exportFilesInZip for a zipped export), and copied to <attachments_folder>/<app>/<its name>; a file not found or too
+ *  large is missing, and one the store refuses is reported. */
 function exportAttachmentFinder(home, exportPath, keepFile, app, count, rules = settings, given = {}, inZip = null) {
   const near = exportFilesBeside(home, exportPath, rules);
   const beside = inZip ? { locate: id => inZip.locate(id) ?? near.locate(id) } : near;
@@ -621,7 +511,7 @@ async function readArchiveFile({ home, path, file, source, cursor, keep, keepFil
       if (conversation !== undefined) await keepOne(conversation, at);
       at += 1;
       lastEnd = element.end;
-      if (++since >= settings.cursor_every) { await save({ next: place(lastEnd), done: false }); since = 0; }
+      if (++since >= settings.cursor_every) { save({ next: place(lastEnd), done: false }); since = 0; }
     }
     return { done: true, next: place(null), conversations_in_file: at };
   }
@@ -635,7 +525,7 @@ async function readArchiveFile({ home, path, file, source, cursor, keep, keepFil
     if (Date.now() >= deadline) return { done: false, next };
     await keepOne(all[next], next);
     next += 1;
-    if (++since >= settings.cursor_every && next < all.length) { await save({ next, done: false }); since = 0; }
+    if (++since >= settings.cursor_every && next < all.length) { save({ next, done: false }); since = 0; }
   }
   return { done: true, next, conversations_in_file: all.length };
 }
@@ -674,7 +564,7 @@ async function readDecodedFile({ home, path, file, source, cursor, keep, keepFil
     }
     if (page.next_cursor === null) return { done: true, next: page.total_atoms ?? next };
     next = page.next_cursor;
-    await save({ next: waiting ? waitingFrom : next, done: false });
+    save({ next: waiting ? waitingFrom : next, done: false });
   }
 }
 
@@ -685,7 +575,7 @@ async function readDecodedFile({ home, path, file, source, cursor, keep, keepFil
  * session) the cursor holds. Its conversation is `<app id>:<session id>`, as the recorder kept it, and its row's facts
  * are the whole session's, carried in the cursor.
  */
-async function readTranscriptFile({ path, file, source, cursor, keep, keepFile, save, deadline, count, lists }) {
+async function readTranscriptFile({ path, file, source, cursor, keep, keepFile, save, deadline, count, hand }) {
   const rules = { ...harnessRules, transcript_read_bytes: settings.transcript_read_bytes, transcript_row_bytes: settings.transcript_row_bytes };
   const session = sessionOfTranscript(path, rules);
   if (!session || session.harness.id !== source.harness) return { done: true, next: null, note: 'not a session of this app' };
@@ -723,10 +613,10 @@ async function readTranscriptFile({ path, file, source, cursor, keep, keepFile, 
     const finished = !read.more;
     state = { offset: end, context: parsed.context, deferred, totals: state.totals };
     if (state.totals && (spoken.length || finished)) {
-      await keepConversationRow(lists, { conversation_id: conversationId, title: null, app: harness.app, messages: [] }, conversationId, { totals: state.totals });
+      keepConversationRow(hand, { conversation_id: conversationId, title: null, app: harness.app, messages: [] }, conversationId, { totals: state.totals });
     }
     if (finished) { if (state.totals) count.conversations_kept += 1; return { done: true, next: state }; }
-    await save({ next: state, done: false });
+    save({ next: state, done: false });
   }
 }
 
@@ -735,10 +625,10 @@ const READERS = { 'chat-archive': readArchiveFile, decode: readDecodedFile, harn
 const freshCount = () => ({ conversations_kept: 0, messages_added: 0, messages_already_kept: 0, attachments_kept: 0, attachments_not_kept: 0, attachments_too_large: 0, rows_let_go: 0, conversations_refused: [], attachments_refused: [] });
 const COUNTED = ['conversations_kept', 'messages_added', 'messages_already_kept', 'attachments_kept', 'attachments_not_kept', 'attachments_too_large'];
 
-/** The cursor rows of every source (or one), by id. */
-async function cursorsOf(door, source) {
+/** The cursor rows of every source (or one), by id: the rows the caller hands in for these queries. */
+function cursorsOf(hand, source) {
   const found = new Map();
-  for await (const record of door.list({ type: CURSOR_TYPE, prefix: source ? `${CURSOR_TYPE}:${source}` : `${CURSOR_TYPE}:` })) found.set(record.id, record.value);
+  for (const record of hand.rowsOf({ type: CURSOR_TYPE, prefix: source ? `${CURSOR_TYPE}:${source}` : `${CURSOR_TYPE}:` })) found.set(record.id, record.value);
   return found;
 }
 
@@ -746,13 +636,11 @@ async function cursorsOf(door, source) {
  * One source's files kept, each from its cursor row: a file already done whose size and time are unchanged is skipped;
  * a file that grew (a session still being written, a new export in the same place) is read on from where it was.
  */
-async function importOneSource(home, door, { source, files }, { deadline, now, given = {} }) {
-  const staged = stagedRecords(door);
-  const lists = listsOverDoor(door);
-  const cursors = await cursorsOf(door, source.id);
-  const keep = (input, find) => importConversation({ ...input, reach: { private: true }, most_text: settings.most_text },
-    { eeaf: staged.eeaf, commit: step => staged.commit(step), lists, now, find });
-  const keepFile = fileKeeper(door);
+async function importOneSource(home, hand, { source, files }, { deadline, now, given = {} }) {
+  const eeaf = ownerRecords(hand);
+  const cursors = cursorsOf(hand, source.id);
+  const keep = (input, find) => importConversation({ ...input, most_text: settings.most_text }, { hand, eeaf, now, find });
+  const keepFile = fileKeeper(hand);
   const result = { source: source.id, app: source.app, files_found: files.length, files_done: 0, files_skipped: 0, ...freshCount(), files: [] };
   for (const found of files) {
     const id = cursorId(source.id, found.file);
@@ -767,17 +655,17 @@ async function importOneSource(home, door, { source, files }, { deadline, now, g
       ...Object.fromEntries(COUNTED.map(field => [field, (before?.[field] ?? 0) + count[field]])),
       conversations_refused: [...(before?.conversations_refused ?? []), ...count.conversations_refused].slice(-20),
       attachments_refused: [...(before?.attachments_refused ?? []), ...count.attachments_refused].slice(-20), updated_at: now().toISOString() });
-    const save = async ({ next, done }) => { await door.write([{ id, type: CURSOR_TYPE, value: { ...row(done), next } }], { key: keyOfWrite([id, next, done, count]) }); };
+    const save = ({ next, done }) => { hand.keepRecord({ id, type: CURSOR_TYPE, value: { ...row(done), next } }); };
     let outcome;
     try {
-      outcome = await READERS[source.reader]({ home, path: join(home, found.file), file: found.file, source, cursor, keep, keepFile, save, deadline, count, lists, given });
+      outcome = await READERS[source.reader]({ home, path: join(home, found.file), file: found.file, source, cursor, keep, keepFile, save, deadline, count, hand, given });
     } catch (error) {
       count.conversations_refused.push({ at: 'file', reason: String(error.message).slice(0, 200) }); outcome = { done: true, next: cursor.next, note: error.message };
     }
     for (const field of [...COUNTED, 'rows_let_go']) result[field] += count[field];
     result.conversations_refused.push(...count.conversations_refused.map(item => ({ file: found.file, ...item })));
     result.attachments_refused.push(...count.attachments_refused.map(item => ({ file: found.file, ...item })));
-    await save({ next: outcome.next, done: outcome.done });
+    save({ next: outcome.next, done: outcome.done });
     result.files.push({ file: found.file, done: outcome.done, ...(outcome.note ? { note: outcome.note } : {}) });
     if (outcome.done) result.files_done += 1;
     if (!outcome.done) break;
@@ -786,18 +674,18 @@ async function importOneSource(home, door, { source, files }, { deadline, now, g
   result.attachments_refused = result.attachments_refused.slice(0, 50);
   const done = result.files_done === result.files_found;
   const summary = { source: source.id, app: source.app, files_found: result.files_found, files_done: result.files_done, state: done ? 'done' : 'more', updated_at: now().toISOString() };
-  await door.write([{ id: cursorId(source.id), type: CURSOR_TYPE, value: summary }], { key: keyOfWrite([summary]) });
+  hand.keepRecord({ id: cursorId(source.id), type: CURSOR_TYPE, value: summary });
   return { ...result, done };
 }
 
-const requestOf = request => ({ input: request?.input ?? (request?.folder === undefined ? request ?? {} : {}), folder: request?.folder });
-const rulesOf = context => ({ ...settings, ...(context.rules ?? {}) });
+// A run's clock: the input's `now` (an ISO time, for a run made at a set time) or the clock.
+const clockOf = input => (input?.now ? () => new Date(input.now) : () => new Date());
 // A run's window (input.changed_within_days) as the earliest change time a file must have, or null for every file.
-const changedSinceOf = (input, context) => (Number(input.changed_within_days) > 0
-  ? (context.now ?? (() => new Date()))().getTime() - Number(input.changed_within_days) * 86_400_000 : null);
-const runOptions = (input, context) => ({
+const changedSinceOf = (input, now) => (Number(input.changed_within_days) > 0
+  ? now().getTime() - Number(input.changed_within_days) * 86_400_000 : null);
+const runOptions = (input, now) => ({
   deadline: Date.now() + 1000 * Math.min(Math.max(Number(input.time_box_seconds) || settings.time_box_seconds, 1), settings.time_box_seconds),
-  now: context.now ?? (() => new Date()),
+  now,
 });
 const knownSource = id => {
   const source = places.sources.find(row => row.id === id);
@@ -805,9 +693,8 @@ const knownSource = id => {
   return source;
 };
 
-/** tool:list-the-conversation-sources-on-this-computer */
-export async function listConversationSourcesHere(request) {
-  const { input, folder } = requestOf(request);
+/** tool:list-the-conversation-sources-on-this-computer: reads the granted folder, keeps nothing. */
+export async function listConversationSourcesHere({ input = {}, folder } = {}) {
   const home = homeOf(folder, input.home);
   const found = sourcesFoundIn(home, { more_places: input.more_places ?? [] });
   return { sources: found.map(({ source, files }) => ({ source: source.id, label: source.label, app: source.app, kind: source.kind, files: files.length,
@@ -816,147 +703,141 @@ export async function listConversationSourcesHere(request) {
 
 /** tool:import-my-conversations-from-a-source */
 export async function importConversationsFrom(request, context = {}) {
-  const { input, folder } = requestOf(request);
-  const source = knownSource(input.source);
-  const home = homeOf(folder, input.home);
-  let [{ files }] = sourcesFoundIn(home, { only: [source.id], more_places: input.more_places ?? [], changed_since_ms: changedSinceOf(input, context) });
-  if (Array.isArray(input.files) && input.files.length) {
-    files = input.files.map(file => {
-      const real = inside(home, resolve(home, file));
-      if (!real) throw new Error(`${file} is not a file inside the folder you granted.`);
-      const stat = statSync(real);
-      return { file: relative(home, real), bytes: stat.size, changed_ms: Math.floor(stat.mtimeMs) };
-    });
-  }
-  const door = context.door;
-  const given = input.attachments && typeof input.attachments === 'object' && !Array.isArray(input.attachments) ? input.attachments : {};
-  const result = await importOneSource(home, door, { source, files }, { ...runOptions(input, context), given });
-  return { ...result, more: !result.done };
+  return answering(request, context, async (hand, { input, folder }, ctx) => {
+    const now = ctx.now ?? clockOf(input);
+    const source = knownSource(input.source);
+    const home = homeOf(folder, input.home);
+    let [{ files }] = sourcesFoundIn(home, { only: [source.id], more_places: input.more_places ?? [], changed_since_ms: changedSinceOf(input, now) });
+    if (Array.isArray(input.files) && input.files.length) {
+      files = input.files.map(file => {
+        const real = inside(home, resolve(home, file));
+        if (!real) throw new Error(`${file} is not a file inside the folder you granted.`);
+        const stat = statSync(real);
+        return { file: relative(home, real), bytes: stat.size, changed_ms: Math.floor(stat.mtimeMs) };
+      });
+    }
+    const given = input.attachments && typeof input.attachments === 'object' && !Array.isArray(input.attachments) ? input.attachments : {};
+    const result = await importOneSource(home, hand, { source, files }, { ...runOptions(input, now), given });
+    return { ...result, more: !result.done };
+  });
 }
 
 /** tool:resume-importing-my-conversations: every source found here (or the ones named), each from its cursor. */
 export async function resumeConversationImports(request, context = {}) {
-  const { input, folder } = requestOf(request);
-  const home = homeOf(folder, input.home);
-  const only = Array.isArray(input.sources) && input.sources.length ? input.sources.map(id => knownSource(id).id) : undefined;
-  const door = context.door;
-  const options = runOptions(input, context);
-  const sources = [];
-  for (const found of sourcesFoundIn(home, { only, more_places: input.more_places ?? [], changed_since_ms: changedSinceOf(input, context) })) {
-    if (!found.files.length) continue;
-    if (Date.now() >= options.deadline) { sources.push({ source: found.source.id, done: false, waiting: true }); continue; }
-    const result = await importOneSource(home, door, found, options);
-    const { files: _files, ...shown } = result;
-    sources.push(shown);
-  }
-  return { sources, more: sources.some(source => !source.done) };
+  return answering(request, context, async (hand, { input, folder }, ctx) => {
+    const now = ctx.now ?? clockOf(input);
+    const home = homeOf(folder, input.home);
+    const only = Array.isArray(input.sources) && input.sources.length ? input.sources.map(id => knownSource(id).id) : undefined;
+    const options = runOptions(input, now);
+    const sources = [];
+    for (const found of sourcesFoundIn(home, { only, more_places: input.more_places ?? [], changed_since_ms: changedSinceOf(input, now) })) {
+      if (!found.files.length) continue;
+      if (Date.now() >= options.deadline) { sources.push({ source: found.source.id, done: false, waiting: true }); continue; }
+      const result = await importOneSource(home, hand, found, options);
+      const { files: _files, ...shown } = result;
+      sources.push(shown);
+    }
+    return { sources, more: sources.some(source => !source.done) };
+  });
 }
 
-/** tool:show-how-far-my-conversation-import-is */
+/** tool:show-how-far-my-conversation-import-is: reads the cursor rows the caller hands in. */
 export async function conversationImportProgress(request, context = {}) {
-  const door = context.door;
-  const cursors = await cursorsOf(door);
-  const bySource = new Map();
-  for (const [id, value] of cursors) {
-    const entry = bySource.get(value.source) ?? { source: value.source, app: value.app, files_seen: 0, files_done: 0, ...Object.fromEntries(COUNTED.map(field => [field, 0])), state: null, updated_at: null };
-    if (id === cursorId(value.source)) Object.assign(entry, { state: value.state, files_found: value.files_found });
-    else {
-      entry.files_seen += 1;
-      if (value.done) entry.files_done += 1;
-      for (const field of COUNTED) entry[field] += value[field] ?? 0;
+  return answering(request, context, async hand => {
+    const cursors = cursorsOf(hand);
+    const bySource = new Map();
+    for (const [id, value] of cursors) {
+      const entry = bySource.get(value.source) ?? { source: value.source, app: value.app, files_seen: 0, files_done: 0, ...Object.fromEntries(COUNTED.map(field => [field, 0])), state: null, updated_at: null };
+      if (id === cursorId(value.source)) Object.assign(entry, { state: value.state, files_found: value.files_found });
+      else {
+        entry.files_seen += 1;
+        if (value.done) entry.files_done += 1;
+        for (const field of COUNTED) entry[field] += value[field] ?? 0;
+      }
+      if (!entry.updated_at || value.updated_at > entry.updated_at) entry.updated_at = value.updated_at;
+      bySource.set(value.source, entry);
     }
-    if (!entry.updated_at || value.updated_at > entry.updated_at) entry.updated_at = value.updated_at;
-    bySource.set(value.source, entry);
-  }
-  return { sources: [...bySource.values()].sort((a, b) => a.source.localeCompare(b.source)) };
+    return { sources: [...bySource.values()].sort((a, b) => a.source.localeCompare(b.source)) };
+  });
 }
 
-/** tool:count-my-ai-conversations-per-app: the rows of the AI conversations list, read back, per app. */
+/** tool:count-my-ai-conversations-per-app: the rows of the AI conversations list the caller hands in, per app. */
 export async function countConversationsPerApp(request, context = {}) {
-  const door = context.door;
-  const type = `record:${conversationList.row_type}`;
-  const apps = new Map();
-  let total = 0;
-  for await (const record of door.list({ type, fields: ['app', 'messages'] })) {
-    const app = record.value?.app ?? '(no app)';
-    const entry = apps.get(app) ?? { app, conversations: 0, messages: 0 };
-    entry.conversations += 1;
-    entry.messages += Number(record.value?.messages) || 0;
-    apps.set(app, entry);
-    total += 1;
-  }
-  return { conversations: total, apps: [...apps.values()].sort((a, b) => b.conversations - a.conversations || a.app.localeCompare(b.app)) };
+  return answering(request, context, async hand => {
+    const type = `record:${conversationList.row_type}`;
+    const apps = new Map();
+    let total = 0;
+    for (const record of hand.rowsOf({ type, fields: ['app', 'messages'] })) {
+      const app = record.value?.app ?? '(no app)';
+      const entry = apps.get(app) ?? { app, conversations: 0, messages: 0 };
+      entry.conversations += 1;
+      entry.messages += Number(record.value?.messages) || 0;
+      apps.set(app, entry);
+      total += 1;
+    }
+    return { conversations: total, apps: [...apps.values()].sort((a, b) => b.conversations - a.conversations || a.app.localeCompare(b.app)) };
+  });
 }
 
-// The hosted-export route formerly importChatExport, using the same granted files and message owners.
-const identityOf = bytes => makeHashCodeHexFromBytes(bytes);
-const namespaceCursorId = name => `conversation-import-cursor:namespace:${makeHashCodeHexFromBytes(Buffer.from(name))}`;
-
-/** A file is done only after every conversation, its provenance and its list row landed.
- * A stopped run repeats stable source refs, so partial message writes add nothing twice.
- * Local export timestamps stay in provenance; an unknown zone is never guessed.
- */
-export async function importNamespaceExports({ input = {} } = {}, context = {}) {
-  if (!Array.isArray(input.files) || !input.files.length || input.files.length > 100
-    || input.files.some(name => typeof name !== 'string' || !name.trim())) throw new Error('Name 1 to 100 exports in your account files.');
-  const door = context.door;
-  const staged = stagedRecords(door);
-  const lists = listsOverDoor(door);
-  const instant = (context.now ?? (() => new Date()))();
-  const now = () => instant;
-  const deadline = Date.now() + Math.min(Math.max(input.time_box_seconds ?? 60, 1), 3000) * 1000;
-  const result = { files: [], messages_added: 0, messages_already_kept: 0, conversations_kept: 0, done: true, more: false };
-  for (const name of input.files) {
-    if (Date.now() >= deadline) { result.done = false; result.more = true; break; }
-    const found = await door.files('find_file', { name_or_identity: name });
-    if (!found?.identity || found.growing) throw new Error('An export must be a complete file with a content identity.');
-    const id = namespaceCursorId(`${input.app ?? 'ChatGPT'}:${name}`);
-    const before = await door.read('conversation-import-cursor', id);
-    // Pin all reads to the located bytes even if the original name changes during import.
-    const file = await readWholeFile(door, found.identity, { readBytes: 8192, mostBytes: 32 * 1024 * 1024 });
-    if (!file.bytes) throw new Error('This export exceeds the 32 MiB namespace import bound; use the streaming source importer.');
-    if (file.bytes.length !== found.byte_length || identityOf(file.bytes) !== found.identity) throw new Error('The export bytes do not match their stored identity.');
-    const exports = exportedConversations(file.bytes);
-    const provenance = [];
-    for (const conversation of exports) {
+/** tool:import-conversation-exports-from-my-files: the export files named in the person's files (their bytes handed in). */
+export async function importNamespaceExports(request, context = {}) {
+  return answering(request, context, async (hand, { input }, ctx) => {
+    if (!Array.isArray(input.files) || !input.files.length || input.files.length > 100
+      || input.files.some(name => typeof name !== 'string' || !name.trim())) throw new Error('Name 1 to 100 exports in your account files.');
+    const now = ctx.now ?? clockOf(input);
+    const eeaf = ownerRecords(hand);
+    const deadline = Date.now() + Math.min(Math.max(input.time_box_seconds ?? 60, 1), 3000) * 1000;
+    const result = { files: [], messages_added: 0, messages_already_kept: 0, conversations_kept: 0, done: true, more: false };
+    for (const name of input.files) {
       if (Date.now() >= deadline) { result.done = false; result.more = true; break; }
-      const chat = conversationFrom(conversation, input.app ?? 'ChatGPT', { most_text: settings.most_text });
-      const kept = await importConversation({ conversation, app: input.app ?? 'ChatGPT', reach: { private: true }, most_text: settings.most_text, original_file: name },
-        { eeaf: staged.eeaf, commit: step => staged.commit(step), lists, now, find: async () => null });
-      result.messages_added += kept.added;
-      result.messages_already_kept += kept.already_there;
-      result.conversations_kept += 1;
-      const expected = chat.messages.filter(message => message.text.trim());
-      for (const message of expected) {
-        const sourceKey = sourceKeyOfMessage({ app: input.app ?? 'ChatGPT', conversation_id: kept.conversation_id, source_ref: message.node });
-        const pointer = await door.read('message-source-key', sourceKey);
-        const read = pointer?.message_id ? await door.read('message', pointer.message_id) : null;
-        if (!read || read.text !== message.text || read.speaker !== message.speaker
-          || (read.source_at ?? null) !== (message.source_at ?? null)) throw new Error('Canonical message readback differs from the pinned export.');
+      const bytes = hand.bytesOf(name);
+      if (!bytes) throw new Error(`There is no export named ${name} in your account files.`);
+      if (bytes.length > MOST_EXPORT_BYTES) throw new Error('This export exceeds the 32 MiB namespace import bound; use the streaming source importer.');
+      const identity = makeHashCodeHexFromBytes(bytes);
+      const id = `${CURSOR_TYPE}:namespace:${makeHashCodeHexFromBytes(Buffer.from(`${input.app ?? 'ChatGPT'}:${name}`))}`;
+      const before = hand.valueOf(id, CURSOR_TYPE);
+      const exports = exportedConversations(bytes);
+      const provenance = [];
+      for (const conversation of exports) {
+        if (Date.now() >= deadline) { result.done = false; result.more = true; break; }
+        const chat = conversationFrom(conversation, input.app ?? 'ChatGPT', { most_text: settings.most_text });
+        const kept = await importConversation({ conversation, app: input.app ?? 'ChatGPT', most_text: settings.most_text, original_file: name },
+          { hand, eeaf, now, find: async () => null });
+        result.messages_added += kept.added;
+        result.messages_already_kept += kept.already_there;
+        result.conversations_kept += 1;
+        const expected = chat.messages.filter(message => message.text.trim());
+        for (const message of expected) {
+          const sourceKey = sourceKeyOfMessage({ app: input.app ?? 'ChatGPT', conversation_id: kept.conversation_id, source_ref: message.node });
+          const pointer = hand.valueOf(sourceKey, 'message-source-key');
+          const read = pointer?.message_id ? hand.valueOf(pointer.message_id, 'message') : null;
+          if (!read || read.text !== message.text || read.speaker !== message.speaker
+            || (read.source_at ?? null) !== (message.source_at ?? null)) throw new Error('Canonical message readback differs from the pinned export.');
+        }
+        const proof = { conversation_id: kept.conversation_id, source_messages: conversation.messages?.length ?? null,
+          kept_parts: expected.length, checked_parts: expected.length, missing_attachments: kept.missing_attachments,
+          ...(conversation.provenance ? { provenance: conversation.provenance } : {}),
+          occurrences: (conversation.messages ?? []).map(message => ({ id: message.id, speaker: message.speaker,
+            ...(message.source ? { source: message.source } : {}), ...(message.source_at ? { source_at: message.source_at } : {}) })) };
+        // Source metadata is paged independently of the bounded completion cursor.
+        const { provenance: spans, occurrences, ...summary } = proof;
+        for (let start = 0; start < Math.max(occurrences.length, 1); start += 32) {
+          const value = { file: name, identity, ...summary, part: start / 32 + 1,
+            occurrences: occurrences.slice(start, start + 32),
+            ...(spans ? { provenance: { ...spans, source_spans: spans.source_spans?.slice(start, start + 32), occurrences: spans.occurrences?.slice(start, start + 32) } } : {}) };
+          const sourceId = id.replace(/^conversation-import-cursor:/, 'conversation-import-source:');
+          hand.keepRecord({ id: `${sourceId}:${identity}:${makeHashCodeHexFromBytes(Buffer.from(kept.conversation_id))}:${start}`, type: SOURCE_TYPE, value });
+        }
+        provenance.push(summary);
       }
-      const proof = { conversation_id: kept.conversation_id, source_messages: conversation.messages?.length ?? null,
-        kept_parts: expected.length, checked_parts: expected.length, missing_attachments: kept.missing_attachments,
-        ...(conversation.provenance ? { provenance: conversation.provenance } : {}),
-        occurrences: (conversation.messages ?? []).map(message => ({ id: message.id, speaker: message.speaker,
-          ...(message.source ? { source: message.source } : {}), ...(message.source_at ? { source_at: message.source_at } : {}) })) };
-      // Source metadata is paged independently of the bounded completion cursor.
-      const { provenance: spans, occurrences, ...summary } = proof;
-      for (let start = 0; start < Math.max(occurrences.length, 1); start += 32) {
-        const value = { file: name, identity: found.identity, ...summary, part: start / 32 + 1,
-          occurrences: occurrences.slice(start, start + 32),
-          ...(spans ? { provenance: { ...spans, source_spans: spans.source_spans?.slice(start, start + 32), occurrences: spans.occurrences?.slice(start, start + 32) } } : {}) };
-        const sourceId = id.replace(/^conversation-import-cursor:/, 'conversation-import-source:');
-        await door.write([{ id: `${sourceId}:${found.identity}:${makeHashCodeHexFromBytes(Buffer.from(kept.conversation_id))}:${start}`, type: 'conversation-import-source', value }], { key: `conversation-source:${makeHashCodeHexFromBytes(Buffer.from(JSON.stringify(value)))}` });
-      }
-      provenance.push(summary);
+      if (!result.done) break;
+      const value = { source: 'namespace-export', file: name, identity, bytes: bytes.length,
+        done: true, conversations_kept: provenance.length, updated_at: now().toISOString() };
+      if (!before?.done || before.identity !== identity) hand.keepRecord({ id, type: CURSOR_TYPE, value });
+      result.files.push({ name, identity, done: true, skipped: before?.done && before.identity === identity, conversations: provenance });
     }
-    if (!result.done) break;
-    const value = { source: 'namespace-export', file: name, identity: found.identity, bytes: file.bytes.length,
-      done: true, conversations_kept: provenance.length, updated_at: now().toISOString() };
-    if (!before?.done || before.identity !== found.identity) await door.write([{ id, type: 'conversation-import-cursor', value }], { key: `conversation-cursor:${makeHashCodeHexFromBytes(Buffer.from(JSON.stringify(value)))}` });
-    result.files.push({ name, identity: found.identity, done: true, skipped: before?.done && before.identity === found.identity, conversations: provenance });
-  }
-  return result;
+    return result;
+  });
 }
 
 /**
@@ -967,11 +848,11 @@ export async function importNamespaceExports({ input = {} } = {}, context = {}) 
  * AI conversations list is kept. The AI's own name for the conversation becomes `<app>:<conversation_id>`.
  */
 export async function keepWhatISaidToAnAi(request, context = {}) {
-  const { input } = requestOf(request);
-  if (typeof input.app !== 'string' || !input.app.trim()) throw new Error('app is required: the AI app the messages were said in, as it calls itself (Muse, Grok).');
-  const door = context.door;
-  const staged = stagedRecords(door);
-  const answer = await importConversation({ conversation: { conversation_id: input.conversation_id, title: input.title ?? null, messages: input.messages ?? [] }, app: input.app.trim(), reach: { private: true }, most_text: settings.most_text },
-    { eeaf: staged.eeaf, commit: step => staged.commit(step), lists: listsOverDoor(door), now: context.now ?? (() => new Date()) });
-  return { conversation_id: answer.conversation_id, messages: answer.messages, added: answer.added, already_kept: answer.already_there };
+  return answering(request, context, async (hand, { input }, ctx) => {
+    if (typeof input.app !== 'string' || !input.app.trim()) throw new Error('app is required: the AI app the messages were said in, as it calls itself (Muse, Grok).');
+    const now = ctx.now ?? clockOf(input);
+    const answer = await importConversation({ conversation: { conversation_id: input.conversation_id, title: input.title ?? null, messages: input.messages ?? [] }, app: input.app.trim(), most_text: settings.most_text },
+      { hand, eeaf: ownerRecords(hand), now });
+    return { conversation_id: answer.conversation_id, messages: answer.messages, added: answer.added, already_kept: answer.already_there };
+  });
 }

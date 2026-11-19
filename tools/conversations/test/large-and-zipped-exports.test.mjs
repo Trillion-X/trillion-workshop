@@ -12,7 +12,7 @@ import { dirname, join } from 'node:path';
 import { zipSync } from 'fflate';
 import { heldStore, runKept } from './support/held-store.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
-import { exportFilesInZip, importConversationsFrom as importFromFolder } from '../read-data/chat-import.mjs';
+import { exportFilesInZip } from '../read-data/chat-import.mjs';
 import * as importer from '../read-data/chat-import.mjs';
 import { NotAJsonArray, firstByteOf, jsonArrayElements } from '../read-data/json-array-stream.mjs';
 
@@ -26,7 +26,7 @@ function put(home, path, bytes) { mkdirSync(dirname(join(home, path)), { recursi
 const home = t => { const path = mkdtempSync(join(tmpdir(), 'conversations-large-')); t.after(() => rmSync(path, { recursive: true, force: true })); return path; };
 
 // The person's store, played by the test: each run is handed what it asks for and its writes are kept there.
-async function doorFor(t) {
+async function storeFor(t) {
   const fake = heldStore();
   t.after(() => fake.close());
   return { fake, trouble: null, context: fake };
@@ -70,14 +70,14 @@ test('the elements of a JSON array are cut out exactly at any piece size, and a 
 test('a ChatGPT export is kept one conversation at a time, and an export that grew is read again with what it kept adding nothing', async t => {
   const folder = home(t);
   put(folder, 'Downloads/chatgpt/conversations.json', JSON.stringify(Array.from({ length: 20 }, (_, n) => chat(n + 1))));
-  const store = await doorFor(t);
-  const first = await importConversationsFrom({ input: { source: 'chatgpt-export' }, folder }, store.fake);
+  const store = await storeFor(t);
+  const first = await keptRun(store.fake, importer.importConversationsFrom, { input: { source: 'chatgpt-export' }, folder });
   assert.equal(first.done, true);
   assert.equal(first.conversations_kept, 20);
   assert.equal(first.messages_added, 40);
   // The export is written again with 20 more conversations: it is read from its start, and the 20 it already kept add nothing.
   put(folder, 'Downloads/chatgpt/conversations.json', JSON.stringify(Array.from({ length: 40 }, (_, n) => chat(n + 1))));
-  const second = await importConversationsFrom({ input: { source: 'chatgpt-export' }, folder }, store.fake);
+  const second = await keptRun(store.fake, importer.importConversationsFrom, { input: { source: 'chatgpt-export' }, folder });
   assert.equal(second.done, true, JSON.stringify(second));
   assert.deepEqual([second.messages_added, second.messages_already_kept], [40, 40]);
   assert.equal(ofType(store.fake, 'message').length, 80);
@@ -106,8 +106,7 @@ test('a zipped ChatGPT export\'s files are found inside the zip and copied, entr
   assert.deepEqual(inZip.locate('file-ZP01').read(), new Uint8Array(PNG));
 
   const fake = heldStore();
-  const context = fake;
-  const result = await importConversationsFrom({ input: { source: 'chatgpt-export', files: ['Downloads/chatgpt-export.zip'] }, folder }, context);
+  const result = await keptRun(fake, importer.importConversationsFrom, { input: { source: 'chatgpt-export', files: ['Downloads/chatgpt-export.zip'] }, folder });
   assert.equal(result.done, true, JSON.stringify(result));
   assert.deepEqual([result.conversations_kept, result.attachments_kept, result.attachments_not_kept], [2, 2, 0]);
   assert.deepEqual(Object.fromEntries([...fake.files].map(([name, bytes]) => [name, id(bytes)])), {
@@ -128,8 +127,7 @@ test('a Grok message of only an image, with no words, is kept with its file', as
     { response: { _id: 'gk-i-c', sender: 'human', message: '', create_time: { $date: { $numberLong: '1736000008000' } } } }] }] }));
   put(folder, 'Downloads/grok/prod-mc-asset-server/7a7a-asset/content', JPEG);
   const fake = heldStore();
-  const context = fake;
-  const result = await importConversationsFrom({ input: { source: 'grok-export' }, folder }, context);
+  const result = await keptRun(fake, importer.importConversationsFrom, { input: { source: 'grok-export' }, folder });
   assert.equal(result.done, true, JSON.stringify(result));
   assert.deepEqual([result.messages_added, result.attachments_kept], [2, 1]);
   const image = ofType(fake, 'message').find(message => message.source_ref === 'gk-i-a');

@@ -1,20 +1,19 @@
 // tools/conversations/test/chat-source-time.test.mjs (moved from Trillion-X/trillion test/chat-source-time.test.mjs)
 //
-// The message owner runs the way the import runs it (stagedRecords over the run's held door), with the person's store
+// The message owner runs the way the import runs it (ownerRecords over the rows the run is handed), with the person's store
 // played by the test (test/support/held-store.mjs): a run is handed what it asks for, and what it writes is kept there.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { conversationFrom } from '../read-data/chat-archives.mjs';
 import { messages, MAX_TEXT } from '../../keep-and-wake-ai-sessions-on-this-computer/src/messages.mjs';
-import { stagedRecords } from '../read-data/chat-import.mjs';
+import { ownerRecords } from '../read-data/chat-import.mjs';
+import { answering } from '../read-data/rows-in-hand.mjs';
 import { heldStore, runKept } from './support/held-store.mjs';
 
 function localStore() {
   const store = heldStore();
-  const record = input => runKept(store, (_request, context) => {
-    const staged = stagedRecords(context.door, { rules: { write_rows: 100, write_bytes: 400000 } });
-    return staged.commit(() => messages(staged.eeaf, { now: () => new Date('2026-10-12T00:00:00Z') }).record(input));
-  }, {}).then(done => done.answer);
+  const record = input => runKept(store, (request, context) => answering(request, context, hand =>
+    messages(ownerRecords(hand), { now: () => new Date('2026-10-12T00:00:00Z') }).record(input)), {}).then(done => done.answer);
   const kept = conversationId => [...store.rows.values()].filter(record => record.type === 'message' && record.value.conversation_id === conversationId).map(record => record.value);
   return { record, kept };
 }

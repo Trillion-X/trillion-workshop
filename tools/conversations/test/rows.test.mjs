@@ -46,7 +46,7 @@ test('the read row runs on the person\'s computer over a granted folder, reaches
   // test/every-tool-row-imports.test.mjs) are packed beside it, from the packages that own them.
   const [own, ...imported] = item.invoke.files.package_files;
   assert.deepEqual(own, { package: 'conversations', paths: ['read-data'], at: '/opt/conversations' });
-  assert.deepEqual(imported.map(entry => entry.package), ['keep-and-wake-ai-sessions-on-this-computer', 'records-door',
+  assert.deepEqual(imported.map(entry => entry.package), ['keep-and-wake-ai-sessions-on-this-computer',
     'content-identity', 'take-pictures-out-of-a-zip-archive', 'decide-with-a-method', 'browse-and-upload-my-files', 'set-up-my-account']);
   assert.deepEqual(item.input_schema.required, ['file']);
 });

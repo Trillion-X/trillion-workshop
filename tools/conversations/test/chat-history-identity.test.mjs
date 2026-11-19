@@ -1,29 +1,26 @@
 // tools/conversations/test/chat-history-identity.test.mjs (moved from Trillion-X/trillion test/chat-history-identity.test.mjs)
 //
-// Run the actual archive method with its storage dependencies: the person's records are the held values the run is
-// handed (test/support/held-store.mjs plays the person's store), reached the way the import reaches them (stagedRecords,
-// listsOverDoor), instead of the Worker's store.
+// Run the actual archive method with its storage dependencies: the person's records are the rows the run is handed
+// (test/support/held-store.mjs plays the person's store), reached the way the import reaches them (ownerRecords over the
+// rows in hand), instead of the Worker's store.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { listsOverDoor } from '../../records-door/read-data/lists-door.mjs';
-import { importConversation, stagedRecords } from '../read-data/chat-import.mjs';
+import { importConversation, ownerRecords } from '../read-data/chat-import.mjs';
+import { answering } from '../read-data/rows-in-hand.mjs';
 import { heldStore, runKept } from './support/held-store.mjs';
 
 // The account's importer as the import wires it (read-data/chat-import.mjs importOneSource).
 function world() {
   const fake = heldStore();
   const namespace = { locate: id => id === '1f:' + 'a'.repeat(64) ? { identity: id, byte_length: 25, names: ['/history/original.png'], media_type: 'image/png' } : null };
-  const importConversations = input => runKept(fake, (_request, context) => {
-    const staged = stagedRecords(context.door);
-    const lists = listsOverDoor(context.door);
-    return importConversation(input, { eeaf: staged.eeaf, commit: step => staged.commit(step), lists, namespace, now: () => new Date('2026-10-12T00:00:00Z'),
-      addSpaceItems: () => assert.fail('history without a space adds no space items'), relay: () => assert.fail('history without a space needs no relay') });
-  }, {}).then(done => done.answer);
+  // The person's files are not searched by the run: the test's namespace stands in for the files the caller hands in.
+  const importConversations = input => runKept(fake, (request, context) => answering(request, context, hand =>
+    importConversation(input, { hand, eeaf: ownerRecords(hand), now: () => new Date('2026-10-12T00:00:00Z'),
+      find: async ref => { const file = namespace.locate(ref.id); return file ? { identity: file.identity, name: file.names[0], byte_length: file.byte_length, media_type: file.media_type } : null; } })), {}).then(done => done.answer);
   const kept = conversationId => [...fake.kept.values()].filter(record => record.type === 'message' && record.value.conversation_id === conversationId).map(record => record.value);
   const rows = () => [...fake.kept.values()].filter(record => record.type === 'record:ai-conversation');
   return { fake, importConversations, kept, rows };
 }
-const FULL = { private: true, spaces: 'all' };
 const keepFile = () => '1f:' + 'a'.repeat(64);
 
 
@@ -35,7 +32,7 @@ test('trusted history preserves its complete conversation identity, files and ti
     { id: 'ai-native-id', speaker: 'ai', text: 'Original reply.', at: '2026-06-01T10:01:00Z', metadata: { attachments: [{ id: file }] } },
     { id: 'photo-native-id', speaker: 'person', text: '', at: '2026-06-01T10:02:00Z', metadata: { attachments: [{ id: file }] } },
   ] };
-  const input = { conversation, app: 'A transcript app', preserve_conversation_id: true, attachments: { [file]: file }, reach: FULL };
+  const input = { conversation, app: 'A transcript app', preserve_conversation_id: true };
   const first = await store.importConversations(input);
   assert.equal(first.conversation_id, conversation.conversation_id);
   assert.equal(first.added, 3);
@@ -53,6 +50,5 @@ test('trusted history preserves its complete conversation identity, files and ti
   assert.deepEqual([again.added, again.already_there], [0, 3]);
   assert.equal(store.rows().length, 1);
   assert.deepEqual(row().value.pursuits, ['A pursuit the person chose']);
-  await assert.rejects(store.importConversations({ ...input, reach: { private: false, spaces: [] } }), /cannot keep messages in the private/);
   assert.equal([...store.fake.kept.values()].filter(record => record.type === 'message').length, 3);
 });

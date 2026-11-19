@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import * as importer from '../read-data/chat-import.mjs';
-import { runHeld } from '../do-work/run-held.mjs';
 import { heldStore, runKept } from './support/held-store.mjs';
 import { runRow } from '../../../test-helpers/run-a-row.mjs';
 
@@ -40,7 +39,7 @@ test('namespace exports use immutable bytes and the canonical message owner; rep
 });
 
 test('a run not given the export asks for it and writes nothing; given, the messages are kept once and a resume adds nothing', async () => {
-  const asked = await runHeld((req, context) => importer.importNamespaceExports(req, context), { input: { files: ['/exports/bread.json'] }, stored: {} });
+  const asked = await importer.importNamespaceExports({ input: { files: ['/exports/bread.json'] } }, { now: () => NOW });
   assert.equal(asked.complete, false);
   assert.deepEqual(asked.keep, []);
   assert.ok(asked.needs.files.includes('/exports/bread.json'));

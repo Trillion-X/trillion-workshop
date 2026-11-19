@@ -1,6 +1,6 @@
 // tools/conversations/test/chat-attachments.test.mjs (moved from Trillion-X/trillion test/chat-attachments.test.mjs)
 //
-// Chat imports carry their files (read-data/chat-archives.mjs attachmentsOf, read-data/chat-import.mjs attachmentFinder
+// Chat imports carry their files (read-data/chat-archives.mjs attachmentsOf, read-data/chat-import.mjs exportAttachmentFinder
 // and the import run as the engine runs it). The old test ran the Worker's PersonStore and Network on SQLite; here the same
 // made-up chat goes through the Workshop tool: the namespace finder over an in-memory namespace with the same files, and
 // the on-computer import over the held store, where a file beside the export is handed back to keep.
@@ -12,12 +12,13 @@
 // Every person, file and chat here is made up.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { attachmentsOf, conversationFrom } from '../read-data/chat-archives.mjs';
-import { attachmentFinder, importConversationsFrom, stagedRecords } from '../read-data/chat-import.mjs';
+import { importConversationsFrom, ownerRecords } from '../read-data/chat-import.mjs';
+import { answering } from '../read-data/rows-in-hand.mjs';
 import { messages } from '../../keep-and-wake-ai-sessions-on-this-computer/src/messages.mjs';
 import { heldStore, runKept } from './support/held-store.mjs';
 
@@ -37,17 +38,6 @@ const chat = { id: 'conv-kiln', title: 'Glaze test tiles', create_time: 1_790_00
     { content_type: 'image_asset_pointer', asset_pointer: 'sediment://file_00000000bb22' }, 'Here is a thinner coat.'] } } },
 } };
 
-// The person's files as attachmentFinder reads them (byName, locate, foldersUnder, namesStartingWith), in memory.
-function namespaceOf(files) {
-  const row = name => (files[name] ? { identity: identityOf(files[name].text), byte_length: files[name].text.length, media_type: files[name].media_type, names: [name] } : null);
-  return {
-    byName: async name => row(name),
-    locate: async identity => { const name = Object.keys(files).find(each => identityOf(files[each].text) === identity); return name ? row(name) : null; },
-    foldersUnder: async root => [...new Set(Object.keys(files).filter(name => name.startsWith(`${root}/`)).map(name => dirname(name)))].sort(),
-    namesStartingWith: async (folder, stem) => Object.keys(files).filter(name => dirname(name) === folder && name.slice(folder.length + 1).startsWith(stem)).sort().map(name => ({ name, identity: identityOf(files[name].text) })),
-  };
-}
-
 test('each message names the files it carried, once each, by bare id; a message of only files is kept for them', () => {
   assert.deepEqual(attachmentsOf(chat.mapping.n1.message), [{ id: 'file-Tile01', name: 'tile.jpg', mime_type: 'image/jpeg' }], 'the pointer and the metadata name one file');
   assert.deepEqual(attachmentsOf({ content: { parts: ['words only'] } }), []);
@@ -55,27 +45,6 @@ test('each message names the files it carried, once each, by bare id; a message 
   assert.deepEqual(read.messages.map(message => [message.text, message.attachments.map(ref => ref.id)]), [
     ['Why did this glaze crawl?', ['file-Tile01']], ['Too thick over dust.', []], ['', ['file_00000000aa11']], ['Here is a thinner coat.', ['file_00000000bb22']],
   ]);
-});
-
-test('a file is found by the id its name starts with, under the export folder, or by the name the person gave', async () => {
-  const files = {
-    '/exports/kiln/file-Tile01-tile.jpg': { text: 'tile bytes', media_type: 'image/png' },
-    '/exports/kiln/file-Tile011-other.jpg': { text: 'a different file whose id only starts the same', media_type: 'image/png' },
-    '/exports/kiln/generations/file_00000000bb22-coat.webp': { text: 'drawn bytes', media_type: 'image/webp' },
-    '/elsewhere/photo.png': { text: 'given bytes', media_type: 'image/png' },
-  };
-  const namespace = namespaceOf(files);
-  const [tile, drawn, given] = ['tile bytes', 'drawn bytes', 'given bytes'].map(identityOf);
-  const find = attachmentFinder(namespace, { folder: '/exports/kiln/', attachments: { 'file-Given': '/elsewhere/photo.png', 'file-ById': given } });
-  assert.equal((await find({ id: 'file-Tile01' })).identity, tile);
-  assert.equal((await find({ id: 'file-Tile01' })).name, '/exports/kiln/file-Tile01-tile.jpg');
-  assert.equal((await find({ id: 'file_00000000bb22' })).identity, drawn, 'a folder under the export folder is searched');
-  assert.equal((await find({ id: 'file_00000000bb22' })).media_type, 'image/webp');
-  assert.equal((await find({ id: 'file-Given' })).identity, given);
-  assert.equal((await find({ id: 'file-ById' })).identity, given);
-  assert.equal(await find({ id: 'file-Tile0' }), null, 'an id is matched whole, never as the start of a longer id');
-  assert.equal(await find({ id: 'file_00000000aa11' }), null);
-  assert.equal(await attachmentFinder(namespace, {})({ id: 'file-Tile01' }), null, 'with no folder and no names given nothing is searched');
 });
 
 // The on-computer import: the export in a folder of the granted home, its files beside it.
@@ -126,13 +95,11 @@ test('a private import links each found file in its message, reports the rest, a
   assert.equal(keptMessages(fake).length, 4);
 });
 
-// The message owner over the fake door, the way the import runs it.
+// The message owner over the held store, the way the import runs it.
 function ownerOver() {
   const fake = heldStore();
-  const record = input => runKept(fake, (_request, context) => {
-    const staged = stagedRecords(context.door, { rules: { write_rows: 100, write_bytes: 400000 } });
-    return staged.commit(() => messages(staged.eeaf, { now: () => NOW }).record(input));
-  }, {}).then(done => done.answer);
+  const record = input => runKept(fake, (request, context) => answering(request, context, hand =>
+    messages(ownerRecords(hand), { now: () => NOW }).record(input)), {}).then(done => done.answer);
   return { record, kept: () => keptMessages(fake) };
 }
 

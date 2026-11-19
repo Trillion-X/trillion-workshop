@@ -1,7 +1,5 @@
-// A stand-in for the person's own store, played by the test as the caller would play it: a run is given what it asks for
-// (records, lists and files, answered from this store), and what it writes is kept back here. No door, no server.
-import { makeHashCodeHexFromBytes } from '../../../content-identity/read-data/identity.mjs';
-import { runHeld } from '../../do-work/run-held.mjs';
+// A stand-in for the person's own store, played by the test as the caller would play it: a run is handed what it asks for
+// (records, lists and files, answered from this store), and what it keeps is written back here. No server.
 
 export function heldStore({ records = [], files = {} } = {}) {
   const rows = new Map(records.map(record => [record.id, { ...record }]));
@@ -26,17 +24,17 @@ export function heldStore({ records = [], files = {} } = {}) {
     },
     // The live rows of one kind, newest first (what the person's own list would show).
     rowsOf(type) { return store.query({ type }); },
-    fileIdentity(name) { return makeHashCodeHexFromBytes(stored.get(name)); },
   };
   return store;
 }
 
 /**
- * Runs a function of this folder the way the engine and the person's AI run it: each round hands in every answer so far,
- * the run answers what it still needs, and the answers are added from the store; when a run is complete its writes are
- * kept in the store. Returns the run's answer and the number of rounds it took.
+ * Runs a function of this folder the way the person's AI runs it: each round hands in every answer so far, the run answers
+ * what it still needs, and the answers are added from the store; when a run is complete, its keep is written to the store.
+ * request is the run's input and folder ({ input, folder }); the run's stored rows are added to its input.
+ * Returns the run's answer and the number of rounds it took.
  */
-export async function runKept(store, fn, given = {}, { now = () => new Date('2026-11-19T08:00:00Z'), maxRounds = 60 } = {}) {
+export async function runKept(store, fn, request, { now = () => new Date('2026-11-19T08:00:00Z'), maxRounds = 60 } = {}) {
   const answers = { records: new Map(), queries: new Map(), files: new Map() };
   for (let round = 1; round <= maxRounds; round += 1) {
     const stored = {
@@ -44,8 +42,8 @@ export async function runKept(store, fn, given = {}, { now = () => new Date('202
       queries: [...answers.queries.values()],
       files: Object.fromEntries(answers.files),
     };
-    const answer = await runHeld((input, context) => fn(input, { ...context, now }), { ...given, stored });
-    if (answer?.complete === false) {
+    const answer = await fn({ ...request, input: { ...(request.input ?? {}), stored } }, { now });
+    if (answer.complete === false) {
       for (const need of answer.needs.records) {
         const row = store.get(need.id);
         answers.records.set(need.id, { id: need.id, type: row?.type ?? need.type ?? null, value: row && (!need.type || row.type === need.type) ? row.value : null });
@@ -55,19 +53,16 @@ export async function runKept(store, fn, given = {}, { now = () => new Date('202
         answers.queries.set(key, { query, records: store.query(query) });
       }
       for (const wanted of answer.needs.files) {
-        const name = store.files.has(wanted) ? wanted : [...store.files.keys()].find(item => store.fileIdentity(item) === wanted);
-        answers.files.set(wanted, name === undefined ? null : { base64: store.files.get(name).toString('base64') });
+        answers.files.set(wanted, store.files.has(wanted) ? { base64: store.files.get(wanted).toString('base64') } : null);
       }
       continue;
     }
-    // The run is complete: keep what it wrote.
-    const keep = answer?.keep ?? [];
-    for (const item of keep) {
+    for (const item of answer.keep) {
       if (item.file !== undefined) store.files.set(item.file, Buffer.from(item.base64, 'base64'));
       else if (item.value === null) store.rows.delete(item.id);
       else store.rows.set(item.id, { id: item.id, type: item.type, value: item.value });
     }
-    return { answer, rounds: round, kept: keep.length };
+    return { answer, rounds: round, kept: answer.keep.length };
   }
   throw new Error(`the run needed more than ${maxRounds} rounds`);
 }

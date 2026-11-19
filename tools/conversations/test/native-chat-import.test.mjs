@@ -2,20 +2,21 @@
 //
 // One chat's archive brought into an account whose records and files live in its own addressed owners. The old test
 // reached the files through the Worker's Namespace routes (src/native-namespace-account-host.mjs, not moved); in the
-// Workshop the account's own owners are reached through the run's held door, so the same made-up chat goes through
-// importConversation over stagedRecords(door), its files found beside the export on this computer (or where the person
-// said) and kept through the files door. The old assertions hold: file-Tile01 never finds file-Tile011, a file not
+// Workshop the account's own owners are reached through the rows the run is handed, so the same made-up chat goes through
+// importConversation over ownerRecords(hand), its files found beside the export on this computer (or where the person
+// said) and kept as the person's files. The old assertions hold: file-Tile01 never finds file-Tile011, a file not
 // there is reported, a repeat adds nothing twice (no message and no file written again), a name the person gave is
 // read by that name, and with no folder searched none is walked.
 // Every person, file and chat here is made up.
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import * as importer from '../read-data/chat-import.mjs';
-import { importConversation, stagedRecords } from '../read-data/chat-import.mjs';
+import { importConversation, ownerRecords } from '../read-data/chat-import.mjs';
+import { answering } from '../read-data/rows-in-hand.mjs';
 import { heldStore, runKept } from './support/held-store.mjs';
 
 const NOW = new Date('2026-11-04T12:00:00Z');
@@ -40,7 +41,7 @@ function homeWith(exportAt, files) {
 // The person's store, played by the test: each run is handed what it asks for and its writes are kept there.
 const keptRun = (store, fn, request) => runKept(store, fn, request, { now: () => NOW }).then(done => { const { keep: _keep, complete: _complete, ...answer } = done.answer ?? {}; return answer; });
 const importConversationsFrom = (request, store) => keptRun(store, importer.importConversationsFrom, request);
-async function doorFor() {
+async function storeFor() {
   const fake = heldStore();
   return { fake, context: fake };
 }
@@ -48,10 +49,8 @@ const keptMessages = fake => [...fake.kept.values()].filter(record => record.typ
 
 test('the maintained importer preserves page occurrences and model metadata across two saves (source contract only)', async () => {
   const fake = heldStore();
-  const run = conversation => runKept(fake, (_request, context) => {
-    const staged = stagedRecords(context.door);
-    return importConversation({ conversation, app: 'ChatGPT', reach: { private: true } }, { eeaf: staged.eeaf, commit: step => staged.commit(step), now: () => NOW });
-  }, {}).then(done => done.answer);
+  const run = conversation => runKept(fake, (request, context) => answering(request, context, hand =>
+    importConversation({ conversation, app: 'ChatGPT' }, { hand, eeaf: ownerRecords(hand), now: () => NOW })), {}).then(done => done.answer);
   const page = { conversation_id: '6717f0aa', title: 'Glaze test tiles', messages: [
     { id: 'aaa-user-1', speaker: 'person', text: 'Why did this glaze crawl?' },
     { id: 'bbb-ai-1', speaker: 'ai', text: 'Too thick over dust.', model: 'gpt-5' },

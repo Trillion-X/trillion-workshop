@@ -1,6 +1,6 @@
 // tools/conversations/test/import-attachments.test.mjs
 //
-// The files messages carried, copied into the person's files through the files door (read-data/chat-import.mjs
+// The files messages carried, copied into the person's files (read-data/chat-import.mjs
 // fileKeeper, exportFilesBeside), with the person's files held by the test (test/support/held-store.mjs), over a made-up
 // home: a ChatGPT export with its file-XXXX files beside it (one in a folder under it, one never there, a decoy whose id
 // only starts the same), a Grok export with its assets at prod-mc-asset-server/<id>/content, and a Claude Code session
@@ -13,7 +13,6 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSyn
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { heldStore, runKept } from './support/held-store.mjs';
-import { runHeld } from '../do-work/run-held.mjs';
 import * as chat from '../read-data/chat-import.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { exportFilesBeside, mediaTypeOf } from '../read-data/chat-import.mjs';
@@ -21,7 +20,7 @@ import { exportFilesBeside, mediaTypeOf } from '../read-data/chat-import.mjs';
 const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
 const NOW = new Date('2026-11-04T12:00:00Z');
 
-// Bytes that start the way their kind does, and are long enough to take several door pieces (40 KiB each).
+// Bytes that start the way their kind does, and are long enough to take several pieces of a file (40 KiB each).
 const PNG = Buffer.concat([Buffer.from('89504e470d0a1a0a', 'hex'), Buffer.alloc(100_000, 7)]);
 const JPEG = Buffer.concat([Buffer.from('ffd8ffe0', 'hex'), Buffer.alloc(2_000, 3)]);
 const PDF = Buffer.from('%PDF-1.4 a bakery price list');
@@ -68,7 +67,7 @@ const request = (home, input) => ({ input, folder: home });
 const id = bytes => makeHashCodeHexFromBytes(bytes);
 const SOURCES = ['chatgpt-export', 'grok-export', 'claude-code-sessions'];
 
-test('the files each source\'s messages carried are copied through the files door, named the way old Trillion named them', async t => {
+test('the files each source\'s messages carried are kept as the person\'s files, named the way old Trillion named them', async t => {
   const { home, session } = makeHome();
   const fake = heldStore();
   t.after(() => rmSync(home, { recursive: true, force: true }));
@@ -117,7 +116,7 @@ test('the files each source\'s messages carried are copied through the files doo
 test('a run that is not handed a file it looks for asks for it, writes nothing, and keeps each file once when given', async t => {
   const { home } = makeHome();
   t.after(() => rmSync(home, { recursive: true, force: true }));
-  const asked = await runHeld((input, context) => chat.importConversationsFrom(input, { ...context, now: () => NOW }), { ...request(home, { source: 'chatgpt-export' }), stored: {} });
+  const asked = await chat.importConversationsFrom(request(home, { source: 'chatgpt-export' }), { now: () => NOW });
   assert.equal(asked.complete, false);
   assert.deepEqual(asked.keep, []);
   assert.ok(asked.needs.files.includes('/messages/ChatGPT/file-AB12-crumb.png'), JSON.stringify(asked.needs.files));
