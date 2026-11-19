@@ -1,8 +1,9 @@
 // tools/workflows/do-work/run-a-function.mjs
 //
 // The command a row runs when its tool is a function of its input: it imports the module the row names, calls the export the
-// row names with the run's input and prints { result } (or { error }) as its last line. It reaches no database, no records
-// door and no files: a tool is given what it reads and answers what it makes, and the caller keeps it where the person keeps it.
+// row names with the run's input and prints { result } (or { error } with the error's own fields) as its last line. It
+// reaches no database, no records door and no files: a tool is given what it reads and answers what it makes, and the
+// caller keeps it where the person keeps it.
 //
 //   node /opt/workflows/do-work/run-a-function.mjs /opt/<folder>/<file>.mjs <export>  < input.json
 //
@@ -26,6 +27,19 @@ try {
     console.log(JSON.stringify({ result }));
   }
 } catch (error) {
-  console.log(JSON.stringify({ error: error.message }));
+  console.log(JSON.stringify({ ...fieldsOf(error), error: error?.message ?? String(error) }));
   process.exitCode = 1;
+}
+
+// The fields a function put on its error (not_sent, code and the like), printed beside its message so a caller can act on
+// them. The stack and the cause are never printed, a field that is not plain JSON is left out, and no field may stand in
+// for the line's own error, result or wake_effects.
+function fieldsOf(error) {
+  if (!error || typeof error !== 'object') return {};
+  const fields = {};
+  for (const [name, value] of Object.entries(error)) {
+    if (['stack', 'cause', 'message', 'error', 'result', EFFECTS].includes(name)) continue;
+    try { if (JSON.stringify(value) !== undefined) fields[name] = JSON.parse(JSON.stringify(value)); } catch { /* not plain JSON */ }
+  }
+  return fields;
 }
