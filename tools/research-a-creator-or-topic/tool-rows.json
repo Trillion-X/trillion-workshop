@@ -121,7 +121,6 @@
       "trillion-workshop/record-video",
       "trillion-workshop/record-video-with-teleprompter",
       "trillion-workshop/record-voice-and-meetings",
-      "trillion-workshop/records-door",
       "trillion-workshop/refuse-requests-to-private-addresses",
       "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
       "trillion-workshop/review-what-a-list-says",
@@ -425,7 +424,6 @@
       "trillion-workshop/record-video",
       "trillion-workshop/record-video-with-teleprompter",
       "trillion-workshop/record-voice-and-meetings",
-      "trillion-workshop/records-door",
       "trillion-workshop/refuse-requests-to-private-addresses",
       "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
       "trillion-workshop/review-what-a-list-says",
@@ -724,7 +722,6 @@
       "trillion-workshop/record-video",
       "trillion-workshop/record-video-with-teleprompter",
       "trillion-workshop/record-voice-and-meetings",
-      "trillion-workshop/records-door",
       "trillion-workshop/refuse-requests-to-private-addresses",
       "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
       "trillion-workshop/review-what-a-list-says",
@@ -1041,7 +1038,6 @@
       "trillion-workshop/record-video",
       "trillion-workshop/record-video-with-teleprompter",
       "trillion-workshop/record-voice-and-meetings",
-      "trillion-workshop/records-door",
       "trillion-workshop/refuse-requests-to-private-addresses",
       "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
       "trillion-workshop/review-what-a-list-says",
@@ -1269,7 +1265,6 @@
       "trillion-workshop/record-video",
       "trillion-workshop/record-video-with-teleprompter",
       "trillion-workshop/record-voice-and-meetings",
-      "trillion-workshop/records-door",
       "trillion-workshop/refuse-requests-to-private-addresses",
       "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
       "trillion-workshop/review-what-a-list-says",
@@ -1497,7 +1492,6 @@
       "trillion-workshop/record-video",
       "trillion-workshop/record-video-with-teleprompter",
       "trillion-workshop/record-voice-and-meetings",
-      "trillion-workshop/records-door",
       "trillion-workshop/refuse-requests-to-private-addresses",
       "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
       "trillion-workshop/review-what-a-list-says",
@@ -1723,7 +1717,6 @@
       "trillion-workshop/record-video",
       "trillion-workshop/record-video-with-teleprompter",
       "trillion-workshop/record-voice-and-meetings",
-      "trillion-workshop/records-door",
       "trillion-workshop/refuse-requests-to-private-addresses",
       "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
       "trillion-workshop/review-what-a-list-says",
@@ -1791,7 +1784,7 @@
     "label": "Keep the newest videos of channels and their captions",
     "status": "active",
     "job": "List the newest videos of each channel, tab or playlist I name and get each new video's captions with the times they are said, its description and, if I ask, its top comments, without downloading any video",
-    "description": "For each seed (a channel's @handle, id or link, a link to one of its tabs such as /shorts, or a playlist link) lists the newest `newest` videos with yt-dlp on this computer, then fetches the captions (in the first of caption_languages the video has; json3, else WebVTT), the site's description and, with also [\"comments\"], the top comments_per_video comments of every listed video not in skip_ids. It never downloads a video. It asks politely, one request at a time with a drawn wait between requests, at most a set number of requests and budget_seconds per run (the settings file harvest-settings.json in this folder holds every number), and it stops at the first refusal (a robot check or too many requests). It keeps three files in your files: listing (listing.json: every listed video of each seed, with kept_before), captions (captions.jsonl: one line per video settled now, { video_id, url, seed, status ready|empty|failed, language, format, lines [[second, words]], info }) and comments (comments.jsonl). With rows it also answers, as rows.records, one row per seed or per settled video for your sources list (record:sources:<id>), each field from a fact ({ fact }), a text with {fact} holes ({ text }) or a value ({ value }); give the rows you already hold as held and a row built over one keeps the fields this does not write. It keeps no row itself: your AI keeps the rows it answers. Facts of a video: video_id, title, url, published, duration, view_count, seed, listing_url, source, caption_status, caption_language. Facts of a seed: seed, listing_url, source, listed, kept, finished. The answer says what was done and, when anything is left, `again`: the input to send next; after a refusal wait `wait_minutes` first. Repeat until again is null.",
+    "description": "For each seed (a channel's @handle, id or link, a link to one of its tabs such as /shorts, or a playlist link) lists the newest `newest` videos with yt-dlp on this computer, then fetches the captions (in the first of caption_languages the video has; json3, else WebVTT), the site's description and, with also [\"comments\"], the top comments_per_video comments of every listed video not in skip_ids. It never downloads a video. It asks politely, one request at a time with a drawn wait between requests, at most a set number of requests and budget_seconds per run (the settings file harvest-settings.json in this folder holds every number), and it stops at the first refusal (a robot check or too many requests). It keeps three files in your files: listing (listing.json: every listed video of each seed, with kept_before), captions (captions.jsonl: one line per video settled now, { video_id, url, seed, status ready|empty|failed, language, format, lines [[second, words]], info }) and comments (comments.jsonl). With rows it also answers, as keep, one row per seed or per settled video for your sources list (record:sources:<id>), each field from a fact ({ fact }), a text with {fact} holes ({ text }) or a value ({ value }); give the rows you already hold as held and a row built over one keeps the fields this does not write; each keep row carries expected, the row as it was handed in (null for a new one). It keeps no row itself: your AI keeps the rows it answers. Facts of a video: video_id, title, url, published, duration, view_count, seed, listing_url, source, caption_status, caption_language. Facts of a seed: seed, listing_url, source, listed, kept, finished. The answer says what was done and, when anything is left, `again`: the input to send next; after a refusal wait `wait_minutes` first. Repeat until again is null.",
     "input_schema": {
      "type": "object",
      "required": [
@@ -2049,24 +2042,22 @@
       "settled": {
        "type": "integer"
       },
-      "rows": {
-       "type": "object",
-       "required": [
-        "records",
-        "refused"
-       ],
-       "properties": {
-        "records": {
-         "type": "array",
-         "items": {
-          "type": "object"
-         },
-         "description": "The rows to keep, { id, type, value }"
-        },
-        "refused": {
-         "type": "array"
-        }
-       }
+      "keep": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "type",
+         "value",
+         "expected"
+        ]
+       },
+       "description": "The rows for your AI to keep, { id, type, value, expected }: expected is the row as it was handed in as held ({ type, value }), null for a new one, so a store refuses the keep when the row moved since"
+      },
+      "refused_rows": {
+       "type": "array",
+       "description": "The rows not built, each { for, reason }"
       },
       "wait_minutes": {
        "type": "number"
@@ -2086,7 +2077,7 @@
      "stdout": "json",
      "argv": [
       "node",
-      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/workflows/do-work/run-a-function.mjs",
       "/opt/research-a-creator-or-topic/do-work/harvest-channels.mjs",
       "keepChannelsLatestVideosAndCaptions"
      ],
@@ -2108,49 +2099,11 @@
         "at": "/opt/research-a-creator-or-topic"
        },
        {
-        "package": "records-door",
+        "package": "workflows",
         "paths": [
-         "do-work",
-         "read-data"
+         "do-work/run-a-function.mjs"
         ],
-        "at": "/opt/records-door"
-       },
-       {
-        "package": "content-identity",
-        "paths": [
-         "read-data"
-        ],
-        "at": "/opt/content-identity"
-       },
-       {
-        "packages": [
-         "node_modules/@noble/hashes"
-        ],
-        "paths": [
-         "LICENSE",
-         "package.json",
-         "blake3.js",
-         "blake2.js",
-         "_blake.js",
-         "_md.js",
-         "_u64.js",
-         "utils.js"
-        ],
-        "at": "/opt/node_modules/@noble/hashes"
-       },
-       {
-        "package": "browse-and-upload-my-files",
-        "paths": [
-         "built-stored-bytes/content-chunks/content_chunks.js",
-         "do-work/content-chunks.mjs",
-         "do-work/namespace-client.mjs",
-         "do-work/send-a-file-to-a-namespace.mjs",
-         "do-work/send-retry.mjs",
-         "do-work/send-window.mjs",
-         "do-work/shared-file-reference.mjs",
-         "send-settings.json"
-        ],
-        "at": "/opt/browse-and-upload-my-files"
+        "at": "/opt/workflows"
        }
       ]
      },
@@ -2333,7 +2286,6 @@
       "trillion-workshop/record-video",
       "trillion-workshop/record-video-with-teleprompter",
       "trillion-workshop/record-voice-and-meetings",
-      "trillion-workshop/records-door",
       "trillion-workshop/refuse-requests-to-private-addresses",
       "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
       "trillion-workshop/review-what-a-list-says",
@@ -2401,7 +2353,7 @@
     "label": "Keep public posts by link",
     "status": "active",
     "job": "Keep the text, numbers and media addresses of public posts I name by link, through a public mirror, without opening the posts' site",
-    "description": "For each link to a public post (x.com or twitter.com status links; the link pattern is in harvest-settings.json) asks a third-party public mirror for the post as JSON and keeps its text, counts, author and the addresses of its media, never the media themselves. This depends on that mirror staying up: its address is `posts.mirror_base` in harvest-settings.json and can be changed there. It asks politely with the same limits file as the channel harvest: one request at a time with a drawn wait, a bounded number of requests and budget_seconds per run, a stop at the first refusal. Links already kept (skip_ids) are not asked again. It keeps one file in your files (posts.jsonl: one line per post settled now: user, post_id, link, status ready or failed, the post's kept fields or the reason). A run that stops early answers `again`, the input to send next, and after a refusal `wait_minutes`; repeat until `again` is null. With rows one per post, the answer holds the posts as rows.records for your sources list, built over the rows you give as held; your AI keeps them, this keeps none.",
+    "description": "For each link to a public post (x.com or twitter.com status links; the link pattern is in harvest-settings.json) asks a third-party public mirror for the post as JSON and keeps its text, counts, author and the addresses of its media, never the media themselves. This depends on that mirror staying up: its address is `posts.mirror_base` in harvest-settings.json and can be changed there. It asks politely with the same limits file as the channel harvest: one request at a time with a drawn wait, a bounded number of requests and budget_seconds per run, a stop at the first refusal. Links already kept (skip_ids) are not asked again. It keeps one file in your files (posts.jsonl: one line per post settled now: user, post_id, link, status ready or failed, the post's kept fields or the reason). A run that stops early answers `again`, the input to send next, and after a refusal `wait_minutes`; repeat until `again` is null. With rows one per post, the answer holds the posts as keep for your sources list, built over the rows you give as held, each with expected (the row as it was handed in, null for a new one); your AI keeps them, this keeps none.",
     "input_schema": {
      "type": "object",
      "required": [
@@ -2527,24 +2479,22 @@
         ]
        }
       },
-      "rows": {
-       "type": "object",
-       "required": [
-        "records",
-        "refused"
-       ],
-       "properties": {
-        "records": {
-         "type": "array",
-         "items": {
-          "type": "object"
-         },
-         "description": "The rows to keep, { id, type, value }"
-        },
-        "refused": {
-         "type": "array"
-        }
-       }
+      "keep": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "type",
+         "value",
+         "expected"
+        ]
+       },
+       "description": "The rows for your AI to keep, { id, type, value, expected }: expected is the row as it was handed in as held ({ type, value }), null for a new one, so a store refuses the keep when the row moved since"
+      },
+      "refused_rows": {
+       "type": "array",
+       "description": "The rows not built, each { for, reason }"
       },
       "wait_minutes": {
        "type": "number"
@@ -2564,7 +2514,7 @@
      "stdout": "json",
      "argv": [
       "node",
-      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/workflows/do-work/run-a-function.mjs",
       "/opt/research-a-creator-or-topic/do-work/harvest-posts.mjs",
       "keepPublicPostsByLink"
      ],
@@ -2585,49 +2535,11 @@
         "at": "/opt/research-a-creator-or-topic"
        },
        {
-        "package": "records-door",
+        "package": "workflows",
         "paths": [
-         "do-work",
-         "read-data"
+         "do-work/run-a-function.mjs"
         ],
-        "at": "/opt/records-door"
-       },
-       {
-        "package": "content-identity",
-        "paths": [
-         "read-data"
-        ],
-        "at": "/opt/content-identity"
-       },
-       {
-        "packages": [
-         "node_modules/@noble/hashes"
-        ],
-        "paths": [
-         "LICENSE",
-         "package.json",
-         "blake3.js",
-         "blake2.js",
-         "_blake.js",
-         "_md.js",
-         "_u64.js",
-         "utils.js"
-        ],
-        "at": "/opt/node_modules/@noble/hashes"
-       },
-       {
-        "package": "browse-and-upload-my-files",
-        "paths": [
-         "built-stored-bytes/content-chunks/content_chunks.js",
-         "do-work/content-chunks.mjs",
-         "do-work/namespace-client.mjs",
-         "do-work/send-a-file-to-a-namespace.mjs",
-         "do-work/send-retry.mjs",
-         "do-work/send-window.mjs",
-         "do-work/shared-file-reference.mjs",
-         "send-settings.json"
-        ],
-        "at": "/opt/browse-and-upload-my-files"
+        "at": "/opt/workflows"
        }
       ]
      },
@@ -2799,7 +2711,6 @@
       "trillion-workshop/record-video",
       "trillion-workshop/record-video-with-teleprompter",
       "trillion-workshop/record-voice-and-meetings",
-      "trillion-workshop/records-door",
       "trillion-workshop/refuse-requests-to-private-addresses",
       "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
       "trillion-workshop/review-what-a-list-says",
@@ -3180,7 +3091,6 @@
       "trillion-workshop/record-video",
       "trillion-workshop/record-video-with-teleprompter",
       "trillion-workshop/record-voice-and-meetings",
-      "trillion-workshop/records-door",
       "trillion-workshop/refuse-requests-to-private-addresses",
       "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
       "trillion-workshop/review-what-a-list-says",
@@ -3528,7 +3438,6 @@
       "trillion-workshop/record-video",
       "trillion-workshop/record-video-with-teleprompter",
       "trillion-workshop/record-voice-and-meetings",
-      "trillion-workshop/records-door",
       "trillion-workshop/refuse-requests-to-private-addresses",
       "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
       "trillion-workshop/review-what-a-list-says",
@@ -3596,7 +3505,7 @@
     "label": "Check a prospect row",
     "status": "active",
     "job": "Build one row of my prospect list from what a finder found, the researched profile, a status or my notes, checked, for my AI to keep",
-    "description": "One row per prospect, under the key you give, built over the row you hold (give its fields as held; a field you keep by hand stays). action keep (default): found = the facts a finder gave (name, url, place, source, size, signals, score) and/or profile = the research (profile, problems 1 to 3, triggers, case_study, channels). Every problem, trigger and channel carries basis stated (the material says it; evidence quotes it word for word) or inferred (a reading of it, with what it is read from). Send material with a profile and a stated quotation that is not in it is refused. A new row starts at the first status (found, or researched once a profile is checked). action mark: status (found, researched, drafted, contacted, replied, booked, won, lost, dropped) and/or notes, over the row you hold. The answer holds the row ({ id, type, value }); this keeps nothing, your AI keeps the row in your prospect list. The fields, statuses and rules are DATA in do-work/prospect-list.json. It contacts nobody.",
+    "description": "One row per prospect, under the key you give, built over the row you hold (give its fields as held; a field you keep by hand stays). action keep (default): found = the facts a finder gave (name, url, place, source, size, signals, score) and/or profile = the research (profile, problems 1 to 3, triggers, case_study, channels). Every problem, trigger and channel carries basis stated (the material says it; evidence quotes it word for word) or inferred (a reading of it, with what it is read from). Send material with a profile and a stated quotation that is not in it is refused. A new row starts at the first status (found, or researched once a profile is checked). action mark: status (found, researched, drafted, contacted, replied, booked, won, lost, dropped) and/or notes, over the row you hold. The answer holds the row as keep ([{ id, type, value, expected }], expected being the row as you handed it in, null for a new prospect); this keeps nothing, your AI keeps the row in your prospect list. The fields, statuses and rules are DATA in do-work/prospect-list.json. It contacts nobody.",
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
@@ -3645,7 +3554,7 @@
       "action",
       "key",
       "row_id",
-      "row"
+      "keep"
      ],
      "properties": {
       "action": {
@@ -3660,9 +3569,18 @@
       "created": {
        "type": "boolean"
       },
-      "row": {
-       "type": "object",
-       "description": "The row to keep: { id, type, value }"
+      "keep": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "type",
+         "value",
+         "expected"
+        ]
+       },
+       "description": "The rows for your AI to keep, { id, type, value, expected }: expected is the row as it was handed in as held ({ type, value }), null for a new one, so a store refuses the keep when the row moved since"
       }
      }
     },
@@ -3673,7 +3591,7 @@
      "stdout": "json",
      "argv": [
       "node",
-      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/workflows/do-work/run-a-function.mjs",
       "/opt/research-a-creator-or-topic/do-work/prospects.mjs",
       "keepAProspect"
      ],
@@ -3696,49 +3614,11 @@
         "at": "/opt/research-a-creator-or-topic"
        },
        {
-        "package": "records-door",
+        "package": "workflows",
         "paths": [
-         "do-work",
-         "read-data"
+         "do-work/run-a-function.mjs"
         ],
-        "at": "/opt/records-door"
-       },
-       {
-        "package": "content-identity",
-        "paths": [
-         "read-data"
-        ],
-        "at": "/opt/content-identity"
-       },
-       {
-        "packages": [
-         "node_modules/@noble/hashes"
-        ],
-        "paths": [
-         "LICENSE",
-         "package.json",
-         "blake3.js",
-         "blake2.js",
-         "_blake.js",
-         "_md.js",
-         "_u64.js",
-         "utils.js"
-        ],
-        "at": "/opt/node_modules/@noble/hashes"
-       },
-       {
-        "package": "browse-and-upload-my-files",
-        "paths": [
-         "built-stored-bytes/content-chunks/content_chunks.js",
-         "do-work/content-chunks.mjs",
-         "do-work/namespace-client.mjs",
-         "do-work/send-a-file-to-a-namespace.mjs",
-         "do-work/send-retry.mjs",
-         "do-work/send-window.mjs",
-         "do-work/shared-file-reference.mjs",
-         "send-settings.json"
-        ],
-        "at": "/opt/browse-and-upload-my-files"
+        "at": "/opt/workflows"
        }
       ]
      }

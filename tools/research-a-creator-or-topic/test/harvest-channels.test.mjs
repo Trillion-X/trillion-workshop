@@ -1,7 +1,7 @@
 // tools/research-a-creator-or-topic/test/harvest-channels.test.mjs
 //
 // tool:keep-channels-latest-videos-and-captions against a stand-in yt-dlp (test/stand-in/yt-dlp) that answers a
-// made-up site from a plan file; no records door is handed to any run. Every channel, video and word here is made up.
+// made-up site from a plan file; the rows it builds over come in as held and go back as keep. Every channel, video and word here is made up.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
@@ -69,7 +69,7 @@ function site(changes = {}) {
 
 test('it lists each seed\'s newest videos and keeps the captions, description and timed lines of each, one request at a time', async () => {
   const made = site();
-  const answer = await keep(asking, {}, { settings: settingsWith(), out: made.out });
+  const answer = await keep(asking, { settings: settingsWith(), out: made.out });
   assert.equal(answer.stopped, 'finished');
   assert.equal(answer.again, null);
   assert.equal(answer.requests, 4);
@@ -100,7 +100,7 @@ test('it lists each seed\'s newest videos and keeps the captions, description an
 
 test('a video already kept is listed and never fetched again, across seeds too', async () => {
   const made = site();
-  const answer = await keep({ ...asking, seeds: [LOAVES, JAMS], newest: 2, skip_ids: ['vid-bbb'] }, {}, { settings: settingsWith(), out: made.out });
+  const answer = await keep({ ...asking, seeds: [LOAVES, JAMS], newest: 2, skip_ids: ['vid-bbb'] }, { settings: settingsWith(), out: made.out });
   assert.deepEqual(made.calls().map(call => call.at(-1)), [`${LOAVES}/videos`, `${WATCH}vid-aaa`, JAMS, `${WATCH}vid-eee`]);
   assert.deepEqual(made.listing().seeds.map(seed => seed.items.map(item => [item.video_id, item.kept_before])), [[['vid-aaa', false], ['vid-bbb', true]], [['vid-eee', false], ['vid-aaa', true]]]);
   assert.deepEqual(made.captions()[1].lines, [[1.5, 'Stir the plums']]);
@@ -110,7 +110,7 @@ test('a video already kept is listed and never fetched again, across seeds too',
 
 test('a refusal ends the run at once and says how long to wait, doubling for each refusal in a row', async () => {
   const made = site({ [`${WATCH}vid-bbb`]: { refuse: 'Sign in to confirm you’re not a bot' } });
-  const answer = await keep({ ...asking, seeds: [LOAVES, JAMS], refusals_in_a_row: 2 }, {}, { settings: settingsWith(), out: made.out });
+  const answer = await keep({ ...asking, seeds: [LOAVES, JAMS], refusals_in_a_row: 2 }, { settings: settingsWith(), out: made.out });
   assert.equal(answer.stopped, 'refusal');
   assert.equal(answer.wait_minutes, shipped.pause_after_refusal.first_minutes * 4);
   assert.deepEqual(answer.again, { ...asking, seeds: [LOAVES, JAMS], skip_ids: ['vid-aaa'], refusals_in_a_row: 3 });
@@ -118,7 +118,7 @@ test('a refusal ends the run at once and says how long to wait, doubling for eac
   assert.deepEqual(made.captions().map(line => line.video_id), ['vid-aaa']);
 
   const capped = site({ [`${WATCH}vid-aaa`]: { refuse: 'HTTP Error 429: Too Many Requests' } });
-  const many = await keep({ ...asking, refusals_in_a_row: 50 }, {}, { settings: settingsWith(), out: capped.out });
+  const many = await keep({ ...asking, refusals_in_a_row: 50 }, { settings: settingsWith(), out: capped.out });
   const { first_minutes: first, doublings_at_most: doublings } = shipped.pause_after_refusal;
   assert.equal(many.wait_minutes, first * 2 ** doublings);
   assert.deepEqual(many.again.skip_ids, []);
@@ -126,7 +126,7 @@ test('a refusal ends the run at once and says how long to wait, doubling for eac
 
 test('a run that ends for any other reason starts the next one with no refusals counted', async () => {
   const made = site();
-  const answer = await keep({ ...asking, refusals_in_a_row: 2 }, {}, { settings: settingsWith({ requests_per_run_at_most: 2 }), out: made.out });
+  const answer = await keep({ ...asking, refusals_in_a_row: 2 }, { settings: settingsWith({ requests_per_run_at_most: 2 }), out: made.out });
   assert.equal(answer.stopped, 'requests');
   assert.equal(answer.wait_minutes, undefined);
   assert.deepEqual(answer.again, { ...asking, skip_ids: ['vid-aaa'] });
@@ -138,7 +138,7 @@ test('waits are drawn from the range between requests, and no request starts wit
   let clock = 0;
   const waits = [];
   const settings = settingsWith({ seconds_between_requests: { least: 2, most: 6 }, least_seconds_for_a_request: 8 });
-  const answer = await keep({ ...asking, budget_seconds: 20 }, {}, {
+  const answer = await keep({ ...asking, budget_seconds: 20 }, {
     settings, out: made.out, now: () => clock, random: () => 0.75, sleep: async seconds => { waits.push(seconds); clock += seconds; },
   });
   assert.deepEqual(waits, [5, 5]);
@@ -149,7 +149,7 @@ test('waits are drawn from the range between requests, and no request starts wit
 
 test('a request still running when the budget ends is stopped, and its video is left for the next run', async () => {
   const made = site({ [`${WATCH}vid-aaa`]: { ...video('vid-aaa', 'Shaping a loaf'), wait_seconds: 5 } });
-  const answer = await keep({ ...asking, budget_seconds: 2 }, {}, { settings: settingsWith({ least_seconds_for_a_request: 1 }), out: made.out });
+  const answer = await keep({ ...asking, budget_seconds: 2 }, { settings: settingsWith({ least_seconds_for_a_request: 1 }), out: made.out });
   assert.equal(answer.stopped, 'budget');
   assert.deepEqual(made.captions(), []);
   assert.deepEqual(answer.again.skip_ids, []);
@@ -158,7 +158,7 @@ test('a request still running when the budget ends is stopped, and its video is 
 
 test('comments, when asked for, come from the same request with only the kept fields', async () => {
   const made = site();
-  const answer = await keep({ ...asking, newest: 1, also: ['comments'], comments_per_video: 5 }, {}, { settings: settingsWith(), out: made.out });
+  const answer = await keep({ ...asking, newest: 1, also: ['comments'], comments_per_video: 5 }, { settings: settingsWith(), out: made.out });
   const call = made.calls()[1];
   assert.ok(call.includes('--write-comments'));
   assert.ok(call.some(arg => arg.includes('max_comments=5,')));
@@ -169,43 +169,44 @@ test('comments, when asked for, come from the same request with only the kept fi
 
 test('a file that would pass its bound ends the run before the line that does not fit', async () => {
   const whole = site();
-  await keep(asking, {}, { settings: settingsWith(), out: whole.out });
+  await keep(asking, { settings: settingsWith(), out: whole.out });
   const firstLine = Buffer.byteLength(`${JSON.stringify(whole.captions()[0])}\n`);
   const made = site();
-  const answer = await keep(asking, {}, { settings: settingsWith({ file_bytes_at_most: firstLine + 1 }), out: made.out });
+  const answer = await keep(asking, { settings: settingsWith({ file_bytes_at_most: firstLine + 1 }), out: made.out });
   assert.equal(answer.stopped, 'files');
   assert.deepEqual(made.captions().map(line => line.video_id), ['vid-aaa']);
   assert.deepEqual(answer.again.skip_ids, ['vid-aaa']);
 
   const small = site();
-  const one = await keep({ ...asking, newest: 1 }, {}, { settings: settingsWith({ file_bytes_at_most: 200 }), out: small.out });
+  const one = await keep({ ...asking, newest: 1 }, { settings: settingsWith({ file_bytes_at_most: 200 }), out: small.out });
   assert.deepEqual(one.captions.failed, [{ video_id: 'vid-aaa', reason: 'its captions are larger than one file holds' }]);
   assert.equal(one.stopped, 'finished');
 });
 
-const rowOf = (answer, id) => answer.rows.records.find(record => record.id === id);
+const rowOf = (answer, id) => answer.keep.find(record => record.id === id);
 
 test('rows are answered, built over the rows held, and kept nowhere', async () => {
   const held = [{ id: 'record:sources:vid-aaa', value: { note: 'kept by hand', name: 'old name' } }];
   const made = site();
   const rowsAsked = { one_per: 'video', id: { fact: 'video_id' }, fields: { name: { fact: 'title' }, url: { fact: 'url' }, words: { text: '{caption_status} in {caption_language}' }, kind: { value: 'video' } } };
-  const answer = await keep({ ...asking, newest: 2, rows: rowsAsked, held }, {}, { settings: settingsWith(), out: made.out });
-  assert.deepEqual(answer.rows.refused, []);
-  assert.deepEqual(rowOf(answer, 'record:sources:vid-aaa'), { id: 'record:sources:vid-aaa', type: 'record:sources', value: { note: 'kept by hand', name: 'Shaping a loaf', url: `${WATCH}vid-aaa`, words: 'ready in en', kind: 'video' } });
+  const answer = await keep({ ...asking, newest: 2, rows: rowsAsked, held }, { settings: settingsWith(), out: made.out });
+  assert.deepEqual(answer.refused_rows, []);
+  assert.deepEqual(rowOf(answer, 'record:sources:vid-aaa'), { id: 'record:sources:vid-aaa', type: 'record:sources', value: { note: 'kept by hand', name: 'Shaping a loaf', url: `${WATCH}vid-aaa`, words: 'ready in en', kind: 'video' }, expected: { type: 'record:sources', value: held[0].value } });
   assert.deepEqual(rowOf(answer, 'record:sources:vid-bbb').value, { name: 'Scoring', url: `${WATCH}vid-bbb`, words: 'empty in ', kind: 'video' });
+  assert.equal(rowOf(answer, 'record:sources:vid-bbb').expected, null, 'a row not held expects none');
 
   const seedRows = { one_per: 'seed', id: { text: 'loaves' }, fields: { name: { fact: 'source' }, listed: { fact: 'listed' }, kept: { fact: 'kept' } } };
-  const bySeed = await keep({ ...asking, newest: 2, skip_ids: ['vid-aaa', 'vid-bbb'], rows: seedRows }, {}, { settings: settingsWith(), out: made.out });
-  assert.equal(bySeed.rows.records.length, 1);
+  const bySeed = await keep({ ...asking, newest: 2, skip_ids: ['vid-aaa', 'vid-bbb'], rows: seedRows }, { settings: settingsWith(), out: made.out });
+  assert.equal(bySeed.keep.length, 1);
   assert.deepEqual(rowOf(bySeed, 'record:sources:loaves').value, { name: 'Loaf Lab', listed: 2, kept: 2 });
 
-  const byLink = await keep({ ...asking, newest: 1, skip_ids: ['vid-aaa'], rows: { ...seedRows, id: { fact: 'seed' } } }, {}, { settings: settingsWith(), out: made.out });
-  assert.deepEqual(byLink.rows, { records: [], refused: [{ for: LOAVES, reason: 'its id is empty or holds a /' }] });
+  const byLink = await keep({ ...asking, newest: 1, skip_ids: ['vid-aaa'], rows: { ...seedRows, id: { fact: 'seed' } } }, { settings: settingsWith(), out: made.out });
+  assert.deepEqual([byLink.keep, byLink.refused_rows], [[], [{ for: LOAVES, reason: 'its id is empty or holds a /' }]]);
 });
 
 test('held rows that are not rows are refused whole, before any request', async () => {
   const made = site();
-  await assert.rejects(keep({ ...asking, newest: 1, held: [{ value: {} }] }, {}, { settings: settingsWith(), out: made.out }), /held is the rows you already hold/);
+  await assert.rejects(keep({ ...asking, newest: 1, held: [{ value: {} }] }, { settings: settingsWith(), out: made.out }), /held is the rows you already hold/);
 });
 
 const DATED = 'https://videos.example/@dated-lab';
@@ -224,14 +225,14 @@ test('a seed can carry the id of the row it updates and its own newest, and rows
   const made = site();
   const seeds = [{ seed: LOAVES, id: 'outlet-p01', newest: 1 }, { seed: JAMS, id: 'outlet-p02' }];
   const rowsAsked = { one_per: 'seed', fields: { name: { fact: 'source' }, listed: { fact: 'listed' } } };
-  const answer = await keep({ seeds, newest: 2, caption_languages: ['en.*'], rows: rowsAsked, held }, {}, { settings: settingsWith(), out: made.out });
-  assert.deepEqual(answer.rows.refused, []);
+  const answer = await keep({ seeds, newest: 2, caption_languages: ['en.*'], rows: rowsAsked, held }, { settings: settingsWith(), out: made.out });
+  assert.deepEqual(answer.refused_rows, []);
   assert.deepEqual(answer.seeds.map(seed => [seed.row_id, seed.listed]), [['outlet-p01', 1], ['outlet-p02', 2]]);
   assert.deepEqual(rowOf(answer, 'record:sources:outlet-p01').value, { note: 'kept by hand', name: 'Loaf Lab', listed: 1 });
   assert.deepEqual(rowOf(answer, 'record:sources:outlet-p02').value, { name: 'Jar Shelf', listed: 2 });
 
   const later = site();
-  const stopped = await keep({ seeds, newest: 2, caption_languages: ['en.*'] }, {}, { settings: settingsWith({ requests_per_run_at_most: 1 }), out: later.out });
+  const stopped = await keep({ seeds, newest: 2, caption_languages: ['en.*'] }, { settings: settingsWith({ requests_per_run_at_most: 1 }), out: later.out });
   assert.deepEqual(stopped.again.seeds, seeds);
 });
 
@@ -247,7 +248,7 @@ test('a seed stopped by a refusal gets the stopped text, and the again run that 
   const held = [{ id: 'record:sources:outlet-p01', value: { note: 'kept by hand', status: 'NOT CAPTURED' } }];
   const seeds = [{ seed: LOAVES, id: 'outlet-p01' }];
   const refused = site({ [`${WATCH}vid-bbb`]: { refuse: 'Sign in to confirm you’re not a bot' } });
-  const first = await keep({ seeds, newest: 3, caption_languages: ['en.*'], rows: statusRows, held }, {}, { settings: settingsWith(), out: refused.out });
+  const first = await keep({ seeds, newest: 3, caption_languages: ['en.*'], rows: statusRows, held }, { settings: settingsWith(), out: refused.out });
   assert.equal(first.stopped, 'refusal');
   assert.deepEqual(first.seeds.map(seed => [seed.stopped, seed.finished, seed.kept, seed.listed, seed.wait_minutes]), [['refusal', false, 1, 3, shipped.pause_after_refusal.first_minutes]]);
   const stoppedRow = rowOf(first, 'record:sources:outlet-p01').value;
@@ -255,7 +256,7 @@ test('a seed stopped by a refusal gets the stopped text, and the again run that 
   assert.equal(stoppedRow.note, 'kept by hand');
 
   const answered = site();
-  const again = await keep({ ...first.again, held: [{ id: 'record:sources:outlet-p01', value: stoppedRow }] }, {}, { settings: settingsWith(), out: answered.out });
+  const again = await keep({ ...first.again, held: [{ id: 'record:sources:outlet-p01', value: stoppedRow }] }, { settings: settingsWith(), out: answered.out });
   assert.equal(again.stopped, 'finished');
   assert.equal(again.again, null);
   assert.deepEqual(again.seeds.map(seed => [seed.stopped, seed.finished, seed.wait_minutes]), [['finished', true, undefined]]);
@@ -264,7 +265,7 @@ test('a seed stopped by a refusal gets the stopped text, and the again run that 
 
 test('a finished seed with no captions kept gets the finished text, not the stopped one', async () => {
   const made = site({ [`${LOAVES}/videos`]: { videos: [{ id: 'vid-ccc', title: 'Proofing' }] } });
-  const answer = await keep({ seeds: [{ seed: LOAVES, id: 'outlet-p03' }], newest: 1, caption_languages: ['en.*'], rows: statusRows }, {}, { settings: settingsWith(), out: made.out });
+  const answer = await keep({ seeds: [{ seed: LOAVES, id: 'outlet-p03' }], newest: 1, caption_languages: ['en.*'], rows: statusRows }, { settings: settingsWith(), out: made.out });
   assert.equal(answer.stopped, 'finished');
   assert.deepEqual(answer.seeds.map(seed => [seed.ready, seed.failed]), [[0, 1]]);
   assert.equal(rowOf(answer, 'record:sources:outlet-p03').value.status, 'DONE: 1 of 1');
@@ -272,22 +273,22 @@ test('a finished seed with no captions kept gets the finished text, not the stop
 
 test('days and eras choose from the listing: the newest inside the days, or an even share of each span', async () => {
   const inWindow = datedSite();
-  await keep({ seeds: [DATED], newest: 3, between: { from: '2026-01-01', to: '2026-05-31' }, caption_languages: ['en.*'] }, {}, { settings: settingsWith(), out: inWindow.out });
+  await keep({ seeds: [DATED], newest: 3, between: { from: '2026-01-01', to: '2026-05-31' }, caption_languages: ['en.*'] }, { settings: settingsWith(), out: inWindow.out });
   assert.deepEqual(inWindow.calls()[0].slice(-3), ['--playlist-end', String(shipped.window_list_at_most), `${DATED}/videos`]);
   assert.deepEqual(keptIds(inWindow), ['vid-d09', 'vid-d08', 'vid-d07']);
 
   const eras = datedSite();
-  const answer = await keep({ seeds: [DATED], newest: 4, eras: 2, caption_languages: ['en.*'] }, {}, { settings: settingsWith(), out: eras.out });
+  const answer = await keep({ seeds: [DATED], newest: 4, eras: 2, caption_languages: ['en.*'] }, { settings: settingsWith(), out: eras.out });
   assert.deepEqual(eras.listing().seeds[0].items.map(item => [item.video_id, item.era]), [['vid-d10', 2], ['vid-d09', 2], ['vid-d03', 1]]);
   assert.equal(answer.seeds[0].undated, 1);
   assert.equal(answer.seeds[0].listed, 3, 'a span with fewer videos than its share gives what it has');
 
   const odd = datedSite();
-  await keep({ seeds: [DATED], newest: 3, eras: 2, caption_languages: ['en.*'] }, {}, { settings: settingsWith(), out: odd.out });
+  await keep({ seeds: [DATED], newest: 3, eras: 2, caption_languages: ['en.*'] }, { settings: settingsWith(), out: odd.out });
   assert.deepEqual(keptIds(odd), ['vid-d10', 'vid-d09', 'vid-d03']);
 
   const none = datedSite();
-  const empty = await keep({ seeds: [DATED], newest: 3, between: { from: '2030-01-01' }, caption_languages: ['en.*'] }, {}, { settings: settingsWith(), out: none.out });
+  const empty = await keep({ seeds: [DATED], newest: 3, between: { from: '2030-01-01' }, caption_languages: ['en.*'] }, { settings: settingsWith(), out: none.out });
   assert.equal(empty.seeds[0].error, 'the site listed no videos inside the days asked for');
   assert.equal(empty.again, null);
 });
@@ -303,7 +304,7 @@ test('a comment mix reads comments for videos spread across the seed and keeps s
   plan[`${WATCH}vid-d09`] = video('vid-d09', 'vid-d09', { comments });
   writeFileSync(process.env.STAND_IN_PLAN, JSON.stringify(plan));
   const asked = { seeds: [DATED], newest: 2, caption_languages: ['en.*'], comment_mix: { videos: 1, read: 20, question: 1, disagreement: 1, oldest: 1, newest: 1 } };
-  const answer = await keep(asked, {}, { settings: settingsWith(), out: made.out });
+  const answer = await keep(asked, { settings: settingsWith(), out: made.out });
   assert.equal(answer.comments, 1);
   const calls = made.calls();
   assert.deepEqual(calls.map(call => call.includes('--write-comments')), [false, false, true]);
@@ -371,8 +372,9 @@ test('the row packs what the tool reads, keeps its files by the settings\' bound
     ['captions', `${at.at}/out/captions.jsonl`, shipped.file_bytes_at_most],
     ['comments', `${at.at}/out/comments.jsonl`, shipped.file_bytes_at_most],
   ]);
-  assert.equal(invoke.records, undefined, 'no records door is handed to the run');
-  assert.deepEqual(row.output_schema.properties.rows.required, ['records', 'refused']);
+  assert.equal(invoke.argv[1], '/opt/workflows/do-work/run-a-function.mjs');
+  assert.ok(!JSON.stringify(row).includes('records-door'), 'no records door is mounted or named');
+  assert.deepEqual(row.output_schema.properties.keep.items.required, ['id', 'type', 'value', 'expected']);
   assert.equal(row.input_schema.properties.budget_seconds.maximum, shipped.budget_seconds.most);
   assert.equal(row.input_schema.properties.newest.maximum, shipped.newest_at_most);
   assert.equal(row.input_schema.properties.eras.maximum, shipped.eras_at_most);

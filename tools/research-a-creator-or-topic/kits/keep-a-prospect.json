@@ -35,7 +35,7 @@
         }
       },
       "given": "The input {\"key\":\"bakery.example\",\"found\":{\"name\":\"Sample Bakery\",\"url\":\"https://bakery.example\"}}.",
-      "hands_back": "It answered {\"action\":\"keep\",\"key\":\"bakery.example\",\"row_id\":\"record:prospects:bakery.example\",\"created\":true}, with the row record:prospects:bakery.example for your AI to keep."
+      "hands_back": "It answered {\"action\":\"keep\",\"key\":\"bakery.example\",\"row_id\":\"record:prospects:bakery.example\",\"created\":true}, with keep holding the row record:prospects:bakery.example (expected null: a new prospect) for your AI to keep."
     }
   ]
 }

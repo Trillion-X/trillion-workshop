@@ -10,11 +10,12 @@
 // A run that stops early answers what it did and `again`: the input to send next (the links not settled are the ones
 // whose ids are not in skip_ids), with `wait_minutes` after a refusal. The run writes one file in its working folder:
 //   out/posts.jsonl  one line per post settled now: { post_id, user, link, status, post?, reason? }
-// With `rows`, one row per post settled now is answered as `rows.records`, built over the rows the person already holds
-// (given as `held`, each { id, value }), so the fields the person keeps by hand stay. The tool keeps nothing: the
-// person's AI keeps the rows in their list.
+// With `rows`, one row per post settled now is answered as `keep`, built over the rows the person already holds
+// (given as `held`, each { id, value }), so the fields the person keeps by hand stay. Each
+// keep row carries `expected`, the row as it was handed in (null for a new one), and rows refused for a bad id come back
+// as `refused_rows`. The tool keeps nothing: the person's AI keeps the rows in their list.
 //
-//   node /opt/records-door/do-work/run-an-export.mjs /opt/research-a-creator-or-topic/do-work/harvest-posts.mjs keepPublicPostsByLink < input.json
+//   node /opt/workflows/do-work/run-a-function.mjs /opt/research-a-creator-or-topic/do-work/harvest-posts.mjs keepPublicPostsByLink < input.json
 import { mkdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { lineFile, minutesToWait, picked, politeQueue, readPoliteness, readRowsSpec, readSettings, refuse, Stop, tail, words, buildRows, heldRows } from './harvest-parts.mjs';
@@ -42,7 +43,7 @@ export function readPostLink(link, settings) {
   return match ? { user: match[1], post_id: match[2], link } : null;
 }
 
-export async function keepPublicPostsByLink(input, _context = {}, {
+export async function keepPublicPostsByLink(input, {
   settings = readSettings(),
   out = resolve('out'),
   now = () => performance.now() / 1000,
@@ -132,7 +133,7 @@ export async function keepPublicPostsByLink(input, _context = {}, {
     posts: { ready, failed },
     settled: settled.length,
     ...(skipped.length ? { skipped } : {}),
-    ...(rows ? { rows } : {}),
+    ...(rows ? { keep: rows.keep, refused_rows: rows.refused } : {}),
     ...(stopped === 'refusal' ? { wait_minutes: minutesToWait(asked.refusals, settings.pause_after_refusal) } : {}),
     again,
   };

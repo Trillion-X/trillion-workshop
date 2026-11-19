@@ -123,11 +123,13 @@ export function readRowsSpec(rows, onePer, idFromElsewhere) {
 // The rows for the person's list, each built over the row the person already holds under its id (`held`, given in the
 // request as [{ id, value }]), so the fields the person keeps by hand stay. A fact's own `row_id` (a seed that carries
 // the id of its row) wins over the id the request spells; `named` says which fact names it when it is refused. The rows
-// come back in the answer, `{ records: [{ id, type, value }], refused }`, for the person's AI to keep: nothing is kept here.
+// come back in the answer, `{ keep: [{ id, type, value, expected }], refused }`, for the person's AI to keep: nothing is
+// kept here. `expected` is the row as it was handed in ({ type, value }), null for a new one, so a store refuses a keep
+// whose row moved since.
 export function buildRows(spec, facts, named, held, { records: { type, id_start: idStart } }) {
   const heldBy = new Map(heldRows(held).map(row => [row.id, row.value]));
   const refused = [];
-  const records = [];
+  const keep = [];
   for (const fact of facts) {
     const id = fact.row_id ?? valueOf(spec.id, fact);
     if (typeof id !== 'string' && typeof id !== 'number') { refused.push({ for: fact[named], reason: 'its id is empty' }); continue; }
@@ -135,10 +137,11 @@ export function buildRows(spec, facts, named, held, { records: { type, id_start:
     if (!text || text.includes('/')) { refused.push({ for: fact[named], reason: 'its id is empty or holds a /' }); continue; }
     const value = Object.fromEntries(Object.entries(spec.fields).map(([field, value]) => [field, valueOf(value, fact)]).filter(([, value]) => value !== undefined));
     const rowId = `${idStart}${text}`;
+    const held = heldBy.has(rowId);
     const before = heldBy.get(rowId);
-    records.push({ id: rowId, type, value: isObject(before) ? { ...before, ...value } : value });
+    keep.push({ id: rowId, type, value: isObject(before) ? { ...before, ...value } : value, expected: held ? { type, value: before } : null });
   }
-  return { records, refused };
+  return { keep, refused };
 }
 
 // The rows the person already holds, as the request gives them: [{ id, value }] or nothing.

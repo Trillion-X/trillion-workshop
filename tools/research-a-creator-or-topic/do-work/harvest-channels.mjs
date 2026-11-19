@@ -14,11 +14,12 @@
 //   out/listing.json    { seeds: [{ seed, listing_url, source, items: [{ video_id, title, url, published, duration, view_count, kept_before }] }] }
 //   out/captions.jsonl  one line per video settled now: { video_id, url, seed, status, language, format, lines, info, reason? }
 //   out/comments.jsonl  one line per video whose comments were asked for: { video_id, comments }
-// With `rows`, one row per seed or per video settled now is answered as `rows.records`, built over the rows the person
-// already holds (given as `held`, each { id, value }), so the fields the person keeps by hand stay. The tool keeps
-// nothing: the person's AI keeps the rows in their list.
+// With `rows`, one row per seed or per video settled now is answered as `keep`, built over the rows the person
+// already holds (given as `held`, each { id, value }), so the fields the person keeps by hand stay. Each keep row carries
+// `expected`, the row as it was handed in (null for a new one), and rows refused for a bad id come back as
+// `refused_rows`. The tool keeps nothing: the person's AI keeps the rows in their list.
 //
-//   node /opt/records-door/do-work/run-an-export.mjs /opt/research-a-creator-or-topic/do-work/harvest-channels.mjs keepChannelsLatestVideosAndCaptions < input.json
+//   node /opt/workflows/do-work/run-a-function.mjs /opt/research-a-creator-or-topic/do-work/harvest-channels.mjs keepChannelsLatestVideosAndCaptions < input.json
 import { execFile } from 'node:child_process';
 import { accessSync, constants, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir, userInfo } from 'node:os';
@@ -206,7 +207,7 @@ function runProgram(program, args, seconds, most) {
   });
 }
 
-export async function keepChannelsLatestVideosAndCaptions(input, _context = {}, {
+export async function keepChannelsLatestVideosAndCaptions(input, {
   settings = readSettings(),
   out = resolve('out'),
   now = () => performance.now() / 1000,
@@ -356,7 +357,7 @@ export async function keepChannelsLatestVideosAndCaptions(input, _context = {}, 
     captions: { ready: counts.ready, empty: counts.empty, failed },
     comments: counts.comments,
     settled: settled.length,
-    ...(rows ? { rows } : {}),
+    ...(rows ? { keep: rows.keep, refused_rows: rows.refused } : {}),
     ...(waitMinutes !== null ? { wait_minutes: waitMinutes } : {}),
     again,
   };

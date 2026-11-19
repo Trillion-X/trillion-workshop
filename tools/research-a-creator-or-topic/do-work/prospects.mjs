@@ -6,11 +6,13 @@
 // fills each, the statuses, the words of the instruction) is DATA in prospect-list.json; nothing here names a company.
 //
 //   tool:brief-a-prospect  -> briefAProspect(input)             the profile requests, from write-a-profile-request.mjs
-//   tool:keep-a-prospect   -> keepAProspect(input)              run by tools/records-door/do-work/run-an-export.mjs
+//   tool:keep-a-prospect   -> keepAProspect(input)              run by tools/workflows/do-work/run-a-function.mjs
 //
-// keepAProspect checks what it is given and answers the prospect row, and keeps nothing: the person's AI reads the row it
-// holds (`held`, its value) from the list and keeps the row this answers. Actions: keep (finder facts and/or the
-// researched profile, over the row held) and mark (status and notes, the fields kept by hand, over the row held).
+// keepAProspect checks what it is given and answers the prospect row as `keep`, and keeps nothing: the person's AI reads
+// the row it holds (`held`, its value) from the list and keeps the row this answers. The keep row carries `expected`, the
+// row as it was handed in (null for a new prospect), so a store refuses the keep when the row moved since. Actions: keep
+// (finder facts and/or the researched profile, over the row held) and mark (status and notes, the fields kept by hand,
+// over the row held).
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { buildRows, refuse } from './harvest-parts.mjs';
@@ -94,13 +96,13 @@ function checked(sent, list, who, name, material) {
 
 const specsFor = (list, ids) => ({ id: { fact: 'key' }, fields: Object.fromEntries(ids.map(id => [id, { fact: id }])) });
 
-// The prospect row built over the row held (its value, when the person holds one), as { id, type, value }.
+// The prospect row built over the row held (its value, when the person holds one), as { id, type, value, expected }.
 function rowFrom(list, held, facts) {
   const ids = Object.keys(facts).filter(id => id !== 'key');
   const rowId = `${list.records.id_start}${facts.key}`;
-  const { records, refused } = buildRows(specsFor(list, ids), [facts], 'key', held === undefined ? [] : [{ id: rowId, value: held }], { records: list.records });
+  const { keep, refused } = buildRows(specsFor(list, ids), [facts], 'key', held === undefined ? [] : [{ id: rowId, value: held }], { records: list.records });
   if (refused.length) refuse(`The prospect row was refused: ${refused[0].reason}.`);
-  return records[0];
+  return keep[0];
 }
 
 function heldOf(input) {
@@ -109,7 +111,7 @@ function heldOf(input) {
   return input.held;
 }
 
-export function keepAProspect(input, _context = {}, list = readProspectList()) {
+export function keepAProspect(input, list = readProspectList()) {
   const action = input?.action ?? 'keep';
   const rowId = key => `${list.records.id_start}${key}`;
   const held = heldOf(input ?? {});
@@ -125,7 +127,7 @@ export function keepAProspect(input, _context = {}, list = readProspectList()) {
     // A new row starts at the first status; research moves a row still at the first status to the second. Later statuses are the person's.
     const [first, researched] = list.statuses;
     const status = !held?.status ? (researching ? researched : first) : researching && held.status === first ? researched : undefined;
-    return { action, key, row_id: rowId(key), row: rowFrom(list, held, { ...facts, ...(status === undefined ? {} : { status }) }), created: held === undefined };
+    return { action, key, row_id: rowId(key), keep: [rowFrom(list, held, { ...facts, ...(status === undefined ? {} : { status }) })], created: held === undefined };
   }
   if (action === 'mark') {
     const key = keyOf(input);
@@ -133,7 +135,7 @@ export function keepAProspect(input, _context = {}, list = readProspectList()) {
     if (input.status !== undefined && !list.statuses.includes(input.status)) refuse(`status is one of ${list.statuses.join(', ')}.`);
     if (input.notes !== undefined && typeof input.notes !== 'string') refuse('notes is words.');
     if (held === undefined) refuse(`No prospect is held under ${key}: send held, the row you hold, or keep it first.`);
-    return { action, key, row_id: rowId(key), row: rowFrom(list, held, { key, ...(input.status === undefined ? {} : { status: input.status }), ...(input.notes === undefined ? {} : { notes: input.notes }) }) };
+    return { action, key, row_id: rowId(key), keep: [rowFrom(list, held, { key, ...(input.status === undefined ? {} : { status: input.status }), ...(input.notes === undefined ? {} : { notes: input.notes }) })] };
   }
   return refuse('action is keep or mark.');
 }

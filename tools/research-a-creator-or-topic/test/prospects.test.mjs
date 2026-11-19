@@ -1,5 +1,5 @@
-// tool:brief-a-prospect and tool:keep-a-prospect with no records door: the held row comes in the request and the answer
-// holds the row to keep. Every prospect, address and word here is made up.
+// tool:brief-a-prospect and tool:keep-a-prospect take the held row in the request and answer the row to keep as `keep`,
+// with the row as it was handed in as its `expected`. Every prospect, address and word here is made up.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -52,11 +52,13 @@ test('keep answers a found prospect, then the research over the same row, leavin
   const found = { name: 'Cedar Freight', url: 'https://cedar-freight.example', place: 'Springfield', source: 'open-job-posts', size: 40, score: 6, signals: [{ id: 'open-21-days', says: 'The role has been open for 24 days' }] };
   const first = keepAProspect({ key: 'cedar-freight.example', found });
   assert.deepEqual([first.action, first.key, first.row_id, first.created], ['keep', 'cedar-freight.example', 'record:prospects:cedar-freight.example', true]);
-  assert.deepEqual([first.row.id, first.row.type, first.row.value.status], ['record:prospects:cedar-freight.example', TYPE, 'found']);
-  const marked = keepAProspect({ action: 'mark', key: 'cedar-freight.example', notes: 'met at a trade fair', held: first.row.value });
-  const second = keepAProspect({ key: 'cedar-freight.example', profile: profile(), material: POST, now: '2026-11-01', held: marked.row.value });
+  assert.deepEqual([first.keep[0].id, first.keep[0].type, first.keep[0].value.status], ['record:prospects:cedar-freight.example', TYPE, 'found']);
+  assert.equal(first.keep[0].expected, null, 'a new prospect expects no row');
+  const marked = keepAProspect({ action: 'mark', key: 'cedar-freight.example', notes: 'met at a trade fair', held: first.keep[0].value });
+  const second = keepAProspect({ key: 'cedar-freight.example', profile: profile(), material: POST, now: '2026-11-01', held: marked.keep[0].value });
   assert.equal(second.created, false);
-  const kept = second.row.value;
+  assert.deepEqual(second.keep[0].expected, { type: TYPE, value: marked.keep[0].value }, 'the keep expects the row as it was handed in');
+  const kept = second.keep[0].value;
   assert.equal(kept.name, 'Cedar Freight');
   assert.equal(kept.notes, 'met at a trade fair');
   assert.equal(kept.status, 'researched');
@@ -67,8 +69,8 @@ test('keep answers a found prospect, then the research over the same row, leavin
 });
 
 test('keep leaves a later status alone and the first research of a new prospect starts at researched', () => {
-  assert.equal(keepAProspect({ key: 'held.example', profile: profile(), now: '2026-11-01', held: { status: 'contacted', name: 'Held' } }).row.value.status, 'contacted');
-  assert.equal(keepAProspect({ key: 'fresh.example', profile: profile(), now: '2026-11-01' }).row.value.status, 'researched');
+  assert.equal(keepAProspect({ key: 'held.example', profile: profile(), now: '2026-11-01', held: { status: 'contacted', name: 'Held' } }).keep[0].value.status, 'contacted');
+  assert.equal(keepAProspect({ key: 'fresh.example', profile: profile(), now: '2026-11-01' }).keep[0].value.status, 'researched');
 });
 
 test('keep refuses what the list definition does not allow, each problem named', () => {
@@ -90,13 +92,13 @@ test('a stated quotation that is not in the material is refused, an inferred one
   const invented = profile({ problems: [{ problem: 'Staff turnover', basis: 'stated', evidence: 'we lose a driver every month' }] });
   assert.throws(() => keepAProspect({ key: 'k.example', profile: invented, material: POST }), /stated but its evidence is not in the material/);
   const spaced = profile({ problems: [{ problem: 'Hand quotes', basis: 'stated', evidence: 'Quotes are built   BY HAND in a spreadsheet' }] });
-  assert.equal(keepAProspect({ key: 'k.example', profile: spaced, material: POST }).row.value.problems.length, 1);
+  assert.equal(keepAProspect({ key: 'k.example', profile: spaced, material: POST }).keep[0].value.problems.length, 1);
 });
 
 test('mark answers a listed status and notes over the held row, and refuses an unknown status or a prospect not held', () => {
   const held = { name: 'M', status: 'found' };
   const marked = keepAProspect({ action: 'mark', key: 'm.example', status: 'drafted', held });
-  assert.deepEqual(marked.row, { id: 'record:prospects:m.example', type: TYPE, value: { name: 'M', status: 'drafted' } });
+  assert.deepEqual(marked.keep, [{ id: 'record:prospects:m.example', type: TYPE, value: { name: 'M', status: 'drafted' }, expected: { type: TYPE, value: held } }]);
   assert.throws(() => keepAProspect({ action: 'mark', key: 'm.example', status: 'maybe', held }), /status is one of found, researched/);
   assert.throws(() => keepAProspect({ action: 'mark', key: 'gone.example', status: 'lost' }), /No prospect is held under gone\.example/);
   assert.throws(() => keepAProspect({ action: 'mark', key: 'm.example', held }), /Send status or notes/);
@@ -107,10 +109,11 @@ test('read and remove are not the tool\'s: a store\'s own tools read and remove 
   assert.throws(() => keepAProspect({ action: 'remove', key: 'b.example' }), /action is keep or mark/);
 });
 
-test('the row holds no records door and answers the row to keep', () => {
-  assert.equal(keepRow.invoke.records, undefined);
+test('the row runs the function runner, mounts no records door and answers the row to keep', () => {
+  assert.equal(keepRow.invoke.argv[1], '/opt/workflows/do-work/run-a-function.mjs');
+  assert.ok(!JSON.stringify(keepRow).includes('records-door'));
   assert.deepEqual(keepRow.input_schema.properties.action.enum, ['keep', 'mark']);
-  assert.ok(keepRow.output_schema.required.includes('row'));
+  assert.ok(keepRow.output_schema.required.includes('keep'));
 });
 
 test('the list definition agrees with itself: every research field the brief asks for is a field, entries name their keys', () => {
