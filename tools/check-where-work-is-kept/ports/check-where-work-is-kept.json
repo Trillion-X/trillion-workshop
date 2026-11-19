@@ -7,7 +7,7 @@
   "quote": "everything an AI keeps goes into his Trillion lists, never onto disk; build a judge (rules plus a classifier model) behind a hook that refuses a disk write and says which list and records:write call keeps it instead"
  },
  "mode": "NO_PRIOR_OWNER",
- "job": "refuse a tool call that writes an AI's work onto disk outside a declared repository's source, its scratch or a list copy, naming the list and the records:write call that keeps it instead",
+ "job": "refuse a tool call that writes an AI's work onto disk outside a declared repository's source, its scratch or a list copy, naming the list and the row that keeps it instead",
  "sources": [],
  "targets": [
   {

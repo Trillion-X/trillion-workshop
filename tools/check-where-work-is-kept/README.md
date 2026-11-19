@@ -1,6 +1,6 @@
 # tools/check-where-work-is-kept/
 
-Refuses a tool call that would keep an AI's work on disk instead of in the person's Trillion lists, and says, for each refused path, which list keeps it and the exact `records:write { records: [{ id, type, value }] }` call that writes it there. A write passes only into a declared source repository's source (tracked, or new and not ignored), that repository's `.git/scratch`, or a list copy the list-copy sync makes. Where a write may go, which places are refused, which list each refused place points to and which classifier is asked are the caller's rules, never this tool's: the person keeps them in the check row that runs it.
+Refuses a tool call that would keep an AI's work on disk instead of in the person's Trillion lists, and says, for each refused path, which list keeps it and the exact row (`{ id, type, value }`) that keeps it there, as the person's own row. A write passes only into a declared source repository's source (tracked, or new and not ignored), that repository's `.git/scratch`, or a list copy the list-copy sync makes. Where a write may go, which places are refused, which list each refused place points to and which classifier is asked are the caller's rules, never this tool's: the person keeps them in the check row that runs it.
 
 ## How a call is read
 
@@ -33,7 +33,7 @@ A refusal reads:
 ```
 Work an AI keeps goes into the person's Trillion lists, never onto disk.
   /tmp/plan.md (Write): a temporary file, outside every repository.
-    Keep it in list:notes instead: records:write {"records":[{"id":"record:note:plan","type":"record:note","value":{"name":"plan","text":"<what you were writing>"}}]}
+    Keep it in list:notes instead, as the person's own row: {"id":"record:note:plan","type":"record:note","value":{"name":"plan","text":"<what you were writing>"}}
 Everything an AI keeps goes into the person's Trillion lists, never onto disk. A file write passes only for ...
 ```
 
@@ -45,7 +45,7 @@ The record id is the list's `id_prefix` (default `<type>:`) and the file's name 
 |------|---------|
 | `do-work/check-where-work-is-kept.mjs` | `writtenPaths(call, { cwd, home })`, `placePath(path, rules, { home })`, `keepInstead(path, list, rules)`, `judgeCall({ call, root, rules, home, ask })`, `askTheModel(request, seconds)` and the command line: `--root FOLDER [--file-path PATH] [--command COMMAND] --rules-json RULES` (the hook), or `--root FOLDER --input-on-stdin` with `{ rules, call }` (the Workshop tool, `{ result }` on the last line). |
 | `read-data/hook-guard-row.json` | The `record:hook-guard` row that wires this tool: `on` PreToolUse `Write\|Edit\|Bash`, scope `every-repository`, `failure_policy: "warn"`, `timeout_s: 45`, and the rules. |
-| `test/check-where-work-is-kept.test.mjs` | Throwaway checkouts and a made-up home: the passing fixtures (tracked source, an Edit, new source, a README, the scratch, `git archive \| tar -x` into it, the list-copy sync, `/dev/null`, a plain command), the refusing fixtures (`/tmp`, home, `.ai-orchestra`, its `data`, a Claude memory file, a new `.md` note, a list copy, `mktemp`), the refusal's words and `records:write` shape, the command reader, the classifier deciding and failing, the real model tool timing out against a server that never answers, and the Workshop tool. |
+| `test/check-where-work-is-kept.test.mjs` | Throwaway checkouts and a made-up home: the passing fixtures (tracked source, an Edit, new source, a README, the scratch, `git archive \| tar -x` into it, the list-copy sync, `/dev/null`, a plain command), the refusing fixtures (`/tmp`, home, `.ai-orchestra`, its `data`, a Claude memory file, a new `.md` note, a list copy, `mktemp`), the refusal's words and row shape, the command reader, the classifier deciding and failing, the real model tool timing out against a server that never answers, and the Workshop tool. |
 | `test/run-by-the-check-list.test.mjs` | `read-data/hook-guard-row.json` run by `tools/check-every-tool-call` `check_switches.py run` against a made-up door: a Write to `/tmp` and a Claude memory write refused naming their lists, source writes, an Edit, the scratch and a Read passing. |
 | `ports/check-where-work-is-kept.json` | The claim that no older owner did this job. `tools/keep-and-wake-ai-sessions-on-this-computer` `harness/keep-written-files.mjs` copies written files into Trillion after a turn, and `tools/check-declared-places-keep-what-is-written-there` reports declared places that keep nothing; neither refuses a write. |
 | `tool-rows.json` | `tool:check-where-work-is-kept`: `{ rules, call }` in, `{ valid, judged, passed, refused, warnings }` out. |

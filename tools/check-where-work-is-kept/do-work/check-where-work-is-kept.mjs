@@ -5,7 +5,7 @@
 // it finds every path the call would write (a Write or Edit's file_path; in a Bash command each redirect target and
 // what tee, cp, mv, install, ln, mkdir, touch, dd, curl, wget, mktemp, tar, unzip and git archive write), places
 // each one, and passes or refuses the call. A refusal names, for each refused path, the list to keep it in and the
-// exact records:write call that keeps it there.
+// exact row that keeps it there, as the person's own row.
 //
 // Where a write may go is the caller's DATA (the rules), never this file's:
 //
@@ -387,7 +387,7 @@ export function placePath(path, rules, { home = homedir() } = {}) {
 }
 
 // ---------------------------------------------------------------------------------------------------------------
-// The records:write that keeps it instead.
+// The row that keeps it instead, as the person's own row.
 
 const slug = (value) => String(value).toLowerCase().replace(/\.[a-z0-9]+$/, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'kept';
 
@@ -401,10 +401,10 @@ function fill(value, names) {
 export function keepInstead(path, listId, rules) {
   const list = listId && rules.lists?.[listId] ? listId : rules.default_list;
   const row = rules.lists?.[list];
-  if (!row) return { list: list ?? null, write: null };
+  if (!row) return { list: list ?? null, keep: null };
   const names = { name: slug(basename(path)), path, file: basename(path) };
   const prefix = row.id_prefix ?? `${row.type}:`;
-  return { list, write: { records: [{ id: `${prefix}${names.name}`, type: row.type, value: fill(row.value ?? { text: '<what you were writing>' }, names) }] } };
+  return { list, keep: { id: `${prefix}${names.name}`, type: row.type, value: fill(row.value ?? { text: '<what you were writing>' }, names) } };
 }
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -497,7 +497,7 @@ export function refusalWords(result, rules) {
   const lines = ['Work an AI keeps goes into the person\'s Trillion lists, never onto disk.'];
   for (const one of result.refused) {
     lines.push(`  ${one.path} (${one.how}): ${one.why}.`);
-    if (one.write) lines.push(`    Keep it in ${one.list} instead: records:write ${JSON.stringify(one.write)}`);
+    if (one.keep) lines.push(`    Keep it in ${one.list} instead, as the person's own row: ${JSON.stringify(one.keep)}`);
     else lines.push('    Keep it in the person\'s Trillion list for it (the rules name no list for this place).');
   }
   lines.push(rules.says ?? 'A file write passes only for a declared source repository\'s source, that repository\'s .git/scratch, or a list copy the list-copy sync makes.');

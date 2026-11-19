@@ -62,7 +62,7 @@ function checkout(t, home) {
   return root;
 }
 
-test('the hook-guard row given to the lead: a Write to /tmp is refused naming the list and records:write; source passes', async (t) => {
+test('the hook-guard row given to the lead: a Write to /tmp is refused naming the list and the row to keep; source passes', async (t) => {
   const definition = JSON.parse(ROW.value.full_definition);
   assert.equal(ROW.type, 'record:hook-guard');
   assert.deepEqual(definition.on, [{ harness: 'claude', event: 'PreToolUse', tools: 'Write|Edit|Bash', scope: 'every-repository' }]);
@@ -74,7 +74,7 @@ test('the hook-guard row given to the lead: a Write to /tmp is refused naming th
   const refused = await call(where, { cwd: root, tool_name: 'Write', tool_input: { file_path: '/tmp/plan.md', content: 'the plan' } }, home);
   assert.equal(refused.status, 2, refused.stderr);
   assert.match(refused.stderr, /never onto disk/);
-  assert.match(refused.stderr, /Keep it in list:notes instead: records:write \{"records":\[\{"id":"record:note:plan","type":"record:note"/);
+  assert.match(refused.stderr, /Keep it in list:notes instead, as the person's own row: \{"id":"record:note:plan","type":"record:note"/);
   const memory = await call(where, { cwd: root, tool_name: 'Bash', tool_input: { command: 'echo remember > ~/.claude/projects/x/memory/MEMORY.md' } }, home);
   assert.equal(memory.status, 2, memory.stderr);
   assert.match(memory.stderr, /Keep it in list:memories instead/);

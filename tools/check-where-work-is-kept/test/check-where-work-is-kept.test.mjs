@@ -91,19 +91,19 @@ test('the fixtures that refuse: /tmp, home, an orchestra folder, its data, Claud
     assert.equal(result.valid, false, JSON.stringify(call));
     assert.equal(result.refused[0].list, list, JSON.stringify(call));
     assert.match(result.refused[0].why, new RegExp(why), JSON.stringify(call));
-    const [record] = result.refused[0].write.records;
+    const record = result.refused[0].keep;
     assert.equal(record.type, RULES.lists[list].type);
     assert.ok(record.id.startsWith(`${record.type}:`));
   }
 });
 
-test('the refusal names the list and the exact records:write shape, and the command line exits 2', (t) => {
+test('the refusal names the list and the exact row to keep, and the command line exits 2', (t) => {
   const { home, root } = world(t);
   const ran = spawnSync(process.execPath, [SCRIPT, '--root', root, '--file-path', '/tmp/release-plan.md', '--command', '', '--rules-json', JSON.stringify(RULES)],
     { encoding: 'utf8', env: { ...process.env, HOME: home } });
   assert.equal(ran.status, 2);
   assert.match(ran.stderr, /never onto disk/);
-  assert.match(ran.stderr, /Keep it in list:notes instead: records:write \{"records":\[\{"id":"record:note:release-plan","type":"record:note","value":\{"name":"release-plan","text":"<what you were writing>"\}\}\]\}/);
+  assert.match(ran.stderr, /Keep it in list:notes instead, as the person's own row: \{"id":"record:note:release-plan","type":"record:note","value":\{"name":"release-plan","text":"<what you were writing>"\}\}/);
   const passing = spawnSync(process.execPath, [SCRIPT, '--root', root, '--file-path', '', '--command', 'git status', '--rules-json', JSON.stringify(RULES)], { encoding: 'utf8', env: { ...process.env, HOME: home } });
   assert.equal(passing.status, 0);
   assert.equal(passing.stderr, '');
@@ -167,7 +167,7 @@ test('as the Workshop tool: rules and the call on stdin, the refusal a result on
   assert.equal(ran.status, 0);
   const { result } = JSON.parse(ran.stdout.trim().split('\n').at(-1));
   assert.equal(result.valid, false);
-  assert.equal(result.refused[0].write.records[0].id, 'record:note:kept-plan');
+  assert.equal(result.refused[0].keep.id, 'record:note:kept-plan');
   const none = spawnSync(process.execPath, [SCRIPT, '--root', root, '--input-on-stdin'], { input: '{}', encoding: 'utf8' });
   assert.equal(none.status, 1);
   assert.match(none.stdout, /give rules/);

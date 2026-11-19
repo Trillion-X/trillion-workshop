@@ -1,6 +1,6 @@
 {
   "drafted_from": "tool:check-where-work-is-kept's own row (its words, input schema, sample runs and steps) and what its sample runs answered here; read it before relying on it",
-  "start_here": "Say to your AI: \"Check whether a file an AI is about to write belongs on disk or in the person's Trillion lists, and say which list and which records:write call keeps it instead\", with {\"rules\":{\"source_repositories\":[\"Trillion-X/trillion-workshop\",\"Trillion-X/trillion-apps\",\"Trillion-X/trillion-rust\",\"Trillion-X/trillion\"],\"scratch\":\".git/scratch\",\"new_files_refused\":[{\"why\":\"Markdown note\",\"pattern\":\"\\\\.md$\",\"except\":\"(^|/)(README|CONTRIBUTING|CHANGELOG|LICENSE|SECURITY|CLAUDE|AGENTS)\\\\.md$|(^|/)docs/\",\"list\":\"list:notes\"}],\"list_copies\":[] .... It runs tool:check-where-work-is-kept and answers {\"valid\":false,\"judged\":1,\"passed\":[],\"refused\":[{\"path\":\"/tmp/kept-plan.md\",\"how\":\"Write\",\"why\":\"a temporary file, outside every repository\",\"list\":\"list:notes\",\"write\":{\"records\":[{\"id\":\"record:note:kept-plan\",\"type\":\"record:note\",\"value\":{\"name\":\"kept-plan\",\"text\":\"<what you were writing>\"}}]}}],\"warnings\":[]}",
+  "start_here": "Say to your AI: \"Check whether a file an AI is about to write belongs on disk or in the person's Trillion lists, and say which list and which row keeps it instead\", with {\"rules\":{\"source_repositories\":[\"Trillion-X/trillion-workshop\",\"Trillion-X/trillion-apps\",\"Trillion-X/trillion-rust\",\"Trillion-X/trillion\"],\"scratch\":\".git/scratch\",\"new_files_refused\":[{\"why\":\"Markdown note\",\"pattern\":\"\\\\.md$\",\"except\":\"(^|/)(README|CONTRIBUTING|CHANGELOG|LICENSE|SECURITY|CLAUDE|AGENTS)\\\\.md$|(^|/)docs/\",\"list\":\"list:notes\"}],\"list_copies\":[] .... It runs tool:check-where-work-is-kept and answers {\"valid\":false,\"judged\":1,\"passed\":[],\"refused\":[{\"path\":\"/tmp/kept-plan.md\",\"how\":\"Write\",\"why\":\"a temporary file, outside every repository\",\"list\":\"list:notes\",\"keep\":{\"id\":\"record:note:kept-plan\",\"type\":\"record:note\",\"value\":{\"name\":\"kept-plan\",\"text\":\"<what you were writing>\"}}}],\"warnings\":[]}",
   "lists": [],
   "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",
   "workflows": [],
@@ -8,14 +8,14 @@
     "tool:check-where-work-is-kept"
   ],
   "instructions": [
-    "1. Say to your AI: \"Check whether a file an AI is about to write belongs on disk or in the person's Trillion lists, and say which list and which records:write call keeps it instead\", and give it rules; call.",
+    "1. Say to your AI: \"Check whether a file an AI is about to write belongs on disk or in the person's Trillion lists, and say which list and which row keeps it instead\", and give it rules; call.",
     "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:check-where-work-is-kept and its input (the worked example shows one).",
     "3. Read what comes back: Give rules ({ source_repositories: [owner/name], scratch?: '.git/scratch', new_files_refused?: [{ why, pattern, except?, list?"
   ],
   "worked_examples": [
     {
       "title": "Check that an AI keeps its work in Trillion, not on disk on its own sample",
-      "ask": "Check whether a file an AI is about to write belongs on disk or in the person's Trillion lists, and say which list and which records:write call keeps it instead",
+      "ask": "Check whether a file an AI is about to write belongs on disk or in the person's Trillion lists, and say which list and which row keeps it instead",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",
@@ -118,7 +118,7 @@
         }
       },
       "given": "The input {\"rules\":{\"source_repositories\":[\"Trillion-X/trillion-workshop\",\"Trillion-X/trillion-apps\",\"Trillion-X/trillion-rust\",\"Trillion-X/trillion\"],\"scratch\":\".git/scratch\",\"new_files_refused\":[{\"why\":\"Markdown note\",\"pattern\":\"\\\\.md$\",\"except\":\"(^|/)(README|CONTRIBUTING|CHANGELOG|LICENSE|SECURITY|CLAUDE|AGENTS)\\\\.md$|(^|/)docs/\",\"list\":\"list:notes\"}],\"list_copies\":[] ....",
-      "hands_back": "It answered {\"valid\":false,\"judged\":1,\"passed\":[],\"refused\":[{\"path\":\"/tmp/kept-plan.md\",\"how\":\"Write\",\"why\":\"a temporary file, outside every repository\",\"list\":\"list:notes\",\"write\":{\"records\":[{\"id\":\"record:note:kept-plan\",\"type\":\"record:note\",\"value\":{\"name\":\"kept-plan\",\"text\":\"<what you were writing>\"}}]}}],\"warnings\":[]}."
+      "hands_back": "It answered {\"valid\":false,\"judged\":1,\"passed\":[],\"refused\":[{\"path\":\"/tmp/kept-plan.md\",\"how\":\"Write\",\"why\":\"a temporary file, outside every repository\",\"list\":\"list:notes\",\"keep\":{\"id\":\"record:note:kept-plan\",\"type\":\"record:note\",\"value\":{\"name\":\"kept-plan\",\"text\":\"<what you were writing>\"}}}],\"warnings\":[]}."
     }
   ]
 }
