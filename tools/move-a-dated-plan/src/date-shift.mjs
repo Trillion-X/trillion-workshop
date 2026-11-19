@@ -3,7 +3,7 @@
 // PURPOSE
 //   One pure function that moves a plan of dated stages when its start or end moves, by a named strategy (shift, absorb,
 //   distribute, accordion, shrink) and a lock mode (nothing, finished, started), and one consumer that moves the Calendar
-//   tasks of a task list the same way through the Calendar tasks owner's public exports. Nothing here keeps dates; a
+//   tasks of a task list the same way, as values, through planTaskShift. Nothing here keeps dates; a
 //   deadline moving never leaves a plan in an impossible shape because the invariants below refuse loudly.
 //
 // NON-NEGOTIABLE INVARIANTS
@@ -13,14 +13,13 @@
 //   3. After any strategy, every stage is at least one day long, stages are in order without overlap, and a locked stage is
 //      byte-for-byte as given. A move that cannot keep this is refused with the reason, never repaired quietly.
 //   4. `distribute` leaves no day of the window unallocated and no day shared.
-//   5. The consumer writes only through changeCalendarTask (so its validation, undo and provenance stay the owner's), reads
-//      only through readCalendarTasks, and a dry run writes nothing.
+//   5. Values in, values out: the plan is computed from the task rows the caller hands in and writes nothing. The caller
+//      reads the tasks and writes each change (workflow:move-a-dated-plan), keeping its previous values as the undo.
 //
 import data from './date-shift.json' with { type: 'json' };
-import { CalendarTasksError, changeCalendarTask, readCalendarTasks } from '../../plan-tasks-and-todo-lists/calendar-tasks.mjs';
 
-// A refusal is a Calendar tasks refusal (status 400 on the Calendar tasks route), so the route answers it as the person's to fix.
-export class DateShiftError extends CalendarTasksError {}
+// A refusal names the problem in the person's words.
+export class DateShiftError extends Error {}
 
 const say = (key, values = {}) => data.words[key].replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));
 const DAY = 86400000;
@@ -171,74 +170,32 @@ export const shiftChoices = () => ({
   default_lock: data.default_lock,
 });
 
-const MOST_TASKS = 500;
-async function plannedTasks(lists, { collection_id, task_ids }) {
-  const wanted = Array.isArray(task_ids) && task_ids.length ? new Set(task_ids) : null;
-  if (!wanted && (typeof collection_id !== 'string' || !collection_id.trim())) throw new DateShiftError(say('not_a_plan'));
-  const found = [];
-  let cursor;
-  do {
-    const page = await readCalendarTasks(lists, cursor ? { cursor } : {});
-    found.push(...page.tasks.filter(task => (wanted ? wanted.has(task.id) : task.collection_id === collection_id)));
-    cursor = page.page.complete ? undefined : page.page.next_cursor;
-  } while (cursor && found.length < MOST_TASKS);
-  return found;
-}
 
 /**
- * Moves the dated Calendar tasks of one task list (collection_id) or of named tasks (task_ids): each task is a stage from its
- * start_on (else its due date) to its due date. today (YYYY-MM-DD) says which stages have started. With dry_run the answer
- * is the plan and nothing is written. Otherwise answers { moved, tasks, undo } where undo is the owner's restore input.
+ * Plans the move of one plan's dated tasks, values in and values out: `tasks` are the plan's rows as the caller read them
+ * ({ id, title, start_on, due, status }), and the input names the strategy, lock and window. Nothing is read or written here.
+ * The answer names the stages that move, their new dates, and `changes`: one per moved task, with its new start_on and due and
+ * its `previous` values, which the caller keeps as the undo. A due date that carries a time keeps its time of day.
  */
-export async function shiftCalendarTasks(lists, input = {}, options = {}) {
+export function planTaskShift(tasks, input = {}, options = {}) {
   const today = dayOf(input.today ?? new Date((options.now ?? Date.now)()).toISOString());
-  const tasks = (await plannedTasks(lists, input)).filter(task => dayOf(task.due) !== null);
-  if (!tasks.length) throw new DateShiftError(say('none_dated'));
-  const byId = new Map(tasks.map(task => [task.id, task]));
-  const stages = tasks.map(task => {
+  const dated = (Array.isArray(tasks) ? tasks : []).filter(task => dayOf(task.due) !== null);
+  if (!dated.length) throw new DateShiftError(say('none_dated'));
+  const byId = new Map(dated.map(task => [task.id, task]));
+  const stages = dated.map(task => {
     const end = dayOf(task.due);
     const start = dayOf(task.start_on) ?? end;
     return { id: task.id, start: Math.min(start, end), end, done: task.status === 'Done', started: start <= today };
   });
   const plan = shiftStages(stages, { strategy: input.strategy, lock: input.lock, start: input.start, end: input.end });
   const shown = plan.stages.map(stage => ({ task_id: stage.id, title: byId.get(stage.id).title, start_on: dateOf(stage.start), due: dateOf(stage.end), moved: stage.moved }));
-  if (input.dry_run === true) return { dry_run: true, moved: plan.moved, tasks: shown, start: dateOf(plan.start), end: dateOf(plan.end) };
-
-  const undoRows = [];
-  for (const stage of plan.stages.filter(item => item.moved)) {
+  const changes = plan.stages.filter(stage => stage.moved).map(stage => {
     const task = byId.get(stage.id);
-    // A due date that carries a time keeps its time of day.
     const dueTail = typeof task.due === 'string' && task.due.length > 10 ? task.due.slice(10) : '';
-    const result = await changeCalendarTask(lists, { action: 'update', task_id: stage.id, start_on: dateOf(stage.start), due: `${dateOf(stage.end)}${dueTail}` });
-    if (result.undo?.rows) undoRows.push(...result.undo.rows);
-  }
-  return { moved: plan.moved, tasks: shown, start: dateOf(plan.start), end: dateOf(plan.end), ...(undoRows.length ? { undo: { action: 'restore', rows: undoRows } } : {}) };
+    return { task_id: stage.id, start_on: dateOf(stage.start), due: `${dateOf(stage.end)}${dueTail}`, previous: { start_on: task.start_on ?? null, due: task.due } };
+  });
+  return { dry_run: input.dry_run === true, moved: plan.moved, tasks: shown, start: dateOf(plan.start), end: dateOf(plan.end), changes };
 }
 
-/** The route: GET /calendar/task-shift answers the strategies and lock modes; POST { collection_id | task_ids, strategy, lock, start, end, dry_run } moves (or previews) the tasks. */
-export async function handleDateShiftRequest(lists, request) {
-  try {
-    if (request.method === 'GET') return Response.json(shiftChoices());
-    if (request.method === 'POST') {
-      const input = await request.json().catch(() => null);
-      if (!input || typeof input !== 'object') throw new DateShiftError(data.words.not_a_plan);
-      return Response.json(await shiftCalendarTasks(lists, input));
-    }
-    return Response.json({ error: 'Method not allowed.' }, { status: 405 });
-  } catch (error) {
-    return Response.json({ error: String(error?.message ?? error) }, { status: error instanceof CalendarTasksError ? 400 : 500 });
-  }
-}
-
+/** The route path of the plan's choices (GET). Moving a plan is the workflow's job, not a route's. */
 export const isDateShiftPath = path => path === '/calendar/task-shift';
-
-/** The MCP tools of moving a plan's dates, in the shape other tool lists use. */
-export const dateShiftTools = call => [
-  { name: 'shift_task_dates', description: 'Moves the dated tasks of one task list (collection_id from the Calendar), or the named task_ids, when the plan\'s start or end moves, so a deadline change never leaves the plan in an impossible shape. Each task is a stage from its start_on (else its due date) to its due date. Give the new start, the new end, or both, and a strategy: shift (every stage moves the same days), absorb (only the stage at the moved end changes), distribute (stages fill the whole new window), accordion (stages keep their length, gaps stretch) or shrink (the end comes in, last stages cut back first). lock says which stages stay put: none, finished (done tasks) or started (done and begun). Refuses, in words, a move that would leave a stage shorter than a day, overlapping, or running into locked work. dry_run true shows the result and writes nothing; otherwise the answer carries undo, the restore call that puts every date back. Use list_task_date_strategies for the exact choices.', inputSchema: { type: 'object', properties: { collection_id: { type: 'string' }, task_ids: { type: 'array', items: { type: 'string' } }, strategy: { type: 'string', enum: data.strategies.map(item => item.id) }, lock: { type: 'string', enum: data.locks.map(item => item.id) }, start: { type: 'string', description: 'The new first day, YYYY-MM-DD' }, end: { type: 'string', description: 'The new last day, YYYY-MM-DD' }, today: { type: 'string', description: 'YYYY-MM-DD; which stages have started (today when left out)' }, dry_run: { type: 'boolean' } } }, run: input => call('/calendar/task-shift', input) },
-  { name: 'list_task_date_strategies', description: 'The ways shift_task_dates can move a plan and the lock modes, each with what it does. It changes nothing.', inputSchema: { type: 'object', properties: {} }, run: () => call('/calendar/task-shift') },
-];
-
-export const dateShiftAnnotations = {
-  shift_task_dates: { title: 'Move a plan\'s task dates', readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
-  list_task_date_strategies: { title: 'List ways to move a plan\'s dates', readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
-};

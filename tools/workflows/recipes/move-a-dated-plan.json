@@ -1,0 +1,229 @@
+{
+  "about": "workflow:move-a-dated-plan: moves the dated tasks of one plan in the person's own store when its start or end moves, so a deadline change never leaves the plan in an impossible shape: finished work stays, started work stays under the started lock, and each moved task keeps its time of day. It replaces the store half of tools/move-a-dated-plan (shiftCalendarTasks in src/date-shift.mjs, which read the plan's tasks and wrote each change through the Calendar tasks owner, and the route and tools that called it). The plan itself is computed by the values-in function planTaskShift in the same folder (rule a-tool-is-only-what-the-store-cannot-do).",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:move-a-dated-plan",
+        "label": "Move a dated plan",
+        "job": "Read the dated tasks of one plan (a task list, or named tasks) from the person's own store, plan the move of their dates with the strategy, lock and window the person named (a dry run writes nothing), and write each moved task's new start and due date, keeping the old dates so the move can be undone.",
+        "produces": "The store's own task rows with their dates, proven on one example plan in PostgreSQL (PGlite) and a folder of JSON files: the moved tasks, the final dates after the started lock, the undo restoring every date, and the dry run writing nothing, all equal to the old owner path.",
+        "source": {
+          "from": "tools/move-a-dated-plan (src/date-shift.mjs shiftCalendarTasks and the route and tools around it, at trillion-workshop origin/main 14c80bcd6); the old owner path is the oracle of the proof",
+          "note": "The strategies, lock modes and every word are DATA (src/date-shift.json); the plan is planTaskShift (values in, values out). A task with no due date is not part of a plan. A task's stage runs from its start_on (or its due date when it has none) to its due date. Finished tasks (status Done) never move. A started task (start on or before today) does not move under the started lock. A due date that carries a time keeps its time of day. Refuse, with the words, a request that names neither a task list nor tasks, a plan with no dated task, and a move the plan rules cannot keep (locked work before unlocked work, a stage that collapses, a distribute window too small)."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store",
+            "plan"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps the tasks: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                }
+              }
+            },
+            "plan": {
+              "type": "object",
+              "description": "Which tasks: collection_id (the task list) or task_ids; then strategy (shift, absorb, distribute, accordion, shrink), lock (nothing, finished, started), start and end (YYYY-MM-DD), today (YYYY-MM-DD) and dry_run (true or false)"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the tasks are already kept (kept_in, or null) and the names of the objects that already keep them, and show them.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing, make the store's own objects in its own form: a task row keyed by its id, with its title, its start_on and due date (a time of day kept with the date), its status and its task list. Submit the objects made.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example plan",
+            "do": "In a throwaway place in the same store, with the same objects, load the example plan: three tasks in one task list, design (start 2026-11-02, due 2026-11-06, Done), build (start 2026-11-09, due 2026-11-13, Open) and ship (start 2026-11-16, due 2026-11-20T17:00:00.000Z, Open). Then, with today 2026-11-10: first a dry run of {strategy shift, end 2026-11-27}, which must write nothing; then the move {strategy shift, lock started, end 2026-11-27}, which must move only ship; then the undo, which puts every task's dates back as they were. Submit outcomes (previewed, moved, restored) and the answer: the tasks moved, every task's dates after the move, and every task's dates after the undo.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "outcomes",
+                "answer"
+              ],
+              "properties": {
+                "outcomes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "answer": {
+                  "type": "object"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each step is previewed, moved and restored as the intent says",
+                "path": [
+                  "this",
+                  "outcomes"
+                ],
+                "values": [
+                  [
+                    "previewed",
+                    "moved",
+                    "restored"
+                  ]
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "The store's own objects give every expected date",
+                "path": [
+                  "this",
+                  "answer"
+                ],
+                "values": [
+                  {
+                    "moved": [
+                      "ship"
+                    ],
+                    "after": {
+                      "build": [
+                        "2026-11-09",
+                        "2026-11-13"
+                      ],
+                      "design": [
+                        "2026-11-02",
+                        "2026-11-06"
+                      ],
+                      "ship": [
+                        "2026-11-23",
+                        "2026-11-27T17:00:00.000Z"
+                      ]
+                    },
+                    "undone": {
+                      "build": [
+                        "2026-11-09",
+                        "2026-11-13"
+                      ],
+                      "design": [
+                        "2026-11-02",
+                        "2026-11-06"
+                      ],
+                      "ship": [
+                        "2026-11-16",
+                        "2026-11-20T17:00:00.000Z"
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's move",
+            "do": "Read the plan's tasks from the store (the task list, or the named tasks, with the cursor until every page is read, at most 500), plan with planTaskShift, and when dry_run is not true write each change's start_on and due to its task row, keeping its previous values as the undo. Submit results (the plan's answer, its moved tasks and, for a move, the undo values kept) and kept_records (each task row written) and found_records (each task row read back). A dry run submits no kept_records.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "results",
+                "kept_records",
+                "found_records"
+              ],
+              "properties": {
+                "results": {
+                  "type": "object"
+                },
+                "kept_records": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "found_records": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "subset-of",
+                "says": "Every task row written is read back",
+                "path": [
+                  "this",
+                  "kept_records"
+                ],
+                "of": [
+                  "this",
+                  "found_records"
+                ]
+              }
+            ]
+          }
+        ],
+        "erase": "On the person's request the store deletes the dates it kept for the moved tasks' undo; the tasks themselves are the person's and are changed only by their own requests."
+      }
+    }
+  ]
+}

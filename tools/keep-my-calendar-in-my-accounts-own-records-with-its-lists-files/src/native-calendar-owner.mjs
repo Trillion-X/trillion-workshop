@@ -9,7 +9,7 @@ import { buildCalendarSources, listSelectableCalendars, validateCalendarSelectio
   validateCalendarRouteChoice, calendarSelectionSourceId } from './calendar-connections.mjs';
 import { readCalendarTasks, readCalendarTaskCollections, handleCalendarTasksRequest } from '../../plan-tasks-and-todo-lists/calendar-tasks.mjs';
 import { handleTaskProposalRequest, isTaskProposalPath } from './task-proposals.mjs';
-import { handleDateShiftRequest, isDateShiftPath } from '../../move-a-dated-plan/src/date-shift.mjs';
+import { shiftChoices, isDateShiftPath } from '../../move-a-dated-plan/src/date-shift.mjs';
 import { makeLists } from '../../keep-lists-of-rows/lists.mjs';
 
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -71,7 +71,7 @@ export function nativeCalendarOwner({
     } else if (url.pathname === '/calendar/tasks') {
       response = method === 'GET' ? await handleCalendarTasksRequest(lists, new Request(url, { method }), { jobs, jobsOfTask }) : keepingMoved();
     } else if (isDateShiftPath(url.pathname)) {
-      response = method === 'GET' ? await handleDateShiftRequest(lists, new Request(url, { method })) : keepingMoved();
+      response = method === 'GET' ? Response.json(shiftChoices()) : keepingMoved();
     } else if (isTaskProposalPath(url.pathname)) {
       response = await handleTaskProposalRequest(lists, new Request(url, { method }));
     } else if (url.pathname === '/calendar/connections' && method === 'GET') {
