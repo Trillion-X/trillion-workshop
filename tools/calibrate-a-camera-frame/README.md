@@ -6,7 +6,7 @@ Moved from Trillion-X/trillion (commit b92aa549f2) byte for byte by `tools/move-
 
 ## How it runs
 
-`tool:calibrate-a-camera-frame` run `do-work/calibrate-a-camera-frame.mjs` in a small container with no internet, through `tools/records-door/do-work/run-an-export.mjs`. It reads no records and writes nothing; everything it works on is handed in.
+`tool:calibrate-a-camera-frame` run `do-work/calibrate-a-camera-frame.mjs` in a small container with no internet, through `tools/workflows/do-work/run-a-function.mjs`. It reads no records and writes nothing; everything it works on is handed in.
 
 ## What stays in the old tree
 
@@ -26,6 +26,6 @@ Its callers in the old tree, `tools/media-composition/do-work/cut-by-events.mjs`
 
 ## Dependencies
 
-**Depends on:** `tools/records-door` (the run command), Node.
+**Depends on:** `tools/workflows` (the run command), Node.
 
 **Depended on by:** `tool-rows.json`.

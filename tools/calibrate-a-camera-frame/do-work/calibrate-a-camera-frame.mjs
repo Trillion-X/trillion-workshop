@@ -1,6 +1,6 @@
 // tools/calibrate-a-camera-frame/do-work/calibrate-a-camera-frame.mjs
 //
-// tool:calibrate-a-camera-frame, run as a function (tools/records-door do-work/run-an-export.mjs). The detector and the
+// tool:calibrate-a-camera-frame, run as a function (tools/workflows do-work/run-a-function.mjs). The detector and the
 // guided manual view run elsewhere (on the person's computer or in the app); this run is handed what they gave and
 // answers with src/frame-calibration.mjs unchanged: the frame's projective map, where it came from (auto or manual), the
 // confidence seen, each failed automatic attempt (kept by the caller for training data), and the given points mapped
