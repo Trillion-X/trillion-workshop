@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { clientHealthWork, makeClientHealthIssue, reportClientHealthIssue } from '../read-data/client-health.mjs';
+import { clientHealthBookName, clientHealthWork, makeClientHealthIssue, reportClientHealthIssue } from '../read-data/client-health.mjs';
 
 // Synthetic configuration; production settings come from the operator's records.
 const settings = {
@@ -47,16 +47,21 @@ test('the book awaits its durable put and retries an unsuccessful save', async (
   await assert.rejects(book.run('erase', issue), /only be reported/);
 });
 
-test('unavailable reads and unresolved atomic conflicts never report a successful handoff', async () => {
-  const prepareProducedJob = () => ({ id: 'synthetic-job', type: 'ai-job', expected: null, value: {} });
-  let wrote = false;
-  const unavailable = { read: async () => { throw new Error('records unavailable'); },
-    write: async () => { wrote = true; } };
-  await assert.rejects(reportClientHealthIssue({ door: unavailable, settings, prepareProducedJob }, issue), /records unavailable/);
-  assert.equal(wrote, false);
-  const conflict = Object.assign(new Error('conflict'), { code: 'original_command_conflict' });
-  const refused = { read: async () => null, write: async () => { throw conflict; } };
-  await assert.rejects(reportClientHealthIssue({ door: refused, settings, prepareProducedJob }, issue), error => error === conflict);
-  for (const context of [{}, { door: refused }, { door: refused, settings }])
-    await assert.rejects(reportClientHealthIssue(context, issue), /operator records door/);
+test('an issue is answered with its job and its record to keep, once; a kept handoff answers nothing new; a missing record list is refused', async () => {
+  const prepareProducedJob = () => ({ id: 'synthetic-job', type: 'ai-job', value: {} });
+  const at = new Date('2026-01-10T12:00:00.000Z');
+  const fresh = await reportClientHealthIssue({ stored: { records: [] }, settings, prepareProducedJob, now: () => at }, issue);
+  assert.equal(fresh.handoff_id, 'synthetic-job');
+  assert.equal(fresh.keep.length, 2);
+  assert.equal(fresh.keep[0].id, 'synthetic-job');
+  assert.equal(fresh.keep[1].expected, null);
+  assert.deepEqual(fresh.keep[1].value, { id: clientHealthWork(issue, settings).id, handoff_id: 'synthetic-job', handed_at: at.toISOString() });
+  const book = clientHealthBookName(clientHealthWork(issue, settings));
+  const held = { id: book, type: 'client-health', value: { id: clientHealthWork(issue, settings).id, handoff_id: 'earlier-job' } };
+  assert.deepEqual(await reportClientHealthIssue({ stored: { records: [held] }, settings, prepareProducedJob, now: () => at }, issue), { handoff_id: 'earlier-job', key: null, keep: [] });
+  const unkept = { id: book, type: 'client-health', value: { id: clientHealthWork(issue, settings).id } };
+  const again = await reportClientHealthIssue({ stored: { records: [unkept] }, settings, prepareProducedJob, now: () => at }, issue);
+  assert.deepEqual(again.keep[1].expected, { type: 'client-health', value: unkept.value });
+  for (const context of [{}, { stored: {} }, { stored: { records: [] }, settings }])
+    await assert.rejects(reportClientHealthIssue(context, issue), /records handed in/);
 });
