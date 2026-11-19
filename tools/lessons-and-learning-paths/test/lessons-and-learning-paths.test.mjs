@@ -121,17 +121,17 @@ test('a receipt the state does not name is not the latest evaluation', () => {
   assert.equal(learningProgressViews(given, 'learner:1')[0].latestEvaluation, null);
 });
 
-test('accepting an evaluation writes the receipt once and derives the next state', () => {
+test('accepting an evaluation keeps the receipt once and derives the next state', () => {
   const plan = acceptEvaluation({ receipt: receipt(), expectedStateRevision: 0 }, null);
   assert.equal(plan.idempotent, false);
   assert.equal(plan.revision, 1);
   assert.equal(plan.decision_key, 'complete');
-  assert.equal(plan.writes.length, 2);
-  assert.deepEqual(plan.writes[0].expect, { stored: false });
-  assert.deepEqual(plan.writes[1].expect, { revision: 0 });
-  assert.equal(plan.writes[0].ref, plan.receipt_ref);
-  assert.equal(plan.writes[1].ref, plan.state_ref);
-  assert.deepEqual(plan.writes[1].record, {
+  assert.equal(plan.keep.length, 2);
+  assert.equal(plan.keep[0].expected, null);
+  assert.equal(plan.keep[1].expected, null);
+  assert.equal(plan.keep[0].ref, plan.receipt_ref);
+  assert.equal(plan.keep[1].ref, plan.state_ref);
+  assert.deepEqual(plan.keep[1].record, {
     kind: 'progress-state',
     stateId: progressStateRef('learner:1', 'track:bread'),
     learnerId: 'learner:1',
@@ -146,8 +146,16 @@ test('accepting an evaluation writes the receipt once and derives the next state
 
 test('a false decision does not finish the step, whatever the decision key says', () => {
   const plan = acceptEvaluation({ receipt: receipt({ decisionKey: 'mastered-label-cannot-unlock', decision: { completed: false } }) }, null);
-  assert.deepEqual(plan.writes[1].record.completedStepIds, []);
-  assert.equal(plan.writes[1].record.currentStepId, 'step:knead');
+  assert.deepEqual(plan.keep[1].record.completedStepIds, []);
+  assert.equal(plan.keep[1].record.currentStepId, 'step:knead');
+});
+
+test('the state a later evaluation replaces is the expected value of its keep row', () => {
+  const state = records().states[0];
+  const second = receipt({ evaluationId: 'evaluation:2', stepId: 'step:proof', decision: { completed: true, nextStepId: 'step:bake' } });
+  const out = acceptEvaluation({ receipt: second, expectedStateRevision: 1 }, state);
+  assert.equal(out.keep[0].expected, null);
+  assert.deepEqual(out.keep[1].expected, state);
 });
 
 test('a later evaluation keeps what was finished and moves the revision on', () => {
@@ -163,12 +171,12 @@ test('a later evaluation keeps what was finished and moves the revision on', () 
 
 test('the same receipt again is accepted without a second write; a changed one is refused', () => {
   const first = acceptEvaluation({ receipt: receipt() }, null);
-  const state = first.writes[1].record;
-  const again = acceptEvaluation({ receipt: receipt(), storedReceipt: first.writes[0].record }, state);
+  const state = first.keep[1].record;
+  const again = acceptEvaluation({ receipt: receipt(), storedReceipt: first.keep[0].record }, state);
   assert.equal(again.idempotent, true);
-  assert.deepEqual(again.writes, []);
+  assert.deepEqual(again.keep, []);
   assert.equal(again.revision, 1);
-  assert.throws(() => acceptEvaluation({ receipt: receipt({ score: 0.7 }), storedReceipt: first.writes[0].record }, state), /receipt conflict/);
+  assert.throws(() => acceptEvaluation({ receipt: receipt({ score: 0.7 }), storedReceipt: first.keep[0].record }, state), /receipt conflict/);
 });
 
 test('a stored receipt with no state naming it is refused', () => {
@@ -218,7 +226,7 @@ test('the two scripts read their input on standard input and print the answer on
 
   const planned = run('plan-an-evaluation-write.mjs', { receipt: receipt(), expected_state_revision: 0 });
   assert.equal(planned.status, 0);
-  assert.equal(JSON.parse(planned.stdout.trim().split('\n').pop()).writes.length, 2);
+  assert.equal(JSON.parse(planned.stdout.trim().split('\n').pop()).keep.length, 2);
 
   const refused = run('plan-an-evaluation-write.mjs', { receipt: receipt(), expected_state_revision: 5 });
   assert.notEqual(refused.status, 0);

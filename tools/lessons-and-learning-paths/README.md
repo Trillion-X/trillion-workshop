@@ -1,6 +1,6 @@
 # tools/lessons-and-learning-paths/
 
-Where a learner stands on a track of ordered steps, and the writes that accept an evaluation of a step. A track, its steps, a learner's progress state, evaluation receipts and evidence are plain records the caller reads through the records door and hands over; nothing here reads storage or the clock. Ported from bitfield-packages `learning-progress` (its read-data and do-work logic) and the pure step-to-path projection of `learning-path`. The two Workshop tools that run it in the tool container are rows in `tool-rows.json`.
+Where a learner stands on a track of ordered steps, and the keep rows that accept an evaluation of a step. A track, its steps, a learner's progress state, evaluation receipts and evidence are plain records the caller reads through the records door and hands over; nothing here reads storage or the clock. Ported from bitfield-packages `learning-progress` (its read-data and do-work logic) and the pure step-to-path projection of `learning-path`. The two Workshop tools that run it in the tool container are rows in `tool-rows.json`.
 
 ## What the old packages became
 
@@ -22,7 +22,7 @@ Where a learner stands on a track of ordered steps, and the writes that accept a
 |------|---------|
 | `do-work/learning-progress.mjs` | The engine: pure functions over the records handed in. |
 | `do-work/work-out-where-a-learner-stands.mjs` | `tool:work-out-where-a-learner-stands`: per track, the steps in order, percent finished, the step to do next, the latest evaluation, recent evidence and the path. |
-| `do-work/plan-an-evaluation-write.mjs` | `tool:plan-an-evaluation-write`: the receipt and next progress state to write for an evaluation, or idempotent with no writes, or a refusal with the reason. |
+| `do-work/plan-an-evaluation-write.mjs` | `tool:plan-an-evaluation-write`: the receipt and next progress state to write for an evaluation, or idempotent with no keep rows, or a refusal with the reason. |
 | `web/course-lesson-screen-mount.tsx` | The lesson page as a screen module: reads the lesson row the input names and draws it. |
 | `read-data/lesson-input.mjs` | What the lesson page is given for one lesson row. |
 | `packages/course-lesson/show/` | The lesson page, moved from bitfield-packages (receipt: `moved-from.json`). |
@@ -38,7 +38,7 @@ Where a learner stands on a track of ordered steps, and the writes that accept a
 | `learningProgressViews` | `({tracks, steps, states, evidence, evaluationReceipts, presentations}, learnerId?) -> View[]` | One view per track, ordered by track label. The percent is counted from the steps; a stored percent or status is ignored. |
 | `validateEvaluationReceipt` | `(receipt) -> receipt` | Throws a TypeError naming the part that is unsound. |
 | `buildEvaluationWritePlan` | `({receipt, expectedStateRevision}, currentState) -> {receiptRef, stateRef, receipt, state}` | The next state: revision + 1; a step is finished only when the receipt's `decision.completed` is true. Refuses a stale revision or another learner's state. |
-| `acceptEvaluation` | `({receipt, expectedStateRevision, storedReceipt}, currentState) -> {idempotent, writes, ...}` | The same receipt twice is accepted with no writes; a different receipt under the same id is refused. |
+| `acceptEvaluation` | `({receipt, expectedStateRevision, storedReceipt}, currentState) -> {idempotent, keep, ...}` | The same receipt twice is accepted with no keep rows; a different receipt under the same id is refused. |
 | `evaluationReceiptRef` / `progressStateRef` | `(id) / (learnerId, trackId) -> string` | The references a state keeps for its receipts, and the state's own address. |
 
 Each tool script reads the run's input as JSON on standard input and prints its result as JSON on its last line.

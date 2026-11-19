@@ -1,6 +1,6 @@
 // tools/lessons-and-learning-paths/do-work/learning-progress.mjs
 //
-// Where a learner stands on a track, and the write that accepts an evaluation of a step. Pure functions over the
+// Where a learner stands on a track, and the keep rows that accept an evaluation of a step. Pure functions over the
 // records the caller read: no disk, no clock, no storage. A track is a list of ordered steps; a learner's state on it
 // names the current step, the steps finished and the evaluations that moved it; an evaluation receipt is the one thing
 // that can finish a step. A label such as "mastered" or a stored percent never finishes anything: only the receipt's
@@ -21,16 +21,6 @@ const LEGACY_RECEIPT_REF_PREFIX = 'package::learning-progress::';
 export function namesEvaluationReceipt(refs, evaluationId) {
   const ref = evaluationReceiptRef(evaluationId);
   return [...refs].some((held) => held === ref || held === `${LEGACY_RECEIPT_REF_PREFIX}${ref}`);
-}
-
-/**
- * The refs of the writes whose record did not come back as written. `writes` is what plan-an-evaluation-write
- * returned; `readBack` maps each ref to the record read from the records door after the write (absent or null when
- * nothing was found). An empty list means both the receipt and the state are stored as planned; the caller treats
- * anything else as a failed write.
- */
-export function writesNotReadBack(writes, readBack) {
-  return writes.filter((write) => !structurallyEqual(readBack?.[write.ref] ?? null, write.record)).map((write) => write.ref);
 }
 
 /** The reference of the one state a learner has on one track. */
@@ -134,7 +124,7 @@ export function validateEvaluationReceipt(value) {
 }
 
 /**
- * The two records to write when an evaluation is accepted: the receipt (written once, never changed) and the learner's
+ * The two records to keep when an evaluation is accepted: the receipt (written once, never changed) and the learner's
  * next state (revision + 1; the step finished only when the receipt says so; the current step the receipt's next step,
  * else the one it was). Refuses a stale revision and a state that belongs to another learner or track.
  */
@@ -176,8 +166,8 @@ export function buildEvaluationWritePlan({ receipt: given, expectedStateRevision
 
 /**
  * What to do with an evaluation, given what is stored now: the receipt already stored (or null) and the state stored
- * now (or null). The same receipt twice is accepted without a second write; a different receipt under the same id is
- * refused; a new one gets its write plan.
+ * now (or null). The same receipt twice is accepted without a second keep row; a different receipt under the same id is
+ * refused; a new one gets its two records to keep.
  */
 export function acceptEvaluation({ receipt, expectedStateRevision = 0, storedReceipt = null }, currentState) {
   const checked = validateEvaluationReceipt(receipt);
@@ -188,7 +178,7 @@ export function acceptEvaluation({ receipt, expectedStateRevision = 0, storedRec
     if (!currentState || !namesEvaluationReceipt(currentState.evaluationReceiptRefs, checked.evaluationId)) {
       throw new Error('idempotent receipt exists without its derived progress state');
     }
-    return { idempotent: true, receipt_ref: receiptRef, state_ref: stateRef, revision: currentState.revision, decision_key: checked.decisionKey, writes: [] };
+    return { idempotent: true, receipt_ref: receiptRef, state_ref: stateRef, revision: currentState.revision, decision_key: checked.decisionKey, keep: [] };
   }
   const plan = buildEvaluationWritePlan({ receipt: checked, expectedStateRevision }, currentState);
   return {
@@ -197,9 +187,9 @@ export function acceptEvaluation({ receipt, expectedStateRevision = 0, storedRec
     state_ref: plan.stateRef,
     revision: plan.state.revision,
     decision_key: checked.decisionKey,
-    writes: [
-      { ref: plan.receiptRef, record: plan.receipt, expect: { stored: false } },
-      { ref: plan.stateRef, record: plan.state, expect: { revision: currentState?.revision ?? 0 } },
+    keep: [
+      { ref: plan.receiptRef, record: plan.receipt, expected: null },
+      { ref: plan.stateRef, record: plan.state, expected: currentState ?? null },
     ],
   };
 }

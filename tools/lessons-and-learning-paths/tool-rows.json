@@ -910,7 +910,7 @@
     "label": "Plan the write that accepts an evaluation of a learner's step",
     "status": "active",
     "job": "Accept the result of judging a learner's work on a step: the receipt to keep and the learner's next progress state, without applying one twice",
-    "description": "Give the evaluation receipt, the learner's current progress state (leave out if none) and the revision you expect it to be at, and the receipt already stored under that evaluation id if there is one. Returns the writes to make through the records door, each with what it expects to find (the receipt not yet stored; the state at the revision you gave), then you read both back. The step is finished only if the receipt's decision says so. The same receipt again returns idempotent with no writes; a different receipt under the same id, a stale revision, a state that belongs to another learner or track, or an unsound receipt is refused with the reason.",
+    "description": "Give the evaluation receipt, the learner's current progress state (leave out if none) and the revision you expect it to be at, and the receipt already stored under that evaluation id if there is one. Returns the keep rows: the receipt and the next state, each with the value it expects to find in your store (the receipt not yet stored; the state as you gave it), so your store keeps each one only where it still holds that value. The step is finished only if the receipt's decision says so. The same receipt again returns idempotent with no keep rows; a different receipt under the same id, a stale revision, a state that belongs to another learner or track, or an unsound receipt is refused with the reason.",
     "input_schema": {
      "type": "object",
      "required": [
@@ -1154,7 +1154,7 @@
       "receipt_ref",
       "state_ref",
       "revision",
-      "writes"
+      "keep"
      ],
      "properties": {
       "idempotent": {
@@ -1172,14 +1172,14 @@
       "decision_key": {
        "type": "string"
       },
-      "writes": {
+      "keep": {
        "type": "array",
        "items": {
         "type": "object",
         "required": [
          "ref",
          "record",
-         "expect"
+         "expected"
         ],
         "properties": {
          "ref": {
@@ -1188,9 +1188,12 @@
          "record": {
           "type": "object"
          },
-         "expect": {
-          "type": "object",
-          "description": "{stored: false} for the receipt, {revision: n} for the state"
+         "expected": {
+          "type": [
+           "object",
+           "null"
+          ],
+          "description": "The record as you gave it for this ref: null for the receipt (not stored yet), the state as you gave it for the state (null when there is none)"
          }
         }
        }
@@ -1267,7 +1270,7 @@
        },
        "expected_state_revision": 0
       },
-      "output_selector": "$.writes[1].ref",
+      "output_selector": "$.keep[1].ref",
       "contains": "progress-state::learner%3A1"
      }
     ]

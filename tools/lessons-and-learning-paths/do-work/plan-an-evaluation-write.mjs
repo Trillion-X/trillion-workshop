@@ -1,12 +1,12 @@
 // tools/lessons-and-learning-paths/do-work/plan-an-evaluation-write.mjs
 //
-// The writes that accept one evaluation of a learner's step: the receipt, then the learner's next progress state.
+// The keep rows that accept one evaluation of a learner's step: the receipt, then the learner's next progress state.
 // Run by the Workshop tool `tool:plan-an-evaluation-write` in the tool container:
 //
 //   node do-work/plan-an-evaluation-write.mjs < <the input as JSON>
 //
-// and prints { idempotent, receipt_ref, state_ref, revision, decision_key, writes } as JSON on its last line. It
-// writes nothing: the caller writes `writes` through the records door, each with its `expect`, and reads them back.
+// and prints { idempotent, receipt_ref, state_ref, revision, decision_key, keep } as JSON on its last line. It
+// keeps nothing: the caller keeps each row of `keep` in its own store, only where the row still holds its `expected`.
 // A stale revision, a conflicting receipt or an unsound receipt is refused with the reason.
 import { text } from 'node:stream/consumers';
 import { acceptEvaluation } from './learning-progress.mjs';
