@@ -229,7 +229,7 @@
               "properties": {
                 "tool": {
                   "type": "string",
-                  "const": "tool:where-someone-appeared"
+                  "const": "workflow:find-where-someone-appeared"
                 },
                 "row_ids": {
                   "type": "array",
