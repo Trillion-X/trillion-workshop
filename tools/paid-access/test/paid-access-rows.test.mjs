@@ -1,4 +1,5 @@
-// The rows run as the container runs them, with no records door handed to any row but the grant row: a file is
+// The rows run as the container runs them, with no records door handed to any row (the grant row was retired to
+// workflow:keep-paid-access-grants): a file is
 // sealed with a key handed on a private pipe and the paid-file row is answered (nothing is kept), a buyer whose
 // payment events and offers (handed in by the caller) give them the access gets a link and opens it, anyone else
 // does not, a refund closes it on the next open, and the key is never in an answer. Every value here is made up.
@@ -135,9 +136,9 @@ test('the sample runs answer as the rows say, with no records at all', async () 
   }
 });
 
-test('only the grant row reads stored records, and no row holds a key or a person', () => {
+test('no row reads or writes stored records, and no row holds a key or a person', () => {
   const all = rows.records.map(item => item.payload);
-  assert.deepEqual(all.filter(row => rightsOf(row).length).map(row => [row.id, rightsOf(row).map(right => right.kind)]), [['tool:grant-paid-access-to-people', ['access-grant']]]);
+  assert.deepEqual(all.filter(row => rightsOf(row).length), []);
   for (const row of all) {
     for (const mount of row.invoke.credential_mounts ?? []) assert.equal(mount.secret_name, 'paid-files-key');
     assert.doesNotMatch(JSON.stringify(row), /\b(?:sk|rk|whsec)_[A-Za-z0-9]/);
@@ -147,7 +148,7 @@ test('only the grant row reads stored records, and no row holds a key or a perso
   assert.deepEqual(all.filter(row => row.invoke.internet).map(row => row.id), ['tool:seal-a-paid-file']);
 });
 
-// One test per changed tool: its answer holds the whole result, from a run with no records door.
+// One test per tool: its answer holds the whole result, from a run with no records door.
 const noDoor = row => assert.equal(row.invoke.records, undefined, `${row.id} is handed no records door`);
 
 test('see-who-holds-paid-access: the answer holds who holds what, from the rows it was given', async () => {

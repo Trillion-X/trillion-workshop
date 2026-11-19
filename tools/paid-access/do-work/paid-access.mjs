@@ -2,16 +2,13 @@
 //
 // The functions the access rows run, one per job, through the records-door command:
 //   node /opt/records-door/do-work/run-an-export.mjs /opt/paid-access/do-work/paid-access.mjs <function> < input.json
-// Each is `(input, { door, nowMs? }) => result`; only the grant tool uses the door. The delivery rows run their own files in read-data/ the same way.
+// Each is `(input, { nowMs? }) => result`. No row here reads or writes the records door: the grant rows' keeping is workflow:keep-paid-access-grants. The delivery rows run their own files in read-data/ the same way.
 import { heldAccess, heldAccessOfRequest } from '../read-data/who-holds-access.mjs';
 import { decodeAddressedExpiringValueScope } from '../read-data/addressed-scope.mjs';
 import { holdsAnyRequiredAccessRef } from '../read-data/holds-any-required-access-ref.ts';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
 export { heldAccess };
-
-/** tool:grant-paid-access-to-people: the access-grant records for people who hold access by hand, and the revokes that end one. */
-export { grantAccess as grantPaidAccessToPeople } from '../read-data/access-grants.mjs';
 
 /** tool:see-who-holds-paid-access: the access refs one buyer holds now, and why. The rows come in the request; the clock is this run's own. */
 export function seeWhoHoldsPaidAccess(input, context = {}) {

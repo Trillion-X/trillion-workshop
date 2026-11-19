@@ -1,0 +1,195 @@
+{
+  "about": "workflow:keep-paid-access-grants: keeps the access grants a person gives by hand and the revokes that end them in the person's own store, each written once, with the grant rules kept as values (rule a-tool-is-only-what-the-store-cannot-do). It replaces tool:grant-paid-access-to-people in tools/paid-access, whose whole job was those writes through the records door.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-paid-access-grants",
+        "label": "Keep paid-access grants",
+        "job": "Keep the access grants a person gives by hand (a member who moved over, a gift, a pass with an end date) and the revokes that end them, in the person's own store, each one written once: the same grant asked again writes nothing, a grant with other terms is refused, and a grant whose reference was ended stays ended.",
+        "produces": "The store's own objects for access-grant records, proven on the example attempts: a grant or revoke written only when its record is absent (or on the version read), a batch all or nothing, and the grant rules kept as values the store is asked for.",
+        "source": {
+          "from": "tools/paid-access read-data/access-grants.mjs (grantRow, revokeRow, grantId, revokeId, and the write rules of grantAccess, which this recipe replaces) and tool:grant-paid-access-to-people (its row, retired in this commit), read on trillion-workshop origin/main d5f2dccec.",
+          "note": "Only the keeping is the store's job: a record, its version, and a write made only when the record is absent or still at the version read, with preconditions in the same transaction. The rules that decide what a grant is (the window, the references, the ids, the refusals) are values the owner AI works out and gives the store; grantRow and revokeRow stay in the folder as pure values for the reader and for referral-codes-and-rewards. The records door and its runner are not used."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things: the store's own address"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses, when it needs one"
+                }
+              }
+            },
+            "grants": {
+              "type": "array",
+              "maxItems": 256,
+              "description": "Grants to keep, one per person and access ref: {subject, access_ref, grant_ref?, valid_from_ms?, expires_at_ms?, note?}. The rules in the last step apply to each."
+            },
+            "revoke": {
+              "type": "array",
+              "maxItems": 256,
+              "description": "Revokes to keep: {subject, grant_ref}."
+            },
+            "operations": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Operations to run this time instead, in the store's terms: write {address, value, expected_version (null when the record must not exist)}, batch {writes, preconditions}, read {address}"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read its own description of what it holds. Submit where the access grants are already kept (kept_in, or null) and the names of the objects that already keep them.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing, make the store's own objects in its own form: access-grant records (address, value as a JSON object, version), where a version rises by one with each write and starts at 1. A write is made in one transaction only when the record's current version is the expected one (null: the record does not exist yet); otherwise it is a conflict and nothing changes. A batch makes all its writes, and checks all its preconditions, in one transaction; if any precondition or write conflicts, the whole batch is a conflict and nothing changes. A value that is not a JSON object is refused. Submit the names of the objects made, or the ones the look step found.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example attempts",
+            "do": "In a throwaway place in the same store, with the same objects, run these operations in order, each through the store's own objects: [{\"op\": \"write\", \"address\": \"access-grant:member%40example.com:grant:grant%3Aaccess%3Acourse-a\", \"value\": {\"kind\": \"license_access\", \"subject\": \"member@example.com\", \"object\": \"access:course-a\", \"material\": {\"grant_ref\": \"grant:access:course-a\"}}, \"expected_version\": null}, {\"op\": \"write\", \"address\": \"access-grant:member%40example.com:grant:grant%3Aaccess%3Acourse-a\", \"value\": {\"kind\": \"license_access\", \"subject\": \"member@example.com\", \"object\": \"access:course-a\", \"material\": {\"grant_ref\": \"grant:access:course-a\"}}, \"expected_version\": null}, {\"op\": \"read\", \"address\": \"access-grant:member%40example.com:grant:grant%3Aaccess%3Acourse-a\"}, {\"op\": \"write\", \"address\": \"access-grant:member%40example.com:revoke%3Agrant%3Aaccess%3Acourse-a\", \"value\": {\"kind\": \"revoke\", \"subject\": \"member@example.com\", \"material\": {\"revokes_grant_ref\": \"grant:access:course-a\"}}, \"expected_version\": null}, {\"op\": \"batch\", \"writes\": [{\"address\": \"access-grant:bo%40example.com:grant:grant%3Aaccess%3Acourse-a\", \"value\": {\"kind\": \"license_access\", \"subject\": \"bo@example.com\", \"object\": \"access:course-a\", \"material\": {\"grant_ref\": \"grant:access:course-a\"}}, \"expected_version\": null}], \"preconditions\": [{\"address\": \"access-grant:bo%40example.com:revoke%3Agrant%3Aaccess%3Acourse-a\", \"expected_version\": null}]}, {\"op\": \"batch\", \"writes\": [{\"address\": \"access-grant:member%40example.com:grant:grant%3Aaccess%3Acourse-a\", \"value\": {\"kind\": \"license_access\", \"subject\": \"member@example.com\", \"object\": \"access:course-a\", \"material\": {\"grant_ref\": \"grant:access:course-a\"}}, \"expected_version\": 1}], \"preconditions\": [{\"address\": \"access-grant:member%40example.com:revoke%3Agrant%3Aaccess%3Acourse-a\", \"expected_version\": null}]}, {\"op\": \"batch\", \"writes\": [{\"address\": \"access-grant:cy%40example.com:grant:grant%3Aaccess%3Acourse-a\", \"value\": {\"kind\": \"license_access\", \"subject\": \"cy@example.com\", \"object\": \"access:course-a\", \"material\": {\"grant_ref\": \"grant:access:course-a\"}}, \"expected_version\": null}, {\"address\": \"access-grant:cy%40example.com:grant:grant%3Aaccess%3Acourse-z\", \"value\": {\"kind\": \"license_access\", \"subject\": \"cy@example.com\", \"object\": \"access:course-z\", \"material\": {\"grant_ref\": \"grant:access:course-z\"}}, \"expected_version\": null}], \"preconditions\": [{\"address\": \"access-grant:member%40example.com:grant:grant%3Aaccess%3Acourse-a\", \"expected_version\": 99}]}, {\"op\": \"read\", \"address\": \"access-grant:cy%40example.com:grant:grant%3Aaccess%3Acourse-a\"}]. Answers: a write gives written or conflict; a batch gives written or conflict; a read gives {value, version} of the record, or null when there is none. Then remove the throwaway place. Submit answers: one per attempt, in order, exactly as the answers above.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "answers"
+              ],
+              "properties": {
+                "answers": {
+                  "type": "array"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "Each attempt gives the answer the intent says: the second write of the same grant conflicts, a revoke is kept, a batch whose precondition is a revoke that exists conflicts (an ended grant stays ended), and a batch that conflicts writes nothing",
+                "path": [
+                  "this",
+                  "answers"
+                ],
+                "values": [
+                  [
+                    "written",
+                    "conflict",
+                    {
+                      "value": {
+                        "kind": "license_access",
+                        "subject": "member@example.com",
+                        "object": "access:course-a",
+                        "material": {
+                          "grant_ref": "grant:access:course-a"
+                        }
+                      },
+                      "version": 1
+                    },
+                    "written",
+                    "written",
+                    "conflict",
+                    "conflict",
+                    null
+                  ]
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's grants and revokes",
+            "do": "Work out each grant and revoke from the grants and revoke given, with these rules, and run each through the store's own objects in order: (1) a grant needs a subject (the person, as the access rules name a buyer) and an access_ref; (2) grant_ref, when given, names the grant, and otherwise it is \"grant:\" and the access_ref; (3) the window needs valid_from_ms and expires_at_ms together, both whole milliseconds since 1970, and the end after the start; with neither, the grant has no window; (4) note, when given, is text and is kept trimmed; (5) a grant's id is access-grant:<encoded subject>:grant:<encoded grant_ref>, and a revoke's id is access-grant:<encoded subject>:revoke:<encoded grant_ref>, encoding each part with encodeURIComponent; (6) a grant is kept with its value {kind: \"license_access\", subject, object: access_ref, material: {grant_ref, valid_from_ms?, expires_at_ms?}, note?}, and a revoke with {kind: \"revoke\", subject, material: {revokes_grant_ref}}; (7) read the grant's id first: if the same value is there, it is already and nothing is written; if different terms are there, refuse it and say to revoke it or give a new grant_ref; (8) read the revoke id of that grant first: if it is there, refuse the grant (an ended reference stays ended; a new grant_ref is needed); (9) a record over 60000 bytes is refused; (10) the same item twice in one request is already, and the same id with other terms is refused. Write new records with expected_version null, in one batch of up to 100 records or 60000 bytes at a time, and each batch with its checks as preconditions. Submit answers (one per operation, as in the prove step), written (how many records were kept), already, refused (each with its index in the request and why), and found (each address read back, with its version).",
+            "submit": {
+              "type": "object",
+              "required": [
+                "answers",
+                "written",
+                "already",
+                "refused",
+                "found"
+              ],
+              "properties": {
+                "answers": {
+                  "type": "array"
+                },
+                "written": {
+                  "type": "integer"
+                },
+                "already": {
+                  "type": "integer"
+                },
+                "refused": {
+                  "type": "array"
+                },
+                "found": {
+                  "type": "array"
+                }
+              }
+            },
+            "checks": []
+          }
+        ],
+        "erase": "On the person's request the store deletes an access-grant record; a grant ended by a revoke is ended for good, so a later grant needs a new grant_ref."
+      }
+    }
+  ]
+}

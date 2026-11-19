@@ -1,0 +1,54 @@
+{
+  "start_here": "Say to your AI: \"Run workflow:keep-paid-access-grants with store {\\\"where\\\": \\\"postgresql database example_shop on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-shop-postgres-connection\\\"} and grants [{\\\"subject\\\": \\\"member@example.com\\\", \\\"access_ref\\\": \\\"access:sample-course\\\"}].\"",
+  "lists": [],
+  "no_lists_because": "It names no list: the access grants are kept in the person's own store, in whatever form that store keeps things, and store says where and in which language.",
+  "workflows": [
+    "workflow:keep-paid-access-grants"
+  ],
+  "tools": [
+    "tool:run-workflow-definition"
+  ],
+  "instructions": [
+    "1. Keep the store's login in your vault under a name you choose, and say where the store is and how it is spoken to.",
+    "2. Say \"Run workflow:keep-paid-access-grants\" with store, and grants (who holds access by hand, and which access ref) and revoke (whose grant ends, by its grant_ref) as you want them kept.",
+    "3. The first run makes the store's own objects once and proves them on the example attempts: every answer must be the one the intent says, or the run stops and says which.",
+    "4. Read what came back: written, already, and each refused item with its position and why. A refused grant whose reference was ended needs a new grant_ref; nothing is changed for it."
+  ],
+  "worked_examples": [
+    {
+      "title": "Give a member access by hand, as a grant with an end date",
+      "ask": "Give member@example.com paid access to access:sample-course until the end of term.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-paid-access-grants",
+              "store": {
+                "where": "postgresql database example_shop on my own computer",
+                "language": "SQL (PostgreSQL)",
+                "credential_name": "example-shop-postgres-connection"
+              },
+              "grants": [
+                {
+                  "subject": "member@example.com",
+                  "access_ref": "access:sample-course",
+                  "valid_from_ms": 1767225600000,
+                  "expires_at_ms": 1782864000000
+                }
+              ]
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-paid-access-grants",
+      "step": "keep",
+      "given": "The look step found the access-grant records kept in the store's own objects, none for this member and access ref.",
+      "hands_back": "written 1, already 0, refused [], and found access-grant:member%40example.com:grant:grant%3Aaccess%3Asample-course at version 1."
+    }
+  ],
+  "drafted_from": "tool:grant-paid-access-to-people's own row (its words, input schema and steps, retired in this commit) and tools/paid-access read-data/access-grants.mjs; the proof is the recipe's prove step, run on PGlite and a JSON folder."
+}

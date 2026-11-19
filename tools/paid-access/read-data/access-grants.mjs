@@ -1,6 +1,7 @@
 // tools/paid-access/read-data/access-grants.mjs
 //
-// Writing the grants that read-granted-access-refs.ts reads: the `access-grant` records a person keeps for people who
+// The values of the grants that read-granted-access-refs.ts reads (pure: values in, values out; the keeping is the store's,
+// see workflow:keep-paid-access-grants): the `access-grant` records a person keeps for people who
 // hold access by hand (a member who moved over from somewhere else, a gift, a pass with an end date) and the revokes
 // that end one.
 //
@@ -11,18 +12,6 @@
 // record it wrote and writes nothing. A grant left without a `grant_ref` is named `grant:<access ref>`, so one person
 // holds one such grant per access ref. The rules for a window are the reader's: both ends or neither, whole
 // milliseconds, the end after the start; anything else the reader would never hold, so it is refused here with why.
-import { isDeepStrictEqual } from 'node:util';
-import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
-import { writeBatches } from '../../records-door/read-data/write-batches.mjs';
-import { RECORD_TYPES } from './who-holds-access.mjs';
-
-export const MOST_ITEMS = 256;
-// Leave room below the door's 64 KiB message cap for the RPC wrapper and idempotency key.
-const WRITE_ROWS = 100;
-const WRITE_BYTES = 60_000;
-const READ_AT_ONCE = 16;
-const encoder = new TextEncoder();
-
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const words = value => (typeof value === 'string' && value.trim() ? value.trim() : null);
 const wholeMs = value => typeof value === 'number' && Number.isSafeInteger(value) && value >= 0;
@@ -67,63 +56,4 @@ export function revokeRow(item) {
   if (!subject) return { reason: 'subject must name the person the grant was given to' };
   if (!grantRef) return { reason: 'grant_ref must name the grant to end (a grant given without one is named "grant:" and its access ref)' };
   return { id: revokeId(subject, grantRef), subject, grantRef, value: { kind: 'revoke', subject, material: { revokes_grant_ref: grantRef } } };
-}
-
-async function inGroups(items, work) {
-  const answers = [];
-  for (let at = 0; at < items.length; at += READ_AT_ONCE) answers.push(...await Promise.all(items.slice(at, at + READ_AT_ONCE).map(work)));
-  return answers;
-}
-
-/**
- * tool:grant-paid-access-to-people: writes one `access-grant` record per grant and per revoke, once. Answers how many it
- * wrote, how many were already there, and each item refused with its position in the request (revokes count on after the
- * grants) and why. A record that cannot be read or written throws; running the request again finishes it.
- */
-export async function grantAccess(input, { door }) {
-  const grants = input?.grants;
-  const revokes = input?.revoke ?? [];
-  if (!Array.isArray(grants) || grants.length > MOST_ITEMS) throw new Error(`grants must list at most ${MOST_ITEMS} grants.`);
-  if (!Array.isArray(revokes) || revokes.length > MOST_ITEMS) throw new Error(`revoke, when given, must list at most ${MOST_ITEMS} revokes.`);
-  if (grants.length === 0 && revokes.length === 0) throw new Error('list at least one grant or revoke.');
-
-  const refused = [];
-  const asked = new Map();
-  let already = 0;
-  const wanted = [...grants.map(item => ({ ...grantRow(item), kind: 'grant' })), ...revokes.map(item => ({ ...revokeRow(item), kind: 'revoke' }))];
-  wanted.forEach((row, index) => {
-    if (row.reason) { refused.push({ index, reason: row.reason }); return; }
-    const same = asked.get(row.id);
-    if (!same) asked.set(row.id, { ...row, index });
-    else if (isDeepStrictEqual(same.value, row.value)) already += 1;
-    else refused.push({ index, reason: `an earlier item in this request gives ${row.id} different terms` });
-  });
-
-  const rows = [...asked.values()];
-  const held = await inGroups(rows, async row => ({
-    existing: await door.read(RECORD_TYPES.grant, row.id),
-    revoked: row.kind === 'grant' ? await door.read(RECORD_TYPES.grant, revokeId(row.subject, row.grantRef)) : null,
-  }));
-  const fresh = [];
-  rows.forEach((row, at) => {
-    const { existing, revoked } = held[at];
-    if (revoked) refused.push({ index: row.index, reason: `${row.grantRef} was ended for ${row.subject} and stays ended; give this grant a new grant_ref` });
-    else if (!existing) fresh.push(row);
-    else if (isDeepStrictEqual(existing, row.value)) already += 1;
-    else refused.push({ index: row.index, reason: `${row.id} is already kept with different terms; revoke ${row.grantRef} or give this grant a new grant_ref` });
-  });
-
-  const records = [];
-  for (const row of fresh) {
-    const record = { id: row.id, type: RECORD_TYPES.grant, value: row.value, expected: null };
-    if (encoder.encode(JSON.stringify(record)).length > WRITE_BYTES) {
-      refused.push({ index: row.index, reason: `this access-grant record exceeds the ${WRITE_BYTES}-byte write limit; shorten its subject, grant_ref or note` });
-    } else records.push(record);
-  }
-  const batches = writeBatches(records, { rows: WRITE_ROWS, bytes: WRITE_BYTES });
-  for (const batch of batches) {
-    const key = `grant-paid-access:${makeHashCodeHexFromBytes(encoder.encode(JSON.stringify(batch)))}`;
-    await door.write(batch, { key });
-  }
-  return { written: records.length, already, refused: refused.sort((left, right) => left.index - right.index) };
 }
