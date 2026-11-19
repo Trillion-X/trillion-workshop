@@ -15,7 +15,7 @@
 //   5. The memory is the caller's: it comes in as `entries` and goes back out as `entries`; nothing is written here.
 //
 // USAGE
-//   node /opt/records-door/do-work/run-an-export.mjs /opt/tell-a-repeated-capture-from-a-new-one/read-data/capture-dedupe.mjs dedupe
+//   node /opt/workflows/do-work/run-a-function.mjs /opt/tell-a-repeated-capture-from-a-new-one/read-data/capture-dedupe.mjs dedupe
 //
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
@@ -86,5 +86,5 @@ export const dedupeTools = {
   },
 };
 
-/** The tool-table entry as a named function, for run-an-export.mjs. */
+/** The tool-table entry as a named function, for do-work/run-a-function.mjs. */
 export const { dedupe } = dedupeTools;
