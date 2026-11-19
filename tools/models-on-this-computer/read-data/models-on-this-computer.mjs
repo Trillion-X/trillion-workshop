@@ -4,7 +4,7 @@
 //   Answers a model call with a model served on the person's own computer, so work that needs a model (checking
 //   answers, telling chatter from requests) costs nobody anything (`ask`, tool:ask-a-model), and says which free models
 //   fit this computer and gets them onto its model server (`fit`, tool:get-free-models). Runs as a `computer` row
-//   through tools/records-door/do-work/run-an-export.mjs. Moved from old trillion computer/local-models.mjs.
+//   through tools/workflows/do-work/run-a-function.mjs. Moved from old trillion computer/local-models.mjs.
 //
 // Non-negotiable invariants
 //   1. Which servers and models answer is DATA (read-data/models-on-this-computer.json); this file names none.
@@ -17,7 +17,7 @@
 //      and offers only models that fit (DATA `offer`); asked to get them, it has the server download each.
 //
 // Usage
-//   node /opt/records-door/do-work/run-an-export.mjs /opt/models-on-this-computer/read-data/models-on-this-computer.mjs ask|fit
+//   node /opt/workflows/do-work/run-a-function.mjs /opt/models-on-this-computer/read-data/models-on-this-computer.mjs ask|fit
 //
 import { cpus, homedir, totalmem } from 'node:os';
 import { readFileSync } from 'node:fs';

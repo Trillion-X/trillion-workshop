@@ -309,7 +309,7 @@ test('the local model chat builds its streamed answer as keyed parts through ask
   } finally { server.close(); }
 });
 
-test('both rows run on the person\'s computer through run-an-export, with no capability and no internet', async () => {
+test('both rows run on the person\'s computer through run-a-function, with no capability and no internet', async () => {
   const { readFileSync } = await import('node:fs');
   const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
   assert.deepEqual(rows.map(row => [row.id, row.invoke.argv.at(-1)]), [['tool:ask-a-model', 'ask'], ['tool:get-free-models', 'fit']]);

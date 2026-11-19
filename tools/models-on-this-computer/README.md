@@ -1,6 +1,6 @@
 # tools/models-on-this-computer/
 
-Asks a model served on the person's own computer a conversation or a yes-or-no question, so work that needs a model costs nobody anything, and says which free models fit this computer (its chip, memory and free space) and has its model server download them. Two `computer` rows, run through `tools/records-door/do-work/run-an-export.mjs`: `tool:ask-a-model` (`ask`) and `tool:get-free-models` (`fit`). Moved from old trillion `computer/local-models.mjs`, its settings `computer/local-models.json`, its model rows `records/local-model-records.json` and the `wired` judges of `src/decision-evals.json`.
+Asks a model served on the person's own computer a conversation or a yes-or-no question, so work that needs a model costs nobody anything, and says which free models fit this computer (its chip, memory and free space) and has its model server download them. Two `computer` rows, run through `tools/workflows/do-work/run-a-function.mjs`: `tool:ask-a-model` (`ask`) and `tool:get-free-models` (`fit`). Moved from old trillion `computer/local-models.mjs`, its settings `computer/local-models.json`, its model rows `records/local-model-records.json` and the `wired` judges of `src/decision-evals.json`.
 
 ## What it does
 
@@ -36,6 +36,6 @@ Which servers, models, jobs and offers there are is DATA: `read-data/models-on-t
 
 ## Dependencies
 
-**Depends on:** `tools/records-door` (the command that runs a function); Node 22 or later; a model server on the computer (Ollama).
+**Depends on:** `tools/workflows` (the command that runs a function); Node 22 or later; a model server on the computer (Ollama).
 
 **Depended on by:** nothing is imported from here.
