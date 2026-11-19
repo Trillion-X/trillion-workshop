@@ -52,17 +52,23 @@ pub enum Kept {
     Sqlite { file: String },
 }
 
-/// Open the rows and answer calls on `input` until it ends.
-pub fn run(kept: &Kept, state: &Path, input: impl BufRead, output: impl Write + std::marker::Send) -> Result<(), Refusal> {
-    let store: Store = match kept {
+/// The rows `kept` names, opened; with `hearing`, a Postgres store also hears other processes' changes.
+pub fn open(kept: &Kept, state: &Path, hearing: bool) -> Result<SqlStore, Refusal> {
+    Ok(match kept {
         Kept::Postgres { fd } => {
             let held = Held::from_descriptors(&[(LOGIN.0, LOGIN.1, *fd)])?;
             let name = live_namespace::secrets::held_name(LOGIN.0, LOGIN.1)?;
             let login = held.plain(&name).map_err(|_| "the database login is not attached: attach it to start the run")?;
-            Arc::new(SqlStore::open(Link::postgres(login.as_str())?)?.hearing(Link::postgres(login.as_str())?)?)
+            let store = SqlStore::open(Link::postgres(login.as_str())?)?;
+            if hearing { store.hearing(Link::postgres(login.as_str())?)? } else { store }
         }
-        Kept::Sqlite { file } => Arc::new(SqlStore::open(Link::sqlite(&state.join(file))?)?),
-    };
+        Kept::Sqlite { file } => SqlStore::open(Link::sqlite(&state.join(file))?)?,
+    })
+}
+
+/// Open the rows and answer calls on `input` until it ends.
+pub fn run(kept: &Kept, state: &Path, input: impl BufRead, output: impl Write + std::marker::Send) -> Result<(), Refusal> {
+    let store: Store = Arc::new(open(kept, state, true)?);
     let answers = state.join(ANSWERS);
     std::fs::create_dir_all(&answers)?;
     serve(&store, &answers, input, output)

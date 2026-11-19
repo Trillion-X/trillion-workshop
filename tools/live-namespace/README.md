@@ -15,6 +15,7 @@ device's folder) reaches the files through the engine's one door; plus the brows
 | `serve-shares --state FOLDER [--settings FILE]` | The public byte route of a share (below): `GET`/`HEAD` `/share/<id>/<key>` on a loopback address, by range. |
 | `account-files-bind [show] --state FOLDER` | Bind the origins of the person's files to them on purpose (`src/account_files/bind.rs`). |
 | `rows --state FOLDER (--login-fd N \| --sqlite FILE)` | MCP over stdio: the names rows answered to the files run (`src/serve/rows.rs`), one tool per operation of `Rows`, each answer a file of bytes. It is tool:your-files-names, the one run that holds the database login. |
+| `import-index --from FOLDER --origin ID --state FOLDER (--login-fd N \| --sqlite FILE) [--under FOLDER] [--batch N] [--look]` | Brings an earlier store's exported index (its tables as `<table>__NNNNNN.ndjson`) into the person's rows (`src/account_files/import_index.rs`): every name whose file its spans and chunks prove, with its file, span pages, chunks (keys carried as they are, at origin row `ID`) and folders, added through the store's `add_new` in batches (rows held or removed are left as they are, so it may run again). Prints what the export makes first; `--look` stops there. |
 
     cd tools/live-namespace
     live-namespace mcp --state ~/namespace-state [--settings FILE] [--computer JSON]

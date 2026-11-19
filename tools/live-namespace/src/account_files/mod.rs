@@ -56,6 +56,7 @@ pub mod bind;
 pub mod chunk_copies;
 pub mod counters;
 pub mod folder;
+pub mod import_index;
 pub(crate) mod names;
 pub mod objects;
 mod paged_spans;

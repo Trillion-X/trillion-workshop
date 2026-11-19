@@ -110,6 +110,13 @@ pub struct Change {
     pub value: Option<Value>,
 }
 
+/// What `add_new` did: how many rows it added, and how many it left because the store held them (or their tombstones) already.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+pub struct Added {
+    pub added: u64,
+    pub skipped: u64,
+}
+
 /// A change to one row, made only if the row is still at `expected_version`.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Mutation {
@@ -547,6 +554,116 @@ impl SqlStore {
         content_crypto::advanced::blake3::hash(&canonical).to_hex().to_string()
     }
 
+    /// Add rows the store does not hold yet, many in one transaction: the way a whole index made elsewhere (an earlier store's
+    /// export) comes in, where one `mutate` a row would cost a round trip or more each. Each row is `(scope, id, value)` and is
+    /// added at version 1, as a `mutate` at expected version 0 would add it (its minted field, when its table has one and the value
+    /// carries none, is its change order; its request key is `request_key_prefix` and its id). A row the store holds already, or
+    /// holds a tombstone of (someone removed it), is left as it is and counted as skipped, so the same rows added again change
+    /// nothing. The rows' change orders are taken together, every scope's stamp moves once, and other processes hear one change.
+    pub fn add_new(&self, rows: &[(String, String, Value)], request_key_prefix: &str) -> Result<Added, Error> {
+        if rows.is_empty() {
+            return Ok(Added { added: 0, skipped: 0 });
+        }
+        for (_, id, value) in rows {
+            if id.is_empty() {
+                return Err(Error::Invalid("a record has an id", crate::cause!()));
+            }
+            if serde_json::to_vec(value).map_err(unavailable)?.len() > MAX_RECORD_BYTES {
+                return Err(Error::Invalid("a record is at most one mebibyte", crate::cause!()));
+            }
+        }
+        let mut link = self.link.lock().map_err(unavailable)?;
+        link.begin()?;
+        match self.add_new_in(&mut link, rows, request_key_prefix) {
+            Ok(added) => {
+                link.commit()?;
+                drop(link);
+                self.signal.beat();
+                Ok(added)
+            }
+            Err(error) => {
+                link.rollback();
+                Err(error)
+            }
+        }
+    }
+
+    fn add_new_in(&self, link: &mut Link, rows: &[(String, String, Value)], request_key_prefix: &str) -> Result<Added, Error> {
+        let count = rows.len() as i64;
+        let last = link
+            .query("INSERT INTO ns_order (one, last) VALUES (1, ?) ON CONFLICT (one) DO UPDATE SET last = ns_order.last + ? RETURNING last", &[Cell::int(count), Cell::int(count)])?
+            .first()
+            .and_then(|cells| cells[0].as_int())
+            .ok_or(crate::cause!(Error::Unavailable))?;
+        let first = last - count + 1;
+        // Rows of one table go in one statement of at most this many rows (Postgres binds at most 65535 values in one statement).
+        const ROWS_AT_ONCE: usize = 500;
+        let mut by_table: Vec<(Option<&'static DeclaredTable>, Vec<(usize, &(String, String, Value))>)> = Vec::new();
+        for (at, row) in rows.iter().enumerate() {
+            let table = Self::table_of(&row.0);
+            match by_table.iter_mut().find(|(held, _)| held.map(|t| t.table.as_str()) == table.map(|t| t.table.as_str())) {
+                Some((_, held)) => held.push((at, row)),
+                None => by_table.push((table, vec![(at, row)])),
+            }
+        }
+        let mut added = 0_u64;
+        for (table, held) in by_table {
+            for batch in held.chunks(ROWS_AT_ONCE) {
+                let (name, columns) = match table {
+                    Some(table) => (table.table.as_str(), format!("{}, extra", table.column_list())),
+                    None => (declared().generic.as_str(), "value".to_owned()),
+                };
+                let mut params = Vec::new();
+                let mut tuples = Vec::with_capacity(batch.len());
+                let mut width = 0;
+                for (at, (scope, id, value)) in batch {
+                    let order = first + *at as i64;
+                    let mut value = value.clone();
+                    if let (Some(field), Some(fields)) = (table.and_then(|table| table.minted.as_deref()), value.as_object_mut()) {
+                        if fields.get(field).is_none_or(Value::is_null) {
+                            fields.insert(field.to_owned(), Value::from(order));
+                        }
+                    }
+                    let identity = Self::identity_of(&Mutation { id: id.clone(), expected_version: 0, request_key: String::new(), deleted: false, value: value.clone() });
+                    let mut cells = vec![Cell::text(scope), Cell::text(id), Cell::int(1), Cell::text(&format!("{request_key_prefix}{id}")), Cell::text(&identity)];
+                    match table {
+                        Some(table) => cells.extend(Self::cells_of(table, &value)?),
+                        None => cells.push(Cell::text(&serde_json::to_string(&value).map_err(unavailable)?)),
+                    }
+                    cells.push(Cell::int(order));
+                    width = cells.len();
+                    tuples.push(format!("({})", vec!["?"; cells.len()].join(", ")));
+                    params.extend(cells);
+                }
+                // The values' own column names differ by dialect: Postgres names them, SQLite calls them column1, column2, ...
+                let (alias, scope_column, id_column) = match self.dialect {
+                    Dialect::Postgres => (format!("v({})", (1..=width).map(|n| format!("c{n}")).collect::<Vec<_>>().join(", ")), "v.c1", "v.c2"),
+                    Dialect::Sqlite => ("v".to_owned(), "v.column1", "v.column2"),
+                };
+                let sql = format!(
+                    "INSERT INTO {name} (scope, id, version, request_key, request_identity, {columns}, changed) \
+                     SELECT * FROM (VALUES {}) AS {alias} \
+                     WHERE NOT EXISTS (SELECT 1 FROM ns_gone g WHERE g.scope = {scope_column} AND g.id = {id_column}) \
+                     ON CONFLICT (scope, id) DO NOTHING",
+                    tuples.join(", ")
+                );
+                added += link.execute(&sql, &params)?;
+            }
+        }
+        let mut scopes: Vec<&str> = rows.iter().map(|(scope, _, _)| scope.as_str()).collect();
+        scopes.sort_unstable();
+        scopes.dedup();
+        for batch in scopes.chunks(ROWS_AT_ONCE * 8) {
+            let tuples = vec!["(?, 1)"; batch.len()].join(", ");
+            let params: Vec<Cell> = batch.iter().map(|scope| Cell::text(scope)).collect();
+            link.defer(&format!("INSERT INTO ns_stamp (scope, stamp) VALUES {tuples} ON CONFLICT (scope) DO UPDATE SET stamp = ns_stamp.stamp + 1"), &params)?;
+        }
+        if self.dialect == Dialect::Postgres {
+            link.defer_plain(&format!("NOTIFY {CHANNEL}"))?;
+        }
+        Ok(Added { added, skipped: rows.len() as u64 - added })
+    }
+
     /// The next number of the store's change order. The order row stays locked until the transaction ends, so the changes commit
     /// in the order of their numbers.
     fn next_order(link: &mut Link) -> Result<i64, Error> {
@@ -951,6 +1068,33 @@ mod tests {
     }
     fn chunk(bytes: i64, origin: &str) -> Value {
         json!({"kind": "namespace-chunk", "byte_length": bytes, "origin": origin, "key": "k", "stored_at": "2026-11-16T00:00:00.000Z"})
+    }
+
+    #[test]
+    fn rows_added_together_are_kept_at_version_one_and_rows_held_or_removed_are_left_as_they_are() {
+        let store = under_test();
+        put(&store, "@namespace/names/A", "/A/held", 0, "k-held", json!({"kind": "namespace-name", "name": "/A/held"})).unwrap();
+        put(&store, "@namespace/names/A", "/A/removed", 0, "k-r1", json!({"kind": "namespace-name", "name": "/A/removed"})).unwrap();
+        remove(&store, "@namespace/names/A", "/A/removed", 1, "k-r2").unwrap();
+        let stamp = store.stamp("@namespace/names/A").unwrap();
+        let rows = vec![
+            ("@namespace/names/A".to_owned(), "/A/new".to_owned(), json!({"kind": "namespace-name", "name": "/A/new"})),
+            ("@namespace/names/A".to_owned(), "/A/held".to_owned(), json!({"kind": "namespace-name", "name": "/A/other"})),
+            ("@namespace/names/A".to_owned(), "/A/removed".to_owned(), json!({"kind": "namespace-name", "name": "/A/removed"})),
+            ("@namespace/chunks".to_owned(), "1f:aa".to_owned(), json!({"kind": "namespace-chunk", "byte_length": 3, "origin": "o", "key": "k"})),
+            ("@someone/else".to_owned(), "x".to_owned(), json!({"kind": "plain", "n": 1})),
+        ];
+        assert_eq!(store.add_new(&rows, "import:").unwrap(), Added { added: 3, skipped: 2 });
+        let new = store.get("@namespace/names/A", "/A/new").unwrap().record.unwrap();
+        assert_eq!(new.version, 1);
+        assert!(new.value["item"].as_i64().is_some_and(|item| item > 0));
+        assert_eq!(store.get("@namespace/names/A", "/A/held").unwrap().record.unwrap().value["name"], "/A/held");
+        assert!(store.get("@namespace/names/A", "/A/removed").unwrap().record.is_none());
+        assert_eq!(store.get("@namespace/chunks", "1f:aa").unwrap().record.unwrap().value["byte_length"], 3);
+        assert_eq!(store.get("@someone/else", "x").unwrap().record.unwrap().value["n"], 1);
+        assert!(store.stamp("@namespace/names/A").unwrap() > stamp);
+        put(&store, "@namespace/names/A", "/A/new", 1, "k-next", json!({"kind": "namespace-name", "name": "/A/new", "byte_length": 5})).unwrap();
+        assert_eq!(store.add_new(&rows, "import:").unwrap(), Added { added: 0, skipped: 5 });
     }
 
     #[test]

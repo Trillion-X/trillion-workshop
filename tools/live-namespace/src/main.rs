@@ -33,13 +33,14 @@ use std::{
     sync::Arc,
 };
 
-const USAGE: &str = "usage: live-namespace mcp --state FOLDER [--settings FILE] [--computer JSON] | serve-shares --state FOLDER [--settings FILE] | account-files-bind [show] --state FOLDER [--settings FILE] | rows --state FOLDER (--login-fd N | --sqlite FILE)";
+const USAGE: &str = "usage: live-namespace mcp --state FOLDER [--settings FILE] [--computer JSON] | serve-shares --state FOLDER [--settings FILE] | account-files-bind [show] --state FOLDER [--settings FILE] | rows --state FOLDER (--login-fd N | --sqlite FILE) | import-index --from FOLDER --origin ID --state FOLDER (--login-fd N | --sqlite FILE) [--under FOLDER] [--batch N] [--look]";
 
 enum Command {
     Serve { state: PathBuf, settings: Option<PathBuf>, computer: Value },
     Shares { state: PathBuf, settings: Option<PathBuf> },
     Bind { show: bool, state: PathBuf, settings: Option<PathBuf> },
     Rows { state: PathBuf, kept: serve::rows::Kept },
+    Import { from: PathBuf, origin: String, state: PathBuf, kept: serve::rows::Kept, under: Option<String>, batch: usize, look: bool },
 }
 
 /// The `--state` and `--settings` flags of a command; with no `--settings`, the settings the program was built with.
@@ -96,6 +97,27 @@ fn parse(args: &[String]) -> Result<Command, String> {
             }
             Ok(Command::Rows { state: state.ok_or(USAGE)?, kept: kept.ok_or(USAGE)? })
         }
+        "import-index" => {
+            let (mut from, mut origin, mut state, mut kept, mut under, mut batch, mut look) = (None, None, None, None, None, 2000, false);
+            let mut rest = args[1..].iter();
+            while let Some(flag) = rest.next() {
+                if flag == "--look" {
+                    look = true;
+                    continue;
+                }
+                match (flag.as_str(), rest.next()) {
+                    ("--from", Some(folder)) => from = Some(PathBuf::from(folder)),
+                    ("--origin", Some(id)) => origin = Some(id.clone()),
+                    ("--state", Some(folder)) => state = Some(PathBuf::from(folder)),
+                    ("--login-fd", Some(fd)) => kept = Some(serve::rows::Kept::Postgres { fd: fd.parse().ok().filter(|fd| *fd >= 3).ok_or(USAGE)? }),
+                    ("--sqlite", Some(file)) => kept = Some(serve::rows::Kept::Sqlite { file: file.clone() }),
+                    ("--under", Some(folder)) => under = Some(folder.clone()),
+                    ("--batch", Some(count)) => batch = count.parse().ok().filter(|count| (1..=20_000).contains(count)).ok_or(USAGE)?,
+                    _ => return Err(USAGE.into()),
+                }
+            }
+            Ok(Command::Import { from: from.ok_or(USAGE)?, origin: origin.ok_or(USAGE)?, state: state.ok_or(USAGE)?, kept: kept.ok_or(USAGE)?, under, batch, look })
+        }
         _ => Err(USAGE.into()),
     }
 }
@@ -115,6 +137,25 @@ fn run(command: Command) -> Result<(), String> {
             let settings = Settings::read_or_shipped(settings.as_deref()).map_err(|error| error.to_string())?;
             let namespace = Arc::new(Namespace::open(&settings, &state, computer).map_err(|error| error.to_string())?);
             serve::mcp::serve(namespace, BufReader::new(io::stdin()), io::stdout())
+        }
+        Command::Import { from, origin, state, kept, under, batch, look } => {
+            // What the export makes is said first; with --look nothing is written.
+            let (rows, found) = live_namespace::account_files::import_index::rows_of_export(&from, &origin, under.as_deref())?;
+            println!("{}", serde_json::json!({"found": found, "rows": rows.len()}));
+            if look {
+                return Ok(());
+            }
+            std::fs::create_dir_all(&state).map_err(|error| error.to_string())?;
+            let store = serve::rows::open(&kept, &state, false).map_err(|error| error.to_string())?;
+            let (mut added, mut skipped) = (0, 0);
+            for (at, group) in rows.chunks(batch).enumerate() {
+                let done = store.add_new(group, "import-index:").map_err(|error| format!("batch {at} was not added: {error:?}"))?;
+                added += done.added;
+                skipped += done.skipped;
+                live_namespace::quiet_eprintln!("import-index batch={at} rows={} added={} skipped={}", group.len(), done.added, done.skipped);
+            }
+            println!("{}", serde_json::json!({"added": added, "skipped": skipped}));
+            Ok(())
         }
         Command::Rows { state, kept } => {
             std::fs::create_dir_all(&state).map_err(|error| error.to_string())?;

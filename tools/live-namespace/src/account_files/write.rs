@@ -1631,7 +1631,7 @@ pub(super) fn validate_upload_id(id: &str) -> Answer<()> {
     Ok(())
 }
 
-fn validate_name(name: &str) -> Answer<()> {
+pub(super) fn validate_name(name: &str) -> Answer<()> {
     if !name.starts_with('/')
         || name.ends_with('/')
         || name.len() > 2048
