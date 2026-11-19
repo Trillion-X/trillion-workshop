@@ -1,6 +1,6 @@
 // tools/know-who-is-in-this/do-work/keep-who-appeared.mjs
 //
-// `tool:keep-who-appeared`, run as a function (tools/records-door do-work/run-an-export.mjs): turns what
+// `tool:keep-who-appeared`, run as a function (tools/workflows do-work/run-a-function.mjs): turns what
 // `tool:who-is-in-this` and `tool:find-faces` answered about one recording into rows of the person's appearances list,
 // so every person can be found with every recording, time and place where their voice was heard or face seen, and every
 // recording with the people in it. It keeps nothing: the rows to keep come back in the answer, and the consent words and

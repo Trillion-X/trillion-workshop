@@ -7,7 +7,6 @@ import test from 'node:test';
 import { readFileSync } from 'node:fs';
 import { keepWhoAppeared } from '../do-work/keep-who-appeared.mjs';
 import { ROW_PREFIX, ROW_TYPE, faceStretches, recordingKey } from '../read-data/appearances.mjs';
-import { memoryDoor } from '../../watch-my-sources/do-work/records-in-hand.mjs';
 
 const recording = `1f:${'ab'.repeat(32)}`;
 const prints = () => [
