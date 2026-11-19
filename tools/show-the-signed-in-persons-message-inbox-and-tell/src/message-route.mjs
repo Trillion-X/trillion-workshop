@@ -3,8 +3,9 @@
 // PURPOSE
 //   The web chat's message routes as one Workshop route tool the engine runs for the page's account (workshop-routes):
 //   GET /messages and GET /messages/threads (the conversations, newest first), GET /messages/thread (one conversation's
-//   messages), POST /messages/send (the person's words to one AI) and POST /messages/send-all (the person's words to all
-//   their AIs, kept in the shared Trillion conversation). Old trillion answered them in src/work-messages.mjs and
+//   messages), POST /messages/send (the person's words to one AI), POST /messages/send-all (the person's words to all
+//   their AIs, kept in the shared Trillion conversation) and POST /messages/correct (the person's own words in one of
+//   their messages, corrected in place). Old trillion answered them in src/work-messages.mjs and
 //   src/send-to-all-ais.mjs over the person store. Here the tool holds no database: the caller reads the person's
 //   message rows from the store in its own language and gives them as `stored.records`, and the rows a send makes come
 //   back as `keep`, for the caller to write where the person keeps them. Each message is one `message` row, the same
@@ -12,7 +13,7 @@
 //   `message:<at>:<24 hex of the BLAKE3 of the canonical {app, at, conversation_id, speaker, text}>`), so every AI reads it.
 //
 //   input  { path, method, query, body, browser, stored: { records: [{ id, type, value }], file_identities: [identity] } }
-//   output { status, body, keep: [{ id, type, value }] }
+//   output { status, body, keep: [{ id, type, value, replaces? }] }
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. A message sent from the page is kept word for word, once: the sender's `client_id` is its place (source_ref
@@ -20,7 +21,8 @@
 //      again is the message already kept and answers its id with `recorded: 0` and an empty `keep`. The caller gives the
 //      source-key rows and message rows it read for the send; a send with no matching row in `stored.records` is new.
 //   2. The caller writes `keep` in one batch, each row as a new row (absent before the write), so a second write of the
-//      same message cannot land twice.
+//      same message cannot land twice. The one exception is a row marked `replaces` (a correction): the caller updates
+//      the row with that id in one statement, and it must exist already.
 //   3. A read looks through at most SCAN messages given, newest first, and answers what it found with `next_before`; no
 //      read walks the whole history.
 //   4. An AI is woken the way the person's AIs take work (a waiting ai-job row, which an AI lists when it connects), kept
@@ -181,6 +183,27 @@ function sendAll(stored, body, now) {
     message: `Saved for ${addressed.length ? `${addressed.length} of your ${addressed.length === 1 ? 'AI' : 'AIs'}` : 'your AIs'}. They read it the next time they connect to your Trillion.` }, 200, kept.keep);
 }
 
+// The person's own words in one message, corrected in place: the same row (same id, so every thread and reply that names
+// it still finds it), its words replaced, and the words it had before kept in `corrected_from`, oldest first. The caller
+// writes this one row over the one it has (`replaces`), in one update. Sending the same client_id again is the same
+// correction, answered with `recorded: 0` and no row.
+function correct(stored, body, now) {
+  if (!object(body) || !nonempty(body.message_id)) throw new Refused('Choose a message to correct.');
+  const { client_id } = checked({ text: body.text, client_id: body.client_id });
+  const text = typeof body.text === 'string' ? body.text.trim() : '';
+  if (!text) throw new Refused('A corrected message needs words.');
+  const messageId = body.message_id.trim();
+  const kept = (Array.isArray(stored.records) ? stored.records : []).find(one => one?.id === messageId && one.type === TYPE && object(one.value));
+  if (!kept) throw new Refused('That message is not one of your messages.', 404);
+  if (kept.value.speaker !== 'person') throw new Refused('Only your own words can be corrected here.', 403);
+  if (client_id && kept.value.correction_client_id === client_id) return answer({ message_id: messageId, recorded: 0 });
+  if (kept.value.text === text) return answer({ message_id: messageId, recorded: 0 });
+  const at = new Date(now).toISOString();
+  const value = { ...kept.value, text, corrected_at: at, corrected_from: [...(kept.value.corrected_from ?? []), kept.value.text],
+    ...(client_id ? { correction_client_id: client_id } : {}) };
+  return answer({ message_id: messageId, recorded: 1, corrected_at: at }, 200, [{ id: messageId, type: TYPE, value, replaces: true }]);
+}
+
 function threads(stored, query) {
   const wanted = Math.min(Math.max(Math.floor(Number(query.limit) || PAGE.default), 1), PAGE.max);
   const conversations = new Map();
@@ -221,6 +244,7 @@ export async function answerTheMessageRoute(input = {}, { now = () => Date.now()
     if (method === 'GET' && path === '/messages/thread') return thread(stored, asked);
     if (method === 'POST' && path === '/messages/send') return send(stored, body, now());
     if (method === 'POST' && path === '/messages/send-all') return sendAll(stored, body, now());
+    if (method === 'POST' && path === '/messages/correct') return correct(stored, body, now());
     return refuse('Not found', 404);
   } catch (error) {
     if (error instanceof Refused) return refuse(error.message, error.status);

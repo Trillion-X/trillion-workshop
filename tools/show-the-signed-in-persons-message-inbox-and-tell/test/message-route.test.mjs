@@ -16,6 +16,12 @@ function personStore(file_identities = [FILE]) {
     stored: () => ({ records: structuredClone(records), file_identities }),
     write(batch) {
       for (const row of batch) {
+        if (row.replaces) {
+          const at = records.findIndex(one => one.id === row.id);
+          if (at < 0) throw new Error(`an update of ${row.id}, which is not kept`);
+          records[at] = structuredClone({ id: row.id, type: row.type, value: row.value });
+          continue;
+        }
         if (seen.has(row.id)) throw new Error(`a second write of ${row.id}`);
         seen.add(row.id);
         records.push(structuredClone(row));
@@ -142,6 +148,38 @@ test('send-all links an anchor and a reply, and a mentioned AI gets the job alon
   assert.deepEqual(jobsOf(store).map(job => [job.id, job.value.to_agent]), [[`ai-job:message:${sent.body.message_id}:agent:sample`, 'agent:sample']]);
   assert.deepEqual(sent.body.delivery, [{ agent_id: 'agent:sample', state: 'next_connection' }]);
   assert.equal((await route(store, '/messages/send-all', 'POST', {}, { text: 'x', mentions: [{ kind: 'NOT A KIND', value: 'v', label: 'l' }] })).status, 400);
+});
+
+test('a correction replaces the person\'s words in the same row, keeps the words before, and a repeat is the same correction', async () => {
+  const store = personStore();
+  const sent = await route(store, '/messages/send', 'POST', {}, { app: 'Claude', conversation_id: 'c', text: 'Plan the sample ferns', client_id: 'k1' });
+  const id = sent.body.message_id;
+  const fixed = await route(store, '/messages/correct', 'POST', {}, { message_id: id, text: 'Plan the sample ferns for Tuesday', client_id: 'fix-1' });
+  assert.equal(fixed.status, 200, JSON.stringify(fixed.body));
+  assert.deepEqual([fixed.body.message_id, fixed.body.recorded], [id, 1]);
+  assert.deepEqual(fixed.keep.map(one => [one.id, one.type, one.replaces]), [[id, 'message', true]]);
+  assert.equal(messageIds(store).length, 1, 'the store keeps one row for the message');
+  const value = store.records.find(one => one.id === id).value;
+  assert.deepEqual([value.text, value.corrected_from, value.source_ref, value.speaker], ['Plan the sample ferns for Tuesday', ['Plan the sample ferns'], 'client:k1', 'person']);
+  const read = await route(store, '/messages/thread', 'GET', { app: 'Claude', conversation_id: 'c' });
+  assert.deepEqual(read.body.messages.map(message => [message.id, message.text]), [[id, 'Plan the sample ferns for Tuesday']]);
+  const again = await route(store, '/messages/correct', 'POST', {}, { message_id: id, text: 'Plan the sample ferns for Tuesday', client_id: 'fix-1' });
+  assert.deepEqual([again.body.recorded, again.keep], [0, []], 'the same correction sent again keeps nothing');
+  const same = await route(store, '/messages/correct', 'POST', {}, { message_id: id, text: 'Plan the sample ferns for Tuesday', client_id: 'fix-2' });
+  assert.deepEqual([same.body.recorded, same.keep], [0, []], 'the same words are no correction');
+});
+
+test('a correction is refused for another person\'s words, an unknown message, and empty words, and keeps nothing', async () => {
+  const store = personStore();
+  await route(store, '/messages/send', 'POST', {}, { app: 'Claude', conversation_id: 'c', text: 'mine', client_id: 'k2' });
+  const mine = messageIds(store)[0];
+  store.write([{ id: 'message:assistant-1', type: 'message', value: { app: 'Claude', conversation_id: 'c', speaker: 'Claude', text: 'theirs', at: '2026-11-13T18:00:00.000Z' } }]);
+  assert.equal((await route(store, '/messages/correct', 'POST', {}, { message_id: 'message:assistant-1', text: 'changed' })).status, 403);
+  assert.equal((await route(store, '/messages/correct', 'POST', {}, { message_id: 'message:nope', text: 'changed' })).status, 404);
+  assert.equal((await route(store, '/messages/correct', 'POST', {}, { message_id: mine, text: '   ' })).body.error, 'A corrected message needs words.');
+  assert.equal((await route(store, '/messages/correct', 'POST', {}, { text: 'x' })).body.error, 'Choose a message to correct.');
+  assert.equal(store.records.find(one => one.id === mine).value.text, 'mine');
+  assert.equal(store.records.find(one => one.id === 'message:assistant-1').value.text, 'theirs');
 });
 
 test('the route is a function of its input: nothing is written by it, and the row names no records method', async () => {

@@ -433,6 +433,14 @@ export async function openConversation(recordId: string, messageId?: string, res
 /** Writes words into one conversation through its own front door, the way the chat sends them. */
 export const sendInConversation = (recordId: string, text: string) => send(canonicalConversationId(recordId), text);
 
+/** Corrects one of the person's own messages in place, through the same device outbox as a send, so it is kept and sent
+ *  again the same way. It gives no echo line (meta is left out): the message is already shown, now with the new words. */
+export async function correctInConversation(recordId: string, messageId: string, text: string): Promise<void> {
+  const canonical = canonicalConversationId(recordId);
+  await shareOutbox.deliver({ message_id: messageId, text }, { path: `${API}/correct`, key_field: 'client_id' });
+  await Promise.allSettled([publishWindow(canonical)]);
+}
+
 type Execute = { operation?: string; definition_id?: string; input?: Record<string, unknown> };
 answerTarget('slot::workflow', async request => {
   const { definition_id = '', input = {} } = (request ?? {}) as Execute;

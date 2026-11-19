@@ -6,5 +6,6 @@
   "cancel": { "intent": "cancel-pending", "label": "Don't send", "glyph": "X", "confirm": "Throw this message away without sending it?" },
   "resent": "Sent.",
   "still_waiting": "Still could not reach your account. It stays here and is sent again on its own.",
-  "gone": "That message is no longer waiting."
+  "gone": "That message is no longer waiting.",
+  "correct_waiting": "This message has not reached your account yet, so it cannot be corrected until it has."
 }

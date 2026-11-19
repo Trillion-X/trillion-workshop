@@ -25,7 +25,8 @@ import recordModel from '../record-model.json' with { type: 'json' };
 import pendingWords from './pending-sends.json';
 import { aiPresenceWords, conversationPresence, presenceWords, type Person } from './conversation-presence';
 import { contextOfRecordId } from './conversation-navigation-rows.mjs';
-import { CONVERSATIONS_ADDRESS, aiPresenceOf, cancelPending, resendPending, canonicalConversationId, everyoneConversationId, openConversation, sendInConversation, windowAddressOf, type Line } from './chat-records';
+import { pendingKeyOf } from './pending-lines';
+import { CONVERSATIONS_ADDRESS, aiPresenceOf, cancelPending, correctInConversation, resendPending, canonicalConversationId, everyoneConversationId, openConversation, sendInConversation, windowAddressOf, type Line } from './chat-records';
 import { readRecordAt, showRecords, subscribeRecordLabel } from './records';
 import { recordFilter } from './record-filter';
 import { refusal } from './failure';
@@ -63,7 +64,7 @@ function messagesOf(lines: Line[], them: string): MessageRecord[] {
 
 const MESSAGE_FIELDS = (titleOf: Map<string, string>): FieldDescriptor[] => [
   { id: 'title', label: 'Message', icon: 'MessageSquare', ruleKind: 'text', filterable: true, width: 320, role: 'title', editable: false },
-  { id: 'words', label: 'Words', icon: 'AlignLeft', kind: 'excerpt', ruleKind: 'text', filterable: true, width: 420, role: 'body', editable: false },
+  { id: 'words', label: 'Words', icon: 'AlignLeft', kind: 'excerpt', ruleKind: 'text', filterable: true, width: 420, role: 'body', editable: true },
   { id: 'author', label: 'From', icon: 'User', kind: 'tag', ruleKind: 'choice', filterable: true, groupable: true, width: 160, role: 'author', editable: false },
   { id: 'when', label: 'When', icon: 'CalendarClock', kind: 'date', ruleKind: 'date', filterable: true, sortable: true, width: 180, role: 'when', editable: false,
     factValue: (message: MessageRecord) => Date.parse(message.when), sortValue: (message: MessageRecord) => Date.parse(message.when) },
@@ -161,6 +162,12 @@ function Conversation({ focus, message }: { focus: string; message?: string }) {
     ),
   }], [focus, message, onRecordAction, onTyping, presence]);
   const compose = React.useMemo(() => ({ send: ({ text }: { text: string }) => sendInConversation(focus, text) }), [focus]);
+  // A changed words cell corrects that message in its row, through the same outbox a send uses (correctInConversation).
+  const onEditWords = React.useCallback((messageId: string, fieldId: string, value: string) => {
+    if (fieldId !== 'words') return;
+    if (pendingKeyOf(messageId) !== null) { notify(pendingWords.correct_waiting, { kind: 'error' }); return; }
+    correctInConversation(focus, messageId, value).catch((error: unknown) => notify(errorWords(error, 'Could not correct it.'), { kind: 'error' }));
+  }, [focus]);
   return (
     <RecordViews
       label={title}
@@ -173,6 +180,7 @@ function Conversation({ focus, message }: { focus: string; message?: string }) {
       defaultView="chat"
       preferenceKey="trillion-conversation-views"
       compose={compose}
+      onEditFieldValue={onEditWords}
       {...recordFilter}
       emptyMessage="Nothing said here yet."
     />
