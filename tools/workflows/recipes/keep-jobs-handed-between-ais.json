@@ -1,0 +1,253 @@
+{
+  "about": "workflow:keep-jobs-handed-between-ais: keep a person's AIs (who they are, what each can do, when each was last seen) and the jobs handed between them (waiting, taken, done, failed, withdrawn, and blocked on an owned recovery action), in the person's own store, in that store's own form and language; show who is live and how busy, what is waiting for an AI, and make every take and move conditioned on the value just read. It replaces the records the tools of tools/hand-work-to-ais kept through the retired record store. The rules of who may take, finish, release or withdraw a job, and the stale-take time, stay in that tool as values in and values out (rule a-tool-is-only-what-the-store-cannot-do).",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-jobs-handed-between-ais",
+        "label": "Keep jobs handed between a person's AIs",
+        "job": "Keep the person's AIs and the jobs handed between them in the person's own store; show who is live and how busy, what waits for an AI, and move a job only on the value just read, from the store's own objects.",
+        "produces": "The store's own objects for AIs and jobs, proven on the example AIs and jobs in three store kinds, and each new AI or job kept and read back.",
+        "source": {
+          "from": "the owner, 2026-11-18 about 10:01 PM CST: the tool that keeps AI jobs fails live because it reads its records through the retired store; the person's AIs keep their own records, and a tool keeps no records",
+          "note": "No tool keeps or reads the AIs or the jobs. The run speaks to the person's store in its own language, and hands the records it read to the authority tool (tool:hand-a-job-to-an-ai and its four siblings in tools/hand-work-to-ais) as stored.records; what that tool answers to write comes back as its keep list, and the run keeps those writes, each conditioned on the value it read."
+        },
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "store"
+          ],
+          "properties": {
+            "store": {
+              "type": "object",
+              "required": [
+                "where",
+                "language"
+              ],
+              "properties": {
+                "where": {
+                  "type": "string",
+                  "description": "Where the person keeps these things: the store's own address (a database, a sheet, a folder), as the person's own store row names it"
+                },
+                "language": {
+                  "type": "string",
+                  "description": "How that store is spoken to, in its own terms (its query language, its API, its file format)"
+                },
+                "credential_name": {
+                  "type": "string",
+                  "description": "The vault name of the login the run uses for that store, when it needs one"
+                },
+                "place": {
+                  "type": "string",
+                  "description": "Where in the store these are kept, when the person has a place for them already"
+                }
+              }
+            },
+            "ais": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "New or changed AIs to keep this run: { id: 'ai:<name>', can: [words], order, live: { seen_at, minutes } }"
+            },
+            "jobs": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "New or changed jobs to keep this run, each as the intent below describes a job: { id: 'ai-job:<key>', job, status, to, from, priority, sent_at, taker, taken_at, ... }"
+            },
+            "call": {
+              "type": "object",
+              "description": "One call of tool:hand-a-job-to-an-ai, tool:see-my-ais, tool:see-ai-work, tool:take-an-ai-job or tool:change-an-ai-job, with its input (as, job, key, id, action and the rest), to run against the records the look step read"
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "look",
+            "title": "Read what the store already keeps",
+            "do": "Speak to the store in its own language, with the login under its credential_name, and read the store's own description of what it holds (its catalog, its tables or sheets, its folder listing). Submit where AIs and jobs are already kept, if they are (kept_in, or null), and the names of the objects that already answer for them (AIs, jobs, and any view of jobs by status).",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_in",
+                "objects"
+              ],
+              "properties": {
+                "kept_in": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "render",
+            "title": "Make the store's own objects, once",
+            "do": "When the look step found nothing that keeps these, make the store's own objects for them, in the store's own form: tables or sheets for ai and ai-job, with one row per record and its value kept whole (for example a JSON column or a value cell), and a view of jobs by status. Keep the id of each record as its key, so the same id can be written only once. Make 'a job is never written except on the value just read' a rule of the store itself wherever the store has rules (for example an UPDATE that names the old value in its WHERE, or a compare-and-set on a version). Grant only what the store's holder allows the person's login (no new server-wide roles). Kept: ai: the AI's id (ai:<name>), what it can do (can: a list of words, or 'any'), its place in the person's order (order), and when it was last seen and how many minutes it counts as live (live: { seen_at, minutes }). ai-job: the job's id (ai-job:<key>), its text (job), its status (waiting, taken, blocked, done, failed or withdrawn), who it is for (to: an ai id, or null for any AI), who sent it (from), its priority (a whole number, 5 when none is given), when it was sent (sent_at), and as it moves its taker, taken_at, result, summary, finished_at, finished_by, stuck, released, withdrawn and continuation.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "objects"
+              ],
+              "properties": {
+                "objects": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": []
+          },
+          {
+            "id": "prove",
+            "title": "Prove the objects on the example AIs and jobs",
+            "do": "In a throwaway place in the same store (a schema, a copy of the sheet, a sub-folder), with the same objects, keep exactly these examples and run these calls in order, each call with the records the store then holds handed in as stored.records to tool:hand-a-job-to-an-ai, tool:see-my-ais, tool:see-ai-work, tool:take-an-ai-job or tool:change-an-ai-job, and keep each of its writes back: ais: claude-code-on-mac (can code and write, seen 5 minutes ago), codex-on-mac (can code, seen 180 minutes ago). jobs: j1 'Fix the build' waiting for any AI, sent by claude-code-on-mac 30 minutes ago; j2 'Write the summary' waiting for codex-on-mac; j3 'Old check' taken by an AI that is no longer listed, taken 200 minutes ago. Calls: who (no input), send 'Check the deploy' with key k4 twice, send to ai:nobody, take as codex-on-mac, take as claude-code-on-mac, fail j1 as claude-code-on-mac, fail j1 as codex-on-mac, a write on j2 whose value is not the one held. Submit the answer of each call and whether the store refused its write.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "answer",
+                "in_place_refused"
+              ],
+              "properties": {
+                "answer": {
+                  "type": "object"
+                },
+                "in_place_refused": {
+                  "type": [
+                    "boolean",
+                    "null"
+                  ]
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "says": "The store's own objects give every expected answer on the example AIs and jobs",
+                "path": [
+                  "this",
+                  "answer"
+                ],
+                "values": [
+                  {
+                    "who": [
+                      {
+                        "id": "ai:claude-code-on-mac",
+                        "live": true,
+                        "busy": 0
+                      },
+                      {
+                        "id": "ai:codex-on-mac",
+                        "live": false,
+                        "busy": 0
+                      }
+                    ],
+                    "send_first": {
+                      "job_id": "ai-job:k4",
+                      "status": "written"
+                    },
+                    "send_again": {
+                      "job_id": "ai-job:k4",
+                      "status": "already-there"
+                    },
+                    "send_to_nobody": {
+                      "error": "No AI ai:nobody is among this person's AIs; seeMyAis lists them, or leave to out for any AI."
+                    },
+                    "take_as_codex": {
+                      "taken": "ai-job:j1",
+                      "refused": []
+                    },
+                    "take_as_claude": {
+                      "taken": "ai-job:j3",
+                      "refused": []
+                    },
+                    "fail_j1_by_claude": {
+                      "error": "The rule for \"fail\" on a job that is taken does not hold for ai:claude-code-on-mac (the job is taken by ai:codex-on-mac, sent by ai:claude-code-on-mac)."
+                    },
+                    "fail_j1_by_codex": {
+                      "status": "failed"
+                    },
+                    "who_after": [
+                      {
+                        "id": "ai:claude-code-on-mac",
+                        "busy": 1
+                      },
+                      {
+                        "id": "ai:codex-on-mac",
+                        "busy": 0
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "kind": "covers",
+                "says": "A write on a value that is not the one held is refused",
+                "path": [
+                  "this",
+                  "in_place_refused"
+                ],
+                "values": [
+                  true
+                ]
+              }
+            ]
+          },
+          {
+            "id": "keep",
+            "title": "Keep this run's AIs and jobs",
+            "do": "Keep each AI and each job of the run's ais and jobs as its own row in the place the render step made, in the store's own language, keyed by its id so keeping it twice keeps one; a change to a job is written only on the value the run read for it, and refused otherwise. Read every id back and submit kept_ids and found_ids. A call's answer that holds keep writes (the values the authority tool hands back) is written the same way. With nothing to keep, submit two empty lists.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "kept_ids",
+                "found_ids"
+              ],
+              "properties": {
+                "kept_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "found_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "subset-of",
+                "says": "Every AI and job kept is read back",
+                "path": [
+                  "this",
+                  "kept_ids"
+                ],
+                "of": [
+                  "this",
+                  "found_ids"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
